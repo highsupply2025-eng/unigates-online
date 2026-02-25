@@ -1,21 +1,19 @@
-import NetflixHeader from "@/components/NetflixHeader";
+import SiteHeader from "@/components/SiteHeader";
 import HeroSection from "@/components/HeroSection";
-import PromoBanner from "@/components/PromoBanner";
-import TrendingSection from "@/components/TrendingSection";
+import TrendingCourses from "@/components/TrendingCourses";
 import FeaturesSection from "@/components/FeaturesSection";
 import FAQSection from "@/components/FAQSection";
-import NetflixFooter from "@/components/NetflixFooter";
+import SiteFooter from "@/components/SiteFooter";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <NetflixHeader />
+    <div className="min-h-screen bg-background text-foreground" dir="rtl">
+      <SiteHeader />
       <HeroSection />
-      <PromoBanner />
-      <TrendingSection />
+      <TrendingCourses />
       <FeaturesSection />
       <FAQSection />
-      <NetflixFooter />
+      <SiteFooter />
     </div>
   );
 };

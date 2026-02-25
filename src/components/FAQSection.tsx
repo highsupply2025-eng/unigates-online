@@ -1,6 +1,5 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Accordion,
   AccordionContent,
@@ -10,28 +9,28 @@ import {
 
 const faqs = [
   {
-    question: "What is Netflix?",
-    answer: "Netflix is a streaming service that offers a wide variety of award-winning TV shows, movies, anime, documentaries, and more on thousands of internet-connected devices.\n\nYou can watch as much as you want, whenever you want – all for one low monthly price. There's always something new to discover and new TV shows and movies are added every week!",
+    question: "ما هي منصة مَعرِفة؟",
+    answer: "مَعرِفة هي منصة تعليمية عربية تقدم دورات احترافية في مجالات متنوعة مثل البرمجة، التصميم، التسويق، وإدارة الأعمال. كل دورة مقسمة إلى حلقات قصيرة وسهلة المتابعة.",
   },
   {
-    question: "How much does Netflix cost?",
-    answer: "Watch Netflix on your smartphone, tablet, Smart TV, laptop, or streaming device, all for one fixed monthly fee. Plans range from SAR 25.99 to SAR 59.99/month (pre-tax).",
+    question: "كم تكلفة الاشتراك؟",
+    answer: "نوفر خطة مجانية تتيح لك الوصول لدورات مختارة. الاشتراك المميز يبدأ من 29 ريال شهرياً ويتيح لك الوصول لجميع الدورات والمميزات.",
   },
   {
-    question: "Where can I watch?",
-    answer: "Watch anywhere, anytime. Sign in with your Netflix account to watch instantly on the web at netflix.com from your personal computer or on any internet-connected device that offers the Netflix app, including smart TVs, smartphones, tablets, streaming media players and game consoles.\n\nYou can also download your favorite shows with the iOS or Android app. Use downloads to watch while you're on the go and without an internet connection. Take Netflix with you anywhere.",
+    question: "هل يمكنني التعلم أوفلاين؟",
+    answer: "نعم! يمكنك تحميل أي حلقة على جهازك ومشاهدتها بدون اتصال بالإنترنت. متاح على تطبيق الهاتف لنظامي iOS و Android.",
   },
   {
-    question: "How do I cancel?",
-    answer: "Netflix is flexible. You can easily cancel your account online in two clicks. There are no cancellation fees – start or stop your account anytime.",
+    question: "هل أحصل على شهادة؟",
+    answer: "نعم، عند إتمام أي دورة بنجاح ستحصل على شهادة إتمام رقمية يمكنك مشاركتها على LinkedIn أو إضافتها لسيرتك الذاتية.",
   },
   {
-    question: "What can I watch on Netflix?",
-    answer: "Netflix has an extensive library of feature films, documentaries, TV shows, anime, award-winning Netflix originals, and more. Watch as much as you want, anytime you want.",
+    question: "كيف ألغي اشتراكي؟",
+    answer: "يمكنك إلغاء اشتراكك في أي وقت من إعدادات حسابك بضغطة واحدة. لا توجد رسوم إلغاء أو التزامات طويلة الأمد.",
   },
   {
-    question: "Is Netflix good for kids?",
-    answer: "The Netflix Kids experience is included in your membership to give parents control while kids enjoy family-friendly TV shows and movies in their own space.\n\nKids profiles come with PIN-protected parental controls that let you restrict the maturity rating of content kids can watch and block specific titles you don't want kids to see.",
+    question: "هل المحتوى باللغة العربية؟",
+    answer: "نعم، جميع دوراتنا باللغة العربية مع مدربين عرب محترفين. كما نوفر ترجمات لبعض الدورات المميزة.",
   },
 ];
 
@@ -39,39 +38,32 @@ const FAQSection = () => {
   return (
     <section className="section-divider py-12 md:py-20 px-6 md:px-12">
       <div className="max-w-3xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-bold mb-6">Frequently Asked Questions</h2>
+        <h2 className="text-2xl md:text-3xl font-bold mb-6">الأسئلة الشائعة</h2>
 
         <Accordion type="single" collapsible className="space-y-2">
           {faqs.map((faq, index) => (
             <AccordionItem
               key={index}
               value={`item-${index}`}
-              className="bg-secondary border-none rounded"
+              className="bg-secondary border-none rounded-lg"
             >
-              <AccordionTrigger className="px-6 py-5 text-base md:text-lg font-medium hover:no-underline hover:bg-muted rounded text-left">
+              <AccordionTrigger className="px-6 py-5 text-base md:text-lg font-medium hover:no-underline hover:bg-muted rounded-lg text-right">
                 {faq.question}
               </AccordionTrigger>
-              <AccordionContent className="px-6 pb-5 text-base text-muted-foreground whitespace-pre-line">
+              <AccordionContent className="px-6 pb-5 text-base text-muted-foreground leading-relaxed">
                 {faq.answer}
               </AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>
 
-        <div className="mt-12 text-center">
-          <p className="text-base md:text-lg mb-5">
-            Ready to watch? Enter your email to create or restart your membership.
-          </p>
-          <form className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
-            <Input
-              type="email"
-              placeholder="Email address"
-              className="flex-1 h-14 bg-secondary border-border text-foreground placeholder:text-muted-foreground text-base"
-            />
-            <Button variant="default" size="lg" className="h-14 px-8 text-xl font-semibold gap-2">
-              Get Started <ChevronRight className="w-6 h-6" />
-            </Button>
-          </form>
+        <div className="mt-14 text-center bg-card rounded-2xl p-8 md:p-12 border border-border glow-teal">
+          <h3 className="text-2xl md:text-3xl font-bold mb-3">جاهز تبدأ رحلة التعلّم؟</h3>
+          <p className="text-muted-foreground mb-6">انضم لأكثر من 50,000 متعلّم على المنصة</p>
+          <Button variant="default" size="lg" className="h-14 px-10 text-lg font-bold gap-2">
+            <ChevronLeft className="w-5 h-5" />
+            ابدأ الآن مجاناً
+          </Button>
         </div>
       </div>
     </section>

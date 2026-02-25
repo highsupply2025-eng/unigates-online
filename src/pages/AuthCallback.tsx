@@ -17,13 +17,13 @@ const AuthCallback = () => {
 
         if (session) {
           setStatus("success");
-          setTimeout(() => navigate("/"), 2500);
+          setTimeout(() => navigate("/choose-plan"), 2500);
         } else {
           // Listen for auth state change (token might still be processing)
           const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             if (event === "SIGNED_IN" && session) {
               setStatus("success");
-              setTimeout(() => navigate("/"), 2500);
+              setTimeout(() => navigate("/choose-plan"), 2500);
               subscription.unsubscribe();
             }
           });

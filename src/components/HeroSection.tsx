@@ -1,5 +1,6 @@
 import { ChevronLeft, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import eduHeroBg from "@/assets/edu-hero-bg.jpg";
 
 const HeroSection = () => {
@@ -24,9 +25,11 @@ const HeroSection = () => {
           اكتشف مئات الدورات التعليمية المقسمة إلى حلقات قصيرة وممتعة. تعلّم في أي وقت ومن أي مكان.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button variant="default" size="lg" className="h-14 px-10 text-lg font-bold gap-2">
-            <ChevronLeft className="w-5 h-5" />
-            ابدأ التعلّم مجاناً
+          <Button variant="default" size="lg" className="h-14 px-10 text-lg font-bold gap-2" asChild>
+            <Link to="/signup">
+              <ChevronLeft className="w-5 h-5" />
+              ابدأ التعلّم مجاناً
+            </Link>
           </Button>
           <Button variant="outline" size="lg" className="h-14 px-10 text-lg font-semibold border-border hover:bg-secondary">
             تصفّح الدورات

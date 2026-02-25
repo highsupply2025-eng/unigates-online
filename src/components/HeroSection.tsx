@@ -1,40 +1,40 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronLeft, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import heroBg from "@/assets/hero-bg.jpg";
+import eduHeroBg from "@/assets/edu-hero-bg.jpg";
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-[700px] flex items-center justify-center">
+    <section className="relative min-h-[700px] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
-        <img src={heroBg} alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-background/60" />
-        <div className="absolute inset-0 netflix-gradient" />
+        <img src={eduHeroBg} alt="" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 hero-gradient" />
       </div>
 
-      <div className="relative z-10 text-center max-w-3xl mx-auto px-4 pt-24 pb-16">
-        <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight mb-4">
-          Unlimited movies, TV shows, and more
+      <div className="relative z-10 text-center max-w-3xl mx-auto px-4 pt-28 pb-20">
+        <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-4 py-1.5 mb-6 text-sm text-primary">
+          <Play className="w-3.5 h-3.5 fill-primary" />
+          <span>أكثر من 500+ دورة تعليمية</span>
+        </div>
+
+        <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight mb-5 leading-tight">
+          تعلّم بلا حدود مع
+          <span className="text-primary block mt-1">دورات احترافية</span>
         </h1>
-        <p className="text-lg md:text-xl mb-6">
-          Starts at SAR 25.99. Cancel anytime.
+        <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto leading-relaxed">
+          اكتشف مئات الدورات التعليمية المقسمة إلى حلقات قصيرة وممتعة. تعلّم في أي وقت ومن أي مكان.
         </p>
-        <p className="text-base md:text-lg mb-5">
-          Ready to watch? Enter your email to create or restart your membership.
-        </p>
-        <form className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
-          <Input
-            type="email"
-            placeholder="Email address"
-            className="flex-1 h-14 bg-background/50 border-border text-foreground placeholder:text-muted-foreground text-base backdrop-blur-sm"
-          />
-          <Button variant="default" size="lg" className="h-14 px-8 text-xl font-semibold gap-2">
-            Get Started <ChevronRight className="w-6 h-6" />
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button variant="default" size="lg" className="h-14 px-10 text-lg font-bold gap-2">
+            <ChevronLeft className="w-5 h-5" />
+            ابدأ التعلّم مجاناً
           </Button>
-        </form>
+          <Button variant="outline" size="lg" className="h-14 px-10 text-lg font-semibold border-border hover:bg-secondary">
+            تصفّح الدورات
+          </Button>
+        </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 netflix-divider" />
+      <div className="absolute bottom-0 left-0 right-0 accent-divider" />
     </section>
   );
 };

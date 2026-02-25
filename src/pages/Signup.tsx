@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { GraduationCap, Monitor, Tablet, Smartphone, ChevronLeft } from "lucide-react";
+import { GraduationCap, Monitor, Tablet, Smartphone, ChevronLeft, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -9,6 +9,11 @@ import { Separator } from "@/components/ui/separator";
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [agreed, setAgreed] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = () => {
+    if (email) setSubmitted(true);
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir="rtl">
@@ -29,68 +34,109 @@ const Signup = () => {
 
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center px-4 py-16">
-        <div className="max-w-lg w-full text-center">
-          {/* Device Icons */}
-          <div className="flex items-center justify-center gap-6 mb-8">
-            <Monitor className="w-16 h-16 text-primary stroke-[1.2]" />
-            <Tablet className="w-14 h-14 text-primary stroke-[1.2]" />
-            <Smartphone className="w-10 h-10 text-primary stroke-[1.2]" />
-          </div>
-
-          {/* Step Indicator */}
-          <p className="text-sm text-muted-foreground mb-2">
-            الخطوة <span className="font-bold text-foreground">1</span> من <span className="font-bold text-foreground">3</span>
-          </p>
-
-          {/* Title */}
-          <h1 className="text-2xl md:text-3xl font-black text-foreground mb-4">
-            أكمل إعداد حسابك
-          </h1>
-
-          {/* Description */}
-          <p className="text-muted-foreground mb-8 leading-relaxed max-w-md mx-auto">
-            سنرسل رابط التسجيل إلى بريدك الإلكتروني حتى تتمكن من استخدام{" "}
-            <span className="font-bold text-foreground">مَعرِفة</span>{" "}
-            على أي جهاز في أي وقت.
-          </p>
-
-          {/* Email Input */}
-          <div className="space-y-4 max-w-md mx-auto">
-            <Input
-              type="email"
-              placeholder="أدخل بريدك الإلكتروني"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="h-14 text-base bg-secondary border-border text-center"
-            />
-
-            {/* Checkbox */}
-            <div className="flex items-center gap-3 justify-start text-right">
-              <Checkbox
-                id="no-offers"
-                checked={agreed}
-                onCheckedChange={(checked) => setAgreed(checked as boolean)}
-                className="border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-              />
-              <label
-                htmlFor="no-offers"
-                className="text-sm text-muted-foreground cursor-pointer select-none"
-              >
-                لا ترسل لي عروض وتحديثات عبر البريد الإلكتروني
-              </label>
+        {!submitted ? (
+          /* Step 1: Enter Email */
+          <div className="max-w-lg w-full text-center">
+            <div className="flex items-center justify-center gap-6 mb-8">
+              <Monitor className="w-16 h-16 text-primary stroke-[1.2]" />
+              <Tablet className="w-14 h-14 text-primary stroke-[1.2]" />
+              <Smartphone className="w-10 h-10 text-primary stroke-[1.2]" />
             </div>
 
-            {/* Send Link Button */}
-            <Button
-              size="lg"
-              className="w-full h-14 text-lg font-bold gap-2"
-              disabled={!email}
-            >
-              <ChevronLeft className="w-5 h-5" />
-              إرسال الرابط
-            </Button>
+            <p className="text-sm text-muted-foreground mb-2">
+              الخطوة <span className="font-bold text-foreground">1</span> من <span className="font-bold text-foreground">3</span>
+            </p>
+
+            <h1 className="text-2xl md:text-3xl font-black text-foreground mb-4">
+              أكمل إعداد حسابك
+            </h1>
+
+            <p className="text-muted-foreground mb-8 leading-relaxed max-w-md mx-auto">
+              سنرسل رابط التسجيل إلى بريدك الإلكتروني حتى تتمكن من استخدام{" "}
+              <span className="font-bold text-foreground">مَعرِفة</span>{" "}
+              على أي جهاز في أي وقت.
+            </p>
+
+            <div className="space-y-4 max-w-md mx-auto">
+              <Input
+                type="email"
+                placeholder="أدخل بريدك الإلكتروني"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="h-14 text-base bg-secondary border-border text-center"
+              />
+
+              <div className="flex items-center gap-3 justify-start text-right">
+                <Checkbox
+                  id="no-offers"
+                  checked={agreed}
+                  onCheckedChange={(checked) => setAgreed(checked as boolean)}
+                  className="border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                />
+                <label htmlFor="no-offers" className="text-sm text-muted-foreground cursor-pointer select-none">
+                  لا ترسل لي عروض وتحديثات عبر البريد الإلكتروني
+                </label>
+              </div>
+
+              <Button
+                size="lg"
+                className="w-full h-14 text-lg font-bold gap-2"
+                disabled={!email}
+                onClick={handleSubmit}
+              >
+                <ChevronLeft className="w-5 h-5" />
+                إرسال الرابط
+              </Button>
+            </div>
           </div>
-        </div>
+        ) : (
+          /* Step 1 Confirmation: Check Inbox */
+          <div className="max-w-lg w-full text-center">
+            {/* Mail Icon */}
+            <div className="mb-8 flex justify-center">
+              <div className="relative">
+                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/80 to-accent/80 flex items-center justify-center shadow-lg">
+                  <Mail className="w-12 h-12 text-primary-foreground" />
+                </div>
+                <div className="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-primary animate-ping opacity-50" />
+                <div className="absolute -top-1 -left-1 w-4 h-4 rounded-full bg-primary" />
+              </div>
+            </div>
+
+            <p className="text-sm text-muted-foreground mb-2">
+              الخطوة <span className="font-bold text-foreground">1</span> من <span className="font-bold text-foreground">3</span>
+            </p>
+
+            <h1 className="text-2xl md:text-3xl font-black text-foreground mb-4">
+              تحقق من بريدك الإلكتروني
+            </h1>
+
+            <p className="text-muted-foreground mb-10 leading-relaxed max-w-md mx-auto">
+              لقد أرسلنا رابط التسجيل إلى{" "}
+              <span className="font-bold text-foreground">{email}</span>.
+              اضغط على الرابط في البريد الإلكتروني لإكمال إعداد حسابك.
+            </p>
+
+            <div className="space-y-4 max-w-md mx-auto">
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full h-14 text-lg font-semibold text-muted-foreground border-border"
+                onClick={handleSubmit}
+              >
+                إعادة إرسال الرابط
+              </Button>
+
+              <Button
+                size="lg"
+                className="w-full h-14 text-lg font-bold"
+                onClick={() => setSubmitted(false)}
+              >
+                إنشاء كلمة مرور بدلاً من ذلك
+              </Button>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Footer */}

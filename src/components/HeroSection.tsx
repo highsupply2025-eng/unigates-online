@@ -21,9 +21,6 @@ const HeroSection = () => {
           تعلّم بلا حدود مع
           <span className="text-primary block mt-1" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3)' }}>دورات احترافية</span>
         </h1>
-        <p className="text-lg md:text-xl text-white/90 mb-8 max-w-xl mx-auto leading-relaxed font-medium" style={{ textShadow: '0 1px 8px rgba(0,0,0,0.6)' }}>
-          اكتشف مئات الدورات التعليمية المقسمة إلى حلقات قصيرة وممتعة. تعلّم في أي وقت ومن أي مكان.
-        </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button variant="default" size="lg" className="h-14 px-10 text-lg font-bold gap-2" asChild>
             <Link to="/signup">

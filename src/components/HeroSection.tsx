@@ -7,7 +7,7 @@ const HeroSection = () => {
   return (
     <section className="relative min-h-[700px] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
-        <img src={eduHeroBg} alt="" className="w-full h-full object-cover" />
+        <img src={eduHeroBg} alt="" className="w-full h-full object-cover object-top" />
         <div className="absolute inset-0 hero-gradient" />
       </div>
 

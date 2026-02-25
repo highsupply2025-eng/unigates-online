@@ -1,18 +1,67 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { GraduationCap, Monitor, Tablet, Smartphone, ChevronLeft, Mail } from "lucide-react";
+import { GraduationCap, Monitor, Tablet, Smartphone, ChevronLeft, Mail, Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [usePassword, setUsePassword] = useState(false);
+  const { toast } = useToast();
 
-  const handleSubmit = () => {
-    if (email) setSubmitted(true);
+  const handleSubmit = async () => {
+    if (!email) return;
+    setLoading(true);
+    try {
+      if (usePassword) {
+        if (!password || password.length < 6) {
+          toast({ title: "خطأ", description: "كلمة المرور يجب أن تكون 6 أحرف على الأقل", variant: "destructive" });
+          setLoading(false);
+          return;
+        }
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: window.location.origin },
+        });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: { emailRedirectTo: window.location.origin },
+        });
+        if (error) throw error;
+      }
+      setSubmitted(true);
+    } catch (error: any) {
+      toast({ title: "خطأ", description: error.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: window.location.origin },
+      });
+      if (error) throw error;
+      toast({ title: "تم الإرسال", description: "تم إعادة إرسال الرابط إلى بريدك الإلكتروني" });
+    } catch (error: any) {
+      toast({ title: "خطأ", description: error.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -24,7 +73,7 @@ const Signup = () => {
             <GraduationCap className="w-8 h-8 text-primary" />
             <span className="text-2xl font-black text-foreground tracking-tight">مَعرِفة</span>
           </Link>
-          <Link to="/" className="text-sm font-semibold text-primary hover:underline">
+          <Link to="/login" className="text-sm font-semibold text-primary hover:underline">
             تسجيل الدخول
           </Link>
         </div>
@@ -35,7 +84,6 @@ const Signup = () => {
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center px-4 py-16">
         {!submitted ? (
-          /* Step 1: Enter Email */
           <div className="max-w-lg w-full text-center">
             <div className="flex items-center justify-center gap-6 mb-8">
               <Monitor className="w-16 h-16 text-primary stroke-[1.2]" />
@@ -52,9 +100,11 @@ const Signup = () => {
             </h1>
 
             <p className="text-muted-foreground mb-8 leading-relaxed max-w-md mx-auto">
-              سنرسل رابط التسجيل إلى بريدك الإلكتروني حتى تتمكن من استخدام{" "}
-              <span className="font-bold text-foreground">مَعرِفة</span>{" "}
-              على أي جهاز في أي وقت.
+              {usePassword
+                ? "أدخل بريدك الإلكتروني وكلمة مرور لإنشاء حسابك."
+                : "سنرسل رابط التسجيل إلى بريدك الإلكتروني حتى تتمكن من استخدام "}
+              {!usePassword && <span className="font-bold text-foreground">مَعرِفة</span>}
+              {!usePassword && " على أي جهاز في أي وقت."}
             </p>
 
             <div className="space-y-4 max-w-md mx-auto">
@@ -65,6 +115,16 @@ const Signup = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-14 text-base bg-secondary border-border text-center"
               />
+
+              {usePassword && (
+                <Input
+                  type="password"
+                  placeholder="كلمة المرور (6 أحرف على الأقل)"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-14 text-base bg-secondary border-border text-center"
+                />
+              )}
 
               <div className="flex items-center gap-3 justify-start text-right">
                 <Checkbox
@@ -81,18 +141,28 @@ const Signup = () => {
               <Button
                 size="lg"
                 className="w-full h-14 text-lg font-bold gap-2"
-                disabled={!email}
+                disabled={!email || loading}
                 onClick={handleSubmit}
               >
-                <ChevronLeft className="w-5 h-5" />
-                إرسال الرابط
+                {loading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <ChevronLeft className="w-5 h-5" />
+                )}
+                {usePassword ? "إنشاء الحساب" : "إرسال الرابط"}
               </Button>
+
+              <button
+                type="button"
+                onClick={() => setUsePassword(!usePassword)}
+                className="text-sm text-primary hover:underline"
+              >
+                {usePassword ? "إرسال رابط بدلاً من ذلك" : "إنشاء كلمة مرور بدلاً من ذلك"}
+              </button>
             </div>
           </div>
         ) : (
-          /* Step 1 Confirmation: Check Inbox */
           <div className="max-w-lg w-full text-center">
-            {/* Mail Icon */}
             <div className="mb-8 flex justify-center">
               <div className="relative">
                 <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/80 to-accent/80 flex items-center justify-center shadow-lg">
@@ -112,7 +182,7 @@ const Signup = () => {
             </h1>
 
             <p className="text-muted-foreground mb-10 leading-relaxed max-w-md mx-auto">
-              لقد أرسلنا رابط التسجيل إلى{" "}
+              لقد أرسلنا {usePassword ? "رابط التأكيد" : "رابط التسجيل"} إلى{" "}
               <span className="font-bold text-foreground">{email}</span>.
               اضغط على الرابط في البريد الإلكتروني لإكمال إعداد حسابك.
             </p>
@@ -122,16 +192,22 @@ const Signup = () => {
                 variant="outline"
                 size="lg"
                 className="w-full h-14 text-lg font-semibold text-muted-foreground border-border"
-                onClick={handleSubmit}
+                onClick={handleResend}
+                disabled={loading}
               >
+                {loading ? <Loader2 className="w-5 h-5 animate-spin ml-2" /> : null}
                 إعادة إرسال الرابط
               </Button>
 
               <Button
                 size="lg"
                 className="w-full h-14 text-lg font-bold"
-                onClick={() => setSubmitted(false)}
+                onClick={() => {
+                  setSubmitted(false);
+                  setUsePassword(true);
+                }}
               >
+                <Lock className="w-5 h-5 ml-2" />
                 إنشاء كلمة مرور بدلاً من ذلك
               </Button>
             </div>

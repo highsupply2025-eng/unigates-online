@@ -12,16 +12,16 @@ const HeroSection = () => {
       </div>
 
       <div className="relative z-10 text-center max-w-3xl mx-auto px-4 pt-28 pb-20">
-        <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-4 py-1.5 mb-6 text-sm text-primary">
+        <div className="inline-flex items-center gap-2 bg-white/90 backdrop-blur-sm border border-primary/30 rounded-full px-5 py-2 mb-6 text-sm font-bold text-primary shadow-lg">
           <Play className="w-3.5 h-3.5 fill-primary" />
           <span>أكثر من 500+ دورة تعليمية</span>
         </div>
 
-        <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight mb-5 leading-tight">
+        <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight mb-5 leading-tight text-white" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5)' }}>
           تعلّم بلا حدود مع
-          <span className="text-primary block mt-1">دورات احترافية</span>
+          <span className="text-primary block mt-1" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3)' }}>دورات احترافية</span>
         </h1>
-        <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto leading-relaxed">
+        <p className="text-lg md:text-xl text-white/90 mb-8 max-w-xl mx-auto leading-relaxed font-medium" style={{ textShadow: '0 1px 8px rgba(0,0,0,0.6)' }}>
           اكتشف مئات الدورات التعليمية المقسمة إلى حلقات قصيرة وممتعة. تعلّم في أي وقت ومن أي مكان.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">

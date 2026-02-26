@@ -1,23 +1,28 @@
 import { Button } from "@/components/ui/button";
 import { GraduationCap } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const SiteHeader = () => {
   return (
-    <header className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-4">
-      <div className="flex items-center gap-2">
-        <GraduationCap className="w-8 h-8 text-primary" />
-        <span className="text-xl md:text-2xl font-bold text-foreground">
+    <header className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-5">
+      <Link to="/" className="flex items-center gap-3 group">
+        <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center group-hover:bg-primary/25 transition-colors">
+          <GraduationCap className="w-7 h-7 text-primary" />
+        </div>
+        <span className="text-2xl md:text-3xl font-black text-foreground tracking-tight">
           مَعرِفة
         </span>
-      </div>
+      </Link>
 
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="sm" className="text-foreground hover:text-primary hidden md:inline-flex">
           استكشف الدورات
         </Button>
-        <Button variant="default" size="sm" className="font-semibold">
-          تسجيل الدخول
-        </Button>
+        <Link to="/login">
+          <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
+            تسجيل الدخول
+          </Button>
+        </Link>
       </div>
     </header>
   );

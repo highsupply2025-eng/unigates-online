@@ -9,10 +9,10 @@ const SiteHeader = () => {
   return (
     <header className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-5">
       <Link to="/" className="flex items-center gap-3 group">
-        <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center group-hover:bg-primary/25 transition-colors">
-          <GraduationCap className="w-7 h-7 text-primary" />
+        <div className="w-11 h-11 rounded-xl bg-primary flex items-center justify-center group-hover:bg-primary/90 transition-colors">
+          <GraduationCap className="w-7 h-7 text-primary-foreground" />
         </div>
-        <span className="text-2xl md:text-3xl font-black text-foreground tracking-tight">
+        <span className="text-2xl md:text-3xl font-black text-primary-foreground tracking-tight drop-shadow-md">
           {t.brandName}
         </span>
       </Link>

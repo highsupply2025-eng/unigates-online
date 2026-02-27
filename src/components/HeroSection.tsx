@@ -32,8 +32,10 @@ const HeroSection = () => {
               {t.hero.cta}
             </Link>
           </Button>
-          <Button variant="outline" size="lg" className="h-14 px-10 text-lg font-semibold border-border hover:bg-secondary">
-            {t.hero.browseCourses}
+          <Button variant="outline" size="lg" className="h-14 px-10 text-lg font-semibold border-border hover:bg-secondary" asChild>
+            <Link to="/courses">
+              {t.hero.browseCourses}
+            </Link>
           </Button>
         </div>
       </div>

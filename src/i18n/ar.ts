@@ -183,6 +183,19 @@ export const ar = {
     mobileNotice: "سيتم إضافة المبلغ إلى فاتورة هاتفك الجوال. تأكد من أن رقم هاتفك مسجّل لدى مزود الخدمة (STC أو Zain).",
   },
 
+  // Courses Page
+  coursesPage: {
+    title: "جميع الدورات",
+    subtitle: "تصفّح الدورات المتاحة واختر ما يناسبك",
+    allCategories: "جميع التخصصات",
+    episodes: "الحلقات",
+    episode: "الحلقة",
+    freeEpisode: "مجانية — شاهد الآن",
+    lockedEpisode: "مطلوب اشتراك",
+    moreEpisodes: "حلقة أخرى",
+    subscribeToWatch: "اشترك لمشاهدة الكل",
+  },
+
   // 404
   notFound: {
     title: "404",

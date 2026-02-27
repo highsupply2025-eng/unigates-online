@@ -23,7 +23,7 @@ const HeroSection = () => {
 
         <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight mb-5 leading-tight text-white" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5)' }}>
           {t.hero.title1}
-          <span className="text-primary block mt-1" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3)' }}>{t.hero.title2}</span>
+          <span className="text-white block mt-1" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3)' }}>{t.hero.title2}</span>
         </h1>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button variant="default" size="lg" className="h-14 px-10 text-lg font-bold gap-2" asChild>

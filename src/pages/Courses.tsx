@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { GraduationCap, Globe, Play, Clock, Lock, ChevronDown, Filter } from "lucide-react";
+import { GraduationCap, Globe, Play, Clock, Lock, ChevronDown, Filter, ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -64,6 +64,10 @@ const Courses = () => {
               <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
                 {t.login}
               </Button>
+            </Link>
+            <Link to="/" className="flex items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">
+              {t.home}
+              {language === "ar" ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
             </Link>
           </div>
         </div>

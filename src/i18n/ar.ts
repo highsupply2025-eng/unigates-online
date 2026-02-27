@@ -35,7 +35,13 @@ export const ar = {
     title1: "تعلّم بلا حدود مع",
     title2: "دورات احترافية",
     cta: "ابدأ التعلّم",
-    browseCourses: "انشر معرفتك وحقق الأرباح",
+    browseCourses: "انشر معرفتك",
+    browseCoursesSubtitle: "انشر معرفتك وحقق الأرباح",
+    stats: {
+      students: "طالب",
+      lecturers: "محاضر",
+      courses: "دورة",
+    },
   },
 
   // Features

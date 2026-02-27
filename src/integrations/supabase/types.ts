@@ -14,6 +14,77 @@ export type Database = {
   }
   public: {
     Tables: {
+      course_views: {
+        Row: {
+          course_id: string
+          id: string
+          viewed_at: string
+        }
+        Insert: {
+          course_id: string
+          id?: string
+          viewed_at?: string
+        }
+        Update: {
+          course_id?: string
+          id?: string
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_views_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          category_ar: string
+          category_en: string
+          created_at: string
+          episode_count: number
+          id: string
+          instructor_ar: string
+          instructor_en: string
+          is_free: boolean
+          thumbnail_url: string | null
+          title_ar: string
+          title_en: string
+          updated_at: string
+        }
+        Insert: {
+          category_ar: string
+          category_en: string
+          created_at?: string
+          episode_count?: number
+          id?: string
+          instructor_ar: string
+          instructor_en: string
+          is_free?: boolean
+          thumbnail_url?: string | null
+          title_ar: string
+          title_en: string
+          updated_at?: string
+        }
+        Update: {
+          category_ar?: string
+          category_en?: string
+          created_at?: string
+          episode_count?: number
+          id?: string
+          instructor_ar?: string
+          instructor_en?: string
+          is_free?: boolean
+          thumbnail_url?: string | null
+          title_ar?: string
+          title_en?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           additional_certs_urls: string[] | null
@@ -59,12 +130,44 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_top_courses: {
+        Row: {
+          calculated_at: string
+          course_id: string
+          id: string
+          view_count: number
+          week_start: string
+        }
+        Insert: {
+          calculated_at?: string
+          course_id: string
+          id?: string
+          view_count?: number
+          week_start: string
+        }
+        Update: {
+          calculated_at?: string
+          course_id?: string
+          id?: string
+          view_count?: number
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_top_courses_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_weekly_top_courses: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

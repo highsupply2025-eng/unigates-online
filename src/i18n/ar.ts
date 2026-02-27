@@ -59,16 +59,7 @@ export const ar = {
     new: "جديد",
     free: "مجاني",
     episode: "حلقة",
-    courses: [
-      { title: "أساسيات البرمجة بلغة Python", instructor: "أ. محمد العلي", category: "برمجة" },
-      { title: "تصميم واجهات المستخدم UI/UX", instructor: "أ. سارة أحمد", category: "تصميم" },
-      { title: "التسويق الرقمي من الصفر", instructor: "أ. خالد الحربي", category: "تسويق" },
-      { title: "تطوير تطبيقات الموبايل", instructor: "أ. فهد السعيد", category: "برمجة" },
-      { title: "إدارة المشاريع الاحترافية", instructor: "أ. نورة الدوسري", category: "إدارة" },
-      { title: "الذكاء الاصطناعي للمبتدئين", instructor: "د. عبدالله الشمري", category: "تقنية" },
-      { title: "تحليل البيانات مع Excel", instructor: "أ. ريم القحطاني", category: "بيانات" },
-      { title: "التصوير الفوتوغرافي", instructor: "أ. ياسر المطيري", category: "إبداع" },
-    ],
+    noCourses: "لا توجد دورات حالياً",
   },
 
   // FAQ

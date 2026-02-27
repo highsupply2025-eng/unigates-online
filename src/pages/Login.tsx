@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, ChevronLeft, Loader2 } from "lucide-react";
+import { GraduationCap, ChevronLeft, Loader2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -37,9 +37,15 @@ const Login = () => {
             <GraduationCap className="w-8 h-8 text-primary" />
             <span className="text-2xl font-black text-foreground tracking-tight">مَعرِفة</span>
           </Link>
-          <Link to="/signup" className="text-sm font-semibold text-primary hover:underline">
-            إنشاء حساب
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link to="/signup" className="text-sm font-semibold text-primary hover:underline">
+              إنشاء حساب
+            </Link>
+            <Link to="/" className="flex items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">
+              الرئيسية
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </header>
 

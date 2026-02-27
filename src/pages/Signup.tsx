@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { GraduationCap, Monitor, Tablet, Smartphone, ChevronLeft, Mail, Loader2, Lock } from "lucide-react";
+import { GraduationCap, Monitor, Tablet, Smartphone, ChevronLeft, Mail, Loader2, Lock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -73,9 +73,15 @@ const Signup = () => {
             <GraduationCap className="w-8 h-8 text-primary" />
             <span className="text-2xl font-black text-foreground tracking-tight">مَعرِفة</span>
           </Link>
-          <Link to="/login" className="text-sm font-semibold text-primary hover:underline">
-            تسجيل الدخول
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link to="/login" className="text-sm font-semibold text-primary hover:underline">
+              تسجيل الدخول
+            </Link>
+            <Link to="/" className="flex items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">
+              الرئيسية
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </header>
 

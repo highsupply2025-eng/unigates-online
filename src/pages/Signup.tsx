@@ -1,13 +1,42 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, User, BookOpen, Globe } from "lucide-react";
+import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, User, BookOpen, Globe, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+
+const countryCodes = [
+  { code: "+20", country: "🇪🇬", name: "Egypt" },
+  { code: "+966", country: "🇸🇦", name: "Saudi Arabia" },
+  { code: "+971", country: "🇦🇪", name: "UAE" },
+  { code: "+965", country: "🇰🇼", name: "Kuwait" },
+  { code: "+974", country: "🇶🇦", name: "Qatar" },
+  { code: "+973", country: "🇧🇭", name: "Bahrain" },
+  { code: "+968", country: "🇴🇲", name: "Oman" },
+  { code: "+962", country: "🇯🇴", name: "Jordan" },
+  { code: "+961", country: "🇱🇧", name: "Lebanon" },
+  { code: "+964", country: "🇮🇶", name: "Iraq" },
+  { code: "+212", country: "🇲🇦", name: "Morocco" },
+  { code: "+216", country: "🇹🇳", name: "Tunisia" },
+  { code: "+213", country: "🇩🇿", name: "Algeria" },
+  { code: "+218", country: "🇱🇾", name: "Libya" },
+  { code: "+249", country: "🇸🇩", name: "Sudan" },
+  { code: "+967", country: "🇾🇪", name: "Yemen" },
+  { code: "+963", country: "🇸🇾", name: "Syria" },
+  { code: "+970", country: "🇵🇸", name: "Palestine" },
+  { code: "+1", country: "🇺🇸", name: "USA" },
+  { code: "+44", country: "🇬🇧", name: "UK" },
+  { code: "+33", country: "🇫🇷", name: "France" },
+  { code: "+49", country: "🇩🇪", name: "Germany" },
+  { code: "+90", country: "🇹🇷", name: "Turkey" },
+];
+
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
 
 const Signup = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -19,6 +48,8 @@ const Signup = () => {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [countryCode, setCountryCode] = useState("+20");
 
   const [idPhoto, setIdPhoto] = useState<File | null>(null);
   const [idPhotoPreview, setIdPhotoPreview] = useState<string | null>(null);
@@ -77,8 +108,12 @@ const Signup = () => {
       toast({ title: t.signupPage.errorGeneric, description: t.signupPage.errorFillFields, variant: "destructive" });
       return;
     }
-    if (password.length < 6) {
-      toast({ title: t.signupPage.errorGeneric, description: t.signupPage.errorPassword, variant: "destructive" });
+    if (!PASSWORD_REGEX.test(password)) {
+      toast({ title: t.signupPage.errorGeneric, description: t.signupPage.passwordWeak, variant: "destructive" });
+      return;
+    }
+    if (password !== confirmPassword) {
+      toast({ title: t.signupPage.errorGeneric, description: t.signupPage.passwordMismatch, variant: "destructive" });
       return;
     }
 
@@ -109,7 +144,7 @@ const Signup = () => {
         user_id: userId,
         role,
         full_name: fullName,
-        phone,
+        phone: `${countryCode}${phone}`,
         email,
         id_photo_url: idPhotoUrl || null,
         university_cert_url: uniCertUrl || null,
@@ -214,7 +249,21 @@ const Signup = () => {
                 </div>
                 <div>
                   <Label htmlFor="phone" className="mb-2 block font-semibold">{t.signupPage.phone} <span className="text-destructive">{t.signupPage.required}</span></Label>
-                  <Input id="phone" type="tel" placeholder={t.signupPage.phonePlaceholder} value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12" dir="ltr" />
+                  <div className="flex gap-2" dir="ltr">
+                    <Select value={countryCode} onValueChange={setCountryCode}>
+                      <SelectTrigger className="h-12 w-[130px] shrink-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {countryCodes.map((c) => (
+                          <SelectItem key={c.code} value={c.code}>
+                            {c.country} {c.code}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input id="phone" type="tel" placeholder={t.signupPage.phonePlaceholder} value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12 flex-1" dir="ltr" />
+                  </div>
                 </div>
               </div>
 
@@ -225,7 +274,18 @@ const Signup = () => {
                 </div>
                 <div>
                   <Label htmlFor="password" className="mb-2 block font-semibold">{t.signupPage.password} <span className="text-destructive">{t.signupPage.required}</span></Label>
-                  <Input id="password" type="password" placeholder={t.signupPage.passwordPlaceholder} value={password} onChange={(e) => setPassword(e.target.value)} className="h-12" />
+                  <Input id="password" type="password" placeholder={t.signupPage.passwordPlaceholder} value={password} onChange={(e) => setPassword(e.target.value)} className="h-12" dir="ltr" />
+                  <p className="text-xs text-muted-foreground mt-1">{t.signupPage.passwordRules}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="confirmPassword" className="mb-2 block font-semibold">{t.signupPage.confirmPassword} <span className="text-destructive">{t.signupPage.required}</span></Label>
+                  <Input id="confirmPassword" type="password" placeholder={t.signupPage.confirmPasswordPlaceholder} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12" dir="ltr" />
+                  {confirmPassword && password !== confirmPassword && (
+                    <p className="text-xs text-destructive mt-1">{t.signupPage.passwordMismatch}</p>
+                  )}
                 </div>
               </div>
 
@@ -331,7 +391,7 @@ const Signup = () => {
               <Button
                 size="lg"
                 className="w-full h-14 text-lg font-bold gap-2"
-                disabled={!role || !fullName || !email || !password || !phone || loading}
+                disabled={!role || !fullName || !email || !password || !confirmPassword || password !== confirmPassword || !phone || loading}
                 onClick={handleSubmit}
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowIcon className="w-5 h-5" />}

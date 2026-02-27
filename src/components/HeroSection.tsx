@@ -1,12 +1,11 @@
-import { ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import eduHeroBg from "@/assets/edu-hero-bg.jpg";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const HeroSection = () => {
-  const { t, language } = useLanguage();
-  const ArrowIcon = language === "ar" ? ChevronLeft : ChevronRight;
+  const { t } = useLanguage();
 
   return (
     <section className="relative min-h-[700px] flex items-center justify-center overflow-hidden">
@@ -26,14 +25,13 @@ const HeroSection = () => {
           <span className="text-white" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3)' }}>{t.hero.title2}</span>
         </h1>
         <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-          <Button variant="default" size="lg" className="h-14 px-10 text-lg font-bold gap-2" asChild>
+          <Button variant="default" size="lg" className="h-14 px-10 text-lg font-bold" asChild>
             <Link to="/signup">
-              <ArrowIcon className="w-5 h-5" />
               {t.hero.cta}
             </Link>
           </Button>
-          <Button variant="default" size="lg" className="h-14 px-10 text-lg font-bold gap-2" asChild>
-            <Link to="/courses">
+          <Button variant="default" size="lg" className="h-14 px-10 text-lg font-bold" asChild>
+            <Link to="/signup/lecturer">
               {t.hero.browseCourses}
             </Link>
           </Button>

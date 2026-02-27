@@ -5,7 +5,7 @@ export const ar = {
   signup: "إنشاء حساب",
   home: "الرئيسية",
   logout: "تسجيل الخروج",
-  exploreCourses: "استكشف الدورات",
+  exploreCourses: "انشر معرفتك",
   langSwitch: "EN",
   questions: "أسئلة؟ اتصل بنا:",
   freeCall: "(مجاني)",
@@ -34,8 +34,8 @@ export const ar = {
     badge: "أكثر من 500+ دورة تعليمية",
     title1: "تعلّم بلا حدود مع",
     title2: "دورات احترافية",
-    cta: "ابدأ التعلّم مجاناً",
-    browseCourses: "تصفّح الدورات",
+    cta: "ابدأ التعلّم",
+    browseCourses: "انشر معرفتك",
   },
 
   // Features
@@ -129,6 +129,16 @@ export const ar = {
     errorPassword: "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
     errorGeneric: "خطأ",
     errorNoUser: "لم يتم إنشاء المستخدم",
+  },
+
+  // Signup Choice
+  signupChoice: {
+    title: "إنشاء حساب جديد",
+    subtitle: "اختر نوع الحساب للمتابعة",
+    studentTitle: "طالب",
+    studentDesc: "سجّل كطالب لبدء رحلة التعلّم",
+    lecturerTitle: "محاضر",
+    lecturerDesc: "سجّل كمحاضر لنشر دوراتك التعليمية",
   },
 
   // Choose Plan

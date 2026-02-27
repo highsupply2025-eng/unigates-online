@@ -47,12 +47,16 @@ const Login = () => {
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
-            <Link to="/signup" className="text-sm font-semibold text-primary hover:underline">
-              {t.signup}
+            <Link to="/signup">
+              <Button variant="default" size="sm" className="font-semibold">
+                {t.signup}
+              </Button>
             </Link>
-            <Link to="/" className="flex items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">
-              {t.home}
-              <BackArrow className="w-4 h-4" />
+            <Link to="/">
+              <Button variant="default" size="sm" className="font-semibold gap-1.5">
+                {t.home}
+                {language === "ar" ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              </Button>
             </Link>
           </div>
         </div>

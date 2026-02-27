@@ -38,25 +38,7 @@ const TrendingCourses = () => {
   return (
     <section className="py-12 md:py-20 px-6 md:px-12">
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl md:text-3xl font-bold">{t.trending.title}</h2>
-          <div className="flex gap-2">
-            <button
-              onClick={() => scroll("left")}
-              className="w-9 h-9 rounded-full border border-border bg-background flex items-center justify-center hover:bg-accent transition-colors"
-              aria-label="Scroll left"
-            >
-              <ChevronLeft className="w-5 h-5 text-foreground" />
-            </button>
-            <button
-              onClick={() => scroll("right")}
-              className="w-9 h-9 rounded-full border border-border bg-background flex items-center justify-center hover:bg-accent transition-colors"
-              aria-label="Scroll right"
-            >
-              <ChevronRight className="w-5 h-5 text-foreground" />
-            </button>
-          </div>
-        </div>
+        <h2 className="text-2xl md:text-3xl font-bold mb-4">{t.trending.title}</h2>
         <Tabs value={filter} onValueChange={setFilter} className="mb-8">
           <TabsList className="bg-transparent border border-border p-0 h-auto">
             <TabsTrigger value="popular" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-none px-4 py-2 text-sm">
@@ -71,32 +53,50 @@ const TrendingCourses = () => {
           </TabsList>
         </Tabs>
 
-        <div ref={scrollRef} className="flex gap-3 overflow-x-auto pb-4" style={{ scrollbarWidth: 'none' }}>
-          {t.trending.courses.map((course, i) => (
-            <div key={i} className="relative flex-shrink-0 w-[200px] md:w-[240px] group cursor-pointer card-hover">
-              <div className={`aspect-[3/4] rounded-lg bg-gradient-to-br ${categoryColors[course.category] || "from-slate-800 to-slate-600"} flex flex-col justify-between p-4 relative overflow-hidden`}>
-                <div className="flex justify-between items-start">
-                  <Badge className="bg-background/80 text-foreground text-xs backdrop-blur-sm hover:bg-background/80">
-                    {course.category}
-                  </Badge>
-                  <div className="w-10 h-10 rounded-full bg-background/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Play className="w-5 h-5 text-foreground fill-foreground" />
+        <div className="relative flex items-center gap-2">
+          <button
+            onClick={() => scroll("left")}
+            className="absolute -left-5 z-10 w-9 h-9 rounded-full border border-border bg-background/90 backdrop-blur-sm flex items-center justify-center hover:bg-accent transition-colors shadow-md"
+            aria-label="Scroll left"
+          >
+            <ChevronLeft className="w-5 h-5 text-foreground" />
+          </button>
+
+          <div ref={scrollRef} className="flex gap-3 overflow-x-auto pb-4 px-2" style={{ scrollbarWidth: 'none' }}>
+            {t.trending.courses.map((course, i) => (
+              <div key={i} className="relative flex-shrink-0 w-[200px] md:w-[240px] group cursor-pointer card-hover">
+                <div className={`aspect-[3/4] rounded-lg bg-gradient-to-br ${categoryColors[course.category] || "from-slate-800 to-slate-600"} flex flex-col justify-between p-4 relative overflow-hidden`}>
+                  <div className="flex justify-between items-start">
+                    <Badge className="bg-background/80 text-foreground text-xs backdrop-blur-sm hover:bg-background/80">
+                      {course.category}
+                    </Badge>
+                    <div className="w-10 h-10 rounded-full bg-background/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Play className="w-5 h-5 text-foreground fill-foreground" />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-foreground leading-snug mb-2">{course.title}</p>
+                    <p className="text-xs text-foreground/70 mb-1">{course.instructor}</p>
+                    <div className="flex items-center gap-1 text-xs text-foreground/60">
+                      <Clock className="w-3 h-3" />
+                      <span>{episodeCounts[i]} {t.trending.episode}</span>
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <p className="text-sm font-bold text-foreground leading-snug mb-2">{course.title}</p>
-                  <p className="text-xs text-foreground/70 mb-1">{course.instructor}</p>
-                  <div className="flex items-center gap-1 text-xs text-foreground/60">
-                    <Clock className="w-3 h-3" />
-                    <span>{episodeCounts[i]} {t.trending.episode}</span>
-                  </div>
-                </div>
+                <span className="absolute -right-1 -bottom-3 text-6xl md:text-7xl font-black text-foreground/10 leading-none select-none">
+                  {i + 1}
+                </span>
               </div>
-              <span className="absolute -right-1 -bottom-3 text-6xl md:text-7xl font-black text-foreground/10 leading-none select-none">
-                {i + 1}
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          <button
+            onClick={() => scroll("right")}
+            className="absolute -right-5 z-10 w-9 h-9 rounded-full border border-border bg-background/90 backdrop-blur-sm flex items-center justify-center hover:bg-accent transition-colors shadow-md"
+            aria-label="Scroll right"
+          >
+            <ChevronRight className="w-5 h-5 text-foreground" />
+          </button>
         </div>
       </div>
     </section>

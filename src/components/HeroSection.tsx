@@ -25,14 +25,14 @@ const HeroSection = () => {
           {t.hero.title1}
           <span className="text-white block mt-1" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3)' }}>{t.hero.title2}</span>
         </h1>
-        <div className="flex flex-col gap-3 justify-center items-center">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
           <Button variant="default" size="lg" className="h-14 px-10 text-lg font-bold gap-2" asChild>
             <Link to="/signup">
               <ArrowIcon className="w-5 h-5" />
               {t.hero.cta}
             </Link>
           </Button>
-          <Button variant="outline" size="lg" className="h-14 px-10 text-lg font-semibold border-border hover:bg-secondary" asChild>
+          <Button variant="default" size="lg" className="h-14 px-10 text-lg font-bold gap-2" asChild>
             <Link to="/courses">
               {t.hero.browseCourses}
             </Link>

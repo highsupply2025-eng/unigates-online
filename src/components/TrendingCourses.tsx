@@ -1,21 +1,9 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, memo } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Play, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { supabase } from "@/integrations/supabase/client";
-
-interface Course {
-  id: string;
-  title_ar: string;
-  title_en: string;
-  instructor_ar: string;
-  instructor_en: string;
-  category_ar: string;
-  category_en: string;
-  episode_count: number;
-  is_free: boolean;
-}
+import { usePopularCourses, useNewCourses, useFreeCourses, type Course } from "@/hooks/useCourses";
 
 const categoryColors: Record<string, string> = {
   "برمجة": "from-teal-800 to-teal-600",
@@ -34,109 +22,19 @@ const categoryColors: Record<string, string> = {
   "Creative": "from-purple-800 to-purple-600",
 };
 
-const TrendingCourses = () => {
+const TrendingCourses = memo(() => {
   const [filter, setFilter] = useState("popular");
   const { t, language } = useLanguage();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchCourses(filter);
-  }, [filter]);
+  const popular = usePopularCourses();
+  const newest = useNewCourses();
+  const free = useFreeCourses();
 
-  const fetchCourses = async (tab: string) => {
-    setLoading(true);
-    try {
-      if (tab === "popular") {
-        // Get weekly top courses
-        const weekStart = getWeekStart();
-        const { data: topData } = await supabase
-          .from("weekly_top_courses")
-          .select("course_id, view_count")
-          .eq("week_start", weekStart.toISOString())
-          .order("view_count", { ascending: false })
-          .limit(30);
-
-        if (topData && topData.length > 0) {
-          const courseIds = topData.map((t) => t.course_id);
-          const { data: coursesData } = await supabase
-            .from("courses")
-            .select("*")
-            .in("id", courseIds);
-
-          // Sort by view_count order
-          const ordered = courseIds
-            .map((id) => coursesData?.find((c) => c.id === id))
-            .filter(Boolean) as Course[];
-          setCourses(ordered);
-        } else {
-          // Fallback: get most viewed all-time
-          const { data: viewData } = await supabase
-            .from("course_views")
-            .select("course_id")
-            .order("viewed_at", { ascending: false })
-            .limit(200);
-
-          if (viewData && viewData.length > 0) {
-            const countMap: Record<string, number> = {};
-            viewData.forEach((v) => {
-              countMap[v.course_id] = (countMap[v.course_id] || 0) + 1;
-            });
-            const sorted = Object.entries(countMap)
-              .sort((a, b) => b[1] - a[1])
-              .slice(0, 30)
-              .map(([id]) => id);
-
-            const { data: coursesData } = await supabase
-              .from("courses")
-              .select("*")
-              .in("id", sorted);
-
-            const ordered = sorted
-              .map((id) => coursesData?.find((c) => c.id === id))
-              .filter(Boolean) as Course[];
-            setCourses(ordered);
-          } else {
-            // No views at all, show latest courses
-            const { data } = await supabase
-              .from("courses")
-              .select("*")
-              .order("created_at", { ascending: false })
-              .limit(30);
-            setCourses(data || []);
-          }
-        }
-      } else if (tab === "new") {
-        const { data } = await supabase
-          .from("courses")
-          .select("*")
-          .order("created_at", { ascending: false })
-          .limit(30);
-        setCourses(data || []);
-      } else if (tab === "free") {
-        const { data } = await supabase
-          .from("courses")
-          .select("*")
-          .eq("is_free", true)
-          .order("created_at", { ascending: false });
-        setCourses(data || []);
-      }
-    } catch (err) {
-      console.error("Error fetching courses:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getWeekStart = () => {
-    const now = new Date();
-    const day = now.getDay();
-    const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-    const weekStart = new Date(now.setDate(diff));
-    weekStart.setHours(0, 0, 0, 0);
-    return weekStart;
-  };
+  const queryMap = { popular, new: newest, free };
+  const current = queryMap[filter as keyof typeof queryMap];
+  const courses = current.data || [];
+  const loading = current.isLoading;
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
@@ -227,6 +125,8 @@ const TrendingCourses = () => {
       </div>
     </section>
   );
-};
+});
+
+TrendingCourses.displayName = "TrendingCourses";
 
 export default TrendingCourses;

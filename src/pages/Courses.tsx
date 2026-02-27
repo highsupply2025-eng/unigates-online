@@ -1,28 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { GraduationCap, Globe, Play, Clock, Lock, ChevronDown, Filter, ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { supabase } from "@/integrations/supabase/client";
+import { useAllCourses, type Course } from "@/hooks/useCourses";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-interface Course {
-  id: string;
-  title_ar: string;
-  title_en: string;
-  instructor_ar: string;
-  instructor_en: string;
-  category_ar: string;
-  category_en: string;
-  episode_count: number;
-  is_free: boolean;
-}
 
 const categoryColors: Record<string, string> = {
   "برمجة": "from-teal-800 to-teal-600",
@@ -44,20 +32,7 @@ const categoryColors: Record<string, string> = {
 const Courses = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchCourses = async () => {
-      const { data } = await supabase
-        .from("courses")
-        .select("*")
-        .order("created_at", { ascending: false });
-      setCourses(data || []);
-      setLoading(false);
-    };
-    fetchCourses();
-  }, []);
+  const { data: courses = [], isLoading: loading } = useAllCourses();
 
   const getCategory = (c: Course) => language === "ar" ? c.category_ar : c.category_en;
   const getTitle = (c: Course) => language === "ar" ? c.title_ar : c.title_en;
@@ -105,7 +80,6 @@ const Courses = () => {
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-6 md:px-12 py-10">
-        {/* Title + Category Filter */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl md:text-3xl font-black text-foreground mb-1">{t.coursesPage.title}</h1>
@@ -150,11 +124,9 @@ const Courses = () => {
         ) : filteredCourses.length === 0 ? (
           <p className="text-muted-foreground text-center py-12">{t.trending.noCourses}</p>
         ) : (
-          /* Courses Grid */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {filteredCourses.map((course) => (
               <div key={course.id} className="bg-card rounded-xl border border-border overflow-hidden card-hover group cursor-pointer">
-                {/* Course Cover */}
                 <div className={`aspect-[16/10] bg-gradient-to-br ${categoryColors[getCategory(course)] || "from-slate-800 to-slate-600"} relative flex items-center justify-center`}>
                   <div className="w-14 h-14 rounded-full bg-background/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <Play className="w-7 h-7 text-foreground fill-foreground" />
@@ -164,7 +136,6 @@ const Courses = () => {
                   </Badge>
                 </div>
 
-                {/* Course Info */}
                 <div className="p-4 space-y-3">
                   <h3 className="font-bold text-foreground leading-snug line-clamp-2">{getTitle(course)}</h3>
                   <p className="text-sm text-muted-foreground">{getInstructor(course)}</p>
@@ -176,11 +147,8 @@ const Courses = () => {
                     </div>
                   </div>
 
-                  {/* Episodes List */}
                   <div className="border-t border-border pt-3 space-y-2">
                     <p className="text-xs font-bold text-foreground">{t.coursesPage.episodes}</p>
-
-                    {/* Free Episode */}
                     <div className="flex items-center gap-3 p-2.5 rounded-lg bg-primary/5 border border-primary/20">
                       <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
                         <Play className="w-3.5 h-3.5 text-primary-foreground fill-primary-foreground" />
@@ -190,8 +158,6 @@ const Courses = () => {
                         <p className="text-xs text-primary font-medium">{t.coursesPage.freeEpisode}</p>
                       </div>
                     </div>
-
-                    {/* Locked Episodes */}
                     {[2, 3].map((ep) => (
                       <div key={ep} className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/50 opacity-60">
                         <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
@@ -203,7 +169,6 @@ const Courses = () => {
                         </div>
                       </div>
                     ))}
-
                     {course.episode_count > 3 && (
                       <p className="text-xs text-muted-foreground text-center pt-1">
                         +{course.episode_count - 3} {t.coursesPage.moreEpisodes}
@@ -223,7 +188,6 @@ const Courses = () => {
         )}
       </main>
 
-      {/* Footer */}
       <footer className="border-t border-border bg-secondary/50 px-6 py-8 mt-12">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">{t.copyright}</p>

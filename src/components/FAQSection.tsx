@@ -34,14 +34,6 @@ const FAQSection = () => {
           ))}
         </Accordion>
 
-        <div className="mt-14 text-center bg-card rounded-2xl p-8 md:p-12 border border-border glow-teal">
-          <h3 className="text-2xl md:text-3xl font-bold mb-3">{t.faq.ctaTitle}</h3>
-          <p className="text-muted-foreground mb-6">{t.faq.ctaSubtitle}</p>
-          <Button variant="default" size="lg" className="h-14 px-10 text-lg font-bold gap-2">
-            <ArrowIcon className="w-5 h-5" />
-            {t.faq.ctaButton}
-          </Button>
-        </div>
       </div>
     </section>
   );

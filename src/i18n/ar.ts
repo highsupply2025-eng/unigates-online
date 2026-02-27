@@ -116,7 +116,7 @@ export const ar = {
     passwordPlaceholder: "أدخل كلمة المرور",
     confirmPassword: "تأكيد كلمة المرور",
     confirmPasswordPlaceholder: "أعد إدخال كلمة المرور",
-    passwordRules: "يجب أن تحتوي على حرف كبير وصغير ورقم ورمز (باللغة الإنجليزية)",
+    passwordRules: "يجب أن تحتوي على حرف كبير وصغير ورقم ورمز",
     passwordMismatch: "كلمتا المرور غير متطابقتين",
     passwordWeak: "كلمة المرور لا تستوفي الشروط المطلوبة",
     required: "*",

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Play, Clock } from "lucide-react";
+import { Play, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -25,12 +25,38 @@ const categoryColors: Record<string, string> = {
 
 const TrendingCourses = () => {
   const [filter, setFilter] = useState("popular");
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: "left" | "right") => {
+    if (!scrollRef.current) return;
+    const scrollAmount = 260;
+    const dir = language === "ar" ? (direction === "left" ? scrollAmount : -scrollAmount) : (direction === "left" ? -scrollAmount : scrollAmount);
+    scrollRef.current.scrollBy({ left: dir, behavior: "smooth" });
+  };
 
   return (
     <section className="py-12 md:py-20 px-6 md:px-12">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-bold mb-4">{t.trending.title}</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl md:text-3xl font-bold">{t.trending.title}</h2>
+          <div className="flex gap-2">
+            <button
+              onClick={() => scroll("left")}
+              className="w-9 h-9 rounded-full border border-border bg-background flex items-center justify-center hover:bg-accent transition-colors"
+              aria-label="Scroll left"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+            <button
+              onClick={() => scroll("right")}
+              className="w-9 h-9 rounded-full border border-border bg-background flex items-center justify-center hover:bg-accent transition-colors"
+              aria-label="Scroll right"
+            >
+              <ChevronRight className="w-5 h-5 text-foreground" />
+            </button>
+          </div>
+        </div>
         <Tabs value={filter} onValueChange={setFilter} className="mb-8">
           <TabsList className="bg-transparent border border-border p-0 h-auto">
             <TabsTrigger value="popular" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-none px-4 py-2 text-sm">
@@ -45,7 +71,7 @@ const TrendingCourses = () => {
           </TabsList>
         </Tabs>
 
-        <div className="flex gap-3 overflow-x-auto pb-4" style={{ scrollbarWidth: 'none' }}>
+        <div ref={scrollRef} className="flex gap-3 overflow-x-auto pb-4" style={{ scrollbarWidth: 'none' }}>
           {t.trending.courses.map((course, i) => (
             <div key={i} className="relative flex-shrink-0 w-[200px] md:w-[240px] group cursor-pointer card-hover">
               <div className={`aspect-[3/4] rounded-lg bg-gradient-to-br ${categoryColors[course.category] || "from-slate-800 to-slate-600"} flex flex-col justify-between p-4 relative overflow-hidden`}>

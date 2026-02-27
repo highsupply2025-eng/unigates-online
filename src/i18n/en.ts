@@ -116,7 +116,7 @@ export const en = {
     passwordPlaceholder: "Enter password",
     confirmPassword: "Confirm Password",
     confirmPasswordPlaceholder: "Re-enter password",
-    passwordRules: "Must contain uppercase, lowercase, number & symbol (English only)",
+    passwordRules: "Must contain uppercase, lowercase, number & symbol",
     passwordMismatch: "Passwords do not match",
     passwordWeak: "Password does not meet the requirements",
     required: "*",

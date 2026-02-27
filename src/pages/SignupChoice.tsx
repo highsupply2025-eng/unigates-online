@@ -39,24 +39,14 @@ const SignupChoice = () => {
           <h1 className="text-2xl md:text-3xl font-black text-foreground mb-2">{t.signupChoice.title}</h1>
           <p className="text-muted-foreground mb-10">{t.signupChoice.subtitle}</p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <Link to="/signup/student" className="group">
+          <div className="flex justify-center">
+            <Link to="/signup/student" className="group max-w-sm w-full">
               <div className="flex flex-col items-center gap-4 p-8 rounded-2xl border-2 border-border bg-card hover:border-primary/50 hover:shadow-lg transition-all duration-200">
                 <div className="w-20 h-20 rounded-full bg-muted text-muted-foreground flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                   <BookOpen className="w-10 h-10" />
                 </div>
                 <h2 className="text-xl font-bold text-foreground">{t.signupChoice.studentTitle}</h2>
                 <p className="text-sm text-muted-foreground">{t.signupChoice.studentDesc}</p>
-              </div>
-            </Link>
-
-            <Link to="/signup/lecturer" className="group">
-              <div className="flex flex-col items-center gap-4 p-8 rounded-2xl border-2 border-border bg-card hover:border-primary/50 hover:shadow-lg transition-all duration-200">
-                <div className="w-20 h-20 rounded-full bg-muted text-muted-foreground flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                  <User className="w-10 h-10" />
-                </div>
-                <h2 className="text-xl font-bold text-foreground">{t.signupChoice.lecturerTitle}</h2>
-                <p className="text-sm text-muted-foreground">{t.signupChoice.lecturerDesc}</p>
               </div>
             </Link>
           </div>

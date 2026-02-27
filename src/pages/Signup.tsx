@@ -1,6 +1,6 @@
-import { useState, useRef, useMemo } from "react";
-import { Link } from "react-router-dom";
-import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, User, BookOpen, Globe, Phone } from "lucide-react";
+import { useState, useRef } from "react";
+import { Link, useParams } from "react-router-dom";
+import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, Globe, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,11 +39,13 @@ const countryCodes = [
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
 
 const Signup = () => {
+  const { role: roleParam } = useParams<{ role: string }>();
+  const role = roleParam === "lecturer" ? "lecturer" : "student";
+  const isLecturer = role === "lecturer";
+
   const { t, dir, language, toggleLanguage } = useLanguage();
   const ArrowIcon = language === "ar" ? ChevronLeft : ChevronRight;
-  const BackArrow = language === "ar" ? ArrowRight : ArrowLeft;
 
-  const [role, setRole] = useState<"student" | "lecturer" | null>(null);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -104,7 +106,7 @@ const Signup = () => {
   };
 
   const handleSubmit = async () => {
-    if (!role || !fullName || !email || !password || !phone) {
+    if (!fullName || !email || !password || !phone) {
       toast({ title: t.signupPage.errorGeneric, description: t.signupPage.errorFillFields, variant: "destructive" });
       return;
     }
@@ -161,6 +163,8 @@ const Signup = () => {
     }
   };
 
+  const pageTitle = isLecturer ? t.signupChoice.lecturerTitle : t.signupChoice.studentTitle;
+
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
       <header className="border-b border-border px-6 py-4">
@@ -195,52 +199,13 @@ const Signup = () => {
         {!submitted ? (
           <div className="max-w-2xl w-full">
             <div className="text-center mb-8">
-              <h1 className="text-2xl md:text-3xl font-black text-foreground mb-2">{t.signupPage.title}</h1>
+              <h1 className="text-2xl md:text-3xl font-black text-foreground mb-2">
+                {t.signupPage.title} — {pageTitle}
+              </h1>
               <p className="text-muted-foreground">{t.signupPage.subtitle}</p>
             </div>
 
             <div className="space-y-6">
-              {/* Role Selection */}
-              <div>
-                <Label className="text-base font-bold mb-3 block">{t.signupPage.accountType} <span className="text-destructive">{t.signupPage.required}</span></Label>
-                <div className="grid grid-cols-2 gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setRole("student")}
-                    className={`flex flex-col items-center gap-3 p-6 rounded-xl border-2 transition-all duration-200 ${
-                      role === "student"
-                        ? "border-primary bg-primary/10 shadow-md"
-                        : "border-border bg-card hover:border-primary/50"
-                    }`}
-                  >
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
-                      role === "student" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                    }`}>
-                      <BookOpen className="w-7 h-7" />
-                    </div>
-                    <span className={`font-bold text-lg ${role === "student" ? "text-primary" : "text-foreground"}`}>{t.signupPage.student}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setRole("lecturer")}
-                    className={`flex flex-col items-center gap-3 p-6 rounded-xl border-2 transition-all duration-200 ${
-                      role === "lecturer"
-                        ? "border-primary bg-primary/10 shadow-md"
-                        : "border-border bg-card hover:border-primary/50"
-                    }`}
-                  >
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
-                      role === "lecturer" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                    }`}>
-                      <User className="w-7 h-7" />
-                    </div>
-                    <span className={`font-bold text-lg ${role === "lecturer" ? "text-primary" : "text-foreground"}`}>{t.signupPage.lecturer}</span>
-                  </button>
-                </div>
-              </div>
-
-              <Separator />
-
               {/* Personal Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -317,7 +282,7 @@ const Signup = () => {
                 </div>
 
                 {/* University Certificate - Lecturer only */}
-                {role === "lecturer" && (
+                {isLecturer && (
                   <div>
                     <Label className="mb-2 block font-semibold">{t.signupPage.uniCert}</Label>
                     <div className="relative">
@@ -340,7 +305,7 @@ const Signup = () => {
                 )}
 
                 {/* Additional Certificates - Lecturer only */}
-                {role === "lecturer" && (
+                {isLecturer && (
                   <div>
                     <Label className="mb-2 block font-semibold">{t.signupPage.additionalCerts}</Label>
                     {additionalCertPreviews.length > 0 && (
@@ -391,7 +356,7 @@ const Signup = () => {
               <Button
                 size="lg"
                 className="w-full h-14 text-lg font-bold gap-2"
-                disabled={!role || !fullName || !email || !password || !confirmPassword || password !== confirmPassword || !phone || loading}
+                disabled={!fullName || !email || !password || !confirmPassword || password !== confirmPassword || !phone || loading}
                 onClick={handleSubmit}
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowIcon className="w-5 h-5" />}

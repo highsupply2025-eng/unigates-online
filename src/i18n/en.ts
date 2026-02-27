@@ -5,7 +5,7 @@ export const en = {
   signup: "Create Account",
   home: "Home",
   logout: "Log Out",
-  exploreCourses: "Explore Courses",
+  exploreCourses: "Share Your Knowledge",
   langSwitch: "عربي",
   questions: "Questions? Call us:",
   freeCall: "(toll-free)",
@@ -34,8 +34,8 @@ export const en = {
     badge: "500+ Educational Courses",
     title1: "Learn Without Limits with",
     title2: "Professional Courses",
-    cta: "Start Learning for Free",
-    browseCourses: "Browse Courses",
+    cta: "Start Learning",
+    browseCourses: "Share Your Knowledge",
   },
 
   // Features
@@ -129,6 +129,16 @@ export const en = {
     errorPassword: "Password must be at least 6 characters",
     errorGeneric: "Error",
     errorNoUser: "User was not created",
+  },
+
+  // Signup Choice
+  signupChoice: {
+    title: "Create New Account",
+    subtitle: "Choose your account type to continue",
+    studentTitle: "Student",
+    studentDesc: "Register as a student to start learning",
+    lecturerTitle: "Lecturer",
+    lecturerDesc: "Register as a lecturer to publish your courses",
   },
 
   // Choose Plan

@@ -5,7 +5,7 @@ export const en = {
   signup: "Create Account",
   home: "Home",
   logout: "Log Out",
-  exploreCourses: "Share Your Knowledge",
+  exploreCourses: "Explore Courses",
   langSwitch: "عربي",
   questions: "Questions? Call us:",
   freeCall: "(toll-free)",

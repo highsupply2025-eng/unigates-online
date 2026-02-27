@@ -5,7 +5,7 @@ export const ar = {
   signup: "إنشاء حساب",
   home: "الرئيسية",
   logout: "تسجيل الخروج",
-  exploreCourses: "انشر معرفتك",
+  exploreCourses: "استكشف الدورات",
   langSwitch: "EN",
   questions: "أسئلة؟ اتصل بنا:",
   freeCall: "(مجاني)",

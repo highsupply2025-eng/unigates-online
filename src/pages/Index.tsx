@@ -4,6 +4,7 @@ import TrendingCourses from "@/components/TrendingCourses";
 import FeaturesSection from "@/components/FeaturesSection";
 import FAQSection from "@/components/FAQSection";
 import SiteFooter from "@/components/SiteFooter";
+import StatsSection from "@/components/StatsSection";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
@@ -16,6 +17,7 @@ const Index = () => {
       <TrendingCourses />
       <FeaturesSection />
       <FAQSection />
+      <StatsSection />
       <SiteFooter />
     </div>
   );

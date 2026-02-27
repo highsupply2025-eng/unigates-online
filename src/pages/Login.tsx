@@ -43,7 +43,7 @@ const Login = () => {
             <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={toggleLanguage} className="gap-1.5">
+            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>

@@ -27,9 +27,11 @@ const SiteHeader = () => {
           <Globe className="w-4 h-4" />
           {t.langSwitch}
         </Button>
-        <Button variant="default" size="sm" className="font-semibold hidden md:inline-flex">
-          {t.exploreCourses}
-        </Button>
+        <Link to="/courses">
+          <Button variant="default" size="sm" className="font-semibold hidden md:inline-flex">
+            {t.exploreCourses}
+          </Button>
+        </Link>
         <Link to="/login">
           <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
             {t.login}

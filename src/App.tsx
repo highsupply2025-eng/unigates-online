@@ -7,6 +7,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import Index from "./pages/Index";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+import Courses from "./pages/Courses";
 import ChoosePlan from "./pages/ChoosePlan";
 import Payment from "./pages/Payment";
 import AuthCallback from "./pages/AuthCallback";
@@ -23,6 +24,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/courses" element={<Courses />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
             <Route path="/auth/callback" element={<AuthCallback />} />

@@ -183,6 +183,19 @@ export const en = {
     mobileNotice: "The amount will be added to your mobile phone bill. Make sure your phone number is registered with your service provider (STC or Zain).",
   },
 
+  // Courses Page
+  coursesPage: {
+    title: "All Courses",
+    subtitle: "Browse available courses and pick what suits you",
+    allCategories: "All Categories",
+    episodes: "Episodes",
+    episode: "Episode",
+    freeEpisode: "Free — Watch Now",
+    lockedEpisode: "Subscription Required",
+    moreEpisodes: "more episodes",
+    subscribeToWatch: "Subscribe to Watch All",
+  },
+
   // 404
   notFound: {
     title: "404",

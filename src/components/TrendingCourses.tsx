@@ -106,9 +106,6 @@ const TrendingCourses = memo(() => {
                       </div>
                     </div>
                   </div>
-                  <span className="absolute -right-1 -bottom-3 text-6xl md:text-7xl font-black text-foreground/10 leading-none select-none">
-                    {i + 1}
-                  </span>
                 </div>
               ))}
             </div>

@@ -1,9 +1,13 @@
-import { ChevronLeft, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import eduHeroBg from "@/assets/edu-hero-bg.jpg";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const HeroSection = () => {
+  const { t, language } = useLanguage();
+  const ArrowIcon = language === "ar" ? ChevronLeft : ChevronRight;
+
   return (
     <section className="relative min-h-[700px] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
@@ -14,22 +18,22 @@ const HeroSection = () => {
       <div className="relative z-10 text-center max-w-3xl mx-auto px-4 pt-28 pb-20">
         <div className="inline-flex items-center gap-2 bg-white/90 backdrop-blur-sm border border-primary/30 rounded-full px-5 py-2 mb-6 text-sm font-bold text-primary shadow-lg">
           <Play className="w-3.5 h-3.5 fill-primary" />
-          <span>أكثر من 500+ دورة تعليمية</span>
+          <span>{t.hero.badge}</span>
         </div>
 
         <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight mb-5 leading-tight text-white" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5)' }}>
-          تعلّم بلا حدود مع
-          <span className="text-primary block mt-1" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3)' }}>دورات احترافية</span>
+          {t.hero.title1}
+          <span className="text-primary block mt-1" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3)' }}>{t.hero.title2}</span>
         </h1>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button variant="default" size="lg" className="h-14 px-10 text-lg font-bold gap-2" asChild>
             <Link to="/signup">
-              <ChevronLeft className="w-5 h-5" />
-              ابدأ التعلّم مجاناً
+              <ArrowIcon className="w-5 h-5" />
+              {t.hero.cta}
             </Link>
           </Button>
           <Button variant="outline" size="lg" className="h-14 px-10 text-lg font-semibold border-border hover:bg-secondary">
-            تصفّح الدورات
+            {t.hero.browseCourses}
           </Button>
         </div>
       </div>

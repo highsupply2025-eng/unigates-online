@@ -35,7 +35,7 @@ export const ar = {
     title1: "تعلّم بلا حدود مع",
     title2: "دورات احترافية",
     cta: "ابدأ التعلّم",
-    browseCourses: "انشر معرفتك",
+    browseCourses: "انشر معرفتك وحقق الأرباح",
   },
 
   // Features

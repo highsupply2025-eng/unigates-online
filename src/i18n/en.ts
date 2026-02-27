@@ -35,7 +35,7 @@ export const en = {
     title1: "Learn Without Limits with",
     title2: "Professional Courses",
     cta: "Start Learning",
-    browseCourses: "Share Your Knowledge",
+    browseCourses: "Share Your Knowledge & Earn",
   },
 
   // Features

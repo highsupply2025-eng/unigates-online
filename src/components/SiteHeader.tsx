@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const SiteHeader = () => {
+  const { t, toggleLanguage, dir } = useLanguage();
+
   return (
     <header className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-5">
       <Link to="/" className="flex items-center gap-3 group">
@@ -10,17 +13,26 @@ const SiteHeader = () => {
           <GraduationCap className="w-7 h-7 text-primary" />
         </div>
         <span className="text-2xl md:text-3xl font-black text-foreground tracking-tight">
-          مَعرِفة
+          {t.brandName}
         </span>
       </Link>
 
       <div className="flex items-center gap-3">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleLanguage}
+          className="text-foreground hover:text-primary gap-1.5"
+        >
+          <Globe className="w-4 h-4" />
+          {t.langSwitch}
+        </Button>
         <Button variant="ghost" size="sm" className="text-foreground hover:text-primary hidden md:inline-flex">
-          استكشف الدورات
+          {t.exploreCourses}
         </Button>
         <Link to="/login">
           <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
-            تسجيل الدخول
+            {t.login}
           </Button>
         </Link>
       </div>

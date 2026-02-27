@@ -135,16 +135,20 @@ const Signup = () => {
             <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={toggleLanguage} className="gap-1.5">
+            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
-            <Link to="/login" className="text-sm font-semibold text-primary hover:underline">
-              {t.login}
+            <Link to="/login">
+              <Button variant="default" size="sm" className="font-semibold">
+                {t.login}
+              </Button>
             </Link>
-            <Link to="/" className="flex items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">
-              {t.home}
-              <BackArrow className="w-4 h-4" />
+            <Link to="/">
+              <Button variant="default" size="sm" className="font-semibold gap-1.5">
+                {t.home}
+                {language === "ar" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+              </Button>
             </Link>
           </div>
         </div>

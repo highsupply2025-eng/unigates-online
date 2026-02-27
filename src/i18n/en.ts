@@ -59,16 +59,7 @@ export const en = {
     new: "New",
     free: "Free",
     episode: "episodes",
-    courses: [
-      { title: "Python Programming Basics", instructor: "Mr. Mohammed Al-Ali", category: "Programming" },
-      { title: "UI/UX Design", instructor: "Ms. Sarah Ahmed", category: "Design" },
-      { title: "Digital Marketing from Scratch", instructor: "Mr. Khaled Al-Harbi", category: "Marketing" },
-      { title: "Mobile App Development", instructor: "Mr. Fahd Al-Saeed", category: "Programming" },
-      { title: "Professional Project Management", instructor: "Ms. Noura Al-Dosari", category: "Management" },
-      { title: "AI for Beginners", instructor: "Dr. Abdullah Al-Shamri", category: "Technology" },
-      { title: "Data Analysis with Excel", instructor: "Ms. Reem Al-Qahtani", category: "Data" },
-      { title: "Photography", instructor: "Mr. Yasser Al-Mutairi", category: "Creative" },
-    ],
+    noCourses: "No courses available",
   },
 
   // FAQ

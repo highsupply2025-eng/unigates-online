@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { GraduationCap, Globe, Play, Clock, Lock, ChevronDown, Filter, ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +12,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const episodeCounts = [24, 18, 15, 30, 12, 20, 16, 10];
+interface Course {
+  id: string;
+  title_ar: string;
+  title_en: string;
+  instructor_ar: string;
+  instructor_en: string;
+  category_ar: string;
+  category_en: string;
+  episode_count: number;
+  is_free: boolean;
+}
 
 const categoryColors: Record<string, string> = {
   "برمجة": "from-teal-800 to-teal-600",
@@ -33,12 +44,29 @@ const categoryColors: Record<string, string> = {
 const Courses = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const courses = t.trending.courses;
-  const categories = [...new Set(courses.map((c) => c.category))];
+  useEffect(() => {
+    const fetchCourses = async () => {
+      const { data } = await supabase
+        .from("courses")
+        .select("*")
+        .order("created_at", { ascending: false });
+      setCourses(data || []);
+      setLoading(false);
+    };
+    fetchCourses();
+  }, []);
+
+  const getCategory = (c: Course) => language === "ar" ? c.category_ar : c.category_en;
+  const getTitle = (c: Course) => language === "ar" ? c.title_ar : c.title_en;
+  const getInstructor = (c: Course) => language === "ar" ? c.instructor_ar : c.instructor_en;
+
+  const categories = [...new Set(courses.map(getCategory))];
 
   const filteredCourses = selectedCategory
-    ? courses.filter((c) => c.category === selectedCategory)
+    ? courses.filter((c) => getCategory(c) === selectedCategory)
     : courses;
 
   return (
@@ -107,33 +135,44 @@ const Courses = () => {
           </DropdownMenu>
         </div>
 
-        {/* Courses Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {filteredCourses.map((course, i) => {
-            const originalIndex = courses.indexOf(course);
-            const episodes = episodeCounts[originalIndex] || 10;
-
-            return (
-              <div key={i} className="bg-card rounded-xl border border-border overflow-hidden card-hover group cursor-pointer">
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="bg-card rounded-xl border border-border overflow-hidden animate-pulse">
+                <div className="aspect-[16/10] bg-muted" />
+                <div className="p-4 space-y-3">
+                  <div className="h-4 bg-muted rounded w-3/4" />
+                  <div className="h-3 bg-muted rounded w-1/2" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filteredCourses.length === 0 ? (
+          <p className="text-muted-foreground text-center py-12">{t.trending.noCourses}</p>
+        ) : (
+          /* Courses Grid */
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {filteredCourses.map((course) => (
+              <div key={course.id} className="bg-card rounded-xl border border-border overflow-hidden card-hover group cursor-pointer">
                 {/* Course Cover */}
-                <div className={`aspect-[16/10] bg-gradient-to-br ${categoryColors[course.category] || "from-slate-800 to-slate-600"} relative flex items-center justify-center`}>
+                <div className={`aspect-[16/10] bg-gradient-to-br ${categoryColors[getCategory(course)] || "from-slate-800 to-slate-600"} relative flex items-center justify-center`}>
                   <div className="w-14 h-14 rounded-full bg-background/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <Play className="w-7 h-7 text-foreground fill-foreground" />
                   </div>
                   <Badge className="absolute top-3 start-3 bg-background/80 text-foreground text-xs backdrop-blur-sm hover:bg-background/80">
-                    {course.category}
+                    {getCategory(course)}
                   </Badge>
                 </div>
 
                 {/* Course Info */}
                 <div className="p-4 space-y-3">
-                  <h3 className="font-bold text-foreground leading-snug line-clamp-2">{course.title}</h3>
-                  <p className="text-sm text-muted-foreground">{course.instructor}</p>
+                  <h3 className="font-bold text-foreground leading-snug line-clamp-2">{getTitle(course)}</h3>
+                  <p className="text-sm text-muted-foreground">{getInstructor(course)}</p>
 
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Clock className="w-3.5 h-3.5" />
-                      <span>{episodes} {t.trending.episode}</span>
+                      <span>{course.episode_count} {t.trending.episode}</span>
                     </div>
                   </div>
 
@@ -165,9 +204,9 @@ const Courses = () => {
                       </div>
                     ))}
 
-                    {episodes > 3 && (
+                    {course.episode_count > 3 && (
                       <p className="text-xs text-muted-foreground text-center pt-1">
-                        +{episodes - 3} {t.coursesPage.moreEpisodes}
+                        +{course.episode_count - 3} {t.coursesPage.moreEpisodes}
                       </p>
                     )}
                   </div>
@@ -179,9 +218,9 @@ const Courses = () => {
                   </Link>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        )}
       </main>
 
       {/* Footer */}

@@ -280,56 +280,60 @@ const Signup = () => {
                   </div>
                 </div>
 
-                {/* University Certificate */}
-                <div>
-                  <Label className="mb-2 block font-semibold">صورة الشهادة الجامعية</Label>
-                  <div className="relative">
-                    {uniCertPreview ? (
-                      <div className="relative w-full h-40 rounded-xl overflow-hidden border border-border">
-                        <img src={uniCertPreview} alt="الشهادة الجامعية" className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => { setUniCert(null); setUniCertPreview(null); }}
-                          className="absolute top-2 left-2 w-8 h-8 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <label className="flex flex-col items-center justify-center h-32 rounded-xl border-2 border-dashed border-border bg-muted/50 cursor-pointer hover:border-primary/50 transition-colors">
-                        <Upload className="w-8 h-8 text-muted-foreground mb-2" />
-                        <span className="text-sm text-muted-foreground">اضغط لرفع صورة الشهادة الجامعية</span>
-                        <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileSelect(e, setUniCert, setUniCertPreview)} />
-                      </label>
-                    )}
-                  </div>
-                </div>
-
-                {/* Additional Certificates */}
-                <div>
-                  <Label className="mb-2 block font-semibold">شهادات إضافية</Label>
-                  {additionalCertPreviews.length > 0 && (
-                    <div className="grid grid-cols-3 gap-3 mb-3">
-                      {additionalCertPreviews.map((preview, i) => (
-                        <div key={i} className="relative h-28 rounded-lg overflow-hidden border border-border">
-                          <img src={preview} alt={`شهادة ${i + 1}`} className="w-full h-full object-cover" />
+                {/* University Certificate - Lecturer only */}
+                {role === "lecturer" && (
+                  <div>
+                    <Label className="mb-2 block font-semibold">صورة الشهادة الجامعية</Label>
+                    <div className="relative">
+                      {uniCertPreview ? (
+                        <div className="relative w-full h-40 rounded-xl overflow-hidden border border-border">
+                          <img src={uniCertPreview} alt="الشهادة الجامعية" className="w-full h-full object-cover" />
                           <button
                             type="button"
-                            onClick={() => removeAdditionalCert(i)}
-                            className="absolute top-1 left-1 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center"
+                            onClick={() => { setUniCert(null); setUniCertPreview(null); }}
+                            className="absolute top-2 left-2 w-8 h-8 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center"
                           >
-                            <X className="w-3 h-3" />
+                            <X className="w-4 h-4" />
                           </button>
                         </div>
-                      ))}
+                      ) : (
+                        <label className="flex flex-col items-center justify-center h-32 rounded-xl border-2 border-dashed border-border bg-muted/50 cursor-pointer hover:border-primary/50 transition-colors">
+                          <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                          <span className="text-sm text-muted-foreground">اضغط لرفع صورة الشهادة الجامعية</span>
+                          <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileSelect(e, setUniCert, setUniCertPreview)} />
+                        </label>
+                      )}
                     </div>
-                  )}
-                  <label className="flex flex-col items-center justify-center h-24 rounded-xl border-2 border-dashed border-border bg-muted/50 cursor-pointer hover:border-primary/50 transition-colors">
-                    <Upload className="w-6 h-6 text-muted-foreground mb-1" />
-                    <span className="text-sm text-muted-foreground">اضغط لإضافة شهادات أخرى</span>
-                    <input type="file" accept="image/*" multiple className="hidden" onChange={handleMultiFileSelect} />
-                  </label>
-                </div>
+                  </div>
+                )}
+
+                {/* Additional Certificates - Lecturer only */}
+                {role === "lecturer" && (
+                  <div>
+                    <Label className="mb-2 block font-semibold">شهادات إضافية</Label>
+                    {additionalCertPreviews.length > 0 && (
+                      <div className="grid grid-cols-3 gap-3 mb-3">
+                        {additionalCertPreviews.map((preview, i) => (
+                          <div key={i} className="relative h-28 rounded-lg overflow-hidden border border-border">
+                            <img src={preview} alt={`شهادة ${i + 1}`} className="w-full h-full object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => removeAdditionalCert(i)}
+                              className="absolute top-1 left-1 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <label className="flex flex-col items-center justify-center h-24 rounded-xl border-2 border-dashed border-border bg-muted/50 cursor-pointer hover:border-primary/50 transition-colors">
+                      <Upload className="w-6 h-6 text-muted-foreground mb-1" />
+                      <span className="text-sm text-muted-foreground">اضغط لإضافة شهادات أخرى</span>
+                      <input type="file" accept="image/*" multiple className="hidden" onChange={handleMultiFileSelect} />
+                    </label>
+                  </div>
+                )}
 
                 {/* Live Photo */}
                 <div>

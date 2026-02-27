@@ -19,15 +19,15 @@ const SiteHeader = () => {
 
       <div className="flex items-center gap-3">
         <Button
-          variant="ghost"
+          variant="default"
           size="sm"
           onClick={toggleLanguage}
-          className="text-foreground hover:text-primary gap-1.5"
+          className="font-semibold gap-1.5"
         >
           <Globe className="w-4 h-4" />
           {t.langSwitch}
         </Button>
-        <Button variant="ghost" size="sm" className="text-foreground hover:text-primary hidden md:inline-flex">
+        <Button variant="default" size="sm" className="font-semibold hidden md:inline-flex">
           {t.exploreCourses}
         </Button>
         <Link to="/login">

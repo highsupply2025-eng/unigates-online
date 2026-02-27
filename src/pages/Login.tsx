@@ -55,7 +55,7 @@ const Login = () => {
             <Link to="/">
               <Button variant="default" size="sm" className="font-semibold gap-1.5">
                 {t.home}
-                {language === "ar" ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                {language === "ar" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
               </Button>
             </Link>
           </div>

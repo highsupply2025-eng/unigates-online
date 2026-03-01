@@ -155,6 +155,16 @@ const Signup = () => {
       });
       if (profileError) throw profileError;
 
+      // Insert role for lecturer (pending admin approval)
+      if (isLecturer) {
+        const { error: roleError } = await supabase.from("user_roles").insert({
+          user_id: userId,
+          role: "lecturer" as any,
+          approved: false,
+        });
+        if (roleError) console.error("Role insert error:", roleError);
+      }
+
       setSubmitted(true);
     } catch (error: any) {
       toast({ title: t.signupPage.errorGeneric, description: error.message, variant: "destructive" });

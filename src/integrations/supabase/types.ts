@@ -14,6 +14,88 @@ export type Database = {
   }
   public: {
     Tables: {
+      course_attachments: {
+        Row: {
+          course_id: string
+          created_at: string
+          file_type: string | null
+          file_url: string
+          id: string
+          name: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          file_type?: string | null
+          file_url: string
+          id?: string
+          name: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_attachments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_episodes: {
+        Row: {
+          course_id: string
+          created_at: string
+          duration_minutes: number | null
+          episode_number: number
+          id: string
+          is_preview: boolean
+          title_ar: string
+          title_en: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          duration_minutes?: number | null
+          episode_number?: number
+          id?: string
+          is_preview?: boolean
+          title_ar: string
+          title_en: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          duration_minutes?: number | null
+          episode_number?: number
+          id?: string
+          is_preview?: boolean
+          title_ar?: string
+          title_en?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_episodes_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       course_views: {
         Row: {
           course_id: string
@@ -45,6 +127,7 @@ export type Database = {
           category_ar: string
           category_en: string
           created_at: string
+          creator_id: string | null
           episode_count: number
           id: string
           instructor_ar: string
@@ -59,6 +142,7 @@ export type Database = {
           category_ar: string
           category_en: string
           created_at?: string
+          creator_id?: string | null
           episode_count?: number
           id?: string
           instructor_ar: string
@@ -73,6 +157,7 @@ export type Database = {
           category_ar?: string
           category_en?: string
           created_at?: string
+          creator_id?: string | null
           episode_count?: number
           id?: string
           instructor_ar?: string
@@ -130,6 +215,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          approved: boolean
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved?: boolean
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved?: boolean
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       weekly_top_courses: {
         Row: {
           calculated_at: string
@@ -168,9 +280,23 @@ export type Database = {
     }
     Functions: {
       calculate_weekly_top_courses: { Args: never; Returns: undefined }
+      has_approved_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "lecturer" | "student"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -297,6 +423,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "lecturer", "student"],
+    },
   },
 } as const

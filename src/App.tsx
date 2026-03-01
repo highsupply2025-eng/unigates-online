@@ -15,6 +15,7 @@ const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
 const Payment = lazy(() => import("./pages/Payment"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const LecturerDashboard = lazy(() => import("./pages/LecturerDashboard"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/choose-plan" element={<ChoosePlan />} />
               <Route path="/payment" element={<Payment />} />
+              <Route path="/lecturer/dashboard" element={<LecturerDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

@@ -25,10 +25,15 @@ const HeroSection = () => {
           <span className="text-white" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3)' }}>{t.hero.title2}</span>
         </h1>
 
-        <div className="flex justify-center items-center">
+        <div className="flex justify-center items-center gap-4">
           <Button variant="default" size="lg" className="h-14 px-10 text-lg font-bold" asChild>
             <Link to="/signup">
               {t.hero.cta}
+            </Link>
+          </Button>
+          <Button variant="default" size="lg" className="h-14 px-10 text-lg font-bold" asChild>
+            <Link to="/signup/lecturer">
+              {t.hero.browseCourses}
             </Link>
           </Button>
         </div>

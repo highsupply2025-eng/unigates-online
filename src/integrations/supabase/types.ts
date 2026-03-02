@@ -14,6 +14,103 @@ export type Database = {
   }
   public: {
     Tables: {
+      assignment_submissions: {
+        Row: {
+          assignment_id: string
+          feedback_ar: string | null
+          feedback_en: string | null
+          file_name: string | null
+          file_url: string
+          grade: string | null
+          graded_at: string | null
+          id: string
+          student_id: string
+          submitted_at: string
+        }
+        Insert: {
+          assignment_id: string
+          feedback_ar?: string | null
+          feedback_en?: string | null
+          file_name?: string | null
+          file_url: string
+          grade?: string | null
+          graded_at?: string | null
+          id?: string
+          student_id: string
+          submitted_at?: string
+        }
+        Update: {
+          assignment_id?: string
+          feedback_ar?: string | null
+          feedback_en?: string | null
+          file_name?: string | null
+          file_url?: string
+          grade?: string | null
+          graded_at?: string | null
+          id?: string
+          student_id?: string
+          submitted_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignment_submissions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assignments: {
+        Row: {
+          course_id: string
+          created_at: string
+          creator_id: string
+          description_ar: string | null
+          description_en: string | null
+          due_date: string | null
+          file_name: string | null
+          file_url: string | null
+          id: string
+          title_ar: string
+          title_en: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          creator_id: string
+          description_ar?: string | null
+          description_en?: string | null
+          due_date?: string | null
+          file_name?: string | null
+          file_url?: string | null
+          id?: string
+          title_ar: string
+          title_en: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          creator_id?: string
+          description_ar?: string | null
+          description_en?: string | null
+          due_date?: string | null
+          file_name?: string | null
+          file_url?: string | null
+          id?: string
+          title_ar?: string
+          title_en?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       course_attachments: {
         Row: {
           course_id: string
@@ -169,6 +266,50 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      live_streams: {
+        Row: {
+          course_id: string | null
+          created_at: string
+          creator_id: string
+          id: string
+          scheduled_at: string | null
+          status: string
+          stream_url: string | null
+          title_ar: string
+          title_en: string
+        }
+        Insert: {
+          course_id?: string | null
+          created_at?: string
+          creator_id: string
+          id?: string
+          scheduled_at?: string | null
+          status?: string
+          stream_url?: string | null
+          title_ar: string
+          title_en: string
+        }
+        Update: {
+          course_id?: string | null
+          created_at?: string
+          creator_id?: string
+          id?: string
+          scheduled_at?: string | null
+          status?: string
+          stream_url?: string | null
+          title_ar?: string
+          title_en?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_streams_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

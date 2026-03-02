@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, Plus, Eye, BookOpen, FileText, Video, Trash2, Globe, LogOut, Upload, X } from "lucide-react";
+import {
+  GraduationCap, Plus, Eye, BookOpen, FileText, Video, Trash2, Globe, LogOut,
+  Upload, X, Radio, Calendar, ExternalLink, ClipboardList, Star, Send
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -23,9 +26,10 @@ const LecturerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<any[]>([]);
   const [courseViews, setCourseViews] = useState<Record<string, number>>({});
-  const [showNewCourse, setShowNewCourse] = useState(false);
+  const [activeTab, setActiveTab] = useState("courses");
 
   // New course form
+  const [showNewCourse, setShowNewCourse] = useState(false);
   const [newCourse, setNewCourse] = useState({
     title_ar: "", title_en: "", category_ar: "", category_en: "",
     instructor_ar: "", instructor_en: "", is_free: false,
@@ -47,65 +51,77 @@ const LecturerDashboard = () => {
   const [attachmentName, setAttachmentName] = useState("");
   const [savingAttachment, setSavingAttachment] = useState(false);
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  // Live streams
+  const [streams, setStreams] = useState<any[]>([]);
+  const [showStreamDialog, setShowStreamDialog] = useState(false);
+  const [newStream, setNewStream] = useState({ title_ar: "", title_en: "", stream_url: "", scheduled_at: "" });
+  const [savingStream, setSavingStream] = useState(false);
+
+  // Assignments
+  const [assignments, setAssignments] = useState<any[]>([]);
+  const [showAssignmentDialog, setShowAssignmentDialog] = useState(false);
+  const [selectedAssignmentCourseId, setSelectedAssignmentCourseId] = useState<string | null>(null);
+  const [newAssignment, setNewAssignment] = useState({ title_ar: "", title_en: "", description_ar: "", description_en: "", due_date: "" });
+  const [assignmentFile, setAssignmentFile] = useState<File | null>(null);
+  const [savingAssignment, setSavingAssignment] = useState(false);
+
+  // Submissions
+  const [submissions, setSubmissions] = useState<any[]>([]);
+  const [showSubmissionsDialog, setShowSubmissionsDialog] = useState(false);
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState<string | null>(null);
+  const [gradingId, setGradingId] = useState<string | null>(null);
+  const [gradeValue, setGradeValue] = useState("");
+  const [feedbackValue, setFeedbackValue] = useState("");
+
+  useEffect(() => { checkAuth(); }, []);
 
   const checkAuth = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigate("/login"); return; }
     setUser(user);
-
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("role", "lecturer");
-
-    if (!roles || roles.length === 0) {
-      setApproved(false);
-      setLoading(false);
-      return;
-    }
-
+    const { data: roles } = await supabase.from("user_roles").select("*").eq("user_id", user.id).eq("role", "lecturer");
+    if (!roles || roles.length === 0) { setApproved(false); setLoading(false); return; }
     setApproved(roles[0].approved);
     if (roles[0].approved) {
       await loadCourses(user.id);
+      await loadStreams(user.id);
     }
     setLoading(false);
   };
 
   const loadCourses = async (userId: string) => {
-    const { data } = await supabase
-      .from("courses")
-      .select("*")
-      .eq("creator_id", userId)
-      .order("created_at", { ascending: false });
-
+    const { data } = await supabase.from("courses").select("*").eq("creator_id", userId).order("created_at", { ascending: false });
     setCourses(data || []);
-
-    // Load view counts
     if (data && data.length > 0) {
       const courseIds = data.map(c => c.id);
-      const { data: views } = await supabase
-        .from("course_views")
-        .select("course_id")
-        .in("course_id", courseIds);
-
+      const { data: views } = await supabase.from("course_views").select("course_id").in("course_id", courseIds);
       const counts: Record<string, number> = {};
-      (views || []).forEach(v => {
-        counts[v.course_id] = (counts[v.course_id] || 0) + 1;
-      });
+      (views || []).forEach(v => { counts[v.course_id] = (counts[v.course_id] || 0) + 1; });
       setCourseViews(counts);
     }
   };
 
+  const loadStreams = async (userId: string) => {
+    const { data } = await supabase.from("live_streams").select("*").eq("creator_id", userId).order("created_at", { ascending: false });
+    setStreams(data || []);
+  };
+
+  const loadAssignments = async (courseId: string) => {
+    const { data } = await supabase.from("assignments").select("*").eq("course_id", courseId).order("created_at", { ascending: false });
+    setAssignments(data || []);
+  };
+
+  const loadSubmissions = async (assignmentId: string) => {
+    const { data } = await supabase.from("assignment_submissions").select("*").eq("assignment_id", assignmentId).order("submitted_at", { ascending: false });
+    setSubmissions(data || []);
+  };
+
+  // Course CRUD
   const handleCreateCourse = async () => {
     if (!newCourse.title_ar || !newCourse.title_en || !newCourse.category_ar || !newCourse.category_en) {
       toast({ title: language === "ar" ? "خطأ" : "Error", description: language === "ar" ? "يرجى ملء جميع الحقول المطلوبة" : "Please fill all required fields", variant: "destructive" });
       return;
     }
-
     setSavingCourse(true);
     try {
       let thumbnailUrl: string | null = null;
@@ -117,30 +133,28 @@ const LecturerDashboard = () => {
         const { data: urlData } = supabase.storage.from("course-thumbnails").getPublicUrl(path);
         thumbnailUrl = urlData.publicUrl;
       }
-
       const { error } = await supabase.from("courses").insert({
-        ...newCourse,
-        creator_id: user.id,
-        thumbnail_url: thumbnailUrl,
+        ...newCourse, creator_id: user.id, thumbnail_url: thumbnailUrl,
         instructor_ar: newCourse.instructor_ar || user.email,
         instructor_en: newCourse.instructor_en || user.email,
       });
-
       if (error) throw error;
-
       toast({ title: language === "ar" ? "تم" : "Done", description: language === "ar" ? "تم إنشاء الدورة بنجاح" : "Course created successfully" });
       setShowNewCourse(false);
       setNewCourse({ title_ar: "", title_en: "", category_ar: "", category_en: "", instructor_ar: "", instructor_en: "", is_free: false });
-      setThumbnail(null);
-      setThumbnailPreview(null);
+      setThumbnail(null); setThumbnailPreview(null);
       await loadCourses(user.id);
     } catch (err: any) {
       toast({ title: language === "ar" ? "خطأ" : "Error", description: err.message, variant: "destructive" });
-    } finally {
-      setSavingCourse(false);
-    }
+    } finally { setSavingCourse(false); }
   };
 
+  const handleDeleteCourse = async (courseId: string) => {
+    const { error } = await supabase.from("courses").delete().eq("id", courseId);
+    if (!error && user) await loadCourses(user.id);
+  };
+
+  // Episodes
   const openEpisodes = async (courseId: string) => {
     setSelectedCourseId(courseId);
     setShowEpisodeDialog(true);
@@ -156,27 +170,18 @@ const LecturerDashboard = () => {
     try {
       const nextNum = episodes.length + 1;
       const { error } = await supabase.from("course_episodes").insert({
-        course_id: selectedCourseId,
-        title_ar: newEpisode.title_ar,
-        title_en: newEpisode.title_en,
-        video_url: newEpisode.video_url || null,
-        duration_minutes: newEpisode.duration_minutes || 0,
-        is_preview: newEpisode.is_preview,
-        episode_number: nextNum,
+        course_id: selectedCourseId, title_ar: newEpisode.title_ar, title_en: newEpisode.title_en,
+        video_url: newEpisode.video_url || null, duration_minutes: newEpisode.duration_minutes || 0,
+        is_preview: newEpisode.is_preview, episode_number: nextNum,
       });
       if (error) throw error;
-
-      // Update episode count
       await supabase.from("courses").update({ episode_count: nextNum }).eq("id", selectedCourseId);
-
       setNewEpisode({ title_ar: "", title_en: "", video_url: "", duration_minutes: 0, is_preview: false });
       const { data } = await supabase.from("course_episodes").select("*").eq("course_id", selectedCourseId).order("episode_number");
       setEpisodes(data || []);
     } catch (err: any) {
       toast({ title: language === "ar" ? "خطأ" : "Error", description: err.message, variant: "destructive" });
-    } finally {
-      setSavingEpisode(false);
-    }
+    } finally { setSavingEpisode(false); }
   };
 
   const handleAddAttachment = async () => {
@@ -188,35 +193,115 @@ const LecturerDashboard = () => {
       const { error: upErr } = await supabase.storage.from("course-content").upload(path, attachmentFile);
       if (upErr) throw upErr;
       const { data: urlData } = supabase.storage.from("course-content").getPublicUrl(path);
-
       const { error } = await supabase.from("course_attachments").insert({
-        course_id: selectedCourseId,
-        name: attachmentName,
-        file_url: urlData.publicUrl,
-        file_type: ext || null,
+        course_id: selectedCourseId, name: attachmentName, file_url: urlData.publicUrl, file_type: ext || null,
       });
       if (error) throw error;
-
-      setAttachmentFile(null);
-      setAttachmentName("");
+      setAttachmentFile(null); setAttachmentName("");
       const { data } = await supabase.from("course_attachments").select("*").eq("course_id", selectedCourseId);
       setAttachments(data || []);
     } catch (err: any) {
       toast({ title: language === "ar" ? "خطأ" : "Error", description: err.message, variant: "destructive" });
-    } finally {
-      setSavingAttachment(false);
+    } finally { setSavingAttachment(false); }
+  };
+
+  // Live streams
+  const handleCreateStream = async () => {
+    if (!newStream.title_ar || !newStream.title_en || !newStream.stream_url) {
+      toast({ title: language === "ar" ? "خطأ" : "Error", description: language === "ar" ? "يرجى ملء جميع الحقول" : "Please fill all fields", variant: "destructive" });
+      return;
+    }
+    setSavingStream(true);
+    try {
+      const { error } = await supabase.from("live_streams").insert({
+        creator_id: user.id, title_ar: newStream.title_ar, title_en: newStream.title_en,
+        stream_url: newStream.stream_url, status: "scheduled",
+        scheduled_at: newStream.scheduled_at || null,
+      });
+      if (error) throw error;
+      toast({ title: language === "ar" ? "تم" : "Done", description: language === "ar" ? "تم إنشاء البث بنجاح" : "Stream created" });
+      setShowStreamDialog(false);
+      setNewStream({ title_ar: "", title_en: "", stream_url: "", scheduled_at: "" });
+      await loadStreams(user.id);
+    } catch (err: any) {
+      toast({ title: language === "ar" ? "خطأ" : "Error", description: err.message, variant: "destructive" });
+    } finally { setSavingStream(false); }
+  };
+
+  const handleUpdateStreamStatus = async (streamId: string, status: string) => {
+    await supabase.from("live_streams").update({ status }).eq("id", streamId);
+    if (user) await loadStreams(user.id);
+  };
+
+  const handleDeleteStream = async (streamId: string) => {
+    await supabase.from("live_streams").delete().eq("id", streamId);
+    if (user) await loadStreams(user.id);
+  };
+
+  // Assignments
+  const openAssignments = async (courseId: string) => {
+    setSelectedAssignmentCourseId(courseId);
+    setShowAssignmentDialog(true);
+    await loadAssignments(courseId);
+  };
+
+  const handleCreateAssignment = async () => {
+    if (!selectedAssignmentCourseId || !newAssignment.title_ar || !newAssignment.title_en) return;
+    setSavingAssignment(true);
+    try {
+      let fileUrl: string | null = null;
+      let fileName: string | null = null;
+      if (assignmentFile) {
+        const ext = assignmentFile.name.split(".").pop();
+        const path = `${user.id}/${selectedAssignmentCourseId}/${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("assignment-files").upload(path, assignmentFile);
+        if (upErr) throw upErr;
+        const { data: urlData } = supabase.storage.from("assignment-files").getPublicUrl(path);
+        fileUrl = urlData.publicUrl;
+        fileName = assignmentFile.name;
+      }
+      const { error } = await supabase.from("assignments").insert({
+        course_id: selectedAssignmentCourseId, creator_id: user.id,
+        title_ar: newAssignment.title_ar, title_en: newAssignment.title_en,
+        description_ar: newAssignment.description_ar || null, description_en: newAssignment.description_en || null,
+        file_url: fileUrl, file_name: fileName,
+        due_date: newAssignment.due_date || null,
+      });
+      if (error) throw error;
+      toast({ title: language === "ar" ? "تم" : "Done", description: language === "ar" ? "تم إنشاء التكليف" : "Assignment created" });
+      setNewAssignment({ title_ar: "", title_en: "", description_ar: "", description_en: "", due_date: "" });
+      setAssignmentFile(null);
+      await loadAssignments(selectedAssignmentCourseId);
+    } catch (err: any) {
+      toast({ title: language === "ar" ? "خطأ" : "Error", description: err.message, variant: "destructive" });
+    } finally { setSavingAssignment(false); }
+  };
+
+  const openSubmissions = async (assignmentId: string) => {
+    setSelectedAssignmentId(assignmentId);
+    setShowSubmissionsDialog(true);
+    await loadSubmissions(assignmentId);
+  };
+
+  const handleGradeSubmission = async (submissionId: string) => {
+    if (!gradeValue) return;
+    try {
+      const { error } = await supabase.from("assignment_submissions").update({
+        grade: gradeValue,
+        feedback_ar: feedbackValue,
+        feedback_en: feedbackValue,
+        graded_at: new Date().toISOString(),
+      }).eq("id", submissionId);
+      if (error) throw error;
+      toast({ title: language === "ar" ? "تم" : "Done", description: language === "ar" ? "تم التقييم بنجاح" : "Graded successfully" });
+      setGradingId(null); setGradeValue(""); setFeedbackValue("");
+      if (selectedAssignmentId) await loadSubmissions(selectedAssignmentId);
+    } catch (err: any) {
+      toast({ title: language === "ar" ? "خطأ" : "Error", description: err.message, variant: "destructive" });
     }
   };
 
-  const handleDeleteCourse = async (courseId: string) => {
-    const { error } = await supabase.from("courses").delete().eq("id", courseId);
-    if (!error && user) await loadCourses(user.id);
-  };
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/");
-  };
+  const handleLogout = async () => { await supabase.auth.signOut(); navigate("/"); };
 
   const totalViews = Object.values(courseViews).reduce((a, b) => a + b, 0);
 
@@ -288,52 +373,177 @@ const LecturerDashboard = () => {
               </Card>
             </div>
 
-            {/* Actions */}
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-foreground">{language === "ar" ? "دوراتي" : "My Courses"}</h2>
-              <Button onClick={() => setShowNewCourse(true)} className="gap-2">
-                <Plus className="w-4 h-4" />
-                {language === "ar" ? "دورة جديدة" : "New Course"}
-              </Button>
-            </div>
+            {/* Tabs Navigation */}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-3 mb-6">
+                <TabsTrigger value="courses" className="gap-2">
+                  <Video className="w-4 h-4" />
+                  {language === "ar" ? "الدورات والحلقات" : "Courses & Episodes"}
+                </TabsTrigger>
+                <TabsTrigger value="live" className="gap-2">
+                  <Radio className="w-4 h-4" />
+                  {language === "ar" ? "البث المباشر" : "Live Streaming"}
+                </TabsTrigger>
+                <TabsTrigger value="assignments" className="gap-2">
+                  <ClipboardList className="w-4 h-4" />
+                  {language === "ar" ? "التكليفات" : "Assignments"}
+                </TabsTrigger>
+              </TabsList>
 
-            {/* Courses list */}
-            {courses.length === 0 ? (
-              <div className="text-center py-16 text-muted-foreground">
-                {language === "ar" ? "لا توجد دورات بعد. ابدأ بإنشاء أول دورة!" : "No courses yet. Start by creating your first course!"}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {courses.map(course => (
-                  <Card key={course.id} className="overflow-hidden">
-                    {course.thumbnail_url && (
-                      <img src={course.thumbnail_url} alt="" className="w-full h-40 object-cover" />
-                    )}
-                    <CardContent className="p-4">
-                      <h3 className="font-bold text-foreground mb-1">{language === "ar" ? course.title_ar : course.title_en}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">{language === "ar" ? course.category_ar : course.category_en}</p>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                        <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {courseViews[course.id] || 0}</span>
-                        <span className="flex items-center gap-1"><Video className="w-3.5 h-3.5" /> {course.episode_count}</span>
-                        {course.is_free && <span className="text-primary font-semibold">{language === "ar" ? "مجاني" : "Free"}</span>}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline" className="flex-1" onClick={() => openEpisodes(course.id)}>
-                          <FileText className="w-3.5 h-3.5 me-1" />
-                          {language === "ar" ? "المحتوى" : "Content"}
-                        </Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleDeleteCourse(course.id)}>
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
+              {/* ===== COURSES TAB ===== */}
+              <TabsContent value="courses">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-foreground">{language === "ar" ? "دوراتي" : "My Courses"}</h2>
+                  <Button onClick={() => setShowNewCourse(true)} className="gap-2">
+                    <Plus className="w-4 h-4" />
+                    {language === "ar" ? "دورة جديدة" : "New Course"}
+                  </Button>
+                </div>
+
+                {courses.length === 0 ? (
+                  <div className="text-center py-16 text-muted-foreground">
+                    {language === "ar" ? "لا توجد دورات بعد. ابدأ بإنشاء أول دورة!" : "No courses yet. Start by creating your first course!"}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {courses.map(course => (
+                      <Card key={course.id} className="overflow-hidden">
+                        {course.thumbnail_url && (
+                          <img src={course.thumbnail_url} alt="" className="w-full h-40 object-cover" />
+                        )}
+                        <CardContent className="p-4">
+                          <h3 className="font-bold text-foreground mb-1">{language === "ar" ? course.title_ar : course.title_en}</h3>
+                          <p className="text-sm text-muted-foreground mb-2">{language === "ar" ? course.category_ar : course.category_en}</p>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                            <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {courseViews[course.id] || 0}</span>
+                            <span className="flex items-center gap-1"><Video className="w-3.5 h-3.5" /> {course.episode_count}</span>
+                            {course.is_free && <span className="text-primary font-semibold">{language === "ar" ? "مجاني" : "Free"}</span>}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline" className="flex-1" onClick={() => openEpisodes(course.id)}>
+                              <Video className="w-3.5 h-3.5 me-1" />
+                              {language === "ar" ? "الحلقات" : "Episodes"}
+                            </Button>
+                            <Button size="sm" variant="destructive" onClick={() => handleDeleteCourse(course.id)}>
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              {/* ===== LIVE STREAMING TAB ===== */}
+              <TabsContent value="live">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-foreground">{language === "ar" ? "البث المباشر" : "Live Streams"}</h2>
+                  <Button onClick={() => setShowStreamDialog(true)} className="gap-2">
+                    <Plus className="w-4 h-4" />
+                    {language === "ar" ? "بث جديد" : "New Stream"}
+                  </Button>
+                </div>
+
+                <div className="bg-accent/30 border border-border rounded-lg p-4 mb-6">
+                  <p className="text-sm text-muted-foreground">
+                    <Radio className="w-4 h-4 inline me-1 text-primary" />
+                    {language === "ar"
+                      ? "أضف رابط البث (YouTube Live أو Zoom أو أي منصة أخرى). يمكن لعدد لا نهائي من الطلاب حضور البث المباشر."
+                      : "Add your stream link (YouTube Live, Zoom, or any platform). Unlimited students can attend your live stream."}
+                  </p>
+                </div>
+
+                {streams.length === 0 ? (
+                  <div className="text-center py-16 text-muted-foreground">
+                    {language === "ar" ? "لا يوجد بث مباشر حالياً" : "No live streams yet"}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {streams.map(stream => (
+                      <Card key={stream.id}>
+                        <CardContent className="p-4 flex items-center gap-4">
+                          <div className={`w-3 h-3 rounded-full ${stream.status === 'live' ? 'bg-destructive animate-pulse' : stream.status === 'ended' ? 'bg-muted-foreground' : 'bg-primary'}`} />
+                          <div className="flex-1">
+                            <h3 className="font-bold text-foreground">{language === "ar" ? stream.title_ar : stream.title_en}</h3>
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                              <span className="capitalize px-2 py-0.5 rounded-full bg-muted font-semibold">
+                                {stream.status === 'live' ? (language === "ar" ? "🔴 مباشر" : "🔴 Live") :
+                                 stream.status === 'ended' ? (language === "ar" ? "انتهى" : "Ended") :
+                                 (language === "ar" ? "مجدول" : "Scheduled")}
+                              </span>
+                              {stream.scheduled_at && (
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  {new Date(stream.scheduled_at).toLocaleString(language === "ar" ? "ar-EG" : "en-US")}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {stream.stream_url && (
+                              <a href={stream.stream_url} target="_blank" rel="noreferrer">
+                                <Button size="sm" variant="outline"><ExternalLink className="w-3.5 h-3.5" /></Button>
+                              </a>
+                            )}
+                            {stream.status === 'scheduled' && (
+                              <Button size="sm" variant="default" onClick={() => handleUpdateStreamStatus(stream.id, 'live')}>
+                                {language === "ar" ? "ابدأ" : "Go Live"}
+                              </Button>
+                            )}
+                            {stream.status === 'live' && (
+                              <Button size="sm" variant="secondary" onClick={() => handleUpdateStreamStatus(stream.id, 'ended')}>
+                                {language === "ar" ? "إنهاء" : "End"}
+                              </Button>
+                            )}
+                            <Button size="sm" variant="destructive" onClick={() => handleDeleteStream(stream.id)}>
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              {/* ===== ASSIGNMENTS TAB ===== */}
+              <TabsContent value="assignments">
+                <div className="mb-6">
+                  <h2 className="text-xl font-bold text-foreground mb-2">{language === "ar" ? "التكليفات والملفات" : "Assignments & Files"}</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {language === "ar"
+                      ? "أنشئ تكليفات وارفع ملفات للطلبة. يستطيع الطلبة تنزيل الملفات ثم إرسال إجاباتهم لك لتقييمها."
+                      : "Create assignments and upload files for students. Students can download files and submit their answers for grading."}
+                  </p>
+                </div>
+
+                {courses.length === 0 ? (
+                  <div className="text-center py-16 text-muted-foreground">
+                    {language === "ar" ? "أنشئ دورة أولاً لإضافة تكليفات" : "Create a course first to add assignments"}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {courses.map(course => (
+                      <Card key={course.id} className="cursor-pointer card-hover" onClick={() => openAssignments(course.id)}>
+                        <CardContent className="p-5 text-center">
+                          <ClipboardList className="w-10 h-10 text-primary mx-auto mb-3" />
+                          <h3 className="font-bold text-foreground mb-1">{language === "ar" ? course.title_ar : course.title_en}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {language === "ar" ? "اضغط لإدارة التكليفات" : "Click to manage assignments"}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
           </>
         )}
       </main>
+
+      {/* ===== DIALOGS ===== */}
 
       {/* New Course Dialog */}
       <Dialog open={showNewCourse} onOpenChange={setShowNewCourse}>
@@ -376,7 +586,6 @@ const LecturerDashboard = () => {
               <Switch checked={newCourse.is_free} onCheckedChange={v => setNewCourse(p => ({ ...p, is_free: v }))} />
               <Label className="font-semibold">{language === "ar" ? "دورة مجانية" : "Free Course"}</Label>
             </div>
-            {/* Thumbnail */}
             <div>
               <Label className="mb-1 block text-sm font-semibold">{language === "ar" ? "الصورة المصغرة" : "Thumbnail"}</Label>
               {thumbnailPreview ? (
@@ -408,10 +617,9 @@ const LecturerDashboard = () => {
       <Dialog open={showEpisodeDialog} onOpenChange={setShowEpisodeDialog}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{language === "ar" ? "محتوى الدورة" : "Course Content"}</DialogTitle>
+            <DialogTitle>{language === "ar" ? "حلقات الدورة ومرفقاتها" : "Course Episodes & Attachments"}</DialogTitle>
           </DialogHeader>
 
-          {/* Episodes */}
           <div>
             <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
               <Video className="w-4 h-4" /> {language === "ar" ? "الحلقات" : "Episodes"}
@@ -431,7 +639,6 @@ const LecturerDashboard = () => {
               </div>
             )}
 
-            {/* Add episode form */}
             <div className="space-y-3 p-4 rounded-lg border border-dashed border-border">
               <p className="text-sm font-semibold text-muted-foreground">{language === "ar" ? "إضافة حلقة جديدة" : "Add New Episode"}</p>
               <div className="grid grid-cols-2 gap-3">
@@ -456,7 +663,6 @@ const LecturerDashboard = () => {
 
           <Separator className="my-4" />
 
-          {/* Attachments */}
           <div>
             <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
               <FileText className="w-4 h-4" /> {language === "ar" ? "المرفقات" : "Attachments"}
@@ -482,6 +688,173 @@ const LecturerDashboard = () => {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* New Stream Dialog */}
+      <Dialog open={showStreamDialog} onOpenChange={setShowStreamDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{language === "ar" ? "إنشاء بث مباشر" : "Create Live Stream"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="mb-1 block text-sm font-semibold">{language === "ar" ? "العنوان (عربي)" : "Title (Arabic)"} *</Label>
+                <Input value={newStream.title_ar} onChange={e => setNewStream(p => ({ ...p, title_ar: e.target.value }))} />
+              </div>
+              <div>
+                <Label className="mb-1 block text-sm font-semibold">{language === "ar" ? "العنوان (إنجليزي)" : "Title (English)"} *</Label>
+                <Input value={newStream.title_en} onChange={e => setNewStream(p => ({ ...p, title_en: e.target.value }))} />
+              </div>
+            </div>
+            <div>
+              <Label className="mb-1 block text-sm font-semibold">{language === "ar" ? "رابط البث (YouTube Live / Zoom / أي منصة)" : "Stream URL (YouTube Live / Zoom / any platform)"} *</Label>
+              <Input placeholder="https://..." value={newStream.stream_url} onChange={e => setNewStream(p => ({ ...p, stream_url: e.target.value }))} />
+            </div>
+            <div>
+              <Label className="mb-1 block text-sm font-semibold">{language === "ar" ? "موعد البث (اختياري)" : "Scheduled Time (optional)"}</Label>
+              <Input type="datetime-local" value={newStream.scheduled_at} onChange={e => setNewStream(p => ({ ...p, scheduled_at: e.target.value }))} />
+            </div>
+            <Button onClick={handleCreateStream} disabled={savingStream} className="w-full">
+              {savingStream ? <div className="animate-spin w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full" /> : (language === "ar" ? "إنشاء البث" : "Create Stream")}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Assignments Dialog */}
+      <Dialog open={showAssignmentDialog} onOpenChange={setShowAssignmentDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{language === "ar" ? "إدارة التكليفات" : "Manage Assignments"}</DialogTitle>
+          </DialogHeader>
+
+          {/* Existing assignments */}
+          {assignments.length > 0 && (
+            <div className="space-y-3 mb-4">
+              {assignments.map(a => (
+                <Card key={a.id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h4 className="font-bold text-foreground">{language === "ar" ? a.title_ar : a.title_en}</h4>
+                        {(language === "ar" ? a.description_ar : a.description_en) && (
+                          <p className="text-sm text-muted-foreground mt-1">{language === "ar" ? a.description_ar : a.description_en}</p>
+                        )}
+                        <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                          {a.file_url && (
+                            <a href={a.file_url} target="_blank" rel="noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                              <FileText className="w-3 h-3" /> {a.file_name || (language === "ar" ? "الملف" : "File")}
+                            </a>
+                          )}
+                          {a.due_date && (
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              {new Date(a.due_date).toLocaleDateString(language === "ar" ? "ar-EG" : "en-US")}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <Button size="sm" variant="outline" onClick={() => openSubmissions(a.id)} className="gap-1">
+                        <Send className="w-3.5 h-3.5" />
+                        {language === "ar" ? "الإجابات" : "Submissions"}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          <Separator />
+
+          {/* Create new assignment */}
+          <div className="space-y-3 p-4 rounded-lg border border-dashed border-border">
+            <p className="text-sm font-semibold text-muted-foreground">{language === "ar" ? "إنشاء تكليف جديد" : "Create New Assignment"}</p>
+            <div className="grid grid-cols-2 gap-3">
+              <Input placeholder={language === "ar" ? "العنوان (عربي)" : "Title (Arabic)"} value={newAssignment.title_ar} onChange={e => setNewAssignment(p => ({ ...p, title_ar: e.target.value }))} />
+              <Input placeholder={language === "ar" ? "العنوان (إنجليزي)" : "Title (English)"} value={newAssignment.title_en} onChange={e => setNewAssignment(p => ({ ...p, title_en: e.target.value }))} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Input placeholder={language === "ar" ? "الوصف (عربي)" : "Description (Arabic)"} value={newAssignment.description_ar} onChange={e => setNewAssignment(p => ({ ...p, description_ar: e.target.value }))} />
+              <Input placeholder={language === "ar" ? "الوصف (إنجليزي)" : "Description (English)"} value={newAssignment.description_en} onChange={e => setNewAssignment(p => ({ ...p, description_en: e.target.value }))} />
+            </div>
+            <div>
+              <Label className="mb-1 block text-sm font-semibold">{language === "ar" ? "ملف التكليف (اختياري)" : "Assignment File (optional)"}</Label>
+              <Input type="file" onChange={e => setAssignmentFile(e.target.files?.[0] || null)} />
+            </div>
+            <div>
+              <Label className="mb-1 block text-sm font-semibold">{language === "ar" ? "الموعد النهائي (اختياري)" : "Due Date (optional)"}</Label>
+              <Input type="datetime-local" value={newAssignment.due_date} onChange={e => setNewAssignment(p => ({ ...p, due_date: e.target.value }))} />
+            </div>
+            <Button onClick={handleCreateAssignment} disabled={savingAssignment}>
+              <Plus className="w-3.5 h-3.5 me-1" /> {language === "ar" ? "إنشاء التكليف" : "Create Assignment"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Submissions Dialog */}
+      <Dialog open={showSubmissionsDialog} onOpenChange={setShowSubmissionsDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{language === "ar" ? "إجابات الطلبة" : "Student Submissions"}</DialogTitle>
+          </DialogHeader>
+
+          {submissions.length === 0 ? (
+            <div className="text-center py-10 text-muted-foreground">
+              {language === "ar" ? "لا توجد إجابات بعد" : "No submissions yet"}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {submissions.map(sub => (
+                <Card key={sub.id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">
+                          {language === "ar" ? "الطالب:" : "Student:"} {sub.student_id?.slice(0, 8)}...
+                        </p>
+                        <a href={sub.file_url} target="_blank" rel="noreferrer" className="text-primary hover:underline text-sm flex items-center gap-1">
+                          <FileText className="w-3.5 h-3.5" /> {sub.file_name || (language === "ar" ? "الملف المرسل" : "Submitted file")}
+                        </a>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(sub.submitted_at).toLocaleString(language === "ar" ? "ar-EG" : "en-US")}
+                        </p>
+                        {sub.grade && (
+                          <div className="mt-2 flex items-center gap-2">
+                            <Star className="w-4 h-4 text-primary" />
+                            <span className="font-bold text-foreground">{sub.grade}</span>
+                            {(sub.feedback_ar || sub.feedback_en) && (
+                              <span className="text-sm text-muted-foreground">— {language === "ar" ? sub.feedback_ar : sub.feedback_en}</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        {gradingId === sub.id ? (
+                          <div className="space-y-2 w-48">
+                            <Input placeholder={language === "ar" ? "الدرجة" : "Grade"} value={gradeValue} onChange={e => setGradeValue(e.target.value)} />
+                            <Input placeholder={language === "ar" ? "ملاحظات" : "Feedback"} value={feedbackValue} onChange={e => setFeedbackValue(e.target.value)} />
+                            <div className="flex gap-2">
+                              <Button size="sm" onClick={() => handleGradeSubmission(sub.id)}>{language === "ar" ? "حفظ" : "Save"}</Button>
+                              <Button size="sm" variant="outline" onClick={() => setGradingId(null)}>{language === "ar" ? "إلغاء" : "Cancel"}</Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <Button size="sm" variant="outline" onClick={() => { setGradingId(sub.id); setGradeValue(sub.grade || ""); setFeedbackValue(sub.feedback_ar || sub.feedback_en || ""); }}>
+                            <Star className="w-3.5 h-3.5 me-1" />
+                            {sub.grade ? (language === "ar" ? "تعديل التقييم" : "Edit Grade") : (language === "ar" ? "تقييم" : "Grade")}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

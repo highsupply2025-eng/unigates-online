@@ -1,11 +1,20 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
 Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-  const adminEmail = "admin";
+  const adminEmail = "admin@marafa.com";
   const adminPassword = "admin1993";
 
   // Check if admin already exists
@@ -27,10 +36,12 @@ Deno.serve(async (req) => {
         role: "admin",
         approved: true,
       });
+    } else {
+      await supabase.from("user_roles").update({ approved: true }).eq("id", existingRole.id);
     }
 
     return new Response(JSON.stringify({ message: "Admin already exists", user_id: adminUser.id }), {
-      headers: { "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
@@ -42,7 +53,10 @@ Deno.serve(async (req) => {
   });
 
   if (createError) {
-    return new Response(JSON.stringify({ error: createError.message }), { status: 400 });
+    return new Response(JSON.stringify({ error: createError.message }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
   // Create profile
@@ -62,6 +76,6 @@ Deno.serve(async (req) => {
   });
 
   return new Response(JSON.stringify({ message: "Admin created successfully", user_id: newUser.user.id }), {
-    headers: { "Content-Type": "application/json" },
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 });

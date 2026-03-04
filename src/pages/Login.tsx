@@ -24,9 +24,25 @@ const Login = () => {
     if (!email || !password) return;
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      navigate("/");
+      
+      // Check user role for redirect
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role, approved")
+        .eq("user_id", data.user.id);
+      
+      const adminRole = roles?.find(r => r.role === "admin");
+      const lecturerRole = roles?.find(r => r.role === "lecturer" && r.approved);
+      
+      if (adminRole) {
+        navigate("/admin/dashboard");
+      } else if (lecturerRole) {
+        navigate("/lecturer/dashboard");
+      } else {
+        navigate("/");
+      }
     } catch (error: any) {
       toast({ title: t.loginPage.error, description: error.message, variant: "destructive" });
     } finally {

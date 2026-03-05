@@ -93,6 +93,13 @@ export const en = {
     noAccount: "Don't have an account?",
     createAccount: "Create a new account",
     error: "Login Error",
+    forgotPassword: "Forgot Password?",
+    resetSent: "Password reset email sent! Check your inbox.",
+    resetError: "Error sending reset email",
+    resetTitle: "Reset Password",
+    resetSubtitle: "Enter your email and we'll send you a reset link",
+    sendReset: "Send Reset Link",
+    backToLogin: "Back to Login",
   },
 
   // Signup

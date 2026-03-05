@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 const SignupChoice = lazy(() => import("./pages/SignupChoice"));
 const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const Courses = lazy(() => import("./pages/Courses"));
 const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
 const Payment = lazy(() => import("./pages/Payment"));
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/signup" element={<SignupChoice />} />
               <Route path="/signup/:role" element={<Signup />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/choose-plan" element={<ChoosePlan />} />
               <Route path="/payment" element={<Payment />} />

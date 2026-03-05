@@ -102,15 +102,26 @@ const Login = () => {
             required
           />
 
-          <Button
-            type="submit"
-            size="lg"
-            className="w-full h-14 text-lg font-bold gap-2"
-            disabled={loading}
-          >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowIcon className="w-5 h-5" />}
-            {t.login}
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              type="submit"
+              size="lg"
+              className="flex-1 h-14 text-lg font-bold gap-2"
+              disabled={loading}
+            >
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowIcon className="w-5 h-5" />}
+              {t.login}
+            </Button>
+            <Link to="/forgot-password" className="flex-1">
+              <Button
+                type="button"
+                size="lg"
+                className="w-full h-14 text-lg font-bold"
+              >
+                {t.loginPage.forgotPassword}
+              </Button>
+            </Link>
+          </div>
 
           <p className="text-sm text-muted-foreground">
             {t.loginPage.noAccount}{" "}

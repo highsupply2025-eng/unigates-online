@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   GraduationCap, Globe, LogOut, Users, UserCheck, UserX, Shield,
-  BookOpen, Eye, Search, CheckCircle, XCircle, Clock
+  BookOpen, Eye, Search, CheckCircle, XCircle, Clock, ArrowLeft, ArrowRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -187,8 +187,9 @@ const AdminDashboard = () => {
             <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
               <Globe className="w-4 h-4" />{t.langSwitch}
             </Button>
-            <Button variant="outline" size="sm" onClick={handleLogout} className="font-semibold gap-1.5">
-              <LogOut className="w-4 h-4" />{t.logout}
+            <Button variant="default" size="sm" onClick={handleLogout} className="font-semibold gap-1.5">
+              {language === "ar" ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              {t.logout}
             </Button>
           </div>
         </div>

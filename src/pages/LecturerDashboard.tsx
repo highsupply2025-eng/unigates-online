@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   GraduationCap, Plus, Eye, BookOpen, FileText, Video, Trash2, Globe, LogOut,
-  Upload, X, Radio, Calendar, ExternalLink, ClipboardList, Star, Send, ArrowLeft, ArrowRight
+  Upload, X, Radio, Calendar, ExternalLink, ClipboardList, Star, Send, ArrowLeft, ArrowRight, MonitorPlay
 } from "lucide-react";
+import LiveStreamRoom from "@/components/LiveStreamRoom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -54,8 +55,10 @@ const LecturerDashboard = () => {
   // Live streams
   const [streams, setStreams] = useState<any[]>([]);
   const [showStreamDialog, setShowStreamDialog] = useState(false);
-  const [newStream, setNewStream] = useState({ title_ar: "", title_en: "", stream_url: "", scheduled_at: "" });
+  const [newStream, setNewStream] = useState({ title_ar: "", title_en: "", scheduled_at: "" });
   const [savingStream, setSavingStream] = useState(false);
+  const [activeStreamId, setActiveStreamId] = useState<string | null>(null);
+  const [activeStreamTitle, setActiveStreamTitle] = useState("");
 
   // Assignments
   const [assignments, setAssignments] = useState<any[]>([]);
@@ -207,7 +210,7 @@ const LecturerDashboard = () => {
 
   // Live streams
   const handleCreateStream = async () => {
-    if (!newStream.title_ar || !newStream.title_en || !newStream.stream_url) {
+    if (!newStream.title_ar || !newStream.title_en) {
       toast({ title: language === "ar" ? "خطأ" : "Error", description: language === "ar" ? "يرجى ملء جميع الحقول" : "Please fill all fields", variant: "destructive" });
       return;
     }
@@ -215,17 +218,24 @@ const LecturerDashboard = () => {
     try {
       const { error } = await supabase.from("live_streams").insert({
         creator_id: user.id, title_ar: newStream.title_ar, title_en: newStream.title_en,
-        stream_url: newStream.stream_url, status: "scheduled",
+        status: "scheduled",
         scheduled_at: newStream.scheduled_at || null,
       });
       if (error) throw error;
       toast({ title: language === "ar" ? "تم" : "Done", description: language === "ar" ? "تم إنشاء البث بنجاح" : "Stream created" });
       setShowStreamDialog(false);
-      setNewStream({ title_ar: "", title_en: "", stream_url: "", scheduled_at: "" });
+      setNewStream({ title_ar: "", title_en: "", scheduled_at: "" });
       await loadStreams(user.id);
     } catch (err: any) {
       toast({ title: language === "ar" ? "خطأ" : "Error", description: err.message, variant: "destructive" });
     } finally { setSavingStream(false); }
+  };
+
+  const handleGoLive = async (stream: any) => {
+    await supabase.from("live_streams").update({ status: "live" }).eq("id", stream.id);
+    setActiveStreamId(stream.id);
+    setActiveStreamTitle(language === "ar" ? stream.title_ar : stream.title_en);
+    if (user) await loadStreams(user.id);
   };
 
   const handleUpdateStreamStatus = async (streamId: string, status: string) => {
@@ -448,10 +458,10 @@ const LecturerDashboard = () => {
 
                 <div className="bg-accent/30 border border-border rounded-lg p-4 mb-6">
                   <p className="text-sm text-muted-foreground">
-                    <Radio className="w-4 h-4 inline me-1 text-primary" />
+                    <MonitorPlay className="w-4 h-4 inline me-1 text-primary" />
                     {language === "ar"
-                      ? "أضف رابط البث (YouTube Live أو Zoom أو أي منصة أخرى). يمكن لعدد لا نهائي من الطلاب حضور البث المباشر."
-                      : "Add your stream link (YouTube Live, Zoom, or any platform). Unlimited students can attend your live stream."}
+                      ? "ابدأ البث المباشر مباشرة من المنصة. يمكن للطلاب المشاهدة والتفاعل بالصوت والفيديو."
+                      : "Start live streaming directly from the platform. Students can watch and interact with audio/video."}
                   </p>
                 </div>
 
@@ -482,17 +492,22 @@ const LecturerDashboard = () => {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            {stream.stream_url && (
-                              <a href={stream.stream_url} target="_blank" rel="noreferrer">
-                                <Button size="sm" variant="outline"><ExternalLink className="w-3.5 h-3.5" /></Button>
-                              </a>
-                            )}
                             {stream.status === 'scheduled' && (
-                              <Button size="sm" variant="default" onClick={() => handleUpdateStreamStatus(stream.id, 'live')}>
-                                {language === "ar" ? "ابدأ" : "Go Live"}
+                              <Button size="sm" variant="default" onClick={() => handleGoLive(stream)} className="gap-1">
+                                <Radio className="w-3.5 h-3.5" />
+                                {language === "ar" ? "ابدأ البث" : "Go Live"}
                               </Button>
                             )}
                             {stream.status === 'live' && (
+                              <Button size="sm" variant="default" onClick={() => {
+                                setActiveStreamId(stream.id);
+                                setActiveStreamTitle(language === "ar" ? stream.title_ar : stream.title_en);
+                              }} className="gap-1">
+                                <MonitorPlay className="w-3.5 h-3.5" />
+                                {language === "ar" ? "دخول البث" : "Join Stream"}
+                              </Button>
+                            )}
+                            {stream.status !== 'ended' && (
                               <Button size="sm" variant="secondary" onClick={() => handleUpdateStreamStatus(stream.id, 'ended')}>
                                 {language === "ar" ? "إنهاء" : "End"}
                               </Button>
@@ -710,10 +725,6 @@ const LecturerDashboard = () => {
               </div>
             </div>
             <div>
-              <Label className="mb-1 block text-sm font-semibold">{language === "ar" ? "رابط البث (YouTube Live / Zoom / أي منصة)" : "Stream URL (YouTube Live / Zoom / any platform)"} *</Label>
-              <Input placeholder="https://..." value={newStream.stream_url} onChange={e => setNewStream(p => ({ ...p, stream_url: e.target.value }))} />
-            </div>
-            <div>
               <Label className="mb-1 block text-sm font-semibold">{language === "ar" ? "موعد البث (اختياري)" : "Scheduled Time (optional)"}</Label>
               <Input type="datetime-local" value={newStream.scheduled_at} onChange={e => setNewStream(p => ({ ...p, scheduled_at: e.target.value }))} />
             </div>
@@ -858,6 +869,20 @@ const LecturerDashboard = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* LiveKit Stream Room */}
+      {activeStreamId && user && (
+        <LiveStreamRoom
+          streamId={activeStreamId}
+          streamTitle={activeStreamTitle}
+          isHost={true}
+          participantName={user.email?.split("@")[0] || "lecturer"}
+          onClose={async () => {
+            setActiveStreamId(null);
+            if (user) await loadStreams(user.id);
+          }}
+        />
+      )}
     </div>
   );
 };

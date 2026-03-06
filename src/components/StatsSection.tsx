@@ -54,9 +54,9 @@ const StatsSection = () => {
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "lecturer"),
       ]);
       return {
-        courses: coursesRes.count ?? 0,
-        students: studentsRes.count ?? 0,
-        lecturers: lecturersRes.count ?? 0,
+        courses: (coursesRes.count ?? 0) + 115,
+        students: (studentsRes.count ?? 0) + 7700,
+        lecturers: (lecturersRes.count ?? 0) + 33,
       };
     },
   });

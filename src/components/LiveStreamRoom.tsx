@@ -8,8 +8,6 @@ import {
   ParticipantTile,
   useTracks,
 } from "@livekit/components-react";
-// @ts-ignore - styles import
-import "@livekit/components-styles";
 import { Track } from "livekit-client";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";

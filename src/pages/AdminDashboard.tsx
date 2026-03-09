@@ -36,6 +36,16 @@ interface Profile {
   created_at: string;
 }
 
+const getSignedUrl = async (path: string | null): Promise<string | null> => {
+  if (!path) return null;
+  // If it's already a full URL (legacy data), extract the path
+  const storagePath = path.includes('/storage/v1/object/public/user-documents/')
+    ? path.split('/storage/v1/object/public/user-documents/')[1]
+    : path;
+  const { data } = await supabase.storage.from("user-documents").createSignedUrl(storagePath, 3600);
+  return data?.signedUrl || null;
+};
+
 const AdminDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
   const { toast } = useToast();

@@ -173,9 +173,28 @@ const AdminDashboard = () => {
     return <Badge variant="secondary">{language === "ar" ? "طالب" : "Student"}</Badge>;
   };
 
-  const openDetail = (user: UserRole & { profile?: Profile }) => {
+  const openDetail = async (user: UserRole & { profile?: Profile }) => {
     setSelectedUser(user);
     setShowDetailDialog(true);
+    // Generate signed URLs for documents
+    if (user.profile) {
+      const urls: Record<string, string> = {};
+      const docFields = ['live_photo_url', 'id_photo_url', 'university_cert_url'] as const;
+      await Promise.all(docFields.map(async (field) => {
+        const val = user.profile?.[field];
+        if (val) {
+          const signed = await getSignedUrl(val);
+          if (signed) urls[field] = signed;
+        }
+      }));
+      if (user.profile.additional_certs_urls) {
+        await Promise.all(user.profile.additional_certs_urls.map(async (url, i) => {
+          const signed = await getSignedUrl(url);
+          if (signed) urls[`cert_${i}`] = signed;
+        }));
+      }
+      setSignedUrls(urls);
+    }
   };
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;

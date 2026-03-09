@@ -421,6 +421,8 @@ export type Database = {
     }
     Functions: {
       calculate_weekly_top_courses: { Args: never; Returns: undefined }
+      get_profile_count: { Args: never; Returns: number }
+      get_profile_count_by_role: { Args: { _role: string }; Returns: number }
       has_approved_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -36,6 +36,16 @@ interface Profile {
   created_at: string;
 }
 
+const getSignedUrl = async (path: string | null): Promise<string | null> => {
+  if (!path) return null;
+  // If it's already a full URL (legacy data), extract the path
+  const storagePath = path.includes('/storage/v1/object/public/user-documents/')
+    ? path.split('/storage/v1/object/public/user-documents/')[1]
+    : path;
+  const { data } = await supabase.storage.from("user-documents").createSignedUrl(storagePath, 3600);
+  return data?.signedUrl || null;
+};
+
 const AdminDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
   const { toast } = useToast();
@@ -48,6 +58,7 @@ const AdminDashboard = () => {
   const [pendingLecturers, setPendingLecturers] = useState<(UserRole & { profile?: Profile })[]>([]);
   const [allUsers, setAllUsers] = useState<(UserRole & { profile?: Profile })[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
 
   // Stats
   const [stats, setStats] = useState({ totalUsers: 0, totalLecturers: 0, pendingCount: 0, totalCourses: 0, totalViews: 0 });
@@ -106,14 +117,14 @@ const AdminDashboard = () => {
       { count: totalCourses },
       { count: totalViews },
     ] = await Promise.all([
-      supabase.from("profiles").select("*", { count: "exact", head: true }),
+      supabase.rpc("get_profile_count"),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "lecturer").eq("approved", true),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "lecturer").eq("approved", false),
       supabase.from("courses").select("*", { count: "exact", head: true }),
       supabase.from("course_views").select("*", { count: "exact", head: true }),
     ]);
     setStats({
-      totalUsers: totalUsers || 0,
+      totalUsers: Number(totalUsers) || 0,
       totalLecturers: totalLecturers || 0,
       pendingCount: pendingCount || 0,
       totalCourses: totalCourses || 0,
@@ -162,9 +173,28 @@ const AdminDashboard = () => {
     return <Badge variant="secondary">{language === "ar" ? "طالب" : "Student"}</Badge>;
   };
 
-  const openDetail = (user: UserRole & { profile?: Profile }) => {
+  const openDetail = async (user: UserRole & { profile?: Profile }) => {
     setSelectedUser(user);
     setShowDetailDialog(true);
+    // Generate signed URLs for documents
+    if (user.profile) {
+      const urls: Record<string, string> = {};
+      const docFields = ['live_photo_url', 'id_photo_url', 'university_cert_url'] as const;
+      await Promise.all(docFields.map(async (field) => {
+        const val = user.profile?.[field];
+        if (val) {
+          const signed = await getSignedUrl(val);
+          if (signed) urls[field] = signed;
+        }
+      }));
+      if (user.profile.additional_certs_urls) {
+        await Promise.all(user.profile.additional_certs_urls.map(async (url, i) => {
+          const signed = await getSignedUrl(url);
+          if (signed) urls[`cert_${i}`] = signed;
+        }));
+      }
+      setSignedUrls(urls);
+    }
   };
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
@@ -331,8 +361,8 @@ const AdminDashboard = () => {
           {selectedUser && (
             <div className="space-y-4">
               <div className="flex items-center gap-4">
-                {selectedUser.profile?.live_photo_url ? (
-                  <img src={selectedUser.profile.live_photo_url} alt="" className="w-16 h-16 rounded-full object-cover border-2 border-border" />
+                {signedUrls.live_photo_url ? (
+                  <img src={signedUrls.live_photo_url} alt="" className="w-16 h-16 rounded-full object-cover border-2 border-border" />
                 ) : (
                   <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
                     <Users className="w-8 h-8 text-muted-foreground" />
@@ -361,20 +391,20 @@ const AdminDashboard = () => {
                 <div className="space-y-3 border-t border-border pt-4">
                   <p className="font-semibold text-foreground">{language === "ar" ? "المستندات المرفقة" : "Attached Documents"}</p>
                   <div className="grid grid-cols-2 gap-3">
-                    {selectedUser.profile?.id_photo_url && (
-                      <a href={selectedUser.profile.id_photo_url} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors">
+                    {selectedUser.profile?.id_photo_url && signedUrls.id_photo_url && (
+                      <a href={signedUrls.id_photo_url} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors">
                         <Shield className="w-6 h-6 text-primary mx-auto mb-1" />
                         <p className="text-xs font-medium">{language === "ar" ? "صورة الهوية" : "ID Photo"}</p>
                       </a>
                     )}
-                    {selectedUser.profile?.university_cert_url && (
-                      <a href={selectedUser.profile.university_cert_url} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors">
+                    {selectedUser.profile?.university_cert_url && signedUrls.university_cert_url && (
+                      <a href={signedUrls.university_cert_url} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors">
                         <GraduationCap className="w-6 h-6 text-primary mx-auto mb-1" />
                         <p className="text-xs font-medium">{language === "ar" ? "الشهادة الجامعية" : "University Cert"}</p>
                       </a>
                     )}
-                    {selectedUser.profile?.additional_certs_urls?.map((url, i) => (
-                      <a key={i} href={url} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors">
+                    {selectedUser.profile?.additional_certs_urls?.map((url, i) => signedUrls[`cert_${i}`] && (
+                      <a key={i} href={signedUrls[`cert_${i}`]} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors">
                         <BookOpen className="w-6 h-6 text-primary mx-auto mb-1" />
                         <p className="text-xs font-medium">{language === "ar" ? `شهادة إضافية ${i + 1}` : `Certificate ${i + 1}`}</p>
                       </a>

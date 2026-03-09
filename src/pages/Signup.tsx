@@ -101,8 +101,8 @@ const Signup = () => {
     const path = `${userId}/${folder}/${Date.now()}.${ext}`;
     const { error } = await supabase.storage.from("user-documents").upload(path, file);
     if (error) throw error;
-    const { data } = supabase.storage.from("user-documents").getPublicUrl(path);
-    return data.publicUrl;
+    // Store the path - admin will use signed URLs to view
+    return path;
   };
 
   const handleSubmit = async () => {

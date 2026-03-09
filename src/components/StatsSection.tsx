@@ -50,13 +50,13 @@ const StatsSection = () => {
     queryFn: async () => {
       const [coursesRes, studentsRes, lecturersRes] = await Promise.all([
         supabase.from("courses").select("id", { count: "exact", head: true }),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "student"),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "lecturer"),
+        supabase.rpc("get_profile_count_by_role", { _role: "student" }),
+        supabase.rpc("get_profile_count_by_role", { _role: "lecturer" }),
       ]);
       return {
         courses: (coursesRes.count ?? 0) + 115,
-        students: (studentsRes.count ?? 0) + 7700,
-        lecturers: (lecturersRes.count ?? 0) + 33,
+        students: (Number(studentsRes.data) ?? 0) + 7700,
+        lecturers: (Number(lecturersRes.data) ?? 0) + 33,
       };
     },
   });

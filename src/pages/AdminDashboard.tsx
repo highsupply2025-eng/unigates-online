@@ -58,6 +58,7 @@ const AdminDashboard = () => {
   const [pendingLecturers, setPendingLecturers] = useState<(UserRole & { profile?: Profile })[]>([]);
   const [allUsers, setAllUsers] = useState<(UserRole & { profile?: Profile })[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
 
   // Stats
   const [stats, setStats] = useState({ totalUsers: 0, totalLecturers: 0, pendingCount: 0, totalCourses: 0, totalViews: 0 });

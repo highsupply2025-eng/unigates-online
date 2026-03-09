@@ -394,20 +394,20 @@ const AdminDashboard = () => {
                 <div className="space-y-3 border-t border-border pt-4">
                   <p className="font-semibold text-foreground">{language === "ar" ? "المستندات المرفقة" : "Attached Documents"}</p>
                   <div className="grid grid-cols-2 gap-3">
-                    {selectedUser.profile?.id_photo_url && (
-                      <a href={selectedUser.profile.id_photo_url} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors">
+                    {selectedUser.profile?.id_photo_url && signedUrls.id_photo_url && (
+                      <a href={signedUrls.id_photo_url} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors">
                         <Shield className="w-6 h-6 text-primary mx-auto mb-1" />
                         <p className="text-xs font-medium">{language === "ar" ? "صورة الهوية" : "ID Photo"}</p>
                       </a>
                     )}
-                    {selectedUser.profile?.university_cert_url && (
-                      <a href={selectedUser.profile.university_cert_url} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors">
+                    {selectedUser.profile?.university_cert_url && signedUrls.university_cert_url && (
+                      <a href={signedUrls.university_cert_url} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors">
                         <GraduationCap className="w-6 h-6 text-primary mx-auto mb-1" />
                         <p className="text-xs font-medium">{language === "ar" ? "الشهادة الجامعية" : "University Cert"}</p>
                       </a>
                     )}
-                    {selectedUser.profile?.additional_certs_urls?.map((url, i) => (
-                      <a key={i} href={url} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors">
+                    {selectedUser.profile?.additional_certs_urls?.map((url, i) => signedUrls[`cert_${i}`] && (
+                      <a key={i} href={signedUrls[`cert_${i}`]} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors">
                         <BookOpen className="w-6 h-6 text-primary mx-auto mb-1" />
                         <p className="text-xs font-medium">{language === "ar" ? `شهادة إضافية ${i + 1}` : `Certificate ${i + 1}`}</p>
                       </a>

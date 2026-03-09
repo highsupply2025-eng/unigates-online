@@ -363,10 +363,7 @@ const AdminDashboard = () => {
               <div className="flex items-center gap-4">
                 {signedUrls.live_photo_url ? (
                   <img src={signedUrls.live_photo_url} alt="" className="w-16 h-16 rounded-full object-cover border-2 border-border" />
-                ) : selectedUser.profile?.live_photo_url ? (
-                  <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-                    <Clock className="w-8 h-8 text-muted-foreground" />
-                  </div>
+                ) : (
                   <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
                     <Users className="w-8 h-8 text-muted-foreground" />
                   </div>

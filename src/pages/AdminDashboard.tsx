@@ -106,7 +106,7 @@ const AdminDashboard = () => {
       { count: totalCourses },
       { count: totalViews },
     ] = await Promise.all([
-      supabase.from("profiles").select("*", { count: "exact", head: true }),
+      supabase.rpc("get_profile_count"),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "lecturer").eq("approved", true),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "lecturer").eq("approved", false),
       supabase.from("courses").select("*", { count: "exact", head: true }),

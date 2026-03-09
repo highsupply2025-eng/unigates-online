@@ -55,8 +55,8 @@ const StatsSection = () => {
       ]);
       return {
         courses: (coursesRes.count ?? 0) + 115,
-        students: (studentsRes.count ?? 0) + 7700,
-        lecturers: (lecturersRes.count ?? 0) + 33,
+        students: (Number(studentsRes.data) ?? 0) + 7700,
+        lecturers: (Number(lecturersRes.data) ?? 0) + 33,
       };
     },
   });

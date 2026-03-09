@@ -113,7 +113,7 @@ const AdminDashboard = () => {
       supabase.from("course_views").select("*", { count: "exact", head: true }),
     ]);
     setStats({
-      totalUsers: totalUsers || 0,
+      totalUsers: Number(totalUsers) || 0,
       totalLecturers: totalLecturers || 0,
       pendingCount: pendingCount || 0,
       totalCourses: totalCourses || 0,

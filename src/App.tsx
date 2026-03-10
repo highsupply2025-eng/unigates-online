@@ -16,6 +16,7 @@ const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
 const Payment = lazy(() => import("./pages/Payment"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const LiveStreams = lazy(() => import("./pages/LiveStreams"));
 const LecturerDashboard = lazy(() => import("./pages/LecturerDashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const WatchStream = lazy(() => import("./pages/WatchStream"));

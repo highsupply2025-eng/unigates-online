@@ -216,6 +216,20 @@ export const ar = {
     subscribeToWatch: "اشترك لمشاهدة الكل",
   },
 
+  // Live Streams Page
+  liveStreamsPage: {
+    title: "البث المباشر",
+    subtitle: "تابع البثوث المباشرة وتفاعل مع المحاضرين في الوقت الحقيقي",
+    liveBadge: "بث مباشر",
+    liveNow: "يُبث الآن",
+    upcoming: "بثوث قادمة",
+    live: "مباشر",
+    scheduled: "قادم",
+    joinNow: "انضم الآن",
+    noStreams: "لا توجد بثوث حالياً",
+    noStreamsDesc: "لا توجد بثوث مباشرة أو مجدولة في الوقت الحالي. تصفّح الدورات بدلاً من ذلك.",
+  },
+
   // 404
   notFound: {
     title: "404",

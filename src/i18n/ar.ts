@@ -1,6 +1,6 @@
 export const ar = {
   // Common
-  brandName: "مَعرِفة",
+  brandName: "إدراك",
   login: "تسجيل الدخول",
   signup: "إنشاء حساب",
   home: "الرئيسية",

@@ -1,6 +1,6 @@
 export const en = {
   // Common
-  brandName: "Ma'rifa",
+  brandName: "Edrak",
   login: "Log In",
   signup: "Create Account",
   home: "Home",

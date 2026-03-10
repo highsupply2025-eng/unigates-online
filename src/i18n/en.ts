@@ -216,6 +216,20 @@ export const en = {
     subscribeToWatch: "Subscribe to Watch All",
   },
 
+  // Live Streams Page
+  liveStreamsPage: {
+    title: "Live Streams",
+    subtitle: "Watch live streams and interact with lecturers in real-time",
+    liveBadge: "Live Now",
+    liveNow: "Live Now",
+    upcoming: "Upcoming Streams",
+    live: "LIVE",
+    scheduled: "Upcoming",
+    joinNow: "Join Now",
+    noStreams: "No Streams Available",
+    noStreamsDesc: "There are no live or scheduled streams at the moment. Browse courses instead.",
+  },
+
   // 404
   notFound: {
     title: "404",

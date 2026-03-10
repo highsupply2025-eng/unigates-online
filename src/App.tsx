@@ -53,6 +53,7 @@ const App = () => (
               <Route path="/lecturer/dashboard" element={<LecturerDashboard />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/stream/:streamId" element={<WatchStream />} />
+              <Route path="/live" element={<LiveStreams />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

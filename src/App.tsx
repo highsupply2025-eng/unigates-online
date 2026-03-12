@@ -56,6 +56,8 @@ const App = () => (
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/stream/:streamId" element={<WatchStream />} />
               <Route path="/live" element={<LiveStreams />} />
+              <Route path="/book-store" element={<BookStore />} />
+              <Route path="/school-platform" element={<SchoolPlatform />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

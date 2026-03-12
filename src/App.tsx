@@ -20,6 +20,8 @@ const LiveStreams = lazy(() => import("./pages/LiveStreams"));
 const LecturerDashboard = lazy(() => import("./pages/LecturerDashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const WatchStream = lazy(() => import("./pages/WatchStream"));
+const BookStore = lazy(() => import("./pages/BookStore"));
+const SchoolPlatform = lazy(() => import("./pages/SchoolPlatform"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,6 +56,8 @@ const App = () => (
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/stream/:streamId" element={<WatchStream />} />
               <Route path="/live" element={<LiveStreams />} />
+              <Route path="/book-store" element={<BookStore />} />
+              <Route path="/school-platform" element={<SchoolPlatform />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

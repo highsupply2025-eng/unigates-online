@@ -32,6 +32,16 @@ const SiteHeader = () => {
             {t.exploreCourses}
           </Button>
         </Link>
+        <Link to="/book-store">
+          <Button variant="default" size="sm" className="font-semibold hidden md:inline-flex">
+            {t.bookStore}
+          </Button>
+        </Link>
+        <Link to="/school-platform">
+          <Button variant="default" size="sm" className="font-semibold hidden md:inline-flex">
+            {t.schoolPlatform}
+          </Button>
+        </Link>
         <Link to="/login">
           <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
             {t.login}

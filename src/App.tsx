@@ -20,6 +20,8 @@ const LiveStreams = lazy(() => import("./pages/LiveStreams"));
 const LecturerDashboard = lazy(() => import("./pages/LecturerDashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const WatchStream = lazy(() => import("./pages/WatchStream"));
+const BookStore = lazy(() => import("./pages/BookStore"));
+const SchoolPlatform = lazy(() => import("./pages/SchoolPlatform"));
 
 const queryClient = new QueryClient({
   defaultOptions: {

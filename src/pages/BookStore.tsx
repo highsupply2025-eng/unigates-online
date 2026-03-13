@@ -34,6 +34,7 @@ const BookStore = () => {
   const { t, dir } = useLanguage();
   const isRtl = dir === "rtl";
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [buyingBook, setBuyingBook] = useState<string | null>(null);

@@ -71,12 +71,9 @@ const BookStore = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast({
-          title: isRtl ? "يجب تسجيل الدخول أولاً" : "Please login first",
-          description: isRtl ? "قم بتسجيل الدخول لإتمام عملية الشراء" : "Login to complete your purchase",
-          variant: "destructive",
-        });
+        setBuyingBook(null);
         setPurchasing(false);
+        navigate("/book-store/login");
         return;
       }
       const { error } = await supabase.from("book_orders").insert({

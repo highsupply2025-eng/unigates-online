@@ -425,6 +425,7 @@ export type Database = {
           id_photo_url: string | null
           live_photo_url: string | null
           phone: string
+          platform: string
           role: string
           university_cert_url: string | null
           updated_at: string
@@ -439,6 +440,7 @@ export type Database = {
           id_photo_url?: string | null
           live_photo_url?: string | null
           phone: string
+          platform?: string
           role: string
           university_cert_url?: string | null
           updated_at?: string
@@ -453,10 +455,59 @@ export type Database = {
           id_photo_url?: string | null
           live_photo_url?: string | null
           phone?: string
+          platform?: string
           role?: string
           university_cert_url?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      school_registrations: {
+        Row: {
+          address: string | null
+          admin_notes: string | null
+          city: string
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          phone: string
+          principal_name: string
+          school_name: string
+          status: string
+          student_count: number | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          admin_notes?: string | null
+          city: string
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          phone: string
+          principal_name: string
+          school_name: string
+          status?: string
+          student_count?: number | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          admin_notes?: string | null
+          city?: string
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          phone?: string
+          principal_name?: string
+          school_name?: string
+          status?: string
+          student_count?: number | null
+          updated_at?: string
         }
         Relationships: []
       }

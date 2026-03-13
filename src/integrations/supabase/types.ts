@@ -111,6 +111,110 @@ export type Database = {
           },
         ]
       }
+      book_orders: {
+        Row: {
+          amount: number
+          book_id: string
+          created_at: string
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          book_id: string
+          created_at?: string
+          id?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          book_id?: string
+          created_at?: string
+          id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "book_orders_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      books: {
+        Row: {
+          author_ar: string
+          author_en: string
+          category: string
+          cover_url: string | null
+          created_at: string
+          description_ar: string | null
+          description_en: string | null
+          format: string | null
+          id: string
+          is_active: boolean | null
+          is_bestseller: boolean | null
+          is_new: boolean | null
+          original_price: number | null
+          pages: number | null
+          price: number
+          rating: number | null
+          reviews_count: number | null
+          title_ar: string
+          title_en: string
+          updated_at: string
+        }
+        Insert: {
+          author_ar: string
+          author_en: string
+          category?: string
+          cover_url?: string | null
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          format?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_bestseller?: boolean | null
+          is_new?: boolean | null
+          original_price?: number | null
+          pages?: number | null
+          price: number
+          rating?: number | null
+          reviews_count?: number | null
+          title_ar: string
+          title_en: string
+          updated_at?: string
+        }
+        Update: {
+          author_ar?: string
+          author_en?: string
+          category?: string
+          cover_url?: string | null
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          format?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_bestseller?: boolean | null
+          is_new?: boolean | null
+          original_price?: number | null
+          pages?: number | null
+          price?: number
+          rating?: number | null
+          reviews_count?: number | null
+          title_ar?: string
+          title_en?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       course_attachments: {
         Row: {
           course_id: string

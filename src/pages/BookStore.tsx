@@ -130,6 +130,7 @@ const BookStore = () => {
             </Link>
           </div>
         </div>
+        <div className="pt-8 pb-12 px-6 md:px-12 text-center max-w-5xl mx-auto">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 rounded-2xl bg-primary-foreground/10 flex items-center justify-center">
               <BookOpen className="w-8 h-8 text-primary-foreground" />

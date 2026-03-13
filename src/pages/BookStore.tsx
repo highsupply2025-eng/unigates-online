@@ -1,4 +1,3 @@
-import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { BookOpen, Search, ShoppingCart, Star, Filter, Tag, Heart, Eye, Loader2, CheckCircle, Home, LogIn } from "lucide-react";

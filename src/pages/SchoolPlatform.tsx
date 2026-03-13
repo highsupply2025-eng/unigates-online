@@ -266,10 +266,12 @@ const SchoolPlatform = () => {
               ? "انضم لأكثر من 500 مدرسة تستخدم منصتنا لتطوير العملية التعليمية"
               : "Join over 500 schools using our platform to enhance the educational process"}
           </p>
-          <Button size="lg" className="font-bold text-base px-10">
-            <GraduationCap className="w-5 h-5" />
-            {isRtl ? "سجّل مدرستك مجاناً" : "Register Your School for Free"}
-          </Button>
+          <Link to="/school-platform/register">
+            <Button size="lg" className="font-bold text-base px-10">
+              <GraduationCap className="w-5 h-5" />
+              {isRtl ? "سجّل مدرستك الآن" : "Register Your School Now"}
+            </Button>
+          </Link>
         </div>
       </section>
 

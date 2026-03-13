@@ -114,10 +114,12 @@ const SchoolPlatform = () => {
               : "An all-in-one school platform connecting teachers, students, and parents in a single digital learning environment"}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button size="lg" variant="secondary" className="font-bold text-base px-8">
-              <GraduationCap className="w-5 h-5" />
-              {isRtl ? "ابدأ مجاناً" : "Get Started Free"}
-            </Button>
+            <Link to="/school-platform/register">
+              <Button size="lg" variant="secondary" className="font-bold text-base px-8">
+                <GraduationCap className="w-5 h-5" />
+                {isRtl ? "سجّل مدرستك الآن" : "Register Your School"}
+              </Button>
+            </Link>
             <Button size="lg" variant="outline" className="font-bold text-base px-8 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
               {isRtl ? "شاهد العرض التوضيحي" : "Watch Demo"}
             </Button>

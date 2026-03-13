@@ -21,13 +21,16 @@ const LecturerDashboard = lazy(() => import("./pages/LecturerDashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const WatchStream = lazy(() => import("./pages/WatchStream"));
 const BookStore = lazy(() => import("./pages/BookStore"));
+const BookStoreLogin = lazy(() => import("./pages/BookStoreLogin"));
+const BookStoreSignup = lazy(() => import("./pages/BookStoreSignup"));
 const SchoolPlatform = lazy(() => import("./pages/SchoolPlatform"));
+const SchoolRegistration = lazy(() => import("./pages/SchoolRegistration"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
       refetchOnWindowFocus: false,
       retry: 1,
     },
@@ -44,6 +47,7 @@ const App = () => (
           <Suspense fallback={<div className="min-h-screen bg-background" />}>
             <Routes>
               <Route path="/" element={<Index />} />
+              {/* Courses auth */}
               <Route path="/courses" element={<Courses />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/signup/:role" element={<Signup />} />
@@ -56,8 +60,13 @@ const App = () => (
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/stream/:streamId" element={<WatchStream />} />
               <Route path="/live" element={<LiveStreams />} />
+              {/* Book Store + separate auth */}
               <Route path="/book-store" element={<BookStore />} />
+              <Route path="/book-store/login" element={<BookStoreLogin />} />
+              <Route path="/book-store/signup" element={<BookStoreSignup />} />
+              {/* School Platform */}
               <Route path="/school-platform" element={<SchoolPlatform />} />
+              <Route path="/school-platform/register" element={<SchoolRegistration />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

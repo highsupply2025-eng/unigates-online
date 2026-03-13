@@ -1,7 +1,7 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { BookOpen, Search, ShoppingCart, Star, Filter, Tag, Heart, Eye, Loader2, CheckCircle } from "lucide-react";
+import { BookOpen, Search, ShoppingCart, Star, Filter, Tag, Heart, Eye, Loader2, CheckCircle, Home, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useBooks } from "@/hooks/useBooks";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";

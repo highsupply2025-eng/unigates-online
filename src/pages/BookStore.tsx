@@ -105,8 +105,31 @@ const BookStore = () => {
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
       {/* Hero */}
       <div className="bg-primary/90 pb-8">
-        <SiteHeader />
-        <div className="pt-28 pb-12 px-6 md:px-12 text-center max-w-5xl mx-auto">
+        {/* Book Store Header with auth links */}
+        <div className="px-6 py-3 flex items-center justify-between max-w-6xl mx-auto pt-6">
+          <Link to="/book-store" className="flex items-center gap-2">
+            <BookOpen className="w-7 h-7 text-primary-foreground" />
+            <span className="text-xl font-black text-primary-foreground">{t.bookStore}</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/book-store/login">
+              <Button variant="outline" size="sm" className="font-semibold border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 gap-1.5">
+                <LogIn className="w-4 h-4" />
+                {t.login}
+              </Button>
+            </Link>
+            <Link to="/book-store/signup">
+              <Button variant="secondary" size="sm" className="font-semibold">
+                {t.signup}
+              </Button>
+            </Link>
+            <Link to="/">
+              <Button variant="outline" size="sm" className="font-semibold border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 gap-1.5">
+                <Home className="w-4 h-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 rounded-2xl bg-primary-foreground/10 flex items-center justify-center">
               <BookOpen className="w-8 h-8 text-primary-foreground" />

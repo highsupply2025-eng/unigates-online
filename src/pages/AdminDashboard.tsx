@@ -332,6 +332,13 @@ const AdminDashboard = () => {
                 <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingCount}</Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="schools" className="gap-1.5">
+              <School className="w-4 h-4" />
+              {language === "ar" ? "طلبات المدارس" : "School Requests"}
+              {stats.pendingSchools > 0 && (
+                <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingSchools}</Badge>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="users" className="gap-1.5">
               <Users className="w-4 h-4" />
               {language === "ar" ? "جميع المستخدمين" : "All Users"}

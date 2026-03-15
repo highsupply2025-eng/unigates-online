@@ -25,6 +25,7 @@ const BookStoreLogin = lazy(() => import("./pages/BookStoreLogin"));
 const BookStoreSignup = lazy(() => import("./pages/BookStoreSignup"));
 const SchoolPlatform = lazy(() => import("./pages/SchoolPlatform"));
 const SchoolRegistration = lazy(() => import("./pages/SchoolRegistration"));
+const UserProfile = lazy(() => import("./pages/UserProfile"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -67,6 +68,8 @@ const App = () => (
               {/* School Platform */}
               <Route path="/school-platform" element={<SchoolPlatform />} />
               <Route path="/school-platform/register" element={<SchoolRegistration />} />
+              <Route path="/profile" element={<UserProfile />} />
+              <Route path="/book-store/profile" element={<UserProfile />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

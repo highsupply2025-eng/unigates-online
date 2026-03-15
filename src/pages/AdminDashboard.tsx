@@ -186,7 +186,37 @@ const AdminDashboard = () => {
     setShowDetailDialog(false);
   };
 
+  const handleSchoolApprove = async (id: string) => {
+    const { error } = await supabase.from("school_registrations").update({ status: "approved", admin_notes: adminNotes || null }).eq("id", id);
+    if (error) {
+      toast({ title: language === "ar" ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: language === "ar" ? "تم" : "Done", description: language === "ar" ? "تم قبول طلب المدرسة" : "School registration approved" });
+    setShowSchoolDialog(false);
+    setAdminNotes("");
+    await Promise.all([loadSchoolRegistrations(), loadStats()]);
+  };
+
+  const handleSchoolReject = async (id: string) => {
+    const { error } = await supabase.from("school_registrations").update({ status: "rejected", admin_notes: adminNotes || null }).eq("id", id);
+    if (error) {
+      toast({ title: language === "ar" ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: language === "ar" ? "تم" : "Done", description: language === "ar" ? "تم رفض طلب المدرسة" : "School registration rejected" });
+    setShowSchoolDialog(false);
+    setAdminNotes("");
+    await Promise.all([loadSchoolRegistrations(), loadStats()]);
+  };
+
   const handleLogout = async () => { await supabase.auth.signOut(); navigate("/"); };
+
+  const filteredSchools = schoolRegistrations.filter(s => {
+    if (!schoolSearchQuery) return true;
+    const q = schoolSearchQuery.toLowerCase();
+    return s.school_name.toLowerCase().includes(q) || s.principal_name.toLowerCase().includes(q) || s.city.toLowerCase().includes(q);
+  });
 
   const filteredUsers = allUsers.filter(u => {
     if (!searchQuery) return true;

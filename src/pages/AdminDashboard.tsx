@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   GraduationCap, Globe, LogOut, Users, UserCheck, UserX, Shield,
-  BookOpen, Eye, Search, CheckCircle, XCircle, Clock, ArrowLeft, ArrowRight
+  BookOpen, Eye, Search, CheckCircle, XCircle, Clock, ArrowLeft, ArrowRight,
+  School, MapPin, Phone, Mail, MessageSquare, FileText
 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +21,21 @@ interface UserRole {
   user_id: string;
   role: "admin" | "lecturer" | "student";
   approved: boolean;
+  created_at: string;
+}
+
+interface SchoolRegistration {
+  id: string;
+  school_name: string;
+  principal_name: string;
+  city: string;
+  phone: string;
+  email: string;
+  student_count: number | null;
+  address: string | null;
+  message: string | null;
+  status: string;
+  admin_notes: string | null;
   created_at: string;
 }
 
@@ -60,8 +77,15 @@ const AdminDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
 
+  // School registrations
+  const [schoolRegistrations, setSchoolRegistrations] = useState<SchoolRegistration[]>([]);
+  const [selectedSchool, setSelectedSchool] = useState<SchoolRegistration | null>(null);
+  const [showSchoolDialog, setShowSchoolDialog] = useState(false);
+  const [adminNotes, setAdminNotes] = useState("");
+  const [schoolSearchQuery, setSchoolSearchQuery] = useState("");
+
   // Stats
-  const [stats, setStats] = useState({ totalUsers: 0, totalLecturers: 0, pendingCount: 0, totalCourses: 0, totalViews: 0 });
+  const [stats, setStats] = useState({ totalUsers: 0, totalLecturers: 0, pendingCount: 0, totalCourses: 0, totalViews: 0, pendingSchools: 0 });
 
   // Detail dialog
   const [selectedUser, setSelectedUser] = useState<(UserRole & { profile?: Profile }) | null>(null);
@@ -77,7 +101,7 @@ const AdminDashboard = () => {
     if (!roles || roles.length === 0) { navigate("/"); return; }
 
     setIsAdmin(true);
-    await Promise.all([loadPending(), loadAllUsers(), loadStats()]);
+    await Promise.all([loadPending(), loadAllUsers(), loadStats(), loadSchoolRegistrations()]);
     setLoading(false);
   };
 
@@ -109,6 +133,11 @@ const AdminDashboard = () => {
     setAllUsers(merged);
   };
 
+  const loadSchoolRegistrations = async () => {
+    const { data } = await supabase.from("school_registrations").select("*").order("created_at", { ascending: false });
+    setSchoolRegistrations(data || []);
+  };
+
   const loadStats = async () => {
     const [
       { count: totalUsers },
@@ -116,12 +145,14 @@ const AdminDashboard = () => {
       { count: pendingCount },
       { count: totalCourses },
       { count: totalViews },
+      { count: pendingSchools },
     ] = await Promise.all([
       supabase.rpc("get_profile_count"),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "lecturer").eq("approved", true),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "lecturer").eq("approved", false),
       supabase.from("courses").select("*", { count: "exact", head: true }),
       supabase.from("course_views").select("*", { count: "exact", head: true }),
+      supabase.from("school_registrations").select("*", { count: "exact", head: true }).eq("status", "pending"),
     ]);
     setStats({
       totalUsers: Number(totalUsers) || 0,
@@ -129,6 +160,7 @@ const AdminDashboard = () => {
       pendingCount: pendingCount || 0,
       totalCourses: totalCourses || 0,
       totalViews: totalViews || 0,
+      pendingSchools: pendingSchools || 0,
     });
   };
 
@@ -154,7 +186,37 @@ const AdminDashboard = () => {
     setShowDetailDialog(false);
   };
 
+  const handleSchoolApprove = async (id: string) => {
+    const { error } = await supabase.from("school_registrations").update({ status: "approved", admin_notes: adminNotes || null }).eq("id", id);
+    if (error) {
+      toast({ title: language === "ar" ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: language === "ar" ? "تم" : "Done", description: language === "ar" ? "تم قبول طلب المدرسة" : "School registration approved" });
+    setShowSchoolDialog(false);
+    setAdminNotes("");
+    await Promise.all([loadSchoolRegistrations(), loadStats()]);
+  };
+
+  const handleSchoolReject = async (id: string) => {
+    const { error } = await supabase.from("school_registrations").update({ status: "rejected", admin_notes: adminNotes || null }).eq("id", id);
+    if (error) {
+      toast({ title: language === "ar" ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: language === "ar" ? "تم" : "Done", description: language === "ar" ? "تم رفض طلب المدرسة" : "School registration rejected" });
+    setShowSchoolDialog(false);
+    setAdminNotes("");
+    await Promise.all([loadSchoolRegistrations(), loadStats()]);
+  };
+
   const handleLogout = async () => { await supabase.auth.signOut(); navigate("/"); };
+
+  const filteredSchools = schoolRegistrations.filter(s => {
+    if (!schoolSearchQuery) return true;
+    const q = schoolSearchQuery.toLowerCase();
+    return s.school_name.toLowerCase().includes(q) || s.principal_name.toLowerCase().includes(q) || s.city.toLowerCase().includes(q);
+  });
 
   const filteredUsers = allUsers.filter(u => {
     if (!searchQuery) return true;
@@ -227,7 +289,7 @@ const AdminDashboard = () => {
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
           <Card><CardContent className="pt-6 text-center">
             <Users className="w-7 h-7 text-primary mx-auto mb-1" />
             <p className="text-2xl font-black text-foreground">{stats.totalUsers}</p>
@@ -242,6 +304,11 @@ const AdminDashboard = () => {
             <Clock className="w-7 h-7 text-amber-500 mx-auto mb-1" />
             <p className="text-2xl font-black text-foreground">{stats.pendingCount}</p>
             <p className="text-xs text-muted-foreground">{language === "ar" ? "بانتظار الموافقة" : "Pending Approval"}</p>
+          </CardContent></Card>
+          <Card><CardContent className="pt-6 text-center">
+            <School className="w-7 h-7 text-blue-600 mx-auto mb-1" />
+            <p className="text-2xl font-black text-foreground">{stats.pendingSchools}</p>
+            <p className="text-xs text-muted-foreground">{language === "ar" ? "طلبات مدارس" : "School Requests"}</p>
           </CardContent></Card>
           <Card><CardContent className="pt-6 text-center">
             <BookOpen className="w-7 h-7 text-primary mx-auto mb-1" />
@@ -263,6 +330,13 @@ const AdminDashboard = () => {
               {language === "ar" ? "طلبات الانتظار" : "Pending Requests"}
               {stats.pendingCount > 0 && (
                 <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingCount}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="schools" className="gap-1.5">
+              <School className="w-4 h-4" />
+              {language === "ar" ? "طلبات المدارس" : "School Requests"}
+              {stats.pendingSchools > 0 && (
+                <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingSchools}</Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value="users" className="gap-1.5">
@@ -349,8 +423,167 @@ const AdminDashboard = () => {
               )}
             </div>
           </TabsContent>
+
+          {/* Schools Tab */}
+          <TabsContent value="schools">
+            <div className="mb-4 relative max-w-md">
+              <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder={language === "ar" ? "بحث باسم المدرسة أو المدينة..." : "Search by school name or city..."}
+                value={schoolSearchQuery}
+                onChange={e => setSchoolSearchQuery(e.target.value)}
+                className="ps-10"
+              />
+            </div>
+            {filteredSchools.length === 0 ? (
+              <div className="text-center py-16">
+                <School className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                <p className="text-lg text-muted-foreground">{language === "ar" ? "لا توجد طلبات تسجيل مدارس" : "No school registration requests"}</p>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {filteredSchools.map(school => {
+                  const statusBadge = school.status === "approved"
+                    ? <Badge className="bg-green-100 text-green-700 border-green-300">{language === "ar" ? "مقبول" : "Approved"}</Badge>
+                    : school.status === "rejected"
+                    ? <Badge variant="destructive">{language === "ar" ? "مرفوض" : "Rejected"}</Badge>
+                    : <Badge className="bg-amber-100 text-amber-700 border-amber-300">{language === "ar" ? "قيد المراجعة" : "Pending"}</Badge>;
+
+                  return (
+                    <Card key={school.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => { setSelectedSchool(school); setAdminNotes(school.admin_notes || ""); setShowSchoolDialog(true); }}>
+                      <CardContent className="p-5 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                            <School className="w-6 h-6 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-foreground">{school.school_name}</p>
+                            <p className="text-sm text-muted-foreground">{school.principal_name} — {school.city}</p>
+                            <p className="text-xs text-muted-foreground">{school.email}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          {statusBadge}
+                          <p className="text-xs text-muted-foreground hidden sm:block">
+                            {new Date(school.created_at).toLocaleDateString(language === "ar" ? "ar-EG" : "en-US")}
+                          </p>
+                          {school.status === "pending" && (
+                            <div className="flex gap-2">
+                              <Button size="sm" className="gap-1" onClick={e => { e.stopPropagation(); handleSchoolApprove(school.id); }}>
+                                <CheckCircle className="w-4 h-4" />{language === "ar" ? "قبول" : "Approve"}
+                              </Button>
+                              <Button size="sm" variant="destructive" className="gap-1" onClick={e => { e.stopPropagation(); handleSchoolReject(school.id); }}>
+                                <XCircle className="w-4 h-4" />{language === "ar" ? "رفض" : "Reject"}
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
       </main>
+
+      {/* School Detail Dialog */}
+      <Dialog open={showSchoolDialog} onOpenChange={setShowSchoolDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{language === "ar" ? "تفاصيل طلب المدرسة" : "School Registration Details"}</DialogTitle>
+          </DialogHeader>
+          {selectedSchool && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
+                  <School className="w-8 h-8 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-foreground">{selectedSchool.school_name}</p>
+                  <Badge className={selectedSchool.status === "approved" ? "bg-green-100 text-green-700" : selectedSchool.status === "rejected" ? "bg-destructive text-destructive-foreground" : "bg-amber-100 text-amber-700"}>
+                    {selectedSchool.status === "approved" ? (language === "ar" ? "مقبول" : "Approved") : selectedSchool.status === "rejected" ? (language === "ar" ? "مرفوض" : "Rejected") : (language === "ar" ? "قيد المراجعة" : "Pending")}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-muted-foreground">{language === "ar" ? "مدير المدرسة" : "Principal"}</p>
+                    <p className="font-medium text-foreground">{selectedSchool.principal_name}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-muted-foreground">{language === "ar" ? "المدينة" : "City"}</p>
+                    <p className="font-medium text-foreground">{selectedSchool.city}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-muted-foreground">{language === "ar" ? "الهاتف" : "Phone"}</p>
+                    <p className="font-medium text-foreground">{selectedSchool.phone}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-muted-foreground">{language === "ar" ? "البريد" : "Email"}</p>
+                    <p className="font-medium text-foreground">{selectedSchool.email}</p>
+                  </div>
+                </div>
+              </div>
+
+              {selectedSchool.address && (
+                <div className="text-sm">
+                  <p className="text-muted-foreground">{language === "ar" ? "العنوان" : "Address"}</p>
+                  <p className="font-medium text-foreground">{selectedSchool.address}</p>
+                </div>
+              )}
+
+              {selectedSchool.student_count && selectedSchool.student_count > 0 && (
+                <div className="text-sm">
+                  <p className="text-muted-foreground">{language === "ar" ? "عدد الطلاب" : "Student Count"}</p>
+                  <p className="font-medium text-foreground">{selectedSchool.student_count}</p>
+                </div>
+              )}
+
+              {selectedSchool.message && (
+                <div className="text-sm border-t border-border pt-3">
+                  <p className="text-muted-foreground flex items-center gap-1"><MessageSquare className="w-4 h-4" />{language === "ar" ? "رسالة المدرسة" : "School Message"}</p>
+                  <p className="font-medium text-foreground mt-1">{selectedSchool.message}</p>
+                </div>
+              )}
+
+              <div className="border-t border-border pt-3">
+                <p className="text-sm text-muted-foreground mb-2 flex items-center gap-1"><FileText className="w-4 h-4" />{language === "ar" ? "ملاحظات الأدمن" : "Admin Notes"}</p>
+                <Textarea
+                  value={adminNotes}
+                  onChange={e => setAdminNotes(e.target.value)}
+                  placeholder={language === "ar" ? "أضف ملاحظاتك هنا..." : "Add your notes here..."}
+                  className="min-h-[80px]"
+                />
+              </div>
+
+              {selectedSchool.status === "pending" && (
+                <div className="flex gap-3 pt-2">
+                  <Button className="flex-1 gap-1.5" onClick={() => handleSchoolApprove(selectedSchool.id)}>
+                    <CheckCircle className="w-4 h-4" />{language === "ar" ? "قبول الطلب" : "Approve"}
+                  </Button>
+                  <Button variant="destructive" className="flex-1 gap-1.5" onClick={() => handleSchoolReject(selectedSchool.id)}>
+                    <XCircle className="w-4 h-4" />{language === "ar" ? "رفض الطلب" : "Reject"}
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Detail Dialog */}
       <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>

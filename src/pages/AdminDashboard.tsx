@@ -77,8 +77,15 @@ const AdminDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
 
+  // School registrations
+  const [schoolRegistrations, setSchoolRegistrations] = useState<SchoolRegistration[]>([]);
+  const [selectedSchool, setSelectedSchool] = useState<SchoolRegistration | null>(null);
+  const [showSchoolDialog, setShowSchoolDialog] = useState(false);
+  const [adminNotes, setAdminNotes] = useState("");
+  const [schoolSearchQuery, setSchoolSearchQuery] = useState("");
+
   // Stats
-  const [stats, setStats] = useState({ totalUsers: 0, totalLecturers: 0, pendingCount: 0, totalCourses: 0, totalViews: 0 });
+  const [stats, setStats] = useState({ totalUsers: 0, totalLecturers: 0, pendingCount: 0, totalCourses: 0, totalViews: 0, pendingSchools: 0 });
 
   // Detail dialog
   const [selectedUser, setSelectedUser] = useState<(UserRole & { profile?: Profile }) | null>(null);
@@ -94,7 +101,7 @@ const AdminDashboard = () => {
     if (!roles || roles.length === 0) { navigate("/"); return; }
 
     setIsAdmin(true);
-    await Promise.all([loadPending(), loadAllUsers(), loadStats()]);
+    await Promise.all([loadPending(), loadAllUsers(), loadStats(), loadSchoolRegistrations()]);
     setLoading(false);
   };
 

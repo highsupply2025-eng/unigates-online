@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   GraduationCap, Globe, LogOut, Users, UserCheck, UserX, Shield,
-  BookOpen, Eye, Search, CheckCircle, XCircle, Clock, ArrowLeft, ArrowRight
+  BookOpen, Eye, Search, CheckCircle, XCircle, Clock, ArrowLeft, ArrowRight,
+  School, MapPin, Phone, Mail, MessageSquare, FileText
 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

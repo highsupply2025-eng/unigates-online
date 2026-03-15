@@ -289,7 +289,7 @@ const AdminDashboard = () => {
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
           <Card><CardContent className="pt-6 text-center">
             <Users className="w-7 h-7 text-primary mx-auto mb-1" />
             <p className="text-2xl font-black text-foreground">{stats.totalUsers}</p>
@@ -304,6 +304,11 @@ const AdminDashboard = () => {
             <Clock className="w-7 h-7 text-amber-500 mx-auto mb-1" />
             <p className="text-2xl font-black text-foreground">{stats.pendingCount}</p>
             <p className="text-xs text-muted-foreground">{language === "ar" ? "بانتظار الموافقة" : "Pending Approval"}</p>
+          </CardContent></Card>
+          <Card><CardContent className="pt-6 text-center">
+            <School className="w-7 h-7 text-blue-600 mx-auto mb-1" />
+            <p className="text-2xl font-black text-foreground">{stats.pendingSchools}</p>
+            <p className="text-xs text-muted-foreground">{language === "ar" ? "طلبات مدارس" : "School Requests"}</p>
           </CardContent></Card>
           <Card><CardContent className="pt-6 text-center">
             <BookOpen className="w-7 h-7 text-primary mx-auto mb-1" />

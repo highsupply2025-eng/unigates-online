@@ -133,6 +133,11 @@ const AdminDashboard = () => {
     setAllUsers(merged);
   };
 
+  const loadSchoolRegistrations = async () => {
+    const { data } = await supabase.from("school_registrations").select("*").order("created_at", { ascending: false });
+    setSchoolRegistrations(data || []);
+  };
+
   const loadStats = async () => {
     const [
       { count: totalUsers },
@@ -140,12 +145,14 @@ const AdminDashboard = () => {
       { count: pendingCount },
       { count: totalCourses },
       { count: totalViews },
+      { count: pendingSchools },
     ] = await Promise.all([
       supabase.rpc("get_profile_count"),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "lecturer").eq("approved", true),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "lecturer").eq("approved", false),
       supabase.from("courses").select("*", { count: "exact", head: true }),
       supabase.from("course_views").select("*", { count: "exact", head: true }),
+      supabase.from("school_registrations").select("*", { count: "exact", head: true }).eq("status", "pending"),
     ]);
     setStats({
       totalUsers: Number(totalUsers) || 0,
@@ -153,6 +160,7 @@ const AdminDashboard = () => {
       pendingCount: pendingCount || 0,
       totalCourses: totalCourses || 0,
       totalViews: totalViews || 0,
+      pendingSchools: pendingSchools || 0,
     });
   };
 

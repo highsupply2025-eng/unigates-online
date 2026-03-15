@@ -24,6 +24,21 @@ interface UserRole {
   created_at: string;
 }
 
+interface SchoolRegistration {
+  id: string;
+  school_name: string;
+  principal_name: string;
+  city: string;
+  phone: string;
+  email: string;
+  student_count: number | null;
+  address: string | null;
+  message: string | null;
+  status: string;
+  admin_notes: string | null;
+  created_at: string;
+}
+
 interface Profile {
   id: string;
   user_id: string;

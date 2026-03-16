@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { GraduationCap, Globe, Play, Clock, Lock, ChevronDown, Filter, ArrowRight, ArrowLeft, User } from "lucide-react";
+import { GraduationCap, Globe, Play, Clock, Lock, ChevronDown, Filter, ArrowRight, ArrowLeft, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -56,6 +56,10 @@ const Courses = () => {
     };
   }, []);
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
+
   const getCategory = (c: Course) => language === "ar" ? c.category_ar : c.category_en;
   const getTitle = (c: Course) => language === "ar" ? c.title_ar : c.title_en;
   const getInstructor = (c: Course) => language === "ar" ? c.instructor_ar : c.instructor_en;
@@ -86,12 +90,18 @@ const Courses = () => {
               {t.langSwitch}
             </Button>
             {isAuthenticated ? (
-              <Link to="/profile">
-                <Button variant="default" size="sm" className="font-semibold px-4 h-10 text-base gap-1.5">
-                  <User className="w-4 h-4" />
-                  {language === "ar" ? "الملف الشخصي" : "Profile"}
+              <>
+                <Link to="/profile">
+                  <Button variant="default" size="sm" className="font-semibold px-4 h-10 text-base gap-1.5">
+                    <User className="w-4 h-4" />
+                    {language === "ar" ? "الملف الشخصي" : "Profile"}
+                  </Button>
+                </Link>
+                <Button variant="outline" size="sm" onClick={handleLogout} className="font-semibold px-4 h-10 text-base gap-1.5">
+                  <LogOut className="w-4 h-4" />
+                  {language === "ar" ? "تسجيل الخروج" : "Logout"}
                 </Button>
-              </Link>
+              </>
             ) : (
               <Link to="/login">
                 <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">

@@ -1,6 +1,6 @@
 import SiteFooter from "@/components/SiteFooter";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { BookOpen, Search, ShoppingCart, Star, Filter, Tag, Heart, Eye, Loader2, CheckCircle, Home, LogIn, User } from "lucide-react";
+import { BookOpen, Search, ShoppingCart, Star, Filter, Tag, Heart, Eye, Loader2, CheckCircle, Home, LogIn, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -62,6 +62,10 @@ const BookStore = () => {
       subscription.unsubscribe();
     };
   }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
 
   const categories = [
     { id: "all", label: isRtl ? "الكل" : "All" },
@@ -133,12 +137,18 @@ const BookStore = () => {
           </Link>
           <div className="flex items-center gap-2">
             {isAuthenticated ? (
-              <Link to="/book-store/profile">
-                <Button variant="secondary" size="sm" className="font-semibold gap-1.5">
-                  <User className="w-4 h-4" />
-                  {isRtl ? "الملف الشخصي" : "Profile"}
+              <>
+                <Link to="/book-store/profile">
+                  <Button variant="secondary" size="sm" className="font-semibold gap-1.5">
+                    <User className="w-4 h-4" />
+                    {isRtl ? "الملف الشخصي" : "Profile"}
+                  </Button>
+                </Link>
+                <Button variant="outline" size="sm" onClick={handleLogout} className="font-semibold border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 gap-1.5">
+                  <LogOut className="w-4 h-4" />
+                  {isRtl ? "تسجيل الخروج" : "Logout"}
                 </Button>
-              </Link>
+              </>
             ) : (
               <>
                 <Link to="/book-store/login">

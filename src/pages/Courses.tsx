@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { GraduationCap, Globe, Play, Clock, Lock, ChevronDown, Filter, ArrowRight, ArrowLeft } from "lucide-react";
+import { GraduationCap, Globe, Play, Clock, Lock, ChevronDown, Filter, ArrowRight, ArrowLeft, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAllCourses, type Course } from "@/hooks/useCourses";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,7 +33,28 @@ const categoryColors: Record<string, string> = {
 const Courses = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { data: courses = [], isLoading: loading } = useAllCourses();
+
+  useEffect(() => {
+    let mounted = true;
+
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (mounted) setIsAuthenticated(!!user);
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session?.user);
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const getCategory = (c: Course) => language === "ar" ? c.category_ar : c.category_en;
   const getTitle = (c: Course) => language === "ar" ? c.title_ar : c.title_en;
@@ -63,11 +85,20 @@ const Courses = () => {
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
-            <Link to="/login">
-              <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
-                {t.login}
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <Link to="/profile">
+                <Button variant="default" size="sm" className="font-semibold px-4 h-10 text-base gap-1.5">
+                  <User className="w-4 h-4" />
+                  {language === "ar" ? "الملف الشخصي" : "Profile"}
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/login">
+                <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
+                  {t.login}
+                </Button>
+              </Link>
+            )}
             <Link to="/">
               <Button variant="default" size="sm" className="font-semibold gap-1.5">
                 {t.home}

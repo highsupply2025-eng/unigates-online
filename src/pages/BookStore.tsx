@@ -1,13 +1,13 @@
 import SiteFooter from "@/components/SiteFooter";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { BookOpen, Search, ShoppingCart, Star, Filter, Tag, Heart, Eye, Loader2, CheckCircle, Home, LogIn } from "lucide-react";
+import { BookOpen, Search, ShoppingCart, Star, Filter, Tag, Heart, Eye, Loader2, CheckCircle, Home, LogIn, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useBooks } from "@/hooks/useBooks";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,8 +39,29 @@ const BookStore = () => {
   const [buyingBook, setBuyingBook] = useState<string | null>(null);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [purchasing, setPurchasing] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const { data: books, isLoading } = useBooks();
+
+  useEffect(() => {
+    let mounted = true;
+
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (mounted) setIsAuthenticated(!!user);
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session?.user);
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const categories = [
     { id: "all", label: isRtl ? "الكل" : "All" },
@@ -111,17 +132,28 @@ const BookStore = () => {
             <span className="text-xl font-black text-primary-foreground">{t.bookStore}</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Link to="/book-store/login">
-              <Button variant="outline" size="sm" className="font-semibold border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 gap-1.5">
-                <LogIn className="w-4 h-4" />
-                {t.login}
-              </Button>
-            </Link>
-            <Link to="/book-store/signup">
-              <Button variant="secondary" size="sm" className="font-semibold">
-                {t.signup}
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <Link to="/book-store/profile">
+                <Button variant="secondary" size="sm" className="font-semibold gap-1.5">
+                  <User className="w-4 h-4" />
+                  {isRtl ? "الملف الشخصي" : "Profile"}
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link to="/book-store/login">
+                  <Button variant="outline" size="sm" className="font-semibold border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 gap-1.5">
+                    <LogIn className="w-4 h-4" />
+                    {t.login}
+                  </Button>
+                </Link>
+                <Link to="/book-store/signup">
+                  <Button variant="secondary" size="sm" className="font-semibold">
+                    {t.signup}
+                  </Button>
+                </Link>
+              </>
+            )}
             <Link to="/">
               <Button variant="outline" size="sm" className="font-semibold border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 gap-1.5">
                 <Home className="w-4 h-4" />

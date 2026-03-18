@@ -9,8 +9,10 @@ const HomeBooksSection = () => {
   const { data: books } = useBooks();
   const isRtl = language === "ar";
 
-  const newBooks = books?.filter((b) => b.is_new).slice(0, 6) ?? [];
-  const bestsellerBooks = books?.filter((b) => b.is_bestseller).slice(0, 6) ?? [];
+  const allFeaturedBooks = [
+    ...(books?.filter((b) => b.is_new) ?? []),
+    ...(books?.filter((b) => b.is_bestseller && !b.is_new) ?? []),
+  ].slice(0, 8);
 
   if (!books?.length) return null;
 

@@ -5,6 +5,9 @@ import FeaturesSection from "@/components/FeaturesSection";
 import FAQSection from "@/components/FAQSection";
 import SiteFooter from "@/components/SiteFooter";
 import StatsSection from "@/components/StatsSection";
+import HomeBooksSection from "@/components/HomeBooksSection";
+import RegisteredSchoolsSection from "@/components/RegisteredSchoolsSection";
+import PartnersSection from "@/components/PartnersSection";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
@@ -16,6 +19,9 @@ const Index = () => {
       <HeroSection />
       <StatsSection />
       <TrendingCourses />
+      <HomeBooksSection />
+      <RegisteredSchoolsSection />
+      <PartnersSection />
       <FeaturesSection />
       <FAQSection />
       <SiteFooter />

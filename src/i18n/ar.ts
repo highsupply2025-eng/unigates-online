@@ -43,6 +43,7 @@ export const ar = {
       students: "طالب",
       lecturers: "محاضر",
       courses: "دورة",
+      schools: "مدرسة",
     },
   },
 

@@ -29,7 +29,18 @@ export const ar = {
     companyInfo: "معلومات الشركة",
     usageTerms: "شروط الاستخدام",
   },
-  copyright: "© 2026 مَعرِفة. جميع الحقوق محفوظة.",
+  copyright: "© 2026 دار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م. جميع الحقوق محفوظة.",
+
+  // Homepage sections
+  homepage: {
+    newBooks: "📚 كتب جديدة",
+    bestsellerBooks: "🏆 الأكثر طلباً",
+    registeredSchools: "🏫 المدارس المسجلة",
+    noSchools: "لا توجد مدارس مسجلة حالياً",
+    partners: "🤝 شركاؤنا",
+    partnersSubtitle: "شركات رائدة تثق بمنصة إدراك",
+    viewAll: "عرض الكل",
+  },
 
   // Hero
   hero: {
@@ -43,6 +54,7 @@ export const ar = {
       students: "طالب",
       lecturers: "محاضر",
       courses: "دورة",
+      schools: "مدرسة",
     },
   },
 

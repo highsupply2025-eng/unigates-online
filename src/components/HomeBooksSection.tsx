@@ -16,7 +16,7 @@ const HomeBooksSection = () => {
 
   if (!books?.length) return null;
 
-  const BookCard = ({ book }: { book: typeof newBooks[0] }) => (
+  const BookCard = ({ book }: { book: typeof allFeaturedBooks[0] }) => (
     <div className="bg-card rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow border border-border group">
       {book.cover_url ? (
         <img src={book.cover_url} alt={isRtl ? book.title_ar : book.title_en} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -31,7 +31,7 @@ const HomeBooksSection = () => {
         <div className="flex items-center justify-between mt-3">
           <span className="text-primary font-bold">{book.price} {isRtl ? "ر.س" : "SAR"}</span>
           {book.rating > 0 && (
-            <span className="flex items-center gap-1 text-xs text-amber-500">
+            <span className="flex items-center gap-1 text-xs text-accent-foreground">
               <Star className="w-3 h-3 fill-current" /> {book.rating}
             </span>
           )}
@@ -40,41 +40,21 @@ const HomeBooksSection = () => {
     </div>
   );
 
+  if (!allFeaturedBooks.length) return null;
+
   return (
     <section className="py-12 px-6 md:px-12">
-      <div className="max-w-6xl mx-auto space-y-12">
-        {/* New Books */}
-        {newBooks.length > 0 && (
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold">{t.homepage.newBooks}</h2>
-              <Link to="/book-store">
-                <Button variant="outline" size="sm">{t.homepage.viewAll}</Button>
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {newBooks.map((book) => <BookCard key={book.id} book={book} />)}
-            </div>
-          </div>
-        )}
-
-        {/* Bestsellers */}
-        {bestsellerBooks.length > 0 && (
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold">{t.homepage.bestsellerBooks}</h2>
-              <Link to="/book-store">
-                <Button variant="outline" size="sm">{t.homepage.viewAll}</Button>
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {bestsellerBooks.map((book) => <BookCard key={book.id} book={book} />)}
-            </div>
-          </div>
-        )}
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold">{t.homepage.newBooks} & {t.homepage.bestsellerBooks}</h2>
+          <Link to="/book-store">
+            <Button variant="outline" size="sm">{t.homepage.viewAll}</Button>
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {allFeaturedBooks.map((book) => <BookCard key={book.id} book={book} />)}
+        </div>
       </div>
     </section>
   );
 };
-
-export default HomeBooksSection;

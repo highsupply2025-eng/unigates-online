@@ -43,6 +43,7 @@ export const en = {
       students: "Students",
       lecturers: "Lecturers",
       courses: "Courses",
+      schools: "Schools",
     },
   },
 

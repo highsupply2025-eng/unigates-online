@@ -29,7 +29,18 @@ export const en = {
     companyInfo: "Company Info",
     usageTerms: "Terms of Use",
   },
-  copyright: "© 2026 Ma'rifa. All rights reserved.",
+  copyright: "© 2026 Dar Obaid Publishing, Distribution & Printing LLC. All rights reserved.",
+
+  // Homepage sections
+  homepage: {
+    newBooks: "📚 New Books",
+    bestsellerBooks: "🏆 Bestsellers",
+    registeredSchools: "🏫 Registered Schools",
+    noSchools: "No registered schools yet",
+    partners: "🤝 Our Partners",
+    partnersSubtitle: "Leading companies trust Edrak platform",
+    viewAll: "View All",
+  },
 
   // Hero
   hero: {

@@ -1,4 +1,4 @@
-import { Users, GraduationCap, BookOpen } from "lucide-react";
+import { Users, GraduationCap, BookOpen, School } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +15,7 @@ const useCountUp = (end: number, duration = 1500) => {
     const startTime = performance.now();
     const animate = (now: number) => {
       const progress = Math.min((now - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+      const eased = 1 - Math.pow(1 - progress, 3);
       setCount(Math.round(eased * end));
       if (progress < 1) requestAnimationFrame(animate);
     };
@@ -33,7 +33,6 @@ const useCountUp = (end: number, duration = 1500) => {
     return () => observer.disconnect();
   }, [start]);
 
-  // Reset when end changes
   useEffect(() => {
     setStarted(false);
     setCount(0);
@@ -48,15 +47,17 @@ const StatsSection = () => {
   const { data: stats } = useQuery({
     queryKey: ["hero-stats"],
     queryFn: async () => {
-      const [coursesRes, studentsRes, lecturersRes] = await Promise.all([
+      const [coursesRes, studentsRes, lecturersRes, schoolsRes] = await Promise.all([
         supabase.from("courses").select("id", { count: "exact", head: true }),
         supabase.rpc("get_profile_count_by_role", { _role: "student" }),
         supabase.rpc("get_profile_count_by_role", { _role: "lecturer" }),
+        supabase.from("school_registrations").select("id", { count: "exact", head: true }).eq("status", "approved"),
       ]);
       return {
         courses: (coursesRes.count ?? 0) + 115,
         students: (Number(studentsRes.data) ?? 0) + 1035,
         lecturers: (Number(lecturersRes.data) ?? 0) + 33,
+        schools: (schoolsRes.count ?? 0) + 12,
       };
     },
   });
@@ -64,11 +65,13 @@ const StatsSection = () => {
   const students = useCountUp(stats?.students ?? 0);
   const lecturers = useCountUp(stats?.lecturers ?? 0);
   const courses = useCountUp(stats?.courses ?? 0);
+  const schools = useCountUp(stats?.schools ?? 0);
 
   const items = [
     { icon: Users, counter: students, label: t.hero.stats.students },
     { icon: GraduationCap, counter: lecturers, label: t.hero.stats.lecturers },
     { icon: BookOpen, counter: courses, label: t.hero.stats.courses },
+    { icon: School, counter: schools, label: t.hero.stats.schools },
   ];
 
   return (

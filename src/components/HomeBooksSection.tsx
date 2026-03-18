@@ -58,3 +58,5 @@ const HomeBooksSection = () => {
     </section>
   );
 };
+
+export default HomeBooksSection;

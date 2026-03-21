@@ -1,11 +1,10 @@
 import { Link } from "react-router-dom";
-import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { 
   School, BookOpen, Users, Calendar, ClipboardCheck, 
   BarChart3, MessageSquare, Shield, GraduationCap, 
-  Bell, FileText, Video, ArrowLeft, ArrowRight
+  Bell, FileText, Video, ArrowLeft, ArrowRight, Globe, Home
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

@@ -71,6 +71,7 @@ const App = () => (
               <Route path="/school-platform/register" element={<SchoolRegistration />} />
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/book-store/profile" element={<UserProfile />} />
+              <Route path="/student/dashboard" element={<StudentDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

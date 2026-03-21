@@ -10,7 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 const SchoolPlatform = () => {
-  const { t, dir } = useLanguage();
+  const { t, dir, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 

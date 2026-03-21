@@ -98,7 +98,33 @@ const SchoolPlatform = () => {
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
       {/* Hero */}
       <div className="bg-primary/90 pb-16">
-        <SiteHeader />
+        <header className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-5">
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-11 h-11 rounded-xl bg-primary flex items-center justify-center group-hover:bg-primary/90 transition-colors">
+              <GraduationCap className="w-7 h-7 text-primary-foreground" />
+            </div>
+            <span className="text-2xl md:text-3xl font-black text-primary-foreground tracking-tight drop-shadow-md">
+              {t.brandName}
+            </span>
+          </Link>
+          <div className="flex items-center gap-3">
+            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
+              <Globe className="w-4 h-4" />
+              {t.langSwitch}
+            </Button>
+            <Link to="/">
+              <Button variant="default" size="sm" className="font-semibold gap-1.5">
+                <Home className="w-4 h-4" />
+                {isRtl ? "الرئيسية" : "Home"}
+              </Button>
+            </Link>
+            <Link to="/login">
+              <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
+                {t.login}
+              </Button>
+            </Link>
+          </div>
+        </header>
         <div className="pt-28 pb-8 px-6 md:px-12 text-center max-w-4xl mx-auto">
           <div className="flex justify-center mb-5">
             <div className="w-20 h-20 rounded-2xl bg-primary-foreground/10 backdrop-blur flex items-center justify-center">

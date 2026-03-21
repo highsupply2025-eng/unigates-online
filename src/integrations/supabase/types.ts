@@ -258,6 +258,7 @@ export type Database = {
           episode_number: number
           id: string
           is_preview: boolean
+          level_number: number
           title_ar: string
           title_en: string
           updated_at: string
@@ -270,6 +271,7 @@ export type Database = {
           episode_number?: number
           id?: string
           is_preview?: boolean
+          level_number?: number
           title_ar: string
           title_en: string
           updated_at?: string
@@ -282,6 +284,7 @@ export type Database = {
           episode_number?: number
           id?: string
           is_preview?: boolean
+          level_number?: number
           title_ar?: string
           title_en?: string
           updated_at?: string
@@ -290,6 +293,62 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "course_episodes_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_levels: {
+        Row: {
+          course_id: string
+          created_at: string
+          description_ar: string | null
+          description_en: string | null
+          episode_count: number
+          id: string
+          is_unlimited: boolean
+          level_number: number
+          price: number
+          title_ar: string
+          title_en: string
+          updated_at: string
+          yearly_discount_percent: number
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          episode_count?: number
+          id?: string
+          is_unlimited?: boolean
+          level_number?: number
+          price?: number
+          title_ar: string
+          title_en: string
+          updated_at?: string
+          yearly_discount_percent?: number
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          episode_count?: number
+          id?: string
+          is_unlimited?: boolean
+          level_number?: number
+          price?: number
+          title_ar?: string
+          title_en?: string
+          updated_at?: string
+          yearly_discount_percent?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_levels_course_id_fkey"
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
@@ -511,6 +570,54 @@ export type Database = {
         }
         Relationships: []
       }
+      student_progress: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          course_id: string
+          created_at: string
+          episode_id: string
+          id: string
+          user_id: string
+          watched_seconds: number
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          course_id: string
+          created_at?: string
+          episode_id: string
+          id?: string
+          user_id: string
+          watched_seconds?: number
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          course_id?: string
+          created_at?: string
+          episode_id?: string
+          id?: string
+          user_id?: string
+          watched_seconds?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_progress_episode_id_fkey"
+            columns: ["episode_id"]
+            isOneToOne: false
+            referencedRelation: "course_episodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           approved: boolean
@@ -537,6 +644,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_subscriptions: {
+        Row: {
+          amount_paid: number
+          course_id: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          level_number: number
+          plan_type: string
+          starts_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_paid?: number
+          course_id: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          level_number?: number
+          plan_type?: string
+          starts_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number
+          course_id?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          level_number?: number
+          plan_type?: string
+          starts_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       weekly_top_courses: {
         Row: {

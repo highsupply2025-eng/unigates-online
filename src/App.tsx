@@ -26,6 +26,7 @@ const BookStoreSignup = lazy(() => import("./pages/BookStoreSignup"));
 const SchoolPlatform = lazy(() => import("./pages/SchoolPlatform"));
 const SchoolRegistration = lazy(() => import("./pages/SchoolRegistration"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
+const StudentDashboard = lazy(() => import("./pages/StudentDashboard"));
 
 const queryClient = new QueryClient({
   defaultOptions: {

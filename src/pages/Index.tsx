@@ -7,6 +7,7 @@ import SiteFooter from "@/components/SiteFooter";
 import StatsSection from "@/components/StatsSection";
 import HomeBooksSection from "@/components/HomeBooksSection";
 import RegisteredSchoolsSection from "@/components/RegisteredSchoolsSection";
+import RegisteredUniversitiesSection from "@/components/RegisteredUniversitiesSection";
 import PartnersSection from "@/components/PartnersSection";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -22,9 +23,10 @@ const Index = () => {
           <StatsSection />
         </div>
       </div>
+      <RegisteredUniversitiesSection />
+      <RegisteredSchoolsSection />
       <TrendingCourses />
       <HomeBooksSection />
-      <RegisteredSchoolsSection />
       <PartnersSection />
       <FeaturesSection />
       <FAQSection />

@@ -55,6 +55,11 @@ export const en = {
       lecturers: "Lecturers",
       courses: "Courses",
       schools: "Schools",
+      readers: "Readers",
+      sellers: "Sellers",
+      publishers: "Publishers",
+      universities: "Universities",
+      parents: "Parents",
     },
   },
 

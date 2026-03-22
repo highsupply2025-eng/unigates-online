@@ -167,22 +167,22 @@ const UniversityPlatform = () => {
           </Link>
           <div className="flex items-center gap-2">
             <Link to="/">
-              <Button variant="default" size="sm" className="font-bold px-5 h-10 text-sm gap-1.5">
+              <Button size="sm" className="font-bold px-5 h-10 text-sm gap-1.5 bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-md">
                 <Home className="w-4 h-4" />
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
             </Link>
             <Link to="/login">
-              <Button variant="default" size="sm" className="font-bold px-5 h-10 text-sm">
+              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-md">
                 {t.login}
               </Button>
             </Link>
             <Link to="/signup">
-              <Button variant="default" size="sm" className="font-bold px-5 h-10 text-sm">
+              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-md">
                 {t.signup}
               </Button>
             </Link>
-            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 px-5 h-10 text-sm">
+            <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 px-5 h-10 text-sm bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-md">
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>

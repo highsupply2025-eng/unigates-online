@@ -45,7 +45,7 @@ const BookStoreSignup = () => {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!fullName || !email || !password || !phone) {
+    if (!selectedRole || !fullName || !email || !password || !phone) {
       toast({ title: t.signupPage.errorGeneric, description: t.signupPage.errorFillFields, variant: "destructive" });
       return;
     }

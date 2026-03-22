@@ -108,21 +108,26 @@ const SchoolPlatform = () => {
             </span>
           </Link>
           <div className="flex items-center gap-3">
-            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
-              <Globe className="w-4 h-4" />
-              {t.langSwitch}
-            </Button>
+            <Link to="/school-platform/login">
+              <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
+                {t.login}
+              </Button>
+            </Link>
+            <Link to="/school-platform/signup">
+              <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
+                {t.signup}
+              </Button>
+            </Link>
             <Link to="/">
               <Button variant="default" size="sm" className="font-semibold gap-1.5">
                 <Home className="w-4 h-4" />
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
             </Link>
-            <Link to="/login">
-              <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
-                {t.login}
-              </Button>
-            </Link>
+            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
+              <Globe className="w-4 h-4" />
+              {t.langSwitch}
+            </Button>
           </div>
         </header>
         <div className="pt-28 pb-8 px-6 md:px-12 text-center max-w-4xl mx-auto">

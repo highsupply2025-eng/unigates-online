@@ -19,7 +19,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 interface UserRole {
   id: string;
   user_id: string;
-  role: "admin" | "lecturer" | "student";
+  role: string;
   approved: boolean;
   created_at: string;
 }

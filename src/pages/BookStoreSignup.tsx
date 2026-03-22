@@ -27,6 +27,7 @@ const BookStoreSignup = () => {
   const isRtl = dir === "rtl";
   const ArrowIcon = language === "ar" ? ChevronLeft : ChevronRight;
   const { toast } = useToast();
+  const [selectedRole, setSelectedRole] = useState<"personal" | "publisher" | "seller">("personal");
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -64,13 +65,20 @@ const BookStoreSignup = () => {
 
       const { error: profileError } = await supabase.from("profiles").insert({
         user_id: userId,
-        role: "student",
+        role: selectedRole,
         platform: "bookstore",
         full_name: fullName,
         phone: `${countryCode}${phone}`,
         email,
       });
       if (profileError) throw profileError;
+
+      const { error: roleError } = await supabase.from("user_roles").insert({
+        user_id: userId,
+        role: selectedRole as any,
+        approved: selectedRole === "personal",
+      });
+      if (roleError) console.error("Role insert error:", roleError);
 
       setSubmitted(true);
     } catch (error: any) {
@@ -126,6 +134,26 @@ const BookStoreSignup = () => {
             </div>
 
             <div className="space-y-4">
+              {/* Role Selection */}
+              <div>
+                <Label className="mb-2 block font-semibold">{isRtl ? "نوع الحساب" : "Account Type"} <span className="text-destructive">*</span></Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    { value: "personal" as const, labelAr: "حساب شخصي", labelEn: "Personal" },
+                    { value: "publisher" as const, labelAr: "ناشر", labelEn: "Publisher" },
+                    { value: "seller" as const, labelAr: "بائع", labelEn: "Seller" },
+                  ]).map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setSelectedRole(opt.value)}
+                      className={`p-3 rounded-xl border-2 text-sm font-bold transition-colors ${selectedRole === opt.value ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"}`}
+                    >
+                      {isRtl ? opt.labelAr : opt.labelEn}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div>
                 <Label className="mb-2 block font-semibold">{t.signupPage.fullName} <span className="text-destructive">*</span></Label>
                 <Input placeholder={t.signupPage.fullNamePlaceholder} value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-12" />

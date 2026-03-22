@@ -40,7 +40,7 @@ const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]
 
 const Signup = () => {
   const { role: roleParam } = useParams<{ role: string }>();
-  const role = roleParam === "lecturer" ? "lecturer" : "student";
+  const role = roleParam === "lecturer" ? "lecturer" : "personal";
   const isLecturer = role === "lecturer";
 
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -155,15 +155,13 @@ const Signup = () => {
       });
       if (profileError) throw profileError;
 
-      // Insert role for lecturer (pending admin approval)
-      if (isLecturer) {
-        const { error: roleError } = await supabase.from("user_roles").insert({
-          user_id: userId,
-          role: "lecturer" as any,
-          approved: false,
-        });
-        if (roleError) console.error("Role insert error:", roleError);
-      }
+      // Insert role (pending admin approval for lecturers)
+      const { error: roleError } = await supabase.from("user_roles").insert({
+        user_id: userId,
+        role: role as any,
+        approved: role === "personal",
+      });
+      if (roleError) console.error("Role insert error:", roleError);
 
       setSubmitted(true);
     } catch (error: any) {
@@ -173,7 +171,7 @@ const Signup = () => {
     }
   };
 
-  const pageTitle = isLecturer ? t.signupChoice.lecturerTitle : t.signupChoice.studentTitle;
+  const pageTitle = isLecturer ? t.signupChoice.lecturerTitle : (language === "ar" ? "حساب شخصي" : "Personal Account");
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>

@@ -25,6 +25,8 @@ const BookStoreLogin = lazy(() => import("./pages/BookStoreLogin"));
 const BookStoreSignup = lazy(() => import("./pages/BookStoreSignup"));
 const SchoolPlatform = lazy(() => import("./pages/SchoolPlatform"));
 const SchoolRegistration = lazy(() => import("./pages/SchoolRegistration"));
+const SchoolLogin = lazy(() => import("./pages/SchoolLogin"));
+const SchoolSignup = lazy(() => import("./pages/SchoolSignup"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const StudentDashboard = lazy(() => import("./pages/StudentDashboard"));
 
@@ -69,6 +71,8 @@ const App = () => (
               {/* School Platform */}
               <Route path="/school-platform" element={<SchoolPlatform />} />
               <Route path="/school-platform/register" element={<SchoolRegistration />} />
+              <Route path="/school-platform/login" element={<SchoolLogin />} />
+              <Route path="/school-platform/signup" element={<SchoolSignup />} />
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/book-store/profile" element={<UserProfile />} />
               <Route path="/student/dashboard" element={<StudentDashboard />} />

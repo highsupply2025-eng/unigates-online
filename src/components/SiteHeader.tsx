@@ -19,26 +19,25 @@ const SiteHeader = () => {
 
       <div className="flex items-center gap-1.5">
         <Link to="/university-platform">
-          <Button variant="ghost" size="sm" className="font-medium text-xs text-primary-foreground/90 hover:bg-white/15 hidden md:inline-flex h-8 px-2.5">
+          <Button variant="default" size="sm" className="font-semibold text-xs h-8 px-3 hidden md:inline-flex">
             {t.universityPlatform}
           </Button>
         </Link>
         <Link to="/school-platform">
-          <Button variant="ghost" size="sm" className="font-medium text-xs text-primary-foreground/90 hover:bg-white/15 hidden md:inline-flex h-8 px-2.5">
+          <Button variant="default" size="sm" className="font-semibold text-xs h-8 px-3 hidden md:inline-flex">
             {t.schoolPlatform}
           </Button>
         </Link>
         <Link to="/courses">
-          <Button variant="ghost" size="sm" className="font-medium text-xs text-primary-foreground/90 hover:bg-white/15 hidden md:inline-flex h-8 px-2.5">
+          <Button variant="default" size="sm" className="font-semibold text-xs h-8 px-3 hidden md:inline-flex">
             {t.exploreCourses}
           </Button>
         </Link>
         <Link to="/book-store">
-          <Button variant="ghost" size="sm" className="font-medium text-xs text-primary-foreground/90 hover:bg-white/15 hidden md:inline-flex h-8 px-2.5">
+          <Button variant="default" size="sm" className="font-semibold text-xs h-8 px-3 hidden md:inline-flex">
             {t.bookStore}
           </Button>
         </Link>
-        <div className="w-px h-5 bg-primary-foreground/20 mx-1 hidden md:block" />
         <Link to="/login">
           <Button variant="default" size="sm" className="font-semibold text-xs h-8 px-4">
             {t.login}
@@ -50,10 +49,10 @@ const SiteHeader = () => {
           </Button>
         </Link>
         <Button
-          variant="ghost"
+          variant="default"
           size="sm"
           onClick={toggleLanguage}
-          className="font-medium text-xs text-primary-foreground/90 hover:bg-white/15 gap-1 h-8 px-2.5"
+          className="font-semibold text-xs h-8 px-3 gap-1"
         >
           <Globe className="w-3.5 h-3.5" />
           {t.langSwitch}

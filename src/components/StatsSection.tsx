@@ -81,7 +81,7 @@ const StatsSection = () => {
           <div
             key={i}
             ref={item.counter.ref}
-            className="flex flex-col items-center gap-2 bg-white/15 backdrop-blur-md border border-white/20 text-white rounded-2xl px-4 py-5 shadow-xl animate-fade-in"
+            className="flex flex-col items-center gap-2 bg-transparent border border-white/40 text-white rounded-2xl px-4 py-5 animate-fade-in"
           >
             <item.icon className="w-7 h-7" />
             <span className="text-3xl font-black">{item.counter.count}</span>

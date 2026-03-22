@@ -85,10 +85,6 @@ const Courses = () => {
           </Link>
 
           <div className="flex items-center gap-3">
-            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
-              <Globe className="w-4 h-4" />
-              {t.langSwitch}
-            </Button>
             {isAuthenticated ? (
               <>
                 <Link to="/profile">
@@ -103,11 +99,18 @@ const Courses = () => {
                 </Button>
               </>
             ) : (
-              <Link to="/login">
-                <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
-                  {t.login}
-                </Button>
-              </Link>
+              <>
+                <Link to="/login">
+                  <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
+                    {t.login}
+                  </Button>
+                </Link>
+                <Link to="/signup">
+                  <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
+                    {t.signup}
+                  </Button>
+                </Link>
+              </>
             )}
             <Link to="/">
               <Button variant="default" size="sm" className="font-semibold gap-1.5">
@@ -115,6 +118,10 @@ const Courses = () => {
                 {language === "ar" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
               </Button>
             </Link>
+            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
+              <Globe className="w-4 h-4" />
+              {t.langSwitch}
+            </Button>
           </div>
         </div>
       </header>

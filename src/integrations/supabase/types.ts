@@ -215,6 +215,140 @@ export type Database = {
         }
         Relationships: []
       }
+      college_invitations: {
+        Row: {
+          college_id: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          invitation_code: string
+          is_active: boolean | null
+          max_uses: number | null
+          role: string
+          used_count: number | null
+        }
+        Insert: {
+          college_id: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          invitation_code?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          role?: string
+          used_count?: number | null
+        }
+        Update: {
+          college_id?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          invitation_code?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          role?: string
+          used_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "college_invitations_college_id_fkey"
+            columns: ["college_id"]
+            isOneToOne: false
+            referencedRelation: "college_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      college_members: {
+        Row: {
+          college_id: string
+          id: string
+          invitation_id: string | null
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          college_id: string
+          id?: string
+          invitation_id?: string | null
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          college_id?: string
+          id?: string
+          invitation_id?: string | null
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "college_members_college_id_fkey"
+            columns: ["college_id"]
+            isOneToOne: false
+            referencedRelation: "college_registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "college_members_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: false
+            referencedRelation: "college_invitations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      college_registrations: {
+        Row: {
+          address: string | null
+          admin_notes: string | null
+          city: string
+          college_name: string
+          created_at: string
+          dean_name: string
+          email: string
+          id: string
+          message: string | null
+          phone: string
+          status: string
+          student_count: number | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          admin_notes?: string | null
+          city: string
+          college_name: string
+          created_at?: string
+          dean_name: string
+          email: string
+          id?: string
+          message?: string | null
+          phone: string
+          status?: string
+          student_count?: number | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          admin_notes?: string | null
+          city?: string
+          college_name?: string
+          created_at?: string
+          dean_name?: string
+          email?: string
+          id?: string
+          message?: string | null
+          phone?: string
+          status?: string
+          student_count?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       course_attachments: {
         Row: {
           course_id: string

@@ -105,12 +105,22 @@ const Signup = () => {
   };
 
   const uploadFile = async (file: File, userId: string, folder: string): Promise<string> => {
-    const ext = file.name.split(".").pop();
-    const path = `${userId}/${folder}/${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("user-documents").upload(path, file);
-    if (error) throw error;
-    // Store the path - admin will use signed URLs to view
-    return path;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("user_id", userId);
+    formData.append("folder", folder);
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/signup-upload`,
+      {
+        method: "POST",
+        headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
+        body: formData,
+      }
+    );
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "Upload failed");
+    return result.path;
   };
 
   const handleSubmit = async () => {
@@ -150,26 +160,22 @@ const Signup = () => {
         additionalCertUrls.push(await uploadFile(cert, userId, "additional-certs"));
       }
 
-      const { error: profileError } = await supabase.from("profiles").insert({
-        user_id: userId,
-        role,
-        full_name: fullName,
-        phone: `${countryCode}${phone}`,
-        email,
-        id_photo_url: idPhotoUrl || null,
-        university_cert_url: uniCertUrl || null,
-        additional_certs_urls: additionalCertUrls,
-        live_photo_url: livePhotoUrl || null,
+      // Use RPC to create profile & role (works without session)
+      const { data: rpcResult, error: rpcError } = await supabase.rpc('complete_signup', {
+        p_user_id: userId,
+        p_role: role,
+        p_full_name: fullName,
+        p_phone: `${countryCode}${phone}`,
+        p_email: email,
+        p_platform: 'courses',
+        p_id_photo_url: idPhotoUrl || null,
+        p_university_cert_url: uniCertUrl || null,
+        p_additional_certs_urls: additionalCertUrls,
+        p_live_photo_url: livePhotoUrl || null,
       });
-      if (profileError) throw profileError;
-
-      // Insert role (pending admin approval for lecturers)
-      const { error: roleError } = await supabase.from("user_roles").insert({
-        user_id: userId,
-        role: role as any,
-        approved: role === "personal",
-      });
-      if (roleError) console.error("Role insert error:", roleError);
+      if (rpcError) throw rpcError;
+      const result = rpcResult as any;
+      if (result && !result.success) throw new Error(result.error);
 
       setSubmitted(true);
     } catch (error: any) {

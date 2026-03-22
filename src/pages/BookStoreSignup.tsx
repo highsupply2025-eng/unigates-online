@@ -69,22 +69,18 @@ const BookStoreSignup = () => {
       const userId = authData.user?.id;
       if (!userId) throw new Error(t.signupPage.errorNoUser);
 
-      const { error: profileError } = await supabase.from("profiles").insert({
-        user_id: userId,
-        role: selectedRole,
-        platform: "bookstore",
-        full_name: fullName,
-        phone: `${countryCode}${phone}`,
-        email,
+      // Use RPC to create profile & role (works without session)
+      const { data: rpcResult, error: rpcError } = await supabase.rpc('complete_signup', {
+        p_user_id: userId,
+        p_role: selectedRole,
+        p_full_name: fullName,
+        p_phone: `${countryCode}${phone}`,
+        p_email: email,
+        p_platform: 'bookstore',
       });
-      if (profileError) throw profileError;
-
-      const { error: roleError } = await supabase.from("user_roles").insert({
-        user_id: userId,
-        role: selectedRole as any,
-        approved: selectedRole === "personal",
-      });
-      if (roleError) console.error("Role insert error:", roleError);
+      if (rpcError) throw rpcError;
+      const result = rpcResult as any;
+      if (result && !result.success) throw new Error(result.error);
 
       setSubmitted(true);
     } catch (error: any) {

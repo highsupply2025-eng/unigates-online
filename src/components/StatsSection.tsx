@@ -75,13 +75,13 @@ const StatsSection = () => {
   ];
 
   return (
-    <section className="py-12 px-6 md:px-12">
+    <section className="px-6 md:px-12">
       <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
         {items.map((item, i) => (
           <div
             key={i}
             ref={item.counter.ref}
-            className="flex flex-col items-center gap-2 bg-primary text-primary-foreground rounded-2xl px-4 py-5 shadow-lg animate-fade-in"
+            className="flex flex-col items-center gap-2 bg-white/15 backdrop-blur-md border border-white/20 text-white rounded-2xl px-4 py-5 shadow-xl animate-fade-in"
           >
             <item.icon className="w-7 h-7" />
             <span className="text-3xl font-black">{item.counter.count}</span>

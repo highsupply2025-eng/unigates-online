@@ -210,6 +210,28 @@ const BookStore = () => {
         </div>
       </div>
 
+      {/* CTA Banner */}
+      <div className="max-w-6xl mx-auto px-6 pt-6">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/10 via-accent/10 to-primary/5 border border-primary/20 p-5">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+                <BookOpen className="w-5 h-5 text-primary" />
+              </div>
+              <p className="text-base md:text-lg font-bold text-foreground">
+                {isRtl ? "📖 انشر كتبك أو ابدأ البيع في متجرنا — انضم الآن!" : "📖 Publish your books or start selling — Join now!"}
+              </p>
+            </div>
+            <Link to="/book-store/signup">
+              <Button size="sm" className="font-bold shrink-0 gap-1.5">
+                {isRtl ? "انضم كناشر" : "Join as Publisher"}
+                {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* Categories */}
       <div className="max-w-6xl mx-auto px-6 pt-8 pb-4">
         <div className="flex items-center gap-2 mb-2">

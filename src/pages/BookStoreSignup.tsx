@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, ChevronLeft, ChevronRight, Loader2, Globe, Home, Phone } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Loader2, Globe, ArrowRight, ArrowLeft, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

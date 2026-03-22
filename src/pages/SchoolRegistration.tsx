@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { School, Loader2, Globe, Home, CheckCircle, Send } from "lucide-react";
+import { School, Loader2, Globe, ArrowRight, ArrowLeft, CheckCircle, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

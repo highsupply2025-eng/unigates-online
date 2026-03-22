@@ -16,7 +16,7 @@ const PartnersSection = () => {
 
   return (
     <section className="py-12 px-6 md:px-12">
-      <div className="max-w-6xl mx-auto text-center">
+      <div className="max-w-full mx-auto text-center">
         <h2 className="text-2xl font-bold mb-2">{t.homepage.partners}</h2>
         <p className="text-muted-foreground mb-8">{t.homepage.partnersSubtitle}</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">

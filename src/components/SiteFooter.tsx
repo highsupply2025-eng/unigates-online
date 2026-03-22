@@ -12,7 +12,7 @@ const SiteFooter = () => {
 
   return (
     <footer className="section-divider py-12 px-6 md:px-12">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-full mx-auto">
         <div className="flex items-center gap-2 mb-6">
           <GraduationCap className="w-6 h-6 text-primary" />
           <span className="text-lg font-bold">{t.brandName}</span>

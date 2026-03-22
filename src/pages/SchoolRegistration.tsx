@@ -259,9 +259,8 @@ const SchoolRegistration = () => {
                 </Button>
               </Link>
               <Link to="/">
-                <Button variant="outline" size="lg" className="h-14 text-lg font-bold px-8 gap-2">
-                  <Home className="w-5 h-5" />
-                  {t.home}
+                <Button variant="outline" size="icon" className="rounded-full w-12 h-12">
+                  {isRtl ? <ArrowRight className="w-6 h-6" /> : <ArrowLeft className="w-6 h-6" />}
                 </Button>
               </Link>
             </div>

@@ -251,7 +251,7 @@ const Signup = () => {
           <div className="max-w-2xl w-full">
             <div className="text-center mb-8">
               <button onClick={() => setSelectedRole(null)} className="text-sm text-primary hover:underline mb-4 inline-block">
-                {language === "ar" ? "← تغيير نوع الحساب" : "← Change account type"}
+                {language === "ar" ? "تغيير نوع الحساب →" : "← Change account type"}
               </button>
               <h1 className="text-2xl md:text-3xl font-black text-foreground mb-2">
                 {t.signupPage.title} — {pageTitle}

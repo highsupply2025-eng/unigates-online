@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, ChevronLeft, ChevronRight, Loader2, Globe, ArrowRight, ArrowLeft, Phone } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Loader2, Globe, ArrowRight, ArrowLeft, Phone, User, Store, Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,12 +22,18 @@ const countryCodes = [
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
 
+const bookRoles = [
+  { value: "personal" as const, labelAr: "حساب شخصي", labelEn: "Personal Account", descAr: "لشراء وقراءة الكتب", descEn: "To buy and read books", icon: User },
+  { value: "publisher" as const, labelAr: "ناشر", labelEn: "Publisher", descAr: "لنشر وتوزيع الكتب", descEn: "To publish and distribute books", icon: Newspaper },
+  { value: "seller" as const, labelAr: "بائع", labelEn: "Seller", descAr: "لبيع الكتب في المتجر", descEn: "To sell books in the store", icon: Store },
+];
+
 const BookStoreSignup = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
   const ArrowIcon = language === "ar" ? ChevronLeft : ChevronRight;
   const { toast } = useToast();
-  const [selectedRole, setSelectedRole] = useState<"personal" | "publisher" | "seller">("personal");
+  const [selectedRole, setSelectedRole] = useState<"personal" | "publisher" | "seller" | null>(null);
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");

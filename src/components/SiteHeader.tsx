@@ -47,6 +47,11 @@ const SiteHeader = () => {
             {t.login}
           </Button>
         </Link>
+        <Link to="/signup">
+          <Button variant="outline" size="sm" className="font-semibold px-6 h-10 text-base border-primary-foreground text-primary-foreground hover:bg-white/20">
+            {t.signup}
+          </Button>
+        </Link>
       </div>
     </header>
   );

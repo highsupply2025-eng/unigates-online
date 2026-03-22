@@ -5,7 +5,7 @@ const HeroSection = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="relative min-h-[700px] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[550px] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
         <img src={eduHeroBg} alt="" className="w-full h-full object-cover object-top" />
         <div className="absolute inset-0 hero-gradient" />

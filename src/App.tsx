@@ -74,6 +74,8 @@ const App = () => (
               <Route path="/school-platform/register" element={<SchoolRegistration />} />
               <Route path="/school-platform/login" element={<SchoolLogin />} />
               <Route path="/school-platform/signup" element={<SchoolSignup />} />
+              {/* University Platform */}
+              <Route path="/university-platform" element={<UniversityPlatform />} />
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/book-store/profile" element={<UserProfile />} />
               <Route path="/student/dashboard" element={<StudentDashboard />} />

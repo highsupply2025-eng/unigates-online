@@ -897,7 +897,10 @@ const AdminDashboard = () => {
 
           {/* ===== Live Streams ===== */}
           <TabsContent value="streams">
-            <SearchBar value={streamSearch} onChange={setStreamSearch} placeholder={language === "ar" ? "بحث بعنوان البث أو اسم المحاضر..." : "Search by stream title or lecturer..."} />
+            <div className="flex items-center gap-4 flex-wrap">
+              <SearchBar value={streamSearch} onChange={setStreamSearch} placeholder={language === "ar" ? "بحث بعنوان البث أو اسم المحاضر..." : "Search by stream title or lecturer..."} />
+              <ExportButton onClick={exportStreams} />
+            </div>
             {filteredStreams.length === 0 ? (
               <EmptyState icon={Radio} text={language === "ar" ? "لا توجد بثوث مباشرة" : "No live streams found"} />
             ) : (

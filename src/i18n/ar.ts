@@ -8,6 +8,7 @@ export const ar = {
   exploreCourses: "دورات تعليمية",
   bookStore: "متجر الكتب",
   schoolPlatform: "منصة مدرسية",
+  universityPlatform: "منصة جامعية",
   langSwitch: "EN",
   questions: "أسئلة؟ اتصل بنا:",
   freeCall: "(مجاني)",

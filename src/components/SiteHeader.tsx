@@ -7,7 +7,7 @@ const SiteHeader = () => {
   const { t, toggleLanguage, dir } = useLanguage();
 
   const platformIcons = [
-    { icon: Landmark, to: "/", tooltip: "منصة جامعية" },
+    { icon: Landmark, to: "/university-platform", tooltip: "منصة جامعية" },
     { icon: School, to: "/school-platform", tooltip: "منصة مدرسية" },
     { icon: GraduationCap, to: "/courses", tooltip: "دورات تعليمية" },
     { icon: ShoppingBag, to: "/book-store", tooltip: "متجر الكتب" },

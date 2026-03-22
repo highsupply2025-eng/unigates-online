@@ -8,6 +8,7 @@ export const en = {
   exploreCourses: "Educational Courses",
   bookStore: "Book Store",
   schoolPlatform: "School Platform",
+  universityPlatform: "University Platform",
   langSwitch: "عربي",
   questions: "Questions? Call us:",
   freeCall: "(toll-free)",

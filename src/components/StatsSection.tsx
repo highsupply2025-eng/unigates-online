@@ -95,7 +95,7 @@ const StatsSection = () => {
 
   return (
     <section className="px-6 md:px-12">
-      <div className="max-w-6xl mx-auto grid grid-cols-3 md:grid-cols-9 gap-3">
+      <div className="max-w-full mx-auto grid grid-cols-3 md:grid-cols-9 gap-3">
         {items.map((item, i) => (
           <div
             key={i}

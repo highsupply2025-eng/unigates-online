@@ -8,7 +8,7 @@ const FeaturesSection = () => {
 
   return (
     <section className="section-divider py-12 md:py-20 px-6 md:px-12">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-full mx-auto">
         <h2 className="text-2xl md:text-3xl font-bold mb-3">{t.features.title}</h2>
         <p className="text-muted-foreground mb-10 max-w-xl">{t.features.subtitle}</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

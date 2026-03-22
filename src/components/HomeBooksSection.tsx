@@ -45,7 +45,7 @@ const HomeBooksSection = () => {
 
   return (
     <section className="py-12 md:py-20 px-6 md:px-12">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-full mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl md:text-3xl font-bold">
             {t.homepage.newBooks} & {t.homepage.bestsellerBooks}

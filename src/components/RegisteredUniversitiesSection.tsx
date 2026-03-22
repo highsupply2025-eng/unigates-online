@@ -19,7 +19,7 @@ const RegisteredUniversitiesSection = () => {
 
   return (
     <section className="py-12 px-6 md:px-12 bg-muted/30">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-full mx-auto">
         <h2 className="text-2xl font-bold mb-6">
           {isRtl ? "🏛️ الجامعات المسجلة" : "🏛️ Registered Universities"}
         </h2>

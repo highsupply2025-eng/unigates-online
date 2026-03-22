@@ -730,7 +730,10 @@ const AdminDashboard = () => {
 
           {/* ===== All Users ===== */}
           <TabsContent value="users">
-            <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder={language === "ar" ? "بحث بالاسم أو البريد..." : "Search by name or email..."} />
+            <div className="flex items-center gap-4 flex-wrap">
+              <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder={language === "ar" ? "بحث بالاسم أو البريد..." : "Search by name or email..."} />
+              <ExportButton onClick={exportUsers} />
+            </div>
             <div className="grid gap-3">
               {filteredUsers.map(user => (
                 <Card key={user.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => openDetail(user)}>

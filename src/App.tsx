@@ -25,6 +25,8 @@ const BookStoreLogin = lazy(() => import("./pages/BookStoreLogin"));
 const BookStoreSignup = lazy(() => import("./pages/BookStoreSignup"));
 const SchoolPlatform = lazy(() => import("./pages/SchoolPlatform"));
 const SchoolRegistration = lazy(() => import("./pages/SchoolRegistration"));
+const SchoolLogin = lazy(() => import("./pages/SchoolLogin"));
+const SchoolSignup = lazy(() => import("./pages/SchoolSignup"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const StudentDashboard = lazy(() => import("./pages/StudentDashboard"));
 

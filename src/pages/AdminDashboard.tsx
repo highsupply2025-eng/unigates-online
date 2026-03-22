@@ -828,7 +828,10 @@ const AdminDashboard = () => {
 
           {/* ===== Orders ===== */}
           <TabsContent value="orders">
-            <SearchBar value={orderSearch} onChange={setOrderSearch} placeholder={language === "ar" ? "بحث بعنوان الكتاب أو اسم المشتري..." : "Search by book or buyer..."} />
+            <div className="flex items-center gap-4 flex-wrap">
+              <SearchBar value={orderSearch} onChange={setOrderSearch} placeholder={language === "ar" ? "بحث بعنوان الكتاب أو اسم المشتري..." : "Search by book or buyer..."} />
+              <ExportButton onClick={exportOrders} />
+            </div>
             {filteredOrders.length === 0 ? (
               <EmptyState icon={ShoppingCart} text={language === "ar" ? "لا توجد طلبات" : "No orders found"} />
             ) : (

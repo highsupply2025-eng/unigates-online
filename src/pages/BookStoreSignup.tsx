@@ -65,13 +65,20 @@ const BookStoreSignup = () => {
 
       const { error: profileError } = await supabase.from("profiles").insert({
         user_id: userId,
-        role: "student",
+        role: selectedRole,
         platform: "bookstore",
         full_name: fullName,
         phone: `${countryCode}${phone}`,
         email,
       });
       if (profileError) throw profileError;
+
+      const { error: roleError } = await supabase.from("user_roles").insert({
+        user_id: userId,
+        role: selectedRole as any,
+        approved: selectedRole === "personal",
+      });
+      if (roleError) console.error("Role insert error:", roleError);
 
       setSubmitted(true);
     } catch (error: any) {

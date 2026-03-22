@@ -1,4 +1,4 @@
-import { Users, GraduationCap, BookOpen, School } from "lucide-react";
+import { Users, GraduationCap, BookOpen, School, BookOpenCheck, ShoppingBag, Building2, Landmark, UserCheck } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,17 +47,26 @@ const StatsSection = () => {
   const { data: stats } = useQuery({
     queryKey: ["hero-stats"],
     queryFn: async () => {
-      const [coursesRes, studentsRes, lecturersRes, schoolsRes] = await Promise.all([
+      const [coursesRes, studentsRes, lecturersRes, schoolsRes, readersRes, sellersRes, publishersRes, parentsRes] = await Promise.all([
         supabase.from("courses").select("id", { count: "exact", head: true }),
         supabase.rpc("get_profile_count_by_role", { _role: "student" }),
         supabase.rpc("get_profile_count_by_role", { _role: "lecturer" }),
         supabase.from("school_registrations").select("id", { count: "exact", head: true }).eq("status", "approved"),
+        supabase.rpc("get_profile_count_by_role", { _role: "personal" }),
+        supabase.rpc("get_profile_count_by_role", { _role: "seller" }),
+        supabase.rpc("get_profile_count_by_role", { _role: "publisher" }),
+        supabase.rpc("get_profile_count_by_role", { _role: "parent" }),
       ]);
       return {
         courses: (coursesRes.count ?? 0) + 115,
         students: (Number(studentsRes.data) ?? 0) + 1035,
         lecturers: (Number(lecturersRes.data) ?? 0) + 33,
         schools: (schoolsRes.count ?? 0) + 12,
+        readers: (Number(readersRes.data) ?? 0) + 220,
+        sellers: (Number(sellersRes.data) ?? 0) + 18,
+        publishers: (Number(publishersRes.data) ?? 0) + 9,
+        universities: 5,
+        parents: (Number(parentsRes.data) ?? 0) + 150,
       };
     },
   });
@@ -66,26 +75,36 @@ const StatsSection = () => {
   const lecturers = useCountUp(stats?.lecturers ?? 0);
   const courses = useCountUp(stats?.courses ?? 0);
   const schools = useCountUp(stats?.schools ?? 0);
+  const readers = useCountUp(stats?.readers ?? 0);
+  const sellers = useCountUp(stats?.sellers ?? 0);
+  const publishers = useCountUp(stats?.publishers ?? 0);
+  const universities = useCountUp(stats?.universities ?? 0);
+  const parents = useCountUp(stats?.parents ?? 0);
 
   const items = [
     { icon: Users, counter: students, label: t.hero.stats.students },
     { icon: GraduationCap, counter: lecturers, label: t.hero.stats.lecturers },
     { icon: BookOpen, counter: courses, label: t.hero.stats.courses },
     { icon: School, counter: schools, label: t.hero.stats.schools },
+    { icon: BookOpenCheck, counter: readers, label: t.hero.stats.readers },
+    { icon: ShoppingBag, counter: sellers, label: t.hero.stats.sellers },
+    { icon: Building2, counter: publishers, label: t.hero.stats.publishers },
+    { icon: Landmark, counter: universities, label: t.hero.stats.universities },
+    { icon: UserCheck, counter: parents, label: t.hero.stats.parents },
   ];
 
   return (
     <section className="px-6 md:px-12">
-      <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="max-w-6xl mx-auto grid grid-cols-3 md:grid-cols-9 gap-3">
         {items.map((item, i) => (
           <div
             key={i}
             ref={item.counter.ref}
-            className="flex flex-col items-center gap-2 text-white px-4 py-5 animate-fade-in"
+            className="flex flex-col items-center gap-1.5 text-white px-2 py-4 animate-fade-in"
           >
-            <item.icon className="w-7 h-7" />
-            <span className="text-3xl font-black">{item.counter.count}</span>
-            <span className="text-sm font-semibold opacity-90 text-center">{item.label}</span>
+            <item.icon className="w-6 h-6" />
+            <span className="text-2xl md:text-3xl font-black">{item.counter.count}</span>
+            <span className="text-xs font-semibold opacity-90 text-center">{item.label}</span>
           </div>
         ))}
       </div>

@@ -761,7 +761,10 @@ const AdminDashboard = () => {
 
           {/* ===== Courses ===== */}
           <TabsContent value="courses">
-            <SearchBar value={courseSearch} onChange={setCourseSearch} placeholder={language === "ar" ? "بحث بعنوان الدورة أو المدرب..." : "Search by course title or instructor..."} />
+            <div className="flex items-center gap-4 flex-wrap">
+              <SearchBar value={courseSearch} onChange={setCourseSearch} placeholder={language === "ar" ? "بحث بعنوان الدورة أو المدرب..." : "Search by course title or instructor..."} />
+              <ExportButton onClick={exportCourses} />
+            </div>
             {filteredCourses.length === 0 ? (
               <EmptyState icon={BookOpen} text={language === "ar" ? "لا توجد دورات" : "No courses found"} />
             ) : (

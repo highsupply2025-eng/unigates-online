@@ -35,13 +35,13 @@ const Login = () => {
       
       const adminRole = roles?.find(r => r.role === "admin");
       const lecturerRole = roles?.find(r => r.role === "lecturer" && r.approved);
-      const studentRole = roles?.find(r => r.role === "student");
+      const personalRole = roles?.find(r => r.role === "personal");
       
       if (adminRole) {
         navigate("/admin/dashboard");
       } else if (lecturerRole) {
         navigate("/lecturer/dashboard");
-      } else if (studentRole) {
+      } else if (personalRole) {
         navigate("/student/dashboard");
       } else {
         navigate("/");

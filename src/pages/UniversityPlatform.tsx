@@ -2,44 +2,89 @@ import { Link } from "react-router-dom";
 import SiteFooter from "@/components/SiteFooter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
-  Landmark, BookOpen, Users, FlaskConical, Microscope,
-  BarChart3, Globe, Shield, GraduationCap,
+  Landmark, BookOpen, Users,
+  BarChart3, Globe, GraduationCap,
   FileText, Video, Award, ArrowLeft, ArrowRight, Home,
-  Library, BrainCircuit, Handshake
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useRef, useState, useCallback } from "react";
+
+const useCountUp = (end: number, duration = 1500) => {
+  const [count, setCount] = useState(0);
+  const [started, setStarted] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const start = useCallback(() => {
+    if (started || end === 0) return;
+    setStarted(true);
+    const startTime = performance.now();
+    const animate = (now: number) => {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(eased * end));
+      if (progress < 1) requestAnimationFrame(animate);
+    };
+    requestAnimationFrame(animate);
+  }, [end, duration, started]);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) start(); },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [start]);
+
+  useEffect(() => {
+    setStarted(false);
+    setCount(0);
+  }, [end]);
+
+  return { count, ref };
+};
 
 const UniversityPlatform = () => {
   const { t, dir, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
-  const features = [
-    {
-      icon: Library,
-      title: isRtl ? "المكتبة الرقمية" : "Digital Library",
-      desc: isRtl ? "وصول غير محدود لآلاف المراجع والأبحاث العلمية المحكّمة" : "Unlimited access to thousands of peer-reviewed references and research papers",
+  const { data: stats } = useQuery({
+    queryKey: ["university-stats"],
+    queryFn: async () => {
+      const [studentsRes, lecturersRes, collegesRes] = await Promise.all([
+        supabase.rpc("get_profile_count_by_role", { _role: "student" }),
+        supabase.rpc("get_profile_count_by_role", { _role: "lecturer" }),
+        supabase.from("college_registrations").select("id", { count: "exact", head: true }).eq("status", "approved"),
+      ]);
+      return {
+        students: (Number(studentsRes.data) ?? 0) + 1035,
+        lecturers: (Number(lecturersRes.data) ?? 0) + 33,
+        colleges: (collegesRes.count ?? 0) + 5,
+      };
     },
+  });
+
+  const students = useCountUp(stats?.students ?? 0);
+  const lecturers = useCountUp(stats?.lecturers ?? 0);
+  const colleges = useCountUp(stats?.colleges ?? 0);
+
+  const statItems = [
+    { icon: Users, counter: students, label: isRtl ? "طالب جامعي" : "University Students" },
+    { icon: GraduationCap, counter: lecturers, label: isRtl ? "أستاذ جامعي" : "Professors" },
+    { icon: Landmark, counter: colleges, label: isRtl ? "كلية مسجلة" : "Registered Colleges" },
+  ];
+
+  const features = [
     {
       icon: Video,
       title: isRtl ? "المحاضرات المباشرة" : "Live Lectures",
       desc: isRtl ? "بث مباشر للمحاضرات مع تفاعل فوري وتسجيل تلقائي" : "Live lecture streaming with real-time interaction and auto-recording",
-    },
-    {
-      icon: FlaskConical,
-      title: isRtl ? "المعامل الافتراضية" : "Virtual Labs",
-      desc: isRtl ? "تجارب علمية افتراضية محاكاة بدقة عالية لجميع التخصصات" : "High-fidelity virtual experiments simulated for all disciplines",
-    },
-    {
-      icon: Microscope,
-      title: isRtl ? "البحث العلمي" : "Research Hub",
-      desc: isRtl ? "أدوات متكاملة لإدارة ونشر الأبحاث العلمية والأطروحات" : "Integrated tools for managing and publishing research papers and theses",
-    },
-    {
-      icon: BrainCircuit,
-      title: isRtl ? "التعلم بالذكاء الاصطناعي" : "AI-Powered Learning",
-      desc: isRtl ? "مسارات تعليمية مخصصة تتكيف مع مستوى كل طالب تلقائياً" : "Personalized learning paths that adapt automatically to each student's level",
     },
     {
       icon: FileText,
@@ -51,18 +96,24 @@ const UniversityPlatform = () => {
       title: isRtl ? "لوحة التحليلات" : "Analytics Dashboard",
       desc: isRtl ? "تقارير أداء مفصلة للطلاب والأقسام والكليات" : "Detailed performance reports for students, departments, and faculties",
     },
-    {
-      icon: Handshake,
-      title: isRtl ? "الشراكات الأكاديمية" : "Academic Partnerships",
-      desc: isRtl ? "ربط الجامعات ببعضها لتبادل المقررات والخبرات الأكاديمية" : "Connect universities to share courses and academic expertise",
-    },
   ];
 
-  const stats = [
-    { value: isRtl ? "+25" : "25+", label: isRtl ? "جامعة شريكة" : "Partner Universities" },
-    { value: isRtl ? "+100,000" : "100,000+", label: isRtl ? "طالب جامعي" : "University Students" },
-    { value: isRtl ? "+5,000" : "5,000+", label: isRtl ? "أستاذ جامعي" : "Professors" },
-    { value: isRtl ? "+10,000" : "10,000+", label: isRtl ? "مقرر دراسي" : "Courses Available" },
+  const steps = [
+    {
+      step: "1",
+      title: isRtl ? "سجّل كليتك" : "Register Your College",
+      desc: isRtl ? "أنشئ حساباً مؤسسياً وأضف بيانات كليتك" : "Create an institutional account and add your college data",
+    },
+    {
+      step: "2",
+      title: isRtl ? "أرسل روابط الدعوة" : "Send Invitation Links",
+      desc: isRtl ? "أرسل روابط دعوة للطلاب والمحاضرين للانضمام لكليتك" : "Send invitation links to students and lecturers to join your college",
+    },
+    {
+      step: "3",
+      title: isRtl ? "ابدأ التدريس" : "Start Teaching",
+      desc: isRtl ? "ارفع المقررات وابدأ المحاضرات المباشرة فوراً" : "Upload courses and start live lectures immediately",
+    },
   ];
 
   const plans = [
@@ -71,8 +122,8 @@ const UniversityPlatform = () => {
       price: isRtl ? "مجاناً" : "Free",
       period: "",
       features: isRtl
-        ? ["حتى 500 طالب", "10 أعضاء هيئة تدريس", "المكتبة الرقمية الأساسية", "التقارير الأساسية"]
-        : ["Up to 500 students", "10 faculty members", "Basic digital library", "Basic reports"],
+        ? ["حتى 500 طالب", "10 أعضاء هيئة تدريس", "التقارير الأساسية", "دعم فني"]
+        : ["Up to 500 students", "10 faculty members", "Basic reports", "Technical support"],
       highlighted: false,
     },
     {
@@ -80,8 +131,8 @@ const UniversityPlatform = () => {
       price: isRtl ? "999 ج.م" : "$99",
       period: isRtl ? "/ شهرياً" : "/month",
       features: isRtl
-        ? ["حتى 10,000 طالب", "هيئة تدريس غير محدودة", "معامل افتراضية", "تحليلات متقدمة", "دعم أولوية"]
-        : ["Up to 10,000 students", "Unlimited faculty", "Virtual labs", "Advanced analytics", "Priority support"],
+        ? ["حتى 10,000 طالب", "هيئة تدريس غير محدودة", "تحليلات متقدمة", "دعم أولوية", "روابط دعوة غير محدودة"]
+        : ["Up to 10,000 students", "Unlimited faculty", "Advanced analytics", "Priority support", "Unlimited invitations"],
       highlighted: true,
     },
     {
@@ -89,27 +140,9 @@ const UniversityPlatform = () => {
       price: isRtl ? "تواصل معنا" : "Contact Us",
       period: "",
       features: isRtl
-        ? ["طلاب غير محدود", "شراكات بين الجامعات", "API مفتوح", "تخصيص كامل", "مدير حساب مخصص"]
-        : ["Unlimited students", "Inter-university partnerships", "Open API", "Full customization", "Dedicated account manager"],
+        ? ["طلاب غير محدود", "API مفتوح", "تخصيص كامل", "مدير حساب مخصص"]
+        : ["Unlimited students", "Open API", "Full customization", "Dedicated account manager"],
       highlighted: false,
-    },
-  ];
-
-  const steps = [
-    {
-      step: "1",
-      title: isRtl ? "سجّل جامعتك" : "Register Your University",
-      desc: isRtl ? "أنشئ حساباً مؤسسياً وأضف بيانات جامعتك" : "Create an institutional account and add your university data",
-    },
-    {
-      step: "2",
-      title: isRtl ? "أضف الكليات والأقسام" : "Add Faculties & Departments",
-      desc: isRtl ? "هيكل أكاديمي مرن يتكيف مع نظام جامعتك" : "Flexible academic structure that adapts to your university's system",
-    },
-    {
-      step: "3",
-      title: isRtl ? "ابدأ التدريس" : "Start Teaching",
-      desc: isRtl ? "ارفع المقررات وابدأ المحاضرات المباشرة فوراً" : "Upload courses and start live lectures immediately",
     },
   ];
 
@@ -132,31 +165,48 @@ const UniversityPlatform = () => {
               {t.brandName}
             </span>
           </Link>
-          <div className="flex items-center gap-3">
-            <Link to="/login">
-              <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
-                {t.login}
-              </Button>
-            </Link>
-            <Link to="/signup">
-              <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
-                {t.signup}
-              </Button>
-            </Link>
+          <div className="flex items-center gap-2">
             <Link to="/">
-              <Button variant="default" size="sm" className="font-semibold gap-1.5">
+              <Button variant="default" size="sm" className="font-bold px-5 h-10 text-sm gap-1.5">
                 <Home className="w-4 h-4" />
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
             </Link>
-            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
+            <Link to="/login">
+              <Button variant="default" size="sm" className="font-bold px-5 h-10 text-sm">
+                {t.login}
+              </Button>
+            </Link>
+            <Link to="/signup">
+              <Button variant="default" size="sm" className="font-bold px-5 h-10 text-sm">
+                {t.signup}
+              </Button>
+            </Link>
+            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 px-5 h-10 text-sm">
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
           </div>
         </header>
 
-        <div className="relative z-10 pt-12 pb-24 px-6 md:px-12 text-center max-w-4xl mx-auto">
+        {/* Stats Section - on the hero */}
+        <div className="relative z-10 pt-8 px-6 md:px-12">
+          <div className="max-w-3xl mx-auto grid grid-cols-3 gap-6 text-center mb-8">
+            {statItems.map((item, i) => (
+              <div
+                key={i}
+                ref={item.counter.ref}
+                className="flex flex-col items-center gap-1.5 text-white px-2 py-4 animate-fade-in"
+              >
+                <item.icon className="w-7 h-7" />
+                <span className="text-3xl md:text-4xl font-black">{item.counter.count}</span>
+                <span className="text-xs font-semibold opacity-90 text-center">{item.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative z-10 pb-24 px-6 md:px-12 text-center max-w-4xl mx-auto">
           <div className="flex justify-center mb-6">
             <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
               <Landmark className="w-10 h-10 text-primary-foreground" />
@@ -167,31 +217,17 @@ const UniversityPlatform = () => {
           </h1>
           <p className="text-primary-foreground/80 text-lg md:text-xl max-w-2xl mx-auto mb-8 leading-relaxed">
             {isRtl
-              ? "منصة أكاديمية شاملة تربط الجامعات بأحدث تقنيات التعليم الرقمي لتمكين الطلاب والأساتذة من تجربة تعليمية استثنائية"
-              : "A comprehensive academic platform connecting universities with cutting-edge digital education technology for an exceptional learning experience"}
+              ? "منصة أكاديمية شاملة تربط الكليات بأحدث تقنيات التعليم الرقمي لتمكين الطلاب والأساتذة من تجربة تعليمية استثنائية"
+              : "A comprehensive academic platform connecting colleges with cutting-edge digital education technology for an exceptional learning experience"}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button size="lg" variant="secondary" className="font-bold text-base px-8">
-              <Landmark className="w-5 h-5" />
-              {isRtl ? "سجّل جامعتك الآن" : "Register Your University"}
-            </Button>
-            <Button size="lg" variant="outline" className="font-bold text-base px-8 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
-              <Video className="w-5 h-5" />
-              {isRtl ? "شاهد العرض التوضيحي" : "Watch Demo"}
-            </Button>
+            <Link to="/signup">
+              <Button size="lg" variant="secondary" className="font-bold text-base px-8">
+                <Landmark className="w-5 h-5" />
+                {isRtl ? "سجّل كليتك الآن" : "Register Your College"}
+              </Button>
+            </Link>
           </div>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="bg-card border-b border-border -mt-10 relative z-20">
-        <div className="max-w-5xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          {stats.map((s, i) => (
-            <div key={i}>
-              <p className="text-3xl md:text-4xl font-black text-primary">{s.value}</p>
-              <p className="text-sm text-muted-foreground mt-1">{s.label}</p>
-            </div>
-          ))}
         </div>
       </div>
 
@@ -200,13 +236,13 @@ const UniversityPlatform = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl font-black text-foreground mb-3">
-              {isRtl ? "كل ما تحتاجه جامعتك في مكان واحد" : "Everything Your University Needs in One Place"}
+              {isRtl ? "كل ما تحتاجه كليتك في مكان واحد" : "Everything Your College Needs in One Place"}
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
               {isRtl ? "أدوات أكاديمية متقدمة مصممة لتلبية احتياجات التعليم الجامعي" : "Advanced academic tools designed to meet higher education needs"}
             </p>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid sm:grid-cols-3 gap-5">
             {features.map((f, i) => (
               <Card key={i} className="group hover:shadow-lg transition-all duration-300 border-border/60 hover:border-primary/30">
                 <CardContent className="p-6">
@@ -250,7 +286,7 @@ const UniversityPlatform = () => {
               {isRtl ? "خطط الاشتراك" : "Pricing Plans"}
             </h2>
             <p className="text-muted-foreground">
-              {isRtl ? "اختر الخطة المناسبة لجامعتك" : "Choose the right plan for your university"}
+              {isRtl ? "اختر الخطة المناسبة لكليتك" : "Choose the right plan for your college"}
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
@@ -298,17 +334,19 @@ const UniversityPlatform = () => {
       <section className="py-16 px-6 md:px-12 bg-gradient-to-br from-primary/5 to-primary/10">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-2xl md:text-3xl font-black text-foreground mb-4">
-            {isRtl ? "جاهز لتحويل جامعتك رقمياً؟" : "Ready to Digitize Your University?"}
+            {isRtl ? "جاهز لتحويل كليتك رقمياً؟" : "Ready to Digitize Your College?"}
           </h2>
           <p className="text-muted-foreground mb-8">
             {isRtl
-              ? "انضم لأكثر من 25 جامعة تستخدم منصتنا لتطوير التعليم الأكاديمي"
-              : "Join over 25 universities using our platform to advance academic education"}
+              ? "انضم لأكثر من 5 كليات تستخدم منصتنا لتطوير التعليم الأكاديمي"
+              : "Join over 5 colleges using our platform to advance academic education"}
           </p>
-          <Button size="lg" className="font-bold text-base px-10 shadow-lg shadow-primary/30">
-            <Landmark className="w-5 h-5" />
-            {isRtl ? "سجّل جامعتك الآن" : "Register Your University Now"}
-          </Button>
+          <Link to="/signup">
+            <Button size="lg" className="font-bold text-base px-10 shadow-lg shadow-primary/30">
+              <Landmark className="w-5 h-5" />
+              {isRtl ? "سجّل كليتك الآن" : "Register Your College Now"}
+            </Button>
+          </Link>
         </div>
       </section>
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BookOpen, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Globe, Home } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -53,9 +53,8 @@ const BookStoreLogin = () => {
               </Button>
             </Link>
             <Link to="/">
-              <Button variant="outline" size="sm" className="font-semibold gap-1.5">
-                <Home className="w-4 h-4" />
-                {t.home}
+              <Button variant="default" size="icon" className="rounded-full w-9 h-9">
+                {dir === "rtl" ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
               </Button>
             </Link>
           </div>

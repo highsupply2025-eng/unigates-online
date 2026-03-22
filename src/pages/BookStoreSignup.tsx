@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, ChevronLeft, ChevronRight, Loader2, Globe, Home, Phone } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Loader2, Globe, ArrowRight, ArrowLeft, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -107,9 +107,8 @@ const BookStoreSignup = () => {
               </Button>
             </Link>
             <Link to="/">
-              <Button variant="outline" size="sm" className="font-semibold gap-1.5">
-                <Home className="w-4 h-4" />
-                {t.home}
+              <Button variant="default" size="icon" className="rounded-full w-9 h-9">
+                {dir === "rtl" ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
               </Button>
             </Link>
           </div>

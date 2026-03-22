@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { School, Loader2, Globe, Home, CheckCircle, Send } from "lucide-react";
+import { School, Loader2, Globe, ArrowRight, ArrowLeft, CheckCircle, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -84,9 +84,8 @@ const SchoolRegistration = () => {
               {t.langSwitch}
             </Button>
             <Link to="/">
-              <Button variant="outline" size="sm" className="font-semibold gap-1.5">
-                <Home className="w-4 h-4" />
-                {t.home}
+              <Button variant="default" size="icon" className="rounded-full w-9 h-9">
+                {isRtl ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
               </Button>
             </Link>
           </div>
@@ -260,9 +259,8 @@ const SchoolRegistration = () => {
                 </Button>
               </Link>
               <Link to="/">
-                <Button variant="outline" size="lg" className="h-14 text-lg font-bold px-8 gap-2">
-                  <Home className="w-5 h-5" />
-                  {t.home}
+                <Button variant="outline" size="icon" className="rounded-full w-12 h-12">
+                  {isRtl ? <ArrowRight className="w-6 h-6" /> : <ArrowLeft className="w-6 h-6" />}
                 </Button>
               </Link>
             </div>

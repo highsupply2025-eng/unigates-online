@@ -1,7 +1,7 @@
 export const ar = {
   // Common
   brandName: "إدراك",
-  login: "تسجيل الدخول",
+  login: "تسجيل دخول",
   signup: "إنشاء حساب",
   home: "الرئيسية",
   logout: "تسجيل الخروج",

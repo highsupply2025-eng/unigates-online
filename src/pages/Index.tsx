@@ -15,6 +15,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground" dir={dir}>
+      <SiteHeader />
       <div className="relative">
         <HeroSection />
         <div className="absolute bottom-8 left-0 right-0 z-20">

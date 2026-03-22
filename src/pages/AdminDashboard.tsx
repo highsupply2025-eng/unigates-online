@@ -862,7 +862,10 @@ const AdminDashboard = () => {
 
           {/* ===== Subscriptions ===== */}
           <TabsContent value="subscriptions">
-            <SearchBar value={subSearch} onChange={setSubSearch} placeholder={language === "ar" ? "بحث بعنوان الدورة أو اسم المشترك..." : "Search by course or subscriber..."} />
+            <div className="flex items-center gap-4 flex-wrap">
+              <SearchBar value={subSearch} onChange={setSubSearch} placeholder={language === "ar" ? "بحث بعنوان الدورة أو اسم المشترك..." : "Search by course or subscriber..."} />
+              <ExportButton onClick={exportSubscriptions} />
+            </div>
             {filteredSubs.length === 0 ? (
               <EmptyState icon={CreditCard} text={language === "ar" ? "لا توجد اشتراكات" : "No subscriptions found"} />
             ) : (

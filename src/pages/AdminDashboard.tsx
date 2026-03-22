@@ -5,7 +5,7 @@ import {
   BookOpen, Eye, Search, CheckCircle, XCircle, Clock, ArrowLeft, ArrowRight,
   School, MapPin, Phone, Mail, MessageSquare, FileText, CreditCard,
   BarChart3, ShoppingCart, BookMarked, Radio,
-  Calendar, PlayCircle, Download, Trash2, Pencil
+  Calendar, PlayCircle, Download, Trash2, Pencil, Landmark, LinkIcon, Copy
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,9 @@ interface Book { id: string; title_ar: string; title_en: string; author_ar: stri
 interface BookOrder { id: string; user_id: string; book_id: string; amount: number; status: string; created_at: string; book?: Book; profile?: Profile; }
 interface Subscription { id: string; user_id: string; course_id: string; level_number: number; plan_type: string; amount_paid: number; status: string; starts_at: string; expires_at: string | null; created_at: string; course?: Course; profile?: Profile; }
 interface LiveStream { id: string; title_ar: string; title_en: string; creator_id: string; course_id: string | null; status: string; scheduled_at: string | null; created_at: string; profile?: Profile; }
+interface CollegeRegistration { id: string; college_name: string; dean_name: string; city: string; phone: string; email: string; student_count: number | null; address: string | null; message: string | null; status: string; admin_notes: string | null; created_at: string; }
+interface CollegeInvitation { id: string; college_id: string; invitation_code: string; role: string; max_uses: number; used_count: number; is_active: boolean; created_at: string; college?: CollegeRegistration; }
+interface CollegeMember { id: string; college_id: string; user_id: string; role: string; joined_at: string; college?: CollegeRegistration; profile?: Profile; }
 
 const getSignedUrl = async (path: string | null): Promise<string | null> => {
   if (!path) return null;
@@ -69,7 +72,20 @@ const AdminDashboard = () => {
   const [liveStreams, setLiveStreams] = useState<LiveStream[]>([]);
   const [streamSearch, setStreamSearch] = useState("");
 
-  const [stats, setStats] = useState({ totalUsers: 0, totalLecturers: 0, pendingCount: 0, totalCourses: 0, totalViews: 0, pendingSchools: 0, totalBooks: 0, totalOrders: 0, totalSubscriptions: 0, totalStreams: 0, totalRevenue: 0 });
+  // College states
+  const [colleges, setColleges] = useState<CollegeRegistration[]>([]);
+  const [collegeSearch, setCollegeSearch] = useState("");
+  const [selectedCollege, setSelectedCollege] = useState<CollegeRegistration | null>(null);
+  const [showCollegeDialog, setShowCollegeDialog] = useState(false);
+  const [collegeAdminNotes, setCollegeAdminNotes] = useState("");
+  const [collegeInvitations, setCollegeInvitations] = useState<CollegeInvitation[]>([]);
+  const [collegeMembers, setCollegeMembers] = useState<CollegeMember[]>([]);
+  const [showCreateInvitation, setShowCreateInvitation] = useState(false);
+  const [newInvitationCollegeId, setNewInvitationCollegeId] = useState("");
+  const [newInvitationRole, setNewInvitationRole] = useState("student");
+  const [newInvitationMaxUses, setNewInvitationMaxUses] = useState("0");
+
+  const [stats, setStats] = useState({ totalUsers: 0, totalLecturers: 0, pendingCount: 0, totalCourses: 0, totalViews: 0, pendingSchools: 0, totalBooks: 0, totalOrders: 0, totalSubscriptions: 0, totalStreams: 0, totalRevenue: 0, totalColleges: 0, pendingColleges: 0 });
 
   const [selectedUser, setSelectedUser] = useState<(UserRole & { profile?: Profile }) | null>(null);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
@@ -94,7 +110,7 @@ const AdminDashboard = () => {
     setLoading(false);
   };
 
-  const loadAll = () => Promise.all([loadPending(), loadAllUsers(), loadStats(), loadSchoolRegistrations(), loadCourses(), loadBooks(), loadOrders(), loadSubscriptions(), loadStreams()]);
+  const loadAll = () => Promise.all([loadPending(), loadAllUsers(), loadStats(), loadSchoolRegistrations(), loadCourses(), loadBooks(), loadOrders(), loadSubscriptions(), loadStreams(), loadColleges(), loadCollegeInvitations(), loadCollegeMembers()]);
 
   const loadPending = async () => {
     const { data: roles } = await supabase.from("user_roles").select("*").eq("role", "lecturer").eq("approved", false);
@@ -141,8 +157,33 @@ const AdminDashboard = () => {
     setLiveStreams(streams.map(s => ({ ...s, profile: (profilesData || []).find(p => p.user_id === s.creator_id) })));
   };
 
+  const loadColleges = async () => {
+    const { data } = await supabase.from("college_registrations").select("*").order("created_at", { ascending: false });
+    setColleges(data || []);
+  };
+
+  const loadCollegeInvitations = async () => {
+    const { data: invitations } = await supabase.from("college_invitations").select("*").order("created_at", { ascending: false });
+    if (!invitations || invitations.length === 0) { setCollegeInvitations([]); return; }
+    const collegeIds = [...new Set(invitations.map(i => i.college_id))];
+    const { data: collegesData } = await supabase.from("college_registrations").select("*").in("id", collegeIds);
+    setCollegeInvitations(invitations.map(i => ({ ...i, college: (collegesData || []).find(c => c.id === i.college_id) })));
+  };
+
+  const loadCollegeMembers = async () => {
+    const { data: members } = await supabase.from("college_members").select("*").order("joined_at", { ascending: false });
+    if (!members || members.length === 0) { setCollegeMembers([]); return; }
+    const collegeIds = [...new Set(members.map(m => m.college_id))];
+    const userIds = [...new Set(members.map(m => m.user_id))];
+    const [{ data: collegesData }, { data: profilesData }] = await Promise.all([
+      supabase.from("college_registrations").select("*").in("id", collegeIds),
+      supabase.from("profiles").select("*").in("user_id", userIds),
+    ]);
+    setCollegeMembers(members.map(m => ({ ...m, college: (collegesData || []).find(c => c.id === m.college_id), profile: (profilesData || []).find(p => p.user_id === m.user_id) })));
+  };
+
   const loadStats = async () => {
-    const [{ data: totalUsers }, { count: totalLecturers }, { count: pendingCount }, { count: totalCourses }, { count: totalViews }, { count: pendingSchools }, { count: totalBooks }, { count: totalOrders }, { count: totalSubscriptions }, { count: totalStreams }] = await Promise.all([
+    const [{ data: totalUsers }, { count: totalLecturers }, { count: pendingCount }, { count: totalCourses }, { count: totalViews }, { count: pendingSchools }, { count: totalBooks }, { count: totalOrders }, { count: totalSubscriptions }, { count: totalStreams }, { count: totalColleges }, { count: pendingColleges }] = await Promise.all([
       supabase.rpc("get_profile_count"),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "lecturer").eq("approved", true),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "lecturer").eq("approved", false),
@@ -153,8 +194,10 @@ const AdminDashboard = () => {
       supabase.from("book_orders").select("*", { count: "exact", head: true }),
       supabase.from("user_subscriptions").select("*", { count: "exact", head: true }),
       supabase.from("live_streams").select("*", { count: "exact", head: true }),
+      supabase.from("college_registrations").select("*", { count: "exact", head: true }),
+      supabase.from("college_registrations").select("*", { count: "exact", head: true }).eq("status", "pending"),
     ]);
-    setStats({ totalUsers: Number(totalUsers) || 0, totalLecturers: totalLecturers || 0, pendingCount: pendingCount || 0, totalCourses: totalCourses || 0, totalViews: totalViews || 0, pendingSchools: pendingSchools || 0, totalBooks: totalBooks || 0, totalOrders: totalOrders || 0, totalSubscriptions: totalSubscriptions || 0, totalStreams: totalStreams || 0, totalRevenue: 0 });
+    setStats({ totalUsers: Number(totalUsers) || 0, totalLecturers: totalLecturers || 0, pendingCount: pendingCount || 0, totalCourses: totalCourses || 0, totalViews: totalViews || 0, pendingSchools: pendingSchools || 0, totalBooks: totalBooks || 0, totalOrders: totalOrders || 0, totalSubscriptions: totalSubscriptions || 0, totalStreams: totalStreams || 0, totalRevenue: 0, totalColleges: totalColleges || 0, pendingColleges: pendingColleges || 0 });
   };
 
   // ── CRUD Handlers ──
@@ -193,6 +236,45 @@ const AdminDashboard = () => {
     await Promise.all([loadSchoolRegistrations(), loadStats()]);
   };
 
+  // College handlers
+  const handleCollegeApprove = async (id: string) => {
+    const { error } = await supabase.from("college_registrations").update({ status: "approved", admin_notes: collegeAdminNotes || null }).eq("id", id);
+    if (error) { showError(error.message); return; }
+    showSuccess(language === "ar" ? "تم قبول الكلية" : "College approved");
+    setShowCollegeDialog(false); setCollegeAdminNotes("");
+    await Promise.all([loadColleges(), loadStats()]);
+  };
+
+  const handleCollegeReject = async (id: string) => {
+    const { error } = await supabase.from("college_registrations").update({ status: "rejected", admin_notes: collegeAdminNotes || null }).eq("id", id);
+    if (error) { showError(error.message); return; }
+    showSuccess(language === "ar" ? "تم رفض الكلية" : "College rejected");
+    setShowCollegeDialog(false); setCollegeAdminNotes("");
+    await Promise.all([loadColleges(), loadStats()]);
+  };
+
+  const handleCreateInvitation = async () => {
+    if (!newInvitationCollegeId) return;
+    const { error } = await supabase.from("college_invitations").insert({
+      college_id: newInvitationCollegeId,
+      role: newInvitationRole,
+      max_uses: parseInt(newInvitationMaxUses) || 0,
+    });
+    if (error) { showError(error.message); return; }
+    showSuccess(language === "ar" ? "تم إنشاء رابط الدعوة" : "Invitation created");
+    setShowCreateInvitation(false);
+    setNewInvitationCollegeId("");
+    setNewInvitationRole("student");
+    setNewInvitationMaxUses("0");
+    await loadCollegeInvitations();
+  };
+
+  const copyInvitationLink = (code: string) => {
+    const link = `${window.location.origin}/signup?invite=${code}`;
+    navigator.clipboard.writeText(link);
+    showSuccess(language === "ar" ? "تم نسخ الرابط" : "Link copied");
+  };
+
   // Generic delete
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -203,6 +285,9 @@ const AdminDashboard = () => {
     else if (type === "order") ({ error } = await supabase.from("book_orders").delete().eq("id", id));
     else if (type === "subscription") ({ error } = await supabase.from("user_subscriptions").delete().eq("id", id));
     else if (type === "stream") ({ error } = await supabase.from("live_streams").delete().eq("id", id));
+    else if (type === "college") ({ error } = await supabase.from("college_registrations").delete().eq("id", id));
+    else if (type === "invitation") ({ error } = await supabase.from("college_invitations").delete().eq("id", id));
+    else if (type === "member") ({ error } = await supabase.from("college_members").delete().eq("id", id));
     else if (type === "user") {
       const user = allUsers.find(u => u.id === id);
       ({ error } = await supabase.from("user_roles").delete().eq("id", id));
@@ -214,7 +299,7 @@ const AdminDashboard = () => {
     await loadAll();
   };
 
-  // Save course edit
+  // Save handlers
   const handleSaveCourse = async () => {
     if (!editCourse) return;
     const { id, title_ar, title_en, instructor_ar, instructor_en, category_ar, category_en, is_free } = editCourse;
@@ -224,7 +309,6 @@ const AdminDashboard = () => {
     setEditCourse(null); await loadCourses();
   };
 
-  // Save book edit
   const handleSaveBook = async () => {
     if (!editBook) return;
     const { id, title_ar, title_en, author_ar, author_en, category, price, original_price, is_bestseller, is_new, is_active } = editBook;
@@ -234,7 +318,6 @@ const AdminDashboard = () => {
     setEditBook(null); await loadBooks();
   };
 
-  // Save order status
   const handleSaveOrder = async () => {
     if (!editOrder) return;
     const { error } = await supabase.from("book_orders").update({ status: editOrder.status }).eq("id", editOrder.id);
@@ -243,7 +326,6 @@ const AdminDashboard = () => {
     setEditOrder(null); await loadOrders();
   };
 
-  // Save subscription
   const handleSaveSub = async () => {
     if (!editSub) return;
     const { error } = await supabase.from("user_subscriptions").update({ status: editSub.status, plan_type: editSub.plan_type }).eq("id", editSub.id);
@@ -252,7 +334,6 @@ const AdminDashboard = () => {
     setEditSub(null); await loadSubscriptions();
   };
 
-  // Save stream
   const handleSaveStream = async () => {
     if (!editStream) return;
     const { error } = await supabase.from("live_streams").update({ title_ar: editStream.title_ar, title_en: editStream.title_en, status: editStream.status }).eq("id", editStream.id);
@@ -271,6 +352,7 @@ const AdminDashboard = () => {
   const filteredOrders = bookOrders.filter(o => { if (!orderSearch) return true; const q = orderSearch.toLowerCase(); return o.book?.title_ar?.toLowerCase().includes(q) || o.book?.title_en?.toLowerCase().includes(q) || o.profile?.full_name?.toLowerCase().includes(q) || o.status.toLowerCase().includes(q); });
   const filteredSubs = subscriptions.filter(s => { if (!subSearch) return true; const q = subSearch.toLowerCase(); return s.course?.title_ar?.toLowerCase().includes(q) || s.course?.title_en?.toLowerCase().includes(q) || s.profile?.full_name?.toLowerCase().includes(q); });
   const filteredStreams = liveStreams.filter(s => { if (!streamSearch) return true; const q = streamSearch.toLowerCase(); return s.title_ar.toLowerCase().includes(q) || s.title_en.toLowerCase().includes(q) || s.profile?.full_name?.toLowerCase().includes(q); });
+  const filteredColleges = colleges.filter(c => { if (!collegeSearch) return true; const q = collegeSearch.toLowerCase(); return c.college_name.toLowerCase().includes(q) || c.dean_name.toLowerCase().includes(q) || c.city.toLowerCase().includes(q); });
 
   // ── Helpers ──
   const roleBadge = (role: string, approved: boolean) => {
@@ -361,6 +443,7 @@ const AdminDashboard = () => {
   const exportOrders = () => exportCSV("orders.csv", [ar("الكتاب","Book"), ar("المشتري","Buyer"), ar("المبلغ","Amount"), ar("الحالة","Status"), ar("التاريخ","Date")], filteredOrders.map(o => [ar(o.book?.title_ar||"",o.book?.title_en||""), o.profile?.full_name||"", String(o.amount), o.status, fmtDate(o.created_at)]));
   const exportSubscriptions = () => exportCSV("subscriptions.csv", [ar("الدورة","Course"), ar("المشترك","Subscriber"), ar("الخطة","Plan"), ar("المبلغ","Amount"), ar("الحالة","Status"), ar("البداية","Start")], filteredSubs.map(s => [ar(s.course?.title_ar||"",s.course?.title_en||""), s.profile?.full_name||"", s.plan_type, String(s.amount_paid), s.status, fmtDate(s.starts_at)]));
   const exportStreams = () => exportCSV("streams.csv", [ar("العنوان عربي","Title AR"), ar("العنوان إنجليزي","Title EN"), ar("المحاضر","Lecturer"), ar("الحالة","Status"), ar("التاريخ","Date")], filteredStreams.map(s => [s.title_ar, s.title_en, s.profile?.full_name||"", s.status, fmtDate(s.created_at)]));
+  const exportColleges = () => exportCSV("colleges.csv", [ar("الكلية","College"), ar("العميد","Dean"), ar("المدينة","City"), ar("الهاتف","Phone"), ar("البريد","Email"), ar("الحالة","Status"), ar("التاريخ","Date")], filteredColleges.map(c => [c.college_name, c.dean_name, c.city, c.phone, c.email, c.status, fmtDate(c.created_at)]));
 
   const ExportButton = ({ onClick }: { onClick: () => void }) => (
     <Button variant="outline" size="sm" className="gap-1.5" onClick={onClick}>
@@ -379,7 +462,6 @@ const AdminDashboard = () => {
     <div className="flex items-center gap-3 flex-wrap mb-4">{children}</div>
   );
 
-  // Form field helper
   const Field = ({ label, value, onChange, type = "text" }: { label: string; value: string | number; onChange: (v: string) => void; type?: string }) => (
     <div className="space-y-1.5">
       <Label className="text-sm">{label}</Label>
@@ -389,6 +471,10 @@ const AdminDashboard = () => {
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
   if (!isAdmin) return null;
+
+  // Get members for a specific college
+  const getMembersForCollege = (collegeId: string) => collegeMembers.filter(m => m.college_id === collegeId);
+  const getInvitationsForCollege = (collegeId: string) => collegeInvitations.filter(i => i.college_id === collegeId);
 
   return (
     <div className="min-h-screen bg-background" dir={dir}>
@@ -415,6 +501,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="overview" className="gap-1.5"><BarChart3 className="w-4 h-4" />{ar("نظرة عامة","Overview")}</TabsTrigger>
             <TabsTrigger value="pending" className="gap-1.5"><Clock className="w-4 h-4" />{ar("طلبات الانتظار","Pending")}{stats.pendingCount > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingCount}</Badge>}</TabsTrigger>
             <TabsTrigger value="schools" className="gap-1.5"><School className="w-4 h-4" />{ar("المدارس","Schools")}{stats.pendingSchools > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingSchools}</Badge>}</TabsTrigger>
+            <TabsTrigger value="colleges" className="gap-1.5"><Landmark className="w-4 h-4" />{ar("الكليات","Colleges")}{stats.pendingColleges > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingColleges}</Badge>}</TabsTrigger>
             <TabsTrigger value="users" className="gap-1.5"><Users className="w-4 h-4" />{ar("المستخدمين","Users")}</TabsTrigger>
             <TabsTrigger value="courses" className="gap-1.5"><BookOpen className="w-4 h-4" />{ar("الدورات","Courses")}</TabsTrigger>
             <TabsTrigger value="books" className="gap-1.5"><BookMarked className="w-4 h-4" />{ar("الكتب","Books")}</TabsTrigger>
@@ -425,12 +512,13 @@ const AdminDashboard = () => {
 
           {/* ===== Overview ===== */}
           <TabsContent value="overview">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
               {[
                 { icon: Users, value: stats.totalUsers, label: ar("إجمالي المستخدمين","Total Users"), color: "text-primary" },
                 { icon: UserCheck, value: stats.totalLecturers, label: ar("محاضرون معتمدون","Approved Lecturers"), color: "text-green-600" },
                 { icon: Clock, value: stats.pendingCount, label: ar("بانتظار الموافقة","Pending Approval"), color: "text-amber-500" },
                 { icon: School, value: stats.pendingSchools, label: ar("طلبات مدارس","School Requests"), color: "text-blue-600" },
+                { icon: Landmark, value: stats.totalColleges, label: ar("الكليات","Colleges"), color: "text-indigo-600" },
                 { icon: BookOpen, value: stats.totalCourses, label: ar("الدورات","Courses"), color: "text-primary" },
                 { icon: Eye, value: stats.totalViews, label: ar("المشاهدات","Views"), color: "text-primary" },
                 { icon: BookMarked, value: stats.totalBooks, label: ar("الكتب","Books"), color: "text-purple-600" },
@@ -445,8 +533,8 @@ const AdminDashboard = () => {
                 </CardContent></Card>
               ))}
             </div>
-            {(stats.pendingCount > 0 || stats.pendingSchools > 0) && (
-              <div className="grid gap-4 md:grid-cols-2">
+            {(stats.pendingCount > 0 || stats.pendingSchools > 0 || stats.pendingColleges > 0) && (
+              <div className="grid gap-4 md:grid-cols-3">
                 {stats.pendingCount > 0 && (
                   <Card className="border-amber-200 bg-amber-50/50 cursor-pointer" onClick={() => setActiveTab("pending")}>
                     <CardContent className="p-5 flex items-center gap-4">
@@ -464,6 +552,17 @@ const AdminDashboard = () => {
                       <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center"><School className="w-6 h-6 text-blue-600" /></div>
                       <div>
                         <p className="font-bold text-foreground">{stats.pendingSchools} {ar("طلب مدرسة بانتظار المراجعة","pending school requests")}</p>
+                        <p className="text-sm text-muted-foreground">{ar("اضغط للمراجعة","Click to review")}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+                {stats.pendingColleges > 0 && (
+                  <Card className="border-indigo-200 bg-indigo-50/50 cursor-pointer" onClick={() => setActiveTab("colleges")}>
+                    <CardContent className="p-5 flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center"><Landmark className="w-6 h-6 text-indigo-600" /></div>
+                      <div>
+                        <p className="font-bold text-foreground">{stats.pendingColleges} {ar("طلب كلية بانتظار المراجعة","pending college requests")}</p>
                         <p className="text-sm text-muted-foreground">{ar("اضغط للمراجعة","Click to review")}</p>
                       </div>
                     </CardContent>
@@ -530,6 +629,91 @@ const AdminDashboard = () => {
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* ===== Colleges ===== */}
+          <TabsContent value="colleges">
+            <ToolbarRow>
+              <SearchBar value={collegeSearch} onChange={setCollegeSearch} placeholder={ar("بحث باسم الكلية أو المدينة...","Search by college name or city...")} />
+              <ExportButton onClick={exportColleges} />
+              <Button size="sm" className="gap-1.5" onClick={() => setShowCreateInvitation(true)}>
+                <LinkIcon className="w-4 h-4" />{ar("إنشاء رابط دعوة","Create Invitation")}
+              </Button>
+            </ToolbarRow>
+
+            {filteredColleges.length === 0 ? <EmptyState icon={Landmark} text={ar("لا توجد كليات مسجلة","No college registrations")} /> : (
+              <div className="grid gap-4">
+                {filteredColleges.map(college => {
+                  const members = getMembersForCollege(college.id);
+                  const invitations = getInvitationsForCollege(college.id);
+                  const studentCount = members.filter(m => m.role === "student").length;
+                  const lecturerCount = members.filter(m => m.role === "lecturer").length;
+
+                  return (
+                    <Card key={college.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => { setSelectedCollege(college); setCollegeAdminNotes(college.admin_notes || ""); setShowCollegeDialog(true); }}>
+                      <CardContent className="p-5">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center"><Landmark className="w-6 h-6 text-indigo-600" /></div>
+                            <div>
+                              <p className="font-bold text-foreground">{college.college_name}</p>
+                              <p className="text-sm text-muted-foreground">{college.dean_name} — {college.city}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            {statusBadge(college.status)}
+                            <p className="text-xs text-muted-foreground hidden sm:block">{fmtDate(college.created_at)}</p>
+                            {college.status === "pending" && (
+                              <div className="flex gap-2">
+                                <Button size="sm" className="gap-1" onClick={e => { e.stopPropagation(); handleCollegeApprove(college.id); }}><CheckCircle className="w-4 h-4" />{ar("قبول","Approve")}</Button>
+                                <Button size="sm" variant="destructive" className="gap-1" onClick={e => { e.stopPropagation(); handleCollegeReject(college.id); }}><XCircle className="w-4 h-4" />{ar("رفض","Reject")}</Button>
+                              </div>
+                            )}
+                            <ActionButtons onDelete={() => setDeleteTarget({ type: "college", id: college.id, name: college.college_name })} />
+                          </div>
+                        </div>
+                        {/* Members summary */}
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground border-t border-border pt-3">
+                          <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" />{studentCount} {ar("طالب","students")}</span>
+                          <span className="flex items-center gap-1"><GraduationCap className="w-3.5 h-3.5" />{lecturerCount} {ar("محاضر","lecturers")}</span>
+                          <span className="flex items-center gap-1"><LinkIcon className="w-3.5 h-3.5" />{invitations.length} {ar("دعوة","invitations")}</span>
+                        </div>
+                        {/* Invitation links */}
+                        {invitations.length > 0 && (
+                          <div className="mt-3 space-y-2">
+                            {invitations.map(inv => (
+                              <div key={inv.id} className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2 text-xs" onClick={e => e.stopPropagation()}>
+                                <Badge variant="outline" className="text-xs">{inv.role === "student" ? ar("طالب","Student") : ar("محاضر","Lecturer")}</Badge>
+                                <code className="flex-1 truncate text-muted-foreground">{inv.invitation_code}</code>
+                                <span className="text-muted-foreground">{inv.used_count}/{inv.max_uses || "∞"}</span>
+                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyInvitationLink(inv.invitation_code)}><Copy className="w-3 h-3" /></Button>
+                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setDeleteTarget({ type: "invitation", id: inv.id, name: inv.invitation_code })}><Trash2 className="w-3 h-3 text-destructive" /></Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {/* Members list */}
+                        {members.length > 0 && (
+                          <div className="mt-3 space-y-1">
+                            <p className="text-xs font-semibold text-muted-foreground">{ar("الأعضاء","Members")}:</p>
+                            {members.slice(0, 5).map(m => (
+                              <div key={m.id} className="flex items-center justify-between text-xs bg-muted/30 rounded px-3 py-1.5" onClick={e => e.stopPropagation()}>
+                                <span className="font-medium text-foreground">{m.profile?.full_name || m.user_id}</span>
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="outline" className="text-xs">{m.role === "student" ? ar("طالب","Student") : ar("محاضر","Lecturer")}</Badge>
+                                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setDeleteTarget({ type: "member", id: m.id, name: m.profile?.full_name || "" })}><Trash2 className="w-3 h-3 text-destructive" /></Button>
+                                </div>
+                              </div>
+                            ))}
+                            {members.length > 5 && <p className="text-xs text-muted-foreground text-center">+{members.length - 5} {ar("عضو آخر","more members")}</p>}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </TabsContent>
@@ -903,6 +1087,81 @@ const AdminDashboard = () => {
         </DialogContent>
       </Dialog>
 
+      {/* ===== College Detail Dialog ===== */}
+      <Dialog open={showCollegeDialog} onOpenChange={setShowCollegeDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>{ar("تفاصيل طلب الكلية","College Registration Details")}</DialogTitle></DialogHeader>
+          {selectedCollege && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center"><Landmark className="w-8 h-8 text-indigo-600" /></div>
+                <div><p className="text-lg font-bold text-foreground">{selectedCollege.college_name}</p>{statusBadge(selectedCollege.status)}</div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex items-center gap-2"><Users className="w-4 h-4 text-muted-foreground" /><div><p className="text-muted-foreground">{ar("العميد","Dean")}</p><p className="font-medium text-foreground">{selectedCollege.dean_name}</p></div></div>
+                <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-muted-foreground" /><div><p className="text-muted-foreground">{ar("المدينة","City")}</p><p className="font-medium text-foreground">{selectedCollege.city}</p></div></div>
+                <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-muted-foreground" /><div><p className="text-muted-foreground">{ar("الهاتف","Phone")}</p><p className="font-medium text-foreground">{selectedCollege.phone}</p></div></div>
+                <div className="flex items-center gap-2"><Mail className="w-4 h-4 text-muted-foreground" /><div><p className="text-muted-foreground">{ar("البريد","Email")}</p><p className="font-medium text-foreground">{selectedCollege.email}</p></div></div>
+              </div>
+              {selectedCollege.message && (
+                <div className="text-sm border-t border-border pt-3">
+                  <p className="text-muted-foreground flex items-center gap-1"><MessageSquare className="w-4 h-4" />{ar("رسالة الكلية","College Message")}</p>
+                  <p className="font-medium text-foreground mt-1">{selectedCollege.message}</p>
+                </div>
+              )}
+              <div className="border-t border-border pt-3">
+                <p className="text-sm text-muted-foreground mb-2 flex items-center gap-1"><FileText className="w-4 h-4" />{ar("ملاحظات الأدمن","Admin Notes")}</p>
+                <Textarea value={collegeAdminNotes} onChange={e => setCollegeAdminNotes(e.target.value)} placeholder={ar("أضف ملاحظاتك هنا...","Add your notes here...")} className="min-h-[80px]" />
+              </div>
+              {selectedCollege.status === "pending" && (
+                <div className="flex gap-3 pt-2">
+                  <Button className="flex-1 gap-1.5" onClick={() => handleCollegeApprove(selectedCollege.id)}><CheckCircle className="w-4 h-4" />{ar("قبول","Approve")}</Button>
+                  <Button variant="destructive" className="flex-1 gap-1.5" onClick={() => handleCollegeReject(selectedCollege.id)}><XCircle className="w-4 h-4" />{ar("رفض","Reject")}</Button>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ===== Create Invitation Dialog ===== */}
+      <Dialog open={showCreateInvitation} onOpenChange={setShowCreateInvitation}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>{ar("إنشاء رابط دعوة","Create Invitation Link")}</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label>{ar("الكلية","College")}</Label>
+              <select
+                className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
+                value={newInvitationCollegeId}
+                onChange={e => setNewInvitationCollegeId(e.target.value)}
+              >
+                <option value="">{ar("اختر كلية","Select a college")}</option>
+                {colleges.filter(c => c.status === "approved").map(c => (
+                  <option key={c.id} value={c.id}>{c.college_name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>{ar("الدور","Role")}</Label>
+              <select
+                className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
+                value={newInvitationRole}
+                onChange={e => setNewInvitationRole(e.target.value)}
+              >
+                <option value="student">{ar("طالب","Student")}</option>
+                <option value="lecturer">{ar("محاضر","Lecturer")}</option>
+              </select>
+            </div>
+            <Field label={ar("الحد الأقصى للاستخدام (0 = غير محدود)","Max Uses (0 = unlimited)")} value={newInvitationMaxUses} onChange={setNewInvitationMaxUses} type="number" />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCreateInvitation(false)}>{ar("إلغاء","Cancel")}</Button>
+            <Button onClick={handleCreateInvitation} disabled={!newInvitationCollegeId}>{ar("إنشاء","Create")}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* ===== User Detail Dialog ===== */}
       <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
         <DialogContent className="max-w-lg">
@@ -921,6 +1180,19 @@ const AdminDashboard = () => {
                 <div><p className="text-muted-foreground">{ar("الهاتف","Phone")}</p><p className="font-medium text-foreground">{selectedUser.profile?.phone || "—"}</p></div>
                 <div><p className="text-muted-foreground">{ar("تاريخ التسجيل","Registered")}</p><p className="font-medium text-foreground">{fmtDate(selectedUser.created_at)}</p></div>
               </div>
+              {/* Show college membership */}
+              {collegeMembers.filter(m => m.user_id === selectedUser.user_id).length > 0 && (
+                <div className="border-t border-border pt-3">
+                  <p className="text-sm font-semibold text-foreground mb-2">{ar("الكلية","College")}</p>
+                  {collegeMembers.filter(m => m.user_id === selectedUser.user_id).map(m => (
+                    <div key={m.id} className="flex items-center gap-2 text-sm">
+                      <Landmark className="w-4 h-4 text-indigo-600" />
+                      <span className="font-medium">{m.college?.college_name || m.college_id}</span>
+                      <Badge variant="outline" className="text-xs">{m.role}</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
               {selectedUser.role === "lecturer" && (
                 <div className="space-y-3 border-t border-border pt-4">
                   <p className="font-semibold text-foreground">{ar("المستندات المرفقة","Attached Documents")}</p>

@@ -40,7 +40,7 @@ const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]
 
 const Signup = () => {
   const { role: roleParam } = useParams<{ role: string }>();
-  const role = roleParam === "lecturer" ? "lecturer" : "student";
+  const role = roleParam === "lecturer" ? "lecturer" : "personal";
   const isLecturer = role === "lecturer";
 
   const { t, dir, language, toggleLanguage } = useLanguage();

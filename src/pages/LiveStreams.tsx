@@ -63,9 +63,8 @@ const LiveStreams = () => {
               {t.langSwitch}
             </Button>
             <Link to="/">
-              <Button variant="default" size="sm" className="font-semibold gap-1.5">
-                {t.home}
-                {language === "ar" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+              <Button variant="default" size="icon" className="rounded-full w-9 h-9">
+                {language === "ar" ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
               </Button>
             </Link>
           </div>

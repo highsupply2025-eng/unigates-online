@@ -84,9 +84,8 @@ const SchoolRegistration = () => {
               {t.langSwitch}
             </Button>
             <Link to="/">
-              <Button variant="outline" size="sm" className="font-semibold gap-1.5">
-                <Home className="w-4 h-4" />
-                {t.home}
+              <Button variant="default" size="icon" className="rounded-full w-9 h-9">
+                {isRtl ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
               </Button>
             </Link>
           </div>

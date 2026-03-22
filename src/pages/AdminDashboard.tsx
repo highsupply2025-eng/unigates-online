@@ -5,7 +5,7 @@ import {
   BookOpen, Eye, Search, CheckCircle, XCircle, Clock, ArrowLeft, ArrowRight,
   School, MapPin, Phone, Mail, MessageSquare, FileText, Video, CreditCard,
   BarChart3, ShoppingCart, BookMarked, Radio, TrendingUp, Package, DollarSign,
-  Calendar, PlayCircle, Layers
+  Calendar, PlayCircle, Layers, Download
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -464,6 +464,58 @@ const AdminDashboard = () => {
     </div>
   );
 
+  const exportCSV = (filename: string, headers: string[], rows: string[][]) => {
+    const bom = "\uFEFF";
+    const csv = bom + [headers.join(","), ...rows.map(r => r.map(c => `"${(c ?? "").toString().replace(/"/g, '""')}"`).join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: language === "ar" ? "تم التصدير" : "Exported", description: filename });
+  };
+
+  const exportUsers = () => {
+    const h = [language === "ar" ? "الاسم" : "Name", language === "ar" ? "البريد" : "Email", language === "ar" ? "الهاتف" : "Phone", language === "ar" ? "الدور" : "Role", language === "ar" ? "المنصة" : "Platform", language === "ar" ? "الحالة" : "Status", language === "ar" ? "التاريخ" : "Date"];
+    exportCSV("users.csv", h, filteredUsers.map(u => [u.profile?.full_name || "", u.profile?.email || "", u.profile?.phone || "", u.role, u.profile?.platform || "", u.approved ? "Approved" : "Pending", fmtDate(u.created_at)]));
+  };
+
+  const exportSchools = () => {
+    const h = [language === "ar" ? "اسم المدرسة" : "School", language === "ar" ? "المدير" : "Principal", language === "ar" ? "المدينة" : "City", language === "ar" ? "الهاتف" : "Phone", language === "ar" ? "البريد" : "Email", language === "ar" ? "عدد الطلاب" : "Students", language === "ar" ? "الحالة" : "Status", language === "ar" ? "التاريخ" : "Date"];
+    exportCSV("schools.csv", h, filteredSchools.map(s => [s.school_name, s.principal_name, s.city, s.phone, s.email, String(s.student_count || 0), s.status, fmtDate(s.created_at)]));
+  };
+
+  const exportCourses = () => {
+    const h = [language === "ar" ? "العنوان (عربي)" : "Title (AR)", language === "ar" ? "العنوان (إنجليزي)" : "Title (EN)", language === "ar" ? "المدرب" : "Instructor", language === "ar" ? "التصنيف" : "Category", language === "ar" ? "الحلقات" : "Episodes", language === "ar" ? "مجاني" : "Free", language === "ar" ? "التاريخ" : "Date"];
+    exportCSV("courses.csv", h, filteredCourses.map(c => [c.title_ar, c.title_en, language === "ar" ? c.instructor_ar : c.instructor_en, language === "ar" ? c.category_ar : c.category_en, String(c.episode_count), c.is_free ? "Yes" : "No", fmtDate(c.created_at)]));
+  };
+
+  const exportBooks = () => {
+    const h = [language === "ar" ? "العنوان (عربي)" : "Title (AR)", language === "ar" ? "العنوان (إنجليزي)" : "Title (EN)", language === "ar" ? "المؤلف" : "Author", language === "ar" ? "التصنيف" : "Category", language === "ar" ? "السعر" : "Price", language === "ar" ? "التقييم" : "Rating", language === "ar" ? "التاريخ" : "Date"];
+    exportCSV("books.csv", h, filteredBooks.map(b => [b.title_ar, b.title_en, language === "ar" ? b.author_ar : b.author_en, b.category, String(b.price), String(b.rating || 0), fmtDate(b.created_at)]));
+  };
+
+  const exportOrders = () => {
+    const h = [language === "ar" ? "الكتاب" : "Book", language === "ar" ? "المشتري" : "Buyer", language === "ar" ? "البريد" : "Email", language === "ar" ? "المبلغ" : "Amount", language === "ar" ? "الحالة" : "Status", language === "ar" ? "التاريخ" : "Date"];
+    exportCSV("orders.csv", h, filteredOrders.map(o => [language === "ar" ? o.book?.title_ar || "" : o.book?.title_en || "", o.profile?.full_name || "", o.profile?.email || "", String(o.amount), o.status, fmtDate(o.created_at)]));
+  };
+
+  const exportSubscriptions = () => {
+    const h = [language === "ar" ? "الدورة" : "Course", language === "ar" ? "المشترك" : "Subscriber", language === "ar" ? "الخطة" : "Plan", language === "ar" ? "المستوى" : "Level", language === "ar" ? "المبلغ" : "Amount", language === "ar" ? "الحالة" : "Status", language === "ar" ? "البداية" : "Start", language === "ar" ? "الانتهاء" : "Expiry"];
+    exportCSV("subscriptions.csv", h, filteredSubs.map(s => [language === "ar" ? s.course?.title_ar || "" : s.course?.title_en || "", s.profile?.full_name || "", s.plan_type, String(s.level_number), String(s.amount_paid), s.status, fmtDate(s.starts_at), s.expires_at ? fmtDate(s.expires_at) : "—"]));
+  };
+
+  const exportStreams = () => {
+    const h = [language === "ar" ? "العنوان (عربي)" : "Title (AR)", language === "ar" ? "العنوان (إنجليزي)" : "Title (EN)", language === "ar" ? "المحاضر" : "Lecturer", language === "ar" ? "الحالة" : "Status", language === "ar" ? "الموعد" : "Scheduled", language === "ar" ? "التاريخ" : "Date"];
+    exportCSV("streams.csv", h, filteredStreams.map(s => [s.title_ar, s.title_en, s.profile?.full_name || "", s.status, s.scheduled_at ? fmtDate(s.scheduled_at) : "—", fmtDate(s.created_at)]));
+  };
+
+  const ExportButton = ({ onClick }: { onClick: () => void }) => (
+    <Button variant="outline" size="sm" className="gap-1.5 mb-4" onClick={onClick}>
+      <Download className="w-4 h-4" />{language === "ar" ? "تصدير CSV" : "Export CSV"}
+    </Button>
+  );
+
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
   if (!isAdmin) return null;
 
@@ -629,7 +681,10 @@ const AdminDashboard = () => {
 
           {/* ===== Schools ===== */}
           <TabsContent value="schools">
-            <SearchBar value={schoolSearchQuery} onChange={setSchoolSearchQuery} placeholder={language === "ar" ? "بحث باسم المدرسة أو المدينة..." : "Search by school name or city..."} />
+            <div className="flex items-center gap-4 flex-wrap">
+              <SearchBar value={schoolSearchQuery} onChange={setSchoolSearchQuery} placeholder={language === "ar" ? "بحث باسم المدرسة أو المدينة..." : "Search by school name or city..."} />
+              <ExportButton onClick={exportSchools} />
+            </div>
             {filteredSchools.length === 0 ? (
               <EmptyState icon={School} text={language === "ar" ? "لا توجد طلبات تسجيل مدارس" : "No school registration requests"} />
             ) : (
@@ -675,7 +730,10 @@ const AdminDashboard = () => {
 
           {/* ===== All Users ===== */}
           <TabsContent value="users">
-            <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder={language === "ar" ? "بحث بالاسم أو البريد..." : "Search by name or email..."} />
+            <div className="flex items-center gap-4 flex-wrap">
+              <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder={language === "ar" ? "بحث بالاسم أو البريد..." : "Search by name or email..."} />
+              <ExportButton onClick={exportUsers} />
+            </div>
             <div className="grid gap-3">
               {filteredUsers.map(user => (
                 <Card key={user.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => openDetail(user)}>
@@ -703,7 +761,10 @@ const AdminDashboard = () => {
 
           {/* ===== Courses ===== */}
           <TabsContent value="courses">
-            <SearchBar value={courseSearch} onChange={setCourseSearch} placeholder={language === "ar" ? "بحث بعنوان الدورة أو المدرب..." : "Search by course title or instructor..."} />
+            <div className="flex items-center gap-4 flex-wrap">
+              <SearchBar value={courseSearch} onChange={setCourseSearch} placeholder={language === "ar" ? "بحث بعنوان الدورة أو المدرب..." : "Search by course title or instructor..."} />
+              <ExportButton onClick={exportCourses} />
+            </div>
             {filteredCourses.length === 0 ? (
               <EmptyState icon={BookOpen} text={language === "ar" ? "لا توجد دورات" : "No courses found"} />
             ) : (
@@ -733,7 +794,10 @@ const AdminDashboard = () => {
 
           {/* ===== Books ===== */}
           <TabsContent value="books">
-            <SearchBar value={bookSearch} onChange={setBookSearch} placeholder={language === "ar" ? "بحث بعنوان الكتاب أو المؤلف..." : "Search by book title or author..."} />
+            <div className="flex items-center gap-4 flex-wrap">
+              <SearchBar value={bookSearch} onChange={setBookSearch} placeholder={language === "ar" ? "بحث بعنوان الكتاب أو المؤلف..." : "Search by book title or author..."} />
+              <ExportButton onClick={exportBooks} />
+            </div>
             {filteredBooks.length === 0 ? (
               <EmptyState icon={BookMarked} text={language === "ar" ? "لا توجد كتب" : "No books found"} />
             ) : (
@@ -764,7 +828,10 @@ const AdminDashboard = () => {
 
           {/* ===== Orders ===== */}
           <TabsContent value="orders">
-            <SearchBar value={orderSearch} onChange={setOrderSearch} placeholder={language === "ar" ? "بحث بعنوان الكتاب أو اسم المشتري..." : "Search by book or buyer..."} />
+            <div className="flex items-center gap-4 flex-wrap">
+              <SearchBar value={orderSearch} onChange={setOrderSearch} placeholder={language === "ar" ? "بحث بعنوان الكتاب أو اسم المشتري..." : "Search by book or buyer..."} />
+              <ExportButton onClick={exportOrders} />
+            </div>
             {filteredOrders.length === 0 ? (
               <EmptyState icon={ShoppingCart} text={language === "ar" ? "لا توجد طلبات" : "No orders found"} />
             ) : (
@@ -795,7 +862,10 @@ const AdminDashboard = () => {
 
           {/* ===== Subscriptions ===== */}
           <TabsContent value="subscriptions">
-            <SearchBar value={subSearch} onChange={setSubSearch} placeholder={language === "ar" ? "بحث بعنوان الدورة أو اسم المشترك..." : "Search by course or subscriber..."} />
+            <div className="flex items-center gap-4 flex-wrap">
+              <SearchBar value={subSearch} onChange={setSubSearch} placeholder={language === "ar" ? "بحث بعنوان الدورة أو اسم المشترك..." : "Search by course or subscriber..."} />
+              <ExportButton onClick={exportSubscriptions} />
+            </div>
             {filteredSubs.length === 0 ? (
               <EmptyState icon={CreditCard} text={language === "ar" ? "لا توجد اشتراكات" : "No subscriptions found"} />
             ) : (
@@ -827,7 +897,10 @@ const AdminDashboard = () => {
 
           {/* ===== Live Streams ===== */}
           <TabsContent value="streams">
-            <SearchBar value={streamSearch} onChange={setStreamSearch} placeholder={language === "ar" ? "بحث بعنوان البث أو اسم المحاضر..." : "Search by stream title or lecturer..."} />
+            <div className="flex items-center gap-4 flex-wrap">
+              <SearchBar value={streamSearch} onChange={setStreamSearch} placeholder={language === "ar" ? "بحث بعنوان البث أو اسم المحاضر..." : "Search by stream title or lecturer..."} />
+              <ExportButton onClick={exportStreams} />
+            </div>
             {filteredStreams.length === 0 ? (
               <EmptyState icon={Radio} text={language === "ar" ? "لا توجد بثوث مباشرة" : "No live streams found"} />
             ) : (

@@ -1,0 +1,320 @@
+import { Link } from "react-router-dom";
+import SiteFooter from "@/components/SiteFooter";
+import { useLanguage } from "@/contexts/LanguageContext";
+import {
+  Landmark, BookOpen, Users, FlaskConical, Microscope,
+  BarChart3, Globe, Shield, GraduationCap,
+  FileText, Video, Award, ArrowLeft, ArrowRight, Home,
+  Library, BrainCircuit, Handshake
+} from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+
+const UniversityPlatform = () => {
+  const { t, dir, toggleLanguage } = useLanguage();
+  const isRtl = dir === "rtl";
+  const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
+
+  const features = [
+    {
+      icon: Library,
+      title: isRtl ? "المكتبة الرقمية" : "Digital Library",
+      desc: isRtl ? "وصول غير محدود لآلاف المراجع والأبحاث العلمية المحكّمة" : "Unlimited access to thousands of peer-reviewed references and research papers",
+    },
+    {
+      icon: Video,
+      title: isRtl ? "المحاضرات المباشرة" : "Live Lectures",
+      desc: isRtl ? "بث مباشر للمحاضرات مع تفاعل فوري وتسجيل تلقائي" : "Live lecture streaming with real-time interaction and auto-recording",
+    },
+    {
+      icon: FlaskConical,
+      title: isRtl ? "المعامل الافتراضية" : "Virtual Labs",
+      desc: isRtl ? "تجارب علمية افتراضية محاكاة بدقة عالية لجميع التخصصات" : "High-fidelity virtual experiments simulated for all disciplines",
+    },
+    {
+      icon: Microscope,
+      title: isRtl ? "البحث العلمي" : "Research Hub",
+      desc: isRtl ? "أدوات متكاملة لإدارة ونشر الأبحاث العلمية والأطروحات" : "Integrated tools for managing and publishing research papers and theses",
+    },
+    {
+      icon: BrainCircuit,
+      title: isRtl ? "التعلم بالذكاء الاصطناعي" : "AI-Powered Learning",
+      desc: isRtl ? "مسارات تعليمية مخصصة تتكيف مع مستوى كل طالب تلقائياً" : "Personalized learning paths that adapt automatically to each student's level",
+    },
+    {
+      icon: FileText,
+      title: isRtl ? "الاختبارات والتقييم" : "Exams & Assessment",
+      desc: isRtl ? "نظام اختبارات متقدم مع تصحيح آلي وتحليل شامل للأداء" : "Advanced exam system with auto-grading and comprehensive performance analysis",
+    },
+    {
+      icon: BarChart3,
+      title: isRtl ? "لوحة التحليلات" : "Analytics Dashboard",
+      desc: isRtl ? "تقارير أداء مفصلة للطلاب والأقسام والكليات" : "Detailed performance reports for students, departments, and faculties",
+    },
+    {
+      icon: Handshake,
+      title: isRtl ? "الشراكات الأكاديمية" : "Academic Partnerships",
+      desc: isRtl ? "ربط الجامعات ببعضها لتبادل المقررات والخبرات الأكاديمية" : "Connect universities to share courses and academic expertise",
+    },
+  ];
+
+  const stats = [
+    { value: isRtl ? "+25" : "25+", label: isRtl ? "جامعة شريكة" : "Partner Universities" },
+    { value: isRtl ? "+100,000" : "100,000+", label: isRtl ? "طالب جامعي" : "University Students" },
+    { value: isRtl ? "+5,000" : "5,000+", label: isRtl ? "أستاذ جامعي" : "Professors" },
+    { value: isRtl ? "+10,000" : "10,000+", label: isRtl ? "مقرر دراسي" : "Courses Available" },
+  ];
+
+  const plans = [
+    {
+      name: isRtl ? "الخطة الأكاديمية" : "Academic Plan",
+      price: isRtl ? "مجاناً" : "Free",
+      period: "",
+      features: isRtl
+        ? ["حتى 500 طالب", "10 أعضاء هيئة تدريس", "المكتبة الرقمية الأساسية", "التقارير الأساسية"]
+        : ["Up to 500 students", "10 faculty members", "Basic digital library", "Basic reports"],
+      highlighted: false,
+    },
+    {
+      name: isRtl ? "الخطة المؤسسية" : "Institutional Plan",
+      price: isRtl ? "999 ج.م" : "$99",
+      period: isRtl ? "/ شهرياً" : "/month",
+      features: isRtl
+        ? ["حتى 10,000 طالب", "هيئة تدريس غير محدودة", "معامل افتراضية", "تحليلات متقدمة", "دعم أولوية"]
+        : ["Up to 10,000 students", "Unlimited faculty", "Virtual labs", "Advanced analytics", "Priority support"],
+      highlighted: true,
+    },
+    {
+      name: isRtl ? "خطة التحالف" : "Alliance Plan",
+      price: isRtl ? "تواصل معنا" : "Contact Us",
+      period: "",
+      features: isRtl
+        ? ["طلاب غير محدود", "شراكات بين الجامعات", "API مفتوح", "تخصيص كامل", "مدير حساب مخصص"]
+        : ["Unlimited students", "Inter-university partnerships", "Open API", "Full customization", "Dedicated account manager"],
+      highlighted: false,
+    },
+  ];
+
+  const steps = [
+    {
+      step: "1",
+      title: isRtl ? "سجّل جامعتك" : "Register Your University",
+      desc: isRtl ? "أنشئ حساباً مؤسسياً وأضف بيانات جامعتك" : "Create an institutional account and add your university data",
+    },
+    {
+      step: "2",
+      title: isRtl ? "أضف الكليات والأقسام" : "Add Faculties & Departments",
+      desc: isRtl ? "هيكل أكاديمي مرن يتكيف مع نظام جامعتك" : "Flexible academic structure that adapts to your university's system",
+    },
+    {
+      step: "3",
+      title: isRtl ? "ابدأ التدريس" : "Start Teaching",
+      desc: isRtl ? "ارفع المقررات وابدأ المحاضرات المباشرة فوراً" : "Upload courses and start live lectures immediately",
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col" dir={dir}>
+      {/* Hero */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/85 to-primary/70" />
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 start-10 w-72 h-72 bg-white rounded-full blur-3xl" />
+          <div className="absolute bottom-10 end-20 w-96 h-96 bg-white rounded-full blur-3xl" />
+        </div>
+
+        <header className="relative z-50 flex items-center justify-between px-6 md:px-12 py-5">
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-11 h-11 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center group-hover:bg-white/25 transition-colors">
+              <GraduationCap className="w-7 h-7 text-primary-foreground" />
+            </div>
+            <span className="text-2xl md:text-3xl font-black text-primary-foreground tracking-tight drop-shadow-md">
+              {t.brandName}
+            </span>
+          </Link>
+          <div className="flex items-center gap-3">
+            <Link to="/login">
+              <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
+                {t.login}
+              </Button>
+            </Link>
+            <Link to="/signup">
+              <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
+                {t.signup}
+              </Button>
+            </Link>
+            <Link to="/">
+              <Button variant="default" size="sm" className="font-semibold gap-1.5">
+                <Home className="w-4 h-4" />
+                {isRtl ? "الرئيسية" : "Home"}
+              </Button>
+            </Link>
+            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
+              <Globe className="w-4 h-4" />
+              {t.langSwitch}
+            </Button>
+          </div>
+        </header>
+
+        <div className="relative z-10 pt-12 pb-24 px-6 md:px-12 text-center max-w-4xl mx-auto">
+          <div className="flex justify-center mb-6">
+            <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
+              <Landmark className="w-10 h-10 text-primary-foreground" />
+            </div>
+          </div>
+          <h1 className="text-3xl md:text-5xl font-black text-primary-foreground mb-4 leading-tight">
+            {isRtl ? "المنصة الجامعية" : "University Platform"}
+          </h1>
+          <p className="text-primary-foreground/80 text-lg md:text-xl max-w-2xl mx-auto mb-8 leading-relaxed">
+            {isRtl
+              ? "منصة أكاديمية شاملة تربط الجامعات بأحدث تقنيات التعليم الرقمي لتمكين الطلاب والأساتذة من تجربة تعليمية استثنائية"
+              : "A comprehensive academic platform connecting universities with cutting-edge digital education technology for an exceptional learning experience"}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button size="lg" variant="secondary" className="font-bold text-base px-8">
+              <Landmark className="w-5 h-5" />
+              {isRtl ? "سجّل جامعتك الآن" : "Register Your University"}
+            </Button>
+            <Button size="lg" variant="outline" className="font-bold text-base px-8 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
+              <Video className="w-5 h-5" />
+              {isRtl ? "شاهد العرض التوضيحي" : "Watch Demo"}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="bg-card border-b border-border -mt-10 relative z-20">
+        <div className="max-w-5xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          {stats.map((s, i) => (
+            <div key={i}>
+              <p className="text-3xl md:text-4xl font-black text-primary">{s.value}</p>
+              <p className="text-sm text-muted-foreground mt-1">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Features */}
+      <section className="py-16 px-6 md:px-12">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-black text-foreground mb-3">
+              {isRtl ? "كل ما تحتاجه جامعتك في مكان واحد" : "Everything Your University Needs in One Place"}
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              {isRtl ? "أدوات أكاديمية متقدمة مصممة لتلبية احتياجات التعليم الجامعي" : "Advanced academic tools designed to meet higher education needs"}
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {features.map((f, i) => (
+              <Card key={i} className="group hover:shadow-lg transition-all duration-300 border-border/60 hover:border-primary/30">
+                <CardContent className="p-6">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                    <f.icon className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="font-bold text-foreground mb-2">{f.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="py-16 px-6 md:px-12 bg-muted/50">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-2xl md:text-3xl font-black text-foreground mb-10">
+            {isRtl ? "كيف تبدأ؟" : "How to Get Started?"}
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {steps.map((item, i) => (
+              <div key={i} className="flex flex-col items-center">
+                <div className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl font-black mb-4 shadow-lg shadow-primary/30">
+                  {item.step}
+                </div>
+                <h3 className="font-bold text-foreground mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section className="py-16 px-6 md:px-12">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-black text-foreground mb-3">
+              {isRtl ? "خطط الاشتراك" : "Pricing Plans"}
+            </h2>
+            <p className="text-muted-foreground">
+              {isRtl ? "اختر الخطة المناسبة لجامعتك" : "Choose the right plan for your university"}
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {plans.map((plan, i) => (
+              <Card
+                key={i}
+                className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg ${
+                  plan.highlighted ? "border-primary border-2 shadow-md" : "border-border"
+                }`}
+              >
+                {plan.highlighted && (
+                  <div className="bg-primary text-primary-foreground text-xs font-bold text-center py-1.5">
+                    {isRtl ? "الأكثر شعبية" : "Most Popular"}
+                  </div>
+                )}
+                <CardContent className="p-6">
+                  <h3 className="font-bold text-lg text-foreground mb-2">{plan.name}</h3>
+                  <div className="mb-5">
+                    <span className="text-3xl font-black text-foreground">{plan.price}</span>
+                    {plan.period && <span className="text-muted-foreground text-sm">{plan.period}</span>}
+                  </div>
+                  <ul className="space-y-3 mb-6">
+                    {plan.features.map((f, j) => (
+                      <li key={j} className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Award className="w-4 h-4 text-primary flex-shrink-0" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <Button
+                    className="w-full font-bold"
+                    variant={plan.highlighted ? "default" : "outline"}
+                  >
+                    {isRtl ? "ابدأ الآن" : "Get Started"}
+                    <ArrowIcon className="w-4 h-4" />
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-16 px-6 md:px-12 bg-gradient-to-br from-primary/5 to-primary/10">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-2xl md:text-3xl font-black text-foreground mb-4">
+            {isRtl ? "جاهز لتحويل جامعتك رقمياً؟" : "Ready to Digitize Your University?"}
+          </h2>
+          <p className="text-muted-foreground mb-8">
+            {isRtl
+              ? "انضم لأكثر من 25 جامعة تستخدم منصتنا لتطوير التعليم الأكاديمي"
+              : "Join over 25 universities using our platform to advance academic education"}
+          </p>
+          <Button size="lg" className="font-bold text-base px-10 shadow-lg shadow-primary/30">
+            <Landmark className="w-5 h-5" />
+            {isRtl ? "سجّل جامعتك الآن" : "Register Your University Now"}
+          </Button>
+        </div>
+      </section>
+
+      <SiteFooter />
+    </div>
+  );
+};
+
+export default UniversityPlatform;

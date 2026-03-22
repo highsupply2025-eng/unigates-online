@@ -205,7 +205,7 @@ const UniversityPlatform = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-10">
             <Link to="/signup">
-              <Button size="lg" variant="secondary" className="font-bold text-base px-8">
+              <Button size="lg" className="font-bold text-base px-8 bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg">
                 <Landmark className="w-5 h-5" />
                 {isRtl ? "سجّل كليتك الآن" : "Register Your College"}
               </Button>
@@ -218,11 +218,11 @@ const UniversityPlatform = () => {
               <div
                 key={i}
                 ref={item.counter.ref}
-                className="flex flex-col items-center gap-1.5 text-white px-2 py-4 animate-fade-in"
+                className="flex flex-col items-center gap-1.5 px-2 py-4 animate-fade-in bg-white/15 backdrop-blur-sm rounded-xl"
               >
-                <item.icon className="w-7 h-7" />
-                <span className="text-3xl md:text-4xl font-black">{item.counter.count}</span>
-                <span className="text-xs font-semibold opacity-90 text-center">{item.label}</span>
+                <item.icon className="w-7 h-7 text-primary-foreground" />
+                <span className="text-3xl md:text-4xl font-black text-primary-foreground">{item.counter.count}</span>
+                <span className="text-xs font-bold text-primary-foreground/95 text-center">{item.label}</span>
               </div>
             ))}
           </div>

@@ -171,7 +171,7 @@ const Signup = () => {
     }
   };
 
-  const pageTitle = isLecturer ? t.signupChoice.lecturerTitle : t.signupChoice.studentTitle;
+  const pageTitle = isLecturer ? t.signupChoice.lecturerTitle : (language === "ar" ? "حساب شخصي" : "Personal Account");
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>

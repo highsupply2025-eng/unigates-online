@@ -189,24 +189,7 @@ const UniversityPlatform = () => {
           </div>
         </header>
 
-        {/* Stats Section - on the hero */}
-        <div className="relative z-10 pt-8 px-6 md:px-12">
-          <div className="max-w-3xl mx-auto grid grid-cols-3 gap-6 text-center mb-8">
-            {statItems.map((item, i) => (
-              <div
-                key={i}
-                ref={item.counter.ref}
-                className="flex flex-col items-center gap-1.5 text-white px-2 py-4 animate-fade-in"
-              >
-                <item.icon className="w-7 h-7" />
-                <span className="text-3xl md:text-4xl font-black">{item.counter.count}</span>
-                <span className="text-xs font-semibold opacity-90 text-center">{item.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="relative z-10 pb-24 px-6 md:px-12 text-center max-w-4xl mx-auto">
+        <div className="relative z-10 pb-16 px-6 md:px-12 text-center max-w-4xl mx-auto pt-12">
           <div className="flex justify-center mb-6">
             <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
               <Landmark className="w-10 h-10 text-primary-foreground" />
@@ -220,13 +203,28 @@ const UniversityPlatform = () => {
               ? "منصة أكاديمية شاملة تربط الكليات بأحدث تقنيات التعليم الرقمي لتمكين الطلاب والأساتذة من تجربة تعليمية استثنائية"
               : "A comprehensive academic platform connecting colleges with cutting-edge digital education technology for an exceptional learning experience"}
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-10">
             <Link to="/signup">
               <Button size="lg" variant="secondary" className="font-bold text-base px-8">
                 <Landmark className="w-5 h-5" />
                 {isRtl ? "سجّل كليتك الآن" : "Register Your College"}
               </Button>
             </Link>
+          </div>
+
+          {/* Stats Section - below register button */}
+          <div className="max-w-3xl mx-auto grid grid-cols-3 gap-6 text-center">
+            {statItems.map((item, i) => (
+              <div
+                key={i}
+                ref={item.counter.ref}
+                className="flex flex-col items-center gap-1.5 text-white px-2 py-4 animate-fade-in"
+              >
+                <item.icon className="w-7 h-7" />
+                <span className="text-3xl md:text-4xl font-black">{item.counter.count}</span>
+                <span className="text-xs font-semibold opacity-90 text-center">{item.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

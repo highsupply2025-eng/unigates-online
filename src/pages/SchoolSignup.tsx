@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { School, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Globe, Phone } from "lucide-react";
+import { School, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Globe, Phone, GraduationCap, Users, Building2, BookOpenCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,11 +22,11 @@ const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]
 
 type SchoolRole = "school_student" | "parent" | "school" | "teacher";
 
-const roleOptions: { value: SchoolRole; labelAr: string; labelEn: string }[] = [
-  { value: "school_student", labelAr: "طالب", labelEn: "Student" },
-  { value: "parent", labelAr: "ولي أمر", labelEn: "Parent" },
-  { value: "school", labelAr: "مدرسة", labelEn: "School" },
-  { value: "teacher", labelAr: "معلم", labelEn: "Teacher" },
+const schoolRoles: { value: SchoolRole; labelAr: string; labelEn: string; descAr: string; descEn: string; icon: any }[] = [
+  { value: "school_student", labelAr: "طالب", labelEn: "Student", descAr: "للدراسة ومتابعة الدروس", descEn: "To study and follow lessons", icon: GraduationCap },
+  { value: "parent", labelAr: "ولي أمر", labelEn: "Parent", descAr: "لمتابعة أبنائك أكاديمياً", descEn: "To monitor your children academically", icon: Users },
+  { value: "school", labelAr: "مدرسة", labelEn: "School", descAr: "لإدارة المدرسة والطلاب", descEn: "To manage school and students", icon: Building2 },
+  { value: "teacher", labelAr: "معلم", labelEn: "Teacher", descAr: "للتدريس وإدارة الفصول", descEn: "To teach and manage classes", icon: BookOpenCheck },
 ];
 
 const SchoolSignup = () => {
@@ -35,7 +35,7 @@ const SchoolSignup = () => {
   const ArrowIcon = isRtl ? ChevronLeft : ChevronRight;
   const { toast } = useToast();
 
-  const [selectedRole, setSelectedRole] = useState<SchoolRole>("school_student");
+  const [selectedRole, setSelectedRole] = useState<SchoolRole | null>(null);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -46,7 +46,7 @@ const SchoolSignup = () => {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!fullName || !email || !password || !phone) {
+    if (!selectedRole || !fullName || !email || !password || !phone) {
       toast({ title: t.signupPage.errorGeneric, description: t.signupPage.errorFillFields, variant: "destructive" });
       return;
     }
@@ -122,9 +122,48 @@ const SchoolSignup = () => {
       </header>
       <Separator />
       <main className="flex-1 flex items-center justify-center px-4 py-10">
-        {!submitted ? (
+        {!selectedRole ? (
+          /* Step 1: Role Selection Cards */
+          <div className="max-w-2xl w-full text-center">
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <School className="w-8 h-8 text-primary" />
+              </div>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-black text-foreground mb-2">
+              {isRtl ? "اختر نوع الحساب" : "Choose Account Type"}
+            </h1>
+            <p className="text-muted-foreground mb-8">{isRtl ? "حدد نوع حسابك للمتابعة" : "Select your account type to continue"}</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {schoolRoles.map((r) => {
+                const Icon = r.icon;
+                return (
+                  <button
+                    key={r.value}
+                    type="button"
+                    onClick={() => setSelectedRole(r.value)}
+                    className="group p-5 rounded-2xl border-2 border-border bg-card hover:border-primary hover:shadow-lg transition-all duration-200 text-center"
+                  >
+                    <div className="w-14 h-14 rounded-xl bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center mx-auto mb-4 transition-colors">
+                      <Icon className="w-7 h-7 text-primary" />
+                    </div>
+                    <h3 className="text-base font-bold text-foreground mb-1">{isRtl ? r.labelAr : r.labelEn}</h3>
+                    <p className="text-xs text-muted-foreground">{isRtl ? r.descAr : r.descEn}</p>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-sm text-muted-foreground mt-6">
+              {isRtl ? "لديك حساب بالفعل؟" : "Already have an account?"}{" "}
+              <Link to="/school-platform/login" className="text-primary font-semibold hover:underline">{t.login}</Link>
+            </p>
+          </div>
+        ) : !submitted ? (
           <div className="max-w-lg w-full">
             <div className="text-center mb-8">
+              <button onClick={() => setSelectedRole(null)} className="text-sm text-primary hover:underline mb-4 inline-block">
+                {isRtl ? "← تغيير نوع الحساب" : "← Change account type"}
+              </button>
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
                   <School className="w-8 h-8 text-primary" />
@@ -137,22 +176,6 @@ const SchoolSignup = () => {
             </div>
 
             <div className="space-y-4">
-              {/* Role Selection */}
-              <div>
-                <Label className="mb-2 block font-semibold">{isRtl ? "نوع الحساب" : "Account Type"} <span className="text-destructive">*</span></Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {roleOptions.map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setSelectedRole(opt.value)}
-                      className={`p-3 rounded-xl border-2 text-sm font-bold transition-colors ${selectedRole === opt.value ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"}`}
-                    >
-                      {isRtl ? opt.labelAr : opt.labelEn}
-                    </button>
-                  ))}
-                </div>
-              </div>
 
               <div>
                 <Label className="mb-2 block font-semibold">{t.signupPage.fullName} <span className="text-destructive">*</span></Label>

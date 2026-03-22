@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, ChevronLeft, ChevronRight, Loader2, Globe, ArrowRight, ArrowLeft, Phone } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Loader2, Globe, ArrowRight, ArrowLeft, Phone, User, Store, Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,12 +22,18 @@ const countryCodes = [
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
 
+const bookRoles = [
+  { value: "personal" as const, labelAr: "حساب شخصي", labelEn: "Personal Account", descAr: "لشراء وقراءة الكتب", descEn: "To buy and read books", icon: User },
+  { value: "publisher" as const, labelAr: "ناشر", labelEn: "Publisher", descAr: "لنشر وتوزيع الكتب", descEn: "To publish and distribute books", icon: Newspaper },
+  { value: "seller" as const, labelAr: "بائع", labelEn: "Seller", descAr: "لبيع الكتب في المتجر", descEn: "To sell books in the store", icon: Store },
+];
+
 const BookStoreSignup = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
   const ArrowIcon = language === "ar" ? ChevronLeft : ChevronRight;
   const { toast } = useToast();
-  const [selectedRole, setSelectedRole] = useState<"personal" | "publisher" | "seller">("personal");
+  const [selectedRole, setSelectedRole] = useState<"personal" | "publisher" | "seller" | null>(null);
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -39,7 +45,7 @@ const BookStoreSignup = () => {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!fullName || !email || !password || !phone) {
+    if (!selectedRole || !fullName || !email || !password || !phone) {
       toast({ title: t.signupPage.errorGeneric, description: t.signupPage.errorFillFields, variant: "destructive" });
       return;
     }
@@ -118,9 +124,48 @@ const BookStoreSignup = () => {
       <Separator />
 
       <main className="flex-1 flex items-center justify-center px-4 py-10">
-        {!submitted ? (
+        {!selectedRole ? (
+          /* Step 1: Role Selection Cards */
+          <div className="max-w-2xl w-full text-center">
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <BookOpen className="w-8 h-8 text-primary" />
+              </div>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-black text-foreground mb-2">
+              {isRtl ? "اختر نوع الحساب" : "Choose Account Type"}
+            </h1>
+            <p className="text-muted-foreground mb-8">{isRtl ? "حدد نوع حسابك للمتابعة" : "Select your account type to continue"}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {bookRoles.map((r) => {
+                const Icon = r.icon;
+                return (
+                  <button
+                    key={r.value}
+                    type="button"
+                    onClick={() => setSelectedRole(r.value)}
+                    className="group p-6 rounded-2xl border-2 border-border bg-card hover:border-primary hover:shadow-lg transition-all duration-200 text-center"
+                  >
+                    <div className="w-14 h-14 rounded-xl bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center mx-auto mb-4 transition-colors">
+                      <Icon className="w-7 h-7 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground mb-1">{isRtl ? r.labelAr : r.labelEn}</h3>
+                    <p className="text-sm text-muted-foreground">{isRtl ? r.descAr : r.descEn}</p>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-sm text-muted-foreground mt-6">
+              {isRtl ? "لديك حساب بالفعل؟" : "Already have an account?"}{" "}
+              <Link to="/book-store/login" className="text-primary font-semibold hover:underline">{t.login}</Link>
+            </p>
+          </div>
+        ) : !submitted ? (
           <div className="max-w-lg w-full">
             <div className="text-center mb-8">
+              <button onClick={() => setSelectedRole(null)} className="text-sm text-primary hover:underline mb-4 inline-block">
+                {isRtl ? "← تغيير نوع الحساب" : "← Change account type"}
+              </button>
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
                   <BookOpen className="w-8 h-8 text-primary" />
@@ -133,26 +178,6 @@ const BookStoreSignup = () => {
             </div>
 
             <div className="space-y-4">
-              {/* Role Selection */}
-              <div>
-                <Label className="mb-2 block font-semibold">{isRtl ? "نوع الحساب" : "Account Type"} <span className="text-destructive">*</span></Label>
-                <div className="grid grid-cols-3 gap-2">
-                  {([
-                    { value: "personal" as const, labelAr: "حساب شخصي", labelEn: "Personal" },
-                    { value: "publisher" as const, labelAr: "ناشر", labelEn: "Publisher" },
-                    { value: "seller" as const, labelAr: "بائع", labelEn: "Seller" },
-                  ]).map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setSelectedRole(opt.value)}
-                      className={`p-3 rounded-xl border-2 text-sm font-bold transition-colors ${selectedRole === opt.value ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"}`}
-                    >
-                      {isRtl ? opt.labelAr : opt.labelEn}
-                    </button>
-                  ))}
-                </div>
-              </div>
               <div>
                 <Label className="mb-2 block font-semibold">{t.signupPage.fullName} <span className="text-destructive">*</span></Label>
                 <Input placeholder={t.signupPage.fullNamePlaceholder} value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-12" />

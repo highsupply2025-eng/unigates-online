@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
-import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, Globe, Phone } from "lucide-react";
+import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, Globe, Phone, User, BookOpenCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,9 +38,17 @@ const countryCodes = [
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
 
+const courseRoles = [
+  { value: "personal" as const, labelAr: "حساب شخصي", labelEn: "Personal Account", descAr: "للأفراد الراغبين في تعلم الدورات التعليمية", descEn: "For individuals wanting to learn courses", icon: User },
+  { value: "lecturer" as const, labelAr: "محاضر", labelEn: "Lecturer", descAr: "لإنشاء ونشر الدورات التعليمية", descEn: "To create and publish courses", icon: BookOpenCheck },
+];
+
 const Signup = () => {
   const { role: roleParam } = useParams<{ role: string }>();
-  const role = roleParam === "lecturer" ? "lecturer" : "personal";
+  const [selectedRole, setSelectedRole] = useState<"personal" | "lecturer" | null>(
+    roleParam === "lecturer" ? "lecturer" : roleParam ? "personal" : null
+  );
+  const role = selectedRole || "personal";
   const isLecturer = role === "lecturer";
 
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -106,7 +114,7 @@ const Signup = () => {
   };
 
   const handleSubmit = async () => {
-    if (!fullName || !email || !password || !phone) {
+    if (!selectedRole || !fullName || !email || !password || !phone) {
       toast({ title: t.signupPage.errorGeneric, description: t.signupPage.errorFillFields, variant: "destructive" });
       return;
     }
@@ -203,9 +211,48 @@ const Signup = () => {
       <Separator />
 
       <main className="flex-1 flex items-center justify-center px-4 py-10">
-        {!submitted ? (
+        {!selectedRole ? (
+          /* Step 1: Role Selection Cards */
+          <div className="max-w-lg w-full text-center">
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <GraduationCap className="w-8 h-8 text-primary" />
+              </div>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-black text-foreground mb-2">
+              {language === "ar" ? "اختر نوع الحساب" : "Choose Account Type"}
+            </h1>
+            <p className="text-muted-foreground mb-8">{language === "ar" ? "حدد نوع حسابك للمتابعة" : "Select your account type to continue"}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {courseRoles.map((r) => {
+                const Icon = r.icon;
+                return (
+                  <button
+                    key={r.value}
+                    type="button"
+                    onClick={() => setSelectedRole(r.value)}
+                    className="group p-6 rounded-2xl border-2 border-border bg-card hover:border-primary hover:shadow-lg transition-all duration-200 text-center"
+                  >
+                    <div className="w-14 h-14 rounded-xl bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center mx-auto mb-4 transition-colors">
+                      <Icon className="w-7 h-7 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground mb-1">{language === "ar" ? r.labelAr : r.labelEn}</h3>
+                    <p className="text-sm text-muted-foreground">{language === "ar" ? r.descAr : r.descEn}</p>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-sm text-muted-foreground mt-6">
+              {language === "ar" ? "لديك حساب بالفعل؟" : "Already have an account?"}{" "}
+              <Link to="/login" className="text-primary font-semibold hover:underline">{t.login}</Link>
+            </p>
+          </div>
+        ) : !submitted ? (
           <div className="max-w-2xl w-full">
             <div className="text-center mb-8">
+              <button onClick={() => setSelectedRole(null)} className="text-sm text-primary hover:underline mb-4 inline-block">
+                {language === "ar" ? "← تغيير نوع الحساب" : "← Change account type"}
+              </button>
               <h1 className="text-2xl md:text-3xl font-black text-foreground mb-2">
                 {t.signupPage.title} — {pageTitle}
               </h1>

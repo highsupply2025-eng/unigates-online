@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { School, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Globe, Phone } from "lucide-react";
+import { School, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Globe, Phone, GraduationCap, Users, Building2, BookOpenCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,11 +22,11 @@ const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]
 
 type SchoolRole = "school_student" | "parent" | "school" | "teacher";
 
-const roleOptions: { value: SchoolRole; labelAr: string; labelEn: string }[] = [
-  { value: "school_student", labelAr: "طالب", labelEn: "Student" },
-  { value: "parent", labelAr: "ولي أمر", labelEn: "Parent" },
-  { value: "school", labelAr: "مدرسة", labelEn: "School" },
-  { value: "teacher", labelAr: "معلم", labelEn: "Teacher" },
+const schoolRoles: { value: SchoolRole; labelAr: string; labelEn: string; descAr: string; descEn: string; icon: any }[] = [
+  { value: "school_student", labelAr: "طالب", labelEn: "Student", descAr: "للدراسة ومتابعة الدروس", descEn: "To study and follow lessons", icon: GraduationCap },
+  { value: "parent", labelAr: "ولي أمر", labelEn: "Parent", descAr: "لمتابعة أبنائك أكاديمياً", descEn: "To monitor your children academically", icon: Users },
+  { value: "school", labelAr: "مدرسة", labelEn: "School", descAr: "لإدارة المدرسة والطلاب", descEn: "To manage school and students", icon: Building2 },
+  { value: "teacher", labelAr: "معلم", labelEn: "Teacher", descAr: "للتدريس وإدارة الفصول", descEn: "To teach and manage classes", icon: BookOpenCheck },
 ];
 
 const SchoolSignup = () => {
@@ -35,7 +35,7 @@ const SchoolSignup = () => {
   const ArrowIcon = isRtl ? ChevronLeft : ChevronRight;
   const { toast } = useToast();
 
-  const [selectedRole, setSelectedRole] = useState<SchoolRole>("school_student");
+  const [selectedRole, setSelectedRole] = useState<SchoolRole | null>(null);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");

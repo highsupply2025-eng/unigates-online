@@ -794,7 +794,10 @@ const AdminDashboard = () => {
 
           {/* ===== Books ===== */}
           <TabsContent value="books">
-            <SearchBar value={bookSearch} onChange={setBookSearch} placeholder={language === "ar" ? "بحث بعنوان الكتاب أو المؤلف..." : "Search by book title or author..."} />
+            <div className="flex items-center gap-4 flex-wrap">
+              <SearchBar value={bookSearch} onChange={setBookSearch} placeholder={language === "ar" ? "بحث بعنوان الكتاب أو المؤلف..." : "Search by book title or author..."} />
+              <ExportButton onClick={exportBooks} />
+            </div>
             {filteredBooks.length === 0 ? (
               <EmptyState icon={BookMarked} text={language === "ar" ? "لا توجد كتب" : "No books found"} />
             ) : (

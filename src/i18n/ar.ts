@@ -55,6 +55,11 @@ export const ar = {
       lecturers: "محاضر",
       courses: "دورة",
       schools: "مدرسة",
+      readers: "قارئ",
+      sellers: "بائع",
+      publishers: "ناشر",
+      universities: "جامعة",
+      parents: "ولي أمر",
     },
   },
 

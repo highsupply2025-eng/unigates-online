@@ -681,7 +681,10 @@ const AdminDashboard = () => {
 
           {/* ===== Schools ===== */}
           <TabsContent value="schools">
-            <SearchBar value={schoolSearchQuery} onChange={setSchoolSearchQuery} placeholder={language === "ar" ? "بحث باسم المدرسة أو المدينة..." : "Search by school name or city..."} />
+            <div className="flex items-center gap-4 flex-wrap">
+              <SearchBar value={schoolSearchQuery} onChange={setSchoolSearchQuery} placeholder={language === "ar" ? "بحث باسم المدرسة أو المدينة..." : "Search by school name or city..."} />
+              <ExportButton onClick={exportSchools} />
+            </div>
             {filteredSchools.length === 0 ? (
               <EmptyState icon={School} text={language === "ar" ? "لا توجد طلبات تسجيل مدارس" : "No school registration requests"} />
             ) : (

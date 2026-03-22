@@ -18,15 +18,6 @@ const SiteHeader = () => {
       </Link>
 
       <div className="flex items-center gap-3">
-        <Button
-          variant="default"
-          size="sm"
-          onClick={toggleLanguage}
-          className="font-semibold gap-1.5"
-        >
-          <Globe className="w-4 h-4" />
-          {t.langSwitch}
-        </Button>
         <Link to="/courses">
           <Button variant="default" size="sm" className="font-semibold hidden md:inline-flex">
             {t.exploreCourses}
@@ -48,10 +39,19 @@ const SiteHeader = () => {
           </Button>
         </Link>
         <Link to="/signup">
-          <Button variant="outline" size="sm" className="font-semibold px-6 h-10 text-base border-primary-foreground text-primary-foreground hover:bg-white/20">
+          <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
             {t.signup}
           </Button>
         </Link>
+        <Button
+          variant="default"
+          size="sm"
+          onClick={toggleLanguage}
+          className="font-semibold gap-1.5"
+        >
+          <Globe className="w-4 h-4" />
+          {t.langSwitch}
+        </Button>
       </div>
     </header>
   );

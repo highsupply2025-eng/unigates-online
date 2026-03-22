@@ -27,6 +27,7 @@ const BookStoreSignup = () => {
   const isRtl = dir === "rtl";
   const ArrowIcon = language === "ar" ? ChevronLeft : ChevronRight;
   const { toast } = useToast();
+  const [selectedRole, setSelectedRole] = useState<"personal" | "publisher" | "seller">("personal");
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");

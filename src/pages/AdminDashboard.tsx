@@ -197,16 +197,18 @@ const AdminDashboard = () => {
   const handleDelete = async () => {
     if (!deleteTarget) return;
     const { type, id } = deleteTarget;
-    const tableMap: Record<string, string> = { course: "courses", book: "books", order: "book_orders", subscription: "user_subscriptions", stream: "live_streams", user: "user_roles" };
-    const table = tableMap[type];
-    if (!table) return;
-    const { error } = await supabase.from(table).delete().eq("id", id);
-    if (error) { showError(error.message); setDeleteTarget(null); return; }
-    // Also delete profile if deleting user
-    if (type === "user") {
+    let error: any = null;
+    if (type === "course") ({ error } = await supabase.from("courses").delete().eq("id", id));
+    else if (type === "book") ({ error } = await supabase.from("books").delete().eq("id", id));
+    else if (type === "order") ({ error } = await supabase.from("book_orders").delete().eq("id", id));
+    else if (type === "subscription") ({ error } = await supabase.from("user_subscriptions").delete().eq("id", id));
+    else if (type === "stream") ({ error } = await supabase.from("live_streams").delete().eq("id", id));
+    else if (type === "user") {
       const user = allUsers.find(u => u.id === id);
-      if (user?.profile) await supabase.from("profiles").delete().eq("id", user.profile.id);
+      ({ error } = await supabase.from("user_roles").delete().eq("id", id));
+      if (!error && user?.profile) await supabase.from("profiles").delete().eq("id", user.profile.id);
     }
+    if (error) { showError(error.message); setDeleteTarget(null); return; }
     showSuccess(language === "ar" ? "تم الحذف بنجاح" : "Deleted successfully");
     setDeleteTarget(null);
     await loadAll();

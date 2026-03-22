@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
-import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, Globe, Phone } from "lucide-react";
+import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, Globe, Phone, User, BookOpenCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,9 +38,17 @@ const countryCodes = [
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
 
+const courseRoles = [
+  { value: "personal" as const, labelAr: "حساب شخصي", labelEn: "Personal Account", descAr: "للأفراد الراغبين في تعلم الدورات التعليمية", descEn: "For individuals wanting to learn courses", icon: User },
+  { value: "lecturer" as const, labelAr: "محاضر", labelEn: "Lecturer", descAr: "لإنشاء ونشر الدورات التعليمية", descEn: "To create and publish courses", icon: BookOpenCheck },
+];
+
 const Signup = () => {
   const { role: roleParam } = useParams<{ role: string }>();
-  const role = roleParam === "lecturer" ? "lecturer" : "personal";
+  const [selectedRole, setSelectedRole] = useState<"personal" | "lecturer" | null>(
+    roleParam === "lecturer" ? "lecturer" : roleParam ? "personal" : null
+  );
+  const role = selectedRole || "personal";
   const isLecturer = role === "lecturer";
 
   const { t, dir, language, toggleLanguage } = useLanguage();

@@ -29,6 +29,7 @@ const SchoolLogin = lazy(() => import("./pages/SchoolLogin"));
 const SchoolSignup = lazy(() => import("./pages/SchoolSignup"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const StudentDashboard = lazy(() => import("./pages/StudentDashboard"));
+const UniversityPlatform = lazy(() => import("./pages/UniversityPlatform"));
 
 const queryClient = new QueryClient({
   defaultOptions: {

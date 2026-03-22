@@ -162,7 +162,7 @@ const SchoolSignup = () => {
           <div className="max-w-lg w-full">
             <div className="text-center mb-8">
               <button onClick={() => setSelectedRole(null)} className="text-sm text-primary hover:underline mb-4 inline-block">
-                {isRtl ? "← تغيير نوع الحساب" : "← Change account type"}
+                {isRtl ? "تغيير نوع الحساب →" : "← Change account type"}
               </button>
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">

@@ -155,15 +155,13 @@ const Signup = () => {
       });
       if (profileError) throw profileError;
 
-      // Insert role for lecturer (pending admin approval)
-      if (isLecturer) {
-        const { error: roleError } = await supabase.from("user_roles").insert({
-          user_id: userId,
-          role: "lecturer" as any,
-          approved: false,
-        });
-        if (roleError) console.error("Role insert error:", roleError);
-      }
+      // Insert role (pending admin approval for lecturers)
+      const { error: roleError } = await supabase.from("user_roles").insert({
+        user_id: userId,
+        role: role as any,
+        approved: role === "personal",
+      });
+      if (roleError) console.error("Role insert error:", roleError);
 
       setSubmitted(true);
     } catch (error: any) {

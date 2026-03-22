@@ -127,7 +127,27 @@ const Courses = () => {
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-6 md:px-12 py-10">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+        {/* CTA Banner */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/10 via-accent/10 to-primary/5 border border-primary/20 p-5 mb-8">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+                <GraduationCap className="w-5 h-5 text-primary" />
+              </div>
+              <p className="text-base md:text-lg font-bold text-foreground">
+                {language === "ar" ? "📚 انشر معرفتك وحقق الأرباح — ابدأ الآن!" : "📚 Share your knowledge & earn — Start now!"}
+              </p>
+            </div>
+            <Link to="/signup/lecturer">
+              <Button size="sm" className="font-bold shrink-0 gap-1.5">
+                {language === "ar" ? "ابدأ التدريس" : "Start Teaching"}
+                {language === "ar" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl md:text-3xl font-black text-foreground mb-1">{t.coursesPage.title}</h1>
             <p className="text-muted-foreground">{t.coursesPage.subtitle}</p>
@@ -154,26 +174,6 @@ const Courses = () => {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
-
-        {/* CTA Banner */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/10 via-accent/10 to-primary/5 border border-primary/20 p-5 mb-8">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
-                <GraduationCap className="w-5 h-5 text-primary" />
-              </div>
-              <p className="text-base md:text-lg font-bold text-foreground">
-                {language === "ar" ? "📚 انشر معرفتك وحقق الأرباح — ابدأ الآن!" : "📚 Share your knowledge & earn — Start now!"}
-              </p>
-            </div>
-            <Link to="/signup/lecturer">
-              <Button size="sm" className="font-bold shrink-0 gap-1.5">
-                {language === "ar" ? "ابدأ التدريس" : "Start Teaching"}
-                {language === "ar" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
-              </Button>
-            </Link>
-          </div>
         </div>
 
         {loading ? (

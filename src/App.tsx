@@ -20,13 +20,7 @@ const LiveStreams = lazy(() => import("./pages/LiveStreams"));
 const LecturerDashboard = lazy(() => import("./pages/LecturerDashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const WatchStream = lazy(() => import("./pages/WatchStream"));
-const BookStore = lazy(() => import("./pages/BookStore"));
-const BookStoreLogin = lazy(() => import("./pages/BookStoreLogin"));
-const BookStoreSignup = lazy(() => import("./pages/BookStoreSignup"));
-const SchoolPlatform = lazy(() => import("./pages/SchoolPlatform"));
-const SchoolRegistration = lazy(() => import("./pages/SchoolRegistration"));
-const SchoolLogin = lazy(() => import("./pages/SchoolLogin"));
-const SchoolSignup = lazy(() => import("./pages/SchoolSignup"));
+const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const StudentDashboard = lazy(() => import("./pages/StudentDashboard"));
 const UniversityPlatform = lazy(() => import("./pages/UniversityPlatform"));
@@ -66,14 +60,14 @@ const App = () => (
               <Route path="/stream/:streamId" element={<WatchStream />} />
               <Route path="/live" element={<LiveStreams />} />
               {/* Book Store + separate auth */}
-              <Route path="/book-store" element={<BookStore />} />
-              <Route path="/book-store/login" element={<BookStoreLogin />} />
-              <Route path="/book-store/signup" element={<BookStoreSignup />} />
+              <Route path="/book-store" element={<ComingSoon />} />
+              <Route path="/book-store/login" element={<ComingSoon />} />
+              <Route path="/book-store/signup" element={<ComingSoon />} />
               {/* School Platform */}
-              <Route path="/school-platform" element={<SchoolPlatform />} />
-              <Route path="/school-platform/register" element={<SchoolRegistration />} />
-              <Route path="/school-platform/login" element={<SchoolLogin />} />
-              <Route path="/school-platform/signup" element={<SchoolSignup />} />
+              <Route path="/school-platform" element={<ComingSoon />} />
+              <Route path="/school-platform/register" element={<ComingSoon />} />
+              <Route path="/school-platform/login" element={<ComingSoon />} />
+              <Route path="/school-platform/signup" element={<ComingSoon />} />
               {/* University Platform */}
               <Route path="/university-platform" element={<UniversityPlatform />} />
               <Route path="/profile" element={<UserProfile />} />

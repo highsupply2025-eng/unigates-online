@@ -58,15 +58,15 @@ const StatsSection = () => {
         supabase.rpc("get_profile_count_by_role", { _role: "parent" }),
       ]);
       return {
-        courses: (coursesRes.count ?? 0) + 115,
-        students: (Number(studentsRes.data) ?? 0) + 1035,
-        lecturers: (Number(lecturersRes.data) ?? 0) + 33,
-        schools: (schoolsRes.count ?? 0) + 12,
-        readers: (Number(readersRes.data) ?? 0) + 220,
-        sellers: (Number(sellersRes.data) ?? 0) + 18,
-        publishers: (Number(publishersRes.data) ?? 0) + 9,
-        universities: 5,
-        parents: (Number(parentsRes.data) ?? 0) + 150,
+        courses: coursesRes.count ?? 0,
+        students: Number(studentsRes.data) ?? 0,
+        lecturers: Number(lecturersRes.data) ?? 0,
+        schools: schoolsRes.count ?? 0,
+        readers: Number(readersRes.data) ?? 0,
+        sellers: Number(sellersRes.data) ?? 0,
+        publishers: Number(publishersRes.data) ?? 0,
+        universities: 0,
+        parents: Number(parentsRes.data) ?? 0,
       };
     },
   });

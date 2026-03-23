@@ -1,4 +1,5 @@
 import { useRef, useState, memo } from "react";
+import { Clock as ClockIcon } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Play, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -74,7 +75,14 @@ const TrendingCourses = memo(() => {
             ))}
           </div>
         ) : courses.length === 0 ? (
-          <p className="text-muted-foreground text-center py-12">{t.trending.noCourses}</p>
+          <div className="flex justify-center">
+            <div className="bg-card rounded-xl p-8 border-2 border-dashed border-border shadow-sm w-full max-w-sm text-center">
+              <ClockIcon className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+              <p className="text-xl font-bold text-muted-foreground">
+                {language === "ar" ? "قريباً" : "Coming Soon"}
+              </p>
+            </div>
+          </div>
         ) : (
           <div className="relative flex items-center gap-2">
             <button

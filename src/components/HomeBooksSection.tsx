@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBooks } from "@/hooks/useBooks";
-import { BookOpen, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { BookOpen, Star, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

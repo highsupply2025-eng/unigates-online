@@ -44,32 +44,17 @@ const useCountUp = (end: number, duration = 1500) => {
 const StatsSection = () => {
   const { t } = useLanguage();
 
-  const { data: stats } = useQuery({
-    queryKey: ["hero-stats"],
-    queryFn: async () => {
-      const [coursesRes, studentsRes, lecturersRes, schoolsRes, readersRes, sellersRes, publishersRes, parentsRes] = await Promise.all([
-        supabase.from("courses").select("id", { count: "exact", head: true }),
-        supabase.rpc("get_profile_count_by_role", { _role: "student" }),
-        supabase.rpc("get_profile_count_by_role", { _role: "lecturer" }),
-        supabase.from("school_registrations").select("id", { count: "exact", head: true }).eq("status", "approved"),
-        supabase.rpc("get_profile_count_by_role", { _role: "personal" }),
-        supabase.rpc("get_profile_count_by_role", { _role: "seller" }),
-        supabase.rpc("get_profile_count_by_role", { _role: "publisher" }),
-        supabase.rpc("get_profile_count_by_role", { _role: "parent" }),
-      ]);
-      return {
-        courses: coursesRes.count ?? 0,
-        students: Number(studentsRes.data) ?? 0,
-        lecturers: Number(lecturersRes.data) ?? 0,
-        schools: schoolsRes.count ?? 0,
-        readers: Number(readersRes.data) ?? 0,
-        sellers: Number(sellersRes.data) ?? 0,
-        publishers: Number(publishersRes.data) ?? 0,
-        universities: 0,
-        parents: Number(parentsRes.data) ?? 0,
-      };
-    },
-  });
+  const stats = {
+    courses: 0,
+    students: 0,
+    lecturers: 0,
+    schools: 0,
+    readers: 0,
+    sellers: 0,
+    publishers: 0,
+    universities: 0,
+    parents: 0,
+  };
 
   const students = useCountUp(stats?.students ?? 0);
   const lecturers = useCountUp(stats?.lecturers ?? 0);

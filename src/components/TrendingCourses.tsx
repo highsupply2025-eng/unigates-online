@@ -1,4 +1,5 @@
 import { useRef, useState, memo } from "react";
+import { Clock as ClockIcon } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Play, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";

@@ -41,7 +41,7 @@ const HomeBooksSection = () => {
     scrollRef.current.scrollBy({ left: dir, behavior: "smooth" });
   };
 
-  if (!allFeaturedBooks.length) return null;
+  const isEmpty = !allFeaturedBooks.length;
 
   return (
     <section className="py-12 md:py-20 px-6 md:px-12">

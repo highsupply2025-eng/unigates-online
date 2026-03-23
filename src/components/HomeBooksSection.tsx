@@ -48,7 +48,7 @@ const HomeBooksSection = () => {
       <div className="max-w-full mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl md:text-3xl font-bold">
-            {t.homepage.newBooks} & {t.homepage.bestsellerBooks}
+            📖 {t.homepage.newBooks} & {t.homepage.bestsellerBooks}
           </h2>
           <Link to="/book-store">
             <Button variant="outline" size="sm">{t.homepage.viewAll}</Button>

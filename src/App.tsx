@@ -60,14 +60,14 @@ const App = () => (
               <Route path="/stream/:streamId" element={<WatchStream />} />
               <Route path="/live" element={<LiveStreams />} />
               {/* Book Store + separate auth */}
-              <Route path="/book-store" element={<BookStore />} />
-              <Route path="/book-store/login" element={<BookStoreLogin />} />
-              <Route path="/book-store/signup" element={<BookStoreSignup />} />
+              <Route path="/book-store" element={<ComingSoon />} />
+              <Route path="/book-store/login" element={<ComingSoon />} />
+              <Route path="/book-store/signup" element={<ComingSoon />} />
               {/* School Platform */}
-              <Route path="/school-platform" element={<SchoolPlatform />} />
-              <Route path="/school-platform/register" element={<SchoolRegistration />} />
-              <Route path="/school-platform/login" element={<SchoolLogin />} />
-              <Route path="/school-platform/signup" element={<SchoolSignup />} />
+              <Route path="/school-platform" element={<ComingSoon />} />
+              <Route path="/school-platform/register" element={<ComingSoon />} />
+              <Route path="/school-platform/login" element={<ComingSoon />} />
+              <Route path="/school-platform/signup" element={<ComingSoon />} />
               {/* University Platform */}
               <Route path="/university-platform" element={<UniversityPlatform />} />
               <Route path="/profile" element={<UserProfile />} />

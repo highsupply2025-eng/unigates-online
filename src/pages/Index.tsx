@@ -6,7 +6,6 @@ import FAQSection from "@/components/FAQSection";
 import SiteFooter from "@/components/SiteFooter";
 import StatsSection from "@/components/StatsSection";
 import HomeBooksSection from "@/components/HomeBooksSection";
-import HomeBookStoreSection from "@/components/HomeBookStoreSection";
 import RegisteredSchoolsSection from "@/components/RegisteredSchoolsSection";
 import RegisteredUniversitiesSection from "@/components/RegisteredUniversitiesSection";
 import PartnersSection from "@/components/PartnersSection";

@@ -27,7 +27,7 @@ const Index = () => {
       <RegisteredSchoolsSection />
       <TrendingCourses />
       <HomeBooksSection />
-      <HomeBookStoreSection />
+      
       <PartnersSection />
       <FeaturesSection />
       <FAQSection />

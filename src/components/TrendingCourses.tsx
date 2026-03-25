@@ -70,7 +70,7 @@ const TrendingCourses = memo(() => {
           <>
             <Tabs value={filter} onValueChange={setFilter} className="mb-6">
               <TabsList className="bg-muted/50 p-1 rounded-xl">
-                <TabsTrigger value="popular" className="rounded-lg text-sm">{t.trending.popular}</TabsTrigger>
+                <TabsTrigger value="popular" className="rounded-lg text-sm">{t.trending.mostViewed}</TabsTrigger>
                 <TabsTrigger value="new" className="rounded-lg text-sm">{t.trending.new}</TabsTrigger>
                 <TabsTrigger value="free" className="rounded-lg text-sm">{t.trending.free}</TabsTrigger>
               </TabsList>
@@ -89,13 +89,6 @@ const TrendingCourses = memo(() => {
                 {courses.map((course) => (
                   <div key={course.id} className="relative flex-shrink-0 w-[200px] md:w-[240px] group cursor-pointer card-hover">
                     <div className={`aspect-video rounded-lg bg-gradient-to-br ${categoryColors[getCategory(course)] || "from-slate-800 to-slate-600"} flex flex-col justify-between p-4 relative overflow-hidden`}>
-                      {course.thumbnail_url && (
-                        <img
-                          src={course.thumbnail_url}
-                          alt={getTitle(course)}
-                          className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-40 transition-opacity"
-                        />
-                      )}
                       <div className="flex justify-between items-start relative z-10">
                         <Badge className="bg-background/80 text-foreground text-xs backdrop-blur-sm hover:bg-background/80">
                           {getCategory(course)}

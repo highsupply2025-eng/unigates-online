@@ -37,6 +37,8 @@ const TrendingCourses = memo(() => {
   const courses = current.data || [];
   const loading = current.isLoading;
 
+  const hasAnyCourses = (popular.data?.length || 0) + (newest.data?.length || 0) + (free.data?.length || 0) > 0;
+
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
     const scrollAmount = 260;
@@ -54,14 +56,82 @@ const TrendingCourses = memo(() => {
     <section className="py-12 md:py-20 px-6 md:px-12">
       <div className="max-w-full mx-auto">
         <h2 className="text-2xl md:text-3xl font-bold mb-4">📚 {t.trending.title}</h2>
-        <div className="flex justify-center">
-          <div className="bg-card rounded-xl p-8 border-2 border-dashed border-border shadow-sm w-full max-w-sm text-center">
-            <ClockIcon className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-            <p className="text-xl font-bold text-muted-foreground">
-              {language === "ar" ? "قريباً" : "Coming Soon"}
-            </p>
+
+        {!hasAnyCourses && !loading ? (
+          <div className="flex justify-center">
+            <div className="bg-card rounded-xl p-8 border-2 border-dashed border-border shadow-sm w-full max-w-sm text-center">
+              <ClockIcon className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+              <p className="text-xl font-bold text-muted-foreground">
+                {language === "ar" ? "قريباً" : "Coming Soon"}
+              </p>
+            </div>
           </div>
-        </div>
+        ) : (
+          <>
+            <Tabs value={filter} onValueChange={setFilter} className="mb-6">
+              <TabsList className="bg-muted/50 p-1 rounded-xl">
+                <TabsTrigger value="popular" className="rounded-lg text-sm">{t.trending.popular}</TabsTrigger>
+                <TabsTrigger value="new" className="rounded-lg text-sm">{t.trending.new}</TabsTrigger>
+                <TabsTrigger value="free" className="rounded-lg text-sm">{t.trending.free}</TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            <div className="relative flex items-center gap-2">
+              <button
+                onClick={() => scroll("left")}
+                className="absolute -left-5 z-10 w-9 h-9 rounded-full border border-border bg-background/90 backdrop-blur-sm flex items-center justify-center hover:bg-accent transition-colors shadow-md"
+                aria-label="Scroll left"
+              >
+                <ChevronLeft className="w-5 h-5 text-foreground" />
+              </button>
+
+              <div ref={scrollRef} className="flex gap-3 overflow-x-auto pb-4 px-2" style={{ scrollbarWidth: 'none' }}>
+                {courses.map((course) => (
+                  <div key={course.id} className="relative flex-shrink-0 w-[200px] md:w-[240px] group cursor-pointer card-hover">
+                    <div className={`aspect-video rounded-lg bg-gradient-to-br ${categoryColors[getCategory(course)] || "from-slate-800 to-slate-600"} flex flex-col justify-between p-4 relative overflow-hidden`}>
+                      {course.thumbnail_url && (
+                        <img
+                          src={course.thumbnail_url}
+                          alt={getTitle(course)}
+                          className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-40 transition-opacity"
+                        />
+                      )}
+                      <div className="flex justify-between items-start relative z-10">
+                        <Badge className="bg-background/80 text-foreground text-xs backdrop-blur-sm hover:bg-background/80">
+                          {getCategory(course)}
+                        </Badge>
+                        {course.is_free && (
+                          <Badge className="bg-primary/90 text-primary-foreground text-xs backdrop-blur-sm">
+                            {language === "ar" ? "مجاني" : "Free"}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="relative z-10">
+                        <p className="text-sm font-bold text-white leading-snug mb-2 line-clamp-2">
+                          {getTitle(course)}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-white/80">{getInstructor(course)}</span>
+                          <span className="flex items-center gap-1 text-xs text-white/70">
+                            <Play className="w-3 h-3" /> {course.episode_count}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={() => scroll("right")}
+                className="absolute -right-5 z-10 w-9 h-9 rounded-full border border-border bg-background/90 backdrop-blur-sm flex items-center justify-center hover:bg-accent transition-colors shadow-md"
+                aria-label="Scroll right"
+              >
+                <ChevronRight className="w-5 h-5 text-foreground" />
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </section>
   );

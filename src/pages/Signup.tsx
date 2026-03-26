@@ -44,7 +44,7 @@ const courseRoles = [
 ];
 
 const additionalLinks = [
-  { labelAr: "كلية", labelEn: "College", icon: Building2, href: "/school-registration" },
+  { labelAr: "كلية", labelEn: "College", icon: Landmark, href: "/school-registration" },
   { labelAr: "معهد", labelEn: "Institute", icon: Landmark, href: "/school-registration" },
 ];
 

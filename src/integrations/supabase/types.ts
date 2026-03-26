@@ -315,6 +315,7 @@ export type Database = {
           phone: string
           status: string
           student_count: number | null
+          type: string
           updated_at: string
         }
         Insert: {
@@ -330,6 +331,7 @@ export type Database = {
           phone: string
           status?: string
           student_count?: number | null
+          type?: string
           updated_at?: string
         }
         Update: {
@@ -345,6 +347,7 @@ export type Database = {
           phone?: string
           status?: string
           student_count?: number | null
+          type?: string
           updated_at?: string
         }
         Relationships: []
@@ -560,6 +563,57 @@ export type Database = {
           thumbnail_url?: string | null
           title_ar?: string
           title_en?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      institute_registrations: {
+        Row: {
+          address: string | null
+          admin_notes: string | null
+          city: string
+          created_at: string
+          director_name: string
+          email: string
+          id: string
+          institute_name: string
+          message: string | null
+          phone: string
+          specialization: string | null
+          status: string
+          student_count: number | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          admin_notes?: string | null
+          city: string
+          created_at?: string
+          director_name: string
+          email: string
+          id?: string
+          institute_name: string
+          message?: string | null
+          phone: string
+          specialization?: string | null
+          status?: string
+          student_count?: number | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          admin_notes?: string | null
+          city?: string
+          created_at?: string
+          director_name?: string
+          email?: string
+          id?: string
+          institute_name?: string
+          message?: string | null
+          phone?: string
+          specialization?: string | null
+          status?: string
+          student_count?: number | null
           updated_at?: string
         }
         Relationships: []

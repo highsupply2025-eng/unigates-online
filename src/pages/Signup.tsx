@@ -234,7 +234,7 @@ const Signup = () => {
               {language === "ar" ? "اختر نوع الحساب" : "Choose Account Type"}
             </h1>
             <p className="text-muted-foreground mb-8">{language === "ar" ? "حدد نوع حسابك للمتابعة" : "Select your account type to continue"}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {courseRoles.map((r) => {
                 const Icon = r.icon;
                 return (
@@ -251,8 +251,6 @@ const Signup = () => {
                   </button>
                 );
               })}
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
               {additionalLinks.map((item) => {
                 const Icon = item.icon;
                 return (

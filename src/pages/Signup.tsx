@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
-import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, Globe, Phone, User, BookOpenCheck } from "lucide-react";
+import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, Globe, Phone, User, BookOpenCheck, Building2, Landmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,8 +39,13 @@ const countryCodes = [
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
 
 const courseRoles = [
-  { value: "personal" as const, labelAr: "حساب شخصي", labelEn: "Personal Account", descAr: "للأفراد الراغبين في تعلم الدورات التعليمية", descEn: "For individuals wanting to learn courses", icon: User },
-  { value: "lecturer" as const, labelAr: "محاضر", labelEn: "Lecturer", descAr: "لإنشاء ونشر الدورات التعليمية", descEn: "To create and publish courses", icon: BookOpenCheck },
+  { value: "personal" as const, labelAr: "طالب", labelEn: "Student", icon: User },
+  { value: "lecturer" as const, labelAr: "محاضر", labelEn: "Lecturer", icon: BookOpenCheck },
+];
+
+const additionalLinks = [
+  { labelAr: "كلية", labelEn: "College", icon: Building2, href: "/school-registration" },
+  { labelAr: "معهد", labelEn: "Institute", icon: Landmark, href: "/school-registration" },
 ];
 
 const Signup = () => {
@@ -242,9 +247,25 @@ const Signup = () => {
                     <div className="w-14 h-14 rounded-xl bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center mx-auto mb-4 transition-colors">
                       <Icon className="w-7 h-7 text-primary" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground mb-1">{language === "ar" ? r.labelAr : r.labelEn}</h3>
-                    <p className="text-sm text-muted-foreground">{language === "ar" ? r.descAr : r.descEn}</p>
+                    <h3 className="text-lg font-bold text-foreground">{language === "ar" ? r.labelAr : r.labelEn}</h3>
                   </button>
+                );
+              })}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+              {additionalLinks.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.labelEn}
+                    to={item.href}
+                    className="group p-6 rounded-2xl border-2 border-border bg-card hover:border-primary hover:shadow-lg transition-all duration-200 text-center"
+                  >
+                    <div className="w-14 h-14 rounded-xl bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center mx-auto mb-4 transition-colors">
+                      <Icon className="w-7 h-7 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground">{language === "ar" ? item.labelAr : item.labelEn}</h3>
+                  </Link>
                 );
               })}
             </div>

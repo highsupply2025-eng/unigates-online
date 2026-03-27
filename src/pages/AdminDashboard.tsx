@@ -831,7 +831,98 @@ const AdminDashboard = () => {
             )}
           </TabsContent>
 
-          {/* ===== Users ===== */}
+          {/* ===== Institutes ===== */}
+          <TabsContent value="institutes">
+            <ToolbarRow>
+              <SearchBar value={instituteSearch} onChange={setInstituteSearch} placeholder={ar("بحث باسم المعهد أو المدينة...","Search by institute name or city...")} />
+              <ExportButton onClick={exportInstitutes} />
+              <Button size="sm" className="gap-1.5" onClick={() => { setSelectedDeptInstitutionType("institute"); setShowDeptDialog(true); }}>
+                <BookOpen className="w-4 h-4" />{ar("إضافة قسم","Add Department")}
+              </Button>
+            </ToolbarRow>
+
+            {filteredInstitutes.length === 0 ? <EmptyState icon={Landmark} text={ar("لا توجد معاهد مسجلة","No institute registrations")} /> : (
+              <div className="grid gap-4">
+                {filteredInstitutes.map(inst => {
+                  const depts = getDepartmentsForInstitution(inst.id);
+                  return (
+                    <Card key={inst.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => { setSelectedInstitute(inst); setInstituteAdminNotes(inst.admin_notes || ""); setShowInstituteDialog(true); }}>
+                      <CardContent className="p-5">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center"><Landmark className="w-6 h-6 text-violet-600" /></div>
+                            <div>
+                              <p className="font-bold text-foreground">{inst.institute_name}</p>
+                              <p className="text-sm text-muted-foreground">{inst.director_name} — {inst.city}</p>
+                              {inst.specialization && <p className="text-xs text-muted-foreground">{ar("التخصص:","Specialization:")} {inst.specialization}</p>}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            {statusBadge(inst.status)}
+                            <p className="text-xs text-muted-foreground hidden sm:block">{fmtDate(inst.created_at)}</p>
+                            {inst.status === "pending" && (
+                              <div className="flex gap-2">
+                                <Button size="sm" className="gap-1" onClick={e => { e.stopPropagation(); handleInstituteApprove(inst.id); }}><CheckCircle className="w-4 h-4" />{ar("قبول","Approve")}</Button>
+                                <Button size="sm" variant="destructive" className="gap-1" onClick={e => { e.stopPropagation(); handleInstituteReject(inst.id); }}><XCircle className="w-4 h-4" />{ar("رفض","Reject")}</Button>
+                              </div>
+                            )}
+                            <ActionButtons onDelete={() => setDeleteTarget({ type: "institute", id: inst.id, name: inst.institute_name })} />
+                          </div>
+                        </div>
+                        {/* Departments */}
+                        {depts.length > 0 && (
+                          <div className="border-t border-border pt-3 space-y-2">
+                            <p className="text-xs font-semibold text-muted-foreground">{ar("الأقسام","Departments")} ({depts.length}):</p>
+                            {depts.map(dept => {
+                              const members = getMembersForDepartment(dept.id);
+                              const students = members.filter(m => m.role === "student");
+                              const lecturers = members.filter(m => m.role === "lecturer");
+                              return (
+                                <div key={dept.id} className="bg-muted/30 rounded-lg p-3 space-y-2" onClick={e => e.stopPropagation()}>
+                                  <div className="flex items-center justify-between">
+                                    <div>
+                                      <p className="font-medium text-sm text-foreground">{dept.department_name}</p>
+                                      <div className="flex gap-3 text-xs text-muted-foreground mt-1">
+                                        <span>{students.length} {ar("طالب","students")}</span>
+                                        <span>{lecturers.length} {ar("محاضر","lecturers")}</span>
+                                        <span>{statusBadge(dept.payment_status === "paid" ? "approved" : "pending")}</span>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => { setSelectedDeptId(dept.id); setShowAddMembersDialog(true); }}>
+                                        <Users className="w-3 h-3" />{ar("إضافة أعضاء","Add Members")}
+                                      </Button>
+                                      <ActionButtons onDelete={() => setDeleteTarget({ type: "department", id: dept.id, name: dept.department_name })} />
+                                    </div>
+                                  </div>
+                                  {members.length > 0 && (
+                                    <div className="space-y-1">
+                                      {members.slice(0, 5).map(m => (
+                                        <div key={m.id} className="flex items-center justify-between text-xs bg-background rounded px-2 py-1">
+                                          <span className="font-medium">{m.full_name}</span>
+                                          <div className="flex items-center gap-2">
+                                            <Badge variant="outline" className="text-xs">{m.role === "student" ? ar("طالب","Student") : ar("محاضر","Lecturer")}</Badge>
+                                            {m.date_of_birth && <span className="text-muted-foreground">{m.date_of_birth}</span>}
+                                            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setDeleteTarget({ type: "dept_member", id: m.id, name: m.full_name })}><Trash2 className="w-3 h-3 text-destructive" /></Button>
+                                          </div>
+                                        </div>
+                                      ))}
+                                      {members.length > 5 && <p className="text-xs text-muted-foreground text-center">+{members.length - 5} {ar("عضو آخر","more")}</p>}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </TabsContent>
+
           <TabsContent value="users">
             <ToolbarRow>
               <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder={ar("بحث بالاسم أو البريد...","Search by name or email...")} />

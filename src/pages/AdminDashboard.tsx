@@ -826,6 +826,28 @@ const AdminDashboard = () => {
                             {members.length > 5 && <p className="text-xs text-muted-foreground text-center">+{members.length - 5} {ar("عضو آخر","more members")}</p>}
                           </div>
                         )}
+                        {/* Departments for this college */}
+                        {getDepartmentsForInstitution(college.id).length > 0 && (
+                          <div className="mt-3 space-y-2">
+                            <p className="text-xs font-semibold text-muted-foreground">{ar("الأقسام","Departments")} ({getDepartmentsForInstitution(college.id).length}):</p>
+                            {getDepartmentsForInstitution(college.id).map(dept => {
+                              const deptMembers = getMembersForDepartment(dept.id);
+                              return (
+                                <div key={dept.id} className="bg-muted/30 rounded-lg p-2 text-xs" onClick={e => e.stopPropagation()}>
+                                  <div className="flex items-center justify-between">
+                                    <span className="font-medium">{dept.department_name} ({deptMembers.length} {ar("عضو","members")})</span>
+                                    <div className="flex items-center gap-1">
+                                      <Button variant="outline" size="sm" className="h-6 text-xs gap-1" onClick={() => { setSelectedDeptId(dept.id); setShowAddMembersDialog(true); }}>
+                                        <Users className="w-3 h-3" />{ar("أعضاء","Members")}
+                                      </Button>
+                                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setDeleteTarget({ type: "department", id: dept.id, name: dept.department_name })}><Trash2 className="w-3 h-3 text-destructive" /></Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   );

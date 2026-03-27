@@ -295,6 +295,54 @@ const AdminDashboard = () => {
     await Promise.all([loadColleges(), loadStats()]);
   };
 
+  // Institute handlers
+  const handleInstituteApprove = async (id: string) => {
+    const { error } = await supabase.from("institute_registrations" as any).update({ status: "approved", admin_notes: instituteAdminNotes || null }).eq("id", id);
+    if (error) { showError(error.message); return; }
+    showSuccess(language === "ar" ? "تم قبول المعهد" : "Institute approved");
+    setShowInstituteDialog(false); setInstituteAdminNotes("");
+    await Promise.all([loadInstitutes(), loadStats()]);
+  };
+
+  const handleInstituteReject = async (id: string) => {
+    const { error } = await supabase.from("institute_registrations" as any).update({ status: "rejected", admin_notes: instituteAdminNotes || null }).eq("id", id);
+    if (error) { showError(error.message); return; }
+    showSuccess(language === "ar" ? "تم رفض المعهد" : "Institute rejected");
+    setShowInstituteDialog(false); setInstituteAdminNotes("");
+    await Promise.all([loadInstitutes(), loadStats()]);
+  };
+
+  // Department handlers
+  const handleCreateDepartment = async () => {
+    if (!selectedDeptInstitutionId || !newDeptName) return;
+    const studentCount = parseInt(newDeptStudentCount) || 0;
+    const { error } = await supabase.from("departments" as any).insert({
+      institution_id: selectedDeptInstitutionId,
+      institution_type: selectedDeptInstitutionType,
+      department_name: newDeptName,
+      student_count: studentCount,
+      payment_amount: studentCount * 299,
+    });
+    if (error) { showError(error.message); return; }
+    showSuccess(language === "ar" ? "تم إنشاء القسم" : "Department created");
+    setShowDeptDialog(false); setNewDeptName(""); setNewDeptStudentCount("");
+    await loadDepartments();
+  };
+
+  const handleAddDepartmentMember = async () => {
+    if (!selectedDeptId || !newMemberName) return;
+    const { error } = await supabase.from("department_members" as any).insert({
+      department_id: selectedDeptId,
+      full_name: newMemberName,
+      role: newMemberRole,
+      date_of_birth: newMemberDob || null,
+    });
+    if (error) { showError(error.message); return; }
+    showSuccess(language === "ar" ? "تم إضافة العضو" : "Member added");
+    setNewMemberName(""); setNewMemberDob("");
+    await loadDepartmentMembers();
+  };
+
   const handleCreateInvitation = async () => {
     if (!newInvitationCollegeId) return;
     const { error } = await supabase.from("college_invitations").insert({
@@ -330,6 +378,9 @@ const AdminDashboard = () => {
     else if (type === "college") ({ error } = await supabase.from("college_registrations").delete().eq("id", id));
     else if (type === "invitation") ({ error } = await supabase.from("college_invitations").delete().eq("id", id));
     else if (type === "member") ({ error } = await supabase.from("college_members").delete().eq("id", id));
+    else if (type === "institute") ({ error } = await supabase.from("institute_registrations" as any).delete().eq("id", id));
+    else if (type === "department") ({ error } = await supabase.from("departments" as any).delete().eq("id", id));
+    else if (type === "dept_member") ({ error } = await supabase.from("department_members" as any).delete().eq("id", id));
     else if (type === "user") {
       const user = allUsers.find(u => u.id === id);
       ({ error } = await supabase.from("user_roles").delete().eq("id", id));

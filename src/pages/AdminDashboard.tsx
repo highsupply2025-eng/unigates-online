@@ -33,6 +33,9 @@ interface LiveStream { id: string; title_ar: string; title_en: string; creator_i
 interface CollegeRegistration { id: string; college_name: string; dean_name: string; city: string; phone: string; email: string; student_count: number | null; address: string | null; message: string | null; status: string; admin_notes: string | null; created_at: string; }
 interface CollegeInvitation { id: string; college_id: string; invitation_code: string; role: string; max_uses: number; used_count: number; is_active: boolean; created_at: string; college?: CollegeRegistration; }
 interface CollegeMember { id: string; college_id: string; user_id: string; role: string; joined_at: string; college?: CollegeRegistration; profile?: Profile; }
+interface InstituteRegistration { id: string; institute_name: string; director_name: string; city: string; phone: string; email: string; student_count: number | null; specialization: string | null; address: string | null; message: string | null; status: string; admin_notes: string | null; created_at: string; }
+interface Department { id: string; institution_id: string; institution_type: string; department_name: string; student_count: number; status: string; payment_status: string; payment_amount: number; created_at: string; }
+interface DepartmentMember { id: string; department_id: string; full_name: string; role: string; date_of_birth: string | null; photo_url: string | null; invitation_code: string | null; user_id: string | null; created_at: string; }
 
 const getSignedUrl = async (path: string | null): Promise<string | null> => {
   if (!path) return null;
@@ -85,7 +88,28 @@ const AdminDashboard = () => {
   const [newInvitationRole, setNewInvitationRole] = useState("student");
   const [newInvitationMaxUses, setNewInvitationMaxUses] = useState("0");
 
-  const [stats, setStats] = useState({ totalUsers: 0, totalLecturers: 0, pendingCount: 0, totalCourses: 0, totalViews: 0, pendingSchools: 0, totalBooks: 0, totalOrders: 0, totalSubscriptions: 0, totalStreams: 0, totalRevenue: 0, totalColleges: 0, pendingColleges: 0 });
+  // Institute states
+  const [institutes, setInstitutes] = useState<InstituteRegistration[]>([]);
+  const [instituteSearch, setInstituteSearch] = useState("");
+  const [selectedInstitute, setSelectedInstitute] = useState<InstituteRegistration | null>(null);
+  const [showInstituteDialog, setShowInstituteDialog] = useState(false);
+  const [instituteAdminNotes, setInstituteAdminNotes] = useState("");
+
+  // Department states
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [departmentMembers, setDepartmentMembers] = useState<DepartmentMember[]>([]);
+  const [showDeptDialog, setShowDeptDialog] = useState(false);
+  const [selectedDeptInstitutionId, setSelectedDeptInstitutionId] = useState("");
+  const [selectedDeptInstitutionType, setSelectedDeptInstitutionType] = useState<"college" | "institute">("college");
+  const [newDeptName, setNewDeptName] = useState("");
+  const [newDeptStudentCount, setNewDeptStudentCount] = useState("");
+  const [showAddMembersDialog, setShowAddMembersDialog] = useState(false);
+  const [selectedDeptId, setSelectedDeptId] = useState("");
+  const [newMemberName, setNewMemberName] = useState("");
+  const [newMemberRole, setNewMemberRole] = useState("student");
+  const [newMemberDob, setNewMemberDob] = useState("");
+
+  const [stats, setStats] = useState({ totalUsers: 0, totalLecturers: 0, pendingCount: 0, totalCourses: 0, totalViews: 0, pendingSchools: 0, totalBooks: 0, totalOrders: 0, totalSubscriptions: 0, totalStreams: 0, totalRevenue: 0, totalColleges: 0, pendingColleges: 0, totalInstitutes: 0, pendingInstitutes: 0, totalDepartments: 0 });
 
   const [selectedUser, setSelectedUser] = useState<(UserRole & { profile?: Profile }) | null>(null);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
@@ -110,7 +134,7 @@ const AdminDashboard = () => {
     setLoading(false);
   };
 
-  const loadAll = () => Promise.all([loadPending(), loadAllUsers(), loadStats(), loadSchoolRegistrations(), loadCourses(), loadBooks(), loadOrders(), loadSubscriptions(), loadStreams(), loadColleges(), loadCollegeInvitations(), loadCollegeMembers()]);
+  const loadAll = () => Promise.all([loadPending(), loadAllUsers(), loadStats(), loadSchoolRegistrations(), loadCourses(), loadBooks(), loadOrders(), loadSubscriptions(), loadStreams(), loadColleges(), loadCollegeInvitations(), loadCollegeMembers(), loadInstitutes(), loadDepartments(), loadDepartmentMembers()]);
 
   const loadPending = async () => {
     const { data: roles } = await supabase.from("user_roles").select("*").eq("role", "lecturer").eq("approved", false);
@@ -182,8 +206,23 @@ const AdminDashboard = () => {
     setCollegeMembers(members.map(m => ({ ...m, college: (collegesData || []).find(c => c.id === m.college_id), profile: (profilesData || []).find(p => p.user_id === m.user_id) })));
   };
 
+  const loadInstitutes = async () => {
+    const { data } = await supabase.from("institute_registrations" as any).select("*").order("created_at", { ascending: false });
+    setInstitutes((data as any[]) || []);
+  };
+
+  const loadDepartments = async () => {
+    const { data } = await supabase.from("departments" as any).select("*").order("created_at", { ascending: false });
+    setDepartments((data as any[]) || []);
+  };
+
+  const loadDepartmentMembers = async () => {
+    const { data } = await supabase.from("department_members" as any).select("*").order("created_at", { ascending: false });
+    setDepartmentMembers((data as any[]) || []);
+  };
+
   const loadStats = async () => {
-    const [{ data: totalUsers }, { count: totalLecturers }, { count: pendingCount }, { count: totalCourses }, { count: totalViews }, { count: pendingSchools }, { count: totalBooks }, { count: totalOrders }, { count: totalSubscriptions }, { count: totalStreams }, { count: totalColleges }, { count: pendingColleges }] = await Promise.all([
+    const [{ data: totalUsers }, { count: totalLecturers }, { count: pendingCount }, { count: totalCourses }, { count: totalViews }, { count: pendingSchools }, { count: totalBooks }, { count: totalOrders }, { count: totalSubscriptions }, { count: totalStreams }, { count: totalColleges }, { count: pendingColleges }, { count: totalInstitutes }, { count: pendingInstitutes }, { count: totalDepartments }] = await Promise.all([
       supabase.rpc("get_profile_count"),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "lecturer").eq("approved", true),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "lecturer").eq("approved", false),
@@ -196,8 +235,11 @@ const AdminDashboard = () => {
       supabase.from("live_streams").select("*", { count: "exact", head: true }),
       supabase.from("college_registrations").select("*", { count: "exact", head: true }),
       supabase.from("college_registrations").select("*", { count: "exact", head: true }).eq("status", "pending"),
+      supabase.from("institute_registrations" as any).select("*", { count: "exact", head: true }),
+      supabase.from("institute_registrations" as any).select("*", { count: "exact", head: true }).eq("status", "pending"),
+      supabase.from("departments" as any).select("*", { count: "exact", head: true }),
     ]);
-    setStats({ totalUsers: Number(totalUsers) || 0, totalLecturers: totalLecturers || 0, pendingCount: pendingCount || 0, totalCourses: totalCourses || 0, totalViews: totalViews || 0, pendingSchools: pendingSchools || 0, totalBooks: totalBooks || 0, totalOrders: totalOrders || 0, totalSubscriptions: totalSubscriptions || 0, totalStreams: totalStreams || 0, totalRevenue: 0, totalColleges: totalColleges || 0, pendingColleges: pendingColleges || 0 });
+    setStats({ totalUsers: Number(totalUsers) || 0, totalLecturers: totalLecturers || 0, pendingCount: pendingCount || 0, totalCourses: totalCourses || 0, totalViews: totalViews || 0, pendingSchools: pendingSchools || 0, totalBooks: totalBooks || 0, totalOrders: totalOrders || 0, totalSubscriptions: totalSubscriptions || 0, totalStreams: totalStreams || 0, totalRevenue: 0, totalColleges: totalColleges || 0, pendingColleges: pendingColleges || 0, totalInstitutes: totalInstitutes || 0, pendingInstitutes: pendingInstitutes || 0, totalDepartments: totalDepartments || 0 });
   };
 
   // ── CRUD Handlers ──
@@ -253,6 +295,54 @@ const AdminDashboard = () => {
     await Promise.all([loadColleges(), loadStats()]);
   };
 
+  // Institute handlers
+  const handleInstituteApprove = async (id: string) => {
+    const { error } = await supabase.from("institute_registrations" as any).update({ status: "approved", admin_notes: instituteAdminNotes || null }).eq("id", id);
+    if (error) { showError(error.message); return; }
+    showSuccess(language === "ar" ? "تم قبول المعهد" : "Institute approved");
+    setShowInstituteDialog(false); setInstituteAdminNotes("");
+    await Promise.all([loadInstitutes(), loadStats()]);
+  };
+
+  const handleInstituteReject = async (id: string) => {
+    const { error } = await supabase.from("institute_registrations" as any).update({ status: "rejected", admin_notes: instituteAdminNotes || null }).eq("id", id);
+    if (error) { showError(error.message); return; }
+    showSuccess(language === "ar" ? "تم رفض المعهد" : "Institute rejected");
+    setShowInstituteDialog(false); setInstituteAdminNotes("");
+    await Promise.all([loadInstitutes(), loadStats()]);
+  };
+
+  // Department handlers
+  const handleCreateDepartment = async () => {
+    if (!selectedDeptInstitutionId || !newDeptName) return;
+    const studentCount = parseInt(newDeptStudentCount) || 0;
+    const { error } = await supabase.from("departments" as any).insert({
+      institution_id: selectedDeptInstitutionId,
+      institution_type: selectedDeptInstitutionType,
+      department_name: newDeptName,
+      student_count: studentCount,
+      payment_amount: studentCount * 299,
+    });
+    if (error) { showError(error.message); return; }
+    showSuccess(language === "ar" ? "تم إنشاء القسم" : "Department created");
+    setShowDeptDialog(false); setNewDeptName(""); setNewDeptStudentCount("");
+    await loadDepartments();
+  };
+
+  const handleAddDepartmentMember = async () => {
+    if (!selectedDeptId || !newMemberName) return;
+    const { error } = await supabase.from("department_members" as any).insert({
+      department_id: selectedDeptId,
+      full_name: newMemberName,
+      role: newMemberRole,
+      date_of_birth: newMemberDob || null,
+    });
+    if (error) { showError(error.message); return; }
+    showSuccess(language === "ar" ? "تم إضافة العضو" : "Member added");
+    setNewMemberName(""); setNewMemberDob("");
+    await loadDepartmentMembers();
+  };
+
   const handleCreateInvitation = async () => {
     if (!newInvitationCollegeId) return;
     const { error } = await supabase.from("college_invitations").insert({
@@ -288,6 +378,9 @@ const AdminDashboard = () => {
     else if (type === "college") ({ error } = await supabase.from("college_registrations").delete().eq("id", id));
     else if (type === "invitation") ({ error } = await supabase.from("college_invitations").delete().eq("id", id));
     else if (type === "member") ({ error } = await supabase.from("college_members").delete().eq("id", id));
+    else if (type === "institute") ({ error } = await supabase.from("institute_registrations" as any).delete().eq("id", id));
+    else if (type === "department") ({ error } = await supabase.from("departments" as any).delete().eq("id", id));
+    else if (type === "dept_member") ({ error } = await supabase.from("department_members" as any).delete().eq("id", id));
     else if (type === "user") {
       const user = allUsers.find(u => u.id === id);
       ({ error } = await supabase.from("user_roles").delete().eq("id", id));
@@ -353,6 +446,13 @@ const AdminDashboard = () => {
   const filteredSubs = subscriptions.filter(s => { if (!subSearch) return true; const q = subSearch.toLowerCase(); return s.course?.title_ar?.toLowerCase().includes(q) || s.course?.title_en?.toLowerCase().includes(q) || s.profile?.full_name?.toLowerCase().includes(q); });
   const filteredStreams = liveStreams.filter(s => { if (!streamSearch) return true; const q = streamSearch.toLowerCase(); return s.title_ar.toLowerCase().includes(q) || s.title_en.toLowerCase().includes(q) || s.profile?.full_name?.toLowerCase().includes(q); });
   const filteredColleges = colleges.filter(c => { if (!collegeSearch) return true; const q = collegeSearch.toLowerCase(); return c.college_name.toLowerCase().includes(q) || c.dean_name.toLowerCase().includes(q) || c.city.toLowerCase().includes(q); });
+  const filteredInstitutes = institutes.filter(i => { if (!instituteSearch) return true; const q = instituteSearch.toLowerCase(); return i.institute_name.toLowerCase().includes(q) || i.director_name.toLowerCase().includes(q) || i.city.toLowerCase().includes(q); });
+
+  // Department helpers
+  const getDepartmentsForInstitution = (id: string) => departments.filter(d => d.institution_id === id);
+  const getMembersForDepartment = (deptId: string) => departmentMembers.filter(m => m.department_id === deptId);
+
+  const exportInstitutes = () => exportCSV("institutes.csv", [ar("المعهد","Institute"), ar("المدير","Director"), ar("المدينة","City"), ar("الهاتف","Phone"), ar("البريد","Email"), ar("الحالة","Status"), ar("التاريخ","Date")], filteredInstitutes.map(i => [i.institute_name, i.director_name, i.city, i.phone, i.email, i.status, fmtDate(i.created_at)]));
 
   // ── Helpers ──
   const roleBadge = (role: string, approved: boolean) => {
@@ -502,6 +602,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="pending" className="gap-1.5"><Clock className="w-4 h-4" />{ar("طلبات الانتظار","Pending")}{stats.pendingCount > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingCount}</Badge>}</TabsTrigger>
             <TabsTrigger value="schools" className="gap-1.5"><School className="w-4 h-4" />{ar("المدارس","Schools")}{stats.pendingSchools > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingSchools}</Badge>}</TabsTrigger>
             <TabsTrigger value="colleges" className="gap-1.5"><Landmark className="w-4 h-4" />{ar("الكليات","Colleges")}{stats.pendingColleges > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingColleges}</Badge>}</TabsTrigger>
+            <TabsTrigger value="institutes" className="gap-1.5"><Landmark className="w-4 h-4" />{ar("المعاهد","Institutes")}{stats.pendingInstitutes > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingInstitutes}</Badge>}</TabsTrigger>
             <TabsTrigger value="users" className="gap-1.5"><Users className="w-4 h-4" />{ar("المستخدمين","Users")}</TabsTrigger>
             <TabsTrigger value="courses" className="gap-1.5"><BookOpen className="w-4 h-4" />{ar("الدورات","Courses")}</TabsTrigger>
             <TabsTrigger value="books" className="gap-1.5"><BookMarked className="w-4 h-4" />{ar("الكتب","Books")}</TabsTrigger>
@@ -519,6 +620,7 @@ const AdminDashboard = () => {
                 { icon: Clock, value: stats.pendingCount, label: ar("بانتظار الموافقة","Pending Approval"), color: "text-amber-500" },
                 { icon: School, value: stats.pendingSchools, label: ar("طلبات مدارس","School Requests"), color: "text-blue-600" },
                 { icon: Landmark, value: stats.totalColleges, label: ar("الكليات","Colleges"), color: "text-indigo-600" },
+                { icon: Landmark, value: stats.totalInstitutes, label: ar("المعاهد","Institutes"), color: "text-violet-600" },
                 { icon: BookOpen, value: stats.totalCourses, label: ar("الدورات","Courses"), color: "text-primary" },
                 { icon: Eye, value: stats.totalViews, label: ar("المشاهدات","Views"), color: "text-primary" },
                 { icon: BookMarked, value: stats.totalBooks, label: ar("الكتب","Books"), color: "text-purple-600" },
@@ -533,7 +635,7 @@ const AdminDashboard = () => {
                 </CardContent></Card>
               ))}
             </div>
-            {(stats.pendingCount > 0 || stats.pendingSchools > 0 || stats.pendingColleges > 0) && (
+            {(stats.pendingCount > 0 || stats.pendingSchools > 0 || stats.pendingColleges > 0 || stats.pendingInstitutes > 0) && (
               <div className="grid gap-4 md:grid-cols-3">
                 {stats.pendingCount > 0 && (
                   <Card className="border-amber-200 bg-amber-50/50 cursor-pointer" onClick={() => setActiveTab("pending")}>
@@ -563,6 +665,17 @@ const AdminDashboard = () => {
                       <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center"><Landmark className="w-6 h-6 text-indigo-600" /></div>
                       <div>
                         <p className="font-bold text-foreground">{stats.pendingColleges} {ar("طلب كلية بانتظار المراجعة","pending college requests")}</p>
+                        <p className="text-sm text-muted-foreground">{ar("اضغط للمراجعة","Click to review")}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+                {stats.pendingInstitutes > 0 && (
+                  <Card className="border-violet-200 bg-violet-50/50 cursor-pointer" onClick={() => setActiveTab("institutes")}>
+                    <CardContent className="p-5 flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center"><Landmark className="w-6 h-6 text-violet-600" /></div>
+                      <div>
+                        <p className="font-bold text-foreground">{stats.pendingInstitutes} {ar("طلب معهد بانتظار المراجعة","pending institute requests")}</p>
                         <p className="text-sm text-muted-foreground">{ar("اضغط للمراجعة","Click to review")}</p>
                       </div>
                     </CardContent>
@@ -641,6 +754,9 @@ const AdminDashboard = () => {
               <Button size="sm" className="gap-1.5" onClick={() => setShowCreateInvitation(true)}>
                 <LinkIcon className="w-4 h-4" />{ar("إنشاء رابط دعوة","Create Invitation")}
               </Button>
+              <Button size="sm" className="gap-1.5" onClick={() => { setSelectedDeptInstitutionType("college"); setShowDeptDialog(true); }}>
+                <BookOpen className="w-4 h-4" />{ar("إضافة قسم","Add Department")}
+              </Button>
             </ToolbarRow>
 
             {filteredColleges.length === 0 ? <EmptyState icon={Landmark} text={ar("لا توجد كليات مسجلة","No college registrations")} /> : (
@@ -710,6 +826,28 @@ const AdminDashboard = () => {
                             {members.length > 5 && <p className="text-xs text-muted-foreground text-center">+{members.length - 5} {ar("عضو آخر","more members")}</p>}
                           </div>
                         )}
+                        {/* Departments for this college */}
+                        {getDepartmentsForInstitution(college.id).length > 0 && (
+                          <div className="mt-3 space-y-2">
+                            <p className="text-xs font-semibold text-muted-foreground">{ar("الأقسام","Departments")} ({getDepartmentsForInstitution(college.id).length}):</p>
+                            {getDepartmentsForInstitution(college.id).map(dept => {
+                              const deptMembers = getMembersForDepartment(dept.id);
+                              return (
+                                <div key={dept.id} className="bg-muted/30 rounded-lg p-2 text-xs" onClick={e => e.stopPropagation()}>
+                                  <div className="flex items-center justify-between">
+                                    <span className="font-medium">{dept.department_name} ({deptMembers.length} {ar("عضو","members")})</span>
+                                    <div className="flex items-center gap-1">
+                                      <Button variant="outline" size="sm" className="h-6 text-xs gap-1" onClick={() => { setSelectedDeptId(dept.id); setShowAddMembersDialog(true); }}>
+                                        <Users className="w-3 h-3" />{ar("أعضاء","Members")}
+                                      </Button>
+                                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setDeleteTarget({ type: "department", id: dept.id, name: dept.department_name })}><Trash2 className="w-3 h-3 text-destructive" /></Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   );
@@ -718,7 +856,98 @@ const AdminDashboard = () => {
             )}
           </TabsContent>
 
-          {/* ===== Users ===== */}
+          {/* ===== Institutes ===== */}
+          <TabsContent value="institutes">
+            <ToolbarRow>
+              <SearchBar value={instituteSearch} onChange={setInstituteSearch} placeholder={ar("بحث باسم المعهد أو المدينة...","Search by institute name or city...")} />
+              <ExportButton onClick={exportInstitutes} />
+              <Button size="sm" className="gap-1.5" onClick={() => { setSelectedDeptInstitutionType("institute"); setShowDeptDialog(true); }}>
+                <BookOpen className="w-4 h-4" />{ar("إضافة قسم","Add Department")}
+              </Button>
+            </ToolbarRow>
+
+            {filteredInstitutes.length === 0 ? <EmptyState icon={Landmark} text={ar("لا توجد معاهد مسجلة","No institute registrations")} /> : (
+              <div className="grid gap-4">
+                {filteredInstitutes.map(inst => {
+                  const depts = getDepartmentsForInstitution(inst.id);
+                  return (
+                    <Card key={inst.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => { setSelectedInstitute(inst); setInstituteAdminNotes(inst.admin_notes || ""); setShowInstituteDialog(true); }}>
+                      <CardContent className="p-5">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center"><Landmark className="w-6 h-6 text-violet-600" /></div>
+                            <div>
+                              <p className="font-bold text-foreground">{inst.institute_name}</p>
+                              <p className="text-sm text-muted-foreground">{inst.director_name} — {inst.city}</p>
+                              {inst.specialization && <p className="text-xs text-muted-foreground">{ar("التخصص:","Specialization:")} {inst.specialization}</p>}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            {statusBadge(inst.status)}
+                            <p className="text-xs text-muted-foreground hidden sm:block">{fmtDate(inst.created_at)}</p>
+                            {inst.status === "pending" && (
+                              <div className="flex gap-2">
+                                <Button size="sm" className="gap-1" onClick={e => { e.stopPropagation(); handleInstituteApprove(inst.id); }}><CheckCircle className="w-4 h-4" />{ar("قبول","Approve")}</Button>
+                                <Button size="sm" variant="destructive" className="gap-1" onClick={e => { e.stopPropagation(); handleInstituteReject(inst.id); }}><XCircle className="w-4 h-4" />{ar("رفض","Reject")}</Button>
+                              </div>
+                            )}
+                            <ActionButtons onDelete={() => setDeleteTarget({ type: "institute", id: inst.id, name: inst.institute_name })} />
+                          </div>
+                        </div>
+                        {/* Departments */}
+                        {depts.length > 0 && (
+                          <div className="border-t border-border pt-3 space-y-2">
+                            <p className="text-xs font-semibold text-muted-foreground">{ar("الأقسام","Departments")} ({depts.length}):</p>
+                            {depts.map(dept => {
+                              const members = getMembersForDepartment(dept.id);
+                              const students = members.filter(m => m.role === "student");
+                              const lecturers = members.filter(m => m.role === "lecturer");
+                              return (
+                                <div key={dept.id} className="bg-muted/30 rounded-lg p-3 space-y-2" onClick={e => e.stopPropagation()}>
+                                  <div className="flex items-center justify-between">
+                                    <div>
+                                      <p className="font-medium text-sm text-foreground">{dept.department_name}</p>
+                                      <div className="flex gap-3 text-xs text-muted-foreground mt-1">
+                                        <span>{students.length} {ar("طالب","students")}</span>
+                                        <span>{lecturers.length} {ar("محاضر","lecturers")}</span>
+                                        <span>{statusBadge(dept.payment_status === "paid" ? "approved" : "pending")}</span>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => { setSelectedDeptId(dept.id); setShowAddMembersDialog(true); }}>
+                                        <Users className="w-3 h-3" />{ar("إضافة أعضاء","Add Members")}
+                                      </Button>
+                                      <ActionButtons onDelete={() => setDeleteTarget({ type: "department", id: dept.id, name: dept.department_name })} />
+                                    </div>
+                                  </div>
+                                  {members.length > 0 && (
+                                    <div className="space-y-1">
+                                      {members.slice(0, 5).map(m => (
+                                        <div key={m.id} className="flex items-center justify-between text-xs bg-background rounded px-2 py-1">
+                                          <span className="font-medium">{m.full_name}</span>
+                                          <div className="flex items-center gap-2">
+                                            <Badge variant="outline" className="text-xs">{m.role === "student" ? ar("طالب","Student") : ar("محاضر","Lecturer")}</Badge>
+                                            {m.date_of_birth && <span className="text-muted-foreground">{m.date_of_birth}</span>}
+                                            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setDeleteTarget({ type: "dept_member", id: m.id, name: m.full_name })}><Trash2 className="w-3 h-3 text-destructive" /></Button>
+                                          </div>
+                                        </div>
+                                      ))}
+                                      {members.length > 5 && <p className="text-xs text-muted-foreground text-center">+{members.length - 5} {ar("عضو آخر","more")}</p>}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </TabsContent>
+
           <TabsContent value="users">
             <ToolbarRow>
               <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder={ar("بحث بالاسم أو البريد...","Search by name or email...")} />
@@ -1211,6 +1440,129 @@ const AdminDashboard = () => {
               )}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+      {/* ===== Institute Detail Dialog ===== */}
+      <Dialog open={showInstituteDialog} onOpenChange={setShowInstituteDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>{ar("تفاصيل طلب المعهد","Institute Registration Details")}</DialogTitle></DialogHeader>
+          {selectedInstitute && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-violet-100 flex items-center justify-center"><Landmark className="w-8 h-8 text-violet-600" /></div>
+                <div><p className="text-lg font-bold text-foreground">{selectedInstitute.institute_name}</p>{statusBadge(selectedInstitute.status)}</div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex items-center gap-2"><Users className="w-4 h-4 text-muted-foreground" /><div><p className="text-muted-foreground">{ar("المدير","Director")}</p><p className="font-medium text-foreground">{selectedInstitute.director_name}</p></div></div>
+                <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-muted-foreground" /><div><p className="text-muted-foreground">{ar("المدينة","City")}</p><p className="font-medium text-foreground">{selectedInstitute.city}</p></div></div>
+                <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-muted-foreground" /><div><p className="text-muted-foreground">{ar("الهاتف","Phone")}</p><p className="font-medium text-foreground">{selectedInstitute.phone}</p></div></div>
+                <div className="flex items-center gap-2"><Mail className="w-4 h-4 text-muted-foreground" /><div><p className="text-muted-foreground">{ar("البريد","Email")}</p><p className="font-medium text-foreground">{selectedInstitute.email}</p></div></div>
+              </div>
+              {selectedInstitute.specialization && (
+                <div className="text-sm border-t border-border pt-3">
+                  <p className="text-muted-foreground">{ar("التخصص الرئيسي","Main Specialization")}</p>
+                  <p className="font-medium text-foreground mt-1">{selectedInstitute.specialization}</p>
+                </div>
+              )}
+              {selectedInstitute.message && (
+                <div className="text-sm border-t border-border pt-3">
+                  <p className="text-muted-foreground flex items-center gap-1"><MessageSquare className="w-4 h-4" />{ar("رسالة المعهد","Institute Message")}</p>
+                  <p className="font-medium text-foreground mt-1">{selectedInstitute.message}</p>
+                </div>
+              )}
+              <div className="border-t border-border pt-3">
+                <p className="text-sm text-muted-foreground mb-2 flex items-center gap-1"><FileText className="w-4 h-4" />{ar("ملاحظات الأدمن","Admin Notes")}</p>
+                <Textarea value={instituteAdminNotes} onChange={e => setInstituteAdminNotes(e.target.value)} placeholder={ar("أضف ملاحظاتك هنا...","Add your notes here...")} className="min-h-[80px]" />
+              </div>
+              {selectedInstitute.status === "pending" && (
+                <div className="flex gap-3 pt-2">
+                  <Button className="flex-1 gap-1.5" onClick={() => handleInstituteApprove(selectedInstitute.id)}><CheckCircle className="w-4 h-4" />{ar("قبول","Approve")}</Button>
+                  <Button variant="destructive" className="flex-1 gap-1.5" onClick={() => handleInstituteReject(selectedInstitute.id)}><XCircle className="w-4 h-4" />{ar("رفض","Reject")}</Button>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ===== Create Department Dialog ===== */}
+      <Dialog open={showDeptDialog} onOpenChange={setShowDeptDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>{ar("إنشاء قسم جديد","Create New Department")}</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label>{ar(selectedDeptInstitutionType === "college" ? "الكلية" : "المعهد", selectedDeptInstitutionType === "college" ? "College" : "Institute")}</Label>
+              <select
+                className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
+                value={selectedDeptInstitutionId}
+                onChange={e => setSelectedDeptInstitutionId(e.target.value)}
+              >
+                <option value="">{ar("اختر","Select")}</option>
+                {selectedDeptInstitutionType === "college"
+                  ? colleges.filter(c => c.status === "approved").map(c => <option key={c.id} value={c.id}>{c.college_name}</option>)
+                  : institutes.filter(i => i.status === "approved").map(i => <option key={i.id} value={i.id}>{i.institute_name}</option>)
+                }
+              </select>
+            </div>
+            <Field label={ar("اسم القسم","Department Name")} value={newDeptName} onChange={setNewDeptName} />
+            <Field label={ar("عدد الطلاب","Number of Students")} value={newDeptStudentCount} onChange={setNewDeptStudentCount} type="number" />
+            {newDeptStudentCount && parseInt(newDeptStudentCount) > 0 && (
+              <div className="rounded-lg border-2 border-primary/20 bg-primary/5 p-3 text-center">
+                <p className="text-sm text-muted-foreground">{ar("تكلفة الاشتراك","Subscription Cost")}</p>
+                <p className="text-2xl font-black text-primary">{parseInt(newDeptStudentCount) * 299} {ar("جنيه","EGP")}</p>
+                <p className="text-xs text-muted-foreground">{newDeptStudentCount} {ar("طالب","students")} × 299 {ar("جنيه","EGP")}</p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeptDialog(false)}>{ar("إلغاء","Cancel")}</Button>
+            <Button onClick={handleCreateDepartment} disabled={!selectedDeptInstitutionId || !newDeptName}>{ar("إنشاء","Create")}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ===== Add Department Members Dialog ===== */}
+      <Dialog open={showAddMembersDialog} onOpenChange={setShowAddMembersDialog}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>{ar("إضافة أعضاء للقسم","Add Department Members")}</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <Field label={ar("الاسم الكامل","Full Name")} value={newMemberName} onChange={setNewMemberName} />
+              <div className="space-y-1.5">
+                <Label className="text-sm">{ar("الدور","Role")}</Label>
+                <select
+                  className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
+                  value={newMemberRole}
+                  onChange={e => setNewMemberRole(e.target.value)}
+                >
+                  <option value="student">{ar("طالب","Student")}</option>
+                  <option value="lecturer">{ar("محاضر","Lecturer")}</option>
+                </select>
+              </div>
+            </div>
+            <Field label={ar("تاريخ الميلاد","Date of Birth")} value={newMemberDob} onChange={setNewMemberDob} type="date" />
+            <Button className="w-full gap-1.5" onClick={handleAddDepartmentMember} disabled={!newMemberName}>
+              <Users className="w-4 h-4" />{ar("إضافة العضو","Add Member")}
+            </Button>
+            {/* Current members list */}
+            {selectedDeptId && getMembersForDepartment(selectedDeptId).length > 0 && (
+              <div className="border-t border-border pt-3 space-y-2">
+                <p className="text-sm font-semibold text-foreground">{ar("الأعضاء الحاليين","Current Members")} ({getMembersForDepartment(selectedDeptId).length})</p>
+                {getMembersForDepartment(selectedDeptId).map(m => (
+                  <div key={m.id} className="flex items-center justify-between text-sm bg-muted/30 rounded px-3 py-2">
+                    <div>
+                      <span className="font-medium text-foreground">{m.full_name}</span>
+                      {m.date_of_birth && <span className="text-xs text-muted-foreground ms-2">{m.date_of_birth}</span>}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs">{m.role === "student" ? ar("طالب","Student") : ar("محاضر","Lecturer")}</Badge>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setDeleteTarget({ type: "dept_member", id: m.id, name: m.full_name })}><Trash2 className="w-3 h-3 text-destructive" /></Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

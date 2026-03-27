@@ -33,6 +33,9 @@ interface LiveStream { id: string; title_ar: string; title_en: string; creator_i
 interface CollegeRegistration { id: string; college_name: string; dean_name: string; city: string; phone: string; email: string; student_count: number | null; address: string | null; message: string | null; status: string; admin_notes: string | null; created_at: string; }
 interface CollegeInvitation { id: string; college_id: string; invitation_code: string; role: string; max_uses: number; used_count: number; is_active: boolean; created_at: string; college?: CollegeRegistration; }
 interface CollegeMember { id: string; college_id: string; user_id: string; role: string; joined_at: string; college?: CollegeRegistration; profile?: Profile; }
+interface InstituteRegistration { id: string; institute_name: string; director_name: string; city: string; phone: string; email: string; student_count: number | null; specialization: string | null; address: string | null; message: string | null; status: string; admin_notes: string | null; created_at: string; }
+interface Department { id: string; institution_id: string; institution_type: string; department_name: string; student_count: number; status: string; payment_status: string; payment_amount: number; created_at: string; }
+interface DepartmentMember { id: string; department_id: string; full_name: string; role: string; date_of_birth: string | null; photo_url: string | null; invitation_code: string | null; user_id: string | null; created_at: string; }
 
 const getSignedUrl = async (path: string | null): Promise<string | null> => {
   if (!path) return null;

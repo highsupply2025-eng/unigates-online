@@ -635,7 +635,7 @@ const AdminDashboard = () => {
                 </CardContent></Card>
               ))}
             </div>
-            {(stats.pendingCount > 0 || stats.pendingSchools > 0 || stats.pendingColleges > 0) && (
+            {(stats.pendingCount > 0 || stats.pendingSchools > 0 || stats.pendingColleges > 0 || stats.pendingInstitutes > 0) && (
               <div className="grid gap-4 md:grid-cols-3">
                 {stats.pendingCount > 0 && (
                   <Card className="border-amber-200 bg-amber-50/50 cursor-pointer" onClick={() => setActiveTab("pending")}>
@@ -665,6 +665,17 @@ const AdminDashboard = () => {
                       <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center"><Landmark className="w-6 h-6 text-indigo-600" /></div>
                       <div>
                         <p className="font-bold text-foreground">{stats.pendingColleges} {ar("طلب كلية بانتظار المراجعة","pending college requests")}</p>
+                        <p className="text-sm text-muted-foreground">{ar("اضغط للمراجعة","Click to review")}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+                {stats.pendingInstitutes > 0 && (
+                  <Card className="border-violet-200 bg-violet-50/50 cursor-pointer" onClick={() => setActiveTab("institutes")}>
+                    <CardContent className="p-5 flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center"><Landmark className="w-6 h-6 text-violet-600" /></div>
+                      <div>
+                        <p className="font-bold text-foreground">{stats.pendingInstitutes} {ar("طلب معهد بانتظار المراجعة","pending institute requests")}</p>
                         <p className="text-sm text-muted-foreground">{ar("اضغط للمراجعة","Click to review")}</p>
                       </div>
                     </CardContent>

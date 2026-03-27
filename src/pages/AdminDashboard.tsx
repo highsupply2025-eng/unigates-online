@@ -602,6 +602,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="pending" className="gap-1.5"><Clock className="w-4 h-4" />{ar("طلبات الانتظار","Pending")}{stats.pendingCount > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingCount}</Badge>}</TabsTrigger>
             <TabsTrigger value="schools" className="gap-1.5"><School className="w-4 h-4" />{ar("المدارس","Schools")}{stats.pendingSchools > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingSchools}</Badge>}</TabsTrigger>
             <TabsTrigger value="colleges" className="gap-1.5"><Landmark className="w-4 h-4" />{ar("الكليات","Colleges")}{stats.pendingColleges > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingColleges}</Badge>}</TabsTrigger>
+            <TabsTrigger value="institutes" className="gap-1.5"><Landmark className="w-4 h-4" />{ar("المعاهد","Institutes")}{stats.pendingInstitutes > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingInstitutes}</Badge>}</TabsTrigger>
             <TabsTrigger value="users" className="gap-1.5"><Users className="w-4 h-4" />{ar("المستخدمين","Users")}</TabsTrigger>
             <TabsTrigger value="courses" className="gap-1.5"><BookOpen className="w-4 h-4" />{ar("الدورات","Courses")}</TabsTrigger>
             <TabsTrigger value="books" className="gap-1.5"><BookMarked className="w-4 h-4" />{ar("الكتب","Books")}</TabsTrigger>

@@ -446,6 +446,13 @@ const AdminDashboard = () => {
   const filteredSubs = subscriptions.filter(s => { if (!subSearch) return true; const q = subSearch.toLowerCase(); return s.course?.title_ar?.toLowerCase().includes(q) || s.course?.title_en?.toLowerCase().includes(q) || s.profile?.full_name?.toLowerCase().includes(q); });
   const filteredStreams = liveStreams.filter(s => { if (!streamSearch) return true; const q = streamSearch.toLowerCase(); return s.title_ar.toLowerCase().includes(q) || s.title_en.toLowerCase().includes(q) || s.profile?.full_name?.toLowerCase().includes(q); });
   const filteredColleges = colleges.filter(c => { if (!collegeSearch) return true; const q = collegeSearch.toLowerCase(); return c.college_name.toLowerCase().includes(q) || c.dean_name.toLowerCase().includes(q) || c.city.toLowerCase().includes(q); });
+  const filteredInstitutes = institutes.filter(i => { if (!instituteSearch) return true; const q = instituteSearch.toLowerCase(); return i.institute_name.toLowerCase().includes(q) || i.director_name.toLowerCase().includes(q) || i.city.toLowerCase().includes(q); });
+
+  // Department helpers
+  const getDepartmentsForInstitution = (id: string) => departments.filter(d => d.institution_id === id);
+  const getMembersForDepartment = (deptId: string) => departmentMembers.filter(m => m.department_id === deptId);
+
+  const exportInstitutes = () => exportCSV("institutes.csv", [ar("المعهد","Institute"), ar("المدير","Director"), ar("المدينة","City"), ar("الهاتف","Phone"), ar("البريد","Email"), ar("الحالة","Status"), ar("التاريخ","Date")], filteredInstitutes.map(i => [i.institute_name, i.director_name, i.city, i.phone, i.email, i.status, fmtDate(i.created_at)]));
 
   // ── Helpers ──
   const roleBadge = (role: string, approved: boolean) => {

@@ -754,6 +754,9 @@ const AdminDashboard = () => {
               <Button size="sm" className="gap-1.5" onClick={() => setShowCreateInvitation(true)}>
                 <LinkIcon className="w-4 h-4" />{ar("إنشاء رابط دعوة","Create Invitation")}
               </Button>
+              <Button size="sm" className="gap-1.5" onClick={() => { setSelectedDeptInstitutionType("college"); setShowDeptDialog(true); }}>
+                <BookOpen className="w-4 h-4" />{ar("إضافة قسم","Add Department")}
+              </Button>
             </ToolbarRow>
 
             {filteredColleges.length === 0 ? <EmptyState icon={Landmark} text={ar("لا توجد كليات مسجلة","No college registrations")} /> : (

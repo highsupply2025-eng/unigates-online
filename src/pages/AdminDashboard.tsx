@@ -620,6 +620,7 @@ const AdminDashboard = () => {
                 { icon: Clock, value: stats.pendingCount, label: ar("بانتظار الموافقة","Pending Approval"), color: "text-amber-500" },
                 { icon: School, value: stats.pendingSchools, label: ar("طلبات مدارس","School Requests"), color: "text-blue-600" },
                 { icon: Landmark, value: stats.totalColleges, label: ar("الكليات","Colleges"), color: "text-indigo-600" },
+                { icon: Landmark, value: stats.totalInstitutes, label: ar("المعاهد","Institutes"), color: "text-violet-600" },
                 { icon: BookOpen, value: stats.totalCourses, label: ar("الدورات","Courses"), color: "text-primary" },
                 { icon: Eye, value: stats.totalViews, label: ar("المشاهدات","Views"), color: "text-primary" },
                 { icon: BookMarked, value: stats.totalBooks, label: ar("الكتب","Books"), color: "text-purple-600" },

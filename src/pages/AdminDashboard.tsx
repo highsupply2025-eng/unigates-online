@@ -206,8 +206,23 @@ const AdminDashboard = () => {
     setCollegeMembers(members.map(m => ({ ...m, college: (collegesData || []).find(c => c.id === m.college_id), profile: (profilesData || []).find(p => p.user_id === m.user_id) })));
   };
 
+  const loadInstitutes = async () => {
+    const { data } = await supabase.from("institute_registrations" as any).select("*").order("created_at", { ascending: false });
+    setInstitutes((data as any[]) || []);
+  };
+
+  const loadDepartments = async () => {
+    const { data } = await supabase.from("departments" as any).select("*").order("created_at", { ascending: false });
+    setDepartments((data as any[]) || []);
+  };
+
+  const loadDepartmentMembers = async () => {
+    const { data } = await supabase.from("department_members" as any).select("*").order("created_at", { ascending: false });
+    setDepartmentMembers((data as any[]) || []);
+  };
+
   const loadStats = async () => {
-    const [{ data: totalUsers }, { count: totalLecturers }, { count: pendingCount }, { count: totalCourses }, { count: totalViews }, { count: pendingSchools }, { count: totalBooks }, { count: totalOrders }, { count: totalSubscriptions }, { count: totalStreams }, { count: totalColleges }, { count: pendingColleges }] = await Promise.all([
+    const [{ data: totalUsers }, { count: totalLecturers }, { count: pendingCount }, { count: totalCourses }, { count: totalViews }, { count: pendingSchools }, { count: totalBooks }, { count: totalOrders }, { count: totalSubscriptions }, { count: totalStreams }, { count: totalColleges }, { count: pendingColleges }, { count: totalInstitutes }, { count: pendingInstitutes }, { count: totalDepartments }] = await Promise.all([
       supabase.rpc("get_profile_count"),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "lecturer").eq("approved", true),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "lecturer").eq("approved", false),
@@ -220,8 +235,11 @@ const AdminDashboard = () => {
       supabase.from("live_streams").select("*", { count: "exact", head: true }),
       supabase.from("college_registrations").select("*", { count: "exact", head: true }),
       supabase.from("college_registrations").select("*", { count: "exact", head: true }).eq("status", "pending"),
+      supabase.from("institute_registrations" as any).select("*", { count: "exact", head: true }),
+      supabase.from("institute_registrations" as any).select("*", { count: "exact", head: true }).eq("status", "pending"),
+      supabase.from("departments" as any).select("*", { count: "exact", head: true }),
     ]);
-    setStats({ totalUsers: Number(totalUsers) || 0, totalLecturers: totalLecturers || 0, pendingCount: pendingCount || 0, totalCourses: totalCourses || 0, totalViews: totalViews || 0, pendingSchools: pendingSchools || 0, totalBooks: totalBooks || 0, totalOrders: totalOrders || 0, totalSubscriptions: totalSubscriptions || 0, totalStreams: totalStreams || 0, totalRevenue: 0, totalColleges: totalColleges || 0, pendingColleges: pendingColleges || 0 });
+    setStats({ totalUsers: Number(totalUsers) || 0, totalLecturers: totalLecturers || 0, pendingCount: pendingCount || 0, totalCourses: totalCourses || 0, totalViews: totalViews || 0, pendingSchools: pendingSchools || 0, totalBooks: totalBooks || 0, totalOrders: totalOrders || 0, totalSubscriptions: totalSubscriptions || 0, totalStreams: totalStreams || 0, totalRevenue: 0, totalColleges: totalColleges || 0, pendingColleges: pendingColleges || 0, totalInstitutes: totalInstitutes || 0, pendingInstitutes: pendingInstitutes || 0, totalDepartments: totalDepartments || 0 });
   };
 
   // ── CRUD Handlers ──

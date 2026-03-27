@@ -1442,6 +1442,129 @@ const AdminDashboard = () => {
           )}
         </DialogContent>
       </Dialog>
+      {/* ===== Institute Detail Dialog ===== */}
+      <Dialog open={showInstituteDialog} onOpenChange={setShowInstituteDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>{ar("تفاصيل طلب المعهد","Institute Registration Details")}</DialogTitle></DialogHeader>
+          {selectedInstitute && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-violet-100 flex items-center justify-center"><Landmark className="w-8 h-8 text-violet-600" /></div>
+                <div><p className="text-lg font-bold text-foreground">{selectedInstitute.institute_name}</p>{statusBadge(selectedInstitute.status)}</div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex items-center gap-2"><Users className="w-4 h-4 text-muted-foreground" /><div><p className="text-muted-foreground">{ar("المدير","Director")}</p><p className="font-medium text-foreground">{selectedInstitute.director_name}</p></div></div>
+                <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-muted-foreground" /><div><p className="text-muted-foreground">{ar("المدينة","City")}</p><p className="font-medium text-foreground">{selectedInstitute.city}</p></div></div>
+                <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-muted-foreground" /><div><p className="text-muted-foreground">{ar("الهاتف","Phone")}</p><p className="font-medium text-foreground">{selectedInstitute.phone}</p></div></div>
+                <div className="flex items-center gap-2"><Mail className="w-4 h-4 text-muted-foreground" /><div><p className="text-muted-foreground">{ar("البريد","Email")}</p><p className="font-medium text-foreground">{selectedInstitute.email}</p></div></div>
+              </div>
+              {selectedInstitute.specialization && (
+                <div className="text-sm border-t border-border pt-3">
+                  <p className="text-muted-foreground">{ar("التخصص الرئيسي","Main Specialization")}</p>
+                  <p className="font-medium text-foreground mt-1">{selectedInstitute.specialization}</p>
+                </div>
+              )}
+              {selectedInstitute.message && (
+                <div className="text-sm border-t border-border pt-3">
+                  <p className="text-muted-foreground flex items-center gap-1"><MessageSquare className="w-4 h-4" />{ar("رسالة المعهد","Institute Message")}</p>
+                  <p className="font-medium text-foreground mt-1">{selectedInstitute.message}</p>
+                </div>
+              )}
+              <div className="border-t border-border pt-3">
+                <p className="text-sm text-muted-foreground mb-2 flex items-center gap-1"><FileText className="w-4 h-4" />{ar("ملاحظات الأدمن","Admin Notes")}</p>
+                <Textarea value={instituteAdminNotes} onChange={e => setInstituteAdminNotes(e.target.value)} placeholder={ar("أضف ملاحظاتك هنا...","Add your notes here...")} className="min-h-[80px]" />
+              </div>
+              {selectedInstitute.status === "pending" && (
+                <div className="flex gap-3 pt-2">
+                  <Button className="flex-1 gap-1.5" onClick={() => handleInstituteApprove(selectedInstitute.id)}><CheckCircle className="w-4 h-4" />{ar("قبول","Approve")}</Button>
+                  <Button variant="destructive" className="flex-1 gap-1.5" onClick={() => handleInstituteReject(selectedInstitute.id)}><XCircle className="w-4 h-4" />{ar("رفض","Reject")}</Button>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ===== Create Department Dialog ===== */}
+      <Dialog open={showDeptDialog} onOpenChange={setShowDeptDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>{ar("إنشاء قسم جديد","Create New Department")}</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label>{ar(selectedDeptInstitutionType === "college" ? "الكلية" : "المعهد", selectedDeptInstitutionType === "college" ? "College" : "Institute")}</Label>
+              <select
+                className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
+                value={selectedDeptInstitutionId}
+                onChange={e => setSelectedDeptInstitutionId(e.target.value)}
+              >
+                <option value="">{ar("اختر","Select")}</option>
+                {selectedDeptInstitutionType === "college"
+                  ? colleges.filter(c => c.status === "approved").map(c => <option key={c.id} value={c.id}>{c.college_name}</option>)
+                  : institutes.filter(i => i.status === "approved").map(i => <option key={i.id} value={i.id}>{i.institute_name}</option>)
+                }
+              </select>
+            </div>
+            <Field label={ar("اسم القسم","Department Name")} value={newDeptName} onChange={setNewDeptName} />
+            <Field label={ar("عدد الطلاب","Number of Students")} value={newDeptStudentCount} onChange={setNewDeptStudentCount} type="number" />
+            {newDeptStudentCount && parseInt(newDeptStudentCount) > 0 && (
+              <div className="rounded-lg border-2 border-primary/20 bg-primary/5 p-3 text-center">
+                <p className="text-sm text-muted-foreground">{ar("تكلفة الاشتراك","Subscription Cost")}</p>
+                <p className="text-2xl font-black text-primary">{parseInt(newDeptStudentCount) * 299} {ar("جنيه","EGP")}</p>
+                <p className="text-xs text-muted-foreground">{newDeptStudentCount} {ar("طالب","students")} × 299 {ar("جنيه","EGP")}</p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeptDialog(false)}>{ar("إلغاء","Cancel")}</Button>
+            <Button onClick={handleCreateDepartment} disabled={!selectedDeptInstitutionId || !newDeptName}>{ar("إنشاء","Create")}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ===== Add Department Members Dialog ===== */}
+      <Dialog open={showAddMembersDialog} onOpenChange={setShowAddMembersDialog}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>{ar("إضافة أعضاء للقسم","Add Department Members")}</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <Field label={ar("الاسم الكامل","Full Name")} value={newMemberName} onChange={setNewMemberName} />
+              <div className="space-y-1.5">
+                <Label className="text-sm">{ar("الدور","Role")}</Label>
+                <select
+                  className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
+                  value={newMemberRole}
+                  onChange={e => setNewMemberRole(e.target.value)}
+                >
+                  <option value="student">{ar("طالب","Student")}</option>
+                  <option value="lecturer">{ar("محاضر","Lecturer")}</option>
+                </select>
+              </div>
+            </div>
+            <Field label={ar("تاريخ الميلاد","Date of Birth")} value={newMemberDob} onChange={setNewMemberDob} type="date" />
+            <Button className="w-full gap-1.5" onClick={handleAddDepartmentMember} disabled={!newMemberName}>
+              <Users className="w-4 h-4" />{ar("إضافة العضو","Add Member")}
+            </Button>
+            {/* Current members list */}
+            {selectedDeptId && getMembersForDepartment(selectedDeptId).length > 0 && (
+              <div className="border-t border-border pt-3 space-y-2">
+                <p className="text-sm font-semibold text-foreground">{ar("الأعضاء الحاليين","Current Members")} ({getMembersForDepartment(selectedDeptId).length})</p>
+                {getMembersForDepartment(selectedDeptId).map(m => (
+                  <div key={m.id} className="flex items-center justify-between text-sm bg-muted/30 rounded px-3 py-2">
+                    <div>
+                      <span className="font-medium text-foreground">{m.full_name}</span>
+                      {m.date_of_birth && <span className="text-xs text-muted-foreground ms-2">{m.date_of_birth}</span>}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs">{m.role === "student" ? ar("طالب","Student") : ar("محاضر","Lecturer")}</Badge>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setDeleteTarget({ type: "dept_member", id: m.id, name: m.full_name })}><Trash2 className="w-3 h-3 text-destructive" /></Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

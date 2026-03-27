@@ -567,6 +567,89 @@ export type Database = {
         }
         Relationships: []
       }
+      department_members: {
+        Row: {
+          created_at: string
+          date_of_birth: string | null
+          department_id: string
+          full_name: string
+          id: string
+          invitation_code: string | null
+          photo_url: string | null
+          role: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          date_of_birth?: string | null
+          department_id: string
+          full_name: string
+          id?: string
+          invitation_code?: string | null
+          photo_url?: string | null
+          role?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          date_of_birth?: string | null
+          department_id?: string
+          full_name?: string
+          id?: string
+          invitation_code?: string | null
+          photo_url?: string | null
+          role?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "department_members_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      departments: {
+        Row: {
+          created_at: string
+          department_name: string
+          id: string
+          institution_id: string
+          institution_type: string
+          payment_amount: number
+          payment_status: string
+          status: string
+          student_count: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          department_name: string
+          id?: string
+          institution_id: string
+          institution_type?: string
+          payment_amount?: number
+          payment_status?: string
+          status?: string
+          student_count?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          department_name?: string
+          id?: string
+          institution_id?: string
+          institution_type?: string
+          payment_amount?: number
+          payment_status?: string
+          status?: string
+          student_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       institute_registrations: {
         Row: {
           address: string | null

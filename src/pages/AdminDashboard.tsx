@@ -88,7 +88,28 @@ const AdminDashboard = () => {
   const [newInvitationRole, setNewInvitationRole] = useState("student");
   const [newInvitationMaxUses, setNewInvitationMaxUses] = useState("0");
 
-  const [stats, setStats] = useState({ totalUsers: 0, totalLecturers: 0, pendingCount: 0, totalCourses: 0, totalViews: 0, pendingSchools: 0, totalBooks: 0, totalOrders: 0, totalSubscriptions: 0, totalStreams: 0, totalRevenue: 0, totalColleges: 0, pendingColleges: 0 });
+  // Institute states
+  const [institutes, setInstitutes] = useState<InstituteRegistration[]>([]);
+  const [instituteSearch, setInstituteSearch] = useState("");
+  const [selectedInstitute, setSelectedInstitute] = useState<InstituteRegistration | null>(null);
+  const [showInstituteDialog, setShowInstituteDialog] = useState(false);
+  const [instituteAdminNotes, setInstituteAdminNotes] = useState("");
+
+  // Department states
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [departmentMembers, setDepartmentMembers] = useState<DepartmentMember[]>([]);
+  const [showDeptDialog, setShowDeptDialog] = useState(false);
+  const [selectedDeptInstitutionId, setSelectedDeptInstitutionId] = useState("");
+  const [selectedDeptInstitutionType, setSelectedDeptInstitutionType] = useState<"college" | "institute">("college");
+  const [newDeptName, setNewDeptName] = useState("");
+  const [newDeptStudentCount, setNewDeptStudentCount] = useState("");
+  const [showAddMembersDialog, setShowAddMembersDialog] = useState(false);
+  const [selectedDeptId, setSelectedDeptId] = useState("");
+  const [newMemberName, setNewMemberName] = useState("");
+  const [newMemberRole, setNewMemberRole] = useState("student");
+  const [newMemberDob, setNewMemberDob] = useState("");
+
+  const [stats, setStats] = useState({ totalUsers: 0, totalLecturers: 0, pendingCount: 0, totalCourses: 0, totalViews: 0, pendingSchools: 0, totalBooks: 0, totalOrders: 0, totalSubscriptions: 0, totalStreams: 0, totalRevenue: 0, totalColleges: 0, pendingColleges: 0, totalInstitutes: 0, pendingInstitutes: 0, totalDepartments: 0 });
 
   const [selectedUser, setSelectedUser] = useState<(UserRole & { profile?: Profile }) | null>(null);
   const [showDetailDialog, setShowDetailDialog] = useState(false);

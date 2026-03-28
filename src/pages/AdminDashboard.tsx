@@ -109,6 +109,19 @@ const AdminDashboard = () => {
   const [newMemberRole, setNewMemberRole] = useState("student");
   const [newMemberDob, setNewMemberDob] = useState("");
 
+  // Payment states
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [paymentDept, setPaymentDept] = useState<Department | null>(null);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [paymentCardNumber, setPaymentCardNumber] = useState("");
+  const [paymentCardName, setPaymentCardName] = useState("");
+  const [paymentExpiry, setPaymentExpiry] = useState("");
+  const [paymentCvv, setPaymentCvv] = useState("");
+
+  // Invitation codes display
+  const [showInvitationCodesDialog, setShowInvitationCodesDialog] = useState(false);
+  const [generatedCodes, setGeneratedCodes] = useState<DepartmentMember[]>([]);
+
   const [stats, setStats] = useState({ totalUsers: 0, totalLecturers: 0, pendingCount: 0, totalCourses: 0, totalViews: 0, pendingSchools: 0, totalBooks: 0, totalOrders: 0, totalSubscriptions: 0, totalStreams: 0, totalRevenue: 0, totalColleges: 0, pendingColleges: 0, totalInstitutes: 0, pendingInstitutes: 0, totalDepartments: 0 });
 
   const [selectedUser, setSelectedUser] = useState<(UserRole & { profile?: Profile }) | null>(null);

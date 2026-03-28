@@ -379,6 +379,23 @@ const Signup = () => {
                     <p className="text-xs text-destructive mt-1">{t.signupPage.passwordMismatch}</p>
                   )}
                 </div>
+                <div>
+                  <Label htmlFor="invitationCode" className="mb-2 block font-semibold">
+                    <Ticket className="w-4 h-4 inline me-1" />
+                    {language === "ar" ? "كود الدعوة (اختياري)" : "Invitation Code (Optional)"}
+                  </Label>
+                  <Input 
+                    id="invitationCode" 
+                    placeholder={language === "ar" ? "أدخل كود الدعوة إن وجد" : "Enter invitation code if you have one"} 
+                    value={invitationCode} 
+                    onChange={(e) => setInvitationCode(e.target.value)} 
+                    className="h-12" 
+                    dir="ltr" 
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {language === "ar" ? "إذا تلقيت كود دعوة من كلية أو معهد، أدخله هنا" : "If you received an invitation code from a college or institute, enter it here"}
+                  </p>
+                </div>
               </div>
 
               <Separator />

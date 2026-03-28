@@ -387,13 +387,13 @@ const AdminDashboard = () => {
     setShowPaymentDialog(false);
     setPaymentCardNumber(""); setPaymentCardName(""); setPaymentExpiry(""); setPaymentCvv("");
     showSuccess(language === "ar" ? "تم الدفع بنجاح وتم توليد أكواد الدعوة" : "Payment successful, invitation codes generated");
-    await Promise.all([loadDepartments(), loadDepartmentMembers()]);
     
-    // Show invitation codes
-    const updatedMembers = getMembersForDepartment(paymentDept.id);
-    setGeneratedCodes(updatedMembers);
+    // Fetch fresh members for this department
+    const { data: freshMembers } = await supabase.from("department_members" as any).select("*").eq("department_id", paymentDept.id);
+    setGeneratedCodes((freshMembers as DepartmentMember[]) || []);
     setShowInvitationCodesDialog(true);
     setPaymentDept(null);
+    await Promise.all([loadDepartments(), loadDepartmentMembers()]);
   };
 
   const copyDeptInviteLink = (code: string, role: string) => {

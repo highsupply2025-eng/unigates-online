@@ -894,8 +894,21 @@ const AdminDashboard = () => {
                               return (
                                 <div key={dept.id} className="bg-muted/30 rounded-lg p-2 text-xs" onClick={e => e.stopPropagation()}>
                                   <div className="flex items-center justify-between">
-                                    <span className="font-medium">{dept.department_name} ({deptMembers.length} {ar("عضو","members")})</span>
+                                    <div>
+                                      <span className="font-medium">{dept.department_name} ({deptMembers.length} {ar("عضو","members")})</span>
+                                      <span className="ms-2 text-muted-foreground">{dept.payment_amount} {ar("جنيه","EGP")}</span>
+                                    </div>
                                     <div className="flex items-center gap-1">
+                                      {dept.payment_status !== "paid" && deptMembers.length > 0 && (
+                                        <Button variant="default" size="sm" className="h-6 text-xs gap-1" onClick={() => { setPaymentDept(dept); setShowPaymentDialog(true); }}>
+                                          <CreditCard className="w-3 h-3" />{ar("دفع","Pay")}
+                                        </Button>
+                                      )}
+                                      {dept.payment_status === "paid" && (
+                                        <Button variant="outline" size="sm" className="h-6 text-xs gap-1" onClick={() => { setGeneratedCodes(deptMembers); setShowInvitationCodesDialog(true); }}>
+                                          <LinkIcon className="w-3 h-3" />{ar("أكواد","Codes")}
+                                        </Button>
+                                      )}
                                       <Button variant="outline" size="sm" className="h-6 text-xs gap-1" onClick={() => { setSelectedDeptId(dept.id); setShowAddMembersDialog(true); }}>
                                         <Users className="w-3 h-3" />{ar("أعضاء","Members")}
                                       </Button>

@@ -188,6 +188,48 @@ const Signup = () => {
       const result = rpcResult as any;
       if (result && !result.success) throw new Error(result.error);
 
+      // Link user to department member if invitation code exists
+      if (invitationCode && userId) {
+        // Try department invitation code
+        const { data: deptMember } = await supabase
+          .from("department_members" as any)
+          .select("*")
+          .eq("invitation_code", invitationCode)
+          .is("user_id", null)
+          .limit(1)
+          .single();
+        
+        if (deptMember) {
+          await supabase
+            .from("department_members" as any)
+            .update({ user_id: userId })
+            .eq("id", (deptMember as any).id);
+        } else {
+          // Try college invitation code
+          const { data: collegeInv } = await supabase
+            .from("college_invitations")
+            .select("*")
+            .eq("invitation_code", invitationCode)
+            .eq("is_active", true)
+            .limit(1)
+            .single();
+          
+          if (collegeInv) {
+            await supabase.from("college_members").insert({
+              college_id: collegeInv.college_id,
+              user_id: userId,
+              role: collegeInv.role,
+              invitation_id: collegeInv.id,
+            });
+            // Increment used_count
+            await supabase
+              .from("college_invitations")
+              .update({ used_count: (collegeInv.used_count || 0) + 1 })
+              .eq("id", collegeInv.id);
+          }
+        }
+      }
+
       setSubmitted(true);
     } catch (error: any) {
       toast({ title: t.signupPage.errorGeneric, description: error.message, variant: "destructive" });

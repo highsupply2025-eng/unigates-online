@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
-import { Link, useParams } from "react-router-dom";
-import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, Globe, Phone, User, BookOpenCheck, Building2, Landmark } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
+import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, Globe, Phone, User, BookOpenCheck, Building2, Landmark, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,8 +50,13 @@ const additionalLinks = [
 
 const Signup = () => {
   const { role: roleParam } = useParams<{ role: string }>();
+  const [searchParams] = useSearchParams();
+  const deptInviteFromUrl = searchParams.get("dept_invite") || "";
+  const roleFromUrl = searchParams.get("role") || "";
+  const collegeInviteFromUrl = searchParams.get("invite") || "";
+  
   const [selectedRole, setSelectedRole] = useState<"personal" | "lecturer" | null>(
-    roleParam === "lecturer" ? "lecturer" : roleParam ? "personal" : null
+    roleParam === "lecturer" || roleFromUrl === "lecturer" ? "lecturer" : roleParam ? "personal" : roleFromUrl === "student" ? "personal" : null
   );
   const role = selectedRole || "personal";
   const isLecturer = role === "lecturer";
@@ -81,6 +86,7 @@ const Signup = () => {
 
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [invitationCode, setInvitationCode] = useState(deptInviteFromUrl || collegeInviteFromUrl);
   const { toast } = useToast();
 
   const handleFileSelect = (
@@ -181,6 +187,48 @@ const Signup = () => {
       if (rpcError) throw rpcError;
       const result = rpcResult as any;
       if (result && !result.success) throw new Error(result.error);
+
+      // Link user to department member if invitation code exists
+      if (invitationCode && userId) {
+        // Try department invitation code
+        const { data: deptMember } = await supabase
+          .from("department_members" as any)
+          .select("*")
+          .eq("invitation_code", invitationCode)
+          .is("user_id", null)
+          .limit(1)
+          .single();
+        
+        if (deptMember) {
+          await supabase
+            .from("department_members" as any)
+            .update({ user_id: userId })
+            .eq("id", (deptMember as any).id);
+        } else {
+          // Try college invitation code
+          const { data: collegeInv } = await supabase
+            .from("college_invitations")
+            .select("*")
+            .eq("invitation_code", invitationCode)
+            .eq("is_active", true)
+            .limit(1)
+            .single();
+          
+          if (collegeInv) {
+            await supabase.from("college_members").insert({
+              college_id: collegeInv.college_id,
+              user_id: userId,
+              role: collegeInv.role,
+              invitation_id: collegeInv.id,
+            });
+            // Increment used_count
+            await supabase
+              .from("college_invitations")
+              .update({ used_count: (collegeInv.used_count || 0) + 1 })
+              .eq("id", collegeInv.id);
+          }
+        }
+      }
 
       setSubmitted(true);
     } catch (error: any) {
@@ -330,6 +378,23 @@ const Signup = () => {
                   {confirmPassword && password !== confirmPassword && (
                     <p className="text-xs text-destructive mt-1">{t.signupPage.passwordMismatch}</p>
                   )}
+                </div>
+                <div>
+                  <Label htmlFor="invitationCode" className="mb-2 block font-semibold">
+                    <Ticket className="w-4 h-4 inline me-1" />
+                    {language === "ar" ? "كود الدعوة (اختياري)" : "Invitation Code (Optional)"}
+                  </Label>
+                  <Input 
+                    id="invitationCode" 
+                    placeholder={language === "ar" ? "أدخل كود الدعوة إن وجد" : "Enter invitation code if you have one"} 
+                    value={invitationCode} 
+                    onChange={(e) => setInvitationCode(e.target.value)} 
+                    className="h-12" 
+                    dir="ltr" 
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {language === "ar" ? "إذا تلقيت كود دعوة من كلية أو معهد، أدخله هنا" : "If you received an invitation code from a college or institute, enter it here"}
+                  </p>
                 </div>
               </div>
 

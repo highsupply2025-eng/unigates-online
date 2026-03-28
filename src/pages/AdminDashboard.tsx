@@ -109,6 +109,19 @@ const AdminDashboard = () => {
   const [newMemberRole, setNewMemberRole] = useState("student");
   const [newMemberDob, setNewMemberDob] = useState("");
 
+  // Payment states
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [paymentDept, setPaymentDept] = useState<Department | null>(null);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [paymentCardNumber, setPaymentCardNumber] = useState("");
+  const [paymentCardName, setPaymentCardName] = useState("");
+  const [paymentExpiry, setPaymentExpiry] = useState("");
+  const [paymentCvv, setPaymentCvv] = useState("");
+
+  // Invitation codes display
+  const [showInvitationCodesDialog, setShowInvitationCodesDialog] = useState(false);
+  const [generatedCodes, setGeneratedCodes] = useState<DepartmentMember[]>([]);
+
   const [stats, setStats] = useState({ totalUsers: 0, totalLecturers: 0, pendingCount: 0, totalCourses: 0, totalViews: 0, pendingSchools: 0, totalBooks: 0, totalOrders: 0, totalSubscriptions: 0, totalStreams: 0, totalRevenue: 0, totalColleges: 0, pendingColleges: 0, totalInstitutes: 0, pendingInstitutes: 0, totalDepartments: 0 });
 
   const [selectedUser, setSelectedUser] = useState<(UserRole & { profile?: Profile }) | null>(null);
@@ -331,16 +344,62 @@ const AdminDashboard = () => {
 
   const handleAddDepartmentMember = async () => {
     if (!selectedDeptId || !newMemberName) return;
+    const invCode = crypto.randomUUID().replace(/-/g, "").slice(0, 12);
     const { error } = await supabase.from("department_members" as any).insert({
       department_id: selectedDeptId,
       full_name: newMemberName,
       role: newMemberRole,
       date_of_birth: newMemberDob || null,
+      invitation_code: invCode,
     });
     if (error) { showError(error.message); return; }
     showSuccess(language === "ar" ? "تم إضافة العضو" : "Member added");
     setNewMemberName(""); setNewMemberDob("");
     await loadDepartmentMembers();
+  };
+
+  // Payment handler
+  const handleDeptPayment = async () => {
+    if (!paymentDept) return;
+    setPaymentProcessing(true);
+    // Simulate payment processing
+    await new Promise(r => setTimeout(r, 2000));
+    
+    // Update department payment status
+    const { error } = await supabase.from("departments" as any)
+      .update({ payment_status: "paid", status: "active" })
+      .eq("id", paymentDept.id);
+    
+    if (error) { showError(error.message); setPaymentProcessing(false); return; }
+    
+    // Generate invitation codes for all members without one
+    const members = getMembersForDepartment(paymentDept.id);
+    for (const member of members) {
+      if (!member.invitation_code) {
+        const code = crypto.randomUUID().replace(/-/g, "").slice(0, 12);
+        await supabase.from("department_members" as any)
+          .update({ invitation_code: code })
+          .eq("id", member.id);
+      }
+    }
+    
+    setPaymentProcessing(false);
+    setShowPaymentDialog(false);
+    setPaymentCardNumber(""); setPaymentCardName(""); setPaymentExpiry(""); setPaymentCvv("");
+    showSuccess(language === "ar" ? "تم الدفع بنجاح وتم توليد أكواد الدعوة" : "Payment successful, invitation codes generated");
+    
+    // Fetch fresh members for this department
+    const { data: freshMembers } = await supabase.from("department_members" as any).select("*").eq("department_id", paymentDept.id);
+    setGeneratedCodes((freshMembers as unknown as DepartmentMember[]) || []);
+    setShowInvitationCodesDialog(true);
+    setPaymentDept(null);
+    await Promise.all([loadDepartments(), loadDepartmentMembers()]);
+  };
+
+  const copyDeptInviteLink = (code: string, role: string) => {
+    const link = `${window.location.origin}/signup?dept_invite=${code}&role=${role}`;
+    navigator.clipboard.writeText(link);
+    showSuccess(language === "ar" ? "تم نسخ رابط الدعوة" : "Invitation link copied");
   };
 
   const handleCreateInvitation = async () => {
@@ -835,8 +894,21 @@ const AdminDashboard = () => {
                               return (
                                 <div key={dept.id} className="bg-muted/30 rounded-lg p-2 text-xs" onClick={e => e.stopPropagation()}>
                                   <div className="flex items-center justify-between">
-                                    <span className="font-medium">{dept.department_name} ({deptMembers.length} {ar("عضو","members")})</span>
+                                    <div>
+                                      <span className="font-medium">{dept.department_name} ({deptMembers.length} {ar("عضو","members")})</span>
+                                      <span className="ms-2 text-muted-foreground">{dept.payment_amount} {ar("جنيه","EGP")}</span>
+                                    </div>
                                     <div className="flex items-center gap-1">
+                                      {dept.payment_status !== "paid" && deptMembers.length > 0 && (
+                                        <Button variant="default" size="sm" className="h-6 text-xs gap-1" onClick={() => { setPaymentDept(dept); setShowPaymentDialog(true); }}>
+                                          <CreditCard className="w-3 h-3" />{ar("دفع","Pay")}
+                                        </Button>
+                                      )}
+                                      {dept.payment_status === "paid" && (
+                                        <Button variant="outline" size="sm" className="h-6 text-xs gap-1" onClick={() => { setGeneratedCodes(deptMembers); setShowInvitationCodesDialog(true); }}>
+                                          <LinkIcon className="w-3 h-3" />{ar("أكواد","Codes")}
+                                        </Button>
+                                      )}
                                       <Button variant="outline" size="sm" className="h-6 text-xs gap-1" onClick={() => { setSelectedDeptId(dept.id); setShowAddMembersDialog(true); }}>
                                         <Users className="w-3 h-3" />{ar("أعضاء","Members")}
                                       </Button>
@@ -910,10 +982,21 @@ const AdminDashboard = () => {
                                       <div className="flex gap-3 text-xs text-muted-foreground mt-1">
                                         <span>{students.length} {ar("طالب","students")}</span>
                                         <span>{lecturers.length} {ar("محاضر","lecturers")}</span>
+                                        <span>{dept.payment_amount} {ar("جنيه","EGP")}</span>
                                         <span>{statusBadge(dept.payment_status === "paid" ? "approved" : "pending")}</span>
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-2">
+                                      {dept.payment_status !== "paid" && members.length > 0 && (
+                                        <Button variant="default" size="sm" className="gap-1 text-xs" onClick={() => { setPaymentDept(dept); setShowPaymentDialog(true); }}>
+                                          <CreditCard className="w-3 h-3" />{ar("دفع","Pay")}
+                                        </Button>
+                                      )}
+                                      {dept.payment_status === "paid" && (
+                                        <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => { setGeneratedCodes(members); setShowInvitationCodesDialog(true); }}>
+                                          <LinkIcon className="w-3 h-3" />{ar("أكواد الدعوة","Invite Codes")}
+                                        </Button>
+                                      )}
                                       <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => { setSelectedDeptId(dept.id); setShowAddMembersDialog(true); }}>
                                         <Users className="w-3 h-3" />{ar("إضافة أعضاء","Add Members")}
                                       </Button>
@@ -924,10 +1007,17 @@ const AdminDashboard = () => {
                                     <div className="space-y-1">
                                       {members.slice(0, 5).map(m => (
                                         <div key={m.id} className="flex items-center justify-between text-xs bg-background rounded px-2 py-1">
-                                          <span className="font-medium">{m.full_name}</span>
+                                          <div className="flex items-center gap-2">
+                                            <span className="font-medium">{m.full_name}</span>
+                                            {m.invitation_code && <code className="text-muted-foreground bg-muted px-1 rounded">{m.invitation_code}</code>}
+                                          </div>
                                           <div className="flex items-center gap-2">
                                             <Badge variant="outline" className="text-xs">{m.role === "student" ? ar("طالب","Student") : ar("محاضر","Lecturer")}</Badge>
-                                            {m.date_of_birth && <span className="text-muted-foreground">{m.date_of_birth}</span>}
+                                            {m.invitation_code && (
+                                              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => copyDeptInviteLink(m.invitation_code!, m.role)}>
+                                                <Copy className="w-3 h-3" />
+                                              </Button>
+                                            )}
                                             <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setDeleteTarget({ type: "dept_member", id: m.id, name: m.full_name })}><Trash2 className="w-3 h-3 text-destructive" /></Button>
                                           </div>
                                         </div>
@@ -1558,6 +1648,108 @@ const AdminDashboard = () => {
                       <Badge variant="outline" className="text-xs">{m.role === "student" ? ar("طالب","Student") : ar("محاضر","Lecturer")}</Badge>
                       <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setDeleteTarget({ type: "dept_member", id: m.id, name: m.full_name })}><Trash2 className="w-3 h-3 text-destructive" /></Button>
                     </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ===== Payment Dialog ===== */}
+      <Dialog open={showPaymentDialog} onOpenChange={open => { if (!open && !paymentProcessing) { setShowPaymentDialog(false); setPaymentDept(null); } }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>{ar("دفع اشتراك القسم","Department Subscription Payment")}</DialogTitle></DialogHeader>
+          {paymentDept && (
+            <div className="space-y-4">
+              <div className="rounded-xl border-2 border-primary/20 bg-primary/5 p-4 text-center">
+                <p className="text-sm text-muted-foreground mb-1">{ar("المبلغ المطلوب","Amount Due")}</p>
+                <p className="text-3xl font-black text-primary">{paymentDept.payment_amount} {ar("جنيه","EGP")}</p>
+                <p className="text-xs text-muted-foreground mt-1">{paymentDept.student_count} {ar("طالب","students")} × 299 {ar("جنيه","EGP")}</p>
+                <p className="text-xs font-medium text-foreground mt-1">{paymentDept.department_name}</p>
+              </div>
+              <div className="space-y-3">
+                <Field label={ar("رقم البطاقة","Card Number")} value={paymentCardNumber} onChange={setPaymentCardNumber} />
+                <Field label={ar("اسم حامل البطاقة","Cardholder Name")} value={paymentCardName} onChange={setPaymentCardName} />
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label={ar("تاريخ الانتهاء","Expiry")} value={paymentExpiry} onChange={setPaymentExpiry} />
+                  <Field label="CVV" value={paymentCvv} onChange={setPaymentCvv} />
+                </div>
+              </div>
+              <div className="rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground text-center">
+                <CreditCard className="w-5 h-5 mx-auto mb-1" />
+                {ar("هذه واجهة دفع تجريبية - لا يتم خصم أي مبالغ حقيقية","This is a demo payment interface - no real charges will be made")}
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setShowPaymentDialog(false); setPaymentDept(null); }} disabled={paymentProcessing}>{ar("إلغاء","Cancel")}</Button>
+            <Button onClick={handleDeptPayment} disabled={paymentProcessing} className="gap-1.5">
+              {paymentProcessing ? (
+                <><div className="animate-spin w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full" />{ar("جاري الدفع...","Processing...")}</>
+              ) : (
+                <><CreditCard className="w-4 h-4" />{ar("ادفع الآن","Pay Now")}</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ===== Invitation Codes Dialog ===== */}
+      <Dialog open={showInvitationCodesDialog} onOpenChange={setShowInvitationCodesDialog}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>{ar("أكواد وروابط الدعوة","Invitation Codes & Links")}</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div className="rounded-lg bg-green-50 border border-green-200 p-3 text-center">
+              <CheckCircle className="w-6 h-6 text-green-600 mx-auto mb-1" />
+              <p className="text-sm font-medium text-green-700">{ar("تم الدفع بنجاح! يمكنك الآن مشاركة أكواد الدعوة","Payment successful! You can now share invitation codes")}</p>
+            </div>
+            
+            {/* Lecturers */}
+            {generatedCodes.filter(m => m.role === "lecturer").length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-foreground">{ar("المحاضرون","Lecturers")}</p>
+                {generatedCodes.filter(m => m.role === "lecturer").map(m => (
+                  <div key={m.id} className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">{m.full_name}</p>
+                      <code className="text-xs text-muted-foreground">{m.invitation_code || "—"}</code>
+                    </div>
+                    {m.invitation_code && (
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={() => { navigator.clipboard.writeText(m.invitation_code!); showSuccess(ar("تم نسخ الكود","Code copied")); }}>
+                          <Copy className="w-3 h-3" />{ar("كود","Code")}
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={() => copyDeptInviteLink(m.invitation_code!, m.role)}>
+                          <LinkIcon className="w-3 h-3" />{ar("رابط","Link")}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Students */}
+            {generatedCodes.filter(m => m.role === "student").length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-foreground">{ar("الطلاب","Students")}</p>
+                {generatedCodes.filter(m => m.role === "student").map(m => (
+                  <div key={m.id} className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">{m.full_name}</p>
+                      <code className="text-xs text-muted-foreground">{m.invitation_code || "—"}</code>
+                    </div>
+                    {m.invitation_code && (
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={() => { navigator.clipboard.writeText(m.invitation_code!); showSuccess(ar("تم نسخ الكود","Code copied")); }}>
+                          <Copy className="w-3 h-3" />{ar("كود","Code")}
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={() => copyDeptInviteLink(m.invitation_code!, m.role)}>
+                          <LinkIcon className="w-3 h-3" />{ar("رابط","Link")}
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

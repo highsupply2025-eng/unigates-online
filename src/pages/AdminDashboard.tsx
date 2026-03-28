@@ -344,16 +344,62 @@ const AdminDashboard = () => {
 
   const handleAddDepartmentMember = async () => {
     if (!selectedDeptId || !newMemberName) return;
+    const invCode = crypto.randomUUID().replace(/-/g, "").slice(0, 12);
     const { error } = await supabase.from("department_members" as any).insert({
       department_id: selectedDeptId,
       full_name: newMemberName,
       role: newMemberRole,
       date_of_birth: newMemberDob || null,
+      invitation_code: invCode,
     });
     if (error) { showError(error.message); return; }
     showSuccess(language === "ar" ? "تم إضافة العضو" : "Member added");
     setNewMemberName(""); setNewMemberDob("");
     await loadDepartmentMembers();
+  };
+
+  // Payment handler
+  const handleDeptPayment = async () => {
+    if (!paymentDept) return;
+    setPaymentProcessing(true);
+    // Simulate payment processing
+    await new Promise(r => setTimeout(r, 2000));
+    
+    // Update department payment status
+    const { error } = await supabase.from("departments" as any)
+      .update({ payment_status: "paid", status: "active" })
+      .eq("id", paymentDept.id);
+    
+    if (error) { showError(error.message); setPaymentProcessing(false); return; }
+    
+    // Generate invitation codes for all members without one
+    const members = getMembersForDepartment(paymentDept.id);
+    for (const member of members) {
+      if (!member.invitation_code) {
+        const code = crypto.randomUUID().replace(/-/g, "").slice(0, 12);
+        await supabase.from("department_members" as any)
+          .update({ invitation_code: code })
+          .eq("id", member.id);
+      }
+    }
+    
+    setPaymentProcessing(false);
+    setShowPaymentDialog(false);
+    setPaymentCardNumber(""); setPaymentCardName(""); setPaymentExpiry(""); setPaymentCvv("");
+    showSuccess(language === "ar" ? "تم الدفع بنجاح وتم توليد أكواد الدعوة" : "Payment successful, invitation codes generated");
+    await Promise.all([loadDepartments(), loadDepartmentMembers()]);
+    
+    // Show invitation codes
+    const updatedMembers = getMembersForDepartment(paymentDept.id);
+    setGeneratedCodes(updatedMembers);
+    setShowInvitationCodesDialog(true);
+    setPaymentDept(null);
+  };
+
+  const copyDeptInviteLink = (code: string, role: string) => {
+    const link = `${window.location.origin}/signup?dept_invite=${code}&role=${role}`;
+    navigator.clipboard.writeText(link);
+    showSuccess(language === "ar" ? "تم نسخ رابط الدعوة" : "Invitation link copied");
   };
 
   const handleCreateInvitation = async () => {

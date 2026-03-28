@@ -86,6 +86,7 @@ const Signup = () => {
 
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [invitationCode, setInvitationCode] = useState(deptInviteFromUrl || collegeInviteFromUrl);
   const { toast } = useToast();
 
   const handleFileSelect = (

@@ -390,7 +390,7 @@ const AdminDashboard = () => {
     
     // Fetch fresh members for this department
     const { data: freshMembers } = await supabase.from("department_members" as any).select("*").eq("department_id", paymentDept.id);
-    setGeneratedCodes((freshMembers as DepartmentMember[]) || []);
+    setGeneratedCodes((freshMembers as unknown as DepartmentMember[]) || []);
     setShowInvitationCodesDialog(true);
     setPaymentDept(null);
     await Promise.all([loadDepartments(), loadDepartmentMembers()]);

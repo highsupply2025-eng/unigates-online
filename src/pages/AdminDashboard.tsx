@@ -1648,6 +1648,108 @@ const AdminDashboard = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* ===== Payment Dialog ===== */}
+      <Dialog open={showPaymentDialog} onOpenChange={open => { if (!open && !paymentProcessing) { setShowPaymentDialog(false); setPaymentDept(null); } }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>{ar("دفع اشتراك القسم","Department Subscription Payment")}</DialogTitle></DialogHeader>
+          {paymentDept && (
+            <div className="space-y-4">
+              <div className="rounded-xl border-2 border-primary/20 bg-primary/5 p-4 text-center">
+                <p className="text-sm text-muted-foreground mb-1">{ar("المبلغ المطلوب","Amount Due")}</p>
+                <p className="text-3xl font-black text-primary">{paymentDept.payment_amount} {ar("جنيه","EGP")}</p>
+                <p className="text-xs text-muted-foreground mt-1">{paymentDept.student_count} {ar("طالب","students")} × 299 {ar("جنيه","EGP")}</p>
+                <p className="text-xs font-medium text-foreground mt-1">{paymentDept.department_name}</p>
+              </div>
+              <div className="space-y-3">
+                <Field label={ar("رقم البطاقة","Card Number")} value={paymentCardNumber} onChange={setPaymentCardNumber} />
+                <Field label={ar("اسم حامل البطاقة","Cardholder Name")} value={paymentCardName} onChange={setPaymentCardName} />
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label={ar("تاريخ الانتهاء","Expiry")} value={paymentExpiry} onChange={setPaymentExpiry} />
+                  <Field label="CVV" value={paymentCvv} onChange={setPaymentCvv} />
+                </div>
+              </div>
+              <div className="rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground text-center">
+                <CreditCard className="w-5 h-5 mx-auto mb-1" />
+                {ar("هذه واجهة دفع تجريبية - لا يتم خصم أي مبالغ حقيقية","This is a demo payment interface - no real charges will be made")}
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setShowPaymentDialog(false); setPaymentDept(null); }} disabled={paymentProcessing}>{ar("إلغاء","Cancel")}</Button>
+            <Button onClick={handleDeptPayment} disabled={paymentProcessing} className="gap-1.5">
+              {paymentProcessing ? (
+                <><div className="animate-spin w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full" />{ar("جاري الدفع...","Processing...")}</>
+              ) : (
+                <><CreditCard className="w-4 h-4" />{ar("ادفع الآن","Pay Now")}</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ===== Invitation Codes Dialog ===== */}
+      <Dialog open={showInvitationCodesDialog} onOpenChange={setShowInvitationCodesDialog}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>{ar("أكواد وروابط الدعوة","Invitation Codes & Links")}</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div className="rounded-lg bg-green-50 border border-green-200 p-3 text-center">
+              <CheckCircle className="w-6 h-6 text-green-600 mx-auto mb-1" />
+              <p className="text-sm font-medium text-green-700">{ar("تم الدفع بنجاح! يمكنك الآن مشاركة أكواد الدعوة","Payment successful! You can now share invitation codes")}</p>
+            </div>
+            
+            {/* Lecturers */}
+            {generatedCodes.filter(m => m.role === "lecturer").length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-foreground">{ar("المحاضرون","Lecturers")}</p>
+                {generatedCodes.filter(m => m.role === "lecturer").map(m => (
+                  <div key={m.id} className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">{m.full_name}</p>
+                      <code className="text-xs text-muted-foreground">{m.invitation_code || "—"}</code>
+                    </div>
+                    {m.invitation_code && (
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={() => { navigator.clipboard.writeText(m.invitation_code!); showSuccess(ar("تم نسخ الكود","Code copied")); }}>
+                          <Copy className="w-3 h-3" />{ar("كود","Code")}
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={() => copyDeptInviteLink(m.invitation_code!, m.role)}>
+                          <LinkIcon className="w-3 h-3" />{ar("رابط","Link")}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Students */}
+            {generatedCodes.filter(m => m.role === "student").length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-foreground">{ar("الطلاب","Students")}</p>
+                {generatedCodes.filter(m => m.role === "student").map(m => (
+                  <div key={m.id} className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">{m.full_name}</p>
+                      <code className="text-xs text-muted-foreground">{m.invitation_code || "—"}</code>
+                    </div>
+                    {m.invitation_code && (
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={() => { navigator.clipboard.writeText(m.invitation_code!); showSuccess(ar("تم نسخ الكود","Code copied")); }}>
+                          <Copy className="w-3 h-3" />{ar("كود","Code")}
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={() => copyDeptInviteLink(m.invitation_code!, m.role)}>
+                          <LinkIcon className="w-3 h-3" />{ar("رابط","Link")}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

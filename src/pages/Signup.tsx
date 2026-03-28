@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, Globe, Phone, User, BookOpenCheck, Building2, Landmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

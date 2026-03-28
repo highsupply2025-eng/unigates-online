@@ -50,8 +50,13 @@ const additionalLinks = [
 
 const Signup = () => {
   const { role: roleParam } = useParams<{ role: string }>();
+  const [searchParams] = useSearchParams();
+  const deptInviteFromUrl = searchParams.get("dept_invite") || "";
+  const roleFromUrl = searchParams.get("role") || "";
+  const collegeInviteFromUrl = searchParams.get("invite") || "";
+  
   const [selectedRole, setSelectedRole] = useState<"personal" | "lecturer" | null>(
-    roleParam === "lecturer" ? "lecturer" : roleParam ? "personal" : null
+    roleParam === "lecturer" || roleFromUrl === "lecturer" ? "lecturer" : roleParam ? "personal" : roleFromUrl === "student" ? "personal" : null
   );
   const role = selectedRole || "personal";
   const isLecturer = role === "lecturer";

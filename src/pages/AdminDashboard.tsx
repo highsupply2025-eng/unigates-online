@@ -969,10 +969,21 @@ const AdminDashboard = () => {
                                       <div className="flex gap-3 text-xs text-muted-foreground mt-1">
                                         <span>{students.length} {ar("طالب","students")}</span>
                                         <span>{lecturers.length} {ar("محاضر","lecturers")}</span>
+                                        <span>{dept.payment_amount} {ar("جنيه","EGP")}</span>
                                         <span>{statusBadge(dept.payment_status === "paid" ? "approved" : "pending")}</span>
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-2">
+                                      {dept.payment_status !== "paid" && members.length > 0 && (
+                                        <Button variant="default" size="sm" className="gap-1 text-xs" onClick={() => { setPaymentDept(dept); setShowPaymentDialog(true); }}>
+                                          <CreditCard className="w-3 h-3" />{ar("دفع","Pay")}
+                                        </Button>
+                                      )}
+                                      {dept.payment_status === "paid" && (
+                                        <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => { setGeneratedCodes(members); setShowInvitationCodesDialog(true); }}>
+                                          <LinkIcon className="w-3 h-3" />{ar("أكواد الدعوة","Invite Codes")}
+                                        </Button>
+                                      )}
                                       <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => { setSelectedDeptId(dept.id); setShowAddMembersDialog(true); }}>
                                         <Users className="w-3 h-3" />{ar("إضافة أعضاء","Add Members")}
                                       </Button>

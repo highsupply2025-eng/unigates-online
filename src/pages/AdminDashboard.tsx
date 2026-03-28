@@ -1007,10 +1007,17 @@ const AdminDashboard = () => {
                                     <div className="space-y-1">
                                       {members.slice(0, 5).map(m => (
                                         <div key={m.id} className="flex items-center justify-between text-xs bg-background rounded px-2 py-1">
-                                          <span className="font-medium">{m.full_name}</span>
+                                          <div className="flex items-center gap-2">
+                                            <span className="font-medium">{m.full_name}</span>
+                                            {m.invitation_code && <code className="text-muted-foreground bg-muted px-1 rounded">{m.invitation_code}</code>}
+                                          </div>
                                           <div className="flex items-center gap-2">
                                             <Badge variant="outline" className="text-xs">{m.role === "student" ? ar("طالب","Student") : ar("محاضر","Lecturer")}</Badge>
-                                            {m.date_of_birth && <span className="text-muted-foreground">{m.date_of_birth}</span>}
+                                            {m.invitation_code && (
+                                              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => copyDeptInviteLink(m.invitation_code!, m.role)}>
+                                                <Copy className="w-3 h-3" />
+                                              </Button>
+                                            )}
                                             <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setDeleteTarget({ type: "dept_member", id: m.id, name: m.full_name })}><Trash2 className="w-3 h-3 text-destructive" /></Button>
                                           </div>
                                         </div>

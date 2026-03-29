@@ -160,26 +160,53 @@ const InstituteRegistration = () => {
                 </div>
               </div>
 
-              <div>
-                <Label className="mb-2 block font-semibold">
-                  {isRtl ? "الرقم السري" : "Password"} <span className="text-destructive">*</span>
-                </Label>
-                <div className="relative">
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    placeholder={isRtl ? "أدخل الرقم السري" : "Enter password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="h-12 pe-12"
-                    dir="ltr"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute top-1/2 -translate-y-1/2 end-3 text-muted-foreground hover:text-foreground"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label className="mb-2 block font-semibold">
+                    {isRtl ? "الرقم السري" : "Password"} <span className="text-destructive">*</span>
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder={isRtl ? "أدخل الرقم السري" : "Enter password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="h-12 pe-12 text-right"
+                      dir="rtl"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute top-1/2 -translate-y-1/2 start-3 text-muted-foreground hover:text-foreground"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <Label className="mb-2 block font-semibold">
+                    {isRtl ? "إعادة كتابة الرقم السري" : "Confirm Password"} <span className="text-destructive">*</span>
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder={isRtl ? "أعد كتابة الرقم السري" : "Re-enter password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="h-12 pe-12 text-right"
+                      dir="rtl"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute top-1/2 -translate-y-1/2 start-3 text-muted-foreground hover:text-foreground"
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                  {password && confirmPassword && password !== confirmPassword && (
+                    <p className="text-sm text-destructive mt-1">{isRtl ? "الرقم السري غير متطابق" : "Passwords do not match"}</p>
+                  )}
                 </div>
               </div>
 

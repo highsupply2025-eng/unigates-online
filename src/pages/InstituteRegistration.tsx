@@ -39,7 +39,7 @@ const InstituteRegistration = () => {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!instituteName || !city || !directorName || !email || !phone) {
+    if (!instituteName || !city || !directorName || !email || !phone || !password) {
       toast({
         title: isRtl ? "خطأ" : "Error",
         description: isRtl ? "يرجى ملء جميع الحقول المطلوبة" : "Please fill all required fields",

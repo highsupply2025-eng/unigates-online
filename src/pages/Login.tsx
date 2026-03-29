@@ -36,14 +36,61 @@ const Login = () => {
       const adminRole = roles?.find(r => r.role === "admin");
       const lecturerRole = roles?.find(r => r.role === "lecturer" && r.approved);
       const personalRole = roles?.find(r => r.role === "personal");
+      const studentRole = roles?.find(r => r.role === "student");
       
       if (adminRole) {
         navigate("/admin/dashboard");
       } else if (lecturerRole) {
         navigate("/lecturer/dashboard");
-      } else if (personalRole) {
+      } else if (personalRole || studentRole) {
         navigate("/student/dashboard");
       } else {
+        // Check if user is a college or institute
+        const userEmail = data.user.email;
+        const { data: collegeReg } = await supabase
+          .from("college_registrations")
+          .select("id, status")
+          .eq("email", userEmail)
+          .limit(1)
+          .maybeSingle();
+        
+        if (collegeReg) {
+          if (collegeReg.status === "approved") {
+            navigate("/admin/dashboard");
+          } else {
+            toast({
+              title: language === "ar" ? "الحساب قيد المراجعة" : "Account Under Review",
+              description: language === "ar" 
+                ? "طلب تسجيل كليتك لا يزال قيد المراجعة من قبل إدارة منصة إدراك" 
+                : "Your college registration is still under review by Edrak platform",
+            });
+            navigate("/");
+          }
+          return;
+        }
+
+        const { data: instituteReg } = await supabase
+          .from("institute_registrations")
+          .select("id, status")
+          .eq("email", userEmail)
+          .limit(1)
+          .maybeSingle();
+        
+        if (instituteReg) {
+          if (instituteReg.status === "approved") {
+            navigate("/admin/dashboard");
+          } else {
+            toast({
+              title: language === "ar" ? "الحساب قيد المراجعة" : "Account Under Review",
+              description: language === "ar"
+                ? "طلب تسجيل معهدك لا يزال قيد المراجعة من قبل إدارة منصة إدراك"
+                : "Your institute registration is still under review by Edrak platform",
+            });
+            navigate("/");
+          }
+          return;
+        }
+
         navigate("/");
       }
     } catch (error: any) {

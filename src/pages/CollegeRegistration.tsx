@@ -253,7 +253,7 @@ const CollegeRegistration = () => {
                 <div className="flex items-center justify-center gap-3">
                   <div className="bg-primary text-primary-foreground rounded-xl px-5 py-3 text-center">
                     <p className="text-3xl font-black">299</p>
-                    <p className="text-xs font-semibold opacity-90">{isRtl ? "جنيه / طالب" : "EGP / Student"}</p>
+                    <p className="text-xs font-semibold opacity-90">{isRtl ? "جنيه / طالب / شهرياً" : "EGP / Student / Monthly"}</p>
                   </div>
                 </div>
                 <div className="text-center space-y-2">

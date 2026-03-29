@@ -122,7 +122,7 @@ const SchoolSignup = () => {
           /* Step 1: Role Selection Cards */
           <div className="max-w-2xl w-full text-center">
             <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 shadow-lg shadow-primary/20 flex items-center justify-center">
                 <School className="w-8 h-8 text-primary" />
               </div>
             </div>
@@ -138,9 +138,9 @@ const SchoolSignup = () => {
                     key={r.value}
                     type="button"
                     onClick={() => setSelectedRole(r.value)}
-                    className="group p-5 rounded-2xl border-2 border-border bg-card hover:border-primary hover:shadow-lg transition-all duration-200 text-center"
+                    className="group p-5 rounded-2xl border-2 border-border bg-card hover:border-primary hover:shadow-xl shadow-md transition-all duration-200 text-center"
                   >
-                    <div className="w-14 h-14 rounded-xl bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center mx-auto mb-4 transition-colors">
+                    <div className="w-14 h-14 rounded-xl bg-primary/10 group-hover:bg-primary/20 shadow-md shadow-primary/10 flex items-center justify-center mx-auto mb-4 transition-all">
                       <Icon className="w-7 h-7 text-primary" />
                     </div>
                     <h3 className="text-base font-bold text-foreground mb-1">{isRtl ? r.labelAr : r.labelEn}</h3>
@@ -161,7 +161,7 @@ const SchoolSignup = () => {
                 {isRtl ? "تغيير نوع الحساب →" : "← Change account type"}
               </button>
               <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 shadow-lg shadow-primary/20 flex items-center justify-center">
                   <School className="w-8 h-8 text-primary" />
                 </div>
               </div>

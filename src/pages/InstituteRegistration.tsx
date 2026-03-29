@@ -243,7 +243,7 @@ const InstituteRegistration = () => {
                 <Textarea placeholder={isRtl ? "أي ملاحظات أو متطلبات خاصة..." : "Any notes or special requirements..."} value={message} onChange={(e) => setMessage(e.target.value)} className="min-h-[100px]" />
               </div>
 
-              <Button size="lg" className="w-full h-14 text-lg font-bold gap-2" disabled={!instituteName || !city || !directorName || !email || !phone || !password || loading} onClick={handleSubmit}>
+              <Button size="lg" className="w-full h-14 text-lg font-bold gap-2" disabled={!instituteName || !city || !directorName || !email || !phone || !password || !confirmPassword || password !== confirmPassword || loading} onClick={handleSubmit}>
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                 {isRtl ? "إرسال الطلب" : "Submit Request"}
               </Button>

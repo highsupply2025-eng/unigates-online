@@ -56,7 +56,7 @@ const Login = () => {
         
         if (collegeReg) {
           if (collegeReg.status === "approved") {
-            navigate("/admin/dashboard");
+            navigate("/institution/dashboard");
           } else {
             toast({
               title: language === "ar" ? "الحساب قيد المراجعة" : "Account Under Review",
@@ -78,7 +78,7 @@ const Login = () => {
         
         if (instituteReg) {
           if (instituteReg.status === "approved") {
-            navigate("/admin/dashboard");
+            navigate("/institution/dashboard");
           } else {
             toast({
               title: language === "ar" ? "الحساب قيد المراجعة" : "Account Under Review",

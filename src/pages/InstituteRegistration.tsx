@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Landmark, Loader2, Globe, ArrowLeft, ArrowRight, CheckCircle, Send } from "lucide-react";
+import { Landmark, Loader2, Globe, ArrowLeft, ArrowRight, CheckCircle, Send, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,11 +33,13 @@ const InstituteRegistration = () => {
   const [specialization, setSpecialization] = useState("");
   const [studentCount, setStudentCount] = useState("");
   const [message, setMessage] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!instituteName || !city || !directorName || !email || !phone) {
+    if (!instituteName || !city || !directorName || !email || !phone || !password) {
       toast({
         title: isRtl ? "خطأ" : "Error",
         description: isRtl ? "يرجى ملء جميع الحقول المطلوبة" : "Please fill all required fields",
@@ -156,6 +158,29 @@ const InstituteRegistration = () => {
                 </div>
               </div>
 
+              <div>
+                <Label className="mb-2 block font-semibold">
+                  {isRtl ? "الرقم السري" : "Password"} <span className="text-destructive">*</span>
+                </Label>
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder={isRtl ? "أدخل الرقم السري" : "Enter password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="h-12 pe-12"
+                    dir="ltr"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute top-1/2 -translate-y-1/2 end-3 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className="mb-2 block font-semibold">
@@ -189,7 +214,7 @@ const InstituteRegistration = () => {
                 <Textarea placeholder={isRtl ? "أي ملاحظات أو متطلبات خاصة..." : "Any notes or special requirements..."} value={message} onChange={(e) => setMessage(e.target.value)} className="min-h-[100px]" />
               </div>
 
-              <Button size="lg" className="w-full h-14 text-lg font-bold gap-2" disabled={!instituteName || !city || !directorName || !email || !phone || loading} onClick={handleSubmit}>
+              <Button size="lg" className="w-full h-14 text-lg font-bold gap-2" disabled={!instituteName || !city || !directorName || !email || !phone || !password || loading} onClick={handleSubmit}>
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                 {isRtl ? "إرسال الطلب" : "Submit Request"}
               </Button>

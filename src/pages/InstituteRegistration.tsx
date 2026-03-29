@@ -33,6 +33,8 @@ const InstituteRegistration = () => {
   const [specialization, setSpecialization] = useState("");
   const [studentCount, setStudentCount] = useState("");
   const [message, setMessage] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 

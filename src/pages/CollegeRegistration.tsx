@@ -50,8 +50,29 @@ const CollegeRegistration = () => {
       return;
     }
 
+    if (password !== confirmPassword) {
+      toast({
+        title: isRtl ? "خطأ" : "Error",
+        description: isRtl ? "الرقم السري غير متطابق" : "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
+      // Create auth account with email verification
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: { institution_type: 'college', institution_name: collegeName },
+        },
+      });
+      if (authError) throw authError;
+
+      // Insert registration record
       const { error } = await supabase.from("college_registrations").insert({
         college_name: collegeName,
         city,
@@ -277,21 +298,27 @@ const CollegeRegistration = () => {
           <div className="max-w-lg w-full text-center">
             <div className="mb-8 flex justify-center">
               <div className="w-24 h-24 rounded-2xl bg-emerald-500/10 flex items-center justify-center">
-                <CheckCircle className="w-12 h-12 text-emerald-500" />
+                <Send className="w-12 h-12 text-emerald-500" />
               </div>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-foreground mb-4">
               {isRtl ? "تم إرسال طلبك بنجاح!" : "Request Submitted Successfully!"}
             </h1>
-            <p className="text-muted-foreground mb-10 leading-relaxed max-w-md mx-auto">
+            <p className="text-muted-foreground mb-4 leading-relaxed max-w-md mx-auto">
               {isRtl
-                ? "شكراً لك! سيتم مراجعة طلب تسجيل كليتك من قبل فريق الإدارة والتواصل معك قريباً."
-                : "Thank you! Your college registration request will be reviewed and we'll contact you soon."}
+                ? "تم إرسال رابط التفعيل إلى بريدك الإلكتروني. يرجى تفعيل حسابك لإكمال عملية التسجيل."
+                : "A verification link has been sent to your email. Please verify your account to complete registration."}
+            </p>
+            <p className="text-sm font-bold text-foreground mb-2">{email}</p>
+            <p className="text-muted-foreground mb-10 text-sm leading-relaxed max-w-md mx-auto">
+              {isRtl
+                ? "بعد التفعيل، سيتم مراجعة طلب تسجيل كليتك من قبل فريق إدارة منصة إدراك والتواصل معك قريباً."
+                : "After verification, your college registration request will be reviewed by the Edrak platform team and we'll contact you soon."}
             </p>
             <div className="flex gap-3 justify-center">
-              <Link to="/university-platform">
+              <Link to="/login">
                 <Button size="lg" className="h-14 text-lg font-bold px-8">
-                  {isRtl ? "العودة للمنصة" : "Back to Platform"}
+                  {isRtl ? "الذهاب لتسجيل الدخول" : "Go to Login"}
                 </Button>
               </Link>
             </div>

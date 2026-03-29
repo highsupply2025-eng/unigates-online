@@ -62,7 +62,7 @@ const SchoolLogin = () => {
       <main className="flex-1 flex items-center justify-center px-4 py-16">
         <form onSubmit={handleLogin} className="max-w-md w-full text-center space-y-6">
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 shadow-lg shadow-primary/20 flex items-center justify-center">
               <School className="w-8 h-8 text-primary" />
             </div>
           </div>
@@ -70,8 +70,8 @@ const SchoolLogin = () => {
             {isRtl ? "تسجيل دخول - المنصة المدرسية" : "Log In - School Platform"}
           </h1>
           <p className="text-muted-foreground mb-6">{t.loginPage.subtitle}</p>
-          <Input type="email" placeholder={t.loginPage.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} className="h-14 text-base bg-secondary border-border text-center" required />
-          <Input type="password" placeholder={t.loginPage.passwordPlaceholder} value={password} onChange={(e) => setPassword(e.target.value)} className="h-14 text-base bg-secondary border-border text-center" required />
+          <Input type="email" placeholder={t.loginPage.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} className="h-14 text-base bg-card border-2 border-border text-center shadow-md hover:shadow-lg transition-shadow" required />
+          <Input type="password" placeholder={t.loginPage.passwordPlaceholder} value={password} onChange={(e) => setPassword(e.target.value)} className="h-14 text-base bg-card border-2 border-border text-center shadow-md hover:shadow-lg transition-shadow" required />
           <Button type="submit" size="lg" className="w-full h-14 text-lg font-bold gap-2" disabled={loading}>
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowIcon className="w-5 h-5" />}
             {t.login}

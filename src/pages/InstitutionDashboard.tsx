@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Building2, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
-  GraduationCap, Calendar, Phone, Mail, LinkIcon
+  GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,16 +41,12 @@ interface DepartmentMember {
   created_at: string;
 }
 
-interface CollegeInvitation {
-  id: string;
-  college_id: string;
-  invitation_code: string;
-  role: string;
-  max_uses: number;
-  used_count: number;
-  is_active: boolean;
-  created_at: string;
-}
+const generateCode = () => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+};
 
 const InstitutionDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -63,17 +59,32 @@ const InstitutionDashboard = () => {
   const [institutionType, setInstitutionType] = useState<"college" | "institute" | null>(null);
   const [institutionName, setInstitutionName] = useState("");
   const [institutionId, setInstitutionId] = useState("");
-  const [institutionStatus, setInstitutionStatus] = useState("");
 
   const [departments, setDepartments] = useState<Department[]>([]);
   const [deptMembers, setDeptMembers] = useState<DepartmentMember[]>([]);
-  const [invitations, setInvitations] = useState<CollegeInvitation[]>([]);
   const [deptSearch, setDeptSearch] = useState("");
 
+  // Add Department
   const [showAddDeptDialog, setShowAddDeptDialog] = useState(false);
   const [newDeptName, setNewDeptName] = useState("");
   const [newDeptStudentCount, setNewDeptStudentCount] = useState("");
 
+  // Add Member
+  const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
+  const [addMemberDeptId, setAddMemberDeptId] = useState("");
+  const [newMemberName, setNewMemberName] = useState("");
+  const [newMemberRole, setNewMemberRole] = useState<"student" | "lecturer">("student");
+  const [newMemberDob, setNewMemberDob] = useState("");
+
+  // Payment
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [paymentDept, setPaymentDept] = useState<Department | null>(null);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvv, setCardCvv] = useState("");
+
+  // Members view
   const [selectedDept, setSelectedDept] = useState<Department | null>(null);
   const [showMembersDialog, setShowMembersDialog] = useState(false);
 
@@ -86,7 +97,6 @@ const InstitutionDashboard = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/login"); return; }
 
-      // Check college registration
       const { data: college } = await supabase
         .from("college_registrations")
         .select("*")
@@ -98,12 +108,11 @@ const InstitutionDashboard = () => {
         setInstitutionType("college");
         setInstitutionName(college.college_name);
         setInstitutionId(college.id);
-        setInstitutionStatus(college.status);
         await loadInstitutionData(college.id, "college");
+        setLoading(false);
         return;
       }
 
-      // Check institute registration
       const { data: institute } = await supabase
         .from("institute_registrations")
         .select("*")
@@ -115,8 +124,8 @@ const InstitutionDashboard = () => {
         setInstitutionType("institute");
         setInstitutionName(institute.institute_name);
         setInstitutionId(institute.id);
-        setInstitutionStatus(institute.status);
         await loadInstitutionData(institute.id, "institute");
+        setLoading(false);
         return;
       }
 
@@ -126,7 +135,7 @@ const InstitutionDashboard = () => {
         variant: "destructive",
       });
       navigate("/");
-    } catch (error) {
+    } catch {
       navigate("/login");
     } finally {
       setLoading(false);
@@ -134,7 +143,6 @@ const InstitutionDashboard = () => {
   };
 
   const loadInstitutionData = async (instId: string, instType: string) => {
-    // Load departments
     const { data: depts } = await supabase
       .from("departments")
       .select("*")
@@ -143,7 +151,6 @@ const InstitutionDashboard = () => {
       .order("created_at", { ascending: false });
     setDepartments(depts || []);
 
-    // Load all department members
     if (depts && depts.length > 0) {
       const deptIds = depts.map(d => d.id);
       const { data: members } = await supabase
@@ -151,16 +158,8 @@ const InstitutionDashboard = () => {
         .select("*")
         .in("department_id", deptIds);
       setDeptMembers(members || []);
-    }
-
-    // Load invitations (for colleges)
-    if (instType === "college") {
-      const { data: invs } = await supabase
-        .from("college_invitations")
-        .select("*")
-        .eq("college_id", instId)
-        .order("created_at", { ascending: false });
-      setInvitations(invs || []);
+    } else {
+      setDeptMembers([]);
     }
   };
 
@@ -183,7 +182,7 @@ const InstitutionDashboard = () => {
 
       toast({
         title: isRtl ? "تم إضافة القسم" : "Department Added",
-        description: isRtl ? `تكلفة الاشتراك: ${paymentAmount} جنيه` : `Subscription cost: ${paymentAmount} EGP`,
+        description: isRtl ? `تكلفة الاشتراك: ${paymentAmount} جنيه شهرياً` : `Subscription cost: ${paymentAmount} EGP/month`,
       });
       setShowAddDeptDialog(false);
       setNewDeptName("");
@@ -194,9 +193,80 @@ const InstitutionDashboard = () => {
     }
   };
 
+  const handleAddMember = async () => {
+    if (!newMemberName || !addMemberDeptId) return;
+
+    const code = generateCode();
+    try {
+      const { error } = await supabase.from("department_members").insert({
+        department_id: addMemberDeptId,
+        full_name: newMemberName,
+        role: newMemberRole,
+        date_of_birth: newMemberDob || null,
+        invitation_code: code,
+      });
+      if (error) throw error;
+
+      toast({
+        title: isRtl ? "تم إضافة العضو" : "Member Added",
+        description: isRtl ? `تم توليد كود الدعوة: ${code}` : `Invitation code generated: ${code}`,
+      });
+      setShowAddMemberDialog(false);
+      setNewMemberName("");
+      setNewMemberDob("");
+      await loadInstitutionData(institutionId, institutionType || "college");
+    } catch (error: any) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const handlePayment = async () => {
+    if (!paymentDept) return;
+    setPaymentProcessing(true);
+
+    // Simulate payment processing
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    try {
+      await supabase
+        .from("departments")
+        .update({ payment_status: "paid", status: "active" } as any)
+        .eq("id", paymentDept.id);
+
+      // Generate invitation codes for members without one
+      const members = deptMembers.filter(m => m.department_id === paymentDept.id && !m.invitation_code);
+      for (const member of members) {
+        const code = generateCode();
+        await supabase
+          .from("department_members")
+          .update({ invitation_code: code } as any)
+          .eq("id", member.id);
+      }
+
+      toast({
+        title: isRtl ? "✅ تم الدفع بنجاح!" : "✅ Payment Successful!",
+        description: isRtl
+          ? `تم دفع ${paymentDept.payment_amount} جنيه - أكواد الدعوة جاهزة`
+          : `${paymentDept.payment_amount} EGP paid - Invitation codes ready`,
+      });
+
+      setShowPaymentDialog(false);
+      setCardNumber("");
+      setCardExpiry("");
+      setCardCvv("");
+      setPaymentDept(null);
+      setActiveTab("invitations");
+      await loadInstitutionData(institutionId, institutionType || "college");
+    } catch (error: any) {
+      toast({ title: isRtl ? "خطأ في الدفع" : "Payment Error", description: error.message, variant: "destructive" });
+    } finally {
+      setPaymentProcessing(false);
+    }
+  };
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast({ title: isRtl ? "تم النسخ" : "Copied", description: text });
+    toast({ title: isRtl ? "تم النسخ" : "Copied!", description: text });
   };
 
   const getMembersForDept = (deptId: string) => deptMembers.filter(m => m.department_id === deptId);
@@ -301,47 +371,46 @@ const InstitutionDashboard = () => {
               </Card>
             </div>
 
-            {/* Recent departments */}
-            <Card>
-              <CardHeader>
-                <CardTitle>{isRtl ? "أحدث الأقسام" : "Recent Departments"}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {departments.length === 0 ? (
-                  <div className="text-center py-10 text-muted-foreground">
-                    <Building2 className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                    <p>{isRtl ? "لم يتم إضافة أقسام بعد" : "No departments added yet"}</p>
-                    <Button className="mt-4" onClick={() => { setActiveTab("departments"); setShowAddDeptDialog(true); }}>
-                      <Plus className="w-4 h-4 me-2" />
-                      {isRtl ? "إضافة قسم" : "Add Department"}
-                    </Button>
-                  </div>
-                ) : (
+            {departments.length === 0 ? (
+              <Card>
+                <CardContent className="text-center py-10 text-muted-foreground">
+                  <Building2 className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                  <p>{isRtl ? "لم يتم إضافة أقسام بعد" : "No departments added yet"}</p>
+                  <Button className="mt-4" onClick={() => { setActiveTab("departments"); setShowAddDeptDialog(true); }}>
+                    <Plus className="w-4 h-4 me-2" />
+                    {isRtl ? "إضافة قسم" : "Add Department"}
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>{isRtl ? "أحدث الأقسام" : "Recent Departments"}</CardTitle>
+                </CardHeader>
+                <CardContent>
                   <div className="space-y-3">
                     {departments.slice(0, 5).map(dept => (
                       <div key={dept.id} className="flex items-center justify-between p-3 rounded-lg border">
                         <div>
                           <p className="font-bold text-foreground">{dept.department_name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {dept.student_count} {isRtl ? "طالب" : "students"} · {dept.payment_amount} {isRtl ? "جنيه" : "EGP"}
+                            {dept.student_count} {isRtl ? "طالب" : "students"} · {dept.payment_amount} {isRtl ? "جنيه شهرياً" : "EGP/month"}
                           </p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={dept.payment_status === "paid" ? "default" : "secondary"}>
-                            {dept.payment_status === "paid" ? (isRtl ? "مدفوع" : "Paid") : (isRtl ? "غير مدفوع" : "Unpaid")}
-                          </Badge>
-                        </div>
+                        <Badge variant={dept.payment_status === "paid" ? "default" : "secondary"}>
+                          {dept.payment_status === "paid" ? (isRtl ? "مدفوع ✅" : "Paid ✅") : (isRtl ? "غير مدفوع" : "Unpaid")}
+                        </Badge>
                       </div>
                     ))}
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* Departments Tab */}
           <TabsContent value="departments">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 gap-3">
               <div className="relative flex-1 max-w-sm">
                 <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -373,7 +442,7 @@ const InstitutionDashboard = () => {
                           </p>
                         </div>
                         <Badge variant={dept.payment_status === "paid" ? "default" : "destructive"}>
-                          {dept.payment_status === "paid" ? (isRtl ? "مدفوع" : "Paid") : (isRtl ? "غير مدفوع" : "Unpaid")}
+                          {dept.payment_status === "paid" ? (isRtl ? "مدفوع ✅" : "Paid ✅") : (isRtl ? "غير مدفوع" : "Unpaid")}
                         </Badge>
                       </div>
 
@@ -388,38 +457,42 @@ const InstitutionDashboard = () => {
                         </div>
                         <div className="text-center p-2 rounded-lg bg-primary/10">
                           <p className="text-lg font-bold text-primary">{dept.payment_amount}</p>
-                          <p className="text-xs text-muted-foreground">{isRtl ? "جنيه" : "EGP"}</p>
+                          <p className="text-xs text-muted-foreground">{isRtl ? "جنيه/شهر" : "EGP/mo"}</p>
                         </div>
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         <Button
                           variant="outline"
                           size="sm"
-                          className="flex-1"
                           onClick={() => { setSelectedDept(dept); setShowMembersDialog(true); }}
                         >
                           <Users className="w-4 h-4 me-1" />
                           {isRtl ? "الأعضاء" : "Members"} ({members.length})
                         </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setAddMemberDeptId(dept.id);
+                            setNewMemberRole("student");
+                            setShowAddMemberDialog(true);
+                          }}
+                        >
+                          <Plus className="w-4 h-4 me-1" />
+                          {isRtl ? "إضافة عضو" : "Add Member"}
+                        </Button>
                         {dept.payment_status !== "paid" && (
                           <Button
                             size="sm"
-                            className="flex-1"
-                            onClick={async () => {
-                              // Simulate payment
-                              await supabase
-                                .from("departments")
-                                .update({ payment_status: "paid", status: "active" } as any)
-                                .eq("id", dept.id);
-                              toast({
-                                title: isRtl ? "تم الدفع بنجاح" : "Payment Successful",
-                                description: isRtl ? `تم دفع ${dept.payment_amount} جنيه` : `${dept.payment_amount} EGP paid`,
-                              });
-                              await loadInstitutionData(institutionId, institutionType || "college");
+                            className="gap-1"
+                            onClick={() => {
+                              setPaymentDept(dept);
+                              setShowPaymentDialog(true);
                             }}
                           >
-                            {isRtl ? "دفع الاشتراك" : "Pay Subscription"}
+                            <CreditCard className="w-4 h-4" />
+                            {isRtl ? "دفع الاشتراك" : "Pay"}
                           </Button>
                         )}
                       </div>
@@ -457,35 +530,41 @@ const InstitutionDashboard = () => {
                       const lecturerMembers = members.filter(m => m.role === "lecturer");
 
                       return (
-                        <div key={dept.id} className="border rounded-lg p-4">
-                          <h3 className="font-bold text-foreground mb-4">{dept.department_name}</h3>
+                        <div key={dept.id} className="border-2 rounded-xl p-5">
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="font-bold text-lg text-foreground">{dept.department_name}</h3>
+                            <Badge>{isRtl ? "مفعّل" : "Active"}</Badge>
+                          </div>
 
                           {/* Lecturer Invitations */}
                           <div className="mb-4">
-                            <h4 className="text-sm font-semibold text-muted-foreground mb-2">
+                            <h4 className="text-sm font-semibold text-green-600 mb-2 flex items-center gap-2">
+                              <UserCheck className="w-4 h-4" />
                               {isRtl ? "أكواد المحاضرين" : "Lecturer Codes"}
                             </h4>
                             {lecturerMembers.length > 0 ? (
                               <div className="space-y-2">
                                 {lecturerMembers.map(member => (
-                                  <div key={member.id} className="flex items-center justify-between p-2 bg-green-500/5 rounded-lg">
+                                  <div key={member.id} className="flex items-center justify-between p-3 bg-green-500/5 rounded-lg border">
                                     <div>
-                                      <p className="font-medium text-foreground">{member.full_name}</p>
+                                      <p className="font-semibold text-foreground">{member.full_name}</p>
                                       <p className="text-xs text-muted-foreground">
-                                        {member.user_id ? (isRtl ? "مربوط بحساب" : "Linked") : (isRtl ? "في انتظار التسجيل" : "Pending")}
+                                        {member.user_id
+                                          ? (isRtl ? "✅ مربوط بحساب" : "✅ Linked")
+                                          : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending registration")}
                                       </p>
                                     </div>
                                     {member.invitation_code && (
-                                      <Button variant="outline" size="sm" onClick={() => copyToClipboard(member.invitation_code!)}>
-                                        <Copy className="w-3 h-3 me-1" />
-                                        {member.invitation_code.slice(0, 8)}...
+                                      <Button variant="outline" size="sm" onClick={() => copyToClipboard(member.invitation_code!)} className="gap-1.5 font-mono">
+                                        <Copy className="w-3 h-3" />
+                                        {member.invitation_code}
                                       </Button>
                                     )}
                                   </div>
                                 ))}
                               </div>
                             ) : (
-                              <p className="text-sm text-muted-foreground">{isRtl ? "لا يوجد محاضرون" : "No lecturers"}</p>
+                              <p className="text-sm text-muted-foreground py-2">{isRtl ? "لا يوجد محاضرون - أضف محاضرين من تبويب الأقسام" : "No lecturers - add from Departments tab"}</p>
                             )}
                           </div>
 
@@ -493,30 +572,33 @@ const InstitutionDashboard = () => {
 
                           {/* Student Invitations */}
                           <div>
-                            <h4 className="text-sm font-semibold text-muted-foreground mb-2">
+                            <h4 className="text-sm font-semibold text-blue-600 mb-2 flex items-center gap-2">
+                              <GraduationCap className="w-4 h-4" />
                               {isRtl ? "أكواد الطلاب" : "Student Codes"}
                             </h4>
                             {studentMembers.length > 0 ? (
                               <div className="space-y-2">
                                 {studentMembers.map(member => (
-                                  <div key={member.id} className="flex items-center justify-between p-2 bg-blue-500/5 rounded-lg">
+                                  <div key={member.id} className="flex items-center justify-between p-3 bg-blue-500/5 rounded-lg border">
                                     <div>
-                                      <p className="font-medium text-foreground">{member.full_name}</p>
+                                      <p className="font-semibold text-foreground">{member.full_name}</p>
                                       <p className="text-xs text-muted-foreground">
-                                        {member.user_id ? (isRtl ? "مربوط بحساب" : "Linked") : (isRtl ? "في انتظار التسجيل" : "Pending")}
+                                        {member.user_id
+                                          ? (isRtl ? "✅ مربوط بحساب" : "✅ Linked")
+                                          : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending registration")}
                                       </p>
                                     </div>
                                     {member.invitation_code && (
-                                      <Button variant="outline" size="sm" onClick={() => copyToClipboard(member.invitation_code!)}>
-                                        <Copy className="w-3 h-3 me-1" />
-                                        {member.invitation_code.slice(0, 8)}...
+                                      <Button variant="outline" size="sm" onClick={() => copyToClipboard(member.invitation_code!)} className="gap-1.5 font-mono">
+                                        <Copy className="w-3 h-3" />
+                                        {member.invitation_code}
                                       </Button>
                                     )}
                                   </div>
                                 ))}
                               </div>
                             ) : (
-                              <p className="text-sm text-muted-foreground">{isRtl ? "لا يوجد طلاب" : "No students"}</p>
+                              <p className="text-sm text-muted-foreground py-2">{isRtl ? "لا يوجد طلاب - أضف طلاب من تبويب الأقسام" : "No students - add from Departments tab"}</p>
                             )}
                           </div>
                         </div>
@@ -546,10 +628,10 @@ const InstitutionDashboard = () => {
               <Input type="number" value={newDeptStudentCount} onChange={e => setNewDeptStudentCount(e.target.value)} placeholder="0" />
             </div>
             {newDeptStudentCount && parseInt(newDeptStudentCount) > 0 && (
-              <div className="p-3 rounded-lg bg-primary/10 text-center">
+              <div className="p-4 rounded-xl bg-primary/10 text-center border-2 border-primary/20">
                 <p className="text-sm text-muted-foreground">{isRtl ? "تكلفة الاشتراك الشهري" : "Monthly subscription cost"}</p>
-                <p className="text-2xl font-black text-primary">{parseInt(newDeptStudentCount) * 299} {isRtl ? "جنيه" : "EGP"}</p>
-                <p className="text-xs text-muted-foreground">{parseInt(newDeptStudentCount)} × 299 {isRtl ? "جنيه/طالب" : "EGP/student"}</p>
+                <p className="text-3xl font-black text-primary my-1">{parseInt(newDeptStudentCount) * 299} {isRtl ? "جنيه" : "EGP"}</p>
+                <p className="text-xs text-muted-foreground">{parseInt(newDeptStudentCount)} × 299 {isRtl ? "جنيه/طالب شهرياً" : "EGP/student/month"}</p>
               </div>
             )}
           </div>
@@ -564,6 +646,139 @@ const InstitutionDashboard = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Add Member Dialog */}
+      <Dialog open={showAddMemberDialog} onOpenChange={setShowAddMemberDialog}>
+        <DialogContent dir={dir}>
+          <DialogHeader>
+            <DialogTitle>{isRtl ? "إضافة عضو جديد" : "Add New Member"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>{isRtl ? "الاسم الكامل" : "Full Name"}</Label>
+              <Input value={newMemberName} onChange={e => setNewMemberName(e.target.value)} placeholder={isRtl ? "أدخل الاسم الكامل" : "Enter full name"} />
+            </div>
+            <div>
+              <Label>{isRtl ? "الدور" : "Role"}</Label>
+              <div className="flex gap-3 mt-1">
+                <Button
+                  type="button"
+                  variant={newMemberRole === "student" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setNewMemberRole("student")}
+                  className="flex-1 gap-1.5"
+                >
+                  <GraduationCap className="w-4 h-4" />
+                  {isRtl ? "طالب" : "Student"}
+                </Button>
+                <Button
+                  type="button"
+                  variant={newMemberRole === "lecturer" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setNewMemberRole("lecturer")}
+                  className="flex-1 gap-1.5"
+                >
+                  <UserCheck className="w-4 h-4" />
+                  {isRtl ? "محاضر" : "Lecturer"}
+                </Button>
+              </div>
+            </div>
+            <div>
+              <Label>{isRtl ? "تاريخ الميلاد (اختياري)" : "Date of Birth (optional)"}</Label>
+              <Input type="date" value={newMemberDob} onChange={e => setNewMemberDob(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddMemberDialog(false)}>
+              {isRtl ? "إلغاء" : "Cancel"}
+            </Button>
+            <Button onClick={handleAddMember} disabled={!newMemberName}>
+              <Plus className="w-4 h-4 me-1" />
+              {isRtl ? "إضافة" : "Add"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Payment Dialog */}
+      <Dialog open={showPaymentDialog} onOpenChange={v => { if (!paymentProcessing) setShowPaymentDialog(v); }}>
+        <DialogContent dir={dir} className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-primary" />
+              {isRtl ? "دفع الاشتراك" : "Pay Subscription"}
+            </DialogTitle>
+          </DialogHeader>
+          {paymentDept && (
+            <div className="space-y-4">
+              {/* Payment Summary */}
+              <div className="p-4 rounded-xl bg-primary/10 text-center border-2 border-primary/20">
+                <p className="text-sm text-muted-foreground mb-1">{paymentDept.department_name}</p>
+                <p className="text-3xl font-black text-primary">{paymentDept.payment_amount} {isRtl ? "جنيه" : "EGP"}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {paymentDept.student_count} {isRtl ? "طالب × 299 جنيه شهرياً" : "students × 299 EGP/month"}
+                </p>
+              </div>
+
+              {/* Card Details (Demo) */}
+              <div className="space-y-3">
+                <div>
+                  <Label>{isRtl ? "رقم البطاقة" : "Card Number"}</Label>
+                  <Input
+                    value={cardNumber}
+                    onChange={e => setCardNumber(e.target.value.replace(/\D/g, '').slice(0, 16))}
+                    placeholder="4242 4242 4242 4242"
+                    className="font-mono tracking-wider"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label>{isRtl ? "تاريخ الانتهاء" : "Expiry"}</Label>
+                    <Input
+                      value={cardExpiry}
+                      onChange={e => setCardExpiry(e.target.value.slice(0, 5))}
+                      placeholder="MM/YY"
+                      className="font-mono"
+                    />
+                  </div>
+                  <div>
+                    <Label>CVV</Label>
+                    <Input
+                      type="password"
+                      value={cardCvv}
+                      onChange={e => setCardCvv(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                      placeholder="***"
+                      className="font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-xs text-center text-muted-foreground">
+                {isRtl ? "🔒 هذه واجهة تجريبية - لن يتم خصم أي مبالغ فعلية" : "🔒 Demo interface - No actual charges will be made"}
+              </p>
+
+              <Button
+                className="w-full h-12 text-base font-bold gap-2"
+                onClick={handlePayment}
+                disabled={paymentProcessing}
+              >
+                {paymentProcessing ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    {isRtl ? "جاري المعالجة..." : "Processing..."}
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="w-5 h-5" />
+                    {isRtl ? `ادفع ${paymentDept.payment_amount} جنيه` : `Pay ${paymentDept.payment_amount} EGP`}
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Members Dialog */}
       <Dialog open={showMembersDialog} onOpenChange={setShowMembersDialog}>
         <DialogContent dir={dir} className="max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -574,6 +789,17 @@ const InstitutionDashboard = () => {
           </DialogHeader>
           {selectedDept && (
             <div className="space-y-4">
+              <div className="flex justify-end">
+                <Button size="sm" onClick={() => {
+                  setAddMemberDeptId(selectedDept.id);
+                  setShowMembersDialog(false);
+                  setShowAddMemberDialog(true);
+                }}>
+                  <Plus className="w-4 h-4 me-1" />
+                  {isRtl ? "إضافة عضو" : "Add Member"}
+                </Button>
+              </div>
+
               {/* Lecturers */}
               <div>
                 <h4 className="font-bold text-foreground mb-2 flex items-center gap-2">
@@ -581,7 +807,7 @@ const InstitutionDashboard = () => {
                   {isRtl ? "المحاضرون" : "Lecturers"}
                 </h4>
                 {getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer").length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-2">{isRtl ? "لا يوجد محاضرون مسجلون" : "No lecturers registered"}</p>
+                  <p className="text-sm text-muted-foreground py-2">{isRtl ? "لا يوجد محاضرون" : "No lecturers"}</p>
                 ) : (
                   <div className="space-y-2">
                     {getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer").map(member => (
@@ -592,10 +818,9 @@ const InstitutionDashboard = () => {
                           </div>
                           <div>
                             <p className="font-medium text-foreground">{member.full_name}</p>
-                            {member.date_of_birth && (
-                              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                <Calendar className="w-3 h-3" />
-                                {member.date_of_birth}
+                            {member.invitation_code && (
+                              <p className="text-xs font-mono text-muted-foreground">
+                                {isRtl ? "كود: " : "Code: "}{member.invitation_code}
                               </p>
                             )}
                           </div>
@@ -618,7 +843,7 @@ const InstitutionDashboard = () => {
                   {isRtl ? "الطلاب" : "Students"}
                 </h4>
                 {getMembersForDept(selectedDept.id).filter(m => m.role === "student").length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-2">{isRtl ? "لا يوجد طلاب مسجلون" : "No students registered"}</p>
+                  <p className="text-sm text-muted-foreground py-2">{isRtl ? "لا يوجد طلاب" : "No students"}</p>
                 ) : (
                   <div className="space-y-2">
                     {getMembersForDept(selectedDept.id).filter(m => m.role === "student").map(member => (
@@ -629,10 +854,9 @@ const InstitutionDashboard = () => {
                           </div>
                           <div>
                             <p className="font-medium text-foreground">{member.full_name}</p>
-                            {member.date_of_birth && (
-                              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                <Calendar className="w-3 h-3" />
-                                {member.date_of_birth}
+                            {member.invitation_code && (
+                              <p className="text-xs font-mono text-muted-foreground">
+                                {isRtl ? "كود: " : "Code: "}{member.invitation_code}
                               </p>
                             )}
                           </div>

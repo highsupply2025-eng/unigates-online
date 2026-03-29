@@ -108,7 +108,7 @@ const CollegeRegistration = () => {
           <div className="max-w-2xl w-full">
             <div className="text-center mb-8">
               <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 shadow-lg shadow-primary/20 flex items-center justify-center">
                   <Landmark className="w-8 h-8 text-primary" />
                 </div>
               </div>

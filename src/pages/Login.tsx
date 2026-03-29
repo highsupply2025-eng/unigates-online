@@ -84,6 +84,11 @@ const Login = () => {
 
       <main className="flex-1 flex items-center justify-center px-4 py-16">
         <form onSubmit={handleLogin} className="max-w-md w-full text-center space-y-6">
+          <div className="flex justify-center mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 shadow-lg shadow-primary/20 flex items-center justify-center">
+              <GraduationCap className="w-8 h-8 text-primary" />
+            </div>
+          </div>
           <h1 className="text-2xl md:text-3xl font-black text-foreground mb-2">{t.loginPage.title}</h1>
           <p className="text-muted-foreground mb-6">{t.loginPage.subtitle}</p>
 
@@ -92,7 +97,7 @@ const Login = () => {
             placeholder={t.loginPage.emailPlaceholder}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-14 text-base bg-secondary border-border text-center"
+            className="h-14 text-base bg-card border-2 border-border text-center shadow-md hover:shadow-lg transition-shadow"
             required
           />
           <Input
@@ -100,7 +105,7 @@ const Login = () => {
             placeholder={t.loginPage.passwordPlaceholder}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-14 text-base bg-secondary border-border text-center"
+            className="h-14 text-base bg-card border-2 border-border text-center shadow-md hover:shadow-lg transition-shadow"
             required
           />
 

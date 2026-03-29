@@ -159,13 +159,13 @@ const InstituteRegistration = () => {
               </div>
 
               <div>
-                <Label className="mb-1 block font-semibold">
+                <Label className="mb-2 block font-semibold">
                   {isRtl ? "الرقم السري" : "Password"} <span className="text-destructive">*</span>
                 </Label>
-                <p className="text-sm text-muted-foreground mb-2">{isRtl ? "أدخل الرقم السري" : "Enter password"}</p>
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
+                    placeholder={isRtl ? "أدخل الرقم السري" : "Enter password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="h-12 pe-12"

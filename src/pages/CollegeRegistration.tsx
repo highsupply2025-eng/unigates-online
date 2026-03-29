@@ -177,7 +177,7 @@ const CollegeRegistration = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute top-1/2 -translate-y-1/2 start-3 text-muted-foreground hover:text-foreground"
+                      className="absolute top-1/2 -translate-y-1/2 left-3 text-muted-foreground hover:text-foreground"
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -199,7 +199,7 @@ const CollegeRegistration = () => {
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute top-1/2 -translate-y-1/2 start-3 text-muted-foreground hover:text-foreground"
+                      className="absolute top-1/2 -translate-y-1/2 left-3 text-muted-foreground hover:text-foreground"
                     >
                       {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>

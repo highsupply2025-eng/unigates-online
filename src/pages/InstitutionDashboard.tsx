@@ -334,7 +334,7 @@ const InstitutionDashboard = () => {
             </TabsTrigger>
             <TabsTrigger value="invitations" className="gap-2">
               <LinkIcon className="w-4 h-4" />
-              {isRtl ? "أكواد الدعوة" : "Invitations"}
+              {isRtl ? "روابط وأكواد الدعوة" : "Links & Codes"}
             </TabsTrigger>
           </TabsList>
 

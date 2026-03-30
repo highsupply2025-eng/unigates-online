@@ -16,7 +16,7 @@ const RegisteredSchoolsSection = () => {
         .order("id", { ascending: false })
         .limit(8);
       if (error) throw error;
-      return data;
+      return data as unknown as { id: string; school_name: string; city: string; student_count: number | null }[];
     },
   });
 

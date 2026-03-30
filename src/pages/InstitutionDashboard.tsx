@@ -616,7 +616,7 @@ const InstitutionDashboard = () => {
                     <Card className="border">
                       <CardContent className="p-5 text-center">
                         <p className="text-3xl font-black text-primary">{selectedMember.user_id ? "—" : "0"}</p>
-                        <p className="text-sm text-muted-foreground mt-1">{isRtl ? "الدورات" : "Courses"}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{isRtl ? "الاختبارات" : "Tests"}</p>
                       </CardContent>
                     </Card>
                     <Card className="border">

@@ -49,6 +49,7 @@ const additionalLinks = [
 ];
 
 const Signup = () => {
+  const navigate = useNavigate();
   const { role: roleParam } = useParams<{ role: string }>();
   const [searchParams] = useSearchParams();
   const deptInviteFromUrl = searchParams.get("dept_invite") || "";

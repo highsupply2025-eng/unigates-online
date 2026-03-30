@@ -30,6 +30,7 @@ const schoolRoles: { value: SchoolRole; labelAr: string; labelEn: string; descAr
 ];
 
 const SchoolSignup = () => {
+  const navigate = useNavigate();
   const { t, dir, language, toggleLanguage } = useLanguage();
   const isRtl = language === "ar";
   const ArrowIcon = isRtl ? ChevronLeft : ChevronRight;

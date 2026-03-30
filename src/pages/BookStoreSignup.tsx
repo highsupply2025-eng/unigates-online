@@ -29,6 +29,7 @@ const bookRoles = [
 ];
 
 const BookStoreSignup = () => {
+  const navigate = useNavigate();
   const { t, dir, language, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
   const ArrowIcon = language === "ar" ? ChevronLeft : ChevronRight;

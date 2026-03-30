@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BookOpen, ChevronLeft, ChevronRight, Loader2, Globe, ArrowRight, ArrowLeft, Phone, User, Store, Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,7 @@ const bookRoles = [
 ];
 
 const BookStoreSignup = () => {
+  const navigate = useNavigate();
   const { t, dir, language, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
   const ArrowIcon = language === "ar" ? ChevronLeft : ChevronRight;
@@ -99,20 +100,18 @@ const BookStoreSignup = () => {
             <span className="text-2xl font-black text-foreground tracking-tight">{t.bookStore}</span>
           </Link>
           <div className="flex items-center gap-3">
-            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
-              <Globe className="w-4 h-4" />
-              {t.langSwitch}
-            </Button>
             <Link to="/book-store/login">
               <Button variant="default" size="sm" className="font-semibold">
                 {t.login}
               </Button>
             </Link>
-            <Link to="/">
-              <Button variant="default" size="icon" className="rounded-full w-9 h-9">
-                {dir === "rtl" ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
-              </Button>
-            </Link>
+            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
+              <Globe className="w-4 h-4" />
+              {t.langSwitch}
+            </Button>
+            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={() => navigate(-1)}>
+              {dir === "rtl" ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
+            </Button>
           </div>
         </div>
       </header>

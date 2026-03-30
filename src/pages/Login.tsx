@@ -17,7 +17,7 @@ const Login = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
 
   const ArrowIcon = language === "ar" ? ChevronLeft : ChevronRight;
-  const BackArrow = language === "ar" ? ArrowRight : ArrowLeft;
+  const BackArrow = language === "ar" ? ArrowLeft : ArrowRight;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,20 +109,18 @@ const Login = () => {
             <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
-              <Globe className="w-4 h-4" />
-              {t.langSwitch}
-            </Button>
             <Link to="/signup">
               <Button variant="default" size="sm" className="font-semibold">
                 {t.signup}
               </Button>
             </Link>
-            <Link to="/">
-              <Button variant="default" size="icon" className="rounded-full w-9 h-9">
-                {language === "ar" ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
-              </Button>
-            </Link>
+            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
+              <Globe className="w-4 h-4" />
+              {t.langSwitch}
+            </Button>
+            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={() => navigate(-1)}>
+              {language === "ar" ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
+            </Button>
           </div>
         </div>
       </header>

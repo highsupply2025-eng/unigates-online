@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { School, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Globe, Phone, GraduationCap, Users, Building2, BookOpenCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +30,7 @@ const schoolRoles: { value: SchoolRole; labelAr: string; labelEn: string; descAr
 ];
 
 const SchoolSignup = () => {
+  const navigate = useNavigate();
   const { t, dir, language, toggleLanguage } = useLanguage();
   const isRtl = language === "ar";
   const ArrowIcon = isRtl ? ChevronLeft : ChevronRight;
@@ -105,13 +106,11 @@ const SchoolSignup = () => {
             <Link to="/school-platform/login">
               <Button variant="default" size="sm" className="font-semibold">{t.login}</Button>
             </Link>
-            <Link to="/">
-              <Button variant="default" size="icon" className="rounded-full w-9 h-9">
-                {isRtl ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
-              </Button>
-            </Link>
             <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
               <Globe className="w-4 h-4" />{t.langSwitch}
+            </Button>
+            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={() => navigate(-1)}>
+              {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
             </Button>
           </div>
         </div>

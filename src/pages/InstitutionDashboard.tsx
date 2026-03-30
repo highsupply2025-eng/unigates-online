@@ -86,13 +86,14 @@ const InstitutionDashboard = () => {
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCvv, setCardCvv] = useState("");
 
-  // Members view
+  // Members view - full page approach
   const [selectedDept, setSelectedDept] = useState<Department | null>(null);
   const [showMembersDialog, setShowMembersDialog] = useState(false);
   const [invitationView, setInvitationView] = useState<"main" | "lecturer" | "student">("main");
   const [selectedMember, setSelectedMember] = useState<DepartmentMember | null>(null);
   const [showMemberProfileDialog, setShowMemberProfileDialog] = useState(false);
   const [memberProfileTab, setMemberProfileTab] = useState<"info" | "stats">("info");
+  const [pageView, setPageView] = useState<"main" | "members" | "memberProfile">("main");
 
   useEffect(() => {
     checkInstitutionAccess();

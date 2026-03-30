@@ -7,9 +7,11 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSmartBack } from "@/hooks/use-smart-back";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
+  const goBack = useSmartBack();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -50,7 +52,7 @@ const ForgotPassword = () => {
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
-            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={() => navigate("/")}>
+            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={goBack}>
               {language === "ar" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
             </Button>
           </div>

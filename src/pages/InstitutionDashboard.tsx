@@ -87,6 +87,7 @@ const InstitutionDashboard = () => {
   // Members view
   const [selectedDept, setSelectedDept] = useState<Department | null>(null);
   const [showMembersDialog, setShowMembersDialog] = useState(false);
+  const [invitationView, setInvitationView] = useState<"main" | "lecturer" | "student">("main");
 
   useEffect(() => {
     checkInstitutionAccess();

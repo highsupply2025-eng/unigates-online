@@ -986,7 +986,7 @@ const InstitutionDashboard = () => {
                 ) : (
                   <div className="space-y-2">
                     {getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer").map(member => (
-                      <div key={member.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                      <div key={member.id} className="flex items-center justify-between p-3 rounded-lg border bg-card cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setShowMemberProfileDialog(true); }}>
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-full bg-green-500/10 flex items-center justify-center">
                             <UserCheck className="w-4 h-4 text-green-500" />
@@ -1004,7 +1004,7 @@ const InstitutionDashboard = () => {
                           <Badge variant={member.user_id ? "default" : "secondary"}>
                             {member.user_id ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "في الانتظار" : "Pending")}
                           </Badge>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10" onClick={() => handleDeleteMember(member.id, member.full_name)}>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); handleDeleteMember(member.id, member.full_name); }}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>

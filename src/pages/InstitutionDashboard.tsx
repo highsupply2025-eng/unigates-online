@@ -1017,9 +1017,14 @@ const InstitutionDashboard = () => {
                             )}
                           </div>
                         </div>
-                        <Badge variant={member.user_id ? "default" : "secondary"}>
-                          {member.user_id ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "في الانتظار" : "Pending")}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={member.user_id ? "default" : "secondary"}>
+                            {member.user_id ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "في الانتظار" : "Pending")}
+                          </Badge>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10" onClick={() => handleDeleteMember(member.id, member.full_name)}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>

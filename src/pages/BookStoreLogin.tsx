@@ -7,12 +7,14 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSmartBack } from "@/hooks/use-smart-back";
 
 const BookStoreLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const goBack = useSmartBack("/book-store");
   const { toast } = useToast();
   const { t, dir, language, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
@@ -52,7 +54,7 @@ const BookStoreLogin = () => {
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
-            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={() => navigate("/")}>
+            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={goBack}>
               {dir === "rtl" ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
             </Button>
           </div>

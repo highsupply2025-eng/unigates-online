@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSmartBack } from "@/hooks/use-smart-back";
 
 const countryCodes = [
   { code: "+20", country: "🇪🇬" }, { code: "+966", country: "🇸🇦" },
@@ -31,6 +32,7 @@ const schoolRoles: { value: SchoolRole; labelAr: string; labelEn: string; descAr
 
 const SchoolSignup = () => {
   const navigate = useNavigate();
+  const goBack = useSmartBack("/school-platform");
   const { t, dir, language, toggleLanguage } = useLanguage();
   const isRtl = language === "ar";
   const ArrowIcon = isRtl ? ChevronLeft : ChevronRight;
@@ -109,7 +111,7 @@ const SchoolSignup = () => {
             <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
               <Globe className="w-4 h-4" />{t.langSwitch}
             </Button>
-            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={() => navigate("/")}>
+            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={goBack}>
               {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
             </Button>
           </div>

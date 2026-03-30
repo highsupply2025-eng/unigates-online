@@ -1066,6 +1066,7 @@ const InstitutionDashboard = () => {
             )}
           </TabsContent>
         </Tabs>
+        )}
       </main>
 
       {/* Add Department Dialog */}

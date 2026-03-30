@@ -558,6 +558,15 @@ const InstitutionDashboard = () => {
                             {isRtl ? "دفع الاشتراك" : "Pay"}
                           </Button>
                         )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-1 text-destructive border-destructive/30 hover:bg-destructive/10"
+                          onClick={() => handleDeleteDepartment(dept.id, dept.department_name)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          {isRtl ? "حذف القسم" : "Delete"}
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>

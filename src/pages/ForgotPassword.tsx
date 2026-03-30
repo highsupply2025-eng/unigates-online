@@ -50,7 +50,7 @@ const ForgotPassword = () => {
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
-            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={() => navigate(-1)}>
+            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={() => navigate("/")}>
               {language === "ar" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
             </Button>
           </div>

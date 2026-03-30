@@ -90,6 +90,7 @@ const InstitutionDashboard = () => {
   const [selectedDept, setSelectedDept] = useState<Department | null>(null);
   const [showMembersDialog, setShowMembersDialog] = useState(false);
   const [invitationView, setInvitationView] = useState<"main" | "lecturer" | "student">("main");
+  const [invitationDept, setInvitationDept] = useState<Department | null>(null);
   const [selectedMember, setSelectedMember] = useState<DepartmentMember | null>(null);
   const [showMemberProfileDialog, setShowMemberProfileDialog] = useState(false);
   const [memberProfileTab, setMemberProfileTab] = useState<"info" | "stats">("info");

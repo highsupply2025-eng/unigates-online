@@ -619,7 +619,10 @@ const InstitutionDashboard = () => {
                                 ? `مرحباً ${member.full_name}، يمكنك التسجيل في منصة إدراك عبر هذا الرابط:\n${inviteLink}\nكود الدعوة: ${member.invitation_code}`
                                 : `Hi ${member.full_name}, register on Edrak platform:\n${inviteLink}\nInvitation code: ${member.invitation_code}`;
                               const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
-                              const emailUrl = `mailto:?subject=${encodeURIComponent(isRtl ? "دعوة للتسجيل في منصة إدراك" : "Edrak Platform Invitation")}&body=${encodeURIComponent(shareText)}`;
+                              const emailSubject = encodeURIComponent(isRtl ? "دعوة للتسجيل في منصة إدراك" : "Edrak Platform Invitation");
+                              const emailBody = encodeURIComponent(shareText);
+                              const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&su=${emailSubject}&body=${emailBody}`;
+                              const yahooUrl = `https://compose.mail.yahoo.com/?subject=${emailSubject}&body=${emailBody}`;
 
                               return (
                                 <div key={member.id} className={`p-4 rounded-xl border bg-${accentColor}-500/5`}>
@@ -640,13 +643,18 @@ const InstitutionDashboard = () => {
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-1">
-                                      <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-green-600 hover:bg-green-500/10" title="WhatsApp">
+                                      <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" title="WhatsApp">
+                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-green-600 hover:bg-green-500/10">
                                           <Share2 className="w-4 h-4" />
                                         </Button>
                                       </a>
-                                      <a href={emailUrl}>
-                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-blue-600 hover:bg-blue-500/10" title="Email">
+                                      <a href={gmailUrl} target="_blank" rel="noopener noreferrer" title="Gmail">
+                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-500 hover:bg-red-500/10">
+                                          <Mail className="w-4 h-4" />
+                                        </Button>
+                                      </a>
+                                      <a href={yahooUrl} target="_blank" rel="noopener noreferrer" title="Yahoo Mail">
+                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-purple-600 hover:bg-purple-500/10">
                                           <Mail className="w-4 h-4" />
                                         </Button>
                                       </a>

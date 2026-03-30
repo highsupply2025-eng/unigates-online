@@ -530,7 +530,7 @@ const InstitutionDashboard = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => { setSelectedDept(dept); setShowMembersDialog(true); }}
+                          onClick={() => { setSelectedDept(dept); setPageView("members"); }}
                         >
                           <Users className="w-4 h-4 me-1" />
                           {isRtl ? "الأعضاء" : "Members"} ({members.length})

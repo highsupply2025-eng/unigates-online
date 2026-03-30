@@ -5,30 +5,11 @@ export const useSmartBack = (fallback = "/") => {
   const navigate = useNavigate();
 
   return useCallback(() => {
-    const historyState = window.history.state as { idx?: number } | null;
-
-    if (typeof historyState?.idx === "number" && historyState.idx > 0) {
+    // If there's browser history, go back
+    if (window.history.length > 2) {
       navigate(-1);
-      return;
+    } else {
+      navigate(fallback);
     }
-
-    if (document.referrer) {
-      try {
-        const referrerUrl = new URL(document.referrer);
-        const currentUrl = new URL(window.location.href);
-
-        if (
-          referrerUrl.origin === currentUrl.origin &&
-          referrerUrl.pathname !== currentUrl.pathname
-        ) {
-          window.history.back();
-          return;
-        }
-      } catch {
-        // Ignore invalid referrer and use fallback.
-      }
-    }
-
-    navigate(fallback);
   }, [fallback, navigate]);
 };

@@ -258,11 +258,9 @@ const Signup = () => {
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
-            <Link to="/university-platform">
-              <Button variant="default" size="icon" className="rounded-full w-9 h-9">
-                {language === "ar" ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
-              </Button>
-            </Link>
+            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={() => navigate(-1)}>
+              {language === "ar" ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
+            </Button>
           </div>
         </div>
       </header>

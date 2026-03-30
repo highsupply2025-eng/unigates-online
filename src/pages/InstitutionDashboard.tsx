@@ -387,6 +387,294 @@ const InstitutionDashboard = () => {
       </header>
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-6">
+        {pageView === "members" && selectedDept ? (
+          /* Full-page Members View */
+          <div className="space-y-4">
+            <Button variant="outline" className="gap-2" onClick={() => setPageView("main")}>
+              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              {isRtl ? "رجوع للأقسام" : "Back to Departments"}
+            </Button>
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-black text-foreground flex items-center gap-2">
+                <Users className="w-6 h-6 text-primary" />
+                {selectedDept.department_name} - {isRtl ? "الأعضاء" : "Members"}
+              </h2>
+              <Button size="sm" onClick={() => {
+                setAddMemberDeptId(selectedDept.id);
+                setShowAddMemberDialog(true);
+              }}>
+                <Plus className="w-4 h-4 me-1" />
+                {isRtl ? "إضافة عضو" : "Add Member"}
+              </Button>
+            </div>
+
+            {/* Lecturers Section */}
+            <Card className="border-2">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <UserCheck className="w-5 h-5 text-green-500" />
+                  {isRtl ? "المحاضرون" : "Lecturers"}
+                  <Badge variant="outline" className="ms-2">{getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer").length}</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer").length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد محاضرون" : "No lecturers"}</p>
+                ) : (
+                  <div className="space-y-2">
+                    {getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer").map(member => (
+                      <div key={member.id} className="flex items-center justify-between p-4 rounded-lg border bg-card cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
+                            <UserCheck className="w-5 h-5 text-green-500" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-foreground">{member.full_name}</p>
+                            {member.invitation_code && (
+                              <p className="text-xs font-mono text-muted-foreground">{isRtl ? "كود: " : "Code: "}{member.invitation_code}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={member.user_id ? "default" : "secondary"}>
+                            {member.user_id ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "في الانتظار" : "Pending")}
+                          </Badge>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); handleDeleteMember(member.id, member.full_name); }}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Students Section */}
+            <Card className="border-2">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <GraduationCap className="w-5 h-5 text-blue-500" />
+                  {isRtl ? "الطلاب" : "Students"}
+                  <Badge variant="outline" className="ms-2">{getMembersForDept(selectedDept.id).filter(m => m.role === "student").length}</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {getMembersForDept(selectedDept.id).filter(m => m.role === "student").length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد طلاب" : "No students"}</p>
+                ) : (
+                  <div className="space-y-2">
+                    {getMembersForDept(selectedDept.id).filter(m => m.role === "student").map(member => (
+                      <div key={member.id} className="flex items-center justify-between p-4 rounded-lg border bg-card cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+                            <GraduationCap className="w-5 h-5 text-blue-500" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-foreground">{member.full_name}</p>
+                            {member.invitation_code && (
+                              <p className="text-xs font-mono text-muted-foreground">{isRtl ? "كود: " : "Code: "}{member.invitation_code}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={member.user_id ? "default" : "secondary"}>
+                            {member.user_id ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "في الانتظار" : "Pending")}
+                          </Badge>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); handleDeleteMember(member.id, member.full_name); }}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        ) : pageView === "memberProfile" && selectedMember ? (
+          /* Full-page Member Profile View */
+          <div className="space-y-4">
+            <Button variant="outline" className="gap-2" onClick={() => setPageView("members")}>
+              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              {isRtl ? "رجوع للأعضاء" : "Back to Members"}
+            </Button>
+            <div className="flex items-center gap-3 mb-2">
+              {selectedMember.role === "lecturer"
+                ? <div className="w-14 h-14 rounded-full bg-green-500/10 flex items-center justify-center"><UserCheck className="w-7 h-7 text-green-500" /></div>
+                : <div className="w-14 h-14 rounded-full bg-blue-500/10 flex items-center justify-center"><GraduationCap className="w-7 h-7 text-blue-500" /></div>}
+              <div>
+                <h2 className="text-2xl font-black text-foreground">{selectedMember.full_name}</h2>
+                <p className="text-sm text-muted-foreground">
+                  {selectedMember.role === "lecturer" ? (isRtl ? "محاضر" : "Lecturer") : (isRtl ? "طالب" : "Student")}
+                </p>
+              </div>
+            </div>
+
+            {/* Two icon cards for navigation */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <Card
+                className={`cursor-pointer border-2 transition-all ${memberProfileTab === "info" ? "border-primary bg-primary/5 shadow-lg" : "hover:border-primary/30"}`}
+                onClick={() => setMemberProfileTab("info")}
+              >
+                <CardContent className="p-6 text-center">
+                  <User className="w-10 h-10 mx-auto mb-2 text-primary" />
+                  <p className="font-bold text-foreground">
+                    {isRtl
+                      ? (selectedMember.role === "lecturer" ? "بيانات المحاضر" : "بيانات الطالب")
+                      : (selectedMember.role === "lecturer" ? "Lecturer Info" : "Student Info")}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card
+                className={`cursor-pointer border-2 transition-all ${memberProfileTab === "stats" ? "border-primary bg-primary/5 shadow-lg" : "hover:border-primary/30"}`}
+                onClick={() => setMemberProfileTab("stats")}
+              >
+                <CardContent className="p-6 text-center">
+                  <BookOpen className="w-10 h-10 mx-auto mb-2 text-primary" />
+                  <p className="font-bold text-foreground">
+                    {isRtl ? "الإحصائيات" : "Statistics"}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {memberProfileTab === "info" ? (
+              <Card className="border-2">
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex items-center gap-4 p-4 rounded-lg border">
+                    <User className="w-6 h-6 text-muted-foreground" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">{isRtl ? "الاسم الكامل" : "Full Name"}</p>
+                      <p className="font-bold text-foreground text-lg">{selectedMember.full_name}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 p-4 rounded-lg border">
+                    <Users className="w-6 h-6 text-muted-foreground" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">{isRtl ? "الدور" : "Role"}</p>
+                      <p className="font-bold text-foreground text-lg">
+                        {selectedMember.role === "lecturer" ? (isRtl ? "محاضر" : "Lecturer") : (isRtl ? "طالب" : "Student")}
+                      </p>
+                    </div>
+                  </div>
+                  {selectedMember.date_of_birth && (
+                    <div className="flex items-center gap-4 p-4 rounded-lg border">
+                      <Calendar className="w-6 h-6 text-muted-foreground" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">{isRtl ? "تاريخ الميلاد" : "Date of Birth"}</p>
+                        <p className="font-bold text-foreground text-lg">{selectedMember.date_of_birth}</p>
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-4 p-4 rounded-lg border">
+                    <LinkIcon className="w-6 h-6 text-muted-foreground" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">{isRtl ? "حالة الحساب" : "Account Status"}</p>
+                      <p className="font-bold text-foreground text-lg">
+                        {selectedMember.user_id ? (isRtl ? "✅ مربوط بحساب" : "✅ Linked") : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending")}
+                      </p>
+                    </div>
+                  </div>
+                  {selectedMember.invitation_code && (
+                    <div className="flex items-center gap-4 p-4 rounded-lg border">
+                      <Ticket className="w-6 h-6 text-muted-foreground" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">{isRtl ? "كود الدعوة" : "Invitation Code"}</p>
+                        <code className="font-mono text-lg font-bold text-foreground">{selectedMember.invitation_code}</code>
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-4 p-4 rounded-lg border">
+                    <Clock className="w-6 h-6 text-muted-foreground" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">{isRtl ? "تاريخ الانضمام" : "Joined Date"}</p>
+                      <p className="font-bold text-foreground text-lg">{new Date(selectedMember.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : selectedMember.role === "lecturer" ? (
+              <Card className="border-2">
+                <CardHeader>
+                  <CardTitle>{isRtl ? "إحصائيات المحاضر" : "Lecturer Statistics"}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <Card className="border">
+                      <CardContent className="p-5 text-center">
+                        <p className="text-3xl font-black text-primary">{selectedMember.user_id ? "—" : "0"}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{isRtl ? "عدد مرات الحضور" : "Attendance"}</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="border">
+                      <CardContent className="p-5 text-center">
+                        <p className="text-3xl font-black text-primary">{selectedMember.user_id ? "—" : "0"}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{isRtl ? "البث المباشر" : "Live Streams"}</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="border">
+                      <CardContent className="p-5 text-center">
+                        <p className="text-3xl font-black text-primary">{selectedMember.user_id ? "—" : "0"}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{isRtl ? "الدورات" : "Courses"}</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="border">
+                      <CardContent className="p-5 text-center">
+                        <p className="text-3xl font-black text-amber-500">⭐ —</p>
+                        <p className="text-sm text-muted-foreground mt-1">{isRtl ? "تقييم الطلاب" : "Student Rating"}</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  {!selectedMember.user_id && (
+                    <p className="text-sm text-center text-muted-foreground py-4">
+                      {isRtl ? "سيتم عرض الإحصائيات بعد تفعيل حساب المحاضر" : "Statistics will appear after account activation"}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="border-2">
+                <CardHeader>
+                  <CardTitle>{isRtl ? "إحصائيات الطالب" : "Student Statistics"}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <Card className="border">
+                      <CardContent className="p-5 text-center">
+                        <p className="text-3xl font-black text-primary">{selectedMember.user_id ? "—" : "0"}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{isRtl ? "نتائج الاختبارات" : "Test Results"}</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="border">
+                      <CardContent className="p-5 text-center">
+                        <p className="text-3xl font-black text-primary">{selectedMember.user_id ? "—" : "0"}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{isRtl ? "البث المُحضَر" : "Streams Attended"}</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="border">
+                      <CardContent className="p-5 text-center">
+                        <p className="text-3xl font-black text-primary">{selectedMember.user_id ? "—" : "0"}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{isRtl ? "التكليفات المكتملة" : "Assignments"}</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="border">
+                      <CardContent className="p-5 text-center">
+                        <p className="text-3xl font-black text-amber-500">⭐ —</p>
+                        <p className="text-sm text-muted-foreground mt-1">{isRtl ? "تقييم المحاضر" : "Lecturer Rating"}</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  {!selectedMember.user_id && (
+                    <p className="text-sm text-center text-muted-foreground py-4">
+                      {isRtl ? "سيتم عرض الإحصائيات بعد تفعيل حساب الطالب" : "Statistics will appear after account activation"}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab} dir={dir}>
           <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="overview" className="gap-2">

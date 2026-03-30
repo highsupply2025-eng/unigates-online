@@ -667,9 +667,7 @@ const InstitutionDashboard = () => {
                                             <path d="M13.412 12.281l3.863-8.144h3.014L15.368 14.03v5.832h-2.932V14.03L7.506 4.137h3.014l3.892 8.144zM4.776 16.327a1.941 1.941 0 110 3.882 1.941 1.941 0 010-3.882z"/>
                                           </svg>
                                         </Button>
-                                      </a>
-                                        </Button>
-                                      </a>
+                                       </a>
                                     </div>
                                   </div>
                                   {member.invitation_code && (

@@ -94,7 +94,8 @@ const Login = () => {
         navigate("/");
       }
     } catch (error: any) {
-      toast({ title: t.loginPage.error, description: error.message, variant: "destructive" });
+      console.error('Login failed:', error);
+      toast({ title: t.loginPage.error, description: language === "ar" ? "حدث خطأ غير متوقع. حاول مرة أخرى." : "An unexpected error occurred. Please try again.", variant: "destructive" });
     } finally {
       setLoading(false);
     }

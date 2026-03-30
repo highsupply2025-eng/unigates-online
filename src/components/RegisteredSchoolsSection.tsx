@@ -11,13 +11,12 @@ const RegisteredSchoolsSection = () => {
     queryKey: ["approved-schools-home"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("school_registrations")
+        .from("approved_schools_public" as any)
         .select("id, school_name, city, student_count")
-        .eq("status", "approved")
-        .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
         .limit(8);
       if (error) throw error;
-      return data;
+      return data as unknown as { id: string; school_name: string; city: string; student_count: number | null }[];
     },
   });
 

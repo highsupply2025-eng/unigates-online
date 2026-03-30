@@ -261,7 +261,7 @@ const AdminDashboard = () => {
 
   const handleApprove = async (roleId: string) => {
     const { error } = await supabase.from("user_roles").update({ approved: true }).eq("id", roleId);
-    if (error) { showError(error.message); return; }
+    if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     showSuccess(language === "ar" ? "تمت الموافقة" : "Approved");
     await Promise.all([loadPending(), loadAllUsers(), loadStats()]);
     setShowDetailDialog(false);
@@ -269,7 +269,7 @@ const AdminDashboard = () => {
 
   const handleReject = async (roleId: string) => {
     const { error } = await supabase.from("user_roles").delete().eq("id", roleId);
-    if (error) { showError(error.message); return; }
+    if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     showSuccess(language === "ar" ? "تم الرفض" : "Rejected");
     await Promise.all([loadPending(), loadAllUsers(), loadStats()]);
     setShowDetailDialog(false);
@@ -277,7 +277,7 @@ const AdminDashboard = () => {
 
   const handleSchoolApprove = async (id: string) => {
     const { error } = await supabase.from("school_registrations").update({ status: "approved", admin_notes: adminNotes || null }).eq("id", id);
-    if (error) { showError(error.message); return; }
+    if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     showSuccess(language === "ar" ? "تم قبول المدرسة" : "School approved");
     setShowSchoolDialog(false); setAdminNotes("");
     await Promise.all([loadSchoolRegistrations(), loadStats()]);
@@ -285,7 +285,7 @@ const AdminDashboard = () => {
 
   const handleSchoolReject = async (id: string) => {
     const { error } = await supabase.from("school_registrations").update({ status: "rejected", admin_notes: adminNotes || null }).eq("id", id);
-    if (error) { showError(error.message); return; }
+    if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     showSuccess(language === "ar" ? "تم رفض المدرسة" : "School rejected");
     setShowSchoolDialog(false); setAdminNotes("");
     await Promise.all([loadSchoolRegistrations(), loadStats()]);
@@ -294,7 +294,7 @@ const AdminDashboard = () => {
   // College handlers
   const handleCollegeApprove = async (id: string) => {
     const { error } = await supabase.from("college_registrations").update({ status: "approved", admin_notes: collegeAdminNotes || null }).eq("id", id);
-    if (error) { showError(error.message); return; }
+    if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     showSuccess(language === "ar" ? "تم قبول الكلية" : "College approved");
     setShowCollegeDialog(false); setCollegeAdminNotes("");
     await Promise.all([loadColleges(), loadStats()]);
@@ -302,7 +302,7 @@ const AdminDashboard = () => {
 
   const handleCollegeReject = async (id: string) => {
     const { error } = await supabase.from("college_registrations").update({ status: "rejected", admin_notes: collegeAdminNotes || null }).eq("id", id);
-    if (error) { showError(error.message); return; }
+    if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     showSuccess(language === "ar" ? "تم رفض الكلية" : "College rejected");
     setShowCollegeDialog(false); setCollegeAdminNotes("");
     await Promise.all([loadColleges(), loadStats()]);
@@ -311,7 +311,7 @@ const AdminDashboard = () => {
   // Institute handlers
   const handleInstituteApprove = async (id: string) => {
     const { error } = await supabase.from("institute_registrations" as any).update({ status: "approved", admin_notes: instituteAdminNotes || null }).eq("id", id);
-    if (error) { showError(error.message); return; }
+    if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     showSuccess(language === "ar" ? "تم قبول المعهد" : "Institute approved");
     setShowInstituteDialog(false); setInstituteAdminNotes("");
     await Promise.all([loadInstitutes(), loadStats()]);
@@ -319,7 +319,7 @@ const AdminDashboard = () => {
 
   const handleInstituteReject = async (id: string) => {
     const { error } = await supabase.from("institute_registrations" as any).update({ status: "rejected", admin_notes: instituteAdminNotes || null }).eq("id", id);
-    if (error) { showError(error.message); return; }
+    if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     showSuccess(language === "ar" ? "تم رفض المعهد" : "Institute rejected");
     setShowInstituteDialog(false); setInstituteAdminNotes("");
     await Promise.all([loadInstitutes(), loadStats()]);
@@ -336,7 +336,7 @@ const AdminDashboard = () => {
       student_count: studentCount,
       payment_amount: studentCount * 299,
     });
-    if (error) { showError(error.message); return; }
+    if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     showSuccess(language === "ar" ? "تم إنشاء القسم" : "Department created");
     setShowDeptDialog(false); setNewDeptName(""); setNewDeptStudentCount("");
     await loadDepartments();
@@ -352,7 +352,7 @@ const AdminDashboard = () => {
       date_of_birth: newMemberDob || null,
       invitation_code: invCode,
     });
-    if (error) { showError(error.message); return; }
+    if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     showSuccess(language === "ar" ? "تم إضافة العضو" : "Member added");
     setNewMemberName(""); setNewMemberDob("");
     await loadDepartmentMembers();
@@ -370,7 +370,7 @@ const AdminDashboard = () => {
       .update({ payment_status: "paid", status: "active" })
       .eq("id", paymentDept.id);
     
-    if (error) { showError(error.message); setPaymentProcessing(false); return; }
+    if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); setPaymentProcessing(false); return; }
     
     // Generate invitation codes for all members without one
     const members = getMembersForDepartment(paymentDept.id);
@@ -409,7 +409,7 @@ const AdminDashboard = () => {
       role: newInvitationRole,
       max_uses: parseInt(newInvitationMaxUses) || 0,
     });
-    if (error) { showError(error.message); return; }
+    if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     showSuccess(language === "ar" ? "تم إنشاء رابط الدعوة" : "Invitation created");
     setShowCreateInvitation(false);
     setNewInvitationCollegeId("");
@@ -445,7 +445,7 @@ const AdminDashboard = () => {
       ({ error } = await supabase.from("user_roles").delete().eq("id", id));
       if (!error && user?.profile) await supabase.from("profiles").delete().eq("id", user.profile.id);
     }
-    if (error) { showError(error.message); setDeleteTarget(null); return; }
+    if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); setDeleteTarget(null); return; }
     showSuccess(language === "ar" ? "تم الحذف بنجاح" : "Deleted successfully");
     setDeleteTarget(null);
     await loadAll();
@@ -456,7 +456,7 @@ const AdminDashboard = () => {
     if (!editCourse) return;
     const { id, title_ar, title_en, instructor_ar, instructor_en, category_ar, category_en, is_free } = editCourse;
     const { error } = await supabase.from("courses").update({ title_ar, title_en, instructor_ar, instructor_en, category_ar, category_en, is_free }).eq("id", id);
-    if (error) { showError(error.message); return; }
+    if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     showSuccess(language === "ar" ? "تم تحديث الدورة" : "Course updated");
     setEditCourse(null); await loadCourses();
   };
@@ -465,7 +465,7 @@ const AdminDashboard = () => {
     if (!editBook) return;
     const { id, title_ar, title_en, author_ar, author_en, category, price, original_price, is_bestseller, is_new, is_active } = editBook;
     const { error } = await supabase.from("books").update({ title_ar, title_en, author_ar, author_en, category, price, original_price, is_bestseller, is_new, is_active }).eq("id", id);
-    if (error) { showError(error.message); return; }
+    if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     showSuccess(language === "ar" ? "تم تحديث الكتاب" : "Book updated");
     setEditBook(null); await loadBooks();
   };
@@ -473,7 +473,7 @@ const AdminDashboard = () => {
   const handleSaveOrder = async () => {
     if (!editOrder) return;
     const { error } = await supabase.from("book_orders").update({ status: editOrder.status }).eq("id", editOrder.id);
-    if (error) { showError(error.message); return; }
+    if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     showSuccess(language === "ar" ? "تم تحديث الطلب" : "Order updated");
     setEditOrder(null); await loadOrders();
   };
@@ -481,7 +481,7 @@ const AdminDashboard = () => {
   const handleSaveSub = async () => {
     if (!editSub) return;
     const { error } = await supabase.from("user_subscriptions").update({ status: editSub.status, plan_type: editSub.plan_type }).eq("id", editSub.id);
-    if (error) { showError(error.message); return; }
+    if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     showSuccess(language === "ar" ? "تم تحديث الاشتراك" : "Subscription updated");
     setEditSub(null); await loadSubscriptions();
   };
@@ -489,7 +489,7 @@ const AdminDashboard = () => {
   const handleSaveStream = async () => {
     if (!editStream) return;
     const { error } = await supabase.from("live_streams").update({ title_ar: editStream.title_ar, title_en: editStream.title_en, status: editStream.status }).eq("id", editStream.id);
-    if (error) { showError(error.message); return; }
+    if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     showSuccess(language === "ar" ? "تم تحديث البث" : "Stream updated");
     setEditStream(null); await loadStreams();
   };

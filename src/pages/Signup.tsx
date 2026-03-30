@@ -233,7 +233,8 @@ const Signup = () => {
 
       setSubmitted(true);
     } catch (error: any) {
-      toast({ title: t.signupPage.errorGeneric, description: error.message, variant: "destructive" });
+      console.error('Signup failed:', error);
+      toast({ title: t.signupPage.errorGeneric, description: language === "ar" ? "حدث خطأ غير متوقع. حاول مرة أخرى." : "An unexpected error occurred. Please try again.", variant: "destructive" });
     } finally {
       setLoading(false);
     }

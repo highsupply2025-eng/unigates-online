@@ -168,10 +168,11 @@ const InstitutionDashboard = () => {
   const handleAddDepartment = async () => {
     if (!newDeptName || !newDeptStudentCount) return;
     const studentCount = parseInt(newDeptStudentCount);
+    const lecturerCount = parseInt(newDeptLecturerCount) || 0;
     const paymentAmount = studentCount * 299;
 
     try {
-      const { error } = await supabase.from("departments").insert({
+      const { data: newDept, error } = await supabase.from("departments").insert({
         institution_id: institutionId,
         institution_type: institutionType || "college",
         department_name: newDeptName,
@@ -179,12 +180,38 @@ const InstitutionDashboard = () => {
         payment_amount: paymentAmount,
         status: "pending",
         payment_status: "unpaid",
-      });
+      }).select().single();
       if (error) throw error;
+
+      // Auto-create student member slots
+      const memberInserts: any[] = [];
+      for (let i = 1; i <= studentCount; i++) {
+        memberInserts.push({
+          department_id: newDept.id,
+          full_name: isRtl ? `طالب ${i}` : `Student ${i}`,
+          role: "student",
+          invitation_code: generateCode(),
+        });
+      }
+      // Auto-create lecturer member slots
+      for (let i = 1; i <= lecturerCount; i++) {
+        memberInserts.push({
+          department_id: newDept.id,
+          full_name: isRtl ? `محاضر ${i}` : `Lecturer ${i}`,
+          role: "lecturer",
+          invitation_code: generateCode(),
+        });
+      }
+      if (memberInserts.length > 0) {
+        const { error: membersError } = await supabase.from("department_members").insert(memberInserts);
+        if (membersError) throw membersError;
+      }
 
       toast({
         title: isRtl ? "تم إضافة القسم" : "Department Added",
-        description: isRtl ? `تكلفة الاشتراك: ${paymentAmount} جنيه شهرياً` : `Subscription cost: ${paymentAmount} EGP/month`,
+        description: isRtl
+          ? `تم إنشاء ${studentCount} طالب و ${lecturerCount} محاضر - تكلفة: ${paymentAmount} جنيه شهرياً`
+          : `Created ${studentCount} students & ${lecturerCount} lecturers - Cost: ${paymentAmount} EGP/month`,
       });
       setShowAddDeptDialog(false);
       setNewDeptName("");
@@ -217,6 +244,24 @@ const InstitutionDashboard = () => {
       setShowAddMemberDialog(false);
       setNewMemberName("");
       setNewMemberDob("");
+      await loadInstitutionData(institutionId, institutionType || "college");
+    } catch (error: any) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const handleDeleteMember = async (memberId: string, memberName: string) => {
+    try {
+      const { error } = await supabase
+        .from("department_members")
+        .delete()
+        .eq("id", memberId);
+      if (error) throw error;
+
+      toast({
+        title: isRtl ? "تم حذف العضو" : "Member Deleted",
+        description: memberName,
+      });
       await loadInstitutionData(institutionId, institutionType || "college");
     } catch (error: any) {
       toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
@@ -931,9 +976,14 @@ const InstitutionDashboard = () => {
                             )}
                           </div>
                         </div>
-                        <Badge variant={member.user_id ? "default" : "secondary"}>
-                          {member.user_id ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "في الانتظار" : "Pending")}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={member.user_id ? "default" : "secondary"}>
+                            {member.user_id ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "في الانتظار" : "Pending")}
+                          </Badge>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10" onClick={() => handleDeleteMember(member.id, member.full_name)}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -967,9 +1017,14 @@ const InstitutionDashboard = () => {
                             )}
                           </div>
                         </div>
-                        <Badge variant={member.user_id ? "default" : "secondary"}>
-                          {member.user_id ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "في الانتظار" : "Pending")}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={member.user_id ? "default" : "secondary"}>
+                            {member.user_id ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "في الانتظار" : "Pending")}
+                          </Badge>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10" onClick={() => handleDeleteMember(member.id, member.full_name)}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>

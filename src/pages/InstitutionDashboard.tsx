@@ -68,6 +68,7 @@ const InstitutionDashboard = () => {
   const [showAddDeptDialog, setShowAddDeptDialog] = useState(false);
   const [newDeptName, setNewDeptName] = useState("");
   const [newDeptStudentCount, setNewDeptStudentCount] = useState("");
+  const [newDeptLecturerCount, setNewDeptLecturerCount] = useState("");
 
   // Add Member
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
@@ -188,6 +189,7 @@ const InstitutionDashboard = () => {
       setShowAddDeptDialog(false);
       setNewDeptName("");
       setNewDeptStudentCount("");
+      setNewDeptLecturerCount("");
       await loadInstitutionData(institutionId, institutionType || "college");
     } catch (error: any) {
       toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
@@ -714,11 +716,20 @@ const InstitutionDashboard = () => {
               <Label>{isRtl ? "عدد الطلاب" : "Student Count"}</Label>
               <Input type="number" value={newDeptStudentCount} onChange={e => setNewDeptStudentCount(e.target.value)} placeholder="0" />
             </div>
+            <div>
+              <Label>{isRtl ? "عدد المحاضرين" : "Lecturer Count"}</Label>
+              <Input type="number" value={newDeptLecturerCount} onChange={e => setNewDeptLecturerCount(e.target.value)} placeholder="0" />
+            </div>
             {newDeptStudentCount && parseInt(newDeptStudentCount) > 0 && (
               <div className="p-4 rounded-xl bg-primary/10 text-center border-2 border-primary/20">
                 <p className="text-sm text-muted-foreground">{isRtl ? "تكلفة الاشتراك الشهري" : "Monthly subscription cost"}</p>
                 <p className="text-3xl font-black text-primary my-1">{parseInt(newDeptStudentCount) * 299} {isRtl ? "جنيه" : "EGP"}</p>
                 <p className="text-xs text-muted-foreground">{parseInt(newDeptStudentCount)} × 299 {isRtl ? "جنيه/طالب شهرياً" : "EGP/student/month"}</p>
+                {newDeptLecturerCount && parseInt(newDeptLecturerCount) > 0 && (
+                  <p className="text-xs text-green-600 mt-1 font-semibold">
+                    {isRtl ? `${newDeptLecturerCount} محاضر (مجاناً - حتى 10)` : `${newDeptLecturerCount} lecturers (Free - up to 10)`}
+                  </p>
+                )}
               </div>
             )}
           </div>

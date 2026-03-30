@@ -510,104 +510,169 @@ const InstitutionDashboard = () => {
             )}
           </TabsContent>
 
-          {/* Invitations Tab */}
+          {/* Invitations Tab - Links & Codes */}
           <TabsContent value="invitations">
-            <Card>
-              <CardHeader>
-                <CardTitle>{isRtl ? "أكواد الدعوة" : "Invitation Codes"}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {departments.filter(d => d.payment_status === "paid").length === 0 ? (
-                  <div className="text-center py-10 text-muted-foreground">
-                    <LinkIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                    <p>{isRtl ? "يجب دفع اشتراك قسم واحد على الأقل لتفعيل أكواد الدعوة" : "Pay at least one department to activate invitation codes"}</p>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    {departments.filter(d => d.payment_status === "paid").map(dept => {
-                      const members = getMembersForDept(dept.id);
-                      const studentMembers = members.filter(m => m.role === "student");
-                      const lecturerMembers = members.filter(m => m.role === "lecturer");
+            {departments.filter(d => d.payment_status === "paid").length === 0 ? (
+              <Card>
+                <CardContent className="text-center py-10 text-muted-foreground">
+                  <LinkIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                  <p>{isRtl ? "يجب دفع اشتراك قسم واحد على الأقل لتفعيل روابط وأكواد الدعوة" : "Pay at least one department to activate invitation links & codes"}</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-6">
+                {departments.filter(d => d.payment_status === "paid").map(dept => {
+                  const members = getMembersForDept(dept.id);
+                  const lecturerMembers = members.filter(m => m.role === "lecturer");
+                  const studentMembers = members.filter(m => m.role === "student");
+                  const baseUrl = window.location.origin;
 
-                      return (
-                        <div key={dept.id} className="border-2 rounded-xl p-5">
-                          <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-bold text-lg text-foreground">{dept.department_name}</h3>
-                            <Badge>{isRtl ? "مفعّل" : "Active"}</Badge>
-                          </div>
-
-                          {/* Lecturer Invitations */}
-                          <div className="mb-4">
-                            <h4 className="text-sm font-semibold text-green-600 mb-2 flex items-center gap-2">
-                              <UserCheck className="w-4 h-4" />
-                              {isRtl ? "أكواد المحاضرين" : "Lecturer Codes"}
-                            </h4>
-                            {lecturerMembers.length > 0 ? (
-                              <div className="space-y-2">
-                                {lecturerMembers.map(member => (
-                                  <div key={member.id} className="flex items-center justify-between p-3 bg-green-500/5 rounded-lg border">
-                                    <div>
-                                      <p className="font-semibold text-foreground">{member.full_name}</p>
-                                      <p className="text-xs text-muted-foreground">
-                                        {member.user_id
-                                          ? (isRtl ? "✅ مربوط بحساب" : "✅ Linked")
-                                          : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending registration")}
-                                      </p>
-                                    </div>
-                                    {member.invitation_code && (
-                                      <Button variant="outline" size="sm" onClick={() => copyToClipboard(member.invitation_code!)} className="gap-1.5 font-mono">
-                                        <Copy className="w-3 h-3" />
-                                        {member.invitation_code}
-                                      </Button>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <p className="text-sm text-muted-foreground py-2">{isRtl ? "لا يوجد محاضرون - أضف محاضرين من تبويب الأقسام" : "No lecturers - add from Departments tab"}</p>
-                            )}
-                          </div>
-
-                          <Separator className="my-3" />
-
-                          {/* Student Invitations */}
-                          <div>
-                            <h4 className="text-sm font-semibold text-blue-600 mb-2 flex items-center gap-2">
-                              <GraduationCap className="w-4 h-4" />
-                              {isRtl ? "أكواد الطلاب" : "Student Codes"}
-                            </h4>
-                            {studentMembers.length > 0 ? (
-                              <div className="space-y-2">
-                                {studentMembers.map(member => (
-                                  <div key={member.id} className="flex items-center justify-between p-3 bg-blue-500/5 rounded-lg border">
-                                    <div>
-                                      <p className="font-semibold text-foreground">{member.full_name}</p>
-                                      <p className="text-xs text-muted-foreground">
-                                        {member.user_id
-                                          ? (isRtl ? "✅ مربوط بحساب" : "✅ Linked")
-                                          : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending registration")}
-                                      </p>
-                                    </div>
-                                    {member.invitation_code && (
-                                      <Button variant="outline" size="sm" onClick={() => copyToClipboard(member.invitation_code!)} className="gap-1.5 font-mono">
-                                        <Copy className="w-3 h-3" />
-                                        {member.invitation_code}
-                                      </Button>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <p className="text-sm text-muted-foreground py-2">{isRtl ? "لا يوجد طلاب - أضف طلاب من تبويب الأقسام" : "No students - add from Departments tab"}</p>
-                            )}
-                          </div>
+                  return (
+                    <Card key={dept.id} className="border-2">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg">{dept.department_name}</CardTitle>
+                          <Badge>{isRtl ? "مفعّل" : "Active"}</Badge>
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                      </CardHeader>
+                      <CardContent>
+                        {/* Lecturer Section */}
+                        <div className="mb-6">
+                          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
+                            <UserCheck className="w-5 h-5 text-green-600" />
+                            <h4 className="font-bold text-foreground">
+                              {isRtl ? "روابط وأكواد المحاضرين" : "Lecturer Links & Codes"}
+                            </h4>
+                            <Badge variant="outline" className="ms-auto text-green-600 border-green-600">
+                              {isRtl ? `${lecturerMembers.length} / 10 مجاني` : `${lecturerMembers.length} / 10 Free`}
+                            </Badge>
+                          </div>
+
+                          {lecturerMembers.length > 0 ? (
+                            <div className="space-y-2">
+                              {lecturerMembers.map(member => {
+                                const inviteLink = `${baseUrl}/signup?role=lecturer&dept_invite=${member.invitation_code}`;
+                                return (
+                                  <div key={member.id} className="p-3 rounded-lg border bg-green-500/5">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
+                                          <UserCheck className="w-4 h-4 text-green-600" />
+                                        </div>
+                                        <div>
+                                          <p className="font-semibold text-sm text-foreground">{member.full_name}</p>
+                                          <p className="text-xs text-muted-foreground">
+                                            {member.user_id
+                                              ? (isRtl ? "✅ مربوط بحساب" : "✅ Linked")
+                                              : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending")}
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <Badge variant={member.user_id ? "default" : "secondary"} className="text-xs">
+                                        {member.user_id ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "معلق" : "Pending")}
+                                      </Badge>
+                                    </div>
+                                    {member.invitation_code && (
+                                      <div className="space-y-1.5 mt-2">
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-xs font-semibold text-muted-foreground min-w-[40px]">{isRtl ? "الكود:" : "Code:"}</span>
+                                          <code className="text-xs font-mono bg-muted px-2 py-1 rounded flex-1">{member.invitation_code}</code>
+                                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => copyToClipboard(member.invitation_code!)}>
+                                            <Copy className="w-3 h-3" />
+                                          </Button>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-xs font-semibold text-muted-foreground min-w-[40px]">{isRtl ? "الرابط:" : "Link:"}</span>
+                                          <code className="text-xs font-mono bg-muted px-2 py-1 rounded flex-1 truncate" dir="ltr">{inviteLink}</code>
+                                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => copyToClipboard(inviteLink)}>
+                                            <Copy className="w-3 h-3" />
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground py-3 text-center">
+                              {isRtl ? "لا يوجد محاضرون - أضف محاضرين من تبويب الأقسام (10 مجاناً لكل قسم)" : "No lecturers - add from Departments tab (10 free per department)"}
+                            </p>
+                          )}
+                        </div>
+
+                        <Separator className="my-4" />
+
+                        {/* Student Section */}
+                        <div>
+                          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
+                            <GraduationCap className="w-5 h-5 text-blue-600" />
+                            <h4 className="font-bold text-foreground">
+                              {isRtl ? "روابط وأكواد الطلاب" : "Student Links & Codes"}
+                            </h4>
+                            <Badge variant="outline" className="ms-auto text-blue-600 border-blue-600">
+                              {studentMembers.length} {isRtl ? "طالب" : "students"}
+                            </Badge>
+                          </div>
+
+                          {studentMembers.length > 0 ? (
+                            <div className="space-y-2">
+                              {studentMembers.map(member => {
+                                const inviteLink = `${baseUrl}/signup?role=student&dept_invite=${member.invitation_code}`;
+                                return (
+                                  <div key={member.id} className="p-3 rounded-lg border bg-blue-500/5">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+                                          <GraduationCap className="w-4 h-4 text-blue-600" />
+                                        </div>
+                                        <div>
+                                          <p className="font-semibold text-sm text-foreground">{member.full_name}</p>
+                                          <p className="text-xs text-muted-foreground">
+                                            {member.user_id
+                                              ? (isRtl ? "✅ مربوط بحساب" : "✅ Linked")
+                                              : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending")}
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <Badge variant={member.user_id ? "default" : "secondary"} className="text-xs">
+                                        {member.user_id ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "معلق" : "Pending")}
+                                      </Badge>
+                                    </div>
+                                    {member.invitation_code && (
+                                      <div className="space-y-1.5 mt-2">
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-xs font-semibold text-muted-foreground min-w-[40px]">{isRtl ? "الكود:" : "Code:"}</span>
+                                          <code className="text-xs font-mono bg-muted px-2 py-1 rounded flex-1">{member.invitation_code}</code>
+                                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => copyToClipboard(member.invitation_code!)}>
+                                            <Copy className="w-3 h-3" />
+                                          </Button>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-xs font-semibold text-muted-foreground min-w-[40px]">{isRtl ? "الرابط:" : "Link:"}</span>
+                                          <code className="text-xs font-mono bg-muted px-2 py-1 rounded flex-1 truncate" dir="ltr">{inviteLink}</code>
+                                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => copyToClipboard(inviteLink)}>
+                                            <Copy className="w-3 h-3" />
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground py-3 text-center">
+                              {isRtl ? "لا يوجد طلاب - أضف طلاب من تبويب الأقسام" : "No students - add from Departments tab"}
+                            </p>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </main>

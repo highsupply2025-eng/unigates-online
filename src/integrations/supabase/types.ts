@@ -1000,7 +1000,27 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      approved_schools_public: {
+        Row: {
+          city: string | null
+          id: string | null
+          school_name: string | null
+          student_count: number | null
+        }
+        Insert: {
+          city?: string | null
+          id?: string | null
+          school_name?: string | null
+          student_count?: number | null
+        }
+        Update: {
+          city?: string | null
+          id?: string | null
+          school_name?: string | null
+          student_count?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_weekly_top_courses: { Args: never; Returns: undefined }

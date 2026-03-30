@@ -1,6 +1,6 @@
 export const en = {
   // Common
-  brandName: "Edrak",
+  brandName: "UNIGATE",
   login: "Log In",
   signup: "Create Account",
   home: "Home",

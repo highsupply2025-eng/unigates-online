@@ -260,7 +260,7 @@ const Signup = () => {
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
-            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={() => { if (window.history.length > 1) { navigate(-1); } else { navigate("/"); } }}>
+            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={() => navigate("/")}>
               {language === "ar" ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
             </Button>
           </div>

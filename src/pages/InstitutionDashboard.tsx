@@ -715,6 +715,10 @@ const InstitutionDashboard = () => {
               <Label>{isRtl ? "عدد الطلاب" : "Student Count"}</Label>
               <Input type="number" value={newDeptStudentCount} onChange={e => setNewDeptStudentCount(e.target.value)} placeholder="0" />
             </div>
+            <div>
+              <Label>{isRtl ? "عدد المحاضرين" : "Lecturer Count"}</Label>
+              <Input type="number" value={newDeptLecturerCount} onChange={e => setNewDeptLecturerCount(e.target.value)} placeholder="0" />
+            </div>
             {newDeptStudentCount && parseInt(newDeptStudentCount) > 0 && (
               <div className="p-4 rounded-xl bg-primary/10 text-center border-2 border-primary/20">
                 <p className="text-sm text-muted-foreground">{isRtl ? "تكلفة الاشتراك الشهري" : "Monthly subscription cost"}</p>

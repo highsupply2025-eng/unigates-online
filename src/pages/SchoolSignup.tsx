@@ -109,7 +109,7 @@ const SchoolSignup = () => {
             <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
               <Globe className="w-4 h-4" />{t.langSwitch}
             </Button>
-            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={() => navigate(-1)}>
+            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={() => { if (window.history.length > 1) { navigate(-1); } else { navigate("/"); } }}>
               {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
             </Button>
           </div>

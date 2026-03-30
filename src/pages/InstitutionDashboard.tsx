@@ -271,6 +271,18 @@ const InstitutionDashboard = () => {
     }
   };
 
+  const handleDeleteDepartment = async (deptId: string, deptName: string) => {
+    try {
+      await supabase.from("department_members").delete().eq("department_id", deptId);
+      const { error } = await supabase.from("departments").delete().eq("id", deptId);
+      if (error) throw error;
+      toast({ title: isRtl ? "تم حذف القسم" : "Department Deleted", description: deptName });
+      await loadInstitutionData(institutionId, institutionType || "college");
+    } catch (error: any) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
   const handlePayment = async () => {
     if (!paymentDept) return;
     setPaymentProcessing(true);

@@ -725,6 +725,11 @@ const InstitutionDashboard = () => {
                 <p className="text-sm text-muted-foreground">{isRtl ? "تكلفة الاشتراك الشهري" : "Monthly subscription cost"}</p>
                 <p className="text-3xl font-black text-primary my-1">{parseInt(newDeptStudentCount) * 299} {isRtl ? "جنيه" : "EGP"}</p>
                 <p className="text-xs text-muted-foreground">{parseInt(newDeptStudentCount)} × 299 {isRtl ? "جنيه/طالب شهرياً" : "EGP/student/month"}</p>
+                {newDeptLecturerCount && parseInt(newDeptLecturerCount) > 0 && (
+                  <p className="text-xs text-green-600 mt-1 font-semibold">
+                    {isRtl ? `${newDeptLecturerCount} محاضر (مجاناً - حتى 10)` : `${newDeptLecturerCount} lecturers (Free - up to 10)`}
+                  </p>
+                )}
               </div>
             )}
           </div>

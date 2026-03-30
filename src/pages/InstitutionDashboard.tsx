@@ -250,6 +250,24 @@ const InstitutionDashboard = () => {
     }
   };
 
+  const handleDeleteMember = async (memberId: string, memberName: string) => {
+    try {
+      const { error } = await supabase
+        .from("department_members")
+        .delete()
+        .eq("id", memberId);
+      if (error) throw error;
+
+      toast({
+        title: isRtl ? "تم حذف العضو" : "Member Deleted",
+        description: memberName,
+      });
+      await loadInstitutionData(institutionId, institutionType || "college");
+    } catch (error: any) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
   const handlePayment = async () => {
     if (!paymentDept) return;
     setPaymentProcessing(true);

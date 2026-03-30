@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Building2, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
-  GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2
+  GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
+  User, Ticket
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

@@ -1,6 +1,6 @@
 export const ar = {
   // Common
-  brandName: "إدراك",
+  brandName: "UNIGATE",
   login: "تسجيل دخول",
   signup: "إنشاء حساب",
   home: "الرئيسية",

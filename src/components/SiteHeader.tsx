@@ -9,12 +9,12 @@ const SiteHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navItems = [
-    { to: "/university-platform", label: t.universityPlatform },
-    { to: "/school-platform", label: t.schoolPlatform },
-    { to: "/courses", label: t.exploreCourses },
-    { to: "/book-store", label: t.bookStore },
-    { to: "/login", label: t.login },
-    { to: "/signup", label: t.signup },
+    { to: "/university-platform", label: t.universityPlatform, icon: Building2 },
+    { to: "/school-platform", label: t.schoolPlatform, icon: School },
+    { to: "/courses", label: t.exploreCourses, icon: BookOpen },
+    { to: "/book-store", label: t.bookStore, icon: Store },
+    { to: "/login", label: t.login, icon: LogIn },
+    { to: "/signup", label: t.signup, icon: UserPlus },
   ];
 
   return (

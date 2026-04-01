@@ -254,6 +254,13 @@ export type Database = {
             foreignKeyName: "college_invitations_college_id_fkey"
             columns: ["college_id"]
             isOneToOne: false
+            referencedRelation: "approved_colleges_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "college_invitations_college_id_fkey"
+            columns: ["college_id"]
+            isOneToOne: false
             referencedRelation: "college_registrations"
             referencedColumns: ["id"]
           },
@@ -285,6 +292,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "college_members_college_id_fkey"
+            columns: ["college_id"]
+            isOneToOne: false
+            referencedRelation: "approved_colleges_public"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "college_members_college_id_fkey"
             columns: ["college_id"]
@@ -1000,6 +1014,54 @@ export type Database = {
       }
     }
     Views: {
+      approved_colleges_public: {
+        Row: {
+          city: string | null
+          college_name: string | null
+          id: string | null
+          student_count: number | null
+          type: string | null
+        }
+        Insert: {
+          city?: string | null
+          college_name?: string | null
+          id?: string | null
+          student_count?: number | null
+          type?: string | null
+        }
+        Update: {
+          city?: string | null
+          college_name?: string | null
+          id?: string | null
+          student_count?: number | null
+          type?: string | null
+        }
+        Relationships: []
+      }
+      approved_institutes_public: {
+        Row: {
+          city: string | null
+          id: string | null
+          institute_name: string | null
+          specialization: string | null
+          student_count: number | null
+        }
+        Insert: {
+          city?: string | null
+          id?: string | null
+          institute_name?: string | null
+          specialization?: string | null
+          student_count?: number | null
+        }
+        Update: {
+          city?: string | null
+          id?: string | null
+          institute_name?: string | null
+          specialization?: string | null
+          student_count?: number | null
+        }
+        Relationships: []
+      }
       approved_schools_public: {
         Row: {
           city: string | null

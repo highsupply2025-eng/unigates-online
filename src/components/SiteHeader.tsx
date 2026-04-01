@@ -68,8 +68,9 @@ const SiteHeader = () => {
                 key={item.to}
                 to={item.to}
                 onClick={() => setMenuOpen(false)}
-                className="flex items-center px-4 py-3 rounded-lg text-sm font-semibold text-foreground hover:bg-primary/10 transition-colors"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold text-foreground hover:bg-primary/10 transition-colors"
               >
+                <item.icon className="w-4 h-4 text-primary" />
                 {item.label}
               </Link>
             ))}

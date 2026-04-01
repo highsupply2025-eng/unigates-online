@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Globe, Menu, X } from "lucide-react";
+import { GraduationCap, Globe, Menu, X, Building2, School, BookOpen, Store, LogIn, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState } from "react";

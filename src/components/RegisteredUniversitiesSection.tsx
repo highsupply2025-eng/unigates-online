@@ -11,10 +11,9 @@ const RegisteredUniversitiesSection = () => {
     queryKey: ["approved-colleges-home"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("college_registrations")
+        .from("approved_colleges_public")
         .select("id, college_name, city, student_count")
-        .eq("status", "approved")
-        .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
         .limit(8);
       if (error) throw error;
       return data;

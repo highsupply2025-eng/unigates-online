@@ -63,17 +63,20 @@ const SiteHeader = () => {
       {menuOpen && (
         <div className="md:hidden bg-background/95 backdrop-blur-md border-b border-border shadow-lg animate-in slide-in-from-top-2 duration-200">
           <nav className="flex flex-col gap-1 px-4 py-3">
-            {navItems.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold text-foreground hover:bg-primary/10 transition-colors"
-              >
-                <item.icon className="w-4 h-4 text-primary" />
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const IconComp = item.icon;
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold text-foreground hover:bg-primary/10 transition-colors"
+                >
+                  <IconComp className="w-4 h-4 text-primary" />
+                  {item.label}
+                </Link>
+              );
+            })}
             <button
               onClick={() => {
                 toggleLanguage();

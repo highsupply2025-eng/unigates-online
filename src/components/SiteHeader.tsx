@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Globe, Menu, X } from "lucide-react";
+import { GraduationCap, Globe, Menu, X, Building2, School, BookOpen, Store, LogIn, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState } from "react";
@@ -9,12 +9,12 @@ const SiteHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navItems = [
-    { to: "/university-platform", label: t.universityPlatform },
-    { to: "/school-platform", label: t.schoolPlatform },
-    { to: "/courses", label: t.exploreCourses },
-    { to: "/book-store", label: t.bookStore },
-    { to: "/login", label: t.login },
-    { to: "/signup", label: t.signup },
+    { to: "/university-platform", label: t.universityPlatform, icon: Building2 },
+    { to: "/school-platform", label: t.schoolPlatform, icon: School },
+    { to: "/courses", label: t.exploreCourses, icon: BookOpen },
+    { to: "/book-store", label: t.bookStore, icon: Store },
+    { to: "/login", label: t.login, icon: LogIn },
+    { to: "/signup", label: t.signup, icon: UserPlus },
   ];
 
   return (
@@ -68,8 +68,9 @@ const SiteHeader = () => {
                 key={item.to}
                 to={item.to}
                 onClick={() => setMenuOpen(false)}
-                className="flex items-center px-4 py-3 rounded-lg text-sm font-semibold text-foreground hover:bg-primary/10 transition-colors"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold text-foreground hover:bg-primary/10 transition-colors"
               >
+                <item.icon className="w-4 h-4 text-primary" />
                 {item.label}
               </Link>
             ))}

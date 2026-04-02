@@ -138,7 +138,7 @@ const UniversityPlatform = () => {
     {
       step: "1",
       icon: Landmark,
-      title: isRtl ? "سجّل كليتك" : "Register Your College",
+      title: isRtl ? "سجل الآن" : "Register Now",
       desc: isRtl ? "أنشئ حساباً مؤسسياً وأضف بيانات كليتك" : "Create an institutional account and add your college data",
     },
     {

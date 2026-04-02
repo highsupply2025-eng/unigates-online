@@ -208,14 +208,6 @@ const UniversityPlatform = () => {
               ? "منصة أكاديمية شاملة تربط الكليات والمعاهد بأحدث تقنيات التعليم الرقمي لتمكين الطلاب والأساتذة من تجربة تعليمية استثنائية"
               : "A comprehensive academic platform connecting colleges and institutes with cutting-edge digital education technology for an exceptional learning experience"}
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-10">
-            <Link to="/signup">
-              <Button size="lg" className="font-bold text-base px-8 bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg">
-                <Landmark className="w-5 h-5" />
-                {isRtl ? "سجّل كليتك الآن" : "Register Your College"}
-              </Button>
-            </Link>
-          </div>
 
           {/* Stats Section - below register button */}
           <div className="max-w-3xl mx-auto grid grid-cols-4 gap-3 text-center">

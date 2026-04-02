@@ -138,7 +138,7 @@ const UniversityPlatform = () => {
     {
       step: "1",
       icon: Landmark,
-      title: isRtl ? "سجّل كليتك" : "Register Your College",
+      title: isRtl ? "سجل الآن" : "Register Now",
       desc: isRtl ? "أنشئ حساباً مؤسسياً وأضف بيانات كليتك" : "Create an institutional account and add your college data",
     },
     {
@@ -451,7 +451,7 @@ const UniversityPlatform = () => {
           <Link to="/signup">
             <Button size="lg" className="font-bold text-base px-10 bg-white text-[hsl(220,80%,20%)] hover:bg-white/90 shadow-xl">
               <Landmark className="w-5 h-5" />
-              {isRtl ? "سجّل كليتك الآن" : "Register Your College Now"}
+              {isRtl ? "سجل الآن" : "Register Now"}
             </Button>
           </Link>
         </div>

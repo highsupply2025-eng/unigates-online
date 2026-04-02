@@ -72,7 +72,7 @@ const StatsSection = () => {
     { icon: Users, counter: students, label: language === "ar" ? "طالب" : "Student" },
     { icon: GraduationCap, counter: lecturers, label: language === "ar" ? "محاضر" : "Lecturer" },
     { icon: Landmark, counter: colleges, label: language === "ar" ? "كلية" : "College" },
-    { icon: Building2, counter: institutes, label: language === "ar" ? "معهد" : "Institute" },
+    { icon: School, counter: institutes, label: language === "ar" ? "معهد" : "Institute" },
   ];
 
   return (

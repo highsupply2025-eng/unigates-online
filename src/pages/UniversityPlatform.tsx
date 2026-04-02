@@ -145,7 +145,7 @@ const UniversityPlatform = () => {
       step: "2",
       icon: Layers,
       title: isRtl ? "أرسل روابط الدعوة" : "Send Invitation Links",
-      desc: isRtl ? "أرسل روابط دعوة للطلاب والمحاضرين للانضمام لكليتك" : "Send invitation links to students and lecturers to join your college",
+      desc: isRtl ? "أرسل روابط دعوة للطلاب والمحاضرين مع كود التفعيل للانضمام إلى مجتمع تعليمي متطور" : "Send invitation links with activation codes for students and lecturers to join an advanced learning community",
     },
     {
       step: "3",

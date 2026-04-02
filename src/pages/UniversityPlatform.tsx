@@ -5,6 +5,8 @@ import {
   Landmark, BookOpen, Users, School,
   BarChart3, Globe, GraduationCap,
   FileText, Video, Award, ArrowLeft, ArrowRight, Home,
+  ShieldCheck, MessageSquare, CalendarCheck, Layers,
+  Sparkles, Trophy, Zap,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -79,10 +81,10 @@ const UniversityPlatform = () => {
   const institutes = useCountUp(stats?.institutes ?? 0);
 
   const statItems = [
-    { icon: Users, counter: students, label: isRtl ? "طالب" : "Student" },
-    { icon: GraduationCap, counter: lecturers, label: isRtl ? "محاضر" : "Lecturer" },
-    { icon: Landmark, counter: colleges, label: isRtl ? "كلية" : "College" },
-    { icon: School, counter: institutes, label: isRtl ? "معهد" : "Institute" },
+    { icon: Users, counter: students, label: isRtl ? "طالب" : "Student", color: "from-blue-500 to-cyan-400" },
+    { icon: GraduationCap, counter: lecturers, label: isRtl ? "محاضر" : "Lecturer", color: "from-violet-500 to-purple-400" },
+    { icon: Landmark, counter: colleges, label: isRtl ? "كلية" : "College", color: "from-amber-500 to-orange-400" },
+    { icon: School, counter: institutes, label: isRtl ? "معهد" : "Institute", color: "from-emerald-500 to-teal-400" },
   ];
 
   const features = [
@@ -90,32 +92,62 @@ const UniversityPlatform = () => {
       icon: Video,
       title: isRtl ? "المحاضرات المباشرة" : "Live Lectures",
       desc: isRtl ? "بث مباشر للمحاضرات مع تفاعل فوري وتسجيل تلقائي" : "Live lecture streaming with real-time interaction and auto-recording",
+      gradient: "from-rose-500/15 to-pink-500/10",
+      iconColor: "text-rose-500",
     },
     {
       icon: FileText,
       title: isRtl ? "الاختبارات والتقييم" : "Exams & Assessment",
       desc: isRtl ? "نظام اختبارات متقدم مع تصحيح آلي وتحليل شامل للأداء" : "Advanced exam system with auto-grading and comprehensive performance analysis",
+      gradient: "from-blue-500/15 to-indigo-500/10",
+      iconColor: "text-blue-500",
     },
     {
       icon: BarChart3,
       title: isRtl ? "لوحة التحليلات" : "Analytics Dashboard",
       desc: isRtl ? "تقارير أداء مفصلة للطلاب والأقسام والكليات" : "Detailed performance reports for students, departments, and faculties",
+      gradient: "from-emerald-500/15 to-green-500/10",
+      iconColor: "text-emerald-500",
+    },
+    {
+      icon: MessageSquare,
+      title: isRtl ? "التواصل والمناقشات" : "Communication & Forums",
+      desc: isRtl ? "منتديات نقاشية ورسائل مباشرة بين الطلاب والأساتذة" : "Discussion forums and direct messaging between students and professors",
+      gradient: "from-violet-500/15 to-purple-500/10",
+      iconColor: "text-violet-500",
+    },
+    {
+      icon: CalendarCheck,
+      title: isRtl ? "الجدولة الذكية" : "Smart Scheduling",
+      desc: isRtl ? "جدولة تلقائية للمحاضرات والاختبارات مع تنبيهات فورية" : "Auto-scheduling for lectures and exams with instant notifications",
+      gradient: "from-amber-500/15 to-yellow-500/10",
+      iconColor: "text-amber-500",
+    },
+    {
+      icon: ShieldCheck,
+      title: isRtl ? "الأمان والخصوصية" : "Security & Privacy",
+      desc: isRtl ? "حماية متقدمة للبيانات الأكاديمية مع تشفير كامل" : "Advanced academic data protection with full encryption",
+      gradient: "from-cyan-500/15 to-teal-500/10",
+      iconColor: "text-cyan-500",
     },
   ];
 
   const steps = [
     {
       step: "1",
+      icon: Landmark,
       title: isRtl ? "سجّل كليتك" : "Register Your College",
       desc: isRtl ? "أنشئ حساباً مؤسسياً وأضف بيانات كليتك" : "Create an institutional account and add your college data",
     },
     {
       step: "2",
+      icon: Layers,
       title: isRtl ? "أرسل روابط الدعوة" : "Send Invitation Links",
       desc: isRtl ? "أرسل روابط دعوة للطلاب والمحاضرين للانضمام لكليتك" : "Send invitation links to students and lecturers to join your college",
     },
     {
       step: "3",
+      icon: Zap,
       title: isRtl ? "ابدأ التدريس" : "Start Teaching",
       desc: isRtl ? "ارفع المقررات وابدأ المحاضرات المباشرة فوراً" : "Upload courses and start live lectures immediately",
     },
@@ -130,6 +162,7 @@ const UniversityPlatform = () => {
         ? ["حتى 500 طالب", "10 أعضاء هيئة تدريس", "التقارير الأساسية", "دعم فني"]
         : ["Up to 500 students", "10 faculty members", "Basic reports", "Technical support"],
       highlighted: false,
+      icon: BookOpen,
     },
     {
       name: isRtl ? "الخطة المؤسسية" : "Institutional Plan",
@@ -139,6 +172,7 @@ const UniversityPlatform = () => {
         ? ["حتى 10,000 طالب", "هيئة تدريس غير محدودة", "تحليلات متقدمة", "دعم أولوية", "روابط دعوة غير محدودة"]
         : ["Up to 10,000 students", "Unlimited faculty", "Advanced analytics", "Priority support", "Unlimited invitations"],
       highlighted: true,
+      icon: Trophy,
     },
     {
       name: isRtl ? "خطة التحالف" : "Alliance Plan",
@@ -148,88 +182,101 @@ const UniversityPlatform = () => {
         ? ["طلاب غير محدود", "API مفتوح", "تخصيص كامل", "مدير حساب مخصص"]
         : ["Unlimited students", "Open API", "Full customization", "Dedicated account manager"],
       highlighted: false,
+      icon: Sparkles,
     },
   ];
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      {/* Hero */}
+      {/* Hero - Deep vibrant gradient */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/85 to-primary/70" />
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 start-10 w-72 h-72 bg-white rounded-full blur-3xl" />
-          <div className="absolute bottom-10 end-20 w-96 h-96 bg-white rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(220,80%,20%)] via-[hsl(200,75%,30%)] to-[hsl(174,72%,36%)]" />
+        <div className="absolute inset-0">
+          <div className="absolute top-10 start-10 w-80 h-80 bg-[hsl(174,72%,46%)] rounded-full blur-[120px] opacity-30" />
+          <div className="absolute bottom-0 end-10 w-96 h-96 bg-[hsl(260,70%,50%)] rounded-full blur-[120px] opacity-20" />
+          <div className="absolute top-1/2 start-1/2 w-64 h-64 bg-[hsl(200,80%,55%)] rounded-full blur-[100px] opacity-15" />
         </div>
+        {/* Subtle pattern overlay */}
+        <div className="absolute inset-0 opacity-[0.04]" style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+          backgroundSize: '32px 32px',
+        }} />
 
         <header className="relative z-50 flex items-center justify-between px-6 md:px-12 py-5">
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-11 h-11 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center group-hover:bg-white/25 transition-colors">
-              <GraduationCap className="w-7 h-7 text-primary-foreground" />
+            <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover:bg-white/20 transition-all duration-300 shadow-lg shadow-black/10">
+              <GraduationCap className="w-7 h-7 text-white" />
             </div>
-            <span className="text-2xl md:text-3xl font-black text-primary-foreground tracking-tight drop-shadow-md">
+            <span className="text-2xl md:text-3xl font-black text-white tracking-tight drop-shadow-lg">
               {t.brandName}
             </span>
           </Link>
           <div className="flex items-center gap-2">
             <Link to="/">
-              <Button size="sm" className="font-bold px-5 h-10 text-sm gap-1.5 bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-md">
+              <Button size="sm" className="font-bold px-5 h-10 text-sm gap-1.5 bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
                 <Home className="w-4 h-4" />
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
             </Link>
             <Link to="/login">
-              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-md">
+              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
                 {t.login}
               </Button>
             </Link>
             <Link to="/signup">
-              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-md">
+              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white text-[hsl(220,80%,20%)] hover:bg-white/90 shadow-lg">
                 {t.signup}
               </Button>
             </Link>
-            <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 px-5 h-10 text-sm bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-md">
+            <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
           </div>
         </header>
 
-        <div className="relative z-10 pb-16 px-6 md:px-12 text-center max-w-4xl mx-auto pt-12">
+        <div className="relative z-10 pb-20 px-6 md:px-12 text-center max-w-4xl mx-auto pt-14">
           <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
-              <Landmark className="w-10 h-10 text-primary-foreground" />
+            <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl shadow-black/20">
+              <Landmark className="w-10 h-10 text-white drop-shadow-lg" />
             </div>
           </div>
-          <h1 className="text-3xl md:text-5xl font-black text-primary-foreground mb-4 leading-tight">
+          <h1 className="text-3xl md:text-5xl font-black text-white mb-4 leading-tight drop-shadow-lg">
             {isRtl ? "المنصة الجامعية" : "University Platform"}
           </h1>
-          <p className="text-primary-foreground/80 text-lg md:text-xl max-w-2xl mx-auto mb-8 leading-relaxed">
+          <p className="text-white/75 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
             {isRtl
               ? "منصة أكاديمية شاملة تربط الكليات والمعاهد بأحدث تقنيات التعليم الرقمي لتمكين الطلاب والأساتذة من تجربة تعليمية استثنائية"
               : "A comprehensive academic platform connecting colleges and institutes with cutting-edge digital education technology for an exceptional learning experience"}
           </p>
 
-          {/* Stats Section - below register button */}
-          <div className="max-w-3xl mx-auto grid grid-cols-4 gap-3 text-center">
+          {/* Stats with colored icon backgrounds */}
+          <div className="max-w-3xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
             {statItems.map((item, i) => (
               <div
                 key={i}
                 ref={item.counter.ref}
-                className="flex flex-col items-center gap-1.5 px-2 py-4 animate-fade-in bg-white/15 backdrop-blur-sm rounded-xl"
+                className="flex flex-col items-center gap-2 px-3 py-5 animate-fade-in bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 hover:bg-white/15 transition-all duration-300 shadow-lg shadow-black/10"
               >
-                <item.icon className="w-7 h-7 text-primary-foreground" />
-                <span className="text-3xl md:text-4xl font-black text-primary-foreground">{item.counter.count}</span>
-                <span className="text-xs font-bold text-primary-foreground/95 text-center">{item.label}</span>
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg`}>
+                  <item.icon className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-3xl md:text-4xl font-black text-white drop-shadow-md">{item.counter.count}</span>
+                <span className="text-xs font-bold text-white/80">{item.label}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Features */}
+      {/* Features - 6 cards with colored gradients */}
       <section className="py-16 px-6 md:px-12">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-bold mb-4">
+              <Sparkles className="w-4 h-4" />
+              {isRtl ? "المميزات" : "Features"}
+            </div>
             <h2 className="text-2xl md:text-3xl font-black text-foreground mb-3">
               {isRtl ? "كل ما تحتاجه كليتك في مكان واحد" : "Everything Your College Needs in One Place"}
             </h2>
@@ -237,14 +284,14 @@ const UniversityPlatform = () => {
               {isRtl ? "أدوات أكاديمية متقدمة مصممة لتلبية احتياجات التعليم الجامعي" : "Advanced academic tools designed to meet higher education needs"}
             </p>
           </div>
-          <div className="grid sm:grid-cols-3 gap-5">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {features.map((f, i) => (
-              <Card key={i} className="group hover:shadow-lg transition-all duration-300 border-border/60 hover:border-primary/30">
+              <Card key={i} className="group hover:shadow-xl transition-all duration-300 border-border/60 hover:border-primary/30 hover:-translate-y-1">
                 <CardContent className="p-6">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                    <f.icon className="w-6 h-6 text-primary" />
+                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${f.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                    <f.icon className={`w-7 h-7 ${f.iconColor}`} />
                   </div>
-                  <h3 className="font-bold text-foreground mb-2">{f.title}</h3>
+                  <h3 className="font-bold text-foreground mb-2 text-lg">{f.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
                 </CardContent>
               </Card>
@@ -256,16 +303,25 @@ const UniversityPlatform = () => {
       {/* How it works */}
       <section className="py-16 px-6 md:px-12 bg-muted/50">
         <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-bold mb-4">
+            <Zap className="w-4 h-4" />
+            {isRtl ? "خطوات البداية" : "Getting Started"}
+          </div>
           <h2 className="text-2xl md:text-3xl font-black text-foreground mb-10">
             {isRtl ? "كيف تبدأ؟" : "How to Get Started?"}
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             {steps.map((item, i) => (
-              <div key={i} className="flex flex-col items-center">
-                <div className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl font-black mb-4 shadow-lg shadow-primary/30">
-                  {item.step}
+              <div key={i} className="flex flex-col items-center group">
+                <div className="relative mb-5">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground flex items-center justify-center shadow-xl shadow-primary/25 group-hover:shadow-primary/40 transition-shadow duration-300">
+                    <item.icon className="w-8 h-8" />
+                  </div>
+                  <div className="absolute -top-2 -end-2 w-7 h-7 rounded-full bg-foreground text-background flex items-center justify-center text-xs font-black shadow-md">
+                    {item.step}
+                  </div>
                 </div>
-                <h3 className="font-bold text-foreground mb-2">{item.title}</h3>
+                <h3 className="font-bold text-foreground mb-2 text-lg">{item.title}</h3>
                 <p className="text-sm text-muted-foreground">{item.desc}</p>
               </div>
             ))}
@@ -277,6 +333,10 @@ const UniversityPlatform = () => {
       <section className="py-16 px-6 md:px-12">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-bold mb-4">
+              <Trophy className="w-4 h-4" />
+              {isRtl ? "الأسعار" : "Pricing"}
+            </div>
             <h2 className="text-2xl md:text-3xl font-black text-foreground mb-3">
               {isRtl ? "خطط الاشتراك" : "Pricing Plans"}
             </h2>
@@ -288,17 +348,23 @@ const UniversityPlatform = () => {
             {plans.map((plan, i) => (
               <Card
                 key={i}
-                className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg ${
-                  plan.highlighted ? "border-primary border-2 shadow-md" : "border-border"
+                className={`relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
+                  plan.highlighted ? "border-primary border-2 shadow-lg shadow-primary/10" : "border-border"
                 }`}
               >
                 {plan.highlighted && (
-                  <div className="bg-primary text-primary-foreground text-xs font-bold text-center py-1.5">
+                  <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-xs font-bold text-center py-2">
+                    <Sparkles className="w-3.5 h-3.5 inline-block me-1" />
                     {isRtl ? "الأكثر شعبية" : "Most Popular"}
                   </div>
                 )}
                 <CardContent className="p-6">
-                  <h3 className="font-bold text-lg text-foreground mb-2">{plan.name}</h3>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${plan.highlighted ? 'bg-primary/15' : 'bg-muted'}`}>
+                      <plan.icon className={`w-5 h-5 ${plan.highlighted ? 'text-primary' : 'text-muted-foreground'}`} />
+                    </div>
+                    <h3 className="font-bold text-lg text-foreground">{plan.name}</h3>
+                  </div>
                   <div className="mb-5">
                     <span className="text-3xl font-black text-foreground">{plan.price}</span>
                     {plan.period && <span className="text-muted-foreground text-sm">{plan.period}</span>}
@@ -326,18 +392,22 @@ const UniversityPlatform = () => {
       </section>
 
       {/* CTA */}
-      <section className="py-16 px-6 md:px-12 bg-gradient-to-br from-primary/5 to-primary/10">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-2xl md:text-3xl font-black text-foreground mb-4">
+      <section className="py-16 px-6 md:px-12 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(220,80%,20%)] via-[hsl(200,75%,30%)] to-[hsl(174,72%,36%)]" />
+        <div className="absolute inset-0">
+          <div className="absolute top-0 end-0 w-72 h-72 bg-[hsl(174,72%,46%)] rounded-full blur-[100px] opacity-25" />
+        </div>
+        <div className="relative z-10 max-w-3xl mx-auto text-center">
+          <h2 className="text-2xl md:text-3xl font-black text-white mb-4 drop-shadow-lg">
             {isRtl ? "جاهز لتحويل كليتك رقمياً؟" : "Ready to Digitize Your College?"}
           </h2>
-          <p className="text-muted-foreground mb-8">
+          <p className="text-white/70 mb-8">
             {isRtl
               ? "انضم لأكثر من 5 كليات تستخدم منصتنا لتطوير التعليم الأكاديمي"
               : "Join over 5 colleges using our platform to advance academic education"}
           </p>
           <Link to="/signup">
-            <Button size="lg" className="font-bold text-base px-10 shadow-lg shadow-primary/30">
+            <Button size="lg" className="font-bold text-base px-10 bg-white text-[hsl(220,80%,20%)] hover:bg-white/90 shadow-xl">
               <Landmark className="w-5 h-5" />
               {isRtl ? "سجّل كليتك الآن" : "Register Your College Now"}
             </Button>

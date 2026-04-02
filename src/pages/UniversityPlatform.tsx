@@ -205,8 +205,8 @@ const UniversityPlatform = () => {
           </h1>
           <p className="text-primary-foreground/80 text-lg md:text-xl max-w-2xl mx-auto mb-8 leading-relaxed">
             {isRtl
-              ? "منصة أكاديمية شاملة تربط الكليات بأحدث تقنيات التعليم الرقمي لتمكين الطلاب والأساتذة من تجربة تعليمية استثنائية"
-              : "A comprehensive academic platform connecting colleges with cutting-edge digital education technology for an exceptional learning experience"}
+              ? "منصة أكاديمية شاملة تربط الكليات والمعاهد بأحدث تقنيات التعليم الرقمي لتمكين الطلاب والأساتذة من تجربة تعليمية استثنائية"
+              : "A comprehensive academic platform connecting colleges and institutes with cutting-edge digital education technology for an exceptional learning experience"}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-10">
             <Link to="/signup">

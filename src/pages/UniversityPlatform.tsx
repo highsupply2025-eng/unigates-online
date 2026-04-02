@@ -218,7 +218,7 @@ const UniversityPlatform = () => {
           </div>
 
           {/* Stats Section - below register button */}
-          <div className="max-w-3xl mx-auto grid grid-cols-3 gap-6 text-center">
+          <div className="max-w-3xl mx-auto grid grid-cols-4 gap-3 text-center">
             {statItems.map((item, i) => (
               <div
                 key={i}

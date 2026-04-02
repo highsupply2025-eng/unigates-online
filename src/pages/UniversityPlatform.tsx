@@ -212,12 +212,6 @@ const UniversityPlatform = () => {
             </span>
           </Link>
           <div className="flex items-center gap-2">
-            <Link to="/">
-              <Button size="sm" className="font-bold px-5 h-10 text-sm gap-1.5 bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
-                <Home className="w-4 h-4" />
-                {isRtl ? "الرئيسية" : "Home"}
-              </Button>
-            </Link>
             <Link to="/login">
               <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
                 {t.login}
@@ -226,6 +220,12 @@ const UniversityPlatform = () => {
             <Link to="/signup">
               <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white text-[hsl(220,80%,20%)] hover:bg-white/90 shadow-lg">
                 {t.signup}
+              </Button>
+            </Link>
+            <Link to="/">
+              <Button size="sm" className="font-bold px-5 h-10 text-sm gap-1.5 bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
+                <Home className="w-4 h-4" />
+                {isRtl ? "الرئيسية" : "Home"}
               </Button>
             </Link>
             <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">

@@ -7,6 +7,7 @@ import {
   FileText, Video, Award, ArrowLeft, ArrowRight, Home,
   ShieldCheck, MessageSquare, CalendarCheck, Layers,
   Sparkles, Trophy, Zap,
+  Menu, X,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

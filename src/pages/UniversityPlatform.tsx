@@ -7,6 +7,7 @@ import {
   FileText, Video, Award, ArrowLeft, ArrowRight, Home,
   ShieldCheck, MessageSquare, CalendarCheck, Layers,
   Sparkles, Trophy, Zap,
+  Menu, X,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,7 @@ const useCountUp = (end: number, duration = 1500) => {
 };
 
 const UniversityPlatform = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t, dir, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
@@ -211,14 +213,15 @@ const UniversityPlatform = () => {
               {t.brandName}
             </span>
           </Link>
-          <div className="flex items-center gap-2">
+          {/* Desktop nav */}
+          <div className="hidden md:flex items-center gap-2">
             <Link to="/login">
               <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
                 {t.login}
               </Button>
             </Link>
             <Link to="/signup">
-              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white text-[hsl(220,80%,20%)] hover:bg-white/90 shadow-lg">
+              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
                 {t.signup}
               </Button>
             </Link>
@@ -233,7 +236,46 @@ const UniversityPlatform = () => {
               {t.langSwitch}
             </Button>
           </div>
+
+          {/* Mobile hamburger */}
+          <Button
+            size="sm"
+            className="md:hidden bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10 h-10 w-10 p-0"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </Button>
         </header>
+
+        {/* Mobile dropdown menu */}
+        {mobileMenuOpen && (
+          <div className="relative z-40 md:hidden px-6 pb-4 animate-fade-in">
+            <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-3 flex flex-col gap-2 shadow-2xl">
+              <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                <Button size="sm" className="w-full justify-start gap-3 font-bold h-11 text-sm bg-white/10 text-white border border-white/15 hover:bg-white/20">
+                  <Users className="w-4 h-4" />
+                  {t.login}
+                </Button>
+              </Link>
+              <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>
+                <Button size="sm" className="w-full justify-start gap-3 font-bold h-11 text-sm bg-white/10 text-white border border-white/15 hover:bg-white/20">
+                  <GraduationCap className="w-4 h-4" />
+                  {t.signup}
+                </Button>
+              </Link>
+              <Link to="/" onClick={() => setMobileMenuOpen(false)}>
+                <Button size="sm" className="w-full justify-start gap-3 font-bold h-11 text-sm bg-white/10 text-white border border-white/15 hover:bg-white/20">
+                  <Home className="w-4 h-4" />
+                  {isRtl ? "الرئيسية" : "Home"}
+                </Button>
+              </Link>
+              <Button size="sm" onClick={() => { toggleLanguage(); setMobileMenuOpen(false); }} className="w-full justify-start gap-3 font-bold h-11 text-sm bg-white/10 text-white border border-white/15 hover:bg-white/20">
+                <Globe className="w-4 h-4" />
+                {t.langSwitch}
+              </Button>
+            </div>
+          </div>
+        )}
 
         <div className="relative z-10 pb-20 px-6 md:px-12 text-center max-w-4xl mx-auto pt-14">
           <div className="flex justify-center mb-6">

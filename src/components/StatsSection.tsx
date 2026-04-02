@@ -1,4 +1,4 @@
-import { Users, GraduationCap, Landmark, Building2 } from "lucide-react";
+import { Users, GraduationCap, Landmark, School } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";

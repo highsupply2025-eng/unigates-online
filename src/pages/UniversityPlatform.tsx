@@ -320,7 +320,7 @@ const UniversityPlatform = () => {
               {isRtl ? "المميزات" : "Features"}
             </div>
             <h2 className="text-2xl md:text-3xl font-black text-foreground mb-3">
-              {isRtl ? "كل ما تحتاجه كليتك في مكان واحد" : "Everything Your College Needs in One Place"}
+              {isRtl ? "كل ما تحتاجه في مكان واحد" : "Everything You Need in One Place"}
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
               {isRtl ? "أدوات أكاديمية متقدمة مصممة لتلبية احتياجات التعليم الجامعي" : "Advanced academic tools designed to meet higher education needs"}

@@ -100,7 +100,7 @@ const UniversityPlatform = () => {
     {
       icon: FileText,
       title: isRtl ? "الاختبارات والتقييم" : "Exams & Assessment",
-      desc: isRtl ? "نظام اختبارات متقدم مع تصحيح آلي وتحليل شامل للأداء" : "Advanced exam system with auto-grading and comprehensive performance analysis",
+      desc: isRtl ? "نظام اختبارات متقدم وتحليل شامل للأداء" : "Advanced exam system with comprehensive performance analysis",
       gradient: "from-blue-500/15 to-indigo-500/10",
       iconColor: "text-blue-500",
     },

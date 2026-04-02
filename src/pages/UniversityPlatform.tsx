@@ -57,27 +57,32 @@ const UniversityPlatform = () => {
   const { data: stats } = useQuery({
     queryKey: ["university-stats"],
     queryFn: async () => {
-      const [studentsRes, lecturersRes, collegesRes] = await Promise.all([
+      const [studentsRes, lecturersRes, collegesRes, institutesRes] = await Promise.all([
         supabase.rpc("get_profile_count_by_role", { _role: "student" }),
         supabase.rpc("get_profile_count_by_role", { _role: "lecturer" }),
-        supabase.from("college_registrations").select("id", { count: "exact", head: true }).eq("status", "approved"),
+        supabase.from("approved_colleges_public").select("id", { count: "exact", head: true }),
+        supabase.from("approved_institutes_public").select("id", { count: "exact", head: true }),
       ]);
       return {
-        students: (Number(studentsRes.data) ?? 0) + 1035,
-        lecturers: (Number(lecturersRes.data) ?? 0) + 33,
-        colleges: (collegesRes.count ?? 0) + 5,
+        students: Number(studentsRes.data) || 0,
+        lecturers: Number(lecturersRes.data) || 0,
+        colleges: collegesRes.count || 0,
+        institutes: institutesRes.count || 0,
       };
     },
+    staleTime: 60000,
   });
 
   const students = useCountUp(stats?.students ?? 0);
   const lecturers = useCountUp(stats?.lecturers ?? 0);
   const colleges = useCountUp(stats?.colleges ?? 0);
+  const institutes = useCountUp(stats?.institutes ?? 0);
 
   const statItems = [
-    { icon: Users, counter: students, label: isRtl ? "طالب جامعي" : "University Students" },
-    { icon: GraduationCap, counter: lecturers, label: isRtl ? "أستاذ جامعي" : "Professors" },
-    { icon: Landmark, counter: colleges, label: isRtl ? "كلية مسجلة" : "Registered Colleges" },
+    { icon: Users, counter: students, label: isRtl ? "طالب" : "Student" },
+    { icon: GraduationCap, counter: lecturers, label: isRtl ? "محاضر" : "Lecturer" },
+    { icon: Landmark, counter: colleges, label: isRtl ? "كلية" : "College" },
+    { icon: Building2, counter: institutes, label: isRtl ? "معهد" : "Institute" },
   ];
 
   const features = [

@@ -53,6 +53,7 @@ const useCountUp = (end: number, duration = 1500) => {
 };
 
 const UniversityPlatform = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t, dir, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;

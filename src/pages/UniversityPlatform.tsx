@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import SiteFooter from "@/components/SiteFooter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
-  Landmark, BookOpen, Users, Building2,
+  Landmark, BookOpen, Users, School,
   BarChart3, Globe, GraduationCap,
   FileText, Video, Award, ArrowLeft, ArrowRight, Home,
 } from "lucide-react";
@@ -82,7 +82,7 @@ const UniversityPlatform = () => {
     { icon: Users, counter: students, label: isRtl ? "طالب" : "Student" },
     { icon: GraduationCap, counter: lecturers, label: isRtl ? "محاضر" : "Lecturer" },
     { icon: Landmark, counter: colleges, label: isRtl ? "كلية" : "College" },
-    { icon: Building2, counter: institutes, label: isRtl ? "معهد" : "Institute" },
+    { icon: School, counter: institutes, label: isRtl ? "معهد" : "Institute" },
   ];
 
   const features = [

@@ -1,4 +1,4 @@
-import { Users, GraduationCap, Landmark, Building2 } from "lucide-react";
+import { Users, GraduationCap, Landmark, School } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -72,7 +72,7 @@ const StatsSection = () => {
     { icon: Users, counter: students, label: language === "ar" ? "طالب" : "Student" },
     { icon: GraduationCap, counter: lecturers, label: language === "ar" ? "محاضر" : "Lecturer" },
     { icon: Landmark, counter: colleges, label: language === "ar" ? "كلية" : "College" },
-    { icon: Building2, counter: institutes, label: language === "ar" ? "معهد" : "Institute" },
+    { icon: School, counter: institutes, label: language === "ar" ? "معهد" : "Institute" },
   ];
 
   return (

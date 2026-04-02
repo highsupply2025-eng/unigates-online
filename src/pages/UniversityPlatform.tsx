@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import SiteFooter from "@/components/SiteFooter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
-  Landmark, BookOpen, Users, Building2,
+  Landmark, BookOpen, Users, School,
   BarChart3, Globe, GraduationCap,
   FileText, Video, Award, ArrowLeft, ArrowRight, Home,
 } from "lucide-react";

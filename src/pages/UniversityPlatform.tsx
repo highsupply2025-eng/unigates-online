@@ -82,7 +82,7 @@ const UniversityPlatform = () => {
     { icon: Users, counter: students, label: isRtl ? "طالب" : "Student" },
     { icon: GraduationCap, counter: lecturers, label: isRtl ? "محاضر" : "Lecturer" },
     { icon: Landmark, counter: colleges, label: isRtl ? "كلية" : "College" },
-    { icon: Building2, counter: institutes, label: isRtl ? "معهد" : "Institute" },
+    { icon: School, counter: institutes, label: isRtl ? "معهد" : "Institute" },
   ];
 
   const features = [

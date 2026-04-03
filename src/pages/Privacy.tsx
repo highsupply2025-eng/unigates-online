@@ -99,25 +99,7 @@ const Privacy = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <header className="border-b-2 border-primary/30 px-6 py-4 bg-card shadow-md">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <GraduationCap className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 text-white">
-              <Globe className="w-4 h-4" />
-              {t.langSwitch}
-            </Button>
-            <Button size="icon" className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 text-white" onClick={goBack}>
-              {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
-            </Button>
-          </div>
-        </div>
-      </header>
+      <SimpleHeader />
 
       <main className="flex-1">
         <section className="bg-gradient-to-br from-primary/10 to-primary/5 py-16 px-6">

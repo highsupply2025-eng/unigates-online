@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import { GraduationCap, Globe, ArrowLeft, ArrowRight, HelpCircle, MessageCircle, Mail, Phone, BookOpen, Users, CreditCard, Settings, Shield, Video } from "lucide-react";
+import { HelpCircle, MessageCircle, Mail, Phone, BookOpen, Users, CreditCard, Settings, Shield, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useSmartBack } from "@/hooks/use-smart-back";
+import SimpleHeader from "@/components/SimpleHeader";
 import SiteFooter from "@/components/SiteFooter";
 
 const HelpCenter = () => {

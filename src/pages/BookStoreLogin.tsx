@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BookOpen, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Globe } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Globe, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -13,6 +13,7 @@ const BookStoreLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const goBack = useSmartBack("/book-store");
   const { toast } = useToast();
@@ -83,14 +84,19 @@ const BookStoreLogin = () => {
             className="h-14 text-base bg-card border-2 border-border text-center shadow-md hover:shadow-lg transition-shadow"
             required
           />
-          <Input
-            type="password"
-            placeholder={t.loginPage.passwordPlaceholder}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="h-14 text-base bg-card border-2 border-border text-center shadow-md hover:shadow-lg transition-shadow"
-            required
-          />
+          <div className="relative">
+            <Input
+              type={showPassword ? "text" : "password"}
+              placeholder={t.loginPage.passwordPlaceholder}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="h-14 text-base bg-card border-2 border-primary/20 text-center shadow-md hover:shadow-lg hover:border-primary/40 focus:border-primary transition-all pe-12"
+              required
+            />
+            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute end-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors">
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
 
           <Button type="submit" size="lg" className="w-full h-14 text-lg font-bold gap-2" disabled={loading}>
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowIcon className="w-5 h-5" />}

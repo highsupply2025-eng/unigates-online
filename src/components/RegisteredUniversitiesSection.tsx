@@ -136,7 +136,7 @@ const RegisteredUniversitiesSection = () => {
         {/* Institutes */}
         <div>
           <h2 className="text-2xl md:text-3xl font-bold mb-6 text-primary">
-            🏫 {isRtl ? "المعاهد" : "Institutes"}
+            🏛️ {isRtl ? "المعاهد" : "Institutes"}
           </h2>
 
           {hasInstitutes ? (

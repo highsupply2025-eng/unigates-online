@@ -135,14 +135,14 @@ const CollegeRegistration = () => {
           <div className="max-w-2xl w-full">
             <div className="text-center mb-8">
               <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 rounded-2xl bg-primary/10 shadow-lg shadow-primary/20 flex items-center justify-center">
-                  <Landmark className="w-8 h-8 text-primary" />
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-xl shadow-primary/30 flex items-center justify-center">
+                  <Landmark className="w-10 h-10 text-white" />
                 </div>
               </div>
-              <h1 className="text-2xl md:text-3xl font-black text-foreground mb-2">
+              <h1 className="text-2xl md:text-3xl font-black text-primary mb-2">
                 {isRtl ? "تسجيل كلية جديدة" : "Register a New College"}
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground font-medium">
                 {isRtl
                   ? "أكمل النموذج التالي وسيتم مراجعة طلبك من قبل الإدارة"
                   : "Complete the form below and your request will be reviewed by administration"}

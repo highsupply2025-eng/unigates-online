@@ -1,12 +1,24 @@
+import { useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { School, MapPin, Users, Clock } from "lucide-react";
+import { School, MapPin, Users, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { Badge } from "@/components/ui/badge";
+
+const schoolColors = [
+  "from-orange-800 to-orange-600",
+  "from-rose-800 to-rose-600",
+  "from-amber-800 to-amber-600",
+  "from-red-800 to-red-600",
+  "from-pink-800 to-pink-600",
+  "from-yellow-800 to-yellow-600",
+];
 
 const RegisteredSchoolsSection = () => {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const isRtl = language === "ar";
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const { data: schools, isLoading } = useQuery({
     queryKey: ["approved-schools-home"],
@@ -15,7 +27,7 @@ const RegisteredSchoolsSection = () => {
         .from("approved_schools_public" as any)
         .select("id, school_name, city, student_count")
         .order("id", { ascending: false })
-        .limit(8);
+        .limit(10);
       if (error) throw error;
       return data as unknown as { id: string; school_name: string; city: string; student_count: number | null }[];
     },
@@ -24,33 +36,69 @@ const RegisteredSchoolsSection = () => {
   const hasData = schools && schools.length > 0;
   const { ref, isVisible } = useScrollAnimation();
 
+  const scroll = (direction: "left" | "right") => {
+    if (!scrollRef.current) return;
+    const scrollAmount = 260;
+    const dir = isRtl
+      ? (direction === "left" ? scrollAmount : -scrollAmount)
+      : (direction === "left" ? -scrollAmount : scrollAmount);
+    scrollRef.current.scrollBy({ left: dir, behavior: "smooth" });
+  };
+
   return (
-    <section ref={ref} className={`py-12 px-6 md:px-12 bg-muted/30 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+    <section ref={ref} className={`py-12 md:py-20 px-6 md:px-12 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
       <div className="max-w-full mx-auto">
-        <h2 className="text-2xl font-bold mb-6 text-primary">🏫 {isRtl ? "المدارس" : "Schools"}</h2>
+        <h2 className="text-2xl md:text-3xl font-bold mb-6 text-primary">
+          🏫 {isRtl ? "المدارس" : "Schools"}
+        </h2>
 
         {hasData ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {schools.map((school) => (
-              <div key={school.id} className="bg-card rounded-xl p-5 border border-border shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="bg-primary/10 rounded-lg p-2">
-                    <School className="w-5 h-5 text-primary" />
+          <div className="relative flex items-center gap-2">
+            <button
+              onClick={() => scroll("left")}
+              className="absolute -left-5 z-10 w-9 h-9 rounded-full border border-border bg-background/90 backdrop-blur-sm flex items-center justify-center hover:bg-accent transition-colors shadow-md"
+              aria-label="Scroll left"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+
+            <div ref={scrollRef} className="flex gap-3 overflow-x-auto pb-4 px-2" style={{ scrollbarWidth: 'none' }}>
+              {schools.map((school, i) => (
+                <div key={school.id} className="relative flex-shrink-0 w-[200px] md:w-[240px] group cursor-pointer card-hover">
+                  <div className={`aspect-video rounded-lg bg-gradient-to-br ${schoolColors[i % schoolColors.length]} flex flex-col justify-between p-4 relative overflow-hidden`}>
+                    <div className="flex justify-between items-start relative z-10">
+                      <Badge className="bg-background/80 text-foreground text-xs backdrop-blur-sm hover:bg-background/80">
+                        <School className="w-3 h-3 mr-1" />
+                        {isRtl ? "مدرسة" : "School"}
+                      </Badge>
+                    </div>
+                    <div className="relative z-10">
+                      <p className="text-sm font-bold text-white leading-snug mb-2 line-clamp-2">
+                        {school.school_name}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <span className="flex items-center gap-1 text-xs text-white/80">
+                          <MapPin className="w-3 h-3" /> {school.city}
+                        </span>
+                        {school.student_count && school.student_count > 0 && (
+                          <span className="flex items-center gap-1 text-xs text-white/70">
+                            <Users className="w-3 h-3" /> {school.student_count}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="font-bold text-sm line-clamp-1">{school.school_name}</h3>
                 </div>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <MapPin className="w-3 h-3" /> {school.city}
-                  </span>
-                  {school.student_count && school.student_count > 0 && (
-                    <span className="flex items-center gap-1">
-                      <Users className="w-3 h-3" /> {school.student_count} {isRtl ? "طالب" : "students"}
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            <button
+              onClick={() => scroll("right")}
+              className="absolute -right-5 z-10 w-9 h-9 rounded-full border border-border bg-background/90 backdrop-blur-sm flex items-center justify-center hover:bg-accent transition-colors shadow-md"
+              aria-label="Scroll right"
+            >
+              <ChevronRight className="w-5 h-5 text-foreground" />
+            </button>
           </div>
         ) : !isLoading ? (
           <div className="flex justify-center">

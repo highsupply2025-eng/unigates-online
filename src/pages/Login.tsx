@@ -158,14 +158,19 @@ const Login = () => {
             className="h-14 text-base bg-card border-2 border-primary/20 text-center shadow-md hover:shadow-lg hover:border-primary/40 focus:border-primary transition-all"
             required
           />
-          <Input
-            type="password"
-            placeholder={t.loginPage.passwordPlaceholder}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="h-14 text-base bg-card border-2 border-primary/20 text-center shadow-md hover:shadow-lg hover:border-primary/40 focus:border-primary transition-all"
-            required
-          />
+          <div className="relative">
+            <Input
+              type={showPassword ? "text" : "password"}
+              placeholder={t.loginPage.passwordPlaceholder}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="h-14 text-base bg-card border-2 border-primary/20 text-center shadow-md hover:shadow-lg hover:border-primary/40 focus:border-primary transition-all pe-12"
+              required
+            />
+            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute end-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors">
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
 
           <div className="flex gap-3">
             <Button

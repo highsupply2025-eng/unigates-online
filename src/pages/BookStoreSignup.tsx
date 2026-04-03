@@ -205,17 +205,28 @@ const BookStoreSignup = () => {
               </div>
 
               <div>
-                <Label className="mb-2 block font-semibold">{t.signupPage.password} <span className="text-destructive">*</span></Label>
-                <Input type="password" placeholder={t.signupPage.passwordPlaceholder} value={password} onChange={(e) => setPassword(e.target.value)} className="h-12" dir="ltr" />
+                <Label className="mb-2 block font-bold text-primary">{t.signupPage.password} <span className="text-destructive">*</span></Label>
+                <div className="relative">
+                  <Input type={showPassword ? "text" : "password"} placeholder={t.signupPage.passwordPlaceholder} value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pe-10 border-2 border-primary/20 focus:border-primary" dir="ltr" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors">
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
                 <p className="text-xs text-muted-foreground mt-1">{t.signupPage.passwordRules}</p>
               </div>
 
               <div>
-                <Label className="mb-2 block font-semibold">{t.signupPage.confirmPassword} <span className="text-destructive">*</span></Label>
-                <Input type="password" placeholder={t.signupPage.confirmPasswordPlaceholder} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12" dir="ltr" />
-                {confirmPassword && password !== confirmPassword && (
-                  <p className="text-xs text-destructive mt-1">{t.signupPage.passwordMismatch}</p>
-                )}
+                <Label className="mb-2 block font-bold text-primary">{t.signupPage.confirmPassword} <span className="text-destructive">*</span></Label>
+                <Input type={showConfirmPassword ? "text" : "password"} placeholder={t.signupPage.confirmPasswordPlaceholder} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
+                <div className="flex items-center justify-between mt-1">
+                  {confirmPassword && password !== confirmPassword ? (
+                    <p className="text-xs text-destructive">{t.signupPage.passwordMismatch}</p>
+                  ) : <span />}
+                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors">
+                    {showConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    {showConfirmPassword ? (language === "ar" ? "إخفاء" : "Hide") : (language === "ar" ? "إظهار" : "Show")}
+                  </button>
+                </div>
               </div>
 
               <Button

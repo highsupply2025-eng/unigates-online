@@ -338,7 +338,7 @@ const Signup = () => {
               <button onClick={() => setSelectedRole(null)} className="text-sm text-primary hover:underline mb-4 inline-block">
                 {language === "ar" ? "تغيير نوع الحساب →" : "← Change account type"}
               </button>
-              <h1 className="text-2xl md:text-3xl font-black text-foreground mb-2">
+              <h1 className="text-2xl md:text-3xl font-black text-primary mb-2">
                 {t.signupPage.title} — {pageTitle}
               </h1>
               <p className="text-muted-foreground">{t.signupPage.subtitle}</p>
@@ -348,14 +348,14 @@ const Signup = () => {
               {/* Personal Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="fullName" className="mb-2 block font-semibold">{t.signupPage.fullName} <span className="text-destructive">{t.signupPage.required}</span></Label>
-                  <Input id="fullName" placeholder={t.signupPage.fullNamePlaceholder} value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-12" />
+                  <Label htmlFor="fullName" className="mb-2 block font-bold text-primary">{t.signupPage.fullName} <span className="text-destructive">{t.signupPage.required}</span></Label>
+                  <Input id="fullName" placeholder={t.signupPage.fullNamePlaceholder} value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
                 </div>
                 <div>
-                  <Label htmlFor="phone" className="mb-2 block font-semibold">{t.signupPage.phone} <span className="text-destructive">{t.signupPage.required}</span></Label>
+                  <Label htmlFor="phone" className="mb-2 block font-bold text-primary">{t.signupPage.phone} <span className="text-destructive">{t.signupPage.required}</span></Label>
                   <div className="flex gap-2" dir="ltr">
                     <Select value={countryCode} onValueChange={setCountryCode}>
-                      <SelectTrigger className="h-12 w-[130px] shrink-0">
+                      <SelectTrigger className="h-12 w-[130px] shrink-0 border-2 border-primary/20 focus:border-primary">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -366,47 +366,48 @@ const Signup = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                    <Input id="phone" type="tel" placeholder={t.signupPage.phonePlaceholder} value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12 flex-1" dir="ltr" />
+                    <Input id="phone" type="tel" placeholder={t.signupPage.phonePlaceholder} value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12 flex-1 border-2 border-primary/20 focus:border-primary" dir="ltr" />
                   </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="email" className="mb-2 block font-semibold">{t.signupPage.email} <span className="text-destructive">{t.signupPage.required}</span></Label>
-                  <Input id="email" type="email" placeholder={t.signupPage.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} className="h-12" dir="ltr" />
+                  <Label htmlFor="email" className="mb-2 block font-bold text-primary">{t.signupPage.email} <span className="text-destructive">{t.signupPage.required}</span></Label>
+                  <Input id="email" type="email" placeholder={t.signupPage.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
                 </div>
                 <div>
-                  <Label htmlFor="invitationCode" className="mb-2 block font-semibold">
+                  <Label htmlFor="invitationCode" className="mb-2 block font-bold text-primary">
                     <Ticket className="w-4 h-4 inline me-1 text-primary" />
                     {language === "ar" ? "كود الدعوة" : "Invitation Code"} <span className="text-destructive">{t.signupPage.required}</span>
                   </Label>
-                  <Input id="invitationCode" placeholder={language === "ar" ? "أدخل كود الدعوة" : "Enter invitation code"} value={invitationCode} onChange={(e) => setInvitationCode(e.target.value)} className="h-12 tracking-widest font-mono text-center uppercase" dir="ltr" />
+                  <Input id="invitationCode" placeholder={language === "ar" ? "أدخل كود الدعوة" : "Enter invitation code"} value={invitationCode} onChange={(e) => setInvitationCode(e.target.value)} className="h-12 tracking-widest font-mono text-center uppercase border-2 border-primary/20 focus:border-primary" dir="ltr" />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="password" className="mb-2 block font-semibold">{t.signupPage.password} <span className="text-destructive">{t.signupPage.required}</span></Label>
+                  <Label htmlFor="password" className="mb-2 block font-bold text-primary">{t.signupPage.password} <span className="text-destructive">{t.signupPage.required}</span></Label>
                   <div className="relative">
-                    <Input id="password" type={showPassword ? "text" : "password"} placeholder={t.signupPage.passwordPlaceholder} value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pe-10" dir="ltr" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                    <Input id="password" type={showPassword ? "text" : "password"} placeholder={t.signupPage.passwordPlaceholder} value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pe-10 border-2 border-primary/20 focus:border-primary" dir="ltr" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors">
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">{t.signupPage.passwordRules}</p>
                 </div>
                 <div>
-                  <Label htmlFor="confirmPassword" className="mb-2 block font-semibold">{t.signupPage.confirmPassword} <span className="text-destructive">{t.signupPage.required}</span></Label>
-                  <div className="relative">
-                    <Input id="confirmPassword" type={showConfirmPassword ? "text" : "password"} placeholder={t.signupPage.confirmPasswordPlaceholder} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12 pe-10" dir="ltr" />
-                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
-                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  <Label htmlFor="confirmPassword" className="mb-2 block font-bold text-primary">{t.signupPage.confirmPassword} <span className="text-destructive">{t.signupPage.required}</span></Label>
+                  <Input id="confirmPassword" type={showConfirmPassword ? "text" : "password"} placeholder={t.signupPage.confirmPasswordPlaceholder} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
+                  <div className="flex items-center justify-between mt-1">
+                    {confirmPassword && password !== confirmPassword ? (
+                      <p className="text-xs text-destructive">{t.signupPage.passwordMismatch}</p>
+                    ) : <span />}
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors">
+                      {showConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      {showConfirmPassword ? (language === "ar" ? "إخفاء" : "Hide") : (language === "ar" ? "إظهار" : "Show")}
                     </button>
                   </div>
-                  {confirmPassword && password !== confirmPassword && (
-                    <p className="text-xs text-destructive mt-1">{t.signupPage.passwordMismatch}</p>
-                  )}
                 </div>
               </div>
 

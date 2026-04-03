@@ -174,22 +174,22 @@ const CollegeRegistration = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-2 block font-semibold">
+                  <Label className="mb-2 block font-bold text-primary">
                     {isRtl ? "اسم العميد / المسؤول" : "Dean / Contact Name"} <span className="text-destructive">*</span>
                   </Label>
-                  <Input placeholder={isRtl ? "أدخل اسم العميد" : "Enter dean name"} value={deanName} onChange={(e) => setDeanName(e.target.value)} className="h-12" />
+                  <Input placeholder={isRtl ? "أدخل اسم العميد" : "Enter dean name"} value={deanName} onChange={(e) => setDeanName(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
                 </div>
                 <div>
-                  <Label className="mb-2 block font-semibold">
+                  <Label className="mb-2 block font-bold text-primary">
                     {isRtl ? "البريد الإلكتروني" : "Email"} <span className="text-destructive">*</span>
                   </Label>
-                  <Input type="email" placeholder="college@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12" dir="ltr" />
+                  <Input type="email" placeholder="college@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-2 block font-semibold">
+                  <Label className="mb-2 block font-bold text-primary">
                     {isRtl ? "الرقم السري" : "Password"} <span className="text-destructive">*</span>
                   </Label>
                   <div className="relative">
@@ -211,7 +211,7 @@ const CollegeRegistration = () => {
                   </div>
                 </div>
                 <div>
-                  <Label className="mb-2 block font-semibold">
+                  <Label className="mb-2 block font-bold text-primary">
                     {isRtl ? "إعادة كتابة الرقم السري" : "Confirm Password"} <span className="text-destructive">*</span>
                   </Label>
                   <div className="relative">
@@ -239,7 +239,7 @@ const CollegeRegistration = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-2 block font-semibold">
+                  <Label className="mb-2 block font-bold text-primary">
                     {isRtl ? "رقم الهاتف" : "Phone Number"} <span className="text-destructive">*</span>
                   </Label>
                   <div className="flex gap-2" dir="ltr">
@@ -251,23 +251,23 @@ const CollegeRegistration = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                    <Input type="tel" placeholder="12345678" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12 flex-1" dir="ltr" />
+                    <Input type="tel" placeholder="12345678" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12 flex-1 border-2 border-primary/20 focus:border-primary" dir="ltr" />
                   </div>
                 </div>
                 <div>
-                  <Label className="mb-2 block font-semibold">{isRtl ? "عدد الطلاب (تقريبي)" : "Student Count (approx.)"}</Label>
-                  <Input type="number" placeholder={isRtl ? "مثال: 2000" : "e.g. 2000"} value={studentCount} onChange={(e) => setStudentCount(e.target.value)} className="h-12" dir="ltr" />
+                  <Label className="mb-2 block font-bold text-primary">{isRtl ? "عدد الطلاب (تقريبي)" : "Student Count (approx.)"}</Label>
+                  <Input type="number" placeholder={isRtl ? "مثال: 2000" : "e.g. 2000"} value={studentCount} onChange={(e) => setStudentCount(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
                 </div>
               </div>
 
               <div>
-                <Label className="mb-2 block font-semibold">{isRtl ? "عدد الأقسام العلمية" : "Number of Departments"}</Label>
-                <Input type="number" placeholder={isRtl ? "مثال: 10" : "e.g. 10"} value={departmentCount} onChange={(e) => setDepartmentCount(e.target.value)} className="h-12" dir="ltr" />
+                <Label className="mb-2 block font-bold text-primary">{isRtl ? "عدد الأقسام العلمية" : "Number of Departments"}</Label>
+                <Input type="number" placeholder={isRtl ? "مثال: 10" : "e.g. 10"} value={departmentCount} onChange={(e) => setDepartmentCount(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
               </div>
 
               <div>
-                <Label className="mb-2 block font-semibold">{isRtl ? "رسالة إضافية" : "Additional Message"}</Label>
-                <Textarea placeholder={isRtl ? "أي ملاحظات أو متطلبات خاصة..." : "Any notes or special requirements..."} value={message} onChange={(e) => setMessage(e.target.value)} className="min-h-[100px]" />
+                <Label className="mb-2 block font-bold text-primary">{isRtl ? "رسالة إضافية" : "Additional Message"}</Label>
+                <Textarea placeholder={isRtl ? "أي ملاحظات أو متطلبات خاصة..." : "Any notes or special requirements..."} value={message} onChange={(e) => setMessage(e.target.value)} className="min-h-[100px] border-2 border-primary/20 focus:border-primary" />
               </div>
 
               <Button size="lg" className="w-full h-14 text-lg font-bold gap-2" disabled={!collegeName || !city || !deanName || !email || !phone || !password || !confirmPassword || password !== confirmPassword || loading} onClick={handleSubmit}>

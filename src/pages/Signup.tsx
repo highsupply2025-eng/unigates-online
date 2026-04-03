@@ -246,7 +246,7 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <header className="border-b border-border px-6 py-4">
+      <header className="border-b-2 border-primary/20 px-6 py-4 bg-card shadow-sm">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <GraduationCap className="w-8 h-8 text-primary" />
@@ -276,8 +276,8 @@ const Signup = () => {
           /* Step 1: Role Selection Cards */
           <div className="max-w-lg w-full text-center">
             <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 shadow-lg shadow-primary/20 flex items-center justify-center">
-                <GraduationCap className="w-8 h-8 text-primary" />
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-xl shadow-primary/30 flex items-center justify-center">
+                <GraduationCap className="w-10 h-10 text-white" />
               </div>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-foreground mb-2">
@@ -294,8 +294,8 @@ const Signup = () => {
                     onClick={() => setSelectedRole(r.value)}
                     className="group p-6 rounded-2xl border-2 border-border bg-card hover:border-primary hover:shadow-xl shadow-md transition-all duration-200 text-center"
                   >
-                    <div className="w-14 h-14 rounded-xl bg-primary/10 group-hover:bg-primary/20 shadow-md shadow-primary/10 flex items-center justify-center mx-auto mb-4 transition-all">
-                      <Icon className="w-7 h-7 text-primary" />
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                      <Icon className="w-7 h-7 text-white" />
                     </div>
                     <h3 className="text-lg font-bold text-foreground">{language === "ar" ? r.labelAr : r.labelEn}</h3>
                   </button>
@@ -309,17 +309,17 @@ const Signup = () => {
                     to={item.href}
                     className="group p-6 rounded-2xl border-2 border-border bg-card hover:border-primary hover:shadow-xl shadow-md transition-all duration-200 text-center"
                   >
-                    <div className="w-14 h-14 rounded-xl bg-primary/10 group-hover:bg-primary/20 shadow-md shadow-primary/10 flex items-center justify-center mx-auto mb-4 transition-all">
-                      <Icon className="w-7 h-7 text-primary" />
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                      <Icon className="w-7 h-7 text-white" />
                     </div>
                     <h3 className="text-lg font-bold text-foreground">{language === "ar" ? item.labelAr : item.labelEn}</h3>
                   </Link>
                 );
               })}
             </div>
-            <p className="text-sm text-muted-foreground mt-6">
+            <p className="text-sm text-foreground/70 font-medium mt-6">
               {language === "ar" ? "لديك حساب بالفعل؟" : "Already have an account?"}{" "}
-              <Link to="/login" className="text-primary font-semibold hover:underline">{t.login}</Link>
+              <Link to="/login" className="text-primary font-bold hover:underline">{t.login}</Link>
             </p>
           </div>
         ) : !submitted ? (
@@ -501,7 +501,7 @@ const Signup = () => {
               {/* Submit */}
               <Button
                 size="lg"
-                className="w-full h-14 text-lg font-bold gap-2"
+                className="w-full h-14 text-lg font-bold gap-2 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] hover:from-primary/90 hover:to-[hsl(200,75%,25%)] shadow-lg shadow-primary/25"
                 disabled={!fullName || !email || !password || !confirmPassword || password !== confirmPassword || !phone || loading}
                 onClick={handleSubmit}
               >

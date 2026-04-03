@@ -71,7 +71,7 @@ const SiteFooter = () => {
         </div>
 
         <div className="border-t border-border pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">{t.copyright}</p>
+          <p className="text-sm font-semibold text-foreground">{t.copyright}</p>
           <div className="flex gap-3">
             {socialLinks.map(({ icon: Icon, label, href, color }) => (
               <a

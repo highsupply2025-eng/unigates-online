@@ -152,44 +152,44 @@ const InstituteRegistration = () => {
             <div className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-2 block font-semibold">
+                  <Label className="mb-2 block font-bold text-primary">
                     {isRtl ? "اسم المعهد" : "Institute Name"} <span className="text-destructive">*</span>
                   </Label>
-                  <Input placeholder={isRtl ? "أدخل اسم المعهد" : "Enter institute name"} value={instituteName} onChange={(e) => setInstituteName(e.target.value)} className="h-12" />
+                  <Input placeholder={isRtl ? "أدخل اسم المعهد" : "Enter institute name"} value={instituteName} onChange={(e) => setInstituteName(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
                 </div>
                 <div>
-                  <Label className="mb-2 block font-semibold">
+                  <Label className="mb-2 block font-bold text-primary">
                     {isRtl ? "المدينة" : "City"} <span className="text-destructive">*</span>
                   </Label>
-                  <Input placeholder={isRtl ? "أدخل المدينة" : "Enter city"} value={city} onChange={(e) => setCity(e.target.value)} className="h-12" />
+                  <Input placeholder={isRtl ? "أدخل المدينة" : "Enter city"} value={city} onChange={(e) => setCity(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
                 </div>
               </div>
 
               <div>
-                <Label className="mb-2 block font-semibold">{isRtl ? "العنوان التفصيلي" : "Detailed Address"}</Label>
-                <Input placeholder={isRtl ? "أدخل العنوان التفصيلي" : "Enter detailed address"} value={address} onChange={(e) => setAddress(e.target.value)} className="h-12" />
+                <Label className="mb-2 block font-bold text-primary">{isRtl ? "العنوان التفصيلي" : "Detailed Address"}</Label>
+                <Input placeholder={isRtl ? "أدخل العنوان التفصيلي" : "Enter detailed address"} value={address} onChange={(e) => setAddress(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
               </div>
 
               <Separator />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-2 block font-semibold">
+                  <Label className="mb-2 block font-bold text-primary">
                     {isRtl ? "اسم المدير / المسؤول" : "Director / Contact Name"} <span className="text-destructive">*</span>
                   </Label>
-                  <Input placeholder={isRtl ? "أدخل اسم المدير" : "Enter director name"} value={directorName} onChange={(e) => setDirectorName(e.target.value)} className="h-12" />
+                  <Input placeholder={isRtl ? "أدخل اسم المدير" : "Enter director name"} value={directorName} onChange={(e) => setDirectorName(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
                 </div>
                 <div>
-                  <Label className="mb-2 block font-semibold">
+                  <Label className="mb-2 block font-bold text-primary">
                     {isRtl ? "البريد الإلكتروني" : "Email"} <span className="text-destructive">*</span>
                   </Label>
-                  <Input type="email" placeholder="institute@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12" dir="ltr" />
+                  <Input type="email" placeholder="institute@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-2 block font-semibold">
+                  <Label className="mb-2 block font-bold text-primary">
                     {isRtl ? "الرقم السري" : "Password"} <span className="text-destructive">*</span>
                   </Label>
                   <div className="relative">
@@ -211,7 +211,7 @@ const InstituteRegistration = () => {
                   </div>
                 </div>
                 <div>
-                  <Label className="mb-2 block font-semibold">
+                  <Label className="mb-2 block font-bold text-primary">
                     {isRtl ? "إعادة كتابة الرقم السري" : "Confirm Password"} <span className="text-destructive">*</span>
                   </Label>
                   <div className="relative">
@@ -239,7 +239,7 @@ const InstituteRegistration = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-2 block font-semibold">
+                  <Label className="mb-2 block font-bold text-primary">
                     {isRtl ? "رقم الهاتف" : "Phone Number"} <span className="text-destructive">*</span>
                   </Label>
                   <div className="flex gap-2" dir="ltr">
@@ -251,23 +251,23 @@ const InstituteRegistration = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                    <Input type="tel" placeholder="12345678" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12 flex-1" dir="ltr" />
+                    <Input type="tel" placeholder="12345678" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12 flex-1 border-2 border-primary/20 focus:border-primary" dir="ltr" />
                   </div>
                 </div>
                 <div>
-                  <Label className="mb-2 block font-semibold">{isRtl ? "التخصص الرئيسي" : "Main Specialization"}</Label>
-                  <Input placeholder={isRtl ? "مثال: تقنية المعلومات" : "e.g. Information Technology"} value={specialization} onChange={(e) => setSpecialization(e.target.value)} className="h-12" />
+                  <Label className="mb-2 block font-bold text-primary">{isRtl ? "التخصص الرئيسي" : "Main Specialization"}</Label>
+                  <Input placeholder={isRtl ? "مثال: تقنية المعلومات" : "e.g. Information Technology"} value={specialization} onChange={(e) => setSpecialization(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
                 </div>
               </div>
 
               <div>
-                <Label className="mb-2 block font-semibold">{isRtl ? "عدد الطلاب (تقريبي)" : "Student Count (approx.)"}</Label>
-                <Input type="number" placeholder={isRtl ? "مثال: 500" : "e.g. 500"} value={studentCount} onChange={(e) => setStudentCount(e.target.value)} className="h-12" dir="ltr" />
+                <Label className="mb-2 block font-bold text-primary">{isRtl ? "عدد الطلاب (تقريبي)" : "Student Count (approx.)"}</Label>
+                <Input type="number" placeholder={isRtl ? "مثال: 500" : "e.g. 500"} value={studentCount} onChange={(e) => setStudentCount(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
               </div>
 
               <div>
-                <Label className="mb-2 block font-semibold">{isRtl ? "رسالة إضافية" : "Additional Message"}</Label>
-                <Textarea placeholder={isRtl ? "أي ملاحظات أو متطلبات خاصة..." : "Any notes or special requirements..."} value={message} onChange={(e) => setMessage(e.target.value)} className="min-h-[100px]" />
+                <Label className="mb-2 block font-bold text-primary">{isRtl ? "رسالة إضافية" : "Additional Message"}</Label>
+                <Textarea placeholder={isRtl ? "أي ملاحظات أو متطلبات خاصة..." : "Any notes or special requirements..."} value={message} onChange={(e) => setMessage(e.target.value)} className="min-h-[100px] border-2 border-primary/20 focus:border-primary" />
               </div>
 
               <Button size="lg" className="w-full h-14 text-lg font-bold gap-2" disabled={!instituteName || !city || !directorName || !email || !phone || !password || !confirmPassword || password !== confirmPassword || loading} onClick={handleSubmit}>

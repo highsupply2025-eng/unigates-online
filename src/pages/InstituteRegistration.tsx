@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Landmark, Loader2, Globe, ArrowLeft, ArrowRight, CheckCircle, Send, Eye, EyeOff } from "lucide-react";
+import { Landmark, Loader2, Globe, ArrowLeft, ArrowRight, CheckCircle, Send, Eye, EyeOff, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

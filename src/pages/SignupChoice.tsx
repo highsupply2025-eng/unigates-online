@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
+import { useSmartBack } from "@/hooks/use-smart-back";
 import { GraduationCap, BookOpen, User, Globe, ArrowLeft, ArrowRight, Landmark, School } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const SignupChoice = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
+  const goBack = useSmartBack();
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
@@ -24,11 +26,9 @@ const SignupChoice = () => {
                 {t.login}
               </Button>
             </Link>
-            <Link to="/">
-              <Button variant="default" size="icon" className="rounded-full w-9 h-9">
-                {language === "ar" ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
-              </Button>
-            </Link>
+            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={goBack}>
+              {language === "ar" ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
+            </Button>
           </div>
         </div>
       </header>

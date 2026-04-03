@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { School, Loader2, Globe, ArrowRight, ArrowLeft, CheckCircle, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSmartBack } from "@/hooks/use-smart-back";
 
 const countryCodes = [
   { code: "+20", country: "🇪🇬" }, { code: "+966", country: "🇸🇦" },
@@ -21,6 +22,7 @@ const countryCodes = [
 const SchoolRegistration = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
+  const goBack = useSmartBack();
   const { toast } = useToast();
 
   const [schoolName, setSchoolName] = useState("");
@@ -83,11 +85,9 @@ const SchoolRegistration = () => {
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
-            <Link to="/">
-              <Button variant="default" size="icon" className="rounded-full w-9 h-9">
-                {isRtl ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
-              </Button>
-            </Link>
+            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={goBack}>
+              {isRtl ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
+            </Button>
           </div>
         </div>
       </header>

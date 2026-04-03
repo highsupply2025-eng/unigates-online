@@ -48,7 +48,7 @@ const SiteFooter = () => {
     ],
     [
       { label: t.footerLinks.contactUs, href: "/contact" },
-      { label: t.nav.faq, href: "/#faq" },
+      { label: t.homepage.faq, href: "/#faq" },
       { label: t.footerLinks.careers, href: "/careers" },
       { label: t.footerLinks.partnerships, href: "/partnerships" },
     ],

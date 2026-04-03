@@ -424,6 +424,37 @@ const UniversityPlatform = () => {
         </div>
       </section>
 
+      {/* Type Selection Dialog */}
+      <Dialog open={showTypeDialog} onOpenChange={setShowTypeDialog}>
+        <DialogContent className="sm:max-w-md" dir={dir}>
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl font-black">
+              {isRtl ? "اختر نوع المؤسسة" : "Choose Institution Type"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4 py-4">
+            <button
+              onClick={() => { setShowTypeDialog(false); navigate("/college-registration"); }}
+              className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all duration-200 group"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[hsl(220,80%,50%)] to-[hsl(200,75%,40%)] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <Landmark className="w-8 h-8 text-white" />
+              </div>
+              <span className="font-bold text-foreground text-lg">{isRtl ? "كلية" : "College"}</span>
+            </button>
+            <button
+              onClick={() => { setShowTypeDialog(false); navigate("/institute-registration"); }}
+              className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all duration-200 group"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[hsl(174,72%,40%)] to-[hsl(174,72%,30%)] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <Landmark className="w-8 h-8 text-white" />
+              </div>
+              <span className="font-bold text-foreground text-lg">{isRtl ? "معهد" : "Institute"}</span>
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <SiteFooter />
     </div>
   );

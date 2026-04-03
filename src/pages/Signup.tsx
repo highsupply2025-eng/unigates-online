@@ -276,8 +276,8 @@ const Signup = () => {
           /* Step 1: Role Selection Cards */
           <div className="max-w-lg w-full text-center">
             <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 shadow-lg shadow-primary/20 flex items-center justify-center">
-                <GraduationCap className="w-8 h-8 text-primary" />
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-xl shadow-primary/30 flex items-center justify-center">
+                <GraduationCap className="w-10 h-10 text-white" />
               </div>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-foreground mb-2">

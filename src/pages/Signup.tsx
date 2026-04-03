@@ -546,7 +546,7 @@ const Signup = () => {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
             {[t.footerLinks.faq, t.footerLinks.helpCenter, t.footerLinks.usageTerms, t.footerLinks.privacy].map((link) => (
-              <a key={link} href="#" className="text-foreground/70 font-medium hover:text-primary hover:underline py-1 transition-colors">
+              <a key={link} href="#" className="text-primary font-bold hover:text-primary/80 hover:underline py-1 transition-colors">
                 {link}
               </a>
             ))}

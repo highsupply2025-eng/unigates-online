@@ -1,5 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Building2, Handshake } from "lucide-react";
+import { Building2, Handshake, Mail, MessageCircle } from "lucide-react";
 import SimpleHeader from "@/components/SimpleHeader";
 
 const partners = [

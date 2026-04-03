@@ -161,7 +161,7 @@ const RegisteredUniversitiesSection = () => {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                       <div className="absolute top-3 left-3 z-10">
-                        <Badge className="bg-emerald-600/90 text-white text-xs backdrop-blur-sm">
+                        <Badge className="bg-primary/90 text-primary-foreground text-xs backdrop-blur-sm">
                           <Landmark className="w-3 h-3 mr-1" />
                           {isRtl ? "معهد" : "Institute"}
                         </Badge>

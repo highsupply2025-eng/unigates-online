@@ -5,8 +5,8 @@ export const useSmartBack = (fallback = "/") => {
   const navigate = useNavigate();
 
   return useCallback(() => {
-    // If there's browser history, go back
-    if (window.history.length > 2) {
+    // Always try to go back if there's any history
+    if (window.history.length > 1) {
       navigate(-1);
     } else {
       navigate(fallback);

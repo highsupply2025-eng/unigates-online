@@ -7,13 +7,15 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const FAQSection = () => {
   const { t, language } = useLanguage();
   const ArrowIcon = language === "ar" ? ChevronLeft : ChevronRight;
+  const { ref, isVisible } = useScrollAnimation();
 
   return (
-    <section className="section-divider py-12 md:py-20 px-6 md:px-12">
+    <section ref={ref} className={`section-divider py-12 md:py-20 px-6 md:px-12 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
       <div className="max-w-4xl mx-auto">
         <h2 className="text-2xl md:text-3xl font-bold mb-6">{t.faq.title}</h2>
 

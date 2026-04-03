@@ -5,6 +5,7 @@ import { Play, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePopularCourses, useNewCourses, useFreeCourses, type Course } from "@/hooks/useCourses";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const categoryColors: Record<string, string> = {
   "برمجة": "from-teal-800 to-teal-600",
@@ -27,7 +28,7 @@ const TrendingCourses = memo(() => {
   const [filter, setFilter] = useState("popular");
   const { t, language } = useLanguage();
   const scrollRef = useRef<HTMLDivElement>(null);
-
+  const { ref: animRef, isVisible } = useScrollAnimation();
   const popular = usePopularCourses();
   const newest = useNewCourses();
   const free = useFreeCourses();
@@ -53,7 +54,7 @@ const TrendingCourses = memo(() => {
   const getCategory = (course: Course) => language === "ar" ? course.category_ar : course.category_en;
 
   return (
-    <section className="py-12 md:py-20 px-6 md:px-12">
+    <section ref={animRef} className={`py-12 md:py-20 px-6 md:px-12 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
       <div className="max-w-full mx-auto">
         <h2 className="text-2xl md:text-3xl font-bold mb-4">📚 {t.trending.title}</h2>
 

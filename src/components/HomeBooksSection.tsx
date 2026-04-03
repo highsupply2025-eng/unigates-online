@@ -5,6 +5,7 @@ import { BookOpen, Star, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const categoryColors: Record<string, string> = {
   "تقنية": "from-cyan-800 to-cyan-600",
@@ -42,9 +43,10 @@ const HomeBooksSection = () => {
   };
 
   const isEmpty = !allFeaturedBooks.length;
+  const { ref: animRef, isVisible } = useScrollAnimation();
 
   return (
-    <section className="py-12 md:py-20 px-6 md:px-12">
+    <section ref={animRef} className={`py-12 md:py-20 px-6 md:px-12 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
       <div className="max-w-full mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl md:text-3xl font-bold">

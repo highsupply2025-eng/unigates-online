@@ -438,7 +438,7 @@ const UniversityPlatform = () => {
               onClick={() => { setShowTypeDialog(false); navigate(`/signup/college?plan=${selectedPlan}`); }}
               className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all duration-200 group"
             >
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[hsl(220,80%,50%)] to-[hsl(200,75%,40%)] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                 <Landmark className="w-8 h-8 text-white" />
               </div>
               <span className="font-bold text-foreground text-lg">{isRtl ? "كلية" : "College"}</span>
@@ -447,7 +447,7 @@ const UniversityPlatform = () => {
               onClick={() => { setShowTypeDialog(false); navigate(`/signup/institute?plan=${selectedPlan}`); }}
               className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all duration-200 group"
             >
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[hsl(174,72%,40%)] to-[hsl(174,72%,30%)] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                 <Landmark className="w-8 h-8 text-white" />
               </div>
               <span className="font-bold text-foreground text-lg">{isRtl ? "معهد" : "Institute"}</span>

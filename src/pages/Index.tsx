@@ -2,7 +2,6 @@ import SiteHeader from "@/components/SiteHeader";
 import HeroSection from "@/components/HeroSection";
 import TrendingCourses from "@/components/TrendingCourses";
 import FeaturesSection from "@/components/FeaturesSection";
-
 import SiteFooter from "@/components/SiteFooter";
 import StatsSection from "@/components/StatsSection";
 import HomeBooksSection from "@/components/HomeBooksSection";
@@ -23,14 +22,15 @@ const Index = () => {
           <StatsSection />
         </div>
       </div>
-      <RegisteredUniversitiesSection />
-      <RegisteredSchoolsSection />
-      <TrendingCourses />
-      <HomeBooksSection />
-      
-      
-      <FeaturesSection />
-      
+
+      <div className="divide-y divide-border/40">
+        <RegisteredUniversitiesSection />
+        <RegisteredSchoolsSection />
+        <TrendingCourses />
+        <HomeBooksSection />
+        <FeaturesSection />
+      </div>
+
       <SiteFooter />
     </div>
   );

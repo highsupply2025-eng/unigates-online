@@ -420,14 +420,18 @@ const UniversityPlatform = () => {
                       </li>
                     ))}
                   </ul>
-                  <Button
-                    className="w-full font-bold"
-                    variant={plan.highlighted ? "default" : "outline"}
-                    disabled={(plan as any).comingSoon}
-                  >
-                    {(plan as any).comingSoon ? (isRtl ? "قريباً" : "Coming Soon") : (isRtl ? "ابدأ الآن" : "Get Started")}
-                    {!(plan as any).comingSoon && <ArrowIcon className="w-4 h-4" />}
-                  </Button>
+                  {(plan as any).comingSoon ? (
+                    <Button className="w-full font-bold" variant="outline" disabled>
+                      {isRtl ? "قريباً" : "Coming Soon"}
+                    </Button>
+                  ) : (
+                    <Link to="/signup-choice" className="w-full">
+                      <Button className="w-full font-bold" variant={plan.highlighted ? "default" : "outline"}>
+                        {isRtl ? "ابدأ الآن" : "Get Started"}
+                        <ArrowIcon className="w-4 h-4" />
+                      </Button>
+                    </Link>
+                  )}
                 </CardContent>
               </Card>
             ))}

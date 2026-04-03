@@ -1,6 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { BookOpen, Calendar, User, Clock } from "lucide-react";
-import SiteHeader from "@/components/SiteHeader";
+import SimpleHeader from "@/components/SimpleHeader";
 import SiteFooter from "@/components/SiteFooter";
 
 const blogPosts = {

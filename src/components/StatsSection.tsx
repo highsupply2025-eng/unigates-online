@@ -1,4 +1,4 @@
-import { Users, GraduationCap, Landmark, School, BookCopy, Apple, UserCheck } from "lucide-react";
+import { Users, GraduationCap, Landmark, School, BookCopy, UserCheck, Presentation } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -90,7 +90,7 @@ const StatsSection = () => {
     { icon: School, counter: schools, label: language === "ar" ? "مدرسة" : "School" },
     { icon: BookCopy, counter: publishers, label: language === "ar" ? "ناشر" : "Publisher" },
     { icon: GraduationCap, counter: lecturers, label: language === "ar" ? "محاضر" : "Lecturer" },
-    { icon: Apple, counter: teachers, label: language === "ar" ? "معلم" : "Teacher" },
+    { icon: Presentation, counter: teachers, label: language === "ar" ? "معلم" : "Teacher" },
     { icon: UserCheck, counter: parents, label: language === "ar" ? "ولي أمر" : "Parent" },
     { icon: Users, counter: students, label: language === "ar" ? "طالب" : "Student" },
   ];

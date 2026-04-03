@@ -11,46 +11,9 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useRef, useState, useCallback } from "react";
-
-const useCountUp = (end: number, duration = 1500) => {
-  const [count, setCount] = useState(0);
-  const [started, setStarted] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  const start = useCallback(() => {
-    if (started || end === 0) return;
-    setStarted(true);
-    const startTime = performance.now();
-    const animate = (now: number) => {
-      const progress = Math.min((now - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.round(eased * end));
-      if (progress < 1) requestAnimationFrame(animate);
-    };
-    requestAnimationFrame(animate);
-  }, [end, duration, started]);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) start(); },
-      { threshold: 0.3 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [start]);
-
-  useEffect(() => {
-    setStarted(false);
-    setCount(0);
-  }, [end]);
-
-  return { count, ref };
-};
+import { usePlatformStats } from "@/hooks/usePlatformStats";
+import { useCountUp } from "@/hooks/useCountUp";
+import { useState } from "react";
 
 const UniversityPlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -58,35 +21,26 @@ const UniversityPlatform = () => {
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
-  const { data: stats } = useQuery({
-    queryKey: ["university-stats"],
-    queryFn: async () => {
-      const [studentsRes, lecturersRes, collegesRes, institutesRes] = await Promise.all([
-        supabase.rpc("get_profile_count_by_role", { _role: "student" }),
-        supabase.rpc("get_profile_count_by_role", { _role: "lecturer" }),
-        supabase.from("approved_colleges_public").select("id", { count: "exact", head: true }),
-        supabase.from("approved_institutes_public").select("id", { count: "exact", head: true }),
-      ]);
-      return {
-        students: Number(studentsRes.data) || 0,
-        lecturers: Number(lecturersRes.data) || 0,
-        colleges: collegesRes.count || 0,
-        institutes: institutesRes.count || 0,
-      };
-    },
-    staleTime: 60000,
-  });
+  const { data: stats } = usePlatformStats();
 
-  const students = useCountUp(stats?.students ?? 0);
-  const lecturers = useCountUp(stats?.lecturers ?? 0);
   const colleges = useCountUp(stats?.colleges ?? 0);
   const institutes = useCountUp(stats?.institutes ?? 0);
+  const schools = useCountUp(stats?.schools ?? 0);
+  const publishers = useCountUp(stats?.publishers ?? 0);
+  const lecturers = useCountUp(stats?.lecturers ?? 0);
+  const teachers = useCountUp(stats?.teachers ?? 0);
+  const parents = useCountUp(stats?.parents ?? 0);
+  const students = useCountUp(stats?.students ?? 0);
 
   const statItems = [
-    { icon: Users, counter: students, label: isRtl ? "طالب" : "Student", color: "from-blue-500 to-cyan-400" },
-    { icon: GraduationCap, counter: lecturers, label: isRtl ? "محاضر" : "Lecturer", color: "from-violet-500 to-purple-400" },
     { icon: Landmark, counter: colleges, label: isRtl ? "كلية" : "College", color: "from-amber-500 to-orange-400" },
-    { icon: School, counter: institutes, label: isRtl ? "معهد" : "Institute", color: "from-emerald-500 to-teal-400" },
+    { icon: Landmark, counter: institutes, label: isRtl ? "معهد" : "Institute", color: "from-emerald-500 to-teal-400" },
+    { icon: School, counter: schools, label: isRtl ? "مدرسة" : "School", color: "from-blue-500 to-cyan-400" },
+    { icon: BookOpen, counter: publishers, label: isRtl ? "ناشر" : "Publisher", color: "from-pink-500 to-rose-400" },
+    { icon: GraduationCap, counter: lecturers, label: isRtl ? "محاضر" : "Lecturer", color: "from-violet-500 to-purple-400" },
+    { icon: Users, counter: teachers, label: isRtl ? "معلم" : "Teacher", color: "from-teal-500 to-green-400" },
+    { icon: Users, counter: parents, label: isRtl ? "ولي أمر" : "Parent", color: "from-sky-500 to-blue-400" },
+    { icon: Users, counter: students, label: isRtl ? "طالب" : "Student", color: "from-indigo-500 to-blue-400" },
   ];
 
   const features = [
@@ -306,7 +260,7 @@ const UniversityPlatform = () => {
           </p>
 
           {/* Stats with colored icon backgrounds */}
-          <div className="max-w-3xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+          <div className="max-w-5xl mx-auto grid grid-cols-4 md:grid-cols-8 gap-3 text-center">
             {statItems.map((item, i) => (
               <div
                 key={i}

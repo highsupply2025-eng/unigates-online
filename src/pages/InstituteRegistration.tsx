@@ -24,6 +24,8 @@ const InstituteRegistration = () => {
   const isRtl = dir === "rtl";
   const goBack = useSmartBack();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const plan = searchParams.get("plan") || "monthly";
 
   const [instituteName, setInstituteName] = useState("");
   const [city, setCity] = useState("");

@@ -90,7 +90,7 @@ const StatsSection = () => {
     { icon: School, counter: schools, label: language === "ar" ? "مدرسة" : "School" },
     { icon: BookCopy, counter: publishers, label: language === "ar" ? "ناشر" : "Publisher" },
     { icon: GraduationCap, counter: lecturers, label: language === "ar" ? "محاضر" : "Lecturer" },
-    { icon: Apple, counter: teachers, label: language === "ar" ? "معلم" : "Teacher" },
+    { icon: Presentation, counter: teachers, label: language === "ar" ? "معلم" : "Teacher" },
     { icon: UserCheck, counter: parents, label: language === "ar" ? "ولي أمر" : "Parent" },
     { icon: Users, counter: students, label: language === "ar" ? "طالب" : "Student" },
   ];

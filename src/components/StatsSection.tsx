@@ -1,78 +1,11 @@
 import { Users, GraduationCap, Landmark, School, BookCopy, UserCheck, Presentation } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useRef, useState, useCallback } from "react";
-
-const useCountUp = (end: number, duration = 1500) => {
-  const [count, setCount] = useState(0);
-  const [started, setStarted] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  const start = useCallback(() => {
-    if (started || end === 0) return;
-    setStarted(true);
-    const startTime = performance.now();
-    const animate = (now: number) => {
-      const progress = Math.min((now - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.round(eased * end));
-      if (progress < 1) requestAnimationFrame(animate);
-    };
-    requestAnimationFrame(animate);
-  }, [end, duration, started]);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) start(); },
-      { threshold: 0.3 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [start]);
-
-  useEffect(() => {
-    setStarted(false);
-    setCount(0);
-  }, [end]);
-
-  return { count, ref };
-};
+import { usePlatformStats } from "@/hooks/usePlatformStats";
+import { useCountUp } from "@/hooks/useCountUp";
 
 const StatsSection = () => {
   const { language } = useLanguage();
-
-  const { data: stats } = useQuery({
-    queryKey: ["platform-stats"],
-    queryFn: async () => {
-      const [
-        studentsRes, lecturersRes, collegesRes, institutesRes,
-        schoolsRes, publishersRes, teachersRes, parentsRes
-      ] = await Promise.all([
-        supabase.rpc("get_profile_count_by_role", { _role: "student" }),
-        supabase.rpc("get_profile_count_by_role", { _role: "lecturer" }),
-        supabase.from("approved_colleges_public").select("id", { count: "exact", head: true }),
-        supabase.from("approved_institutes_public").select("id", { count: "exact", head: true }),
-        supabase.from("approved_schools_public").select("id", { count: "exact", head: true }),
-        supabase.rpc("get_profile_count_by_role", { _role: "publisher" }),
-        supabase.rpc("get_profile_count_by_role", { _role: "teacher" }),
-        supabase.rpc("get_profile_count_by_role", { _role: "parent" }),
-      ]);
-      return {
-        students: Number(studentsRes.data) || 0,
-        lecturers: Number(lecturersRes.data) || 0,
-        colleges: collegesRes.count || 0,
-        institutes: institutesRes.count || 0,
-        schools: schoolsRes.count || 0,
-        publishers: Number(publishersRes.data) || 0,
-        teachers: Number(teachersRes.data) || 0,
-        parents: Number(parentsRes.data) || 0,
-      };
-    },
-    staleTime: 60000,
-  });
+  const { data: stats } = usePlatformStats();
 
   const colleges = useCountUp(stats?.colleges ?? 0);
   const institutes = useCountUp(stats?.institutes ?? 0);

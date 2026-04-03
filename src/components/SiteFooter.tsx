@@ -48,8 +48,8 @@ const SiteFooter = () => {
     ],
     [
       { label: t.footerLinks.contactUs, href: "/contact" },
-      { label: t.footerLinks.careers, href: "#" },
-      { label: t.footerLinks.partnerships, href: "#" },
+      { label: t.footerLinks.careers, href: "/careers" },
+      { label: t.footerLinks.partnerships, href: "/partnerships" },
     ],
   ];
 

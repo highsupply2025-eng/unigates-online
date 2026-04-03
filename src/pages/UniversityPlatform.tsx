@@ -423,9 +423,10 @@ const UniversityPlatform = () => {
                   <Button
                     className="w-full font-bold"
                     variant={plan.highlighted ? "default" : "outline"}
+                    disabled={(plan as any).comingSoon}
                   >
-                    {isRtl ? "ابدأ الآن" : "Get Started"}
-                    <ArrowIcon className="w-4 h-4" />
+                    {(plan as any).comingSoon ? (isRtl ? "قريباً" : "Coming Soon") : (isRtl ? "ابدأ الآن" : "Get Started")}
+                    {!(plan as any).comingSoon && <ArrowIcon className="w-4 h-4" />}
                   </Button>
                 </CardContent>
               </Card>

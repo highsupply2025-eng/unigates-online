@@ -35,7 +35,7 @@ const SiteFooter = () => {
   const { t } = useLanguage();
 
   const footerLinks = [
-    [t.footerLinks.about, t.footerLinks.instructors, t.footerLinks.certificates, t.footerLinks.blog],
+    [t.footerLinks.about, t.footerLinks.certificates, t.footerLinks.blog],
     [t.footerLinks.helpCenter, t.footerLinks.terms, t.footerLinks.privacy],
     [t.footerLinks.contactUs, t.footerLinks.careers, t.footerLinks.partnerships],
   ];

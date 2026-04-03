@@ -6,7 +6,7 @@ import {
   BarChart3, Globe, GraduationCap,
   FileText, Video, Award, ArrowLeft, ArrowRight, Home,
   ShieldCheck, MessageSquare, CalendarCheck, Layers,
-  Sparkles, Trophy, Zap,
+  Sparkles, Trophy, Zap, Check,
   Menu, X,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";

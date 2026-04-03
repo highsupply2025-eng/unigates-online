@@ -2,7 +2,7 @@ import SiteHeader from "@/components/SiteHeader";
 import HeroSection from "@/components/HeroSection";
 import TrendingCourses from "@/components/TrendingCourses";
 import FeaturesSection from "@/components/FeaturesSection";
-import FAQSection from "@/components/FAQSection";
+
 import SiteFooter from "@/components/SiteFooter";
 import StatsSection from "@/components/StatsSection";
 import HomeBooksSection from "@/components/HomeBooksSection";
@@ -30,7 +30,7 @@ const Index = () => {
       
       
       <FeaturesSection />
-      <FAQSection />
+      
       <SiteFooter />
     </div>
   );

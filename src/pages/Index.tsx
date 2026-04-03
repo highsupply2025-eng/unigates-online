@@ -8,7 +8,7 @@ import StatsSection from "@/components/StatsSection";
 import HomeBooksSection from "@/components/HomeBooksSection";
 import RegisteredSchoolsSection from "@/components/RegisteredSchoolsSection";
 import RegisteredUniversitiesSection from "@/components/RegisteredUniversitiesSection";
-import PartnersSection from "@/components/PartnersSection";
+
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
@@ -28,7 +28,7 @@ const Index = () => {
       <TrendingCourses />
       <HomeBooksSection />
       
-      <PartnersSection />
+      
       <FeaturesSection />
       <FAQSection />
       <SiteFooter />

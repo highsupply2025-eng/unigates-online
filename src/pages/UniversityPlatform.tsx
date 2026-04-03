@@ -403,42 +403,46 @@ const UniversityPlatform = () => {
             {plans.map((plan, i) => (
               <Card
                 key={i}
-                className={`relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-                  plan.highlighted ? "border-primary border-2 shadow-lg shadow-primary/10" : "border-border"
+                className={`relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 ${
+                  plan.highlighted 
+                    ? "border-primary border-2 shadow-xl shadow-primary/15 scale-[1.03]" 
+                    : `border-2 ${(plan as any).borderColor} shadow-md`
                 }`}
               >
                 {plan.highlighted && (
-                  <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-xs font-bold text-center py-2">
+                  <div className="bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] text-primary-foreground text-xs font-bold text-center py-2.5">
                     <Sparkles className="w-3.5 h-3.5 inline-block me-1" />
                     {isRtl ? "الأكثر شعبية" : "Most Popular"}
                   </div>
                 )}
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${plan.highlighted ? 'bg-primary/15' : 'bg-muted'}`}>
-                      <plan.icon className={`w-5 h-5 ${plan.highlighted ? 'text-primary' : 'text-muted-foreground'}`} />
+                <CardContent className="p-7">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${(plan as any).iconBg} shadow-lg`}>
+                      <plan.icon className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="font-bold text-lg text-foreground">{plan.name}</h3>
+                    <h3 className="font-black text-xl text-foreground">{plan.name}</h3>
                   </div>
-                  <div className="mb-5">
-                    <span className="text-3xl font-black text-foreground">{plan.price}</span>
-                    {plan.period && <span className="text-muted-foreground text-sm">{plan.period}</span>}
+                  <div className="mb-6">
+                    <span className={`text-4xl font-black ${(plan as any).priceColor}`}>{plan.price}</span>
+                    {plan.period && <span className="text-muted-foreground text-sm ms-1 font-medium">{plan.period}</span>}
                   </div>
-                  <ul className="space-y-3 mb-6">
+                  <ul className="space-y-3.5 mb-7">
                     {plan.features.map((f, j) => (
-                      <li key={j} className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Award className="w-4 h-4 text-primary flex-shrink-0" />
+                      <li key={j} className="flex items-center gap-2.5 text-sm text-foreground/80 font-medium">
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center ${(plan as any).iconBg}`}>
+                          <Check className="w-3 h-3 text-white" />
+                        </div>
                         {f}
                       </li>
                     ))}
                   </ul>
                   {(plan as any).comingSoon ? (
-                    <Button className="w-full font-bold" variant="outline" disabled>
+                    <Button className="w-full font-bold h-12 text-base opacity-60" variant="outline" disabled>
                       {isRtl ? "قريباً" : "Coming Soon"}
                     </Button>
                   ) : (
                     <Link to="/signup-choice" className="w-full">
-                      <Button className="w-full font-bold" variant={plan.highlighted ? "default" : "outline"}>
+                      <Button className={`w-full font-bold h-12 text-base ${plan.highlighted ? 'shadow-lg shadow-primary/25' : ''}`} variant={plan.highlighted ? "default" : "outline"}>
                         {isRtl ? "ابدأ الآن" : "Get Started"}
                         <ArrowIcon className="w-4 h-4" />
                       </Button>

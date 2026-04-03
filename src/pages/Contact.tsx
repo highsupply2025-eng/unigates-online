@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
-import { GraduationCap, Globe, ArrowLeft, ArrowRight, Mail, Phone, MapPin, MessageCircle, Clock } from "lucide-react";
+import { Mail, Phone, MapPin, MessageCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useSmartBack } from "@/hooks/use-smart-back";
 import { useToast } from "@/hooks/use-toast";
+import SimpleHeader from "@/components/SimpleHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { useState } from "react";
 

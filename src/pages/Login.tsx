@@ -105,7 +105,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <header className="border-b border-border px-6 py-4">
+      <header className="border-b-2 border-primary/20 px-6 py-4 bg-card shadow-sm">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <GraduationCap className="w-8 h-8 text-primary" />
@@ -133,8 +133,8 @@ const Login = () => {
       <main className="flex-1 flex items-center justify-center px-4 py-16">
         <form onSubmit={handleLogin} className="max-w-md w-full text-center space-y-6">
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 shadow-lg shadow-primary/20 flex items-center justify-center">
-              <GraduationCap className="w-8 h-8 text-primary" />
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-xl shadow-primary/30 flex items-center justify-center">
+              <GraduationCap className="w-10 h-10 text-white" />
             </div>
           </div>
           <h1 className="text-2xl md:text-3xl font-black text-foreground mb-2">{t.loginPage.title}</h1>
@@ -145,7 +145,7 @@ const Login = () => {
             placeholder={t.loginPage.emailPlaceholder}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-14 text-base bg-card border-2 border-border text-center shadow-md hover:shadow-lg transition-shadow"
+            className="h-14 text-base bg-card border-2 border-primary/20 text-center shadow-md hover:shadow-lg hover:border-primary/40 focus:border-primary transition-all"
             required
           />
           <Input
@@ -153,7 +153,7 @@ const Login = () => {
             placeholder={t.loginPage.passwordPlaceholder}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-14 text-base bg-card border-2 border-border text-center shadow-md hover:shadow-lg transition-shadow"
+            className="h-14 text-base bg-card border-2 border-primary/20 text-center shadow-md hover:shadow-lg hover:border-primary/40 focus:border-primary transition-all"
             required
           />
 
@@ -161,7 +161,7 @@ const Login = () => {
             <Button
               type="submit"
               size="lg"
-              className="flex-1 h-14 text-lg font-bold gap-2"
+              className="flex-1 h-14 text-lg font-bold gap-2 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] hover:from-primary/90 hover:to-[hsl(200,75%,25%)] shadow-lg shadow-primary/25"
               disabled={loading}
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowIcon className="w-5 h-5" />}
@@ -171,16 +171,17 @@ const Login = () => {
               <Button
                 type="button"
                 size="lg"
-                className="w-full h-14 text-lg font-bold"
+                className="w-full h-14 text-lg font-bold border-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5"
+                variant="outline"
               >
                 {t.loginPage.forgotPassword}
               </Button>
             </Link>
           </div>
 
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground/70 font-medium">
             {t.loginPage.noAccount}{" "}
-            <Link to="/signup" className="text-primary font-semibold hover:underline">
+            <Link to="/signup" className="text-primary font-bold hover:underline">
               {t.loginPage.createAccount}
             </Link>
           </p>

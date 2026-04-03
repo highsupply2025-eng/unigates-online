@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 const SignupChoice = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
+  const goBack = useSmartBack();
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>

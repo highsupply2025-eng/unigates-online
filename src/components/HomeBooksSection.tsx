@@ -1,29 +1,18 @@
 import { useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBooks } from "@/hooks/useBooks";
-import { BookOpen, Star, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
-const categoryColors: Record<string, string> = {
-  "تقنية": "from-cyan-800 to-cyan-600",
-  "تصميم": "from-pink-800 to-pink-600",
-  "تسويق": "from-amber-800 to-amber-600",
-  "برمجة": "from-teal-800 to-teal-600",
-  "أمن": "from-red-800 to-red-600",
-  "بيانات": "from-emerald-800 to-emerald-600",
-  "Technology": "from-cyan-800 to-cyan-600",
-  "Design": "from-pink-800 to-pink-600",
-  "Marketing": "from-amber-800 to-amber-600",
-  "Programming": "from-teal-800 to-teal-600",
-  "Security": "from-red-800 to-red-600",
-  "Data": "from-emerald-800 to-emerald-600",
-};
+import bookBg1 from "@/assets/book-bg-1.jpg";
+import bookBg2 from "@/assets/book-bg-2.jpg";
+
+const bookImages = [bookBg1, bookBg2];
 
 const HomeBooksSection = () => {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const { data: books } = useBooks();
   const isRtl = language === "ar";
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -35,7 +24,7 @@ const HomeBooksSection = () => {
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
-    const scrollAmount = 260;
+    const scrollAmount = 280;
     const dir = isRtl
       ? (direction === "left" ? scrollAmount : -scrollAmount)
       : (direction === "left" ? -scrollAmount : scrollAmount);
@@ -73,18 +62,18 @@ const HomeBooksSection = () => {
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
 
-            <div ref={scrollRef} className="flex gap-3 overflow-x-auto pb-4 px-2" style={{ scrollbarWidth: 'none' }}>
-              {allFeaturedBooks.map((book) => (
-                <div key={book.id} className="relative flex-shrink-0 w-[200px] md:w-[240px] group cursor-pointer card-hover">
-                  <div className={`aspect-[3/4] rounded-lg bg-gradient-to-br ${categoryColors[book.category] || "from-slate-800 to-slate-600"} flex flex-col justify-between p-4 relative overflow-hidden`}>
-                    {book.cover_url && (
-                      <img
-                        src={book.cover_url}
-                        alt={isRtl ? book.title_ar : book.title_en}
-                        className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-40 transition-opacity"
-                      />
-                    )}
-                    <div className="flex justify-between items-start relative z-10">
+            <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-4 px-2" style={{ scrollbarWidth: 'none' }}>
+              {allFeaturedBooks.map((book, i) => (
+                <div key={book.id} className="relative flex-shrink-0 w-[180px] md:w-[210px] group cursor-pointer card-hover">
+                  <div className="aspect-[3/4] rounded-xl overflow-hidden relative shadow-lg group-hover:shadow-xl transition-shadow">
+                    <img
+                      src={book.cover_url || bookImages[i % bookImages.length]}
+                      alt={isRtl ? book.title_ar : book.title_en}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    <div className="flex justify-between items-start absolute top-3 left-3 right-3 z-10">
                       <Badge className="bg-background/80 text-foreground text-xs backdrop-blur-sm hover:bg-background/80">
                         {book.category}
                       </Badge>
@@ -94,11 +83,11 @@ const HomeBooksSection = () => {
                         </Badge>
                       )}
                     </div>
-                    <div className="relative z-10">
+                    <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
                       <p className="text-sm font-bold text-white leading-snug mb-2 line-clamp-2">
                         {isRtl ? book.title_ar : book.title_en}
                       </p>
-                      <p className="text-xs text-white/70 mb-1">
+                      <p className="text-xs text-white/80 mb-1">
                         {isRtl ? book.author_ar : book.author_en}
                       </p>
                       <div className="flex items-center justify-between">

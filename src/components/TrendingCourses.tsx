@@ -2,28 +2,16 @@ import { useRef, useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { Clock as ClockIcon } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Play, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { Play, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePopularCourses, useNewCourses, useFreeCourses, type Course } from "@/hooks/useCourses";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
-const categoryColors: Record<string, string> = {
-  "برمجة": "from-teal-800 to-teal-600",
-  "تصميم": "from-pink-800 to-pink-600",
-  "تسويق": "from-amber-800 to-amber-600",
-  "إدارة": "from-blue-800 to-blue-600",
-  "تقنية": "from-cyan-800 to-cyan-600",
-  "بيانات": "from-emerald-800 to-emerald-600",
-  "إبداع": "from-purple-800 to-purple-600",
-  "Programming": "from-teal-800 to-teal-600",
-  "Design": "from-pink-800 to-pink-600",
-  "Marketing": "from-amber-800 to-amber-600",
-  "Management": "from-blue-800 to-blue-600",
-  "Technology": "from-cyan-800 to-cyan-600",
-  "Data": "from-emerald-800 to-emerald-600",
-  "Creative": "from-purple-800 to-purple-600",
-};
+import courseBg1 from "@/assets/course-bg-1.jpg";
+import courseBg2 from "@/assets/course-bg-2.jpg";
+
+const courseImages = [courseBg1, courseBg2];
 
 const TrendingCourses = memo(() => {
   const [filter, setFilter] = useState("popular");
@@ -43,7 +31,7 @@ const TrendingCourses = memo(() => {
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
-    const scrollAmount = 260;
+    const scrollAmount = 280;
     const dir = language === "ar"
       ? (direction === "left" ? scrollAmount : -scrollAmount)
       : (direction === "left" ? -scrollAmount : scrollAmount);
@@ -87,11 +75,18 @@ const TrendingCourses = memo(() => {
                 <ChevronLeft className="w-5 h-5 text-foreground" />
               </button>
 
-              <div ref={scrollRef} className="flex gap-3 overflow-x-auto pb-4 px-2" style={{ scrollbarWidth: 'none' }}>
-                {courses.map((course) => (
-                  <div key={course.id} className="relative flex-shrink-0 w-[200px] md:w-[240px] group cursor-pointer card-hover">
-                    <div className={`aspect-video rounded-lg bg-gradient-to-br ${categoryColors[getCategory(course)] || "from-slate-800 to-slate-600"} flex flex-col justify-between p-4 relative overflow-hidden`}>
-                      <div className="flex justify-between items-start relative z-10">
+              <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-4 px-2" style={{ scrollbarWidth: 'none' }}>
+                {courses.map((course, i) => (
+                  <div key={course.id} className="relative flex-shrink-0 w-[220px] md:w-[260px] group cursor-pointer card-hover">
+                    <div className="aspect-video rounded-xl overflow-hidden relative shadow-lg group-hover:shadow-xl transition-shadow">
+                      <img
+                        src={course.thumbnail_url || courseImages[i % courseImages.length]}
+                        alt={getTitle(course)}
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                      <div className="flex justify-between items-start absolute top-3 left-3 right-3 z-10">
                         <Badge className="bg-background/80 text-foreground text-xs backdrop-blur-sm hover:bg-background/80">
                           {getCategory(course)}
                         </Badge>
@@ -101,13 +96,13 @@ const TrendingCourses = memo(() => {
                           </Badge>
                         )}
                       </div>
-                      <div className="relative z-10">
+                      <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
                         <p className="text-sm font-bold text-white leading-snug mb-2 line-clamp-2">
                           {getTitle(course)}
                         </p>
                         <div className="flex items-center justify-between">
-                          <span className="text-xs text-white/80">{getInstructor(course)}</span>
-                          <span className="flex items-center gap-1 text-xs text-white/70">
+                          <span className="text-xs text-white/90">{getInstructor(course)}</span>
+                          <span className="flex items-center gap-1 text-xs text-white/80">
                             <Play className="w-3 h-3" /> {course.episode_count}
                           </span>
                         </div>

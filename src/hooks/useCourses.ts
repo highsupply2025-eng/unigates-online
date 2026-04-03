@@ -11,6 +11,7 @@ export interface Course {
   category_en: string;
   episode_count: number;
   is_free: boolean;
+  thumbnail_url: string | null;
 }
 
 const getWeekStart = () => {

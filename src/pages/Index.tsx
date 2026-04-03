@@ -30,7 +30,7 @@ const Index = () => {
       
       
       <FeaturesSection />
-      <FAQSection />
+      
       <SiteFooter />
     </div>
   );

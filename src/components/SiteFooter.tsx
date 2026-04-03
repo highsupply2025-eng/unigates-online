@@ -61,7 +61,7 @@ const SiteFooter = () => {
             <ul key={i} className="space-y-3">
               {column.map((link) => (
                 <li key={link}>
-                  <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  <a href="#" className="text-sm text-foreground/70 font-medium hover:text-primary transition-colors">
                     {link}
                   </a>
                 </li>

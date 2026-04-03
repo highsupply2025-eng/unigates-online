@@ -294,12 +294,12 @@ const Signup = () => {
                     key={r.value}
                     type="button"
                     onClick={() => setSelectedRole(r.value)}
-                    className="group p-6 rounded-2xl border-2 border-border bg-card hover:border-primary hover:shadow-xl shadow-md transition-all duration-200 text-center"
+                    className="group p-6 rounded-2xl border-2 border-primary/20 bg-card hover:border-primary hover:shadow-xl hover:shadow-primary/15 shadow-md transition-all duration-200 text-center"
                   >
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                      <Icon className="w-7 h-7 text-white" />
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                      <Icon className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground">{language === "ar" ? r.labelAr : r.labelEn}</h3>
+                    <h3 className="text-lg font-bold text-primary">{language === "ar" ? r.labelAr : r.labelEn}</h3>
                   </button>
                 );
               })}
@@ -309,12 +309,12 @@ const Signup = () => {
                   <Link
                     key={item.labelEn}
                     to={item.href}
-                    className="group p-6 rounded-2xl border-2 border-border bg-card hover:border-primary hover:shadow-xl shadow-md transition-all duration-200 text-center"
+                    className="group p-6 rounded-2xl border-2 border-primary/20 bg-card hover:border-primary hover:shadow-xl hover:shadow-primary/15 shadow-md transition-all duration-200 text-center"
                   >
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                      <Icon className="w-7 h-7 text-white" />
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                      <Icon className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground">{language === "ar" ? item.labelAr : item.labelEn}</h3>
+                    <h3 className="text-lg font-bold text-primary">{language === "ar" ? item.labelAr : item.labelEn}</h3>
                   </Link>
                 );
               })}

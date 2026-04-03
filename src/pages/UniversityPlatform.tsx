@@ -19,6 +19,7 @@ import { useState } from "react";
 const UniversityPlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showTypeDialog, setShowTypeDialog] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState("monthly");
   const navigate = useNavigate();
   const { t, dir, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
@@ -391,7 +392,7 @@ const UniversityPlatform = () => {
                     </Button>
                   ) : (
                     <Button 
-                      onClick={() => setShowTypeDialog(true)}
+                      onClick={() => { setSelectedPlan(i === 0 ? "free" : "monthly"); setShowTypeDialog(true); }}
                       className={`w-full font-bold h-12 text-base ${plan.highlighted ? 'shadow-lg shadow-primary/25' : ''}`} 
                       variant={plan.highlighted ? "default" : "outline"}
                     >
@@ -434,7 +435,7 @@ const UniversityPlatform = () => {
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-4">
             <button
-              onClick={() => { setShowTypeDialog(false); navigate("/signup/college"); }}
+              onClick={() => { setShowTypeDialog(false); navigate(`/signup/college?plan=${selectedPlan}`); }}
               className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all duration-200 group"
             >
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[hsl(220,80%,50%)] to-[hsl(200,75%,40%)] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
@@ -443,7 +444,7 @@ const UniversityPlatform = () => {
               <span className="font-bold text-foreground text-lg">{isRtl ? "كلية" : "College"}</span>
             </button>
             <button
-              onClick={() => { setShowTypeDialog(false); navigate("/signup/institute"); }}
+              onClick={() => { setShowTypeDialog(false); navigate(`/signup/institute?plan=${selectedPlan}`); }}
               className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all duration-200 group"
             >
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[hsl(174,72%,40%)] to-[hsl(174,72%,30%)] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">

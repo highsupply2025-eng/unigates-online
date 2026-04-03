@@ -36,9 +36,21 @@ const SiteFooter = () => {
   const { t } = useLanguage();
 
   const footerLinks = [
-    [t.footerLinks.about, t.footerLinks.certificates, t.footerLinks.blog],
-    [t.footerLinks.helpCenter, t.footerLinks.terms, t.footerLinks.privacy],
-    [t.footerLinks.contactUs, t.footerLinks.careers, t.footerLinks.partnerships],
+    [
+      { label: t.footerLinks.about, href: "/about" },
+      { label: t.footerLinks.certificates, href: "#" },
+      { label: t.footerLinks.blog, href: "#" },
+    ],
+    [
+      { label: t.footerLinks.helpCenter, href: "/help-center" },
+      { label: t.footerLinks.terms, href: "/terms" },
+      { label: t.footerLinks.privacy, href: "/privacy" },
+    ],
+    [
+      { label: t.footerLinks.contactUs, href: "/contact" },
+      { label: t.footerLinks.careers, href: "#" },
+      { label: t.footerLinks.partnerships, href: "#" },
+    ],
   ];
 
   const socialLinks = [

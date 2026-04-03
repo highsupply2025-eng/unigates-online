@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
-import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, Globe, Phone, User, BookOpenCheck, Building2, Landmark, Ticket } from "lucide-react";
+import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, Globe, Phone, User, BookOpenCheck, Building2, Landmark, Ticket, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -90,6 +90,8 @@ const Signup = () => {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [invitationCode, setInvitationCode] = useState(deptInviteFromUrl || collegeInviteFromUrl);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { toast } = useToast();
 
   const handleFileSelect = (
@@ -376,7 +378,12 @@ const Signup = () => {
                 </div>
                 <div>
                   <Label htmlFor="password" className="mb-2 block font-semibold">{t.signupPage.password} <span className="text-destructive">{t.signupPage.required}</span></Label>
-                  <Input id="password" type="password" placeholder={t.signupPage.passwordPlaceholder} value={password} onChange={(e) => setPassword(e.target.value)} className="h-12" dir="ltr" />
+                  <div className="relative">
+                    <Input id="password" type={showPassword ? "text" : "password"} placeholder={t.signupPage.passwordPlaceholder} value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pe-10" dir="ltr" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                   <p className="text-xs text-muted-foreground mt-1">{t.signupPage.passwordRules}</p>
                 </div>
               </div>
@@ -384,7 +391,12 @@ const Signup = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="confirmPassword" className="mb-2 block font-semibold">{t.signupPage.confirmPassword} <span className="text-destructive">{t.signupPage.required}</span></Label>
-                  <Input id="confirmPassword" type="password" placeholder={t.signupPage.confirmPasswordPlaceholder} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12" dir="ltr" />
+                  <div className="relative">
+                    <Input id="confirmPassword" type={showConfirmPassword ? "text" : "password"} placeholder={t.signupPage.confirmPasswordPlaceholder} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12 pe-10" dir="ltr" />
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                   {confirmPassword && password !== confirmPassword && (
                     <p className="text-xs text-destructive mt-1">{t.signupPage.passwordMismatch}</p>
                   )}

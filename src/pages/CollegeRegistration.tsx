@@ -152,10 +152,10 @@ const CollegeRegistration = () => {
             <div className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-2 block font-semibold">
+                  <Label className="mb-2 block font-bold text-primary">
                     {isRtl ? "اسم الكلية" : "College Name"} <span className="text-destructive">*</span>
                   </Label>
-                  <Input placeholder={isRtl ? "أدخل اسم الكلية" : "Enter college name"} value={collegeName} onChange={(e) => setCollegeName(e.target.value)} className="h-12" />
+                  <Input placeholder={isRtl ? "أدخل اسم الكلية" : "Enter college name"} value={collegeName} onChange={(e) => setCollegeName(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
                 </div>
                 <div>
                   <Label className="mb-2 block font-semibold">

@@ -28,7 +28,7 @@ const TrendingCourses = memo(() => {
   const [filter, setFilter] = useState("popular");
   const { t, language } = useLanguage();
   const scrollRef = useRef<HTMLDivElement>(null);
-
+  const { ref: animRef, isVisible } = useScrollAnimation();
   const popular = usePopularCourses();
   const newest = useNewCourses();
   const free = useFreeCourses();

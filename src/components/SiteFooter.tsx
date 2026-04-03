@@ -38,7 +38,7 @@ const SiteFooter = () => {
   const footerLinks = [
     [
       { label: t.footerLinks.about, href: "/about" },
-      { label: t.footerLinks.certificates, href: "#" },
+      { label: t.footerLinks.certificates, href: "/certificates" },
       { label: t.footerLinks.blog, href: "#" },
     ],
     [

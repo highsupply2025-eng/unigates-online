@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { GraduationCap, BookOpen, User, Globe, ArrowLeft, ArrowRight } from "lucide-react";
+import { GraduationCap, BookOpen, User, Globe, ArrowLeft, ArrowRight, Landmark, School } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 

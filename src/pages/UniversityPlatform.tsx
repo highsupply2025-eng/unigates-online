@@ -434,7 +434,7 @@ const UniversityPlatform = () => {
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-4">
             <button
-              onClick={() => { setShowTypeDialog(false); navigate("/college-registration"); }}
+              onClick={() => { setShowTypeDialog(false); navigate("/signup/college"); }}
               className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all duration-200 group"
             >
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[hsl(220,80%,50%)] to-[hsl(200,75%,40%)] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">

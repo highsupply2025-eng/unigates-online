@@ -165,6 +165,10 @@ const UniversityPlatform = () => {
         : ["Up to 200 students per dept", "3 faculty per dept", "Basic reports", "Technical support"],
       highlighted: false,
       icon: BookOpen,
+      iconBg: "bg-gradient-to-br from-[hsl(174,72%,46%)] to-[hsl(174,72%,36%)]",
+      borderColor: "border-[hsl(174,72%,46%)]/30",
+      priceColor: "text-[hsl(174,72%,36%)]",
+      checkColor: "text-[hsl(174,72%,46%)]",
     },
     {
       name: isRtl ? "الباقة الشهرية" : "Monthly Plan",
@@ -175,6 +179,10 @@ const UniversityPlatform = () => {
         : ["Up to 2000 students per dept", "10 faculty per dept", "Advanced analytics", "Priority support"],
       highlighted: true,
       icon: Trophy,
+      iconBg: "bg-gradient-to-br from-primary to-[hsl(200,75%,30%)]",
+      borderColor: "border-primary",
+      priceColor: "text-primary",
+      checkColor: "text-primary",
     },
     {
       name: isRtl ? "الباقة السنوية" : "Yearly Plan",
@@ -186,6 +194,10 @@ const UniversityPlatform = () => {
       highlighted: false,
       icon: Sparkles,
       comingSoon: true,
+      iconBg: "bg-gradient-to-br from-[hsl(260,70%,50%)] to-[hsl(280,60%,45%)]",
+      borderColor: "border-[hsl(260,70%,50%)]/30",
+      priceColor: "text-[hsl(260,70%,50%)]",
+      checkColor: "text-[hsl(260,70%,50%)]",
     },
   ];
 

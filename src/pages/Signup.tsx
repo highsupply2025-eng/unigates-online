@@ -138,7 +138,7 @@ const Signup = () => {
   };
 
   const handleSubmit = async () => {
-    if (!selectedRole || !fullName || !email || !password || !phone) {
+    if (!selectedRole || !fullName || !email || !password || !phone || !invitationCode) {
       toast({ title: t.signupPage.errorGeneric, description: t.signupPage.errorFillFields, variant: "destructive" });
       return;
     }
@@ -285,7 +285,7 @@ const Signup = () => {
             <h1 className="text-2xl md:text-3xl font-black text-foreground mb-2">
               {language === "ar" ? "اختر نوع الحساب" : "Choose Account Type"}
             </h1>
-            <p className="text-muted-foreground mb-8">{language === "ar" ? "حدد نوع حسابك للمتابعة" : "Select your account type to continue"}</p>
+            <p className="text-primary/70 font-medium mb-8">{language === "ar" ? "حدد نوع حسابك للمتابعة" : "Select your account type to continue"}</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {courseRoles.map((r) => {
                 const Icon = r.icon;
@@ -294,12 +294,12 @@ const Signup = () => {
                     key={r.value}
                     type="button"
                     onClick={() => setSelectedRole(r.value)}
-                    className="group p-6 rounded-2xl border-2 border-border bg-card hover:border-primary hover:shadow-xl shadow-md transition-all duration-200 text-center"
+                    className="group p-6 rounded-2xl border-2 border-primary/20 bg-card hover:border-primary hover:shadow-xl hover:shadow-primary/15 shadow-md transition-all duration-200 text-center"
                   >
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                      <Icon className="w-7 h-7 text-white" />
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                      <Icon className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground">{language === "ar" ? r.labelAr : r.labelEn}</h3>
+                    <h3 className="text-lg font-bold text-primary">{language === "ar" ? r.labelAr : r.labelEn}</h3>
                   </button>
                 );
               })}
@@ -309,12 +309,12 @@ const Signup = () => {
                   <Link
                     key={item.labelEn}
                     to={item.href}
-                    className="group p-6 rounded-2xl border-2 border-border bg-card hover:border-primary hover:shadow-xl shadow-md transition-all duration-200 text-center"
+                    className="group p-6 rounded-2xl border-2 border-primary/20 bg-card hover:border-primary hover:shadow-xl hover:shadow-primary/15 shadow-md transition-all duration-200 text-center"
                   >
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                      <Icon className="w-7 h-7 text-white" />
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                      <Icon className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground">{language === "ar" ? item.labelAr : item.labelEn}</h3>
+                    <h3 className="text-lg font-bold text-primary">{language === "ar" ? item.labelAr : item.labelEn}</h3>
                   </Link>
                 );
               })}
@@ -385,19 +385,20 @@ const Signup = () => {
                 </div>
                 <div>
                   <Label htmlFor="invitationCode" className="mb-2 block font-semibold">
-                    <Ticket className="w-4 h-4 inline me-1" />
-                    {language === "ar" ? "كود الدعوة (اختياري)" : "Invitation Code (Optional)"}
+                    <Ticket className="w-4 h-4 inline me-1 text-primary" />
+                    {language === "ar" ? "كود الدعوة" : "Invitation Code"} <span className="text-destructive">{t.signupPage.required}</span>
                   </Label>
                   <Input 
                     id="invitationCode" 
-                    placeholder={language === "ar" ? "أدخل كود الدعوة إن وجد" : "Enter invitation code if you have one"} 
+                    placeholder={language === "ar" ? "أدخل كود الدعوة" : "Enter invitation code"} 
                     value={invitationCode} 
                     onChange={(e) => setInvitationCode(e.target.value)} 
-                    className="h-12" 
-                    dir="ltr" 
+                    className="h-12 border-primary/40 focus:border-primary" 
+                    dir="ltr"
+                    required
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {language === "ar" ? "إذا تلقيت كود دعوة من كلية أو معهد، أدخله هنا" : "If you received an invitation code from a college or institute, enter it here"}
+                  <p className="text-xs text-primary/70 font-medium mt-1">
+                    {language === "ar" ? "كود الدعوة مطلوب للتسجيل في المنصة" : "Invitation code is required to register on the platform"}
                   </p>
                 </div>
               </div>
@@ -504,7 +505,7 @@ const Signup = () => {
               <Button
                 size="lg"
                 className="w-full h-14 text-lg font-bold gap-2 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] hover:from-primary/90 hover:to-[hsl(200,75%,25%)] shadow-lg shadow-primary/25"
-                disabled={!fullName || !email || !password || !confirmPassword || password !== confirmPassword || !phone || loading}
+                disabled={!fullName || !email || !password || !confirmPassword || password !== confirmPassword || !phone || !invitationCode || loading}
                 onClick={handleSubmit}
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowIcon className="w-5 h-5" />}

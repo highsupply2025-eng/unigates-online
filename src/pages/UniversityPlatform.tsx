@@ -392,7 +392,7 @@ const UniversityPlatform = () => {
                     </Button>
                   ) : (
                     <Button 
-                      onClick={() => setShowTypeDialog(true)}
+                      onClick={() => { setSelectedPlan(i === 0 ? "free" : "monthly"); setShowTypeDialog(true); }}
                       className={`w-full font-bold h-12 text-base ${plan.highlighted ? 'shadow-lg shadow-primary/25' : ''}`} 
                       variant={plan.highlighted ? "default" : "outline"}
                     >

@@ -151,7 +151,7 @@ const UniversityPlatform = () => {
       step: "3",
       icon: Zap,
       title: isRtl ? "ابدأ التدريس" : "Start Teaching",
-      desc: isRtl ? "ارفع المقررات وابدأ المحاضرات المباشرة فوراً" : "Upload courses and start live lectures immediately",
+      desc: isRtl ? "ارفع المقررات وابدأ المحاضرات المباشرة فوراً واحصل على مميزات أخرى" : "Upload courses, start live lectures immediately, and get more features",
     },
   ];
 

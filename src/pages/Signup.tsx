@@ -138,7 +138,7 @@ const Signup = () => {
   };
 
   const handleSubmit = async () => {
-    if (!selectedRole || !fullName || !email || !password || !phone) {
+    if (!selectedRole || !fullName || !email || !password || !phone || !invitationCode) {
       toast({ title: t.signupPage.errorGeneric, description: t.signupPage.errorFillFields, variant: "destructive" });
       return;
     }

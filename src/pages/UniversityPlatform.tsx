@@ -341,10 +341,10 @@ const UniversityPlatform = () => {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {features.map((f, i) => (
-              <Card key={i} className="group hover:shadow-xl transition-all duration-300 border-border/60 hover:border-primary/30 hover:-translate-y-1">
+              <Card key={i} className={`group hover:shadow-xl transition-all duration-300 border-2 border-border/60 ${f.borderAccent} hover:-translate-y-1`}>
                 <CardContent className="p-6">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${f.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                    <f.icon className={`w-7 h-7 ${f.iconColor}`} />
+                  <div className={`w-14 h-14 rounded-2xl ${f.iconBg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                    <f.icon className="w-7 h-7 text-white" />
                   </div>
                   <h3 className="font-bold text-foreground mb-2 text-lg">{f.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>

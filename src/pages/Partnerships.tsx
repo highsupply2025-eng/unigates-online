@@ -60,11 +60,31 @@ const Partnerships = () => {
             <h3 className="text-xl font-bold text-primary mb-3">
               {isRtl ? "هل تريد أن تصبح شريكاً؟" : "Want to become a partner?"}
             </h3>
-            <p className="text-muted-foreground mb-4">
+            <p className="text-muted-foreground mb-6">
               {isRtl
                 ? "تواصل معنا لمعرفة المزيد عن فرص الشراكة المتاحة"
                 : "Contact us to learn more about available partnership opportunities"}
             </p>
+            <div className="flex items-center justify-center gap-6">
+              <a href="mailto:info@marafa.com" className="flex flex-col items-center gap-2 group">
+                <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center group-hover:bg-primary/25 transition-colors">
+                  <Mail className="w-6 h-6 text-primary" />
+                </div>
+                <span className="text-xs font-semibold text-muted-foreground">{isRtl ? "البريد" : "Email"}</span>
+              </a>
+              <a href="https://mail.google.com/mail/?view=cm&to=info@marafa.com" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 group">
+                <div className="w-12 h-12 rounded-full bg-red-500/15 flex items-center justify-center group-hover:bg-red-500/25 transition-colors">
+                  <Mail className="w-6 h-6 text-red-500" />
+                </div>
+                <span className="text-xs font-semibold text-muted-foreground">Gmail</span>
+              </a>
+              <a href="https://wa.me/00966563057356" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 group">
+                <div className="w-12 h-12 rounded-full bg-[#25D366]/15 flex items-center justify-center group-hover:bg-[#25D366]/25 transition-colors">
+                  <MessageCircle className="w-6 h-6 text-[#25D366]" />
+                </div>
+                <span className="text-xs font-semibold text-muted-foreground">{isRtl ? "واتساب" : "WhatsApp"}</span>
+              </a>
+            </div>
           </div>
         </div>
       </div>

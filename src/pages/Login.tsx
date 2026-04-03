@@ -93,7 +93,14 @@ const Login = () => {
           return;
         }
 
-        navigate("/");
+        // No role found - redirect to signup to complete profile
+        toast({
+          title: language === "ar" ? "يرجى إكمال التسجيل" : "Please complete registration",
+          description: language === "ar" 
+            ? "لم يتم العثور على ملف شخصي. يرجى إكمال بياناتك."
+            : "No profile found. Please complete your information.",
+        });
+        navigate("/signup");
       }
     } catch (error: any) {
       console.error('Login failed:', error);

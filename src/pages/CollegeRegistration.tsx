@@ -166,8 +166,8 @@ const CollegeRegistration = () => {
               </div>
 
               <div>
-                <Label className="mb-2 block font-semibold">{isRtl ? "العنوان التفصيلي" : "Detailed Address"}</Label>
-                <Input placeholder={isRtl ? "أدخل العنوان التفصيلي" : "Enter detailed address"} value={address} onChange={(e) => setAddress(e.target.value)} className="h-12" />
+                <Label className="mb-2 block font-bold text-primary">{isRtl ? "العنوان التفصيلي" : "Detailed Address"}</Label>
+                <Input placeholder={isRtl ? "أدخل العنوان التفصيلي" : "Enter detailed address"} value={address} onChange={(e) => setAddress(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
               </div>
 
               <Separator />

@@ -38,7 +38,7 @@ const SiteFooter = () => {
   const footerLinks = [
     [
       { label: t.footerLinks.about, href: "/about" },
-      { label: t.footerLinks.certificates, href: "#" },
+      { label: t.footerLinks.certificates, href: "/certificates" },
       { label: t.footerLinks.blog, href: "#" },
     ],
     [
@@ -48,8 +48,8 @@ const SiteFooter = () => {
     ],
     [
       { label: t.footerLinks.contactUs, href: "/contact" },
-      { label: t.footerLinks.careers, href: "#" },
-      { label: t.footerLinks.partnerships, href: "#" },
+      { label: t.footerLinks.careers, href: "/careers" },
+      { label: t.footerLinks.partnerships, href: "/partnerships" },
     ],
   ];
 

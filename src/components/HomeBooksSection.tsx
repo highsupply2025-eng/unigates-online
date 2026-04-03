@@ -5,6 +5,7 @@ import { BookOpen, Star, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const categoryColors: Record<string, string> = {
   "تقنية": "from-cyan-800 to-cyan-600",

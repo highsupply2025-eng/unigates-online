@@ -24,6 +24,8 @@ const CollegeRegistration = () => {
   const isRtl = dir === "rtl";
   const goBack = useSmartBack();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const plan = searchParams.get("plan") || "monthly";
 
   const [collegeName, setCollegeName] = useState("");
   const [city, setCity] = useState("");

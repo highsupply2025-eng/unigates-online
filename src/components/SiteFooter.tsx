@@ -1,4 +1,5 @@
 import { GraduationCap } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const TwitterIcon = () => (

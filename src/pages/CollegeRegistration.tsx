@@ -22,6 +22,7 @@ const countryCodes = [
 const CollegeRegistration = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
+  const goBack = useSmartBack();
   const { toast } = useToast();
 
   const [collegeName, setCollegeName] = useState("");

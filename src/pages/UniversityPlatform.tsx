@@ -260,7 +260,7 @@ const UniversityPlatform = () => {
           </p>
 
           {/* Stats with colored icon backgrounds */}
-          <div className="max-w-3xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+          <div className="max-w-5xl mx-auto grid grid-cols-4 md:grid-cols-8 gap-3 text-center">
             {statItems.map((item, i) => (
               <div
                 key={i}

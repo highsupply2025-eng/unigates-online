@@ -19,6 +19,7 @@ import { useState } from "react";
 const UniversityPlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showTypeDialog, setShowTypeDialog] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState("monthly");
   const navigate = useNavigate();
   const { t, dir, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";

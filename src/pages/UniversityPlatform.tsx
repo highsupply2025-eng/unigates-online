@@ -429,7 +429,7 @@ const UniversityPlatform = () => {
         <DialogContent className="sm:max-w-md" dir={dir}>
           <DialogHeader>
             <DialogTitle className="text-center text-xl font-black">
-              {isRtl ? "اختر نوع المؤسسة" : "Choose Institution Type"}
+              {isRtl ? "إنشاء حساب" : "Create Account"}
             </DialogTitle>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-4">

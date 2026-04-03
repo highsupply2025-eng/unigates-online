@@ -5,6 +5,7 @@ import { Play, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePopularCourses, useNewCourses, useFreeCourses, type Course } from "@/hooks/useCourses";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const categoryColors: Record<string, string> = {
   "برمجة": "from-teal-800 to-teal-600",

@@ -463,19 +463,13 @@ const UniversityPlatform = () => {
         </div>
         <div className="relative z-10 max-w-3xl mx-auto text-center">
           <h2 className="text-2xl md:text-3xl font-black text-white mb-4 drop-shadow-lg">
-            {isRtl ? "جاهز لتحويل كليتك رقمياً؟" : "Ready to Digitize Your College?"}
+            {isRtl ? "مستقبل التعليم يبدأ هنا" : "The Future of Education Starts Here"}
           </h2>
-          <p className="text-white/70 mb-8">
+          <p className="text-white/70">
             {isRtl
               ? "انضم لأكثر من 5 كليات تستخدم منصتنا لتطوير التعليم الأكاديمي"
               : "Join over 5 colleges using our platform to advance academic education"}
           </p>
-          <Link to="/signup">
-            <Button size="lg" className="font-bold text-base px-10 bg-white text-[hsl(220,80%,20%)] hover:bg-white/90 shadow-xl">
-              <Landmark className="w-5 h-5" />
-              {isRtl ? "سجل الآن" : "Register Now"}
-            </Button>
-          </Link>
         </div>
       </section>
 

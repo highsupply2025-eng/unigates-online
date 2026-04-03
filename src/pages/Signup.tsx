@@ -264,7 +264,13 @@ const Signup = () => {
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
-            <Button size="icon" className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white" onClick={goBack}>
+            <Button size="icon" className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white" onClick={() => {
+              if (selectedRole && !submitted) {
+                setSelectedRole(null);
+              } else {
+                goBack();
+              }
+            }}>
               {language === "ar" ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
             </Button>
           </div>

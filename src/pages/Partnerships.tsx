@@ -89,6 +89,7 @@ const Partnerships = () => {
           </div>
         </div>
       </div>
+      <SiteFooter />
     </div>
   );
 };

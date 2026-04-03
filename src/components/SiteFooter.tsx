@@ -73,10 +73,10 @@ const SiteFooter = () => {
           {footerLinks.map((column, i) => (
             <ul key={i} className="space-y-3">
               {column.map((link) => (
-                <li key={link}>
-                  <a href="#" className="text-sm text-foreground font-semibold hover:text-primary transition-colors">
-                    {link}
-                  </a>
+                <li key={link.label}>
+                  <Link to={link.href} className="text-sm text-foreground font-semibold hover:text-primary transition-colors">
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>

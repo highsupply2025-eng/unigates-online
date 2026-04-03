@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
-import { GraduationCap, Globe, ArrowLeft, ArrowRight, FileText } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { FileText } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useSmartBack } from "@/hooks/use-smart-back";
+import SimpleHeader from "@/components/SimpleHeader";
 import SiteFooter from "@/components/SiteFooter";
 
 const Terms = () => {

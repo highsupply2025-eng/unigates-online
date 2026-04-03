@@ -28,7 +28,7 @@ const Index = () => {
       <TrendingCourses />
       <HomeBooksSection />
       
-      <PartnersSection />
+      
       <FeaturesSection />
       <FAQSection />
       <SiteFooter />

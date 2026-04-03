@@ -7,10 +7,12 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const FAQSection = () => {
   const { t, language } = useLanguage();
   const ArrowIcon = language === "ar" ? ChevronLeft : ChevronRight;
+  const { ref, isVisible } = useScrollAnimation();
 
   return (
     <section className="section-divider py-12 md:py-20 px-6 md:px-12">

@@ -27,25 +27,11 @@ const RegisteredUniversitiesSection = () => {
   return (
     <section ref={ref} className={`py-12 px-6 md:px-12 bg-muted/30 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
       <div className="max-w-full mx-auto">
-        <div className="flex flex-col gap-4 mb-6">
-          <div className="flex flex-col items-center gap-1">
-            <Landmark className="w-7 h-7 text-primary" />
-            <span className="text-lg font-bold text-primary">
-              {isRtl ? "الكليات" : "Colleges"}
-            </span>
-            <span className="text-xs text-muted-foreground font-semibold">
-              {isRtl ? "قريباً" : "Coming Soon"}
-            </span>
-          </div>
-          <div className="flex flex-col items-center gap-1">
-            <Landmark className="w-7 h-7 text-primary" />
-            <span className="text-lg font-bold text-primary">
-              {isRtl ? "المعاهد" : "Institutes"}
-            </span>
-            <span className="text-xs text-muted-foreground font-semibold">
-              {isRtl ? "قريباً" : "Coming Soon"}
-            </span>
-          </div>
+        <div className="flex items-center gap-2 mb-6">
+          <Landmark className="w-6 h-6 text-primary" />
+          <h2 className="text-2xl font-bold text-primary">
+            {isRtl ? "الكليات & المعاهد المسجلة" : "Registered Colleges & Institutes"}
+          </h2>
         </div>
 
         {hasData ? (
@@ -72,10 +58,22 @@ const RegisteredUniversitiesSection = () => {
             ))}
           </div>
         ) : !isLoading ? (
-          <div className="flex justify-center">
-            <div className="bg-card rounded-xl p-8 border-2 border-dashed border-border shadow-sm w-full max-w-sm text-center">
-              <Clock className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-              <p className="text-xl font-bold text-muted-foreground">
+          <div className="flex justify-center gap-6">
+            <div className="bg-card rounded-xl p-8 border-2 border-dashed border-border shadow-sm w-full max-w-xs text-center">
+              <Landmark className="w-10 h-10 text-primary mx-auto mb-3" />
+              <p className="text-lg font-bold text-primary mb-1">
+                {isRtl ? "الكليات" : "Colleges"}
+              </p>
+              <p className="text-sm font-semibold text-muted-foreground">
+                {isRtl ? "قريباً" : "Coming Soon"}
+              </p>
+            </div>
+            <div className="bg-card rounded-xl p-8 border-2 border-dashed border-border shadow-sm w-full max-w-xs text-center">
+              <Landmark className="w-10 h-10 text-primary mx-auto mb-3" />
+              <p className="text-lg font-bold text-primary mb-1">
+                {isRtl ? "المعاهد" : "Institutes"}
+              </p>
+              <p className="text-sm font-semibold text-muted-foreground">
                 {isRtl ? "قريباً" : "Coming Soon"}
               </p>
             </div>

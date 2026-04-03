@@ -33,6 +33,7 @@ const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Blog = lazy(() => import("./pages/Blog"));
+const Partnerships = lazy(() => import("./pages/Partnerships"));
 
 const queryClient = new QueryClient({
   defaultOptions: {

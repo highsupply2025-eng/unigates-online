@@ -13,7 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
 import { useCountUp } from "@/hooks/useCountUp";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 const useCountUp = (end: number, duration = 1500) => {
   const [count, setCount] = useState(0);

@@ -1,10 +1,12 @@
 import { PlayCircle, Download, Smartphone, Award, BookOpen, Users } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const icons = [PlayCircle, Download, Smartphone, Award, BookOpen, Users];
 
 const FeaturesSection = () => {
   const { t } = useLanguage();
+  const { ref, isVisible } = useScrollAnimation();
 
   return (
     <section className="section-divider py-12 md:py-20 px-6 md:px-12">

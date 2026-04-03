@@ -27,9 +27,20 @@ const RegisteredUniversitiesSection = () => {
   return (
     <section ref={ref} className={`py-12 px-6 md:px-12 bg-muted/30 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
       <div className="max-w-full mx-auto">
-        <h2 className="text-2xl font-bold mb-6">
-          {isRtl ? "🏛️ الكليات & المعاهد المسجلة" : "🏛️ Registered Colleges & Institutes"}
-        </h2>
+        <div className="flex flex-col gap-2 mb-6">
+          <div className="flex items-center gap-2">
+            <Landmark className="w-6 h-6 text-primary" />
+            <h2 className="text-xl font-bold text-primary">
+              {isRtl ? "الكليات" : "Colleges"}
+            </h2>
+          </div>
+          <div className="flex items-center gap-2">
+            <Landmark className="w-6 h-6 text-primary" />
+            <h2 className="text-xl font-bold text-primary">
+              {isRtl ? "المعاهد" : "Institutes"}
+            </h2>
+          </div>
+        </div>
 
         {hasData ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

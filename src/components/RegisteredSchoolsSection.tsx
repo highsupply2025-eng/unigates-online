@@ -27,7 +27,7 @@ const RegisteredSchoolsSection = () => {
   return (
     <section ref={ref} className={`py-12 px-6 md:px-12 bg-muted/30 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
       <div className="max-w-full mx-auto">
-        <h2 className="text-2xl font-bold mb-6">🏫 {t.homepage.registeredSchools}</h2>
+        <h2 className="text-2xl font-bold mb-6">🏫 {isRtl ? "المدارس" : "Schools"}</h2>
 
         {hasData ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

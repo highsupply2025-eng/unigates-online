@@ -1,6 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Building2, Handshake, Mail, MessageCircle } from "lucide-react";
 import SimpleHeader from "@/components/SimpleHeader";
+import SiteFooter from "@/components/SiteFooter";
 
 const partners = [
   { name_ar: "شركة الاتصالات السعودية", name_en: "Saudi Telecom Company" },
@@ -88,6 +89,7 @@ const Partnerships = () => {
           </div>
         </div>
       </div>
+      <SiteFooter />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Clock } from "lucide-react";
 import SimpleHeader from "@/components/SimpleHeader";
+import SiteFooter from "@/components/SiteFooter";
 
 const ComingSoon = () => {
   const { language, dir } = useLanguage();
@@ -24,6 +25,7 @@ const ComingSoon = () => {
           </p>
         </div>
       </div>
+      <SiteFooter />
     </div>
   );
 };

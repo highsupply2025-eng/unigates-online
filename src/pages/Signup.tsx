@@ -377,6 +377,16 @@ const Signup = () => {
                   <Input id="email" type="email" placeholder={t.signupPage.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} className="h-12" dir="ltr" />
                 </div>
                 <div>
+                  <Label htmlFor="invitationCode" className="mb-2 block font-semibold">
+                    <Ticket className="w-4 h-4 inline me-1 text-primary" />
+                    {language === "ar" ? "كود الدعوة" : "Invitation Code"} <span className="text-destructive">{t.signupPage.required}</span>
+                  </Label>
+                  <Input id="invitationCode" placeholder={language === "ar" ? "أدخل كود الدعوة" : "Enter invitation code"} value={invitationCode} onChange={(e) => setInvitationCode(e.target.value)} className="h-12 tracking-widest font-mono text-center uppercase" dir="ltr" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
                   <Label htmlFor="password" className="mb-2 block font-semibold">{t.signupPage.password} <span className="text-destructive">{t.signupPage.required}</span></Label>
                   <div className="relative">
                     <Input id="password" type={showPassword ? "text" : "password"} placeholder={t.signupPage.passwordPlaceholder} value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pe-10" dir="ltr" />
@@ -386,9 +396,6 @@ const Signup = () => {
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">{t.signupPage.passwordRules}</p>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="confirmPassword" className="mb-2 block font-semibold">{t.signupPage.confirmPassword} <span className="text-destructive">{t.signupPage.required}</span></Label>
                   <div className="relative">
@@ -400,24 +407,6 @@ const Signup = () => {
                   {confirmPassword && password !== confirmPassword && (
                     <p className="text-xs text-destructive mt-1">{t.signupPage.passwordMismatch}</p>
                   )}
-                </div>
-                <div>
-                  <Label htmlFor="invitationCode" className="mb-2 block font-semibold">
-                    <Ticket className="w-4 h-4 inline me-1 text-primary" />
-                    {language === "ar" ? "كود الدعوة" : "Invitation Code"} <span className="text-destructive">{t.signupPage.required}</span>
-                  </Label>
-                  <Input 
-                    id="invitationCode" 
-                    placeholder={language === "ar" ? "أدخل كود الدعوة" : "Enter invitation code"} 
-                    value={invitationCode} 
-                    onChange={(e) => setInvitationCode(e.target.value)} 
-                    className="h-12 border-primary/40 focus:border-primary" 
-                    dir="ltr"
-                    required
-                  />
-                  <p className="text-xs text-primary/70 font-medium mt-1">
-                    {language === "ar" ? "كود الدعوة مطلوب للتسجيل في المنصة" : "Invitation code is required to register on the platform"}
-                  </p>
                 </div>
               </div>
 

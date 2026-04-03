@@ -157,34 +157,35 @@ const UniversityPlatform = () => {
 
   const plans = [
     {
-      name: isRtl ? "الخطة الأكاديمية" : "Academic Plan",
+      name: isRtl ? "الباقة المجانية" : "Free Plan",
       price: isRtl ? "مجاناً" : "Free",
-      period: "",
+      period: isRtl ? "لمدة 15 يوم" : "for 15 days",
       features: isRtl
-        ? ["حتى 500 طالب", "10 أعضاء هيئة تدريس", "التقارير الأساسية", "دعم فني"]
-        : ["Up to 500 students", "10 faculty members", "Basic reports", "Technical support"],
+        ? ["حتى 200 طالب لكل قسم", "3 أعضاء هيئة تدريس لكل قسم", "تقارير أساسية", "دعم فني"]
+        : ["Up to 200 students per dept", "3 faculty per dept", "Basic reports", "Technical support"],
       highlighted: false,
       icon: BookOpen,
     },
     {
-      name: isRtl ? "الخطة المؤسسية" : "Institutional Plan",
-      price: isRtl ? "999 ج.م" : "$99",
+      name: isRtl ? "الباقة الشهرية" : "Monthly Plan",
+      price: isRtl ? "299 ج.م" : "299 EGP",
       period: isRtl ? "/ شهرياً" : "/month",
       features: isRtl
-        ? ["حتى 10,000 طالب", "هيئة تدريس غير محدودة", "تحليلات متقدمة", "دعم أولوية", "روابط دعوة غير محدودة"]
-        : ["Up to 10,000 students", "Unlimited faculty", "Advanced analytics", "Priority support", "Unlimited invitations"],
+        ? ["حتى 2000 طالب لكل قسم", "10 أعضاء هيئة تدريس لكل قسم", "تحليلات متقدمة", "دعم أولوية"]
+        : ["Up to 2000 students per dept", "10 faculty per dept", "Advanced analytics", "Priority support"],
       highlighted: true,
       icon: Trophy,
     },
     {
-      name: isRtl ? "خطة التحالف" : "Alliance Plan",
-      price: isRtl ? "تواصل معنا" : "Contact Us",
-      period: "",
+      name: isRtl ? "الباقة السنوية" : "Yearly Plan",
+      price: isRtl ? "قريباً" : "Coming Soon",
+      period: isRtl ? "خصم 10%" : "10% discount",
       features: isRtl
-        ? ["طلاب غير محدود", "API مفتوح", "تخصيص كامل", "مدير حساب مخصص"]
-        : ["Unlimited students", "Open API", "Full customization", "Dedicated account manager"],
+        ? ["جميع مميزات الباقة الشهرية", "خصم 10% على الاشتراك السنوي", "قريباً..."]
+        : ["All monthly plan features", "10% discount on yearly", "Coming soon..."],
       highlighted: false,
       icon: Sparkles,
+      comingSoon: true,
     },
   ];
 
@@ -422,9 +423,10 @@ const UniversityPlatform = () => {
                   <Button
                     className="w-full font-bold"
                     variant={plan.highlighted ? "default" : "outline"}
+                    disabled={(plan as any).comingSoon}
                   >
-                    {isRtl ? "ابدأ الآن" : "Get Started"}
-                    <ArrowIcon className="w-4 h-4" />
+                    {(plan as any).comingSoon ? (isRtl ? "قريباً" : "Coming Soon") : (isRtl ? "ابدأ الآن" : "Get Started")}
+                    {!(plan as any).comingSoon && <ArrowIcon className="w-4 h-4" />}
                   </Button>
                 </CardContent>
               </Card>

@@ -14,9 +14,10 @@ const partners = [
 const PartnersSection = () => {
   const { t, language } = useLanguage();
   const isRtl = language === "ar";
+  const { ref, isVisible } = useScrollAnimation();
 
   return (
-    <section className="py-12 px-6 md:px-12">
+    <section ref={ref} className={`py-12 px-6 md:px-12 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
       <div className="max-w-full mx-auto text-center">
         <h2 className="text-2xl font-bold mb-2">{t.homepage.partners}</h2>
         <p className="text-muted-foreground mb-8">{t.homepage.partnersSubtitle}</p>

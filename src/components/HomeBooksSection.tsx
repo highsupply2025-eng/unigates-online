@@ -43,9 +43,10 @@ const HomeBooksSection = () => {
   };
 
   const isEmpty = !allFeaturedBooks.length;
+  const { ref: animRef, isVisible } = useScrollAnimation();
 
   return (
-    <section className="py-12 md:py-20 px-6 md:px-12">
+    <section ref={animRef} className={`py-12 md:py-20 px-6 md:px-12 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
       <div className="max-w-full mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl md:text-3xl font-bold">

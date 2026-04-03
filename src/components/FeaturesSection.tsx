@@ -9,7 +9,7 @@ const FeaturesSection = () => {
   const { ref, isVisible } = useScrollAnimation();
 
   return (
-    <section className="section-divider py-12 md:py-20 px-6 md:px-12">
+    <section ref={ref} className={`section-divider py-12 md:py-20 px-6 md:px-12 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
       <div className="max-w-full mx-auto">
         <h2 className="text-2xl md:text-3xl font-bold mb-3">{t.features.title}</h2>
         <p className="text-muted-foreground mb-10 max-w-xl">{t.features.subtitle}</p>

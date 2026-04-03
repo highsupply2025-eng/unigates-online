@@ -35,7 +35,7 @@ const HomeBooksSection = () => {
   const { ref: animRef, isVisible } = useScrollAnimation();
 
   return (
-    <section ref={animRef} className={`py-12 md:py-20 px-6 md:px-12 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+    <section ref={animRef} className={`py-6 md:py-10 px-6 md:px-12 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
       <div className="max-w-full mx-auto">
         <div className="flex items-center justify-between mb-8">
           <Link to="/book-store" className="text-2xl md:text-3xl font-bold text-primary hover:opacity-80 transition-opacity">

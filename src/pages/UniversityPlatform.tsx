@@ -384,7 +384,7 @@ const UniversityPlatform = () => {
               {isRtl ? "اختر الباقة المناسبة" : "Choose the Right Plan"}
             </h2>
             <p className="text-muted-foreground">
-              {isRtl ? "باقات مرنة تناسب احتياجات مؤسستك" : "Flexible plans to suit your institution's needs"}
+              {isRtl ? "باقات مرنة تناسب احتياجات كلية / معهد" : "Flexible plans to suit your college / institute needs"}
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">

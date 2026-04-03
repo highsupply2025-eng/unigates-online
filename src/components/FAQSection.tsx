@@ -17,14 +17,14 @@ const FAQSection = () => {
       <div className="max-w-4xl mx-auto">
         <h2 className="text-2xl md:text-3xl font-bold mb-6">{t.faq.title}</h2>
 
-        <Accordion type="single" collapsible className="space-y-2">
+        <Accordion type="single" collapsible className="space-y-3">
           {t.faq.items.map((faq, index) => (
             <AccordionItem
               key={index}
               value={`item-${index}`}
-              className="bg-secondary border-none rounded-lg"
+              className="bg-card border-2 border-primary/15 rounded-xl overflow-hidden hover:border-primary/40 transition-colors"
             >
-              <AccordionTrigger className="px-6 py-5 text-base md:text-lg font-medium hover:no-underline hover:bg-muted rounded-lg text-right">
+              <AccordionTrigger className="px-6 py-5 text-base md:text-lg font-semibold hover:no-underline hover:bg-primary/5 text-right">
                 {faq.question}
               </AccordionTrigger>
               <AccordionContent className="px-6 pb-5 text-base text-muted-foreground leading-relaxed">

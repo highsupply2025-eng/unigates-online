@@ -64,8 +64,10 @@ const SiteFooter = () => {
   return (
     <footer className="section-divider py-12 px-6 md:px-12">
       <div className="max-w-full mx-auto">
-        <div className="flex items-center gap-2 mb-6">
-          <GraduationCap className="w-6 h-6 text-primary" />
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center">
+            <GraduationCap className="w-6 h-6 text-white" />
+          </div>
           <span className="text-lg font-bold">{t.brandName}</span>
         </div>
 

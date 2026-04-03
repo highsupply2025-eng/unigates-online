@@ -23,10 +23,10 @@ const PartnersSection = () => {
           {partners.map((partner, i) => (
             <div
               key={i}
-              className="bg-card border border-border rounded-xl p-6 flex flex-col items-center gap-3 hover:shadow-md transition-shadow"
+              className="bg-card border-2 border-primary/15 rounded-2xl p-6 flex flex-col items-center gap-3 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group"
             >
-              <div className="bg-muted rounded-full p-3">
-                <Building2 className="w-6 h-6 text-primary" />
+              <div className="w-12 h-12 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] rounded-full flex items-center justify-center shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform">
+                <Building2 className="w-6 h-6 text-white" />
               </div>
               <span className="text-xs font-semibold text-center line-clamp-2">
                 {isRtl ? partner.name_ar : partner.name_en}

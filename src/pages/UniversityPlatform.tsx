@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SiteFooter from "@/components/SiteFooter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -11,12 +11,15 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useState } from "react";
 
 const UniversityPlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showTypeDialog, setShowTypeDialog] = useState(false);
+  const navigate = useNavigate();
   const { t, dir, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
@@ -387,12 +390,14 @@ const UniversityPlatform = () => {
                       {isRtl ? "قريباً" : "Coming Soon"}
                     </Button>
                   ) : (
-                    <Link to="/signup-choice" className="w-full">
-                      <Button className={`w-full font-bold h-12 text-base ${plan.highlighted ? 'shadow-lg shadow-primary/25' : ''}`} variant={plan.highlighted ? "default" : "outline"}>
-                        {isRtl ? "ابدأ الآن" : "Get Started"}
-                        <ArrowIcon className="w-4 h-4" />
-                      </Button>
-                    </Link>
+                    <Button 
+                      onClick={() => setShowTypeDialog(true)}
+                      className={`w-full font-bold h-12 text-base ${plan.highlighted ? 'shadow-lg shadow-primary/25' : ''}`} 
+                      variant={plan.highlighted ? "default" : "outline"}
+                    >
+                      {isRtl ? "ابدأ الآن" : "Get Started"}
+                      <ArrowIcon className="w-4 h-4" />
+                    </Button>
                   )}
                 </CardContent>
               </Card>
@@ -418,6 +423,37 @@ const UniversityPlatform = () => {
           </p>
         </div>
       </section>
+
+      {/* Type Selection Dialog */}
+      <Dialog open={showTypeDialog} onOpenChange={setShowTypeDialog}>
+        <DialogContent className="sm:max-w-md" dir={dir}>
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl font-black">
+              {isRtl ? "اختر نوع المؤسسة" : "Choose Institution Type"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4 py-4">
+            <button
+              onClick={() => { setShowTypeDialog(false); navigate("/college-registration"); }}
+              className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all duration-200 group"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[hsl(220,80%,50%)] to-[hsl(200,75%,40%)] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <Landmark className="w-8 h-8 text-white" />
+              </div>
+              <span className="font-bold text-foreground text-lg">{isRtl ? "كلية" : "College"}</span>
+            </button>
+            <button
+              onClick={() => { setShowTypeDialog(false); navigate("/institute-registration"); }}
+              className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all duration-200 group"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[hsl(174,72%,40%)] to-[hsl(174,72%,30%)] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <Landmark className="w-8 h-8 text-white" />
+              </div>
+              <span className="font-bold text-foreground text-lg">{isRtl ? "معهد" : "Institute"}</span>
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <SiteFooter />
     </div>

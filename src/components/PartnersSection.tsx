@@ -1,5 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Building2 } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const partners = [
   { name_ar: "شركة الاتصالات السعودية", name_en: "Saudi Telecom Company" },

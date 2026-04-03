@@ -25,22 +25,14 @@ const UniversityPlatform = () => {
 
   const colleges = useCountUp(stats?.colleges ?? 0);
   const institutes = useCountUp(stats?.institutes ?? 0);
-  const schools = useCountUp(stats?.schools ?? 0);
-  const publishers = useCountUp(stats?.publishers ?? 0);
   const lecturers = useCountUp(stats?.lecturers ?? 0);
-  const teachers = useCountUp(stats?.teachers ?? 0);
-  const parents = useCountUp(stats?.parents ?? 0);
-  const students = useCountUp(stats?.students ?? 0);
+  const uniStudents = useCountUp(stats?.universityStudents ?? 0);
 
   const statItems = [
     { icon: Landmark, counter: colleges, label: isRtl ? "كلية" : "College", color: "from-amber-500 to-orange-400" },
     { icon: Landmark, counter: institutes, label: isRtl ? "معهد" : "Institute", color: "from-emerald-500 to-teal-400" },
-    { icon: School, counter: schools, label: isRtl ? "مدرسة" : "School", color: "from-blue-500 to-cyan-400" },
-    { icon: BookOpen, counter: publishers, label: isRtl ? "ناشر" : "Publisher", color: "from-pink-500 to-rose-400" },
     { icon: GraduationCap, counter: lecturers, label: isRtl ? "محاضر" : "Lecturer", color: "from-violet-500 to-purple-400" },
-    { icon: Users, counter: teachers, label: isRtl ? "معلم" : "Teacher", color: "from-teal-500 to-green-400" },
-    { icon: Users, counter: parents, label: isRtl ? "ولي أمر" : "Parent", color: "from-sky-500 to-blue-400" },
-    { icon: Users, counter: students, label: isRtl ? "طالب" : "Student", color: "from-indigo-500 to-blue-400" },
+    { icon: Users, counter: uniStudents, label: isRtl ? "طالب" : "Student", color: "from-indigo-500 to-blue-400" },
   ];
 
   const features = [

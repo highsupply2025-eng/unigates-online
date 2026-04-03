@@ -46,7 +46,7 @@ const courseRoles = [
 
 const additionalLinks = [
   { labelAr: "كلية", labelEn: "College", icon: Landmark, href: "/signup/college" },
-  { labelAr: "معهد", labelEn: "Institute", icon: Building2, href: "/signup/institute" },
+  { labelAr: "معهد", labelEn: "Institute", icon: Landmark, href: "/signup/institute" },
 ];
 
 const Signup = () => {

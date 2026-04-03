@@ -409,25 +409,6 @@ const Signup = () => {
                   )}
                 </div>
               </div>
-                <div>
-                  <Label htmlFor="invitationCode" className="mb-2 block font-semibold">
-                    <Ticket className="w-4 h-4 inline me-1 text-primary" />
-                    {language === "ar" ? "كود الدعوة" : "Invitation Code"} <span className="text-destructive">{t.signupPage.required}</span>
-                  </Label>
-                  <Input 
-                    id="invitationCode" 
-                    placeholder={language === "ar" ? "أدخل كود الدعوة" : "Enter invitation code"} 
-                    value={invitationCode} 
-                    onChange={(e) => setInvitationCode(e.target.value)} 
-                    className="h-12 border-primary/40 focus:border-primary" 
-                    dir="ltr"
-                    required
-                  />
-                  <p className="text-xs text-primary/70 font-medium mt-1">
-                    {language === "ar" ? "كود الدعوة مطلوب للتسجيل في المنصة" : "Invitation code is required to register on the platform"}
-                  </p>
-                </div>
-              </div>
 
               <Separator />
 

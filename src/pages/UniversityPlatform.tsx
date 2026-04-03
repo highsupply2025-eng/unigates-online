@@ -390,12 +390,14 @@ const UniversityPlatform = () => {
                       {isRtl ? "قريباً" : "Coming Soon"}
                     </Button>
                   ) : (
-                    <Link to="/signup-choice" className="w-full">
-                      <Button className={`w-full font-bold h-12 text-base ${plan.highlighted ? 'shadow-lg shadow-primary/25' : ''}`} variant={plan.highlighted ? "default" : "outline"}>
-                        {isRtl ? "ابدأ الآن" : "Get Started"}
-                        <ArrowIcon className="w-4 h-4" />
-                      </Button>
-                    </Link>
+                    <Button 
+                      onClick={() => setShowTypeDialog(true)}
+                      className={`w-full font-bold h-12 text-base ${plan.highlighted ? 'shadow-lg shadow-primary/25' : ''}`} 
+                      variant={plan.highlighted ? "default" : "outline"}
+                    >
+                      {isRtl ? "ابدأ الآن" : "Get Started"}
+                      <ArrowIcon className="w-4 h-4" />
+                    </Button>
                   )}
                 </CardContent>
               </Card>

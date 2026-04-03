@@ -6,23 +6,13 @@ import { Landmark, MapPin, Users, ChevronLeft, ChevronRight, Clock } from "lucid
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Badge } from "@/components/ui/badge";
 
-const collegeColors = [
-  "from-indigo-800 to-indigo-600",
-  "from-violet-800 to-violet-600",
-  "from-blue-800 to-blue-600",
-  "from-purple-800 to-purple-600",
-  "from-sky-800 to-sky-600",
-  "from-fuchsia-800 to-fuchsia-600",
-];
+import collegeBg1 from "@/assets/college-bg-1.jpg";
+import collegeBg2 from "@/assets/college-bg-2.jpg";
+import instituteBg1 from "@/assets/institute-bg-1.jpg";
+import instituteBg2 from "@/assets/institute-bg-2.jpg";
 
-const instituteColors = [
-  "from-teal-800 to-teal-600",
-  "from-emerald-800 to-emerald-600",
-  "from-cyan-800 to-cyan-600",
-  "from-green-800 to-green-600",
-  "from-lime-800 to-lime-600",
-  "from-amber-800 to-amber-600",
-];
+const collegeImages = [collegeBg1, collegeBg2];
+const instituteImages = [instituteBg1, instituteBg2];
 
 const RegisteredUniversitiesSection = () => {
   const { language } = useLanguage();
@@ -60,20 +50,20 @@ const RegisteredUniversitiesSection = () => {
   const hasInstitutes = institutes && institutes.length > 0;
   const { ref, isVisible } = useScrollAnimation();
 
-  const scroll = (ref: React.RefObject<HTMLDivElement>, direction: "left" | "right") => {
-    if (!ref.current) return;
-    const scrollAmount = 260;
+  const scroll = (scrollRef: React.RefObject<HTMLDivElement>, direction: "left" | "right") => {
+    if (!scrollRef.current) return;
+    const scrollAmount = 280;
     const dir = isRtl
       ? (direction === "left" ? scrollAmount : -scrollAmount)
       : (direction === "left" ? -scrollAmount : scrollAmount);
-    ref.current.scrollBy({ left: dir, behavior: "smooth" });
+    scrollRef.current.scrollBy({ left: dir, behavior: "smooth" });
   };
 
   return (
     <section ref={ref} className={`py-12 md:py-20 px-6 md:px-12 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
       <div className="max-w-full mx-auto">
         {/* Colleges */}
-        <div className="mb-12">
+        <div className="mb-14">
           <h2 className="text-2xl md:text-3xl font-bold mb-6 text-primary">
             🏛️ {isRtl ? "الكليات" : "Colleges"}
           </h2>
@@ -88,26 +78,33 @@ const RegisteredUniversitiesSection = () => {
                 <ChevronLeft className="w-5 h-5 text-foreground" />
               </button>
 
-              <div ref={collegesScrollRef} className="flex gap-3 overflow-x-auto pb-4 px-2" style={{ scrollbarWidth: 'none' }}>
+              <div ref={collegesScrollRef} className="flex gap-4 overflow-x-auto pb-4 px-2" style={{ scrollbarWidth: 'none' }}>
                 {colleges.map((col, i) => (
-                  <div key={col.id} className="relative flex-shrink-0 w-[200px] md:w-[240px] group cursor-pointer card-hover">
-                    <div className={`aspect-video rounded-lg bg-gradient-to-br ${collegeColors[i % collegeColors.length]} flex flex-col justify-between p-4 relative overflow-hidden`}>
-                      <div className="flex justify-between items-start relative z-10">
-                        <Badge className="bg-background/80 text-foreground text-xs backdrop-blur-sm hover:bg-background/80">
+                  <div key={col.id} className="relative flex-shrink-0 w-[220px] md:w-[260px] group cursor-pointer card-hover">
+                    <div className="aspect-video rounded-xl overflow-hidden relative shadow-lg group-hover:shadow-xl transition-shadow">
+                      <img
+                        src={collegeImages[i % collegeImages.length]}
+                        alt={col.college_name || ""}
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                      <div className="absolute top-3 left-3 z-10">
+                        <Badge className="bg-primary/90 text-primary-foreground text-xs backdrop-blur-sm">
                           <Landmark className="w-3 h-3 mr-1" />
                           {isRtl ? "كلية" : "College"}
                         </Badge>
                       </div>
-                      <div className="relative z-10">
+                      <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
                         <p className="text-sm font-bold text-white leading-snug mb-2 line-clamp-2">
                           {col.college_name}
                         </p>
                         <div className="flex items-center justify-between">
-                          <span className="flex items-center gap-1 text-xs text-white/80">
+                          <span className="flex items-center gap-1 text-xs text-white/90">
                             <MapPin className="w-3 h-3" /> {col.city}
                           </span>
                           {col.student_count && col.student_count > 0 && (
-                            <span className="flex items-center gap-1 text-xs text-white/70">
+                            <span className="flex items-center gap-1 text-xs text-white/80">
                               <Users className="w-3 h-3" /> {col.student_count}
                             </span>
                           )}
@@ -152,26 +149,33 @@ const RegisteredUniversitiesSection = () => {
                 <ChevronLeft className="w-5 h-5 text-foreground" />
               </button>
 
-              <div ref={institutesScrollRef} className="flex gap-3 overflow-x-auto pb-4 px-2" style={{ scrollbarWidth: 'none' }}>
+              <div ref={institutesScrollRef} className="flex gap-4 overflow-x-auto pb-4 px-2" style={{ scrollbarWidth: 'none' }}>
                 {(institutes as any[]).map((inst, i) => (
-                  <div key={inst.id} className="relative flex-shrink-0 w-[200px] md:w-[240px] group cursor-pointer card-hover">
-                    <div className={`aspect-video rounded-lg bg-gradient-to-br ${instituteColors[i % instituteColors.length]} flex flex-col justify-between p-4 relative overflow-hidden`}>
-                      <div className="flex justify-between items-start relative z-10">
-                        <Badge className="bg-background/80 text-foreground text-xs backdrop-blur-sm hover:bg-background/80">
+                  <div key={inst.id} className="relative flex-shrink-0 w-[220px] md:w-[260px] group cursor-pointer card-hover">
+                    <div className="aspect-video rounded-xl overflow-hidden relative shadow-lg group-hover:shadow-xl transition-shadow">
+                      <img
+                        src={instituteImages[i % instituteImages.length]}
+                        alt={inst.institute_name || ""}
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                      <div className="absolute top-3 left-3 z-10">
+                        <Badge className="bg-emerald-600/90 text-white text-xs backdrop-blur-sm">
                           <Landmark className="w-3 h-3 mr-1" />
                           {isRtl ? "معهد" : "Institute"}
                         </Badge>
                       </div>
-                      <div className="relative z-10">
+                      <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
                         <p className="text-sm font-bold text-white leading-snug mb-2 line-clamp-2">
                           {inst.institute_name}
                         </p>
                         <div className="flex items-center justify-between">
-                          <span className="flex items-center gap-1 text-xs text-white/80">
+                          <span className="flex items-center gap-1 text-xs text-white/90">
                             <MapPin className="w-3 h-3" /> {inst.city}
                           </span>
                           {inst.student_count && inst.student_count > 0 && (
-                            <span className="flex items-center gap-1 text-xs text-white/70">
+                            <span className="flex items-center gap-1 text-xs text-white/80">
                               <Users className="w-3 h-3" /> {inst.student_count}
                             </span>
                           )}

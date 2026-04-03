@@ -378,13 +378,13 @@ const UniversityPlatform = () => {
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-bold mb-4">
               <Trophy className="w-4 h-4" />
-              {isRtl ? "الأسعار" : "Pricing"}
+              {isRtl ? "الاشتراك" : "Subscription"}
             </div>
             <h2 className="text-2xl md:text-3xl font-black text-foreground mb-3">
-              {isRtl ? "خطط الاشتراك" : "Pricing Plans"}
+              {isRtl ? "اختر الباقة المناسبة" : "Choose the Right Plan"}
             </h2>
             <p className="text-muted-foreground">
-              {isRtl ? "اختر الخطة المناسبة لكليتك" : "Choose the right plan for your college"}
+              {isRtl ? "باقات مرنة تناسب احتياجات مؤسستك" : "Flexible plans to suit your institution's needs"}
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">

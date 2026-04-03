@@ -309,8 +309,8 @@ const Signup = () => {
                     to={item.href}
                     className="group p-6 rounded-2xl border-2 border-border bg-card hover:border-primary hover:shadow-xl shadow-md transition-all duration-200 text-center"
                   >
-                    <div className="w-14 h-14 rounded-xl bg-primary/10 group-hover:bg-primary/20 shadow-md shadow-primary/10 flex items-center justify-center mx-auto mb-4 transition-all">
-                      <Icon className="w-7 h-7 text-primary" />
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                      <Icon className="w-7 h-7 text-white" />
                     </div>
                     <h3 className="text-lg font-bold text-foreground">{language === "ar" ? item.labelAr : item.labelEn}</h3>
                   </Link>

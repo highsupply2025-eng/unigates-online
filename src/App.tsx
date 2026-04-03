@@ -34,6 +34,7 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Blog = lazy(() => import("./pages/Blog"));
 const Partnerships = lazy(() => import("./pages/Partnerships"));
+const FAQ = lazy(() => import("./pages/FAQ"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -96,6 +97,7 @@ const App = () => (
               <Route path="/partnerships" element={<Partnerships />} />
               <Route path="/certificates" element={<ComingSoon />} />
               <Route path="/blog" element={<Blog />} />
+              <Route path="/faq" element={<FAQ />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

@@ -120,14 +120,60 @@ const Blog = () => {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="bg-gradient-to-br from-primary/10 via-accent/30 to-background py-16 px-6">
+        <section className="bg-gradient-to-br from-primary/20 via-accent/40 to-background py-20 px-6">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center mx-auto mb-6">
-              <BookOpen className="w-8 h-8 text-white" />
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-xl shadow-primary/40 flex items-center justify-center mx-auto mb-6">
+              <BookOpen className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-3xl md:text-4xl font-black text-foreground mb-3">
+            <h1 className="text-4xl md:text-5xl font-black text-foreground mb-4">
               {isRtl ? "المدونة" : "Blog"}
             </h1>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              {isRtl
+                ? "مقالات ونصائح تعليمية لمساعدتك في رحلتك الأكاديمية والمهنية"
+                : "Educational articles and tips to help you in your academic and career journey"}
+            </p>
+          </div>
+        </section>
+
+        {/* Posts Grid */}
+        <section className="py-14 px-6">
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+            {posts.map((post, i) => (
+              <article
+                key={i}
+                className="group rounded-2xl border-2 border-primary/20 bg-card hover:border-primary/60 hover:shadow-2xl shadow-lg transition-all duration-300 overflow-hidden"
+              >
+                <div className="h-2.5 bg-gradient-to-r from-primary via-[hsl(190,80%,45%)] to-[hsl(200,75%,30%)]" />
+                <div className="p-6 space-y-4">
+                  <span className="inline-block text-xs font-bold text-primary-foreground bg-primary px-3 py-1.5 rounded-full shadow-sm">
+                    {post.category}
+                  </span>
+                  <h2 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
+                    {post.title}
+                  </h2>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {post.excerpt}
+                  </p>
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground pt-3 border-t border-primary/10">
+                    <span className="flex items-center gap-1.5">
+                      <User className="w-4 h-4 text-primary" />
+                      {post.author}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Calendar className="w-4 h-4 text-primary" />
+                      {post.date}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="w-4 h-4 text-primary" />
+                      {post.readTime}
+                    </span>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               {isRtl
                 ? "مقالات ونصائح تعليمية لمساعدتك في رحلتك الأكاديمية والمهنية"

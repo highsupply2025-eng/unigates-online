@@ -52,6 +52,7 @@ const App = () => (
               {/* Courses auth */}
               <Route path="/courses" element={<Courses />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/signup-choice" element={<SignupChoice />} />
               <Route path="/signup/:role" element={<Signup />} />
               <Route path="/login" element={<Login />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />

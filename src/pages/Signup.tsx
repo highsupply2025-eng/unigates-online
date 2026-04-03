@@ -317,9 +317,9 @@ const Signup = () => {
                 );
               })}
             </div>
-            <p className="text-sm text-muted-foreground mt-6">
+            <p className="text-sm text-foreground/70 font-medium mt-6">
               {language === "ar" ? "لديك حساب بالفعل؟" : "Already have an account?"}{" "}
-              <Link to="/login" className="text-primary font-semibold hover:underline">{t.login}</Link>
+              <Link to="/login" className="text-primary font-bold hover:underline">{t.login}</Link>
             </p>
           </div>
         ) : !submitted ? (

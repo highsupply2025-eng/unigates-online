@@ -1,6 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { BookOpen, Calendar, User, Clock } from "lucide-react";
-import SiteHeader from "@/components/SiteHeader";
+import SimpleHeader from "@/components/SimpleHeader";
 import SiteFooter from "@/components/SiteFooter";
 
 const blogPosts = {
@@ -29,7 +29,7 @@ const Blog = () => {
 
   return (
     <div dir={isRtl ? "rtl" : "ltr"} className="min-h-screen bg-background flex flex-col">
-      <SiteHeader />
+      <SimpleHeader />
 
       <main className="flex-1">
         {/* Hero */}

@@ -1,4 +1,5 @@
 import { GraduationCap } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const TwitterIcon = () => (
@@ -35,9 +36,21 @@ const SiteFooter = () => {
   const { t } = useLanguage();
 
   const footerLinks = [
-    [t.footerLinks.about, t.footerLinks.certificates, t.footerLinks.blog],
-    [t.footerLinks.helpCenter, t.footerLinks.terms, t.footerLinks.privacy],
-    [t.footerLinks.contactUs, t.footerLinks.careers, t.footerLinks.partnerships],
+    [
+      { label: t.footerLinks.about, href: "/about" },
+      { label: t.footerLinks.certificates, href: "#" },
+      { label: t.footerLinks.blog, href: "#" },
+    ],
+    [
+      { label: t.footerLinks.helpCenter, href: "/help-center" },
+      { label: t.footerLinks.terms, href: "/terms" },
+      { label: t.footerLinks.privacy, href: "/privacy" },
+    ],
+    [
+      { label: t.footerLinks.contactUs, href: "/contact" },
+      { label: t.footerLinks.careers, href: "#" },
+      { label: t.footerLinks.partnerships, href: "#" },
+    ],
   ];
 
   const socialLinks = [
@@ -60,10 +73,10 @@ const SiteFooter = () => {
           {footerLinks.map((column, i) => (
             <ul key={i} className="space-y-3">
               {column.map((link) => (
-                <li key={link}>
-                  <a href="#" className="text-sm text-foreground font-semibold hover:text-primary transition-colors">
-                    {link}
-                  </a>
+                <li key={link.label}>
+                  <Link to={link.href} className="text-sm text-foreground font-semibold hover:text-primary transition-colors">
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>

@@ -27,6 +27,11 @@ const UniversityPlatform = lazy(() => import("./pages/UniversityPlatform"));
 const CollegeRegistration = lazy(() => import("./pages/CollegeRegistration"));
 const InstituteRegistration = lazy(() => import("./pages/InstituteRegistration"));
 const InstitutionDashboard = lazy(() => import("./pages/InstitutionDashboard"));
+const About = lazy(() => import("./pages/About"));
+const HelpCenter = lazy(() => import("./pages/HelpCenter"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Contact = lazy(() => import("./pages/Contact"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -80,6 +85,11 @@ const App = () => (
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/book-store/profile" element={<UserProfile />} />
               <Route path="/student/dashboard" element={<StudentDashboard />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/help-center" element={<HelpCenter />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/contact" element={<Contact />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

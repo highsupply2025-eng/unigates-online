@@ -6,14 +6,10 @@ import { School, MapPin, Users, ChevronLeft, ChevronRight, Clock } from "lucide-
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Badge } from "@/components/ui/badge";
 
-const schoolColors = [
-  "from-orange-800 to-orange-600",
-  "from-rose-800 to-rose-600",
-  "from-amber-800 to-amber-600",
-  "from-red-800 to-red-600",
-  "from-pink-800 to-pink-600",
-  "from-yellow-800 to-yellow-600",
-];
+import schoolBg1 from "@/assets/school-bg-1.jpg";
+import schoolBg2 from "@/assets/school-bg-2.jpg";
+
+const schoolImages = [schoolBg1, schoolBg2];
 
 const RegisteredSchoolsSection = () => {
   const { language } = useLanguage();
@@ -38,7 +34,7 @@ const RegisteredSchoolsSection = () => {
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
-    const scrollAmount = 260;
+    const scrollAmount = 280;
     const dir = isRtl
       ? (direction === "left" ? scrollAmount : -scrollAmount)
       : (direction === "left" ? -scrollAmount : scrollAmount);
@@ -62,26 +58,33 @@ const RegisteredSchoolsSection = () => {
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
 
-            <div ref={scrollRef} className="flex gap-3 overflow-x-auto pb-4 px-2" style={{ scrollbarWidth: 'none' }}>
+            <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-4 px-2" style={{ scrollbarWidth: 'none' }}>
               {schools.map((school, i) => (
-                <div key={school.id} className="relative flex-shrink-0 w-[200px] md:w-[240px] group cursor-pointer card-hover">
-                  <div className={`aspect-video rounded-lg bg-gradient-to-br ${schoolColors[i % schoolColors.length]} flex flex-col justify-between p-4 relative overflow-hidden`}>
-                    <div className="flex justify-between items-start relative z-10">
-                      <Badge className="bg-background/80 text-foreground text-xs backdrop-blur-sm hover:bg-background/80">
+                <div key={school.id} className="relative flex-shrink-0 w-[220px] md:w-[260px] group cursor-pointer card-hover">
+                  <div className="aspect-video rounded-xl overflow-hidden relative shadow-lg group-hover:shadow-xl transition-shadow">
+                    <img
+                      src={schoolImages[i % schoolImages.length]}
+                      alt={school.school_name}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                    <div className="absolute top-3 left-3 z-10">
+                      <Badge className="bg-orange-600/90 text-white text-xs backdrop-blur-sm">
                         <School className="w-3 h-3 mr-1" />
                         {isRtl ? "مدرسة" : "School"}
                       </Badge>
                     </div>
-                    <div className="relative z-10">
+                    <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
                       <p className="text-sm font-bold text-white leading-snug mb-2 line-clamp-2">
                         {school.school_name}
                       </p>
                       <div className="flex items-center justify-between">
-                        <span className="flex items-center gap-1 text-xs text-white/80">
+                        <span className="flex items-center gap-1 text-xs text-white/90">
                           <MapPin className="w-3 h-3" /> {school.city}
                         </span>
                         {school.student_count && school.student_count > 0 && (
-                          <span className="flex items-center gap-1 text-xs text-white/70">
+                          <span className="flex items-center gap-1 text-xs text-white/80">
                             <Users className="w-3 h-3" /> {school.student_count}
                           </span>
                         )}

@@ -58,13 +58,6 @@ const TrendingCourses = memo(() => {
           </div>
         ) : (
           <>
-            <Tabs value={filter} onValueChange={setFilter} className="mb-6">
-              <TabsList className="bg-muted/50 p-1 rounded-xl">
-                <TabsTrigger value="popular" className="rounded-lg text-sm">{t.trending.mostViewed}</TabsTrigger>
-                <TabsTrigger value="new" className="rounded-lg text-sm">{t.trending.new}</TabsTrigger>
-                <TabsTrigger value="free" className="rounded-lg text-sm">{t.trending.free}</TabsTrigger>
-              </TabsList>
-            </Tabs>
 
             <div className="relative flex items-center gap-2">
               <button

@@ -467,8 +467,8 @@ const UniversityPlatform = () => {
           </h2>
           <p className="text-white/70">
             {isRtl
-              ? "انضم لأكثر من 5 كليات تستخدم منصتنا لتطوير التعليم الأكاديمي"
-              : "Join over 5 colleges using our platform to advance academic education"}
+              ? "سجل الآن وكن جزءاً من تطوير التعليم الأكاديمي"
+              : "Register now and be part of advancing academic education"}
           </p>
         </div>
       </section>

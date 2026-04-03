@@ -94,43 +94,43 @@ const UniversityPlatform = () => {
       icon: Video,
       title: isRtl ? "المحاضرات المباشرة" : "Live Lectures",
       desc: isRtl ? "بث مباشر للمحاضرات مع تفاعل فوري وتسجيل تلقائي" : "Live lecture streaming with real-time interaction and auto-recording",
-      gradient: "from-rose-500/15 to-pink-500/10",
-      iconColor: "text-rose-500",
+      iconBg: "bg-gradient-to-br from-[hsl(350,80%,55%)] to-[hsl(330,75%,50%)]",
+      borderAccent: "hover:border-[hsl(350,80%,55%)]/40",
     },
     {
       icon: FileText,
       title: isRtl ? "الاختبارات والتقييم" : "Exams & Assessment",
       desc: isRtl ? "نظام اختبارات متقدم وتحليل شامل للأداء" : "Advanced exam system with comprehensive performance analysis",
-      gradient: "from-blue-500/15 to-indigo-500/10",
-      iconColor: "text-blue-500",
+      iconBg: "bg-gradient-to-br from-[hsl(220,80%,55%)] to-[hsl(240,70%,50%)]",
+      borderAccent: "hover:border-[hsl(220,80%,55%)]/40",
     },
     {
       icon: BarChart3,
       title: isRtl ? "لوحة التحليلات" : "Analytics Dashboard",
       desc: isRtl ? "تقارير أداء مفصلة للطلاب والأقسام والكليات" : "Detailed performance reports for students, departments, and faculties",
-      gradient: "from-emerald-500/15 to-green-500/10",
-      iconColor: "text-emerald-500",
+      iconBg: "bg-gradient-to-br from-[hsl(155,70%,45%)] to-[hsl(170,65%,40%)]",
+      borderAccent: "hover:border-[hsl(155,70%,45%)]/40",
     },
     {
       icon: MessageSquare,
       title: isRtl ? "التواصل والمناقشات" : "Communication & Forums",
       desc: isRtl ? "منتديات نقاشية ورسائل مباشرة بين الطلاب والأساتذة" : "Discussion forums and direct messaging between students and professors",
-      gradient: "from-violet-500/15 to-purple-500/10",
-      iconColor: "text-violet-500",
+      iconBg: "bg-gradient-to-br from-[hsl(270,70%,55%)] to-[hsl(290,65%,48%)]",
+      borderAccent: "hover:border-[hsl(270,70%,55%)]/40",
     },
     {
       icon: CalendarCheck,
       title: isRtl ? "الجدولة الذكية" : "Smart Scheduling",
       desc: isRtl ? "جدولة تلقائية للمحاضرات والاختبارات مع تنبيهات فورية" : "Auto-scheduling for lectures and exams with instant notifications",
-      gradient: "from-amber-500/15 to-yellow-500/10",
-      iconColor: "text-amber-500",
+      iconBg: "bg-gradient-to-br from-[hsl(35,90%,55%)] to-[hsl(25,85%,50%)]",
+      borderAccent: "hover:border-[hsl(35,90%,55%)]/40",
     },
     {
       icon: ShieldCheck,
       title: isRtl ? "الأمان والخصوصية" : "Security & Privacy",
       desc: isRtl ? "حماية متقدمة للبيانات الأكاديمية مع تشفير كامل" : "Advanced academic data protection with full encryption",
-      gradient: "from-cyan-500/15 to-teal-500/10",
-      iconColor: "text-cyan-500",
+      iconBg: "bg-gradient-to-br from-[hsl(174,72%,46%)] to-[hsl(190,70%,40%)]",
+      borderAccent: "hover:border-[hsl(174,72%,46%)]/40",
     },
   ];
 
@@ -341,10 +341,10 @@ const UniversityPlatform = () => {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {features.map((f, i) => (
-              <Card key={i} className="group hover:shadow-xl transition-all duration-300 border-border/60 hover:border-primary/30 hover:-translate-y-1">
+              <Card key={i} className={`group hover:shadow-xl transition-all duration-300 border-2 border-border/60 ${f.borderAccent} hover:-translate-y-1`}>
                 <CardContent className="p-6">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${f.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                    <f.icon className={`w-7 h-7 ${f.iconColor}`} />
+                  <div className={`w-14 h-14 rounded-2xl ${f.iconBg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                    <f.icon className="w-7 h-7 text-white" />
                   </div>
                   <h3 className="font-bold text-foreground mb-2 text-lg">{f.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>

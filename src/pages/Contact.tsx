@@ -11,8 +11,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { useState } from "react";
 
 const Contact = () => {
-  const { language, dir, toggleLanguage, t } = useLanguage();
-  const goBack = useSmartBack();
+  const { language, dir } = useLanguage();
   const { toast } = useToast();
   const isRtl = dir === "rtl";
   const [sending, setSending] = useState(false);

@@ -29,7 +29,7 @@ const Blog = () => {
 
   return (
     <div dir={isRtl ? "rtl" : "ltr"} className="min-h-screen bg-background flex flex-col">
-      <SiteHeader />
+      <SimpleHeader />
 
       <main className="flex-1">
         {/* Hero */}

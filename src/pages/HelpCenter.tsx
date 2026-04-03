@@ -7,8 +7,7 @@ import SimpleHeader from "@/components/SimpleHeader";
 import SiteFooter from "@/components/SiteFooter";
 
 const HelpCenter = () => {
-  const { language, dir, toggleLanguage, t } = useLanguage();
-  const goBack = useSmartBack();
+  const { language, dir } = useLanguage();
   const isRtl = dir === "rtl";
 
   const content = {

@@ -85,7 +85,7 @@ const RegisteredUniversitiesSection = () => {
         <div className="flex items-center gap-2 mb-4">
           <Landmark className="w-6 h-6 text-primary" />
           <h2 className="text-2xl font-bold text-primary">
-            {isRtl ? "المعاهد المسجلة" : "Registered Institutes"}
+            {isRtl ? "المعاهد" : "Institutes"}
           </h2>
         </div>
         {hasInstitutes ? (

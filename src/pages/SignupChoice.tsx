@@ -26,11 +26,9 @@ const SignupChoice = () => {
                 {t.login}
               </Button>
             </Link>
-            <Link to="/">
-              <Button variant="default" size="icon" className="rounded-full w-9 h-9">
-                {language === "ar" ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
-              </Button>
-            </Link>
+            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={goBack}>
+              {language === "ar" ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
+            </Button>
           </div>
         </div>
       </header>

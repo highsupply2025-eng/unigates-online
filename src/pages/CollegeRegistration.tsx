@@ -115,11 +115,9 @@ const CollegeRegistration = () => {
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
-            <Link to="/signup">
-              <Button variant="default" size="icon" className="rounded-full w-9 h-9">
-                {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
-              </Button>
-            </Link>
+            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={goBack}>
+              {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
+            </Button>
           </div>
         </div>
       </header>

@@ -1,0 +1,45 @@
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+export interface PlatformStats {
+  colleges: number;
+  institutes: number;
+  schools: number;
+  publishers: number;
+  lecturers: number;
+  teachers: number;
+  parents: number;
+  students: number;
+}
+
+export const usePlatformStats = () => {
+  return useQuery({
+    queryKey: ["platform-stats"],
+    queryFn: async (): Promise<PlatformStats> => {
+      const [
+        studentsRes, lecturersRes, collegesRes, institutesRes,
+        schoolsRes, publishersRes, teachersRes, parentsRes
+      ] = await Promise.all([
+        supabase.rpc("get_profile_count_by_role", { _role: "student" }),
+        supabase.rpc("get_profile_count_by_role", { _role: "lecturer" }),
+        supabase.from("approved_colleges_public").select("id", { count: "exact", head: true }),
+        supabase.from("approved_institutes_public").select("id", { count: "exact", head: true }),
+        supabase.from("approved_schools_public").select("id", { count: "exact", head: true }),
+        supabase.rpc("get_profile_count_by_role", { _role: "publisher" }),
+        supabase.rpc("get_profile_count_by_role", { _role: "teacher" }),
+        supabase.rpc("get_profile_count_by_role", { _role: "parent" }),
+      ]);
+      return {
+        students: Number(studentsRes.data) || 0,
+        lecturers: Number(lecturersRes.data) || 0,
+        colleges: collegesRes.count || 0,
+        institutes: institutesRes.count || 0,
+        schools: schoolsRes.count || 0,
+        publishers: Number(publishersRes.data) || 0,
+        teachers: Number(teachersRes.data) || 0,
+        parents: Number(parentsRes.data) || 0,
+      };
+    },
+    staleTime: 60000,
+  });
+};

@@ -285,7 +285,7 @@ const Signup = () => {
             <h1 className="text-2xl md:text-3xl font-black text-foreground mb-2">
               {language === "ar" ? "اختر نوع الحساب" : "Choose Account Type"}
             </h1>
-            <p className="text-muted-foreground mb-8">{language === "ar" ? "حدد نوع حسابك للمتابعة" : "Select your account type to continue"}</p>
+            <p className="text-primary/70 font-medium mb-8">{language === "ar" ? "حدد نوع حسابك للمتابعة" : "Select your account type to continue"}</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {courseRoles.map((r) => {
                 const Icon = r.icon;

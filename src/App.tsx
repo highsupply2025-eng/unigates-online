@@ -35,6 +35,9 @@ const Contact = lazy(() => import("./pages/Contact"));
 const Blog = lazy(() => import("./pages/Blog"));
 const Partnerships = lazy(() => import("./pages/Partnerships"));
 const FAQ = lazy(() => import("./pages/FAQ"));
+const SchoolStudentDashboard = lazy(() => import("./pages/SchoolStudentDashboard"));
+const SchoolTeacherDashboard = lazy(() => import("./pages/SchoolTeacherDashboard"));
+const SchoolDashboard = lazy(() => import("./pages/SchoolDashboard"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -80,6 +83,9 @@ const App = () => (
               <Route path="/school-platform/register" element={<ComingSoon />} />
               <Route path="/school-platform/login" element={<ComingSoon />} />
               <Route path="/school-platform/signup" element={<ComingSoon />} />
+              <Route path="/school/student/dashboard" element={<SchoolStudentDashboard />} />
+              <Route path="/school/teacher/dashboard" element={<SchoolTeacherDashboard />} />
+              <Route path="/school/dashboard" element={<SchoolDashboard />} />
               {/* University Platform */}
               <Route path="/university-platform" element={<UniversityPlatform />} />
               <Route path="/signup/college" element={<CollegeRegistration />} />

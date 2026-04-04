@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   GraduationCap, Globe, BookOpen, Play, Lock, CheckCircle, Clock,
-  ArrowLeft, ArrowRight, Crown, BarChart3, Award, Radio, User
+  ArrowLeft, ArrowRight, Crown, BarChart3, Award, Radio, User, Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

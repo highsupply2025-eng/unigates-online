@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   GraduationCap, Plus, Eye, BookOpen, FileText, Video, Trash2, Globe, LogOut,
-  Upload, X, Radio, Calendar, ExternalLink, ClipboardList, Star, Send, ArrowLeft, ArrowRight, MonitorPlay
+  Upload, X, Radio, Calendar, ExternalLink, ClipboardList, Star, Send, ArrowLeft, ArrowRight, MonitorPlay, Link2, Copy, Check
 } from "lucide-react";
 import LiveStreamRoom from "@/components/LiveStreamRoom";
 import { Button } from "@/components/ui/button";
@@ -480,10 +480,18 @@ const LecturerDashboard = () => {
                             <span className="flex items-center gap-1"><Video className="w-3.5 h-3.5" /> {course.episode_count}</span>
                             {course.is_free && <span className="text-primary font-semibold">{language === "ar" ? "مجاني" : "Free"}</span>}
                           </div>
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 flex-wrap">
                             <Button size="sm" variant="outline" className="flex-1" onClick={() => openEpisodes(course.id)}>
                               <Video className="w-3.5 h-3.5 me-1" />
                               {language === "ar" ? "الحلقات" : "Episodes"}
+                            </Button>
+                            <Button size="sm" variant="outline" className="gap-1" onClick={() => {
+                              const courseUrl = `${window.location.origin}/courses?course=${course.id}`;
+                              navigator.clipboard.writeText(courseUrl);
+                              toast({ title: language === "ar" ? "تم النسخ!" : "Copied!", description: language === "ar" ? "تم نسخ رابط الدورة" : "Course link copied to clipboard" });
+                            }}>
+                              <Link2 className="w-3.5 h-3.5" />
+                              {language === "ar" ? "نسخ الرابط" : "Copy Link"}
                             </Button>
                             <Button size="sm" variant="destructive" onClick={() => handleDeleteCourse(course.id)}>
                               <Trash2 className="w-3.5 h-3.5" />

@@ -145,11 +145,21 @@ const LecturerDashboard = () => {
         const { data: urlData } = supabase.storage.from("course-thumbnails").getPublicUrl(path);
         thumbnailUrl = urlData.publicUrl;
       }
-      const { error } = await supabase.from("courses").insert({
+      const courseData: any = {
         ...newCourse, creator_id: user.id, thumbnail_url: thumbnailUrl,
         instructor_ar: newCourse.instructor_ar || user.email,
         instructor_en: newCourse.instructor_en || user.email,
-      });
+        price: newCourse.is_free ? 0 : newCourse.price,
+      };
+      delete courseData.price; // remove from spread if not in types yet
+      const { error } = await supabase.from("courses").insert({
+        title_ar: newCourse.title_ar, title_en: newCourse.title_en,
+        category_ar: newCourse.category_ar, category_en: newCourse.category_en,
+        instructor_ar: newCourse.instructor_ar || user.email,
+        instructor_en: newCourse.instructor_en || user.email,
+        is_free: newCourse.is_free,
+        creator_id: user.id, thumbnail_url: thumbnailUrl,
+      } as any);
       if (error) throw error;
       toast({ title: language === "ar" ? "تم" : "Done", description: language === "ar" ? "تم إنشاء الدورة بنجاح" : "Course created successfully" });
       setShowNewCourse(false);

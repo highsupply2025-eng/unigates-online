@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   GraduationCap, Globe, BookOpen, Play, Lock, CheckCircle, Clock,
-  ArrowLeft, ArrowRight, Crown, BarChart3, Award, Radio, User
+  ArrowLeft, ArrowRight, Crown, BarChart3, Award, Radio, User, Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +30,11 @@ const StudentDashboard = () => {
   const [liveStreams, setLiveStreams] = useState<any[]>([]);
   const [assignments, setAssignments] = useState<any[]>([]);
   const [submissions, setSubmissions] = useState<any[]>([]);
+  const [ratings, setRatings] = useState<any[]>([]);
+  const [ratingCourseId, setRatingCourseId] = useState<string | null>(null);
+  const [ratingValue, setRatingValue] = useState(0);
+  const [ratingComment, setRatingComment] = useState("");
+  const [savingRating, setSavingRating] = useState(false);
 
   useEffect(() => { checkAuth(); }, []);
 
@@ -46,8 +51,35 @@ const StudentDashboard = () => {
       loadProgress(user.id),
       loadLiveStreams(),
       loadSubmissions(user.id),
+      loadRatings(user.id),
     ]);
     setLoading(false);
+  };
+
+  const loadRatings = async (userId: string) => {
+    const { data } = await supabase.from("lecturer_ratings").select("*").eq("student_id", userId);
+    setRatings(data || []);
+  };
+
+  const handleSubmitRating = async () => {
+    if (!user || !ratingCourseId || ratingValue === 0) return;
+    setSavingRating(true);
+    try {
+      const course = courses.find(c => c.id === ratingCourseId);
+      const { error } = await supabase.from("lecturer_ratings").upsert({
+        student_id: user.id,
+        lecturer_id: course?.creator_id || user.id,
+        course_id: ratingCourseId,
+        rating: ratingValue,
+        comment: ratingComment || null,
+      }, { onConflict: "student_id,course_id" });
+      if (error) throw error;
+      toast({ title: isRtl ? "تم" : "Done", description: isRtl ? "تم إرسال التقييم بنجاح" : "Rating submitted" });
+      setRatingCourseId(null); setRatingValue(0); setRatingComment("");
+      await loadRatings(user.id);
+    } catch (err: any) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
+    } finally { setSavingRating(false); }
   };
 
   const loadSubscriptions = async (userId: string) => {
@@ -144,43 +176,82 @@ const StudentDashboard = () => {
           </p>
         </div>
 
-        {/* Stats */}
+        {/* Quick Actions */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          <Card><CardContent className="pt-6 text-center">
-            <BookOpen className="w-7 h-7 text-primary mx-auto mb-1" />
-            <p className="text-2xl font-black text-foreground">{subscriptions.length}</p>
-            <p className="text-xs text-muted-foreground">{isRtl ? "دورات مشترك بها" : "Subscribed Courses"}</p>
-          </CardContent></Card>
-          <Card><CardContent className="pt-6 text-center">
-            <CheckCircle className="w-7 h-7 text-green-600 mx-auto mb-1" />
-            <p className="text-2xl font-black text-foreground">{totalCompleted}</p>
-            <p className="text-xs text-muted-foreground">{isRtl ? "حلقات مكتملة" : "Completed Episodes"}</p>
-          </CardContent></Card>
-          <Card><CardContent className="pt-6 text-center">
-            <Award className="w-7 h-7 text-amber-500 mx-auto mb-1" />
-            <p className="text-2xl font-black text-foreground">{submissions.filter(s => s.grade).length}</p>
-            <p className="text-xs text-muted-foreground">{isRtl ? "تكليفات مُقيّمة" : "Graded Assignments"}</p>
-          </CardContent></Card>
-          <Card><CardContent className="pt-6 text-center">
-            <Radio className="w-7 h-7 text-red-500 mx-auto mb-1" />
-            <p className="text-2xl font-black text-foreground">{liveStreams.filter(s => s.status === "live").length}</p>
-            <p className="text-xs text-muted-foreground">{isRtl ? "بث مباشر الآن" : "Live Now"}</p>
-          </CardContent></Card>
+          <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("courses")}>
+            <CardContent className="pt-6 pb-4 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
+                <BookOpen className="w-7 h-7 text-primary" />
+              </div>
+              <p className="text-sm font-bold text-foreground">{isRtl ? "المحاضرات" : "Lectures"}</p>
+              <p className="text-xs text-muted-foreground mt-1">{subscriptions.length} {isRtl ? "دورة" : "courses"}</p>
+            </CardContent>
+          </Card>
+          <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("live")}>
+            <CardContent className="pt-6 pb-4 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-red-500/20 transition-colors">
+                <Radio className="w-7 h-7 text-red-500" />
+              </div>
+              <p className="text-sm font-bold text-foreground">{isRtl ? "البث المباشر" : "Live Streams"}</p>
+              <p className="text-xs text-muted-foreground mt-1">{liveStreams.filter(s => s.status === "live").length} {isRtl ? "مباشر الآن" : "live now"}</p>
+            </CardContent>
+          </Card>
+          <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("assignments")}>
+            <CardContent className="pt-6 pb-4 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-amber-500/20 transition-colors">
+                <Award className="w-7 h-7 text-amber-500" />
+              </div>
+              <p className="text-sm font-bold text-foreground">{isRtl ? "الاختبارات" : "Tests"}</p>
+              <p className="text-xs text-muted-foreground mt-1">{submissions.filter(s => s.grade).length} {isRtl ? "مُقيّم" : "graded"}</p>
+            </CardContent>
+          </Card>
+          <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("rate")}>
+            <CardContent className="pt-6 pb-4 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-green-500/20 transition-colors">
+                <Star className="w-7 h-7 text-green-600" />
+              </div>
+              <p className="text-sm font-bold text-foreground">{isRtl ? "تقييم المحاضر" : "Rate Lecturer"}</p>
+              <p className="text-xs text-muted-foreground mt-1">{isRtl ? "شارك رأيك" : "Share feedback"}</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Stats Summary */}
+        <div className="grid grid-cols-4 gap-3 mb-8">
+          <div className="bg-primary/5 rounded-xl p-3 text-center">
+            <p className="text-xl font-black text-primary">{subscriptions.length}</p>
+            <p className="text-[10px] text-muted-foreground">{isRtl ? "اشتراكات" : "Subscriptions"}</p>
+          </div>
+          <div className="bg-green-500/5 rounded-xl p-3 text-center">
+            <p className="text-xl font-black text-green-600">{totalCompleted}</p>
+            <p className="text-[10px] text-muted-foreground">{isRtl ? "مكتملة" : "Completed"}</p>
+          </div>
+          <div className="bg-amber-500/5 rounded-xl p-3 text-center">
+            <p className="text-xl font-black text-amber-500">{submissions.length}</p>
+            <p className="text-[10px] text-muted-foreground">{isRtl ? "تكليفات" : "Assignments"}</p>
+          </div>
+          <div className="bg-red-500/5 rounded-xl p-3 text-center">
+            <p className="text-xl font-black text-red-500">{liveStreams.length}</p>
+            <p className="text-[10px] text-muted-foreground">{isRtl ? "بثوث" : "Streams"}</p>
+          </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6 flex-wrap">
             <TabsTrigger value="courses" className="gap-1.5">
-              <BookOpen className="w-4 h-4" />{isRtl ? "دوراتي" : "My Courses"}
+              <BookOpen className="w-4 h-4" />{isRtl ? "المحاضرات" : "Lectures"}
             </TabsTrigger>
             <TabsTrigger value="browse" className="gap-1.5">
-              <BarChart3 className="w-4 h-4" />{isRtl ? "تصفّح الدورات" : "Browse Courses"}
+              <BarChart3 className="w-4 h-4" />{isRtl ? "تصفّح الدورات" : "Browse"}
             </TabsTrigger>
             <TabsTrigger value="live" className="gap-1.5">
-              <Radio className="w-4 h-4" />{isRtl ? "بث مباشر" : "Live Streams"}
+              <Radio className="w-4 h-4" />{isRtl ? "بث مباشر" : "Live"}
             </TabsTrigger>
             <TabsTrigger value="assignments" className="gap-1.5">
-              <Award className="w-4 h-4" />{isRtl ? "التكليفات" : "Assignments"}
+              <Award className="w-4 h-4" />{isRtl ? "الاختبارات" : "Tests"}
+            </TabsTrigger>
+            <TabsTrigger value="rate" className="gap-1.5">
+              <Star className="w-4 h-4" />{isRtl ? "التقييم" : "Rating"}
             </TabsTrigger>
           </TabsList>
 
@@ -345,6 +416,73 @@ const StudentDashboard = () => {
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Rate Lecturer */}
+          <TabsContent value="rate">
+            {subscribedCourses.length === 0 ? (
+              <div className="text-center py-16">
+                <Star className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                <p className="text-lg text-muted-foreground">{isRtl ? "اشترك في دورة أولاً لتقييم المحاضر" : "Subscribe to a course first to rate a lecturer"}</p>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {subscribedCourses.map(course => {
+                  const existingRating = ratings.find(r => r.course_id === course.id);
+                  return (
+                    <Card key={course.id} className="overflow-hidden">
+                      <CardContent className="p-5">
+                        <div className="flex items-start justify-between gap-4 mb-3">
+                          <div>
+                            <h3 className="font-bold text-foreground">{isRtl ? course.title_ar : course.title_en}</h3>
+                            <p className="text-sm text-muted-foreground">{isRtl ? course.instructor_ar : course.instructor_en}</p>
+                          </div>
+                          {existingRating && (
+                            <Badge className="bg-green-100 text-green-700 border-green-300 gap-1">
+                              <Star className="w-3 h-3 fill-current" /> {existingRating.rating}/5
+                            </Badge>
+                          )}
+                        </div>
+                        {ratingCourseId === course.id ? (
+                          <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+                            <div className="flex items-center gap-2 justify-center">
+                              {[1, 2, 3, 4, 5].map(star => (
+                                <button key={star} type="button" onClick={() => setRatingValue(star)} className="transition-transform hover:scale-110">
+                                  <Star className={`w-8 h-8 ${star <= ratingValue ? "text-amber-400 fill-amber-400" : "text-muted-foreground/30"}`} />
+                                </button>
+                              ))}
+                            </div>
+                            <textarea
+                              placeholder={isRtl ? "اكتب تعليقك (اختياري)..." : "Write your comment (optional)..."}
+                              value={ratingComment}
+                              onChange={e => setRatingComment(e.target.value)}
+                              className="w-full rounded-lg border border-border bg-background p-3 text-sm min-h-[80px] resize-none"
+                            />
+                            <div className="flex gap-2">
+                              <Button size="sm" onClick={handleSubmitRating} disabled={savingRating || ratingValue === 0}>
+                                {isRtl ? "إرسال التقييم" : "Submit Rating"}
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={() => { setRatingCourseId(null); setRatingValue(0); setRatingComment(""); }}>
+                                {isRtl ? "إلغاء" : "Cancel"}
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <Button size="sm" variant="outline" className="gap-1.5" onClick={() => {
+                            setRatingCourseId(course.id);
+                            setRatingValue(existingRating?.rating || 0);
+                            setRatingComment(existingRating?.comment || "");
+                          }}>
+                            <Star className="w-4 h-4" />
+                            {existingRating ? (isRtl ? "تعديل التقييم" : "Edit Rating") : (isRtl ? "قيّم المحاضر" : "Rate Lecturer")}
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </TabsContent>

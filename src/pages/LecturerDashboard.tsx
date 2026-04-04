@@ -489,7 +489,10 @@ const LecturerDashboard = () => {
                           <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
                             <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {courseViews[course.id] || 0}</span>
                             <span className="flex items-center gap-1"><Video className="w-3.5 h-3.5" /> {course.episode_count}</span>
-                            {course.is_free && <span className="text-primary font-semibold">{language === "ar" ? "مجاني" : "Free"}</span>}
+                            {course.is_free 
+                              ? <span className="text-primary font-semibold">{language === "ar" ? "مجاني" : "Free"}</span>
+                              : course.price > 0 && <span className="font-bold text-primary">{course.price} {language === "ar" ? "ج.م" : "EGP"}</span>
+                            }
                           </div>
                           <div className="flex gap-2 flex-wrap">
                             <Button size="sm" variant="outline" className="flex-1" onClick={() => openEpisodes(course.id)}>

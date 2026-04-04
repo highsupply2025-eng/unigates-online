@@ -368,45 +368,86 @@ const LecturerDashboard = () => {
         {/* Dashboard */}
         {approved === true && (
           <>
-            {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <Eye className="w-8 h-8 text-primary mx-auto mb-2" />
-                  <p className="text-3xl font-black text-foreground">{totalViews}</p>
-                  <p className="text-sm text-muted-foreground">{language === "ar" ? "إجمالي المشاهدات" : "Total Views"}</p>
+            {/* Quick Actions */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+              <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("courses")}>
+                <CardContent className="pt-6 pb-4 text-center">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
+                    <Video className="w-7 h-7 text-primary" />
+                  </div>
+                  <p className="text-sm font-bold text-foreground">{language === "ar" ? "المحاضرات" : "Lectures"}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{courses.length} {language === "ar" ? "دورة" : "courses"}</p>
                 </CardContent>
               </Card>
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <BookOpen className="w-8 h-8 text-primary mx-auto mb-2" />
-                  <p className="text-3xl font-black text-foreground">{courses.length}</p>
-                  <p className="text-sm text-muted-foreground">{language === "ar" ? "دوراتي" : "My Courses"}</p>
+              <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("live")}>
+                <CardContent className="pt-6 pb-4 text-center">
+                  <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-red-500/20 transition-colors">
+                    <Radio className="w-7 h-7 text-red-500" />
+                  </div>
+                  <p className="text-sm font-bold text-foreground">{language === "ar" ? "البث المباشر" : "Live Stream"}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{streams.filter(s => s.status === "live").length} {language === "ar" ? "مباشر" : "live"}</p>
                 </CardContent>
               </Card>
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <Video className="w-8 h-8 text-primary mx-auto mb-2" />
-                  <p className="text-3xl font-black text-foreground">{courses.reduce((a, c) => a + c.episode_count, 0)}</p>
-                  <p className="text-sm text-muted-foreground">{language === "ar" ? "إجمالي الحلقات" : "Total Episodes"}</p>
+              <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("assignments")}>
+                <CardContent className="pt-6 pb-4 text-center">
+                  <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-amber-500/20 transition-colors">
+                    <ClipboardList className="w-7 h-7 text-amber-500" />
+                  </div>
+                  <p className="text-sm font-bold text-foreground">{language === "ar" ? "الاختبارات" : "Tests"}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{language === "ar" ? "إدارة التكليفات" : "Manage"}</p>
+                </CardContent>
+              </Card>
+              <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("ratings")}>
+                <CardContent className="pt-6 pb-4 text-center">
+                  <div className="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-green-500/20 transition-colors">
+                    <Star className="w-7 h-7 text-green-600" />
+                  </div>
+                  <p className="text-sm font-bold text-foreground">{language === "ar" ? "التقييمات" : "Ratings"}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{lecturerRatings.length} {language === "ar" ? "تقييم" : "reviews"}</p>
                 </CardContent>
               </Card>
             </div>
 
+            {/* Stats Summary */}
+            <div className="grid grid-cols-4 gap-3 mb-8">
+              <div className="bg-primary/5 rounded-xl p-3 text-center">
+                <p className="text-xl font-black text-primary">{totalViews}</p>
+                <p className="text-[10px] text-muted-foreground">{language === "ar" ? "مشاهدات" : "Views"}</p>
+              </div>
+              <div className="bg-primary/5 rounded-xl p-3 text-center">
+                <p className="text-xl font-black text-primary">{courses.length}</p>
+                <p className="text-[10px] text-muted-foreground">{language === "ar" ? "دورات" : "Courses"}</p>
+              </div>
+              <div className="bg-primary/5 rounded-xl p-3 text-center">
+                <p className="text-xl font-black text-primary">{courses.reduce((a, c) => a + c.episode_count, 0)}</p>
+                <p className="text-[10px] text-muted-foreground">{language === "ar" ? "حلقات" : "Episodes"}</p>
+              </div>
+              <div className="bg-green-500/5 rounded-xl p-3 text-center">
+                <p className="text-xl font-black text-green-600">
+                  {lecturerRatings.length > 0 ? (lecturerRatings.reduce((a, r) => a + r.rating, 0) / lecturerRatings.length).toFixed(1) : "—"}
+                </p>
+                <p className="text-[10px] text-muted-foreground">{language === "ar" ? "متوسط التقييم" : "Avg Rating"}</p>
+              </div>
+            </div>
+
             {/* Tabs Navigation */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-6">
+              <TabsList className="grid w-full grid-cols-4 mb-6">
                 <TabsTrigger value="courses" className="gap-2">
                   <Video className="w-4 h-4" />
-                  {language === "ar" ? "الدورات والحلقات" : "Courses & Episodes"}
+                  {language === "ar" ? "المحاضرات" : "Lectures"}
                 </TabsTrigger>
                 <TabsTrigger value="live" className="gap-2">
                   <Radio className="w-4 h-4" />
-                  {language === "ar" ? "البث المباشر" : "Live Streaming"}
+                  {language === "ar" ? "البث المباشر" : "Live"}
                 </TabsTrigger>
                 <TabsTrigger value="assignments" className="gap-2">
                   <ClipboardList className="w-4 h-4" />
-                  {language === "ar" ? "التكليفات" : "Assignments"}
+                  {language === "ar" ? "الاختبارات" : "Tests"}
+                </TabsTrigger>
+                <TabsTrigger value="ratings" className="gap-2">
+                  <Star className="w-4 h-4" />
+                  {language === "ar" ? "التقييمات" : "Ratings"}
                 </TabsTrigger>
               </TabsList>
 

@@ -33,7 +33,7 @@ const SchoolPlatform = () => {
     { icon: School, counter: schools, label: isRtl ? "مدرسة" : "School", color: "from-emerald-500 to-teal-400" },
     { icon: Users, counter: teachers, label: isRtl ? "معلم" : "Teacher", color: "from-amber-500 to-orange-400" },
     { icon: GraduationCap, counter: schoolStudents, label: isRtl ? "طالب" : "Student", color: "from-indigo-500 to-blue-400" },
-    { icon: BookOpen, counter: courses, label: isRtl ? "مادة" : "Subject", color: "from-violet-500 to-purple-400" },
+    { icon: Users, counter: totalParents, label: isRtl ? "ولي أمر" : "Parent", color: "from-violet-500 to-purple-400" },
   ];
 
   const features = [

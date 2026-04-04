@@ -715,6 +715,44 @@ export type Database = {
         }
         Relationships: []
       }
+      lecturer_ratings: {
+        Row: {
+          comment: string | null
+          course_id: string
+          created_at: string
+          id: string
+          lecturer_id: string
+          rating: number
+          student_id: string
+        }
+        Insert: {
+          comment?: string | null
+          course_id: string
+          created_at?: string
+          id?: string
+          lecturer_id: string
+          rating: number
+          student_id: string
+        }
+        Update: {
+          comment?: string | null
+          course_id?: string
+          created_at?: string
+          id?: string
+          lecturer_id?: string
+          rating?: number
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lecturer_ratings_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       live_streams: {
         Row: {
           course_id: string | null

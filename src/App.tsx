@@ -35,6 +35,9 @@ const Contact = lazy(() => import("./pages/Contact"));
 const Blog = lazy(() => import("./pages/Blog"));
 const Partnerships = lazy(() => import("./pages/Partnerships"));
 const FAQ = lazy(() => import("./pages/FAQ"));
+const SchoolStudentDashboard = lazy(() => import("./pages/SchoolStudentDashboard"));
+const SchoolTeacherDashboard = lazy(() => import("./pages/SchoolTeacherDashboard"));
+const SchoolDashboard = lazy(() => import("./pages/SchoolDashboard"));
 
 const queryClient = new QueryClient({
   defaultOptions: {

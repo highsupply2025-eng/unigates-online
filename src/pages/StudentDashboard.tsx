@@ -144,43 +144,82 @@ const StudentDashboard = () => {
           </p>
         </div>
 
-        {/* Stats */}
+        {/* Quick Actions */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          <Card><CardContent className="pt-6 text-center">
-            <BookOpen className="w-7 h-7 text-primary mx-auto mb-1" />
-            <p className="text-2xl font-black text-foreground">{subscriptions.length}</p>
-            <p className="text-xs text-muted-foreground">{isRtl ? "دورات مشترك بها" : "Subscribed Courses"}</p>
-          </CardContent></Card>
-          <Card><CardContent className="pt-6 text-center">
-            <CheckCircle className="w-7 h-7 text-green-600 mx-auto mb-1" />
-            <p className="text-2xl font-black text-foreground">{totalCompleted}</p>
-            <p className="text-xs text-muted-foreground">{isRtl ? "حلقات مكتملة" : "Completed Episodes"}</p>
-          </CardContent></Card>
-          <Card><CardContent className="pt-6 text-center">
-            <Award className="w-7 h-7 text-amber-500 mx-auto mb-1" />
-            <p className="text-2xl font-black text-foreground">{submissions.filter(s => s.grade).length}</p>
-            <p className="text-xs text-muted-foreground">{isRtl ? "تكليفات مُقيّمة" : "Graded Assignments"}</p>
-          </CardContent></Card>
-          <Card><CardContent className="pt-6 text-center">
-            <Radio className="w-7 h-7 text-red-500 mx-auto mb-1" />
-            <p className="text-2xl font-black text-foreground">{liveStreams.filter(s => s.status === "live").length}</p>
-            <p className="text-xs text-muted-foreground">{isRtl ? "بث مباشر الآن" : "Live Now"}</p>
-          </CardContent></Card>
+          <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("courses")}>
+            <CardContent className="pt-6 pb-4 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
+                <BookOpen className="w-7 h-7 text-primary" />
+              </div>
+              <p className="text-sm font-bold text-foreground">{isRtl ? "المحاضرات" : "Lectures"}</p>
+              <p className="text-xs text-muted-foreground mt-1">{subscriptions.length} {isRtl ? "دورة" : "courses"}</p>
+            </CardContent>
+          </Card>
+          <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("live")}>
+            <CardContent className="pt-6 pb-4 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-red-500/20 transition-colors">
+                <Radio className="w-7 h-7 text-red-500" />
+              </div>
+              <p className="text-sm font-bold text-foreground">{isRtl ? "البث المباشر" : "Live Streams"}</p>
+              <p className="text-xs text-muted-foreground mt-1">{liveStreams.filter(s => s.status === "live").length} {isRtl ? "مباشر الآن" : "live now"}</p>
+            </CardContent>
+          </Card>
+          <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("assignments")}>
+            <CardContent className="pt-6 pb-4 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-amber-500/20 transition-colors">
+                <Award className="w-7 h-7 text-amber-500" />
+              </div>
+              <p className="text-sm font-bold text-foreground">{isRtl ? "الاختبارات" : "Tests"}</p>
+              <p className="text-xs text-muted-foreground mt-1">{submissions.filter(s => s.grade).length} {isRtl ? "مُقيّم" : "graded"}</p>
+            </CardContent>
+          </Card>
+          <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("rate")}>
+            <CardContent className="pt-6 pb-4 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-green-500/20 transition-colors">
+                <Star className="w-7 h-7 text-green-600" />
+              </div>
+              <p className="text-sm font-bold text-foreground">{isRtl ? "تقييم المحاضر" : "Rate Lecturer"}</p>
+              <p className="text-xs text-muted-foreground mt-1">{isRtl ? "شارك رأيك" : "Share feedback"}</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Stats Summary */}
+        <div className="grid grid-cols-4 gap-3 mb-8">
+          <div className="bg-primary/5 rounded-xl p-3 text-center">
+            <p className="text-xl font-black text-primary">{subscriptions.length}</p>
+            <p className="text-[10px] text-muted-foreground">{isRtl ? "اشتراكات" : "Subscriptions"}</p>
+          </div>
+          <div className="bg-green-500/5 rounded-xl p-3 text-center">
+            <p className="text-xl font-black text-green-600">{totalCompleted}</p>
+            <p className="text-[10px] text-muted-foreground">{isRtl ? "مكتملة" : "Completed"}</p>
+          </div>
+          <div className="bg-amber-500/5 rounded-xl p-3 text-center">
+            <p className="text-xl font-black text-amber-500">{submissions.length}</p>
+            <p className="text-[10px] text-muted-foreground">{isRtl ? "تكليفات" : "Assignments"}</p>
+          </div>
+          <div className="bg-red-500/5 rounded-xl p-3 text-center">
+            <p className="text-xl font-black text-red-500">{liveStreams.length}</p>
+            <p className="text-[10px] text-muted-foreground">{isRtl ? "بثوث" : "Streams"}</p>
+          </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6 flex-wrap">
             <TabsTrigger value="courses" className="gap-1.5">
-              <BookOpen className="w-4 h-4" />{isRtl ? "دوراتي" : "My Courses"}
+              <BookOpen className="w-4 h-4" />{isRtl ? "المحاضرات" : "Lectures"}
             </TabsTrigger>
             <TabsTrigger value="browse" className="gap-1.5">
-              <BarChart3 className="w-4 h-4" />{isRtl ? "تصفّح الدورات" : "Browse Courses"}
+              <BarChart3 className="w-4 h-4" />{isRtl ? "تصفّح الدورات" : "Browse"}
             </TabsTrigger>
             <TabsTrigger value="live" className="gap-1.5">
-              <Radio className="w-4 h-4" />{isRtl ? "بث مباشر" : "Live Streams"}
+              <Radio className="w-4 h-4" />{isRtl ? "بث مباشر" : "Live"}
             </TabsTrigger>
             <TabsTrigger value="assignments" className="gap-1.5">
-              <Award className="w-4 h-4" />{isRtl ? "التكليفات" : "Assignments"}
+              <Award className="w-4 h-4" />{isRtl ? "الاختبارات" : "Tests"}
+            </TabsTrigger>
+            <TabsTrigger value="rate" className="gap-1.5">
+              <Star className="w-4 h-4" />{isRtl ? "التقييم" : "Rating"}
             </TabsTrigger>
           </TabsList>
 

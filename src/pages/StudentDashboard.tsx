@@ -30,6 +30,11 @@ const StudentDashboard = () => {
   const [liveStreams, setLiveStreams] = useState<any[]>([]);
   const [assignments, setAssignments] = useState<any[]>([]);
   const [submissions, setSubmissions] = useState<any[]>([]);
+  const [ratings, setRatings] = useState<any[]>([]);
+  const [ratingCourseId, setRatingCourseId] = useState<string | null>(null);
+  const [ratingValue, setRatingValue] = useState(0);
+  const [ratingComment, setRatingComment] = useState("");
+  const [savingRating, setSavingRating] = useState(false);
 
   useEffect(() => { checkAuth(); }, []);
 

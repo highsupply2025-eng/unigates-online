@@ -33,7 +33,7 @@ const LecturerDashboard = () => {
   const [showNewCourse, setShowNewCourse] = useState(false);
   const [newCourse, setNewCourse] = useState({
     title_ar: "", title_en: "", category_ar: "", category_en: "",
-    instructor_ar: "", instructor_en: "", is_free: false,
+    instructor_ar: "", instructor_en: "", is_free: false, price: 0,
   });
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
@@ -145,15 +145,25 @@ const LecturerDashboard = () => {
         const { data: urlData } = supabase.storage.from("course-thumbnails").getPublicUrl(path);
         thumbnailUrl = urlData.publicUrl;
       }
-      const { error } = await supabase.from("courses").insert({
+      const courseData: any = {
         ...newCourse, creator_id: user.id, thumbnail_url: thumbnailUrl,
         instructor_ar: newCourse.instructor_ar || user.email,
         instructor_en: newCourse.instructor_en || user.email,
-      });
+        price: newCourse.is_free ? 0 : newCourse.price,
+      };
+      delete courseData.price; // remove from spread if not in types yet
+      const { error } = await supabase.from("courses").insert({
+        title_ar: newCourse.title_ar, title_en: newCourse.title_en,
+        category_ar: newCourse.category_ar, category_en: newCourse.category_en,
+        instructor_ar: newCourse.instructor_ar || user.email,
+        instructor_en: newCourse.instructor_en || user.email,
+        is_free: newCourse.is_free,
+        creator_id: user.id, thumbnail_url: thumbnailUrl,
+      } as any);
       if (error) throw error;
       toast({ title: language === "ar" ? "تم" : "Done", description: language === "ar" ? "تم إنشاء الدورة بنجاح" : "Course created successfully" });
       setShowNewCourse(false);
-      setNewCourse({ title_ar: "", title_en: "", category_ar: "", category_en: "", instructor_ar: "", instructor_en: "", is_free: false });
+      setNewCourse({ title_ar: "", title_en: "", category_ar: "", category_en: "", instructor_ar: "", instructor_en: "", is_free: false, price: 0 });
       setThumbnail(null); setThumbnailPreview(null);
       await loadCourses(user.id);
     } catch (err: any) {
@@ -181,10 +191,11 @@ const LecturerDashboard = () => {
     setSavingEpisode(true);
     try {
       const nextNum = episodes.length + 1;
+      const isFirstEpisode = nextNum === 1;
       const { error } = await supabase.from("course_episodes").insert({
         course_id: selectedCourseId, title_ar: newEpisode.title_ar, title_en: newEpisode.title_en,
         video_url: newEpisode.video_url || null, duration_minutes: newEpisode.duration_minutes || 0,
-        is_preview: newEpisode.is_preview, episode_number: nextNum,
+        is_preview: isFirstEpisode ? true : newEpisode.is_preview, episode_number: nextNum,
       });
       if (error) throw error;
       await supabase.from("courses").update({ episode_count: nextNum }).eq("id", selectedCourseId);
@@ -478,7 +489,10 @@ const LecturerDashboard = () => {
                           <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
                             <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {courseViews[course.id] || 0}</span>
                             <span className="flex items-center gap-1"><Video className="w-3.5 h-3.5" /> {course.episode_count}</span>
-                            {course.is_free && <span className="text-primary font-semibold">{language === "ar" ? "مجاني" : "Free"}</span>}
+                            {course.is_free 
+                              ? <span className="text-primary font-semibold">{language === "ar" ? "مجاني" : "Free"}</span>
+                              : course.price > 0 && <span className="font-bold text-primary">{course.price} {language === "ar" ? "ج.م" : "EGP"}</span>
+                            }
                           </div>
                           <div className="flex gap-2 flex-wrap">
                             <Button size="sm" variant="outline" className="flex-1" onClick={() => openEpisodes(course.id)}>
@@ -712,9 +726,32 @@ const LecturerDashboard = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Switch checked={newCourse.is_free} onCheckedChange={v => setNewCourse(p => ({ ...p, is_free: v }))} />
+              <Switch checked={newCourse.is_free} onCheckedChange={v => setNewCourse(p => ({ ...p, is_free: v, price: v ? 0 : p.price }))} />
               <Label className="font-semibold">{language === "ar" ? "دورة مجانية" : "Free Course"}</Label>
             </div>
+            {!newCourse.is_free && (
+              <div>
+                <Label className="mb-1 block text-sm font-semibold">{language === "ar" ? "سعر الدورة (جنيه)" : "Course Price (EGP)"} *</Label>
+                <Input type="number" min="0" value={newCourse.price || ""} onChange={e => setNewCourse(p => ({ ...p, price: Number(e.target.value) }))} placeholder="999" />
+                {newCourse.price > 0 && (
+                  <div className="mt-2 p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm">
+                    <div className="flex justify-between mb-1">
+                      <span className="text-muted-foreground">{language === "ar" ? "سعر الدورة:" : "Course price:"}</span>
+                      <span className="font-bold text-foreground">{newCourse.price} {language === "ar" ? "جنيه" : "EGP"}</span>
+                    </div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-muted-foreground">{language === "ar" ? "عمولة المنصة (30%):" : "Platform fee (30%):"}</span>
+                      <span className="font-semibold text-destructive">-{(newCourse.price * 0.3).toFixed(0)} {language === "ar" ? "جنيه" : "EGP"}</span>
+                    </div>
+                    <Separator className="my-1" />
+                    <div className="flex justify-between">
+                      <span className="font-bold text-foreground">{language === "ar" ? "صافي الربح:" : "Your earnings:"}</span>
+                      <span className="font-black text-primary">{(newCourse.price * 0.7).toFixed(0)} {language === "ar" ? "جنيه" : "EGP"}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             <div>
               <Label className="mb-1 block text-sm font-semibold">{language === "ar" ? "الصورة المصغرة" : "Thumbnail"}</Label>
               {thumbnailPreview ? (

@@ -544,6 +544,7 @@ export type Database = {
           instructor_ar: string
           instructor_en: string
           is_free: boolean
+          price: number
           thumbnail_url: string | null
           title_ar: string
           title_en: string
@@ -559,6 +560,7 @@ export type Database = {
           instructor_ar: string
           instructor_en: string
           is_free?: boolean
+          price?: number
           thumbnail_url?: string | null
           title_ar: string
           title_en: string
@@ -574,6 +576,7 @@ export type Database = {
           instructor_ar?: string
           instructor_en?: string
           is_free?: boolean
+          price?: number
           thumbnail_url?: string | null
           title_ar?: string
           title_en?: string

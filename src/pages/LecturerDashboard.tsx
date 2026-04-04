@@ -87,10 +87,18 @@ const LecturerDashboard = () => {
     if (!roles || roles.length === 0) { setApproved(false); setLoading(false); return; }
     setApproved(roles[0].approved);
     if (roles[0].approved) {
-      await loadCourses(user.id);
-      await loadStreams(user.id);
+      await Promise.all([
+        loadCourses(user.id),
+        loadStreams(user.id),
+        loadLecturerRatings(user.id),
+      ]);
     }
     setLoading(false);
+  };
+
+  const loadLecturerRatings = async (userId: string) => {
+    const { data } = await supabase.from("lecturer_ratings").select("*").eq("lecturer_id", userId).order("created_at", { ascending: false });
+    setLecturerRatings(data || []);
   };
 
   const loadCourses = async (userId: string) => {

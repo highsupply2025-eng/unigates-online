@@ -25,9 +25,9 @@ const SchoolPlatform = () => {
   const { data: stats } = usePlatformStats();
 
   const schools = useCountUp(stats?.schools ?? 0);
-  const teachers = useCountUp(stats?.lecturers ?? 0);
-  const schoolStudents = useCountUp(stats?.schoolStudents ?? 0);
-  const courses = useCountUp(stats?.courses ?? 0);
+  const teachers = useCountUp(stats?.teachers ?? 0);
+  const schoolStudents = useCountUp(stats?.students ?? 0);
+  const totalParents = useCountUp(stats?.parents ?? 0);
 
   const statItems = [
     { icon: School, counter: schools, label: isRtl ? "مدرسة" : "School", color: "from-emerald-500 to-teal-400" },

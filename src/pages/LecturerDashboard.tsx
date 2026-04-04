@@ -191,10 +191,11 @@ const LecturerDashboard = () => {
     setSavingEpisode(true);
     try {
       const nextNum = episodes.length + 1;
+      const isFirstEpisode = nextNum === 1;
       const { error } = await supabase.from("course_episodes").insert({
         course_id: selectedCourseId, title_ar: newEpisode.title_ar, title_en: newEpisode.title_en,
         video_url: newEpisode.video_url || null, duration_minutes: newEpisode.duration_minutes || 0,
-        is_preview: newEpisode.is_preview, episode_number: nextNum,
+        is_preview: isFirstEpisode ? true : newEpisode.is_preview, episode_number: nextNum,
       });
       if (error) throw error;
       await supabase.from("courses").update({ episode_count: nextNum }).eq("id", selectedCourseId);

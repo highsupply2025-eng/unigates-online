@@ -604,6 +604,61 @@ const LecturerDashboard = () => {
                   </div>
                 )}
               </TabsContent>
+
+              {/* ===== RATINGS TAB ===== */}
+              <TabsContent value="ratings">
+                <div className="mb-6">
+                  <h2 className="text-xl font-bold text-foreground mb-2">{language === "ar" ? "تقييمات الطلبة" : "Student Ratings"}</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {language === "ar" ? "تقييمات الطلبة لأدائك في الدورات" : "Student ratings for your course performance"}
+                  </p>
+                </div>
+
+                {/* Average Rating Card */}
+                <Card className="mb-6 border-primary/20">
+                  <CardContent className="p-6 text-center">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      {[1, 2, 3, 4, 5].map(star => {
+                        const avg = lecturerRatings.length > 0 ? lecturerRatings.reduce((a, r) => a + r.rating, 0) / lecturerRatings.length : 0;
+                        return <Star key={star} className={`w-8 h-8 ${star <= Math.round(avg) ? "text-amber-400 fill-amber-400" : "text-muted-foreground/20"}`} />;
+                      })}
+                    </div>
+                    <p className="text-3xl font-black text-foreground">
+                      {lecturerRatings.length > 0 ? (lecturerRatings.reduce((a, r) => a + r.rating, 0) / lecturerRatings.length).toFixed(1) : "—"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">{lecturerRatings.length} {language === "ar" ? "تقييم" : "ratings"}</p>
+                  </CardContent>
+                </Card>
+
+                {lecturerRatings.length === 0 ? (
+                  <div className="text-center py-16">
+                    <Star className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                    <p className="text-lg text-muted-foreground">{language === "ar" ? "لا توجد تقييمات بعد" : "No ratings yet"}</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-3">
+                    {lecturerRatings.map(rating => (
+                      <Card key={rating.id}>
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <div className="flex items-center gap-1 mb-1">
+                                {[1, 2, 3, 4, 5].map(star => (
+                                  <Star key={star} className={`w-4 h-4 ${star <= rating.rating ? "text-amber-400 fill-amber-400" : "text-muted-foreground/20"}`} />
+                                ))}
+                              </div>
+                              {rating.comment && <p className="text-sm text-foreground mt-1">{rating.comment}</p>}
+                              <p className="text-xs text-muted-foreground mt-2">
+                                {new Date(rating.created_at).toLocaleDateString(language === "ar" ? "ar-EG" : "en-US")}
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
             </Tabs>
           </>
         )}

@@ -536,7 +536,7 @@ const Signup = () => {
               <Button
                 size="lg"
                 className="w-full h-14 text-lg font-bold gap-2 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] hover:from-primary/90 hover:to-[hsl(200,75%,25%)] shadow-lg shadow-primary/25"
-                disabled={!fullName || !email || !password || !confirmPassword || password !== confirmPassword || !phone || !invitationCode || loading}
+                disabled={!fullName || !email || !password || !confirmPassword || password !== confirmPassword || !phone || (isLecturer && !invitationCode) || loading}
                 onClick={handleSubmit}
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowIcon className="w-5 h-5" />}

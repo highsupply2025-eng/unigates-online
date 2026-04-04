@@ -51,8 +51,35 @@ const StudentDashboard = () => {
       loadProgress(user.id),
       loadLiveStreams(),
       loadSubmissions(user.id),
+      loadRatings(user.id),
     ]);
     setLoading(false);
+  };
+
+  const loadRatings = async (userId: string) => {
+    const { data } = await supabase.from("lecturer_ratings").select("*").eq("student_id", userId);
+    setRatings(data || []);
+  };
+
+  const handleSubmitRating = async () => {
+    if (!user || !ratingCourseId || ratingValue === 0) return;
+    setSavingRating(true);
+    try {
+      const course = courses.find(c => c.id === ratingCourseId);
+      const { error } = await supabase.from("lecturer_ratings").upsert({
+        student_id: user.id,
+        lecturer_id: course?.creator_id || user.id,
+        course_id: ratingCourseId,
+        rating: ratingValue,
+        comment: ratingComment || null,
+      }, { onConflict: "student_id,course_id" });
+      if (error) throw error;
+      toast({ title: isRtl ? "تم" : "Done", description: isRtl ? "تم إرسال التقييم بنجاح" : "Rating submitted" });
+      setRatingCourseId(null); setRatingValue(0); setRatingComment("");
+      await loadRatings(user.id);
+    } catch (err: any) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
+    } finally { setSavingRating(false); }
   };
 
   const loadSubscriptions = async (userId: string) => {

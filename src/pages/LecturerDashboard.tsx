@@ -75,6 +75,7 @@ const LecturerDashboard = () => {
   const [gradingId, setGradingId] = useState<string | null>(null);
   const [gradeValue, setGradeValue] = useState("");
   const [feedbackValue, setFeedbackValue] = useState("");
+  const [lecturerRatings, setLecturerRatings] = useState<any[]>([]);
 
   useEffect(() => { checkAuth(); }, []);
 

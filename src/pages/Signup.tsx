@@ -373,39 +373,30 @@ const Signup = () => {
                 </div>
               </div>
 
-              <div className={`grid grid-cols-1 ${isLecturer ? 'md:grid-cols-2' : ''} gap-4`}>
-                <div>
-                  <Label htmlFor="email" className="mb-2 block font-bold text-primary">{t.signupPage.email} <span className="text-destructive">{t.signupPage.required}</span></Label>
-                  <Input id="email" type="email" placeholder={t.signupPage.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
-                </div>
-                {isLecturer && (
-                  <div>
-                    <Label htmlFor="invitationCode" className="mb-2 block font-bold text-primary">
-                      <Ticket className="w-4 h-4 inline me-1 text-primary" />
-                      {language === "ar" ? "كود الدعوة" : "Invitation Code"} <span className="text-destructive">{t.signupPage.required}</span>
-                    </Label>
-                    <Input id="invitationCode" placeholder={language === "ar" ? "أدخل كود الدعوة" : "Enter invitation code"} value={invitationCode} onChange={(e) => setInvitationCode(e.target.value)} className="h-12 tracking-widest font-mono text-center uppercase border-2 border-primary/20 focus:border-primary" dir="ltr" />
-                  </div>
-                )}
+              <div>
+                <Label htmlFor="email" className="mb-2 block font-bold text-primary">{t.signupPage.email} <span className="text-destructive">{t.signupPage.required}</span></Label>
+                <Input id="email" type="email" placeholder={t.signupPage.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
               </div>
 
-              {/* Student free notice */}
-              {!isLecturer && (
-                <div className="rounded-xl border-2 border-green-500/30 bg-green-500/5 p-4 text-center">
-                  <p className="text-sm font-bold text-green-700 dark:text-green-400">
-                    🎓 {language === "ar" ? "حساب الطالب مجاني بالكامل — سجّل الآن واستفد من جميع الدورات!" : "Student account is completely free — Sign up now and access all courses!"}
+              {/* Free account notice for both */}
+              <div className="rounded-xl border-2 border-primary/30 bg-primary/5 p-4 text-center">
+                <p className="text-sm font-bold text-primary">
+                  🎓 {language === "ar" 
+                    ? (isLecturer 
+                      ? "التسجيل مجاني — حسابك يخضع لمراجعة المنصة قبل التفعيل" 
+                      : "حساب الطالب مجاني بالكامل — سجّل الآن واستفد من جميع الدورات!")
+                    : (isLecturer 
+                      ? "Registration is free — Your account requires platform review before activation" 
+                      : "Student account is completely free — Sign up now and access all courses!")}
+                </p>
+                {isLecturer && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {language === "ar" 
+                      ? "يتم خصم 30% من سعر كل دورة لصالح المنصة عند اشتراك الطلاب" 
+                      : "30% platform commission is deducted from each course subscription"}
                   </p>
-                </div>
-              )}
-
-              {/* Lecturer review notice */}
-              {isLecturer && (
-                <div className="rounded-xl border-2 border-amber-500/30 bg-amber-500/5 p-4 text-center">
-                  <p className="text-sm font-bold text-amber-700 dark:text-amber-400">
-                    ⚠️ {language === "ar" ? "حساب المحاضر يخضع لمراجعة المنصة قبل التفعيل" : "Lecturer account requires platform review before activation"}
-                  </p>
-                </div>
-              )}
+                )}
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>

@@ -83,6 +83,9 @@ const App = () => (
               <Route path="/school-platform/register" element={<ComingSoon />} />
               <Route path="/school-platform/login" element={<ComingSoon />} />
               <Route path="/school-platform/signup" element={<ComingSoon />} />
+              <Route path="/school/student/dashboard" element={<SchoolStudentDashboard />} />
+              <Route path="/school/teacher/dashboard" element={<SchoolTeacherDashboard />} />
+              <Route path="/school/dashboard" element={<SchoolDashboard />} />
               {/* University Platform */}
               <Route path="/university-platform" element={<UniversityPlatform />} />
               <Route path="/signup/college" element={<CollegeRegistration />} />

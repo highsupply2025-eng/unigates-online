@@ -722,9 +722,32 @@ const LecturerDashboard = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Switch checked={newCourse.is_free} onCheckedChange={v => setNewCourse(p => ({ ...p, is_free: v }))} />
+              <Switch checked={newCourse.is_free} onCheckedChange={v => setNewCourse(p => ({ ...p, is_free: v, price: v ? 0 : p.price }))} />
               <Label className="font-semibold">{language === "ar" ? "دورة مجانية" : "Free Course"}</Label>
             </div>
+            {!newCourse.is_free && (
+              <div>
+                <Label className="mb-1 block text-sm font-semibold">{language === "ar" ? "سعر الدورة (جنيه)" : "Course Price (EGP)"} *</Label>
+                <Input type="number" min="0" value={newCourse.price || ""} onChange={e => setNewCourse(p => ({ ...p, price: Number(e.target.value) }))} placeholder="999" />
+                {newCourse.price > 0 && (
+                  <div className="mt-2 p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm">
+                    <div className="flex justify-between mb-1">
+                      <span className="text-muted-foreground">{language === "ar" ? "سعر الدورة:" : "Course price:"}</span>
+                      <span className="font-bold text-foreground">{newCourse.price} {language === "ar" ? "جنيه" : "EGP"}</span>
+                    </div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-muted-foreground">{language === "ar" ? "عمولة المنصة (30%):" : "Platform fee (30%):"}</span>
+                      <span className="font-semibold text-destructive">-{(newCourse.price * 0.3).toFixed(0)} {language === "ar" ? "جنيه" : "EGP"}</span>
+                    </div>
+                    <Separator className="my-1" />
+                    <div className="flex justify-between">
+                      <span className="font-bold text-foreground">{language === "ar" ? "صافي الربح:" : "Your earnings:"}</span>
+                      <span className="font-black text-primary">{(newCourse.price * 0.7).toFixed(0)} {language === "ar" ? "جنيه" : "EGP"}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             <div>
               <Label className="mb-1 block text-sm font-semibold">{language === "ar" ? "الصورة المصغرة" : "Thumbnail"}</Label>
               {thumbnailPreview ? (

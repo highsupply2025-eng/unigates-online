@@ -419,6 +419,73 @@ const StudentDashboard = () => {
               </div>
             )}
           </TabsContent>
+
+          {/* Rate Lecturer */}
+          <TabsContent value="rate">
+            {subscribedCourses.length === 0 ? (
+              <div className="text-center py-16">
+                <Star className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                <p className="text-lg text-muted-foreground">{isRtl ? "اشترك في دورة أولاً لتقييم المحاضر" : "Subscribe to a course first to rate a lecturer"}</p>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {subscribedCourses.map(course => {
+                  const existingRating = ratings.find(r => r.course_id === course.id);
+                  return (
+                    <Card key={course.id} className="overflow-hidden">
+                      <CardContent className="p-5">
+                        <div className="flex items-start justify-between gap-4 mb-3">
+                          <div>
+                            <h3 className="font-bold text-foreground">{isRtl ? course.title_ar : course.title_en}</h3>
+                            <p className="text-sm text-muted-foreground">{isRtl ? course.instructor_ar : course.instructor_en}</p>
+                          </div>
+                          {existingRating && (
+                            <Badge className="bg-green-100 text-green-700 border-green-300 gap-1">
+                              <Star className="w-3 h-3 fill-current" /> {existingRating.rating}/5
+                            </Badge>
+                          )}
+                        </div>
+                        {ratingCourseId === course.id ? (
+                          <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+                            <div className="flex items-center gap-2 justify-center">
+                              {[1, 2, 3, 4, 5].map(star => (
+                                <button key={star} type="button" onClick={() => setRatingValue(star)} className="transition-transform hover:scale-110">
+                                  <Star className={`w-8 h-8 ${star <= ratingValue ? "text-amber-400 fill-amber-400" : "text-muted-foreground/30"}`} />
+                                </button>
+                              ))}
+                            </div>
+                            <textarea
+                              placeholder={isRtl ? "اكتب تعليقك (اختياري)..." : "Write your comment (optional)..."}
+                              value={ratingComment}
+                              onChange={e => setRatingComment(e.target.value)}
+                              className="w-full rounded-lg border border-border bg-background p-3 text-sm min-h-[80px] resize-none"
+                            />
+                            <div className="flex gap-2">
+                              <Button size="sm" onClick={handleSubmitRating} disabled={savingRating || ratingValue === 0}>
+                                {isRtl ? "إرسال التقييم" : "Submit Rating"}
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={() => { setRatingCourseId(null); setRatingValue(0); setRatingComment(""); }}>
+                                {isRtl ? "إلغاء" : "Cancel"}
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <Button size="sm" variant="outline" className="gap-1.5" onClick={() => {
+                            setRatingCourseId(course.id);
+                            setRatingValue(existingRating?.rating || 0);
+                            setRatingComment(existingRating?.comment || "");
+                          }}>
+                            <Star className="w-4 h-4" />
+                            {existingRating ? (isRtl ? "تعديل التقييم" : "Edit Rating") : (isRtl ? "قيّم المحاضر" : "Rate Lecturer")}
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
       </main>
     </div>

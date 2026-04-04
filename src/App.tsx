@@ -38,6 +38,10 @@ const FAQ = lazy(() => import("./pages/FAQ"));
 const SchoolStudentDashboard = lazy(() => import("./pages/SchoolStudentDashboard"));
 const SchoolTeacherDashboard = lazy(() => import("./pages/SchoolTeacherDashboard"));
 const SchoolDashboard = lazy(() => import("./pages/SchoolDashboard"));
+const SchoolPlatform = lazy(() => import("./pages/SchoolPlatform"));
+const SchoolLogin = lazy(() => import("./pages/SchoolLogin"));
+const SchoolSignup = lazy(() => import("./pages/SchoolSignup"));
+const SchoolRegistration = lazy(() => import("./pages/SchoolRegistration"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -79,10 +83,10 @@ const App = () => (
               <Route path="/book-store/login" element={<ComingSoon />} />
               <Route path="/book-store/signup" element={<ComingSoon />} />
               {/* School Platform */}
-              <Route path="/school-platform" element={<ComingSoon />} />
-              <Route path="/school-platform/register" element={<ComingSoon />} />
-              <Route path="/school-platform/login" element={<ComingSoon />} />
-              <Route path="/school-platform/signup" element={<ComingSoon />} />
+              <Route path="/school-platform" element={<SchoolPlatform />} />
+              <Route path="/school-platform/register" element={<SchoolRegistration />} />
+              <Route path="/school-platform/login" element={<SchoolLogin />} />
+              <Route path="/school-platform/signup" element={<SchoolSignup />} />
               <Route path="/school/student/dashboard" element={<SchoolStudentDashboard />} />
               <Route path="/school/teacher/dashboard" element={<SchoolTeacherDashboard />} />
               <Route path="/school/dashboard" element={<SchoolDashboard />} />

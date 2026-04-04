@@ -141,8 +141,7 @@ const Signup = () => {
 
   const handleSubmit = async () => {
     const baseFieldsMissing = !selectedRole || !fullName || !email || !password || !phone;
-    // Invitation code is only required for lecturers
-    if (baseFieldsMissing || (isLecturer && !invitationCode)) {
+    if (baseFieldsMissing) {
       toast({ title: t.signupPage.errorGeneric, description: t.signupPage.errorFillFields, variant: "destructive" });
       return;
     }

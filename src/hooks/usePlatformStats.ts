@@ -21,7 +21,7 @@ export const usePlatformStats = () => {
         studentsRes, schoolStudentsRes, lecturersRes, collegesRes, institutesRes,
         schoolsRes, publishersRes, teachersRes, parentsRes
       ] = await Promise.all([
-        supabase.rpc("get_profile_count_by_role", { _role: "student" }),
+        supabase.rpc("get_profile_count_by_role", { _role: "personal" }),
         supabase.rpc("get_profile_count_by_role", { _role: "school_student" }),
         supabase.rpc("get_profile_count_by_role", { _role: "lecturer" }),
         supabase.from("approved_colleges_public").select("id", { count: "exact", head: true }),

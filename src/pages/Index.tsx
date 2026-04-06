@@ -26,8 +26,7 @@ const Index = () => {
       <div className="divide-y divide-border/40">
         <RegisteredUniversitiesSection />
         <RegisteredSchoolsSection />
-        <TrendingCourses />
-        <HomeBooksSection />
+        <HomeBookStoreSection />
         <FeaturesSection />
       </div>
 

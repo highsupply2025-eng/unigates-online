@@ -1,11 +1,9 @@
 import SiteHeader from "@/components/SiteHeader";
 import HeroSection from "@/components/HeroSection";
-import TrendingCourses from "@/components/TrendingCourses";
 import FeaturesSection from "@/components/FeaturesSection";
 import SiteFooter from "@/components/SiteFooter";
 import StatsSection from "@/components/StatsSection";
-import HomeBooksSection from "@/components/HomeBooksSection";
-import RegisteredSchoolsSection from "@/components/RegisteredSchoolsSection";
+import HomeBookStoreSection from "@/components/HomeBookStoreSection";
 import RegisteredUniversitiesSection from "@/components/RegisteredUniversitiesSection";
 
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -25,9 +23,7 @@ const Index = () => {
 
       <div className="divide-y divide-border/40">
         <RegisteredUniversitiesSection />
-        <RegisteredSchoolsSection />
-        <TrendingCourses />
-        <HomeBooksSection />
+        <HomeBookStoreSection />
         <FeaturesSection />
       </div>
 

@@ -57,7 +57,7 @@ const Terms = () => {
       sections: [
         {
           title: "1. Introduction",
-          text: "Welcome to the UNIGATES educational platform by Dar Obaid Publishing, Distribution & Printing LLC. By using this platform, you agree to comply with these terms and conditions. Please read them carefully before using the platform.",
+          text: "Welcome to the Unified Education Gate platform by Dar Obaid Publishing, Distribution & Printing LLC. By using this platform, you agree to comply with these terms and conditions. Please read them carefully before using the platform.",
         },
         {
           title: "2. Definitions",

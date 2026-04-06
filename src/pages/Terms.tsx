@@ -61,7 +61,7 @@ const Terms = () => {
         },
         {
           title: "2. Definitions",
-          text: "\"Platform\" refers to the UNIGATES website and applications. \"User\" refers to anyone using the platform, whether a student, lecturer, or educational institution. \"Content\" includes all educational materials, courses, books, and live streams available on the platform.",
+          text: "\"Platform\" refers to the Unified Education Gate website and applications. \"User\" refers to anyone using the platform, whether a student, lecturer, or educational institution. \"Content\" includes all educational materials, courses, books, and live streams available on the platform.",
         },
         {
           title: "3. Registration and Account",

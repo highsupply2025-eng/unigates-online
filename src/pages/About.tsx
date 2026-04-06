@@ -12,8 +12,8 @@ const About = () => {
   const content = {
     ar: {
       title: "عن المنصة",
-      subtitle: "UNIGATES - بوابتك نحو مستقبل التعليم الرقمي",
-      intro: "منصة UNIGATES هي منصة تعليمية رقمية متكاملة تابعة لدار عبيد للنشر والتوزيع والطباعة، تهدف إلى تطوير التعليم الأكاديمي والمهني في العالم العربي من خلال تقديم حلول تقنية مبتكرة للمؤسسات التعليمية والطلاب والمحاضرين.",
+      subtitle: "البوابة التعليمية الموحدة - بوابتك نحو مستقبل التعليم الرقمي",
+      intro: "البوابة التعليمية الموحدة هي منصة تعليمية رقمية متكاملة تابعة لدار عبيد للنشر والتوزيع والطباعة، تهدف إلى تطوير التعليم الأكاديمي والمهني في العالم العربي من خلال تقديم حلول تقنية مبتكرة للمؤسسات التعليمية والطلاب والمحاضرين.",
       mission: "رسالتنا",
       missionText: "تمكين المؤسسات التعليمية من التحول الرقمي الكامل، وتوفير بيئة تعليمية تفاعلية عالية الجودة تجمع بين المحتوى الأكاديمي المتميز والتقنيات الحديثة.",
       vision: "رؤيتنا",
@@ -37,8 +37,8 @@ const About = () => {
     },
     en: {
       title: "About Us",
-      subtitle: "UNIGATES - Your Gateway to Digital Education",
-      intro: "UNIGATES is a comprehensive digital educational platform by Dar Obaid Publishing, Distribution & Printing, aimed at developing academic and professional education in the Arab world through innovative technological solutions for educational institutions, students, and lecturers.",
+      subtitle: "Unified Education Gate - Your Gateway to Digital Education",
+      intro: "Unified Education Gate is a comprehensive digital educational platform by Dar Obaid Publishing, Distribution & Printing, aimed at developing academic and professional education in the Arab world through innovative technological solutions for educational institutions, students, and lecturers.",
       mission: "Our Mission",
       missionText: "Empowering educational institutions with complete digital transformation, providing a high-quality interactive learning environment that combines distinguished academic content with modern technologies.",
       vision: "Our Vision",

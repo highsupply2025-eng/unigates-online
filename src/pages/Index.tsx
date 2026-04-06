@@ -1,10 +1,9 @@
 import SiteHeader from "@/components/SiteHeader";
 import HeroSection from "@/components/HeroSection";
-import TrendingCourses from "@/components/TrendingCourses";
 import FeaturesSection from "@/components/FeaturesSection";
 import SiteFooter from "@/components/SiteFooter";
 import StatsSection from "@/components/StatsSection";
-import HomeBooksSection from "@/components/HomeBooksSection";
+import HomeBookStoreSection from "@/components/HomeBookStoreSection";
 import RegisteredSchoolsSection from "@/components/RegisteredSchoolsSection";
 import RegisteredUniversitiesSection from "@/components/RegisteredUniversitiesSection";
 

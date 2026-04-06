@@ -4,7 +4,6 @@ import FeaturesSection from "@/components/FeaturesSection";
 import SiteFooter from "@/components/SiteFooter";
 import StatsSection from "@/components/StatsSection";
 import HomeBookStoreSection from "@/components/HomeBookStoreSection";
-import RegisteredSchoolsSection from "@/components/RegisteredSchoolsSection";
 import RegisteredUniversitiesSection from "@/components/RegisteredUniversitiesSection";
 
 import { useLanguage } from "@/contexts/LanguageContext";

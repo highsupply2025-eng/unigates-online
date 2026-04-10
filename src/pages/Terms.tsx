@@ -15,11 +15,11 @@ const Terms = () => {
       sections: [
         {
           title: "1. مقدمة",
-          text: "مرحباً بك في البوابة التعليمية الموحدة التابعة لدار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م. باستخدامك لهذه المنصة، فإنك توافق على الالتزام بهذه الشروط والأحكام. يرجى قراءتها بعناية قبل استخدام المنصة.",
+          text: "مرحباً بك في UNIGATES التابعة لدار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م. باستخدامك لهذه المنصة، فإنك توافق على الالتزام بهذه الشروط والأحكام. يرجى قراءتها بعناية قبل استخدام المنصة.",
         },
         {
           title: "2. تعريفات",
-          text: "\"المنصة\" تشير إلى موقع البوابة التعليمية الموحدة الإلكتروني وتطبيقاته. \"المستخدم\" يشير إلى أي شخص يستخدم المنصة سواء كان طالباً أو محاضراً أو مؤسسة تعليمية. \"المحتوى\" يشمل جميع المواد التعليمية والدورات والكتب والبث المباشر المتاحة على المنصة.",
+          text: "\"المنصة\" تشير إلى موقع UNIGATES الإلكتروني وتطبيقاته. \"المستخدم\" يشير إلى أي شخص يستخدم المنصة سواء كان طالباً أو محاضراً أو مؤسسة تعليمية. \"المحتوى\" يشمل جميع المواد التعليمية والدورات والكتب والبث المباشر المتاحة على المنصة.",
         },
         {
           title: "3. التسجيل والحساب",
@@ -57,11 +57,11 @@ const Terms = () => {
       sections: [
         {
           title: "1. Introduction",
-          text: "Welcome to the Unified Education Gate platform by Dar Obaid Publishing, Distribution & Printing LLC. By using this platform, you agree to comply with these terms and conditions. Please read them carefully before using the platform.",
+          text: "Welcome to the UNIGATES platform by Dar Obaid Publishing, Distribution & Printing LLC. By using this platform, you agree to comply with these terms and conditions. Please read them carefully before using the platform.",
         },
         {
           title: "2. Definitions",
-          text: "\"Platform\" refers to the Unified Education Gate website and applications. \"User\" refers to anyone using the platform, whether a student, lecturer, or educational institution. \"Content\" includes all educational materials, courses, books, and live streams available on the platform.",
+          text: "\"Platform\" refers to the UNIGATES website and applications. \"User\" refers to anyone using the platform, whether a student, lecturer, or educational institution. \"Content\" includes all educational materials, courses, books, and live streams available on the platform.",
         },
         {
           title: "3. Registration and Account",

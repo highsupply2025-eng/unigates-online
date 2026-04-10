@@ -4,15 +4,6 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState } from "react";
 
-const iconStyles: Record<string, { bg: string; text: string; border: string; glow: string }> = {
-  "/university-platform": { bg: "bg-blue-600/25", text: "text-blue-400", border: "border-blue-400/50", glow: "shadow-[0_0_12px_rgba(59,130,246,0.5)]" },
-  "/school-platform": { bg: "bg-emerald-600/25", text: "text-emerald-400", border: "border-emerald-400/50", glow: "shadow-[0_0_12px_rgba(52,211,153,0.5)]" },
-  "/courses": { bg: "bg-violet-600/25", text: "text-violet-400", border: "border-violet-400/50", glow: "shadow-[0_0_12px_rgba(167,139,250,0.5)]" },
-  "/book-store": { bg: "bg-amber-600/25", text: "text-amber-400", border: "border-amber-400/50", glow: "shadow-[0_0_12px_rgba(251,191,36,0.5)]" },
-  "/login": { bg: "bg-cyan-600/25", text: "text-cyan-400", border: "border-cyan-400/50", glow: "shadow-[0_0_12px_rgba(34,211,238,0.5)]" },
-  "/signup": { bg: "bg-rose-600/25", text: "text-rose-400", border: "border-rose-400/50", glow: "shadow-[0_0_12px_rgba(251,113,133,0.5)]" },
-};
-
 const SiteHeader = () => {
   const { t, toggleLanguage, dir } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -68,42 +59,66 @@ const SiteHeader = () => {
         </button>
       </div>
 
-      {/* Mobile menu dropdown */}
+      {/* Mobile menu - semi-transparent slide from left */}
       {menuOpen && (
-        <div className="md:hidden bg-background/98 backdrop-blur-xl border-b border-border/50 shadow-2xl animate-in slide-in-from-top-2 duration-300">
-          <nav className="flex flex-col gap-1.5 px-4 py-4">
-            {navItems.map((item) => {
-              const IconComp = item.icon;
-              const style = iconStyles[item.to] || { bg: "bg-primary/25", text: "text-primary", border: "border-primary/50", glow: "shadow-[0_0_12px_rgba(20,184,166,0.5)]" };
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold text-foreground hover:bg-accent/60 active:scale-[0.98] transition-all duration-200 group"
-                >
-                  <div className={`w-10 h-10 rounded-xl ${style.bg} border-2 ${style.border} ${style.glow} flex items-center justify-center transition-all group-hover:scale-110 group-hover:shadow-lg duration-200`}>
-                    <IconComp className={`w-5 h-5 ${style.text} drop-shadow-sm`} strokeWidth={2.5} />
-                  </div>
-                  <span className={`tracking-wide text-base ${style.text} font-extrabold drop-shadow-sm`}>{item.label}</span>
-                </Link>
-              );
-            })}
-            <div className="border-t border-border/40 my-1" />
-            <button
-              onClick={() => {
-                toggleLanguage();
-                setMenuOpen(false);
-              }}
-              className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold text-foreground hover:bg-accent/60 active:scale-[0.98] transition-all duration-200 group"
-            >
-              <div className="w-10 h-10 rounded-xl bg-primary/25 border-2 border-primary/50 shadow-[0_0_12px_rgba(20,184,166,0.5)] flex items-center justify-center transition-all group-hover:scale-110 group-hover:shadow-lg duration-200">
-                <Globe className="w-5 h-5 text-primary drop-shadow-sm" strokeWidth={2.5} />
+        <>
+          {/* Overlay - subtle, doesn't fully hide background */}
+          <div
+            className="fixed inset-0 bg-black/20 z-40 md:hidden"
+            onClick={() => setMenuOpen(false)}
+          />
+          {/* Menu panel */}
+          <div className={`fixed top-0 ${dir === 'rtl' ? 'right-0' : 'left-0'} h-full w-72 z-50 md:hidden bg-background/90 backdrop-blur-md border-${dir === 'rtl' ? 'l' : 'r'} border-border/30 shadow-2xl animate-in ${dir === 'rtl' ? 'slide-in-from-right' : 'slide-in-from-left'} duration-300`}>
+            {/* Menu header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border/20">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
+                  <GraduationCap className="w-5 h-5 text-primary-foreground" />
+                </div>
+                <span className="text-lg font-bold text-foreground">{t.brandName}</span>
               </div>
-              <span className="tracking-wide">{t.langSwitch}</span>
-            </button>
-          </nav>
-        </div>
+              <button
+                onClick={() => setMenuOpen(false)}
+                className="p-1.5 rounded-lg hover:bg-accent/50 transition-colors"
+              >
+                <X className="w-5 h-5 text-muted-foreground" />
+              </button>
+            </div>
+
+            {/* Nav items */}
+            <nav className="flex flex-col gap-1 px-3 py-3">
+              {navItems.map((item) => {
+                const IconComp = item.icon;
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 px-3 py-3 rounded-lg text-foreground hover:bg-primary/10 active:scale-[0.98] transition-all duration-200 group"
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-primary/15 flex items-center justify-center group-hover:bg-primary/25 transition-colors">
+                      <IconComp className="w-5 h-5 text-primary" strokeWidth={2} />
+                    </div>
+                    <span className="text-sm font-semibold">{item.label}</span>
+                  </Link>
+                );
+              })}
+              <div className="border-t border-border/20 my-1.5" />
+              <button
+                onClick={() => {
+                  toggleLanguage();
+                  setMenuOpen(false);
+                }}
+                className="flex items-center gap-3 px-3 py-3 rounded-lg text-foreground hover:bg-primary/10 active:scale-[0.98] transition-all duration-200 group"
+              >
+                <div className="w-9 h-9 rounded-lg bg-primary/15 flex items-center justify-center group-hover:bg-primary/25 transition-colors">
+                  <Globe className="w-5 h-5 text-primary" strokeWidth={2} />
+                </div>
+                <span className="text-sm font-semibold">{t.langSwitch}</span>
+              </button>
+            </nav>
+          </div>
+        </>
       )}
     </header>
   );

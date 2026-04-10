@@ -212,7 +212,7 @@ const Signup = () => {
             .eq("id", (deptMember as any).id);
         } else {
           // Try college invitation code via secure RPC
-          const { data: verifyResult } = await supabase.rpc("verify_invitation_code", { p_code: invitationCode });
+          const { data: verifyResult } = await supabase.rpc("verify_invitation_code" as any, { p_code: invitationCode });
           
           if (verifyResult && (verifyResult as any).valid) {
             const result = verifyResult as any;

@@ -85,7 +85,7 @@ const SiteHeader = () => {
                   <div className={`w-10 h-10 rounded-xl ${style.bg} border-2 ${style.border} ${style.glow} flex items-center justify-center transition-all group-hover:scale-110 group-hover:shadow-lg duration-200`}>
                     <IconComp className={`w-5 h-5 ${style.text} drop-shadow-sm`} strokeWidth={2.5} />
                   </div>
-                  <span className="tracking-wide">{item.label}</span>
+                  <span className={`tracking-wide text-base ${style.text} font-extrabold drop-shadow-sm`}>{item.label}</span>
                 </Link>
               );
             })}

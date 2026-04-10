@@ -3,7 +3,7 @@ import { HelpCircle, MessageCircle, Mail, Phone, BookOpen, Users, CreditCard, Se
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import SiteHeader from "@/components/SiteHeader";
+import SimpleHeader from "@/components/SimpleHeader";
 import SiteFooter from "@/components/SiteFooter";
 
 const HelpCenter = () => {
@@ -63,7 +63,7 @@ const HelpCenter = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <SiteHeader />
+      <SimpleHeader />
 
       <main className="flex-1">
         <section className="bg-gradient-to-br from-primary/10 to-primary/5 py-16 px-6">

@@ -4,6 +4,7 @@ import FeaturesSection from "@/components/FeaturesSection";
 import SiteFooter from "@/components/SiteFooter";
 import StatsSection from "@/components/StatsSection";
 import HomepageSections from "@/components/HomepageSections";
+import FAQSection from "@/components/FAQSection";
 
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -26,9 +27,14 @@ const Index = () => {
         <FeaturesSection />
       </div>
 
+      <div id="faq">
+        <FAQSection />
+      </div>
+
       <SiteFooter />
     </div>
   );
+};
 };
 
 export default Index;

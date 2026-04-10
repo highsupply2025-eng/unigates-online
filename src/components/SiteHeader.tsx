@@ -82,7 +82,7 @@ const SiteHeader = () => {
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold text-foreground hover:bg-accent/60 active:scale-[0.98] transition-all duration-200 group"
                 >
-                  <div className={`w-10 h-10 rounded-xl ${style.bg} border-2 ${style.border} flex items-center justify-center shadow-sm transition-transform group-hover:scale-110 duration-200`}>
+                  <div className={`w-10 h-10 rounded-xl ${style.bg} border-2 ${style.border} ${style.glow} flex items-center justify-center transition-all group-hover:scale-110 group-hover:shadow-lg duration-200`}>
                     <IconComp className={`w-5 h-5 ${style.text} drop-shadow-sm`} strokeWidth={2.5} />
                   </div>
                   <span className="tracking-wide">{item.label}</span>

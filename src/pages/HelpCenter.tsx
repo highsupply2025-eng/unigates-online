@@ -3,7 +3,7 @@ import { HelpCircle, MessageCircle, Mail, Phone, BookOpen, Users, CreditCard, Se
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import SimpleHeader from "@/components/SimpleHeader";
+import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 
 const HelpCenter = () => {

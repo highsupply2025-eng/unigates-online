@@ -1,6 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HelpCircle, GraduationCap, CreditCard, BookOpen, Shield, Users, Monitor, MessageCircle } from "lucide-react";
-import SimpleHeader from "@/components/SimpleHeader";
+import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import {
   Accordion,

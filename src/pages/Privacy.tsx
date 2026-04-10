@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Shield } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import SimpleHeader from "@/components/SimpleHeader";
+import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 
 const Privacy = () => {

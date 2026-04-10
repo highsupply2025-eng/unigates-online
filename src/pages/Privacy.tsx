@@ -1,98 +1,41 @@
-import { Link } from "react-router-dom";
-import { Shield, Globe, ArrowLeft, ArrowRight, GraduationCap } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Shield } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useSmartBack } from "@/hooks/use-smart-back";
+import SimpleHeader from "@/components/SimpleHeader";
+import SiteFooter from "@/components/SiteFooter";
 
 const Privacy = () => {
-  const { language, dir, t, toggleLanguage } = useLanguage();
+  const { language, dir } = useLanguage();
   const isRtl = dir === "rtl";
-  const goBack = useSmartBack();
 
   const content = {
     ar: {
       title: "سياسة الخصوصية",
       lastUpdate: "آخر تحديث: 1 أبريل 2026",
       sections: [
-        {
-          title: "1. المعلومات التي نجمعها",
-          text: "نجمع المعلومات التالية عند التسجيل واستخدام المنصة: المعلومات الشخصية (الاسم، البريد الإلكتروني، رقم الهاتف)، معلومات الحساب الأكاديمي (المؤسسة التعليمية، التخصص، الدور)، بيانات الاستخدام (الدورات المشاهدة، التقدم الدراسي، الوقت المستغرق)، والمعلومات التقنية (عنوان IP، نوع المتصفح، نظام التشغيل).",
-        },
-        {
-          title: "2. كيف نستخدم معلوماتك",
-          text: "نستخدم المعلومات المجمعة لتوفير وتحسين خدمات المنصة التعليمية، تخصيص تجربة التعلم وتقديم توصيات مناسبة، التواصل معك بشأن حسابك والتحديثات المهمة، ضمان أمان المنصة ومنع الاستخدام غير المصرح به، والامتثال للمتطلبات القانونية والتنظيمية.",
-        },
-        {
-          title: "3. مشاركة المعلومات",
-          text: "لا نبيع أو نؤجر معلوماتك الشخصية لأطراف ثالثة. قد نشارك المعلومات مع المؤسسات التعليمية التي تنتمي إليها (مثل الكلية أو المعهد) لأغراض أكاديمية، ومع مزودي خدمات الدفع لمعالجة المعاملات المالية بشكل آمن، وعند الحاجة للامتثال للقوانين أو الأوامر القضائية.",
-        },
-        {
-          title: "4. حماية البيانات",
-          text: "نتخذ إجراءات أمنية صارمة لحماية بياناتك تشمل: تشفير البيانات أثناء النقل والتخزين باستخدام بروتوكولات SSL/TLS، نظام تحكم في الوصول يعتمد على الأدوار (RLS) لضمان رؤية كل مستخدم لبياناته فقط، نسخ احتياطي منتظم للبيانات، ومراجعات أمنية دورية.",
-        },
-        {
-          title: "5. حقوقك",
-          text: "لديك الحق في الوصول إلى معلوماتك الشخصية وتعديلها، طلب حذف حسابك وبياناتك، الانسحاب من الرسائل التسويقية في أي وقت، طلب نسخة من بياناتك الشخصية (حق النقل)، والاعتراض على معالجة بياناتك لأغراض معينة.",
-        },
-        {
-          title: "6. ملفات تعريف الارتباط (الكوكيز)",
-          text: "نستخدم ملفات تعريف الارتباط الأساسية لتشغيل المنصة بشكل صحيح وتذكر تفضيلاتك (مثل اللغة). كما نستخدم ملفات تعريف تحليلية لفهم كيفية استخدام المنصة وتحسينها. يمكنك التحكم في إعدادات الكوكيز من خلال متصفحك.",
-        },
-        {
-          title: "7. خصوصية الأطفال",
-          text: "لا نجمع معلومات من الأطفال دون سن 16 عاماً بشكل مستقل. يجب أن يتم تسجيل الطلاب القُصّر من خلال مؤسساتهم التعليمية أو أولياء أمورهم. إذا علمنا بجمع بيانات طفل دون موافقة ولي الأمر، سنقوم بحذفها فوراً.",
-        },
-        {
-          title: "8. التعديلات على السياسة",
-          text: "قد نقوم بتحديث سياسة الخصوصية من وقت لآخر. سنخطرك بأي تغييرات جوهرية عبر البريد الإلكتروني أو إشعار بارز على المنصة قبل 30 يوماً من سريان التعديلات.",
-        },
-        {
-          title: "9. تواصل معنا",
-          text: "إذا كانت لديك أي أسئلة أو مخاوف بشأن سياسة الخصوصية، يمكنك التواصل معنا عبر الواتساب على الرقم 00966563057356 أو عبر البريد الإلكتروني. نحرص على الرد خلال 48 ساعة عمل.",
-        },
+        { title: "1. المعلومات التي نجمعها", text: "نجمع المعلومات التالية عند التسجيل واستخدام المنصة: المعلومات الشخصية (الاسم، البريد الإلكتروني، رقم الهاتف)، معلومات الحساب الأكاديمي (المؤسسة التعليمية، التخصص، الدور)، بيانات الاستخدام (الدورات المشاهدة، التقدم الدراسي، الوقت المستغرق)، والمعلومات التقنية (عنوان IP، نوع المتصفح، نظام التشغيل)." },
+        { title: "2. كيف نستخدم معلوماتك", text: "نستخدم المعلومات المجمعة لتوفير وتحسين خدمات المنصة التعليمية، تخصيص تجربة التعلم وتقديم توصيات مناسبة، التواصل معك بشأن حسابك والتحديثات المهمة، ضمان أمان المنصة ومنع الاستخدام غير المصرح به، والامتثال للمتطلبات القانونية والتنظيمية." },
+        { title: "3. مشاركة المعلومات", text: "لا نبيع أو نؤجر معلوماتك الشخصية لأطراف ثالثة. قد نشارك المعلومات مع المؤسسات التعليمية التي تنتمي إليها (مثل الكلية أو المعهد) لأغراض أكاديمية، ومع مزودي خدمات الدفع لمعالجة المعاملات المالية بشكل آمن، وعند الحاجة للامتثال للقوانين أو الأوامر القضائية." },
+        { title: "4. حماية البيانات", text: "نتخذ إجراءات أمنية صارمة لحماية بياناتك تشمل: تشفير البيانات أثناء النقل والتخزين باستخدام بروتوكولات SSL/TLS، نظام تحكم في الوصول يعتمد على الأدوار (RLS) لضمان رؤية كل مستخدم لبياناته فقط، نسخ احتياطي منتظم للبيانات، ومراجعات أمنية دورية." },
+        { title: "5. حقوقك", text: "لديك الحق في الوصول إلى معلوماتك الشخصية وتعديلها، طلب حذف حسابك وبياناتك، الانسحاب من الرسائل التسويقية في أي وقت، طلب نسخة من بياناتك الشخصية (حق النقل)، والاعتراض على معالجة بياناتك لأغراض معينة." },
+        { title: "6. ملفات تعريف الارتباط (الكوكيز)", text: "نستخدم ملفات تعريف الارتباط الأساسية لتشغيل المنصة بشكل صحيح وتذكر تفضيلاتك (مثل اللغة). كما نستخدم ملفات تعريف تحليلية لفهم كيفية استخدام المنصة وتحسينها. يمكنك التحكم في إعدادات الكوكيز من خلال متصفحك." },
+        { title: "7. خصوصية الأطفال", text: "لا نجمع معلومات من الأطفال دون سن 16 عاماً بشكل مستقل. يجب أن يتم تسجيل الطلاب القُصّر من خلال مؤسساتهم التعليمية أو أولياء أمورهم. إذا علمنا بجمع بيانات طفل دون موافقة ولي الأمر، سنقوم بحذفها فوراً." },
+        { title: "8. التعديلات على السياسة", text: "قد نقوم بتحديث سياسة الخصوصية من وقت لآخر. سنخطرك بأي تغييرات جوهرية عبر البريد الإلكتروني أو إشعار بارز على المنصة قبل 30 يوماً من سريان التعديلات." },
+        { title: "9. تواصل معنا", text: "إذا كانت لديك أي أسئلة أو مخاوف بشأن سياسة الخصوصية، يمكنك التواصل معنا عبر الواتساب على الرقم 00966563057356 أو عبر البريد الإلكتروني. نحرص على الرد خلال 48 ساعة عمل." },
       ],
     },
     en: {
       title: "Privacy Policy",
       lastUpdate: "Last updated: April 1, 2026",
       sections: [
-        {
-          title: "1. Information We Collect",
-          text: "We collect the following information during registration and platform use: Personal information (name, email, phone number), academic account information (institution, specialization, role), usage data (courses viewed, study progress, time spent), and technical information (IP address, browser type, operating system).",
-        },
-        {
-          title: "2. How We Use Your Information",
-          text: "We use collected information to provide and improve platform services, personalize the learning experience and provide suitable recommendations, communicate with you about your account and important updates, ensure platform security and prevent unauthorized use, and comply with legal and regulatory requirements.",
-        },
-        {
-          title: "3. Information Sharing",
-          text: "We do not sell or rent your personal information to third parties. We may share information with educational institutions you belong to for academic purposes, with payment service providers to process financial transactions securely, and when needed to comply with laws or court orders.",
-        },
-        {
-          title: "4. Data Protection",
-          text: "We take strict security measures to protect your data including: data encryption during transit and storage using SSL/TLS protocols, role-based access control (RLS) ensuring each user sees only their data, regular data backups, and periodic security reviews.",
-        },
-        {
-          title: "5. Your Rights",
-          text: "You have the right to access and modify your personal information, request deletion of your account and data, opt out of marketing messages at any time, request a copy of your personal data (portability right), and object to processing of your data for certain purposes.",
-        },
-        {
-          title: "6. Cookies",
-          text: "We use essential cookies to operate the platform correctly and remember your preferences (such as language). We also use analytical cookies to understand how the platform is used and improve it. You can control cookie settings through your browser.",
-        },
-        {
-          title: "7. Children's Privacy",
-          text: "We do not independently collect information from children under 16. Minor students must be registered through their educational institutions or guardians. If we learn that we have collected data from a child without parental consent, we will delete it immediately.",
-        },
-        {
-          title: "8. Policy Changes",
-          text: "We may update the privacy policy from time to time. We will notify you of any material changes via email or prominent notice on the platform 30 days before the changes take effect.",
-        },
-        {
-          title: "9. Contact Us",
-          text: "If you have any questions or concerns about the privacy policy, you can contact us via WhatsApp at 00966563057356 or via email. We ensure a response within 48 business hours.",
-        },
+        { title: "1. Information We Collect", text: "We collect the following information during registration and platform use: Personal information (name, email, phone number), academic account information (institution, specialization, role), usage data (courses viewed, study progress, time spent), and technical information (IP address, browser type, operating system)." },
+        { title: "2. How We Use Your Information", text: "We use collected information to provide and improve platform services, personalize the learning experience and provide suitable recommendations, communicate with you about your account and important updates, ensure platform security and prevent unauthorized use, and comply with legal and regulatory requirements." },
+        { title: "3. Information Sharing", text: "We do not sell or rent your personal information to third parties. We may share information with educational institutions you belong to for academic purposes, with payment service providers to process financial transactions securely, and when needed to comply with laws or court orders." },
+        { title: "4. Data Protection", text: "We take strict security measures to protect your data including: data encryption during transit and storage using SSL/TLS protocols, role-based access control (RLS) ensuring each user sees only their data, regular data backups, and periodic security reviews." },
+        { title: "5. Your Rights", text: "You have the right to access and modify your personal information, request deletion of your account and data, opt out of marketing messages at any time, request a copy of your personal data (portability right), and object to processing of your data for certain purposes." },
+        { title: "6. Cookies", text: "We use essential cookies to operate the platform correctly and remember your preferences (such as language). We also use analytical cookies to understand how the platform is used and improve it. You can control cookie settings through your browser." },
+        { title: "7. Children's Privacy", text: "We do not independently collect information from children under 16. Minor students must be registered through their educational institutions or guardians. If we learn that we have collected data from a child without parental consent, we will delete it immediately." },
+        { title: "8. Policy Changes", text: "We may update the privacy policy from time to time. We will notify you of any material changes via email or prominent notice on the platform 30 days before the changes take effect." },
+        { title: "9. Contact Us", text: "If you have any questions or concerns about the privacy policy, you can contact us via WhatsApp at 00966563057356 or via email. We ensure a response within 48 business hours." },
       ],
     },
   };
@@ -101,35 +44,8 @@ const Privacy = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      {/* Header - same as CollegeRegistration */}
-      <header className="border-b-2 border-primary/30 px-6 py-4 bg-card shadow-md">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <GraduationCap className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link to="/login">
-              <Button size="sm" className="font-bold bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white">
-                {t.login}
-              </Button>
-            </Link>
-            <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white">
-              <Globe className="w-4 h-4" />
-              {t.langSwitch}
-            </Button>
-            <Button size="icon" className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white" onClick={goBack}>
-              {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
-            </Button>
-          </div>
-        </div>
-      </header>
+      <SimpleHeader />
 
-      <Separator />
-
-      {/* Content */}
       <main className="flex-1">
         <section className="bg-gradient-to-br from-primary/10 to-primary/5 py-16 px-6">
           <div className="max-w-4xl mx-auto text-center">
@@ -153,31 +69,7 @@ const Privacy = () => {
         </section>
       </main>
 
-      {/* Footer - same as Signup/CollegeRegistration */}
-      <footer className="border-t-2 border-primary/20 bg-gradient-to-r from-secondary/50 to-primary/5 px-6 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-3 mb-4 flex-wrap">
-            <span className="text-foreground font-bold text-sm">{isRtl ? "أسئلة؟ تواصل على" : "Questions? Contact us on"}</span>
-            <a href="https://wa.me/966563057356" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1ebe5a] text-white font-bold px-4 py-2 rounded-full shadow-md shadow-[#25D366]/30 hover:shadow-lg hover:shadow-[#25D366]/40 transition-all text-sm">
-              <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-              WhatsApp
-            </a>
-            <span className="text-primary font-bold text-sm">⚡ {isRtl ? "استجابة فورية" : "Instant response"}</span>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-            {[
-              { label: t.footerLinks.faq, href: "/#faq" },
-              { label: t.footerLinks.helpCenter, href: "/help" },
-              { label: t.footerLinks.usageTerms, href: "/terms" },
-              { label: t.footerLinks.privacy, href: "/privacy" },
-            ].map((link) => (
-              <Link key={link.href} to={link.href} className="text-primary font-bold hover:text-primary/80 hover:underline py-1 transition-colors">
-                {link.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 };

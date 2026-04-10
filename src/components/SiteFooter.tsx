@@ -87,7 +87,14 @@ const SiteFooter = () => {
 
         <div className="border-t border-border pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm font-semibold text-foreground">{t.copyright}</p>
-          <div className="flex gap-3">
+          <div className="flex gap-3 items-center">
+            <a
+              href="#"
+              aria-label="UNIGATES"
+              className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] flex items-center justify-center transition-all duration-300 hover:shadow-lg hover:shadow-primary/40 hover:-translate-y-1 hover:scale-110 p-1"
+            >
+              <img src={unigatesLogo} alt="UNIGATES" className="w-7 h-7 object-contain" width={28} height={28} />
+            </a>
             {socialLinks.map(({ icon: Icon, label, href, color }) => (
               <a
                 key={label}

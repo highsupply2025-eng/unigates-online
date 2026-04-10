@@ -211,27 +211,17 @@ const Signup = () => {
             .update({ user_id: userId })
             .eq("id", (deptMember as any).id);
         } else {
-          // Try college invitation code
-          const { data: collegeInv } = await supabase
-            .from("college_invitations")
-            .select("*")
-            .eq("invitation_code", invitationCode)
-            .eq("is_active", true)
-            .limit(1)
-            .single();
+          // Try college invitation code via secure RPC
+          const { data: verifyResult } = await supabase.rpc("verify_invitation_code", { p_code: invitationCode });
           
-          if (collegeInv) {
+          if (verifyResult && (verifyResult as any).valid) {
+            const result = verifyResult as any;
             await supabase.from("college_members").insert({
-              college_id: collegeInv.college_id,
+              college_id: result.college_id,
               user_id: userId,
-              role: collegeInv.role,
-              invitation_id: collegeInv.id,
+              role: result.role,
+              invitation_id: result.invitation_id,
             });
-            // Increment used_count
-            await supabase
-              .from("college_invitations")
-              .update({ used_count: (collegeInv.used_count || 0) + 1 })
-              .eq("id", collegeInv.id);
           }
         }
       }

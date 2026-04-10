@@ -1,6 +1,7 @@
 import { GraduationCap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import unigatesLogo from "@/assets/unigates-logo-transparent.png";
 
 const TwitterIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" xmlns="http://www.w3.org/2000/svg">

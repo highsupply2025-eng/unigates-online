@@ -15,7 +15,7 @@ const faqCategories = {
       title: "عن المنصة",
       icon: GraduationCap,
       items: [
-        { q: "ما هي البوابة التعليمية الموحدة؟", a: "البوابة التعليمية الموحدة هي منصة تعليمية رقمية متكاملة تابعة لدار عبيد للنشر والتوزيع والطباعة، تهدف إلى تطوير التعليم الأكاديمي والمهني في العالم العربي من خلال تقديم حلول تقنية مبتكرة للمؤسسات التعليمية والطلاب والمحاضرين." },
+        { q: "ما هي UNIGATES؟", a: "UNIGATES هي منصة تعليمية رقمية متكاملة تابعة لدار عبيد للنشر والتوزيع والطباعة، تهدف إلى تطوير التعليم الأكاديمي والمهني في العالم العربي من خلال تقديم حلول تقنية مبتكرة للمؤسسات التعليمية والطلاب والمحاضرين." },
         { q: "من يمكنه استخدام المنصة؟", a: "المنصة مصممة للجميع: الطلاب، المحاضرين، المعلمين، أولياء الأمور، الكليات، المعاهد، المدارس، والناشرين. كل فئة لها واجهة مخصصة تناسب احتياجاتها." },
         { q: "هل المنصة متاحة باللغتين العربية والإنجليزية؟", a: "نعم، المنصة تدعم اللغتين العربية والإنجليزية بالكامل، ويمكنك التبديل بينهما في أي وقت من خلال زر تغيير اللغة." },
         { q: "هل المنصة متوفرة كتطبيق للهاتف؟", a: "نعمل حالياً على تطوير تطبيقات الهاتف لنظامي iOS وAndroid. حالياً يمكنك الوصول للمنصة عبر متصفح الهاتف بتجربة متجاوبة بالكامل." },
@@ -86,7 +86,7 @@ const faqCategories = {
       title: "About the Platform",
       icon: GraduationCap,
       items: [
-        { q: "What is the Unified Education Gate?", a: "The Unified Education Gate is a comprehensive digital educational platform by Obaid Publishing & Distribution, aimed at developing academic and professional education in the Arab world through innovative technological solutions for educational institutions, students, and lecturers." },
+        { q: "What is the UNIGATES?", a: "The UNIGATES is a comprehensive digital educational platform by Obaid Publishing & Distribution, aimed at developing academic and professional education in the Arab world through innovative technological solutions for educational institutions, students, and lecturers." },
         { q: "Who can use the platform?", a: "The platform is designed for everyone: students, lecturers, teachers, parents, colleges, institutes, schools, and publishers. Each category has a customized interface to suit their needs." },
         { q: "Is the platform available in both Arabic and English?", a: "Yes, the platform fully supports both Arabic and English, and you can switch between them at any time using the language toggle button." },
         { q: "Is there a mobile app?", a: "We are currently developing mobile apps for iOS and Android. Currently, you can access the platform through your mobile browser with a fully responsive experience." },

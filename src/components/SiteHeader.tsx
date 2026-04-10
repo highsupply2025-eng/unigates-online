@@ -74,7 +74,7 @@ const SiteHeader = () => {
           <nav className="flex flex-col gap-1.5 px-4 py-4">
             {navItems.map((item) => {
               const IconComp = item.icon;
-              const style = iconStyles[item.to] || { bg: "bg-primary/15", text: "text-primary", border: "border-primary/30" };
+              const style = iconStyles[item.to] || { bg: "bg-primary/25", text: "text-primary", border: "border-primary/50", glow: "shadow-[0_0_12px_rgba(20,184,166,0.5)]" };
               return (
                 <Link
                   key={item.to}

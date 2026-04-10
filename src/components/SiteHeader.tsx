@@ -68,7 +68,7 @@ const SiteHeader = () => {
             onClick={() => setMenuOpen(false)}
           />
           {/* Menu panel */}
-          <div className="fixed top-0 left-0 h-full w-72 z-50 md:hidden bg-background/90 backdrop-blur-md border-r border-border/30 shadow-2xl animate-in slide-in-from-left duration-300">
+          <div className={`fixed top-0 ${dir === 'rtl' ? 'left-0 border-r animate-in slide-in-from-left' : 'right-0 border-l animate-in slide-in-from-right'} h-full w-72 z-50 md:hidden bg-background/90 backdrop-blur-md border-border/30 shadow-2xl duration-300`}>
             {/* Menu header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-border/20">
               <div className="flex items-center gap-2">

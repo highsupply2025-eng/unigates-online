@@ -67,7 +67,9 @@ const SiteFooter = () => {
     <footer className="section-divider py-12 px-6 md:px-12">
       <div className="max-w-full mx-auto">
         <div className="flex items-center gap-3 mb-6">
-          <img src={unigatesLogo} alt="UNIGATES" className="w-12 h-12 object-contain" loading="lazy" width={48} height={48} />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center">
+            <GraduationCap className="w-6 h-6 text-white" />
+          </div>
           <span className="text-lg font-bold">{t.brandName}</span>
         </div>
 
@@ -88,13 +90,6 @@ const SiteFooter = () => {
         <div className="border-t border-border pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm font-semibold text-foreground">{t.copyright}</p>
           <div className="flex gap-3 items-center">
-            <a
-              href="#"
-              aria-label="UNIGATES"
-              className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] flex items-center justify-center transition-all duration-300 hover:shadow-lg hover:shadow-primary/40 hover:-translate-y-1 hover:scale-110 p-1"
-            >
-              <img src={unigatesLogo} alt="UNIGATES" className="w-7 h-7 object-contain" width={28} height={28} />
-            </a>
             {socialLinks.map(({ icon: Icon, label, href, color }) => (
               <a
                 key={label}
@@ -106,6 +101,10 @@ const SiteFooter = () => {
               </a>
             ))}
           </div>
+        </div>
+
+        <div className="flex justify-center mt-8">
+          <img src={unigatesLogo} alt="UNIGATES" className="w-40 h-40 md:w-52 md:h-52 object-contain" loading="lazy" width={208} height={208} />
         </div>
       </div>
     </footer>

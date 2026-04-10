@@ -86,7 +86,7 @@ const SiteHeader = () => {
             </div>
 
             {/* Nav items */}
-            <nav className="flex flex-col gap-1 px-3 py-3">
+            <nav className="flex flex-col gap-0.5 px-2 py-2">
               {navItems.map((item) => {
                 const IconComp = item.icon;
                 return (
@@ -94,27 +94,27 @@ const SiteHeader = () => {
                     key={item.to}
                     to={item.to}
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-3 px-3 py-3 rounded-lg text-foreground hover:bg-primary/10 active:scale-[0.98] transition-all duration-200 group"
+                    className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-foreground hover:bg-primary/10 active:scale-[0.98] transition-all duration-200 group"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-primary/15 flex items-center justify-center group-hover:bg-primary/25 transition-colors">
-                      <IconComp className="w-5 h-5 text-primary" strokeWidth={2} />
+                    <div className="w-8 h-8 rounded-md bg-primary/15 flex items-center justify-center group-hover:bg-primary/25 transition-colors">
+                      <IconComp className="w-4 h-4 text-primary" strokeWidth={2} />
                     </div>
-                    <span className="text-sm font-semibold">{item.label}</span>
+                    <span className="text-xs font-semibold">{item.label}</span>
                   </Link>
                 );
               })}
-              <div className="border-t border-border/20 my-1.5" />
+              <div className="border-t border-border/20 my-1" />
               <button
                 onClick={() => {
                   toggleLanguage();
                   setMenuOpen(false);
                 }}
-                className="flex items-center gap-3 px-3 py-3 rounded-lg text-foreground hover:bg-primary/10 active:scale-[0.98] transition-all duration-200 group"
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-foreground hover:bg-primary/10 active:scale-[0.98] transition-all duration-200 group"
               >
-                <div className="w-9 h-9 rounded-lg bg-primary/15 flex items-center justify-center group-hover:bg-primary/25 transition-colors">
-                  <Globe className="w-5 h-5 text-primary" strokeWidth={2} />
+                <div className="w-8 h-8 rounded-md bg-primary/15 flex items-center justify-center group-hover:bg-primary/25 transition-colors">
+                  <Globe className="w-4 h-4 text-primary" strokeWidth={2} />
                 </div>
-                <span className="text-sm font-semibold">{t.langSwitch}</span>
+                <span className="text-xs font-semibold">{t.langSwitch}</span>
               </button>
             </nav>
           </div>

@@ -106,7 +106,6 @@ const SiteFooter = () => {
         <div className="flex justify-center mt-8">
           <img src={unigatesLogo} alt="UNIGATES" className="w-40 h-40 md:w-52 md:h-52 object-contain" loading="lazy" width={208} height={208} />
         </div>
-        </div>
       </div>
     </footer>
   );

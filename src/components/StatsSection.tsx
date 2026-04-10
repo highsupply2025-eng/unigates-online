@@ -11,7 +11,7 @@ const StatsSection = () => {
   const institutes = useCountUp(stats?.institutes ?? 0);
   const schools = useCountUp(stats?.schools ?? 0);
   const publishers = useCountUp(stats?.publishers ?? 0);
-  const lecturers = useCountUp(stats?.lecturers ?? 0);
+  const lecturers = useCountUp(0);
   const teachers = useCountUp(stats?.teachers ?? 0);
   const parents = useCountUp(stats?.parents ?? 0);
   const students = useCountUp(stats?.students ?? 0);

@@ -5,12 +5,12 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useState } from "react";
 
 const iconStyles: Record<string, { bg: string; text: string; border: string }> = {
-  "/university-platform": { bg: "bg-blue-500/15", text: "text-blue-500", border: "border-blue-500/30" },
-  "/school-platform": { bg: "bg-emerald-500/15", text: "text-emerald-500", border: "border-emerald-500/30" },
-  "/courses": { bg: "bg-violet-500/15", text: "text-violet-500", border: "border-violet-500/30" },
-  "/book-store": { bg: "bg-amber-500/15", text: "text-amber-500", border: "border-amber-500/30" },
-  "/login": { bg: "bg-cyan-500/15", text: "text-cyan-500", border: "border-cyan-500/30" },
-  "/signup": { bg: "bg-rose-500/15", text: "text-rose-500", border: "border-rose-500/30" },
+  "/university-platform": { bg: "bg-blue-600/25", text: "text-blue-400", border: "border-blue-400/50" },
+  "/school-platform": { bg: "bg-emerald-600/25", text: "text-emerald-400", border: "border-emerald-400/50" },
+  "/courses": { bg: "bg-violet-600/25", text: "text-violet-400", border: "border-violet-400/50" },
+  "/book-store": { bg: "bg-amber-600/25", text: "text-amber-400", border: "border-amber-400/50" },
+  "/login": { bg: "bg-cyan-600/25", text: "text-cyan-400", border: "border-cyan-400/50" },
+  "/signup": { bg: "bg-rose-600/25", text: "text-rose-400", border: "border-rose-400/50" },
 };
 
 const SiteHeader = () => {
@@ -82,8 +82,8 @@ const SiteHeader = () => {
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold text-foreground hover:bg-accent/60 active:scale-[0.98] transition-all duration-200 group"
                 >
-                  <div className={`w-10 h-10 rounded-xl ${style.bg} border ${style.border} flex items-center justify-center transition-transform group-hover:scale-110 duration-200`}>
-                    <IconComp className={`w-5 h-5 ${style.text}`} />
+                  <div className={`w-10 h-10 rounded-xl ${style.bg} border-2 ${style.border} flex items-center justify-center shadow-sm transition-transform group-hover:scale-110 duration-200`}>
+                    <IconComp className={`w-5 h-5 ${style.text} drop-shadow-sm`} strokeWidth={2.5} />
                   </div>
                   <span className="tracking-wide">{item.label}</span>
                 </Link>
@@ -97,8 +97,8 @@ const SiteHeader = () => {
               }}
               className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold text-foreground hover:bg-accent/60 active:scale-[0.98] transition-all duration-200 group"
             >
-              <div className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center transition-transform group-hover:scale-110 duration-200">
-                <Globe className="w-5 h-5 text-primary" />
+              <div className="w-10 h-10 rounded-xl bg-primary/25 border-2 border-primary/50 flex items-center justify-center shadow-sm transition-transform group-hover:scale-110 duration-200">
+                <Globe className="w-5 h-5 text-primary drop-shadow-sm" strokeWidth={2.5} />
               </div>
               <span className="tracking-wide">{t.langSwitch}</span>
             </button>

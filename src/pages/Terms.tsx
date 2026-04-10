@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { FileText } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import SiteHeader from "@/components/SiteHeader";
+import SimpleHeader from "@/components/SimpleHeader";
 import SiteFooter from "@/components/SiteFooter";
 
 const Terms = () => {
@@ -99,7 +99,7 @@ const Terms = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <SiteHeader />
+      <SimpleHeader />
 
       <main className="flex-1">
         <section className="bg-gradient-to-br from-primary/10 to-primary/5 py-16 px-6">

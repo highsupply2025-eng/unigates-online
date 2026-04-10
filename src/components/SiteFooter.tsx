@@ -49,7 +49,7 @@ const SiteFooter = () => {
     ],
     [
       { label: t.footerLinks.contactUs, href: "/contact" },
-      { label: t.footerLinks.faq, href: "/faq" },
+      { label: t.footerLinks.faq, href: "/#faq" },
       { label: t.footerLinks.careers, href: "/careers" },
       { label: t.footerLinks.partnerships, href: "/partnerships" },
     ],

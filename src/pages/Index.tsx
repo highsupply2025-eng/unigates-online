@@ -4,6 +4,7 @@ import FeaturesSection from "@/components/FeaturesSection";
 import SiteFooter from "@/components/SiteFooter";
 import StatsSection from "@/components/StatsSection";
 import HomepageSections from "@/components/HomepageSections";
+import FAQSection from "@/components/FAQSection";
 
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -24,6 +25,10 @@ const Index = () => {
 
       <div className="divide-y divide-border/40">
         <FeaturesSection />
+      </div>
+
+      <div id="faq">
+        <FAQSection />
       </div>
 
       <SiteFooter />

@@ -161,7 +161,7 @@ const FAQ = () => {
 
   return (
     <div dir={dir} className="min-h-screen bg-background flex flex-col">
-      <SimpleHeader />
+      <SiteHeader />
       <div className="flex-1 py-12 px-6 md:px-12">
         <div className="max-w-4xl mx-auto">
           {/* Header */}

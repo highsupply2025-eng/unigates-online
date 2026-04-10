@@ -63,7 +63,7 @@ const HelpCenter = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <SimpleHeader />
+      <SiteHeader />
 
       <main className="flex-1">
         <section className="bg-gradient-to-br from-primary/10 to-primary/5 py-16 px-6">

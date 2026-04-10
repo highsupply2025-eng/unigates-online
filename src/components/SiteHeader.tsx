@@ -103,7 +103,7 @@ const SiteHeader = () => {
                   </Link>
                 );
               })}
-              <div className="border-t border-border/20 my-1" />
+              <div className="border-t border-border/20 my-0.5" />
               <button
                 onClick={() => {
                   toggleLanguage();

@@ -5,9 +5,8 @@ import SimpleHeader from "@/components/SimpleHeader";
 import SiteFooter from "@/components/SiteFooter";
 
 const Privacy = () => {
-  const { language, dir, t, toggleLanguage } = useLanguage();
+  const { language, dir } = useLanguage();
   const isRtl = dir === "rtl";
-  const goBack = useSmartBack();
 
   const content = {
     ar: {

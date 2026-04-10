@@ -97,8 +97,8 @@ const SiteHeader = () => {
               }}
               className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold text-foreground hover:bg-accent/60 active:scale-[0.98] transition-all duration-200 group"
             >
-              <div className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center transition-transform group-hover:scale-110 duration-200">
-                <Globe className="w-5 h-5 text-primary" />
+              <div className="w-10 h-10 rounded-xl bg-primary/25 border-2 border-primary/50 flex items-center justify-center shadow-sm transition-transform group-hover:scale-110 duration-200">
+                <Globe className="w-5 h-5 text-primary drop-shadow-sm" strokeWidth={2.5} />
               </div>
               <span className="tracking-wide">{t.langSwitch}</span>
             </button>

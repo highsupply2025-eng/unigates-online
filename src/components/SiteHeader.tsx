@@ -4,13 +4,13 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState } from "react";
 
-const iconStyles: Record<string, { bg: string; text: string; border: string }> = {
-  "/university-platform": { bg: "bg-blue-600/25", text: "text-blue-400", border: "border-blue-400/50" },
-  "/school-platform": { bg: "bg-emerald-600/25", text: "text-emerald-400", border: "border-emerald-400/50" },
-  "/courses": { bg: "bg-violet-600/25", text: "text-violet-400", border: "border-violet-400/50" },
-  "/book-store": { bg: "bg-amber-600/25", text: "text-amber-400", border: "border-amber-400/50" },
-  "/login": { bg: "bg-cyan-600/25", text: "text-cyan-400", border: "border-cyan-400/50" },
-  "/signup": { bg: "bg-rose-600/25", text: "text-rose-400", border: "border-rose-400/50" },
+const iconStyles: Record<string, { bg: string; text: string; border: string; glow: string }> = {
+  "/university-platform": { bg: "bg-blue-600/25", text: "text-blue-400", border: "border-blue-400/50", glow: "shadow-[0_0_12px_rgba(59,130,246,0.5)]" },
+  "/school-platform": { bg: "bg-emerald-600/25", text: "text-emerald-400", border: "border-emerald-400/50", glow: "shadow-[0_0_12px_rgba(52,211,153,0.5)]" },
+  "/courses": { bg: "bg-violet-600/25", text: "text-violet-400", border: "border-violet-400/50", glow: "shadow-[0_0_12px_rgba(167,139,250,0.5)]" },
+  "/book-store": { bg: "bg-amber-600/25", text: "text-amber-400", border: "border-amber-400/50", glow: "shadow-[0_0_12px_rgba(251,191,36,0.5)]" },
+  "/login": { bg: "bg-cyan-600/25", text: "text-cyan-400", border: "border-cyan-400/50", glow: "shadow-[0_0_12px_rgba(34,211,238,0.5)]" },
+  "/signup": { bg: "bg-rose-600/25", text: "text-rose-400", border: "border-rose-400/50", glow: "shadow-[0_0_12px_rgba(251,113,133,0.5)]" },
 };
 
 const SiteHeader = () => {
@@ -74,7 +74,7 @@ const SiteHeader = () => {
           <nav className="flex flex-col gap-1.5 px-4 py-4">
             {navItems.map((item) => {
               const IconComp = item.icon;
-              const style = iconStyles[item.to] || { bg: "bg-primary/15", text: "text-primary", border: "border-primary/30" };
+              const style = iconStyles[item.to] || { bg: "bg-primary/25", text: "text-primary", border: "border-primary/50", glow: "shadow-[0_0_12px_rgba(20,184,166,0.5)]" };
               return (
                 <Link
                   key={item.to}
@@ -82,7 +82,7 @@ const SiteHeader = () => {
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold text-foreground hover:bg-accent/60 active:scale-[0.98] transition-all duration-200 group"
                 >
-                  <div className={`w-10 h-10 rounded-xl ${style.bg} border-2 ${style.border} flex items-center justify-center shadow-sm transition-transform group-hover:scale-110 duration-200`}>
+                  <div className={`w-10 h-10 rounded-xl ${style.bg} border-2 ${style.border} ${style.glow} flex items-center justify-center transition-all group-hover:scale-110 group-hover:shadow-lg duration-200`}>
                     <IconComp className={`w-5 h-5 ${style.text} drop-shadow-sm`} strokeWidth={2.5} />
                   </div>
                   <span className="tracking-wide">{item.label}</span>
@@ -97,7 +97,7 @@ const SiteHeader = () => {
               }}
               className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold text-foreground hover:bg-accent/60 active:scale-[0.98] transition-all duration-200 group"
             >
-              <div className="w-10 h-10 rounded-xl bg-primary/25 border-2 border-primary/50 flex items-center justify-center shadow-sm transition-transform group-hover:scale-110 duration-200">
+              <div className="w-10 h-10 rounded-xl bg-primary/25 border-2 border-primary/50 shadow-[0_0_12px_rgba(20,184,166,0.5)] flex items-center justify-center transition-all group-hover:scale-110 group-hover:shadow-lg duration-200">
                 <Globe className="w-5 h-5 text-primary drop-shadow-sm" strokeWidth={2.5} />
               </div>
               <span className="tracking-wide">{t.langSwitch}</span>

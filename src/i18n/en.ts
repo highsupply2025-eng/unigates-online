@@ -1,6 +1,6 @@
 export const en = {
   // Common
-  brandName: "البوابة التعليمية",
+  brandName: "UNIGATES",
   login: "Log In",
   signup: "Create Account",
   home: "Home",

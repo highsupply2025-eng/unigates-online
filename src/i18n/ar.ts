@@ -1,6 +1,6 @@
 export const ar = {
   // Common
-  brandName: "البوابة التعليمية",
+  brandName: "UNIGATES",
   login: "تسجيل دخول",
   signup: "إنشاء حساب",
   home: "الرئيسية",

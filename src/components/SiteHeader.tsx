@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Globe, Menu, X, Building2, School, BookOpen, Store, LogIn, UserPlus } from "lucide-react";
+import { GraduationCap, Globe, Menu, X, Landmark, School, BookOpen, Store, LogIn, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState } from "react";
@@ -9,7 +9,7 @@ const SiteHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navItems = [
-    { to: "/university-platform", label: t.universityPlatform, icon: Building2 },
+    { to: "/university-platform", label: t.universityPlatform, icon: Landmark },
     { to: "/school-platform", label: t.schoolPlatform, icon: School },
     { to: "/courses", label: t.exploreCourses, icon: BookOpen },
     { to: "/book-store", label: t.bookStore, icon: Store },

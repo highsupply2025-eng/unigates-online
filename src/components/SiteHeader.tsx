@@ -9,7 +9,7 @@ const SiteHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navItems = [
-    { to: "/university-platform", label: t.universityPlatform, icon: Building2 },
+    { to: "/university-platform", label: t.universityPlatform, icon: Landmark },
     { to: "/school-platform", label: t.schoolPlatform, icon: School },
     { to: "/courses", label: t.exploreCourses, icon: BookOpen },
     { to: "/book-store", label: t.bookStore, icon: Store },

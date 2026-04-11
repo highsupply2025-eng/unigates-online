@@ -75,6 +75,7 @@ export const en = {
       { title: "Certified Certificates", description: "Get a completion certificate after finishing each course to boost your resume." },
       { title: "Learning Paths", description: "Carefully designed paths that take you from beginner to professional." },
       { title: "Interactive Community", description: "Connect with instructors and students and participate in useful discussions." },
+      { title: "Live Streaming", description: "Live streaming for lectures and courses." },
     ],
   },
 

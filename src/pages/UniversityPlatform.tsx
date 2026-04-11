@@ -190,7 +190,7 @@ const UniversityPlatform = () => {
             </Link>
             <Link to="/">
               <Button size="icon" className="font-bold h-10 w-10 bg-white/25 backdrop-blur-md text-white border-2 border-white/40 hover:bg-white/35 shadow-lg shadow-black/15 rounded-full">
-                <ArrowLeft className="w-5 h-5" />
+                <Home className="w-5 h-5" />
               </Button>
             </Link>
             <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
@@ -227,8 +227,8 @@ const UniversityPlatform = () => {
               </Link>
               <Link to="/" onClick={() => setMobileMenuOpen(false)}>
                 <Button size="sm" className="w-full justify-start gap-3 font-bold h-11 text-sm bg-white/10 text-white border border-white/15 hover:bg-white/20">
-                  <ArrowLeft className="w-4 h-4" />
-                  {isRtl ? "رجوع" : "Back"}
+                  <Home className="w-4 h-4" />
+                  {isRtl ? "الرئيسية" : "Home"}
                 </Button>
               </Link>
               <Button size="sm" onClick={() => { toggleLanguage(); setMobileMenuOpen(false); }} className="w-full justify-start gap-3 font-bold h-11 text-sm bg-white/10 text-white border border-white/15 hover:bg-white/20">

@@ -4,9 +4,10 @@ import {
   GraduationCap, Globe, Users, UserCheck, Shield,
   BookOpen, Eye, Search, CheckCircle, XCircle, Clock, ArrowLeft, ArrowRight,
   School, MapPin, Phone, Mail, MessageSquare, FileText, CreditCard,
-  BarChart3, ShoppingCart, BookMarked, Radio,
+  BarChart3, ShoppingCart, BookMarked, Radio, Bell, Send,
   Calendar, PlayCircle, Download, Trash2, Pencil, Landmark, LinkIcon, Copy
 } from "lucide-react";
+import NotificationBell from "@/components/NotificationBell";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -135,6 +136,14 @@ const AdminDashboard = () => {
   const [editSub, setEditSub] = useState<Subscription | null>(null);
   const [editStream, setEditStream] = useState<LiveStream | null>(null);
 
+  // Notification states
+  const [adminNotifications, setAdminNotifications] = useState<any[]>([]);
+  const [newNotifTitle, setNewNotifTitle] = useState({ ar: "", en: "" });
+  const [newNotifMessage, setNewNotifMessage] = useState({ ar: "", en: "" });
+  const [newNotifType, setNewNotifType] = useState("general");
+  const [newNotifTargetRole, setNewNotifTargetRole] = useState("all");
+  const [sendingNotif, setSendingNotif] = useState(false);
+
   useEffect(() => { checkAdmin(); }, []);
 
   const checkAdmin = async () => {
@@ -147,7 +156,7 @@ const AdminDashboard = () => {
     setLoading(false);
   };
 
-  const loadAll = () => Promise.all([loadPending(), loadAllUsers(), loadStats(), loadSchoolRegistrations(), loadCourses(), loadBooks(), loadOrders(), loadSubscriptions(), loadStreams(), loadColleges(), loadCollegeInvitations(), loadCollegeMembers(), loadInstitutes(), loadDepartments(), loadDepartmentMembers()]);
+  const loadAll = () => Promise.all([loadPending(), loadAllUsers(), loadStats(), loadSchoolRegistrations(), loadCourses(), loadBooks(), loadOrders(), loadSubscriptions(), loadStreams(), loadColleges(), loadCollegeInvitations(), loadCollegeMembers(), loadInstitutes(), loadDepartments(), loadDepartmentMembers(), loadAdminNotifications()]);
 
   const loadPending = async () => {
     const { data: roles } = await supabase.from("user_roles").select("*").eq("role", "lecturer").eq("approved", false);
@@ -192,6 +201,41 @@ const AdminDashboard = () => {
     if (!streams || streams.length === 0) { setLiveStreams([]); return; }
     const { data: profilesData } = await supabase.from("profiles").select("*").in("user_id", [...new Set(streams.map(s => s.creator_id))]);
     setLiveStreams(streams.map(s => ({ ...s, profile: (profilesData || []).find(p => p.user_id === s.creator_id) })));
+  };
+
+  const loadAdminNotifications = async () => {
+    const { data } = await supabase.from("notifications").select("*").order("created_at", { ascending: false }).limit(100);
+    setAdminNotifications(data || []);
+  };
+
+  const sendNotification = async () => {
+    if (!newNotifTitle.ar && !newNotifTitle.en) return;
+    setSendingNotif(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { error } = await supabase.from("notifications").insert({
+        title_ar: newNotifTitle.ar, title_en: newNotifTitle.en,
+        message_ar: newNotifMessage.ar, message_en: newNotifMessage.en,
+        notification_type: newNotifType, sender_id: user.id,
+        target_role: newNotifTargetRole === "all" ? null : newNotifTargetRole,
+      });
+      if (error) throw error;
+      setNewNotifTitle({ ar: "", en: "" });
+      setNewNotifMessage({ ar: "", en: "" });
+      setNewNotifType("general");
+      setNewNotifTargetRole("all");
+      await loadAdminNotifications();
+      showSuccess(ar("تم إرسال الإشعار بنجاح", "Notification sent successfully"));
+    } catch (err: any) {
+      toast({ title: ar("خطأ", "Error"), description: err.message, variant: "destructive" });
+    } finally { setSendingNotif(false); }
+  };
+
+  const deleteNotification = async (id: string) => {
+    await supabase.from("notifications").delete().eq("id", id);
+    await loadAdminNotifications();
+    showSuccess(ar("تم حذف الإشعار", "Notification deleted"));
   };
 
   const loadColleges = async () => {
@@ -646,6 +690,7 @@ const AdminDashboard = () => {
             <Badge className="bg-primary/10 text-primary border-primary/20 ms-2"><Shield className="w-3 h-3 me-1" />{ar("لوحة التحكم","Control Panel")}</Badge>
           </Link>
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5"><Globe className="w-4 h-4" />{t.langSwitch}</Button>
             <Button variant="default" size="sm" onClick={handleLogout} className="font-semibold gap-1.5">
               {language === "ar" ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}{t.logout}
@@ -668,6 +713,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="orders" className="gap-1.5"><ShoppingCart className="w-4 h-4" />{ar("الطلبات","Orders")}</TabsTrigger>
             <TabsTrigger value="subscriptions" className="gap-1.5"><CreditCard className="w-4 h-4" />{ar("الاشتراكات","Subscriptions")}</TabsTrigger>
             <TabsTrigger value="streams" className="gap-1.5"><Radio className="w-4 h-4" />{ar("البث المباشر","Live Streams")}</TabsTrigger>
+            <TabsTrigger value="notifications" className="gap-1.5"><Bell className="w-4 h-4" />{ar("الإشعارات","Notifications")}</TabsTrigger>
           </TabsList>
 
           {/* ===== Overview ===== */}
@@ -1232,6 +1278,83 @@ const AdminDashboard = () => {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          {/* ===== Notifications ===== */}
+          <TabsContent value="notifications">
+            <Card className="mb-6">
+              <CardContent className="pt-6 space-y-4">
+                <h3 className="text-lg font-bold flex items-center gap-2"><Send className="w-5 h-5" />{ar("إرسال إشعار جديد","Send New Notification")}</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>{ar("العنوان (عربي)","Title (Arabic)")}</Label>
+                    <Input value={newNotifTitle.ar} onChange={e => setNewNotifTitle(p => ({ ...p, ar: e.target.value }))} placeholder={ar("عنوان الإشعار","Notification title")} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{ar("العنوان (إنجليزي)","Title (English)")}</Label>
+                    <Input value={newNotifTitle.en} onChange={e => setNewNotifTitle(p => ({ ...p, en: e.target.value }))} placeholder="Notification title" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{ar("الرسالة (عربي)","Message (Arabic)")}</Label>
+                    <Textarea value={newNotifMessage.ar} onChange={e => setNewNotifMessage(p => ({ ...p, ar: e.target.value }))} placeholder={ar("محتوى الإشعار","Notification content")} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{ar("الرسالة (إنجليزي)","Message (English)")}</Label>
+                    <Textarea value={newNotifMessage.en} onChange={e => setNewNotifMessage(p => ({ ...p, en: e.target.value }))} placeholder="Notification content" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{ar("النوع","Type")}</Label>
+                    <select className="w-full border rounded-md px-3 py-2 text-sm bg-background" value={newNotifType} onChange={e => setNewNotifType(e.target.value)}>
+                      <option value="general">{ar("عام","General")}</option>
+                      <option value="alert">{ar("تنبيه","Alert")}</option>
+                      <option value="success">{ar("نجاح","Success")}</option>
+                      <option value="info">{ar("معلومة","Info")}</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{ar("الفئة المستهدفة","Target Role")}</Label>
+                    <select className="w-full border rounded-md px-3 py-2 text-sm bg-background" value={newNotifTargetRole} onChange={e => setNewNotifTargetRole(e.target.value)}>
+                      <option value="all">{ar("الكل","All")}</option>
+                      <option value="student">{ar("طلاب","Students")}</option>
+                      <option value="lecturer">{ar("محاضرون","Lecturers")}</option>
+                      <option value="teacher">{ar("معلمون","Teachers")}</option>
+                      <option value="school_student">{ar("طلاب مدارس","School Students")}</option>
+                      <option value="department_head">{ar("رؤساء أقسام","Department Heads")}</option>
+                      <option value="vice_dean">{ar("وكلاء","Vice Deans")}</option>
+                      <option value="dean">{ar("عمداء","Deans")}</option>
+                    </select>
+                  </div>
+                </div>
+                <Button onClick={sendNotification} disabled={sendingNotif || (!newNotifTitle.ar && !newNotifTitle.en)} className="gap-2">
+                  <Send className="w-4 h-4" />{sendingNotif ? ar("جاري الإرسال...","Sending...") : ar("إرسال الإشعار","Send Notification")}
+                </Button>
+              </CardContent>
+            </Card>
+
+            <h3 className="text-lg font-bold mb-4">{ar("الإشعارات المرسلة","Sent Notifications")} ({adminNotifications.length})</h3>
+            <div className="space-y-3">
+              {adminNotifications.map(n => (
+                <Card key={n.id}>
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-semibold text-sm">{ar(n.title_ar, n.title_en)}</span>
+                          <Badge variant="outline" className="text-[10px]">{n.notification_type}</Badge>
+                          {n.target_role && <Badge variant="secondary" className="text-[10px]">{n.target_role}</Badge>}
+                        </div>
+                        <p className="text-xs text-muted-foreground">{ar(n.message_ar, n.message_en)}</p>
+                        <p className="text-[10px] text-muted-foreground/60 mt-1">{new Date(n.created_at).toLocaleString(language === "ar" ? "ar-SA" : "en-US")}</p>
+                      </div>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteNotification(n.id)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+              {adminNotifications.length === 0 && <p className="text-center text-muted-foreground py-8">{ar("لا توجد إشعارات","No notifications")}</p>}
+            </div>
           </TabsContent>
         </Tabs>
       </main>

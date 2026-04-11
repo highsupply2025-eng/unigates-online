@@ -20,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import NotificationBell from "@/components/NotificationBell";
 
 const LecturerDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -569,6 +570,7 @@ const LecturerDashboard = () => {
             <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
           </Link>
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
               <Globe className="w-4 h-4" />{t.langSwitch}
             </Button>

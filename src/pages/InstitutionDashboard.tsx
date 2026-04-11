@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import NotificationBell from "@/components/NotificationBell";
 
 interface Department {
   id: string;
@@ -373,6 +374,7 @@ const InstitutionDashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5">
               <Globe className="w-4 h-4" />
               {t.langSwitch}

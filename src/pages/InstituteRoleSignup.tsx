@@ -32,14 +32,22 @@ const InstituteRoleSignup = () => {
   const isRtl = dir === "rtl";
   const goBack = useSmartBack();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
 
   const config = roleConfig[role || ""] || roleConfig.student;
   const RoleIcon = config.icon;
 
-  const [invitationCode, setInvitationCode] = useState("");
+  const codeFromUrl = searchParams.get("code") || "";
+  const [invitationCode, setInvitationCode] = useState(codeFromUrl);
   const [codeVerified, setCodeVerified] = useState(false);
   const [verifyingCode, setVerifyingCode] = useState(false);
   const [verifiedInvitation, setVerifiedInvitation] = useState<any>(null);
+
+  useEffect(() => {
+    if (codeFromUrl && !codeVerified && !verifyingCode) {
+      verifyCode(codeFromUrl);
+    }
+  }, []);
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -52,8 +60,9 @@ const InstituteRoleSignup = () => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const verifyCode = async () => {
-    if (!invitationCode.trim()) {
+  const verifyCode = async (codeOverride?: string) => {
+    const code = codeOverride || invitationCode;
+    if (!code.trim()) {
       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "أدخل كود الدعوة" : "Enter invitation code", variant: "destructive" });
       return;
     }

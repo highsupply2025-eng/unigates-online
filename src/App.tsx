@@ -25,6 +25,7 @@ const UserProfile = lazy(() => import("./pages/UserProfile"));
 const StudentDashboard = lazy(() => import("./pages/StudentDashboard"));
 const UniversityPlatform = lazy(() => import("./pages/UniversityPlatform"));
 const CollegeRegistration = lazy(() => import("./pages/CollegeRegistration"));
+const CollegeRoleSignup = lazy(() => import("./pages/CollegeRoleSignup"));
 const InstituteRegistration = lazy(() => import("./pages/InstituteRegistration"));
 const InstitutionDashboard = lazy(() => import("./pages/InstitutionDashboard"));
 const About = lazy(() => import("./pages/About"));

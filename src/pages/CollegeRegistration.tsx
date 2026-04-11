@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { GraduationCap, Globe, ArrowLeft, ArrowRight, Users, BookOpen, UserCog, Shield, Crown, Building2 } from "lucide-react";
+import { GraduationCap, Globe, ArrowLeft, ArrowRight, Users, BookOpen, UserCog, Shield, Crown, Landmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
@@ -91,7 +91,7 @@ const CollegeRegistration = () => {
         <Link to="/signup/college/admin" className="group mb-10">
           <div className="flex flex-col items-center gap-3">
             <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-xl shadow-primary/30 flex items-center justify-center group-hover:scale-110 transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-primary/40">
-              <Building2 className="w-12 h-12 md:w-14 md:h-14 text-white" />
+              <Landmark className="w-12 h-12 md:w-14 md:h-14 text-white" />
             </div>
             <span className="text-lg md:text-xl font-black text-primary">
               {isRtl ? "إدارة الكلية" : "College Admin"}

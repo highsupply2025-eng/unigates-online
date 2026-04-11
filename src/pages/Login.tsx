@@ -40,9 +40,12 @@ const Login = () => {
       const lecturerRole = roles?.find(r => r.role === "lecturer" && r.approved);
       const personalRole = roles?.find(r => r.role === "personal");
       const studentRole = roles?.find(r => r.role === "student");
+      const leadershipRole = roles?.find(r => ["department_head", "vice_dean", "dean"].includes(r.role) && r.approved);
       
       if (adminRole) {
         navigate("/admin/dashboard");
+      } else if (leadershipRole) {
+        navigate("/leadership/dashboard");
       } else if (lecturerRole) {
         navigate("/lecturer/dashboard");
       } else if (personalRole || studentRole) {

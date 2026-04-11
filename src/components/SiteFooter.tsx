@@ -2,6 +2,8 @@ import { GraduationCap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import unigatesLogo from "@/assets/unigates-logo-transparent.png";
+import googlePlayImg from "@/assets/google-play.png";
+import appStoreImg from "@/assets/app-store.png";
 
 const TwitterIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" xmlns="http://www.w3.org/2000/svg">
@@ -100,6 +102,12 @@ const SiteFooter = () => {
                 <Icon />
               </a>
             ))}
+            <a href="#" aria-label="Google Play" className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:scale-110 overflow-hidden">
+              <img src={googlePlayImg} alt="Google Play" className="w-7 h-7 object-contain" loading="lazy" width={28} height={28} />
+            </a>
+            <a href="#" aria-label="App Store" className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:scale-110 overflow-hidden">
+              <img src={appStoreImg} alt="App Store" className="w-7 h-7 object-contain" loading="lazy" width={28} height={28} />
+            </a>
           </div>
         </div>
 

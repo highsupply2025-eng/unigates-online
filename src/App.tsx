@@ -26,8 +26,10 @@ const StudentDashboard = lazy(() => import("./pages/StudentDashboard"));
 const UniversityPlatform = lazy(() => import("./pages/UniversityPlatform"));
 const CollegeRegistration = lazy(() => import("./pages/CollegeRegistration"));
 const CollegeRoleSignup = lazy(() => import("./pages/CollegeRoleSignup"));
+const CollegeAdminSignup = lazy(() => import("./pages/CollegeAdminSignup"));
 const InstituteRegistration = lazy(() => import("./pages/InstituteRegistration"));
 const InstituteRoleSignup = lazy(() => import("./pages/InstituteRoleSignup"));
+const InstituteAdminSignup = lazy(() => import("./pages/InstituteAdminSignup"));
 const InstitutionDashboard = lazy(() => import("./pages/InstitutionDashboard"));
 const About = lazy(() => import("./pages/About"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
@@ -95,8 +97,10 @@ const App = () => (
               {/* University Platform */}
               <Route path="/university-platform" element={<UniversityPlatform />} />
               <Route path="/signup/college" element={<CollegeRegistration />} />
+              <Route path="/signup/college/admin" element={<CollegeAdminSignup />} />
               <Route path="/signup/college/:role" element={<CollegeRoleSignup />} />
               <Route path="/signup/institute" element={<InstituteRegistration />} />
+              <Route path="/signup/institute/admin" element={<InstituteAdminSignup />} />
               <Route path="/signup/institute/:role" element={<InstituteRoleSignup />} />
               <Route path="/institution/dashboard" element={<InstitutionDashboard />} />
               <Route path="/profile" element={<UserProfile />} />

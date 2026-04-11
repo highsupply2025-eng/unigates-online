@@ -74,7 +74,7 @@ const CollegeRoleSignup = () => {
       const { data, error } = await supabase
         .from("college_invitations")
         .select("*")
-        .eq("invitation_code", invitationCode.trim())
+        .eq("invitation_code", code.trim())
         .eq("is_active", true)
         .maybeSingle();
 
@@ -260,7 +260,7 @@ const CollegeRoleSignup = () => {
                   size="lg"
                   className="w-full h-14 text-lg font-bold gap-2"
                   disabled={!invitationCode.trim() || verifyingCode}
-                  onClick={verifyCode}
+                  onClick={() => verifyCode()}
                 >
                   {verifyingCode ? <Loader2 className="w-5 h-5 animate-spin" /> : <KeyRound className="w-5 h-5" />}
                   {isRtl ? "تحقق من الكود" : "Verify Code"}

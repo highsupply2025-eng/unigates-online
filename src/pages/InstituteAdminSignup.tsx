@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Landmark, Loader2, Globe, ArrowLeft, ArrowRight, CheckCircle, Send, GraduationCap } from "lucide-react";
+import { Landmark, Loader2, Globe, ArrowLeft, ArrowRight, CheckCircle, Send, GraduationCap, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -223,6 +223,13 @@ const InstituteAdminSignup = () => {
                 </div>
               </div>
 
+              <div>
+                <Label className="mb-2 flex items-center gap-2 font-bold text-primary">
+                  <Users className="w-4 h-4" />
+                  {isRtl ? "عدد الطلاب (تقريبي)" : "Student Count (approx.)"}
+                </Label>
+                <Input type="number" placeholder={isRtl ? "مثال: 500" : "e.g. 500"} value={message} onChange={(e) => setMessage(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
+              </div>
 
               <div>
                 <Label className="mb-2 block font-bold text-primary">{isRtl ? "رسالة إضافية" : "Additional Message"}</Label>

@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import NotificationBell from "@/components/NotificationBell";
 
 interface Department {
   id: string;
@@ -344,6 +345,7 @@ const SchoolDashboard = () => {
             <Badge className="bg-primary/10 text-primary border-primary/20 ms-2"><Building2 className="w-3 h-3 me-1" />{isRtl ? "لوحة المدرسة" : "School"}</Badge>
           </Link>
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5"><Globe className="w-4 h-4" />{t.langSwitch}</Button>
             <Button variant="default" size="sm" onClick={handleLogout} className="font-semibold gap-1.5">{isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}{t.logout}</Button>
           </div>

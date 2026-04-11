@@ -13,6 +13,7 @@ import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import NotificationBell from "@/components/NotificationBell";
 
 const StudentDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -351,6 +352,7 @@ const StudentDashboard = () => {
             </Badge>
           </Link>
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
               <Globe className="w-4 h-4" />{t.langSwitch}
             </Button>

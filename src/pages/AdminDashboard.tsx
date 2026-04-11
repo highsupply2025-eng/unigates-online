@@ -238,7 +238,7 @@ const AdminDashboard = () => {
     showSuccess(ar("تم حذف الإشعار", "Notification deleted"));
   };
 
-
+  const loadColleges = async () => {
     const { data } = await supabase.from("college_registrations").select("*").order("created_at", { ascending: false });
     setColleges(data || []);
   };

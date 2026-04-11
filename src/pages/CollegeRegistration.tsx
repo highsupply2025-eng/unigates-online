@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { GraduationCap, Globe, ArrowLeft, ArrowRight, Users, BookOpen, UserCog, Shield, Crown, Building2 } from "lucide-react";
+import { GraduationCap, Globe, ArrowLeft, ArrowRight, Users, BookOpen, UserCog, Shield, Crown, Landmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";

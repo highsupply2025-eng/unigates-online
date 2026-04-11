@@ -91,16 +91,16 @@ const HelpCenter = () => {
         </section>
 
         <section className="py-16 px-6 bg-secondary/30">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl font-black text-foreground text-center mb-10">{c.faqTitle}</h2>
-            <Accordion type="single" collapsible className="space-y-3">
-              {c.faqs.map((faq, i) => (
-                <AccordionItem key={i} value={`faq-${i}`} className="bg-card border-2 border-primary/15 rounded-xl px-6">
-                  <AccordionTrigger className="text-foreground font-bold hover:text-primary">{faq.q}</AccordionTrigger>
-                  <AccordionContent className="text-foreground/70 leading-relaxed">{faq.a}</AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-3xl font-black text-foreground mb-4">{c.faqTitle}</h2>
+            <p className="text-foreground/70 mb-6">
+              {language === "ar" ? "اطلع على إجابات لأكثر الأسئلة شيوعاً حول المنصة" : "Find answers to the most common questions about the platform"}
+            </p>
+            <Link to="/faq">
+              <Button className="gap-2">
+                {language === "ar" ? "عرض الأسئلة الشائعة" : "View FAQs"}
+              </Button>
+            </Link>
           </div>
         </section>
 

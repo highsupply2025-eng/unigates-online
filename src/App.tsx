@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import Index from "./pages/Index";
+import AIChatWidget from "./components/AIChatWidget";
 
 const SignupChoice = lazy(() => import("./pages/SignupChoice"));
 const Signup = lazy(() => import("./pages/Signup"));
@@ -119,6 +120,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
+          <AIChatWidget />
         </BrowserRouter>
       </LanguageProvider>
     </TooltipProvider>

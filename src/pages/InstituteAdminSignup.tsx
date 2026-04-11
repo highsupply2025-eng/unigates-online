@@ -198,7 +198,7 @@ const InstituteAdminSignup = () => {
                   <Label className="mb-2 block font-bold text-primary">
                     {isRtl ? "إعادة كتابة الرقم السري" : "Confirm Password"} <span className="text-destructive">*</span>
                   </Label>
-                  <div className="relative">
+                  
                   <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12" dir="ltr" />
                   {password && confirmPassword && password !== confirmPassword && (
                     <p className="text-sm text-destructive mt-1">{isRtl ? "الرقم السري غير متطابق" : "Passwords do not match"}</p>

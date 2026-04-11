@@ -136,6 +136,14 @@ const AdminDashboard = () => {
   const [editSub, setEditSub] = useState<Subscription | null>(null);
   const [editStream, setEditStream] = useState<LiveStream | null>(null);
 
+  // Notification states
+  const [adminNotifications, setAdminNotifications] = useState<any[]>([]);
+  const [newNotifTitle, setNewNotifTitle] = useState({ ar: "", en: "" });
+  const [newNotifMessage, setNewNotifMessage] = useState({ ar: "", en: "" });
+  const [newNotifType, setNewNotifType] = useState("general");
+  const [newNotifTargetRole, setNewNotifTargetRole] = useState("all");
+  const [sendingNotif, setSendingNotif] = useState(false);
+
   useEffect(() => { checkAdmin(); }, []);
 
   const checkAdmin = async () => {

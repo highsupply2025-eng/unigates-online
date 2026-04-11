@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 const SimpleHeader = () => {
   const { toggleLanguage, t } = useLanguage();
+  const navigate = useNavigate();
 
   return (
     <header className="border-b-2 border-primary/40 px-6 py-4 bg-card shadow-lg">

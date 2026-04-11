@@ -541,11 +541,10 @@ const Signup = () => {
             <span className="text-primary font-bold text-sm">⚡ {language === "ar" ? "استجابة فورية" : "Instant response"}</span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-            {[t.footerLinks.faq, t.footerLinks.helpCenter, t.footerLinks.usageTerms, t.footerLinks.privacy].map((link) => (
-              <a key={link} href="#" className="text-primary font-bold hover:text-primary/80 hover:underline py-1 transition-colors">
-                {link}
-              </a>
-            ))}
+            <Link to="/faq" className="text-primary font-bold hover:text-primary/80 hover:underline py-1 transition-colors">{t.footerLinks.faq}</Link>
+            <Link to="/help" className="text-primary font-bold hover:text-primary/80 hover:underline py-1 transition-colors">{t.footerLinks.helpCenter}</Link>
+            <Link to="/terms" className="text-primary font-bold hover:text-primary/80 hover:underline py-1 transition-colors">{t.footerLinks.usageTerms}</Link>
+            <Link to="/privacy" className="text-primary font-bold hover:text-primary/80 hover:underline py-1 transition-colors">{t.footerLinks.privacy}</Link>
           </div>
         </div>
       </footer>

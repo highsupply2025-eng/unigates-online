@@ -61,7 +61,7 @@ const NotificationBell = () => {
 
   const markAllRead = async () => {
     if (!userId) return;
-    const unreadIds = notifications.filter(n => !n.is_read && n.recipient_id === userId).map(n => n.id);
+    const unreadIds = notifications.filter(n => !n.is_read).map(n => n.id);
     if (unreadIds.length > 0) {
       await Promise.all(unreadIds.map(id => supabase.from("notifications").update({ is_read: true }).eq("id", id)));
     }

@@ -63,8 +63,9 @@ const CollegeRoleSignup = () => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const verifyCode = async () => {
-    if (!invitationCode.trim()) {
+  const verifyCode = async (codeOverride?: string) => {
+    const code = codeOverride || invitationCode;
+    if (!code.trim()) {
       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "أدخل كود الدعوة" : "Enter invitation code", variant: "destructive" });
       return;
     }

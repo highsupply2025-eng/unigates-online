@@ -30,7 +30,7 @@ const CollegeAdminSignup = () => {
   const [collegeName, setCollegeName] = useState("");
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
-  const [deanName, setDeanName] = useState("");
+  
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [countryCode, setCountryCode] = useState("+20");
@@ -45,7 +45,7 @@ const CollegeAdminSignup = () => {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!collegeName || !city || !deanName || !email || !phone || !password) {
+    if (!collegeName || !city || !email || !phone || !password) {
       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى ملء جميع الحقول المطلوبة" : "Please fill all required fields", variant: "destructive" });
       return;
     }
@@ -74,7 +74,7 @@ const CollegeAdminSignup = () => {
         college_name: collegeName,
         city,
         address: address || null,
-        dean_name: deanName,
+        dean_name: collegeName,
         email,
         phone: `${countryCode}${phone}`,
         student_count: studentCount ? parseInt(studentCount) : 0,
@@ -162,12 +162,6 @@ const CollegeAdminSignup = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className="mb-2 block font-bold text-primary">
-                    {isRtl ? "اسم العميد / المسؤول" : "Dean / Contact Name"} <span className="text-destructive">*</span>
-                  </Label>
-                  <Input placeholder={isRtl ? "أدخل اسم العميد" : "Enter dean name"} value={deanName} onChange={(e) => setDeanName(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
-                </div>
-                <div>
-                  <Label className="mb-2 block font-bold text-primary">
                     {isRtl ? "البريد الإلكتروني" : "Email"} <span className="text-destructive">*</span>
                   </Label>
                   <Input type="email" placeholder="college@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
@@ -235,7 +229,7 @@ const CollegeAdminSignup = () => {
                 <Textarea placeholder={isRtl ? "أي ملاحظات أو متطلبات خاصة..." : "Any notes or special requirements..."} value={message} onChange={(e) => setMessage(e.target.value)} className="min-h-[100px] border-2 border-primary/20 focus:border-primary" />
               </div>
 
-              <Button size="lg" className="w-full h-14 text-lg font-bold gap-2" disabled={!collegeName || !city || !deanName || !email || !phone || !password || !confirmPassword || password !== confirmPassword || loading} onClick={handleSubmit}>
+              <Button size="lg" className="w-full h-14 text-lg font-bold gap-2" disabled={!collegeName || !city || !email || !phone || !password || !confirmPassword || password !== confirmPassword || loading} onClick={handleSubmit}>
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                 {isRtl ? "إرسال الطلب" : "Submit Request"}
               </Button>

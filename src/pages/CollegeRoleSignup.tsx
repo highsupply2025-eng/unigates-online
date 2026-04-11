@@ -34,14 +34,23 @@ const CollegeRoleSignup = () => {
   const goBack = useSmartBack();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
 
   const config = roleConfig[role || ""] || roleConfig.student;
   const RoleIcon = config.icon;
 
-  const [invitationCode, setInvitationCode] = useState("");
+  const codeFromUrl = searchParams.get("code") || "";
+  const [invitationCode, setInvitationCode] = useState(codeFromUrl);
   const [codeVerified, setCodeVerified] = useState(false);
   const [verifyingCode, setVerifyingCode] = useState(false);
   const [verifiedInvitation, setVerifiedInvitation] = useState<any>(null);
+
+  // Auto-verify if code is in URL
+  useEffect(() => {
+    if (codeFromUrl && !codeVerified && !verifyingCode) {
+      verifyCode(codeFromUrl);
+    }
+  }, []);
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");

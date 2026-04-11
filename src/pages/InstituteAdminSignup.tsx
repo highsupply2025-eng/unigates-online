@@ -83,8 +83,8 @@ const InstituteAdminSignup = () => {
         email,
         phone: `${countryCode}${phone}`,
         specialization: null,
-        student_count: studentCount ? parseInt(studentCount) : 0,
-        message: message || null,
+        student_count: actualStudentCount ? parseInt(actualStudentCount) : 0,
+        message: studentCount ? `${isRtl ? "عدد الأقسام" : "Departments"}: ${studentCount}. ${message || ''}`.trim() : message || null,
       });
       if (error) throw error;
       setSubmitted(true);
@@ -223,13 +223,12 @@ const InstituteAdminSignup = () => {
                   <Input type="number" placeholder={isRtl ? "مثال: 5" : "e.g. 5"} value={studentCount} onChange={(e) => setStudentCount(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
                 </div>
               </div>
-
               <div>
                 <Label className="mb-2 flex items-center gap-2 font-bold text-primary">
                   <Users className="w-4 h-4" />
                   {isRtl ? "عدد الطلاب (تقريبي)" : "Student Count (approx.)"}
                 </Label>
-                <Input type="number" placeholder={isRtl ? "مثال: 500" : "e.g. 500"} value={message} onChange={(e) => setMessage(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
+                <Input type="number" placeholder={isRtl ? "مثال: 500" : "e.g. 500"} value={actualStudentCount} onChange={(e) => setActualStudentCount(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
               </div>
 
               <div>

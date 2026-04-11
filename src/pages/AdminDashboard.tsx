@@ -1279,6 +1279,83 @@ const AdminDashboard = () => {
               </div>
             )}
           </TabsContent>
+
+          {/* ===== Notifications ===== */}
+          <TabsContent value="notifications">
+            <Card className="mb-6">
+              <CardContent className="pt-6 space-y-4">
+                <h3 className="text-lg font-bold flex items-center gap-2"><Send className="w-5 h-5" />{ar("إرسال إشعار جديد","Send New Notification")}</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>{ar("العنوان (عربي)","Title (Arabic)")}</Label>
+                    <Input value={newNotifTitle.ar} onChange={e => setNewNotifTitle(p => ({ ...p, ar: e.target.value }))} placeholder={ar("عنوان الإشعار","Notification title")} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{ar("العنوان (إنجليزي)","Title (English)")}</Label>
+                    <Input value={newNotifTitle.en} onChange={e => setNewNotifTitle(p => ({ ...p, en: e.target.value }))} placeholder="Notification title" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{ar("الرسالة (عربي)","Message (Arabic)")}</Label>
+                    <Textarea value={newNotifMessage.ar} onChange={e => setNewNotifMessage(p => ({ ...p, ar: e.target.value }))} placeholder={ar("محتوى الإشعار","Notification content")} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{ar("الرسالة (إنجليزي)","Message (English)")}</Label>
+                    <Textarea value={newNotifMessage.en} onChange={e => setNewNotifMessage(p => ({ ...p, en: e.target.value }))} placeholder="Notification content" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{ar("النوع","Type")}</Label>
+                    <select className="w-full border rounded-md px-3 py-2 text-sm bg-background" value={newNotifType} onChange={e => setNewNotifType(e.target.value)}>
+                      <option value="general">{ar("عام","General")}</option>
+                      <option value="alert">{ar("تنبيه","Alert")}</option>
+                      <option value="success">{ar("نجاح","Success")}</option>
+                      <option value="info">{ar("معلومة","Info")}</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{ar("الفئة المستهدفة","Target Role")}</Label>
+                    <select className="w-full border rounded-md px-3 py-2 text-sm bg-background" value={newNotifTargetRole} onChange={e => setNewNotifTargetRole(e.target.value)}>
+                      <option value="all">{ar("الكل","All")}</option>
+                      <option value="student">{ar("طلاب","Students")}</option>
+                      <option value="lecturer">{ar("محاضرون","Lecturers")}</option>
+                      <option value="teacher">{ar("معلمون","Teachers")}</option>
+                      <option value="school_student">{ar("طلاب مدارس","School Students")}</option>
+                      <option value="department_head">{ar("رؤساء أقسام","Department Heads")}</option>
+                      <option value="vice_dean">{ar("وكلاء","Vice Deans")}</option>
+                      <option value="dean">{ar("عمداء","Deans")}</option>
+                    </select>
+                  </div>
+                </div>
+                <Button onClick={sendNotification} disabled={sendingNotif || (!newNotifTitle.ar && !newNotifTitle.en)} className="gap-2">
+                  <Send className="w-4 h-4" />{sendingNotif ? ar("جاري الإرسال...","Sending...") : ar("إرسال الإشعار","Send Notification")}
+                </Button>
+              </CardContent>
+            </Card>
+
+            <h3 className="text-lg font-bold mb-4">{ar("الإشعارات المرسلة","Sent Notifications")} ({adminNotifications.length})</h3>
+            <div className="space-y-3">
+              {adminNotifications.map(n => (
+                <Card key={n.id}>
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-semibold text-sm">{ar(n.title_ar, n.title_en)}</span>
+                          <Badge variant="outline" className="text-[10px]">{n.notification_type}</Badge>
+                          {n.target_role && <Badge variant="secondary" className="text-[10px]">{n.target_role}</Badge>}
+                        </div>
+                        <p className="text-xs text-muted-foreground">{ar(n.message_ar, n.message_en)}</p>
+                        <p className="text-[10px] text-muted-foreground/60 mt-1">{new Date(n.created_at).toLocaleString(language === "ar" ? "ar-SA" : "en-US")}</p>
+                      </div>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteNotification(n.id)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+              {adminNotifications.length === 0 && <p className="text-center text-muted-foreground py-8">{ar("لا توجد إشعارات","No notifications")}</p>}
+            </div>
+          </TabsContent>
         </Tabs>
       </main>
 

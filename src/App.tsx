@@ -97,6 +97,7 @@ const App = () => (
               <Route path="/signup/college" element={<CollegeRegistration />} />
               <Route path="/signup/college/:role" element={<CollegeRoleSignup />} />
               <Route path="/signup/institute" element={<InstituteRegistration />} />
+              <Route path="/signup/institute/:role" element={<InstituteRoleSignup />} />
               <Route path="/institution/dashboard" element={<InstitutionDashboard />} />
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/book-store/profile" element={<UserProfile />} />

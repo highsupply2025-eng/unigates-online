@@ -542,7 +542,7 @@ const Signup = () => {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
             <Link to="/faq" className="text-primary font-bold hover:text-primary/80 hover:underline py-1 transition-colors">{t.footerLinks.faq}</Link>
-            <Link to="/help" className="text-primary font-bold hover:text-primary/80 hover:underline py-1 transition-colors">{t.footerLinks.helpCenter}</Link>
+            <Link to="/help-center" className="text-primary font-bold hover:text-primary/80 hover:underline py-1 transition-colors">{t.footerLinks.helpCenter}</Link>
             <Link to="/terms" className="text-primary font-bold hover:text-primary/80 hover:underline py-1 transition-colors">{t.footerLinks.usageTerms}</Link>
             <Link to="/privacy" className="text-primary font-bold hover:text-primary/80 hover:underline py-1 transition-colors">{t.footerLinks.privacy}</Link>
           </div>

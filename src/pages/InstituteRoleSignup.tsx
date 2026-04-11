@@ -71,7 +71,7 @@ const InstituteRoleSignup = () => {
       const { data, error } = await supabase
         .from("college_invitations")
         .select("*")
-        .eq("invitation_code", invitationCode.trim())
+        .eq("invitation_code", code.trim())
         .eq("is_active", true)
         .maybeSingle();
 

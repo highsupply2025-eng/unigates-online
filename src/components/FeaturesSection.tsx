@@ -1,8 +1,8 @@
-import { PlayCircle, Download, Smartphone, Award, BookOpen, Users, Radio, BookMarked } from "lucide-react";
+import { PlayCircle, Download, Smartphone, Award, BookOpen, Users, Radio, BookMarked, TabletSmartphone } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
-const icons = [PlayCircle, Download, Smartphone, Award, BookOpen, Users, Radio, BookMarked];
+const icons = [PlayCircle, Download, Smartphone, Award, BookOpen, Users, Radio, BookMarked, TabletSmartphone];
 
 const FeaturesSection = () => {
   const { t } = useLanguage();

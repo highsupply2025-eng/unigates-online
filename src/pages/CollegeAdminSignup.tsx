@@ -186,7 +186,8 @@ const CollegeAdminSignup = () => {
                       <p className={/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) ? "text-green-600" : "text-destructive"}>{isRtl ? "✓ رمز خاص" : "✓ Special symbol"}</p>
                       <p className={password.length >= 8 ? "text-green-600" : "text-destructive"}>{isRtl ? "✓ 8 أحرف على الأقل" : "✓ At least 8 characters"}</p>
                     </div>
-                  )
+                  )}
+
                 </div>
                 <div>
                   <Label className="mb-2 block font-bold text-primary">

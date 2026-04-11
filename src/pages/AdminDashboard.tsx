@@ -156,7 +156,7 @@ const AdminDashboard = () => {
     setLoading(false);
   };
 
-  const loadAll = () => Promise.all([loadPending(), loadAllUsers(), loadStats(), loadSchoolRegistrations(), loadCourses(), loadBooks(), loadOrders(), loadSubscriptions(), loadStreams(), loadColleges(), loadCollegeInvitations(), loadCollegeMembers(), loadInstitutes(), loadDepartments(), loadDepartmentMembers()]);
+  const loadAll = () => Promise.all([loadPending(), loadAllUsers(), loadStats(), loadSchoolRegistrations(), loadCourses(), loadBooks(), loadOrders(), loadSubscriptions(), loadStreams(), loadColleges(), loadCollegeInvitations(), loadCollegeMembers(), loadInstitutes(), loadDepartments(), loadDepartmentMembers(), loadAdminNotifications()]);
 
   const loadPending = async () => {
     const { data: roles } = await supabase.from("user_roles").select("*").eq("role", "lecturer").eq("approved", false);

@@ -28,8 +28,8 @@ const FeaturesSection = () => {
                 className="bg-card rounded-2xl p-6 border-2 border-primary/15 hover:border-primary/50 shadow-sm hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 cursor-default group"
               >
                 {storeImages[i] ? (
-                  <div className="w-14 h-14 rounded-xl bg-white shadow-lg shadow-primary/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform overflow-hidden">
-                    <img src={storeImages[i].src} alt={storeImages[i].alt} className="w-10 h-10 object-contain" loading="lazy" width={40} height={40} />
+                  <div className="w-14 h-14 rounded-xl bg-white shadow-lg shadow-primary/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform overflow-hidden p-1">
+                    <img src={storeImages[i].src} alt={storeImages[i].alt} className="w-12 h-12 object-contain drop-shadow-md" loading="lazy" width={48} height={48} />
                   </div>
                 ) : Icon ? (
                   <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">

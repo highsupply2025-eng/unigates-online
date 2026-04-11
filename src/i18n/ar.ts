@@ -77,7 +77,8 @@ export const ar = {
       { title: "مجتمع تفاعلي", description: "يخدم الكليات والمعاهد والمدارس ويخلق بيئة تفاعلية بين الطلاب والمحاضرين والمعلمين." },
       { title: "بث مباشر", description: "بث مباشر للمحاضرات والدورات." },
       { title: "كتب المستقبل", description: "شراء كتب اونلاين قراءة او شحن سريع." },
-      { title: "تطبيق الجوال", description: "قريباً على Google Play و App Store." },
+      { title: "Google Play", description: "قريباً" },
+      { title: "App Store", description: "قريباً" },
     ],
   },
 

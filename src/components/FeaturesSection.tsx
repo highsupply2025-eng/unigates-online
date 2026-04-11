@@ -1,9 +1,14 @@
 import { PlayCircle, Download, Smartphone, Award, BookOpen, Users, Radio, BookMarked } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import appStoresImg from "@/assets/app-stores.png";
+import googlePlayImg from "@/assets/google-play.png";
+import appStoreImg from "@/assets/app-store.png";
 
-const icons = [PlayCircle, Download, Smartphone, Award, BookOpen, Users, Radio, BookMarked, null];
+const icons = [PlayCircle, Download, Smartphone, Award, BookOpen, Users, Radio, BookMarked, null, null];
+const storeImages: Record<number, { src: string; alt: string }> = {
+  8: { src: googlePlayImg, alt: "Google Play" },
+  9: { src: appStoreImg, alt: "App Store" },
+};
 
 const FeaturesSection = () => {
   const { t } = useLanguage();
@@ -17,15 +22,14 @@ const FeaturesSection = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {t.features.items.map((feature, i) => {
             const Icon = icons[i];
-            const isAppStore = i === icons.length - 1;
             return (
               <div
                 key={i}
                 className="bg-card rounded-2xl p-6 border-2 border-primary/15 hover:border-primary/50 shadow-sm hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 cursor-default group"
               >
-                {isAppStore ? (
+                {storeImages[i] ? (
                   <div className="w-14 h-14 rounded-xl bg-white shadow-lg shadow-primary/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform overflow-hidden">
-                    <img src={appStoresImg} alt="Google Play & App Store" className="w-12 h-12 object-contain" loading="lazy" width={48} height={48} />
+                    <img src={storeImages[i].src} alt={storeImages[i].alt} className="w-10 h-10 object-contain" loading="lazy" width={40} height={40} />
                   </div>
                 ) : Icon ? (
                   <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">

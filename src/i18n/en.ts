@@ -77,7 +77,8 @@ export const en = {
       { title: "Interactive Community", description: "Connect with instructors and students and participate in useful discussions." },
       { title: "Live Streaming", description: "Live streaming for lectures and courses." },
       { title: "Future Books", description: "Buy books online for reading or fast shipping." },
-      { title: "Mobile App", description: "Coming soon on Google Play & App Store." },
+      { title: "Google Play", description: "Coming Soon" },
+      { title: "App Store", description: "Coming Soon" },
     ],
   },
 

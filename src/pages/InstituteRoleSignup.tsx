@@ -246,7 +246,7 @@ const InstituteRoleSignup = () => {
                   className="h-14 text-center text-lg font-mono tracking-widest border-2 border-primary/30 focus:border-primary"
                   dir="ltr"
                 />
-                <Button size="lg" className="w-full h-14 text-lg font-bold gap-2" disabled={!invitationCode.trim() || verifyingCode} onClick={verifyCode}>
+                <Button size="lg" className="w-full h-14 text-lg font-bold gap-2" disabled={!invitationCode.trim() || verifyingCode} onClick={() => verifyCode()}>
                   {verifyingCode ? <Loader2 className="w-5 h-5 animate-spin" /> : <KeyRound className="w-5 h-5" />}
                   {isRtl ? "تحقق من الكود" : "Verify Code"}
                 </Button>

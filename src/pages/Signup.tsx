@@ -285,7 +285,7 @@ const Signup = () => {
               {language === "ar" ? "اختر نوع الحساب" : "Choose Account Type"}
             </h1>
             <p className="text-primary/70 font-medium mb-2">{language === "ar" ? "حدد نوع حسابك للمتابعة" : "Select your account type to continue"}</p>
-            <p className="text-sm text-muted-foreground mb-8">{language === "ar" ? "حساب الطالب مجاني ولا يخضع لمراجعة • حساب المحاضر يخضع لمراجعة المنصة" : "Student account is free with no review • Lecturer account requires platform review"}</p>
+            
             <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
               {additionalLinks.map((item) => {
                 const Icon = item.icon;

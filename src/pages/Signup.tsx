@@ -286,23 +286,7 @@ const Signup = () => {
             </h1>
             <p className="text-primary/70 font-medium mb-2">{language === "ar" ? "حدد نوع حسابك للمتابعة" : "Select your account type to continue"}</p>
             <p className="text-sm text-muted-foreground mb-8">{language === "ar" ? "حساب الطالب مجاني ولا يخضع لمراجعة • حساب المحاضر يخضع لمراجعة المنصة" : "Student account is free with no review • Lecturer account requires platform review"}</p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {courseRoles.map((r) => {
-                const Icon = r.icon;
-                return (
-                  <button
-                    key={r.value}
-                    type="button"
-                    onClick={() => setSelectedRole(r.value)}
-                    className="group p-6 rounded-2xl border-2 border-primary/20 bg-card hover:border-primary hover:shadow-xl hover:shadow-primary/15 shadow-md transition-all duration-200 text-center"
-                  >
-                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                      <Icon className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-lg font-bold text-primary">{language === "ar" ? r.labelAr : r.labelEn}</h3>
-                  </button>
-                );
-              })}
+            <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
               {additionalLinks.map((item) => {
                 const Icon = item.icon;
                 return (

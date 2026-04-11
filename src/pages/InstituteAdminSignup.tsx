@@ -81,7 +81,7 @@ const InstituteAdminSignup = () => {
         director_name: instituteName,
         email,
         phone: `${countryCode}${phone}`,
-        specialization: specialization || null,
+        specialization: null,
         student_count: studentCount ? parseInt(studentCount) : 0,
         message: message || null,
       });
@@ -218,15 +218,11 @@ const InstituteAdminSignup = () => {
                   </div>
                 </div>
                 <div>
-                  <Label className="mb-2 block font-bold text-primary">{isRtl ? "التخصص الرئيسي" : "Main Specialization"}</Label>
-                  <Input placeholder={isRtl ? "مثال: تقنية المعلومات" : "e.g. Information Technology"} value={specialization} onChange={(e) => setSpecialization(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                  <Label className="mb-2 block font-bold text-primary">{isRtl ? "عدد الطلاب (تقريبي)" : "Student Count (approx.)"}</Label>
+                  <Input type="number" placeholder={isRtl ? "مثال: 500" : "e.g. 500"} value={studentCount} onChange={(e) => setStudentCount(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
                 </div>
               </div>
 
-              <div>
-                <Label className="mb-2 block font-bold text-primary">{isRtl ? "عدد الطلاب (تقريبي)" : "Student Count (approx.)"}</Label>
-                <Input type="number" placeholder={isRtl ? "مثال: 500" : "e.g. 500"} value={studentCount} onChange={(e) => setStudentCount(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
-              </div>
 
               <div>
                 <Label className="mb-2 block font-bold text-primary">{isRtl ? "رسالة إضافية" : "Additional Message"}</Label>

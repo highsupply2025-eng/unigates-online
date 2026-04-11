@@ -218,8 +218,8 @@ const InstituteAdminSignup = () => {
                   </div>
                 </div>
                 <div>
-                  <Label className="mb-2 block font-bold text-primary">{isRtl ? "عدد الطلاب (تقريبي)" : "Student Count (approx.)"}</Label>
-                  <Input type="number" placeholder={isRtl ? "مثال: 500" : "e.g. 500"} value={studentCount} onChange={(e) => setStudentCount(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
+                  <Label className="mb-2 block font-bold text-primary">{isRtl ? "عدد الأقسام" : "Number of Departments"}</Label>
+                  <Input type="number" placeholder={isRtl ? "مثال: 5" : "e.g. 5"} value={studentCount} onChange={(e) => setStudentCount(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
                 </div>
               </div>
 

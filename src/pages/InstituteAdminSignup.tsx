@@ -36,6 +36,7 @@ const InstituteAdminSignup = () => {
   const [countryCode, setCountryCode] = useState("+20");
   const [specialization, setSpecialization] = useState("");
   const [studentCount, setStudentCount] = useState("");
+  const [actualStudentCount, setActualStudentCount] = useState("");
   const [message, setMessage] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

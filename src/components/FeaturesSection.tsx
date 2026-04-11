@@ -1,8 +1,9 @@
-import { PlayCircle, Download, Smartphone, Award, BookOpen, Users, Radio, BookMarked, TabletSmartphone } from "lucide-react";
+import { PlayCircle, Download, Smartphone, Award, BookOpen, Users, Radio, BookMarked } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import appStoresImg from "@/assets/app-stores.png";
 
-const icons = [PlayCircle, Download, Smartphone, Award, BookOpen, Users, Radio, BookMarked, TabletSmartphone];
+const icons = [PlayCircle, Download, Smartphone, Award, BookOpen, Users, Radio, BookMarked, null];
 
 const FeaturesSection = () => {
   const { t } = useLanguage();
@@ -16,14 +17,21 @@ const FeaturesSection = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {t.features.items.map((feature, i) => {
             const Icon = icons[i];
+            const isAppStore = i === icons.length - 1;
             return (
               <div
                 key={i}
                 className="bg-card rounded-2xl p-6 border-2 border-primary/15 hover:border-primary/50 shadow-sm hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 cursor-default group"
               >
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Icon className="w-7 h-7 text-white" />
-                </div>
+                {isAppStore ? (
+                  <div className="w-14 h-14 rounded-xl bg-white shadow-lg shadow-primary/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform overflow-hidden">
+                    <img src={appStoresImg} alt="Google Play & App Store" className="w-12 h-12 object-contain" loading="lazy" width={48} height={48} />
+                  </div>
+                ) : Icon ? (
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <Icon className="w-7 h-7 text-white" />
+                  </div>
+                ) : null}
                 <h3 className="text-lg font-bold mb-2 text-foreground">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
               </div>

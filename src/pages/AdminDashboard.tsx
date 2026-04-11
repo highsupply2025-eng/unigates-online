@@ -670,6 +670,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="orders" className="gap-1.5"><ShoppingCart className="w-4 h-4" />{ar("الطلبات","Orders")}</TabsTrigger>
             <TabsTrigger value="subscriptions" className="gap-1.5"><CreditCard className="w-4 h-4" />{ar("الاشتراكات","Subscriptions")}</TabsTrigger>
             <TabsTrigger value="streams" className="gap-1.5"><Radio className="w-4 h-4" />{ar("البث المباشر","Live Streams")}</TabsTrigger>
+            <TabsTrigger value="notifications" className="gap-1.5"><Bell className="w-4 h-4" />{ar("الإشعارات","Notifications")}</TabsTrigger>
           </TabsList>
 
           {/* ===== Overview ===== */}

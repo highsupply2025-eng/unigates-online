@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/accordion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { Link } from "react-router-dom";
 
 const FAQSection = () => {
   const { t, language } = useLanguage();
@@ -20,7 +21,7 @@ const FAQSection = () => {
         <h2 className="text-2xl md:text-3xl font-bold mb-6">{t.faq.title}</h2>
 
         <Accordion type="single" collapsible className="space-y-3">
-          {t.faq.items.map((faq, index) => (
+          {t.faq.items.slice(0, 4).map((faq, index) => (
             <AccordionItem
               key={index}
               value={`item-${index}`}
@@ -36,6 +37,14 @@ const FAQSection = () => {
           ))}
         </Accordion>
 
+        <div className="text-center mt-8">
+          <Link to="/faq">
+            <Button variant="outline" className="gap-2 border-primary/30 hover:bg-primary/10">
+              {language === "ar" ? "عرض جميع الأسئلة الشائعة" : "View All FAQs"}
+              <ArrowIcon className="w-4 h-4" />
+            </Button>
+          </Link>
+        </div>
       </div>
     </section>
   );

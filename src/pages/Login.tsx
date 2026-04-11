@@ -108,7 +108,26 @@ const Login = () => {
       }
     } catch (error: any) {
       console.error('Login failed:', error);
-      toast({ title: t.loginPage.error, description: language === "ar" ? "حدث خطأ غير متوقع. حاول مرة أخرى." : "An unexpected error occurred. Please try again.", variant: "destructive" });
+      const errMsg = error?.message || "";
+      if (errMsg.includes("Email not confirmed")) {
+        toast({ 
+          title: language === "ar" ? "البريد غير مؤكد" : "Email not confirmed", 
+          description: language === "ar" 
+            ? "يرجى تأكيد بريدك الإلكتروني أولاً عبر الرابط المرسل إليك" 
+            : "Please confirm your email first via the link sent to you", 
+          variant: "destructive" 
+        });
+      } else if (errMsg.includes("Invalid login credentials")) {
+        toast({ 
+          title: language === "ar" ? "بيانات غير صحيحة" : "Invalid credentials", 
+          description: language === "ar" 
+            ? "البريد الإلكتروني أو كلمة المرور غير صحيحة" 
+            : "Incorrect email or password", 
+          variant: "destructive" 
+        });
+      } else {
+        toast({ title: t.loginPage.error, description: language === "ar" ? "حدث خطأ غير متوقع. حاول مرة أخرى." : "An unexpected error occurred. Please try again.", variant: "destructive" });
+      }
     } finally {
       setLoading(false);
     }

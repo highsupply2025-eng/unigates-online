@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Landmark, Loader2, Globe, ArrowLeft, ArrowRight, CheckCircle, Send, Eye, EyeOff, GraduationCap } from "lucide-react";
+import { Landmark, Loader2, Globe, ArrowLeft, ArrowRight, CheckCircle, Send, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -53,8 +53,12 @@ const InstituteAdminSignup = () => {
       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "الرقم السري غير متطابق" : "Passwords do not match", variant: "destructive" });
       return;
     }
-    if (password.length < 6) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "الرقم السري يجب أن يكون 6 أحرف على الأقل" : "Password must be at least 6 characters", variant: "destructive" });
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /[0-9]/.test(password);
+    const hasSymbols = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+    if (password.length < 8 || !hasUpperCase || !hasLowerCase || !hasNumbers || !hasSymbols) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "الرقم السري يجب أن يحتوي على 8 أحرف على الأقل، حروف كبيرة وصغيرة إنجليزية، أرقام، ورموز" : "Password must be at least 8 characters with uppercase, lowercase, numbers, and symbols", variant: "destructive" });
       return;
     }
 
@@ -179,23 +183,23 @@ const InstituteAdminSignup = () => {
                   <Label className="mb-2 block font-bold text-primary">
                     {isRtl ? "الرقم السري" : "Password"} <span className="text-destructive">*</span>
                   </Label>
-                  <div className="relative">
-                    <Input type={showPassword ? "text" : "password"} placeholder={isRtl ? "أدخل الرقم السري" : "Enter password"} value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pe-12" dir="ltr" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute top-1/2 -translate-y-1/2 end-3 text-muted-foreground hover:text-foreground">
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
+                  <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12" dir="ltr" />
+                  {password && (
+                    <div className="mt-2 space-y-1 text-xs">
+                      <p className={/[A-Z]/.test(password) ? "text-green-600" : "text-destructive"}>{isRtl ? "✓ حرف كبير إنجليزي" : "✓ Uppercase letter"}</p>
+                      <p className={/[a-z]/.test(password) ? "text-green-600" : "text-destructive"}>{isRtl ? "✓ حرف صغير إنجليزي" : "✓ Lowercase letter"}</p>
+                      <p className={/[0-9]/.test(password) ? "text-green-600" : "text-destructive"}>{isRtl ? "✓ رقم" : "✓ Number"}</p>
+                      <p className={/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) ? "text-green-600" : "text-destructive"}>{isRtl ? "✓ رمز خاص" : "✓ Special symbol"}</p>
+                      <p className={password.length >= 8 ? "text-green-600" : "text-destructive"}>{isRtl ? "✓ 8 أحرف على الأقل" : "✓ At least 8 characters"}</p>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <Label className="mb-2 block font-bold text-primary">
                     {isRtl ? "إعادة كتابة الرقم السري" : "Confirm Password"} <span className="text-destructive">*</span>
                   </Label>
-                  <div className="relative">
-                    <Input type={showConfirmPassword ? "text" : "password"} placeholder={isRtl ? "أعد كتابة الرقم السري" : "Re-enter password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12 pe-12" dir="ltr" />
-                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute top-1/2 -translate-y-1/2 end-3 text-muted-foreground hover:text-foreground">
-                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
+                  
+                  <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12" dir="ltr" />
                   {password && confirmPassword && password !== confirmPassword && (
                     <p className="text-sm text-destructive mt-1">{isRtl ? "الرقم السري غير متطابق" : "Passwords do not match"}</p>
                   )}

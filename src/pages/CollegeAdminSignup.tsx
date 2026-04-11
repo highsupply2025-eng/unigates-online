@@ -136,7 +136,7 @@ const CollegeAdminSignup = () => {
                 {isRtl ? "تسجيل كلية جديدة" : "Register a New College"}
               </h1>
               <p className="text-muted-foreground font-medium">
-                {isRtl ? "أكمل النموذج التالي وسيتم مراجعة طلبك من قبل الإدارة" : "Complete the form below and your request will be reviewed by administration"}
+                {isRtl ? "أكمل النموذج التالي وسيتم مراجعة طلبك من قبل إدارة المنصة" : "Complete the form below and your request will be reviewed by platform administration"}
               </p>
             </div>
 

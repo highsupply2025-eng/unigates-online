@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { GraduationCap, Globe, ArrowLeft, ArrowRight, Loader2, Eye, EyeOff, KeyRound, Users, BookOpen, UserCog, Shield, Crown, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,14 +34,23 @@ const CollegeRoleSignup = () => {
   const goBack = useSmartBack();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
 
   const config = roleConfig[role || ""] || roleConfig.student;
   const RoleIcon = config.icon;
 
-  const [invitationCode, setInvitationCode] = useState("");
+  const codeFromUrl = searchParams.get("code") || "";
+  const [invitationCode, setInvitationCode] = useState(codeFromUrl);
   const [codeVerified, setCodeVerified] = useState(false);
   const [verifyingCode, setVerifyingCode] = useState(false);
   const [verifiedInvitation, setVerifiedInvitation] = useState<any>(null);
+
+  // Auto-verify if code is in URL
+  useEffect(() => {
+    if (codeFromUrl && !codeVerified && !verifyingCode) {
+      verifyCode(codeFromUrl);
+    }
+  }, []);
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -54,8 +63,9 @@ const CollegeRoleSignup = () => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const verifyCode = async () => {
-    if (!invitationCode.trim()) {
+  const verifyCode = async (codeOverride?: string) => {
+    const code = codeOverride || invitationCode;
+    if (!code.trim()) {
       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "أدخل كود الدعوة" : "Enter invitation code", variant: "destructive" });
       return;
     }
@@ -64,7 +74,7 @@ const CollegeRoleSignup = () => {
       const { data, error } = await supabase
         .from("college_invitations")
         .select("*")
-        .eq("invitation_code", invitationCode.trim())
+        .eq("invitation_code", code.trim())
         .eq("is_active", true)
         .maybeSingle();
 
@@ -250,7 +260,7 @@ const CollegeRoleSignup = () => {
                   size="lg"
                   className="w-full h-14 text-lg font-bold gap-2"
                   disabled={!invitationCode.trim() || verifyingCode}
-                  onClick={verifyCode}
+                  onClick={() => verifyCode()}
                 >
                   {verifyingCode ? <Loader2 className="w-5 h-5 animate-spin" /> : <KeyRound className="w-5 h-5" />}
                   {isRtl ? "تحقق من الكود" : "Verify Code"}

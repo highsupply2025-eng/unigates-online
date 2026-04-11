@@ -203,7 +203,42 @@ const AdminDashboard = () => {
     setLiveStreams(streams.map(s => ({ ...s, profile: (profilesData || []).find(p => p.user_id === s.creator_id) })));
   };
 
-  const loadColleges = async () => {
+  const loadAdminNotifications = async () => {
+    const { data } = await supabase.from("notifications").select("*").order("created_at", { ascending: false }).limit(100);
+    setAdminNotifications(data || []);
+  };
+
+  const sendNotification = async () => {
+    if (!newNotifTitle.ar && !newNotifTitle.en) return;
+    setSendingNotif(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { error } = await supabase.from("notifications").insert({
+        title_ar: newNotifTitle.ar, title_en: newNotifTitle.en,
+        message_ar: newNotifMessage.ar, message_en: newNotifMessage.en,
+        notification_type: newNotifType, sender_id: user.id,
+        target_role: newNotifTargetRole === "all" ? null : newNotifTargetRole,
+      });
+      if (error) throw error;
+      setNewNotifTitle({ ar: "", en: "" });
+      setNewNotifMessage({ ar: "", en: "" });
+      setNewNotifType("general");
+      setNewNotifTargetRole("all");
+      await loadAdminNotifications();
+      showSuccess(ar("تم إرسال الإشعار بنجاح", "Notification sent successfully"));
+    } catch (err: any) {
+      toast({ title: ar("خطأ", "Error"), description: err.message, variant: "destructive" });
+    } finally { setSendingNotif(false); }
+  };
+
+  const deleteNotification = async (id: string) => {
+    await supabase.from("notifications").delete().eq("id", id);
+    await loadAdminNotifications();
+    showSuccess(ar("تم حذف الإشعار", "Notification deleted"));
+  };
+
+
     const { data } = await supabase.from("college_registrations").select("*").order("created_at", { ascending: false });
     setColleges(data || []);
   };

@@ -227,8 +227,8 @@ const UniversityPlatform = () => {
               </Link>
               <Link to="/" onClick={() => setMobileMenuOpen(false)}>
                 <Button size="sm" className="w-full justify-start gap-3 font-bold h-11 text-sm bg-white/10 text-white border border-white/15 hover:bg-white/20">
-                  <ArrowLeft className="w-4 h-4" />
-                  {isRtl ? "رجوع" : "Back"}
+                  <Home className="w-4 h-4" />
+                  {isRtl ? "الرئيسية" : "Home"}
                 </Button>
               </Link>
               <Button size="sm" onClick={() => { toggleLanguage(); setMobileMenuOpen(false); }} className="w-full justify-start gap-3 font-bold h-11 text-sm bg-white/10 text-white border border-white/15 hover:bg-white/20">

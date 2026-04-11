@@ -189,8 +189,9 @@ const UniversityPlatform = () => {
               </Button>
             </Link>
             <Link to="/">
-              <Button size="icon" className="font-bold h-10 w-10 bg-white/25 backdrop-blur-md text-white border-2 border-white/40 hover:bg-white/35 shadow-lg shadow-black/15 rounded-full">
-                <Home className="w-5 h-5" />
+              <Button size="sm" className="font-bold gap-1.5 px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
+                <Home className="w-4 h-4" />
+                {isRtl ? "الرئيسية" : "Home"}
               </Button>
             </Link>
             <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">

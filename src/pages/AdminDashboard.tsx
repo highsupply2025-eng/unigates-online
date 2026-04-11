@@ -4,9 +4,10 @@ import {
   GraduationCap, Globe, Users, UserCheck, Shield,
   BookOpen, Eye, Search, CheckCircle, XCircle, Clock, ArrowLeft, ArrowRight,
   School, MapPin, Phone, Mail, MessageSquare, FileText, CreditCard,
-  BarChart3, ShoppingCart, BookMarked, Radio,
+  BarChart3, ShoppingCart, BookMarked, Radio, Bell, Send,
   Calendar, PlayCircle, Download, Trash2, Pencil, Landmark, LinkIcon, Copy
 } from "lucide-react";
+import NotificationBell from "@/components/NotificationBell";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -646,6 +647,7 @@ const AdminDashboard = () => {
             <Badge className="bg-primary/10 text-primary border-primary/20 ms-2"><Shield className="w-3 h-3 me-1" />{ar("لوحة التحكم","Control Panel")}</Badge>
           </Link>
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5"><Globe className="w-4 h-4" />{t.langSwitch}</Button>
             <Button variant="default" size="sm" onClick={handleLogout} className="font-semibold gap-1.5">
               {language === "ar" ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}{t.logout}

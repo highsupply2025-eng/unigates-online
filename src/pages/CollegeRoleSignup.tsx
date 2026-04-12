@@ -130,7 +130,7 @@ const CollegeRoleSignup = () => {
       if (authError) throw authError;
 
       if (authData.user) {
-        // 2. Create profile + role via RPC (approved immediately)
+        // 2. Create profile + role via RPC (force approved for invitation-based signup)
         const { data: rpcData, error: rpcError } = await supabase.rpc("complete_signup", {
           p_user_id: authData.user.id,
           p_role: config.appRole,
@@ -138,7 +138,8 @@ const CollegeRoleSignup = () => {
           p_phone: `${countryCode}${phone}`,
           p_email: email,
           p_platform: "courses",
-        });
+          p_force_approve: true,
+        } as any);
 
         if (rpcError) throw rpcError;
         const result = rpcData as any;
@@ -153,12 +154,6 @@ const CollegeRoleSignup = () => {
             invitation_id: verifiedInvitation.id,
           });
         }
-
-        // 4. Approve the role immediately
-        await supabase
-          .from("user_roles")
-          .update({ approved: true })
-          .eq("user_id", authData.user.id);
       }
 
       setSubmitted(true);

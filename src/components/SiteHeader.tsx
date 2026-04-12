@@ -1,18 +1,28 @@
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Globe, Menu, X, Landmark, School, BookOpen, Store, LogIn, UserPlus } from "lucide-react";
+import { GraduationCap, Globe, Menu, X, Landmark, School, BookOpen, Store, LogIn, UserPlus, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const SiteHeader = () => {
-  const { t, toggleLanguage, dir } = useLanguage();
+  const { t, toggleLanguage, dir, language } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const navItems = [
+  const mainNavItems = [
     { to: "/university-platform", label: t.universityPlatform, icon: Landmark },
     { to: "/school-platform", label: t.schoolPlatform, icon: School },
     { to: "/courses", label: t.exploreCourses, icon: BookOpen },
     { to: "/book-store", label: t.bookStore, icon: Store },
+  ];
+
+  const navItems = [
+    ...mainNavItems,
     { to: "/login", label: t.login, icon: LogIn },
     { to: "/signup", label: t.signup, icon: UserPlus },
   ];
@@ -31,22 +41,42 @@ const SiteHeader = () => {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-1.5">
-          {navItems.map((item) => (
+          {mainNavItems.map((item) => (
             <Link key={item.to} to={item.to}>
               <Button variant="default" size="sm" className="font-semibold text-xs h-8 px-3">
                 {item.label}
               </Button>
             </Link>
           ))}
-          <Button
-            variant="default"
-            size="sm"
-            onClick={toggleLanguage}
-            className="font-semibold text-xs h-8 px-3 gap-1"
-          >
-            <Globe className="w-3.5 h-3.5" />
-            {t.langSwitch}
-          </Button>
+
+          {/* Dropdown for Login + Language */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="default" size="sm" className="font-semibold text-xs h-8 px-3 gap-1">
+                <LogIn className="w-3.5 h-3.5" />
+                {t.login}
+                <ChevronDown className="w-3 h-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align={dir === "rtl" ? "start" : "end"} className="min-w-[160px]">
+              <DropdownMenuItem asChild>
+                <Link to="/login" className="flex items-center gap-2 cursor-pointer">
+                  <LogIn className="w-4 h-4" />
+                  {t.login}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/signup" className="flex items-center gap-2 cursor-pointer">
+                  <UserPlus className="w-4 h-4" />
+                  {t.signup}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={toggleLanguage} className="flex items-center gap-2 cursor-pointer">
+                <Globe className="w-4 h-4" />
+                {t.langSwitch}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Mobile hamburger */}

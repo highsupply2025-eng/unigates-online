@@ -1419,21 +1419,38 @@ export type Database = {
     }
     Functions: {
       calculate_weekly_top_courses: { Args: never; Returns: undefined }
-      complete_signup: {
-        Args: {
-          p_additional_certs_urls?: string[]
-          p_email: string
-          p_full_name: string
-          p_id_photo_url?: string
-          p_live_photo_url?: string
-          p_phone: string
-          p_platform?: string
-          p_role: string
-          p_university_cert_url?: string
-          p_user_id: string
-        }
-        Returns: Json
-      }
+      complete_signup:
+        | {
+            Args: {
+              p_additional_certs_urls?: string[]
+              p_email: string
+              p_full_name: string
+              p_id_photo_url?: string
+              p_live_photo_url?: string
+              p_phone: string
+              p_platform?: string
+              p_role: string
+              p_university_cert_url?: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_additional_certs_urls?: string[]
+              p_email: string
+              p_force_approve?: boolean
+              p_full_name: string
+              p_id_photo_url?: string
+              p_live_photo_url?: string
+              p_phone: string
+              p_platform?: string
+              p_role: string
+              p_university_cert_url?: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
       get_profile_count: { Args: never; Returns: number }
       get_profile_count_by_role: { Args: { _role: string }; Returns: number }
       has_approved_role: {

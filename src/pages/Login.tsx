@@ -43,17 +43,37 @@ const Login = () => {
         .eq("user_id", data.user.id);
       
       const adminRole = roles?.find(r => r.role === "admin");
-      const lecturerRole = roles?.find(r => r.role === "lecturer" && r.approved);
+      const lecturerRole = roles?.find(r => r.role === "lecturer");
       const personalRole = roles?.find(r => r.role === "personal");
       const studentRole = roles?.find(r => r.role === "student");
-      const leadershipRole = roles?.find(r => ["department_head", "vice_dean", "dean"].includes(r.role) && r.approved);
+      const leadershipRole = roles?.find(r => ["department_head", "vice_dean", "dean"].includes(r.role));
       
       if (adminRole) {
         navigate("/admin/dashboard");
       } else if (leadershipRole) {
-        navigate("/leadership/dashboard");
+        if (leadershipRole.approved) {
+          navigate("/leadership/dashboard");
+        } else {
+          toast({
+            title: language === "ar" ? "الحساب قيد المراجعة" : "Account Under Review",
+            description: language === "ar" 
+              ? "حسابك لا يزال قيد المراجعة من قبل إدارة المنصة" 
+              : "Your account is still under review by the platform administration",
+          });
+          await supabase.auth.signOut();
+        }
       } else if (lecturerRole) {
-        navigate("/lecturer/dashboard");
+        if (lecturerRole.approved) {
+          navigate("/lecturer/dashboard");
+        } else {
+          toast({
+            title: language === "ar" ? "الحساب قيد المراجعة" : "Account Under Review",
+            description: language === "ar" 
+              ? "حسابك كمحاضر لا يزال قيد المراجعة من قبل إدارة المنصة" 
+              : "Your lecturer account is still under review",
+          });
+          await supabase.auth.signOut();
+        }
       } else if (personalRole || studentRole) {
         navigate("/student/dashboard");
       } else {

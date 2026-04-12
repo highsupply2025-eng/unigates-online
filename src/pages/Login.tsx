@@ -93,10 +93,10 @@ const Login = () => {
             toast({
               title: language === "ar" ? "الحساب قيد المراجعة" : "Account Under Review",
               description: language === "ar" 
-                ? "طلب تسجيل كليتك لا يزال قيد المراجعة من قبل إدارة منصة إدراك" 
-                : "Your college registration is still under review by Edrak platform",
+                ? "طلب تسجيل كليتك لا يزال قيد المراجعة من قبل إدارة المنصة" 
+                : "Your college registration is still under review",
             });
-            navigate("/");
+            await supabase.auth.signOut();
           }
           return;
         }
@@ -115,10 +115,10 @@ const Login = () => {
             toast({
               title: language === "ar" ? "الحساب قيد المراجعة" : "Account Under Review",
               description: language === "ar"
-                ? "طلب تسجيل معهدك لا يزال قيد المراجعة من قبل إدارة منصة إدراك"
-                : "Your institute registration is still under review by Edrak platform",
+                ? "طلب تسجيل معهدك لا يزال قيد المراجعة من قبل إدارة المنصة"
+                : "Your institute registration is still under review",
             });
-            navigate("/");
+            await supabase.auth.signOut();
           }
           return;
         }

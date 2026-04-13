@@ -4,7 +4,7 @@ import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Building2, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
-  User, Ticket, Radio, Eye, ClipboardList, Star
+  User, Ticket, Radio, Eye, ClipboardList, Star, MessageCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1638,10 +1638,32 @@ const InstitutionDashboard = () => {
                               <Button
                                 size="sm"
                                 variant="outline"
+                                onClick={() => copyToClipboard(inv.invitation_code)}
+                              >
+                                <Copy className="w-3.5 h-3.5 me-1" />
+                                {isRtl ? "نسخ الكود" : "Copy Code"}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
                                 onClick={() => copyToClipboard(inviteLink)}
                               >
                                 <LinkIcon className="w-3.5 h-3.5 me-1" />
                                 {isRtl ? "نسخ الرابط" : "Copy Link"}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-green-600 border-green-300 hover:bg-green-50"
+                                onClick={() => {
+                                  const text = isRtl
+                                    ? `رابط الدعوة للانضمام كـ ${label.ar}:\n${inviteLink}`
+                                    : `Invitation link to join as ${label.en}:\n${inviteLink}`;
+                                  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+                                }}
+                              >
+                                <MessageCircle className="w-3.5 h-3.5 me-1" />
+                                {isRtl ? "واتساب" : "WhatsApp"}
                               </Button>
                             </div>
                           </div>

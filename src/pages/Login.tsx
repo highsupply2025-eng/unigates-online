@@ -77,49 +77,52 @@ const Login = () => {
       } else if (personalRole || studentRole) {
         navigate("/student/dashboard");
       } else {
-        // Check if user is a college or institute
+        // Check if user is a college or institute admin
         const userEmail = data.user.email;
-        const { data: collegeReg } = await supabase
-          .from("college_registrations")
-          .select("id, status")
-          .eq("email", userEmail)
-          .limit(1)
-          .maybeSingle();
         
-        if (collegeReg) {
-          if (collegeReg.status === "approved") {
-            navigate("/institution/dashboard");
-          } else {
-            toast({
-              title: language === "ar" ? "الحساب قيد المراجعة" : "Account Under Review",
-              description: language === "ar" 
-                ? "طلب تسجيل كليتك لا يزال قيد المراجعة من قبل إدارة المنصة" 
-                : "Your college registration is still under review",
-            });
-            await supabase.auth.signOut();
-          }
+        // Check both college and institute registrations in parallel
+        const [collegeResult, instituteResult] = await Promise.all([
+          supabase
+            .from("college_registrations")
+            .select("id, status")
+            .eq("email", userEmail)
+            .limit(1)
+            .maybeSingle(),
+          supabase
+            .from("institute_registrations")
+            .select("id, status")
+            .eq("email", userEmail)
+            .limit(1)
+            .maybeSingle(),
+        ]);
+
+        const collegeReg = collegeResult.data;
+        const instituteReg = instituteResult.data;
+
+        // Check if any registration is approved first
+        const hasApprovedCollege = collegeReg?.status === "approved";
+        const hasApprovedInstitute = instituteReg?.status === "approved";
+
+        if (hasApprovedCollege || hasApprovedInstitute) {
+          navigate("/institution/dashboard");
           return;
         }
 
-        const { data: instituteReg } = await supabase
-          .from("institute_registrations")
-          .select("id, status")
-          .eq("email", userEmail)
-          .limit(1)
-          .maybeSingle();
-        
-        if (instituteReg) {
-          if (instituteReg.status === "approved") {
-            navigate("/institution/dashboard");
-          } else {
-            toast({
-              title: language === "ar" ? "الحساب قيد المراجعة" : "Account Under Review",
-              description: language === "ar"
-                ? "طلب تسجيل معهدك لا يزال قيد المراجعة من قبل إدارة المنصة"
-                : "Your institute registration is still under review",
-            });
-            await supabase.auth.signOut();
-          }
+        // If registered but pending/rejected
+        if (collegeReg || instituteReg) {
+          const isPending = collegeReg?.status === "pending" || instituteReg?.status === "pending";
+          toast({
+            title: language === "ar" ? "الحساب قيد المراجعة" : "Account Under Review",
+            description: language === "ar" 
+              ? (isPending 
+                ? "طلب تسجيل مؤسستك لا يزال قيد المراجعة من قبل إدارة المنصة"
+                : "تم رفض طلب تسجيل مؤسستك. تواصل مع إدارة المنصة")
+              : (isPending
+                ? "Your institution registration is still under review"
+                : "Your institution registration was rejected. Contact platform admin"),
+            variant: isPending ? "default" : "destructive",
+          });
+          await supabase.auth.signOut();
           return;
         }
 

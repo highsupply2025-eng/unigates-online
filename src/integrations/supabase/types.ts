@@ -1453,6 +1453,7 @@ export type Database = {
           }
       get_profile_count: { Args: never; Returns: number }
       get_profile_count_by_role: { Args: { _role: string }; Returns: number }
+      get_user_email: { Args: { _user_id: string }; Returns: string }
       has_approved_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

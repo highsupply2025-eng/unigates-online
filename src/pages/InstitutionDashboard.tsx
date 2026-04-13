@@ -1385,6 +1385,63 @@ const InstitutionDashboard = () => {
                             </CardContent>
                           </Card>
                         </div>
+                        {/* Rating Distribution Charts */}
+                        {lecturerRatings.length > 0 && (() => {
+                          const distData = [1, 2, 3, 4, 5].map(star => ({
+                            name: `${star} ⭐`,
+                            count: lecturerRatings.filter((r: any) => r.rating === star).length,
+                            color: star <= 2 ? '#ef4444' : star === 3 ? '#f59e0b' : '#22c55e',
+                          }));
+                          const excellentCount = lecturerRatings.filter((r: any) => r.rating >= 4).length;
+                          const avgCount = lecturerRatings.filter((r: any) => r.rating === 3).length;
+                          const lowCount = lecturerRatings.filter((r: any) => r.rating <= 2).length;
+                          const pieData = [
+                            { name: isRtl ? 'ممتاز (4-5)' : 'Excellent (4-5)', value: excellentCount, color: '#22c55e' },
+                            { name: isRtl ? 'متوسط (3)' : 'Average (3)', value: avgCount, color: '#f59e0b' },
+                            { name: isRtl ? 'ضعيف (1-2)' : 'Low (1-2)', value: lowCount, color: '#ef4444' },
+                          ].filter(d => d.value > 0);
+                          return (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                              <Card className="border">
+                                <CardHeader className="pb-1">
+                                  <CardTitle className="text-xs">{isRtl ? "توزيع التقييمات" : "Rating Distribution"}</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                  <ResponsiveContainer width="100%" height={200}>
+                                    <BarChart data={distData}>
+                                      <CartesianGrid strokeDasharray="3 3" />
+                                      <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                                      <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                                      <Tooltip />
+                                      <Bar dataKey="count" name={isRtl ? "العدد" : "Count"}>
+                                        {distData.map((entry, index) => (
+                                          <Cell key={index} fill={entry.color} />
+                                        ))}
+                                      </Bar>
+                                    </BarChart>
+                                  </ResponsiveContainer>
+                                </CardContent>
+                              </Card>
+                              <Card className="border">
+                                <CardHeader className="pb-1">
+                                  <CardTitle className="text-xs">{isRtl ? "نسبة التقييمات" : "Rating Ratio"}</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                  <ResponsiveContainer width="100%" height={200}>
+                                    <PieChart>
+                                      <Pie data={pieData} cx="50%" cy="50%" outerRadius={70} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                                        {pieData.map((entry, index) => (
+                                          <Cell key={index} fill={entry.color} />
+                                        ))}
+                                      </Pie>
+                                      <Tooltip />
+                                    </PieChart>
+                                  </ResponsiveContainer>
+                                </CardContent>
+                              </Card>
+                            </div>
+                          );
+                        })()}
 
                         {lecturerRatings.length === 0 ? (
                           <p className="text-sm text-center text-muted-foreground py-4">

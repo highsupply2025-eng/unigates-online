@@ -1614,19 +1614,16 @@ const InstitutionDashboard = () => {
                       const baseUrl = window.location.origin;
                       const isCollege = institutionType === "college";
                       const roleLabels: Record<string, { ar: string; en: string; icon: React.ReactNode }> = {
-                        department_head: { ar: "رئيس القسم", en: "Department Head", icon: <UserCheck className="w-5 h-5 text-blue-600" /> },
-                        vice_dean: { ar: isCollege ? "وكيل الكلية" : "وكيل المعهد", en: isCollege ? "Vice Dean" : "Vice Director", icon: <Users className="w-5 h-5 text-purple-600" /> },
                         dean: { ar: isCollege ? "عميد الكلية" : "مدير المعهد", en: isCollege ? "Dean" : "Director", icon: <GraduationCap className="w-5 h-5 text-amber-600" /> },
+                        vice_dean: { ar: isCollege ? "وكيل الكلية" : "وكيل المعهد", en: isCollege ? "Vice Dean" : "Vice Director", icon: <Users className="w-5 h-5 text-purple-600" /> },
+                        department_head: { ar: "رئيس القسم", en: "Department Head", icon: <UserCheck className="w-5 h-5 text-blue-600" /> },
                       };
-                      return leadershipInvitations.map((inv: any) => {
+                      const roleOrder = ["dean", "vice_dean", "department_head"];
+                      const sorted = [...leadershipInvitations].sort((a: any, b: any) => roleOrder.indexOf(a.role) - roleOrder.indexOf(b.role));
+                      return sorted.map((inv: any) => {
                         const label = roleLabels[inv.role] || { ar: inv.role, en: inv.role, icon: <User className="w-5 h-5" /> };
-                        const roleParam = inv.role;
                         const instPath = institutionType === "college" ? "college" : "institute";
-                        const inviteLink = `${baseUrl}/signup/${instPath}/${roleParam}?code=${inv.invitation_code}`;
-                        const shareText = isRtl
-                          ? `مرحباً، يمكنك التسجيل كـ ${label.ar} في منصة إدراك عبر هذا الرابط:\n${inviteLink}\nكود الدعوة: ${inv.invitation_code}`
-                          : `Hi, register as ${label.en} on Edrak platform:\n${inviteLink}\nInvitation code: ${inv.invitation_code}`;
-                        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+                        const inviteLink = `${baseUrl}/signup/${instPath}/${inv.role}?code=${inv.invitation_code}`;
                         return (
                           <div key={inv.id} className="flex items-center justify-between p-4 rounded-xl border-2 bg-background">
                             <div className="flex items-center gap-3">
@@ -1654,15 +1651,6 @@ const InstitutionDashboard = () => {
                               >
                                 <LinkIcon className="w-3.5 h-3.5 me-1" />
                                 {isRtl ? "نسخ الرابط" : "Copy Link"}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-green-600 border-green-300"
-                                onClick={() => window.open(whatsappUrl, "_blank")}
-                              >
-                                <Share2 className="w-3.5 h-3.5 me-1" />
-                                WhatsApp
                               </Button>
                             </div>
                           </div>

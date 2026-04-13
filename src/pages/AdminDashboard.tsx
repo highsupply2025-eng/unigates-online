@@ -1282,6 +1282,115 @@ const AdminDashboard = () => {
             )}
           </TabsContent>
 
+          {/* ===== Departments Admin ===== */}
+          <TabsContent value="departments_admin">
+            <div className="space-y-4">
+              <h2 className="text-lg font-bold flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-primary" />
+                {ar("إدارة الأقسام - الموافقة والدفع النقدي", "Departments - Approval & Cash Payment")}
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <Card><CardContent className="p-4 text-center">
+                  <p className="text-3xl font-black text-primary">{stats.totalDepartments}</p>
+                  <p className="text-sm text-muted-foreground">{ar("إجمالي الأقسام", "Total Departments")}</p>
+                </CardContent></Card>
+                <Card><CardContent className="p-4 text-center">
+                  <p className="text-3xl font-black text-amber-500">{stats.pendingDepartments}</p>
+                  <p className="text-sm text-muted-foreground">{ar("بانتظار الموافقة", "Pending Approval")}</p>
+                </CardContent></Card>
+                <Card><CardContent className="p-4 text-center">
+                  <p className="text-3xl font-black text-emerald-500">{departments.filter(d => d.payment_status === "paid").length}</p>
+                  <p className="text-sm text-muted-foreground">{ar("أقسام مفعّلة", "Active Departments")}</p>
+                </CardContent></Card>
+              </div>
+
+              {departments.length === 0 ? (
+                <Card><CardContent className="text-center py-10 text-muted-foreground">
+                  <Building2 className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                  <p>{ar("لا توجد أقسام بعد", "No departments yet")}</p>
+                </CardContent></Card>
+              ) : (
+                <div className="space-y-3">
+                  {departments.map(dept => {
+                    const members = departmentMembers.filter(m => m.department_id === dept.id);
+                    const students = members.filter(m => m.role === "student").length;
+                    const lecturers = members.filter(m => m.role === "lecturer").length;
+                    // Find institution name
+                    const college = colleges.find(c => c.id === dept.institution_id);
+                    const institute = institutes.find(i => i.id === dept.institution_id);
+                    const instName = college?.college_name || institute?.institute_name || dept.institution_id.slice(0, 8);
+                    return (
+                      <Card key={dept.id} className={`border-2 ${dept.payment_status === "paid" ? "border-emerald-500/30" : "border-amber-500/30"}`}>
+                        <CardContent className="p-4">
+                          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Building2 className="w-5 h-5 text-primary" />
+                                <h3 className="font-bold text-foreground">{dept.department_name}</h3>
+                                <Badge variant={dept.payment_status === "paid" ? "default" : "secondary"}>
+                                  {dept.payment_status === "paid" ? ar("مفعّل ✅", "Active ✅") : ar("بانتظار الموافقة", "Pending")}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                <Landmark className="w-3.5 h-3.5 inline me-1" />
+                                {instName} · {dept.institution_type === "college" ? ar("كلية", "College") : ar("معهد", "Institute")}
+                              </p>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {students} {ar("طالب", "students")} · {lecturers} {ar("محاضر", "lecturers")} · {dept.payment_amount} {ar("جنيه/شهر", "EGP/month")}
+                              </p>
+                              <p className="text-xs text-muted-foreground">{fmtDate(dept.created_at)}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {dept.payment_status !== "paid" && (
+                                <Button
+                                  size="sm"
+                                  className="gap-1.5"
+                                  onClick={async () => {
+                                    try {
+                                      await supabase
+                                        .from("departments")
+                                        .update({ payment_status: "paid", status: "active" } as any)
+                                        .eq("id", dept.id);
+                                      showSuccess(ar("تم تفعيل القسم بنجاح - تم استلام الدفع نقداً", "Department activated - Cash payment received"));
+                                      await Promise.all([loadDepartments(), loadStats()]);
+                                    } catch (e: any) {
+                                      showError(e.message);
+                                    }
+                                  }}
+                                >
+                                  <CheckCircle className="w-4 h-4" />
+                                  {ar("موافقة (تم الدفع نقداً)", "Approve (Cash Paid)")}
+                                </Button>
+                              )}
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-destructive border-destructive/30 hover:bg-destructive/10"
+                                onClick={async () => {
+                                  try {
+                                    await supabase.from("department_members").delete().eq("department_id", dept.id);
+                                    await supabase.from("departments").delete().eq("id", dept.id);
+                                    showSuccess(ar("تم حذف القسم", "Department deleted"));
+                                    await Promise.all([loadDepartments(), loadDepartmentMembers(), loadStats()]);
+                                  } catch (e: any) {
+                                    showError(e.message);
+                                  }
+                                }}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
           {/* ===== Notifications ===== */}
           <TabsContent value="notifications">
             <Card className="mb-6">

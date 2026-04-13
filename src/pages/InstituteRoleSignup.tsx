@@ -29,7 +29,7 @@ const roleConfig: Record<string, { icon: any; labelAr: string; labelEn: string; 
 
 const InstituteRoleSignup = () => {
   const { role } = useParams<{ role: string }>();
-  const { t, dir, toggleLanguage } = useLanguage();
+  const { t, dir, language, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
   const goBack = useSmartBack();
   const { toast } = useToast();

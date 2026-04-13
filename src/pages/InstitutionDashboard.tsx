@@ -724,7 +724,7 @@ const InstitutionDashboard = () => {
           </div>
         ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab} dir={dir}>
-          <TabsList className={`grid w-full ${isLeadershipRole ? "grid-cols-6" : "grid-cols-3"} mb-6`}>
+          <TabsList className={`grid w-full ${isLeadershipRole ? "grid-cols-7" : "grid-cols-3"} mb-6`}>
             <TabsTrigger value="overview" className="gap-1 text-xs">
               <Building2 className="w-4 h-4" />
               {isRtl ? "عامة" : "Overview"}

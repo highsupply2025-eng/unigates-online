@@ -1213,6 +1213,103 @@ const InstitutionDashboard = () => {
             </TabsContent>
           )}
 
+          {/* Schedules Tab - Leadership Only */}
+          {isLeadershipRole && (
+            <TabsContent value="schedules">
+              <h2 className="text-lg font-bold mb-4">{isRtl ? "جداول المحاضرات والاختبارات" : "Lectures & Exams Schedule"}</h2>
+
+              {/* Exam Schedules */}
+              {(() => {
+                const exams = examSchedules.filter(s => s.schedule_type === 'exam');
+                const lectures = examSchedules.filter(s => s.schedule_type !== 'exam');
+                return (
+                  <>
+                    <Card className="mb-4">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm flex items-center gap-2">
+                          <ClipboardList className="w-4 h-4 text-red-500" />
+                          {isRtl ? "جداول الاختبارات" : "Exam Schedules"}
+                          <Badge variant="destructive" className="text-[10px]">{exams.length}</Badge>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {exams.length === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-4">
+                            {isRtl ? "لا توجد اختبارات مجدولة" : "No exams scheduled"}
+                          </p>
+                        ) : (
+                          <div className="space-y-2">
+                            {exams.map(sch => (
+                              <div key={sch.id} className="flex items-center justify-between p-3 rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/20">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
+                                    <ClipboardList className="w-5 h-5 text-red-500" />
+                                  </div>
+                                  <div>
+                                    <p className="font-bold text-sm">{isRtl ? sch.title_ar : sch.title_en}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                      <Calendar className="w-3 h-3 inline me-1" />
+                                      {new Date(sch.scheduled_date).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
+                                      {sch.start_time && ` · ${sch.start_time}`}
+                                      {sch.end_time && ` - ${sch.end_time}`}
+                                    </p>
+                                    {(sch.location_ar || sch.location_en) && (
+                                      <p className="text-xs text-muted-foreground">{isRtl ? sch.location_ar : sch.location_en}</p>
+                                    )}
+                                  </div>
+                                </div>
+                                <Badge className="bg-red-100 text-red-700">{isRtl ? "اختبار" : "Exam"}</Badge>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm flex items-center gap-2">
+                          <BookOpen className="w-4 h-4 text-primary" />
+                          {isRtl ? "جداول المحاضرات" : "Lecture Schedules"}
+                          <Badge variant="outline" className="text-[10px]">{lectures.length}</Badge>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {lectures.length === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-4">
+                            {isRtl ? "لا توجد محاضرات مجدولة" : "No lectures scheduled"}
+                          </p>
+                        ) : (
+                          <div className="space-y-2">
+                            {lectures.map(sch => (
+                              <div key={sch.id} className="flex items-center justify-between p-3 rounded-lg border">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                    <BookOpen className="w-5 h-5 text-primary" />
+                                  </div>
+                                  <div>
+                                    <p className="font-bold text-sm">{isRtl ? sch.title_ar : sch.title_en}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                      <Calendar className="w-3 h-3 inline me-1" />
+                                      {new Date(sch.scheduled_date).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
+                                      {sch.start_time && ` · ${sch.start_time}`}
+                                      {sch.end_time && ` - ${sch.end_time}`}
+                                    </p>
+                                  </div>
+                                </div>
+                                <Badge variant="outline">{isRtl ? "محاضرة" : "Lecture"}</Badge>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </>
+                );
+              })()}
+            </TabsContent>
+          )}
+
           {/* Invitations Tab - Links & Codes */}
           <TabsContent value="invitations">
             {departments.filter(d => d.payment_status === "paid").length === 0 ? (

@@ -54,14 +54,23 @@ const SiteHeader = () => {
           </Button>
         </div>
 
-        {/* Mobile hamburger */}
-        <button
-          className="md:hidden p-2 rounded-lg bg-primary/20 text-primary-foreground"
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle menu"
-        >
-          {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        {/* Mobile/Tablet action icons */}
+        <div className="md:hidden flex items-center gap-1.5">
+          <button
+            onClick={toggleLanguage}
+            className="p-2 rounded-lg bg-primary/20 text-primary-foreground"
+            aria-label="Toggle language"
+          >
+            <Globe className="w-5 h-5" />
+          </button>
+          <button
+            className="p-2 rounded-lg bg-primary/20 text-primary-foreground"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
+          >
+            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu - semi-transparent slide from left */}

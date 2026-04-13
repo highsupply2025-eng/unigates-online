@@ -243,7 +243,27 @@ const InstitutionDashboard = () => {
           max_uses: 1,
           is_active: true,
         }));
-        await supabase.from(tableName as any).insert(inserts);
+        const { error: insertError } = await supabase.from(tableName as any).insert(inserts);
+        if (!insertError) {
+          // Send notification about free leadership links
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            const isCollege = instType === "college";
+            const roleNamesAr = missingRoles.map(r => 
+              r === "dean" ? (isCollege ? "عميد الكلية" : "مدير المعهد") :
+              r === "vice_dean" ? (isCollege ? "وكيل الكلية" : "وكيل المعهد") : "رئيس القسم"
+            ).join("، ");
+            await supabase.from("notifications").insert({
+              sender_id: user.id,
+              recipient_id: user.id,
+              notification_type: "leadership_links",
+              title_ar: "🎉 روابط قيادة مجانية جاهزة",
+              title_en: "🎉 Free Leadership Links Ready",
+              message_ar: `تم إنشاء روابط دعوة مجانية لـ: ${roleNamesAr}. يمكنك مشاركتها من تبويب الدعوات.`,
+              message_en: `Free invitation links created for: ${missingRoles.join(", ")}. Share them from the Invitations tab.`,
+            });
+          }
+        }
         const { data: allInvites } = await supabase
           .from(tableName as any)
           .select("*")

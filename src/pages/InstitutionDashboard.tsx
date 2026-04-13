@@ -319,8 +319,10 @@ const InstitutionDashboard = () => {
       setNewDeptStudentCount("");
       setNewDeptLecturerCount("");
       await loadInstitutionData(institutionId, institutionType || "college");
+      setAddingDept(false);
     } catch (error: any) {
       toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+      setAddingDept(false);
     }
   };
 

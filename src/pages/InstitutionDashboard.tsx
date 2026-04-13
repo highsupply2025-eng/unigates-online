@@ -214,6 +214,40 @@ const InstitutionDashboard = () => {
     const countMap: Record<string, number> = {};
     Object.entries(counts).forEach(([sid, set]) => { countMap[sid] = set.size; });
     setStreamAttendance(countMap);
+
+    // Load or create leadership invitations (college only)
+    if (instType === "college") {
+      const { data: existingInvites } = await supabase
+        .from("college_invitations")
+        .select("*")
+        .eq("college_id", instId)
+        .in("role", ["department_head", "vice_dean", "dean"]);
+
+      if (existingInvites && existingInvites.length >= 3) {
+        setLeadershipInvitations(existingInvites);
+      } else {
+        // Create missing leadership invitations
+        const existingRoles = (existingInvites || []).map((i: any) => i.role);
+        const leadershipRoles = ["department_head", "vice_dean", "dean"];
+        const missingRoles = leadershipRoles.filter(r => !existingRoles.includes(r));
+        
+        if (missingRoles.length > 0) {
+          const inserts = missingRoles.map(role => ({
+            college_id: instId,
+            role,
+            max_uses: 1,
+            is_active: true,
+          }));
+          await supabase.from("college_invitations").insert(inserts);
+          const { data: allInvites } = await supabase
+            .from("college_invitations")
+            .select("*")
+            .eq("college_id", instId)
+            .in("role", ["department_head", "vice_dean", "dean"]);
+          setLeadershipInvitations(allInvites || []);
+        }
+      }
+    }
   };
 
   const handleAddDepartment = async () => {

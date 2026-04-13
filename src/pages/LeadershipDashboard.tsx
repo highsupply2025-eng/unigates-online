@@ -483,6 +483,120 @@ const LeadershipDashboard = () => {
             </Card>
           </TabsContent>
 
+          {/* Quiz Results */}
+          <TabsContent value="quizresults" id="section-quizresults">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold">{isRtl ? "نتائج الاختبارات" : "Quiz Results"}</h2>
+              <Button size="sm" variant="outline" onClick={() => exportToPDF("quizresults")} className="gap-1.5">
+                <Download className="w-4 h-4" />
+                {isRtl ? "تحميل PDF" : "Export PDF"}
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <p className="text-3xl font-black text-primary">{quizzes.length}</p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "إجمالي الاختبارات" : "Total Quizzes"}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <p className="text-3xl font-black text-emerald-600">{quizSubmissions.length}</p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "إجمالي التقديمات" : "Total Submissions"}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <p className="text-3xl font-black text-amber-600">
+                    {quizSubmissions.length > 0
+                      ? Math.round(quizSubmissions.reduce((a, s) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / quizSubmissions.length)
+                      : 0}%
+                  </p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "متوسط النتيجة" : "Avg Score"}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <p className="text-3xl font-black text-emerald-500">
+                    {quizSubmissions.filter(s => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "ناجح (≥50%)" : "Passed (≥50%)"}</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {quizzes.map(quiz => {
+              const subs = quizSubmissions.filter(s => s.quiz_id === quiz.id);
+              if (subs.length === 0) return null;
+              const avgScore = subs.length > 0 
+                ? Math.round(subs.reduce((a, s) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / subs.length) 
+                : 0;
+              return (
+                <Card key={quiz.id} className="mb-4">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm flex items-center justify-between">
+                      <span className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-primary" />
+                        {isRtl ? quiz.title_ar : quiz.title_en}
+                      </span>
+                      <Badge variant="outline">{subs.length} {isRtl ? "تقديم" : "submissions"}</Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center gap-4 mb-3">
+                      <div className="text-center">
+                        <p className="text-lg font-bold text-primary">{avgScore}%</p>
+                        <p className="text-[10px] text-muted-foreground">{isRtl ? "المتوسط" : "Average"}</p>
+                      </div>
+                      <div className="flex-1">
+                        <Progress value={avgScore} className="h-2" />
+                      </div>
+                    </div>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>{isRtl ? "الطالب" : "Student"}</TableHead>
+                          <TableHead>{isRtl ? "الدرجة" : "Score"}</TableHead>
+                          <TableHead>{isRtl ? "النسبة" : "Percentage"}</TableHead>
+                          <TableHead>{isRtl ? "التاريخ" : "Date"}</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {subs.map(sub => {
+                          const pct = Math.round(((sub.score || 0) / Math.max(sub.total_points || 1, 1)) * 100);
+                          return (
+                            <TableRow key={sub.id}>
+                              <TableCell className="text-sm">{sub.student_id?.slice(0, 8)}...</TableCell>
+                              <TableCell className="font-bold">{sub.score || 0}/{sub.total_points || 0}</TableCell>
+                              <TableCell>
+                                <Badge variant={pct >= 50 ? "default" : "destructive"}>
+                                  {pct}%
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-sm text-muted-foreground">
+                                {new Date(sub.submitted_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              );
+            })}
+
+            {quizSubmissions.length === 0 && (
+              <Card>
+                <CardContent className="text-center py-8 text-muted-foreground">
+                  <CheckCircle className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                  <p>{isRtl ? "لا توجد نتائج اختبارات بعد" : "No quiz results yet"}</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
           {/* Ratings */}
           <TabsContent value="ratings" id="section-ratings">
             <div className="flex items-center justify-between mb-4">

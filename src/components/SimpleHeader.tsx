@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, Globe, ArrowLeft, Menu } from "lucide-react";
+import { GraduationCap, Globe, ArrowLeft, Menu, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -47,7 +47,7 @@ const SimpleHeader = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-48">
               <DropdownMenuItem onClick={() => navigate('/signup')} className="gap-2 cursor-pointer">
-                <UserPlus className="w-4 h-4 text-primary" />
+                <LogIn className="w-4 h-4 text-primary" />
                 <span className="text-sm font-semibold">{t.signup}</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">

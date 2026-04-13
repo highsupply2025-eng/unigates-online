@@ -1601,7 +1601,8 @@ const InstitutionDashboard = () => {
                       return leadershipInvitations.map((inv: any) => {
                         const label = roleLabels[inv.role] || { ar: inv.role, en: inv.role, icon: <User className="w-5 h-5" /> };
                         const roleParam = inv.role;
-                        const inviteLink = `${baseUrl}/signup?role=${roleParam}&code=${inv.invitation_code}`;
+                        const instPath = institutionType === "college" ? "college" : "institute";
+                        const inviteLink = `${baseUrl}/signup/${instPath}/${roleParam}?code=${inv.invitation_code}`;
                         const shareText = isRtl
                           ? `مرحباً، يمكنك التسجيل كـ ${label.ar} في منصة إدراك عبر هذا الرابط:\n${inviteLink}\nكود الدعوة: ${inv.invitation_code}`
                           : `Hi, register as ${label.en} on Edrak platform:\n${inviteLink}\nInvitation code: ${inv.invitation_code}`;
@@ -1749,7 +1750,8 @@ const InstitutionDashboard = () => {
                   return (
                     <div className="space-y-3">
                       {members.map(member => {
-                        const inviteLink = `${baseUrl}/signup?role=${roleParam}&dept_invite=${member.invitation_code}`;
+                        const instPath = institutionType === "college" ? "college" : "institute";
+                        const inviteLink = `${baseUrl}/signup/${instPath}/${roleParam}?code=${member.invitation_code}`;
                         const shareText = isRtl
                           ? `مرحباً ${member.full_name}، يمكنك التسجيل في منصة إدراك عبر هذا الرابط:\n${inviteLink}\nكود الدعوة: ${member.invitation_code}`
                           : `Hi ${member.full_name}, register on Edrak platform:\n${inviteLink}\nInvitation code: ${member.invitation_code}`;

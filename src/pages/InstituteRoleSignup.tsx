@@ -161,14 +161,18 @@ const InstituteRoleSignup = () => {
         if (result && !result.success) throw new Error(result.error);
 
         if (verifiedInvitation) {
-          // Update invitation used count
-          await supabase
-            .from("institute_invitations")
-            .update({ used_count: (verifiedInvitation.used_count || 0) + 1 })
-            .eq("id", verifiedInvitation.id);
+          if (verifiedInvitation._source === "institute_invitations") {
+            await supabase
+              .from("institute_invitations")
+              .update({ used_count: (verifiedInvitation.used_count || 0) + 1 })
+              .eq("id", verifiedInvitation.id);
+          } else if (verifiedInvitation._source === "department_members") {
+            await supabase
+              .from("department_members")
+              .update({ user_id: authData.user.id })
+              .eq("id", verifiedInvitation.id);
+          }
         }
-
-        // approval handled by p_force_approve in complete_signup
       }
 
       setSubmitted(true);

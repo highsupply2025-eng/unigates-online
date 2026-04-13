@@ -1574,8 +1574,8 @@ const InstitutionDashboard = () => {
 
           {/* Invitations Tab - Links & Codes */}
           <TabsContent value="invitations">
-            {/* Free Leadership Links - Always visible for colleges */}
-            {institutionType === "college" && leadershipInvitations.length > 0 && (
+            {/* Free Leadership Links - Always visible */}
+            {leadershipInvitations.length > 0 && (
               <Card className="mb-6 border-2 border-emerald-500/30 bg-emerald-50/30 dark:bg-emerald-950/10">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-lg">

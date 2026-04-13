@@ -93,13 +93,7 @@ const DepartmentPage = () => {
   const students = members.filter(m => m.role === "student");
   const baseUrl = window.location.origin;
   const instPath = institutionType === "college" ? "college" : "institute";
-  const isCollege = institutionType === "college";
 
-  const roleLabels: Record<string, { ar: string; en: string; icon: React.ReactNode }> = {
-    dean: { ar: isCollege ? "عميد الكلية" : "مدير المعهد", en: isCollege ? "Dean" : "Director", icon: <GraduationCap className="w-5 h-5 text-amber-600" /> },
-    vice_dean: { ar: isCollege ? "وكيل الكلية" : "وكيل المعهد", en: isCollege ? "Vice Dean" : "Vice Director", icon: <Users className="w-5 h-5 text-purple-600" /> },
-    department_head: { ar: "رئيس القسم", en: "Department Head", icon: <UserCheck className="w-5 h-5 text-blue-600" /> },
-  };
 
   const renderMemberCard = (member: DepartmentMember, roleParam: string, colorClass: string, icon: React.ReactNode) => {
     const inviteLink = `${baseUrl}/signup/${instPath}/${roleParam}?code=${member.invitation_code}`;

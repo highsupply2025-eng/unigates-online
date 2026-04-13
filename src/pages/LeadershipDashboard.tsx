@@ -202,6 +202,25 @@ const LeadershipDashboard = () => {
             <tr><th>${isRtl ? "العنوان" : "Title"}</th><th>${isRtl ? "الموعد النهائي" : "Due Date"}</th></tr>
             ${assignments.map(a => `<tr><td>${isRtl ? a.title_ar : a.title_en}</td><td>${a.due_date ? new Date(a.due_date).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US') : '-'}</td></tr>`).join('')}
           </table>`;
+      case "quizresults":
+        const avgScorePdf = quizSubmissions.length > 0
+          ? Math.round(quizSubmissions.reduce((a, s) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / quizSubmissions.length)
+          : 0;
+        return `
+          <h2>${isRtl ? "تقرير نتائج الاختبارات" : "Quiz Results Report"}</h2>
+          <div>
+            <div class="stat"><div class="stat-value">${quizzes.length}</div><div class="stat-label">${isRtl ? "الاختبارات" : "Quizzes"}</div></div>
+            <div class="stat"><div class="stat-value">${quizSubmissions.length}</div><div class="stat-label">${isRtl ? "التقديمات" : "Submissions"}</div></div>
+            <div class="stat"><div class="stat-value">${avgScorePdf}%</div><div class="stat-label">${isRtl ? "متوسط النتيجة" : "Avg Score"}</div></div>
+          </div>
+          <table>
+            <tr><th>${isRtl ? "الاختبار" : "Quiz"}</th><th>${isRtl ? "الدرجة" : "Score"}</th><th>${isRtl ? "النسبة" : "Percentage"}</th><th>${isRtl ? "التاريخ" : "Date"}</th></tr>
+            ${quizSubmissions.slice(0, 100).map(s => {
+              const quiz = quizzes.find(q => q.id === s.quiz_id);
+              const pct = Math.round(((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100);
+              return `<tr><td>${quiz ? (isRtl ? quiz.title_ar : quiz.title_en) : '-'}</td><td>${s.score || 0}/${s.total_points || 0}</td><td><span class="badge ${pct >= 50 ? 'badge-green' : 'badge-red'}">${pct}%</span></td><td>${new Date(s.submitted_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}</td></tr>`;
+            }).join('')}
+          </table>`;
       case "schedule":
         return `
           <h2>${isRtl ? "جدول المحاضرات" : "Lecture Schedule"}</h2>

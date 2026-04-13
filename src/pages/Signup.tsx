@@ -58,6 +58,58 @@ const Signup = () => {
   const deptInviteFromUrl = searchParams.get("dept_invite") || "";
   const roleFromUrl = searchParams.get("role") || "";
   const collegeInviteFromUrl = searchParams.get("invite") || "";
+
+  // Redirect dept_invite links to the correct institution signup page
+  useEffect(() => {
+    const code = deptInviteFromUrl || collegeInviteFromUrl;
+    const role = roleFromUrl;
+    if (code && role) {
+      // Try to determine institution type by checking both tables
+      const checkInstitution = async () => {
+        // Check college_invitations first
+        const { data: collegeData } = await supabase
+          .from("college_invitations")
+          .select("id")
+          .eq("invitation_code", code)
+          .maybeSingle();
+        if (collegeData) {
+          navigate(`/signup/college/${role}?code=${code}`, { replace: true });
+          return;
+        }
+        // Check institute_invitations
+        const { data: instituteData } = await supabase
+          .from("institute_invitations")
+          .select("id")
+          .eq("invitation_code", code)
+          .maybeSingle();
+        if (instituteData) {
+          navigate(`/signup/institute/${role}?code=${code}`, { replace: true });
+          return;
+        }
+        // Check department_members for dept_invite codes
+        if (deptInviteFromUrl) {
+          const { data: memberData } = await supabase
+            .from("department_members" as any)
+            .select("department_id")
+            .eq("invitation_code", code)
+            .maybeSingle();
+          if (memberData) {
+            const { data: deptData } = await supabase
+              .from("departments" as any)
+              .select("institution_type")
+              .eq("id", (memberData as any).department_id)
+              .maybeSingle();
+            if (deptData) {
+              const instPath = (deptData as any).institution_type === "institute" ? "institute" : "college";
+              navigate(`/signup/${instPath}/${role}?code=${code}`, { replace: true });
+              return;
+            }
+          }
+        }
+      };
+      checkInstitution();
+    }
+  }, []);
   
   const [selectedRole, setSelectedRole] = useState<"personal" | "lecturer" | null>(
     roleParam === "lecturer" || roleFromUrl === "lecturer" ? "lecturer" : roleParam ? "personal" : roleFromUrl === "student" ? "personal" : null

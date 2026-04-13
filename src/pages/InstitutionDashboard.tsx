@@ -780,6 +780,7 @@ const InstitutionDashboard = () => {
 
             {/* Live Stream Stats - Only for leadership roles */}
             {isLeadershipRole && (
+              <>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <Card className="border-2 border-red-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab("livestreams")}>
                   <CardContent className="p-5 text-center">
@@ -803,7 +804,6 @@ const InstitutionDashboard = () => {
                   </CardContent>
                 </Card>
               </div>
-              {/* Quiz Stats in Overview */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <Card className="border-2 border-purple-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab("quizresults")}>
                   <CardContent className="p-5 text-center">
@@ -820,6 +820,7 @@ const InstitutionDashboard = () => {
                   </CardContent>
                 </Card>
               </div>
+              </>
             )}
 
             {departments.length === 0 ? (

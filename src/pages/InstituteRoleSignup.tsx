@@ -70,7 +70,7 @@ const InstituteRoleSignup = () => {
     setVerifyingCode(true);
     try {
       const { data, error } = await supabase
-        .from("college_invitations")
+        .from("institute_invitations")
         .select("*")
         .eq("invitation_code", code.trim())
         .eq("is_active", true)

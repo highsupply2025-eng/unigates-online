@@ -1065,7 +1065,7 @@ const AdminDashboard = () => {
                                           <div className="flex items-center gap-2">
                                             <Badge variant="outline" className="text-xs">{m.role === "student" ? ar("طالب","Student") : ar("محاضر","Lecturer")}</Badge>
                                             {m.invitation_code && (
-                                              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => copyDeptInviteLink(m.invitation_code!, m.role)}>
+                                              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => copyDeptInviteLink(m.invitation_code!, m.role, dept.institution_type as "college" | "institute")}>
                                                 <Copy className="w-3 h-3" />
                                               </Button>
                                             )}

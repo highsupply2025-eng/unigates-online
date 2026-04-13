@@ -54,22 +54,32 @@ const SiteHeader = () => {
           </Button>
         </div>
 
-        {/* Mobile/Tablet action icons */}
-        <div className="md:hidden flex items-center gap-1.5">
-          <button
-            onClick={toggleLanguage}
-            className="p-2 rounded-lg bg-primary/20 text-primary-foreground"
-            aria-label="Toggle language"
-          >
-            <Globe className="w-5 h-5" />
-          </button>
-          <button
-            className="p-2 rounded-lg bg-primary/20 text-primary-foreground"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
-          >
-            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+        {/* Mobile/Tablet dropdown */}
+        <div className="md:hidden">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="p-2 rounded-lg bg-primary/20 text-primary-foreground">
+                <Menu className="w-5 h-5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-48">
+              <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
+                <Globe className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold">{t.langSwitch}</span>
+              </DropdownMenuItem>
+              {mainNavItems.map((item) => {
+                const IconComp = item.icon;
+                return (
+                  <DropdownMenuItem key={item.to} asChild className="gap-2 cursor-pointer">
+                    <Link to={item.to}>
+                      <IconComp className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-semibold">{item.label}</span>
+                    </Link>
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

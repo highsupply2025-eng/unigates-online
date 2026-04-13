@@ -49,22 +49,11 @@ const SiteHeader = () => {
             </Link>
           ))}
 
-          {/* Dropdown for Login + Language */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="default" size="sm" className="font-semibold text-xs h-8 px-3 gap-1">
-                <LogIn className="w-3.5 h-3.5" />
-                {t.login}
-                <ChevronDown className="w-3 h-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align={dir === "rtl" ? "start" : "end"} className="min-w-[160px]">
-              <DropdownMenuItem onClick={toggleLanguage} className="flex items-center gap-2 cursor-pointer">
-                <Globe className="w-4 h-4" />
-                {t.langSwitch}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Language toggle */}
+          <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold text-xs h-8 px-3 gap-1">
+            <Globe className="w-3.5 h-3.5" />
+            {t.langSwitch}
+          </Button>
         </div>
 
         {/* Mobile hamburger */}

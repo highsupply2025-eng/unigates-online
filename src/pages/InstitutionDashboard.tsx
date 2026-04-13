@@ -531,7 +531,7 @@ const InstitutionDashboard = () => {
                         </div>
                         {member.invitation_code && (() => {
                           const instPath = institutionType === "college" ? "college" : "institute";
-                          const memberInviteLink = `${baseUrl}/signup/${instPath}/lecturer?code=${member.invitation_code}`;
+                          const memberInviteLink = `${window.location.origin}/signup/${instPath}/lecturer?code=${member.invitation_code}`;
                           const shareText = isRtl
                             ? `مرحباً ${member.full_name}، يمكنك التسجيل عبر هذا الرابط:\n${memberInviteLink}`
                             : `Hi ${member.full_name}, register via this link:\n${memberInviteLink}`;

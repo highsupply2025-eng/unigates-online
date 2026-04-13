@@ -330,49 +330,7 @@ const InstitutionDashboard = () => {
     }
   };
 
-  const handlePayment = async () => {
-    if (!paymentDept) return;
-    setPaymentProcessing(true);
-
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    try {
-      await supabase
-        .from("departments")
-        .update({ payment_status: "paid", status: "active" } as any)
-        .eq("id", paymentDept.id);
-
-      // Generate invitation codes for members without one
-      const members = deptMembers.filter(m => m.department_id === paymentDept.id && !m.invitation_code);
-      for (const member of members) {
-        const code = generateCode();
-        await supabase
-          .from("department_members")
-          .update({ invitation_code: code } as any)
-          .eq("id", member.id);
-      }
-
-      toast({
-        title: isRtl ? "✅ تم الدفع بنجاح!" : "✅ Payment Successful!",
-        description: isRtl
-          ? `تم دفع ${paymentDept.payment_amount} جنيه - أكواد الدعوة جاهزة`
-          : `${paymentDept.payment_amount} EGP paid - Invitation codes ready`,
-      });
-
-      setShowPaymentDialog(false);
-      setCardNumber("");
-      setCardExpiry("");
-      setCardCvv("");
-      setPaymentDept(null);
-      setActiveTab("invitations");
-      await loadInstitutionData(institutionId, institutionType || "college");
-    } catch (error: any) {
-      toast({ title: isRtl ? "خطأ في الدفع" : "Payment Error", description: error.message, variant: "destructive" });
-    } finally {
-      setPaymentProcessing(false);
-    }
-  };
+  // Payment is now handled via cash by admin approval - no client-side payment processing needed
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);

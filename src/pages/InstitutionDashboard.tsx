@@ -216,37 +216,39 @@ const InstitutionDashboard = () => {
     Object.entries(counts).forEach(([sid, set]) => { countMap[sid] = set.size; });
     setStreamAttendance(countMap);
 
-    // Load or create leadership invitations (college only)
-    if (instType === "college") {
-      const { data: existingInvites } = await supabase
-        .from("college_invitations")
-        .select("*")
-        .eq("college_id", instId)
-        .in("role", ["department_head", "vice_dean", "dean"]);
+    // Load or create leadership invitations
+    const leadershipRoles = instType === "college" 
+      ? ["department_head", "vice_dean", "dean"] 
+      : ["department_head", "vice_dean", "dean"];
+    const tableName = instType === "college" ? "college_invitations" : "institute_invitations";
+    const idColumn = instType === "college" ? "college_id" : "institute_id";
 
-      if (existingInvites && existingInvites.length >= 3) {
-        setLeadershipInvitations(existingInvites);
-      } else {
-        // Create missing leadership invitations
-        const existingRoles = (existingInvites || []).map((i: any) => i.role);
-        const leadershipRoles = ["department_head", "vice_dean", "dean"];
-        const missingRoles = leadershipRoles.filter(r => !existingRoles.includes(r));
-        
-        if (missingRoles.length > 0) {
-          const inserts = missingRoles.map(role => ({
-            college_id: instId,
-            role,
-            max_uses: 1,
-            is_active: true,
-          }));
-          await supabase.from("college_invitations").insert(inserts);
-          const { data: allInvites } = await supabase
-            .from("college_invitations")
-            .select("*")
-            .eq("college_id", instId)
-            .in("role", ["department_head", "vice_dean", "dean"]);
-          setLeadershipInvitations(allInvites || []);
-        }
+    const { data: existingInvites } = await supabase
+      .from(tableName as any)
+      .select("*")
+      .eq(idColumn, instId)
+      .in("role", leadershipRoles);
+
+    if (existingInvites && existingInvites.length >= 3) {
+      setLeadershipInvitations(existingInvites);
+    } else {
+      const existingRoles = (existingInvites || []).map((i: any) => i.role);
+      const missingRoles = leadershipRoles.filter(r => !existingRoles.includes(r));
+      
+      if (missingRoles.length > 0) {
+        const inserts = missingRoles.map(role => ({
+          [idColumn]: instId,
+          role,
+          max_uses: 1,
+          is_active: true,
+        }));
+        await supabase.from(tableName as any).insert(inserts);
+        const { data: allInvites } = await supabase
+          .from(tableName as any)
+          .select("*")
+          .eq(idColumn, instId)
+          .in("role", leadershipRoles);
+        setLeadershipInvitations(allInvites || []);
       }
     }
   };

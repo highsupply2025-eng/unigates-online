@@ -129,17 +129,20 @@ const DepartmentPage = () => {
             <LinkIcon className="w-3.5 h-3.5 me-1" />
             {isRtl ? "نسخ الرابط" : "Copy Link"}
           </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="text-green-600 border-green-300 hover:bg-green-50"
-            onClick={() => {
-              window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank");
-            }}
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(shareText)}`}
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            <MessageCircle className="w-3.5 h-3.5 me-1" />
-            {isRtl ? "واتساب" : "WhatsApp"}
-          </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-green-600 border-green-300 hover:bg-green-50"
+            >
+              <MessageCircle className="w-3.5 h-3.5 me-1" />
+              {isRtl ? "واتساب" : "WhatsApp"}
+            </Button>
+          </a>
         </div>
       </div>
     );

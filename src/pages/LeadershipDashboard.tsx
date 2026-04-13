@@ -331,12 +331,18 @@ const LeadershipDashboard = () => {
                   ) : (
                     <div className="space-y-2">
                       {liveNow.map(stream => (
-                        <div key={stream.id} className="flex items-center justify-between p-3 rounded-lg border bg-red-50 dark:bg-red-950/20">
+                         <div key={stream.id} className="flex items-center justify-between p-3 rounded-lg border bg-red-50 dark:bg-red-950/20">
                           <div>
                             <p className="font-bold text-sm">{isRtl ? stream.title_ar : stream.title_en}</p>
-                            <Badge variant="destructive" className="text-[10px] animate-pulse">
-                              <Radio className="w-3 h-3 me-1" /> LIVE
-                            </Badge>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant="destructive" className="text-[10px] animate-pulse">
+                                <Radio className="w-3 h-3 me-1" /> LIVE
+                              </Badge>
+                              <Badge variant="outline" className="text-[10px]">
+                                <Users className="w-3 h-3 me-1" />
+                                {streamAttendance[stream.id] || 0} {isRtl ? "طالب" : "students"}
+                              </Badge>
+                            </div>
                           </div>
                           <Button size="sm" variant="destructive" onClick={() => navigate(`/stream/${stream.id}`)}>
                             <Eye className="w-4 h-4 me-1" />

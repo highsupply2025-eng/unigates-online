@@ -165,18 +165,34 @@ const CollegeRoleSignup = () => {
         const result = rpcData as any;
         if (result && !result.success) throw new Error(result.error);
 
-        // 3. Join college via college_members + update used count
+        // 3. Handle invitation source
         if (verifiedInvitation) {
-          await supabase.from("college_members").insert({
-            user_id: authData.user.id,
-            college_id: verifiedInvitation.college_id,
-            role: role === "admin" ? "admin" : role || "student",
-            invitation_id: verifiedInvitation.id,
-          });
-          await supabase
-            .from("college_invitations")
-            .update({ used_count: (verifiedInvitation.used_count || 0) + 1 })
-            .eq("id", verifiedInvitation.id);
+          if (verifiedInvitation._source === "college_invitations") {
+            await supabase.from("college_members").insert({
+              user_id: authData.user.id,
+              college_id: verifiedInvitation.college_id,
+              role: role === "admin" ? "admin" : role || "student",
+              invitation_id: verifiedInvitation.id,
+            });
+            await supabase
+              .from("college_invitations")
+              .update({ used_count: (verifiedInvitation.used_count || 0) + 1 })
+              .eq("id", verifiedInvitation.id);
+          } else if (verifiedInvitation._source === "department_members") {
+            // Link user to existing department member record
+            await supabase
+              .from("department_members")
+              .update({ user_id: authData.user.id })
+              .eq("id", verifiedInvitation.id);
+            // Also join college_members if department has institution_id
+            if (verifiedInvitation.departments?.institution_id) {
+              await supabase.from("college_members").insert({
+                user_id: authData.user.id,
+                college_id: verifiedInvitation.departments.institution_id,
+                role: role === "admin" ? "admin" : role || "student",
+              });
+            }
+          }
         }
       }
 

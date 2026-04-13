@@ -69,6 +69,7 @@ const InstituteRoleSignup = () => {
     }
     setVerifyingCode(true);
     try {
+      // 1. Check institute_invitations table first
       const { data, error } = await supabase
         .from("institute_invitations")
         .select("*")
@@ -77,22 +78,40 @@ const InstituteRoleSignup = () => {
         .maybeSingle();
 
       if (error) throw error;
-      if (!data) {
-        toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "كود الدعوة غير صالح أو منتهي" : "Invalid or expired invitation code", variant: "destructive" });
-        return;
-      }
-      if (data.max_uses && data.max_uses > 0 && (data.used_count || 0) >= data.max_uses) {
-        toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "تم استخدام هذا الكود الحد الأقصى" : "This code has reached max usage", variant: "destructive" });
-        return;
-      }
-      if (data.expires_at && new Date(data.expires_at) < new Date()) {
-        toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "كود الدعوة منتهي الصلاحية" : "Invitation code has expired", variant: "destructive" });
+
+      if (data) {
+        if (data.max_uses && data.max_uses > 0 && (data.used_count || 0) >= data.max_uses) {
+          toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "تم استخدام هذا الكود الحد الأقصى" : "This code has reached max usage", variant: "destructive" });
+          return;
+        }
+        if (data.expires_at && new Date(data.expires_at) < new Date()) {
+          toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "كود الدعوة منتهي الصلاحية" : "Invitation code has expired", variant: "destructive" });
+          return;
+        }
+        setVerifiedInvitation({ ...data, _source: "institute_invitations" });
+        setCodeVerified(true);
+        toast({ title: isRtl ? "تم التحقق" : "Verified", description: isRtl ? "كود الدعوة صالح، أكمل التسجيل" : "Invitation code verified, complete registration" });
         return;
       }
 
-      setVerifiedInvitation(data);
-      setCodeVerified(true);
-      toast({ title: isRtl ? "تم التحقق" : "Verified", description: isRtl ? "كود الدعوة صالح، أكمل التسجيل" : "Invitation code verified, complete registration" });
+      // 2. Check department_members table
+      const { data: memberData, error: memberError } = await supabase
+        .from("department_members")
+        .select("*, departments(*)")
+        .eq("invitation_code", code.trim())
+        .is("user_id", null)
+        .maybeSingle();
+
+      if (memberError) throw memberError;
+
+      if (memberData) {
+        setVerifiedInvitation({ ...memberData, _source: "department_members" });
+        setCodeVerified(true);
+        toast({ title: isRtl ? "تم التحقق" : "Verified", description: isRtl ? "كود الدعوة صالح، أكمل التسجيل" : "Invitation code verified, complete registration" });
+        return;
+      }
+
+      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "كود الدعوة غير صالح أو منتهي" : "Invalid or expired invitation code", variant: "destructive" });
     } catch (err: any) {
       toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
     } finally {

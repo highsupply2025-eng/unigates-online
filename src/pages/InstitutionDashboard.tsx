@@ -1837,7 +1837,8 @@ const InstitutionDashboard = () => {
             <Button variant="outline" onClick={() => setShowAddDeptDialog(false)}>
               {isRtl ? "إلغاء" : "Cancel"}
             </Button>
-            <Button onClick={handleAddDepartment} disabled={!newDeptName || !newDeptStudentCount}>
+            <Button onClick={handleAddDepartment} disabled={!newDeptName || !newDeptStudentCount || addingDept}>
+              {addingDept ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : null}
               {isRtl ? "إضافة" : "Add"}
             </Button>
           </DialogFooter>

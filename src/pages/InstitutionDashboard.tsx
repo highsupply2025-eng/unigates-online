@@ -1036,10 +1036,10 @@ const InstitutionDashboard = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => { setSelectedDept(dept); setPageView("members"); }}
+                          onClick={() => navigate(`/institution/department/${dept.id}`)}
                         >
                           <Users className="w-4 h-4 me-1" />
-                          {isRtl ? "الأعضاء" : "Members"} ({members.length})
+                          {isRtl ? "صفحة القسم" : "Department Page"}
                         </Button>
                         <Button
                           variant="outline"

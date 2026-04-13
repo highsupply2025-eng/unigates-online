@@ -260,8 +260,8 @@ const InstitutionDashboard = () => {
       toast({
         title: isRtl ? "تم إضافة القسم" : "Department Added",
         description: isRtl
-          ? `تم إنشاء ${studentCount} طالب و ${lecturerCount} محاضر - تكلفة: ${paymentAmount} جنيه شهرياً`
-          : `Created ${studentCount} students & ${lecturerCount} lecturers - Cost: ${paymentAmount} EGP/month`,
+          ? `تم إنشاء القسم بنجاح - في انتظار موافقة إدارة المنصة والدفع نقداً (${paymentAmount} جنيه شهرياً)`
+          : `Department created - Pending platform admin approval & cash payment (${paymentAmount} EGP/month)`,
       });
       setShowAddDeptDialog(false);
       setNewDeptName("");

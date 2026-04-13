@@ -437,6 +437,7 @@ const AdminDashboard = () => {
     // Fetch fresh members for this department
     const { data: freshMembers } = await supabase.from("department_members" as any).select("*").eq("department_id", paymentDept.id);
     setGeneratedCodes((freshMembers as unknown as DepartmentMember[]) || []);
+    setSelectedCodesInstType(paymentDept.institution_type as "college" | "institute");
     setShowInvitationCodesDialog(true);
     setPaymentDept(null);
     await Promise.all([loadDepartments(), loadDepartmentMembers()]);
@@ -955,7 +956,7 @@ const AdminDashboard = () => {
                                         </Button>
                                       )}
                                       {dept.payment_status === "paid" && (
-                                        <Button variant="outline" size="sm" className="h-6 text-xs gap-1" onClick={() => { setGeneratedCodes(deptMembers); setShowInvitationCodesDialog(true); }}>
+                                        <Button variant="outline" size="sm" className="h-6 text-xs gap-1" onClick={() => { setGeneratedCodes(deptMembers); setSelectedCodesInstType(dept.institution_type as "college" | "institute"); setShowInvitationCodesDialog(true); }}>
                                           <LinkIcon className="w-3 h-3" />{ar("أكواد","Codes")}
                                         </Button>
                                       )}
@@ -1043,7 +1044,7 @@ const AdminDashboard = () => {
                                         </Button>
                                       )}
                                       {dept.payment_status === "paid" && (
-                                        <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => { setGeneratedCodes(members); setShowInvitationCodesDialog(true); }}>
+                                        <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => { setGeneratedCodes(members); setSelectedCodesInstType(dept.institution_type as "college" | "institute"); setShowInvitationCodesDialog(true); }}>
                                           <LinkIcon className="w-3 h-3" />{ar("أكواد الدعوة","Invite Codes")}
                                         </Button>
                                       )}

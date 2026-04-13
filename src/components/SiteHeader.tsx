@@ -10,8 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const SiteHeader = () => {
-  const { t, toggleLanguage, dir, language } = useLanguage();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { t, toggleLanguage, dir } = useLanguage();
 
   const mainNavItems = [
     { to: "/university-platform", label: t.universityPlatform, icon: Landmark },

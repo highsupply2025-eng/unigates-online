@@ -35,52 +35,83 @@ const Login = () => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      
-      // Check user role for redirect
-      const { data: roles } = await supabase
-        .from("user_roles")
-        .select("role, approved")
-        .eq("user_id", data.user.id);
-      
-      const adminRole = roles?.find(r => r.role === "admin");
-      const lecturerRole = roles?.find(r => r.role === "lecturer");
-      const personalRole = roles?.find(r => r.role === "personal");
-      const studentRole = roles?.find(r => r.role === "student");
-      const leadershipRole = roles?.find(r => ["department_head", "vice_dean", "dean"].includes(r.role));
-      
+
+      const [{ data: roles }, { data: profile }] = await Promise.all([
+        supabase
+          .from("user_roles")
+          .select("role, approved")
+          .eq("user_id", data.user.id),
+        supabase
+          .from("profiles")
+          .select("role, platform")
+          .eq("user_id", data.user.id)
+          .maybeSingle(),
+      ]);
+
+      const profileRole = profile?.role;
+      const userEmail = data.user.email?.trim();
+      const institutionType = data.user.user_metadata?.institution_type;
+
+      const adminRole = roles?.find((r) => r.role === "admin");
+      const lecturerRole = roles?.find((r) => r.role === "lecturer");
+      const leadershipRole = roles?.find((r) => ["department_head", "vice_dean", "dean"].includes(r.role));
+      const personalRole = roles?.find((r) => ["personal", "student", "parent"].includes(r.role));
+      const schoolTeacherRole = roles?.find((r) => r.role === "teacher");
+      const schoolStudentRole = roles?.find((r) => r.role === "school_student");
+
       if (adminRole) {
         navigate("/admin/dashboard");
-      } else if (leadershipRole) {
-        if (leadershipRole.approved) {
+        return;
+      }
+
+      if (leadershipRole || ["department_head", "vice_dean", "dean"].includes(profileRole || "")) {
+        if (leadershipRole ? leadershipRole.approved : true) {
           navigate("/leadership/dashboard");
         } else {
           toast({
             title: language === "ar" ? "الحساب قيد المراجعة" : "Account Under Review",
-            description: language === "ar" 
-              ? "حسابك لا يزال قيد المراجعة من قبل إدارة المنصة" 
-              : "Your account is still under review by the platform administration",
+            description:
+              language === "ar"
+                ? "حسابك لا يزال قيد المراجعة من قبل إدارة المنصة"
+                : "Your account is still under review by the platform administration",
           });
           await supabase.auth.signOut();
         }
-      } else if (lecturerRole) {
-        if (lecturerRole.approved) {
+        return;
+      }
+
+      if (lecturerRole || profileRole === "lecturer") {
+        if (lecturerRole?.approved) {
           navigate("/lecturer/dashboard");
         } else {
           toast({
             title: language === "ar" ? "الحساب قيد المراجعة" : "Account Under Review",
-            description: language === "ar" 
-              ? "حسابك كمحاضر لا يزال قيد المراجعة من قبل إدارة المنصة" 
-              : "Your lecturer account is still under review",
+            description:
+              language === "ar"
+                ? "حسابك كمحاضر لا يزال قيد المراجعة من قبل إدارة المنصة"
+                : "Your lecturer account is still under review",
           });
           await supabase.auth.signOut();
         }
-      } else if (personalRole || studentRole) {
+        return;
+      }
+
+      if (personalRole || ["personal", "student", "parent"].includes(profileRole || "")) {
         navigate("/student/dashboard");
-      } else {
-        // Check if user is a college or institute admin
-        const userEmail = data.user.email;
-        
-        // Check both college and institute registrations in parallel
+        return;
+      }
+
+      if (schoolTeacherRole || profileRole === "teacher") {
+        navigate("/school/teacher/dashboard");
+        return;
+      }
+
+      if (schoolStudentRole || profileRole === "school_student") {
+        navigate("/school/student/dashboard");
+        return;
+      }
+
+      if (userEmail) {
         const [collegeResult, instituteResult] = await Promise.all([
           supabase
             .from("college_registrations")
@@ -99,42 +130,44 @@ const Login = () => {
         const collegeReg = collegeResult.data;
         const instituteReg = instituteResult.data;
 
-        // Check if any registration is approved first
-        const hasApprovedCollege = collegeReg?.status === "approved";
-        const hasApprovedInstitute = instituteReg?.status === "approved";
-
-        if (hasApprovedCollege || hasApprovedInstitute) {
+        if (collegeReg?.status === "approved" || instituteReg?.status === "approved") {
           navigate("/institution/dashboard");
           return;
         }
 
-        // If registered but pending/rejected
         if (collegeReg || instituteReg) {
           const isPending = collegeReg?.status === "pending" || instituteReg?.status === "pending";
           toast({
             title: language === "ar" ? "الحساب قيد المراجعة" : "Account Under Review",
-            description: language === "ar" 
-              ? (isPending 
-                ? "طلب تسجيل مؤسستك لا يزال قيد المراجعة من قبل إدارة المنصة"
-                : "تم رفض طلب تسجيل مؤسستك. تواصل مع إدارة المنصة")
-              : (isPending
-                ? "Your institution registration is still under review"
-                : "Your institution registration was rejected. Contact platform admin"),
+            description:
+              language === "ar"
+                ? isPending
+                  ? "طلب تسجيل مؤسستك لا يزال قيد المراجعة من قبل إدارة المنصة"
+                  : "تم رفض طلب تسجيل مؤسستك. تواصل مع إدارة المنصة"
+                : isPending
+                  ? "Your institution registration is still under review"
+                  : "Your institution registration was rejected. Contact platform admin",
             variant: isPending ? "default" : "destructive",
           });
           await supabase.auth.signOut();
           return;
         }
-
-        // No role found - redirect to signup to complete profile
-        toast({
-          title: language === "ar" ? "يرجى إكمال التسجيل" : "Please complete registration",
-          description: language === "ar" 
-            ? "لم يتم العثور على ملف شخصي. يرجى إكمال بياناتك."
-            : "No profile found. Please complete your information.",
-        });
-        navigate("/signup");
       }
+
+      if (institutionType === "college" || institutionType === "institute") {
+        navigate("/institution/dashboard");
+        return;
+      }
+
+      toast({
+        title: language === "ar" ? "تعذر تحديد نوع الحساب" : "Unable to determine account type",
+        description:
+          language === "ar"
+            ? "تم تسجيل الدخول لكن تعذر تحديد لوحة الحساب المناسبة. تواصل مع الدعم إذا استمرت المشكلة."
+            : "Signed in successfully, but we could not determine the correct dashboard.",
+        variant: "destructive",
+      });
+      await supabase.auth.signOut();
     } catch (error: any) {
       console.error('Login failed:', error);
       const errMsg = error?.message || "";

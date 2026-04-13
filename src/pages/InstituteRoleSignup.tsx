@@ -141,12 +141,11 @@ const InstituteRoleSignup = () => {
         if (result && !result.success) throw new Error(result.error);
 
         if (verifiedInvitation) {
-          await supabase.from("college_members").insert({
-            user_id: authData.user.id,
-            college_id: verifiedInvitation.college_id,
-            role: role === "admin" ? "admin" : role || "student",
-            invitation_id: verifiedInvitation.id,
-          });
+          // Update invitation used count
+          await supabase
+            .from("institute_invitations")
+            .update({ used_count: (verifiedInvitation.used_count || 0) + 1 })
+            .eq("id", verifiedInvitation.id);
         }
 
         await supabase

@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Globe, Menu, X, Landmark, School, BookOpen, Store, LogIn, UserPlus, ChevronDown } from "lucide-react";
+import { GraduationCap, Globe, Menu, Landmark, School, BookOpen, Store } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useState, useRef, useEffect } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,18 +10,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const SiteHeader = () => {
-  const { t, toggleLanguage, dir, language } = useLanguage();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { t, toggleLanguage, dir } = useLanguage();
 
   const mainNavItems = [
     { to: "/university-platform", label: t.universityPlatform, icon: Landmark },
     { to: "/school-platform", label: t.schoolPlatform, icon: School },
     { to: "/courses", label: t.exploreCourses, icon: BookOpen },
     { to: "/book-store", label: t.bookStore, icon: Store },
-  ];
-
-  const navItems = [
-    ...mainNavItems,
   ];
 
   return (
@@ -54,86 +48,35 @@ const SiteHeader = () => {
           </Button>
         </div>
 
-        {/* Mobile/Tablet action icons */}
-        <div className="md:hidden flex items-center gap-1.5">
-          <button
-            onClick={toggleLanguage}
-            className="p-2 rounded-lg bg-primary/20 text-primary-foreground"
-            aria-label="Toggle language"
-          >
-            <Globe className="w-5 h-5" />
-          </button>
-          <button
-            className="p-2 rounded-lg bg-primary/20 text-primary-foreground"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
-          >
-            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+        {/* Mobile/Tablet dropdown */}
+        <div className="md:hidden">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="p-2 rounded-lg bg-primary/20 text-primary-foreground">
+                <Menu className="w-5 h-5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-48">
+              <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
+                <Globe className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold">{t.langSwitch}</span>
+              </DropdownMenuItem>
+              {mainNavItems.map((item) => {
+                const IconComp = item.icon;
+                return (
+                  <DropdownMenuItem key={item.to} asChild className="gap-2 cursor-pointer">
+                    <Link to={item.to}>
+                      <IconComp className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-semibold">{item.label}</span>
+                    </Link>
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
-      {/* Mobile menu - semi-transparent slide from left */}
-      {menuOpen && (
-        <>
-          {/* Overlay - subtle, doesn't fully hide background */}
-          <div
-            className="fixed inset-0 bg-black/20 z-40 md:hidden"
-            onClick={() => setMenuOpen(false)}
-          />
-          {/* Menu panel */}
-          <div className={`fixed top-0 ${dir === 'rtl' ? 'left-0 border-r animate-in slide-in-from-left' : 'right-0 border-l animate-in slide-in-from-right'} h-full w-72 z-50 md:hidden bg-background/90 backdrop-blur-md border-border/30 shadow-2xl duration-300`}>
-            {/* Menu header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-border/20">
-              <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
-                  <GraduationCap className="w-5 h-5 text-primary-foreground" />
-                </div>
-                <span className="text-lg font-bold text-foreground">{t.brandName}</span>
-              </div>
-              <button
-                onClick={() => setMenuOpen(false)}
-                className="p-1.5 rounded-lg hover:bg-accent/50 transition-colors"
-              >
-                <X className="w-5 h-5 text-muted-foreground" />
-              </button>
-            </div>
-
-            {/* Nav items */}
-            <nav className="flex flex-col gap-0.5 px-2 py-2">
-              {navItems.map((item) => {
-                const IconComp = item.icon;
-                return (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-foreground hover:bg-primary/10 active:scale-[0.98] transition-all duration-200 group"
-                  >
-                    <div className="w-8 h-8 rounded-md bg-primary/15 flex items-center justify-center group-hover:bg-primary/25 transition-colors">
-                      <IconComp className="w-4 h-4 text-primary" strokeWidth={2} />
-                    </div>
-                    <span className="text-xs font-semibold">{item.label}</span>
-                  </Link>
-                );
-              })}
-              <div className="border-t border-border/20 my-0.5" />
-              <button
-                onClick={() => {
-                  toggleLanguage();
-                  setMenuOpen(false);
-                }}
-                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-foreground hover:bg-primary/10 active:scale-[0.98] transition-all duration-200 group"
-              >
-                <div className="w-8 h-8 rounded-md bg-primary/15 flex items-center justify-center group-hover:bg-primary/25 transition-colors">
-                  <Globe className="w-4 h-4 text-primary" strokeWidth={2} />
-                </div>
-                <span className="text-xs font-semibold">{t.langSwitch}</span>
-              </button>
-            </nav>
-          </div>
-        </>
-      )}
     </header>
   );
 };

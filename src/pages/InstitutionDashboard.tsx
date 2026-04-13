@@ -216,37 +216,39 @@ const InstitutionDashboard = () => {
     Object.entries(counts).forEach(([sid, set]) => { countMap[sid] = set.size; });
     setStreamAttendance(countMap);
 
-    // Load or create leadership invitations (college only)
-    if (instType === "college") {
-      const { data: existingInvites } = await supabase
-        .from("college_invitations")
-        .select("*")
-        .eq("college_id", instId)
-        .in("role", ["department_head", "vice_dean", "dean"]);
+    // Load or create leadership invitations
+    const leadershipRoles = instType === "college" 
+      ? ["department_head", "vice_dean", "dean"] 
+      : ["department_head", "vice_dean", "dean"];
+    const tableName = instType === "college" ? "college_invitations" : "institute_invitations";
+    const idColumn = instType === "college" ? "college_id" : "institute_id";
 
-      if (existingInvites && existingInvites.length >= 3) {
-        setLeadershipInvitations(existingInvites);
-      } else {
-        // Create missing leadership invitations
-        const existingRoles = (existingInvites || []).map((i: any) => i.role);
-        const leadershipRoles = ["department_head", "vice_dean", "dean"];
-        const missingRoles = leadershipRoles.filter(r => !existingRoles.includes(r));
-        
-        if (missingRoles.length > 0) {
-          const inserts = missingRoles.map(role => ({
-            college_id: instId,
-            role,
-            max_uses: 1,
-            is_active: true,
-          }));
-          await supabase.from("college_invitations").insert(inserts);
-          const { data: allInvites } = await supabase
-            .from("college_invitations")
-            .select("*")
-            .eq("college_id", instId)
-            .in("role", ["department_head", "vice_dean", "dean"]);
-          setLeadershipInvitations(allInvites || []);
-        }
+    const { data: existingInvites } = await supabase
+      .from(tableName as any)
+      .select("*")
+      .eq(idColumn, instId)
+      .in("role", leadershipRoles);
+
+    if (existingInvites && existingInvites.length >= 3) {
+      setLeadershipInvitations(existingInvites);
+    } else {
+      const existingRoles = (existingInvites || []).map((i: any) => i.role);
+      const missingRoles = leadershipRoles.filter(r => !existingRoles.includes(r));
+      
+      if (missingRoles.length > 0) {
+        const inserts = missingRoles.map(role => ({
+          [idColumn]: instId,
+          role,
+          max_uses: 1,
+          is_active: true,
+        }));
+        await supabase.from(tableName as any).insert(inserts);
+        const { data: allInvites } = await supabase
+          .from(tableName as any)
+          .select("*")
+          .eq(idColumn, instId)
+          .in("role", leadershipRoles);
+        setLeadershipInvitations(allInvites || []);
       }
     }
   };
@@ -1572,8 +1574,8 @@ const InstitutionDashboard = () => {
 
           {/* Invitations Tab - Links & Codes */}
           <TabsContent value="invitations">
-            {/* Free Leadership Links - Always visible for colleges */}
-            {institutionType === "college" && leadershipInvitations.length > 0 && (
+            {/* Free Leadership Links - Always visible */}
+            {leadershipInvitations.length > 0 && (
               <Card className="mb-6 border-2 border-emerald-500/30 bg-emerald-50/30 dark:bg-emerald-950/10">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-lg">
@@ -1589,10 +1591,11 @@ const InstitutionDashboard = () => {
                   <div className="space-y-3">
                     {(() => {
                       const baseUrl = window.location.origin;
+                      const isCollege = institutionType === "college";
                       const roleLabels: Record<string, { ar: string; en: string; icon: React.ReactNode }> = {
                         department_head: { ar: "رئيس القسم", en: "Department Head", icon: <UserCheck className="w-5 h-5 text-blue-600" /> },
-                        vice_dean: { ar: "وكيل الكلية", en: "Vice Dean", icon: <Users className="w-5 h-5 text-purple-600" /> },
-                        dean: { ar: "عميد الكلية", en: "Dean", icon: <GraduationCap className="w-5 h-5 text-amber-600" /> },
+                        vice_dean: { ar: isCollege ? "وكيل الكلية" : "وكيل المعهد", en: isCollege ? "Vice Dean" : "Vice Director", icon: <Users className="w-5 h-5 text-purple-600" /> },
+                        dean: { ar: isCollege ? "عميد الكلية" : "مدير المعهد", en: isCollege ? "Dean" : "Director", icon: <GraduationCap className="w-5 h-5 text-amber-600" /> },
                       };
                       return leadershipInvitations.map((inv: any) => {
                         const label = roleLabels[inv.role] || { ar: inv.role, en: inv.role, icon: <User className="w-5 h-5" /> };

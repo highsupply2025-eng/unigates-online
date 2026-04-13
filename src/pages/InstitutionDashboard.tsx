@@ -184,13 +184,22 @@ const InstitutionDashboard = () => {
       setDeptMembers([]);
     }
 
-    // Load live streams for leadership roles
-    const { data: streams } = await supabase
-      .from("live_streams")
-      .select("*")
-      .order("scheduled_at", { ascending: false })
-      .limit(50);
-    setLiveStreams(streams || []);
+    // Load live streams and attendance
+    const [streamsRes, attendanceRes] = await Promise.all([
+      supabase.from("live_streams").select("*").order("scheduled_at", { ascending: false }).limit(50),
+      supabase.from("stream_attendance").select("stream_id, user_id"),
+    ]);
+    setLiveStreams(streamsRes.data || []);
+
+    // Count unique users per stream
+    const counts: Record<string, Set<string>> = {};
+    (attendanceRes.data || []).forEach((a: any) => {
+      if (!counts[a.stream_id]) counts[a.stream_id] = new Set();
+      counts[a.stream_id].add(a.user_id);
+    });
+    const countMap: Record<string, number> = {};
+    Object.entries(counts).forEach(([sid, set]) => { countMap[sid] = set.size; });
+    setStreamAttendance(countMap);
   };
 
   const handleAddDepartment = async () => {

@@ -844,8 +844,8 @@ const InstitutionDashboard = () => {
                             {dept.student_count} {isRtl ? "طالب" : "students"} · {dept.payment_amount} {isRtl ? "جنيه شهرياً" : "EGP/month"}
                           </p>
                         </div>
-                        <Badge variant={dept.payment_status === "paid" ? "default" : "secondary"}>
-                          {dept.payment_status === "paid" ? (isRtl ? "مدفوع ✅" : "Paid ✅") : (isRtl ? "غير مدفوع" : "Unpaid")}
+                        <Badge variant={dept.status === "active" ? "default" : "secondary"}>
+                          {dept.status === "active" ? (isRtl ? "مفعّل ✅" : "Active ✅") : (isRtl ? "بانتظار الموافقة" : "Pending")}
                         </Badge>
                       </div>
                     ))}
@@ -888,8 +888,8 @@ const InstitutionDashboard = () => {
                             {dept.student_count} {isRtl ? "طالب مسجل" : "registered students"}
                           </p>
                         </div>
-                        <Badge variant={dept.payment_status === "paid" ? "default" : "destructive"}>
-                          {dept.payment_status === "paid" ? (isRtl ? "مدفوع ✅" : "Paid ✅") : (isRtl ? "غير مدفوع" : "Unpaid")}
+                        <Badge variant={dept.status === "active" ? "default" : "destructive"}>
+                          {dept.status === "active" ? (isRtl ? "مفعّل ✅" : "Active ✅") : (isRtl ? "بانتظار الموافقة" : "Pending")}
                         </Badge>
                       </div>
 
@@ -929,10 +929,10 @@ const InstitutionDashboard = () => {
                           <Plus className="w-4 h-4 me-1" />
                           {isRtl ? "إضافة عضو" : "Add Member"}
                         </Button>
-                        {dept.payment_status !== "paid" && (
+                        {dept.status !== "active" && (
                           <Badge variant="outline" className="text-amber-600 border-amber-400 bg-amber-50">
                             <Clock className="w-3 h-3 me-1" />
-                            {isRtl ? "بانتظار الموافقة والدفع نقداً" : "Pending approval & cash payment"}
+                            {isRtl ? "بانتظار موافقة الإدارة" : "Pending admin approval"}
                           </Badge>
                         )}
                         <Button
@@ -1505,11 +1505,11 @@ const InstitutionDashboard = () => {
 
           {/* Invitations Tab - Links & Codes */}
           <TabsContent value="invitations">
-            {departments.filter(d => d.payment_status === "paid").length === 0 ? (
+            {departments.filter(d => d.status === "active").length === 0 ? (
               <Card>
                 <CardContent className="text-center py-10 text-muted-foreground">
                   <LinkIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                  <p>{isRtl ? "يجب دفع اشتراك قسم واحد على الأقل لتفعيل روابط وأكواد الدعوة" : "Pay at least one department to activate invitation links & codes"}</p>
+                  <p>{isRtl ? "يجب موافقة إدارة المنصة على قسم واحد على الأقل لتفعيل روابط وأكواد الدعوة" : "At least one department must be approved to activate invitation links & codes"}</p>
                 </CardContent>
               </Card>
             ) : !invitationDept ? (
@@ -1520,7 +1520,7 @@ const InstitutionDashboard = () => {
                   {isRtl ? "اختر القسم" : "Select Department"}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {departments.filter(d => d.payment_status === "paid").map(dept => {
+                  {departments.filter(d => d.status === "active").map(dept => {
                     const lecturers = getMembersForDept(dept.id).filter(m => m.role === "lecturer").length;
                     const students = getMembersForDept(dept.id).filter(m => m.role === "student").length;
                     return (

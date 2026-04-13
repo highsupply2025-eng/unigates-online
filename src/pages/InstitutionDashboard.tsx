@@ -4,7 +4,7 @@ import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Building2, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
-  User, Ticket, Radio, Eye, ClipboardList, Star, MessageCircle
+  User, Ticket, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";

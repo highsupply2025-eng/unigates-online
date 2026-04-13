@@ -182,6 +182,14 @@ const InstitutionDashboard = () => {
     } else {
       setDeptMembers([]);
     }
+
+    // Load live streams for leadership roles
+    const { data: streams } = await supabase
+      .from("live_streams")
+      .select("*")
+      .order("scheduled_at", { ascending: false })
+      .limit(50);
+    setLiveStreams(streams || []);
   };
 
   const handleAddDepartment = async () => {

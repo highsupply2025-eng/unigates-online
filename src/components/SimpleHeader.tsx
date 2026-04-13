@@ -26,37 +26,12 @@ const SimpleHeader = () => {
           <Button size="icon" onClick={() => navigate('/signup-choice')} className="rounded-full w-12 h-12 bg-gradient-to-br from-[hsl(190,80%,45%)] to-primary shadow-lg shadow-primary/30 text-white hover:shadow-xl hover:scale-110 transition-all border-2 border-primary/50">
             <UserPlus className="w-6 h-6" />
           </Button>
+          <Button size="icon" onClick={toggleLanguage} className="rounded-full w-12 h-12 bg-gradient-to-br from-[hsl(190,80%,45%)] to-primary shadow-lg shadow-primary/30 text-white hover:shadow-xl hover:scale-110 transition-all border-2 border-primary/50">
+            <Globe className="w-6 h-6" />
+          </Button>
           <Button size="icon" onClick={() => navigate('/')} className="rounded-full w-12 h-12 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/40 text-white hover:shadow-xl hover:scale-110 transition-all border-2 border-primary/50">
             <ArrowLeft className="w-6 h-6" />
           </Button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="sm" className="rounded-full h-11 px-4 bg-gradient-to-br from-[hsl(190,80%,45%)] to-primary shadow-lg shadow-primary/30 text-white hover:shadow-xl hover:scale-105 transition-all gap-1">
-                <LogIn className="w-4 h-4" />
-                {t.login}
-                <ChevronDown className="w-3 h-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align={dir === "rtl" ? "start" : "end"} className="min-w-[160px]">
-              <DropdownMenuItem asChild>
-                <Link to="/login" className="flex items-center gap-2 cursor-pointer">
-                  <LogIn className="w-4 h-4" />
-                  {t.login}
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/signup" className="flex items-center gap-2 cursor-pointer">
-                  <UserPlus className="w-4 h-4" />
-                  {t.signup}
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={toggleLanguage} className="flex items-center gap-2 cursor-pointer">
-                <Globe className="w-4 h-4" />
-                {t.langSwitch}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
     </header>

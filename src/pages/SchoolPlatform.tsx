@@ -179,11 +179,6 @@ const SchoolPlatform = () => {
                 {t.login}
               </Button>
             </Link>
-            <Link to="/school-platform/signup">
-              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
-                {t.signup}
-              </Button>
-            </Link>
             <Link to="/">
               <Button size="sm" className="font-bold px-5 h-10 text-sm gap-1.5 bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
                 <Home className="w-4 h-4" />
@@ -214,12 +209,6 @@ const SchoolPlatform = () => {
                 <Button size="sm" className="w-full justify-start gap-3 font-bold h-11 text-sm bg-white/10 text-white border border-white/15 hover:bg-white/20">
                   <Users className="w-4 h-4" />
                   {t.login}
-                </Button>
-              </Link>
-              <Link to="/school-platform/signup" onClick={() => setMobileMenuOpen(false)}>
-                <Button size="sm" className="w-full justify-start gap-3 font-bold h-11 text-sm bg-white/10 text-white border border-white/15 hover:bg-white/20">
-                  <GraduationCap className="w-4 h-4" />
-                  {t.signup}
                 </Button>
               </Link>
               <Link to="/" onClick={() => setMobileMenuOpen(false)}>

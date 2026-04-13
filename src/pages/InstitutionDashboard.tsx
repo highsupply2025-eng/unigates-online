@@ -972,17 +972,10 @@ const InstitutionDashboard = () => {
                           {isRtl ? "إضافة عضو" : "Add Member"}
                         </Button>
                         {dept.payment_status !== "paid" && (
-                          <Button
-                            size="sm"
-                            className="gap-1"
-                            onClick={() => {
-                              setPaymentDept(dept);
-                              setShowPaymentDialog(true);
-                            }}
-                          >
-                            <CreditCard className="w-4 h-4" />
-                            {isRtl ? "دفع الاشتراك" : "Pay"}
-                          </Button>
+                          <Badge variant="outline" className="text-amber-600 border-amber-400 bg-amber-50">
+                            <Clock className="w-3 h-3 me-1" />
+                            {isRtl ? "بانتظار الموافقة والدفع نقداً" : "Pending approval & cash payment"}
+                          </Badge>
                         )}
                         <Button
                           variant="outline"

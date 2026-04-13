@@ -83,67 +83,6 @@ const SiteHeader = () => {
         </div>
       </div>
 
-      {/* Mobile menu - semi-transparent slide from left */}
-      {menuOpen && (
-        <>
-          {/* Overlay - subtle, doesn't fully hide background */}
-          <div
-            className="fixed inset-0 bg-black/20 z-40 md:hidden"
-            onClick={() => setMenuOpen(false)}
-          />
-          {/* Menu panel */}
-          <div className={`fixed top-0 ${dir === 'rtl' ? 'left-0 border-r animate-in slide-in-from-left' : 'right-0 border-l animate-in slide-in-from-right'} h-full w-72 z-50 md:hidden bg-background/90 backdrop-blur-md border-border/30 shadow-2xl duration-300`}>
-            {/* Menu header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-border/20">
-              <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
-                  <GraduationCap className="w-5 h-5 text-primary-foreground" />
-                </div>
-                <span className="text-lg font-bold text-foreground">{t.brandName}</span>
-              </div>
-              <button
-                onClick={() => setMenuOpen(false)}
-                className="p-1.5 rounded-lg hover:bg-accent/50 transition-colors"
-              >
-                <X className="w-5 h-5 text-muted-foreground" />
-              </button>
-            </div>
-
-            {/* Nav items */}
-            <nav className="flex flex-col gap-0.5 px-2 py-2">
-              {navItems.map((item) => {
-                const IconComp = item.icon;
-                return (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-foreground hover:bg-primary/10 active:scale-[0.98] transition-all duration-200 group"
-                  >
-                    <div className="w-8 h-8 rounded-md bg-primary/15 flex items-center justify-center group-hover:bg-primary/25 transition-colors">
-                      <IconComp className="w-4 h-4 text-primary" strokeWidth={2} />
-                    </div>
-                    <span className="text-xs font-semibold">{item.label}</span>
-                  </Link>
-                );
-              })}
-              <div className="border-t border-border/20 my-0.5" />
-              <button
-                onClick={() => {
-                  toggleLanguage();
-                  setMenuOpen(false);
-                }}
-                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-foreground hover:bg-primary/10 active:scale-[0.98] transition-all duration-200 group"
-              >
-                <div className="w-8 h-8 rounded-md bg-primary/15 flex items-center justify-center group-hover:bg-primary/25 transition-colors">
-                  <Globe className="w-4 h-4 text-primary" strokeWidth={2} />
-                </div>
-                <span className="text-xs font-semibold">{t.langSwitch}</span>
-              </button>
-            </nav>
-          </div>
-        </>
-      )}
     </header>
   );
 };

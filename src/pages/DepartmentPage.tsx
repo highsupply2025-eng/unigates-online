@@ -183,65 +183,7 @@ const DepartmentPage = () => {
           </div>
         </div>
 
-        {/* Free Leadership Links */}
-        {leadershipInvitations.length > 0 && (
-          <Card className="mb-6 border-2 border-emerald-500/30 bg-emerald-50/30 dark:bg-emerald-950/10">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Star className="w-5 h-5 text-emerald-600" />
-                {isRtl ? "روابط القيادة المجانية" : "Free Leadership Links"}
-                <Badge variant="default" className="bg-emerald-600 text-white ms-2">{isRtl ? "مجاني" : "Free"}</Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {(() => {
-                  const roleOrder = ["dean", "vice_dean", "department_head"];
-                  const sorted = [...leadershipInvitations].sort((a: any, b: any) => roleOrder.indexOf(a.role) - roleOrder.indexOf(b.role));
-                  return sorted.map((inv: any) => {
-                    const label = roleLabels[inv.role] || { ar: inv.role, en: inv.role, icon: <UserCheck className="w-5 h-5" /> };
-                    const inviteLink = `${baseUrl}/signup/${instPath}/${inv.role}?code=${inv.invitation_code}`;
-                    return (
-                      <div key={inv.id} className="flex items-center justify-between p-4 rounded-xl border-2 bg-background">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                            {label.icon}
-                          </div>
-                          <div>
-                            <p className="font-bold text-foreground">{isRtl ? label.ar : label.en}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 flex-wrap justify-end">
-                          <Button size="sm" variant="outline" onClick={() => copyToClipboard(inv.invitation_code)}>
-                            <Copy className="w-3.5 h-3.5 me-1" />
-                            {isRtl ? "نسخ الكود" : "Copy Code"}
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => copyToClipboard(inviteLink)}>
-                            <LinkIcon className="w-3.5 h-3.5 me-1" />
-                            {isRtl ? "نسخ الرابط" : "Copy Link"}
-                          </Button>
-                          {(() => {
-                            const text = isRtl
-                              ? `رابط الدعوة للانضمام كـ ${label.ar}:\n${inviteLink}`
-                              : `Invitation link to join as ${label.en}:\n${inviteLink}`;
-                            return (
-                              <a href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
-                                <Button size="sm" variant="outline" className="text-green-600 border-green-300 hover:bg-green-50">
-                                  <MessageCircle className="w-3.5 h-3.5 me-1" />
-                                  {isRtl ? "واتساب" : "WhatsApp"}
-                                </Button>
-                              </a>
-                            );
-                          })()}
-                        </div>
-                      </div>
-                    );
-                  });
-                })()}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+
 
         {/* Lecturers Section */}
         <Card className="mb-6 border-2 border-green-500/20">

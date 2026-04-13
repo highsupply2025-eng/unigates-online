@@ -667,6 +667,57 @@ export type Database = {
         }
         Relationships: []
       }
+      institute_invitations: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          institute_id: string
+          invitation_code: string
+          is_active: boolean | null
+          max_uses: number | null
+          role: string
+          used_count: number | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          institute_id: string
+          invitation_code?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          role?: string
+          used_count?: number | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          institute_id?: string
+          invitation_code?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          role?: string
+          used_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institute_invitations_institute_id_fkey"
+            columns: ["institute_id"]
+            isOneToOne: false
+            referencedRelation: "approved_institutes_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institute_invitations_institute_id_fkey"
+            columns: ["institute_id"]
+            isOneToOne: false
+            referencedRelation: "institute_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       institute_registrations: {
         Row: {
           address: string | null

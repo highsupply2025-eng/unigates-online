@@ -23,9 +23,6 @@ const SimpleHeader = () => {
           <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
         </Link>
         <div className="flex items-center gap-3">
-          <Button size="icon" onClick={() => navigate('/signup-choice')} className="rounded-full w-12 h-12 bg-gradient-to-br from-[hsl(190,80%,45%)] to-primary shadow-lg shadow-primary/30 text-white hover:shadow-xl hover:scale-110 transition-all border-2 border-primary/50">
-            <UserPlus className="w-6 h-6" />
-          </Button>
           <Button size="icon" onClick={toggleLanguage} className="rounded-full w-12 h-12 bg-gradient-to-br from-[hsl(190,80%,45%)] to-primary shadow-lg shadow-primary/30 text-white hover:shadow-xl hover:scale-110 transition-all border-2 border-primary/50">
             <Globe className="w-6 h-6" />
           </Button>

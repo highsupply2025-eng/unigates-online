@@ -95,6 +95,7 @@ const NotificationBell = () => {
         size="icon"
         onClick={() => setOpen(!open)}
         className="relative"
+        data-notification-bell
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (

@@ -80,6 +80,7 @@ const InstitutionDashboard = () => {
   const [newDeptName, setNewDeptName] = useState("");
   const [newDeptStudentCount, setNewDeptStudentCount] = useState("");
   const [newDeptLecturerCount, setNewDeptLecturerCount] = useState("");
+  const [addingDept, setAddingDept] = useState(false);
 
   // Add Member
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
@@ -251,7 +252,8 @@ const InstitutionDashboard = () => {
   };
 
   const handleAddDepartment = async () => {
-    if (!newDeptName || !newDeptStudentCount) return;
+    if (!newDeptName || !newDeptStudentCount || addingDept) return;
+    setAddingDept(true);
     const studentCount = parseInt(newDeptStudentCount);
     const lecturerCount = parseInt(newDeptLecturerCount) || 0;
     const paymentAmount = studentCount * 299;
@@ -317,8 +319,10 @@ const InstitutionDashboard = () => {
       setNewDeptStudentCount("");
       setNewDeptLecturerCount("");
       await loadInstitutionData(institutionId, institutionType || "college");
+      setAddingDept(false);
     } catch (error: any) {
       toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+      setAddingDept(false);
     }
   };
 
@@ -1833,7 +1837,8 @@ const InstitutionDashboard = () => {
             <Button variant="outline" onClick={() => setShowAddDeptDialog(false)}>
               {isRtl ? "إلغاء" : "Cancel"}
             </Button>
-            <Button onClick={handleAddDepartment} disabled={!newDeptName || !newDeptStudentCount}>
+            <Button onClick={handleAddDepartment} disabled={!newDeptName || !newDeptStudentCount || addingDept}>
+              {addingDept ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : null}
               {isRtl ? "إضافة" : "Add"}
             </Button>
           </DialogFooter>

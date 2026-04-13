@@ -1,16 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, Globe, ArrowLeft, LogIn, UserPlus, ChevronDown } from "lucide-react";
+import { GraduationCap, Globe, ArrowLeft, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 const SimpleHeader = () => {
-  const { toggleLanguage, t, dir } = useLanguage();
+  const { toggleLanguage, t, dir, language } = useLanguage();
   const navigate = useNavigate();
 
   return (
@@ -23,10 +17,15 @@ const SimpleHeader = () => {
           <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
         </Link>
         <div className="flex items-center gap-3">
-          <Button size="icon" onClick={toggleLanguage} className="rounded-full w-12 h-12 bg-gradient-to-br from-[hsl(190,80%,45%)] to-primary shadow-lg shadow-primary/30 text-white hover:shadow-xl hover:scale-110 transition-all border-2 border-primary/50">
-            <Globe className="w-6 h-6" />
+          <Button onClick={() => navigate('/signup-choice')} className="rounded-full h-11 px-5 bg-gradient-to-br from-[hsl(190,80%,45%)] to-primary shadow-lg shadow-primary/30 text-white hover:shadow-xl hover:scale-105 transition-all border-2 border-primary/50 font-bold gap-2">
+            <UserPlus className="w-5 h-5" />
+            {t.signup}
           </Button>
-          <Button size="icon" onClick={() => navigate('/')} className="rounded-full w-12 h-12 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/40 text-white hover:shadow-xl hover:scale-110 transition-all border-2 border-primary/50">
+          <Button onClick={toggleLanguage} className="rounded-full h-11 px-4 bg-gradient-to-br from-[hsl(190,80%,45%)] to-primary shadow-lg shadow-primary/30 text-white hover:shadow-xl hover:scale-105 transition-all border-2 border-primary/50 font-bold gap-1.5 text-sm">
+            {language === "ar" ? "EN" : "AR"}
+            <Globe className="w-4 h-4" />
+          </Button>
+          <Button size="icon" onClick={() => navigate('/')} className="rounded-full w-11 h-11 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/40 text-white hover:shadow-xl hover:scale-110 transition-all border-2 border-primary/50">
             <ArrowLeft className="w-6 h-6" />
           </Button>
         </div>

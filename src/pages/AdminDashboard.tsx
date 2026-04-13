@@ -714,6 +714,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="orders" className="gap-1.5"><ShoppingCart className="w-4 h-4" />{ar("الطلبات","Orders")}</TabsTrigger>
             <TabsTrigger value="subscriptions" className="gap-1.5"><CreditCard className="w-4 h-4" />{ar("الاشتراكات","Subscriptions")}</TabsTrigger>
             <TabsTrigger value="streams" className="gap-1.5"><Radio className="w-4 h-4" />{ar("البث المباشر","Live Streams")}</TabsTrigger>
+            <TabsTrigger value="departments_admin" className="gap-1.5"><Building2 className="w-4 h-4" />{ar("الأقسام","Departments")}{stats.pendingDepartments > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingDepartments}</Badge>}</TabsTrigger>
             <TabsTrigger value="notifications" className="gap-1.5"><Bell className="w-4 h-4" />{ar("الإشعارات","Notifications")}</TabsTrigger>
           </TabsList>
 

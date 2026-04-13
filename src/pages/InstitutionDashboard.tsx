@@ -512,26 +512,43 @@ const InstitutionDashboard = () => {
                 ) : (
                   <div className="space-y-2">
                     {getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer").map(member => (
-                      <div key={member.id} className="flex items-center justify-between p-4 rounded-lg border bg-card cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
-                            <UserCheck className="w-5 h-5 text-green-500" />
+                      <div key={member.id} className="p-4 rounded-lg border bg-card">
+                        <div className="flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
+                              <UserCheck className="w-5 h-5 text-green-500" />
+                            </div>
+                            <div>
+                              <p className="font-bold text-foreground">{member.full_name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {member.user_id ? (isRtl ? "✅ مفعّل" : "✅ Active") : (isRtl ? "⏳ في الانتظار" : "⏳ Pending")}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-bold text-foreground">{member.full_name}</p>
-                            {member.invitation_code && (
-                              <p className="text-xs font-mono text-muted-foreground">{isRtl ? "كود: " : "Code: "}{member.invitation_code}</p>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={member.user_id ? "default" : "secondary"}>
-                            {member.user_id ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "في الانتظار" : "Pending")}
-                          </Badge>
                           <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); handleDeleteMember(member.id, member.full_name); }}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
+                        {member.invitation_code && (() => {
+                          const instPath = institutionType === "college" ? "college" : "institute";
+                          const memberInviteLink = `${window.location.origin}/signup/${instPath}/lecturer?code=${member.invitation_code}`;
+                          const shareText = isRtl
+                            ? `مرحباً ${member.full_name}، يمكنك التسجيل عبر هذا الرابط:\n${memberInviteLink}`
+                            : `Hi ${member.full_name}, register via this link:\n${memberInviteLink}`;
+                          return (
+                            <div className="flex items-center gap-2 mt-3 flex-wrap">
+                              <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); copyToClipboard(member.invitation_code!); }}>
+                                <Copy className="w-3.5 h-3.5 me-1" />{isRtl ? "نسخ الكود" : "Copy Code"}
+                              </Button>
+                              <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); copyToClipboard(memberInviteLink); }}>
+                                <LinkIcon className="w-3.5 h-3.5 me-1" />{isRtl ? "نسخ الرابط" : "Copy Link"}
+                              </Button>
+                              <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-50" onClick={(e) => { e.stopPropagation(); window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank"); }}>
+                                <MessageCircle className="w-3.5 h-3.5 me-1" />{isRtl ? "واتساب" : "WhatsApp"}
+                              </Button>
+                            </div>
+                          );
+                        })()}
                       </div>
                     ))}
                   </div>
@@ -554,26 +571,43 @@ const InstitutionDashboard = () => {
                 ) : (
                   <div className="space-y-2">
                     {getMembersForDept(selectedDept.id).filter(m => m.role === "student").map(member => (
-                      <div key={member.id} className="flex items-center justify-between p-4 rounded-lg border bg-card cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
-                            <GraduationCap className="w-5 h-5 text-blue-500" />
+                      <div key={member.id} className="p-4 rounded-lg border bg-card">
+                        <div className="flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+                              <GraduationCap className="w-5 h-5 text-blue-500" />
+                            </div>
+                            <div>
+                              <p className="font-bold text-foreground">{member.full_name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {member.user_id ? (isRtl ? "✅ مفعّل" : "✅ Active") : (isRtl ? "⏳ في الانتظار" : "⏳ Pending")}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-bold text-foreground">{member.full_name}</p>
-                            {member.invitation_code && (
-                              <p className="text-xs font-mono text-muted-foreground">{isRtl ? "كود: " : "Code: "}{member.invitation_code}</p>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={member.user_id ? "default" : "secondary"}>
-                            {member.user_id ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "في الانتظار" : "Pending")}
-                          </Badge>
                           <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); handleDeleteMember(member.id, member.full_name); }}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
+                        {member.invitation_code && (() => {
+                          const instPath = institutionType === "college" ? "college" : "institute";
+                          const memberInviteLink = `${window.location.origin}/signup/${instPath}/student?code=${member.invitation_code}`;
+                          const shareText = isRtl
+                            ? `مرحباً ${member.full_name}، يمكنك التسجيل عبر هذا الرابط:\n${memberInviteLink}`
+                            : `Hi ${member.full_name}, register via this link:\n${memberInviteLink}`;
+                          return (
+                            <div className="flex items-center gap-2 mt-3 flex-wrap">
+                              <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); copyToClipboard(member.invitation_code!); }}>
+                                <Copy className="w-3.5 h-3.5 me-1" />{isRtl ? "نسخ الكود" : "Copy Code"}
+                              </Button>
+                              <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); copyToClipboard(memberInviteLink); }}>
+                                <LinkIcon className="w-3.5 h-3.5 me-1" />{isRtl ? "نسخ الرابط" : "Copy Link"}
+                              </Button>
+                              <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-50" onClick={(e) => { e.stopPropagation(); window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank"); }}>
+                                <MessageCircle className="w-3.5 h-3.5 me-1" />{isRtl ? "واتساب" : "WhatsApp"}
+                              </Button>
+                            </div>
+                          );
+                        })()}
                       </div>
                     ))}
                   </div>

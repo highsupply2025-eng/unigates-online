@@ -368,14 +368,17 @@ const InstitutionDashboard = () => {
   };
 
   const handleDeleteDepartment = async (deptId: string, deptName: string) => {
+    // Optimistic update - remove immediately from UI
+    setDepartments(prev => prev.filter(d => d.id !== deptId));
+    setDeptMembers(prev => prev.filter(m => m.department_id !== deptId));
+    toast({ title: isRtl ? "تم حذف القسم" : "Department Deleted", description: deptName });
+
     try {
       await supabase.from("department_members").delete().eq("department_id", deptId);
-      const { error } = await supabase.from("departments").delete().eq("id", deptId);
-      if (error) throw error;
-      toast({ title: isRtl ? "تم حذف القسم" : "Department Deleted", description: deptName });
-      await loadInstitutionData(institutionId, institutionType || "college");
+      await supabase.from("departments").delete().eq("id", deptId);
     } catch (error: any) {
       toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+      await loadInstitutionData(institutionId, institutionType || "college");
     }
   };
 

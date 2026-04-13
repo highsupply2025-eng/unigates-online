@@ -421,10 +421,12 @@ const InstitutionDashboard = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
       {/* Header */}
-      <header className="border-b border-border px-6 py-4 bg-primary/5">
+      <header className="border-b border-primary/20 px-6 py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Landmark className="w-8 h-8 text-primary" />
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/25">
+              <Landmark className="w-7 h-7 text-white" />
+            </div>
             <div>
               <h1 className="text-xl font-black text-foreground">{institutionName}</h1>
               <p className="text-xs text-muted-foreground">
@@ -782,30 +784,38 @@ const InstitutionDashboard = () => {
           {/* Overview Tab */}
           <TabsContent value="overview">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <Card className="border-2">
+              <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent hover:shadow-lg hover:shadow-primary/10 transition-all">
                 <CardContent className="p-5 text-center">
-                  <Building2 className="w-8 h-8 text-primary mx-auto mb-2" />
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center mx-auto mb-3 shadow-md shadow-primary/20">
+                    <Building2 className="w-7 h-7 text-white" />
+                  </div>
                   <p className="text-3xl font-black text-foreground">{totalDepts}</p>
                   <p className="text-sm text-muted-foreground">{isRtl ? "الأقسام" : "Departments"}</p>
                 </CardContent>
               </Card>
-              <Card className="border-2">
+              <Card className="border-2 border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-transparent hover:shadow-lg hover:shadow-blue-500/10 transition-all">
                 <CardContent className="p-5 text-center">
-                  <GraduationCap className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mx-auto mb-3 shadow-md shadow-blue-500/20">
+                    <GraduationCap className="w-7 h-7 text-white" />
+                  </div>
                   <p className="text-3xl font-black text-foreground">{totalStudents}</p>
                   <p className="text-sm text-muted-foreground">{isRtl ? "الطلاب" : "Students"}</p>
                 </CardContent>
               </Card>
-              <Card className="border-2">
+              <Card className="border-2 border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent hover:shadow-lg hover:shadow-green-500/10 transition-all">
                 <CardContent className="p-5 text-center">
-                  <UserCheck className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center mx-auto mb-3 shadow-md shadow-green-500/20">
+                    <UserCheck className="w-7 h-7 text-white" />
+                  </div>
                   <p className="text-3xl font-black text-foreground">{totalLecturers}</p>
                   <p className="text-sm text-muted-foreground">{isRtl ? "المحاضرين" : "Lecturers"}</p>
                 </CardContent>
               </Card>
-              <Card className="border-2">
+              <Card className="border-2 border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent hover:shadow-lg hover:shadow-emerald-500/10 transition-all">
                 <CardContent className="p-5 text-center">
-                  <CheckCircle className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mx-auto mb-3 shadow-md shadow-emerald-500/20">
+                    <CheckCircle className="w-7 h-7 text-white" />
+                  </div>
                   <p className="text-3xl font-black text-foreground">{paidDepts}/{totalDepts}</p>
                   <p className="text-sm text-muted-foreground">{isRtl ? "أقسام مفعّلة" : "Active Departments"}</p>
                 </CardContent>
@@ -936,7 +946,7 @@ const InstitutionDashboard = () => {
                 const lecturers = getLecturersCount(dept.id);
                 const members = getMembersForDept(dept.id);
                 return (
-                  <Card key={dept.id} className="border-2 hover:shadow-lg transition-shadow">
+                  <Card key={dept.id} className="border-2 border-primary/15 hover:shadow-xl hover:border-primary/30 transition-all bg-gradient-to-br from-primary/3 to-transparent">
                     <CardContent className="p-5">
                       <div className="flex items-start justify-between mb-3">
                         <div>

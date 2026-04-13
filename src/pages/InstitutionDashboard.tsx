@@ -898,7 +898,7 @@ const InstitutionDashboard = () => {
                         <div>
                           <p className="font-bold text-foreground">{dept.department_name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {dept.student_count} {isRtl ? "طالب" : "students"} · {dept.payment_amount} {isRtl ? "جنيه شهرياً" : "EGP/month"}
+                            {dept.student_count} {isRtl ? "طالب" : "students"} · {getMembersForDept(dept.id).filter(m => m.role === "lecturer").length} {isRtl ? "محاضر" : "lecturers"} · {dept.payment_amount} {isRtl ? "جنيه شهرياً" : "EGP/month"}
                           </p>
                         </div>
                         <Badge variant={dept.status === "active" ? "default" : "secondary"}>
@@ -942,7 +942,7 @@ const InstitutionDashboard = () => {
                         <div>
                           <h3 className="text-lg font-bold text-foreground">{dept.department_name}</h3>
                           <p className="text-sm text-muted-foreground">
-                            {dept.student_count} {isRtl ? "طالب مسجل" : "registered students"}
+                            {students} {isRtl ? "طالب" : "students"} · {lecturers} {isRtl ? "محاضر" : "lecturers"}
                           </p>
                         </div>
                         <Badge variant={dept.status === "active" ? "default" : "destructive"}>

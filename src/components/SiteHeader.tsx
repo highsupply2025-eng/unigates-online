@@ -60,12 +60,6 @@ const SiteHeader = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align={dir === "rtl" ? "start" : "end"} className="min-w-[160px]">
               <DropdownMenuItem asChild>
-                <Link to="/login" className="flex items-center gap-2 cursor-pointer">
-                  <LogIn className="w-4 h-4" />
-                  {t.login}
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
                 <Link to="/signup" className="flex items-center gap-2 cursor-pointer">
                   <UserPlus className="w-4 h-4" />
                   {t.signup}

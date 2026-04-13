@@ -4,7 +4,7 @@ import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Building2, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
-  User, Ticket, Radio, Eye, ClipboardList
+  User, Ticket, Radio, Eye, ClipboardList, Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,6 +71,7 @@ const InstitutionDashboard = () => {
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [quizSubmissions, setQuizSubmissions] = useState<any[]>([]);
   const [examSchedules, setExamSchedules] = useState<any[]>([]);
+  const [lecturerRatings, setLecturerRatings] = useState<any[]>([]);
 
   // Add Department
   const [showAddDeptDialog, setShowAddDeptDialog] = useState(false);

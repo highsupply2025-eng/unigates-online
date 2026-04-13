@@ -57,7 +57,7 @@ const SimpleHeader = () => {
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/')} className="gap-2 cursor-pointer">
                 <ArrowLeft className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold">{t.backToHome || (language === "ar" ? "الرئيسية" : "Home")}</span>
+                <span className="text-sm font-semibold">{t.home}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

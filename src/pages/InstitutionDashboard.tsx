@@ -1094,6 +1094,98 @@ const InstitutionDashboard = () => {
             </TabsContent>
           )}
 
+          {/* Quiz Results Tab - Leadership Only */}
+          {isLeadershipRole && (
+            <TabsContent value="quizresults">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <Card className="border-2 border-primary/20">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-black text-primary">{quizzes.length}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "الاختبارات" : "Quizzes"}</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-2 border-emerald-500/20">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-black text-emerald-600">{quizSubmissions.length}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "التقديمات" : "Submissions"}</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-2 border-amber-500/20">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-black text-amber-600">
+                      {quizSubmissions.length > 0
+                        ? Math.round(quizSubmissions.reduce((a, s) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / quizSubmissions.length)
+                        : 0}%
+                    </p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "متوسط النتيجة" : "Avg Score"}</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-2 border-emerald-500/20">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-black text-emerald-500">
+                      {quizSubmissions.filter(s => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "ناجح (≥50%)" : "Passed (≥50%)"}</p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {quizzes.map(quiz => {
+                const subs = quizSubmissions.filter(s => s.quiz_id === quiz.id);
+                if (subs.length === 0) return null;
+                const avgScore = Math.round(subs.reduce((a, s) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / subs.length);
+                return (
+                  <Card key={quiz.id} className="mb-4">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm flex items-center justify-between">
+                        <span className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-primary" />
+                          {isRtl ? quiz.title_ar : quiz.title_en}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline">{subs.length} {isRtl ? "تقديم" : "subs"}</Badge>
+                          <Badge variant={avgScore >= 50 ? "default" : "destructive"}>{avgScore}%</Badge>
+                        </div>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {subs.map(sub => {
+                          const pct = Math.round(((sub.score || 0) / Math.max(sub.total_points || 1, 1)) * 100);
+                          return (
+                            <div key={sub.id} className="flex items-center justify-between p-3 rounded-lg border">
+                              <div>
+                                <p className="text-sm font-medium">{sub.student_id?.slice(0, 8)}...</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {new Date(sub.submitted_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-bold">{sub.score || 0}/{sub.total_points || 0}</span>
+                                <Badge variant={pct >= 50 ? "default" : "destructive"} className="text-xs">
+                                  {pct}%
+                                </Badge>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+
+              {quizSubmissions.length === 0 && (
+                <Card>
+                  <CardContent className="text-center py-8 text-muted-foreground">
+                    <CheckCircle className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                    <p>{isRtl ? "لا توجد نتائج اختبارات بعد" : "No quiz results yet"}</p>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+          )}
+
           {/* Invitations Tab - Links & Codes */}
           <TabsContent value="invitations">
             {departments.filter(d => d.payment_status === "paid").length === 0 ? (

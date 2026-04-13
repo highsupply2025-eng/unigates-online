@@ -393,7 +393,7 @@ const InstitutionDashboard = () => {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast({ title: isRtl ? "تم النسخ" : "Copied!", description: text });
+    toast(isRtl ? "تم النسخ" : "Copied!", { duration: 500 });
   };
 
   const getMembersForDept = (deptId: string) => deptMembers.filter(m => m.department_id === deptId);

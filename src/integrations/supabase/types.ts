@@ -1467,6 +1467,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_department_member: {
+        Args: { _department_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role:

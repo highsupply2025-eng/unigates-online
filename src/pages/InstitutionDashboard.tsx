@@ -543,9 +543,11 @@ const InstitutionDashboard = () => {
                               <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); copyToClipboard(memberInviteLink); }}>
                                 <LinkIcon className="w-3.5 h-3.5 me-1" />{isRtl ? "نسخ الرابط" : "Copy Link"}
                               </Button>
-                              <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-50" onClick={(e) => { e.stopPropagation(); window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank"); }}>
-                                <MessageCircle className="w-3.5 h-3.5 me-1" />{isRtl ? "واتساب" : "WhatsApp"}
-                              </Button>
+                              <a href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                                <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-50">
+                                  <MessageCircle className="w-3.5 h-3.5 me-1" />{isRtl ? "واتساب" : "WhatsApp"}
+                                </Button>
+                              </a>
                             </div>
                           );
                         })()}
@@ -602,9 +604,11 @@ const InstitutionDashboard = () => {
                               <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); copyToClipboard(memberInviteLink); }}>
                                 <LinkIcon className="w-3.5 h-3.5 me-1" />{isRtl ? "نسخ الرابط" : "Copy Link"}
                               </Button>
-                              <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-50" onClick={(e) => { e.stopPropagation(); window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank"); }}>
-                                <MessageCircle className="w-3.5 h-3.5 me-1" />{isRtl ? "واتساب" : "WhatsApp"}
-                              </Button>
+                              <a href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                                <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-50">
+                                  <MessageCircle className="w-3.5 h-3.5 me-1" />{isRtl ? "واتساب" : "WhatsApp"}
+                                </Button>
+                              </a>
                             </div>
                           );
                         })()}

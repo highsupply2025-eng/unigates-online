@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { toast as sonnerToast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 
@@ -203,7 +204,7 @@ const SchoolDashboard = () => {
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code);
-    toast({ title: isRtl ? "تم النسخ" : "Copied", description: code });
+    sonnerToast.success(isRtl ? "تم النسخ" : "Copied", { duration: 500 });
   };
 
   const handleLogout = async () => { await supabase.auth.signOut(); navigate("/"); };

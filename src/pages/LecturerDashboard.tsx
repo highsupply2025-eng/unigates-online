@@ -19,6 +19,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { toast as sonnerToast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 
@@ -702,7 +703,7 @@ const LecturerDashboard = () => {
                             </Button>
                             <Button size="sm" variant="outline" className="gap-1" onClick={() => {
                               navigator.clipboard.writeText(`${window.location.origin}/courses?course=${course.id}`);
-                              toast({ title: isRtl ? "تم النسخ!" : "Copied!" });
+                              sonnerToast.success(isRtl ? "تم النسخ!" : "Copied!", { duration: 500 });
                             }}>
                               <Link2 className="w-3.5 h-3.5" />{isRtl ? "نسخ" : "Copy"}
                             </Button>

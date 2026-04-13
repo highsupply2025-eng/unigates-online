@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { useToast } from "@/hooks/use-toast";
+import { toast as sonnerToast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 
@@ -393,7 +394,7 @@ const InstitutionDashboard = () => {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast({ title: isRtl ? "تم النسخ" : "Copied!", description: text });
+    sonnerToast.success(isRtl ? "تم النسخ" : "Copied!", { duration: 500 });
   };
 
   const getMembersForDept = (deptId: string) => deptMembers.filter(m => m.department_id === deptId);
@@ -1620,7 +1621,7 @@ const InstitutionDashboard = () => {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => { copyToClipboard(inviteLink); toast({ title: isRtl ? "تم النسخ" : "Copied!" }); }}
+                                onClick={() => copyToClipboard(inviteLink)}
                               >
                                 <Copy className="w-3.5 h-3.5 me-1" />
                                 {isRtl ? "نسخ الرابط" : "Copy Link"}

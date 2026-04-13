@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  ArrowLeft, ArrowRight, Copy, Users, UserCheck, GraduationCap,
-  Building2, LinkIcon, MessageCircle, Star, Loader2, Plus
+  ArrowLeft, ArrowRight, Copy, UserCheck, GraduationCap,
+  Building2, LinkIcon, MessageCircle, Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,7 +34,6 @@ const DepartmentPage = () => {
   const [deptStatus, setDeptStatus] = useState("");
   const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
   const [members, setMembers] = useState<DepartmentMember[]>([]);
-  const [leadershipInvitations, setLeadershipInvitations] = useState<any[]>([]);
 
   useEffect(() => {
     loadDepartmentData();
@@ -66,17 +65,6 @@ const DepartmentPage = () => {
         .eq("department_id", deptId);
       setMembers(membersData || []);
 
-      // Load leadership invitations for this institution
-      const tableName = dept.institution_type === "college" ? "college_invitations" : "institute_invitations";
-      const idColumn = dept.institution_type === "college" ? "college_id" : "institute_id";
-      const leadershipRoles = ["department_head", "vice_dean", "dean"];
-
-      const { data: invites } = await supabase
-        .from(tableName as any)
-        .select("*")
-        .eq(idColumn, dept.institution_id)
-        .in("role", leadershipRoles);
-      setLeadershipInvitations(invites || []);
     } catch {
       navigate("/institution/dashboard");
     } finally {
@@ -93,13 +81,7 @@ const DepartmentPage = () => {
   const students = members.filter(m => m.role === "student");
   const baseUrl = window.location.origin;
   const instPath = institutionType === "college" ? "college" : "institute";
-  const isCollege = institutionType === "college";
 
-  const roleLabels: Record<string, { ar: string; en: string; icon: React.ReactNode }> = {
-    dean: { ar: isCollege ? "عميد الكلية" : "مدير المعهد", en: isCollege ? "Dean" : "Director", icon: <GraduationCap className="w-5 h-5 text-amber-600" /> },
-    vice_dean: { ar: isCollege ? "وكيل الكلية" : "وكيل المعهد", en: isCollege ? "Vice Dean" : "Vice Director", icon: <Users className="w-5 h-5 text-purple-600" /> },
-    department_head: { ar: "رئيس القسم", en: "Department Head", icon: <UserCheck className="w-5 h-5 text-blue-600" /> },
-  };
 
   const renderMemberCard = (member: DepartmentMember, roleParam: string, colorClass: string, icon: React.ReactNode) => {
     const inviteLink = `${baseUrl}/signup/${instPath}/${roleParam}?code=${member.invitation_code}`;
@@ -183,65 +165,7 @@ const DepartmentPage = () => {
           </div>
         </div>
 
-        {/* Free Leadership Links */}
-        {leadershipInvitations.length > 0 && (
-          <Card className="mb-6 border-2 border-emerald-500/30 bg-emerald-50/30 dark:bg-emerald-950/10">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Star className="w-5 h-5 text-emerald-600" />
-                {isRtl ? "روابط القيادة المجانية" : "Free Leadership Links"}
-                <Badge variant="default" className="bg-emerald-600 text-white ms-2">{isRtl ? "مجاني" : "Free"}</Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {(() => {
-                  const roleOrder = ["dean", "vice_dean", "department_head"];
-                  const sorted = [...leadershipInvitations].sort((a: any, b: any) => roleOrder.indexOf(a.role) - roleOrder.indexOf(b.role));
-                  return sorted.map((inv: any) => {
-                    const label = roleLabels[inv.role] || { ar: inv.role, en: inv.role, icon: <UserCheck className="w-5 h-5" /> };
-                    const inviteLink = `${baseUrl}/signup/${instPath}/${inv.role}?code=${inv.invitation_code}`;
-                    return (
-                      <div key={inv.id} className="flex items-center justify-between p-4 rounded-xl border-2 bg-background">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                            {label.icon}
-                          </div>
-                          <div>
-                            <p className="font-bold text-foreground">{isRtl ? label.ar : label.en}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 flex-wrap justify-end">
-                          <Button size="sm" variant="outline" onClick={() => copyToClipboard(inv.invitation_code)}>
-                            <Copy className="w-3.5 h-3.5 me-1" />
-                            {isRtl ? "نسخ الكود" : "Copy Code"}
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => copyToClipboard(inviteLink)}>
-                            <LinkIcon className="w-3.5 h-3.5 me-1" />
-                            {isRtl ? "نسخ الرابط" : "Copy Link"}
-                          </Button>
-                          {(() => {
-                            const text = isRtl
-                              ? `رابط الدعوة للانضمام كـ ${label.ar}:\n${inviteLink}`
-                              : `Invitation link to join as ${label.en}:\n${inviteLink}`;
-                            return (
-                              <a href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
-                                <Button size="sm" variant="outline" className="text-green-600 border-green-300 hover:bg-green-50">
-                                  <MessageCircle className="w-3.5 h-3.5 me-1" />
-                                  {isRtl ? "واتساب" : "WhatsApp"}
-                                </Button>
-                              </a>
-                            );
-                          })()}
-                        </div>
-                      </div>
-                    );
-                  });
-                })()}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+
 
         {/* Lecturers Section */}
         <Card className="mb-6 border-2 border-green-500/20">

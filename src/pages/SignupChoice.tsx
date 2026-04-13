@@ -1,12 +1,19 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSmartBack } from "@/hooks/use-smart-back";
-import { GraduationCap, BookOpen, User, Globe, ArrowLeft, ArrowRight, Landmark, School } from "lucide-react";
+import { GraduationCap, BookOpen, User, Globe, ArrowLeft, ArrowRight, Landmark, School, Menu, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const SignupChoice = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
   const goBack = useSmartBack();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
@@ -16,7 +23,9 @@ const SignupChoice = () => {
             <GraduationCap className="w-8 h-8 text-primary" />
             <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
           </Link>
-          <div className="flex items-center gap-4">
+
+          {/* Desktop */}
+          <div className="hidden md:flex items-center gap-4">
             <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
               <Globe className="w-4 h-4" />
               {t.langSwitch}
@@ -29,6 +38,31 @@ const SignupChoice = () => {
             <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={goBack}>
               {language === "ar" ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
             </Button>
+          </div>
+
+          {/* Mobile/Tablet dropdown */}
+          <div className="md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="p-2 rounded-lg bg-primary/20 text-primary">
+                  <Menu className="w-5 h-5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-48">
+                <DropdownMenuItem onClick={() => navigate('/login')} className="gap-2 cursor-pointer">
+                  <LogIn className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-semibold">{t.login}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={goBack} className="gap-2 cursor-pointer">
+                  <ArrowLeft className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-semibold">{t.home}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
+                  <Globe className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-semibold">{language === "ar" ? "English" : "العربية"}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>

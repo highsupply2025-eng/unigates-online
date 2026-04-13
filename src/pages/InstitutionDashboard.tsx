@@ -257,11 +257,25 @@ const InstitutionDashboard = () => {
         if (membersError) throw membersError;
       }
 
+      // Send notification to admin
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from("notifications").insert({
+          sender_id: user.id,
+          target_role: "admin",
+          notification_type: "department_request",
+          title_ar: "طلب إنشاء قسم جديد",
+          title_en: "New Department Request",
+          message_ar: `طلب إنشاء قسم "${newDeptName}" - ${studentCount} طالب، ${lecturerCount} محاضر - ${institutionName} (${paymentAmount} جنيه/شهر)`,
+          message_en: `Request to create "${newDeptName}" - ${studentCount} students, ${lecturerCount} lecturers - ${institutionName} (${paymentAmount} EGP/month)`,
+        });
+      }
+
       toast({
-        title: isRtl ? "تم إضافة القسم" : "Department Added",
+        title: isRtl ? "تم إرسال الطلب" : "Request Sent",
         description: isRtl
-          ? `تم إنشاء القسم بنجاح - في انتظار موافقة إدارة المنصة والدفع نقداً (${paymentAmount} جنيه شهرياً)`
-          : `Department created - Pending platform admin approval & cash payment (${paymentAmount} EGP/month)`,
+          ? `تم إرسال طلب إنشاء القسم إلى إدارة المنصة - سيتم تفعيل الروابط تلقائياً بعد الموافقة`
+          : `Department request sent to platform admin - Links will be activated automatically after approval`,
       });
       setShowAddDeptDialog(false);
       setNewDeptName("");

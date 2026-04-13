@@ -721,28 +721,34 @@ const InstitutionDashboard = () => {
           </div>
         ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab} dir={dir}>
-          <TabsList className={`grid w-full ${isLeadershipRole ? "grid-cols-5" : "grid-cols-3"} mb-6`}>
-            <TabsTrigger value="overview" className="gap-2">
+          <TabsList className={`grid w-full ${isLeadershipRole ? "grid-cols-6" : "grid-cols-3"} mb-6`}>
+            <TabsTrigger value="overview" className="gap-1 text-xs">
               <Building2 className="w-4 h-4" />
-              {isRtl ? "نظرة عامة" : "Overview"}
+              {isRtl ? "عامة" : "Overview"}
             </TabsTrigger>
-            <TabsTrigger value="departments" className="gap-2">
+            <TabsTrigger value="departments" className="gap-1 text-xs">
               <BookOpen className="w-4 h-4" />
-              {isRtl ? "الأقسام" : "Departments"}
+              {isRtl ? "الأقسام" : "Depts"}
             </TabsTrigger>
             {isLeadershipRole && (
-              <TabsTrigger value="livestreams" className="gap-2">
+              <TabsTrigger value="livestreams" className="gap-1 text-xs">
                 <Radio className="w-4 h-4" />
                 {isRtl ? "البث" : "Streams"}
               </TabsTrigger>
             )}
             {isLeadershipRole && (
-              <TabsTrigger value="quizresults" className="gap-2">
+              <TabsTrigger value="quizresults" className="gap-1 text-xs">
                 <CheckCircle className="w-4 h-4" />
-                {isRtl ? "الاختبارات" : "Quizzes"}
+                {isRtl ? "النتائج" : "Results"}
               </TabsTrigger>
             )}
-            <TabsTrigger value="invitations" className="gap-2">
+            {isLeadershipRole && (
+              <TabsTrigger value="schedules" className="gap-1 text-xs">
+                <Calendar className="w-4 h-4" />
+                {isRtl ? "الجداول" : "Schedule"}
+              </TabsTrigger>
+            )}
+            <TabsTrigger value="invitations" className="gap-1 text-xs">
               <LinkIcon className="w-4 h-4" />
               {isRtl ? "الدعوات" : "Codes"}
             </TabsTrigger>

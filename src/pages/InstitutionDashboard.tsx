@@ -718,7 +718,7 @@ const InstitutionDashboard = () => {
           </div>
         ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab} dir={dir}>
-          <TabsList className={`grid w-full ${isLeadershipRole ? "grid-cols-4" : "grid-cols-3"} mb-6`}>
+          <TabsList className={`grid w-full ${isLeadershipRole ? "grid-cols-5" : "grid-cols-3"} mb-6`}>
             <TabsTrigger value="overview" className="gap-2">
               <Building2 className="w-4 h-4" />
               {isRtl ? "نظرة عامة" : "Overview"}
@@ -730,12 +730,18 @@ const InstitutionDashboard = () => {
             {isLeadershipRole && (
               <TabsTrigger value="livestreams" className="gap-2">
                 <Radio className="w-4 h-4" />
-                {isRtl ? "البث المباشر" : "Live Streams"}
+                {isRtl ? "البث" : "Streams"}
+              </TabsTrigger>
+            )}
+            {isLeadershipRole && (
+              <TabsTrigger value="quizresults" className="gap-2">
+                <CheckCircle className="w-4 h-4" />
+                {isRtl ? "الاختبارات" : "Quizzes"}
               </TabsTrigger>
             )}
             <TabsTrigger value="invitations" className="gap-2">
               <LinkIcon className="w-4 h-4" />
-              {isRtl ? "روابط وأكواد الدعوة" : "Links & Codes"}
+              {isRtl ? "الدعوات" : "Codes"}
             </TabsTrigger>
           </TabsList>
 

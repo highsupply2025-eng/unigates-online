@@ -186,12 +186,16 @@ const InstitutionDashboard = () => {
       setDeptMembers([]);
     }
 
-    // Load live streams and attendance
-    const [streamsRes, attendanceRes] = await Promise.all([
+    // Load live streams, attendance, quizzes, and quiz submissions
+    const [streamsRes, attendanceRes, quizzesRes, quizSubsRes] = await Promise.all([
       supabase.from("live_streams").select("*").order("scheduled_at", { ascending: false }).limit(50),
       supabase.from("stream_attendance").select("stream_id, user_id"),
+      supabase.from("quizzes").select("*").order("created_at", { ascending: false }).limit(50),
+      supabase.from("quiz_submissions").select("*").order("submitted_at", { ascending: false }).limit(200),
     ]);
     setLiveStreams(streamsRes.data || []);
+    setQuizzes(quizzesRes.data || []);
+    setQuizSubmissions(quizSubsRes.data || []);
 
     // Count unique users per stream
     const counts: Record<string, Set<string>> = {};

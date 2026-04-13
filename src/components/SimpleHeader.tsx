@@ -25,7 +25,7 @@ const SimpleHeader = () => {
 
         {/* Desktop buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <Button onClick={() => navigate('/signup-choice')} className="rounded-full h-11 px-5 bg-gradient-to-br from-[hsl(190,80%,45%)] to-primary shadow-lg shadow-primary/30 text-white hover:shadow-xl hover:scale-105 transition-all border-2 border-primary/50 font-bold gap-2">
+          <Button onClick={() => navigate('/signup')} className="rounded-full h-11 px-5 bg-gradient-to-br from-[hsl(190,80%,45%)] to-primary shadow-lg shadow-primary/30 text-white hover:shadow-xl hover:scale-105 transition-all border-2 border-primary/50 font-bold gap-2">
             <UserPlus className="w-5 h-5" />
             {t.signup}
           </Button>
@@ -47,7 +47,7 @@ const SimpleHeader = () => {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-48">
-              <DropdownMenuItem onClick={() => navigate('/signup-choice')} className="gap-2 cursor-pointer">
+              <DropdownMenuItem onClick={() => navigate('/signup')} className="gap-2 cursor-pointer">
                 <UserPlus className="w-4 h-4 text-primary" />
                 <span className="text-sm font-semibold">{t.signup}</span>
               </DropdownMenuItem>

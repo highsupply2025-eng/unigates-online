@@ -8,7 +8,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import Index from "./pages/Index";
 import AIChatWidget from "./components/AIChatWidget";
 
-const SignupChoice = lazy(() => import("./pages/SignupChoice"));
+
 const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
@@ -74,7 +74,7 @@ const App = () => (
               {/* Courses auth */}
               <Route path="/courses" element={<ComingSoon />} />
               <Route path="/signup" element={<Signup />} />
-              <Route path="/signup-choice" element={<SignupChoice />} />
+              
               <Route path="/signup/:role" element={<Signup />} />
               <Route path="/login" element={<Login />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />

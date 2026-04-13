@@ -34,7 +34,6 @@ const DepartmentPage = () => {
   const [deptStatus, setDeptStatus] = useState("");
   const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
   const [members, setMembers] = useState<DepartmentMember[]>([]);
-  const [leadershipInvitations, setLeadershipInvitations] = useState<any[]>([]);
 
   useEffect(() => {
     loadDepartmentData();
@@ -66,17 +65,6 @@ const DepartmentPage = () => {
         .eq("department_id", deptId);
       setMembers(membersData || []);
 
-      // Load leadership invitations for this institution
-      const tableName = dept.institution_type === "college" ? "college_invitations" : "institute_invitations";
-      const idColumn = dept.institution_type === "college" ? "college_id" : "institute_id";
-      const leadershipRoles = ["department_head", "vice_dean", "dean"];
-
-      const { data: invites } = await supabase
-        .from(tableName as any)
-        .select("*")
-        .eq(idColumn, dept.institution_id)
-        .in("role", leadershipRoles);
-      setLeadershipInvitations(invites || []);
     } catch {
       navigate("/institution/dashboard");
     } finally {

@@ -1052,9 +1052,15 @@ const InstitutionDashboard = () => {
                         <div key={stream.id} className="flex items-center justify-between p-3 rounded-lg border">
                           <div>
                             <p className="font-bold text-sm">{isRtl ? stream.title_ar : stream.title_en}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {stream.scheduled_at ? new Date(stream.scheduled_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US') : '-'}
-                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <p className="text-xs text-muted-foreground">
+                                {stream.scheduled_at ? new Date(stream.scheduled_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US') : '-'}
+                              </p>
+                              <Badge variant="outline" className="text-[10px]">
+                                <Users className="w-3 h-3 me-1" />
+                                {streamAttendance[stream.id] || 0} {isRtl ? "طالب" : "students"}
+                              </Badge>
+                            </div>
                           </div>
                           <div className="flex items-center gap-2">
                             <Badge variant={stream.status === "live" ? "destructive" : stream.status === "scheduled" ? "outline" : "secondary"}>

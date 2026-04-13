@@ -231,13 +231,13 @@ const Login = () => {
                   <UserPlus className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold">{t.signup}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
-                  <Globe className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-semibold">{language === "ar" ? "English" : "العربية"}</span>
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={goBack} className="gap-2 cursor-pointer">
                   <ArrowLeft className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold">{t.home}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
+                  <Globe className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-semibold">{language === "ar" ? "English" : "العربية"}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

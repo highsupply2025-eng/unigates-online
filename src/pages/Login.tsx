@@ -173,12 +173,14 @@ const Login = () => {
             <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
           </Link>
           <div className="flex items-center gap-3">
-            <Button size="icon" className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white" onClick={goBack}>
-              {language === "ar" ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
+            <Button size="icon" onClick={() => navigate('/signup-choice')} className="rounded-full w-10 h-10 bg-gradient-to-br from-[hsl(190,80%,45%)] to-primary shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 hover:scale-110 transition-all text-white">
+              <UserPlus className="w-5 h-5" />
             </Button>
-            <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white rounded-full">
-              <Globe className="w-4 h-4" />
-              {t.langSwitch}
+            <Button size="icon" onClick={toggleLanguage} className="rounded-full w-10 h-10 bg-gradient-to-br from-[hsl(190,80%,45%)] to-primary shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 hover:scale-110 transition-all text-white">
+              <Globe className="w-5 h-5" />
+            </Button>
+            <Button size="icon" className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 hover:scale-110 transition-all text-white" onClick={goBack}>
+              {language === "ar" ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
             </Button>
           </div>
         </div>

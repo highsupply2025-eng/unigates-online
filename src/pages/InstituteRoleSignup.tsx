@@ -149,10 +149,7 @@ const InstituteRoleSignup = () => {
             .eq("id", verifiedInvitation.id);
         }
 
-        await supabase
-          .from("user_roles")
-          .update({ approved: true })
-          .eq("user_id", authData.user.id);
+        // approval handled by p_force_approve in complete_signup
       }
 
       setSubmitted(true);

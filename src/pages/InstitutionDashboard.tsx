@@ -313,6 +313,7 @@ const InstitutionDashboard = () => {
         description: isRtl
           ? `تم إرسال طلب إنشاء القسم إلى إدارة المنصة - سيتم تفعيل الروابط تلقائياً بعد الموافقة`
           : `Department request sent to platform admin - Links will be activated automatically after approval`,
+        duration: 1000,
       });
       setShowAddDeptDialog(false);
       setNewDeptName("");

@@ -1642,9 +1642,17 @@ const InstitutionDashboard = () => {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => copyToClipboard(inviteLink)}
+                                onClick={() => copyToClipboard(inv.invitation_code)}
                               >
                                 <Copy className="w-3.5 h-3.5 me-1" />
+                                {isRtl ? "نسخ الكود" : "Copy Code"}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => copyToClipboard(inviteLink)}
+                              >
+                                <LinkIcon className="w-3.5 h-3.5 me-1" />
                                 {isRtl ? "نسخ الرابط" : "Copy Link"}
                               </Button>
                               <Button

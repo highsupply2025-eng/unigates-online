@@ -447,6 +447,12 @@ const LeadershipDashboard = () => {
                               {stream.status === "live" ? (isRtl ? "مباشر" : "Live") : stream.status === "scheduled" ? (isRtl ? "مجدول" : "Scheduled") : (isRtl ? "منتهي" : "Ended")}
                             </Badge>
                           </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              <Users className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-bold">{streamAttendance[stream.id] || 0}</span>
+                            </div>
+                          </TableCell>
                           <TableCell className="text-sm">
                             {stream.scheduled_at ? new Date(stream.scheduled_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US') : '-'}
                           </TableCell>

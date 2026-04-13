@@ -65,6 +65,8 @@ const InstitutionDashboard = () => {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [deptMembers, setDeptMembers] = useState<DepartmentMember[]>([]);
   const [deptSearch, setDeptSearch] = useState("");
+  const [isLeadershipRole, setIsLeadershipRole] = useState(false);
+  const [liveStreams, setLiveStreams] = useState<any[]>([]);
 
   // Add Department
   const [showAddDeptDialog, setShowAddDeptDialog] = useState(false);

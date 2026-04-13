@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Globe, Menu, X, Landmark, School, BookOpen, Store, LogIn, UserPlus, ChevronDown } from "lucide-react";
+import { GraduationCap, Globe, Menu, Landmark, School, BookOpen, Store } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useState, useRef, useEffect } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,

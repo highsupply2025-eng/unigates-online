@@ -1554,11 +1554,80 @@ const InstitutionDashboard = () => {
 
           {/* Invitations Tab - Links & Codes */}
           <TabsContent value="invitations">
+            {/* Free Leadership Links - Always visible for colleges */}
+            {institutionType === "college" && leadershipInvitations.length > 0 && (
+              <Card className="mb-6 border-2 border-emerald-500/30 bg-emerald-50/30 dark:bg-emerald-950/10">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Star className="w-5 h-5 text-emerald-600" />
+                    {isRtl ? "روابط القيادة المجانية" : "Free Leadership Links"}
+                    <Badge variant="default" className="bg-emerald-600 text-white ms-2">{isRtl ? "مجاني" : "Free"}</Badge>
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    {isRtl ? "روابط دعوة مجانية لأعضاء القيادة - كل رابط صالح لاستخدام واحد" : "Free invitation links for leadership members - each link valid for one use"}
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {(() => {
+                      const baseUrl = window.location.origin;
+                      const roleLabels: Record<string, { ar: string; en: string; icon: React.ReactNode }> = {
+                        department_head: { ar: "رئيس القسم", en: "Department Head", icon: <UserCheck className="w-5 h-5 text-blue-600" /> },
+                        vice_dean: { ar: "وكيل الكلية", en: "Vice Dean", icon: <Users className="w-5 h-5 text-purple-600" /> },
+                        dean: { ar: "عميد الكلية", en: "Dean", icon: <GraduationCap className="w-5 h-5 text-amber-600" /> },
+                      };
+                      return leadershipInvitations.map((inv: any) => {
+                        const label = roleLabels[inv.role] || { ar: inv.role, en: inv.role, icon: <User className="w-5 h-5" /> };
+                        const roleParam = inv.role;
+                        const inviteLink = `${baseUrl}/signup?role=${roleParam}&code=${inv.invitation_code}`;
+                        const shareText = isRtl
+                          ? `مرحباً، يمكنك التسجيل كـ ${label.ar} في منصة إدراك عبر هذا الرابط:\n${inviteLink}\nكود الدعوة: ${inv.invitation_code}`
+                          : `Hi, register as ${label.en} on Edrak platform:\n${inviteLink}\nInvitation code: ${inv.invitation_code}`;
+                        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+                        return (
+                          <div key={inv.id} className="flex items-center justify-between p-4 rounded-xl border-2 bg-background">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                {label.icon}
+                              </div>
+                              <div>
+                                <p className="font-bold text-foreground">{isRtl ? label.ar : label.en}</p>
+                                <code className="text-xs font-mono text-muted-foreground">{inv.invitation_code}</code>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => { copyToClipboard(inviteLink); toast({ title: isRtl ? "تم النسخ" : "Copied!" }); }}
+                              >
+                                <Copy className="w-3.5 h-3.5 me-1" />
+                                {isRtl ? "نسخ الرابط" : "Copy Link"}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-green-600 border-green-300"
+                                onClick={() => window.open(whatsappUrl, "_blank")}
+                              >
+                                <Share2 className="w-3.5 h-3.5 me-1" />
+                                WhatsApp
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {departments.filter(d => d.status === "active").length === 0 ? (
               <Card>
                 <CardContent className="text-center py-10 text-muted-foreground">
                   <LinkIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                  <p>{isRtl ? "يجب موافقة إدارة المنصة على قسم واحد على الأقل لتفعيل روابط وأكواد الدعوة" : "At least one department must be approved to activate invitation links & codes"}</p>
+                  <p>{isRtl ? "أضف أقسام وانتظر موافقة الإدارة لتفعيل روابط الطلاب والمحاضرين" : "Add departments and wait for admin approval to activate student & lecturer links"}</p>
                 </CardContent>
               </Card>
             ) : !invitationDept ? (

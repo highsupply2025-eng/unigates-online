@@ -1632,18 +1632,9 @@ const InstitutionDashboard = () => {
                               </div>
                               <div>
                                 <p className="font-bold text-foreground">{isRtl ? label.ar : label.en}</p>
-                                <code className="text-xs font-mono text-muted-foreground">{inv.invitation_code}</code>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => copyToClipboard(inv.invitation_code)}
-                              >
-                                <Copy className="w-3.5 h-3.5 me-1" />
-                                {isRtl ? "نسخ الكود" : "Copy Code"}
-                              </Button>
                               <Button
                                 size="sm"
                                 variant="outline"

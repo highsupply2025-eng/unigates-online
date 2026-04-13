@@ -167,9 +167,10 @@ const InstituteRoleSignup = () => {
               .update({ used_count: (verifiedInvitation.used_count || 0) + 1 })
               .eq("id", verifiedInvitation.id);
           } else if (verifiedInvitation._source === "department_members") {
+            // Link user and update profile data
             await supabase
               .from("department_members")
-              .update({ user_id: authData.user.id })
+              .update({ user_id: authData.user.id, full_name: fullName })
               .eq("id", verifiedInvitation.id);
           }
         }

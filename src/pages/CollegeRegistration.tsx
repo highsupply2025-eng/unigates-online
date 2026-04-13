@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { GraduationCap, Globe, ArrowLeft, ArrowRight, Users, BookOpen, UserCog, Shield, Crown, Landmark } from "lucide-react";
+import { GraduationCap, Globe, ArrowLeft, ArrowRight, Users, BookOpen, UserCog, Shield, Crown, Landmark, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
 
@@ -63,7 +64,8 @@ const CollegeRegistration = () => {
             </div>
             <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
           </Link>
-          <div className="flex items-center gap-3">
+          {/* Desktop buttons */}
+          <div className="hidden md:flex items-center gap-3">
             <Link to="/login">
               <Button size="sm" className="font-bold bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white">
                 {t.login}
@@ -76,6 +78,26 @@ const CollegeRegistration = () => {
             <Button size="icon" className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white" onClick={goBack}>
               {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
             </Button>
+          </div>
+          {/* Mobile dropdown */}
+          <div className="md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" className="rounded-xl w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 text-white">
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-48">
+                <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
+                  <Globe className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-semibold">{language === "ar" ? "English" : "العربية"}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={goBack} className="gap-2 cursor-pointer">
+                  {isRtl ? <ArrowRight className="w-4 h-4 text-primary" /> : <ArrowLeft className="w-4 h-4 text-primary" />}
+                  <span className="text-sm font-semibold">{isRtl ? "الرجوع" : "Back"}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>

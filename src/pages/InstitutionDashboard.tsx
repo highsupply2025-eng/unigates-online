@@ -252,7 +252,8 @@ const InstitutionDashboard = () => {
   };
 
   const handleAddDepartment = async () => {
-    if (!newDeptName || !newDeptStudentCount) return;
+    if (!newDeptName || !newDeptStudentCount || addingDept) return;
+    setAddingDept(true);
     const studentCount = parseInt(newDeptStudentCount);
     const lecturerCount = parseInt(newDeptLecturerCount) || 0;
     const paymentAmount = studentCount * 299;

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, Globe, ArrowLeft, UserPlus, Menu } from "lucide-react";
+import { GraduationCap, Globe, ArrowLeft, Menu, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -25,16 +25,15 @@ const SimpleHeader = () => {
 
         {/* Desktop buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <Button onClick={() => navigate('/signup')} className="rounded-full h-11 px-5 bg-gradient-to-br from-[hsl(190,80%,45%)] to-primary shadow-lg shadow-primary/30 text-white hover:shadow-xl hover:scale-105 transition-all border-2 border-primary/50 font-bold gap-2">
-            <UserPlus className="w-5 h-5" />
+          <Button size="sm" onClick={() => navigate('/signup')} className="font-bold bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white">
             {t.signup}
           </Button>
-          <Button onClick={toggleLanguage} className="rounded-full h-11 px-4 bg-gradient-to-br from-[hsl(190,80%,45%)] to-primary shadow-lg shadow-primary/30 text-white hover:shadow-xl hover:scale-105 transition-all border-2 border-primary/50 font-bold gap-1.5 text-sm">
-            {language === "ar" ? "EN" : "AR"}
+          <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white">
             <Globe className="w-4 h-4" />
+            {language === "ar" ? "EN" : "AR"}
           </Button>
-          <Button size="icon" onClick={() => navigate('/')} className="rounded-full w-11 h-11 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/40 text-white hover:shadow-xl hover:scale-110 transition-all border-2 border-primary/50">
-            <ArrowLeft className="w-6 h-6" />
+          <Button size="icon" onClick={() => navigate('/')} className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white">
+            <ArrowLeft className="w-5 h-5" />
           </Button>
         </div>
 
@@ -48,7 +47,7 @@ const SimpleHeader = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-48">
               <DropdownMenuItem onClick={() => navigate('/signup')} className="gap-2 cursor-pointer">
-                <UserPlus className="w-4 h-4 text-primary" />
+                <LogIn className="w-4 h-4 text-primary" />
                 <span className="text-sm font-semibold">{t.signup}</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">

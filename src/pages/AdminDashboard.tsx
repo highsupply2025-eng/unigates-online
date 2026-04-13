@@ -122,6 +122,7 @@ const AdminDashboard = () => {
   // Invitation codes display
   const [showInvitationCodesDialog, setShowInvitationCodesDialog] = useState(false);
   const [generatedCodes, setGeneratedCodes] = useState<DepartmentMember[]>([]);
+  const [selectedCodesInstType, setSelectedCodesInstType] = useState<"college" | "institute">("college");
 
   const [stats, setStats] = useState({ totalUsers: 0, totalLecturers: 0, pendingCount: 0, totalCourses: 0, totalViews: 0, pendingSchools: 0, totalBooks: 0, totalOrders: 0, totalSubscriptions: 0, totalStreams: 0, totalRevenue: 0, totalColleges: 0, pendingColleges: 0, totalInstitutes: 0, pendingInstitutes: 0, totalDepartments: 0, pendingDepartments: 0 });
 
@@ -436,13 +437,15 @@ const AdminDashboard = () => {
     // Fetch fresh members for this department
     const { data: freshMembers } = await supabase.from("department_members" as any).select("*").eq("department_id", paymentDept.id);
     setGeneratedCodes((freshMembers as unknown as DepartmentMember[]) || []);
+    setSelectedCodesInstType(paymentDept.institution_type as "college" | "institute");
     setShowInvitationCodesDialog(true);
     setPaymentDept(null);
     await Promise.all([loadDepartments(), loadDepartmentMembers()]);
   };
 
-  const copyDeptInviteLink = (code: string, role: string) => {
-    const link = `${window.location.origin}/signup?dept_invite=${code}&role=${role}`;
+  const copyDeptInviteLink = (code: string, role: string, instType: "college" | "institute" = selectedCodesInstType) => {
+    const instPath = instType === "college" ? "college" : "institute";
+    const link = `${window.location.origin}/signup/${instPath}/${role}?code=${code}`;
     navigator.clipboard.writeText(link);
     showSuccess(language === "ar" ? "تم نسخ رابط الدعوة" : "Invitation link copied");
   };
@@ -953,7 +956,7 @@ const AdminDashboard = () => {
                                         </Button>
                                       )}
                                       {dept.payment_status === "paid" && (
-                                        <Button variant="outline" size="sm" className="h-6 text-xs gap-1" onClick={() => { setGeneratedCodes(deptMembers); setShowInvitationCodesDialog(true); }}>
+                                        <Button variant="outline" size="sm" className="h-6 text-xs gap-1" onClick={() => { setGeneratedCodes(deptMembers); setSelectedCodesInstType(dept.institution_type as "college" | "institute"); setShowInvitationCodesDialog(true); }}>
                                           <LinkIcon className="w-3 h-3" />{ar("أكواد","Codes")}
                                         </Button>
                                       )}
@@ -1041,7 +1044,7 @@ const AdminDashboard = () => {
                                         </Button>
                                       )}
                                       {dept.payment_status === "paid" && (
-                                        <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => { setGeneratedCodes(members); setShowInvitationCodesDialog(true); }}>
+                                        <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => { setGeneratedCodes(members); setSelectedCodesInstType(dept.institution_type as "college" | "institute"); setShowInvitationCodesDialog(true); }}>
                                           <LinkIcon className="w-3 h-3" />{ar("أكواد الدعوة","Invite Codes")}
                                         </Button>
                                       )}
@@ -1062,7 +1065,7 @@ const AdminDashboard = () => {
                                           <div className="flex items-center gap-2">
                                             <Badge variant="outline" className="text-xs">{m.role === "student" ? ar("طالب","Student") : ar("محاضر","Lecturer")}</Badge>
                                             {m.invitation_code && (
-                                              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => copyDeptInviteLink(m.invitation_code!, m.role)}>
+                                              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => copyDeptInviteLink(m.invitation_code!, m.role, dept.institution_type as "college" | "institute")}>
                                                 <Copy className="w-3 h-3" />
                                               </Button>
                                             )}

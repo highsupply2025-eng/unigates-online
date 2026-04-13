@@ -70,7 +70,7 @@ const InstituteRoleSignup = () => {
     setVerifyingCode(true);
     try {
       const { data, error } = await supabase
-        .from("college_invitations")
+        .from("institute_invitations")
         .select("*")
         .eq("invitation_code", code.trim())
         .eq("is_active", true)
@@ -134,25 +134,22 @@ const InstituteRoleSignup = () => {
           p_phone: `${countryCode}${phone}`,
           p_email: email,
           p_platform: "courses",
-        });
+          p_force_approve: true,
+        } as any);
 
         if (rpcError) throw rpcError;
         const result = rpcData as any;
         if (result && !result.success) throw new Error(result.error);
 
         if (verifiedInvitation) {
-          await supabase.from("college_members").insert({
-            user_id: authData.user.id,
-            college_id: verifiedInvitation.college_id,
-            role: role === "admin" ? "admin" : role || "student",
-            invitation_id: verifiedInvitation.id,
-          });
+          // Update invitation used count
+          await supabase
+            .from("institute_invitations")
+            .update({ used_count: (verifiedInvitation.used_count || 0) + 1 })
+            .eq("id", verifiedInvitation.id);
         }
 
-        await supabase
-          .from("user_roles")
-          .update({ approved: true })
-          .eq("user_id", authData.user.id);
+        // approval handled by p_force_approve in complete_signup
       }
 
       setSubmitted(true);

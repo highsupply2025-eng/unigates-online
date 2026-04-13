@@ -146,7 +146,7 @@ const CollegeRoleSignup = () => {
         const result = rpcData as any;
         if (result && !result.success) throw new Error(result.error);
 
-        // 3. Join college via college_members
+        // 3. Join college via college_members + update used count
         if (verifiedInvitation) {
           await supabase.from("college_members").insert({
             user_id: authData.user.id,
@@ -154,6 +154,10 @@ const CollegeRoleSignup = () => {
             role: role === "admin" ? "admin" : role || "student",
             invitation_id: verifiedInvitation.id,
           });
+          await supabase
+            .from("college_invitations")
+            .update({ used_count: (verifiedInvitation.used_count || 0) + 1 })
+            .eq("id", verifiedInvitation.id);
         }
       }
 

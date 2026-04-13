@@ -207,7 +207,7 @@ const Login = () => {
           </Link>
           {/* Desktop buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <Button size="icon" onClick={() => navigate('/signup-choice')} className="rounded-full w-10 h-10 bg-gradient-to-br from-[hsl(190,80%,45%)] to-primary shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 hover:scale-110 transition-all text-white">
+            <Button size="icon" onClick={() => navigate('/signup')} className="rounded-full w-10 h-10 bg-gradient-to-br from-[hsl(190,80%,45%)] to-primary shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 hover:scale-110 transition-all text-white">
               <UserPlus className="w-5 h-5" />
             </Button>
             <Button size="icon" onClick={toggleLanguage} className="rounded-full w-10 h-10 bg-gradient-to-br from-[hsl(190,80%,45%)] to-primary shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 hover:scale-110 transition-all text-white">
@@ -227,7 +227,7 @@ const Login = () => {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-48">
-                <DropdownMenuItem onClick={() => navigate('/signup-choice')} className="gap-2 cursor-pointer">
+                <DropdownMenuItem onClick={() => navigate('/signup')} className="gap-2 cursor-pointer">
                   <UserPlus className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold">{t.signup}</span>
                 </DropdownMenuItem>

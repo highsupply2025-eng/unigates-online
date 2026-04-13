@@ -426,6 +426,7 @@ const LeadershipDashboard = () => {
                     <TableRow>
                       <TableHead>{isRtl ? "العنوان" : "Title"}</TableHead>
                       <TableHead>{isRtl ? "الحالة" : "Status"}</TableHead>
+                      <TableHead>{isRtl ? "عدد الطلاب" : "Students"}</TableHead>
                       <TableHead>{isRtl ? "الموعد" : "Scheduled"}</TableHead>
                       <TableHead>{isRtl ? "إجراء" : "Action"}</TableHead>
                     </TableRow>

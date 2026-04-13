@@ -434,7 +434,7 @@ const LeadershipDashboard = () => {
                   <TableBody>
                     {liveStreams.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                        <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                           {isRtl ? "لا توجد بيانات" : "No data"}
                         </TableCell>
                       </TableRow>

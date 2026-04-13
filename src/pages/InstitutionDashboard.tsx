@@ -4,7 +4,7 @@ import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Building2, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
-  User, Ticket, Radio, Eye, ClipboardList, Star, MessageCircle
+  User, Ticket, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
@@ -459,7 +460,8 @@ const InstitutionDashboard = () => {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          {/* Desktop buttons */}
+          <div className="hidden md:flex items-center gap-3">
             <NotificationBell />
             <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5">
               <Globe className="w-4 h-4" />
@@ -471,6 +473,36 @@ const InstitutionDashboard = () => {
             }}>
               {isRtl ? "تسجيل الخروج" : "Logout"}
             </Button>
+          </div>
+          {/* Mobile dropdown */}
+          <div className="md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" className="rounded-xl w-10 h-10 bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-primary/25 text-white">
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align={isRtl ? 'start' : 'end'} className="w-48">
+                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => {
+                  const bell = document.querySelector('[data-notification-bell]') as HTMLButtonElement;
+                  bell?.click();
+                }}>
+                  <Bell className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-semibold">{isRtl ? "الإشعارات" : "Notifications"}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
+                  <Globe className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-semibold">{language === "ar" ? "English" : "العربية"}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={async () => {
+                  await supabase.auth.signOut();
+                  navigate("/login");
+                }}>
+                  <LogOut className="w-4 h-4 text-destructive" />
+                  <span className="text-sm font-semibold text-destructive">{isRtl ? "تسجيل الخروج" : "Logout"}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>

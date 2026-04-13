@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -200,7 +201,8 @@ const CollegeRoleSignup = () => {
             </div>
             <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
           </Link>
-          <div className="flex items-center gap-3">
+          {/* Desktop buttons */}
+          <div className="hidden md:flex items-center gap-3">
             <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white">
               <Globe className="w-4 h-4" />
               {t.langSwitch}
@@ -208,6 +210,26 @@ const CollegeRoleSignup = () => {
             <Button size="icon" className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white" onClick={goBack}>
               {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
             </Button>
+          </div>
+          {/* Mobile dropdown */}
+          <div className="md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" className="rounded-xl w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 text-white">
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-48">
+                <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
+                  <Globe className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-semibold">{language === "ar" ? "English" : "العربية"}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={goBack} className="gap-2 cursor-pointer">
+                  {isRtl ? <ArrowRight className="w-4 h-4 text-primary" /> : <ArrowLeft className="w-4 h-4 text-primary" />}
+                  <span className="text-sm font-semibold">{isRtl ? "الرجوع" : "Back"}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>

@@ -946,7 +946,7 @@ const InstitutionDashboard = () => {
                 const lecturers = getLecturersCount(dept.id);
                 const members = getMembersForDept(dept.id);
                 return (
-                  <Card key={dept.id} className="border-2 hover:shadow-lg transition-shadow">
+                  <Card key={dept.id} className="border-2 border-primary/15 hover:shadow-xl hover:border-primary/30 transition-all bg-gradient-to-br from-primary/3 to-transparent">
                     <CardContent className="p-5">
                       <div className="flex items-start justify-between mb-3">
                         <div>

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
-import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, Globe, Phone, User, BookOpenCheck, Building2, Landmark, Ticket, Eye, EyeOff } from "lucide-react";
+import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, Globe, Phone, User, BookOpenCheck, Building2, Landmark, Ticket, Eye, EyeOff, Menu, LogIn } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -247,7 +248,8 @@ const Signup = () => {
             </div>
             <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
           </Link>
-          <div className="flex items-center gap-3">
+          {/* Desktop buttons */}
+          <div className="hidden md:flex items-center gap-3">
             <Link to="/login">
               <Button size="sm" className="font-bold bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white">
                 {t.login}
@@ -266,6 +268,37 @@ const Signup = () => {
             }}>
               {language === "ar" ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
             </Button>
+          </div>
+
+          {/* Mobile/Tablet dropdown */}
+          <div className="md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="p-2 rounded-lg bg-primary/20 text-primary hover:bg-primary/30 transition-colors">
+                  <Menu className="w-5 h-5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-48">
+                <DropdownMenuItem onClick={() => navigate('/login')} className="gap-2 cursor-pointer">
+                  <LogIn className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-semibold">{t.login}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => {
+                  if (selectedRole && !submitted) {
+                    setSelectedRole(null);
+                  } else {
+                    goBack();
+                  }
+                }} className="gap-2 cursor-pointer">
+                  <ArrowLeft className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-semibold">{t.home}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
+                  <Globe className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-semibold">{language === "ar" ? "English" : "العربية"}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>

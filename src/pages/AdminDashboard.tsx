@@ -5,7 +5,7 @@ import {
   BookOpen, Eye, Search, CheckCircle, XCircle, Clock, ArrowLeft, ArrowRight,
   School, MapPin, Phone, Mail, MessageSquare, FileText, CreditCard,
   BarChart3, ShoppingCart, BookMarked, Radio, Bell, Send,
-  Calendar, PlayCircle, Download, Trash2, Pencil, Landmark, LinkIcon, Copy
+  Calendar, PlayCircle, Download, Trash2, Pencil, Landmark, LinkIcon, Copy, Building2
 } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import { Textarea } from "@/components/ui/textarea";

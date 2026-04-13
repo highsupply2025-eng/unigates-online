@@ -135,7 +135,7 @@ const InstituteAdminSignup = () => {
                   <span className="text-sm font-semibold">{language === "ar" ? "English" : "العربية"}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={goBack} className="gap-2 cursor-pointer">
-                  {isRtl ? <ArrowRight className="w-4 h-4 text-primary" /> : <ArrowLeft className="w-4 h-4 text-primary" />}
+                  {isRtl ? <ArrowLeft className="w-4 h-4 text-primary" /> : <ArrowRight className="w-4 h-4 text-primary" />}
                   <span className="text-sm font-semibold">{isRtl ? "الرجوع" : "Back"}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>

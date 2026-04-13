@@ -35,6 +35,8 @@ const LeadershipDashboard = () => {
   const [episodes, setEpisodes] = useState<any[]>([]);
   const [ratings, setRatings] = useState<any[]>([]);
   const [streamAttendance, setStreamAttendance] = useState<Record<string, number>>({});
+  const [quizzes, setQuizzes] = useState<any[]>([]);
+  const [quizSubmissions, setQuizSubmissions] = useState<any[]>([]);
 
   useEffect(() => {
     checkAccess();

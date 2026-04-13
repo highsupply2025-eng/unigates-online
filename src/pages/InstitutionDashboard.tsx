@@ -803,6 +803,23 @@ const InstitutionDashboard = () => {
                   </CardContent>
                 </Card>
               </div>
+              {/* Quiz Stats in Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <Card className="border-2 border-purple-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab("quizresults")}>
+                  <CardContent className="p-5 text-center">
+                    <CheckCircle className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                    <p className="text-3xl font-black text-purple-600">{quizzes.length}</p>
+                    <p className="text-sm text-muted-foreground">{isRtl ? "الاختبارات" : "Quizzes"}</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-2 border-amber-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab("quizresults")}>
+                  <CardContent className="p-5 text-center">
+                    <GraduationCap className="w-8 h-8 text-amber-500 mx-auto mb-2" />
+                    <p className="text-3xl font-black text-amber-600">{quizSubmissions.length}</p>
+                    <p className="text-sm text-muted-foreground">{isRtl ? "تقديمات الاختبارات" : "Quiz Submissions"}</p>
+                  </CardContent>
+                </Card>
+              </div>
             )}
 
             {departments.length === 0 ? (

@@ -260,8 +260,8 @@ const InstitutionDashboard = () => {
       toast({
         title: isRtl ? "تم إضافة القسم" : "Department Added",
         description: isRtl
-          ? `تم إنشاء ${studentCount} طالب و ${lecturerCount} محاضر - تكلفة: ${paymentAmount} جنيه شهرياً`
-          : `Created ${studentCount} students & ${lecturerCount} lecturers - Cost: ${paymentAmount} EGP/month`,
+          ? `تم إنشاء القسم بنجاح - في انتظار موافقة إدارة المنصة والدفع نقداً (${paymentAmount} جنيه شهرياً)`
+          : `Department created - Pending platform admin approval & cash payment (${paymentAmount} EGP/month)`,
       });
       setShowAddDeptDialog(false);
       setNewDeptName("");
@@ -330,49 +330,7 @@ const InstitutionDashboard = () => {
     }
   };
 
-  const handlePayment = async () => {
-    if (!paymentDept) return;
-    setPaymentProcessing(true);
-
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    try {
-      await supabase
-        .from("departments")
-        .update({ payment_status: "paid", status: "active" } as any)
-        .eq("id", paymentDept.id);
-
-      // Generate invitation codes for members without one
-      const members = deptMembers.filter(m => m.department_id === paymentDept.id && !m.invitation_code);
-      for (const member of members) {
-        const code = generateCode();
-        await supabase
-          .from("department_members")
-          .update({ invitation_code: code } as any)
-          .eq("id", member.id);
-      }
-
-      toast({
-        title: isRtl ? "✅ تم الدفع بنجاح!" : "✅ Payment Successful!",
-        description: isRtl
-          ? `تم دفع ${paymentDept.payment_amount} جنيه - أكواد الدعوة جاهزة`
-          : `${paymentDept.payment_amount} EGP paid - Invitation codes ready`,
-      });
-
-      setShowPaymentDialog(false);
-      setCardNumber("");
-      setCardExpiry("");
-      setCardCvv("");
-      setPaymentDept(null);
-      setActiveTab("invitations");
-      await loadInstitutionData(institutionId, institutionType || "college");
-    } catch (error: any) {
-      toast({ title: isRtl ? "خطأ في الدفع" : "Payment Error", description: error.message, variant: "destructive" });
-    } finally {
-      setPaymentProcessing(false);
-    }
-  };
+  // Payment is now handled via cash by admin approval - no client-side payment processing needed
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -972,17 +930,10 @@ const InstitutionDashboard = () => {
                           {isRtl ? "إضافة عضو" : "Add Member"}
                         </Button>
                         {dept.payment_status !== "paid" && (
-                          <Button
-                            size="sm"
-                            className="gap-1"
-                            onClick={() => {
-                              setPaymentDept(dept);
-                              setShowPaymentDialog(true);
-                            }}
-                          >
-                            <CreditCard className="w-4 h-4" />
-                            {isRtl ? "دفع الاشتراك" : "Pay"}
-                          </Button>
+                          <Badge variant="outline" className="text-amber-600 border-amber-400 bg-amber-50">
+                            <Clock className="w-3 h-3 me-1" />
+                            {isRtl ? "بانتظار الموافقة والدفع نقداً" : "Pending approval & cash payment"}
+                          </Badge>
                         )}
                         <Button
                           variant="outline"
@@ -1821,85 +1772,6 @@ const InstitutionDashboard = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Payment Dialog */}
-      <Dialog open={showPaymentDialog} onOpenChange={v => { if (!paymentProcessing) setShowPaymentDialog(v); }}>
-        <DialogContent dir={dir} className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-primary" />
-              {isRtl ? "دفع الاشتراك" : "Pay Subscription"}
-            </DialogTitle>
-          </DialogHeader>
-          {paymentDept && (
-            <div className="space-y-4">
-              {/* Payment Summary */}
-              <div className="p-4 rounded-xl bg-primary/10 text-center border-2 border-primary/20">
-                <p className="text-sm text-muted-foreground mb-1">{paymentDept.department_name}</p>
-                <p className="text-3xl font-black text-primary">{paymentDept.payment_amount} {isRtl ? "جنيه" : "EGP"}</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {paymentDept.student_count} {isRtl ? "طالب × 299 جنيه شهرياً" : "students × 299 EGP/month"}
-                </p>
-              </div>
-
-              {/* Card Details (Demo) */}
-              <div className="space-y-3">
-                <div>
-                  <Label>{isRtl ? "رقم البطاقة" : "Card Number"}</Label>
-                  <Input
-                    value={cardNumber}
-                    onChange={e => setCardNumber(e.target.value.replace(/\D/g, '').slice(0, 16))}
-                    placeholder="4242 4242 4242 4242"
-                    className="font-mono tracking-wider"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label>{isRtl ? "تاريخ الانتهاء" : "Expiry"}</Label>
-                    <Input
-                      value={cardExpiry}
-                      onChange={e => setCardExpiry(e.target.value.slice(0, 5))}
-                      placeholder="MM/YY"
-                      className="font-mono"
-                    />
-                  </div>
-                  <div>
-                    <Label>CVV</Label>
-                    <Input
-                      type="password"
-                      value={cardCvv}
-                      onChange={e => setCardCvv(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                      placeholder="***"
-                      className="font-mono"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <p className="text-xs text-center text-muted-foreground">
-                {isRtl ? "🔒 هذه واجهة تجريبية - لن يتم خصم أي مبالغ فعلية" : "🔒 Demo interface - No actual charges will be made"}
-              </p>
-
-              <Button
-                className="w-full h-12 text-base font-bold gap-2"
-                onClick={handlePayment}
-                disabled={paymentProcessing}
-              >
-                {paymentProcessing ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    {isRtl ? "جاري المعالجة..." : "Processing..."}
-                  </>
-                ) : (
-                  <>
-                    <CreditCard className="w-5 h-5" />
-                    {isRtl ? `ادفع ${paymentDept.payment_amount} جنيه` : `Pay ${paymentDept.payment_amount} EGP`}
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
 
     </div>
   );

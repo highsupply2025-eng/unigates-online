@@ -34,6 +34,7 @@ const LeadershipDashboard = () => {
   const [assignments, setAssignments] = useState<any[]>([]);
   const [episodes, setEpisodes] = useState<any[]>([]);
   const [ratings, setRatings] = useState<any[]>([]);
+  const [streamAttendance, setStreamAttendance] = useState<Record<string, number>>({});
 
   useEffect(() => {
     checkAccess();
@@ -81,18 +82,29 @@ const LeadershipDashboard = () => {
   };
 
   const loadData = async () => {
-    const [coursesRes, streamsRes, assignmentsRes, episodesRes, ratingsRes] = await Promise.all([
+    const [coursesRes, streamsRes, assignmentsRes, episodesRes, ratingsRes, attendanceRes] = await Promise.all([
       supabase.from("courses").select("*").order("created_at", { ascending: false }).limit(50),
       supabase.from("live_streams").select("*").order("scheduled_at", { ascending: false }).limit(50),
       supabase.from("assignments").select("*").order("created_at", { ascending: false }).limit(50),
       supabase.from("course_episodes").select("*").order("created_at", { ascending: false }).limit(100),
       supabase.from("lecturer_ratings").select("*").limit(100),
+      supabase.from("stream_attendance").select("stream_id, user_id"),
     ]);
     setCourses(coursesRes.data || []);
     setLiveStreams(streamsRes.data || []);
     setAssignments(assignmentsRes.data || []);
     setEpisodes(episodesRes.data || []);
     setRatings(ratingsRes.data || []);
+
+    // Count unique users per stream
+    const counts: Record<string, Set<string>> = {};
+    (attendanceRes.data || []).forEach((a: any) => {
+      if (!counts[a.stream_id]) counts[a.stream_id] = new Set();
+      counts[a.stream_id].add(a.user_id);
+    });
+    const countMap: Record<string, number> = {};
+    Object.entries(counts).forEach(([sid, set]) => { countMap[sid] = set.size; });
+    setStreamAttendance(countMap);
   };
 
   const getRoleLabel = () => {
@@ -319,12 +331,18 @@ const LeadershipDashboard = () => {
                   ) : (
                     <div className="space-y-2">
                       {liveNow.map(stream => (
-                        <div key={stream.id} className="flex items-center justify-between p-3 rounded-lg border bg-red-50 dark:bg-red-950/20">
+                         <div key={stream.id} className="flex items-center justify-between p-3 rounded-lg border bg-red-50 dark:bg-red-950/20">
                           <div>
                             <p className="font-bold text-sm">{isRtl ? stream.title_ar : stream.title_en}</p>
-                            <Badge variant="destructive" className="text-[10px] animate-pulse">
-                              <Radio className="w-3 h-3 me-1" /> LIVE
-                            </Badge>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant="destructive" className="text-[10px] animate-pulse">
+                                <Radio className="w-3 h-3 me-1" /> LIVE
+                              </Badge>
+                              <Badge variant="outline" className="text-[10px]">
+                                <Users className="w-3 h-3 me-1" />
+                                {streamAttendance[stream.id] || 0} {isRtl ? "طالب" : "students"}
+                              </Badge>
+                            </div>
                           </div>
                           <Button size="sm" variant="destructive" onClick={() => navigate(`/stream/${stream.id}`)}>
                             <Eye className="w-4 h-4 me-1" />
@@ -408,6 +426,7 @@ const LeadershipDashboard = () => {
                     <TableRow>
                       <TableHead>{isRtl ? "العنوان" : "Title"}</TableHead>
                       <TableHead>{isRtl ? "الحالة" : "Status"}</TableHead>
+                      <TableHead>{isRtl ? "عدد الطلاب" : "Students"}</TableHead>
                       <TableHead>{isRtl ? "الموعد" : "Scheduled"}</TableHead>
                       <TableHead>{isRtl ? "إجراء" : "Action"}</TableHead>
                     </TableRow>
@@ -415,7 +434,7 @@ const LeadershipDashboard = () => {
                   <TableBody>
                     {liveStreams.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                        <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                           {isRtl ? "لا توجد بيانات" : "No data"}
                         </TableCell>
                       </TableRow>
@@ -427,6 +446,12 @@ const LeadershipDashboard = () => {
                             <Badge variant={stream.status === "live" ? "destructive" : stream.status === "scheduled" ? "outline" : "secondary"}>
                               {stream.status === "live" ? (isRtl ? "مباشر" : "Live") : stream.status === "scheduled" ? (isRtl ? "مجدول" : "Scheduled") : (isRtl ? "منتهي" : "Ended")}
                             </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              <Users className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-bold">{streamAttendance[stream.id] || 0}</span>
+                            </div>
                           </TableCell>
                           <TableCell className="text-sm">
                             {stream.scheduled_at ? new Date(stream.scheduled_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US') : '-'}

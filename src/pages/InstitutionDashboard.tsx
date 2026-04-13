@@ -67,6 +67,7 @@ const InstitutionDashboard = () => {
   const [deptSearch, setDeptSearch] = useState("");
   const [isLeadershipRole, setIsLeadershipRole] = useState(false);
   const [liveStreams, setLiveStreams] = useState<any[]>([]);
+  const [streamAttendance, setStreamAttendance] = useState<Record<string, number>>({});
 
   // Add Department
   const [showAddDeptDialog, setShowAddDeptDialog] = useState(false);
@@ -183,13 +184,22 @@ const InstitutionDashboard = () => {
       setDeptMembers([]);
     }
 
-    // Load live streams for leadership roles
-    const { data: streams } = await supabase
-      .from("live_streams")
-      .select("*")
-      .order("scheduled_at", { ascending: false })
-      .limit(50);
-    setLiveStreams(streams || []);
+    // Load live streams and attendance
+    const [streamsRes, attendanceRes] = await Promise.all([
+      supabase.from("live_streams").select("*").order("scheduled_at", { ascending: false }).limit(50),
+      supabase.from("stream_attendance").select("stream_id, user_id"),
+    ]);
+    setLiveStreams(streamsRes.data || []);
+
+    // Count unique users per stream
+    const counts: Record<string, Set<string>> = {};
+    (attendanceRes.data || []).forEach((a: any) => {
+      if (!counts[a.stream_id]) counts[a.stream_id] = new Set();
+      counts[a.stream_id].add(a.user_id);
+    });
+    const countMap: Record<string, number> = {};
+    Object.entries(counts).forEach(([sid, set]) => { countMap[sid] = set.size; });
+    setStreamAttendance(countMap);
   };
 
   const handleAddDepartment = async () => {
@@ -970,9 +980,15 @@ const InstitutionDashboard = () => {
                         <div key={stream.id} className="flex items-center justify-between p-3 rounded-lg border bg-red-50 dark:bg-red-950/20">
                           <div>
                             <p className="font-bold text-sm">{isRtl ? stream.title_ar : stream.title_en}</p>
-                            <Badge variant="destructive" className="text-[10px] animate-pulse">
-                              <Radio className="w-3 h-3 me-1" /> LIVE
-                            </Badge>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant="destructive" className="text-[10px] animate-pulse">
+                                <Radio className="w-3 h-3 me-1" /> LIVE
+                              </Badge>
+                              <Badge variant="outline" className="text-[10px]">
+                                <Users className="w-3 h-3 me-1" />
+                                {streamAttendance[stream.id] || 0} {isRtl ? "طالب" : "students"}
+                              </Badge>
+                            </div>
                           </div>
                           <Button size="sm" variant="destructive" onClick={() => navigate(`/stream/${stream.id}`)}>
                             <Eye className="w-4 h-4 me-1" />
@@ -1036,9 +1052,15 @@ const InstitutionDashboard = () => {
                         <div key={stream.id} className="flex items-center justify-between p-3 rounded-lg border">
                           <div>
                             <p className="font-bold text-sm">{isRtl ? stream.title_ar : stream.title_en}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {stream.scheduled_at ? new Date(stream.scheduled_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US') : '-'}
-                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <p className="text-xs text-muted-foreground">
+                                {stream.scheduled_at ? new Date(stream.scheduled_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US') : '-'}
+                              </p>
+                              <Badge variant="outline" className="text-[10px]">
+                                <Users className="w-3 h-3 me-1" />
+                                {streamAttendance[stream.id] || 0} {isRtl ? "طالب" : "students"}
+                              </Badge>
+                            </div>
                           </div>
                           <div className="flex items-center gap-2">
                             <Badge variant={stream.status === "live" ? "destructive" : stream.status === "scheduled" ? "outline" : "secondary"}>

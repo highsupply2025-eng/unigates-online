@@ -756,6 +756,33 @@ const InstitutionDashboard = () => {
               </Card>
             </div>
 
+            {/* Live Stream Stats - Only for leadership roles */}
+            {isLeadershipRole && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <Card className="border-2 border-red-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab("livestreams")}>
+                  <CardContent className="p-5 text-center">
+                    <Radio className="w-8 h-8 text-red-500 mx-auto mb-2" />
+                    <p className="text-3xl font-black text-red-600">{liveNow.length}</p>
+                    <p className="text-sm text-muted-foreground">{isRtl ? "بث مباشر الآن" : "Live Now"}</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-2 border-blue-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab("livestreams")}>
+                  <CardContent className="p-5 text-center">
+                    <Clock className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                    <p className="text-3xl font-black text-blue-600">{scheduledStreams.length}</p>
+                    <p className="text-sm text-muted-foreground">{isRtl ? "بث مجدول" : "Scheduled"}</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-2 border-primary/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab("livestreams")}>
+                  <CardContent className="p-5 text-center">
+                    <Radio className="w-8 h-8 text-primary mx-auto mb-2" />
+                    <p className="text-3xl font-black text-primary">{totalStreams}</p>
+                    <p className="text-sm text-muted-foreground">{isRtl ? "إجمالي البثوث" : "Total Streams"}</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
             {departments.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-10 text-muted-foreground">

@@ -260,7 +260,7 @@ const LeadershipDashboard = () => {
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-3 md:grid-cols-6 gap-1 h-auto p-1 mb-6">
+          <TabsList className="grid grid-cols-4 md:grid-cols-7 gap-1 h-auto p-1 mb-6">
             <TabsTrigger value="overview" className="text-xs py-2">
               <BarChart3 className="w-4 h-4 me-1" />
               {isRtl ? "نظرة عامة" : "Overview"}
@@ -268,6 +268,10 @@ const LeadershipDashboard = () => {
             <TabsTrigger value="livestreams" className="text-xs py-2">
               <Radio className="w-4 h-4 me-1" />
               {isRtl ? "البث المباشر" : "Live Streams"}
+            </TabsTrigger>
+            <TabsTrigger value="quizresults" className="text-xs py-2">
+              <CheckCircle className="w-4 h-4 me-1" />
+              {isRtl ? "نتائج الاختبارات" : "Quiz Results"}
             </TabsTrigger>
             <TabsTrigger value="ratings" className="text-xs py-2">
               <Star className="w-4 h-4 me-1" />

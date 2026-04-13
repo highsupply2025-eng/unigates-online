@@ -4,7 +4,7 @@ import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Building2, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
-  User, Ticket, Radio, Eye
+  User, Ticket, Radio, Eye, ClipboardList
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,6 +70,7 @@ const InstitutionDashboard = () => {
   const [streamAttendance, setStreamAttendance] = useState<Record<string, number>>({});
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [quizSubmissions, setQuizSubmissions] = useState<any[]>([]);
+  const [examSchedules, setExamSchedules] = useState<any[]>([]);
 
   // Add Department
   const [showAddDeptDialog, setShowAddDeptDialog] = useState(false);
@@ -186,16 +187,18 @@ const InstitutionDashboard = () => {
       setDeptMembers([]);
     }
 
-    // Load live streams, attendance, quizzes, and quiz submissions
-    const [streamsRes, attendanceRes, quizzesRes, quizSubsRes] = await Promise.all([
+    // Load live streams, attendance, quizzes, quiz submissions, and schedules
+    const [streamsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes] = await Promise.all([
       supabase.from("live_streams").select("*").order("scheduled_at", { ascending: false }).limit(50),
       supabase.from("stream_attendance").select("stream_id, user_id"),
       supabase.from("quizzes").select("*").order("created_at", { ascending: false }).limit(50),
       supabase.from("quiz_submissions").select("*").order("submitted_at", { ascending: false }).limit(200),
+      supabase.from("lecture_schedules").select("*").order("scheduled_date", { ascending: true }),
     ]);
     setLiveStreams(streamsRes.data || []);
     setQuizzes(quizzesRes.data || []);
     setQuizSubmissions(quizSubsRes.data || []);
+    setExamSchedules(schedulesRes.data || []);
 
     // Count unique users per stream
     const counts: Record<string, Set<string>> = {};
@@ -718,28 +721,34 @@ const InstitutionDashboard = () => {
           </div>
         ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab} dir={dir}>
-          <TabsList className={`grid w-full ${isLeadershipRole ? "grid-cols-5" : "grid-cols-3"} mb-6`}>
-            <TabsTrigger value="overview" className="gap-2">
+          <TabsList className={`grid w-full ${isLeadershipRole ? "grid-cols-6" : "grid-cols-3"} mb-6`}>
+            <TabsTrigger value="overview" className="gap-1 text-xs">
               <Building2 className="w-4 h-4" />
-              {isRtl ? "نظرة عامة" : "Overview"}
+              {isRtl ? "عامة" : "Overview"}
             </TabsTrigger>
-            <TabsTrigger value="departments" className="gap-2">
+            <TabsTrigger value="departments" className="gap-1 text-xs">
               <BookOpen className="w-4 h-4" />
-              {isRtl ? "الأقسام" : "Departments"}
+              {isRtl ? "الأقسام" : "Depts"}
             </TabsTrigger>
             {isLeadershipRole && (
-              <TabsTrigger value="livestreams" className="gap-2">
+              <TabsTrigger value="livestreams" className="gap-1 text-xs">
                 <Radio className="w-4 h-4" />
                 {isRtl ? "البث" : "Streams"}
               </TabsTrigger>
             )}
             {isLeadershipRole && (
-              <TabsTrigger value="quizresults" className="gap-2">
+              <TabsTrigger value="quizresults" className="gap-1 text-xs">
                 <CheckCircle className="w-4 h-4" />
-                {isRtl ? "الاختبارات" : "Quizzes"}
+                {isRtl ? "النتائج" : "Results"}
               </TabsTrigger>
             )}
-            <TabsTrigger value="invitations" className="gap-2">
+            {isLeadershipRole && (
+              <TabsTrigger value="schedules" className="gap-1 text-xs">
+                <Calendar className="w-4 h-4" />
+                {isRtl ? "الجداول" : "Schedule"}
+              </TabsTrigger>
+            )}
+            <TabsTrigger value="invitations" className="gap-1 text-xs">
               <LinkIcon className="w-4 h-4" />
               {isRtl ? "الدعوات" : "Codes"}
             </TabsTrigger>
@@ -1201,6 +1210,103 @@ const InstitutionDashboard = () => {
                   </CardContent>
                 </Card>
               )}
+            </TabsContent>
+          )}
+
+          {/* Schedules Tab - Leadership Only */}
+          {isLeadershipRole && (
+            <TabsContent value="schedules">
+              <h2 className="text-lg font-bold mb-4">{isRtl ? "جداول المحاضرات والاختبارات" : "Lectures & Exams Schedule"}</h2>
+
+              {/* Exam Schedules */}
+              {(() => {
+                const exams = examSchedules.filter(s => s.schedule_type === 'exam');
+                const lectures = examSchedules.filter(s => s.schedule_type !== 'exam');
+                return (
+                  <>
+                    <Card className="mb-4">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm flex items-center gap-2">
+                          <ClipboardList className="w-4 h-4 text-red-500" />
+                          {isRtl ? "جداول الاختبارات" : "Exam Schedules"}
+                          <Badge variant="destructive" className="text-[10px]">{exams.length}</Badge>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {exams.length === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-4">
+                            {isRtl ? "لا توجد اختبارات مجدولة" : "No exams scheduled"}
+                          </p>
+                        ) : (
+                          <div className="space-y-2">
+                            {exams.map(sch => (
+                              <div key={sch.id} className="flex items-center justify-between p-3 rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/20">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
+                                    <ClipboardList className="w-5 h-5 text-red-500" />
+                                  </div>
+                                  <div>
+                                    <p className="font-bold text-sm">{isRtl ? sch.title_ar : sch.title_en}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                      <Calendar className="w-3 h-3 inline me-1" />
+                                      {new Date(sch.scheduled_date).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
+                                      {sch.start_time && ` · ${sch.start_time}`}
+                                      {sch.end_time && ` - ${sch.end_time}`}
+                                    </p>
+                                    {(sch.location_ar || sch.location_en) && (
+                                      <p className="text-xs text-muted-foreground">{isRtl ? sch.location_ar : sch.location_en}</p>
+                                    )}
+                                  </div>
+                                </div>
+                                <Badge className="bg-red-100 text-red-700">{isRtl ? "اختبار" : "Exam"}</Badge>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm flex items-center gap-2">
+                          <BookOpen className="w-4 h-4 text-primary" />
+                          {isRtl ? "جداول المحاضرات" : "Lecture Schedules"}
+                          <Badge variant="outline" className="text-[10px]">{lectures.length}</Badge>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {lectures.length === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-4">
+                            {isRtl ? "لا توجد محاضرات مجدولة" : "No lectures scheduled"}
+                          </p>
+                        ) : (
+                          <div className="space-y-2">
+                            {lectures.map(sch => (
+                              <div key={sch.id} className="flex items-center justify-between p-3 rounded-lg border">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                    <BookOpen className="w-5 h-5 text-primary" />
+                                  </div>
+                                  <div>
+                                    <p className="font-bold text-sm">{isRtl ? sch.title_ar : sch.title_en}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                      <Calendar className="w-3 h-3 inline me-1" />
+                                      {new Date(sch.scheduled_date).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
+                                      {sch.start_time && ` · ${sch.start_time}`}
+                                      {sch.end_time && ` - ${sch.end_time}`}
+                                    </p>
+                                  </div>
+                                </div>
+                                <Badge variant="outline">{isRtl ? "محاضرة" : "Lecture"}</Badge>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </>
+                );
+              })()}
             </TabsContent>
           )}
 

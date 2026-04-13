@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Globe, ArrowLeft, ArrowRight, Loader2, Users, BookOpen, Calendar,
@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
@@ -544,6 +545,87 @@ const LeadershipDashboard = () => {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Score Distribution Charts */}
+            {quizSubmissions.length > 0 && (() => {
+              const ranges = [
+                { label: isRtl ? "0-20%" : "0-20%", min: 0, max: 20, color: "#ef4444" },
+                { label: isRtl ? "21-40%" : "21-40%", min: 21, max: 40, color: "#f97316" },
+                { label: isRtl ? "41-60%" : "41-60%", min: 41, max: 60, color: "#eab308" },
+                { label: isRtl ? "61-80%" : "61-80%", min: 61, max: 80, color: "#22c55e" },
+                { label: isRtl ? "81-100%" : "81-100%", min: 81, max: 100, color: "#10b981" },
+              ];
+              const distData = ranges.map(r => {
+                const count = quizSubmissions.filter(s => {
+                  const pct = Math.round(((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100);
+                  return pct >= r.min && pct <= r.max;
+                }).length;
+                return { name: r.label, count, color: r.color };
+              });
+              const pieData = [
+                { name: isRtl ? "ناجح" : "Passed", value: quizSubmissions.filter(s => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length, color: "#22c55e" },
+                { name: isRtl ? "راسب" : "Failed", value: quizSubmissions.filter(s => ((s.score || 0) / Math.max(s.total_points || 1, 1)) < 0.5).length, color: "#ef4444" },
+              ];
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <BarChart3 className="w-4 h-4 text-primary" />
+                        {isRtl ? "توزيع الدرجات" : "Score Distribution"}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={220}>
+                        <BarChart data={distData}>
+                          <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                          <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                          <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                          <Tooltip
+                            contentStyle={{ borderRadius: 8, fontSize: 12 }}
+                            formatter={(value: number) => [value, isRtl ? "عدد الطلاب" : "Students"]}
+                          />
+                          <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                            {distData.map((entry, index) => (
+                              <Cell key={index} fill={entry.color} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-emerald-500" />
+                        {isRtl ? "نسبة النجاح والرسوب" : "Pass/Fail Ratio"}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex items-center justify-center">
+                      <ResponsiveContainer width="100%" height={220}>
+                        <PieChart>
+                          <Pie
+                            data={pieData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={50}
+                            outerRadius={80}
+                            paddingAngle={4}
+                            dataKey="value"
+                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                          >
+                            {pieData.map((entry, index) => (
+                              <Cell key={index} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip formatter={(value: number) => [value, isRtl ? "طالب" : "Students"]} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                </div>
+              );
+            })()}
 
             {quizzes.map(quiz => {
               const subs = quizSubmissions.filter(s => s.quiz_id === quiz.id);

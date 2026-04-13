@@ -23,8 +23,6 @@ const SiteHeader = () => {
 
   const navItems = [
     ...mainNavItems,
-    { to: "/login", label: t.login, icon: LogIn },
-    { to: "/signup", label: t.signup, icon: UserPlus },
   ];
 
   return (

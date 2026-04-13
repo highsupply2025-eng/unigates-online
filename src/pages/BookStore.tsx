@@ -150,19 +150,7 @@ const BookStore = () => {
                 </Button>
               </>
             ) : (
-              <>
-                <Link to="/book-store/login">
-                  <Button variant="outline" size="sm" className="font-semibold border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 gap-1.5">
-                    <LogIn className="w-4 h-4" />
-                    {t.login}
-                  </Button>
-                </Link>
-                <Link to="/book-store/signup">
-                  <Button variant="secondary" size="sm" className="font-semibold">
-                    {t.signup}
-                  </Button>
-                </Link>
-              </>
+              <></>
             )}
             <Link to="/">
               <Button variant="outline" size="sm" className="font-semibold border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 gap-1.5">

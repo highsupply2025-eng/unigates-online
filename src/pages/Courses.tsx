@@ -99,18 +99,7 @@ const Courses = () => {
                 </Button>
               </>
             ) : (
-              <>
-                <Link to="/login">
-                  <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
-                    {t.login}
-                  </Button>
-                </Link>
-                <Link to="/signup">
-                  <Button variant="default" size="sm" className="font-semibold px-6 h-10 text-base">
-                    {t.signup}
-                  </Button>
-                </Link>
-              </>
+              <></>
             )}
             <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
               <Globe className="w-4 h-4" />

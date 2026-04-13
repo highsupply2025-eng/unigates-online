@@ -931,6 +931,135 @@ const InstitutionDashboard = () => {
             )}
           </TabsContent>
 
+          {/* Live Streams Tab - Leadership Only */}
+          {isLeadershipRole && (
+            <TabsContent value="livestreams">
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <Card className="bg-red-50 dark:bg-red-950/20 border-red-200">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-black text-red-600">{liveNow.length}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "بث حالي" : "Live Now"}</p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-black text-blue-600">{scheduledStreams.length}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "مجدول" : "Scheduled"}</p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-muted/50 border-border">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-black text-foreground">{liveStreams.filter(s => s.status === "ended").length}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "منتهي" : "Ended"}</p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Current Live Streams */}
+              {liveNow.length > 0 && (
+                <Card className="mb-4 border-red-200">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Radio className="w-4 h-4 text-red-500 animate-pulse" />
+                      {isRtl ? "بث مباشر الآن" : "Live Now"}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {liveNow.map(stream => (
+                        <div key={stream.id} className="flex items-center justify-between p-3 rounded-lg border bg-red-50 dark:bg-red-950/20">
+                          <div>
+                            <p className="font-bold text-sm">{isRtl ? stream.title_ar : stream.title_en}</p>
+                            <Badge variant="destructive" className="text-[10px] animate-pulse">
+                              <Radio className="w-3 h-3 me-1" /> LIVE
+                            </Badge>
+                          </div>
+                          <Button size="sm" variant="destructive" onClick={() => navigate(`/stream/${stream.id}`)}>
+                            <Eye className="w-4 h-4 me-1" />
+                            {isRtl ? "حضور" : "Join"}
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Scheduled Streams */}
+              <Card className="mb-4">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-blue-500" />
+                    {isRtl ? "البث المجدول" : "Scheduled Streams"}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {scheduledStreams.length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-4 text-center">
+                      {isRtl ? "لا توجد بثوث مجدولة" : "No scheduled streams"}
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {scheduledStreams.map(stream => (
+                        <div key={stream.id} className="flex items-center justify-between p-3 rounded-lg border">
+                          <div>
+                            <p className="font-bold text-sm">{isRtl ? stream.title_ar : stream.title_en}</p>
+                            <p className="text-xs text-muted-foreground">
+                              <Clock className="w-3 h-3 inline me-1" />
+                              {stream.scheduled_at ? new Date(stream.scheduled_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US') : '-'}
+                            </p>
+                          </div>
+                          <Badge variant="outline">{isRtl ? "مجدول" : "Scheduled"}</Badge>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* All Streams */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Radio className="w-4 h-4 text-primary" />
+                    {isRtl ? "جميع البثوث" : "All Streams"}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {liveStreams.length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-4 text-center">
+                      {isRtl ? "لا توجد بثوث" : "No streams found"}
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {liveStreams.map(stream => (
+                        <div key={stream.id} className="flex items-center justify-between p-3 rounded-lg border">
+                          <div>
+                            <p className="font-bold text-sm">{isRtl ? stream.title_ar : stream.title_en}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {stream.scheduled_at ? new Date(stream.scheduled_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US') : '-'}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant={stream.status === "live" ? "destructive" : stream.status === "scheduled" ? "outline" : "secondary"}>
+                              {stream.status === "live" ? (isRtl ? "مباشر" : "Live") : stream.status === "scheduled" ? (isRtl ? "مجدول" : "Scheduled") : (isRtl ? "منتهي" : "Ended")}
+                            </Badge>
+                            {stream.status === "live" && (
+                              <Button size="sm" variant="destructive" onClick={() => navigate(`/stream/${stream.id}`)}>
+                                <Eye className="w-4 h-4 me-1" />
+                                {isRtl ? "حضور" : "Join"}
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
+
           {/* Invitations Tab - Links & Codes */}
           <TabsContent value="invitations">
             {departments.filter(d => d.payment_status === "paid").length === 0 ? (

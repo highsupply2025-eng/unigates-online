@@ -4,7 +4,7 @@ import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Building2, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
-  User, Ticket, Radio, Eye, ClipboardList
+  User, Ticket, Radio, Eye, ClipboardList, Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,6 +71,7 @@ const InstitutionDashboard = () => {
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [quizSubmissions, setQuizSubmissions] = useState<any[]>([]);
   const [examSchedules, setExamSchedules] = useState<any[]>([]);
+  const [lecturerRatings, setLecturerRatings] = useState<any[]>([]);
 
   // Add Department
   const [showAddDeptDialog, setShowAddDeptDialog] = useState(false);
@@ -188,17 +189,19 @@ const InstitutionDashboard = () => {
     }
 
     // Load live streams, attendance, quizzes, quiz submissions, and schedules
-    const [streamsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes] = await Promise.all([
+    const [streamsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, ratingsRes] = await Promise.all([
       supabase.from("live_streams").select("*").order("scheduled_at", { ascending: false }).limit(50),
       supabase.from("stream_attendance").select("stream_id, user_id"),
       supabase.from("quizzes").select("*").order("created_at", { ascending: false }).limit(50),
       supabase.from("quiz_submissions").select("*").order("submitted_at", { ascending: false }).limit(200),
       supabase.from("lecture_schedules").select("*").order("scheduled_date", { ascending: true }),
+      supabase.from("lecturer_ratings").select("*").order("created_at", { ascending: false }).limit(200),
     ]);
     setLiveStreams(streamsRes.data || []);
     setQuizzes(quizzesRes.data || []);
     setQuizSubmissions(quizSubsRes.data || []);
     setExamSchedules(schedulesRes.data || []);
+    setLecturerRatings(ratingsRes.data || []);
 
     // Count unique users per stream
     const counts: Record<string, Set<string>> = {};
@@ -721,7 +724,7 @@ const InstitutionDashboard = () => {
           </div>
         ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab} dir={dir}>
-          <TabsList className={`grid w-full ${isLeadershipRole ? "grid-cols-6" : "grid-cols-3"} mb-6`}>
+          <TabsList className={`grid w-full ${isLeadershipRole ? "grid-cols-7" : "grid-cols-3"} mb-6`}>
             <TabsTrigger value="overview" className="gap-1 text-xs">
               <Building2 className="w-4 h-4" />
               {isRtl ? "عامة" : "Overview"}
@@ -746,6 +749,12 @@ const InstitutionDashboard = () => {
               <TabsTrigger value="schedules" className="gap-1 text-xs">
                 <Calendar className="w-4 h-4" />
                 {isRtl ? "الجداول" : "Schedule"}
+              </TabsTrigger>
+            )}
+            {isLeadershipRole && (
+              <TabsTrigger value="ratings" className="gap-1 text-xs">
+                <Star className="w-4 h-4" />
+                {isRtl ? "التقييم" : "Ratings"}
               </TabsTrigger>
             )}
             <TabsTrigger value="invitations" className="gap-1 text-xs">
@@ -826,6 +835,24 @@ const InstitutionDashboard = () => {
                     <GraduationCap className="w-8 h-8 text-amber-500 mx-auto mb-2" />
                     <p className="text-3xl font-black text-amber-600">{quizSubmissions.length}</p>
                     <p className="text-sm text-muted-foreground">{isRtl ? "تقديمات الاختبارات" : "Quiz Submissions"}</p>
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <Card className="border-2 border-amber-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab("ratings")}>
+                  <CardContent className="p-5 text-center">
+                    <Star className="w-8 h-8 text-amber-500 mx-auto mb-2" />
+                    <p className="text-3xl font-black text-amber-600">
+                      {lecturerRatings.length > 0 ? (lecturerRatings.reduce((a: number, r: any) => a + r.rating, 0) / lecturerRatings.length).toFixed(1) : "0.0"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">{isRtl ? "متوسط تقييم المحاضرين" : "Avg Lecturer Rating"}</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-2 border-blue-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab("ratings")}>
+                  <CardContent className="p-5 text-center">
+                    <GraduationCap className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                    <p className="text-3xl font-black text-blue-600">{lecturerRatings.length}</p>
+                    <p className="text-sm text-muted-foreground">{isRtl ? "إجمالي التقييمات" : "Total Ratings"}</p>
                   </CardContent>
                 </Card>
               </div>
@@ -1302,6 +1329,163 @@ const InstitutionDashboard = () => {
                             ))}
                           </div>
                         )}
+                      </CardContent>
+                    </Card>
+                  </>
+                );
+              })()}
+            </TabsContent>
+          )}
+
+          {/* Ratings Tab - Leadership Only */}
+          {isLeadershipRole && (
+            <TabsContent value="ratings">
+              <h2 className="text-lg font-bold mb-4">{isRtl ? "تقييمات المحاضرين والطلاب" : "Lecturer & Student Ratings"}</h2>
+
+              {/* Lecturer Ratings Summary */}
+              {(() => {
+                const avgRating = lecturerRatings.length > 0
+                  ? (lecturerRatings.reduce((a: number, r: any) => a + r.rating, 0) / lecturerRatings.length).toFixed(1)
+                  : "0.0";
+                return (
+                  <>
+                    <Card className="mb-4">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm flex items-center gap-2">
+                          <Star className="w-4 h-4 text-amber-500" />
+                          {isRtl ? "تقييمات المحاضرين" : "Lecturer Ratings"}
+                          <Badge variant="outline">{lecturerRatings.length}</Badge>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                          <Card className="border">
+                            <CardContent className="p-3 text-center">
+                              <p className="text-2xl font-black text-amber-500">{avgRating}</p>
+                              <p className="text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
+                            </CardContent>
+                          </Card>
+                          <Card className="border">
+                            <CardContent className="p-3 text-center">
+                              <p className="text-2xl font-black text-primary">{lecturerRatings.length}</p>
+                              <p className="text-xs text-muted-foreground">{isRtl ? "إجمالي التقييمات" : "Total"}</p>
+                            </CardContent>
+                          </Card>
+                          <Card className="border">
+                            <CardContent className="p-3 text-center">
+                              <p className="text-2xl font-black text-emerald-500">{lecturerRatings.filter((r: any) => r.rating >= 4).length}</p>
+                              <p className="text-xs text-muted-foreground">{isRtl ? "ممتاز (4+)" : "Excellent (4+)"}</p>
+                            </CardContent>
+                          </Card>
+                          <Card className="border">
+                            <CardContent className="p-3 text-center">
+                              <p className="text-2xl font-black text-red-500">{lecturerRatings.filter((r: any) => r.rating <= 2).length}</p>
+                              <p className="text-xs text-muted-foreground">{isRtl ? "يحتاج تحسين (≤2)" : "Needs Improvement"}</p>
+                            </CardContent>
+                          </Card>
+                        </div>
+
+                        {lecturerRatings.length === 0 ? (
+                          <p className="text-sm text-center text-muted-foreground py-4">
+                            {isRtl ? "لا توجد تقييمات بعد" : "No ratings yet"}
+                          </p>
+                        ) : (
+                          <div className="space-y-2">
+                            {lecturerRatings.slice(0, 20).map((r: any) => (
+                              <div key={r.id} className="flex items-center justify-between p-3 rounded-lg border">
+                                <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-0.5">
+                                    {Array.from({ length: 5 }).map((_, i) => (
+                                      <Star key={i} className={`w-3.5 h-3.5 ${i < r.rating ? 'text-amber-400 fill-amber-400' : 'text-muted-foreground/30'}`} />
+                                    ))}
+                                  </div>
+                                  <span className="text-sm text-muted-foreground">{r.comment || (isRtl ? "بدون تعليق" : "No comment")}</span>
+                                </div>
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(r.created_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Student Quiz Performance as "Student Ratings" */}
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm flex items-center gap-2">
+                          <GraduationCap className="w-4 h-4 text-blue-500" />
+                          {isRtl ? "تقييمات الطلاب (أداء الاختبارات)" : "Student Ratings (Quiz Performance)"}
+                          <Badge variant="outline">{quizSubmissions.length}</Badge>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {(() => {
+                          const avgScore = quizSubmissions.length > 0
+                            ? Math.round(quizSubmissions.reduce((a: number, s: any) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / quizSubmissions.length)
+                            : 0;
+                          const passCount = quizSubmissions.filter((s: any) => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length;
+                          const failCount = quizSubmissions.length - passCount;
+                          return (
+                            <>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                                <Card className="border">
+                                  <CardContent className="p-3 text-center">
+                                    <p className="text-2xl font-black text-blue-500">{quizSubmissions.length}</p>
+                                    <p className="text-xs text-muted-foreground">{isRtl ? "إجمالي التقديمات" : "Total Submissions"}</p>
+                                  </CardContent>
+                                </Card>
+                                <Card className="border">
+                                  <CardContent className="p-3 text-center">
+                                    <p className="text-2xl font-black text-primary">{avgScore}%</p>
+                                    <p className="text-xs text-muted-foreground">{isRtl ? "متوسط الدرجات" : "Avg Score"}</p>
+                                  </CardContent>
+                                </Card>
+                                <Card className="border">
+                                  <CardContent className="p-3 text-center">
+                                    <p className="text-2xl font-black text-emerald-500">{passCount}</p>
+                                    <p className="text-xs text-muted-foreground">{isRtl ? "ناجح" : "Passed"}</p>
+                                  </CardContent>
+                                </Card>
+                                <Card className="border">
+                                  <CardContent className="p-3 text-center">
+                                    <p className="text-2xl font-black text-red-500">{failCount}</p>
+                                    <p className="text-xs text-muted-foreground">{isRtl ? "راسب" : "Failed"}</p>
+                                  </CardContent>
+                                </Card>
+                              </div>
+
+                              {quizSubmissions.length === 0 ? (
+                                <p className="text-sm text-center text-muted-foreground py-4">
+                                  {isRtl ? "لا توجد تقديمات بعد" : "No submissions yet"}
+                                </p>
+                              ) : (
+                                <div className="space-y-2">
+                                  {quizSubmissions.slice(0, 20).map((sub: any) => {
+                                    const pct = Math.round(((sub.score || 0) / Math.max(sub.total_points || 1, 1)) * 100);
+                                    return (
+                                      <div key={sub.id} className="flex items-center justify-between p-3 rounded-lg border">
+                                        <div>
+                                          <p className="text-sm font-medium">{sub.student_id?.slice(0, 8)}...</p>
+                                          <p className="text-xs text-muted-foreground">
+                                            {new Date(sub.submitted_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
+                                          </p>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-sm font-bold">{sub.score || 0}/{sub.total_points || 0}</span>
+                                          <Badge variant={pct >= 50 ? "default" : "destructive"} className="text-xs">
+                                            {pct}%
+                                          </Badge>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
                       </CardContent>
                     </Card>
                   </>

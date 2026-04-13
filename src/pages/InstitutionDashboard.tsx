@@ -364,6 +364,9 @@ const InstitutionDashboard = () => {
   const totalLecturers = deptMembers.filter(m => m.role === "lecturer").length;
   const totalDepts = departments.length;
   const paidDepts = departments.filter(d => d.payment_status === "paid").length;
+  const liveNow = liveStreams.filter(s => s.status === "live");
+  const scheduledStreams = liveStreams.filter(s => s.status === "scheduled");
+  const totalStreams = liveStreams.length;
 
   const filteredDepts = departments.filter(d =>
     d.department_name.toLowerCase().includes(deptSearch.toLowerCase())

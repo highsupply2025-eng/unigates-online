@@ -358,7 +358,7 @@ const InstitutionDashboard = () => {
   const totalStudents = deptMembers.filter(m => m.role === "student").length;
   const totalLecturers = deptMembers.filter(m => m.role === "lecturer").length;
   const totalDepts = departments.length;
-  const paidDepts = departments.filter(d => d.payment_status === "paid").length;
+  const paidDepts = departments.filter(d => d.status === "active").length;
   const liveNow = liveStreams.filter(s => s.status === "live");
   const scheduledStreams = liveStreams.filter(s => s.status === "scheduled");
   const totalStreams = liveStreams.length;
@@ -764,7 +764,7 @@ const InstitutionDashboard = () => {
                 <CardContent className="p-5 text-center">
                   <CheckCircle className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
                   <p className="text-3xl font-black text-foreground">{paidDepts}/{totalDepts}</p>
-                  <p className="text-sm text-muted-foreground">{isRtl ? "أقسام مدفوعة" : "Paid Departments"}</p>
+                  <p className="text-sm text-muted-foreground">{isRtl ? "أقسام مفعّلة" : "Active Departments"}</p>
                 </CardContent>
               </Card>
             </div>

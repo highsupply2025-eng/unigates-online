@@ -73,6 +73,7 @@ const InstitutionDashboard = () => {
   const [quizSubmissions, setQuizSubmissions] = useState<any[]>([]);
   const [examSchedules, setExamSchedules] = useState<any[]>([]);
   const [lecturerRatings, setLecturerRatings] = useState<any[]>([]);
+  const [leadershipInvitations, setLeadershipInvitations] = useState<any[]>([]);
 
   // Add Department
   const [showAddDeptDialog, setShowAddDeptDialog] = useState(false);

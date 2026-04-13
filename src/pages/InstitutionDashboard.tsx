@@ -4,7 +4,7 @@ import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Building2, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
-  User, Ticket
+  User, Ticket, Radio, Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,6 +65,8 @@ const InstitutionDashboard = () => {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [deptMembers, setDeptMembers] = useState<DepartmentMember[]>([]);
   const [deptSearch, setDeptSearch] = useState("");
+  const [isLeadershipRole, setIsLeadershipRole] = useState(false);
+  const [liveStreams, setLiveStreams] = useState<any[]>([]);
 
   // Add Department
   const [showAddDeptDialog, setShowAddDeptDialog] = useState(false);
@@ -105,6 +107,16 @@ const InstitutionDashboard = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/login"); return; }
+
+      // Check if the user has a leadership role
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (profile && ["department_head", "vice_dean", "dean"].includes(profile.role)) {
+        setIsLeadershipRole(true);
+      }
 
       const { data: college } = await supabase
         .from("college_registrations")
@@ -170,6 +182,14 @@ const InstitutionDashboard = () => {
     } else {
       setDeptMembers([]);
     }
+
+    // Load live streams for leadership roles
+    const { data: streams } = await supabase
+      .from("live_streams")
+      .select("*")
+      .order("scheduled_at", { ascending: false })
+      .limit(50);
+    setLiveStreams(streams || []);
   };
 
   const handleAddDepartment = async () => {
@@ -344,6 +364,9 @@ const InstitutionDashboard = () => {
   const totalLecturers = deptMembers.filter(m => m.role === "lecturer").length;
   const totalDepts = departments.length;
   const paidDepts = departments.filter(d => d.payment_status === "paid").length;
+  const liveNow = liveStreams.filter(s => s.status === "live");
+  const scheduledStreams = liveStreams.filter(s => s.status === "scheduled");
+  const totalStreams = liveStreams.length;
 
   const filteredDepts = departments.filter(d =>
     d.department_name.toLowerCase().includes(deptSearch.toLowerCase())
@@ -679,7 +702,7 @@ const InstitutionDashboard = () => {
           </div>
         ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab} dir={dir}>
-          <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsList className={`grid w-full ${isLeadershipRole ? "grid-cols-4" : "grid-cols-3"} mb-6`}>
             <TabsTrigger value="overview" className="gap-2">
               <Building2 className="w-4 h-4" />
               {isRtl ? "نظرة عامة" : "Overview"}
@@ -688,6 +711,12 @@ const InstitutionDashboard = () => {
               <BookOpen className="w-4 h-4" />
               {isRtl ? "الأقسام" : "Departments"}
             </TabsTrigger>
+            {isLeadershipRole && (
+              <TabsTrigger value="livestreams" className="gap-2">
+                <Radio className="w-4 h-4" />
+                {isRtl ? "البث المباشر" : "Live Streams"}
+              </TabsTrigger>
+            )}
             <TabsTrigger value="invitations" className="gap-2">
               <LinkIcon className="w-4 h-4" />
               {isRtl ? "روابط وأكواد الدعوة" : "Links & Codes"}
@@ -726,6 +755,33 @@ const InstitutionDashboard = () => {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Live Stream Stats - Only for leadership roles */}
+            {isLeadershipRole && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <Card className="border-2 border-red-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab("livestreams")}>
+                  <CardContent className="p-5 text-center">
+                    <Radio className="w-8 h-8 text-red-500 mx-auto mb-2" />
+                    <p className="text-3xl font-black text-red-600">{liveNow.length}</p>
+                    <p className="text-sm text-muted-foreground">{isRtl ? "بث مباشر الآن" : "Live Now"}</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-2 border-blue-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab("livestreams")}>
+                  <CardContent className="p-5 text-center">
+                    <Clock className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                    <p className="text-3xl font-black text-blue-600">{scheduledStreams.length}</p>
+                    <p className="text-sm text-muted-foreground">{isRtl ? "بث مجدول" : "Scheduled"}</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-2 border-primary/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab("livestreams")}>
+                  <CardContent className="p-5 text-center">
+                    <Radio className="w-8 h-8 text-primary mx-auto mb-2" />
+                    <p className="text-3xl font-black text-primary">{totalStreams}</p>
+                    <p className="text-sm text-muted-foreground">{isRtl ? "إجمالي البثوث" : "Total Streams"}</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
             {departments.length === 0 ? (
               <Card>
@@ -874,6 +930,135 @@ const InstitutionDashboard = () => {
               </div>
             )}
           </TabsContent>
+
+          {/* Live Streams Tab - Leadership Only */}
+          {isLeadershipRole && (
+            <TabsContent value="livestreams">
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <Card className="bg-red-50 dark:bg-red-950/20 border-red-200">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-black text-red-600">{liveNow.length}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "بث حالي" : "Live Now"}</p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-black text-blue-600">{scheduledStreams.length}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "مجدول" : "Scheduled"}</p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-muted/50 border-border">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-black text-foreground">{liveStreams.filter(s => s.status === "ended").length}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "منتهي" : "Ended"}</p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Current Live Streams */}
+              {liveNow.length > 0 && (
+                <Card className="mb-4 border-red-200">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Radio className="w-4 h-4 text-red-500 animate-pulse" />
+                      {isRtl ? "بث مباشر الآن" : "Live Now"}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {liveNow.map(stream => (
+                        <div key={stream.id} className="flex items-center justify-between p-3 rounded-lg border bg-red-50 dark:bg-red-950/20">
+                          <div>
+                            <p className="font-bold text-sm">{isRtl ? stream.title_ar : stream.title_en}</p>
+                            <Badge variant="destructive" className="text-[10px] animate-pulse">
+                              <Radio className="w-3 h-3 me-1" /> LIVE
+                            </Badge>
+                          </div>
+                          <Button size="sm" variant="destructive" onClick={() => navigate(`/stream/${stream.id}`)}>
+                            <Eye className="w-4 h-4 me-1" />
+                            {isRtl ? "حضور" : "Join"}
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Scheduled Streams */}
+              <Card className="mb-4">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-blue-500" />
+                    {isRtl ? "البث المجدول" : "Scheduled Streams"}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {scheduledStreams.length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-4 text-center">
+                      {isRtl ? "لا توجد بثوث مجدولة" : "No scheduled streams"}
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {scheduledStreams.map(stream => (
+                        <div key={stream.id} className="flex items-center justify-between p-3 rounded-lg border">
+                          <div>
+                            <p className="font-bold text-sm">{isRtl ? stream.title_ar : stream.title_en}</p>
+                            <p className="text-xs text-muted-foreground">
+                              <Clock className="w-3 h-3 inline me-1" />
+                              {stream.scheduled_at ? new Date(stream.scheduled_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US') : '-'}
+                            </p>
+                          </div>
+                          <Badge variant="outline">{isRtl ? "مجدول" : "Scheduled"}</Badge>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* All Streams */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Radio className="w-4 h-4 text-primary" />
+                    {isRtl ? "جميع البثوث" : "All Streams"}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {liveStreams.length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-4 text-center">
+                      {isRtl ? "لا توجد بثوث" : "No streams found"}
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {liveStreams.map(stream => (
+                        <div key={stream.id} className="flex items-center justify-between p-3 rounded-lg border">
+                          <div>
+                            <p className="font-bold text-sm">{isRtl ? stream.title_ar : stream.title_en}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {stream.scheduled_at ? new Date(stream.scheduled_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US') : '-'}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant={stream.status === "live" ? "destructive" : stream.status === "scheduled" ? "outline" : "secondary"}>
+                              {stream.status === "live" ? (isRtl ? "مباشر" : "Live") : stream.status === "scheduled" ? (isRtl ? "مجدول" : "Scheduled") : (isRtl ? "منتهي" : "Ended")}
+                            </Badge>
+                            {stream.status === "live" && (
+                              <Button size="sm" variant="destructive" onClick={() => navigate(`/stream/${stream.id}`)}>
+                                <Eye className="w-4 h-4 me-1" />
+                                {isRtl ? "حضور" : "Join"}
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
 
           {/* Invitations Tab - Links & Codes */}
           <TabsContent value="invitations">

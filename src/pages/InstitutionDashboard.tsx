@@ -257,11 +257,25 @@ const InstitutionDashboard = () => {
         if (membersError) throw membersError;
       }
 
+      // Send notification to admin
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from("notifications").insert({
+          sender_id: user.id,
+          target_role: "admin",
+          notification_type: "department_request",
+          title_ar: "طلب إنشاء قسم جديد",
+          title_en: "New Department Request",
+          message_ar: `طلب إنشاء قسم "${newDeptName}" - ${studentCount} طالب، ${lecturerCount} محاضر - ${institutionName} (${paymentAmount} جنيه/شهر)`,
+          message_en: `Request to create "${newDeptName}" - ${studentCount} students, ${lecturerCount} lecturers - ${institutionName} (${paymentAmount} EGP/month)`,
+        });
+      }
+
       toast({
-        title: isRtl ? "تم إضافة القسم" : "Department Added",
+        title: isRtl ? "تم إرسال الطلب" : "Request Sent",
         description: isRtl
-          ? `تم إنشاء القسم بنجاح - في انتظار موافقة إدارة المنصة والدفع نقداً (${paymentAmount} جنيه شهرياً)`
-          : `Department created - Pending platform admin approval & cash payment (${paymentAmount} EGP/month)`,
+          ? `تم إرسال طلب إنشاء القسم إلى إدارة المنصة - سيتم تفعيل الروابط تلقائياً بعد الموافقة`
+          : `Department request sent to platform admin - Links will be activated automatically after approval`,
       });
       setShowAddDeptDialog(false);
       setNewDeptName("");
@@ -344,7 +358,7 @@ const InstitutionDashboard = () => {
   const totalStudents = deptMembers.filter(m => m.role === "student").length;
   const totalLecturers = deptMembers.filter(m => m.role === "lecturer").length;
   const totalDepts = departments.length;
-  const paidDepts = departments.filter(d => d.payment_status === "paid").length;
+  const paidDepts = departments.filter(d => d.status === "active").length;
   const liveNow = liveStreams.filter(s => s.status === "live");
   const scheduledStreams = liveStreams.filter(s => s.status === "scheduled");
   const totalStreams = liveStreams.length;
@@ -750,7 +764,7 @@ const InstitutionDashboard = () => {
                 <CardContent className="p-5 text-center">
                   <CheckCircle className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
                   <p className="text-3xl font-black text-foreground">{paidDepts}/{totalDepts}</p>
-                  <p className="text-sm text-muted-foreground">{isRtl ? "أقسام مدفوعة" : "Paid Departments"}</p>
+                  <p className="text-sm text-muted-foreground">{isRtl ? "أقسام مفعّلة" : "Active Departments"}</p>
                 </CardContent>
               </Card>
             </div>
@@ -844,8 +858,8 @@ const InstitutionDashboard = () => {
                             {dept.student_count} {isRtl ? "طالب" : "students"} · {dept.payment_amount} {isRtl ? "جنيه شهرياً" : "EGP/month"}
                           </p>
                         </div>
-                        <Badge variant={dept.payment_status === "paid" ? "default" : "secondary"}>
-                          {dept.payment_status === "paid" ? (isRtl ? "مدفوع ✅" : "Paid ✅") : (isRtl ? "غير مدفوع" : "Unpaid")}
+                        <Badge variant={dept.status === "active" ? "default" : "secondary"}>
+                          {dept.status === "active" ? (isRtl ? "مفعّل ✅" : "Active ✅") : (isRtl ? "بانتظار الموافقة" : "Pending")}
                         </Badge>
                       </div>
                     ))}
@@ -888,8 +902,8 @@ const InstitutionDashboard = () => {
                             {dept.student_count} {isRtl ? "طالب مسجل" : "registered students"}
                           </p>
                         </div>
-                        <Badge variant={dept.payment_status === "paid" ? "default" : "destructive"}>
-                          {dept.payment_status === "paid" ? (isRtl ? "مدفوع ✅" : "Paid ✅") : (isRtl ? "غير مدفوع" : "Unpaid")}
+                        <Badge variant={dept.status === "active" ? "default" : "destructive"}>
+                          {dept.status === "active" ? (isRtl ? "مفعّل ✅" : "Active ✅") : (isRtl ? "بانتظار الموافقة" : "Pending")}
                         </Badge>
                       </div>
 
@@ -929,10 +943,10 @@ const InstitutionDashboard = () => {
                           <Plus className="w-4 h-4 me-1" />
                           {isRtl ? "إضافة عضو" : "Add Member"}
                         </Button>
-                        {dept.payment_status !== "paid" && (
+                        {dept.status !== "active" && (
                           <Badge variant="outline" className="text-amber-600 border-amber-400 bg-amber-50">
                             <Clock className="w-3 h-3 me-1" />
-                            {isRtl ? "بانتظار الموافقة والدفع نقداً" : "Pending approval & cash payment"}
+                            {isRtl ? "بانتظار موافقة الإدارة" : "Pending admin approval"}
                           </Badge>
                         )}
                         <Button
@@ -1505,11 +1519,11 @@ const InstitutionDashboard = () => {
 
           {/* Invitations Tab - Links & Codes */}
           <TabsContent value="invitations">
-            {departments.filter(d => d.payment_status === "paid").length === 0 ? (
+            {departments.filter(d => d.status === "active").length === 0 ? (
               <Card>
                 <CardContent className="text-center py-10 text-muted-foreground">
                   <LinkIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                  <p>{isRtl ? "يجب دفع اشتراك قسم واحد على الأقل لتفعيل روابط وأكواد الدعوة" : "Pay at least one department to activate invitation links & codes"}</p>
+                  <p>{isRtl ? "يجب موافقة إدارة المنصة على قسم واحد على الأقل لتفعيل روابط وأكواد الدعوة" : "At least one department must be approved to activate invitation links & codes"}</p>
                 </CardContent>
               </Card>
             ) : !invitationDept ? (
@@ -1520,7 +1534,7 @@ const InstitutionDashboard = () => {
                   {isRtl ? "اختر القسم" : "Select Department"}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {departments.filter(d => d.payment_status === "paid").map(dept => {
+                  {departments.filter(d => d.status === "active").map(dept => {
                     const lecturers = getMembersForDept(dept.id).filter(m => m.role === "lecturer").length;
                     const students = getMembersForDept(dept.id).filter(m => m.role === "student").length;
                     return (

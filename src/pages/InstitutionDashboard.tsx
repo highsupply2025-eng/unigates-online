@@ -1591,10 +1591,11 @@ const InstitutionDashboard = () => {
                   <div className="space-y-3">
                     {(() => {
                       const baseUrl = window.location.origin;
+                      const isCollege = institutionType === "college";
                       const roleLabels: Record<string, { ar: string; en: string; icon: React.ReactNode }> = {
                         department_head: { ar: "رئيس القسم", en: "Department Head", icon: <UserCheck className="w-5 h-5 text-blue-600" /> },
-                        vice_dean: { ar: "وكيل الكلية", en: "Vice Dean", icon: <Users className="w-5 h-5 text-purple-600" /> },
-                        dean: { ar: "عميد الكلية", en: "Dean", icon: <GraduationCap className="w-5 h-5 text-amber-600" /> },
+                        vice_dean: { ar: isCollege ? "وكيل الكلية" : "وكيل المعهد", en: isCollege ? "Vice Dean" : "Vice Director", icon: <Users className="w-5 h-5 text-purple-600" /> },
+                        dean: { ar: isCollege ? "عميد الكلية" : "مدير المعهد", en: isCollege ? "Dean" : "Director", icon: <GraduationCap className="w-5 h-5 text-amber-600" /> },
                       };
                       return leadershipInvitations.map((inv: any) => {
                         const label = roleLabels[inv.role] || { ar: inv.role, en: inv.role, icon: <User className="w-5 h-5" /> };

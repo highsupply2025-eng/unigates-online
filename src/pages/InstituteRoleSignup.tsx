@@ -134,7 +134,8 @@ const InstituteRoleSignup = () => {
           p_phone: `${countryCode}${phone}`,
           p_email: email,
           p_platform: "courses",
-        });
+          p_force_approve: true,
+        } as any);
 
         if (rpcError) throw rpcError;
         const result = rpcData as any;

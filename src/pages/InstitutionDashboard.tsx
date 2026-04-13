@@ -751,6 +751,12 @@ const InstitutionDashboard = () => {
                 {isRtl ? "الجداول" : "Schedule"}
               </TabsTrigger>
             )}
+            {isLeadershipRole && (
+              <TabsTrigger value="ratings" className="gap-1 text-xs">
+                <Star className="w-4 h-4" />
+                {isRtl ? "التقييم" : "Ratings"}
+              </TabsTrigger>
+            )}
             <TabsTrigger value="invitations" className="gap-1 text-xs">
               <LinkIcon className="w-4 h-4" />
               {isRtl ? "الدعوات" : "Codes"}

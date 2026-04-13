@@ -33,6 +33,7 @@ const InstituteRegistration = lazy(() => import("./pages/InstituteRegistration")
 const InstituteRoleSignup = lazy(() => import("./pages/InstituteRoleSignup"));
 const InstituteAdminSignup = lazy(() => import("./pages/InstituteAdminSignup"));
 const InstitutionDashboard = lazy(() => import("./pages/InstitutionDashboard"));
+const DepartmentPage = lazy(() => import("./pages/DepartmentPage"));
 const LeadershipDashboard = lazy(() => import("./pages/LeadershipDashboard"));
 const About = lazy(() => import("./pages/About"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
@@ -107,6 +108,7 @@ const App = () => (
               <Route path="/signup/institute/admin" element={<InstituteAdminSignup />} />
               <Route path="/signup/institute/:role" element={<InstituteRoleSignup />} />
               <Route path="/institution/dashboard" element={<InstitutionDashboard />} />
+              <Route path="/institution/department/:deptId" element={<DepartmentPage />} />
               <Route path="/leadership/dashboard" element={<LeadershipDashboard />} />
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/book-store/profile" element={<UserProfile />} />

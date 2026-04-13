@@ -1036,10 +1036,10 @@ const InstitutionDashboard = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => { setSelectedDept(dept); setPageView("members"); }}
+                          onClick={() => navigate(`/institution/department/${dept.id}`)}
                         >
                           <Users className="w-4 h-4 me-1" />
-                          {isRtl ? "الأعضاء" : "Members"} ({members.length})
+                          {isRtl ? "صفحة القسم" : "Department Page"}
                         </Button>
                         <Button
                           variant="outline"
@@ -1728,7 +1728,7 @@ const InstitutionDashboard = () => {
                     const lecturers = getMembersForDept(dept.id).filter(m => m.role === "lecturer").length;
                     const students = getMembersForDept(dept.id).filter(m => m.role === "student").length;
                     return (
-                      <Card key={dept.id} className="border-2 cursor-pointer hover:shadow-xl hover:border-primary/50 transition-all" onClick={() => { setInvitationDept(dept); setInvitationView("main"); }}>
+                      <Card key={dept.id} className="border-2 cursor-pointer hover:shadow-xl hover:border-primary/50 transition-all" onClick={() => navigate(`/institution/department/${dept.id}`)}>
                         <CardContent className="p-6">
                           <div className="flex items-center gap-3 mb-4">
                             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">

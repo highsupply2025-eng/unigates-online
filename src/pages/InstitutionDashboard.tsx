@@ -405,7 +405,7 @@ const InstitutionDashboard = () => {
     }
   };
 
-  const [deletedDeptIds, setDeletedDeptIds] = useState<Set<string>>(new Set());
+  
 
   const handleDeleteDepartment = async (deptId: string, deptName: string) => {
     // Track deleted IDs to prevent re-appearing after reload

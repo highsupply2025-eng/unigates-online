@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
@@ -142,28 +143,37 @@ const DepartmentPage = () => {
     }
   };
 
-  const handleAddMember = async () => {
+  const handleAddMembers = async () => {
     if (!deptId || !newMemberName.trim()) return;
+    const names = newMemberName.split("\n").map(n => n.trim()).filter(Boolean);
+    if (names.length === 0) return;
     setAdding(true);
     try {
-      const code = crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase();
-      const { data, error } = await supabase
-        .from("department_members")
-        .insert({
-          department_id: deptId,
-          full_name: newMemberName.trim(),
-          role: newMemberRole,
-          invitation_code: code,
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      setMembers(prev => [...prev, data as DepartmentMember]);
-      sonnerToast.success(isRtl ? "تمت إضافة العضو بنجاح" : "Member added successfully", { duration: 1000 });
+      const inserts = names.map(name => ({
+        department_id: deptId,
+        full_name: name,
+        role: newMemberRole,
+        invitation_code: crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase(),
+      }));
+      const BATCH = 500;
+      const added: DepartmentMember[] = [];
+      for (let i = 0; i < inserts.length; i += BATCH) {
+        const { data, error } = await supabase
+          .from("department_members")
+          .insert(inserts.slice(i, i + BATCH))
+          .select();
+        if (error) throw error;
+        added.push(...(data as DepartmentMember[]));
+      }
+      setMembers(prev => [...prev, ...added]);
+      sonnerToast.success(
+        isRtl ? `تمت إضافة ${added.length} عضو بنجاح` : `${added.length} members added`,
+        { duration: 1500 }
+      );
       setNewMemberName("");
       setShowAddDialog(false);
     } catch {
-      sonnerToast.error(isRtl ? "فشل إضافة العضو" : "Failed to add member");
+      sonnerToast.error(isRtl ? "فشل إضافة الأعضاء" : "Failed to add members");
     } finally {
       setAdding(false);
     }
@@ -506,19 +516,26 @@ const DepartmentPage = () => {
         <AlertDialogContent dir={dir}>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {isRtl ? "إضافة عضو جديد" : "Add New Member"}
+              {isRtl ? "إضافة أعضاء جدد" : "Add New Members"}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {isRtl ? "أدخل اسم العضو واختر دوره" : "Enter the member's name and select their role"}
+              {isRtl ? "أدخل اسم كل عضو في سطر منفصل، ثم اختر الدور" : "Enter each member's name on a separate line, then choose the role"}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="space-y-3 my-2">
-            <Input
+            <Textarea
               value={newMemberName}
               onChange={(e) => setNewMemberName(e.target.value)}
-              placeholder={isRtl ? "الاسم الكامل" : "Full name"}
-              onKeyDown={(e) => e.key === "Enter" && handleAddMember()}
+              placeholder={isRtl ? "أحمد محمد\nسارة علي\nخالد حسن" : "Ahmed Mohamed\nSara Ali\nKhaled Hassan"}
+              rows={5}
             />
+            {newMemberName.trim() && (
+              <p className="text-xs text-muted-foreground">
+                {isRtl
+                  ? `${newMemberName.split("\n").filter(n => n.trim()).length} عضو سيتم إضافتهم`
+                  : `${newMemberName.split("\n").filter(n => n.trim()).length} members to add`}
+              </p>
+            )}
             <div className="flex gap-2">
               <Button
                 size="sm"
@@ -545,7 +562,7 @@ const DepartmentPage = () => {
               {isRtl ? "إلغاء" : "Cancel"}
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleAddMember}
+              onClick={handleAddMembers}
               disabled={adding || !newMemberName.trim()}
             >
               {adding

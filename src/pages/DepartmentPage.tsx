@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, Copy, UserCheck, GraduationCap,
-  Building2, LinkIcon, MessageCircle, Loader2, Search, Filter
+  Building2, LinkIcon, MessageCircle, Loader2, Search, Filter, Download
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast as sonnerToast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+import * as XLSX from "xlsx";
 
 interface DepartmentMember {
   id: string;
@@ -109,6 +110,47 @@ const DepartmentPage = () => {
     sonnerToast.success(isRtl ? "تم النسخ" : "Copied!", { duration: 500 });
   };
 
+  const getExportData = () => {
+    return [...lecturers, ...students].map(m => ({
+      [isRtl ? "الاسم" : "Name"]: m.full_name,
+      [isRtl ? "الدور" : "Role"]: m.role === "lecturer" ? (isRtl ? "محاضر" : "Lecturer") : (isRtl ? "طالب" : "Student"),
+      [isRtl ? "الحالة" : "Status"]: m.user_id ? (isRtl ? "مسجّل" : "Linked") : (isRtl ? "بانتظار" : "Pending"),
+      [isRtl ? "كود الدعوة" : "Invitation Code"]: m.invitation_code || "",
+      [isRtl ? "رابط التسجيل" : "Signup Link"]: m.invitation_code
+        ? `${baseUrl}/signup/${instPath}/${m.role === "lecturer" ? "lecturer" : "student"}?code=${m.invitation_code}`
+        : "",
+    }));
+  };
+
+  const exportCSV = () => {
+    const data = getExportData();
+    if (data.length === 0) return;
+    const headers = Object.keys(data[0]);
+    const csvRows = [
+      headers.join(","),
+      ...data.map(row => headers.map(h => `"${(row as Record<string, string>)[h]}"`).join(","))
+    ];
+    const blob = new Blob(["\uFEFF" + csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${deptName}_members.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    sonnerToast.success(isRtl ? "تم تصدير CSV" : "CSV exported!", { duration: 1000 });
+  };
+
+  const exportExcel = () => {
+    const data = getExportData();
+    if (data.length === 0) return;
+    const ws = XLSX.utils.json_to_sheet(data);
+    ws["!cols"] = Object.keys(data[0]).map(() => ({ wch: 30 }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, deptName.slice(0, 31));
+    XLSX.writeFile(wb, `${deptName}_members.xlsx`);
+    sonnerToast.success(isRtl ? "تم تصدير Excel" : "Excel exported!", { duration: 1000 });
+  };
+
   const statusButtons: { value: StatusFilter; labelAr: string; labelEn: string }[] = [
     { value: "all", labelAr: "الكل", labelEn: "All" },
     { value: "linked", labelAr: "مسجّل ✅", labelEn: "Linked ✅" },
@@ -192,30 +234,45 @@ const DepartmentPage = () => {
           </div>
         </div>
 
-        {/* Search & Filter Bar */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder={isRtl ? "ابحث بالاسم أو كود الدعوة..." : "Search by name or invitation code..."}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="ps-9"
-            />
+        {/* Search, Filter & Export Bar */}
+        <div className="flex flex-col gap-3 mb-6">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder={isRtl ? "ابحث بالاسم أو كود الدعوة..." : "Search by name or invitation code..."}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="ps-9"
+              />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Filter className="w-4 h-4 text-muted-foreground shrink-0" />
+              {statusButtons.map(btn => (
+                <Button
+                  key={btn.value}
+                  size="sm"
+                  variant={statusFilter === btn.value ? "default" : "outline"}
+                  onClick={() => setStatusFilter(btn.value)}
+                  className="text-xs"
+                >
+                  {isRtl ? btn.labelAr : btn.labelEn}
+                </Button>
+              ))}
+            </div>
           </div>
-          <div className="flex items-center gap-1.5">
-            <Filter className="w-4 h-4 text-muted-foreground shrink-0" />
-            {statusButtons.map(btn => (
-              <Button
-                key={btn.value}
-                size="sm"
-                variant={statusFilter === btn.value ? "default" : "outline"}
-                onClick={() => setStatusFilter(btn.value)}
-                className="text-xs"
-              >
-                {isRtl ? btn.labelAr : btn.labelEn}
-              </Button>
-            ))}
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={exportExcel} className="gap-1.5">
+              <Download className="w-4 h-4" />
+              {isRtl ? "تصدير Excel" : "Export Excel"}
+            </Button>
+            <Button size="sm" variant="outline" onClick={exportCSV} className="gap-1.5">
+              <Download className="w-4 h-4" />
+              {isRtl ? "تصدير CSV" : "Export CSV"}
+            </Button>
+            <span className="text-xs text-muted-foreground ms-2">
+              {isRtl ? `${lecturers.length + students.length} عضو سيتم تصديره` : `${lecturers.length + students.length} members to export`}
+            </span>
           </div>
         </div>
 

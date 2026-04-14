@@ -449,11 +449,21 @@ const InstitutionDashboard = () => {
   };
 
   const getMembersForDept = (deptId: string) => deptMembers.filter(m => m.department_id === deptId);
-  const getStudentsCount = (deptId: string) => getMembersForDept(deptId).filter(m => m.role === "student").length;
-  const getLecturersCount = (deptId: string) => getMembersForDept(deptId).filter(m => m.role === "lecturer").length;
+  const getStudentsCount = (deptId: string) => {
+    const fromMembers = getMembersForDept(deptId).filter(m => m.role === "student").length;
+    if (fromMembers > 0) return fromMembers;
+    const dept = departments.find(d => d.id === deptId);
+    return dept?.student_count || 0;
+  };
+  const getLecturersCount = (deptId: string) => {
+    const fromMembers = getMembersForDept(deptId).filter(m => m.role === "lecturer").length;
+    if (fromMembers > 0) return fromMembers;
+    const dept = departments.find(d => d.id === deptId);
+    return (dept as any)?.lecturer_count || 0;
+  };
 
-  const totalStudents = deptMembers.filter(m => m.role === "student").length;
-  const totalLecturers = deptMembers.filter(m => m.role === "lecturer").length;
+  const totalStudents = departments.reduce((sum, d) => sum + getStudentsCount(d.id), 0);
+  const totalLecturers = departments.reduce((sum, d) => sum + getLecturersCount(d.id), 0);
   const totalDepts = departments.length;
   const paidDepts = departments.filter(d => d.status === "active").length;
   const liveNow = liveStreams.filter(s => s.status === "live");

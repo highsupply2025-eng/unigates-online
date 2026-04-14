@@ -11,6 +11,7 @@ export interface PlatformStats {
   parents: number;
   students: number; // all students (student + school_student)
   universityStudents: number; // only university/institute students
+  schoolStudents: number;
 }
 
 export const usePlatformStats = () => {
@@ -18,10 +19,19 @@ export const usePlatformStats = () => {
     queryKey: ["platform-stats"],
     queryFn: async (): Promise<PlatformStats> => {
       const [
-        studentsRes, schoolStudentsRes, lecturersRes, collegesRes, institutesRes,
-        schoolsRes, publishersRes, teachersRes, parentsRes
+        personalStudentsRes,
+        invitedStudentsRes,
+        schoolStudentsRes,
+        lecturersRes,
+        collegesRes,
+        institutesRes,
+        schoolsRes,
+        publishersRes,
+        teachersRes,
+        parentsRes,
       ] = await Promise.all([
         supabase.rpc("get_profile_count_by_role", { _role: "personal" }),
+        supabase.rpc("get_profile_count_by_role", { _role: "student" }),
         supabase.rpc("get_profile_count_by_role", { _role: "school_student" }),
         supabase.rpc("get_profile_count_by_role", { _role: "lecturer" }),
         supabase.from("approved_colleges_public").select("id", { count: "exact", head: true }),
@@ -31,10 +41,15 @@ export const usePlatformStats = () => {
         supabase.rpc("get_profile_count_by_role", { _role: "teacher" }),
         supabase.rpc("get_profile_count_by_role", { _role: "parent" }),
       ]);
-      const uniStudents = Number(studentsRes.data) || 0;
+
+      const personalStudents = Number(personalStudentsRes.data) || 0;
+      const invitedStudents = Number(invitedStudentsRes.data) || 0;
       const schStudents = Number(schoolStudentsRes.data) || 0;
+      const uniStudents = personalStudents + invitedStudents;
+
       return {
         universityStudents: uniStudents,
+        schoolStudents: schStudents,
         students: uniStudents + schStudents,
         lecturers: Number(lecturersRes.data) || 0,
         colleges: collegesRes.count || 0,
@@ -45,6 +60,10 @@ export const usePlatformStats = () => {
         parents: Number(parentsRes.data) || 0,
       };
     },
-    staleTime: 60000,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    refetchInterval: 15000,
   });
 };

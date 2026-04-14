@@ -26,7 +26,7 @@ const SchoolPlatform = () => {
 
   const schools = useCountUp(stats?.schools ?? 0);
   const teachers = useCountUp(stats?.teachers ?? 0);
-  const schoolStudents = useCountUp(stats?.students ?? 0);
+  const schoolStudents = useCountUp(stats?.schoolStudents ?? 0);
   const totalParents = useCountUp(stats?.parents ?? 0);
 
   const statItems = [

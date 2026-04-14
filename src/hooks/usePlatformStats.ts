@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 
 export interface PlatformStats {
   colleges: number;
@@ -9,14 +10,41 @@ export interface PlatformStats {
   lecturers: number;
   teachers: number;
   parents: number;
-  students: number; // all students (student + school_student)
-  universityStudents: number; // only university/institute students
+  students: number;
+  universityStudents: number;
   schoolStudents: number;
 }
 
+const QUERY_KEY = ["platform-stats"];
+
 export const usePlatformStats = () => {
+  const queryClient = useQueryClient();
+
+  // Listen for realtime changes and invalidate the query
+  useEffect(() => {
+    const channel = supabase
+      .channel("platform-stats-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
+        queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "college_registrations" }, () => {
+        queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "institute_registrations" }, () => {
+        queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "school_registrations" }, () => {
+        queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
   return useQuery({
-    queryKey: ["platform-stats"],
+    queryKey: QUERY_KEY,
     queryFn: async (): Promise<PlatformStats> => {
       const [
         personalStudentsRes,
@@ -64,6 +92,5 @@ export const usePlatformStats = () => {
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
-    refetchInterval: 15000,
   });
 };

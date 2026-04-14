@@ -1564,6 +1564,7 @@ export type Database = {
             }
             Returns: Json
           }
+      get_platform_stats: { Args: never; Returns: Json }
       get_profile_count: { Args: never; Returns: number }
       get_profile_count_by_role: { Args: { _role: string }; Returns: number }
       get_user_email: { Args: { _user_id: string }; Returns: string }

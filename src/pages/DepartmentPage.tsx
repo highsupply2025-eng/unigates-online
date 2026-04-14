@@ -1,12 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, Copy, UserCheck, GraduationCap,
-  Building2, LinkIcon, MessageCircle, Loader2
+  Building2, LinkIcon, MessageCircle, Loader2, Search, Filter
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast as sonnerToast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -23,6 +24,8 @@ interface DepartmentMember {
   created_at: string;
 }
 
+type StatusFilter = "all" | "linked" | "pending";
+
 const DepartmentPage = () => {
   const { deptId } = useParams<{ deptId: string }>();
   const navigate = useNavigate();
@@ -34,6 +37,8 @@ const DepartmentPage = () => {
   const [deptStatus, setDeptStatus] = useState("");
   const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
   const [members, setMembers] = useState<DepartmentMember[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
   useEffect(() => {
     loadDepartmentData();
@@ -45,7 +50,6 @@ const DepartmentPage = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/login"); return; }
 
-      // Get department info
       const { data: dept } = await supabase
         .from("departments")
         .select("*")
@@ -58,7 +62,6 @@ const DepartmentPage = () => {
       setDeptStatus(dept.status);
       setInstitutionType(dept.institution_type as "college" | "institute");
 
-      // Get members in batches to avoid 1000-row limit
       let allMembers: DepartmentMember[] = [];
       let from = 0;
       let hasMore = true;
@@ -73,7 +76,6 @@ const DepartmentPage = () => {
         from += 1000;
       }
       setMembers(allMembers);
-
     } catch {
       navigate("/institution/dashboard");
     } finally {
@@ -81,16 +83,37 @@ const DepartmentPage = () => {
     }
   };
 
+  const filterMembers = (list: DepartmentMember[]) => {
+    return list.filter(m => {
+      const matchesSearch = !searchQuery ||
+        m.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (m.invitation_code && m.invitation_code.toLowerCase().includes(searchQuery.toLowerCase()));
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "linked" && m.user_id) ||
+        (statusFilter === "pending" && !m.user_id);
+      return matchesSearch && matchesStatus;
+    });
+  };
+
+  const allLecturers = members.filter(m => m.role === "lecturer");
+  const allStudents = members.filter(m => m.role === "student");
+  const lecturers = useMemo(() => filterMembers(allLecturers), [members, searchQuery, statusFilter]);
+  const students = useMemo(() => filterMembers(allStudents), [members, searchQuery, statusFilter]);
+
+  const baseUrl = window.location.origin;
+  const instPath = institutionType === "college" ? "college" : "institute";
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     sonnerToast.success(isRtl ? "تم النسخ" : "Copied!", { duration: 500 });
   };
 
-  const lecturers = members.filter(m => m.role === "lecturer");
-  const students = members.filter(m => m.role === "student");
-  const baseUrl = window.location.origin;
-  const instPath = institutionType === "college" ? "college" : "institute";
-
+  const statusButtons: { value: StatusFilter; labelAr: string; labelEn: string }[] = [
+    { value: "all", labelAr: "الكل", labelEn: "All" },
+    { value: "linked", labelAr: "مسجّل ✅", labelEn: "Linked ✅" },
+    { value: "pending", labelAr: "بانتظار ⏳", labelEn: "Pending ⏳" },
+  ];
 
   const renderMemberCard = (member: DepartmentMember, roleParam: string, colorClass: string, icon: React.ReactNode) => {
     const inviteLink = `${baseUrl}/signup/${instPath}/${roleParam}?code=${member.invitation_code}`;
@@ -125,11 +148,7 @@ const DepartmentPage = () => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Button
-              size="sm"
-              variant="outline"
-              className="text-green-600 border-green-300 hover:bg-green-50"
-            >
+            <Button size="sm" variant="outline" className="text-green-600 border-green-300 hover:bg-green-50">
               <MessageCircle className="w-3.5 h-3.5 me-1" />
               {isRtl ? "واتساب" : "WhatsApp"}
             </Button>
@@ -150,14 +169,13 @@ const DepartmentPage = () => {
   return (
     <div className="min-h-screen bg-background" dir={dir}>
       <main className="max-w-4xl mx-auto px-4 py-8">
-        {/* Back button */}
         <Button variant="outline" className="gap-2 mb-6" onClick={() => navigate("/institution/dashboard")}>
           {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
           {isRtl ? "رجوع للوحة التحكم" : "Back to Dashboard"}
         </Button>
 
         {/* Department Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-6">
           <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
             <Building2 className="w-7 h-7 text-primary" />
           </div>
@@ -168,13 +186,38 @@ const DepartmentPage = () => {
                 {deptStatus === "active" ? (isRtl ? "مفعّل ✅" : "Active ✅") : (isRtl ? "بانتظار الموافقة" : "Pending")}
               </Badge>
               <span className="text-sm text-muted-foreground">
-                {lecturers.length} {isRtl ? "محاضر" : "lecturers"} · {students.length} {isRtl ? "طالب" : "students"}
+                {allLecturers.length} {isRtl ? "محاضر" : "lecturers"} · {allStudents.length} {isRtl ? "طالب" : "students"}
               </span>
             </div>
           </div>
         </div>
 
-
+        {/* Search & Filter Bar */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder={isRtl ? "ابحث بالاسم أو كود الدعوة..." : "Search by name or invitation code..."}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="ps-9"
+            />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Filter className="w-4 h-4 text-muted-foreground shrink-0" />
+            {statusButtons.map(btn => (
+              <Button
+                key={btn.value}
+                size="sm"
+                variant={statusFilter === btn.value ? "default" : "outline"}
+                onClick={() => setStatusFilter(btn.value)}
+                className="text-xs"
+              >
+                {isRtl ? btn.labelAr : btn.labelEn}
+              </Button>
+            ))}
+          </div>
+        </div>
 
         {/* Lecturers Section */}
         <Card className="mb-6 border-2 border-green-500/20">
@@ -182,13 +225,17 @@ const DepartmentPage = () => {
             <CardTitle className="flex items-center gap-2 text-lg">
               <UserCheck className="w-5 h-5 text-green-600" />
               {isRtl ? "المحاضرون" : "Lecturers"}
-              <Badge variant="outline" className="text-green-600 border-green-600 ms-2">{lecturers.length}</Badge>
+              <Badge variant="outline" className="text-green-600 border-green-600 ms-2">
+                {lecturers.length}/{allLecturers.length}
+              </Badge>
             </CardTitle>
           </CardHeader>
           <CardContent>
             {lecturers.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">
-                {isRtl ? "لا يوجد محاضرون بعد" : "No lecturers yet"}
+                {searchQuery || statusFilter !== "all"
+                  ? (isRtl ? "لا توجد نتائج مطابقة" : "No matching results")
+                  : (isRtl ? "لا يوجد محاضرون بعد" : "No lecturers yet")}
               </p>
             ) : (
               <div className="space-y-3">
@@ -206,13 +253,17 @@ const DepartmentPage = () => {
             <CardTitle className="flex items-center gap-2 text-lg">
               <GraduationCap className="w-5 h-5 text-blue-600" />
               {isRtl ? "الطلاب" : "Students"}
-              <Badge variant="outline" className="text-blue-600 border-blue-600 ms-2">{students.length}</Badge>
+              <Badge variant="outline" className="text-blue-600 border-blue-600 ms-2">
+                {students.length}/{allStudents.length}
+              </Badge>
             </CardTitle>
           </CardHeader>
           <CardContent>
             {students.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">
-                {isRtl ? "لا يوجد طلاب بعد" : "No students yet"}
+                {searchQuery || statusFilter !== "all"
+                  ? (isRtl ? "لا توجد نتائج مطابقة" : "No matching results")
+                  : (isRtl ? "لا يوجد طلاب بعد" : "No students yet")}
               </p>
             ) : (
               <div className="space-y-3">

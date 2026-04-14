@@ -1,0 +1,1 @@
+ALTER TABLE public.departments ADD COLUMN IF NOT EXISTS lecturer_count integer NOT NULL DEFAULT 0;

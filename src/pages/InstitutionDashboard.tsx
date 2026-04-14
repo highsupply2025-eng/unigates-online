@@ -332,9 +332,9 @@ const InstitutionDashboard = () => {
         });
       }
 
-      const bgTasks: Promise<any>[] = [];
+      const bgTasks: Array<Promise<any>> = [];
       if (memberInserts.length > 0) {
-        bgTasks.push(supabase.from("department_members").insert(memberInserts).then(() => {}));
+        bgTasks.push(Promise.resolve(supabase.from("department_members").insert(memberInserts)));
       }
       supabase.auth.getUser().then(({ data: { user } }) => {
         if (user) {

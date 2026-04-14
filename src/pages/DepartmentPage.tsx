@@ -2,12 +2,16 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, Copy, UserCheck, GraduationCap,
-  Building2, LinkIcon, MessageCircle, Loader2, Search, Filter, Download
+  Building2, LinkIcon, MessageCircle, Loader2, Search, Filter, Download, Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast as sonnerToast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -40,6 +44,8 @@ const DepartmentPage = () => {
   const [members, setMembers] = useState<DepartmentMember[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [memberToDelete, setMemberToDelete] = useState<DepartmentMember | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadDepartmentData();
@@ -81,6 +87,27 @@ const DepartmentPage = () => {
       navigate("/institution/dashboard");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteMember = async () => {
+    if (!memberToDelete) return;
+    setDeleting(true);
+    try {
+      const { error } = await supabase
+        .from("department_members")
+        .delete()
+        .eq("id", memberToDelete.id);
+
+      if (error) throw error;
+
+      setMembers(prev => prev.filter(m => m.id !== memberToDelete.id));
+      sonnerToast.success(isRtl ? "تم حذف العضو بنجاح" : "Member deleted successfully", { duration: 1500 });
+    } catch {
+      sonnerToast.error(isRtl ? "فشل حذف العضو" : "Failed to delete member");
+    } finally {
+      setDeleting(false);
+      setMemberToDelete(null);
     }
   };
 
@@ -195,6 +222,14 @@ const DepartmentPage = () => {
               {isRtl ? "واتساب" : "WhatsApp"}
             </Button>
           </a>
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-destructive border-destructive/30 hover:bg-destructive/10"
+            onClick={() => setMemberToDelete(member)}
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </Button>
         </div>
       </div>
     );
@@ -332,6 +367,36 @@ const DepartmentPage = () => {
           </CardContent>
         </Card>
       </main>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!memberToDelete} onOpenChange={(open) => !open && setMemberToDelete(null)}>
+        <AlertDialogContent dir={dir}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {isRtl ? "تأكيد حذف العضو" : "Confirm Delete Member"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {isRtl
+                ? `هل أنت متأكد من حذف "${memberToDelete?.full_name}"؟ لا يمكن التراجع عن هذا الإجراء.`
+                : `Are you sure you want to delete "${memberToDelete?.full_name}"? This action cannot be undone.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className={isRtl ? "flex-row-reverse gap-2" : ""}>
+            <AlertDialogCancel disabled={deleting}>
+              {isRtl ? "إلغاء" : "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteMember}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : (isRtl ? "حذف" : "Delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

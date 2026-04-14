@@ -20,7 +20,6 @@ const QUERY_KEY = ["platform-stats"];
 export const usePlatformStats = () => {
   const queryClient = useQueryClient();
 
-  // Listen for realtime changes and invalidate the query
   useEffect(() => {
     const channel = supabase
       .channel("platform-stats-realtime")
@@ -46,50 +45,30 @@ export const usePlatformStats = () => {
   return useQuery({
     queryKey: QUERY_KEY,
     queryFn: async (): Promise<PlatformStats> => {
-      const [
-        personalStudentsRes,
-        invitedStudentsRes,
-        schoolStudentsRes,
-        lecturersRes,
-        collegesRes,
-        institutesRes,
-        schoolsRes,
-        publishersRes,
-        teachersRes,
-        parentsRes,
-      ] = await Promise.all([
-        supabase.rpc("get_profile_count_by_role", { _role: "personal" }),
-        supabase.rpc("get_profile_count_by_role", { _role: "student" }),
-        supabase.rpc("get_profile_count_by_role", { _role: "school_student" }),
-        supabase.rpc("get_profile_count_by_role", { _role: "lecturer" }),
-        supabase.from("approved_colleges_public").select("id", { count: "exact", head: true }),
-        supabase.from("approved_institutes_public").select("id", { count: "exact", head: true }),
-        supabase.from("approved_schools_public").select("id", { count: "exact", head: true }),
-        supabase.rpc("get_profile_count_by_role", { _role: "publisher" }),
-        supabase.rpc("get_profile_count_by_role", { _role: "teacher" }),
-        supabase.rpc("get_profile_count_by_role", { _role: "parent" }),
-      ]);
+      const { data, error } = await supabase.rpc("get_platform_stats");
 
-      const personalStudents = Number(personalStudentsRes.data) || 0;
-      const invitedStudents = Number(invitedStudentsRes.data) || 0;
-      const schStudents = Number(schoolStudentsRes.data) || 0;
-      const uniStudents = personalStudents + invitedStudents;
+      if (error) throw error;
+
+      const stats = data as any;
+      const personal = Number(stats.personal) || 0;
+      const invited = Number(stats.students) || 0;
+      const schStudents = Number(stats.school_students) || 0;
+      const uniStudents = personal + invited;
 
       return {
         universityStudents: uniStudents,
         schoolStudents: schStudents,
         students: uniStudents + schStudents,
-        lecturers: Number(lecturersRes.data) || 0,
-        colleges: collegesRes.count || 0,
-        institutes: institutesRes.count || 0,
-        schools: schoolsRes.count || 0,
-        publishers: Number(publishersRes.data) || 0,
-        teachers: Number(teachersRes.data) || 0,
-        parents: Number(parentsRes.data) || 0,
+        lecturers: Number(stats.lecturers) || 0,
+        colleges: Number(stats.colleges) || 0,
+        institutes: Number(stats.institutes) || 0,
+        schools: Number(stats.schools) || 0,
+        publishers: Number(stats.publishers) || 0,
+        teachers: Number(stats.teachers) || 0,
+        parents: Number(stats.parents) || 0,
       };
     },
     staleTime: 0,
-    refetchInterval: 10000,
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,

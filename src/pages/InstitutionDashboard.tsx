@@ -334,9 +334,9 @@ const InstitutionDashboard = () => {
         });
       }
 
-      const bgTasks: Array<Promise<any>> = [];
       if (memberInserts.length > 0) {
-        bgTasks.push(Promise.resolve(supabase.from("department_members").insert(memberInserts)));
+        const { error: membersError } = await supabase.from("department_members").insert(memberInserts);
+        if (membersError) console.error("Members insert error:", membersError);
       }
       supabase.auth.getUser().then(({ data: { user } }) => {
         if (user) {
@@ -353,7 +353,6 @@ const InstitutionDashboard = () => {
       });
 
       // Refresh full data in background after member slots are created
-      await Promise.all(bgTasks);
       await loadInstitutionData(institutionId, institutionType || "college");
     } catch (error: any) {
       sonnerToast.error(isRtl ? "خطأ" : "Error", { description: error.message, duration: 3000 });

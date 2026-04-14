@@ -183,8 +183,8 @@ const InstitutionDashboard = () => {
     const filteredDepts = (depts || []).filter(d => !deletedDeptIds.has(d.id));
     setDepartments(filteredDepts);
 
-    if (depts && depts.length > 0) {
-      const deptIds = depts.map(d => d.id);
+    if (filteredDepts.length > 0) {
+      const deptIds = filteredDepts.map(d => d.id);
       const { data: members } = await supabase
         .from("department_members")
         .select("*")

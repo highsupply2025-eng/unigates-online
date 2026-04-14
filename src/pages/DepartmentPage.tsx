@@ -361,7 +361,6 @@ const DepartmentPage = () => {
               ))}
             </div>
           </div>
-          <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 flex-wrap">
             <Button size="sm" variant="default" onClick={() => setShowAddDialog(true)} className="gap-1.5">
               <UserPlus className="w-4 h-4" />

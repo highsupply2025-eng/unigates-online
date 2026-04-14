@@ -404,17 +404,21 @@ const InstitutionDashboard = () => {
     }
   };
 
+  const [deletedDeptIds, setDeletedDeptIds] = useState<Set<string>>(new Set());
+
   const handleDeleteDepartment = async (deptId: string, deptName: string) => {
-    // Optimistic update - remove immediately from UI
+    // Track deleted IDs to prevent re-appearing after reload
+    setDeletedDeptIds(prev => new Set(prev).add(deptId));
     setDepartments(prev => prev.filter(d => d.id !== deptId));
     setDeptMembers(prev => prev.filter(m => m.department_id !== deptId));
-    toast({ title: isRtl ? "تم حذف القسم" : "Department Deleted", description: deptName });
+    sonnerToast.success(isRtl ? "تم حذف القسم" : "Department Deleted", { description: deptName, duration: 2000 });
 
     try {
       await supabase.from("department_members").delete().eq("department_id", deptId);
       await supabase.from("departments").delete().eq("id", deptId);
     } catch (error: any) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+      sonnerToast.error(isRtl ? "خطأ في الحذف" : "Delete Error", { description: error.message, duration: 3000 });
+      setDeletedDeptIds(prev => { const s = new Set(prev); s.delete(deptId); return s; });
       await loadInstitutionData(institutionId, institutionType || "college");
     }
   };

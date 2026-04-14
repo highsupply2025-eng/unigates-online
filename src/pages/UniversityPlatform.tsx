@@ -29,7 +29,7 @@ const UniversityPlatform = () => {
 
   const colleges = useCountUp(stats?.colleges ?? 0);
   const institutes = useCountUp(stats?.institutes ?? 0);
-  const lecturers = useCountUp(0);
+  const lecturers = useCountUp(stats?.lecturers ?? 0);
   const uniStudents = useCountUp(stats?.universityStudents ?? 0);
 
   const statItems = [

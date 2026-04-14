@@ -431,6 +431,40 @@ const DepartmentPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Edit Name Dialog */}
+      <AlertDialog open={!!memberToEdit} onOpenChange={(open) => !open && setMemberToEdit(null)}>
+        <AlertDialogContent dir={dir}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {isRtl ? "تعديل اسم العضو" : "Edit Member Name"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {isRtl ? "أدخل الاسم الجديد للعضو" : "Enter the new name for this member"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Input
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            placeholder={isRtl ? "الاسم الكامل" : "Full name"}
+            className="my-2"
+            onKeyDown={(e) => e.key === "Enter" && handleEditName()}
+          />
+          <AlertDialogFooter className={isRtl ? "flex-row-reverse gap-2" : ""}>
+            <AlertDialogCancel disabled={saving}>
+              {isRtl ? "إلغاء" : "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleEditName}
+              disabled={saving || !editName.trim()}
+            >
+              {saving
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : (isRtl ? "حفظ" : "Save")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

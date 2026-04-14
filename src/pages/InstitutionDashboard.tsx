@@ -66,6 +66,7 @@ const InstitutionDashboard = () => {
   const [institutionId, setInstitutionId] = useState("");
 
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [deletedDeptIds, setDeletedDeptIds] = useState<Set<string>>(new Set());
   const [deptMembers, setDeptMembers] = useState<DepartmentMember[]>([]);
   const [deptSearch, setDeptSearch] = useState("");
   const [isLeadershipRole, setIsLeadershipRole] = useState(false);

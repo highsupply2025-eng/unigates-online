@@ -877,7 +877,7 @@ const InstitutionDashboard = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} dir={dir}>
           <TabsList className={`grid w-full ${isLeadershipRole ? "grid-cols-7" : "grid-cols-3"} mb-6`}>
             <TabsTrigger value="overview" className="gap-1 text-xs">
-              <Building2 className="w-4 h-4" />
+              <Layers className="w-4 h-4" />
               {isRtl ? "عامة" : "Overview"}
             </TabsTrigger>
             <TabsTrigger value="departments" className="gap-1 text-xs">
@@ -920,7 +920,7 @@ const InstitutionDashboard = () => {
               <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent hover:shadow-lg hover:shadow-primary/10 transition-all">
                 <CardContent className="p-5 text-center">
                   <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center mx-auto mb-3 shadow-md shadow-primary/20">
-                    <Building2 className="w-7 h-7 text-white" />
+                    <Layers className="w-7 h-7 text-white" />
                   </div>
                   <p className="text-3xl font-black text-foreground">{totalDepts}</p>
                   <p className="text-sm text-muted-foreground">{isRtl ? "الأقسام" : "Departments"}</p>
@@ -1021,7 +1021,7 @@ const InstitutionDashboard = () => {
             {departments.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-10 text-muted-foreground">
-                  <Building2 className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                  <Layers className="w-12 h-12 mx-auto mb-3 opacity-30" />
                   <p>{isRtl ? "لم يتم إضافة أقسام بعد" : "No departments added yet"}</p>
                   <Button className="mt-4" onClick={() => { setActiveTab("departments"); setShowAddDeptDialog(true); }}>
                     <Plus className="w-4 h-4 me-2" />
@@ -1153,7 +1153,7 @@ const InstitutionDashboard = () => {
 
             {filteredDepts.length === 0 && (
               <div className="text-center py-16 text-muted-foreground">
-                <Building2 className="w-16 h-16 mx-auto mb-4 opacity-20" />
+                <Layers className="w-16 h-16 mx-auto mb-4 opacity-20" />
                 <p className="text-lg">{isRtl ? "لا توجد أقسام" : "No departments found"}</p>
               </div>
             )}
@@ -1807,7 +1807,7 @@ const InstitutionDashboard = () => {
                         <CardContent className="p-6">
                           <div className="flex items-center gap-3 mb-4">
                             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                              <Building2 className="w-6 h-6 text-primary" />
+                              <Layers className="w-6 h-6 text-primary" />
                             </div>
                             <div>
                               <h4 className="text-lg font-bold text-foreground">{dept.department_name}</h4>

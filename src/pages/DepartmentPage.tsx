@@ -329,7 +329,7 @@ const DepartmentPage = () => {
         {/* Department Header */}
         <div className="flex items-center gap-4 mb-6">
           <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-            <LayoutGrid className="w-7 h-7 text-primary" />
+            <Layers className="w-7 h-7 text-primary" />
           </div>
           <div>
             <h1 className="text-2xl font-black text-foreground">{deptName}</h1>

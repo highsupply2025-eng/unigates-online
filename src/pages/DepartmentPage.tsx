@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, Copy, UserCheck, GraduationCap,
-  Building2, LinkIcon, MessageCircle, Loader2, Search, Filter, Download, Trash2
+  Building2, LinkIcon, MessageCircle, Loader2, Search, Filter, Download, Trash2, Pencil
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,6 +46,9 @@ const DepartmentPage = () => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [memberToDelete, setMemberToDelete] = useState<DepartmentMember | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [memberToEdit, setMemberToEdit] = useState<DepartmentMember | null>(null);
+  const [editName, setEditName] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     loadDepartmentData();
@@ -108,6 +111,30 @@ const DepartmentPage = () => {
     } finally {
       setDeleting(false);
       setMemberToDelete(null);
+    }
+  };
+
+  const openEditDialog = (member: DepartmentMember) => {
+    setMemberToEdit(member);
+    setEditName(member.full_name);
+  };
+
+  const handleEditName = async () => {
+    if (!memberToEdit || !editName.trim()) return;
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from("department_members")
+        .update({ full_name: editName.trim() })
+        .eq("id", memberToEdit.id);
+      if (error) throw error;
+      setMembers(prev => prev.map(m => m.id === memberToEdit.id ? { ...m, full_name: editName.trim() } : m));
+      sonnerToast.success(isRtl ? "تم تعديل الاسم" : "Name updated", { duration: 1000 });
+    } catch {
+      sonnerToast.error(isRtl ? "فشل تعديل الاسم" : "Failed to update name");
+    } finally {
+      setSaving(false);
+      setMemberToEdit(null);
     }
   };
 
@@ -222,6 +249,13 @@ const DepartmentPage = () => {
               {isRtl ? "واتساب" : "WhatsApp"}
             </Button>
           </a>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => openEditDialog(member)}
+          >
+            <Pencil className="w-3.5 h-3.5" />
+          </Button>
           <Button
             size="sm"
             variant="outline"
@@ -393,6 +427,40 @@ const DepartmentPage = () => {
               {deleting
                 ? <Loader2 className="w-4 h-4 animate-spin" />
                 : (isRtl ? "حذف" : "Delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Edit Name Dialog */}
+      <AlertDialog open={!!memberToEdit} onOpenChange={(open) => !open && setMemberToEdit(null)}>
+        <AlertDialogContent dir={dir}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {isRtl ? "تعديل اسم العضو" : "Edit Member Name"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {isRtl ? "أدخل الاسم الجديد للعضو" : "Enter the new name for this member"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Input
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            placeholder={isRtl ? "الاسم الكامل" : "Full name"}
+            className="my-2"
+            onKeyDown={(e) => e.key === "Enter" && handleEditName()}
+          />
+          <AlertDialogFooter className={isRtl ? "flex-row-reverse gap-2" : ""}>
+            <AlertDialogCancel disabled={saving}>
+              {isRtl ? "إلغاء" : "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleEditName}
+              disabled={saving || !editName.trim()}
+            >
+              {saving
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : (isRtl ? "حفظ" : "Save")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

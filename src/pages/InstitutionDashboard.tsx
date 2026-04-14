@@ -332,10 +332,9 @@ const InstitutionDashboard = () => {
         });
       }
 
-      // Run member creation and notification in parallel, in the background
       const bgTasks: Promise<any>[] = [];
       if (memberInserts.length > 0) {
-        bgTasks.push(supabase.from("department_members").insert(memberInserts));
+        bgTasks.push(supabase.from("department_members").insert(memberInserts).then(() => {}));
       }
       supabase.auth.getUser().then(({ data: { user } }) => {
         if (user) {

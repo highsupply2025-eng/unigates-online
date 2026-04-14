@@ -46,6 +46,9 @@ const DepartmentPage = () => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [memberToDelete, setMemberToDelete] = useState<DepartmentMember | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [memberToEdit, setMemberToEdit] = useState<DepartmentMember | null>(null);
+  const [editName, setEditName] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     loadDepartmentData();

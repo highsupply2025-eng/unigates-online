@@ -516,19 +516,26 @@ const DepartmentPage = () => {
         <AlertDialogContent dir={dir}>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {isRtl ? "إضافة عضو جديد" : "Add New Member"}
+              {isRtl ? "إضافة أعضاء جدد" : "Add New Members"}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {isRtl ? "أدخل اسم العضو واختر دوره" : "Enter the member's name and select their role"}
+              {isRtl ? "أدخل اسم كل عضو في سطر منفصل، ثم اختر الدور" : "Enter each member's name on a separate line, then choose the role"}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="space-y-3 my-2">
-            <Input
+            <Textarea
               value={newMemberName}
               onChange={(e) => setNewMemberName(e.target.value)}
-              placeholder={isRtl ? "الاسم الكامل" : "Full name"}
-              onKeyDown={(e) => e.key === "Enter" && handleAddMember()}
+              placeholder={isRtl ? "أحمد محمد\nسارة علي\nخالد حسن" : "Ahmed Mohamed\nSara Ali\nKhaled Hassan"}
+              rows={5}
             />
+            {newMemberName.trim() && (
+              <p className="text-xs text-muted-foreground">
+                {isRtl
+                  ? `${newMemberName.split("\n").filter(n => n.trim()).length} عضو سيتم إضافتهم`
+                  : `${newMemberName.split("\n").filter(n => n.trim()).length} members to add`}
+              </p>
+            )}
             <div className="flex gap-2">
               <Button
                 size="sm"
@@ -555,7 +562,7 @@ const DepartmentPage = () => {
               {isRtl ? "إلغاء" : "Cancel"}
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleAddMember}
+              onClick={handleAddMembers}
               disabled={adding || !newMemberName.trim()}
             >
               {adding

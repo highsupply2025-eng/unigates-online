@@ -186,11 +186,23 @@ const InstitutionDashboard = () => {
 
     if (filteredDepts.length > 0) {
       const deptIds = filteredDepts.map(d => d.id);
-      const { data: members } = await supabase
-        .from("department_members")
-        .select("*")
-        .in("department_id", deptIds);
-      setDeptMembers(members || []);
+      // Fetch all members in batches to avoid 1000-row limit
+      let allMembers: any[] = [];
+      const batchSize = 1000;
+      let from = 0;
+      let hasMore = true;
+      while (hasMore) {
+        const { data: batch } = await supabase
+          .from("department_members")
+          .select("*")
+          .in("department_id", deptIds)
+          .range(from, from + batchSize - 1);
+        const rows = batch || [];
+        allMembers = allMembers.concat(rows);
+        hasMore = rows.length === batchSize;
+        from += batchSize;
+      }
+      setDeptMembers(allMembers);
     } else {
       setDeptMembers([]);
     }

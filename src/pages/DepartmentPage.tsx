@@ -322,14 +322,14 @@ const DepartmentPage = () => {
     <div className="min-h-screen bg-background" dir={dir}>
       <main className="max-w-4xl mx-auto px-4 py-8">
         <Button variant="outline" className="gap-2 mb-6" onClick={() => navigate("/institution/dashboard")}>
-          {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+          {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           {isRtl ? "رجوع للوحة التحكم" : "Back to Dashboard"}
         </Button>
 
         {/* Department Header */}
         <div className="flex items-center gap-4 mb-6">
           <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-            <Building2 className="w-7 h-7 text-primary" />
+            <LayoutGrid className="w-7 h-7 text-primary" />
           </div>
           <div>
             <h1 className="text-2xl font-black text-foreground">{deptName}</h1>

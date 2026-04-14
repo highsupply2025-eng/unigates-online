@@ -49,6 +49,10 @@ const DepartmentPage = () => {
   const [memberToEdit, setMemberToEdit] = useState<DepartmentMember | null>(null);
   const [editName, setEditName] = useState("");
   const [saving, setSaving] = useState(false);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [newMemberName, setNewMemberName] = useState("");
+  const [newMemberRole, setNewMemberRole] = useState<"student" | "lecturer">("student");
+  const [adding, setAdding] = useState(false);
 
   useEffect(() => {
     loadDepartmentData();

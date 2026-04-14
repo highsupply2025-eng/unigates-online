@@ -114,6 +114,30 @@ const DepartmentPage = () => {
     }
   };
 
+  const openEditDialog = (member: DepartmentMember) => {
+    setMemberToEdit(member);
+    setEditName(member.full_name);
+  };
+
+  const handleEditName = async () => {
+    if (!memberToEdit || !editName.trim()) return;
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from("department_members")
+        .update({ full_name: editName.trim() })
+        .eq("id", memberToEdit.id);
+      if (error) throw error;
+      setMembers(prev => prev.map(m => m.id === memberToEdit.id ? { ...m, full_name: editName.trim() } : m));
+      sonnerToast.success(isRtl ? "تم تعديل الاسم" : "Name updated", { duration: 1000 });
+    } catch {
+      sonnerToast.error(isRtl ? "فشل تعديل الاسم" : "Failed to update name");
+    } finally {
+      setSaving(false);
+      setMemberToEdit(null);
+    }
+  };
+
   const filterMembers = (list: DepartmentMember[]) => {
     return list.filter(m => {
       const matchesSearch = !searchQuery ||

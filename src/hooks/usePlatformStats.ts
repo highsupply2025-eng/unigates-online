@@ -89,6 +89,7 @@ export const usePlatformStats = () => {
       };
     },
     staleTime: 0,
+    refetchInterval: 10000,
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,

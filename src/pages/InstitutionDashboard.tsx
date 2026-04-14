@@ -66,6 +66,7 @@ const InstitutionDashboard = () => {
   const [institutionId, setInstitutionId] = useState("");
 
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [deletedDeptIds, setDeletedDeptIds] = useState<Set<string>>(new Set());
   const [deptMembers, setDeptMembers] = useState<DepartmentMember[]>([]);
   const [deptSearch, setDeptSearch] = useState("");
   const [isLeadershipRole, setIsLeadershipRole] = useState(false);
@@ -180,10 +181,11 @@ const InstitutionDashboard = () => {
       .eq("institution_id", instId)
       .eq("institution_type", instType)
       .order("created_at", { ascending: false });
-    setDepartments(depts || []);
+    const filteredDepts = (depts || []).filter(d => !deletedDeptIds.has(d.id));
+    setDepartments(filteredDepts);
 
-    if (depts && depts.length > 0) {
-      const deptIds = depts.map(d => d.id);
+    if (filteredDepts.length > 0) {
+      const deptIds = filteredDepts.map(d => d.id);
       const { data: members } = await supabase
         .from("department_members")
         .select("*")
@@ -281,12 +283,13 @@ const InstitutionDashboard = () => {
     const studentCount = parseInt(newDeptStudentCount);
     const lecturerCount = parseInt(newDeptLecturerCount) || 0;
     const paymentAmount = studentCount * 299;
+    const savedName = newDeptName;
 
     try {
       const { data: newDept, error } = await supabase.from("departments").insert({
         institution_id: institutionId,
         institution_type: institutionType || "college",
-        department_name: newDeptName,
+        department_name: savedName,
         student_count: studentCount,
         payment_amount: paymentAmount,
         status: "pending",
@@ -294,7 +297,25 @@ const InstitutionDashboard = () => {
       }).select().single();
       if (error) throw error;
 
-      // Auto-create student member slots
+      // Optimistic UI update — show the new department immediately
+      setDepartments(prev => [newDept, ...prev]);
+      setShowAddDeptDialog(false);
+      setNewDeptName("");
+      setNewDeptStudentCount("");
+      setNewDeptLecturerCount("");
+      setAddingDept(false);
+
+      sonnerToast.success(
+        isRtl ? "تم إرسال الطلب" : "Request Sent",
+        {
+          description: isRtl
+            ? "تم إرسال طلب إنشاء القسم - سيتم تفعيل الروابط بعد الموافقة"
+            : "Department request sent - Links activated after approval",
+          duration: 2000,
+        }
+      );
+
+      // Background: create member slots & notification (don't block UI)
       const memberInserts: any[] = [];
       for (let i = 1; i <= studentCount; i++) {
         memberInserts.push({
@@ -304,7 +325,6 @@ const InstitutionDashboard = () => {
           invitation_code: generateCode(),
         });
       }
-      // Auto-create lecturer member slots
       for (let i = 1; i <= lecturerCount; i++) {
         memberInserts.push({
           department_id: newDept.id,
@@ -313,40 +333,30 @@ const InstitutionDashboard = () => {
           invitation_code: generateCode(),
         });
       }
+
+      const bgTasks: Array<Promise<any>> = [];
       if (memberInserts.length > 0) {
-        const { error: membersError } = await supabase.from("department_members").insert(memberInserts);
-        if (membersError) throw membersError;
+        bgTasks.push(Promise.resolve(supabase.from("department_members").insert(memberInserts)));
       }
-
-      // Send notification to admin
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase.from("notifications").insert({
-          sender_id: user.id,
-          target_role: "admin",
-          notification_type: "department_request",
-          title_ar: "طلب إنشاء قسم جديد",
-          title_en: "New Department Request",
-          message_ar: `طلب إنشاء قسم "${newDeptName}" - ${studentCount} طالب، ${lecturerCount} محاضر - ${institutionName} (${paymentAmount} جنيه/شهر)`,
-          message_en: `Request to create "${newDeptName}" - ${studentCount} students, ${lecturerCount} lecturers - ${institutionName} (${paymentAmount} EGP/month)`,
-        });
-      }
-
-      toast({
-        title: isRtl ? "تم إرسال الطلب" : "Request Sent",
-        description: isRtl
-          ? `تم إرسال طلب إنشاء القسم إلى إدارة المنصة - سيتم تفعيل الروابط تلقائياً بعد الموافقة`
-          : `Department request sent to platform admin - Links will be activated automatically after approval`,
-        duration: 500,
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) {
+          supabase.from("notifications").insert({
+            sender_id: user.id,
+            target_role: "admin",
+            notification_type: "department_request",
+            title_ar: "طلب إنشاء قسم جديد",
+            title_en: "New Department Request",
+            message_ar: `طلب إنشاء قسم "${savedName}" - ${studentCount} طالب، ${lecturerCount} محاضر - ${institutionName} (${paymentAmount} جنيه/شهر)`,
+            message_en: `Request to create "${savedName}" - ${studentCount} students, ${lecturerCount} lecturers - ${institutionName} (${paymentAmount} EGP/month)`,
+          });
+        }
       });
-      setShowAddDeptDialog(false);
-      setNewDeptName("");
-      setNewDeptStudentCount("");
-      setNewDeptLecturerCount("");
+
+      // Refresh full data in background after member slots are created
+      await Promise.all(bgTasks);
       await loadInstitutionData(institutionId, institutionType || "college");
-      setAddingDept(false);
     } catch (error: any) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+      sonnerToast.error(isRtl ? "خطأ" : "Error", { description: error.message, duration: 3000 });
       setAddingDept(false);
     }
   };
@@ -396,17 +406,21 @@ const InstitutionDashboard = () => {
     }
   };
 
+  
+
   const handleDeleteDepartment = async (deptId: string, deptName: string) => {
-    // Optimistic update - remove immediately from UI
+    // Track deleted IDs to prevent re-appearing after reload
+    setDeletedDeptIds(prev => new Set(prev).add(deptId));
     setDepartments(prev => prev.filter(d => d.id !== deptId));
     setDeptMembers(prev => prev.filter(m => m.department_id !== deptId));
-    toast({ title: isRtl ? "تم حذف القسم" : "Department Deleted", description: deptName });
+    sonnerToast.success(isRtl ? "تم حذف القسم" : "Department Deleted", { description: deptName, duration: 2000 });
 
     try {
       await supabase.from("department_members").delete().eq("department_id", deptId);
       await supabase.from("departments").delete().eq("id", deptId);
     } catch (error: any) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+      sonnerToast.error(isRtl ? "خطأ في الحذف" : "Delete Error", { description: error.message, duration: 3000 });
+      setDeletedDeptIds(prev => { const s = new Set(prev); s.delete(deptId); return s; });
       await loadInstitutionData(institutionId, institutionType || "college");
     }
   };

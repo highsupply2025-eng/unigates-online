@@ -252,6 +252,13 @@ const DepartmentPage = () => {
           <Button
             size="sm"
             variant="outline"
+            onClick={() => openEditDialog(member)}
+          >
+            <Pencil className="w-3.5 h-3.5" />
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
             className="text-destructive border-destructive/30 hover:bg-destructive/10"
             onClick={() => setMemberToDelete(member)}
           >

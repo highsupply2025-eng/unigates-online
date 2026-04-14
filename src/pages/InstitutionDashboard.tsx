@@ -353,7 +353,6 @@ const InstitutionDashboard = () => {
       });
 
       // Refresh full data in background after member slots are created
-      await Promise.all(bgTasks);
       await loadInstitutionData(institutionId, institutionType || "college");
     } catch (error: any) {
       sonnerToast.error(isRtl ? "خطأ" : "Error", { description: error.message, duration: 3000 });

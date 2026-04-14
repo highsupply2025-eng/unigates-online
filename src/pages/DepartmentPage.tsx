@@ -58,12 +58,21 @@ const DepartmentPage = () => {
       setDeptStatus(dept.status);
       setInstitutionType(dept.institution_type as "college" | "institute");
 
-      // Get members
-      const { data: membersData } = await supabase
-        .from("department_members")
-        .select("*")
-        .eq("department_id", deptId);
-      setMembers(membersData || []);
+      // Get members in batches to avoid 1000-row limit
+      let allMembers: DepartmentMember[] = [];
+      let from = 0;
+      let hasMore = true;
+      while (hasMore) {
+        const { data: batch } = await supabase
+          .from("department_members")
+          .select("*")
+          .eq("department_id", deptId)
+          .range(from, from + 999);
+        allMembers = [...allMembers, ...(batch || [])];
+        hasMore = (batch?.length || 0) === 1000;
+        from += 1000;
+      }
+      setMembers(allMembers);
 
     } catch {
       navigate("/institution/dashboard");

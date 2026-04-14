@@ -142,6 +142,33 @@ const DepartmentPage = () => {
     }
   };
 
+  const handleAddMember = async () => {
+    if (!deptId || !newMemberName.trim()) return;
+    setAdding(true);
+    try {
+      const code = crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase();
+      const { data, error } = await supabase
+        .from("department_members")
+        .insert({
+          department_id: deptId,
+          full_name: newMemberName.trim(),
+          role: newMemberRole,
+          invitation_code: code,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      setMembers(prev => [...prev, data as DepartmentMember]);
+      sonnerToast.success(isRtl ? "تمت إضافة العضو بنجاح" : "Member added successfully", { duration: 1000 });
+      setNewMemberName("");
+      setShowAddDialog(false);
+    } catch {
+      sonnerToast.error(isRtl ? "فشل إضافة العضو" : "Failed to add member");
+    } finally {
+      setAdding(false);
+    }
+  };
+
   const filterMembers = (list: DepartmentMember[]) => {
     return list.filter(m => {
       const matchesSearch = !searchQuery ||

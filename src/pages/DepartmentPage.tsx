@@ -500,6 +500,61 @@ const DepartmentPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Add Member Dialog */}
+      <AlertDialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <AlertDialogContent dir={dir}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {isRtl ? "إضافة عضو جديد" : "Add New Member"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {isRtl ? "أدخل اسم العضو واختر دوره" : "Enter the member's name and select their role"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-3 my-2">
+            <Input
+              value={newMemberName}
+              onChange={(e) => setNewMemberName(e.target.value)}
+              placeholder={isRtl ? "الاسم الكامل" : "Full name"}
+              onKeyDown={(e) => e.key === "Enter" && handleAddMember()}
+            />
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant={newMemberRole === "student" ? "default" : "outline"}
+                onClick={() => setNewMemberRole("student")}
+                className="flex-1 gap-1.5"
+              >
+                <GraduationCap className="w-4 h-4" />
+                {isRtl ? "طالب" : "Student"}
+              </Button>
+              <Button
+                size="sm"
+                variant={newMemberRole === "lecturer" ? "default" : "outline"}
+                onClick={() => setNewMemberRole("lecturer")}
+                className="flex-1 gap-1.5"
+              >
+                <UserCheck className="w-4 h-4" />
+                {isRtl ? "محاضر" : "Lecturer"}
+              </Button>
+            </div>
+          </div>
+          <AlertDialogFooter className={isRtl ? "flex-row-reverse gap-2" : ""}>
+            <AlertDialogCancel disabled={adding}>
+              {isRtl ? "إلغاء" : "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleAddMember}
+              disabled={adding || !newMemberName.trim()}
+            >
+              {adding
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : (isRtl ? "إضافة" : "Add")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

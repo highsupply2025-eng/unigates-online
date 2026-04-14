@@ -362,6 +362,11 @@ const DepartmentPage = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button size="sm" variant="default" onClick={() => setShowAddDialog(true)} className="gap-1.5">
+              <UserPlus className="w-4 h-4" />
+              {isRtl ? "إضافة عضو" : "Add Member"}
+            </Button>
             <Button size="sm" variant="outline" onClick={exportExcel} className="gap-1.5">
               <Download className="w-4 h-4" />
               {isRtl ? "تصدير Excel" : "Export Excel"}
@@ -371,7 +376,7 @@ const DepartmentPage = () => {
               {isRtl ? "تصدير CSV" : "Export CSV"}
             </Button>
             <span className="text-xs text-muted-foreground ms-2">
-              {isRtl ? `${lecturers.length + students.length} عضو سيتم تصديره` : `${lecturers.length + students.length} members to export`}
+              {isRtl ? `${lecturers.length + students.length} عضو` : `${lecturers.length + students.length} members`}
             </span>
           </div>
         </div>

@@ -142,28 +142,37 @@ const DepartmentPage = () => {
     }
   };
 
-  const handleAddMember = async () => {
+  const handleAddMembers = async () => {
     if (!deptId || !newMemberName.trim()) return;
+    const names = newMemberName.split("\n").map(n => n.trim()).filter(Boolean);
+    if (names.length === 0) return;
     setAdding(true);
     try {
-      const code = crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase();
-      const { data, error } = await supabase
-        .from("department_members")
-        .insert({
-          department_id: deptId,
-          full_name: newMemberName.trim(),
-          role: newMemberRole,
-          invitation_code: code,
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      setMembers(prev => [...prev, data as DepartmentMember]);
-      sonnerToast.success(isRtl ? "تمت إضافة العضو بنجاح" : "Member added successfully", { duration: 1000 });
+      const inserts = names.map(name => ({
+        department_id: deptId,
+        full_name: name,
+        role: newMemberRole,
+        invitation_code: crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase(),
+      }));
+      const BATCH = 500;
+      const added: DepartmentMember[] = [];
+      for (let i = 0; i < inserts.length; i += BATCH) {
+        const { data, error } = await supabase
+          .from("department_members")
+          .insert(inserts.slice(i, i + BATCH))
+          .select();
+        if (error) throw error;
+        added.push(...(data as DepartmentMember[]));
+      }
+      setMembers(prev => [...prev, ...added]);
+      sonnerToast.success(
+        isRtl ? `تمت إضافة ${added.length} عضو بنجاح` : `${added.length} members added`,
+        { duration: 1500 }
+      );
       setNewMemberName("");
       setShowAddDialog(false);
     } catch {
-      sonnerToast.error(isRtl ? "فشل إضافة العضو" : "Failed to add member");
+      sonnerToast.error(isRtl ? "فشل إضافة الأعضاء" : "Failed to add members");
     } finally {
       setAdding(false);
     }

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, Copy, UserCheck, GraduationCap,
-  Building2, LinkIcon, MessageCircle, Loader2, Search, Filter, Download, Trash2, Pencil
+  Building2, LinkIcon, MessageCircle, Loader2, Search, Filter, Download, Trash2, Pencil, UserPlus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,6 +49,10 @@ const DepartmentPage = () => {
   const [memberToEdit, setMemberToEdit] = useState<DepartmentMember | null>(null);
   const [editName, setEditName] = useState("");
   const [saving, setSaving] = useState(false);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [newMemberName, setNewMemberName] = useState("");
+  const [newMemberRole, setNewMemberRole] = useState<"student" | "lecturer">("student");
+  const [adding, setAdding] = useState(false);
 
   useEffect(() => {
     loadDepartmentData();
@@ -135,6 +139,33 @@ const DepartmentPage = () => {
     } finally {
       setSaving(false);
       setMemberToEdit(null);
+    }
+  };
+
+  const handleAddMember = async () => {
+    if (!deptId || !newMemberName.trim()) return;
+    setAdding(true);
+    try {
+      const code = crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase();
+      const { data, error } = await supabase
+        .from("department_members")
+        .insert({
+          department_id: deptId,
+          full_name: newMemberName.trim(),
+          role: newMemberRole,
+          invitation_code: code,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      setMembers(prev => [...prev, data as DepartmentMember]);
+      sonnerToast.success(isRtl ? "تمت إضافة العضو بنجاح" : "Member added successfully", { duration: 1000 });
+      setNewMemberName("");
+      setShowAddDialog(false);
+    } catch {
+      sonnerToast.error(isRtl ? "فشل إضافة العضو" : "Failed to add member");
+    } finally {
+      setAdding(false);
     }
   };
 
@@ -330,7 +361,11 @@ const DepartmentPage = () => {
               ))}
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button size="sm" variant="default" onClick={() => setShowAddDialog(true)} className="gap-1.5">
+              <UserPlus className="w-4 h-4" />
+              {isRtl ? "إضافة عضو" : "Add Member"}
+            </Button>
             <Button size="sm" variant="outline" onClick={exportExcel} className="gap-1.5">
               <Download className="w-4 h-4" />
               {isRtl ? "تصدير Excel" : "Export Excel"}
@@ -340,7 +375,7 @@ const DepartmentPage = () => {
               {isRtl ? "تصدير CSV" : "Export CSV"}
             </Button>
             <span className="text-xs text-muted-foreground ms-2">
-              {isRtl ? `${lecturers.length + students.length} عضو سيتم تصديره` : `${lecturers.length + students.length} members to export`}
+              {isRtl ? `${lecturers.length + students.length} عضو` : `${lecturers.length + students.length} members`}
             </span>
           </div>
         </div>
@@ -461,6 +496,61 @@ const DepartmentPage = () => {
               {saving
                 ? <Loader2 className="w-4 h-4 animate-spin" />
                 : (isRtl ? "حفظ" : "Save")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Add Member Dialog */}
+      <AlertDialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <AlertDialogContent dir={dir}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {isRtl ? "إضافة عضو جديد" : "Add New Member"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {isRtl ? "أدخل اسم العضو واختر دوره" : "Enter the member's name and select their role"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-3 my-2">
+            <Input
+              value={newMemberName}
+              onChange={(e) => setNewMemberName(e.target.value)}
+              placeholder={isRtl ? "الاسم الكامل" : "Full name"}
+              onKeyDown={(e) => e.key === "Enter" && handleAddMember()}
+            />
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant={newMemberRole === "student" ? "default" : "outline"}
+                onClick={() => setNewMemberRole("student")}
+                className="flex-1 gap-1.5"
+              >
+                <GraduationCap className="w-4 h-4" />
+                {isRtl ? "طالب" : "Student"}
+              </Button>
+              <Button
+                size="sm"
+                variant={newMemberRole === "lecturer" ? "default" : "outline"}
+                onClick={() => setNewMemberRole("lecturer")}
+                className="flex-1 gap-1.5"
+              >
+                <UserCheck className="w-4 h-4" />
+                {isRtl ? "محاضر" : "Lecturer"}
+              </Button>
+            </div>
+          </div>
+          <AlertDialogFooter className={isRtl ? "flex-row-reverse gap-2" : ""}>
+            <AlertDialogCancel disabled={adding}>
+              {isRtl ? "إلغاء" : "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleAddMember}
+              disabled={adding || !newMemberName.trim()}
+            >
+              {adding
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : (isRtl ? "إضافة" : "Add")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -303,6 +303,7 @@ const InstitutionDashboard = () => {
         institution_type: institutionType || "college",
         department_name: savedName,
         student_count: studentCount,
+        lecturer_count: lecturerCount,
         payment_amount: paymentAmount,
         status: "pending",
         payment_status: "unpaid",
@@ -327,7 +328,7 @@ const InstitutionDashboard = () => {
         }
       );
 
-      // Background: create member slots & notification (don't block UI)
+      // Background: create member slots in batches & notification (don't block UI)
       const memberInserts: any[] = [];
       for (let i = 1; i <= studentCount; i++) {
         memberInserts.push({
@@ -346,10 +347,14 @@ const InstitutionDashboard = () => {
         });
       }
 
-      if (memberInserts.length > 0) {
-        const { error: membersError } = await supabase.from("department_members").insert(memberInserts);
-        if (membersError) console.error("Members insert error:", membersError);
+      // Insert in batches of 500 to avoid payload limits
+      const BATCH_SIZE = 500;
+      for (let i = 0; i < memberInserts.length; i += BATCH_SIZE) {
+        const batch = memberInserts.slice(i, i + BATCH_SIZE);
+        const { error: batchErr } = await supabase.from("department_members").insert(batch);
+        if (batchErr) console.error("Batch insert error:", batchErr);
       }
+
       supabase.auth.getUser().then(({ data: { user } }) => {
         if (user) {
           supabase.from("notifications").insert({
@@ -444,11 +449,21 @@ const InstitutionDashboard = () => {
   };
 
   const getMembersForDept = (deptId: string) => deptMembers.filter(m => m.department_id === deptId);
-  const getStudentsCount = (deptId: string) => getMembersForDept(deptId).filter(m => m.role === "student").length;
-  const getLecturersCount = (deptId: string) => getMembersForDept(deptId).filter(m => m.role === "lecturer").length;
+  const getStudentsCount = (deptId: string) => {
+    const fromMembers = getMembersForDept(deptId).filter(m => m.role === "student").length;
+    if (fromMembers > 0) return fromMembers;
+    const dept = departments.find(d => d.id === deptId);
+    return dept?.student_count || 0;
+  };
+  const getLecturersCount = (deptId: string) => {
+    const fromMembers = getMembersForDept(deptId).filter(m => m.role === "lecturer").length;
+    if (fromMembers > 0) return fromMembers;
+    const dept = departments.find(d => d.id === deptId);
+    return (dept as any)?.lecturer_count || 0;
+  };
 
-  const totalStudents = deptMembers.filter(m => m.role === "student").length;
-  const totalLecturers = deptMembers.filter(m => m.role === "lecturer").length;
+  const totalStudents = departments.reduce((sum, d) => sum + getStudentsCount(d.id), 0);
+  const totalLecturers = departments.reduce((sum, d) => sum + getLecturersCount(d.id), 0);
   const totalDepts = departments.length;
   const paidDepts = departments.filter(d => d.status === "active").length;
   const liveNow = liveStreams.filter(s => s.status === "live");

@@ -635,6 +635,7 @@ export type Database = {
           id: string
           institution_id: string
           institution_type: string
+          lecturer_count: number
           payment_amount: number
           payment_status: string
           status: string
@@ -647,6 +648,7 @@ export type Database = {
           id?: string
           institution_id: string
           institution_type?: string
+          lecturer_count?: number
           payment_amount?: number
           payment_status?: string
           status?: string
@@ -659,6 +661,7 @@ export type Database = {
           id?: string
           institution_id?: string
           institution_type?: string
+          lecturer_count?: number
           payment_amount?: number
           payment_status?: string
           status?: string

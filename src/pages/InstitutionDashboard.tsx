@@ -707,6 +707,7 @@ const InstitutionDashboard = () => {
     return opt ? (isRtl ? opt.ar : opt.en) : degree;
   };
 
+  const filteredDepts = departments.filter(d =>
     d.department_name.toLowerCase().includes(deptSearch.toLowerCase())
   );
 

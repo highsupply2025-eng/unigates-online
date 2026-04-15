@@ -160,11 +160,11 @@ const InstitutionDashboard = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "overview");
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "general");
   
-  const handleTabChange = (tab: string) => {
+   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    if (tab === "overview") {
+    if (tab === "general") {
       setSearchParams({});
     } else {
       setSearchParams({ tab });
@@ -172,7 +172,7 @@ const InstitutionDashboard = () => {
   };
 
   useEffect(() => {
-    const tab = searchParams.get("tab") || "overview";
+    const tab = searchParams.get("tab") || "general";
     if (tab !== activeTab) setActiveTab(tab);
   }, [searchParams]);
 

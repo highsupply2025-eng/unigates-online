@@ -52,6 +52,7 @@ const SchoolSignup = lazy(() => import("./pages/SchoolSignup"));
 const SchoolRegistration = lazy(() => import("./pages/SchoolRegistration"));
 const QuizCreate = lazy(() => import("./pages/QuizCreate"));
 const AddStudentResult = lazy(() => import("./pages/AddStudentResult"));
+const InstitutionQuizManage = lazy(() => import("./pages/InstitutionQuizManage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -114,6 +115,7 @@ const App = () => (
               <Route path="/leadership/dashboard" element={<LeadershipDashboard />} />
               <Route path="/quiz/create/:courseId" element={<QuizCreate />} />
               <Route path="/institution/results/add" element={<AddStudentResult />} />
+              <Route path="/institution/quizzes/manage" element={<InstitutionQuizManage />} />
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/book-store/profile" element={<UserProfile />} />
               <Route path="/student/dashboard" element={<StudentDashboard />} />

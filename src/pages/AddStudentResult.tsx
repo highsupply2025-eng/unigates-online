@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, GraduationCap, Save, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, GraduationCap, Save, Loader2, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import SimpleHeader from "@/components/SimpleHeader";
+
 
 const degreeOptions = [
   { value: "bachelor", ar: "بكالوريوس", en: "Bachelor" },
@@ -169,7 +169,20 @@ const AddStudentResult = () => {
 
   return (
     <div className="min-h-screen bg-background" dir={dir}>
-      <SimpleHeader />
+      <header className="border-b-2 border-primary/40 px-6 py-4 bg-card shadow-lg">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/40 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <GraduationCap className="w-7 h-7 text-white" />
+            </div>
+            <span className="text-2xl font-black text-foreground tracking-tight">UNIGATES</span>
+          </Link>
+          <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5">
+            <Globe className="w-4 h-4" />
+            {language === "ar" ? "EN" : "عربي"}
+          </Button>
+        </div>
+      </header>
       <div className="max-w-2xl mx-auto px-4 py-8">
         <Button
           variant="ghost"

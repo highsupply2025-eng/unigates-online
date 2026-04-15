@@ -1713,7 +1713,7 @@ const InstitutionDashboard = () => {
             </TabsContent>
           )}
 
-          {/* Quiz Results Tab - Leadership Only */}
+          {/* Quiz Results Tab - Results Management */}
           {isLeadershipRole && (
             <TabsContent value="quizresults">
               <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
@@ -1721,233 +1721,110 @@ const InstitutionDashboard = () => {
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
 
-              {/* === Overall Stats === */}
-              <h2 className="text-xl font-bold text-foreground mb-4">{isRtl ? "النتائج" : "Results"}</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <Card className="border-2 border-primary/20">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-black text-primary">{quizzes.length}</p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "الاختبارات" : "Quizzes"}</p>
-                  </CardContent>
-                </Card>
-                <Card className="border-2 border-emerald-500/20">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-black text-emerald-600">{quizSubmissions.length}</p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "تقديمات الاختبارات" : "Quiz Submissions"}</p>
-                  </CardContent>
-                </Card>
-                <Card className="border-2 border-blue-500/20">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-black text-blue-600">{assignments.length}</p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "الواجبات" : "Assignments"}</p>
-                  </CardContent>
-                </Card>
-                <Card className="border-2 border-amber-500/20">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-black text-amber-600">{assignmentSubmissions.length}</p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "تقديمات الواجبات" : "Assignment Submissions"}</p>
-                  </CardContent>
-                </Card>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-foreground">{isRtl ? "إدارة النتائج" : "Results Management"}</h2>
+                <Button size="sm" className="gap-2" onClick={openAddResult}>
+                  <Plus className="w-4 h-4" />
+                  {isRtl ? "إضافة نتيجة" : "Add Result"}
+                </Button>
               </div>
 
-              {/* === Quiz Results Section === */}
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-primary" />
-                  {isRtl ? "نتائج الاختبارات" : "Quiz Results"}
-                </h3>
-                {quizzes.length > 0 && (
-                  <Button size="sm" variant="outline" className="gap-2" onClick={() => {
-                    const firstCourseId = quizzes[0]?.course_id;
-                    if (firstCourseId) navigate(`/quiz/create/${firstCourseId}`);
-                  }}>
-                    <ClipboardList className="w-4 h-4" />{isRtl ? "إدارة" : "Manage"}
-                  </Button>
-                )}
-              </div>
-
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                <Card className="border border-amber-500/20">
-                  <CardContent className="p-3 text-center">
-                    <p className="text-xl font-black text-amber-600">
-                      {quizSubmissions.length > 0
-                        ? Math.round(quizSubmissions.reduce((a, s) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / quizSubmissions.length)
-                        : 0}%
-                    </p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "متوسط النتيجة" : "Avg Score"}</p>
+              {/* Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <Card className="border border-primary/20">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-black text-primary">{studentResults.length}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "إجمالي النتائج" : "Total Results"}</p>
                   </CardContent>
                 </Card>
                 <Card className="border border-emerald-500/20">
-                  <CardContent className="p-3 text-center">
-                    <p className="text-xl font-black text-emerald-500">
-                      {quizSubmissions.filter(s => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "ناجح (≥50%)" : "Passed (≥50%)"}</p>
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-black text-emerald-600">{studentResults.filter(r => r.rating === "excellent" || r.rating === "very_good").length}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "متفوقين" : "Top Students"}</p>
+                  </CardContent>
+                </Card>
+                <Card className="border border-amber-500/20">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-black text-amber-600">{studentResults.filter(r => r.rating === "good" || r.rating === "acceptable").length}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "ناجح" : "Passed"}</p>
                   </CardContent>
                 </Card>
                 <Card className="border border-red-500/20">
-                  <CardContent className="p-3 text-center">
-                    <p className="text-xl font-black text-red-500">
-                      {quizSubmissions.filter(s => ((s.score || 0) / Math.max(s.total_points || 1, 1)) < 0.5).length}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "راسب (<50%)" : "Failed (<50%)"}</p>
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-black text-red-600">{studentResults.filter(r => r.rating === "fail").length}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "راسب" : "Failed"}</p>
                   </CardContent>
                 </Card>
               </div>
 
-              {quizzes.map(quiz => {
-                const subs = quizSubmissions.filter(s => s.quiz_id === quiz.id);
-                if (subs.length === 0) return null;
-                const avgScore = Math.round(subs.reduce((a, s) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / subs.length);
-                return (
-                  <Card key={quiz.id} className="mb-4">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm flex items-center justify-between">
-                        <span className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-primary" />
-                          {isRtl ? quiz.title_ar : quiz.title_en}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <Button size="sm" variant="ghost" className="gap-1 text-xs h-7" onClick={() => navigate(`/quiz/create/${quiz.course_id}`)}>
-                            <Eye className="w-3 h-3" />{isRtl ? "إدارة" : "Manage"}
-                          </Button>
-                          <Badge variant="outline">{subs.length} {isRtl ? "تقديم" : "subs"}</Badge>
-                          <Badge variant={avgScore >= 50 ? "default" : "destructive"}>{avgScore}%</Badge>
-                        </div>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {subs.map(sub => {
-                          const pct = Math.round(((sub.score || 0) / Math.max(sub.total_points || 1, 1)) * 100);
-                          return (
-                            <div key={sub.id} className="flex items-center justify-between p-3 rounded-lg border">
-                              <div>
-                                <p className="text-sm font-medium">{sub.student_id?.slice(0, 8)}...</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {new Date(sub.submitted_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
-                                </p>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-bold">{sub.score || 0}/{sub.total_points || 0}</span>
-                                <Badge variant={pct >= 50 ? "default" : "destructive"} className="text-xs">
-                                  {pct}%
+              {/* Search */}
+              <div className="relative mb-4">
+                <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder={isRtl ? "بحث بالاسم أو القسم..." : "Search by name or department..."}
+                  value={resultSearch}
+                  onChange={e => setResultSearch(e.target.value)}
+                  className="ps-9"
+                />
+              </div>
+
+              {/* Results Table */}
+              <Card>
+                <CardContent className="p-0">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-xs">#</TableHead>
+                          <TableHead className="text-xs">{isRtl ? "اسم الطالب" : "Student Name"}</TableHead>
+                          <TableHead className="text-xs">{isRtl ? "القسم" : "Department"}</TableHead>
+                          <TableHead className="text-xs">{isRtl ? "الدرجة العلمية" : "Degree"}</TableHead>
+                          <TableHead className="text-xs">{isRtl ? "الدرجة" : "Grade"}</TableHead>
+                          <TableHead className="text-xs">{isRtl ? "التقدير" : "Rating"}</TableHead>
+                          <TableHead className="text-xs">{isRtl ? "إجراءات" : "Actions"}</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredResults.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                              <GraduationCap className="w-10 h-10 mx-auto mb-2 opacity-20" />
+                              <p className="text-sm">{isRtl ? "لا توجد نتائج بعد" : "No results yet"}</p>
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          filteredResults.map((result, idx) => (
+                            <TableRow key={result.id}>
+                              <TableCell className="text-xs font-medium">{idx + 1}</TableCell>
+                              <TableCell className="text-sm font-semibold">{result.student_name}</TableCell>
+                              <TableCell className="text-sm">{result.department_name}</TableCell>
+                              <TableCell className="text-xs">
+                                <Badge variant="outline" className="text-[10px]">{getDegreeLabel(result.academic_degree)}</Badge>
+                              </TableCell>
+                              <TableCell className="text-sm font-bold">{result.grade ?? "—"}</TableCell>
+                              <TableCell>
+                                <Badge className={`text-[10px] ${getRatingColor(result.rating)}`}>
+                                  {getRatingLabel(result.rating)}
                                 </Badge>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-
-              {quizSubmissions.length === 0 && (
-                <Card className="mb-6">
-                  <CardContent className="text-center py-6 text-muted-foreground">
-                    <CheckCircle className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                    <p className="text-sm">{isRtl ? "لا توجد نتائج اختبارات بعد" : "No quiz results yet"}</p>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* === Assignment Results Section === */}
-              <Separator className="my-6" />
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
-                  <ClipboardList className="w-5 h-5 text-blue-500" />
-                  {isRtl ? "نتائج الواجبات" : "Assignment Results"}
-                </h3>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                <Card className="border border-blue-500/20">
-                  <CardContent className="p-3 text-center">
-                    <p className="text-xl font-black text-blue-600">{assignmentSubmissions.length}</p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "التقديمات" : "Submissions"}</p>
-                  </CardContent>
-                </Card>
-                <Card className="border border-emerald-500/20">
-                  <CardContent className="p-3 text-center">
-                    <p className="text-xl font-black text-emerald-500">
-                      {assignmentSubmissions.filter(s => s.grade !== null).length}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "تم التقييم" : "Graded"}</p>
-                  </CardContent>
-                </Card>
-                <Card className="border border-amber-500/20">
-                  <CardContent className="p-3 text-center">
-                    <p className="text-xl font-black text-amber-500">
-                      {assignmentSubmissions.filter(s => s.grade === null).length}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "بانتظار التقييم" : "Pending"}</p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {assignments.map(assignment => {
-                const subs = assignmentSubmissions.filter(s => s.assignment_id === assignment.id);
-                if (subs.length === 0) return null;
-                const gradedCount = subs.filter(s => s.grade !== null).length;
-                return (
-                  <Card key={assignment.id} className="mb-4">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm flex items-center justify-between">
-                        <span className="flex items-center gap-2">
-                          <ClipboardList className="w-4 h-4 text-blue-500" />
-                          {isRtl ? assignment.title_ar : assignment.title_en}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline">{subs.length} {isRtl ? "تقديم" : "subs"}</Badge>
-                          <Badge variant={gradedCount === subs.length ? "default" : "secondary"}>
-                            {gradedCount}/{subs.length} {isRtl ? "مقيّم" : "graded"}
-                          </Badge>
-                        </div>
-                      </CardTitle>
-                      {assignment.due_date && (
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {isRtl ? "موعد التسليم:" : "Due:"} {new Date(assignment.due_date).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
-                        </p>
-                      )}
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {subs.map(sub => (
-                          <div key={sub.id} className="flex items-center justify-between p-3 rounded-lg border">
-                            <div>
-                              <p className="text-sm font-medium">{sub.student_id?.slice(0, 8)}...</p>
-                              <p className="text-xs text-muted-foreground">
-                                {new Date(sub.submitted_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
-                              </p>
-                              {sub.file_name && (
-                                <p className="text-xs text-blue-500 mt-0.5">{sub.file_name}</p>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {sub.grade !== null ? (
-                                <Badge variant="default" className="text-xs">{sub.grade}</Badge>
-                              ) : (
-                                <Badge variant="secondary" className="text-xs">{isRtl ? "لم يُقيّم" : "Not graded"}</Badge>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-
-              {assignmentSubmissions.length === 0 && (
-                <Card>
-                  <CardContent className="text-center py-6 text-muted-foreground">
-                    <ClipboardList className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                    <p className="text-sm">{isRtl ? "لا توجد نتائج واجبات بعد" : "No assignment results yet"}</p>
-                  </CardContent>
-                </Card>
-              )}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-1">
+                                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEditResult(result)}>
+                                    <Pencil className="w-3.5 h-3.5" />
+                                  </Button>
+                                  <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => handleDeleteResult(result.id)}>
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
           )}
 

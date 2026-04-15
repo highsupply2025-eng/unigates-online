@@ -636,10 +636,7 @@ const InstitutionDashboard = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align={isRtl ? 'start' : 'end'} className="w-48">
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => {
-                  const bell = document.querySelector('[data-notification-bell]') as HTMLButtonElement;
-                  bell?.click();
-                }}>
+                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("notifications")}>
                   <Bell className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold">{isRtl ? "الإشعارات" : "Notifications"}</span>
                 </DropdownMenuItem>

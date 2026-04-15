@@ -530,6 +530,18 @@ const InstitutionDashboard = () => {
                   <Bell className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold">{isRtl ? "الإشعارات" : "Notifications"}</span>
                 </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setActiveTab("departments")}>
+                  <BookOpen className="w-4 h-4 text-blue-500" />
+                  <span className="text-sm font-semibold">{isRtl ? "الأقسام" : "Departments"}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setActiveTab("quizmanage")}>
+                  <ClipboardList className="w-4 h-4 text-purple-500" />
+                  <span className="text-sm font-semibold">{isRtl ? "الاختبارات" : "Quizzes"}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setActiveTab("invitations")}>
+                  <LinkIcon className="w-4 h-4 text-indigo-500" />
+                  <span className="text-sm font-semibold">{isRtl ? "الدعوات" : "Invitations"}</span>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
                   <Globe className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold">{language === "ar" ? "English" : "العربية"}</span>

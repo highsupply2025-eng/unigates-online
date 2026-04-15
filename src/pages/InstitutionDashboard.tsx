@@ -1631,7 +1631,7 @@ const InstitutionDashboard = () => {
                     <Download className="w-4 h-4" />
                     {isRtl ? "تصدير Excel" : "Export Excel"}
                   </Button>
-                  <Button size="sm" className="gap-2" onClick={openAddResult}>
+                  <Button size="sm" className="gap-2" onClick={() => navigate("/institution/results/add")}>
                     <Plus className="w-4 h-4" />
                     {isRtl ? "إضافة نتيجة" : "Add Result"}
                   </Button>

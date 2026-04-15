@@ -1035,48 +1035,20 @@ const InstitutionDashboard = () => {
           </div>
         ) : (
         <Tabs value={activeTab} onValueChange={handleTabChange} dir={dir}>
-          <TabsList className={`grid w-full ${isLeadershipRole ? "grid-cols-7" : "grid-cols-3"} mb-6 h-auto p-1`}>
-            <TabsTrigger value="overview" className="gap-1.5 text-xs py-2.5 data-[state=active]:text-primary data-[state=active]:shadow-md">
-              <Layers className="w-5 h-5 text-teal-500" />
-              {isRtl ? "عامة" : "Overview"}
-            </TabsTrigger>
-            <TabsTrigger value="departments" className="gap-1.5 text-xs py-2.5 data-[state=active]:text-primary data-[state=active]:shadow-md">
-              <BookOpen className="w-5 h-5 text-blue-500" />
-              {isRtl ? "الأقسام" : "Depts"}
-            </TabsTrigger>
-            {isLeadershipRole && (
-              <TabsTrigger value="livestreams" className="gap-1.5 text-xs py-2.5 data-[state=active]:text-primary data-[state=active]:shadow-md">
-                <Radio className="w-5 h-5 text-red-500" />
-                {isRtl ? "البث" : "Streams"}
-              </TabsTrigger>
-            )}
-            {isLeadershipRole && (
-              <TabsTrigger value="quizresults" className="gap-1.5 text-xs py-2.5 data-[state=active]:text-primary data-[state=active]:shadow-md">
-                <CheckCircle className="w-5 h-5 text-green-500" />
-                {isRtl ? "النتائج" : "Results"}
-              </TabsTrigger>
-            )}
-            {isLeadershipRole && (
-              <TabsTrigger value="schedules" className="gap-1.5 text-xs py-2.5 data-[state=active]:text-primary data-[state=active]:shadow-md">
-                <Calendar className="w-5 h-5 text-orange-500" />
-                {isRtl ? "الجداول" : "Schedule"}
-              </TabsTrigger>
-            )}
-            {isLeadershipRole && (
-              <TabsTrigger value="ratings" className="gap-1.5 text-xs py-2.5 data-[state=active]:text-primary data-[state=active]:shadow-md">
-                <Star className="w-5 h-5 text-yellow-500" />
-                {isRtl ? "التقييم" : "Ratings"}
-              </TabsTrigger>
-            )}
-            <TabsTrigger value="quizmanage" className="gap-1.5 text-xs py-2.5 data-[state=active]:text-primary data-[state=active]:shadow-md">
-              <ClipboardList className="w-5 h-5 text-purple-500" />
-              {isRtl ? "الاختبارات" : "Quizzes"}
-            </TabsTrigger>
-            <TabsTrigger value="invitations" className="gap-1.5 text-xs py-2.5 data-[state=active]:text-primary data-[state=active]:shadow-md">
-              <LinkIcon className="w-5 h-5 text-indigo-500" />
-              {isRtl ? "الدعوات" : "Codes"}
-            </TabsTrigger>
-          </TabsList>
+          <div className="hidden">
+            <TabsList>
+              <TabsTrigger value="overview" />
+              <TabsTrigger value="general" />
+              <TabsTrigger value="departments" />
+              <TabsTrigger value="livestreams" />
+              <TabsTrigger value="quizresults" />
+              <TabsTrigger value="schedules" />
+              <TabsTrigger value="ratings" />
+              <TabsTrigger value="quizmanage" />
+              <TabsTrigger value="invitations" />
+              <TabsTrigger value="notifications" />
+            </TabsList>
+          </div>
 
           {/* General Summary Tab */}
           <TabsContent value="general">

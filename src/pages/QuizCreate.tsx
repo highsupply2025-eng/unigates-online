@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ChevronLeft, ChevronRight, Plus, Trash2, CheckCircle, Clock, HelpCircle,
-  GraduationCap, Save, Eye, EyeOff, BarChart3, Loader2, FileQuestion, ListChecks
+  GraduationCap, Save, Eye, EyeOff, BarChart3, Loader2, FileQuestion, ListChecks,
+  Pencil, ArrowUp, ArrowDown, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

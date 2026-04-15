@@ -1718,7 +1718,7 @@ const InstitutionDashboard = () => {
                               </TableCell>
                               <TableCell>
                                 <div className="flex items-center gap-1">
-                                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEditResult(result)}>
+                                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => navigate(`/institution/results/add?id=${result.id}`)}>
                                     <Pencil className="w-3.5 h-3.5" />
                                   </Button>
                                   <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => handleDeleteResult(result.id)}>

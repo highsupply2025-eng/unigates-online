@@ -1054,6 +1054,184 @@ const InstitutionDashboard = () => {
             </TabsTrigger>
           </TabsList>
 
+          {/* General Summary Tab */}
+          <TabsContent value="general">
+            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
+              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              {isRtl ? "الرئيسية" : "Home"}
+            </Button>
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-foreground mb-1">{isRtl ? "ملخص شامل" : "General Summary"}</h2>
+              <p className="text-sm text-muted-foreground">{isRtl ? "جميع إحصائيات المؤسسة في مكان واحد" : "All institution statistics in one place"}</p>
+            </div>
+
+            {/* Institution Info */}
+            <Card className="mb-6 border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+              <CardContent className="p-5">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/20">
+                    <Landmark className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-foreground">{institutionName}</h3>
+                    <p className="text-sm text-muted-foreground">{isRtl ? (institutionType === "college" ? "كلية" : "معهد") : (institutionType === "college" ? "College" : "Institute")}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Departments Summary */}
+            <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-blue-500" />
+              {isRtl ? "الأقسام والأعضاء" : "Departments & Members"}
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+              <Card className="border border-primary/20">
+                <CardContent className="p-4 text-center">
+                  <p className="text-2xl font-black text-primary">{totalDepts}</p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "الأقسام" : "Departments"}</p>
+                </CardContent>
+              </Card>
+              <Card className="border border-blue-500/20">
+                <CardContent className="p-4 text-center">
+                  <p className="text-2xl font-black text-blue-600">{totalStudents}</p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "الطلاب" : "Students"}</p>
+                </CardContent>
+              </Card>
+              <Card className="border border-green-500/20">
+                <CardContent className="p-4 text-center">
+                  <p className="text-2xl font-black text-green-600">{totalLecturers}</p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "المحاضرين" : "Lecturers"}</p>
+                </CardContent>
+              </Card>
+              <Card className="border border-emerald-500/20">
+                <CardContent className="p-4 text-center">
+                  <p className="text-2xl font-black text-emerald-600">{paidDepts}/{totalDepts}</p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "مفعّلة" : "Active"}</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Quiz & Assignment Summary */}
+            <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-green-500" />
+              {isRtl ? "الاختبارات والواجبات" : "Quizzes & Assignments"}
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+              <Card className="border border-purple-500/20">
+                <CardContent className="p-4 text-center">
+                  <p className="text-2xl font-black text-purple-600">{quizzes.length}</p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "الاختبارات" : "Quizzes"}</p>
+                </CardContent>
+              </Card>
+              <Card className="border border-emerald-500/20">
+                <CardContent className="p-4 text-center">
+                  <p className="text-2xl font-black text-emerald-600">{quizSubmissions.length}</p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "تقديمات الاختبارات" : "Quiz Submissions"}</p>
+                </CardContent>
+              </Card>
+              <Card className="border border-blue-500/20">
+                <CardContent className="p-4 text-center">
+                  <p className="text-2xl font-black text-blue-600">{assignments.length}</p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "الواجبات" : "Assignments"}</p>
+                </CardContent>
+              </Card>
+              <Card className="border border-amber-500/20">
+                <CardContent className="p-4 text-center">
+                  <p className="text-2xl font-black text-amber-600">{assignmentSubmissions.length}</p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "تقديمات الواجبات" : "Assignment Subs"}</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Performance Summary */}
+            <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
+              <Star className="w-5 h-5 text-amber-500" />
+              {isRtl ? "مؤشرات الأداء" : "Performance Indicators"}
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+              <Card className="border border-amber-500/20">
+                <CardContent className="p-4 text-center">
+                  <p className="text-2xl font-black text-amber-600">
+                    {quizSubmissions.length > 0
+                      ? Math.round(quizSubmissions.reduce((a, s) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / quizSubmissions.length)
+                      : 0}%
+                  </p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "متوسط نتيجة الاختبارات" : "Avg Quiz Score"}</p>
+                </CardContent>
+              </Card>
+              <Card className="border border-emerald-500/20">
+                <CardContent className="p-4 text-center">
+                  <p className="text-2xl font-black text-emerald-500">
+                    {quizSubmissions.filter(s => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "ناجح (≥50%)" : "Passed (≥50%)"}</p>
+                </CardContent>
+              </Card>
+              <Card className="border border-yellow-500/20">
+                <CardContent className="p-4 text-center">
+                  <p className="text-2xl font-black text-yellow-600">
+                    {lecturerRatings.length > 0 ? (lecturerRatings.reduce((a: number, r: any) => a + r.rating, 0) / lecturerRatings.length).toFixed(1) : "0.0"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
+                </CardContent>
+              </Card>
+              <Card className="border border-red-500/20">
+                <CardContent className="p-4 text-center">
+                  <p className="text-2xl font-black text-red-500">{liveStreams.filter(s => s.status === "live").length}</p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "بث مباشر الآن" : "Live Now"}</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Streams & Schedules Summary */}
+            <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
+              <Radio className="w-5 h-5 text-red-500" />
+              {isRtl ? "البث والجداول" : "Streams & Schedules"}
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+              <Card className="border border-red-500/20">
+                <CardContent className="p-4 text-center">
+                  <p className="text-2xl font-black text-red-600">{liveStreams.length}</p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "إجمالي البث" : "Total Streams"}</p>
+                </CardContent>
+              </Card>
+              <Card className="border border-orange-500/20">
+                <CardContent className="p-4 text-center">
+                  <p className="text-2xl font-black text-orange-600">{examSchedules.length}</p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "الجداول" : "Schedules"}</p>
+                </CardContent>
+              </Card>
+              <Card className="border border-indigo-500/20">
+                <CardContent className="p-4 text-center">
+                  <p className="text-2xl font-black text-indigo-600">{leadershipInvitations.length}</p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "الدعوات" : "Invitations"}</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Quick Navigation */}
+            <h3 className="text-lg font-bold text-foreground mb-3">{isRtl ? "التنقل السريع" : "Quick Navigation"}</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <Button variant="outline" className="h-auto py-4 flex flex-col gap-2" onClick={() => handleTabChange("departments")}>
+                <BookOpen className="w-5 h-5 text-blue-500" />
+                <span className="text-xs">{isRtl ? "الأقسام" : "Departments"}</span>
+              </Button>
+              <Button variant="outline" className="h-auto py-4 flex flex-col gap-2" onClick={() => handleTabChange("quizresults")}>
+                <CheckCircle className="w-5 h-5 text-green-500" />
+                <span className="text-xs">{isRtl ? "النتائج" : "Results"}</span>
+              </Button>
+              <Button variant="outline" className="h-auto py-4 flex flex-col gap-2" onClick={() => handleTabChange("livestreams")}>
+                <Radio className="w-5 h-5 text-red-500" />
+                <span className="text-xs">{isRtl ? "البث" : "Streams"}</span>
+              </Button>
+              <Button variant="outline" className="h-auto py-4 flex flex-col gap-2" onClick={() => handleTabChange("ratings")}>
+                <Star className="w-5 h-5 text-amber-500" />
+                <span className="text-xs">{isRtl ? "التقييم" : "Ratings"}</span>
+              </Button>
+            </div>
+          </TabsContent>
+
           {/* Overview Tab - Statistics Dashboard */}
           <TabsContent value="overview">
             <div className="mb-6">

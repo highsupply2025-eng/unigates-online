@@ -160,11 +160,11 @@ const InstitutionDashboard = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "overview");
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "general");
   
-  const handleTabChange = (tab: string) => {
+   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    if (tab === "overview") {
+    if (tab === "general") {
       setSearchParams({});
     } else {
       setSearchParams({ tab });
@@ -172,7 +172,7 @@ const InstitutionDashboard = () => {
   };
 
   useEffect(() => {
-    const tab = searchParams.get("tab") || "overview";
+    const tab = searchParams.get("tab") || "general";
     if (tab !== activeTab) setActiveTab(tab);
   }, [searchParams]);
 
@@ -1155,7 +1155,7 @@ const InstitutionDashboard = () => {
         <Tabs value={activeTab} onValueChange={handleTabChange} dir={dir}>
           <div className="hidden">
             <TabsList>
-              <TabsTrigger value="overview" />
+              
               <TabsTrigger value="general" />
               <TabsTrigger value="departments" />
               <TabsTrigger value="livestreams" />
@@ -1170,10 +1170,6 @@ const InstitutionDashboard = () => {
 
           {/* General Summary Tab */}
           <TabsContent value="general">
-            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
-              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-              {isRtl ? "الرئيسية" : "Home"}
-            </Button>
             <div className="mb-6">
               <h2 className="text-xl font-bold text-foreground mb-1">{isRtl ? "الرئيسية" : "Home"}</h2>
               <p className="text-sm text-muted-foreground">{isRtl ? "جميع إحصائيات المؤسسة في مكان واحد" : "All institution statistics in one place"}</p>
@@ -1346,123 +1342,11 @@ const InstitutionDashboard = () => {
             </div>
           </TabsContent>
 
-          {/* Overview Tab - Statistics Dashboard */}
-          <TabsContent value="overview">
-            <div className="mb-6">
-              <h2 className="text-xl font-bold text-foreground mb-1">{isRtl ? "لوحة التحكم" : "Dashboard"}</h2>
-              <p className="text-sm text-muted-foreground">{isRtl ? "ملخص إحصائيات المؤسسة" : "Institution statistics summary"}</p>
-            </div>
 
-            {/* Main Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent hover:shadow-lg hover:shadow-primary/10 transition-all cursor-pointer" onClick={() => handleTabChange("departments")}>
-                <CardContent className="p-5 text-center">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center mx-auto mb-2 shadow-md shadow-primary/20">
-                    <BookOpen className="w-6 h-6 text-white" />
-                  </div>
-                  <p className="text-2xl font-black text-foreground">{totalDepts}</p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "الأقسام" : "Departments"}</p>
-                </CardContent>
-              </Card>
-              <Card className="border-2 border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-transparent hover:shadow-lg hover:shadow-blue-500/10 transition-all cursor-pointer" onClick={() => handleTabChange("departments")}>
-                <CardContent className="p-5 text-center">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mx-auto mb-2 shadow-md shadow-blue-500/20">
-                    <GraduationCap className="w-6 h-6 text-white" />
-                  </div>
-                  <p className="text-2xl font-black text-foreground">{totalStudents}</p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "الطلاب" : "Students"}</p>
-                </CardContent>
-              </Card>
-              <Card className="border-2 border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent hover:shadow-lg hover:shadow-green-500/10 transition-all cursor-pointer" onClick={() => handleTabChange("departments")}>
-                <CardContent className="p-5 text-center">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center mx-auto mb-2 shadow-md shadow-green-500/20">
-                    <UserCheck className="w-6 h-6 text-white" />
-                  </div>
-                  <p className="text-2xl font-black text-foreground">{totalLecturers}</p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "المحاضرين" : "Lecturers"}</p>
-                </CardContent>
-              </Card>
-              <Card className="border-2 border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent hover:shadow-lg hover:shadow-emerald-500/10 transition-all cursor-pointer" onClick={() => handleTabChange("departments")}>
-                <CardContent className="p-5 text-center">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mx-auto mb-2 shadow-md shadow-emerald-500/20">
-                    <CheckCircle className="w-6 h-6 text-white" />
-                  </div>
-                  <p className="text-2xl font-black text-foreground">{paidDepts}/{totalDepts}</p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "أقسام مفعّلة" : "Active Depts"}</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Section Stats - Leadership */}
-            {isLeadershipRole && (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                <Card className="border-2 border-red-500/20 cursor-pointer hover:shadow-lg transition-all" onClick={() => handleTabChange("livestreams")}>
-                  <CardContent className="p-4 text-center">
-                    <Radio className="w-7 h-7 text-red-500 mx-auto mb-2" />
-                    <p className="text-2xl font-black text-red-600">{liveNow.length}</p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "بث مباشر الآن" : "Live Now"}</p>
-                  </CardContent>
-                </Card>
-                <Card className="border-2 border-purple-500/20 cursor-pointer hover:shadow-lg transition-all" onClick={() => handleTabChange("quizresults")}>
-                  <CardContent className="p-4 text-center">
-                    <ClipboardList className="w-7 h-7 text-purple-500 mx-auto mb-2" />
-                    <p className="text-2xl font-black text-purple-600">{quizzes.length}</p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "الاختبارات" : "Quizzes"}</p>
-                  </CardContent>
-                </Card>
-                <Card className="border-2 border-amber-500/20 cursor-pointer hover:shadow-lg transition-all" onClick={() => handleTabChange("ratings")}>
-                  <CardContent className="p-4 text-center">
-                    <Star className="w-7 h-7 text-amber-500 mx-auto mb-2" />
-                    <p className="text-2xl font-black text-amber-600">
-                      {lecturerRatings.length > 0 ? (lecturerRatings.reduce((a: number, r: any) => a + r.rating, 0) / lecturerRatings.length).toFixed(1) : "0.0"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {/* Quick Access Cards */}
-            <h3 className="text-lg font-bold text-foreground mb-3">{isRtl ? "الوصول السريع" : "Quick Access"}</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Card className="cursor-pointer hover:shadow-md transition-all group" onClick={() => handleTabChange("departments")}>
-                <CardContent className="p-4 flex flex-col items-center gap-2">
-                  <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <BookOpen className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <p className="text-xs font-semibold text-center">{isRtl ? "الأقسام" : "Departments"}</p>
-                </CardContent>
-              </Card>
-              <Card className="cursor-pointer hover:shadow-md transition-all group" onClick={() => handleTabChange("quizmanage")}>
-                <CardContent className="p-4 flex flex-col items-center gap-2">
-                  <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <ClipboardList className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <p className="text-xs font-semibold text-center">{isRtl ? "الاختبارات" : "Quizzes"}</p>
-                </CardContent>
-              </Card>
-              <Card className="cursor-pointer hover:shadow-md transition-all group" onClick={() => handleTabChange("invitations")}>
-                <CardContent className="p-4 flex flex-col items-center gap-2">
-                  <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <LinkIcon className="w-5 h-5 text-indigo-600" />
-                  </div>
-                  <p className="text-xs font-semibold text-center">{isRtl ? "الدعوات" : "Invitations"}</p>
-                </CardContent>
-              </Card>
-              <Card className="cursor-pointer hover:shadow-md transition-all group" onClick={() => handleTabChange("notifications")}>
-                <CardContent className="p-4 flex flex-col items-center gap-2">
-                  <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Bell className="w-5 h-5 text-teal-600" />
-                  </div>
-                  <p className="text-xs font-semibold text-center">{isRtl ? "الإشعارات" : "Notifications"}</p>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
 
           {/* Departments Tab */}
           <TabsContent value="departments">
-            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
+            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
               {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
               {isRtl ? "الرئيسية" : "Home"}
             </Button>
@@ -1571,7 +1455,7 @@ const InstitutionDashboard = () => {
           {/* Live Streams Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="livestreams">
-              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
+              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
                 {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
@@ -1716,7 +1600,7 @@ const InstitutionDashboard = () => {
           {/* Quiz Results Tab - Results Management */}
           {isLeadershipRole && (
             <TabsContent value="quizresults">
-              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
+              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
                 {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
@@ -1831,7 +1715,7 @@ const InstitutionDashboard = () => {
           {/* Schedules Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="schedules">
-              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
+              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
                 {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
@@ -1932,7 +1816,7 @@ const InstitutionDashboard = () => {
           {/* Ratings Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="ratings">
-              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
+              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
                 {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
@@ -2149,7 +2033,7 @@ const InstitutionDashboard = () => {
 
           {/* Quiz Management Tab */}
           <TabsContent value="quizmanage">
-            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
+            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
               {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
               {isRtl ? "الرئيسية" : "Home"}
             </Button>
@@ -2218,7 +2102,7 @@ const InstitutionDashboard = () => {
 
           {/* Invitations Tab - Links & Codes */}
           <TabsContent value="invitations">
-            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
+            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
               {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
               {isRtl ? "الرئيسية" : "Home"}
             </Button>
@@ -2472,7 +2356,7 @@ const InstitutionDashboard = () => {
 
           {/* Notifications Tab */}
           <TabsContent value="notifications">
-            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
+            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
               {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
               {isRtl ? "الرئيسية" : "Home"}
             </Button>

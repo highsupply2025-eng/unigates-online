@@ -331,7 +331,7 @@ const InstitutionDashboard = () => {
     }
 
     // Load live streams, attendance, quizzes, quiz submissions, assignments, and schedules
-    const [streamsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, ratingsRes, assignmentsRes, assignSubsRes] = await Promise.all([
+    const [streamsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, ratingsRes, assignmentsRes, assignSubsRes, resultsRes] = await Promise.all([
       supabase.from("live_streams").select("*").order("scheduled_at", { ascending: false }).limit(50),
       supabase.from("stream_attendance").select("stream_id, user_id"),
       supabase.from("quizzes").select("*").order("created_at", { ascending: false }).limit(50),
@@ -340,6 +340,7 @@ const InstitutionDashboard = () => {
       supabase.from("lecturer_ratings").select("*").order("created_at", { ascending: false }).limit(200),
       supabase.from("assignments").select("*").order("created_at", { ascending: false }).limit(50),
       supabase.from("assignment_submissions").select("*").order("submitted_at", { ascending: false }).limit(200),
+      supabase.from("student_results").select("*").eq("institution_id", instId).order("created_at", { ascending: false }),
     ]);
     setLiveStreams(streamsRes.data || []);
     setQuizzes(quizzesRes.data || []);
@@ -348,6 +349,7 @@ const InstitutionDashboard = () => {
     setLecturerRatings(ratingsRes.data || []);
     setAssignments(assignmentsRes.data || []);
     setAssignmentSubmissions(assignSubsRes.data || []);
+    setStudentResults(resultsRes.data || []);
 
     // Count unique users per stream
     const counts: Record<string, Set<string>> = {};

@@ -619,8 +619,32 @@ const InstitutionDashboard = () => {
               </p>
             </div>
           </div>
-          {/* Desktop buttons */}
-          <div className="hidden md:flex items-center gap-3">
+          {/* Desktop navigation icons */}
+          <div className="hidden md:flex items-center gap-2">
+            <Button variant={activeTab === "general" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("general")}>
+              <Layers className="w-4 h-4" />
+              {isRtl ? "الرئيسية" : "Home"}
+            </Button>
+            <Button variant={activeTab === "notifications" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("notifications")}>
+              <Bell className="w-4 h-4" />
+              {isRtl ? "الإشعارات" : "Notifications"}
+            </Button>
+            <Button variant={activeTab === "departments" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("departments")}>
+              <BookOpen className="w-4 h-4" />
+              {isRtl ? "الأقسام" : "Departments"}
+            </Button>
+            <Button variant={activeTab === "quizresults" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("quizresults")}>
+              <CheckCircle className="w-4 h-4" />
+              {isRtl ? "النتائج" : "Results"}
+            </Button>
+            <Button variant={activeTab === "quizmanage" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("quizmanage")}>
+              <ClipboardList className="w-4 h-4" />
+              {isRtl ? "الاختبارات" : "Quizzes"}
+            </Button>
+            <Button variant={activeTab === "invitations" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("invitations")}>
+              <LinkIcon className="w-4 h-4" />
+              {isRtl ? "الدعوات" : "Invitations"}
+            </Button>
             <NotificationBell />
             <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5">
               <Globe className="w-4 h-4" />
@@ -630,7 +654,7 @@ const InstitutionDashboard = () => {
               await supabase.auth.signOut();
               navigate("/login");
             }}>
-              {isRtl ? "تسجيل الخروج" : "Logout"}
+              <LogOut className="w-4 h-4" />
             </Button>
           </div>
           {/* Mobile dropdown */}

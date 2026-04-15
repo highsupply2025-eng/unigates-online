@@ -4,8 +4,9 @@ import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Layers, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
-  User, Ticket, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell, PlusCircle, Pencil
+  User, Ticket, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell, PlusCircle, Pencil, Download
 } from "lucide-react";
+import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -551,7 +552,25 @@ const InstitutionDashboard = () => {
     }
   };
 
-  
+  const exportResultsToExcel = () => {
+    const data = studentResults.map((r, idx) => ({
+      [isRtl ? "#" : "#"]: idx + 1,
+      [isRtl ? "اسم الطالب" : "Student Name"]: r.student_name,
+      [isRtl ? "القسم" : "Department"]: r.department_name,
+      [isRtl ? "الدرجة العلمية" : "Degree"]: getDegreeLabel(r.academic_degree),
+      [isRtl ? "الدرجة" : "Grade"]: r.grade ?? "—",
+      [isRtl ? "التقدير" : "Rating"]: getRatingLabel(r.rating),
+      [isRtl ? "ملاحظات" : "Notes"]: r.notes || "",
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    ws["!cols"] = [{ wch: 5 }, { wch: 25 }, { wch: 20 }, { wch: 15 }, { wch: 10 }, { wch: 15 }, { wch: 30 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, isRtl ? "النتائج" : "Results");
+    XLSX.writeFile(wb, `${institutionName || "results"}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    sonnerToast.success(isRtl ? "تم تصدير النتائج بنجاح" : "Results exported successfully");
+  };
+
+
 
   const handleDeleteDepartment = async (deptId: string, deptName: string) => {
     // Track deleted IDs to prevent re-appearing after reload
@@ -1607,10 +1626,16 @@ const InstitutionDashboard = () => {
 
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-foreground">{isRtl ? "إدارة النتائج" : "Results Management"}</h2>
-                <Button size="sm" className="gap-2" onClick={openAddResult}>
-                  <Plus className="w-4 h-4" />
-                  {isRtl ? "إضافة نتيجة" : "Add Result"}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="outline" className="gap-2" onClick={exportResultsToExcel} disabled={studentResults.length === 0}>
+                    <Download className="w-4 h-4" />
+                    {isRtl ? "تصدير Excel" : "Export Excel"}
+                  </Button>
+                  <Button size="sm" className="gap-2" onClick={openAddResult}>
+                    <Plus className="w-4 h-4" />
+                    {isRtl ? "إضافة نتيجة" : "Add Result"}
+                  </Button>
+                </div>
               </div>
 
               {/* Stats */}

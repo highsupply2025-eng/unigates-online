@@ -333,7 +333,7 @@ const InstitutionDashboard = () => {
     }
 
     // Load live streams, attendance, quizzes, quiz submissions, assignments, and schedules
-    const [streamsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, ratingsRes, assignmentsRes, assignSubsRes, resultsRes] = await Promise.all([
+    const [streamsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, ratingsRes, assignmentsRes, assignSubsRes, resultsRes, instQuizzesRes] = await Promise.all([
       supabase.from("live_streams").select("*").order("scheduled_at", { ascending: false }).limit(50),
       supabase.from("stream_attendance").select("stream_id, user_id"),
       supabase.from("quizzes").select("*").order("created_at", { ascending: false }).limit(50),

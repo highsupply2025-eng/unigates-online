@@ -190,6 +190,8 @@ const InstitutionDashboard = () => {
   const [examSchedules, setExamSchedules] = useState<any[]>([]);
   const [lecturerRatings, setLecturerRatings] = useState<any[]>([]);
   const [leadershipInvitations, setLeadershipInvitations] = useState<any[]>([]);
+  const [assignments, setAssignments] = useState<any[]>([]);
+  const [assignmentSubmissions, setAssignmentSubmissions] = useState<any[]>([]);
 
   // Add Department
   const [showAddDeptDialog, setShowAddDeptDialog] = useState(false);
@@ -320,20 +322,24 @@ const InstitutionDashboard = () => {
       setDeptMembers([]);
     }
 
-    // Load live streams, attendance, quizzes, quiz submissions, and schedules
-    const [streamsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, ratingsRes] = await Promise.all([
+    // Load live streams, attendance, quizzes, quiz submissions, assignments, and schedules
+    const [streamsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, ratingsRes, assignmentsRes, assignSubsRes] = await Promise.all([
       supabase.from("live_streams").select("*").order("scheduled_at", { ascending: false }).limit(50),
       supabase.from("stream_attendance").select("stream_id, user_id"),
       supabase.from("quizzes").select("*").order("created_at", { ascending: false }).limit(50),
       supabase.from("quiz_submissions").select("*").order("submitted_at", { ascending: false }).limit(200),
       supabase.from("lecture_schedules").select("*").order("scheduled_date", { ascending: true }),
       supabase.from("lecturer_ratings").select("*").order("created_at", { ascending: false }).limit(200),
+      supabase.from("assignments").select("*").order("created_at", { ascending: false }).limit(50),
+      supabase.from("assignment_submissions").select("*").order("submitted_at", { ascending: false }).limit(200),
     ]);
     setLiveStreams(streamsRes.data || []);
     setQuizzes(quizzesRes.data || []);
     setQuizSubmissions(quizSubsRes.data || []);
     setExamSchedules(schedulesRes.data || []);
     setLecturerRatings(ratingsRes.data || []);
+    setAssignments(assignmentsRes.data || []);
+    setAssignmentSubmissions(assignSubsRes.data || []);
 
     // Count unique users per stream
     const counts: Record<string, Set<string>> = {};

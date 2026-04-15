@@ -4,7 +4,7 @@ import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Layers, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
-  User, Ticket, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell
+  User, Ticket, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell, PlusCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1723,9 +1723,17 @@ const InstitutionDashboard = () => {
 
           {/* Quiz Management Tab */}
           <TabsContent value="quizmanage">
-            <div className="mb-6">
-              <h2 className="text-xl font-bold text-foreground mb-2">{isRtl ? "اختبارات الطلاب" : "Student Quizzes"}</h2>
-              <p className="text-sm text-muted-foreground">{isRtl ? "إنشاء وإدارة الاختبارات" : "Create and manage quizzes"}</p>
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-foreground mb-2">{isRtl ? "اختبارات الطلاب" : "Student Quizzes"}</h2>
+                <p className="text-sm text-muted-foreground">{isRtl ? "إنشاء وإدارة الاختبارات" : "Create and manage quizzes"}</p>
+              </div>
+              {quizzes.length > 0 && (
+                <Button onClick={() => navigate(`/quiz/create/${quizzes[0].course_id}`)} className="gap-2">
+                  <PlusCircle className="w-4 h-4" />
+                  {isRtl ? "إضافة اختبار" : "Add Quiz"}
+                </Button>
+              )}
             </div>
             {(() => {
               const courseIds = [...new Set(quizzes.map(q => q.course_id))];

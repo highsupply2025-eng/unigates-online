@@ -552,7 +552,25 @@ const InstitutionDashboard = () => {
     }
   };
 
-  
+  const exportResultsToExcel = () => {
+    const data = studentResults.map((r, idx) => ({
+      [isRtl ? "#" : "#"]: idx + 1,
+      [isRtl ? "اسم الطالب" : "Student Name"]: r.student_name,
+      [isRtl ? "القسم" : "Department"]: r.department_name,
+      [isRtl ? "الدرجة العلمية" : "Degree"]: getDegreeLabel(r.academic_degree),
+      [isRtl ? "الدرجة" : "Grade"]: r.grade ?? "—",
+      [isRtl ? "التقدير" : "Rating"]: getRatingLabel(r.rating),
+      [isRtl ? "ملاحظات" : "Notes"]: r.notes || "",
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    ws["!cols"] = [{ wch: 5 }, { wch: 25 }, { wch: 20 }, { wch: 15 }, { wch: 10 }, { wch: 15 }, { wch: 30 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, isRtl ? "النتائج" : "Results");
+    XLSX.writeFile(wb, `${institutionName || "results"}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    sonnerToast.success(isRtl ? "تم تصدير النتائج بنجاح" : "Results exported successfully");
+  };
+
+
 
   const handleDeleteDepartment = async (deptId: string, deptName: string) => {
     // Track deleted IDs to prevent re-appearing after reload

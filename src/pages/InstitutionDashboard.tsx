@@ -908,6 +908,10 @@ const InstitutionDashboard = () => {
                 {isRtl ? "التقييم" : "Ratings"}
               </TabsTrigger>
             )}
+            <TabsTrigger value="quizmanage" className="gap-1 text-xs">
+              <ClipboardList className="w-4 h-4" />
+              {isRtl ? "الاختبارات" : "Quizzes"}
+            </TabsTrigger>
             <TabsTrigger value="invitations" className="gap-1 text-xs">
               <LinkIcon className="w-4 h-4" />
               {isRtl ? "الدعوات" : "Codes"}

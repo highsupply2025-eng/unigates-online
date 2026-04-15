@@ -2643,7 +2643,8 @@ const InstitutionDashboard = () => {
         </DialogContent>
       </Dialog>
 
-
+    </div>
+  );
 };
 
 export default InstitutionDashboard;

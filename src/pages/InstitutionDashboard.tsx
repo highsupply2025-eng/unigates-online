@@ -1075,6 +1075,10 @@ const InstitutionDashboard = () => {
 
           {/* Departments Tab */}
           <TabsContent value="departments">
+            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => { setActiveTab("overview"); window.history.pushState({}, '', '/institution/dashboard'); }}>
+              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              {isRtl ? "الرئيسية" : "Home"}
+            </Button>
             <div className="flex items-center justify-between mb-4 gap-3">
               <div className="relative flex-1 max-w-sm">
                 <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -1180,6 +1184,10 @@ const InstitutionDashboard = () => {
           {/* Live Streams Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="livestreams">
+              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => { setActiveTab("overview"); window.history.pushState({}, '', '/institution/dashboard'); }}>
+                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                {isRtl ? "الرئيسية" : "Home"}
+              </Button>
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <Card className="bg-red-50 dark:bg-red-950/20 border-red-200">
                   <CardContent className="p-4 text-center">
@@ -1321,6 +1329,10 @@ const InstitutionDashboard = () => {
           {/* Quiz Results Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="quizresults">
+              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => { setActiveTab("overview"); window.history.pushState({}, '', '/institution/dashboard'); }}>
+                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                {isRtl ? "الرئيسية" : "Home"}
+              </Button>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-foreground">{isRtl ? "نتائج الاختبارات" : "Quiz Results"}</h2>
                 {quizzes.length > 0 && (
@@ -1427,6 +1439,10 @@ const InstitutionDashboard = () => {
           {/* Schedules Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="schedules">
+              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => { setActiveTab("overview"); window.history.pushState({}, '', '/institution/dashboard'); }}>
+                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                {isRtl ? "الرئيسية" : "Home"}
+              </Button>
               <h2 className="text-lg font-bold mb-4">{isRtl ? "جداول المحاضرات والاختبارات" : "Lectures & Exams Schedule"}</h2>
 
               {/* Exam Schedules */}
@@ -1524,6 +1540,10 @@ const InstitutionDashboard = () => {
           {/* Ratings Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="ratings">
+              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => { setActiveTab("overview"); window.history.pushState({}, '', '/institution/dashboard'); }}>
+                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                {isRtl ? "الرئيسية" : "Home"}
+              </Button>
               <h2 className="text-lg font-bold mb-4">{isRtl ? "تقييمات المحاضرين والطلاب" : "Lecturer & Student Ratings"}</h2>
 
               {/* Lecturer Ratings Summary */}
@@ -1737,6 +1757,10 @@ const InstitutionDashboard = () => {
 
           {/* Quiz Management Tab */}
           <TabsContent value="quizmanage">
+            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => { setActiveTab("overview"); window.history.pushState({}, '', '/institution/dashboard'); }}>
+              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              {isRtl ? "الرئيسية" : "Home"}
+            </Button>
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-foreground mb-2">{isRtl ? "اختبارات الطلاب" : "Student Quizzes"}</h2>
@@ -1802,6 +1826,10 @@ const InstitutionDashboard = () => {
 
           {/* Invitations Tab - Links & Codes */}
           <TabsContent value="invitations">
+            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => { setActiveTab("overview"); window.history.pushState({}, '', '/institution/dashboard'); }}>
+              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              {isRtl ? "الرئيسية" : "Home"}
+            </Button>
             {/* Free Leadership Links - Always visible */}
             {leadershipInvitations.length > 0 && (
               <Card className="mb-6 border-2 border-emerald-500/30 bg-emerald-50/30 dark:bg-emerald-950/10">

@@ -1360,6 +1360,9 @@ const InstitutionDashboard = () => {
                           {isRtl ? quiz.title_ar : quiz.title_en}
                         </span>
                         <div className="flex items-center gap-2">
+                          <Button size="sm" variant="ghost" className="gap-1 text-xs h-7" onClick={() => navigate(`/quiz/create/${quiz.course_id}`)}>
+                            <Eye className="w-3 h-3" />{isRtl ? "إدارة" : "Manage"}
+                          </Button>
                           <Badge variant="outline">{subs.length} {isRtl ? "تقديم" : "subs"}</Badge>
                           <Badge variant={avgScore >= 50 ? "default" : "destructive"}>{avgScore}%</Badge>
                         </div>

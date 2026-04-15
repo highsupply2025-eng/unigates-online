@@ -167,6 +167,47 @@ const QuizCreate = () => {
     toast({ title: isRtl ? "تم حذف السؤال" : "Question deleted" });
   };
 
+  const startEditQuestion = (q: any) => {
+    setEditingQuestionId(q.id);
+    setEditQuestion({
+      question_ar: q.question_ar, question_en: q.question_en,
+      option_a_ar: q.option_a_ar, option_a_en: q.option_a_en,
+      option_b_ar: q.option_b_ar, option_b_en: q.option_b_en,
+      option_c_ar: q.option_c_ar, option_c_en: q.option_c_en,
+      option_d_ar: q.option_d_ar, option_d_en: q.option_d_en,
+      correct_answer: q.correct_answer, points: q.points,
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingQuestionId || !editQuestion) return;
+    setSavingEdit(true);
+    try {
+      const { error } = await supabase.from("quiz_questions").update(editQuestion as any).eq("id", editingQuestionId);
+      if (error) throw error;
+      setEditingQuestionId(null);
+      setEditQuestion(null);
+      if (selectedQuizId) await loadQuizQuestions(selectedQuizId);
+      toast({ title: isRtl ? "تم تعديل السؤال ✅" : "Question updated ✅" });
+    } catch (err: any) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
+    } finally { setSavingEdit(false); }
+  };
+
+  const handleReorder = async (questionId: string, direction: "up" | "down") => {
+    const idx = quizQuestions.findIndex(q => q.id === questionId);
+    if (idx < 0) return;
+    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= quizQuestions.length) return;
+    const a = quizQuestions[idx];
+    const b = quizQuestions[swapIdx];
+    await Promise.all([
+      supabase.from("quiz_questions").update({ question_order: b.question_order } as any).eq("id", a.id),
+      supabase.from("quiz_questions").update({ question_order: a.question_order } as any).eq("id", b.id),
+    ]);
+    if (selectedQuizId) await loadQuizQuestions(selectedQuizId);
+  };
+
   const openResults = async (quizId: string) => {
     await loadQuizSubmissions(quizId);
     setShowResultsDialog(true);

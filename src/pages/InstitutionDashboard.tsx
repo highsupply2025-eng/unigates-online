@@ -1346,7 +1346,7 @@ const InstitutionDashboard = () => {
 
           {/* Departments Tab */}
           <TabsContent value="departments">
-            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
+            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
               {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
               {isRtl ? "الرئيسية" : "Home"}
             </Button>
@@ -1455,7 +1455,7 @@ const InstitutionDashboard = () => {
           {/* Live Streams Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="livestreams">
-              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
+              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
                 {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
@@ -1600,7 +1600,7 @@ const InstitutionDashboard = () => {
           {/* Quiz Results Tab - Results Management */}
           {isLeadershipRole && (
             <TabsContent value="quizresults">
-              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
+              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
                 {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
@@ -1715,7 +1715,7 @@ const InstitutionDashboard = () => {
           {/* Schedules Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="schedules">
-              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
+              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
                 {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
@@ -1816,7 +1816,7 @@ const InstitutionDashboard = () => {
           {/* Ratings Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="ratings">
-              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
+              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
                 {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
@@ -2033,7 +2033,7 @@ const InstitutionDashboard = () => {
 
           {/* Quiz Management Tab */}
           <TabsContent value="quizmanage">
-            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
+            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
               {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
               {isRtl ? "الرئيسية" : "Home"}
             </Button>
@@ -2102,7 +2102,7 @@ const InstitutionDashboard = () => {
 
           {/* Invitations Tab - Links & Codes */}
           <TabsContent value="invitations">
-            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
+            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
               {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
               {isRtl ? "الرئيسية" : "Home"}
             </Button>
@@ -2356,7 +2356,7 @@ const InstitutionDashboard = () => {
 
           {/* Notifications Tab */}
           <TabsContent value="notifications">
-            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
+            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
               {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
               {isRtl ? "الرئيسية" : "Home"}
             </Button>

@@ -196,6 +196,7 @@ const InstitutionDashboard = () => {
   const [assignments, setAssignments] = useState<any[]>([]);
   const [assignmentSubmissions, setAssignmentSubmissions] = useState<any[]>([]);
   const [studentResults, setStudentResults] = useState<any[]>([]);
+  const [institutionQuizzes, setInstitutionQuizzes] = useState<any[]>([]);
   const [showResultDialog, setShowResultDialog] = useState(false);
   const [editingResult, setEditingResult] = useState<any>(null);
   const [resultForm, setResultForm] = useState({ student_name: "", department_name: "", academic_degree: "", grade: "", rating: "", notes: "" });

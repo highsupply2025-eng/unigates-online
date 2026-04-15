@@ -60,7 +60,9 @@ const InstitutionDashboard = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("overview");
+  const searchParams = new URLSearchParams(window.location.search);
+  const initialTab = searchParams.get("tab") || "overview";
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [institutionType, setInstitutionType] = useState<"college" | "institute" | null>(null);
   const [institutionName, setInstitutionName] = useState("");
   const [institutionId, setInstitutionId] = useState("");

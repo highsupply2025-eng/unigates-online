@@ -1598,7 +1598,7 @@ const InstitutionDashboard = () => {
           )}
 
           {/* Quiz Results Tab - Results Management */}
-          {isLeadershipRole && (
+          {(isLeadershipRole || institutionId) && (
             <TabsContent value="quizresults">
               <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
                 {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}

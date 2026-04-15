@@ -644,7 +644,7 @@ const InstitutionDashboard = () => {
               <DropdownMenuContent align={isRtl ? 'start' : 'end'} className="w-48">
                 <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("general")}>
                   <Layers className="w-4 h-4 text-teal-500" />
-                  <span className="text-sm font-semibold">{isRtl ? "ملخص شامل" : "General Summary"}</span>
+                  <span className="text-sm font-semibold">{isRtl ? "الرئيسية" : "Home"}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("notifications")}>
                   <Bell className="w-4 h-4 text-primary" />
@@ -1061,7 +1061,7 @@ const InstitutionDashboard = () => {
               {isRtl ? "الرئيسية" : "Home"}
             </Button>
             <div className="mb-6">
-              <h2 className="text-xl font-bold text-foreground mb-1">{isRtl ? "ملخص شامل" : "General Summary"}</h2>
+              <h2 className="text-xl font-bold text-foreground mb-1">{isRtl ? "الرئيسية" : "Home"}</h2>
               <p className="text-sm text-muted-foreground">{isRtl ? "جميع إحصائيات المؤسسة في مكان واحد" : "All institution statistics in one place"}</p>
             </div>
 

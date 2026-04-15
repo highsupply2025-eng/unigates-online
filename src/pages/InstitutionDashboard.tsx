@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Layers, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
-  User, Ticket, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell, PlusCircle
+  User, Ticket, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell, PlusCircle, Pencil
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { useToast } from "@/hooks/use-toast";
@@ -192,6 +194,12 @@ const InstitutionDashboard = () => {
   const [leadershipInvitations, setLeadershipInvitations] = useState<any[]>([]);
   const [assignments, setAssignments] = useState<any[]>([]);
   const [assignmentSubmissions, setAssignmentSubmissions] = useState<any[]>([]);
+  const [studentResults, setStudentResults] = useState<any[]>([]);
+  const [showResultDialog, setShowResultDialog] = useState(false);
+  const [editingResult, setEditingResult] = useState<any>(null);
+  const [resultForm, setResultForm] = useState({ student_name: "", department_name: "", academic_degree: "", grade: "", rating: "", notes: "" });
+  const [savingResult, setSavingResult] = useState(false);
+  const [resultSearch, setResultSearch] = useState("");
 
   // Add Department
   const [showAddDeptDialog, setShowAddDeptDialog] = useState(false);
@@ -323,7 +331,7 @@ const InstitutionDashboard = () => {
     }
 
     // Load live streams, attendance, quizzes, quiz submissions, assignments, and schedules
-    const [streamsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, ratingsRes, assignmentsRes, assignSubsRes] = await Promise.all([
+    const [streamsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, ratingsRes, assignmentsRes, assignSubsRes, resultsRes] = await Promise.all([
       supabase.from("live_streams").select("*").order("scheduled_at", { ascending: false }).limit(50),
       supabase.from("stream_attendance").select("stream_id, user_id"),
       supabase.from("quizzes").select("*").order("created_at", { ascending: false }).limit(50),
@@ -332,6 +340,7 @@ const InstitutionDashboard = () => {
       supabase.from("lecturer_ratings").select("*").order("created_at", { ascending: false }).limit(200),
       supabase.from("assignments").select("*").order("created_at", { ascending: false }).limit(50),
       supabase.from("assignment_submissions").select("*").order("submitted_at", { ascending: false }).limit(200),
+      supabase.from("student_results").select("*").eq("institution_id", instId).order("created_at", { ascending: false }),
     ]);
     setLiveStreams(streamsRes.data || []);
     setQuizzes(quizzesRes.data || []);
@@ -340,6 +349,7 @@ const InstitutionDashboard = () => {
     setLecturerRatings(ratingsRes.data || []);
     setAssignments(assignmentsRes.data || []);
     setAssignmentSubmissions(assignSubsRes.data || []);
+    setStudentResults(resultsRes.data || []);
 
     // Count unique users per stream
     const counts: Record<string, Set<string>> = {};
@@ -588,6 +598,114 @@ const InstitutionDashboard = () => {
   const liveNow = liveStreams.filter(s => s.status === "live");
   const scheduledStreams = liveStreams.filter(s => s.status === "scheduled");
   const totalStreams = liveStreams.length;
+
+  const filteredResults = studentResults.filter(r =>
+    r.student_name.toLowerCase().includes(resultSearch.toLowerCase()) ||
+    r.department_name.toLowerCase().includes(resultSearch.toLowerCase())
+  );
+
+  const degreeOptions = [
+    { value: "bachelor", ar: "بكالوريوس", en: "Bachelor" },
+    { value: "master", ar: "ماجستير", en: "Master" },
+    { value: "phd", ar: "دكتوراه", en: "PhD" },
+    { value: "diploma", ar: "دبلوم", en: "Diploma" },
+    { value: "high_diploma", ar: "دبلوم عالي", en: "High Diploma" },
+  ];
+
+  const ratingOptions = [
+    { value: "excellent", ar: "ممتاز", en: "Excellent" },
+    { value: "very_good", ar: "جيد جداً", en: "Very Good" },
+    { value: "good", ar: "جيد", en: "Good" },
+    { value: "acceptable", ar: "مقبول", en: "Acceptable" },
+    { value: "fail", ar: "راسب", en: "Fail" },
+  ];
+
+  const openAddResult = () => {
+    setEditingResult(null);
+    setResultForm({ student_name: "", department_name: "", academic_degree: "", grade: "", rating: "", notes: "" });
+    setShowResultDialog(true);
+  };
+
+  const openEditResult = (result: any) => {
+    setEditingResult(result);
+    setResultForm({
+      student_name: result.student_name,
+      department_name: result.department_name,
+      academic_degree: result.academic_degree || "",
+      grade: result.grade?.toString() || "",
+      rating: result.rating || "",
+      notes: result.notes || "",
+    });
+    setShowResultDialog(true);
+  };
+
+  const handleSaveResult = async () => {
+    if (!resultForm.student_name.trim() || !resultForm.department_name.trim()) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى ملء اسم الطالب والقسم" : "Please fill student name and department", variant: "destructive" });
+      return;
+    }
+    setSavingResult(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const payload = {
+        institution_id: institutionId,
+        institution_type: institutionType,
+        student_name: resultForm.student_name.trim(),
+        department_name: resultForm.department_name.trim(),
+        academic_degree: resultForm.academic_degree,
+        grade: resultForm.grade ? parseFloat(resultForm.grade) : null,
+        rating: resultForm.rating,
+        notes: resultForm.notes.trim() || null,
+        created_by: user.id,
+      };
+      if (editingResult) {
+        const { error } = await supabase.from("student_results").update(payload).eq("id", editingResult.id);
+        if (error) throw error;
+        setStudentResults(prev => prev.map(r => r.id === editingResult.id ? { ...r, ...payload } : r));
+        sonnerToast.success(isRtl ? "تم تحديث النتيجة" : "Result updated");
+      } else {
+        const { data, error } = await supabase.from("student_results").insert(payload).select().single();
+        if (error) throw error;
+        setStudentResults(prev => [data, ...prev]);
+        sonnerToast.success(isRtl ? "تمت إضافة النتيجة" : "Result added");
+      }
+      setShowResultDialog(false);
+    } catch (err: any) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setSavingResult(false);
+    }
+  };
+
+  const handleDeleteResult = async (id: string) => {
+    const { error } = await supabase.from("student_results").delete().eq("id", id);
+    if (!error) {
+      setStudentResults(prev => prev.filter(r => r.id !== id));
+      sonnerToast.success(isRtl ? "تم حذف النتيجة" : "Result deleted");
+    }
+  };
+
+  const getRatingColor = (rating: string) => {
+    switch (rating) {
+      case "excellent": return "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20";
+      case "very_good": return "text-blue-600 bg-blue-50 dark:bg-blue-950/20";
+      case "good": return "text-amber-600 bg-amber-50 dark:bg-amber-950/20";
+      case "acceptable": return "text-orange-600 bg-orange-50 dark:bg-orange-950/20";
+      case "fail": return "text-red-600 bg-red-50 dark:bg-red-950/20";
+      default: return "text-muted-foreground";
+    }
+  };
+
+  const getRatingLabel = (rating: string) => {
+    const opt = ratingOptions.find(o => o.value === rating);
+    return opt ? (isRtl ? opt.ar : opt.en) : rating;
+  };
+
+  const getDegreeLabel = (degree: string) => {
+    const opt = degreeOptions.find(o => o.value === degree);
+    return opt ? (isRtl ? opt.ar : opt.en) : degree;
+  };
 
   const filteredDepts = departments.filter(d =>
     d.department_name.toLowerCase().includes(deptSearch.toLowerCase())
@@ -1595,7 +1713,7 @@ const InstitutionDashboard = () => {
             </TabsContent>
           )}
 
-          {/* Quiz Results Tab - Leadership Only */}
+          {/* Quiz Results Tab - Results Management */}
           {isLeadershipRole && (
             <TabsContent value="quizresults">
               <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
@@ -1603,233 +1721,110 @@ const InstitutionDashboard = () => {
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
 
-              {/* === Overall Stats === */}
-              <h2 className="text-xl font-bold text-foreground mb-4">{isRtl ? "النتائج" : "Results"}</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <Card className="border-2 border-primary/20">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-black text-primary">{quizzes.length}</p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "الاختبارات" : "Quizzes"}</p>
-                  </CardContent>
-                </Card>
-                <Card className="border-2 border-emerald-500/20">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-black text-emerald-600">{quizSubmissions.length}</p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "تقديمات الاختبارات" : "Quiz Submissions"}</p>
-                  </CardContent>
-                </Card>
-                <Card className="border-2 border-blue-500/20">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-black text-blue-600">{assignments.length}</p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "الواجبات" : "Assignments"}</p>
-                  </CardContent>
-                </Card>
-                <Card className="border-2 border-amber-500/20">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-black text-amber-600">{assignmentSubmissions.length}</p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "تقديمات الواجبات" : "Assignment Submissions"}</p>
-                  </CardContent>
-                </Card>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-foreground">{isRtl ? "إدارة النتائج" : "Results Management"}</h2>
+                <Button size="sm" className="gap-2" onClick={openAddResult}>
+                  <Plus className="w-4 h-4" />
+                  {isRtl ? "إضافة نتيجة" : "Add Result"}
+                </Button>
               </div>
 
-              {/* === Quiz Results Section === */}
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-primary" />
-                  {isRtl ? "نتائج الاختبارات" : "Quiz Results"}
-                </h3>
-                {quizzes.length > 0 && (
-                  <Button size="sm" variant="outline" className="gap-2" onClick={() => {
-                    const firstCourseId = quizzes[0]?.course_id;
-                    if (firstCourseId) navigate(`/quiz/create/${firstCourseId}`);
-                  }}>
-                    <ClipboardList className="w-4 h-4" />{isRtl ? "إدارة" : "Manage"}
-                  </Button>
-                )}
-              </div>
-
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                <Card className="border border-amber-500/20">
-                  <CardContent className="p-3 text-center">
-                    <p className="text-xl font-black text-amber-600">
-                      {quizSubmissions.length > 0
-                        ? Math.round(quizSubmissions.reduce((a, s) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / quizSubmissions.length)
-                        : 0}%
-                    </p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "متوسط النتيجة" : "Avg Score"}</p>
+              {/* Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <Card className="border border-primary/20">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-black text-primary">{studentResults.length}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "إجمالي النتائج" : "Total Results"}</p>
                   </CardContent>
                 </Card>
                 <Card className="border border-emerald-500/20">
-                  <CardContent className="p-3 text-center">
-                    <p className="text-xl font-black text-emerald-500">
-                      {quizSubmissions.filter(s => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "ناجح (≥50%)" : "Passed (≥50%)"}</p>
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-black text-emerald-600">{studentResults.filter(r => r.rating === "excellent" || r.rating === "very_good").length}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "متفوقين" : "Top Students"}</p>
+                  </CardContent>
+                </Card>
+                <Card className="border border-amber-500/20">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-black text-amber-600">{studentResults.filter(r => r.rating === "good" || r.rating === "acceptable").length}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "ناجح" : "Passed"}</p>
                   </CardContent>
                 </Card>
                 <Card className="border border-red-500/20">
-                  <CardContent className="p-3 text-center">
-                    <p className="text-xl font-black text-red-500">
-                      {quizSubmissions.filter(s => ((s.score || 0) / Math.max(s.total_points || 1, 1)) < 0.5).length}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "راسب (<50%)" : "Failed (<50%)"}</p>
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-black text-red-600">{studentResults.filter(r => r.rating === "fail").length}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "راسب" : "Failed"}</p>
                   </CardContent>
                 </Card>
               </div>
 
-              {quizzes.map(quiz => {
-                const subs = quizSubmissions.filter(s => s.quiz_id === quiz.id);
-                if (subs.length === 0) return null;
-                const avgScore = Math.round(subs.reduce((a, s) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / subs.length);
-                return (
-                  <Card key={quiz.id} className="mb-4">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm flex items-center justify-between">
-                        <span className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-primary" />
-                          {isRtl ? quiz.title_ar : quiz.title_en}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <Button size="sm" variant="ghost" className="gap-1 text-xs h-7" onClick={() => navigate(`/quiz/create/${quiz.course_id}`)}>
-                            <Eye className="w-3 h-3" />{isRtl ? "إدارة" : "Manage"}
-                          </Button>
-                          <Badge variant="outline">{subs.length} {isRtl ? "تقديم" : "subs"}</Badge>
-                          <Badge variant={avgScore >= 50 ? "default" : "destructive"}>{avgScore}%</Badge>
-                        </div>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {subs.map(sub => {
-                          const pct = Math.round(((sub.score || 0) / Math.max(sub.total_points || 1, 1)) * 100);
-                          return (
-                            <div key={sub.id} className="flex items-center justify-between p-3 rounded-lg border">
-                              <div>
-                                <p className="text-sm font-medium">{sub.student_id?.slice(0, 8)}...</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {new Date(sub.submitted_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
-                                </p>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-bold">{sub.score || 0}/{sub.total_points || 0}</span>
-                                <Badge variant={pct >= 50 ? "default" : "destructive"} className="text-xs">
-                                  {pct}%
+              {/* Search */}
+              <div className="relative mb-4">
+                <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder={isRtl ? "بحث بالاسم أو القسم..." : "Search by name or department..."}
+                  value={resultSearch}
+                  onChange={e => setResultSearch(e.target.value)}
+                  className="ps-9"
+                />
+              </div>
+
+              {/* Results Table */}
+              <Card>
+                <CardContent className="p-0">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-xs">#</TableHead>
+                          <TableHead className="text-xs">{isRtl ? "اسم الطالب" : "Student Name"}</TableHead>
+                          <TableHead className="text-xs">{isRtl ? "القسم" : "Department"}</TableHead>
+                          <TableHead className="text-xs">{isRtl ? "الدرجة العلمية" : "Degree"}</TableHead>
+                          <TableHead className="text-xs">{isRtl ? "الدرجة" : "Grade"}</TableHead>
+                          <TableHead className="text-xs">{isRtl ? "التقدير" : "Rating"}</TableHead>
+                          <TableHead className="text-xs">{isRtl ? "إجراءات" : "Actions"}</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredResults.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                              <GraduationCap className="w-10 h-10 mx-auto mb-2 opacity-20" />
+                              <p className="text-sm">{isRtl ? "لا توجد نتائج بعد" : "No results yet"}</p>
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          filteredResults.map((result, idx) => (
+                            <TableRow key={result.id}>
+                              <TableCell className="text-xs font-medium">{idx + 1}</TableCell>
+                              <TableCell className="text-sm font-semibold">{result.student_name}</TableCell>
+                              <TableCell className="text-sm">{result.department_name}</TableCell>
+                              <TableCell className="text-xs">
+                                <Badge variant="outline" className="text-[10px]">{getDegreeLabel(result.academic_degree)}</Badge>
+                              </TableCell>
+                              <TableCell className="text-sm font-bold">{result.grade ?? "—"}</TableCell>
+                              <TableCell>
+                                <Badge className={`text-[10px] ${getRatingColor(result.rating)}`}>
+                                  {getRatingLabel(result.rating)}
                                 </Badge>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-
-              {quizSubmissions.length === 0 && (
-                <Card className="mb-6">
-                  <CardContent className="text-center py-6 text-muted-foreground">
-                    <CheckCircle className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                    <p className="text-sm">{isRtl ? "لا توجد نتائج اختبارات بعد" : "No quiz results yet"}</p>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* === Assignment Results Section === */}
-              <Separator className="my-6" />
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
-                  <ClipboardList className="w-5 h-5 text-blue-500" />
-                  {isRtl ? "نتائج الواجبات" : "Assignment Results"}
-                </h3>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                <Card className="border border-blue-500/20">
-                  <CardContent className="p-3 text-center">
-                    <p className="text-xl font-black text-blue-600">{assignmentSubmissions.length}</p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "التقديمات" : "Submissions"}</p>
-                  </CardContent>
-                </Card>
-                <Card className="border border-emerald-500/20">
-                  <CardContent className="p-3 text-center">
-                    <p className="text-xl font-black text-emerald-500">
-                      {assignmentSubmissions.filter(s => s.grade !== null).length}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "تم التقييم" : "Graded"}</p>
-                  </CardContent>
-                </Card>
-                <Card className="border border-amber-500/20">
-                  <CardContent className="p-3 text-center">
-                    <p className="text-xl font-black text-amber-500">
-                      {assignmentSubmissions.filter(s => s.grade === null).length}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "بانتظار التقييم" : "Pending"}</p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {assignments.map(assignment => {
-                const subs = assignmentSubmissions.filter(s => s.assignment_id === assignment.id);
-                if (subs.length === 0) return null;
-                const gradedCount = subs.filter(s => s.grade !== null).length;
-                return (
-                  <Card key={assignment.id} className="mb-4">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm flex items-center justify-between">
-                        <span className="flex items-center gap-2">
-                          <ClipboardList className="w-4 h-4 text-blue-500" />
-                          {isRtl ? assignment.title_ar : assignment.title_en}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline">{subs.length} {isRtl ? "تقديم" : "subs"}</Badge>
-                          <Badge variant={gradedCount === subs.length ? "default" : "secondary"}>
-                            {gradedCount}/{subs.length} {isRtl ? "مقيّم" : "graded"}
-                          </Badge>
-                        </div>
-                      </CardTitle>
-                      {assignment.due_date && (
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {isRtl ? "موعد التسليم:" : "Due:"} {new Date(assignment.due_date).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
-                        </p>
-                      )}
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {subs.map(sub => (
-                          <div key={sub.id} className="flex items-center justify-between p-3 rounded-lg border">
-                            <div>
-                              <p className="text-sm font-medium">{sub.student_id?.slice(0, 8)}...</p>
-                              <p className="text-xs text-muted-foreground">
-                                {new Date(sub.submitted_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
-                              </p>
-                              {sub.file_name && (
-                                <p className="text-xs text-blue-500 mt-0.5">{sub.file_name}</p>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {sub.grade !== null ? (
-                                <Badge variant="default" className="text-xs">{sub.grade}</Badge>
-                              ) : (
-                                <Badge variant="secondary" className="text-xs">{isRtl ? "لم يُقيّم" : "Not graded"}</Badge>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-
-              {assignmentSubmissions.length === 0 && (
-                <Card>
-                  <CardContent className="text-center py-6 text-muted-foreground">
-                    <ClipboardList className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                    <p className="text-sm">{isRtl ? "لا توجد نتائج واجبات بعد" : "No assignment results yet"}</p>
-                  </CardContent>
-                </Card>
-              )}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-1">
+                                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEditResult(result)}>
+                                    <Pencil className="w-3.5 h-3.5" />
+                                  </Button>
+                                  <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => handleDeleteResult(result.id)}>
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
           )}
 
@@ -2590,6 +2585,63 @@ const InstitutionDashboard = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Add/Edit Result Dialog */}
+      <Dialog open={showResultDialog} onOpenChange={setShowResultDialog}>
+        <DialogContent dir={dir} className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editingResult ? (isRtl ? "تعديل النتيجة" : "Edit Result") : (isRtl ? "إضافة نتيجة جديدة" : "Add New Result")}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>{isRtl ? "اسم الطالب" : "Student Name"}</Label>
+              <Input value={resultForm.student_name} onChange={e => setResultForm(prev => ({ ...prev, student_name: e.target.value }))} placeholder={isRtl ? "أدخل اسم الطالب" : "Enter student name"} />
+            </div>
+            <div>
+              <Label>{isRtl ? "القسم" : "Department"}</Label>
+              <Input value={resultForm.department_name} onChange={e => setResultForm(prev => ({ ...prev, department_name: e.target.value }))} placeholder={isRtl ? "أدخل اسم القسم" : "Enter department"} />
+            </div>
+            <div>
+              <Label>{isRtl ? "الدرجة العلمية" : "Academic Degree"}</Label>
+              <Select value={resultForm.academic_degree} onValueChange={v => setResultForm(prev => ({ ...prev, academic_degree: v }))}>
+                <SelectTrigger><SelectValue placeholder={isRtl ? "اختر الدرجة" : "Select degree"} /></SelectTrigger>
+                <SelectContent>
+                  {degreeOptions.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>{isRtl ? opt.ar : opt.en}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>{isRtl ? "الدرجة (من 100)" : "Grade (out of 100)"}</Label>
+              <Input type="number" min="0" max="100" value={resultForm.grade} onChange={e => setResultForm(prev => ({ ...prev, grade: e.target.value }))} placeholder="0 - 100" />
+            </div>
+            <div>
+              <Label>{isRtl ? "التقدير" : "Rating"}</Label>
+              <Select value={resultForm.rating} onValueChange={v => setResultForm(prev => ({ ...prev, rating: v }))}>
+                <SelectTrigger><SelectValue placeholder={isRtl ? "اختر التقدير" : "Select rating"} /></SelectTrigger>
+                <SelectContent>
+                  {ratingOptions.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>{isRtl ? opt.ar : opt.en}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>{isRtl ? "ملاحظات (اختياري)" : "Notes (optional)"}</Label>
+              <Input value={resultForm.notes} onChange={e => setResultForm(prev => ({ ...prev, notes: e.target.value }))} placeholder={isRtl ? "أدخل ملاحظات" : "Enter notes"} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowResultDialog(false)}>
+              {isRtl ? "إلغاء" : "Cancel"}
+            </Button>
+            <Button onClick={handleSaveResult} disabled={savingResult}>
+              {savingResult ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : <CheckCircle className="w-4 h-4 me-1" />}
+              {editingResult ? (isRtl ? "تحديث" : "Update") : (isRtl ? "إضافة" : "Add")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );

@@ -1290,6 +1290,51 @@ export type Database = {
           },
         ]
       }
+      student_results: {
+        Row: {
+          academic_degree: string
+          created_at: string
+          created_by: string
+          department_name: string
+          grade: number | null
+          id: string
+          institution_id: string
+          institution_type: string
+          notes: string | null
+          rating: string
+          student_name: string
+          updated_at: string
+        }
+        Insert: {
+          academic_degree?: string
+          created_at?: string
+          created_by: string
+          department_name: string
+          grade?: number | null
+          id?: string
+          institution_id: string
+          institution_type?: string
+          notes?: string | null
+          rating?: string
+          student_name: string
+          updated_at?: string
+        }
+        Update: {
+          academic_degree?: string
+          created_at?: string
+          created_by?: string
+          department_name?: string
+          grade?: number | null
+          id?: string
+          institution_id?: string
+          institution_type?: string
+          notes?: string | null
+          rating?: string
+          student_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           approved: boolean

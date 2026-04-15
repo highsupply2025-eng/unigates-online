@@ -599,7 +599,114 @@ const InstitutionDashboard = () => {
   const scheduledStreams = liveStreams.filter(s => s.status === "scheduled");
   const totalStreams = liveStreams.length;
 
-  const filteredDepts = departments.filter(d =>
+  const filteredResults = studentResults.filter(r =>
+    r.student_name.toLowerCase().includes(resultSearch.toLowerCase()) ||
+    r.department_name.toLowerCase().includes(resultSearch.toLowerCase())
+  );
+
+  const degreeOptions = [
+    { value: "bachelor", ar: "بكالوريوس", en: "Bachelor" },
+    { value: "master", ar: "ماجستير", en: "Master" },
+    { value: "phd", ar: "دكتوراه", en: "PhD" },
+    { value: "diploma", ar: "دبلوم", en: "Diploma" },
+    { value: "high_diploma", ar: "دبلوم عالي", en: "High Diploma" },
+  ];
+
+  const ratingOptions = [
+    { value: "excellent", ar: "ممتاز", en: "Excellent" },
+    { value: "very_good", ar: "جيد جداً", en: "Very Good" },
+    { value: "good", ar: "جيد", en: "Good" },
+    { value: "acceptable", ar: "مقبول", en: "Acceptable" },
+    { value: "fail", ar: "راسب", en: "Fail" },
+  ];
+
+  const openAddResult = () => {
+    setEditingResult(null);
+    setResultForm({ student_name: "", department_name: "", academic_degree: "", grade: "", rating: "", notes: "" });
+    setShowResultDialog(true);
+  };
+
+  const openEditResult = (result: any) => {
+    setEditingResult(result);
+    setResultForm({
+      student_name: result.student_name,
+      department_name: result.department_name,
+      academic_degree: result.academic_degree || "",
+      grade: result.grade?.toString() || "",
+      rating: result.rating || "",
+      notes: result.notes || "",
+    });
+    setShowResultDialog(true);
+  };
+
+  const handleSaveResult = async () => {
+    if (!resultForm.student_name.trim() || !resultForm.department_name.trim()) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى ملء اسم الطالب والقسم" : "Please fill student name and department", variant: "destructive" });
+      return;
+    }
+    setSavingResult(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const payload = {
+        institution_id: institutionId,
+        institution_type: institutionType,
+        student_name: resultForm.student_name.trim(),
+        department_name: resultForm.department_name.trim(),
+        academic_degree: resultForm.academic_degree,
+        grade: resultForm.grade ? parseFloat(resultForm.grade) : null,
+        rating: resultForm.rating,
+        notes: resultForm.notes.trim() || null,
+        created_by: user.id,
+      };
+      if (editingResult) {
+        const { error } = await supabase.from("student_results").update(payload).eq("id", editingResult.id);
+        if (error) throw error;
+        setStudentResults(prev => prev.map(r => r.id === editingResult.id ? { ...r, ...payload } : r));
+        sonnerToast.success(isRtl ? "تم تحديث النتيجة" : "Result updated");
+      } else {
+        const { data, error } = await supabase.from("student_results").insert(payload).select().single();
+        if (error) throw error;
+        setStudentResults(prev => [data, ...prev]);
+        sonnerToast.success(isRtl ? "تمت إضافة النتيجة" : "Result added");
+      }
+      setShowResultDialog(false);
+    } catch (err: any) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setSavingResult(false);
+    }
+  };
+
+  const handleDeleteResult = async (id: string) => {
+    const { error } = await supabase.from("student_results").delete().eq("id", id);
+    if (!error) {
+      setStudentResults(prev => prev.filter(r => r.id !== id));
+      sonnerToast.success(isRtl ? "تم حذف النتيجة" : "Result deleted");
+    }
+  };
+
+  const getRatingColor = (rating: string) => {
+    switch (rating) {
+      case "excellent": return "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20";
+      case "very_good": return "text-blue-600 bg-blue-50 dark:bg-blue-950/20";
+      case "good": return "text-amber-600 bg-amber-50 dark:bg-amber-950/20";
+      case "acceptable": return "text-orange-600 bg-orange-50 dark:bg-orange-950/20";
+      case "fail": return "text-red-600 bg-red-50 dark:bg-red-950/20";
+      default: return "text-muted-foreground";
+    }
+  };
+
+  const getRatingLabel = (rating: string) => {
+    const opt = ratingOptions.find(o => o.value === rating);
+    return opt ? (isRtl ? opt.ar : opt.en) : rating;
+  };
+
+  const getDegreeLabel = (degree: string) => {
+    const opt = degreeOptions.find(o => o.value === degree);
+    return opt ? (isRtl ? opt.ar : opt.en) : degree;
+  };
+
     d.department_name.toLowerCase().includes(deptSearch.toLowerCase())
   );
 

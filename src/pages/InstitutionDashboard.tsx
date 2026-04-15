@@ -60,7 +60,9 @@ const InstitutionDashboard = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("overview");
+  const searchParams = new URLSearchParams(window.location.search);
+  const initialTab = searchParams.get("tab") || "overview";
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [institutionType, setInstitutionType] = useState<"college" | "institute" | null>(null);
   const [institutionName, setInstitutionName] = useState("");
   const [institutionId, setInstitutionId] = useState("");
@@ -530,15 +532,15 @@ const InstitutionDashboard = () => {
                   <Bell className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold">{isRtl ? "الإشعارات" : "Notifications"}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setActiveTab("departments")}>
+                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setActiveTab("departments"); window.history.pushState({}, '', '/institution/dashboard?tab=departments'); }}>
                   <BookOpen className="w-4 h-4 text-blue-500" />
                   <span className="text-sm font-semibold">{isRtl ? "الأقسام" : "Departments"}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setActiveTab("quizmanage")}>
+                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setActiveTab("quizmanage"); window.history.pushState({}, '', '/institution/dashboard?tab=quizmanage'); }}>
                   <ClipboardList className="w-4 h-4 text-purple-500" />
                   <span className="text-sm font-semibold">{isRtl ? "الاختبارات" : "Quizzes"}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setActiveTab("invitations")}>
+                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setActiveTab("invitations"); window.history.pushState({}, '', '/institution/dashboard?tab=invitations'); }}>
                   <LinkIcon className="w-4 h-4 text-indigo-500" />
                   <span className="text-sm font-semibold">{isRtl ? "الدعوات" : "Invitations"}</span>
                 </DropdownMenuItem>

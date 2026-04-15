@@ -2102,11 +2102,13 @@ const InstitutionDashboard = () => {
               {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
               {isRtl ? "الرئيسية" : "Home"}
             </Button>
-            <div className="mb-6">
-              <h2 className="text-xl font-bold text-foreground mb-2">{isRtl ? "الإشعارات" : "Notifications"}</h2>
-              <p className="text-sm text-muted-foreground">{isRtl ? "جميع الإشعارات والتنبيهات" : "All notifications and alerts"}</p>
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-foreground mb-2">{isRtl ? "الإشعارات" : "Notifications"}</h2>
+                <p className="text-sm text-muted-foreground">{isRtl ? "جميع الإشعارات والتنبيهات" : "All notifications and alerts"}</p>
+              </div>
             </div>
-            <NotificationBell renderAsList />
+            <NotificationsListInline isRtl={isRtl} />
           </TabsContent>
         </Tabs>
         )}

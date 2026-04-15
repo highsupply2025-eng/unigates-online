@@ -540,15 +540,15 @@ const InstitutionDashboard = () => {
                   <Bell className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold">{isRtl ? "الإشعارات" : "Notifications"}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setActiveTab("departments"); window.history.pushState({}, '', '/institution/dashboard?tab=departments'); }}>
+                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("departments")}>
                   <BookOpen className="w-4 h-4 text-blue-500" />
                   <span className="text-sm font-semibold">{isRtl ? "الأقسام" : "Departments"}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setActiveTab("quizmanage"); window.history.pushState({}, '', '/institution/dashboard?tab=quizmanage'); }}>
+                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("quizmanage")}>
                   <ClipboardList className="w-4 h-4 text-purple-500" />
                   <span className="text-sm font-semibold">{isRtl ? "الاختبارات" : "Quizzes"}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setActiveTab("invitations"); window.history.pushState({}, '', '/institution/dashboard?tab=invitations'); }}>
+                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("invitations")}>
                   <LinkIcon className="w-4 h-4 text-indigo-500" />
                   <span className="text-sm font-semibold">{isRtl ? "الدعوات" : "Invitations"}</span>
                 </DropdownMenuItem>
@@ -896,7 +896,7 @@ const InstitutionDashboard = () => {
             )}
           </div>
         ) : (
-        <Tabs value={activeTab} onValueChange={setActiveTab} dir={dir}>
+        <Tabs value={activeTab} onValueChange={handleTabChange} dir={dir}>
           <TabsList className={`grid w-full ${isLeadershipRole ? "grid-cols-7" : "grid-cols-3"} mb-6 h-auto p-1`}>
             <TabsTrigger value="overview" className="gap-1.5 text-xs py-2.5 data-[state=active]:text-primary data-[state=active]:shadow-md">
               <Layers className="w-5 h-5 text-teal-500" />
@@ -985,21 +985,21 @@ const InstitutionDashboard = () => {
             {isLeadershipRole && (
               <>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <Card className="border-2 border-red-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab("livestreams")}>
+                <Card className="border-2 border-red-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleTabChange("livestreams")}>
                   <CardContent className="p-5 text-center">
                     <Radio className="w-8 h-8 text-red-500 mx-auto mb-2" />
                     <p className="text-3xl font-black text-red-600">{liveNow.length}</p>
                     <p className="text-sm text-muted-foreground">{isRtl ? "بث مباشر الآن" : "Live Now"}</p>
                   </CardContent>
                 </Card>
-                <Card className="border-2 border-blue-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab("livestreams")}>
+                <Card className="border-2 border-blue-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleTabChange("livestreams")}>
                   <CardContent className="p-5 text-center">
                     <Clock className="w-8 h-8 text-blue-500 mx-auto mb-2" />
                     <p className="text-3xl font-black text-blue-600">{scheduledStreams.length}</p>
                     <p className="text-sm text-muted-foreground">{isRtl ? "بث مجدول" : "Scheduled"}</p>
                   </CardContent>
                 </Card>
-                <Card className="border-2 border-primary/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab("livestreams")}>
+                <Card className="border-2 border-primary/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleTabChange("livestreams")}>
                   <CardContent className="p-5 text-center">
                     <Radio className="w-8 h-8 text-primary mx-auto mb-2" />
                     <p className="text-3xl font-black text-primary">{totalStreams}</p>
@@ -1008,14 +1008,14 @@ const InstitutionDashboard = () => {
                 </Card>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <Card className="border-2 border-purple-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab("quizresults")}>
+                <Card className="border-2 border-purple-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleTabChange("quizresults")}>
                   <CardContent className="p-5 text-center">
                     <CheckCircle className="w-8 h-8 text-purple-500 mx-auto mb-2" />
                     <p className="text-3xl font-black text-purple-600">{quizzes.length}</p>
                     <p className="text-sm text-muted-foreground">{isRtl ? "الاختبارات" : "Quizzes"}</p>
                   </CardContent>
                 </Card>
-                <Card className="border-2 border-amber-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab("quizresults")}>
+                <Card className="border-2 border-amber-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleTabChange("quizresults")}>
                   <CardContent className="p-5 text-center">
                     <GraduationCap className="w-8 h-8 text-amber-500 mx-auto mb-2" />
                     <p className="text-3xl font-black text-amber-600">{quizSubmissions.length}</p>
@@ -1024,7 +1024,7 @@ const InstitutionDashboard = () => {
                 </Card>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <Card className="border-2 border-amber-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab("ratings")}>
+                <Card className="border-2 border-amber-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleTabChange("ratings")}>
                   <CardContent className="p-5 text-center">
                     <Star className="w-8 h-8 text-amber-500 mx-auto mb-2" />
                     <p className="text-3xl font-black text-amber-600">
@@ -1033,7 +1033,7 @@ const InstitutionDashboard = () => {
                     <p className="text-sm text-muted-foreground">{isRtl ? "متوسط تقييم المحاضرين" : "Avg Lecturer Rating"}</p>
                   </CardContent>
                 </Card>
-                <Card className="border-2 border-blue-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab("ratings")}>
+                <Card className="border-2 border-blue-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleTabChange("ratings")}>
                   <CardContent className="p-5 text-center">
                     <GraduationCap className="w-8 h-8 text-blue-500 mx-auto mb-2" />
                     <p className="text-3xl font-black text-blue-600">{lecturerRatings.length}</p>
@@ -1049,7 +1049,7 @@ const InstitutionDashboard = () => {
                 <CardContent className="text-center py-10 text-muted-foreground">
                   <Layers className="w-12 h-12 mx-auto mb-3 opacity-30" />
                   <p>{isRtl ? "لم يتم إضافة أقسام بعد" : "No departments added yet"}</p>
-                  <Button className="mt-4" onClick={() => { setActiveTab("departments"); setShowAddDeptDialog(true); }}>
+                  <Button className="mt-4" onClick={() => { handleTabChange("departments"); setShowAddDeptDialog(true); }}>
                     <Plus className="w-4 h-4 me-2" />
                     {isRtl ? "إضافة قسم" : "Add Department"}
                   </Button>
@@ -1083,7 +1083,7 @@ const InstitutionDashboard = () => {
 
           {/* Departments Tab */}
           <TabsContent value="departments">
-            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => { setActiveTab("overview"); window.history.pushState({}, '', '/institution/dashboard'); }}>
+            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
               {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
               {isRtl ? "الرئيسية" : "Home"}
             </Button>
@@ -1192,7 +1192,7 @@ const InstitutionDashboard = () => {
           {/* Live Streams Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="livestreams">
-              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => { setActiveTab("overview"); window.history.pushState({}, '', '/institution/dashboard'); }}>
+              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
                 {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
@@ -1337,7 +1337,7 @@ const InstitutionDashboard = () => {
           {/* Quiz Results Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="quizresults">
-              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => { setActiveTab("overview"); window.history.pushState({}, '', '/institution/dashboard'); }}>
+              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
                 {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
@@ -1447,7 +1447,7 @@ const InstitutionDashboard = () => {
           {/* Schedules Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="schedules">
-              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => { setActiveTab("overview"); window.history.pushState({}, '', '/institution/dashboard'); }}>
+              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
                 {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
@@ -1548,7 +1548,7 @@ const InstitutionDashboard = () => {
           {/* Ratings Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="ratings">
-              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => { setActiveTab("overview"); window.history.pushState({}, '', '/institution/dashboard'); }}>
+              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
                 {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
@@ -1765,7 +1765,7 @@ const InstitutionDashboard = () => {
 
           {/* Quiz Management Tab */}
           <TabsContent value="quizmanage">
-            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => { setActiveTab("overview"); window.history.pushState({}, '', '/institution/dashboard'); }}>
+            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
               {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
               {isRtl ? "الرئيسية" : "Home"}
             </Button>
@@ -1834,7 +1834,7 @@ const InstitutionDashboard = () => {
 
           {/* Invitations Tab - Links & Codes */}
           <TabsContent value="invitations">
-            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => { setActiveTab("overview"); window.history.pushState({}, '', '/institution/dashboard'); }}>
+            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
               {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
               {isRtl ? "الرئيسية" : "Home"}
             </Button>

@@ -792,7 +792,7 @@ const LecturerDashboard = () => {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {courses.map(course => (
-                      <Card key={course.id} className="cursor-pointer card-hover" onClick={() => openQuizzes(course.id)}>
+                      <Card key={course.id} className="cursor-pointer card-hover" onClick={() => navigate(`/quiz/create/${course.id}`)}>
                         <CardContent className="p-5 text-center">
                           <HelpCircle className="w-10 h-10 text-amber-500 mx-auto mb-3" />
                           <h3 className="font-bold text-foreground mb-1">{isRtl ? course.title_ar : course.title_en}</h3>

@@ -908,6 +908,10 @@ const InstitutionDashboard = () => {
                 {isRtl ? "التقييم" : "Ratings"}
               </TabsTrigger>
             )}
+            <TabsTrigger value="quizmanage" className="gap-1 text-xs">
+              <ClipboardList className="w-4 h-4" />
+              {isRtl ? "الاختبارات" : "Quizzes"}
+            </TabsTrigger>
             <TabsTrigger value="invitations" className="gap-1 text-xs">
               <LinkIcon className="w-4 h-4" />
               {isRtl ? "الدعوات" : "Codes"}
@@ -1716,6 +1720,63 @@ const InstitutionDashboard = () => {
               })()}
             </TabsContent>
           )}
+
+          {/* Quiz Management Tab */}
+          <TabsContent value="quizmanage">
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-foreground mb-2">{isRtl ? "إدارة الاختبارات" : "Quiz Management"}</h2>
+              <p className="text-sm text-muted-foreground">{isRtl ? "إنشاء وإدارة اختبارات الدورات" : "Create and manage course quizzes"}</p>
+            </div>
+            {(() => {
+              const courseIds = [...new Set(quizzes.map(q => q.course_id))];
+              if (courseIds.length === 0) {
+                return (
+                  <Card>
+                    <CardContent className="py-16 text-center">
+                      <ClipboardList className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />
+                      <p className="text-lg font-bold text-muted-foreground mb-2">{isRtl ? "لا توجد اختبارات بعد" : "No quizzes yet"}</p>
+                      <p className="text-sm text-muted-foreground">{isRtl ? "سيظهر هنا اختبارات الدورات المسجلة" : "Course quizzes will appear here"}</p>
+                    </CardContent>
+                  </Card>
+                );
+              }
+              return (
+                <div className="space-y-4">
+                  {quizzes.map(quiz => {
+                    const subs = quizSubmissions.filter(s => s.quiz_id === quiz.id);
+                    return (
+                      <Card key={quiz.id} className="hover:shadow-md transition-shadow">
+                        <CardContent className="p-5">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <h3 className="font-bold text-foreground">{isRtl ? quiz.title_ar : quiz.title_en}</h3>
+                                <Badge variant={quiz.is_published ? "default" : "secondary"}>
+                                  {quiz.is_published ? (isRtl ? "منشور ✅" : "Published ✅") : (isRtl ? "مسودة" : "Draft")}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{quiz.duration_minutes} {isRtl ? "دقيقة" : "min"}</span>
+                                <span>{subs.length} {isRtl ? "تقديم" : "submissions"}</span>
+                                {subs.length > 0 && (
+                                  <Badge variant={Math.round(subs.reduce((a: number, s: any) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / subs.length) >= 50 ? "default" : "destructive"}>
+                                    {Math.round(subs.reduce((a: number, s: any) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / subs.length)}%
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            <Button size="sm" variant="outline" className="gap-2" onClick={() => navigate(`/quiz/create/${quiz.course_id}`)}>
+                              <Eye className="w-4 h-4" />{isRtl ? "إدارة" : "Manage"}
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+          </TabsContent>
 
           {/* Invitations Tab - Links & Codes */}
           <TabsContent value="invitations">

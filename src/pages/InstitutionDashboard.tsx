@@ -1044,145 +1044,118 @@ const InstitutionDashboard = () => {
             </TabsTrigger>
           </TabsList>
 
-          {/* Overview Tab */}
+          {/* Overview Tab - Statistics Dashboard */}
           <TabsContent value="overview">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent hover:shadow-lg hover:shadow-primary/10 transition-all">
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-foreground mb-1">{isRtl ? "لوحة التحكم" : "Dashboard"}</h2>
+              <p className="text-sm text-muted-foreground">{isRtl ? "ملخص إحصائيات المؤسسة" : "Institution statistics summary"}</p>
+            </div>
+
+            {/* Main Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent hover:shadow-lg hover:shadow-primary/10 transition-all cursor-pointer" onClick={() => handleTabChange("departments")}>
                 <CardContent className="p-5 text-center">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center mx-auto mb-3 shadow-md shadow-primary/20">
-                    <Layers className="w-7 h-7 text-white" />
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center mx-auto mb-2 shadow-md shadow-primary/20">
+                    <BookOpen className="w-6 h-6 text-white" />
                   </div>
-                  <p className="text-3xl font-black text-foreground">{totalDepts}</p>
-                  <p className="text-sm text-muted-foreground">{isRtl ? "الأقسام" : "Departments"}</p>
+                  <p className="text-2xl font-black text-foreground">{totalDepts}</p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "الأقسام" : "Departments"}</p>
                 </CardContent>
               </Card>
-              <Card className="border-2 border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-transparent hover:shadow-lg hover:shadow-blue-500/10 transition-all">
+              <Card className="border-2 border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-transparent hover:shadow-lg hover:shadow-blue-500/10 transition-all cursor-pointer" onClick={() => handleTabChange("departments")}>
                 <CardContent className="p-5 text-center">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mx-auto mb-3 shadow-md shadow-blue-500/20">
-                    <GraduationCap className="w-7 h-7 text-white" />
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mx-auto mb-2 shadow-md shadow-blue-500/20">
+                    <GraduationCap className="w-6 h-6 text-white" />
                   </div>
-                  <p className="text-3xl font-black text-foreground">{totalStudents}</p>
-                  <p className="text-sm text-muted-foreground">{isRtl ? "الطلاب" : "Students"}</p>
+                  <p className="text-2xl font-black text-foreground">{totalStudents}</p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "الطلاب" : "Students"}</p>
                 </CardContent>
               </Card>
-              <Card className="border-2 border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent hover:shadow-lg hover:shadow-green-500/10 transition-all">
+              <Card className="border-2 border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent hover:shadow-lg hover:shadow-green-500/10 transition-all cursor-pointer" onClick={() => handleTabChange("departments")}>
                 <CardContent className="p-5 text-center">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center mx-auto mb-3 shadow-md shadow-green-500/20">
-                    <UserCheck className="w-7 h-7 text-white" />
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center mx-auto mb-2 shadow-md shadow-green-500/20">
+                    <UserCheck className="w-6 h-6 text-white" />
                   </div>
-                  <p className="text-3xl font-black text-foreground">{totalLecturers}</p>
-                  <p className="text-sm text-muted-foreground">{isRtl ? "المحاضرين" : "Lecturers"}</p>
+                  <p className="text-2xl font-black text-foreground">{totalLecturers}</p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "المحاضرين" : "Lecturers"}</p>
                 </CardContent>
               </Card>
-              <Card className="border-2 border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent hover:shadow-lg hover:shadow-emerald-500/10 transition-all">
+              <Card className="border-2 border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent hover:shadow-lg hover:shadow-emerald-500/10 transition-all cursor-pointer" onClick={() => handleTabChange("departments")}>
                 <CardContent className="p-5 text-center">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mx-auto mb-3 shadow-md shadow-emerald-500/20">
-                    <CheckCircle className="w-7 h-7 text-white" />
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mx-auto mb-2 shadow-md shadow-emerald-500/20">
+                    <CheckCircle className="w-6 h-6 text-white" />
                   </div>
-                  <p className="text-3xl font-black text-foreground">{paidDepts}/{totalDepts}</p>
-                  <p className="text-sm text-muted-foreground">{isRtl ? "أقسام مفعّلة" : "Active Departments"}</p>
+                  <p className="text-2xl font-black text-foreground">{paidDepts}/{totalDepts}</p>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "أقسام مفعّلة" : "Active Depts"}</p>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Live Stream Stats - Only for leadership roles */}
+            {/* Section Stats - Leadership */}
             {isLeadershipRole && (
-              <>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <Card className="border-2 border-red-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleTabChange("livestreams")}>
-                  <CardContent className="p-5 text-center">
-                    <Radio className="w-8 h-8 text-red-500 mx-auto mb-2" />
-                    <p className="text-3xl font-black text-red-600">{liveNow.length}</p>
-                    <p className="text-sm text-muted-foreground">{isRtl ? "بث مباشر الآن" : "Live Now"}</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                <Card className="border-2 border-red-500/20 cursor-pointer hover:shadow-lg transition-all" onClick={() => handleTabChange("livestreams")}>
+                  <CardContent className="p-4 text-center">
+                    <Radio className="w-7 h-7 text-red-500 mx-auto mb-2" />
+                    <p className="text-2xl font-black text-red-600">{liveNow.length}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "بث مباشر الآن" : "Live Now"}</p>
                   </CardContent>
                 </Card>
-                <Card className="border-2 border-blue-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleTabChange("livestreams")}>
-                  <CardContent className="p-5 text-center">
-                    <Clock className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                    <p className="text-3xl font-black text-blue-600">{scheduledStreams.length}</p>
-                    <p className="text-sm text-muted-foreground">{isRtl ? "بث مجدول" : "Scheduled"}</p>
+                <Card className="border-2 border-purple-500/20 cursor-pointer hover:shadow-lg transition-all" onClick={() => handleTabChange("quizresults")}>
+                  <CardContent className="p-4 text-center">
+                    <ClipboardList className="w-7 h-7 text-purple-500 mx-auto mb-2" />
+                    <p className="text-2xl font-black text-purple-600">{quizzes.length}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "الاختبارات" : "Quizzes"}</p>
                   </CardContent>
                 </Card>
-                <Card className="border-2 border-primary/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleTabChange("livestreams")}>
-                  <CardContent className="p-5 text-center">
-                    <Radio className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <p className="text-3xl font-black text-primary">{totalStreams}</p>
-                    <p className="text-sm text-muted-foreground">{isRtl ? "إجمالي البثوث" : "Total Streams"}</p>
-                  </CardContent>
-                </Card>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <Card className="border-2 border-purple-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleTabChange("quizresults")}>
-                  <CardContent className="p-5 text-center">
-                    <CheckCircle className="w-8 h-8 text-purple-500 mx-auto mb-2" />
-                    <p className="text-3xl font-black text-purple-600">{quizzes.length}</p>
-                    <p className="text-sm text-muted-foreground">{isRtl ? "الاختبارات" : "Quizzes"}</p>
-                  </CardContent>
-                </Card>
-                <Card className="border-2 border-amber-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleTabChange("quizresults")}>
-                  <CardContent className="p-5 text-center">
-                    <GraduationCap className="w-8 h-8 text-amber-500 mx-auto mb-2" />
-                    <p className="text-3xl font-black text-amber-600">{quizSubmissions.length}</p>
-                    <p className="text-sm text-muted-foreground">{isRtl ? "تقديمات الاختبارات" : "Quiz Submissions"}</p>
-                  </CardContent>
-                </Card>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <Card className="border-2 border-amber-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleTabChange("ratings")}>
-                  <CardContent className="p-5 text-center">
-                    <Star className="w-8 h-8 text-amber-500 mx-auto mb-2" />
-                    <p className="text-3xl font-black text-amber-600">
+                <Card className="border-2 border-amber-500/20 cursor-pointer hover:shadow-lg transition-all" onClick={() => handleTabChange("ratings")}>
+                  <CardContent className="p-4 text-center">
+                    <Star className="w-7 h-7 text-amber-500 mx-auto mb-2" />
+                    <p className="text-2xl font-black text-amber-600">
                       {lecturerRatings.length > 0 ? (lecturerRatings.reduce((a: number, r: any) => a + r.rating, 0) / lecturerRatings.length).toFixed(1) : "0.0"}
                     </p>
-                    <p className="text-sm text-muted-foreground">{isRtl ? "متوسط تقييم المحاضرين" : "Avg Lecturer Rating"}</p>
-                  </CardContent>
-                </Card>
-                <Card className="border-2 border-blue-500/20 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleTabChange("ratings")}>
-                  <CardContent className="p-5 text-center">
-                    <GraduationCap className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                    <p className="text-3xl font-black text-blue-600">{lecturerRatings.length}</p>
-                    <p className="text-sm text-muted-foreground">{isRtl ? "إجمالي التقييمات" : "Total Ratings"}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
                   </CardContent>
                 </Card>
               </div>
-              </>
             )}
 
-            {departments.length === 0 ? (
-              <Card>
-                <CardContent className="text-center py-10 text-muted-foreground">
-                  <Layers className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                  <p>{isRtl ? "لم يتم إضافة أقسام بعد" : "No departments added yet"}</p>
-                  <Button className="mt-4" onClick={() => { handleTabChange("departments"); setShowAddDeptDialog(true); }}>
-                    <Plus className="w-4 h-4 me-2" />
-                    {isRtl ? "إضافة قسم" : "Add Department"}
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle>{isRtl ? "أحدث الأقسام" : "Recent Departments"}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {departments.slice(0, 5).map(dept => (
-                      <div key={dept.id} className="flex items-center justify-between p-3 rounded-lg border">
-                        <div>
-                          <p className="font-bold text-foreground">{dept.department_name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {dept.student_count} {isRtl ? "طالب" : "students"} · {getMembersForDept(dept.id).filter(m => m.role === "lecturer").length} {isRtl ? "محاضر" : "lecturers"} · {dept.payment_amount} {isRtl ? "جنيه شهرياً" : "EGP/month"}
-                          </p>
-                        </div>
-                        <Badge variant={dept.status === "active" ? "default" : "secondary"}>
-                          {dept.status === "active" ? (isRtl ? "مفعّل ✅" : "Active ✅") : (isRtl ? "بانتظار الموافقة" : "Pending")}
-                        </Badge>
-                      </div>
-                    ))}
+            {/* Quick Access Cards */}
+            <h3 className="text-lg font-bold text-foreground mb-3">{isRtl ? "الوصول السريع" : "Quick Access"}</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <Card className="cursor-pointer hover:shadow-md transition-all group" onClick={() => handleTabChange("departments")}>
+                <CardContent className="p-4 flex flex-col items-center gap-2">
+                  <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <BookOpen className="w-5 h-5 text-blue-600" />
                   </div>
+                  <p className="text-xs font-semibold text-center">{isRtl ? "الأقسام" : "Departments"}</p>
                 </CardContent>
               </Card>
-            )}
+              <Card className="cursor-pointer hover:shadow-md transition-all group" onClick={() => handleTabChange("quizmanage")}>
+                <CardContent className="p-4 flex flex-col items-center gap-2">
+                  <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <ClipboardList className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <p className="text-xs font-semibold text-center">{isRtl ? "الاختبارات" : "Quizzes"}</p>
+                </CardContent>
+              </Card>
+              <Card className="cursor-pointer hover:shadow-md transition-all group" onClick={() => handleTabChange("invitations")}>
+                <CardContent className="p-4 flex flex-col items-center gap-2">
+                  <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <LinkIcon className="w-5 h-5 text-indigo-600" />
+                  </div>
+                  <p className="text-xs font-semibold text-center">{isRtl ? "الدعوات" : "Invitations"}</p>
+                </CardContent>
+              </Card>
+              <Card className="cursor-pointer hover:shadow-md transition-all group" onClick={() => handleTabChange("notifications")}>
+                <CardContent className="p-4 flex flex-col items-center gap-2">
+                  <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Bell className="w-5 h-5 text-teal-600" />
+                  </div>
+                  <p className="text-xs font-semibold text-center">{isRtl ? "الإشعارات" : "Notifications"}</p>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           {/* Departments Tab */}

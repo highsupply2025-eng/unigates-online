@@ -772,6 +772,122 @@ export type Database = {
         }
         Relationships: []
       }
+      institution_quiz_questions: {
+        Row: {
+          correct_answer: string
+          created_at: string
+          id: string
+          option_a_ar: string
+          option_a_en: string
+          option_b_ar: string
+          option_b_en: string
+          option_c_ar: string
+          option_c_en: string
+          option_d_ar: string
+          option_d_en: string
+          points: number
+          question_ar: string
+          question_en: string
+          question_order: number
+          quiz_id: string
+        }
+        Insert: {
+          correct_answer?: string
+          created_at?: string
+          id?: string
+          option_a_ar?: string
+          option_a_en?: string
+          option_b_ar?: string
+          option_b_en?: string
+          option_c_ar?: string
+          option_c_en?: string
+          option_d_ar?: string
+          option_d_en?: string
+          points?: number
+          question_ar: string
+          question_en: string
+          question_order?: number
+          quiz_id: string
+        }
+        Update: {
+          correct_answer?: string
+          created_at?: string
+          id?: string
+          option_a_ar?: string
+          option_a_en?: string
+          option_b_ar?: string
+          option_b_en?: string
+          option_c_ar?: string
+          option_c_en?: string
+          option_d_ar?: string
+          option_d_en?: string
+          points?: number
+          question_ar?: string
+          question_en?: string
+          question_order?: number
+          quiz_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institution_quiz_questions_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "institution_quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      institution_quizzes: {
+        Row: {
+          created_at: string
+          created_by: string
+          department_name: string | null
+          description_ar: string | null
+          description_en: string | null
+          due_date: string | null
+          duration_minutes: number | null
+          id: string
+          institution_id: string
+          institution_type: string
+          is_published: boolean | null
+          title_ar: string
+          title_en: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          department_name?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          due_date?: string | null
+          duration_minutes?: number | null
+          id?: string
+          institution_id: string
+          institution_type?: string
+          is_published?: boolean | null
+          title_ar: string
+          title_en: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          department_name?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          due_date?: string | null
+          duration_minutes?: number | null
+          id?: string
+          institution_id?: string
+          institution_type?: string
+          is_published?: boolean | null
+          title_ar?: string
+          title_en?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lecture_schedules: {
         Row: {
           course_id: string

@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ChevronLeft, ChevronRight, Plus, Trash2, CheckCircle, Clock, HelpCircle,
-  GraduationCap, Save, Eye, EyeOff, BarChart3, Loader2, FileQuestion, ListChecks
+  GraduationCap, Save, Eye, EyeOff, BarChart3, Loader2, FileQuestion, ListChecks,
+  Pencil, ArrowUp, ArrowDown, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,6 +55,9 @@ const QuizCreate = () => {
     correct_answer: "a", points: 1,
   });
   const [savingQuestion, setSavingQuestion] = useState(false);
+  const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
+  const [editQuestion, setEditQuestion] = useState<any>(null);
+  const [savingEdit, setSavingEdit] = useState(false);
 
   // Results
   const [quizSubmissions, setQuizSubmissions] = useState<any[]>([]);
@@ -161,6 +165,47 @@ const QuizCreate = () => {
     await supabase.from("quiz_questions").delete().eq("id", questionId);
     if (selectedQuizId) await loadQuizQuestions(selectedQuizId);
     toast({ title: isRtl ? "تم حذف السؤال" : "Question deleted" });
+  };
+
+  const startEditQuestion = (q: any) => {
+    setEditingQuestionId(q.id);
+    setEditQuestion({
+      question_ar: q.question_ar, question_en: q.question_en,
+      option_a_ar: q.option_a_ar, option_a_en: q.option_a_en,
+      option_b_ar: q.option_b_ar, option_b_en: q.option_b_en,
+      option_c_ar: q.option_c_ar, option_c_en: q.option_c_en,
+      option_d_ar: q.option_d_ar, option_d_en: q.option_d_en,
+      correct_answer: q.correct_answer, points: q.points,
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingQuestionId || !editQuestion) return;
+    setSavingEdit(true);
+    try {
+      const { error } = await supabase.from("quiz_questions").update(editQuestion as any).eq("id", editingQuestionId);
+      if (error) throw error;
+      setEditingQuestionId(null);
+      setEditQuestion(null);
+      if (selectedQuizId) await loadQuizQuestions(selectedQuizId);
+      toast({ title: isRtl ? "تم تعديل السؤال ✅" : "Question updated ✅" });
+    } catch (err: any) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
+    } finally { setSavingEdit(false); }
+  };
+
+  const handleReorder = async (questionId: string, direction: "up" | "down") => {
+    const idx = quizQuestions.findIndex(q => q.id === questionId);
+    if (idx < 0) return;
+    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= quizQuestions.length) return;
+    const a = quizQuestions[idx];
+    const b = quizQuestions[swapIdx];
+    await Promise.all([
+      supabase.from("quiz_questions").update({ question_order: b.question_order } as any).eq("id", a.id),
+      supabase.from("quiz_questions").update({ question_order: a.question_order } as any).eq("id", b.id),
+    ]);
+    if (selectedQuizId) await loadQuizQuestions(selectedQuizId);
   };
 
   const openResults = async (quizId: string) => {
@@ -361,29 +406,95 @@ const QuizCreate = () => {
                 {quizQuestions.length > 0 && (
                   <div className="space-y-3">
                     {quizQuestions.map((q, i) => (
-                      <Card key={q.id}>
+                      <Card key={q.id} className={editingQuestionId === q.id ? "border-primary ring-1 ring-primary/30" : ""}>
                         <CardContent className="p-4">
-                          <div className="flex items-start justify-between mb-3">
-                            <p className="font-bold text-foreground">
-                              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary text-primary-foreground text-sm me-2">{i + 1}</span>
-                              {isRtl ? q.question_ar : q.question_en}
-                            </p>
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline">{q.points} {isRtl ? "درجة" : "pts"}</Badge>
-                              <Button size="sm" variant="ghost" onClick={() => handleDeleteQuestion(q.id)} className="text-destructive hover:text-destructive">
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            {['a', 'b', 'c', 'd'].map(opt => (
-                              <div key={opt} className={`p-3 rounded-lg border text-sm ${q.correct_answer === opt ? 'bg-green-50 border-green-300 dark:bg-green-950/30 dark:border-green-700' : 'bg-muted/30'}`}>
-                                <span className="font-bold me-2 text-muted-foreground">{opt.toUpperCase()}.</span>
-                                {isRtl ? q[`option_${opt}_ar`] : q[`option_${opt}_en`]}
-                                {q.correct_answer === opt && <CheckCircle className="w-4 h-4 text-green-500 inline ms-2" />}
+                          {editingQuestionId === q.id && editQuestion ? (
+                            /* ===== EDIT MODE ===== */
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between mb-2">
+                                <p className="text-sm font-bold text-primary">{isRtl ? `تعديل السؤال ${i + 1}` : `Edit Question ${i + 1}`}</p>
+                                <Button size="sm" variant="ghost" onClick={() => { setEditingQuestionId(null); setEditQuestion(null); }}><X className="w-4 h-4" /></Button>
                               </div>
-                            ))}
-                          </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                  <Label className="text-xs mb-1 block">{isRtl ? "السؤال (عربي)" : "Question (Arabic)"}</Label>
+                                  <Textarea value={editQuestion.question_ar} onChange={e => setEditQuestion((p: any) => ({ ...p, question_ar: e.target.value }))} rows={2} />
+                                </div>
+                                <div>
+                                  <Label className="text-xs mb-1 block">{isRtl ? "السؤال (إنجليزي)" : "Question (English)"}</Label>
+                                  <Textarea value={editQuestion.question_en} onChange={e => setEditQuestion((p: any) => ({ ...p, question_en: e.target.value }))} rows={2} />
+                                </div>
+                              </div>
+                              {['a', 'b', 'c', 'd'].map(opt => (
+                                <div key={opt} className={`grid grid-cols-1 md:grid-cols-2 gap-3 p-2 rounded-lg border ${editQuestion.correct_answer === opt ? 'border-green-300 bg-green-50/50 dark:bg-green-950/20' : ''}`}>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-bold text-xs text-muted-foreground w-5">{opt.toUpperCase()}.</span>
+                                    <Input size={1} value={editQuestion[`option_${opt}_ar`]} onChange={e => setEditQuestion((p: any) => ({ ...p, [`option_${opt}_ar`]: e.target.value }))} />
+                                  </div>
+                                  <Input value={editQuestion[`option_${opt}_en`]} onChange={e => setEditQuestion((p: any) => ({ ...p, [`option_${opt}_en`]: e.target.value }))} />
+                                </div>
+                              ))}
+                              <div className="flex items-center gap-4">
+                                <div className="flex-1">
+                                  <Label className="text-xs mb-1 block">{isRtl ? "الإجابة الصحيحة" : "Correct Answer"}</Label>
+                                  <Select value={editQuestion.correct_answer} onValueChange={v => setEditQuestion((p: any) => ({ ...p, correct_answer: v }))}>
+                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="a">A</SelectItem><SelectItem value="b">B</SelectItem>
+                                      <SelectItem value="c">C</SelectItem><SelectItem value="d">D</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="w-24">
+                                  <Label className="text-xs mb-1 block">{isRtl ? "الدرجة" : "Points"}</Label>
+                                  <Input type="number" min={1} value={editQuestion.points} onChange={e => setEditQuestion((p: any) => ({ ...p, points: parseInt(e.target.value) || 1 }))} />
+                                </div>
+                              </div>
+                              <div className="flex gap-2">
+                                <Button onClick={handleSaveEdit} disabled={savingEdit} className="gap-2">
+                                  {savingEdit ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                  {isRtl ? "حفظ التعديلات" : "Save Changes"}
+                                </Button>
+                                <Button variant="outline" onClick={() => { setEditingQuestionId(null); setEditQuestion(null); }}>
+                                  {isRtl ? "إلغاء" : "Cancel"}
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            /* ===== VIEW MODE ===== */
+                            <>
+                              <div className="flex items-start justify-between mb-3">
+                                <p className="font-bold text-foreground">
+                                  <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary text-primary-foreground text-sm me-2">{i + 1}</span>
+                                  {isRtl ? q.question_ar : q.question_en}
+                                </p>
+                                <div className="flex items-center gap-1">
+                                  <Badge variant="outline">{q.points} {isRtl ? "درجة" : "pts"}</Badge>
+                                  <Button size="sm" variant="ghost" onClick={() => handleReorder(q.id, "up")} disabled={i === 0} className="h-8 w-8 p-0">
+                                    <ArrowUp className="w-3.5 h-3.5" />
+                                  </Button>
+                                  <Button size="sm" variant="ghost" onClick={() => handleReorder(q.id, "down")} disabled={i === quizQuestions.length - 1} className="h-8 w-8 p-0">
+                                    <ArrowDown className="w-3.5 h-3.5" />
+                                  </Button>
+                                  <Button size="sm" variant="ghost" onClick={() => startEditQuestion(q)} className="h-8 w-8 p-0 text-primary hover:text-primary">
+                                    <Pencil className="w-3.5 h-3.5" />
+                                  </Button>
+                                  <Button size="sm" variant="ghost" onClick={() => handleDeleteQuestion(q.id)} className="h-8 w-8 p-0 text-destructive hover:text-destructive">
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </Button>
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                {['a', 'b', 'c', 'd'].map(opt => (
+                                  <div key={opt} className={`p-3 rounded-lg border text-sm ${q.correct_answer === opt ? 'bg-green-50 border-green-300 dark:bg-green-950/30 dark:border-green-700' : 'bg-muted/30'}`}>
+                                    <span className="font-bold me-2 text-muted-foreground">{opt.toUpperCase()}.</span>
+                                    {isRtl ? q[`option_${opt}_ar`] : q[`option_${opt}_en`]}
+                                    {q.correct_answer === opt && <CheckCircle className="w-4 h-4 text-green-500 inline ms-2" />}
+                                  </div>
+                                ))}
+                              </div>
+                            </>
+                          )}
                         </CardContent>
                       </Card>
                     ))}

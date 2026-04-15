@@ -2095,6 +2095,19 @@ const InstitutionDashboard = () => {
               </div>
             )}
           </TabsContent>
+
+          {/* Notifications Tab */}
+          <TabsContent value="notifications">
+            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
+              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              {isRtl ? "الرئيسية" : "Home"}
+            </Button>
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-foreground mb-2">{isRtl ? "الإشعارات" : "Notifications"}</h2>
+              <p className="text-sm text-muted-foreground">{isRtl ? "جميع الإشعارات والتنبيهات" : "All notifications and alerts"}</p>
+            </div>
+            <NotificationBell renderAsList />
+          </TabsContent>
         </Tabs>
         )}
       </main>

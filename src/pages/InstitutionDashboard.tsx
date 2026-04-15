@@ -71,6 +71,12 @@ const InstitutionDashboard = () => {
       setSearchParams({ tab });
     }
   };
+
+  useEffect(() => {
+    const tab = searchParams.get("tab") || "overview";
+    if (tab !== activeTab) setActiveTab(tab);
+  }, [searchParams]);
+
   const [institutionType, setInstitutionType] = useState<"college" | "institute" | null>(null);
   const [institutionName, setInstitutionName] = useState("");
   const [institutionId, setInstitutionId] = useState("");

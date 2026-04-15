@@ -343,6 +343,7 @@ const InstitutionDashboard = () => {
       supabase.from("assignments").select("*").order("created_at", { ascending: false }).limit(50),
       supabase.from("assignment_submissions").select("*").order("submitted_at", { ascending: false }).limit(200),
       supabase.from("student_results").select("*").eq("institution_id", instId).order("created_at", { ascending: false }),
+      supabase.from("institution_quizzes").select("*").eq("institution_id", instId).order("created_at", { ascending: false }),
     ]);
     setLiveStreams(streamsRes.data || []);
     setQuizzes(quizzesRes.data || []);
@@ -352,6 +353,7 @@ const InstitutionDashboard = () => {
     setAssignments(assignmentsRes.data || []);
     setAssignmentSubmissions(assignSubsRes.data || []);
     setStudentResults(resultsRes.data || []);
+    setInstitutionQuizzes(instQuizzesRes.data || []);
 
     // Count unique users per stream
     const counts: Record<string, Set<string>> = {};

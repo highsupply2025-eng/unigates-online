@@ -530,7 +530,7 @@ const InstitutionDashboard = () => {
                   <Bell className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold">{isRtl ? "الإشعارات" : "Notifications"}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setActiveTab("departments")}>
+                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setActiveTab("departments"); window.history.pushState({}, '', '/institution/dashboard?tab=departments'); }}>
                   <BookOpen className="w-4 h-4 text-blue-500" />
                   <span className="text-sm font-semibold">{isRtl ? "الأقسام" : "Departments"}</span>
                 </DropdownMenuItem>

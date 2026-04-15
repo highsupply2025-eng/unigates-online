@@ -1303,6 +1303,17 @@ const InstitutionDashboard = () => {
           {/* Quiz Results Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="quizresults">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-foreground">{isRtl ? "نتائج الاختبارات" : "Quiz Results"}</h2>
+                {quizzes.length > 0 && (
+                  <Button size="sm" variant="outline" className="gap-2" onClick={() => {
+                    const firstCourseId = quizzes[0]?.course_id;
+                    if (firstCourseId) navigate(`/quiz/create/${firstCourseId}`);
+                  }}>
+                    <ClipboardList className="w-4 h-4" />{isRtl ? "إدارة الاختبارات" : "Manage Quizzes"}
+                  </Button>
+                )}
+              </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <Card className="border-2 border-primary/20">
                   <CardContent className="p-4 text-center">

@@ -536,11 +536,11 @@ const InstitutionDashboard = () => {
                   <BookOpen className="w-4 h-4 text-blue-500" />
                   <span className="text-sm font-semibold">{isRtl ? "الأقسام" : "Departments"}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setActiveTab("quizmanage")}>
+                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setActiveTab("quizmanage"); window.history.pushState({}, '', '/institution/dashboard?tab=quizmanage'); }}>
                   <ClipboardList className="w-4 h-4 text-purple-500" />
                   <span className="text-sm font-semibold">{isRtl ? "الاختبارات" : "Quizzes"}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setActiveTab("invitations")}>
+                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setActiveTab("invitations"); window.history.pushState({}, '', '/institution/dashboard?tab=invitations'); }}>
                   <LinkIcon className="w-4 h-4 text-indigo-500" />
                   <span className="text-sm font-semibold">{isRtl ? "الدعوات" : "Invitations"}</span>
                 </DropdownMenuItem>

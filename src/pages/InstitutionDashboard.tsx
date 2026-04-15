@@ -1725,7 +1725,7 @@ const InstitutionDashboard = () => {
           <TabsContent value="quizmanage">
             <div className="mb-6">
               <h2 className="text-xl font-bold text-foreground mb-2">{isRtl ? "إدارة الاختبارات" : "Quiz Management"}</h2>
-              <p className="text-sm text-muted-foreground">{isRtl ? "إنشاء وإدارة اختبارات الدورات" : "Create and manage course quizzes"}</p>
+              <p className="text-sm text-muted-foreground">{isRtl ? "إنشاء وإدارة الاختبارات" : "Create and manage quizzes"}</p>
             </div>
             {(() => {
               const courseIds = [...new Set(quizzes.map(q => q.course_id))];

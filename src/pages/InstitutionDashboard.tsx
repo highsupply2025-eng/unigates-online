@@ -46,6 +46,103 @@ interface DepartmentMember {
   created_at: string;
 }
 
+const NotificationsListInline = ({ isRtl }: { isRtl: boolean }) => {
+  const [notifications, setNotifications] = useState<any[]>([]);
+  
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await supabase
+        .from("notifications")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(100);
+      setNotifications(data || []);
+    };
+    load();
+    const channel = supabase
+      .channel('notifications-inline')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, () => load())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  const markAsRead = async (id: string) => {
+    await supabase.from("notifications").update({ is_read: true }).eq("id", id);
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+  };
+
+  const markAllRead = async () => {
+    const unreadIds = notifications.filter((n: any) => !n.is_read).map((n: any) => n.id);
+    if (unreadIds.length > 0) {
+      await Promise.all(unreadIds.map((id: string) => supabase.from("notifications").update({ is_read: true }).eq("id", id)));
+    }
+    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+  };
+
+  const timeAgo = (date: string) => {
+    const diff = Date.now() - new Date(date).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return isRtl ? "الآن" : "now";
+    if (mins < 60) return isRtl ? `منذ ${mins} د` : `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return isRtl ? `منذ ${hrs} س` : `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    return isRtl ? `منذ ${days} ي` : `${days}d ago`;
+  };
+
+  const typeColors: Record<string, string> = {
+    general: "bg-blue-100 text-blue-700",
+    alert: "bg-red-100 text-red-700",
+    success: "bg-green-100 text-green-700",
+    info: "bg-purple-100 text-purple-700",
+  };
+
+  const unreadCount = notifications.filter((n: any) => !n.is_read).length;
+
+  if (notifications.length === 0) {
+    return (
+      <Card>
+        <CardContent className="py-16 text-center">
+          <Bell className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />
+          <p className="text-lg font-bold text-muted-foreground mb-2">{isRtl ? "لا توجد إشعارات" : "No notifications"}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {unreadCount > 0 && (
+        <div className="flex justify-end mb-3">
+          <Button variant="outline" size="sm" onClick={markAllRead} className="gap-1.5 text-xs">
+            <CheckCircle className="w-3.5 h-3.5" />
+            {isRtl ? "قراءة الكل" : "Mark all read"}
+          </Button>
+        </div>
+      )}
+      {notifications.map((n: any) => (
+        <Card key={n.id} className={`cursor-pointer transition-all hover:shadow-md ${!n.is_read ? "border-primary/30 bg-primary/5" : ""}`} onClick={() => !n.is_read && markAsRead(n.id)}>
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              {!n.is_read && <span className="w-2.5 h-2.5 rounded-full bg-primary mt-1.5 shrink-0" />}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-semibold text-sm">{isRtl ? n.title_ar : n.title_en}</span>
+                  <Badge className={`text-[10px] px-1.5 py-0 ${typeColors[n.notification_type] || typeColors.general}`}>
+                    {n.notification_type}
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">{isRtl ? n.message_ar : n.message_en}</p>
+                <p className="text-xs text-muted-foreground/70 mt-1.5">{timeAgo(n.created_at)}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+};
+
 const generateCode = () => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
@@ -539,10 +636,7 @@ const InstitutionDashboard = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align={isRtl ? 'start' : 'end'} className="w-48">
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => {
-                  const bell = document.querySelector('[data-notification-bell]') as HTMLButtonElement;
-                  bell?.click();
-                }}>
+                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("notifications")}>
                   <Bell className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold">{isRtl ? "الإشعارات" : "Notifications"}</span>
                 </DropdownMenuItem>
@@ -2094,6 +2188,21 @@ const InstitutionDashboard = () => {
                 })()}
               </div>
             )}
+          </TabsContent>
+
+          {/* Notifications Tab */}
+          <TabsContent value="notifications">
+            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("overview")}>
+              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              {isRtl ? "الرئيسية" : "Home"}
+            </Button>
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-foreground mb-2">{isRtl ? "الإشعارات" : "Notifications"}</h2>
+                <p className="text-sm text-muted-foreground">{isRtl ? "جميع الإشعارات والتنبيهات" : "All notifications and alerts"}</p>
+              </div>
+            </div>
+            <NotificationsListInline isRtl={isRtl} />
           </TabsContent>
         </Tabs>
         )}

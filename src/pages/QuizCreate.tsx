@@ -55,6 +55,9 @@ const QuizCreate = () => {
     correct_answer: "a", points: 1,
   });
   const [savingQuestion, setSavingQuestion] = useState(false);
+  const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
+  const [editQuestion, setEditQuestion] = useState<any>(null);
+  const [savingEdit, setSavingEdit] = useState(false);
 
   // Results
   const [quizSubmissions, setQuizSubmissions] = useState<any[]>([]);

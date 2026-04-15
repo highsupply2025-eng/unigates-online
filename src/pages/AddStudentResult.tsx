@@ -32,7 +32,7 @@ const AddStudentResult = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const { language } = useLanguage();
+  const { language, toggleLanguage } = useLanguage();
   const isRtl = language === "ar";
   const dir = isRtl ? "rtl" : "ltr";
 

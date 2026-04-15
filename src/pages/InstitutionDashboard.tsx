@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Layers, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
@@ -59,10 +59,18 @@ const InstitutionDashboard = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
-  const searchParams = new URLSearchParams(window.location.search);
-  const initialTab = searchParams.get("tab") || "overview";
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "overview");
+  
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    if (tab === "overview") {
+      setSearchParams({});
+    } else {
+      setSearchParams({ tab });
+    }
+  };
   const [institutionType, setInstitutionType] = useState<"college" | "institute" | null>(null);
   const [institutionName, setInstitutionName] = useState("");
   const [institutionId, setInstitutionId] = useState("");

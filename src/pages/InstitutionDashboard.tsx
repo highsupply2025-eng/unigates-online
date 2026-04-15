@@ -1735,7 +1735,7 @@ const InstitutionDashboard = () => {
                     <CardContent className="py-16 text-center">
                       <ClipboardList className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />
                       <p className="text-lg font-bold text-muted-foreground mb-2">{isRtl ? "لا توجد اختبارات بعد" : "No quizzes yet"}</p>
-                      <p className="text-sm text-muted-foreground">{isRtl ? "سيظهر هنا اختبارات الدورات المسجلة" : "Course quizzes will appear here"}</p>
+                      
                     </CardContent>
                   </Card>
                 );

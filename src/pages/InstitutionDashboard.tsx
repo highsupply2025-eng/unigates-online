@@ -1631,7 +1631,7 @@ const InstitutionDashboard = () => {
                     <Download className="w-4 h-4" />
                     {isRtl ? "تصدير Excel" : "Export Excel"}
                   </Button>
-                  <Button size="sm" className="gap-2" onClick={openAddResult}>
+                  <Button size="sm" className="gap-2" onClick={() => navigate("/institution/results/add")}>
                     <Plus className="w-4 h-4" />
                     {isRtl ? "إضافة نتيجة" : "Add Result"}
                   </Button>
@@ -1718,7 +1718,7 @@ const InstitutionDashboard = () => {
                               </TableCell>
                               <TableCell>
                                 <div className="flex items-center gap-1">
-                                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEditResult(result)}>
+                                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => navigate(`/institution/results/add?id=${result.id}`)}>
                                     <Pencil className="w-3.5 h-3.5" />
                                   </Button>
                                   <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => handleDeleteResult(result.id)}>

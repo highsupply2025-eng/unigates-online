@@ -550,6 +550,10 @@ const InstitutionDashboard = () => {
                   <BookOpen className="w-4 h-4 text-blue-500" />
                   <span className="text-sm font-semibold">{isRtl ? "الأقسام" : "Departments"}</span>
                 </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("quizresults")}>
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span className="text-sm font-semibold">{isRtl ? "النتائج" : "Results"}</span>
+                </DropdownMenuItem>
                 <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("quizmanage")}>
                   <ClipboardList className="w-4 h-4 text-purple-500" />
                   <span className="text-sm font-semibold">{isRtl ? "الاختبارات" : "Quizzes"}</span>

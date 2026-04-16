@@ -249,63 +249,72 @@ const LeadershipDashboard = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
       {/* Header */}
-      <header className="border-b border-border px-6 py-4 bg-gradient-to-r from-primary/10 to-primary/5">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 flex items-center justify-center">
-              <Landmark className="w-7 h-7 text-white" />
+      <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/10 to-primary/5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 flex items-center justify-center shrink-0">
+              <Landmark className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
             </div>
-            <div>
-              <h1 className="text-xl font-black text-foreground">{institutionName || (isRtl ? "لوحة القيادة" : "Leadership Dashboard")}</h1>
-              <p className="text-xs text-muted-foreground font-bold">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-base sm:text-xl font-black text-foreground truncate">{institutionName || (isRtl ? "لوحة القيادة" : "Leadership Dashboard")}</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
                 {isRtl ? getRoleLabel().ar : getRoleLabel().en}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <NotificationBell />
-            <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5">
+            <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5 hidden sm:inline-flex">
               <Globe className="w-4 h-4" />
               {t.langSwitch}
+            </Button>
+            <Button variant="outline" size="icon" onClick={toggleLanguage} className="sm:hidden w-9 h-9">
+              <Globe className="w-4 h-4" />
             </Button>
             <Button variant="outline" size="sm" onClick={async () => {
               await supabase.auth.signOut();
               navigate("/login");
-            }}>
+            }} className="hidden sm:inline-flex">
               {isRtl ? "تسجيل الخروج" : "Logout"}
+            </Button>
+            <Button variant="outline" size="icon" onClick={async () => {
+              await supabase.auth.signOut();
+              navigate("/login");
+            }} className="sm:hidden w-9 h-9">
+              <LogOut className="w-4 h-4" />
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-6">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-4 md:grid-cols-7 gap-1 h-auto p-1 mb-6">
-            <TabsTrigger value="overview" className="text-xs py-2">
+          <TabsList className="flex md:grid w-full md:grid-cols-7 gap-1 h-auto p-1 mb-6 overflow-x-auto md:overflow-visible scrollbar-hide">
+            <TabsTrigger value="overview" className="text-xs py-2 shrink-0 md:shrink">
               <BarChart3 className="w-4 h-4 me-1" />
               {isRtl ? "نظرة عامة" : "Overview"}
             </TabsTrigger>
-            <TabsTrigger value="livestreams" className="text-xs py-2">
+            <TabsTrigger value="livestreams" className="text-xs py-2 shrink-0 md:shrink">
               <Radio className="w-4 h-4 me-1" />
               {isRtl ? "البث المباشر" : "Live Streams"}
             </TabsTrigger>
-            <TabsTrigger value="quizresults" className="text-xs py-2">
+            <TabsTrigger value="quizresults" className="text-xs py-2 shrink-0 md:shrink">
               <CheckCircle className="w-4 h-4 me-1" />
               {isRtl ? "نتائج الاختبارات" : "Quiz Results"}
             </TabsTrigger>
-            <TabsTrigger value="ratings" className="text-xs py-2">
+            <TabsTrigger value="ratings" className="text-xs py-2 shrink-0 md:shrink">
               <Star className="w-4 h-4 me-1" />
               {isRtl ? "التقييمات" : "Ratings"}
             </TabsTrigger>
-            <TabsTrigger value="assignments" className="text-xs py-2">
+            <TabsTrigger value="assignments" className="text-xs py-2 shrink-0 md:shrink">
               <ClipboardList className="w-4 h-4 me-1" />
               {isRtl ? "التكليفات" : "Assignments"}
             </TabsTrigger>
-            <TabsTrigger value="schedule" className="text-xs py-2">
+            <TabsTrigger value="schedule" className="text-xs py-2 shrink-0 md:shrink">
               <Calendar className="w-4 h-4 me-1" />
               {isRtl ? "الجداول" : "Schedule"}
             </TabsTrigger>
-            <TabsTrigger value="files" className="text-xs py-2">
+            <TabsTrigger value="files" className="text-xs py-2 shrink-0 md:shrink">
               <FileText className="w-4 h-4 me-1" />
               {isRtl ? "الملفات" : "Files"}
             </TabsTrigger>

@@ -23,11 +23,9 @@ const StudentResults = () => {
 
   const openDetail = async (row: any) => {
     setDetail(row);
-    const { data: qs } = await supabase
-      .from("quiz_questions")
-      .select("*")
-      .eq("quiz_id", row.quiz_id)
-      .order("question_order", { ascending: true });
+    // Secure RPC: returns questions WITH correct_answer only for the
+    // caller's own approved + published submission.
+    const { data: qs } = await supabase.rpc("get_quiz_review", { _quiz_id: row.quiz_id });
     setDetailQuestions(qs || []);
     setShowDetail(true);
   };

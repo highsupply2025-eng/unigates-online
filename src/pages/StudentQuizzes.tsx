@@ -111,6 +111,7 @@ const StudentQuizzes = () => {
       });
       const { error } = await supabase.from("quiz_submissions").insert({
         quiz_id: activeQuiz.id, student_id: user.id, answers, score, total_points: total,
+        whatsapp_number: whatsappNumber.trim() || null,
       });
       if (error) throw error;
       const { data: qs } = await supabase.from("quiz_submissions").select("*").eq("student_id", user.id);

@@ -697,6 +697,7 @@ const AdminDashboard = () => {
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <NotificationBell />
+            <AllPagesDropdown />
             <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5 px-2 sm:px-3"><Globe className="w-4 h-4" /><span className="hidden sm:inline">{t.langSwitch}</span></Button>
             <Button variant="default" size="sm" onClick={handleLogout} className="font-semibold gap-1.5 px-2 sm:px-3">
               {language === "ar" ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}<span className="hidden sm:inline">{t.logout}</span>

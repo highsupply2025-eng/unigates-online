@@ -25,6 +25,10 @@ const WatchStream = lazy(() => import("./pages/WatchStream"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const StudentDashboard = lazy(() => import("./pages/StudentDashboard"));
+const StudentLectures = lazy(() => import("./pages/StudentLectures"));
+const StudentLive = lazy(() => import("./pages/StudentLive"));
+const StudentQuizzes = lazy(() => import("./pages/StudentQuizzes"));
+const StudentAnalytics = lazy(() => import("./pages/StudentAnalytics"));
 const UniversityPlatform = lazy(() => import("./pages/UniversityPlatform"));
 const CollegeRegistration = lazy(() => import("./pages/CollegeRegistration"));
 const CollegeRoleSignup = lazy(() => import("./pages/CollegeRoleSignup"));
@@ -121,6 +125,10 @@ const App = () => (
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/book-store/profile" element={<UserProfile />} />
               <Route path="/student/dashboard" element={<StudentDashboard />} />
+              <Route path="/student/lectures" element={<StudentLectures />} />
+              <Route path="/student/live" element={<StudentLive />} />
+              <Route path="/student/quizzes" element={<StudentQuizzes />} />
+              <Route path="/student/analytics" element={<StudentAnalytics />} />
               <Route path="/about" element={<About />} />
               <Route path="/help-center" element={<HelpCenter />} />
               <Route path="/terms" element={<Terms />} />

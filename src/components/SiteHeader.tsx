@@ -57,10 +57,6 @@ const SiteHeader = () => {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-48">
-              <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
-                <Globe className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold">{t.langSwitch}</span>
-              </DropdownMenuItem>
               {mainNavItems.map((item) => {
                 const IconComp = item.icon;
                 return (
@@ -72,6 +68,10 @@ const SiteHeader = () => {
                   </DropdownMenuItem>
                 );
               })}
+              <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
+                <Globe className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold">{t.langSwitch}</span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

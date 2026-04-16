@@ -275,6 +275,35 @@ const QuizCreate = () => {
     setShowResultsDialog(true);
   };
 
+  const handleFileSelect = async (file: File) => {
+    setImportFileName(file.name);
+    setImporting(true);
+    try {
+      const { questions: parsed, errors } = await parseQuizFile(file);
+      setImportPreview(parsed);
+      setImportErrors(errors);
+    } catch (err: any) {
+      toast({ title: isRtl ? "فشل قراءة الملف" : "Failed to read file", description: err.message, variant: "destructive" });
+    } finally { setImporting(false); }
+  };
+
+  const handleConfirmImport = async () => {
+    if (!selectedQuizId || importPreview.length === 0) return;
+    setImporting(true);
+    try {
+      const baseOrder = quizQuestions.length;
+      const rows = importPreview.map((q, i) => ({ quiz_id: selectedQuizId, question_order: baseOrder + i + 1, ...q }));
+      const { error } = await supabase.from("quiz_questions").insert(rows as any);
+      if (error) throw error;
+      toast({ title: isRtl ? `تم استيراد ${importPreview.length} سؤال ✅` : `Imported ${importPreview.length} questions ✅` });
+      setShowImportDialog(false);
+      setImportPreview([]); setImportErrors([]); setImportFileName("");
+      await loadQuizQuestions(selectedQuizId);
+    } catch (err: any) {
+      toast({ title: isRtl ? "فشل الاستيراد" : "Import failed", description: err.message, variant: "destructive" });
+    } finally { setImporting(false); }
+  };
+
   const typeLabel = (t: QType) => {
     const map: Record<QType, { ar: string; en: string; icon: any }> = {
       mcq: { ar: "اختيار من متعدد", en: "Multiple Choice", icon: ListOrdered },

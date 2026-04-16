@@ -247,21 +247,14 @@ const Signup = () => {
 
       // Link user to department member if invitation code exists
       if (invitationCode && userId) {
-        // Try department invitation code
-        const { data: deptMember } = await supabase
-          .from("department_members" as any)
-          .select("*")
-          .eq("invitation_code", invitationCode)
-          .is("user_id", null)
-          .limit(1)
-          .single();
-        
-        if (deptMember) {
-          await supabase
-            .from("department_members" as any)
-            .update({ user_id: userId })
-            .eq("id", (deptMember as any).id);
-        } else {
+        // Try department invitation code via secure RPC
+        const { data: claimResult } = await supabase.rpc("claim_department_invitation" as any, {
+          _code: invitationCode,
+          _user_id: userId,
+        });
+        const claimed = claimResult && (claimResult as any).success;
+
+        if (!claimed) {
           // Try college invitation code via secure RPC
           const { data: verifyResult } = await supabase.rpc("verify_invitation_code" as any, { p_code: invitationCode });
           

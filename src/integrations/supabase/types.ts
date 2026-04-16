@@ -1202,6 +1202,7 @@ export type Database = {
           student_id: string
           submitted_at: string
           total_points: number | null
+          whatsapp_number: string | null
         }
         Insert: {
           answers?: Json
@@ -1211,6 +1212,7 @@ export type Database = {
           student_id: string
           submitted_at?: string
           total_points?: number | null
+          whatsapp_number?: string | null
         }
         Update: {
           answers?: Json
@@ -1220,6 +1222,7 @@ export type Database = {
           student_id?: string
           submitted_at?: string
           total_points?: number | null
+          whatsapp_number?: string | null
         }
         Relationships: [
           {

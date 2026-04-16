@@ -230,9 +230,14 @@ const CollegeRoleSignup = () => {
               ? "تم تفعيل حسابك فوراً. يرجى تأكيد بريدك الإلكتروني ثم تسجيل الدخول."
               : "Your account has been activated immediately. Please confirm your email and then log in."}
           </p>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            {isRtl
+              ? `سيتم تحويلك لصفحة تسجيل الدخول خلال ${countdown} ثوانٍ...`
+              : `Redirecting to login page in ${countdown} seconds...`}
+          </p>
           <Link to="/login" className="inline-block w-full sm:w-auto">
-            <Button size="lg" className="mt-4 font-bold w-full sm:w-auto">
-              {isRtl ? "تسجيل الدخول" : "Log In"}
+            <Button size="lg" className="mt-2 font-bold w-full sm:w-auto">
+              {isRtl ? "تسجيل الدخول الآن" : "Log In Now"}
             </Button>
           </Link>
         </div>

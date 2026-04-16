@@ -564,26 +564,32 @@ const LecturerDashboard = () => {
   return (
     <div className="min-h-screen bg-background" dir={dir}>
       {/* Header */}
-      <header className="border-b border-border px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <GraduationCap className="w-8 h-8 text-primary" />
-            <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
+      <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
+          <Link to="/" className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
+            <GraduationCap className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
+            <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight truncate">{t.brandName}</span>
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <NotificationBell />
-            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
+            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5 hidden sm:inline-flex">
               <Globe className="w-4 h-4" />{t.langSwitch}
             </Button>
-            <Button variant="default" size="sm" onClick={handleLogout} className="font-semibold gap-1.5">
+            <Button variant="default" size="icon" onClick={toggleLanguage} className="sm:hidden w-9 h-9">
+              <Globe className="w-4 h-4" />
+            </Button>
+            <Button variant="default" size="sm" onClick={handleLogout} className="font-semibold gap-1.5 hidden sm:inline-flex">
               {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
               {t.logout}
+            </Button>
+            <Button variant="default" size="icon" onClick={handleLogout} className="sm:hidden w-9 h-9">
+              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
         {approved === false && (
           <div className="text-center py-20">
             <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
@@ -662,15 +668,15 @@ const LecturerDashboard = () => {
 
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4 md:grid-cols-8 mb-6 h-auto">
-                <TabsTrigger value="courses" className="text-xs py-2"><Video className="w-3.5 h-3.5 me-1" />{isRtl ? "المحاضرات" : "Lectures"}</TabsTrigger>
-                <TabsTrigger value="live" className="text-xs py-2"><Radio className="w-3.5 h-3.5 me-1" />{isRtl ? "البث" : "Live"}</TabsTrigger>
-                <TabsTrigger value="assignments" className="text-xs py-2"><ClipboardList className="w-3.5 h-3.5 me-1" />{isRtl ? "التكليفات" : "Tasks"}</TabsTrigger>
-                <TabsTrigger value="quizzes" className="text-xs py-2"><HelpCircle className="w-3.5 h-3.5 me-1" />{isRtl ? "اختبارات" : "Tests"}</TabsTrigger>
-                <TabsTrigger value="schedules" className="text-xs py-2"><Calendar className="w-3.5 h-3.5 me-1" />{isRtl ? "الجداول" : "Schedule"}</TabsTrigger>
-                <TabsTrigger value="attendance" className="text-xs py-2"><Users className="w-3.5 h-3.5 me-1" />{isRtl ? "الحضور" : "Attend"}</TabsTrigger>
-                <TabsTrigger value="ratings" className="text-xs py-2"><Star className="w-3.5 h-3.5 me-1" />{isRtl ? "التقييمات" : "Ratings"}</TabsTrigger>
-                <TabsTrigger value="analytics" className="text-xs py-2"><Download className="w-3.5 h-3.5 me-1" />{isRtl ? "تحميل" : "Export"}</TabsTrigger>
+              <TabsList className="flex md:grid w-full md:grid-cols-8 mb-6 h-auto overflow-x-auto md:overflow-visible scrollbar-hide">
+                <TabsTrigger value="courses" className="text-xs py-2 shrink-0 md:shrink"><Video className="w-3.5 h-3.5 me-1" />{isRtl ? "المحاضرات" : "Lectures"}</TabsTrigger>
+                <TabsTrigger value="live" className="text-xs py-2 shrink-0 md:shrink"><Radio className="w-3.5 h-3.5 me-1" />{isRtl ? "البث" : "Live"}</TabsTrigger>
+                <TabsTrigger value="assignments" className="text-xs py-2 shrink-0 md:shrink"><ClipboardList className="w-3.5 h-3.5 me-1" />{isRtl ? "التكليفات" : "Tasks"}</TabsTrigger>
+                <TabsTrigger value="quizzes" className="text-xs py-2 shrink-0 md:shrink"><HelpCircle className="w-3.5 h-3.5 me-1" />{isRtl ? "اختبارات" : "Tests"}</TabsTrigger>
+                <TabsTrigger value="schedules" className="text-xs py-2 shrink-0 md:shrink"><Calendar className="w-3.5 h-3.5 me-1" />{isRtl ? "الجداول" : "Schedule"}</TabsTrigger>
+                <TabsTrigger value="attendance" className="text-xs py-2 shrink-0 md:shrink"><Users className="w-3.5 h-3.5 me-1" />{isRtl ? "الحضور" : "Attend"}</TabsTrigger>
+                <TabsTrigger value="ratings" className="text-xs py-2 shrink-0 md:shrink"><Star className="w-3.5 h-3.5 me-1" />{isRtl ? "التقييمات" : "Ratings"}</TabsTrigger>
+                <TabsTrigger value="analytics" className="text-xs py-2 shrink-0 md:shrink"><Download className="w-3.5 h-3.5 me-1" />{isRtl ? "تحميل" : "Export"}</TabsTrigger>
               </TabsList>
 
               {/* ===== COURSES TAB ===== */}

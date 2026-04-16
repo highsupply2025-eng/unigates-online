@@ -342,34 +342,43 @@ const StudentDashboard = () => {
   return (
     <div className="min-h-screen bg-background" dir={dir}>
       {/* Header */}
-      <header className="border-b border-border px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <GraduationCap className="w-8 h-8 text-primary" />
-            <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
-            <Badge className="bg-primary/10 text-primary border-primary/20 ms-2">
+      <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
+          <Link to="/" className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
+            <GraduationCap className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
+            <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight truncate">{t.brandName}</span>
+            <Badge className="bg-primary/10 text-primary border-primary/20 ms-1 sm:ms-2 hidden xs:inline-flex shrink-0">
               <BookOpen className="w-3 h-3 me-1" />{isRtl ? "لوحة الطالب" : "Student"}
             </Badge>
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <NotificationBell />
-            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
+            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5 hidden sm:inline-flex">
               <Globe className="w-4 h-4" />{t.langSwitch}
             </Button>
+            <Button variant="default" size="icon" onClick={toggleLanguage} className="sm:hidden w-9 h-9">
+              <Globe className="w-4 h-4" />
+            </Button>
             <Link to="/profile">
-              <Button variant="outline" size="sm" className="font-semibold gap-1.5">
+              <Button variant="outline" size="sm" className="font-semibold gap-1.5 hidden sm:inline-flex">
                 <User className="w-4 h-4" />{isRtl ? "الملف" : "Profile"}
               </Button>
+              <Button variant="outline" size="icon" className="sm:hidden w-9 h-9">
+                <User className="w-4 h-4" />
+              </Button>
             </Link>
-            <Button variant="default" size="sm" onClick={handleLogout} className="font-semibold gap-1.5">
+            <Button variant="default" size="sm" onClick={handleLogout} className="font-semibold gap-1.5 hidden sm:inline-flex">
               {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
               {t.logout}
+            </Button>
+            <Button variant="default" size="icon" onClick={handleLogout} className="sm:hidden w-9 h-9">
+              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
         {/* Welcome */}
         <div className="mb-8">
           <h1 className="text-2xl font-black text-foreground mb-1">
@@ -445,15 +454,15 @@ const StudentDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-6 flex-wrap">
-            <TabsTrigger value="courses" className="gap-1.5"><BookOpen className="w-4 h-4" />{isRtl ? "المحاضرات" : "Lectures"}</TabsTrigger>
-            <TabsTrigger value="live" className="gap-1.5"><Radio className="w-4 h-4" />{isRtl ? "بث مباشر" : "Live"}</TabsTrigger>
-            <TabsTrigger value="quizzes" className="gap-1.5"><ClipboardList className="w-4 h-4" />{isRtl ? "الاختبارات" : "Quizzes"}</TabsTrigger>
-            <TabsTrigger value="assignments" className="gap-1.5"><Award className="w-4 h-4" />{isRtl ? "الواجبات" : "Tasks"}</TabsTrigger>
-            <TabsTrigger value="files" className="gap-1.5"><FileText className="w-4 h-4" />{isRtl ? "الملفات" : "Files"}</TabsTrigger>
-            <TabsTrigger value="schedule" className="gap-1.5"><Calendar className="w-4 h-4" />{isRtl ? "الجداول" : "Schedule"}</TabsTrigger>
-            <TabsTrigger value="rate" className="gap-1.5"><Star className="w-4 h-4" />{isRtl ? "التقييم" : "Rating"}</TabsTrigger>
-            <TabsTrigger value="analytics" className="gap-1.5"><TrendingUp className="w-4 h-4" />{isRtl ? "التحليلات" : "Analytics"}</TabsTrigger>
+          <TabsList className="mb-6 flex w-full overflow-x-auto md:flex-wrap justify-start md:justify-center scrollbar-hide">
+            <TabsTrigger value="courses" className="gap-1.5 shrink-0"><BookOpen className="w-4 h-4" />{isRtl ? "المحاضرات" : "Lectures"}</TabsTrigger>
+            <TabsTrigger value="live" className="gap-1.5 shrink-0"><Radio className="w-4 h-4" />{isRtl ? "بث مباشر" : "Live"}</TabsTrigger>
+            <TabsTrigger value="quizzes" className="gap-1.5 shrink-0"><ClipboardList className="w-4 h-4" />{isRtl ? "الاختبارات" : "Quizzes"}</TabsTrigger>
+            <TabsTrigger value="assignments" className="gap-1.5 shrink-0"><Award className="w-4 h-4" />{isRtl ? "الواجبات" : "Tasks"}</TabsTrigger>
+            <TabsTrigger value="files" className="gap-1.5 shrink-0"><FileText className="w-4 h-4" />{isRtl ? "الملفات" : "Files"}</TabsTrigger>
+            <TabsTrigger value="schedule" className="gap-1.5 shrink-0"><Calendar className="w-4 h-4" />{isRtl ? "الجداول" : "Schedule"}</TabsTrigger>
+            <TabsTrigger value="rate" className="gap-1.5 shrink-0"><Star className="w-4 h-4" />{isRtl ? "التقييم" : "Rating"}</TabsTrigger>
+            <TabsTrigger value="analytics" className="gap-1.5 shrink-0"><TrendingUp className="w-4 h-4" />{isRtl ? "التحليلات" : "Analytics"}</TabsTrigger>
           </TabsList>
 
           {/* My Courses */}

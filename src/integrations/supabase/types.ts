@@ -1780,6 +1780,10 @@ export type Database = {
     }
     Functions: {
       calculate_weekly_top_courses: { Args: never; Returns: undefined }
+      claim_department_invitation: {
+        Args: { _code: string; _user_id: string }
+        Returns: Json
+      }
       complete_signup:
         | {
             Args: {

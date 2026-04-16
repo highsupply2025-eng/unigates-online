@@ -87,38 +87,24 @@ const StudentQuizzes = () => {
     setResultView(null);
   };
 
-  const gradeAnswer = (q: any, ans: string | undefined) => {
-    if (!ans) return false;
-    if (q.question_type === "mcq" || q.question_type === "true_false" || !q.question_type) {
-      return ans === q.correct_answer;
-    }
-    if (q.question_type === "fill_blank") {
-      return q.expected_answer && ans.trim().toLowerCase() === q.expected_answer.trim().toLowerCase();
-    }
-    // short_answer → manual grading, treat as 0 for now
-    return false;
-  };
-
   const submitQuiz = async () => {
     if (!activeQuiz || !user) return;
     setSubmitting(true);
     try {
-      let score = 0, total = 0;
-      const details = questions.map(q => {
-        total += q.points || 1;
-        const correct = gradeAnswer(q, answers[q.id]);
-        if (correct) score += q.points || 1;
-        return { id: q.id, correct, given: answers[q.id], expected: q.correct_answer || q.expected_answer };
-      });
-      const { error } = await supabase.from("quiz_submissions").insert({
-        quiz_id: activeQuiz.id, student_id: user.id, answers, score, total_points: total,
-        whatsapp_number: whatsappNumber.trim() || null,
+      const { data, error } = await supabase.rpc("submit_quiz", {
+        _quiz_id: activeQuiz.id,
+        _answers: answers as any,
+        _whatsapp: whatsappNumber.trim() || null,
       });
       if (error) throw error;
+      const res = data as any;
+      if (!res?.success) throw new Error(res?.error || "Submission failed");
+
       const { data: qs } = await supabase.from("quiz_submissions").select("*").eq("student_id", user.id);
       setSubmissions(qs || []);
-      if (activeQuiz.show_results_immediately !== false) {
-        setResultView({ score, total, details });
+
+      if (res.show_results) {
+        setResultView({ score: Number(res.score), total: Number(res.total), details: res.details || [] });
       } else {
         toast({ title: isRtl ? "تم التسليم ✅" : "Submitted ✅", description: isRtl ? "ستظهر النتيجة لاحقاً" : "Result will be available later" });
         setActiveQuiz(null); setQuestions([]); setAnswers({});

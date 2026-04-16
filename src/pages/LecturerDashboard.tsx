@@ -955,7 +955,7 @@ const LecturerDashboard = () => {
 
       {/* New Course Dialog */}
       <Dialog open={showNewCourse} onOpenChange={setShowNewCourse}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{isRtl ? "إنشاء دورة جديدة" : "Create New Course"}</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
@@ -1011,7 +1011,7 @@ const LecturerDashboard = () => {
 
       {/* Episodes & Attachments Dialog */}
       <Dialog open={showEpisodeDialog} onOpenChange={setShowEpisodeDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{isRtl ? "حلقات الدورة ومرفقاتها" : "Course Episodes & Attachments"}</DialogTitle></DialogHeader>
           <div>
             <h3 className="font-bold text-foreground mb-3 flex items-center gap-2"><Video className="w-4 h-4" /> {isRtl ? "الحلقات" : "Episodes"}</h3>
@@ -1056,7 +1056,7 @@ const LecturerDashboard = () => {
 
       {/* New Stream Dialog */}
       <Dialog open={showStreamDialog} onOpenChange={setShowStreamDialog}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{isRtl ? "إنشاء بث مباشر" : "Create Live Stream"}</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
@@ -1073,7 +1073,7 @@ const LecturerDashboard = () => {
 
       {/* Assignments Dialog */}
       <Dialog open={showAssignmentDialog} onOpenChange={setShowAssignmentDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{isRtl ? "إدارة التكليفات" : "Manage Assignments"}</DialogTitle></DialogHeader>
           {assignments.length > 0 && <div className="space-y-3 mb-4">{assignments.map(a => (
             <Card key={a.id}><CardContent className="p-4"><div className="flex items-start justify-between">
@@ -1108,7 +1108,7 @@ const LecturerDashboard = () => {
 
       {/* Submissions Dialog */}
       <Dialog open={showSubmissionsDialog} onOpenChange={setShowSubmissionsDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{isRtl ? "إجابات الطلبة" : "Student Submissions"}</DialogTitle></DialogHeader>
           {submissions.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground">{isRtl ? "لا توجد إجابات بعد" : "No submissions yet"}</div>
@@ -1142,7 +1142,7 @@ const LecturerDashboard = () => {
 
       {/* Quiz Management Dialog */}
       <Dialog open={showQuizDialog} onOpenChange={setShowQuizDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{isRtl ? "إدارة الاختبارات الأونلاين" : "Online Test Management"}</DialogTitle></DialogHeader>
           {quizzes.length > 0 && <div className="space-y-3 mb-4">{quizzes.map(q => (
             <Card key={q.id}><CardContent className="p-4"><div className="flex items-start justify-between">
@@ -1181,7 +1181,7 @@ const LecturerDashboard = () => {
 
       {/* Questions Dialog */}
       <Dialog open={showQuestionsDialog} onOpenChange={setShowQuestionsDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{isRtl ? "أسئلة الاختبار" : "Test Questions"}</DialogTitle></DialogHeader>
           {quizQuestions.length > 0 && <div className="space-y-3 mb-4">{quizQuestions.map((q, i) => (
             <Card key={q.id}><CardContent className="p-4">
@@ -1233,7 +1233,7 @@ const LecturerDashboard = () => {
 
       {/* Quiz Results Dialog */}
       <Dialog open={showQuizResultsDialog} onOpenChange={setShowQuizResultsDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{isRtl ? "نتائج الاختبار" : "Test Results"}</DialogTitle></DialogHeader>
           {quizSubmissions.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground">{isRtl ? "لا توجد نتائج بعد" : "No results yet"}</div>
@@ -1262,7 +1262,7 @@ const LecturerDashboard = () => {
 
       {/* Schedule Dialog */}
       <Dialog open={showScheduleDialog} onOpenChange={setShowScheduleDialog}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{isRtl ? "إضافة جدول" : "Add Schedule"}</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div>

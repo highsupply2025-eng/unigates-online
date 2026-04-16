@@ -139,6 +139,7 @@ const StudentResults = () => {
                         <TableHead className="text-xs sm:text-sm">{isRtl ? "الدرجة" : "Score"}</TableHead>
                         <TableHead className="text-xs sm:text-sm">{isRtl ? "النسبة" : "%"}</TableHead>
                         <TableHead className="text-xs sm:text-sm">{isRtl ? "التاريخ" : "Date"}</TableHead>
+                        <TableHead className="text-xs sm:text-sm">{isRtl ? "تفاصيل" : "Details"}</TableHead>
                       </TableRow></TableHeader>
                       <TableBody>
                         {rows.map(r => {
@@ -152,6 +153,11 @@ const StudentResults = () => {
                                 <Badge variant={pct >= 50 ? "default" : "destructive"} className="text-[10px] sm:text-xs">{pct}%</Badge>
                               </TableCell>
                               <TableCell className="text-xs sm:text-sm whitespace-nowrap">{new Date(r.submitted_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</TableCell>
+                              <TableCell>
+                                <Button size="sm" variant="outline" className="gap-1 h-7 text-xs" onClick={() => openDetail(r)}>
+                                  <Eye className="w-3 h-3" />{isRtl ? "عرض" : "View"}
+                                </Button>
+                              </TableCell>
                             </TableRow>
                           );
                         })}
@@ -164,6 +170,72 @@ const StudentResults = () => {
           </>
         )}
       </main>
+
+      <Dialog open={showDetail} onOpenChange={setShowDetail}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1.5rem)] sm:w-full p-4 sm:p-6">
+          <DialogHeader>
+            <DialogTitle className="text-base sm:text-lg">
+              {detail ? (isRtl ? detail.quiz?.title_ar : detail.quiz?.title_en) : ""}
+            </DialogTitle>
+          </DialogHeader>
+          {detail && (
+            <div className="space-y-3">
+              <Card>
+                <CardContent className="p-3 sm:p-4 flex flex-wrap gap-3 items-center justify-between">
+                  <div>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "الدرجة" : "Score"}</p>
+                    <p className="font-bold text-lg">{detail.score}/{detail.total_points}</p>
+                  </div>
+                  <Badge variant={(detail.score/detail.total_points) >= 0.5 ? "default" : "destructive"}>
+                    {detail.total_points > 0 ? Math.round((detail.score/detail.total_points)*100) : 0}%
+                  </Badge>
+                </CardContent>
+              </Card>
+
+              {detailQuestions.map((q, idx) => {
+                const answers = (detail.answers as any) || {};
+                const studentAns = answers[q.id];
+                const isCorrect = studentAns && String(studentAns).toLowerCase() === String(q.correct_answer).toLowerCase();
+                return (
+                  <Card key={q.id} className={isCorrect ? "border-green-500/50" : "border-destructive/50"}>
+                    <CardContent className="p-3 sm:p-4 space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="font-medium text-sm">
+                          {idx + 1}. {isRtl ? q.question_ar : q.question_en}
+                        </p>
+                        {isCorrect
+                          ? <CheckCircle className="w-5 h-5 text-green-600 shrink-0" />
+                          : <XCircle className="w-5 h-5 text-destructive shrink-0" />}
+                      </div>
+                      <div className="grid gap-1.5 text-xs sm:text-sm">
+                        {["a","b","c","d"].map(k => {
+                          const isStudent = String(studentAns || "").toLowerCase() === k;
+                          const isRight = String(q.correct_answer).toLowerCase() === k;
+                          const text = isRtl ? q[`option_${k}_ar`] : q[`option_${k}_en`];
+                          if (!text) return null;
+                          return (
+                            <div key={k} className={`px-2 py-1.5 rounded border ${
+                              isRight ? "bg-green-500/10 border-green-500/40" :
+                              isStudent ? "bg-destructive/10 border-destructive/40" :
+                              "border-border"
+                            }`}>
+                              <span className="font-bold uppercase me-2">{k}.</span>
+                              {text}
+                              {isRight && <span className="ms-2 text-[10px] text-green-700">{isRtl ? "(الإجابة الصحيحة)" : "(Correct)"}</span>}
+                              {isStudent && !isRight && <span className="ms-2 text-[10px] text-destructive">{isRtl ? "(إجابتك)" : "(Your answer)"}</span>}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <SiteFooter />
     </div>
   );

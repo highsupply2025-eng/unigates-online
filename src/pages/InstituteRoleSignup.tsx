@@ -186,21 +186,21 @@ const InstituteRoleSignup = () => {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4" dir={dir}>
-        <div className="text-center space-y-4 max-w-md">
-          <div className={`w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br ${config.gradient} shadow-xl ${config.shadow} flex items-center justify-center`}>
-            <RoleIcon className="w-10 h-10 text-white" />
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-8" dir={dir}>
+        <div className="text-center space-y-4 max-w-md w-full">
+          <div className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl bg-gradient-to-br ${config.gradient} shadow-xl ${config.shadow} flex items-center justify-center`}>
+            <RoleIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
           </div>
-          <h2 className="text-2xl font-black text-primary">
+          <h2 className="text-xl sm:text-2xl font-black text-primary">
             {isRtl ? "تم إنشاء الحساب بنجاح!" : "Account Created Successfully!"}
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground px-2">
             {isRtl
               ? "تم تفعيل حسابك فوراً. يرجى تأكيد بريدك الإلكتروني ثم تسجيل الدخول."
               : "Your account has been activated immediately. Please confirm your email and then log in."}
           </p>
-          <Link to="/login">
-            <Button size="lg" className="mt-4 font-bold">
+          <Link to="/login" className="inline-block w-full sm:w-auto">
+            <Button size="lg" className="mt-4 font-bold w-full sm:w-auto">
               {isRtl ? "تسجيل الدخول" : "Log In"}
             </Button>
           </Link>

@@ -971,14 +971,14 @@ const InstitutionDashboard = () => {
                             : `Hi ${member.full_name}, register via this link:\n${memberInviteLink}`;
                           return (
                             <div className="flex items-center gap-2 mt-3 flex-wrap">
-                              <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); copyToClipboard(member.invitation_code!); }}>
+                              <Button variant="outline" size="sm" className="text-xs h-8 px-2" onClick={(e) => { e.stopPropagation(); copyToClipboard(member.invitation_code!); }}>
                                 <Copy className="w-3.5 h-3.5 me-1" />{isRtl ? "نسخ الكود" : "Copy Code"}
                               </Button>
-                              <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); copyToClipboard(memberInviteLink); }}>
+                              <Button variant="outline" size="sm" className="text-xs h-8 px-2" onClick={(e) => { e.stopPropagation(); copyToClipboard(memberInviteLink); }}>
                                 <LinkIcon className="w-3.5 h-3.5 me-1" />{isRtl ? "نسخ الرابط" : "Copy Link"}
                               </Button>
                               <a href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-                                <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-50">
+                                <Button variant="outline" size="sm" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
                                   <MessageCircle className="w-3.5 h-3.5 me-1" />{isRtl ? "واتساب" : "WhatsApp"}
                                 </Button>
                               </a>

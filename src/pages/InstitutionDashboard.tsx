@@ -1195,23 +1195,7 @@ const InstitutionDashboard = () => {
           <TabsContent value="general">
             <div className="mb-6">
               <h2 className="text-xl font-bold text-foreground mb-1">{isRtl ? "الرئيسية" : "Home"}</h2>
-              <p className="text-sm text-muted-foreground">{isRtl ? "جميع إحصائيات المؤسسة في مكان واحد" : "All institution statistics in one place"}</p>
             </div>
-
-            {/* Institution Info */}
-            <Card className="mb-6 border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-              <CardContent className="p-5">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/20">
-                    <Landmark className="w-7 h-7 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-black text-foreground">{institutionName}</h3>
-                    <p className="text-sm text-muted-foreground">{isRtl ? (institutionType === "college" ? "كلية" : "معهد") : (institutionType === "college" ? "College" : "Institute")}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Departments Summary */}
             <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">

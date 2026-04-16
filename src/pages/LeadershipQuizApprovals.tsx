@@ -94,6 +94,7 @@ const LeadershipQuizApprovals = () => {
       setStudentNames(map);
     }
     setShowSubsDialog(true);
+    setSearchName("");
   };
 
   const openDetail = (sub: any) => {

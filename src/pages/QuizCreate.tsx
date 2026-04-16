@@ -673,38 +673,40 @@ const QuizCreate = () => {
       </div>
 
       <Dialog open={showResultsDialog} onOpenChange={setShowResultsDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{isRtl ? "نتائج الاختبار" : "Quiz Results"}</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1.5rem)] sm:w-full p-4 sm:p-6">
+          <DialogHeader><DialogTitle className="text-base sm:text-lg">{isRtl ? "نتائج الاختبار" : "Quiz Results"}</DialogTitle></DialogHeader>
           {quizSubmissions.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground">
               <BarChart3 className="w-10 h-10 mx-auto mb-3 text-muted-foreground/40" />
               {isRtl ? "لا توجد نتائج بعد" : "No results yet"}
             </div>
           ) : (
-            <Table>
-              <TableHeader><TableRow>
-                <TableHead>{isRtl ? "الطالب" : "Student"}</TableHead>
-                <TableHead>{isRtl ? "الدرجة" : "Score"}</TableHead>
-                <TableHead>{isRtl ? "الإجمالي" : "Total"}</TableHead>
-                <TableHead>{isRtl ? "النسبة" : "%"}</TableHead>
-                <TableHead>{isRtl ? "التاريخ" : "Date"}</TableHead>
-              </TableRow></TableHeader>
-              <TableBody>
-                {quizSubmissions.map(s => (
-                  <TableRow key={s.id}>
-                    <TableCell>{s.student_id.slice(0, 8)}...</TableCell>
-                    <TableCell className="font-bold">{s.score}</TableCell>
-                    <TableCell>{s.total_points}</TableCell>
-                    <TableCell>
-                      <Badge variant={s.total_points > 0 && (s.score / s.total_points) >= 0.5 ? "default" : "destructive"}>
-                        {s.total_points > 0 ? Math.round((s.score / s.total_points) * 100) : 0}%
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm">{new Date(s.submitted_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+              <Table>
+                <TableHeader><TableRow>
+                  <TableHead className="text-xs sm:text-sm">{isRtl ? "الطالب" : "Student"}</TableHead>
+                  <TableHead className="text-xs sm:text-sm">{isRtl ? "الدرجة" : "Score"}</TableHead>
+                  <TableHead className="text-xs sm:text-sm">{isRtl ? "الإجمالي" : "Total"}</TableHead>
+                  <TableHead className="text-xs sm:text-sm">{isRtl ? "النسبة" : "%"}</TableHead>
+                  <TableHead className="text-xs sm:text-sm">{isRtl ? "التاريخ" : "Date"}</TableHead>
+                </TableRow></TableHeader>
+                <TableBody>
+                  {quizSubmissions.map(s => (
+                    <TableRow key={s.id}>
+                      <TableCell className="text-xs sm:text-sm">{s.student_id.slice(0, 8)}...</TableCell>
+                      <TableCell className="font-bold text-xs sm:text-sm">{s.score}</TableCell>
+                      <TableCell className="text-xs sm:text-sm">{s.total_points}</TableCell>
+                      <TableCell>
+                        <Badge variant={s.total_points > 0 && (s.score / s.total_points) >= 0.5 ? "default" : "destructive"} className="text-[10px] sm:text-xs">
+                          {s.total_points > 0 ? Math.round((s.score / s.total_points) * 100) : 0}%
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-xs sm:text-sm whitespace-nowrap">{new Date(s.submitted_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </DialogContent>
       </Dialog>

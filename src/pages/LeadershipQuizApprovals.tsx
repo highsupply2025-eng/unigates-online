@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, CheckCircle, Clock, Loader2, ShieldCheck, XCircle, AlertCircle, Eye } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle, Clock, Loader2, ShieldCheck, XCircle, AlertCircle, Eye, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

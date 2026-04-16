@@ -5,6 +5,10 @@ export const useSmartBack = (fallback = "/") => {
   const navigate = useNavigate();
 
   return useCallback(() => {
-    navigate(-1);
-  }, [navigate]);
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate(fallback, { replace: true });
+    }
+  }, [navigate, fallback]);
 };

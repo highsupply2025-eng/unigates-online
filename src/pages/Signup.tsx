@@ -292,13 +292,13 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <header className="border-b-2 border-primary/30 px-6 py-4 bg-card shadow-md">
+      <header className="border-b-2 border-primary/30 px-4 sm:px-6 py-4 bg-card shadow-md">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <GraduationCap className="w-6 h-6 text-white" />
+          <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
-            <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
+            <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
           </Link>
           {/* Desktop buttons */}
           <div className="hidden md:flex items-center gap-3">
@@ -357,33 +357,33 @@ const Signup = () => {
 
       <Separator />
 
-      <main className="flex-1 flex items-center justify-center px-4 py-10">
+      <main className="flex-1 flex items-center justify-center px-4 py-6 sm:py-10">
         {!selectedRole ? (
           /* Step 1: Role Selection Cards */
           <div className="max-w-lg w-full text-center">
-            <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-xl shadow-primary/30 flex items-center justify-center">
-                <GraduationCap className="w-10 h-10 text-white" />
+            <div className="flex justify-center mb-4 sm:mb-6">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-xl shadow-primary/30 flex items-center justify-center">
+                <GraduationCap className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
               </div>
             </div>
-            <h1 className="text-2xl md:text-3xl font-black text-foreground mb-2">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground mb-2">
               {language === "ar" ? "اختر نوع الحساب" : "Choose Account Type"}
             </h1>
-            <p className="text-primary/70 font-medium mb-2">{language === "ar" ? "حدد نوع حسابك للمتابعة" : "Select your account type to continue"}</p>
+            <p className="text-sm sm:text-base text-primary/70 font-medium mb-2">{language === "ar" ? "حدد نوع حسابك للمتابعة" : "Select your account type to continue"}</p>
             
-            <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 max-w-md mx-auto">
               {additionalLinks.map((item) => {
                 const Icon = item.icon;
                 return (
                   <Link
                     key={item.labelEn}
                     to={item.href}
-                    className="group p-6 rounded-2xl border-2 border-primary/20 bg-card hover:border-primary hover:shadow-xl hover:shadow-primary/15 shadow-md transition-all duration-200 text-center"
+                    className="group p-4 sm:p-6 rounded-2xl border-2 border-primary/20 bg-card hover:border-primary hover:shadow-xl hover:shadow-primary/15 shadow-md transition-all duration-200 text-center"
                   >
-                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                      <Icon className="w-8 h-8 text-white" />
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
+                      <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-primary">{language === "ar" ? item.labelAr : item.labelEn}</h3>
+                    <h3 className="text-base sm:text-lg font-bold text-primary">{language === "ar" ? item.labelAr : item.labelEn}</h3>
                   </Link>
                 );
               })}
@@ -584,7 +584,7 @@ const Signup = () => {
               {/* Submit */}
               <Button
                 size="lg"
-                className="w-full h-14 text-lg font-bold gap-2 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] hover:from-primary/90 hover:to-[hsl(200,75%,25%)] shadow-lg shadow-primary/25"
+                className="w-full h-12 sm:h-14 text-base sm:text-lg font-bold gap-2 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] hover:from-primary/90 hover:to-[hsl(200,75%,25%)] shadow-lg shadow-primary/25"
                 disabled={!fullName || !email || !password || !confirmPassword || password !== confirmPassword || !phone || loading}
                 onClick={handleSubmit}
               >
@@ -615,7 +615,7 @@ const Signup = () => {
         )}
       </main>
 
-      <footer className="border-t-2 border-primary/20 bg-gradient-to-r from-secondary/50 to-primary/5 px-6 py-8">
+      <footer className="border-t-2 border-primary/20 bg-gradient-to-r from-secondary/50 to-primary/5 px-4 sm:px-6 py-6 sm:py-8">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-4 flex-wrap">
             <span className="text-foreground font-bold text-sm">{language === "ar" ? "أسئلة؟ تواصل على" : "Questions? Contact us on"}</span>

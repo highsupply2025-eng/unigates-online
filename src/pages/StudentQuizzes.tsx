@@ -39,6 +39,7 @@ const StudentQuizzes = () => {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [timer, setTimer] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState("");
   const [resultView, setResultView] = useState<{ score: number; total: number; details: any[] } | null>(null);
 
   useEffect(() => { (async () => {

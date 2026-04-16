@@ -93,23 +93,23 @@ const StudentAnalytics = () => {
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <StudentPageHeader titleAr="التحليلات" titleEn="Analytics" icon={<TrendingUp className="w-3.5 h-3.5" />} />
-      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8 space-y-6">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          <Card><CardContent className="pt-5 pb-4 text-center">
-            <p className="text-2xl font-black text-primary">{avgQuiz}%</p>
-            <p className="text-xs text-muted-foreground mt-1">{isRtl ? "متوسط الاختبارات" : "Avg Quiz"}</p>
+      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8 space-y-5 sm:space-y-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+          <Card><CardContent className="pt-4 pb-3 sm:pt-5 sm:pb-4 text-center px-2">
+            <p className="text-xl sm:text-2xl font-black text-primary">{avgQuiz}%</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 truncate">{isRtl ? "متوسط الاختبارات" : "Avg Quiz"}</p>
           </CardContent></Card>
-          <Card><CardContent className="pt-5 pb-4 text-center">
-            <p className="text-2xl font-black text-green-600">{attendance.length}</p>
-            <p className="text-xs text-muted-foreground mt-1">{isRtl ? "بث حضرته" : "Attended"}</p>
+          <Card><CardContent className="pt-4 pb-3 sm:pt-5 sm:pb-4 text-center px-2">
+            <p className="text-xl sm:text-2xl font-black text-green-600">{attendance.length}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 truncate">{isRtl ? "بث حضرته" : "Attended"}</p>
           </CardContent></Card>
-          <Card><CardContent className="pt-5 pb-4 text-center">
-            <p className="text-2xl font-black text-amber-500">{submissions.filter(s => s.grade).length}/{submissions.length}</p>
-            <p className="text-xs text-muted-foreground mt-1">{isRtl ? "واجبات مُقيّمة" : "Graded"}</p>
+          <Card><CardContent className="pt-4 pb-3 sm:pt-5 sm:pb-4 text-center px-2">
+            <p className="text-xl sm:text-2xl font-black text-amber-500">{submissions.filter(s => s.grade).length}/{submissions.length}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 truncate">{isRtl ? "واجبات مُقيّمة" : "Graded"}</p>
           </CardContent></Card>
-          <Card><CardContent className="pt-5 pb-4 text-center">
-            <p className="text-2xl font-black text-blue-500">{avgRating}</p>
-            <p className="text-xs text-muted-foreground mt-1">{isRtl ? "متوسط تقييماتك" : "Avg Ratings"}</p>
+          <Card><CardContent className="pt-4 pb-3 sm:pt-5 sm:pb-4 text-center px-2">
+            <p className="text-xl sm:text-2xl font-black text-blue-500">{avgRating}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 truncate">{isRtl ? "متوسط تقييماتك" : "Avg Ratings"}</p>
           </CardContent></Card>
         </div>
 

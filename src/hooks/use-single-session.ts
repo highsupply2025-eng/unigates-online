@@ -4,7 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 const DEVICE_KEY = "unigates_device_id";
 const STALE_MS = 2 * 60 * 1000; // 2 minutes
 const HEARTBEAT_MS = 60 * 1000; // 1 minute
-const EXEMPT_ROLES = new Set<string>(["admin"]);
+
+// Max simultaneous active devices per role. Default = 1.
+const ROLE_DEVICE_LIMIT: Record<string, number> = {
+  admin: 2,
+};
+const DEFAULT_LIMIT = 1;
 
 const getDeviceId = (): string => {
   let id = localStorage.getItem(DEVICE_KEY);
@@ -16,9 +21,10 @@ const getDeviceId = (): string => {
 };
 
 /**
- * Enforces a single active session per user (admins exempt).
- * If another device already has an active session (heartbeat within 2 min),
- * this device is signed out with an alert.
+ * Enforces a per-role limit on simultaneously active devices.
+ * - Default: 1 device (students, lecturers, leadership, institution admins...)
+ * - Admin (platform): 2 devices
+ * Heartbeat every 60s; sessions older than 2 min are considered stale.
  */
 export const useSingleSession = () => {
   const intervalRef = useRef<number | null>(null);
@@ -28,28 +34,37 @@ export const useSingleSession = () => {
     let cancelled = false;
     const deviceId = getDeviceId();
 
-    const claimSession = async (userId: string) => {
-      // Check current row
-      const { data: existing } = await supabase
+    const getLimit = async (userId: string): Promise<number> => {
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
+      const list = (roles || []).map((r: any) => r.role as string);
+      const limits = list.map((r) => ROLE_DEVICE_LIMIT[r] ?? DEFAULT_LIMIT);
+      return limits.length ? Math.max(...limits) : DEFAULT_LIMIT;
+    };
+
+    const claimSession = async (userId: string, limit: number) => {
+      const { data: sessions } = await supabase
         .from("active_sessions")
         .select("device_id, last_seen")
-        .eq("user_id", userId)
-        .maybeSingle();
+        .eq("user_id", userId);
 
-      if (existing && existing.device_id !== deviceId) {
-        const lastSeen = new Date(existing.last_seen).getTime();
-        const fresh = Date.now() - lastSeen < STALE_MS;
-        if (fresh) {
-          alert(
-            "لديك جلسة نشطة على جهاز آخر. الرجاء تسجيل الخروج من الجهاز الآخر أولاً.\n\nYou have an active session on another device. Please sign out there first."
-          );
-          await supabase.auth.signOut();
-          window.location.href = "/login";
-          return false;
-        }
+      const now = Date.now();
+      const fresh = (sessions || []).filter(
+        (s: any) => now - new Date(s.last_seen).getTime() < STALE_MS
+      );
+      const mine = fresh.find((s: any) => s.device_id === deviceId);
+
+      if (!mine && fresh.length >= limit) {
+        alert(
+          `لقد بلغت الحد الأقصى للأجهزة النشطة (${limit}). الرجاء تسجيل الخروج من جهاز آخر أولاً.\n\nYou reached the maximum active devices (${limit}). Please sign out from another device first.`
+        );
+        await supabase.auth.signOut();
+        window.location.href = "/login";
+        return false;
       }
 
-      // Take ownership
       await supabase.from("active_sessions").upsert(
         {
           user_id: userId,
@@ -57,7 +72,7 @@ export const useSingleSession = () => {
           user_agent: navigator.userAgent.slice(0, 200),
           last_seen: new Date().toISOString(),
         },
-        { onConflict: "user_id" }
+        { onConflict: "user_id,device_id" }
       );
       return true;
     };
@@ -70,44 +85,10 @@ export const useSingleSession = () => {
         .eq("device_id", deviceId);
     };
 
-    const watchTakeover = (userId: string) => {
-      channelRef.current = supabase
-        .channel(`session:${userId}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "UPDATE",
-            schema: "public",
-            table: "active_sessions",
-            filter: `user_id=eq.${userId}`,
-          },
-          (payload: any) => {
-            if (payload.new?.device_id && payload.new.device_id !== deviceId) {
-              alert(
-                "تم تسجيل الدخول من جهاز آخر. سيتم تسجيل خروجك.\n\nSigned in from another device. You will be signed out."
-              );
-              supabase.auth.signOut().then(() => {
-                window.location.href = "/login";
-              });
-            }
-          }
-        )
-        .subscribe();
-    };
-
     const start = async (userId: string) => {
-      // Check role
-      const { data: roles } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId);
-      const isExempt = (roles || []).some((r: any) => EXEMPT_ROLES.has(r.role));
-      if (isExempt) return;
-
-      const ok = await claimSession(userId);
+      const limit = await getLimit(userId);
+      const ok = await claimSession(userId, limit);
       if (!ok || cancelled) return;
-
-      watchTakeover(userId);
 
       intervalRef.current = window.setInterval(() => {
         heartbeat(userId);
@@ -132,12 +113,10 @@ export const useSingleSession = () => {
       }
     };
 
-    // Initial
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user && !cancelled) start(session.user.id);
     });
 
-    // Auth changes
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session?.user) {
         setTimeout(() => start(session.user.id), 0);
@@ -146,7 +125,6 @@ export const useSingleSession = () => {
       }
     });
 
-    // Best-effort cleanup on tab close
     const onUnload = () => {
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session?.user) {

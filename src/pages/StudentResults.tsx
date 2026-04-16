@@ -64,7 +64,7 @@ const StudentResults = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <StudentPageHeader />
+      <StudentPageHeader titleAr="نتائج الاختبارات" titleEn="Quiz Results" />
       <main className="flex-1 container mx-auto px-3 sm:px-4 py-6 sm:py-10 max-w-6xl">
         <div className="mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">

@@ -59,7 +59,7 @@ const HomepageShowcaseCarousel = ({
   emoji,
   items,
   isRtl,
-  autoScrollSpeed = 30,
+  autoScrollSpeed = 65,
 }: HomepageShowcaseCarouselProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const isPausedRef = useRef(false);
@@ -123,7 +123,7 @@ const HomepageShowcaseCarousel = ({
           onMouseEnter={() => { isPausedRef.current = true; }}
           onMouseLeave={() => { isPausedRef.current = false; }}
           onTouchStart={() => { isPausedRef.current = true; }}
-          onTouchEnd={() => { setTimeout(() => { isPausedRef.current = false; }, 2000); }}
+          onTouchEnd={() => { setTimeout(() => { isPausedRef.current = false; }, 3000); }}
         >
           <button
             onClick={() => scroll("left")}

@@ -10,6 +10,7 @@ import {
 import NotificationBell from "@/components/NotificationBell";
 import AdminPreviewLinks from "@/components/AdminPreviewLinks";
 import AllPagesDropdown from "@/components/AllPagesDropdown";
+import BackButton from "@/components/BackButton";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -696,6 +697,7 @@ const AdminDashboard = () => {
             <Badge className="bg-primary/10 text-primary border-primary/20 ms-1 hidden md:inline-flex"><Shield className="w-3 h-3 me-1" />{ar("لوحة التحكم","Control Panel")}</Badge>
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            <BackButton />
             <NotificationBell />
             <AllPagesDropdown />
             <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5 px-2 sm:px-3"><Globe className="w-4 h-4" /><span className="hidden sm:inline">{t.langSwitch}</span></Button>

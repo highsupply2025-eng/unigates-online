@@ -16,6 +16,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
+import BackButton from "@/components/BackButton";
 
 const LeadershipDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -263,6 +264,7 @@ const LeadershipDashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            <BackButton />
             <NotificationBell />
             <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5 hidden sm:inline-flex">
               <Globe className="w-4 h-4" />

@@ -24,6 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 import { toast as sonnerToast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
+import BackButton from "@/components/BackButton";
 
 interface Department {
   id: string;
@@ -785,6 +786,7 @@ const InstitutionDashboard = () => {
               <LinkIcon className="w-4 h-4" />
               {isRtl ? "الدعوات" : "Invitations"}
             </Button>
+            <BackButton />
             <NotificationBell />
             <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5">
               <Globe className="w-4 h-4" />
@@ -799,6 +801,7 @@ const InstitutionDashboard = () => {
           </div>
           {/* Mobile dropdown */}
           <div className="md:hidden flex items-center gap-1.5 shrink-0">
+            <BackButton />
             <NotificationBell />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

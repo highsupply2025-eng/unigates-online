@@ -87,18 +87,15 @@ const Signup = () => {
           navigate(`/signup/institute/${role}?code=${code}`, { replace: true });
           return;
         }
-        // Check department_members for dept_invite codes
+        // Check department_members for dept_invite codes (via secure RPC)
         if (deptInviteFromUrl) {
-          const { data: memberData } = await supabase
-            .from("department_members" as any)
-            .select("department_id")
-            .eq("invitation_code", code)
-            .maybeSingle();
-          if (memberData) {
+          const { data: memberRows } = await supabase.rpc("verify_department_invitation" as any, { _code: code });
+          const memberData = Array.isArray(memberRows) && memberRows.length > 0 ? (memberRows[0] as any) : null;
+          if (memberData?.department_id) {
             const { data: deptData } = await supabase
               .from("departments" as any)
               .select("institution_type")
-              .eq("id", (memberData as any).department_id)
+              .eq("id", memberData.department_id)
               .maybeSingle();
             if (deptData) {
               const instPath = (deptData as any).institution_type === "institute" ? "institute" : "college";

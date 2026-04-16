@@ -467,14 +467,14 @@ const QuizCreate = () => {
                             {q.due_date && <span>{isRtl ? "الموعد:" : "Due:"} {new Date(q.due_date).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</span>}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Button size="sm" variant="outline" onClick={() => openQuizQuestions(q)} className="gap-1.5"><HelpCircle className="w-3.5 h-3.5" />{isRtl ? "الأسئلة" : "Questions"}</Button>
-                          <Button size="sm" variant="outline" onClick={() => openResults(q.id)} className="gap-1.5"><BarChart3 className="w-3.5 h-3.5" />{isRtl ? "النتائج" : "Results"}</Button>
-                          <Button size="sm" variant={q.is_published ? "secondary" : "default"} onClick={() => handlePublishQuiz(q.id, !q.is_published)} className="gap-1.5">
+                        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full lg:w-auto">
+                          <Button size="sm" variant="outline" onClick={() => openQuizQuestions(q)} className="gap-1.5 text-xs"><HelpCircle className="w-3.5 h-3.5" />{isRtl ? "الأسئلة" : "Questions"}</Button>
+                          <Button size="sm" variant="outline" onClick={() => openResults(q.id)} className="gap-1.5 text-xs"><BarChart3 className="w-3.5 h-3.5" />{isRtl ? "النتائج" : "Results"}</Button>
+                          <Button size="sm" variant={q.is_published ? "secondary" : "default"} onClick={() => handlePublishQuiz(q.id, !q.is_published)} className="gap-1.5 text-xs">
                             {q.is_published ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                             {q.is_published ? (isRtl ? "إخفاء" : "Unpublish") : (isRtl ? "نشر" : "Publish")}
                           </Button>
-                          <Button size="sm" variant="destructive" onClick={() => handleDeleteQuiz(q.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                          <Button size="sm" variant="destructive" onClick={() => handleDeleteQuiz(q.id)} className="gap-1.5 text-xs"><Trash2 className="w-3.5 h-3.5" /><span className="sm:hidden">{isRtl ? "حذف" : "Delete"}</span></Button>
                         </div>
                       </div>
 

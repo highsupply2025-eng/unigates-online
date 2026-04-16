@@ -131,6 +131,26 @@ const LeadershipQuizApprovals = () => {
       update.results_published = true;
     }
     const { error } = await supabase.from("quizzes").update(update).eq("id", quiz.id);
+    if (!error && role === "dean") {
+      // Notify all students who submitted this quiz
+      const { data: subs } = await supabase
+        .from("quiz_submissions").select("student_id").eq("quiz_id", quiz.id);
+      const studentIds = Array.from(new Set((subs || []).map((s: any) => s.student_id)));
+      if (studentIds.length > 0) {
+        const titleAr = `تم اعتماد نتيجة اختبار: ${quiz.title_ar}`;
+        const titleEn = `Quiz result approved: ${quiz.title_en}`;
+        const msgAr = "تم اعتماد نتيجتك من قبل العميد. يمكنك مراجعتها الآن في صفحة النتائج.";
+        const msgEn = "Your result has been approved by the Dean. You can review it in your results page.";
+        const rows = studentIds.map(sid => ({
+          sender_id: user.id,
+          recipient_id: sid,
+          notification_type: "quiz_result_published",
+          title_ar: titleAr, title_en: titleEn,
+          message_ar: msgAr, message_en: msgEn,
+        }));
+        await supabase.from("notifications").insert(rows);
+      }
+    }
     setActing(false);
     if (error) {
       toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });

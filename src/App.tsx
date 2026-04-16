@@ -58,6 +58,8 @@ const SchoolRegistration = lazy(() => import("./pages/SchoolRegistration"));
 const QuizCreate = lazy(() => import("./pages/QuizCreate"));
 const AddStudentResult = lazy(() => import("./pages/AddStudentResult"));
 const InstitutionQuizManage = lazy(() => import("./pages/InstitutionQuizManage"));
+const StudentResults = lazy(() => import("./pages/StudentResults"));
+const LeadershipQuizApprovals = lazy(() => import("./pages/LeadershipQuizApprovals"));
 
 const queryClient = new QueryClient({
   defaultOptions: {

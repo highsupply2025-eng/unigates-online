@@ -138,21 +138,12 @@ const SiteHeader = () => {
               {isAdmin && (
                 <>
                   <DropdownMenuSeparator />
-                  <DropdownMenuLabel className="text-xs flex items-center gap-1.5">
-                    <Shield className="w-3 h-3" />
-                    {ar("معاينة الأدمن", "Admin Preview")}
-                  </DropdownMenuLabel>
-                  {previewItems.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <DropdownMenuItem key={item.to} asChild className="gap-2 cursor-pointer">
-                        <Link to={item.to} target="_blank" rel="noopener noreferrer">
-                          <Icon className="w-4 h-4 text-primary" />
-                          <span className="text-sm">{item.label}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    );
-                  })}
+                  <DropdownMenuItem asChild className="gap-2 cursor-pointer">
+                    <Link to="/admin/dashboard">
+                      <Shield className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-semibold">{ar("معاينة الأدمن", "Admin Preview")}</span>
+                    </Link>
+                  </DropdownMenuItem>
                 </>
               )}
               <DropdownMenuSeparator />

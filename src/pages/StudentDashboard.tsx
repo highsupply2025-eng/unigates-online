@@ -430,26 +430,26 @@ const StudentDashboard = () => {
         </div>
 
         {/* Stats Summary */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8">
-          <div className="bg-primary/5 rounded-xl p-3 text-center">
-            <p className="text-xl font-black text-primary">{subscriptions.length}</p>
-            <p className="text-[10px] text-muted-foreground">{isRtl ? "اشتراكات" : "Subscriptions"}</p>
+        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3 mb-8">
+          <div className="bg-primary/5 rounded-xl p-2 sm:p-3 text-center min-w-0">
+            <p className="text-lg sm:text-xl font-black text-primary">{subscriptions.length}</p>
+            <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "اشتراكات" : "Subscriptions"}</p>
           </div>
-          <div className="bg-green-500/5 rounded-xl p-3 text-center">
-            <p className="text-xl font-black text-green-600">{totalCompleted}</p>
-            <p className="text-[10px] text-muted-foreground">{isRtl ? "حلقات مكتملة" : "Completed"}</p>
+          <div className="bg-green-500/5 rounded-xl p-2 sm:p-3 text-center min-w-0">
+            <p className="text-lg sm:text-xl font-black text-green-600">{totalCompleted}</p>
+            <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "مكتملة" : "Completed"}</p>
           </div>
-          <div className="bg-amber-500/5 rounded-xl p-3 text-center">
-            <p className="text-xl font-black text-amber-500">{quizSubmissions.length}</p>
-            <p className="text-[10px] text-muted-foreground">{isRtl ? "اختبارات محلولة" : "Quizzes Done"}</p>
+          <div className="bg-amber-500/5 rounded-xl p-2 sm:p-3 text-center min-w-0">
+            <p className="text-lg sm:text-xl font-black text-amber-500">{quizSubmissions.length}</p>
+            <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "اختبارات" : "Quizzes"}</p>
           </div>
-          <div className="bg-blue-500/5 rounded-xl p-3 text-center">
-            <p className="text-xl font-black text-blue-500">{attendance.length}</p>
-            <p className="text-[10px] text-muted-foreground">{isRtl ? "حضور بث" : "Attended"}</p>
+          <div className="bg-blue-500/5 rounded-xl p-2 sm:p-3 text-center min-w-0">
+            <p className="text-lg sm:text-xl font-black text-blue-500">{attendance.length}</p>
+            <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "حضور" : "Attended"}</p>
           </div>
-          <div className="bg-red-500/5 rounded-xl p-3 text-center">
-            <p className="text-xl font-black text-red-500">{submissions.length}</p>
-            <p className="text-[10px] text-muted-foreground">{isRtl ? "واجبات" : "Assignments"}</p>
+          <div className="bg-red-500/5 rounded-xl p-2 sm:p-3 text-center min-w-0">
+            <p className="text-lg sm:text-xl font-black text-red-500">{submissions.length}</p>
+            <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "واجبات" : "Tasks"}</p>
           </div>
         </div>
 

@@ -73,6 +73,12 @@ const QuizCreate = () => {
   const [quizSubmissions, setQuizSubmissions] = useState<any[]>([]);
   const [showResultsDialog, setShowResultsDialog] = useState(false);
 
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importPreview, setImportPreview] = useState<ParsedQuestion[]>([]);
+  const [importErrors, setImportErrors] = useState<{ row: number; message: string }[]>([]);
+  const [importFileName, setImportFileName] = useState("");
+
   useEffect(() => {
     const init = async () => {
       const { data: { user: u } } = await supabase.auth.getUser();

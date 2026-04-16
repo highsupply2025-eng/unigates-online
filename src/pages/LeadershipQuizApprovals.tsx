@@ -275,33 +275,52 @@ const LeadershipQuizApprovals = () => {
           {submissions.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground text-sm">{isRtl ? "لا توجد إجابات" : "No submissions"}</div>
           ) : (
-            <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
-              <Table>
-                <TableHeader><TableRow>
-                  <TableHead className="text-xs sm:text-sm">{isRtl ? "الطالب" : "Student"}</TableHead>
-                  <TableHead className="text-xs sm:text-sm">{isRtl ? "الدرجة" : "Score"}</TableHead>
-                  <TableHead className="text-xs sm:text-sm">{isRtl ? "النسبة" : "%"}</TableHead>
-                  <TableHead className="text-xs sm:text-sm">{isRtl ? "التفاصيل" : "Details"}</TableHead>
-                </TableRow></TableHeader>
-                <TableBody>
-                  {submissions.map(s => {
-                    const pct = s.total_points > 0 ? Math.round((s.score / s.total_points) * 100) : 0;
-                    return (
-                      <TableRow key={s.id}>
-                        <TableCell className="text-xs sm:text-sm">{studentNames[s.student_id] || s.student_id.slice(0, 8)}</TableCell>
-                        <TableCell className="text-xs sm:text-sm font-bold">{s.score}/{s.total_points}</TableCell>
-                        <TableCell><Badge variant={pct >= 50 ? "default" : "destructive"} className="text-[10px] sm:text-xs">{pct}%</Badge></TableCell>
-                        <TableCell>
-                          <Button size="sm" variant="outline" className="gap-1 text-xs h-7" onClick={() => openDetail(s)}>
-                            <Eye className="w-3 h-3" />{isRtl ? "عرض" : "View"}
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
+            <>
+              <Input
+                placeholder={isRtl ? "ابحث باسم الطالب..." : "Search by student name..."}
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
+                className="mb-3"
+              />
+              {(() => {
+                const q = searchName.trim().toLowerCase();
+                const visible = q
+                  ? submissions.filter(s => (studentNames[s.student_id] || s.student_id).toLowerCase().includes(q))
+                  : submissions;
+                if (visible.length === 0) {
+                  return <div className="text-center py-6 text-muted-foreground text-sm">{isRtl ? "لا توجد نتائج مطابقة" : "No matching results"}</div>;
+                }
+                return (
+                  <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+                    <Table>
+                      <TableHeader><TableRow>
+                        <TableHead className="text-xs sm:text-sm">{isRtl ? "الطالب" : "Student"}</TableHead>
+                        <TableHead className="text-xs sm:text-sm">{isRtl ? "الدرجة" : "Score"}</TableHead>
+                        <TableHead className="text-xs sm:text-sm">{isRtl ? "النسبة" : "%"}</TableHead>
+                        <TableHead className="text-xs sm:text-sm">{isRtl ? "التفاصيل" : "Details"}</TableHead>
+                      </TableRow></TableHeader>
+                      <TableBody>
+                        {visible.map(s => {
+                          const pct = s.total_points > 0 ? Math.round((s.score / s.total_points) * 100) : 0;
+                          return (
+                            <TableRow key={s.id}>
+                              <TableCell className="text-xs sm:text-sm">{studentNames[s.student_id] || s.student_id.slice(0, 8)}</TableCell>
+                              <TableCell className="text-xs sm:text-sm font-bold">{s.score}/{s.total_points}</TableCell>
+                              <TableCell><Badge variant={pct >= 50 ? "default" : "destructive"} className="text-[10px] sm:text-xs">{pct}%</Badge></TableCell>
+                              <TableCell>
+                                <Button size="sm" variant="outline" className="gap-1 text-xs h-7" onClick={() => openDetail(s)}>
+                                  <Eye className="w-3 h-3" />{isRtl ? "عرض" : "View"}
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                );
+              })()}
+            </>
           )}
         </DialogContent>
       </Dialog>

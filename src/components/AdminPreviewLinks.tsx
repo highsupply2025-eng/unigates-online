@@ -63,16 +63,16 @@ const AdminPreviewLinks = ({ compact = false }: { compact?: boolean }) => {
                 to={it.to}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-2.5 sm:p-3 rounded-lg border bg-background hover:border-primary hover:shadow-md transition-all group min-w-0"
+                className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg border bg-background hover:border-primary hover:shadow-md transition-all group min-w-0"
               >
-                <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shrink-0 ${it.color}`}>
-                  <Icon className="w-5 h-5" />
+                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shrink-0 ${it.color}`}>
+                  <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">{it.label}</p>
-                  <p className="text-xs text-muted-foreground truncate">{it.to}</p>
+                  <p className="text-sm font-semibold text-foreground truncate leading-tight">{it.label}</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground truncate" dir="ltr">{it.to}</p>
                 </div>
-                <ExternalLink className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                <ExternalLink className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0 hidden sm:block" />
               </Link>
             );
           })}

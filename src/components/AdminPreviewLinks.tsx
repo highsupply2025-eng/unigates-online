@@ -61,8 +61,6 @@ const AdminPreviewLinks = ({ compact = false }: { compact?: boolean }) => {
               <Link
                 key={it.to}
                 to={it.to}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg border bg-background hover:border-primary hover:shadow-md transition-all group min-w-0"
               >
                 <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shrink-0 ${it.color}`}>

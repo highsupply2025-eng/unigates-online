@@ -596,14 +596,19 @@ const QuizCreate = () => {
             {selectedQuiz && (
               <div className="space-y-5">
                 <Card className="border-primary/20 bg-primary/5">
-                  <CardContent className="p-4 flex items-center gap-3">
-                    <FileQuestion className="w-7 h-7 text-primary shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-foreground truncate">{isRtl ? selectedQuiz.title_ar : selectedQuiz.title_en}</h3>
-                      <p className="text-xs text-muted-foreground">
-                        {quizQuestions.length} {isRtl ? "سؤال" : "Q"} · {quizQuestions.reduce((s, q) => s + (q.points || 1), 0)} {isRtl ? "درجة" : "pts"}
-                      </p>
+                  <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <FileQuestion className="w-7 h-7 text-primary shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-foreground truncate">{isRtl ? selectedQuiz.title_ar : selectedQuiz.title_en}</h3>
+                        <p className="text-xs text-muted-foreground">
+                          {quizQuestions.length} {isRtl ? "سؤال" : "Q"} · {quizQuestions.reduce((s, q) => s + (q.points || 1), 0)} {isRtl ? "درجة" : "pts"}
+                        </p>
+                      </div>
                     </div>
+                    <Button size="sm" variant="outline" onClick={() => { setImportPreview([]); setImportErrors([]); setImportFileName(""); setShowImportDialog(true); }} className="gap-1.5 w-full sm:w-auto">
+                      <Upload className="w-4 h-4" />{isRtl ? "استيراد بنك أسئلة" : "Import Question Bank"}
+                    </Button>
                   </CardContent>
                 </Card>
 

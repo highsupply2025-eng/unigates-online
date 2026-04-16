@@ -1923,6 +1923,28 @@ export type Database = {
       get_platform_stats: { Args: never; Returns: Json }
       get_profile_count: { Args: never; Returns: number }
       get_profile_count_by_role: { Args: { _role: string }; Returns: number }
+      get_quiz_review: {
+        Args: { _quiz_id: string }
+        Returns: {
+          correct_answer: string
+          expected_answer: string
+          id: string
+          image_url: string
+          option_a_ar: string
+          option_a_en: string
+          option_b_ar: string
+          option_b_en: string
+          option_c_ar: string
+          option_c_en: string
+          option_d_ar: string
+          option_d_en: string
+          points: number
+          question_ar: string
+          question_en: string
+          question_order: number
+          question_type: string
+        }[]
+      }
       get_user_email: { Args: { _user_id: string }; Returns: string }
       has_approved_role: {
         Args: {
@@ -1943,6 +1965,10 @@ export type Database = {
         Returns: boolean
       }
       quiz_results_approved: { Args: { _quiz_id: string }; Returns: boolean }
+      submit_quiz: {
+        Args: { _answers: Json; _quiz_id: string; _whatsapp?: string }
+        Returns: Json
+      }
       verify_department_invitation: {
         Args: { _code: string }
         Returns: {

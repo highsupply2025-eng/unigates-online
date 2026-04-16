@@ -744,15 +744,15 @@ const InstitutionDashboard = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
       {/* Header */}
-      <header className="border-b border-primary/20 px-6 py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/25">
-              <Landmark className="w-7 h-7 text-white" />
+      <header className="border-b border-primary/20 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/25 shrink-0">
+              <Landmark className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
             </div>
-            <div>
-              <h1 className="text-xl font-black text-foreground">{institutionName}</h1>
-              <p className="text-xs text-muted-foreground">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-base sm:text-xl font-black text-foreground truncate">{institutionName}</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
                 {isRtl
                   ? (institutionType === "college" ? "لوحة تحكم الكلية" : "لوحة تحكم المعهد")
                   : (institutionType === "college" ? "College Dashboard" : "Institute Dashboard")}
@@ -798,10 +798,11 @@ const InstitutionDashboard = () => {
             </Button>
           </div>
           {/* Mobile dropdown */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-1.5 shrink-0">
+            <NotificationBell />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="icon" className="rounded-xl w-10 h-10 bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-primary/25 text-white">
+                <Button size="icon" className="rounded-xl w-9 h-9 bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-primary/25 text-white shrink-0">
                   <Menu className="w-5 h-5" />
                 </Button>
               </DropdownMenuTrigger>
@@ -847,7 +848,7 @@ const InstitutionDashboard = () => {
         </div>
       </header>
 
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-6">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
         {pageView === "members" && selectedDept ? (
           /* Full-page Members View */
           <div className="space-y-4">

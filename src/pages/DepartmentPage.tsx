@@ -269,42 +269,63 @@ const DepartmentPage = () => {
 
   const renderMemberCard = (member: DepartmentMember, roleParam: string, colorClass: string, icon: React.ReactNode) => {
     const inviteLink = `${baseUrl}/signup/${instPath}/${roleParam}?code=${member.invitation_code}`;
+    const profile = member.user_id ? profilesMap[member.user_id] : null;
+    const displayName = profile?.full_name || member.full_name;
+    const avatar = profile?.live_photo_url || member.photo_url;
+    const isLinked = !!member.user_id;
     const shareText = isRtl
       ? `مرحباً ${member.full_name}، يمكنك التسجيل في منصة إدراك عبر هذا الرابط:\n${inviteLink}\nكود الدعوة: ${member.invitation_code}`
       : `Hi ${member.full_name}, register on Edrak platform:\n${inviteLink}\nInvitation code: ${member.invitation_code}`;
 
     return (
-      <div key={member.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-xl border-2 bg-background">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className={`w-10 h-10 rounded-full ${colorClass} flex items-center justify-center shrink-0`}>
-            {icon}
+      <div key={member.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-xl border-2 bg-background hover:border-primary/40 transition-colors">
+        <button
+          type="button"
+          onClick={() => navigate(`/institution/member/${member.id}`)}
+          className="flex items-center gap-3 min-w-0 text-start hover:opacity-80 transition-opacity flex-1"
+        >
+          <div className={`w-10 h-10 rounded-full ${colorClass} flex items-center justify-center shrink-0 overflow-hidden`}>
+            {avatar ? (
+              <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
+            ) : icon}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-bold text-foreground text-sm sm:text-base truncate">{member.full_name}</p>
-            <p className="text-xs text-muted-foreground truncate">
-              {member.user_id ? (isRtl ? "✅ مربوط بحساب" : "✅ Linked") : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending")}
-            </p>
+            <p className="font-bold text-foreground text-sm sm:text-base truncate">{displayName}</p>
+            {isLinked && profile ? (
+              <>
+                <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
+                <p className="text-xs text-muted-foreground truncate" dir="ltr">{profile.phone}</p>
+              </>
+            ) : (
+              <p className="text-xs text-muted-foreground truncate">
+                {isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending"}
+              </p>
+            )}
           </div>
-        </div>
+        </button>
         <div className="flex items-center gap-1.5 flex-wrap sm:justify-end">
-          <Button size="sm" variant="outline" className="text-xs h-8 px-2" onClick={() => copyToClipboard(member.invitation_code!)}>
-            <Copy className="w-3.5 h-3.5 me-1" />
-            {isRtl ? "نسخ الكود" : "Copy Code"}
-          </Button>
-          <Button size="sm" variant="outline" className="text-xs h-8 px-2" onClick={() => copyToClipboard(inviteLink)}>
-            <LinkIcon className="w-3.5 h-3.5 me-1" />
-            {isRtl ? "نسخ الرابط" : "Copy Link"}
-          </Button>
-          <a
-            href={`https://wa.me/?text=${encodeURIComponent(shareText)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
-              <MessageCircle className="w-3.5 h-3.5 me-1" />
-              {isRtl ? "واتساب" : "WhatsApp"}
-            </Button>
-          </a>
+          {!isLinked && (
+            <>
+              <Button size="sm" variant="outline" className="text-xs h-8 px-2" onClick={() => copyToClipboard(member.invitation_code!)}>
+                <Copy className="w-3.5 h-3.5 me-1" />
+                {isRtl ? "نسخ الكود" : "Copy Code"}
+              </Button>
+              <Button size="sm" variant="outline" className="text-xs h-8 px-2" onClick={() => copyToClipboard(inviteLink)}>
+                <LinkIcon className="w-3.5 h-3.5 me-1" />
+                {isRtl ? "نسخ الرابط" : "Copy Link"}
+              </Button>
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(shareText)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
+                  <MessageCircle className="w-3.5 h-3.5 me-1" />
+                  {isRtl ? "واتساب" : "WhatsApp"}
+                </Button>
+              </a>
+            </>
+          )}
           <Button
             size="sm"
             variant="outline"

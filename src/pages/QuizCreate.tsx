@@ -408,8 +408,8 @@ const QuizCreate = () => {
   return (
     <div className="min-h-screen bg-background" dir={dir}>
       <SimpleHeader />
-      <div className="max-w-5xl mx-auto px-4 py-6 sm:py-8">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4 gap-2 text-muted-foreground hover:text-foreground">
+      <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-3 sm:mb-4 gap-2 text-muted-foreground hover:text-foreground">
           {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           {isRtl ? "رجوع" : "Back"}
         </Button>
@@ -430,13 +430,15 @@ const QuizCreate = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-5">
-            <TabsTrigger value="list" className="gap-2"><ListChecks className="w-4 h-4" />{isRtl ? "الاختبارات" : "Quizzes"}{quizzes.length > 0 && <Badge variant="secondary" className="ms-1">{quizzes.length}</Badge>}</TabsTrigger>
-            <TabsTrigger value="create" className="gap-2"><Plus className="w-4 h-4" />{isRtl ? "إنشاء" : "Create"}</TabsTrigger>
-            {selectedQuiz && (
-              <TabsTrigger value="questions" className="gap-2"><HelpCircle className="w-4 h-4" />{isRtl ? "الأسئلة" : "Questions"}{quizQuestions.length > 0 && <Badge variant="secondary" className="ms-1">{quizQuestions.length}</Badge>}</TabsTrigger>
-            )}
-          </TabsList>
+          <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0 mb-4 sm:mb-5">
+            <TabsList className="inline-flex w-max sm:w-auto">
+              <TabsTrigger value="list" className="gap-1.5 text-xs sm:text-sm"><ListChecks className="w-3.5 h-3.5 sm:w-4 sm:h-4" />{isRtl ? "الاختبارات" : "Quizzes"}{quizzes.length > 0 && <Badge variant="secondary" className="ms-1 h-4 px-1.5 text-[10px]">{quizzes.length}</Badge>}</TabsTrigger>
+              <TabsTrigger value="create" className="gap-1.5 text-xs sm:text-sm"><Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />{isRtl ? "إنشاء" : "Create"}</TabsTrigger>
+              {selectedQuiz && (
+                <TabsTrigger value="questions" className="gap-1.5 text-xs sm:text-sm"><HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />{isRtl ? "الأسئلة" : "Questions"}{quizQuestions.length > 0 && <Badge variant="secondary" className="ms-1 h-4 px-1.5 text-[10px]">{quizQuestions.length}</Badge>}</TabsTrigger>
+              )}
+            </TabsList>
+          </div>
 
           <TabsContent value="list">
             {quizzes.length === 0 ? (
@@ -465,14 +467,14 @@ const QuizCreate = () => {
                             {q.due_date && <span>{isRtl ? "الموعد:" : "Due:"} {new Date(q.due_date).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</span>}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Button size="sm" variant="outline" onClick={() => openQuizQuestions(q)} className="gap-1.5"><HelpCircle className="w-3.5 h-3.5" />{isRtl ? "الأسئلة" : "Questions"}</Button>
-                          <Button size="sm" variant="outline" onClick={() => openResults(q.id)} className="gap-1.5"><BarChart3 className="w-3.5 h-3.5" />{isRtl ? "النتائج" : "Results"}</Button>
-                          <Button size="sm" variant={q.is_published ? "secondary" : "default"} onClick={() => handlePublishQuiz(q.id, !q.is_published)} className="gap-1.5">
+                        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full lg:w-auto">
+                          <Button size="sm" variant="outline" onClick={() => openQuizQuestions(q)} className="gap-1.5 text-xs"><HelpCircle className="w-3.5 h-3.5" />{isRtl ? "الأسئلة" : "Questions"}</Button>
+                          <Button size="sm" variant="outline" onClick={() => openResults(q.id)} className="gap-1.5 text-xs"><BarChart3 className="w-3.5 h-3.5" />{isRtl ? "النتائج" : "Results"}</Button>
+                          <Button size="sm" variant={q.is_published ? "secondary" : "default"} onClick={() => handlePublishQuiz(q.id, !q.is_published)} className="gap-1.5 text-xs">
                             {q.is_published ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                             {q.is_published ? (isRtl ? "إخفاء" : "Unpublish") : (isRtl ? "نشر" : "Publish")}
                           </Button>
-                          <Button size="sm" variant="destructive" onClick={() => handleDeleteQuiz(q.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                          <Button size="sm" variant="destructive" onClick={() => handleDeleteQuiz(q.id)} className="gap-1.5 text-xs"><Trash2 className="w-3.5 h-3.5" /><span className="sm:hidden">{isRtl ? "حذف" : "Delete"}</span></Button>
                         </div>
                       </div>
 
@@ -671,38 +673,40 @@ const QuizCreate = () => {
       </div>
 
       <Dialog open={showResultsDialog} onOpenChange={setShowResultsDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{isRtl ? "نتائج الاختبار" : "Quiz Results"}</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1.5rem)] sm:w-full p-4 sm:p-6">
+          <DialogHeader><DialogTitle className="text-base sm:text-lg">{isRtl ? "نتائج الاختبار" : "Quiz Results"}</DialogTitle></DialogHeader>
           {quizSubmissions.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground">
               <BarChart3 className="w-10 h-10 mx-auto mb-3 text-muted-foreground/40" />
               {isRtl ? "لا توجد نتائج بعد" : "No results yet"}
             </div>
           ) : (
-            <Table>
-              <TableHeader><TableRow>
-                <TableHead>{isRtl ? "الطالب" : "Student"}</TableHead>
-                <TableHead>{isRtl ? "الدرجة" : "Score"}</TableHead>
-                <TableHead>{isRtl ? "الإجمالي" : "Total"}</TableHead>
-                <TableHead>{isRtl ? "النسبة" : "%"}</TableHead>
-                <TableHead>{isRtl ? "التاريخ" : "Date"}</TableHead>
-              </TableRow></TableHeader>
-              <TableBody>
-                {quizSubmissions.map(s => (
-                  <TableRow key={s.id}>
-                    <TableCell>{s.student_id.slice(0, 8)}...</TableCell>
-                    <TableCell className="font-bold">{s.score}</TableCell>
-                    <TableCell>{s.total_points}</TableCell>
-                    <TableCell>
-                      <Badge variant={s.total_points > 0 && (s.score / s.total_points) >= 0.5 ? "default" : "destructive"}>
-                        {s.total_points > 0 ? Math.round((s.score / s.total_points) * 100) : 0}%
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm">{new Date(s.submitted_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+              <Table>
+                <TableHeader><TableRow>
+                  <TableHead className="text-xs sm:text-sm">{isRtl ? "الطالب" : "Student"}</TableHead>
+                  <TableHead className="text-xs sm:text-sm">{isRtl ? "الدرجة" : "Score"}</TableHead>
+                  <TableHead className="text-xs sm:text-sm">{isRtl ? "الإجمالي" : "Total"}</TableHead>
+                  <TableHead className="text-xs sm:text-sm">{isRtl ? "النسبة" : "%"}</TableHead>
+                  <TableHead className="text-xs sm:text-sm">{isRtl ? "التاريخ" : "Date"}</TableHead>
+                </TableRow></TableHeader>
+                <TableBody>
+                  {quizSubmissions.map(s => (
+                    <TableRow key={s.id}>
+                      <TableCell className="text-xs sm:text-sm">{s.student_id.slice(0, 8)}...</TableCell>
+                      <TableCell className="font-bold text-xs sm:text-sm">{s.score}</TableCell>
+                      <TableCell className="text-xs sm:text-sm">{s.total_points}</TableCell>
+                      <TableCell>
+                        <Badge variant={s.total_points > 0 && (s.score / s.total_points) >= 0.5 ? "default" : "destructive"} className="text-[10px] sm:text-xs">
+                          {s.total_points > 0 ? Math.round((s.score / s.total_points) * 100) : 0}%
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-xs sm:text-sm whitespace-nowrap">{new Date(s.submitted_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </DialogContent>
       </Dialog>

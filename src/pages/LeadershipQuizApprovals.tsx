@@ -36,6 +36,7 @@ const LeadershipQuizApprovals = () => {
   const [studentNames, setStudentNames] = useState<Record<string, string>>({});
   const [detailSubmission, setDetailSubmission] = useState<any>(null);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
+  const [searchName, setSearchName] = useState("");
 
   useEffect(() => { init(); }, []);
 

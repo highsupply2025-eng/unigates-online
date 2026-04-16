@@ -47,9 +47,6 @@ const SchoolLogin = () => {
             </span>
           </Link>
           <div className="flex items-center gap-3">
-            <Link to="/school-platform/signup">
-              <Button variant="default" size="sm" className="font-semibold">{t.signup}</Button>
-            </Link>
             <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
               <Globe className="w-4 h-4" />{t.langSwitch}
             </Button>
@@ -82,10 +79,6 @@ const SchoolLogin = () => {
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowIcon className="w-5 h-5" />}
             {t.login}
           </Button>
-          <p className="text-sm text-muted-foreground">
-            {t.loginPage.noAccount}{" "}
-            <Link to="/school-platform/signup" className="text-primary font-semibold hover:underline">{t.loginPage.createAccount}</Link>
-          </p>
         </form>
       </main>
     </div>

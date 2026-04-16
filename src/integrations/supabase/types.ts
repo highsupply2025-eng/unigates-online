@@ -1233,6 +1233,15 @@ export type Database = {
       }
       quizzes: {
         Row: {
+          approved_by_dean: boolean
+          approved_by_dean_at: string | null
+          approved_by_dean_id: string | null
+          approved_by_head: boolean
+          approved_by_head_at: string | null
+          approved_by_head_id: string | null
+          approved_by_vice_dean: boolean
+          approved_by_vice_dean_at: string | null
+          approved_by_vice_dean_id: string | null
           course_id: string
           created_at: string
           creator_id: string
@@ -1243,12 +1252,25 @@ export type Database = {
           id: string
           is_published: boolean | null
           randomize_questions: boolean
+          rejected_at: string | null
+          rejected_by: string | null
+          rejection_reason: string | null
+          results_published: boolean
           show_results_immediately: boolean
           title_ar: string
           title_en: string
           updated_at: string
         }
         Insert: {
+          approved_by_dean?: boolean
+          approved_by_dean_at?: string | null
+          approved_by_dean_id?: string | null
+          approved_by_head?: boolean
+          approved_by_head_at?: string | null
+          approved_by_head_id?: string | null
+          approved_by_vice_dean?: boolean
+          approved_by_vice_dean_at?: string | null
+          approved_by_vice_dean_id?: string | null
           course_id: string
           created_at?: string
           creator_id: string
@@ -1259,12 +1281,25 @@ export type Database = {
           id?: string
           is_published?: boolean | null
           randomize_questions?: boolean
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          results_published?: boolean
           show_results_immediately?: boolean
           title_ar: string
           title_en: string
           updated_at?: string
         }
         Update: {
+          approved_by_dean?: boolean
+          approved_by_dean_at?: string | null
+          approved_by_dean_id?: string | null
+          approved_by_head?: boolean
+          approved_by_head_at?: string | null
+          approved_by_head_id?: string | null
+          approved_by_vice_dean?: boolean
+          approved_by_vice_dean_at?: string | null
+          approved_by_vice_dean_id?: string | null
           course_id?: string
           created_at?: string
           creator_id?: string
@@ -1275,6 +1310,10 @@ export type Database = {
           id?: string
           is_published?: boolean | null
           randomize_questions?: boolean
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          results_published?: boolean
           show_results_immediately?: boolean
           title_ar?: string
           title_en?: string
@@ -1765,6 +1804,7 @@ export type Database = {
         Args: { _department_id: string; _user_id: string }
         Returns: boolean
       }
+      quiz_results_approved: { Args: { _quiz_id: string }; Returns: boolean }
     }
     Enums: {
       app_role:

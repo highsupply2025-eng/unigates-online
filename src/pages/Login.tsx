@@ -279,21 +279,21 @@ const Login = () => {
             </button>
           </div>
 
-          <div className="flex gap-2 md:gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 md:gap-3">
             <Button
               type="submit"
               size="lg"
-              className="flex-1 h-12 md:h-14 text-base md:text-lg font-bold gap-2 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] hover:from-primary/90 hover:to-[hsl(200,75%,25%)] shadow-lg shadow-primary/25"
+              className="w-full sm:flex-1 h-12 md:h-14 text-base md:text-lg font-bold gap-2 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] hover:from-primary/90 hover:to-[hsl(200,75%,25%)] shadow-lg shadow-primary/25"
               disabled={loading}
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowIcon className="w-5 h-5" />}
               {t.login}
             </Button>
-            <Link to="/forgot-password" className="flex-1">
+            <Link to="/forgot-password" className="w-full sm:flex-1">
               <Button
                 type="button"
                 size="lg"
-                className="w-full h-12 md:h-14 text-base md:text-lg font-bold border-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5"
+                className="w-full h-12 md:h-14 text-sm md:text-lg font-bold border-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5"
                 variant="outline"
               >
                 {t.loginPage.forgotPassword}

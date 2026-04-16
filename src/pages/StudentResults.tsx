@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Award, BarChart3, CheckCircle, Loader2, Clock, Eye, XCircle } from "lucide-react";
+import { Award, BarChart3, CheckCircle, Loader2, Clock, Eye, XCircle, Printer } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -172,11 +172,16 @@ const StudentResults = () => {
       </main>
 
       <Dialog open={showDetail} onOpenChange={setShowDetail}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1.5rem)] sm:w-full p-4 sm:p-6">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1.5rem)] sm:w-full p-4 sm:p-6 print-area">
           <DialogHeader>
-            <DialogTitle className="text-base sm:text-lg">
-              {detail ? (isRtl ? detail.quiz?.title_ar : detail.quiz?.title_en) : ""}
-            </DialogTitle>
+            <div className="flex items-center justify-between gap-2">
+              <DialogTitle className="text-base sm:text-lg">
+                {detail ? (isRtl ? detail.quiz?.title_ar : detail.quiz?.title_en) : ""}
+              </DialogTitle>
+              <Button size="sm" variant="outline" className="gap-1.5 text-xs no-print me-6" onClick={() => window.print()}>
+                <Printer className="w-3.5 h-3.5" />{isRtl ? "طباعة / PDF" : "Print / PDF"}
+              </Button>
+            </div>
           </DialogHeader>
           {detail && (
             <div className="space-y-3">

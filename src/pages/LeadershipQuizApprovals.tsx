@@ -304,11 +304,16 @@ const LeadershipQuizApprovals = () => {
       </Dialog>
 
       <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1.5rem)] sm:w-full p-4 sm:p-6">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1.5rem)] sm:w-full p-4 sm:p-6 print-area">
           <DialogHeader>
-            <DialogTitle className="text-base sm:text-lg">
-              {isRtl ? "تفاصيل إجابات الطالب" : "Student Answers Details"}
-            </DialogTitle>
+            <div className="flex items-center justify-between gap-2">
+              <DialogTitle className="text-base sm:text-lg">
+                {isRtl ? "تفاصيل إجابات الطالب" : "Student Answers Details"}
+              </DialogTitle>
+              <Button size="sm" variant="outline" className="gap-1.5 text-xs no-print me-6" onClick={() => window.print()}>
+                <Printer className="w-3.5 h-3.5" />{isRtl ? "طباعة / PDF" : "Print / PDF"}
+              </Button>
+            </div>
           </DialogHeader>
           {detailSubmission && (
             <div className="space-y-4">

@@ -42,19 +42,19 @@ const AdminPreviewLinks = ({ compact = false }: { compact?: boolean }) => {
 
   return (
     <Card className="mb-6 border-primary/30 bg-primary/5">
-      <CardContent className="p-5">
-        <div className="flex items-center gap-2 mb-4">
+      <CardContent className="p-3 sm:p-5">
+        <div className="flex items-center gap-2 mb-3 sm:mb-4 flex-wrap">
           <ExternalLink className="w-5 h-5 text-primary" />
-          <h3 className="font-bold text-foreground">{ar("معاينة سريعة للوحات", "Quick Dashboard Preview")}</h3>
+          <h3 className="font-bold text-foreground text-sm sm:text-base">{ar("معاينة سريعة للوحات", "Quick Dashboard Preview")}</h3>
           <Badge variant="secondary" className="text-xs">{ar("للأدمن فقط", "Admin only")}</Badge>
         </div>
-        <p className="text-xs text-muted-foreground mb-4">
+        <p className="text-xs text-muted-foreground mb-3 sm:mb-4">
           {ar(
             "افتح أي لوحة مباشرة بحساب الأدمن للتحقق من التعديلات. قد تظهر بعض القوائم فارغة لأن الأدمن غير مسجَّل كعضو.",
             "Open any role dashboard directly with the admin account to verify changes. Some lists may be empty since the admin is not enrolled."
           )}
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
           {items.map((it) => {
             const Icon = it.icon;
             return (
@@ -63,16 +63,16 @@ const AdminPreviewLinks = ({ compact = false }: { compact?: boolean }) => {
                 to={it.to}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-3 rounded-lg border bg-background hover:border-primary hover:shadow-md transition-all group"
+                className="flex items-center gap-3 p-2.5 sm:p-3 rounded-lg border bg-background hover:border-primary hover:shadow-md transition-all group min-w-0"
               >
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${it.color}`}>
+                <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shrink-0 ${it.color}`}>
                   <Icon className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-foreground truncate">{it.label}</p>
                   <p className="text-xs text-muted-foreground truncate">{it.to}</p>
                 </div>
-                <ExternalLink className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ExternalLink className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
               </Link>
             );
           })}

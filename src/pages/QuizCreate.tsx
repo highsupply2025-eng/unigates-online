@@ -22,6 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import SimpleHeader from "@/components/SimpleHeader";
+import { parseQuizFile, downloadTemplate, ParsedQuestion } from "@/lib/quiz-import";
 
 type QType = "mcq" | "true_false" | "short_answer" | "fill_blank";
 

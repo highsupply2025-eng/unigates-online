@@ -288,6 +288,12 @@ const LeadershipDashboard = () => {
       </header>
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
+        <div className="mb-4">
+          <Button onClick={() => navigate("/leadership/quiz-approvals")} className="gap-2 w-full sm:w-auto" size="sm">
+            <ShieldCheck className="w-4 h-4" />
+            {isRtl ? "اعتماد نتائج الاختبارات" : "Quiz Results Approval"}
+          </Button>
+        </div>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="flex md:grid w-full md:grid-cols-7 gap-1 h-auto p-1 mb-6 overflow-x-auto md:overflow-visible scrollbar-hide">
             <TabsTrigger value="overview" className="text-xs py-2 shrink-0 md:shrink">

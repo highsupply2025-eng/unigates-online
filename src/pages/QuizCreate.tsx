@@ -752,6 +752,92 @@ const QuizCreate = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1.5rem)] sm:w-full p-4 sm:p-6">
+          <DialogHeader>
+            <DialogTitle className="text-base sm:text-lg flex items-center gap-2">
+              <FileSpreadsheet className="w-5 h-5 text-primary" />
+              {isRtl ? "استيراد بنك أسئلة" : "Import Question Bank"}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs sm:text-sm space-y-2">
+              <p className="font-semibold text-foreground">{isRtl ? "📋 خطوات الاستيراد:" : "📋 Steps:"}</p>
+              <ol className="list-decimal ms-5 space-y-1 text-muted-foreground">
+                <li>{isRtl ? "حمّل القالب الجاهز (Excel) واملأه بأسئلتك" : "Download template (Excel) and fill in questions"}</li>
+                <li>{isRtl ? "ادعم 4 أنواع: mcq / true_false / short_answer / fill_blank" : "Supports 4 types: mcq / true_false / short_answer / fill_blank"}</li>
+                <li>{isRtl ? "ارفع الملف وراجع المعاينة قبل التأكيد" : "Upload file and preview before confirming"}</li>
+              </ol>
+            </div>
+
+            <Button variant="outline" onClick={downloadTemplate} className="w-full gap-2">
+              <Download className="w-4 h-4" />{isRtl ? "تحميل القالب (Excel)" : "Download Template (Excel)"}
+            </Button>
+
+            <div>
+              <Label className="text-xs mb-1.5 block">{isRtl ? "ارفع ملف CSV أو Excel" : "Upload CSV or Excel file"}</Label>
+              <Input type="file" accept=".csv,.xlsx,.xls" disabled={importing}
+                onChange={e => { const f = e.target.files?.[0]; if (f) handleFileSelect(f); }} />
+              {importFileName && <p className="text-xs text-muted-foreground mt-1.5">📎 {importFileName}</p>}
+            </div>
+
+            {importing && (
+              <div className="flex items-center justify-center py-6 gap-2 text-muted-foreground">
+                <Loader2 className="w-5 h-5 animate-spin" />{isRtl ? "جارٍ القراءة..." : "Reading..."}
+              </div>
+            )}
+
+            {importErrors.length > 0 && (
+              <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 max-h-32 overflow-y-auto">
+                <p className="text-xs font-bold text-destructive mb-2 flex items-center gap-1.5">
+                  <AlertCircle className="w-3.5 h-3.5" />{isRtl ? `${importErrors.length} خطأ` : `${importErrors.length} errors`}
+                </p>
+                <ul className="text-xs space-y-1 text-destructive/80">
+                  {importErrors.slice(0, 10).map((e, i) => (
+                    <li key={i}>{isRtl ? `صف ${e.row}:` : `Row ${e.row}:`} {e.message}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {importPreview.length > 0 && (
+              <div>
+                <p className="text-xs font-bold text-foreground mb-2 flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  {isRtl ? `جاهز للاستيراد: ${importPreview.length} سؤال` : `Ready: ${importPreview.length} questions`}
+                </p>
+                <div className="rounded-lg border max-h-48 overflow-y-auto divide-y">
+                  {importPreview.slice(0, 20).map((q, i) => {
+                    const tl = typeLabel(q.question_type);
+                    return (
+                      <div key={i} className="p-2.5 text-xs flex items-start gap-2">
+                        <Badge variant="outline" className="text-[10px] gap-1 shrink-0"><tl.icon className="w-3 h-3" />{isRtl ? tl.ar : tl.en}</Badge>
+                        <span className="flex-1 truncate text-foreground">{isRtl ? q.question_ar : q.question_en}</span>
+                        <Badge variant="secondary" className="text-[10px] shrink-0">{q.points} {isRtl ? "د" : "pt"}</Badge>
+                      </div>
+                    );
+                  })}
+                  {importPreview.length > 20 && (
+                    <div className="p-2 text-center text-xs text-muted-foreground">+{importPreview.length - 20} {isRtl ? "سؤال آخر" : "more"}</div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-col-reverse sm:flex-row gap-2 pt-2">
+              <Button variant="outline" onClick={() => setShowImportDialog(false)} className="sm:flex-1">
+                {isRtl ? "إلغاء" : "Cancel"}
+              </Button>
+              <Button onClick={handleConfirmImport} disabled={importing || importPreview.length === 0} className="sm:flex-1 gap-2">
+                {importing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                {isRtl ? `استيراد ${importPreview.length} سؤال` : `Import ${importPreview.length}`}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

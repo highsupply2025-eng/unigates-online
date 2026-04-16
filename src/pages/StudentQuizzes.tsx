@@ -82,6 +82,7 @@ const StudentQuizzes = () => {
     setActiveQuiz(quiz);
     setAnswers({});
     setTimer(0);
+    setWhatsappNumber("");
     setResultView(null);
   };
 

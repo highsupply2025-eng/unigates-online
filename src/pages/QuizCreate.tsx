@@ -133,6 +133,25 @@ const QuizCreate = () => {
 
   const handlePublishQuiz = async (quizId: string, publish: boolean) => {
     await supabase.from("quizzes").update({ is_published: publish } as any).eq("id", quizId);
+    if (publish) {
+      // Notify leadership roles that a new quiz needs approval
+      const { data: { user: u } } = await supabase.auth.getUser();
+      const quiz = quizzes.find(q => q.id === quizId);
+      if (u && quiz) {
+        const titleAr = `اختبار جديد بانتظار الاعتماد: ${quiz.title_ar}`;
+        const titleEn = `New quiz pending approval: ${quiz.title_en}`;
+        const msgAr = "تم نشر اختبار جديد ويحتاج موافقتكم لاعتماد نتائجه.";
+        const msgEn = "A new quiz has been published and requires your approval.";
+        const rows = ["department_head", "vice_dean", "dean"].map(r => ({
+          sender_id: u.id,
+          target_role: r,
+          notification_type: "quiz_approval",
+          title_ar: titleAr, title_en: titleEn,
+          message_ar: msgAr, message_en: msgEn,
+        }));
+        await supabase.from("notifications").insert(rows);
+      }
+    }
     if (courseId) await loadQuizzes(courseId);
     toast({ title: publish ? (isRtl ? "تم النشر" : "Published") : (isRtl ? "تم الإخفاء" : "Unpublished") });
   };

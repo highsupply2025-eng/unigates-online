@@ -408,8 +408,8 @@ const QuizCreate = () => {
   return (
     <div className="min-h-screen bg-background" dir={dir}>
       <SimpleHeader />
-      <div className="max-w-5xl mx-auto px-4 py-6 sm:py-8">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4 gap-2 text-muted-foreground hover:text-foreground">
+      <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-3 sm:mb-4 gap-2 text-muted-foreground hover:text-foreground">
           {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           {isRtl ? "رجوع" : "Back"}
         </Button>

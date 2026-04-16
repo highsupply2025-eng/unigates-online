@@ -127,35 +127,35 @@ const HomepageSections = () => {
         emoji="🏛️"
         items={isRtl ? collegesAr : collegesEn}
         isRtl={isRtl}
-        autoScrollSpeed={35}
+        autoScrollSpeed={70}
       />
       <HomepageShowcaseCarousel
         title={isRtl ? "المعاهد" : "Institutes"}
         emoji="🏛️"
         items={isRtl ? institutesAr : institutesEn}
         isRtl={isRtl}
-        autoScrollSpeed={40}
+        autoScrollSpeed={80}
       />
       <HomepageShowcaseCarousel
         title={isRtl ? "المدارس" : "Schools"}
         emoji="🏫"
         items={isRtl ? schoolsAr : schoolsEn}
         isRtl={isRtl}
-        autoScrollSpeed={30}
+        autoScrollSpeed={65}
       />
       <HomepageShowcaseCarousel
         title={isRtl ? "الدورات التعليمية" : "Courses"}
         emoji="📚"
         items={isRtl ? coursesAr : coursesEn}
         isRtl={isRtl}
-        autoScrollSpeed={45}
+        autoScrollSpeed={85}
       />
       <HomepageShowcaseCarousel
         title={isRtl ? "الكتب" : "Books"}
         emoji="📖"
         items={isRtl ? booksAr : booksEn}
         isRtl={isRtl}
-        autoScrollSpeed={38}
+        autoScrollSpeed={75}
       />
     </div>
   );

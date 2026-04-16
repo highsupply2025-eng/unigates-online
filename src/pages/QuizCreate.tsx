@@ -767,7 +767,19 @@ const QuizCreate = () => {
 
       <Dialog open={showResultsDialog} onOpenChange={setShowResultsDialog}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1.5rem)] sm:w-full p-4 sm:p-6">
-          <DialogHeader><DialogTitle className="text-base sm:text-lg">{isRtl ? "نتائج الاختبار" : "Quiz Results"}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle className="text-base sm:text-lg">{isRtl ? "نتائج الاختبار" : "Quiz Results"}</DialogTitle>
+          </DialogHeader>
+          {quizSubmissions.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" onClick={handleExportExcel} className="gap-1.5 text-xs">
+                <FileSpreadsheet className="w-3.5 h-3.5" />{isRtl ? "تصدير Excel" : "Export Excel"}
+              </Button>
+              <Button size="sm" variant="outline" onClick={handleExportCSV} className="gap-1.5 text-xs">
+                <Download className="w-3.5 h-3.5" />{isRtl ? "تصدير CSV" : "Export CSV"}
+              </Button>
+            </div>
+          )}
           {quizSubmissions.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground">
               <BarChart3 className="w-10 h-10 mx-auto mb-3 text-muted-foreground/40" />

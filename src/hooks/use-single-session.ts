@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 const DEVICE_KEY = "unigates_device_id";
 const STALE_MS = 2 * 60 * 1000; // 2 minutes
 const HEARTBEAT_MS = 60 * 1000; // 1 minute
-const EXEMPT_ROLES = new Set<string>([]);
+const EXEMPT_ROLES = new Set<string>(["admin"]);
 
 const getDeviceId = (): string => {
   let id = localStorage.getItem(DEVICE_KEY);

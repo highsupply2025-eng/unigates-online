@@ -275,6 +275,57 @@ const QuizCreate = () => {
     setShowResultsDialog(true);
   };
 
+  const buildExportRows = () => {
+    return quizSubmissions.map((s, i) => {
+      const pct = s.total_points > 0 ? Math.round((s.score / s.total_points) * 100) : 0;
+      return {
+        [isRtl ? "#" : "#"]: i + 1,
+        [isRtl ? "معرف الطالب" : "Student ID"]: s.student_id,
+        [isRtl ? "الدرجة" : "Score"]: s.score ?? 0,
+        [isRtl ? "الإجمالي" : "Total"]: s.total_points ?? 0,
+        [isRtl ? "النسبة %" : "Percentage %"]: pct,
+        [isRtl ? "النتيجة" : "Result"]: pct >= 50 ? (isRtl ? "ناجح" : "Pass") : (isRtl ? "راسب" : "Fail"),
+        [isRtl ? "تاريخ التسليم" : "Submitted At"]: new Date(s.submitted_at).toLocaleString(isRtl ? "ar-EG" : "en-US"),
+      };
+    });
+  };
+
+  const getExportFileName = (ext: string) => {
+    const title = (isRtl ? selectedQuiz?.title_ar : selectedQuiz?.title_en) || "quiz";
+    const safe = String(title).replace(/[^\p{L}\p{N}_-]+/gu, "_").slice(0, 60);
+    const date = new Date().toISOString().slice(0, 10);
+    return `${safe}_results_${date}.${ext}`;
+  };
+
+  const handleExportExcel = async () => {
+    if (quizSubmissions.length === 0) return;
+    const XLSX = await import("xlsx");
+    const rows = buildExportRows();
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, isRtl ? "النتائج" : "Results");
+    XLSX.writeFile(wb, getExportFileName("xlsx"));
+    toast({ title: isRtl ? "تم التصدير" : "Exported", description: isRtl ? "تم تنزيل ملف Excel" : "Excel file downloaded" });
+  };
+
+  const handleExportCSV = () => {
+    if (quizSubmissions.length === 0) return;
+    const rows = buildExportRows();
+    const headers = Object.keys(rows[0]);
+    const escape = (v: any) => {
+      const s = String(v ?? "");
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const csv = [headers.join(","), ...rows.map(r => headers.map(h => escape((r as any)[h])).join(","))].join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = getExportFileName("csv");
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast({ title: isRtl ? "تم التصدير" : "Exported", description: isRtl ? "تم تنزيل ملف CSV" : "CSV file downloaded" });
+  };
+
   const handleFileSelect = async (file: File) => {
     setImportFileName(file.name);
     setImporting(true);
@@ -716,7 +767,19 @@ const QuizCreate = () => {
 
       <Dialog open={showResultsDialog} onOpenChange={setShowResultsDialog}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1.5rem)] sm:w-full p-4 sm:p-6">
-          <DialogHeader><DialogTitle className="text-base sm:text-lg">{isRtl ? "نتائج الاختبار" : "Quiz Results"}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle className="text-base sm:text-lg">{isRtl ? "نتائج الاختبار" : "Quiz Results"}</DialogTitle>
+          </DialogHeader>
+          {quizSubmissions.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" onClick={handleExportExcel} className="gap-1.5 text-xs">
+                <FileSpreadsheet className="w-3.5 h-3.5" />{isRtl ? "تصدير Excel" : "Export Excel"}
+              </Button>
+              <Button size="sm" variant="outline" onClick={handleExportCSV} className="gap-1.5 text-xs">
+                <Download className="w-3.5 h-3.5" />{isRtl ? "تصدير CSV" : "Export CSV"}
+              </Button>
+            </div>
+          )}
           {quizSubmissions.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground">
               <BarChart3 className="w-10 h-10 mx-auto mb-3 text-muted-foreground/40" />

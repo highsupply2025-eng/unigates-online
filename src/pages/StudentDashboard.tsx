@@ -165,6 +165,7 @@ const StudentDashboard = () => {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
           <Link to="/student/lectures"><Button variant="outline" className="w-full gap-1.5 text-xs sm:text-sm" size="sm"><FileText className="w-3.5 h-3.5" />{isRtl ? "التكليفات" : "Tasks"}</Button></Link>
           <Link to="/student/quizzes"><Button variant="outline" className="w-full gap-1.5 text-xs sm:text-sm" size="sm"><ClipboardList className="w-3.5 h-3.5" />{isRtl ? "اختبارات" : "Quizzes"}</Button></Link>
+          <Link to="/student/results"><Button variant="outline" className="w-full gap-1.5 text-xs sm:text-sm" size="sm"><Star className="w-3.5 h-3.5" />{isRtl ? "النتائج" : "Results"}</Button></Link>
           <Link to="/student/lectures"><Button variant="outline" className="w-full gap-1.5 text-xs sm:text-sm" size="sm"><Calendar className="w-3.5 h-3.5" />{isRtl ? "الجداول" : "Schedule"}</Button></Link>
           <Link to="/student/lectures"><Button variant="outline" className="w-full gap-1.5 text-xs sm:text-sm" size="sm"><Star className="w-3.5 h-3.5" />{isRtl ? "التقييم" : "Rating"}</Button></Link>
         </div>

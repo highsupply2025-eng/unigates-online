@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Award, BarChart3, CheckCircle, Loader2, Clock } from "lucide-react";
+import { Award, BarChart3, CheckCircle, Loader2, Clock, Eye, XCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
@@ -16,6 +17,20 @@ const StudentResults = () => {
   const isRtl = dir === "rtl";
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<any[]>([]);
+  const [detail, setDetail] = useState<any>(null);
+  const [detailQuestions, setDetailQuestions] = useState<any[]>([]);
+  const [showDetail, setShowDetail] = useState(false);
+
+  const openDetail = async (row: any) => {
+    setDetail(row);
+    const { data: qs } = await supabase
+      .from("quiz_questions")
+      .select("*")
+      .eq("quiz_id", row.quiz_id)
+      .order("question_order", { ascending: true });
+    setDetailQuestions(qs || []);
+    setShowDetail(true);
+  };
 
   useEffect(() => {
     (async () => {
@@ -25,7 +40,7 @@ const StudentResults = () => {
       // RLS only returns submissions where the quiz is fully approved + published
       const { data: subs } = await supabase
         .from("quiz_submissions")
-        .select("id, quiz_id, score, total_points, submitted_at")
+        .select("id, quiz_id, score, total_points, submitted_at, answers")
         .eq("student_id", user.id)
         .order("submitted_at", { ascending: false });
 

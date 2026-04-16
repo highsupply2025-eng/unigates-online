@@ -344,8 +344,8 @@ const InstituteRoleSignup = () => {
                     {isRtl ? "الرقم السري" : "Password"} <span className="text-destructive">*</span>
                   </Label>
                   <div className="relative">
-                    <Input type={showPassword ? "text" : "password"} placeholder={isRtl ? "أدخل الرقم السري" : "Enter password"} value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pe-12" dir="ltr" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute top-1/2 -translate-y-1/2 end-3 text-muted-foreground hover:text-foreground">
+                    <Input type={showPassword ? "text" : "password"} placeholder={isRtl ? "أدخل الرقم السري" : "Enter password"} value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 ps-12" dir="ltr" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute top-1/2 -translate-y-1/2 start-3 text-muted-foreground hover:text-foreground bg-background px-1 rounded z-10">
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
@@ -355,8 +355,8 @@ const InstituteRoleSignup = () => {
                     {isRtl ? "تأكيد الرقم السري" : "Confirm Password"} <span className="text-destructive">*</span>
                   </Label>
                   <div className="relative">
-                    <Input type={showConfirmPassword ? "text" : "password"} placeholder={isRtl ? "أعد كتابة الرقم السري" : "Re-enter password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12 pe-12" dir="ltr" />
-                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute top-1/2 -translate-y-1/2 end-3 text-muted-foreground hover:text-foreground">
+                    <Input type={showConfirmPassword ? "text" : "password"} placeholder={isRtl ? "أعد كتابة الرقم السري" : "Re-enter password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12 ps-12" dir="ltr" />
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute top-1/2 -translate-y-1/2 start-3 text-muted-foreground hover:text-foreground bg-background px-1 rounded z-10">
                       {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>

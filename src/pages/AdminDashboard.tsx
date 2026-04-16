@@ -8,6 +8,7 @@ import {
   Calendar, PlayCircle, Download, Trash2, Pencil, Landmark, LinkIcon, Copy, Building2
 } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
+import AdminPreviewLinks from "@/components/AdminPreviewLinks";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -723,6 +724,7 @@ const AdminDashboard = () => {
 
           {/* ===== Overview ===== */}
           <TabsContent value="overview">
+            <AdminPreviewLinks />
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
               {[
                 { icon: Users, value: stats.totalUsers, label: ar("إجمالي المستخدمين","Total Users"), color: "text-primary" },

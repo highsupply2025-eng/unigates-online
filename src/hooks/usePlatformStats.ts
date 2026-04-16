@@ -1,6 +1,5 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
 
 export interface PlatformStats {
   colleges: number;
@@ -18,30 +17,6 @@ export interface PlatformStats {
 const QUERY_KEY = ["platform-stats"];
 
 export const usePlatformStats = () => {
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    const channel = supabase
-      .channel("platform-stats-realtime")
-      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
-        queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "college_registrations" }, () => {
-        queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "institute_registrations" }, () => {
-        queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "school_registrations" }, () => {
-        queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient]);
-
   return useQuery({
     queryKey: QUERY_KEY,
     queryFn: async (): Promise<PlatformStats> => {
@@ -68,8 +43,8 @@ export const usePlatformStats = () => {
         parents: Number(stats.parents) || 0,
       };
     },
-    staleTime: 0,
-    refetchOnMount: "always",
+    staleTime: 60_000,
+    refetchInterval: 60_000,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
   });

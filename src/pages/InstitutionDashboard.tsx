@@ -2148,19 +2148,20 @@ const InstitutionDashboard = () => {
                         const instPath = institutionType === "college" ? "college" : "institute";
                         const inviteLink = `${baseUrl}/signup/${instPath}/${inv.role}?code=${inv.invitation_code}`;
                         return (
-                          <div key={inv.id} className="flex items-center justify-between p-4 rounded-xl border-2 bg-background">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <div key={inv.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-xl border-2 bg-background">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="w-10 h-10 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
                                 {label.icon}
                               </div>
-                              <div>
-                                <p className="font-bold text-foreground">{isRtl ? label.ar : label.en}</p>
+                              <div className="min-w-0">
+                                <p className="font-bold text-foreground truncate">{isRtl ? label.ar : label.en}</p>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <Button
                                 size="sm"
                                 variant="outline"
+                                className="text-xs h-8 px-2"
                                 onClick={() => copyToClipboard(inv.invitation_code)}
                               >
                                 <Copy className="w-3.5 h-3.5 me-1" />
@@ -2169,6 +2170,7 @@ const InstitutionDashboard = () => {
                               <Button
                                 size="sm"
                                 variant="outline"
+                                className="text-xs h-8 px-2"
                                 onClick={() => copyToClipboard(inviteLink)}
                               >
                                 <LinkIcon className="w-3.5 h-3.5 me-1" />
@@ -2180,7 +2182,7 @@ const InstitutionDashboard = () => {
                                   : `Invitation link to join as ${label.en}:\n${inviteLink}`;
                                 return (
                                   <a href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
-                                    <Button size="sm" variant="outline" className="text-green-600 border-green-300 hover:bg-green-50">
+                                    <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
                                       <MessageCircle className="w-3.5 h-3.5 me-1" />
                                       {isRtl ? "واتساب" : "WhatsApp"}
                                     </Button>

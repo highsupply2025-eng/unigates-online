@@ -32,6 +32,10 @@ const LeadershipQuizApprovals = () => {
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [acting, setActing] = useState(false);
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [studentNames, setStudentNames] = useState<Record<string, string>>({});
+  const [detailSubmission, setDetailSubmission] = useState<any>(null);
+  const [showDetailDialog, setShowDetailDialog] = useState(false);
 
   useEffect(() => { init(); }, []);
 
@@ -73,13 +77,26 @@ const LeadershipQuizApprovals = () => {
 
   const openSubmissions = async (quiz: any) => {
     setSelectedQuiz(quiz);
-    const { data } = await supabase
-      .from("quiz_submissions")
-      .select("*")
-      .eq("quiz_id", quiz.id)
-      .order("submitted_at", { ascending: false });
-    setSubmissions(data || []);
+    const [{ data: subs }, { data: qs }] = await Promise.all([
+      supabase.from("quiz_submissions").select("*").eq("quiz_id", quiz.id).order("submitted_at", { ascending: false }),
+      supabase.from("quiz_questions").select("*").eq("quiz_id", quiz.id).order("question_order", { ascending: true }),
+    ]);
+    setSubmissions(subs || []);
+    setQuestions(qs || []);
+    const ids = Array.from(new Set((subs || []).map((s: any) => s.student_id)));
+    if (ids.length > 0) {
+      const { data: profs } = await supabase
+        .from("profiles").select("user_id, full_name").in("user_id", ids);
+      const map: Record<string, string> = {};
+      (profs || []).forEach((p: any) => { map[p.user_id] = p.full_name; });
+      setStudentNames(map);
+    }
     setShowSubsDialog(true);
+  };
+
+  const openDetail = (sub: any) => {
+    setDetailSubmission(sub);
+    setShowDetailDialog(true);
   };
 
   const canActOn = (quiz: any) => {
@@ -250,7 +267,7 @@ const LeadershipQuizApprovals = () => {
       </main>
 
       <Dialog open={showSubsDialog} onOpenChange={setShowSubsDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1.5rem)] sm:w-full p-4 sm:p-6">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1.5rem)] sm:w-full p-4 sm:p-6">
           <DialogHeader><DialogTitle className="text-base sm:text-lg">{isRtl ? "نتائج الطلاب" : "Student Results"}</DialogTitle></DialogHeader>
           {submissions.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground text-sm">{isRtl ? "لا توجد إجابات" : "No submissions"}</div>
@@ -260,23 +277,101 @@ const LeadershipQuizApprovals = () => {
                 <TableHeader><TableRow>
                   <TableHead className="text-xs sm:text-sm">{isRtl ? "الطالب" : "Student"}</TableHead>
                   <TableHead className="text-xs sm:text-sm">{isRtl ? "الدرجة" : "Score"}</TableHead>
-                  <TableHead className="text-xs sm:text-sm">{isRtl ? "الإجمالي" : "Total"}</TableHead>
                   <TableHead className="text-xs sm:text-sm">{isRtl ? "النسبة" : "%"}</TableHead>
+                  <TableHead className="text-xs sm:text-sm">{isRtl ? "التفاصيل" : "Details"}</TableHead>
                 </TableRow></TableHeader>
                 <TableBody>
                   {submissions.map(s => {
                     const pct = s.total_points > 0 ? Math.round((s.score / s.total_points) * 100) : 0;
                     return (
                       <TableRow key={s.id}>
-                        <TableCell className="text-xs sm:text-sm">{s.student_id.slice(0, 8)}...</TableCell>
-                        <TableCell className="text-xs sm:text-sm font-bold">{s.score}</TableCell>
-                        <TableCell className="text-xs sm:text-sm">{s.total_points}</TableCell>
+                        <TableCell className="text-xs sm:text-sm">{studentNames[s.student_id] || s.student_id.slice(0, 8)}</TableCell>
+                        <TableCell className="text-xs sm:text-sm font-bold">{s.score}/{s.total_points}</TableCell>
                         <TableCell><Badge variant={pct >= 50 ? "default" : "destructive"} className="text-[10px] sm:text-xs">{pct}%</Badge></TableCell>
+                        <TableCell>
+                          <Button size="sm" variant="outline" className="gap-1 text-xs h-7" onClick={() => openDetail(s)}>
+                            <Eye className="w-3 h-3" />{isRtl ? "عرض" : "View"}
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     );
                   })}
                 </TableBody>
               </Table>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1.5rem)] sm:w-full p-4 sm:p-6">
+          <DialogHeader>
+            <DialogTitle className="text-base sm:text-lg">
+              {isRtl ? "تفاصيل إجابات الطالب" : "Student Answers Details"}
+            </DialogTitle>
+          </DialogHeader>
+          {detailSubmission && (
+            <div className="space-y-4">
+              <Card>
+                <CardContent className="p-3 sm:p-4 flex flex-wrap gap-3 items-center justify-between">
+                  <div>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "الطالب" : "Student"}</p>
+                    <p className="font-semibold text-sm">{studentNames[detailSubmission.student_id] || detailSubmission.student_id.slice(0,8)}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs text-muted-foreground">{isRtl ? "الدرجة" : "Score"}</p>
+                    <p className="font-bold text-lg">{detailSubmission.score}/{detailSubmission.total_points}</p>
+                  </div>
+                  <Badge variant={(detailSubmission.score/detailSubmission.total_points) >= 0.5 ? "default" : "destructive"}>
+                    {detailSubmission.total_points > 0 ? Math.round((detailSubmission.score/detailSubmission.total_points)*100) : 0}%
+                  </Badge>
+                </CardContent>
+              </Card>
+
+              <div className="space-y-3">
+                {questions.map((q, idx) => {
+                  const answers = (detailSubmission.answers as any) || {};
+                  const studentAns = answers[q.id];
+                  const isCorrect = studentAns && String(studentAns).toLowerCase() === String(q.correct_answer).toLowerCase();
+                  const optionLabel = (key: string) => {
+                    const v = isRtl ? q[`option_${key}_ar`] : q[`option_${key}_en`];
+                    return v || "";
+                  };
+                  return (
+                    <Card key={q.id} className={isCorrect ? "border-green-500/50" : "border-destructive/50"}>
+                      <CardContent className="p-3 sm:p-4 space-y-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="font-medium text-sm">
+                            {idx + 1}. {isRtl ? q.question_ar : q.question_en}
+                          </p>
+                          {isCorrect
+                            ? <CheckCircle className="w-5 h-5 text-green-600 shrink-0" />
+                            : <XCircle className="w-5 h-5 text-destructive shrink-0" />}
+                        </div>
+                        <div className="grid gap-1.5 text-xs sm:text-sm">
+                          {["a","b","c","d"].map(k => {
+                            const isStudent = String(studentAns || "").toLowerCase() === k;
+                            const isRight = String(q.correct_answer).toLowerCase() === k;
+                            return (
+                              <div key={k} className={`px-2 py-1.5 rounded border ${
+                                isRight ? "bg-green-500/10 border-green-500/40" :
+                                isStudent ? "bg-destructive/10 border-destructive/40" :
+                                "border-border"
+                              }`}>
+                                <span className="font-bold uppercase me-2">{k}.</span>
+                                {optionLabel(k)}
+                                {isRight && <span className="ms-2 text-[10px] text-green-700">{isRtl ? "(الإجابة الصحيحة)" : "(Correct)"}</span>}
+                                {isStudent && !isRight && <span className="ms-2 text-[10px] text-destructive">{isRtl ? "(إجابة الطالب)" : "(Student)"}</span>}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground">{isRtl ? "النقاط:" : "Points:"} {q.points}</p>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
             </div>
           )}
         </DialogContent>

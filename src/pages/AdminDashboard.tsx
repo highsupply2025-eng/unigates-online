@@ -687,39 +687,39 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-background" dir={dir}>
       {/* Header */}
-      <header className="border-b border-border px-6 py-4 sticky top-0 bg-background/95 backdrop-blur z-50">
-        <div className="max-w-full mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <GraduationCap className="w-8 h-8 text-primary" />
-            <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
-            <Badge className="bg-primary/10 text-primary border-primary/20 ms-2"><Shield className="w-3 h-3 me-1" />{ar("لوحة التحكم","Control Panel")}</Badge>
+      <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 sticky top-0 bg-background/95 backdrop-blur z-50">
+        <div className="max-w-full mx-auto flex items-center justify-between gap-2">
+          <Link to="/" className="flex items-center gap-2 min-w-0">
+            <GraduationCap className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
+            <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight truncate">{t.brandName}</span>
+            <Badge className="bg-primary/10 text-primary border-primary/20 ms-1 hidden md:inline-flex"><Shield className="w-3 h-3 me-1" />{ar("لوحة التحكم","Control Panel")}</Badge>
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <NotificationBell />
-            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5"><Globe className="w-4 h-4" />{t.langSwitch}</Button>
-            <Button variant="default" size="sm" onClick={handleLogout} className="font-semibold gap-1.5">
-              {language === "ar" ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}{t.logout}
+            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5 px-2 sm:px-3"><Globe className="w-4 h-4" /><span className="hidden sm:inline">{t.langSwitch}</span></Button>
+            <Button variant="default" size="sm" onClick={handleLogout} className="font-semibold gap-1.5 px-2 sm:px-3">
+              {language === "ar" ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}<span className="hidden sm:inline">{t.logout}</span>
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-full mx-auto px-6 py-8">
+      <main className="max-w-full mx-auto px-3 sm:px-6 py-4 sm:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-8 flex-wrap h-auto gap-1 p-1">
-            <TabsTrigger value="overview" className="gap-1.5"><BarChart3 className="w-4 h-4" />{ar("نظرة عامة","Overview")}</TabsTrigger>
-            <TabsTrigger value="pending" className="gap-1.5"><Clock className="w-4 h-4" />{ar("طلبات الانتظار","Pending")}{stats.pendingCount > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingCount}</Badge>}</TabsTrigger>
-            <TabsTrigger value="schools" className="gap-1.5"><School className="w-4 h-4" />{ar("المدارس","Schools")}{stats.pendingSchools > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingSchools}</Badge>}</TabsTrigger>
-            <TabsTrigger value="colleges" className="gap-1.5"><Landmark className="w-4 h-4" />{ar("الكليات","Colleges")}{stats.pendingColleges > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingColleges}</Badge>}</TabsTrigger>
-            <TabsTrigger value="institutes" className="gap-1.5"><Landmark className="w-4 h-4" />{ar("المعاهد","Institutes")}{stats.pendingInstitutes > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingInstitutes}</Badge>}</TabsTrigger>
-            <TabsTrigger value="users" className="gap-1.5"><Users className="w-4 h-4" />{ar("المستخدمين","Users")}</TabsTrigger>
-            <TabsTrigger value="courses" className="gap-1.5"><BookOpen className="w-4 h-4" />{ar("الدورات","Courses")}</TabsTrigger>
-            <TabsTrigger value="books" className="gap-1.5"><BookMarked className="w-4 h-4" />{ar("الكتب","Books")}</TabsTrigger>
-            <TabsTrigger value="orders" className="gap-1.5"><ShoppingCart className="w-4 h-4" />{ar("الطلبات","Orders")}</TabsTrigger>
-            <TabsTrigger value="subscriptions" className="gap-1.5"><CreditCard className="w-4 h-4" />{ar("الاشتراكات","Subscriptions")}</TabsTrigger>
-            <TabsTrigger value="streams" className="gap-1.5"><Radio className="w-4 h-4" />{ar("البث المباشر","Live Streams")}</TabsTrigger>
-            <TabsTrigger value="departments_admin" className="gap-1.5"><Building2 className="w-4 h-4" />{ar("الأقسام","Departments")}{stats.pendingDepartments > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingDepartments}</Badge>}</TabsTrigger>
-            <TabsTrigger value="notifications" className="gap-1.5"><Bell className="w-4 h-4" />{ar("الإشعارات","Notifications")}</TabsTrigger>
+          <TabsList className="mb-6 sm:mb-8 flex-wrap h-auto gap-1 p-1 justify-start">
+            <TabsTrigger value="overview" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><BarChart3 className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("نظرة عامة","Overview")}</span></TabsTrigger>
+            <TabsTrigger value="pending" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Clock className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("طلبات الانتظار","Pending")}</span>{stats.pendingCount > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingCount}</Badge>}</TabsTrigger>
+            <TabsTrigger value="schools" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><School className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("المدارس","Schools")}</span>{stats.pendingSchools > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingSchools}</Badge>}</TabsTrigger>
+            <TabsTrigger value="colleges" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Landmark className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("الكليات","Colleges")}</span>{stats.pendingColleges > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingColleges}</Badge>}</TabsTrigger>
+            <TabsTrigger value="institutes" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Landmark className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("المعاهد","Institutes")}</span>{stats.pendingInstitutes > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingInstitutes}</Badge>}</TabsTrigger>
+            <TabsTrigger value="users" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Users className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("المستخدمين","Users")}</span></TabsTrigger>
+            <TabsTrigger value="courses" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><BookOpen className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("الدورات","Courses")}</span></TabsTrigger>
+            <TabsTrigger value="books" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><BookMarked className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("الكتب","Books")}</span></TabsTrigger>
+            <TabsTrigger value="orders" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><ShoppingCart className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("الطلبات","Orders")}</span></TabsTrigger>
+            <TabsTrigger value="subscriptions" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><CreditCard className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("الاشتراكات","Subscriptions")}</span></TabsTrigger>
+            <TabsTrigger value="streams" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Radio className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("البث المباشر","Live Streams")}</span></TabsTrigger>
+            <TabsTrigger value="departments_admin" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Building2 className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("الأقسام","Departments")}</span>{stats.pendingDepartments > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingDepartments}</Badge>}</TabsTrigger>
+            <TabsTrigger value="notifications" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Bell className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("الإشعارات","Notifications")}</span></TabsTrigger>
           </TabsList>
 
           {/* ===== Overview ===== */}

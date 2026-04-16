@@ -259,24 +259,24 @@ const DepartmentPage = () => {
       : `Hi ${member.full_name}, register on Edrak platform:\n${inviteLink}\nInvitation code: ${member.invitation_code}`;
 
     return (
-      <div key={member.id} className="flex items-center justify-between p-4 rounded-xl border-2 bg-background">
-        <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-full ${colorClass} flex items-center justify-center`}>
+      <div key={member.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-xl border-2 bg-background">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className={`w-10 h-10 rounded-full ${colorClass} flex items-center justify-center shrink-0`}>
             {icon}
           </div>
-          <div>
-            <p className="font-bold text-foreground">{member.full_name}</p>
-            <p className="text-xs text-muted-foreground">
+          <div className="min-w-0 flex-1">
+            <p className="font-bold text-foreground text-sm sm:text-base truncate">{member.full_name}</p>
+            <p className="text-xs text-muted-foreground truncate">
               {member.user_id ? (isRtl ? "✅ مربوط بحساب" : "✅ Linked") : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending")}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-wrap justify-end">
-          <Button size="sm" variant="outline" onClick={() => copyToClipboard(member.invitation_code!)}>
+        <div className="flex items-center gap-1.5 flex-wrap sm:justify-end">
+          <Button size="sm" variant="outline" className="text-xs h-8 px-2" onClick={() => copyToClipboard(member.invitation_code!)}>
             <Copy className="w-3.5 h-3.5 me-1" />
             {isRtl ? "نسخ الكود" : "Copy Code"}
           </Button>
-          <Button size="sm" variant="outline" onClick={() => copyToClipboard(inviteLink)}>
+          <Button size="sm" variant="outline" className="text-xs h-8 px-2" onClick={() => copyToClipboard(inviteLink)}>
             <LinkIcon className="w-3.5 h-3.5 me-1" />
             {isRtl ? "نسخ الرابط" : "Copy Link"}
           </Button>
@@ -285,7 +285,7 @@ const DepartmentPage = () => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Button size="sm" variant="outline" className="text-green-600 border-green-300 hover:bg-green-50">
+            <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
               <MessageCircle className="w-3.5 h-3.5 me-1" />
               {isRtl ? "واتساب" : "WhatsApp"}
             </Button>
@@ -293,6 +293,7 @@ const DepartmentPage = () => {
           <Button
             size="sm"
             variant="outline"
+            className="h-8 w-8 p-0"
             onClick={() => openEditDialog(member)}
           >
             <Pencil className="w-3.5 h-3.5" />
@@ -300,7 +301,7 @@ const DepartmentPage = () => {
           <Button
             size="sm"
             variant="outline"
-            className="text-destructive border-destructive/30 hover:bg-destructive/10"
+            className="h-8 w-8 p-0 text-destructive border-destructive/30 hover:bg-destructive/10"
             onClick={() => setMemberToDelete(member)}
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -320,24 +321,24 @@ const DepartmentPage = () => {
 
   return (
     <div className="min-h-screen bg-background" dir={dir}>
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <Button variant="outline" className="gap-2 mb-6" onClick={() => navigate("/institution/dashboard")}>
           {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           {isRtl ? "رجوع للوحة التحكم" : "Back to Dashboard"}
         </Button>
 
         {/* Department Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-            <Layers className="w-7 h-7 text-primary" />
+        <div className="flex items-center gap-3 sm:gap-4 mb-6">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+            <Layers className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-black text-foreground">{deptName}</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <Badge variant={deptStatus === "active" ? "default" : "secondary"}>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-lg sm:text-2xl font-black text-foreground truncate">{deptName}</h1>
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
+              <Badge variant={deptStatus === "active" ? "default" : "secondary"} className="text-xs">
                 {deptStatus === "active" ? (isRtl ? "مفعّل ✅" : "Active ✅") : (isRtl ? "بانتظار الموافقة" : "Pending")}
               </Badge>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs sm:text-sm text-muted-foreground">
                 {allLecturers.length} {isRtl ? "محاضر" : "lecturers"} · {allStudents.length} {isRtl ? "طالب" : "students"}
               </span>
             </div>
@@ -356,7 +357,7 @@ const DepartmentPage = () => {
                 className="ps-9"
               />
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 flex-wrap">
               <Filter className="w-4 h-4 text-muted-foreground shrink-0" />
               {statusButtons.map(btn => (
                 <Button
@@ -364,7 +365,7 @@ const DepartmentPage = () => {
                   size="sm"
                   variant={statusFilter === btn.value ? "default" : "outline"}
                   onClick={() => setStatusFilter(btn.value)}
-                  className="text-xs"
+                  className="text-xs h-8 px-2"
                 >
                   {isRtl ? btn.labelAr : btn.labelEn}
                 </Button>

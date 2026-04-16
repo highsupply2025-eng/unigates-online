@@ -76,7 +76,8 @@ const StudentQuizzes = () => {
       toast({ title: isRtl ? "تم الحل مسبقاً" : "Already submitted", variant: "destructive" });
       return;
     }
-    const { data } = await supabase.from("quiz_questions").select("*").eq("quiz_id", quiz.id).order("question_order");
+    // Use safe view: excludes correct_answer / expected_answer
+    const { data } = await supabase.from("quiz_questions_safe").select("*").eq("quiz_id", quiz.id).order("question_order");
     const list = data || [];
     setQuestions(quiz.randomize_questions ? shuffle(list) : list);
     setActiveQuiz(quiz);

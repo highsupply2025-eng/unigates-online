@@ -43,6 +43,7 @@ const DepartmentPage = () => {
   const [deptStatus, setDeptStatus] = useState("");
   const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
   const [members, setMembers] = useState<DepartmentMember[]>([]);
+  const [profilesMap, setProfilesMap] = useState<Record<string, { email: string; phone: string; live_photo_url: string | null; full_name: string }>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [memberToDelete, setMemberToDelete] = useState<DepartmentMember | null>(null);
@@ -91,6 +92,20 @@ const DepartmentPage = () => {
         from += 1000;
       }
       setMembers(allMembers);
+
+      // Fetch profile data for linked members
+      const linkedUserIds = allMembers.filter(m => m.user_id).map(m => m.user_id as string);
+      if (linkedUserIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from("profiles")
+          .select("user_id,email,phone,live_photo_url,full_name")
+          .in("user_id", linkedUserIds);
+        const map: Record<string, { email: string; phone: string; live_photo_url: string | null; full_name: string }> = {};
+        (profilesData || []).forEach((p: any) => {
+          map[p.user_id] = { email: p.email, phone: p.phone, live_photo_url: p.live_photo_url, full_name: p.full_name };
+        });
+        setProfilesMap(map);
+      }
     } catch {
       navigate("/institution/dashboard");
     } finally {

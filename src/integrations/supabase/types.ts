@@ -1123,55 +1123,64 @@ export type Database = {
         Row: {
           correct_answer: string
           created_at: string
+          expected_answer: string | null
           id: string
-          option_a_ar: string
-          option_a_en: string
-          option_b_ar: string
-          option_b_en: string
-          option_c_ar: string
-          option_c_en: string
-          option_d_ar: string
-          option_d_en: string
+          image_url: string | null
+          option_a_ar: string | null
+          option_a_en: string | null
+          option_b_ar: string | null
+          option_b_en: string | null
+          option_c_ar: string | null
+          option_c_en: string | null
+          option_d_ar: string | null
+          option_d_en: string | null
           points: number
           question_ar: string
           question_en: string
           question_order: number
+          question_type: string
           quiz_id: string
         }
         Insert: {
           correct_answer?: string
           created_at?: string
+          expected_answer?: string | null
           id?: string
-          option_a_ar?: string
-          option_a_en?: string
-          option_b_ar?: string
-          option_b_en?: string
-          option_c_ar?: string
-          option_c_en?: string
-          option_d_ar?: string
-          option_d_en?: string
+          image_url?: string | null
+          option_a_ar?: string | null
+          option_a_en?: string | null
+          option_b_ar?: string | null
+          option_b_en?: string | null
+          option_c_ar?: string | null
+          option_c_en?: string | null
+          option_d_ar?: string | null
+          option_d_en?: string | null
           points?: number
           question_ar: string
           question_en: string
           question_order?: number
+          question_type?: string
           quiz_id: string
         }
         Update: {
           correct_answer?: string
           created_at?: string
+          expected_answer?: string | null
           id?: string
-          option_a_ar?: string
-          option_a_en?: string
-          option_b_ar?: string
-          option_b_en?: string
-          option_c_ar?: string
-          option_c_en?: string
-          option_d_ar?: string
-          option_d_en?: string
+          image_url?: string | null
+          option_a_ar?: string | null
+          option_a_en?: string | null
+          option_b_ar?: string | null
+          option_b_en?: string | null
+          option_c_ar?: string | null
+          option_c_en?: string | null
+          option_d_ar?: string | null
+          option_d_en?: string | null
           points?: number
           question_ar?: string
           question_en?: string
           question_order?: number
+          question_type?: string
           quiz_id?: string
         }
         Relationships: [
@@ -1233,6 +1242,8 @@ export type Database = {
           duration_minutes: number | null
           id: string
           is_published: boolean | null
+          randomize_questions: boolean
+          show_results_immediately: boolean
           title_ar: string
           title_en: string
           updated_at: string
@@ -1247,6 +1258,8 @@ export type Database = {
           duration_minutes?: number | null
           id?: string
           is_published?: boolean | null
+          randomize_questions?: boolean
+          show_results_immediately?: boolean
           title_ar: string
           title_en: string
           updated_at?: string
@@ -1261,6 +1274,8 @@ export type Database = {
           duration_minutes?: number | null
           id?: string
           is_published?: boolean | null
+          randomize_questions?: boolean
+          show_results_immediately?: boolean
           title_ar?: string
           title_en?: string
           updated_at?: string

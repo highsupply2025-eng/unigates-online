@@ -218,6 +218,22 @@ const StudentQuizzes = () => {
               </CardContent>
             </Card>
           ))}
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="p-4 space-y-2">
+              <Label htmlFor="wa" className="text-sm font-bold flex items-center gap-2">
+                📱 {isRtl ? "رقم الواتساب (اختياري)" : "WhatsApp number (optional)"}
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                {isRtl
+                  ? "أدخل رقمك بالرمز الدولي لتصلك النتيجة على واتساب فور اعتمادها من القيادة."
+                  : "Enter your number with country code to receive the result on WhatsApp once approved by leadership."}
+              </p>
+              <Input id="wa" type="tel" inputMode="tel" dir="ltr" maxLength={20}
+                value={whatsappNumber}
+                onChange={e => setWhatsappNumber(e.target.value)}
+                placeholder="+9665XXXXXXXX" />
+            </CardContent>
+          </Card>
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-3">
             <Button onClick={submitQuiz} disabled={submitting} size="lg" className="gap-2">
               <CheckCircle className="w-5 h-5" />{isRtl ? "تسليم" : "Submit"}

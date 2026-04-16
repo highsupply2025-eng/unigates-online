@@ -1835,6 +1835,15 @@ export type Database = {
         Returns: boolean
       }
       quiz_results_approved: { Args: { _quiz_id: string }; Returns: boolean }
+      verify_department_invitation: {
+        Args: { _code: string }
+        Returns: {
+          department_id: string
+          full_name: string
+          is_valid: boolean
+          role: string
+        }[]
+      }
     }
     Enums: {
       app_role:

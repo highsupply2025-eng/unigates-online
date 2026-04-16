@@ -1715,6 +1715,68 @@ export type Database = {
         }
         Relationships: []
       }
+      institution_quiz_questions_safe: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          option_a_ar: string | null
+          option_a_en: string | null
+          option_b_ar: string | null
+          option_b_en: string | null
+          option_c_ar: string | null
+          option_c_en: string | null
+          option_d_ar: string | null
+          option_d_en: string | null
+          points: number | null
+          question_ar: string | null
+          question_en: string | null
+          question_order: number | null
+          quiz_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          option_a_ar?: string | null
+          option_a_en?: string | null
+          option_b_ar?: string | null
+          option_b_en?: string | null
+          option_c_ar?: string | null
+          option_c_en?: string | null
+          option_d_ar?: string | null
+          option_d_en?: string | null
+          points?: number | null
+          question_ar?: string | null
+          question_en?: string | null
+          question_order?: number | null
+          quiz_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          option_a_ar?: string | null
+          option_a_en?: string | null
+          option_b_ar?: string | null
+          option_b_en?: string | null
+          option_c_ar?: string | null
+          option_c_en?: string | null
+          option_d_ar?: string | null
+          option_d_en?: string | null
+          points?: number | null
+          question_ar?: string | null
+          question_en?: string | null
+          question_order?: number | null
+          quiz_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institution_quiz_questions_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "institution_quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quiz_questions_safe: {
         Row: {
           created_at: string | null

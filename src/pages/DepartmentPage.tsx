@@ -450,7 +450,7 @@ const DepartmentPage = () => {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!memberToDelete} onOpenChange={(open) => !open && setMemberToDelete(null)}>
-        <AlertDialogContent dir={dir}>
+        <AlertDialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg w-full">
           <AlertDialogHeader>
             <AlertDialogTitle>
               {isRtl ? "تأكيد حذف العضو" : "Confirm Delete Member"}
@@ -461,7 +461,7 @@ const DepartmentPage = () => {
                 : `Are you sure you want to delete "${memberToDelete?.full_name}"? This action cannot be undone.`}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className={isRtl ? "flex-row-reverse gap-2" : ""}>
+          <AlertDialogFooter className={`gap-2 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
             <AlertDialogCancel disabled={deleting}>
               {isRtl ? "إلغاء" : "Cancel"}
             </AlertDialogCancel>
@@ -480,7 +480,7 @@ const DepartmentPage = () => {
 
       {/* Edit Name Dialog */}
       <AlertDialog open={!!memberToEdit} onOpenChange={(open) => !open && setMemberToEdit(null)}>
-        <AlertDialogContent dir={dir}>
+        <AlertDialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg w-full">
           <AlertDialogHeader>
             <AlertDialogTitle>
               {isRtl ? "تعديل اسم العضو" : "Edit Member Name"}
@@ -496,7 +496,7 @@ const DepartmentPage = () => {
             className="my-2"
             onKeyDown={(e) => e.key === "Enter" && handleEditName()}
           />
-          <AlertDialogFooter className={isRtl ? "flex-row-reverse gap-2" : ""}>
+          <AlertDialogFooter className={`gap-2 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
             <AlertDialogCancel disabled={saving}>
               {isRtl ? "إلغاء" : "Cancel"}
             </AlertDialogCancel>
@@ -514,7 +514,7 @@ const DepartmentPage = () => {
 
       {/* Add Member Dialog */}
       <AlertDialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <AlertDialogContent dir={dir}>
+        <AlertDialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg w-full max-h-[90vh] overflow-y-auto">
           <AlertDialogHeader>
             <AlertDialogTitle>
               {isRtl ? "إضافة أعضاء جدد" : "Add New Members"}
@@ -558,7 +558,7 @@ const DepartmentPage = () => {
               </Button>
             </div>
           </div>
-          <AlertDialogFooter className={isRtl ? "flex-row-reverse gap-2" : ""}>
+          <AlertDialogFooter className={`gap-2 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
             <AlertDialogCancel disabled={adding}>
               {isRtl ? "إلغاء" : "Cancel"}
             </AlertDialogCancel>

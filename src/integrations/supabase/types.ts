@@ -1777,6 +1777,44 @@ export type Database = {
           },
         ]
       }
+      quiz_submissions_safe: {
+        Row: {
+          answers: Json | null
+          id: string | null
+          quiz_id: string | null
+          score: number | null
+          student_id: string | null
+          submitted_at: string | null
+          total_points: number | null
+        }
+        Insert: {
+          answers?: Json | null
+          id?: string | null
+          quiz_id?: string | null
+          score?: number | null
+          student_id?: string | null
+          submitted_at?: string | null
+          total_points?: number | null
+        }
+        Update: {
+          answers?: Json | null
+          id?: string | null
+          quiz_id?: string | null
+          score?: number | null
+          student_id?: string | null
+          submitted_at?: string | null
+          total_points?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_submissions_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       calculate_weekly_top_courses: { Args: never; Returns: undefined }
@@ -1845,6 +1883,16 @@ export type Database = {
           department_id: string
           full_name: string
           is_valid: boolean
+          role: string
+        }[]
+      }
+      verify_institution_invitation: {
+        Args: { _code: string }
+        Returns: {
+          institution_id: string
+          institution_name: string
+          is_valid: boolean
+          kind: string
           role: string
         }[]
       }

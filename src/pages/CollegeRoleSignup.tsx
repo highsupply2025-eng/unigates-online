@@ -232,13 +232,13 @@ const CollegeRoleSignup = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
       {/* Header */}
-      <header className="border-b-2 border-primary/30 px-6 py-4 bg-card shadow-md">
+      <header className="border-b-2 border-primary/30 px-4 sm:px-6 py-4 bg-card shadow-md">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <GraduationCap className="w-6 h-6 text-white" />
+          <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
-            <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
+            <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
           </Link>
           {/* Desktop buttons */}
           <div className="hidden md:flex items-center gap-3">
@@ -273,19 +273,19 @@ const CollegeRoleSignup = () => {
         </div>
       </header>
 
-      <main className="flex-1 flex items-center justify-center px-4 py-10">
+      <main className="flex-1 flex items-center justify-center px-4 py-6 sm:py-10">
         <div className="max-w-lg w-full">
           {/* Role Header */}
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${config.gradient} shadow-xl ${config.shadow} flex items-center justify-center`}>
-                <RoleIcon className="w-10 h-10 text-white" />
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="flex justify-center mb-3 sm:mb-4">
+              <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br ${config.gradient} shadow-xl ${config.shadow} flex items-center justify-center`}>
+                <RoleIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
               </div>
             </div>
-            <h1 className="text-2xl font-black text-primary mb-1">
+            <h1 className="text-xl sm:text-2xl font-black text-primary mb-1">
               {isRtl ? `تسجيل حساب ${config.labelAr}` : `Register as ${config.labelEn}`}
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               {isRtl ? "يتطلب التسجيل كود دعوة صالح من الكلية" : "Registration requires a valid invitation code from the college"}
             </p>
           </div>
@@ -309,12 +309,12 @@ const CollegeRoleSignup = () => {
                   placeholder={isRtl ? "أدخل كود الدعوة" : "Enter invitation code"}
                   value={invitationCode}
                   onChange={(e) => setInvitationCode(e.target.value)}
-                  className="h-14 text-center text-lg font-mono tracking-widest border-2 border-primary/30 focus:border-primary"
+                  className="h-12 sm:h-14 text-center text-base sm:text-lg font-mono tracking-widest border-2 border-primary/30 focus:border-primary"
                   dir="ltr"
                 />
                 <Button
                   size="lg"
-                  className="w-full h-14 text-lg font-bold gap-2"
+                  className="w-full h-12 sm:h-14 text-base sm:text-lg font-bold gap-2"
                   disabled={!invitationCode.trim() || verifyingCode}
                   onClick={() => verifyCode()}
                 >
@@ -414,7 +414,7 @@ const CollegeRoleSignup = () => {
 
               <Button
                 size="lg"
-                className="w-full h-14 text-lg font-bold gap-2"
+                className="w-full h-12 sm:h-14 text-base sm:text-lg font-bold gap-2"
                 disabled={!fullName || !email || !phone || !password || !confirmPassword || password !== confirmPassword || loading}
                 onClick={handleSubmit}
               >

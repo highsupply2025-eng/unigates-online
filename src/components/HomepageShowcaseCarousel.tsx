@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, memo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
@@ -19,6 +19,41 @@ interface HomepageShowcaseCarouselProps {
   autoScrollSpeed?: number;
 }
 
+const ShowcaseCard = memo(({ item }: { item: ShowcaseItem }) => (
+  <div className="relative flex-shrink-0 w-[220px] md:w-[260px] group cursor-pointer">
+    <div className="aspect-video rounded-xl overflow-hidden relative shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-[1.03]">
+      <img
+        src={item.image}
+        alt={item.title}
+        className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+        loading="lazy"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+      {item.badge && (
+        <div className="absolute top-3 left-3 z-10">
+          <span
+            className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold text-white backdrop-blur-sm ${
+              item.badgeColor || "bg-primary/90"
+            }`}
+          >
+            {item.badge}
+          </span>
+        </div>
+      )}
+      <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
+        <p className="text-sm font-bold text-white leading-snug mb-1 line-clamp-2">
+          {item.title}
+        </p>
+        {item.subtitle && (
+          <p className="text-xs text-white/80">{item.subtitle}</p>
+        )}
+      </div>
+    </div>
+  </div>
+));
+
+ShowcaseCard.displayName = "ShowcaseCard";
+
 const HomepageShowcaseCarousel = ({
   title,
   emoji,
@@ -27,24 +62,40 @@ const HomepageShowcaseCarousel = ({
   autoScrollSpeed = 30,
 }: HomepageShowcaseCarouselProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [isPaused, setIsPaused] = useState(false);
+  const isPausedRef = useRef(false);
   const { ref, isVisible } = useScrollAnimation();
 
+  // Use requestAnimationFrame instead of setInterval for smooth, efficient scrolling
   useEffect(() => {
     const el = scrollRef.current;
-    if (!el || !isVisible || isPaused) return;
+    if (!el || !isVisible) return;
 
-    const interval = setInterval(() => {
-      const maxScroll = el.scrollWidth - el.clientWidth;
-      if (el.scrollLeft >= maxScroll - 2) {
-        el.scrollTo({ left: 0 });
-      } else {
-        el.scrollBy({ left: isRtl ? -1 : 1 });
+    let frameId: number;
+    let lastTime = 0;
+    // Convert speed to pixels per second (lower autoScrollSpeed = faster interval = faster scroll)
+    const pixelsPerSecond = 1000 / autoScrollSpeed;
+
+    const tick = (now: number) => {
+      if (!isPausedRef.current) {
+        const delta = lastTime ? (now - lastTime) / 1000 : 0;
+        const px = delta * pixelsPerSecond;
+        
+        if (px > 0) {
+          const maxScroll = el.scrollWidth - el.clientWidth;
+          if (el.scrollLeft >= maxScroll - 2) {
+            el.scrollLeft = 0;
+          } else {
+            el.scrollLeft += isRtl ? -px : px;
+          }
+        }
       }
-    }, autoScrollSpeed);
+      lastTime = now;
+      frameId = requestAnimationFrame(tick);
+    };
 
-    return () => clearInterval(interval);
-  }, [isVisible, isPaused, isRtl, autoScrollSpeed]);
+    frameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameId);
+  }, [isVisible, isRtl, autoScrollSpeed]);
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
@@ -69,8 +120,10 @@ const HomepageShowcaseCarousel = ({
 
         <div
           className="relative"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
+          onMouseEnter={() => { isPausedRef.current = true; }}
+          onMouseLeave={() => { isPausedRef.current = false; }}
+          onTouchStart={() => { isPausedRef.current = true; }}
+          onTouchEnd={() => { setTimeout(() => { isPausedRef.current = false; }, 2000); }}
         >
           <button
             onClick={() => scroll("left")}
@@ -85,43 +138,8 @@ const HomepageShowcaseCarousel = ({
             className="flex gap-4 overflow-x-auto pb-4 px-2"
             style={{ scrollbarWidth: "none" }}
           >
-            {items.map((item, i) => (
-              <div
-                key={item.id}
-                className="relative flex-shrink-0 w-[220px] md:w-[260px] group cursor-pointer"
-                style={{
-                  animationDelay: `${i * 100}ms`,
-                }}
-              >
-                <div className="aspect-video rounded-xl overflow-hidden relative shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-[1.03]">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                  {item.badge && (
-                    <div className="absolute top-3 left-3 z-10">
-                      <span
-                        className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold text-white backdrop-blur-sm ${
-                          item.badgeColor || "bg-primary/90"
-                        }`}
-                      >
-                        {item.badge}
-                      </span>
-                    </div>
-                  )}
-                  <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
-                    <p className="text-sm font-bold text-white leading-snug mb-1 line-clamp-2">
-                      {item.title}
-                    </p>
-                    {item.subtitle && (
-                      <p className="text-xs text-white/80">{item.subtitle}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
+            {items.map((item) => (
+              <ShowcaseCard key={item.id} item={item} />
             ))}
           </div>
 
@@ -138,4 +156,4 @@ const HomepageShowcaseCarousel = ({
   );
 };
 
-export default HomepageShowcaseCarousel;
+export default memo(HomepageShowcaseCarousel);

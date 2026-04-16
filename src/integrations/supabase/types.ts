@@ -1780,6 +1780,10 @@ export type Database = {
     }
     Functions: {
       calculate_weekly_top_courses: { Args: never; Returns: undefined }
+      claim_department_invitation: {
+        Args: { _code: string; _user_id: string }
+        Returns: Json
+      }
       complete_signup:
         | {
             Args: {
@@ -1835,6 +1839,15 @@ export type Database = {
         Returns: boolean
       }
       quiz_results_approved: { Args: { _quiz_id: string }; Returns: boolean }
+      verify_department_invitation: {
+        Args: { _code: string }
+        Returns: {
+          department_id: string
+          full_name: string
+          is_valid: boolean
+          role: string
+        }[]
+      }
     }
     Enums: {
       app_role:

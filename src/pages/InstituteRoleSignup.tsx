@@ -107,18 +107,19 @@ const InstituteRoleSignup = () => {
         return;
       }
 
-      // 2. Check department_members table
-      const { data: memberData, error: memberError } = await supabase
-        .from("department_members")
-        .select("*, departments(*)")
-        .eq("invitation_code", code.trim())
-        .is("user_id", null)
-        .maybeSingle();
-
+      // 2. Check department_members table via secure RPC
+      const { data: memberRows, error: memberError } = await supabase.rpc("verify_department_invitation" as any, { _code: code.trim() });
       if (memberError) throw memberError;
+      const memberData = Array.isArray(memberRows) && memberRows.length > 0 ? (memberRows[0] as any) : null;
 
-      if (memberData) {
-        setVerifiedInvitation({ ...memberData, _source: "department_members" });
+      if (memberData?.department_id) {
+        // Fetch department details for display
+        const { data: deptData } = await supabase
+          .from("departments" as any)
+          .select("*")
+          .eq("id", memberData.department_id)
+          .maybeSingle();
+        setVerifiedInvitation({ ...memberData, departments: deptData, _source: "department_members" });
         setCodeVerified(true);
         toast({ title: isRtl ? "تم التحقق" : "Verified", description: isRtl ? "كود الدعوة صالح، أكمل التسجيل" : "Invitation code verified, complete registration" });
         return;

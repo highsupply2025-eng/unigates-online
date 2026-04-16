@@ -87,18 +87,15 @@ const Signup = () => {
           navigate(`/signup/institute/${role}?code=${code}`, { replace: true });
           return;
         }
-        // Check department_members for dept_invite codes
+        // Check department_members for dept_invite codes (via secure RPC)
         if (deptInviteFromUrl) {
-          const { data: memberData } = await supabase
-            .from("department_members" as any)
-            .select("department_id")
-            .eq("invitation_code", code)
-            .maybeSingle();
-          if (memberData) {
+          const { data: memberRows } = await supabase.rpc("verify_department_invitation" as any, { _code: code });
+          const memberData = Array.isArray(memberRows) && memberRows.length > 0 ? (memberRows[0] as any) : null;
+          if (memberData?.department_id) {
             const { data: deptData } = await supabase
               .from("departments" as any)
               .select("institution_type")
-              .eq("id", (memberData as any).department_id)
+              .eq("id", memberData.department_id)
               .maybeSingle();
             if (deptData) {
               const instPath = (deptData as any).institution_type === "institute" ? "institute" : "college";
@@ -250,21 +247,14 @@ const Signup = () => {
 
       // Link user to department member if invitation code exists
       if (invitationCode && userId) {
-        // Try department invitation code
-        const { data: deptMember } = await supabase
-          .from("department_members" as any)
-          .select("*")
-          .eq("invitation_code", invitationCode)
-          .is("user_id", null)
-          .limit(1)
-          .single();
-        
-        if (deptMember) {
-          await supabase
-            .from("department_members" as any)
-            .update({ user_id: userId })
-            .eq("id", (deptMember as any).id);
-        } else {
+        // Try department invitation code via secure RPC
+        const { data: claimResult } = await supabase.rpc("claim_department_invitation" as any, {
+          _code: invitationCode,
+          _user_id: userId,
+        });
+        const claimed = claimResult && (claimResult as any).success;
+
+        if (!claimed) {
           // Try college invitation code via secure RPC
           const { data: verifyResult } = await supabase.rpc("verify_invitation_code" as any, { p_code: invitationCode });
           

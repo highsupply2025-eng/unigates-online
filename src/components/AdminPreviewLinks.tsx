@@ -26,13 +26,13 @@ const AdminPreviewLinks = ({ compact = false }: { compact?: boolean }) => {
 
   if (compact) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
         {items.map((it) => {
           const Icon = it.icon;
           return (
-            <Link key={it.to} to={it.to} className="flex items-center gap-2 p-2 rounded-md border hover:bg-accent transition-colors text-sm">
-              <Icon className="w-4 h-4 text-primary" />
-              <span className="truncate">{it.label}</span>
+            <Link key={it.to} to={it.to} className="flex items-center gap-2 p-2 rounded-md border hover:bg-accent transition-colors text-sm min-w-0">
+              <Icon className="w-4 h-4 text-primary shrink-0" />
+              <span className="truncate flex-1">{it.label}</span>
             </Link>
           );
         })}

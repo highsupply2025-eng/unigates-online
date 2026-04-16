@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
+import BackButton from "@/components/BackButton";
 
 const StudentDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -93,6 +94,7 @@ const StudentDashboard = () => {
             </Badge>
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            <BackButton />
             <NotificationBell />
             <Button variant="default" size="icon" onClick={toggleLanguage} className="w-9 h-9" aria-label="lang">
               <Globe className="w-4 h-4" />

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
+import BackButton from "@/components/BackButton";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Props {
@@ -36,6 +37,7 @@ const StudentPageHeader = ({ titleAr, titleEn, icon }: Props) => {
           </div>
         </Link>
         <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          <BackButton />
           <NotificationBell />
           <Link to="/student/dashboard">
             <Button variant="outline" size="icon" className="w-8 h-8 sm:w-9 sm:h-9" aria-label={isRtl ? "الرئيسية" : "Home"}>

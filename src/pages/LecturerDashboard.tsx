@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { toast as sonnerToast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
+import BackButton from "@/components/BackButton";
 
 const LecturerDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -571,6 +572,7 @@ const LecturerDashboard = () => {
             <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight truncate">{t.brandName}</span>
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            <BackButton />
             <NotificationBell />
             <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5 hidden sm:inline-flex">
               <Globe className="w-4 h-4" />{t.langSwitch}

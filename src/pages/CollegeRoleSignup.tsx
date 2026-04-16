@@ -63,6 +63,17 @@ const CollegeRoleSignup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [countdown, setCountdown] = useState(5);
+
+  useEffect(() => {
+    if (!submitted) return;
+    if (countdown <= 0) {
+      navigate("/login");
+      return;
+    }
+    const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [submitted, countdown, navigate]);
 
   const verifyCode = async (codeOverride?: string) => {
     const code = codeOverride || invitationCode;

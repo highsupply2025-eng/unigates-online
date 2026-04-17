@@ -278,14 +278,6 @@ const LecturerProfile = () => {
           </Card>
         )}
 
-        {/* Spacer for end of header card removed below */}
-        {false && (
-          <div />
-        )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Contact info */}
         <Card className="mb-4 sm:mb-6">

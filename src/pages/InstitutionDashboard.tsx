@@ -1595,7 +1595,7 @@ const InstitutionDashboard = () => {
                 <Card className="border border-emerald-500/20">
                   <CardContent className="p-4 text-center">
                     <p className="text-2xl font-black text-emerald-600">{studentResults.filter(r => r.rating === "excellent" || r.rating === "very_good").length}</p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "متفوقين" : "Top Students"}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "متفوق" : "Top Student"}</p>
                   </CardContent>
                 </Card>
                 <Card className="border border-amber-500/20">

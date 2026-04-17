@@ -20,9 +20,8 @@ const BackButton = ({ className = "", toLogin = false }: BackButtonProps) => {
 
   if (!toLogin && typeof window !== "undefined" && window.history.length <= 1) return null;
 
-  // Reversed: arrow points the OPPOSITE way of reading direction
-  // Arabic (RTL) → arrow points left (ArrowLeft), English (LTR) → arrow points right (ArrowRight)
-  const Icon = language === "ar" ? ArrowLeft : ArrowRight;
+  // Arrow follows reading direction: Arabic (RTL) → ArrowRight, English (LTR) → ArrowLeft
+  const Icon = language === "ar" ? ArrowRight : ArrowLeft;
 
   const handleClick = () => {
     if (toLogin) navigate("/login");

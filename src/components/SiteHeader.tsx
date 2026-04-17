@@ -124,29 +124,17 @@ const SiteHeader = () => {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-56 bg-popover">
-              {mainNavItems.map((item) => {
-                const IconComp = item.icon;
-                return (
-                  <DropdownMenuItem key={item.to} asChild className="gap-2 cursor-pointer">
-                    <Link to={item.to}>
-                      <IconComp className="w-4 h-4 text-primary" />
-                      <span className="text-sm font-semibold">{item.label}</span>
-                    </Link>
-                  </DropdownMenuItem>
-                );
-              })}
               {isAdmin && (
                 <>
-                  <DropdownMenuSeparator />
                   <DropdownMenuItem asChild className="gap-2 cursor-pointer">
                     <Link to="/admin/dashboard">
                       <Shield className="w-4 h-4 text-primary" />
                       <span className="text-sm font-semibold">{ar("معاينة الأدمن", "Admin Preview")}</span>
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                 </>
               )}
-              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
                 <Globe className="w-4 h-4 text-primary" />
                 <span className="text-sm font-semibold">{t.langSwitch}</span>

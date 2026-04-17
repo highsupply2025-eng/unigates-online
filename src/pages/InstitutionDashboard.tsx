@@ -778,10 +778,6 @@ const InstitutionDashboard = () => {
               <CheckCircle className="w-4 h-4" />
               {isRtl ? "النتائج" : "Results"}
             </Button>
-            <Button variant={activeTab === "quizmanage" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("quizmanage")}>
-              <ClipboardList className="w-4 h-4" />
-              {isRtl ? "الاختبارات" : "Quizzes"}
-            </Button>
             <Button variant={activeTab === "invitations" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("invitations")}>
               <LinkIcon className="w-4 h-4" />
               {isRtl ? "الدعوات" : "Invitations"}
@@ -823,10 +819,6 @@ const InstitutionDashboard = () => {
                 <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("quizresults")}>
                   <CheckCircle className="w-4 h-4 text-green-500" />
                   <span className="text-sm font-semibold">{isRtl ? "النتائج" : "Results"}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("quizmanage")}>
-                  <ClipboardList className="w-4 h-4 text-purple-500" />
-                  <span className="text-sm font-semibold">{isRtl ? "الاختبارات" : "Quizzes"}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("invitations")}>
                   <LinkIcon className="w-4 h-4 text-indigo-500" />
@@ -1186,7 +1178,7 @@ const InstitutionDashboard = () => {
               <TabsTrigger value="quizresults" />
               <TabsTrigger value="schedules" />
               <TabsTrigger value="ratings" />
-              <TabsTrigger value="quizmanage" />
+              
               <TabsTrigger value="invitations" />
               <TabsTrigger value="notifications" />
             </TabsList>
@@ -2001,74 +1993,6 @@ const InstitutionDashboard = () => {
               })()}
             </TabsContent>
           )}
-
-          {/* Quiz Management Tab */}
-          <TabsContent value="quizmanage">
-            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
-              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-              {isRtl ? "الرئيسية" : "Home"}
-            </Button>
-            <div className="mb-6 flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-foreground mb-2">{isRtl ? "اختبارات المؤسسة" : "Institution Quizzes"}</h2>
-                <p className="text-sm text-muted-foreground">{isRtl ? "إنشاء وإدارة الاختبارات" : "Create and manage quizzes"}</p>
-              </div>
-              <Button onClick={() => navigate("/institution/quizzes/manage")} className="gap-2">
-                <PlusCircle className="w-4 h-4" />
-                {isRtl ? "إضافة اختبار" : "Add Quiz"}
-              </Button>
-            </div>
-
-            {institutionQuizzes.length === 0 ? (
-              <Card>
-                <CardContent className="py-16 text-center">
-                  <ClipboardList className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />
-                  <p className="text-lg font-bold text-muted-foreground mb-2">{isRtl ? "لا توجد اختبارات بعد" : "No quizzes yet"}</p>
-                  <p className="text-sm text-muted-foreground mb-4">{isRtl ? "أنشئ أول اختبار للمؤسسة" : "Create your first institution quiz"}</p>
-                  <Button onClick={() => navigate("/institution/quizzes/manage")} className="gap-2">
-                    <PlusCircle className="w-4 h-4" />
-                    {isRtl ? "إنشاء اختبار" : "Create Quiz"}
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {institutionQuizzes.map(quiz => (
-                  <Card key={quiz.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-5">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="font-bold text-foreground">{isRtl ? quiz.title_ar : quiz.title_en}</h3>
-                            <Badge variant={quiz.is_published ? "default" : "secondary"}>
-                              {quiz.is_published ? (isRtl ? "منشور ✅" : "Published ✅") : (isRtl ? "مسودة" : "Draft")}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
-                            <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{quiz.duration_minutes} {isRtl ? "دقيقة" : "min"}</span>
-                            {quiz.department_name && <Badge variant="outline" className="text-[10px]">{quiz.department_name}</Badge>}
-                            {quiz.due_date && <span>{new Date(quiz.due_date).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</span>}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button size="sm" variant="outline" className="gap-1.5" onClick={() => navigate(`/institution/quizzes/manage?id=${quiz.id}`)}>
-                            <Pencil className="w-3.5 h-3.5" />{isRtl ? "تعديل" : "Edit"}
-                          </Button>
-                          <Button size="sm" variant="ghost" className="text-destructive h-8 w-8 p-0" onClick={async () => {
-                            await supabase.from("institution_quizzes").delete().eq("id", quiz.id);
-                            setInstitutionQuizzes(prev => prev.filter(q => q.id !== quiz.id));
-                            sonnerToast.success(isRtl ? "تم حذف الاختبار" : "Quiz deleted");
-                          }}>
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
 
           {/* Invitations Tab - Links & Codes */}
           <TabsContent value="invitations">

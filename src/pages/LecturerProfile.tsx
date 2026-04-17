@@ -230,12 +230,58 @@ const LecturerProfile = () => {
                       ? (isRtl ? "✅ مربوط بحساب" : "✅ Linked")
                       : (isRtl ? "⏳ بانتظار التسجيل" : "⏳ Pending")}
                   </Badge>
-                  {deptName && (
-                    <span className="text-xs text-muted-foreground">
-                      {isRtl ? "القسم: " : "Dept: "}{deptName}
-                    </span>
-                  )}
                 </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Academic info */}
+        {(institutionName || deptName) && (
+          <Card className="mb-4 sm:mb-6">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base sm:text-lg">
+                {isRtl ? "البيانات الأكاديمية" : "Academic Information"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {institutionName && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Building2 className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <span className="text-foreground">
+                    {isRtl
+                      ? (institutionType === "college" ? "الكلية: " : "المعهد: ")
+                      : (institutionType === "college" ? "College: " : "Institute: ")}
+                    <span className="font-semibold">{institutionName}</span>
+                  </span>
+                </div>
+              )}
+              {deptName && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Layers className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <span className="text-foreground">
+                    {isRtl ? "القسم: " : "Department: "}
+                    <span className="font-semibold">{deptName}</span>
+                  </span>
+                </div>
+              )}
+              <div className="flex items-center gap-3 text-sm">
+                <GraduationCap className="w-4 h-4 text-muted-foreground shrink-0" />
+                <span className="text-foreground">
+                  {isRtl ? "الدور: " : "Role: "}
+                  <span className="font-semibold">
+                    {isLecturer ? (isRtl ? "محاضر" : "Lecturer") : (isRtl ? "طالب" : "Student")}
+                  </span>
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Spacer for end of header card removed below */}
+        {false && (
+          <div />
+        )}
               </div>
             </div>
           </CardContent>

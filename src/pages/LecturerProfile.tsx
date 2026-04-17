@@ -55,6 +55,8 @@ const LecturerProfile = () => {
   const [profile, setProfile] = useState<ProfileRow | null>(null);
   const [stats, setStats] = useState<Stats>({ courses: 0, students: 0, assignments: 0, quizzes: 0 });
   const [deptName, setDeptName] = useState("");
+  const [institutionName, setInstitutionName] = useState("");
+  const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
   const [showUnlink, setShowUnlink] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [actioning, setActioning] = useState(false);
@@ -69,13 +71,34 @@ const LecturerProfile = () => {
 
       const { data: m } = await supabase
         .from("department_members")
-        .select("*, departments(department_name)")
+        .select("*, departments(department_name, institution_id, institution_type)")
         .eq("id", memberId)
         .maybeSingle();
 
       if (!m) { navigate("/institution/dashboard"); return; }
       setMember(m as MemberRow);
-      setDeptName((m as any).departments?.department_name || "");
+      const deptInfo = (m as any).departments;
+      setDeptName(deptInfo?.department_name || "");
+      const instType = (deptInfo?.institution_type as "college" | "institute") || "college";
+      setInstitutionType(instType);
+
+      if (deptInfo?.institution_id) {
+        if (instType === "college") {
+          const { data: c } = await supabase
+            .from("college_registrations")
+            .select("college_name")
+            .eq("id", deptInfo.institution_id)
+            .maybeSingle();
+          setInstitutionName(c?.college_name || "");
+        } else {
+          const { data: i } = await supabase
+            .from("institute_registrations")
+            .select("institute_name")
+            .eq("id", deptInfo.institution_id)
+            .maybeSingle();
+          setInstitutionName(i?.institute_name || "");
+        }
+      }
 
       if (m.user_id) {
         const { data: p } = await supabase

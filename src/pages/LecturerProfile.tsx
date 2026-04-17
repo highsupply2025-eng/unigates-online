@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ChevronLeft, ChevronRight, Mail, Phone, Calendar, BookOpen, Users,
-  FileText, ClipboardList, Loader2, UserCheck, Unlink, Trash2, BadgeCheck
+  FileText, ClipboardList, Loader2, UserCheck, Unlink, Trash2, BadgeCheck,
+  Building2, Layers, MapPin, GraduationCap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

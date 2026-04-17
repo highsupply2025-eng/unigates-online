@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ChevronLeft, ChevronRight, Mail, Phone, Calendar, BookOpen, Users,
-  FileText, ClipboardList, Loader2, UserCheck, Unlink, Trash2, BadgeCheck
+  FileText, ClipboardList, Loader2, UserCheck, Unlink, Trash2, BadgeCheck,
+  Building2, Layers, MapPin, GraduationCap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -54,6 +55,8 @@ const LecturerProfile = () => {
   const [profile, setProfile] = useState<ProfileRow | null>(null);
   const [stats, setStats] = useState<Stats>({ courses: 0, students: 0, assignments: 0, quizzes: 0 });
   const [deptName, setDeptName] = useState("");
+  const [institutionName, setInstitutionName] = useState("");
+  const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
   const [showUnlink, setShowUnlink] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [actioning, setActioning] = useState(false);
@@ -68,13 +71,34 @@ const LecturerProfile = () => {
 
       const { data: m } = await supabase
         .from("department_members")
-        .select("*, departments(department_name)")
+        .select("*, departments(department_name, institution_id, institution_type)")
         .eq("id", memberId)
         .maybeSingle();
 
       if (!m) { navigate("/institution/dashboard"); return; }
       setMember(m as MemberRow);
-      setDeptName((m as any).departments?.department_name || "");
+      const deptInfo = (m as any).departments;
+      setDeptName(deptInfo?.department_name || "");
+      const instType = (deptInfo?.institution_type as "college" | "institute") || "college";
+      setInstitutionType(instType);
+
+      if (deptInfo?.institution_id) {
+        if (instType === "college") {
+          const { data: c } = await supabase
+            .from("college_registrations")
+            .select("college_name")
+            .eq("id", deptInfo.institution_id)
+            .maybeSingle();
+          setInstitutionName(c?.college_name || "");
+        } else {
+          const { data: i } = await supabase
+            .from("institute_registrations")
+            .select("institute_name")
+            .eq("id", deptInfo.institution_id)
+            .maybeSingle();
+          setInstitutionName(i?.institute_name || "");
+        }
+      }
 
       if (m.user_id) {
         const { data: p } = await supabase
@@ -206,16 +230,54 @@ const LecturerProfile = () => {
                       ? (isRtl ? "✅ مربوط بحساب" : "✅ Linked")
                       : (isRtl ? "⏳ بانتظار التسجيل" : "⏳ Pending")}
                   </Badge>
-                  {deptName && (
-                    <span className="text-xs text-muted-foreground">
-                      {isRtl ? "القسم: " : "Dept: "}{deptName}
-                    </span>
-                  )}
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Academic info */}
+        {(institutionName || deptName) && (
+          <Card className="mb-4 sm:mb-6">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base sm:text-lg">
+                {isRtl ? "البيانات الأكاديمية" : "Academic Information"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {institutionName && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Building2 className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <span className="text-foreground">
+                    {isRtl
+                      ? (institutionType === "college" ? "الكلية: " : "المعهد: ")
+                      : (institutionType === "college" ? "College: " : "Institute: ")}
+                    <span className="font-semibold">{institutionName}</span>
+                  </span>
+                </div>
+              )}
+              {deptName && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Layers className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <span className="text-foreground">
+                    {isRtl ? "القسم: " : "Department: "}
+                    <span className="font-semibold">{deptName}</span>
+                  </span>
+                </div>
+              )}
+              <div className="flex items-center gap-3 text-sm">
+                <GraduationCap className="w-4 h-4 text-muted-foreground shrink-0" />
+                <span className="text-foreground">
+                  {isRtl ? "الدور: " : "Role: "}
+                  <span className="font-semibold">
+                    {isLecturer ? (isRtl ? "محاضر" : "Lecturer") : (isRtl ? "طالب" : "Student")}
+                  </span>
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
 
         {/* Contact info */}
         <Card className="mb-4 sm:mb-6">

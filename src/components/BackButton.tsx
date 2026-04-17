@@ -3,27 +3,38 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+interface BackButtonProps {
+  className?: string;
+  /** When true, navigates straight to /login instead of history.back() */
+  toLogin?: boolean;
+}
+
 /**
- * Simple "go back one page" button.
- * Always uses history.back() — never navigates to a fallback.
- * Hidden when there is no previous page in history.
+ * Back button. Default: history.back(). With toLogin: navigates to /login.
+ * Arrow points in the reading direction (RTL → left arrow, LTR → right arrow).
  */
-const BackButton = ({ className = "" }: { className?: string }) => {
+const BackButton = ({ className = "", toLogin = false }: BackButtonProps) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const ar = (a: string, e: string) => (language === "ar" ? a : e);
 
-  // If the tab was opened fresh (target=_blank), there's no previous page — hide it.
-  if (typeof window !== "undefined" && window.history.length <= 1) return null;
+  if (!toLogin && typeof window !== "undefined" && window.history.length <= 1) return null;
 
-  const Icon = language === "ar" ? ArrowRight : ArrowLeft;
+  // Reversed: arrow points the OPPOSITE way of reading direction
+  // Arabic (RTL) → arrow points left (ArrowLeft), English (LTR) → arrow points right (ArrowRight)
+  const Icon = language === "ar" ? ArrowLeft : ArrowRight;
+
+  const handleClick = () => {
+    if (toLogin) navigate("/login");
+    else navigate(-1);
+  };
 
   return (
     <Button
-      variant="outline"
+      variant="default"
       size="sm"
-      onClick={() => navigate(-1)}
-      className={`gap-1.5 font-semibold ${className}`}
+      onClick={handleClick}
+      className={`gap-1.5 font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/30 ${className}`}
       aria-label={ar("رجوع", "Back")}
     >
       <Icon className="w-4 h-4" />

@@ -786,8 +786,7 @@ const InstitutionDashboard = () => {
               <LinkIcon className="w-4 h-4" />
               {isRtl ? "الدعوات" : "Invitations"}
             </Button>
-            <BackButton />
-            <NotificationBell />
+            <BackButton toLogin />
             <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5">
               <Globe className="w-4 h-4" />
               {t.langSwitch}

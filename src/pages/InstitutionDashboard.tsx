@@ -840,7 +840,7 @@ const InstitutionDashboard = () => {
                   await supabase.auth.signOut();
                   navigate("/login");
                 }}>
-                  <LogOut className="w-4 h-4 text-destructive" />
+                  <LogOut className={`w-4 h-4 text-destructive ${isRtl ? "scale-x-[-1]" : ""}`} />
                   <span className="text-sm font-semibold text-destructive">{isRtl ? "تسجيل الخروج" : "Logout"}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>

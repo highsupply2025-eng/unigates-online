@@ -778,10 +778,6 @@ const InstitutionDashboard = () => {
               <CheckCircle className="w-4 h-4" />
               {isRtl ? "النتائج" : "Results"}
             </Button>
-            <Button variant={activeTab === "quizmanage" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("quizmanage")}>
-              <ClipboardList className="w-4 h-4" />
-              {isRtl ? "الاختبارات" : "Quizzes"}
-            </Button>
             <Button variant={activeTab === "invitations" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("invitations")}>
               <LinkIcon className="w-4 h-4" />
               {isRtl ? "الدعوات" : "Invitations"}
@@ -823,10 +819,6 @@ const InstitutionDashboard = () => {
                 <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("quizresults")}>
                   <CheckCircle className="w-4 h-4 text-green-500" />
                   <span className="text-sm font-semibold">{isRtl ? "النتائج" : "Results"}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("quizmanage")}>
-                  <ClipboardList className="w-4 h-4 text-purple-500" />
-                  <span className="text-sm font-semibold">{isRtl ? "الاختبارات" : "Quizzes"}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("invitations")}>
                   <LinkIcon className="w-4 h-4 text-indigo-500" />

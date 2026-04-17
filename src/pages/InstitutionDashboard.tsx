@@ -1576,23 +1576,12 @@ const InstitutionDashboard = () => {
           {/* Quiz Results Tab - Results Management */}
           {(isLeadershipRole || institutionId) && (
             <TabsContent value="quizresults">
-              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
-                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                {isRtl ? "الرئيسية" : "Home"}
-              </Button>
-
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-foreground">{isRtl ? "إدارة النتائج" : "Results Management"}</h2>
-                <div className="flex items-center gap-2">
-                  <Button size="sm" variant="outline" className="gap-2" onClick={exportResultsToExcel} disabled={studentResults.length === 0}>
-                    <Download className="w-4 h-4" />
-                    {isRtl ? "تصدير Excel" : "Export Excel"}
-                  </Button>
-                  <Button size="sm" className="gap-2" onClick={() => navigate("/institution/results/add")}>
-                    <Plus className="w-4 h-4" />
-                    {isRtl ? "إضافة نتيجة" : "Add Result"}
-                  </Button>
-                </div>
+                <Button size="sm" variant="outline" className="gap-2" onClick={exportResultsToExcel} disabled={studentResults.length === 0}>
+                  <Download className="w-4 h-4" />
+                  {isRtl ? "تصدير Excel" : "Export Excel"}
+                </Button>
               </div>
 
               {/* Stats */}

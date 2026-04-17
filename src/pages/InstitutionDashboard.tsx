@@ -786,7 +786,7 @@ const InstitutionDashboard = () => {
               <LinkIcon className="w-4 h-4" />
               {isRtl ? "الدعوات" : "Invitations"}
             </Button>
-            <BackButton toLogin />
+            <BackButton />
             <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5">
               <Globe className="w-4 h-4" />
               {t.langSwitch}
@@ -800,7 +800,7 @@ const InstitutionDashboard = () => {
           </div>
           {/* Mobile dropdown */}
           <div className="md:hidden flex items-center gap-1.5 shrink-0">
-            <BackButton toLogin />
+            <BackButton />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="icon" className="rounded-xl w-9 h-9 bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-primary/25 text-white shrink-0">

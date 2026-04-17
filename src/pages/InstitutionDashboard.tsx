@@ -800,8 +800,7 @@ const InstitutionDashboard = () => {
           </div>
           {/* Mobile dropdown */}
           <div className="md:hidden flex items-center gap-1.5 shrink-0">
-            <BackButton />
-            <NotificationBell />
+            <BackButton toLogin />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="icon" className="rounded-xl w-9 h-9 bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-primary/25 text-white shrink-0">

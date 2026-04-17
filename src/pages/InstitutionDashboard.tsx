@@ -1235,29 +1235,17 @@ const InstitutionDashboard = () => {
               <CheckCircle className="w-5 h-5 text-green-500" />
               {isRtl ? "الاختبارات والواجبات" : "Quizzes & Assignments"}
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <div className="grid grid-cols-2 gap-3 mb-6">
               <Card className="border border-purple-500/20">
                 <CardContent className="p-4 text-center">
                   <p className="text-2xl font-black text-purple-600">{quizzes.length}</p>
                   <p className="text-xs text-muted-foreground">{isRtl ? "الاختبارات" : "Quizzes"}</p>
                 </CardContent>
               </Card>
-              <Card className="border border-emerald-500/20">
-                <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-black text-emerald-600">{quizSubmissions.length}</p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "تقديمات الاختبارات" : "Quiz Submissions"}</p>
-                </CardContent>
-              </Card>
               <Card className="border border-blue-500/20">
                 <CardContent className="p-4 text-center">
                   <p className="text-2xl font-black text-blue-600">{assignments.length}</p>
                   <p className="text-xs text-muted-foreground">{isRtl ? "الواجبات" : "Assignments"}</p>
-                </CardContent>
-              </Card>
-              <Card className="border border-amber-500/20">
-                <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-black text-amber-600">{assignmentSubmissions.length}</p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "تقديمات الواجبات" : "Assignment Subs"}</p>
                 </CardContent>
               </Card>
             </div>

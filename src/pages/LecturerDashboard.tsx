@@ -36,7 +36,7 @@ const LecturerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<any[]>([]);
   const [courseViews, setCourseViews] = useState<Record<string, number>>({});
-  const [activeTab, setActiveTab] = useState("courses");
+  const [activeTab, setActiveTab] = useState("home");
 
   // New course form
   const [showNewCourse, setShowNewCourse] = useState(false);
@@ -581,6 +581,10 @@ const LecturerDashboard = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setActiveTab("home")} className="gap-2 cursor-pointer">
+                  <BarChart3 className="w-4 h-4" />
+                  {isRtl ? "الرئيسية" : "Home"}
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setActiveTab("courses")} className="gap-2 cursor-pointer">
                   <Video className="w-4 h-4" />
                   {isRtl ? "المحاضرات" : "Lectures"}
@@ -597,9 +601,21 @@ const LecturerDashboard = () => {
                   <ClipboardList className="w-4 h-4" />
                   {isRtl ? "التكليفات" : "Assignments"}
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("schedules")} className="gap-2 cursor-pointer">
+                  <Calendar className="w-4 h-4" />
+                  {isRtl ? "الجداول" : "Schedules"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("attendance")} className="gap-2 cursor-pointer">
+                  <Users className="w-4 h-4" />
+                  {isRtl ? "الحضور" : "Attendance"}
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setActiveTab("ratings")} className="gap-2 cursor-pointer">
                   <Star className="w-4 h-4" />
                   {isRtl ? "التقييمات" : "Ratings"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("analytics")} className="gap-2 cursor-pointer">
+                  <Download className="w-4 h-4" />
+                  {isRtl ? "تحميل التقارير" : "Export Reports"}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/institution/results/add")} className="gap-2 cursor-pointer">
                   <FileText className="w-4 h-4" />
@@ -638,38 +654,192 @@ const LecturerDashboard = () => {
           <>
             {/* Quick Actions moved to dropdown menu */}
 
-            {/* Stats Summary */}
-            <div className="grid grid-cols-4 gap-3 mb-8">
-              <div className="bg-primary/5 rounded-xl p-3 text-center">
-                <p className="text-xl font-black text-primary">{totalViews}</p>
-                <p className="text-[10px] text-muted-foreground">{isRtl ? "مشاهدات" : "Views"}</p>
-              </div>
-              <div className="bg-primary/5 rounded-xl p-3 text-center">
-                <p className="text-xl font-black text-primary">{courses.length}</p>
-                <p className="text-[10px] text-muted-foreground">{isRtl ? "دورات" : "Courses"}</p>
-              </div>
-              <div className="bg-primary/5 rounded-xl p-3 text-center">
-                <p className="text-xl font-black text-primary">{courses.reduce((a, c) => a + c.episode_count, 0)}</p>
-                <p className="text-[10px] text-muted-foreground">{isRtl ? "حلقات" : "Episodes"}</p>
-              </div>
-              <div className="bg-green-500/5 rounded-xl p-3 text-center">
-                <p className="text-xl font-black text-green-600">
-                  {lecturerRatings.length > 0 ? (lecturerRatings.reduce((a, r) => a + r.rating, 0) / lecturerRatings.length).toFixed(1) : "—"}
-                </p>
-                <p className="text-[10px] text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
-              </div>
-            </div>
-
-            {/* Tabs */}
+            {/* Tabs (triggers hidden — navigation via dropdown) */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="flex md:grid w-full md:grid-cols-6 mb-6 h-auto overflow-x-auto md:overflow-visible scrollbar-hide">
-                <TabsTrigger value="courses" className="text-xs py-2 shrink-0 md:shrink"><Video className="w-3.5 h-3.5 me-1" />{isRtl ? "المحاضرات" : "Lectures"}</TabsTrigger>
-                <TabsTrigger value="live" className="text-xs py-2 shrink-0 md:shrink"><Radio className="w-3.5 h-3.5 me-1" />{isRtl ? "البث" : "Live"}</TabsTrigger>
-                <TabsTrigger value="quizzes" className="text-xs py-2 shrink-0 md:shrink"><HelpCircle className="w-3.5 h-3.5 me-1" />{isRtl ? "اختبارات" : "Tests"}</TabsTrigger>
-                <TabsTrigger value="schedules" className="text-xs py-2 shrink-0 md:shrink"><Calendar className="w-3.5 h-3.5 me-1" />{isRtl ? "الجداول" : "Schedule"}</TabsTrigger>
-                <TabsTrigger value="attendance" className="text-xs py-2 shrink-0 md:shrink"><Users className="w-3.5 h-3.5 me-1" />{isRtl ? "الحضور" : "Attend"}</TabsTrigger>
-                <TabsTrigger value="analytics" className="text-xs py-2 shrink-0 md:shrink"><Download className="w-3.5 h-3.5 me-1" />{isRtl ? "تحميل" : "Export"}</TabsTrigger>
+              <TabsList className="hidden">
+                <TabsTrigger value="home">home</TabsTrigger>
+                <TabsTrigger value="courses">courses</TabsTrigger>
+                <TabsTrigger value="live">live</TabsTrigger>
+                <TabsTrigger value="assignments">assignments</TabsTrigger>
+                <TabsTrigger value="quizzes">quizzes</TabsTrigger>
+                <TabsTrigger value="schedules">schedules</TabsTrigger>
+                <TabsTrigger value="attendance">attendance</TabsTrigger>
+                <TabsTrigger value="ratings">ratings</TabsTrigger>
+                <TabsTrigger value="analytics">analytics</TabsTrigger>
               </TabsList>
+
+              {/* ===== HOME / ANALYTICS DASHBOARD ===== */}
+              <TabsContent value="home">
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold text-foreground mb-1">{isRtl ? "الرئيسية" : "Home"}</h2>
+                  <p className="text-sm text-muted-foreground">{isRtl ? "نظرة عامة على نشاطك في جميع الأقسام" : "Overview of your activity across all sections"}</p>
+                </div>
+
+                {/* Top KPIs */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                  <div className="bg-primary/5 rounded-xl p-4 text-center border border-primary/10">
+                    <Eye className="w-5 h-5 mx-auto mb-1 text-primary" />
+                    <p className="text-2xl font-black text-primary">{totalViews}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "إجمالي المشاهدات" : "Total Views"}</p>
+                  </div>
+                  <div className="bg-primary/5 rounded-xl p-4 text-center border border-primary/10">
+                    <Video className="w-5 h-5 mx-auto mb-1 text-primary" />
+                    <p className="text-2xl font-black text-primary">{courses.length}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "دورات" : "Courses"}</p>
+                  </div>
+                  <div className="bg-primary/5 rounded-xl p-4 text-center border border-primary/10">
+                    <BookOpen className="w-5 h-5 mx-auto mb-1 text-primary" />
+                    <p className="text-2xl font-black text-primary">{courses.reduce((a, c) => a + c.episode_count, 0)}</p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "حلقات" : "Episodes"}</p>
+                  </div>
+                  <div className="bg-green-500/5 rounded-xl p-4 text-center border border-green-500/10">
+                    <Star className="w-5 h-5 mx-auto mb-1 text-green-600" />
+                    <p className="text-2xl font-black text-green-600">
+                      {lecturerRatings.length > 0 ? (lecturerRatings.reduce((a, r) => a + r.rating, 0) / lecturerRatings.length).toFixed(1) : "—"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
+                  </div>
+                </div>
+
+                {/* Section Analytics Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all" onClick={() => setActiveTab("courses")}>
+                    <CardContent className="p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                          <Video className="w-5 h-5 text-primary" />
+                        </div>
+                        <Badge variant="secondary">{courses.length}</Badge>
+                      </div>
+                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "المحاضرات" : "Lectures"}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {isRtl ? `${courses.reduce((a, c) => a + c.episode_count, 0)} حلقة منشورة` : `${courses.reduce((a, c) => a + c.episode_count, 0)} episodes`}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all" onClick={() => setActiveTab("live")}>
+                    <CardContent className="p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
+                          <Radio className="w-5 h-5 text-red-500" />
+                        </div>
+                        <Badge variant="secondary">{streams.length}</Badge>
+                      </div>
+                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "البث المباشر" : "Live Streams"}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {isRtl
+                          ? `${streams.filter(s => s.status === "live").length} مباشر الآن • ${streams.filter(s => s.status === "scheduled").length} مجدول`
+                          : `${streams.filter(s => s.status === "live").length} live • ${streams.filter(s => s.status === "scheduled").length} scheduled`}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all" onClick={() => setActiveTab("quizzes")}>
+                    <CardContent className="p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                          <HelpCircle className="w-5 h-5 text-amber-500" />
+                        </div>
+                        <Badge variant="secondary">{quizzes.length}</Badge>
+                      </div>
+                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "الاختبارات أونلاين" : "Online Tests"}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {isRtl ? "اختر دورة لعرض اختباراتها" : "Select a course to view tests"}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all" onClick={() => setActiveTab("assignments")}>
+                    <CardContent className="p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                          <ClipboardList className="w-5 h-5 text-blue-500" />
+                        </div>
+                        <Badge variant="secondary">{assignments.length}</Badge>
+                      </div>
+                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "التكليفات" : "Assignments"}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {isRtl ? "اختر دورة لعرض التكليفات" : "Select a course to view tasks"}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all" onClick={() => setActiveTab("schedules")}>
+                    <CardContent className="p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                          <Calendar className="w-5 h-5 text-purple-500" />
+                        </div>
+                        <Badge variant="secondary">{schedules.length}</Badge>
+                      </div>
+                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "الجداول" : "Schedules"}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {isRtl ? `${schedules.filter(s => new Date(s.scheduled_date) >= new Date()).length} قادمة` : `${schedules.filter(s => new Date(s.scheduled_date) >= new Date()).length} upcoming`}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all" onClick={() => setActiveTab("attendance")}>
+                    <CardContent className="p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center">
+                          <Users className="w-5 h-5 text-teal-500" />
+                        </div>
+                        <Badge variant="secondary">{attendance.length}</Badge>
+                      </div>
+                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "الحضور" : "Attendance"}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {isRtl ? "إجمالي سجلات الحضور" : "Total attendance records"}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all" onClick={() => setActiveTab("ratings")}>
+                    <CardContent className="p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center">
+                          <Star className="w-5 h-5 text-yellow-500" />
+                        </div>
+                        <Badge variant="secondary">{lecturerRatings.length}</Badge>
+                      </div>
+                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "التقييمات" : "Ratings"}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {isRtl ? `متوسط ${lecturerRatings.length > 0 ? (lecturerRatings.reduce((a, r) => a + r.rating, 0) / lecturerRatings.length).toFixed(1) : "—"}/5` : `Avg ${lecturerRatings.length > 0 ? (lecturerRatings.reduce((a, r) => a + r.rating, 0) / lecturerRatings.length).toFixed(1) : "—"}/5`}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all" onClick={() => navigate("/institution/results/add")}>
+                    <CardContent className="p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-pink-500" />
+                        </div>
+                      </div>
+                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "النتائج" : "Results"}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {isRtl ? "إضافة وعرض نتائج الطلاب" : "Add and view student results"}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all" onClick={() => setActiveTab("analytics")}>
+                    <CardContent className="p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+                          <Download className="w-5 h-5 text-green-600" />
+                        </div>
+                      </div>
+                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "تحميل التقارير" : "Export Reports"}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {isRtl ? "تصدير تقارير شاملة" : "Export full reports"}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
 
               {/* ===== COURSES TAB ===== */}
               <TabsContent value="courses">

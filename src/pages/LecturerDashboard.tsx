@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   GraduationCap, Plus, Eye, BookOpen, FileText, Video, Trash2, Globe, LogOut,
   Upload, X, Radio, Calendar, ExternalLink, ClipboardList, Star, Send, ArrowLeft, ArrowRight, MonitorPlay, Link2, Copy, Check,
-  Download, Users, Clock, BarChart3, CheckCircle, HelpCircle, MoreVertical
+  Download, Users, Clock, BarChart3, CheckCircle, HelpCircle, MoreVertical, Menu
 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import LiveStreamRoom from "@/components/LiveStreamRoom";
@@ -573,12 +573,12 @@ const LecturerDashboard = () => {
             <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight truncate">{t.brandName}</span>
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            <BackButton />
+            {activeTab !== "home" && <BackButton />}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="default" size="icon" className="w-9 h-9" aria-label="menu">
-                  <MoreVertical className="w-4 h-4" />
-                </Button>
+                <button className="p-2 rounded-lg bg-primary/20 text-primary" aria-label="menu">
+                  <Menu className="w-5 h-5" />
+                </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => setActiveTab("home")} className="gap-2 cursor-pointer">

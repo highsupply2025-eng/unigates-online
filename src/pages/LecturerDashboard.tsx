@@ -36,7 +36,7 @@ const LecturerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<any[]>([]);
   const [courseViews, setCourseViews] = useState<Record<string, number>>({});
-  const [activeTab, setActiveTab] = useState("courses");
+  const [activeTab, setActiveTab] = useState("home");
 
   // New course form
   const [showNewCourse, setShowNewCourse] = useState(false);

@@ -581,6 +581,26 @@ const LecturerDashboard = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setActiveTab("courses")} className="gap-2 cursor-pointer">
+                  <Video className="w-4 h-4" />
+                  {isRtl ? "المحاضرات" : "Lectures"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("live")} className="gap-2 cursor-pointer">
+                  <Radio className="w-4 h-4" />
+                  {isRtl ? "البث المباشر" : "Live Stream"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("quizzes")} className="gap-2 cursor-pointer">
+                  <HelpCircle className="w-4 h-4" />
+                  {isRtl ? "الاختبارات أونلاين" : "Online Tests"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("assignments")} className="gap-2 cursor-pointer">
+                  <ClipboardList className="w-4 h-4" />
+                  {isRtl ? "التكليفات" : "Assignments"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("ratings")} className="gap-2 cursor-pointer">
+                  <Star className="w-4 h-4" />
+                  {isRtl ? "التقييمات" : "Ratings"}
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
                   <Globe className="w-4 h-4" />
                   {t.langSwitch}

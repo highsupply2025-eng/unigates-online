@@ -658,14 +658,12 @@ const LecturerDashboard = () => {
 
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="flex md:grid w-full md:grid-cols-8 mb-6 h-auto overflow-x-auto md:overflow-visible scrollbar-hide">
+              <TabsList className="flex md:grid w-full md:grid-cols-6 mb-6 h-auto overflow-x-auto md:overflow-visible scrollbar-hide">
                 <TabsTrigger value="courses" className="text-xs py-2 shrink-0 md:shrink"><Video className="w-3.5 h-3.5 me-1" />{isRtl ? "المحاضرات" : "Lectures"}</TabsTrigger>
                 <TabsTrigger value="live" className="text-xs py-2 shrink-0 md:shrink"><Radio className="w-3.5 h-3.5 me-1" />{isRtl ? "البث" : "Live"}</TabsTrigger>
-                <TabsTrigger value="assignments" className="text-xs py-2 shrink-0 md:shrink"><ClipboardList className="w-3.5 h-3.5 me-1" />{isRtl ? "التكليفات" : "Tasks"}</TabsTrigger>
                 <TabsTrigger value="quizzes" className="text-xs py-2 shrink-0 md:shrink"><HelpCircle className="w-3.5 h-3.5 me-1" />{isRtl ? "اختبارات" : "Tests"}</TabsTrigger>
                 <TabsTrigger value="schedules" className="text-xs py-2 shrink-0 md:shrink"><Calendar className="w-3.5 h-3.5 me-1" />{isRtl ? "الجداول" : "Schedule"}</TabsTrigger>
                 <TabsTrigger value="attendance" className="text-xs py-2 shrink-0 md:shrink"><Users className="w-3.5 h-3.5 me-1" />{isRtl ? "الحضور" : "Attend"}</TabsTrigger>
-                <TabsTrigger value="ratings" className="text-xs py-2 shrink-0 md:shrink"><Star className="w-3.5 h-3.5 me-1" />{isRtl ? "التقييمات" : "Ratings"}</TabsTrigger>
                 <TabsTrigger value="analytics" className="text-xs py-2 shrink-0 md:shrink"><Download className="w-3.5 h-3.5 me-1" />{isRtl ? "تحميل" : "Export"}</TabsTrigger>
               </TabsList>
 

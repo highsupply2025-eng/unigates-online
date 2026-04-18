@@ -3,8 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   GraduationCap, Plus, Eye, BookOpen, FileText, Video, Trash2, Globe, LogOut,
   Upload, X, Radio, Calendar, ExternalLink, ClipboardList, Star, Send, ArrowLeft, ArrowRight, MonitorPlay, Link2, Copy, Check,
-  Download, Users, Clock, BarChart3, CheckCircle, HelpCircle
+  Download, Users, Clock, BarChart3, CheckCircle, HelpCircle, MoreVertical
 } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import LiveStreamRoom from "@/components/LiveStreamRoom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

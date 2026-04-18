@@ -601,6 +601,10 @@ const LecturerDashboard = () => {
                   <Star className="w-4 h-4" />
                   {isRtl ? "التقييمات" : "Ratings"}
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/institution/results/add")} className="gap-2 cursor-pointer">
+                  <FileText className="w-4 h-4" />
+                  {isRtl ? "النتائج" : "Results"}
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
                   <Globe className="w-4 h-4" />
                   {t.langSwitch}

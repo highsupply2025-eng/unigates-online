@@ -632,43 +632,7 @@ const LecturerDashboard = () => {
 
         {approved === true && (
           <>
-            {/* Quick Actions */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-              <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("courses")}>
-                <CardContent className="pt-6 pb-4 text-center">
-                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
-                    <Video className="w-7 h-7 text-primary" />
-                  </div>
-                  <p className="text-sm font-bold text-foreground">{isRtl ? "المحاضرات" : "Lectures"}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{courses.length} {isRtl ? "دورة" : "courses"}</p>
-                </CardContent>
-              </Card>
-              <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("live")}>
-                <CardContent className="pt-6 pb-4 text-center">
-                  <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-red-500/20 transition-colors">
-                    <Radio className="w-7 h-7 text-red-500" />
-                  </div>
-                  <p className="text-sm font-bold text-foreground">{isRtl ? "البث المباشر" : "Live Stream"}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{streams.filter(s => s.status === "live").length} {isRtl ? "مباشر" : "live"}</p>
-                </CardContent>
-              </Card>
-              <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("quizzes")}>
-                <CardContent className="pt-6 pb-4 text-center">
-                  <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-amber-500/20 transition-colors">
-                    <HelpCircle className="w-7 h-7 text-amber-500" />
-                  </div>
-                  <p className="text-sm font-bold text-foreground">{isRtl ? "الاختبارات أونلاين" : "Online Tests"}</p>
-                </CardContent>
-              </Card>
-              <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("analytics")}>
-                <CardContent className="pt-6 pb-4 text-center">
-                  <div className="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-green-500/20 transition-colors">
-                    <BarChart3 className="w-7 h-7 text-green-600" />
-                  </div>
-                  <p className="text-sm font-bold text-foreground">{isRtl ? "التحليلات" : "Analytics"}</p>
-                </CardContent>
-              </Card>
-            </div>
+            {/* Quick Actions moved to dropdown menu */}
 
             {/* Stats Summary */}
             <div className="grid grid-cols-4 gap-3 mb-8">

@@ -3,8 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   GraduationCap, Plus, Eye, BookOpen, FileText, Video, Trash2, Globe, LogOut,
   Upload, X, Radio, Calendar, ExternalLink, ClipboardList, Star, Send, ArrowLeft, ArrowRight, MonitorPlay, Link2, Copy, Check,
-  Download, Users, Clock, BarChart3, CheckCircle, HelpCircle
+  Download, Users, Clock, BarChart3, CheckCircle, HelpCircle, MoreVertical
 } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import LiveStreamRoom from "@/components/LiveStreamRoom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -573,20 +574,23 @@ const LecturerDashboard = () => {
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <BackButton />
-            <NotificationBell />
-            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5 hidden sm:inline-flex">
-              <Globe className="w-4 h-4" />{t.langSwitch}
-            </Button>
-            <Button variant="default" size="icon" onClick={toggleLanguage} className="sm:hidden w-9 h-9">
-              <Globe className="w-4 h-4" />
-            </Button>
-            <Button variant="default" size="sm" onClick={handleLogout} className="font-semibold gap-1.5 hidden sm:inline-flex">
-              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-              {t.logout}
-            </Button>
-            <Button variant="default" size="icon" onClick={handleLogout} className="sm:hidden w-9 h-9">
-              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="default" size="icon" className="w-9 h-9" aria-label="menu">
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
+                  <Globe className="w-4 h-4" />
+                  {t.langSwitch}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout} className="gap-2 cursor-pointer">
+                  <LogOut className="w-4 h-4" />
+                  {t.logout}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>

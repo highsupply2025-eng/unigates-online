@@ -581,6 +581,26 @@ const LecturerDashboard = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setActiveTab("courses")} className="gap-2 cursor-pointer">
+                  <Video className="w-4 h-4" />
+                  {isRtl ? "المحاضرات" : "Lectures"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("live")} className="gap-2 cursor-pointer">
+                  <Radio className="w-4 h-4" />
+                  {isRtl ? "البث المباشر" : "Live Stream"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("quizzes")} className="gap-2 cursor-pointer">
+                  <HelpCircle className="w-4 h-4" />
+                  {isRtl ? "الاختبارات أونلاين" : "Online Tests"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("assignments")} className="gap-2 cursor-pointer">
+                  <ClipboardList className="w-4 h-4" />
+                  {isRtl ? "التكليفات" : "Assignments"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("ratings")} className="gap-2 cursor-pointer">
+                  <Star className="w-4 h-4" />
+                  {isRtl ? "التقييمات" : "Ratings"}
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
                   <Globe className="w-4 h-4" />
                   {t.langSwitch}
@@ -612,43 +632,7 @@ const LecturerDashboard = () => {
 
         {approved === true && (
           <>
-            {/* Quick Actions */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-              <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("courses")}>
-                <CardContent className="pt-6 pb-4 text-center">
-                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
-                    <Video className="w-7 h-7 text-primary" />
-                  </div>
-                  <p className="text-sm font-bold text-foreground">{isRtl ? "المحاضرات" : "Lectures"}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{courses.length} {isRtl ? "دورة" : "courses"}</p>
-                </CardContent>
-              </Card>
-              <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("live")}>
-                <CardContent className="pt-6 pb-4 text-center">
-                  <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-red-500/20 transition-colors">
-                    <Radio className="w-7 h-7 text-red-500" />
-                  </div>
-                  <p className="text-sm font-bold text-foreground">{isRtl ? "البث المباشر" : "Live Stream"}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{streams.filter(s => s.status === "live").length} {isRtl ? "مباشر" : "live"}</p>
-                </CardContent>
-              </Card>
-              <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("quizzes")}>
-                <CardContent className="pt-6 pb-4 text-center">
-                  <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-amber-500/20 transition-colors">
-                    <HelpCircle className="w-7 h-7 text-amber-500" />
-                  </div>
-                  <p className="text-sm font-bold text-foreground">{isRtl ? "الاختبارات أونلاين" : "Online Tests"}</p>
-                </CardContent>
-              </Card>
-              <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("analytics")}>
-                <CardContent className="pt-6 pb-4 text-center">
-                  <div className="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-green-500/20 transition-colors">
-                    <BarChart3 className="w-7 h-7 text-green-600" />
-                  </div>
-                  <p className="text-sm font-bold text-foreground">{isRtl ? "التحليلات" : "Analytics"}</p>
-                </CardContent>
-              </Card>
-            </div>
+            {/* Quick Actions moved to dropdown menu */}
 
             {/* Stats Summary */}
             <div className="grid grid-cols-4 gap-3 mb-8">
@@ -674,14 +658,12 @@ const LecturerDashboard = () => {
 
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="flex md:grid w-full md:grid-cols-8 mb-6 h-auto overflow-x-auto md:overflow-visible scrollbar-hide">
+              <TabsList className="flex md:grid w-full md:grid-cols-6 mb-6 h-auto overflow-x-auto md:overflow-visible scrollbar-hide">
                 <TabsTrigger value="courses" className="text-xs py-2 shrink-0 md:shrink"><Video className="w-3.5 h-3.5 me-1" />{isRtl ? "المحاضرات" : "Lectures"}</TabsTrigger>
                 <TabsTrigger value="live" className="text-xs py-2 shrink-0 md:shrink"><Radio className="w-3.5 h-3.5 me-1" />{isRtl ? "البث" : "Live"}</TabsTrigger>
-                <TabsTrigger value="assignments" className="text-xs py-2 shrink-0 md:shrink"><ClipboardList className="w-3.5 h-3.5 me-1" />{isRtl ? "التكليفات" : "Tasks"}</TabsTrigger>
                 <TabsTrigger value="quizzes" className="text-xs py-2 shrink-0 md:shrink"><HelpCircle className="w-3.5 h-3.5 me-1" />{isRtl ? "اختبارات" : "Tests"}</TabsTrigger>
                 <TabsTrigger value="schedules" className="text-xs py-2 shrink-0 md:shrink"><Calendar className="w-3.5 h-3.5 me-1" />{isRtl ? "الجداول" : "Schedule"}</TabsTrigger>
                 <TabsTrigger value="attendance" className="text-xs py-2 shrink-0 md:shrink"><Users className="w-3.5 h-3.5 me-1" />{isRtl ? "الحضور" : "Attend"}</TabsTrigger>
-                <TabsTrigger value="ratings" className="text-xs py-2 shrink-0 md:shrink"><Star className="w-3.5 h-3.5 me-1" />{isRtl ? "التقييمات" : "Ratings"}</TabsTrigger>
                 <TabsTrigger value="analytics" className="text-xs py-2 shrink-0 md:shrink"><Download className="w-3.5 h-3.5 me-1" />{isRtl ? "تحميل" : "Export"}</TabsTrigger>
               </TabsList>
 

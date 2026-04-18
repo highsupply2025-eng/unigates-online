@@ -581,6 +581,10 @@ const LecturerDashboard = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setActiveTab("home")} className="gap-2 cursor-pointer">
+                  <BarChart3 className="w-4 h-4" />
+                  {isRtl ? "الرئيسية" : "Home"}
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setActiveTab("courses")} className="gap-2 cursor-pointer">
                   <Video className="w-4 h-4" />
                   {isRtl ? "المحاضرات" : "Lectures"}
@@ -597,9 +601,21 @@ const LecturerDashboard = () => {
                   <ClipboardList className="w-4 h-4" />
                   {isRtl ? "التكليفات" : "Assignments"}
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("schedules")} className="gap-2 cursor-pointer">
+                  <Calendar className="w-4 h-4" />
+                  {isRtl ? "الجداول" : "Schedules"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("attendance")} className="gap-2 cursor-pointer">
+                  <Users className="w-4 h-4" />
+                  {isRtl ? "الحضور" : "Attendance"}
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setActiveTab("ratings")} className="gap-2 cursor-pointer">
                   <Star className="w-4 h-4" />
                   {isRtl ? "التقييمات" : "Ratings"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("analytics")} className="gap-2 cursor-pointer">
+                  <Download className="w-4 h-4" />
+                  {isRtl ? "تحميل التقارير" : "Export Reports"}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/institution/results/add")} className="gap-2 cursor-pointer">
                   <FileText className="w-4 h-4" />

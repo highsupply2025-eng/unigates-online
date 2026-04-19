@@ -36,6 +36,7 @@ const LecturerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<any[]>([]);
   const [courseViews, setCourseViews] = useState<Record<string, number>>({});
+  const [viewsTimes, setViewsTimes] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState("home");
 
   // New course form
@@ -148,10 +149,11 @@ const LecturerDashboard = () => {
     setCourses(data || []);
     if (data && data.length > 0) {
       const courseIds = data.map(c => c.id);
-      const { data: views } = await supabase.from("course_views").select("course_id").in("course_id", courseIds);
+      const { data: views } = await supabase.from("course_views").select("course_id, viewed_at").in("course_id", courseIds);
       const counts: Record<string, number> = {};
       (views || []).forEach(v => { counts[v.course_id] = (counts[v.course_id] || 0) + 1; });
       setCourseViews(counts);
+      setViewsTimes((views || []).map((v: any) => v.viewed_at));
     }
   };
 

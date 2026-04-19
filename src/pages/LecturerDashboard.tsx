@@ -719,7 +719,7 @@ const LecturerDashboard = () => {
 
                 {/* Section Analytics Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all" onClick={() => setActiveTab("courses")}>
+                  <Card>
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-3">
                         <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -734,7 +734,7 @@ const LecturerDashboard = () => {
                     </CardContent>
                   </Card>
 
-                  <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all" onClick={() => setActiveTab("live")}>
+                  <Card>
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-3">
                         <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
@@ -751,7 +751,7 @@ const LecturerDashboard = () => {
                     </CardContent>
                   </Card>
 
-                  <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all" onClick={() => setActiveTab("quizzes")}>
+                  <Card>
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-3">
                         <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
@@ -766,7 +766,7 @@ const LecturerDashboard = () => {
                     </CardContent>
                   </Card>
 
-                  <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all" onClick={() => setActiveTab("assignments")}>
+                  <Card>
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-3">
                         <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
@@ -781,7 +781,7 @@ const LecturerDashboard = () => {
                     </CardContent>
                   </Card>
 
-                  <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all" onClick={() => setActiveTab("schedules")}>
+                  <Card>
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-3">
                         <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
@@ -796,7 +796,7 @@ const LecturerDashboard = () => {
                     </CardContent>
                   </Card>
 
-                  <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all" onClick={() => setActiveTab("attendance")}>
+                  <Card>
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-3">
                         <div className="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center">
@@ -811,7 +811,7 @@ const LecturerDashboard = () => {
                     </CardContent>
                   </Card>
 
-                  <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all" onClick={() => setActiveTab("ratings")}>
+                  <Card>
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-3">
                         <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center">
@@ -826,7 +826,7 @@ const LecturerDashboard = () => {
                     </CardContent>
                   </Card>
 
-                  <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all" onClick={() => navigate("/institution/results/add")}>
+                  <Card>
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-3">
                         <div className="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center">
@@ -840,7 +840,7 @@ const LecturerDashboard = () => {
                     </CardContent>
                   </Card>
 
-                  <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all" onClick={() => setActiveTab("analytics")}>
+                  <Card>
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-3">
                         <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">

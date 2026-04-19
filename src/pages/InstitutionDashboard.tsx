@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -797,46 +797,68 @@ const InstitutionDashboard = () => {
           {/* Mobile dropdown */}
           <div className="md:hidden flex items-center gap-1.5 shrink-0">
             <BackButton />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+            <Sheet>
+              <SheetTrigger asChild>
                 <Button size="icon" className="rounded-xl w-9 h-9 bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-primary/25 text-white shrink-0">
                   <Menu className="w-5 h-5" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align={isRtl ? 'start' : 'end'} className="w-48">
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("general")}>
-                  <Layers className="w-4 h-4 text-teal-500" />
-                  <span className="text-sm font-semibold">{isRtl ? "الرئيسية" : "Home"}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("notifications")}>
-                  <Bell className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-semibold">{isRtl ? "الإشعارات" : "Notifications"}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("departments")}>
-                  <BookOpen className="w-4 h-4 text-blue-500" />
-                  <span className="text-sm font-semibold">{isRtl ? "الأقسام" : "Departments"}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("quizresults")}>
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span className="text-sm font-semibold">{isRtl ? "النتائج" : "Results"}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleTabChange("invitations")}>
-                  <LinkIcon className="w-4 h-4 text-indigo-500" />
-                  <span className="text-sm font-semibold">{isRtl ? "الدعوات" : "Invitations"}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
-                  <Globe className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-semibold">{language === "ar" ? "English" : "العربية"}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={async () => {
-                  await supabase.auth.signOut();
-                  navigate("/login");
-                }}>
-                  <LogOut className={`w-4 h-4 text-destructive ${isRtl ? "scale-x-[-1]" : ""}`} />
-                  <span className="text-sm font-semibold text-destructive">{isRtl ? "تسجيل الخروج" : "Logout"}</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </SheetTrigger>
+              <SheetContent side={isRtl ? "right" : "left"} className="w-full sm:max-w-md p-0 overflow-y-auto">
+                <SheetHeader className="p-6 border-b bg-gradient-to-br from-primary/10 to-primary/5">
+                  <SheetTitle className="text-2xl font-bold text-primary text-start">
+                    {isRtl ? "القائمة" : "Menu"}
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="p-4 grid grid-cols-2 gap-3">
+                  {[
+                    { id: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, color: "from-teal-500 to-teal-600" },
+                    { id: "notifications", label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell, color: "from-blue-500 to-blue-600" },
+                    { id: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, color: "from-purple-500 to-purple-600" },
+                    { id: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, color: "from-green-500 to-emerald-600" },
+                    { id: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: LinkIcon, color: "from-indigo-500 to-indigo-600" },
+                  ].map(({ id, label, Icon, color }) => (
+                    <button
+                      key={id}
+                      onClick={() => {
+                        handleTabChange(id);
+                        document.querySelector<HTMLButtonElement>('[aria-label="Close"]')?.click();
+                      }}
+                      className={`group flex flex-col items-center gap-3 p-4 rounded-2xl border-2 transition-all hover:scale-105 hover:shadow-lg ${
+                        activeTab === id ? "border-primary bg-primary/10" : "border-border bg-card"
+                      }`}
+                    >
+                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-md group-hover:shadow-xl transition-shadow`}>
+                        <Icon className="w-7 h-7 text-white" strokeWidth={2.5} />
+                      </div>
+                      <span className="text-sm font-semibold text-foreground text-center leading-tight">{label}</span>
+                    </button>
+                  ))}
+                </div>
+                <div className="p-4 border-t space-y-2">
+                  <button
+                    onClick={toggleLanguage}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center">
+                      <Globe className="w-5 h-5 text-white" strokeWidth={2.5} />
+                    </div>
+                    <span className="font-semibold text-foreground">{language === "ar" ? "English" : "العربية"}</span>
+                  </button>
+                  <button
+                    onClick={async () => {
+                      await supabase.auth.signOut();
+                      navigate("/login");
+                    }}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-destructive/10 hover:bg-destructive/20 transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
+                      <LogOut className="w-5 h-5 text-white" strokeWidth={2.5} />
+                    </div>
+                    <span className="font-semibold text-destructive">{isRtl ? "تسجيل الخروج" : "Logout"}</span>
+                  </button>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>

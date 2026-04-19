@@ -5,7 +5,7 @@ import {
   Upload, X, Radio, Calendar, ExternalLink, ClipboardList, Star, Send, ArrowLeft, ArrowRight, MonitorPlay, Link2, Copy, Check,
   Download, Users, Clock, BarChart3, CheckCircle, HelpCircle, MoreVertical, Menu
 } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import LiveStreamRoom from "@/components/LiveStreamRoom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

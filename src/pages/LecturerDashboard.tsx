@@ -574,63 +574,79 @@ const LecturerDashboard = () => {
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {activeTab !== "home" && <BackButton />}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+            <Sheet>
+              <SheetTrigger asChild>
                 <button className="p-2 rounded-lg bg-primary/20 text-primary" aria-label="menu">
                   <Menu className="w-5 h-5" />
                 </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setActiveTab("home")} className="gap-2 cursor-pointer">
-                  <BarChart3 className="w-4 h-4" />
-                  {isRtl ? "الرئيسية" : "Home"}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setActiveTab("courses")} className="gap-2 cursor-pointer">
-                  <Video className="w-4 h-4" />
-                  {isRtl ? "المحاضرات" : "Lectures"}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setActiveTab("live")} className="gap-2 cursor-pointer">
-                  <Radio className="w-4 h-4" />
-                  {isRtl ? "البث المباشر" : "Live Stream"}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setActiveTab("quizzes")} className="gap-2 cursor-pointer">
-                  <HelpCircle className="w-4 h-4" />
-                  {isRtl ? "الاختبارات أونلاين" : "Online Tests"}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setActiveTab("assignments")} className="gap-2 cursor-pointer">
-                  <ClipboardList className="w-4 h-4" />
-                  {isRtl ? "التكليفات" : "Assignments"}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setActiveTab("schedules")} className="gap-2 cursor-pointer">
-                  <Calendar className="w-4 h-4" />
-                  {isRtl ? "الجداول" : "Schedules"}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setActiveTab("attendance")} className="gap-2 cursor-pointer">
-                  <Users className="w-4 h-4" />
-                  {isRtl ? "الحضور" : "Attendance"}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setActiveTab("ratings")} className="gap-2 cursor-pointer">
-                  <Star className="w-4 h-4" />
-                  {isRtl ? "التقييمات" : "Ratings"}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setActiveTab("analytics")} className="gap-2 cursor-pointer">
-                  <Download className="w-4 h-4" />
-                  {isRtl ? "تحميل التقارير" : "Export Reports"}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/institution/results/add")} className="gap-2 cursor-pointer">
-                  <FileText className="w-4 h-4" />
-                  {isRtl ? "النتائج" : "Results"}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
-                  <Globe className="w-4 h-4" />
-                  {t.langSwitch}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout} className="gap-2 cursor-pointer">
-                  <LogOut className="w-4 h-4" />
-                  {t.logout}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </SheetTrigger>
+              <SheetContent side={isRtl ? "right" : "left"} className="w-full sm:max-w-md p-0 overflow-y-auto">
+                <SheetHeader className="p-6 border-b bg-gradient-to-br from-primary/10 to-primary/5">
+                  <SheetTitle className="text-2xl font-bold text-primary text-start">
+                    {isRtl ? "القائمة" : "Menu"}
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="p-4 grid grid-cols-2 gap-3">
+                  {[
+                    { id: "home", label: isRtl ? "الرئيسية" : "Home", Icon: BarChart3, color: "from-blue-500 to-blue-600" },
+                    { id: "courses", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video, color: "from-emerald-500 to-emerald-600" },
+                    { id: "live", label: isRtl ? "البث المباشر" : "Live Stream", Icon: Radio, color: "from-red-500 to-red-600" },
+                    { id: "quizzes", label: isRtl ? "الاختبارات أونلاين" : "Online Tests", Icon: HelpCircle, color: "from-purple-500 to-purple-600" },
+                    { id: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-orange-500 to-orange-600" },
+                    { id: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-pink-500 to-pink-600" },
+                    { id: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-cyan-500 to-cyan-600" },
+                    { id: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600" },
+                    { id: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, color: "from-indigo-500 to-indigo-600" },
+                  ].map(({ id, label, Icon, color }) => (
+                    <button
+                      key={id}
+                      onClick={() => {
+                        setActiveTab(id);
+                        (document.activeElement as HTMLElement)?.blur();
+                        document.querySelector<HTMLButtonElement>('[data-state="open"][aria-label="Close"]')?.click();
+                      }}
+                      className={`group flex flex-col items-center gap-3 p-4 rounded-2xl border-2 transition-all hover:scale-105 hover:shadow-lg ${
+                        activeTab === id ? "border-primary bg-primary/10" : "border-border bg-card"
+                      }`}
+                    >
+                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-md group-hover:shadow-xl transition-shadow`}>
+                        <Icon className="w-7 h-7 text-white" strokeWidth={2.5} />
+                      </div>
+                      <span className="text-sm font-semibold text-foreground text-center leading-tight">{label}</span>
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => navigate("/institution/results/add")}
+                    className="group flex flex-col items-center gap-3 p-4 rounded-2xl border-2 border-border bg-card transition-all hover:scale-105 hover:shadow-lg"
+                  >
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-md">
+                      <FileText className="w-7 h-7 text-white" strokeWidth={2.5} />
+                    </div>
+                    <span className="text-sm font-semibold text-foreground text-center leading-tight">{isRtl ? "النتائج" : "Results"}</span>
+                  </button>
+                </div>
+                <div className="p-4 border-t space-y-2">
+                  <button
+                    onClick={toggleLanguage}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center">
+                      <Globe className="w-5 h-5 text-white" strokeWidth={2.5} />
+                    </div>
+                    <span className="font-semibold text-foreground">{t.langSwitch}</span>
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-destructive/10 hover:bg-destructive/20 transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
+                      <LogOut className="w-5 h-5 text-white" strokeWidth={2.5} />
+                    </div>
+                    <span className="font-semibold text-destructive">{t.logout}</span>
+                  </button>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>

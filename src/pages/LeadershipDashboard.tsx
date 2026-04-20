@@ -357,7 +357,10 @@ const LeadershipDashboard = () => {
               <Card className="border-2 border-primary/20">
                 <CardContent className="p-4 text-center">
                   <BookOpen className="w-8 h-8 text-primary mx-auto mb-2" />
-                  <p className="text-3xl font-black text-primary">{courses.length}</p>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-3xl font-black text-primary">{courses.length}</p>
+                    <TrendIndicator data={bucketByDay(courses.map((c: any) => c.created_at), 7)} />
+                  </div>
                   <p className="text-xs text-muted-foreground">{isRtl ? "الدورات" : "Courses"}</p>
                   <Sparkline data={bucketByDay(courses.map((c: any) => c.created_at), 7)} color="hsl(var(--primary))" />
                 </CardContent>
@@ -365,7 +368,10 @@ const LeadershipDashboard = () => {
               <Card className="border-2 border-emerald-500/20">
                 <CardContent className="p-4 text-center">
                   <Radio className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
-                  <p className="text-3xl font-black text-emerald-600">{liveNow.length}</p>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-3xl font-black text-emerald-600">{liveNow.length}</p>
+                    <TrendIndicator data={bucketByDay(liveStreams.map((s: any) => s.created_at), 7)} />
+                  </div>
                   <p className="text-xs text-muted-foreground">{isRtl ? "بث مباشر الآن" : "Live Now"}</p>
                   <Sparkline data={bucketByDay(liveStreams.map((s: any) => s.created_at), 7)} color="rgb(16 185 129)" />
                 </CardContent>
@@ -373,7 +379,10 @@ const LeadershipDashboard = () => {
               <Card className="border-2 border-amber-500/20">
                 <CardContent className="p-4 text-center">
                   <Star className="w-8 h-8 text-amber-500 mx-auto mb-2" />
-                  <p className="text-3xl font-black text-amber-600">{avgRating}</p>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-3xl font-black text-amber-600">{avgRating}</p>
+                    <TrendIndicator data={bucketByDay(ratings.map((r: any) => r.created_at), 7)} />
+                  </div>
                   <p className="text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
                   <Sparkline data={bucketByDay(ratings.map((r: any) => r.created_at), 7)} color="rgb(245 158 11)" />
                 </CardContent>
@@ -381,7 +390,10 @@ const LeadershipDashboard = () => {
               <Card className="border-2 border-purple-500/20">
                 <CardContent className="p-4 text-center">
                   <ClipboardList className="w-8 h-8 text-purple-500 mx-auto mb-2" />
-                  <p className="text-3xl font-black text-purple-600">{assignments.length}</p>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-3xl font-black text-purple-600">{assignments.length}</p>
+                    <TrendIndicator data={bucketByDay(assignments.map((a: any) => a.created_at), 7)} />
+                  </div>
                   <p className="text-xs text-muted-foreground">{isRtl ? "التكليفات" : "Assignments"}</p>
                   <Sparkline data={bucketByDay(assignments.map((a: any) => a.created_at), 7)} color="rgb(168 85 247)" />
                 </CardContent>

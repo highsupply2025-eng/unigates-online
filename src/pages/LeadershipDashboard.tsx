@@ -335,52 +335,30 @@ const LeadershipDashboard = () => {
       </header>
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
-        <div className="mb-4">
-          <Button onClick={() => navigate("/leadership/quiz-approvals")} className="gap-2 w-full sm:w-auto" size="sm">
-            <ShieldCheck className="w-4 h-4" />
-            {isRtl ? "اعتماد نتائج الاختبارات" : "Quiz Results Approval"}
-          </Button>
-        </div>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="flex md:grid w-full md:grid-cols-7 gap-1 h-auto p-1 mb-6 overflow-x-auto md:overflow-visible scrollbar-hide">
-            <TabsTrigger value="overview" className="text-xs py-2 shrink-0 md:shrink">
-              <BarChart3 className="w-4 h-4 me-1" />
-              {isRtl ? "نظرة عامة" : "Overview"}
-            </TabsTrigger>
-            <TabsTrigger value="livestreams" className="text-xs py-2 shrink-0 md:shrink">
-              <Radio className="w-4 h-4 me-1" />
-              {isRtl ? "البث المباشر" : "Live Streams"}
-            </TabsTrigger>
-            <TabsTrigger value="quizresults" className="text-xs py-2 shrink-0 md:shrink">
-              <CheckCircle className="w-4 h-4 me-1" />
-              {isRtl ? "نتائج الاختبارات" : "Quiz Results"}
-            </TabsTrigger>
-            <TabsTrigger value="ratings" className="text-xs py-2 shrink-0 md:shrink">
-              <Star className="w-4 h-4 me-1" />
-              {isRtl ? "التقييمات" : "Ratings"}
-            </TabsTrigger>
-            <TabsTrigger value="assignments" className="text-xs py-2 shrink-0 md:shrink">
-              <ClipboardList className="w-4 h-4 me-1" />
-              {isRtl ? "التكليفات" : "Assignments"}
-            </TabsTrigger>
-            <TabsTrigger value="schedule" className="text-xs py-2 shrink-0 md:shrink">
-              <Calendar className="w-4 h-4 me-1" />
-              {isRtl ? "الجداول" : "Schedule"}
-            </TabsTrigger>
-            <TabsTrigger value="files" className="text-xs py-2 shrink-0 md:shrink">
-              <FileText className="w-4 h-4 me-1" />
-              {isRtl ? "الملفات" : "Files"}
-            </TabsTrigger>
+          <TabsList className="hidden">
+            <TabsTrigger value="overview">overview</TabsTrigger>
+            <TabsTrigger value="livestreams">livestreams</TabsTrigger>
+            <TabsTrigger value="quizresults">quizresults</TabsTrigger>
+            <TabsTrigger value="ratings">ratings</TabsTrigger>
+            <TabsTrigger value="assignments">assignments</TabsTrigger>
+            <TabsTrigger value="schedule">schedule</TabsTrigger>
+            <TabsTrigger value="files">files</TabsTrigger>
           </TabsList>
 
           {/* Overview */}
           <TabsContent value="overview">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-foreground mb-1">{isRtl ? "الرئيسية" : "Home"}</h2>
+              <p className="text-sm text-muted-foreground">{isRtl ? "نظرة عامة على نشاط الكلية خلال آخر 7 أيام" : "Overview of activity over the last 7 days"}</p>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <Card className="border-2 border-primary/20">
                 <CardContent className="p-4 text-center">
                   <BookOpen className="w-8 h-8 text-primary mx-auto mb-2" />
                   <p className="text-3xl font-black text-primary">{courses.length}</p>
                   <p className="text-xs text-muted-foreground">{isRtl ? "الدورات" : "Courses"}</p>
+                  <Sparkline data={bucketByDay(courses.map((c: any) => c.created_at), 7)} color="hsl(var(--primary))" />
                 </CardContent>
               </Card>
               <Card className="border-2 border-emerald-500/20">
@@ -388,6 +366,7 @@ const LeadershipDashboard = () => {
                   <Radio className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
                   <p className="text-3xl font-black text-emerald-600">{liveNow.length}</p>
                   <p className="text-xs text-muted-foreground">{isRtl ? "بث مباشر الآن" : "Live Now"}</p>
+                  <Sparkline data={bucketByDay(liveStreams.map((s: any) => s.created_at), 7)} color="rgb(16 185 129)" />
                 </CardContent>
               </Card>
               <Card className="border-2 border-amber-500/20">
@@ -395,6 +374,7 @@ const LeadershipDashboard = () => {
                   <Star className="w-8 h-8 text-amber-500 mx-auto mb-2" />
                   <p className="text-3xl font-black text-amber-600">{avgRating}</p>
                   <p className="text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
+                  <Sparkline data={bucketByDay(ratings.map((r: any) => r.created_at), 7)} color="rgb(245 158 11)" />
                 </CardContent>
               </Card>
               <Card className="border-2 border-purple-500/20">
@@ -402,6 +382,7 @@ const LeadershipDashboard = () => {
                   <ClipboardList className="w-8 h-8 text-purple-500 mx-auto mb-2" />
                   <p className="text-3xl font-black text-purple-600">{assignments.length}</p>
                   <p className="text-xs text-muted-foreground">{isRtl ? "التكليفات" : "Assignments"}</p>
+                  <Sparkline data={bucketByDay(assignments.map((a: any) => a.created_at), 7)} color="rgb(168 85 247)" />
                 </CardContent>
               </Card>
             </div>

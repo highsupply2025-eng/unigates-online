@@ -12,6 +12,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 import BackButton from "@/components/BackButton";
 import { Sparkline, bucketByDay } from "@/components/Sparkline";
+import { TrendIndicator } from "@/components/TrendIndicator";
 
 const StudentDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -171,25 +172,37 @@ const StudentDashboard = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           <div className="bg-primary/5 rounded-xl p-4 text-center border border-primary/10">
             <BookOpen className="w-5 h-5 mx-auto mb-1 text-primary" />
-            <p className="text-2xl font-black text-primary">{counts.completed}</p>
+            <div className="flex items-center justify-center gap-1.5">
+              <p className="text-2xl font-black text-primary">{counts.completed}</p>
+              <TrendIndicator data={bucketByDay(trends.completed, 7)} />
+            </div>
             <p className="text-xs text-muted-foreground">{isRtl ? "حلقات مكتملة" : "Completed"}</p>
             <Sparkline data={bucketByDay(trends.completed, 7)} color="hsl(var(--primary))" />
           </div>
           <div className="bg-green-500/5 rounded-xl p-4 text-center border border-green-500/10">
             <Eye className="w-5 h-5 mx-auto mb-1 text-green-600" />
-            <p className="text-2xl font-black text-green-600">{counts.attendance}</p>
+            <div className="flex items-center justify-center gap-1.5">
+              <p className="text-2xl font-black text-green-600">{counts.attendance}</p>
+              <TrendIndicator data={bucketByDay(trends.attendance, 7)} />
+            </div>
             <p className="text-xs text-muted-foreground">{isRtl ? "حضور البث" : "Attendance"}</p>
             <Sparkline data={bucketByDay(trends.attendance, 7)} color="rgb(22 163 74)" />
           </div>
           <div className="bg-amber-500/5 rounded-xl p-4 text-center border border-amber-500/10">
             <FileText className="w-5 h-5 mx-auto mb-1 text-amber-500" />
-            <p className="text-2xl font-black text-amber-500">{counts.submissions}</p>
+            <div className="flex items-center justify-center gap-1.5">
+              <p className="text-2xl font-black text-amber-500">{counts.submissions}</p>
+              <TrendIndicator data={bucketByDay(trends.submissions, 7)} />
+            </div>
             <p className="text-xs text-muted-foreground">{isRtl ? "تكليفات مسلّمة" : "Submissions"}</p>
             <Sparkline data={bucketByDay(trends.submissions, 7)} color="rgb(245 158 11)" />
           </div>
           <div className="bg-red-500/5 rounded-xl p-4 text-center border border-red-500/10">
             <Star className="w-5 h-5 mx-auto mb-1 text-red-500" />
-            <p className="text-2xl font-black text-red-500">{counts.avgRating || "—"}</p>
+            <div className="flex items-center justify-center gap-1.5">
+              <p className="text-2xl font-black text-red-500">{counts.avgRating || "—"}</p>
+              <TrendIndicator data={bucketByDay(trends.ratings, 7)} />
+            </div>
             <p className="text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
             <Sparkline data={bucketByDay(trends.ratings, 7)} color="rgb(239 68 68)" />
           </div>

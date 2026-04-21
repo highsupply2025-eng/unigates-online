@@ -166,6 +166,7 @@ const InstitutionDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "general");
+  const [menuOpen, setMenuOpen] = useState(false);
   
    const handleTabChange = (tab: string) => {
     setActiveTab(tab);

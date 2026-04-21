@@ -799,7 +799,7 @@ const InstitutionDashboard = () => {
           </div>
           <div className="md:hidden flex items-center gap-1.5 shrink-0">
             <BackButton />
-            <DropdownMenu>
+            <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
               <DropdownMenuTrigger asChild>
                 <Button size="icon" className="rounded-xl w-9 h-9 bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-primary/25 text-white shrink-0">
                   <Menu className="w-5 h-5" />
@@ -815,17 +815,32 @@ const InstitutionDashboard = () => {
                   { id: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle },
                   { id: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: LinkIcon },
                 ].map(({ id, label, Icon }) => (
-                  <DropdownMenuItem key={id} onClick={() => handleTabChange(id)} className={activeTab === id ? "bg-primary/10 text-primary font-semibold" : ""}>
+                  <DropdownMenuItem
+                    key={id}
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setMenuOpen(false);
+                      setTimeout(() => handleTabChange(id), 0);
+                    }}
+                    className={activeTab === id ? "bg-primary/10 text-primary font-semibold" : ""}
+                  >
                     <Icon className="w-4 h-4 me-2" />
                     {label}
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={toggleLanguage}>
+                <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setMenuOpen(false); setTimeout(() => toggleLanguage(), 0); }}>
                   <Globe className="w-4 h-4 me-2" />
                   {language === "ar" ? "English" : "العربية"}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={async () => { await supabase.auth.signOut(); navigate("/login"); }} className="text-destructive focus:text-destructive">
+                <DropdownMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setMenuOpen(false);
+                    setTimeout(async () => { await supabase.auth.signOut(); navigate("/login"); }, 0);
+                  }}
+                  className="text-destructive focus:text-destructive"
+                >
                   <LogOut className="w-4 h-4 me-2" />
                   {isRtl ? "تسجيل الخروج" : "Logout"}
                 </DropdownMenuItem>

@@ -1249,7 +1249,10 @@ const InstitutionDashboard = () => {
               </Card>
               <Card className="border border-emerald-500/20">
                 <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-black text-emerald-600">{paidDepts}/{totalDepts}</p>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-2xl font-black text-emerald-600">{paidDepts}/{totalDepts}</p>
+                    <TrendIndicator data={bucketByDay(departments.filter((d: any) => d.payment_status === "paid").map((d: any) => d.created_at).filter(Boolean), 7)} />
+                  </div>
                   <p className="text-xs text-muted-foreground">{isRtl ? "مفعّلة" : "Active"}</p>
                 </CardContent>
               </Card>
@@ -1289,19 +1292,25 @@ const InstitutionDashboard = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
               <Card className="border border-amber-500/20">
                 <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-black text-amber-600">
-                    {quizSubmissions.length > 0
-                      ? Math.round(quizSubmissions.reduce((a, s) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / quizSubmissions.length)
-                      : 0}%
-                  </p>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-2xl font-black text-amber-600">
+                      {quizSubmissions.length > 0
+                        ? Math.round(quizSubmissions.reduce((a, s) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / quizSubmissions.length)
+                        : 0}%
+                    </p>
+                    <TrendIndicator data={bucketByDay(quizSubmissions.map((s: any) => s.submitted_at).filter(Boolean), 7)} />
+                  </div>
                   <p className="text-xs text-muted-foreground">{isRtl ? "متوسط نتيجة الاختبارات" : "Avg Quiz Score"}</p>
                 </CardContent>
               </Card>
               <Card className="border border-emerald-500/20">
                 <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-black text-emerald-500">
-                    {quizSubmissions.filter(s => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length}
-                  </p>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-2xl font-black text-emerald-500">
+                      {quizSubmissions.filter(s => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length}
+                    </p>
+                    <TrendIndicator data={bucketByDay(quizSubmissions.filter(s => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).map((s: any) => s.submitted_at).filter(Boolean), 7)} />
+                  </div>
                   <p className="text-xs text-muted-foreground">{isRtl ? "ناجح (≥50%)" : "Passed (≥50%)"}</p>
                 </CardContent>
               </Card>
@@ -1335,19 +1344,28 @@ const InstitutionDashboard = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
               <Card className="border border-red-500/20">
                 <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-black text-red-600">{liveStreams.length}</p>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-2xl font-black text-red-600">{liveStreams.length}</p>
+                    <TrendIndicator data={bucketByDay(liveStreams.map((s: any) => s.scheduled_at || s.created_at).filter(Boolean), 7)} />
+                  </div>
                   <p className="text-xs text-muted-foreground">{isRtl ? "إجمالي البث" : "Total Streams"}</p>
                 </CardContent>
               </Card>
               <Card className="border border-orange-500/20">
                 <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-black text-orange-600">{examSchedules.length}</p>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-2xl font-black text-orange-600">{examSchedules.length}</p>
+                    <TrendIndicator data={bucketByDay(examSchedules.map((e: any) => e.scheduled_date || e.created_at).filter(Boolean), 7)} />
+                  </div>
                   <p className="text-xs text-muted-foreground">{isRtl ? "الجداول" : "Schedules"}</p>
                 </CardContent>
               </Card>
               <Card className="border border-indigo-500/20">
                 <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-black text-indigo-600">{leadershipInvitations.length}</p>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-2xl font-black text-indigo-600">{leadershipInvitations.length}</p>
+                    <TrendIndicator data={bucketByDay(leadershipInvitations.map((i: any) => i.created_at).filter(Boolean), 7)} />
+                  </div>
                   <p className="text-xs text-muted-foreground">{isRtl ? "الدعوات" : "Invitations"}</p>
                 </CardContent>
               </Card>

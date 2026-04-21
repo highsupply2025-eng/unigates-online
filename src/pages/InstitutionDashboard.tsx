@@ -797,71 +797,40 @@ const InstitutionDashboard = () => {
               <LogOut className="w-4 h-4" />
             </Button>
           </div>
-          {/* Mobile dropdown */}
           <div className="md:hidden flex items-center gap-1.5 shrink-0">
             <BackButton />
-            <Sheet>
-              <SheetTrigger asChild>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <Button size="icon" className="rounded-xl w-9 h-9 bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-primary/25 text-white shrink-0">
                   <Menu className="w-5 h-5" />
                 </Button>
-              </SheetTrigger>
-              <SheetContent side={isRtl ? "right" : "left"} className="w-full sm:max-w-md p-0 overflow-y-auto">
-                <SheetHeader className="p-6 border-b bg-gradient-to-br from-primary/10 to-primary/5">
-                  <SheetTitle className="text-2xl font-bold text-primary text-start">
-                    {isRtl ? "القائمة" : "Menu"}
-                  </SheetTitle>
-                </SheetHeader>
-                <div className="p-4 grid grid-cols-2 gap-3">
-                  {[
-                    { id: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, color: "from-teal-500 to-teal-600" },
-                    { id: "notifications", label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell, color: "from-blue-500 to-blue-600" },
-                    { id: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, color: "from-purple-500 to-purple-600" },
-                    { id: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, color: "from-green-500 to-emerald-600" },
-                    { id: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: LinkIcon, color: "from-indigo-500 to-indigo-600" },
-                  ].map(({ id, label, Icon, color }) => (
-                    <button
-                      key={id}
-                      onClick={() => {
-                        handleTabChange(id);
-                        document.querySelector<HTMLButtonElement>('[aria-label="Close"]')?.click();
-                      }}
-                      className={`group flex flex-col items-center gap-3 p-4 rounded-2xl border-2 transition-all hover:scale-105 hover:shadow-lg ${
-                        activeTab === id ? "border-primary bg-primary/10" : "border-border bg-card"
-                      }`}
-                    >
-                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-md group-hover:shadow-xl transition-shadow`}>
-                        <Icon className="w-7 h-7 text-white" strokeWidth={2.5} />
-                      </div>
-                      <span className="text-sm font-semibold text-foreground text-center leading-tight">{label}</span>
-                    </button>
-                  ))}
-                </div>
-                <div className="p-4 border-t space-y-2">
-                  <button
-                    onClick={toggleLanguage}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center">
-                      <Globe className="w-5 h-5 text-white" strokeWidth={2.5} />
-                    </div>
-                    <span className="font-semibold text-foreground">{language === "ar" ? "English" : "العربية"}</span>
-                  </button>
-                  <button
-                    onClick={async () => {
-                      await supabase.auth.signOut();
-                      navigate("/login");
-                    }}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-destructive/10 hover:bg-destructive/20 transition-colors"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
-                      <LogOut className="w-5 h-5 text-white" strokeWidth={2.5} />
-                    </div>
-                    <span className="font-semibold text-destructive">{isRtl ? "تسجيل الخروج" : "Logout"}</span>
-                  </button>
-                </div>
-              </SheetContent>
-            </Sheet>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align={isRtl ? "start" : "end"} className="w-56 bg-background z-50">
+                <DropdownMenuLabel>{isRtl ? "القائمة" : "Menu"}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {[
+                  { id: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers },
+                  { id: "notifications", label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell },
+                  { id: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen },
+                  { id: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle },
+                  { id: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: LinkIcon },
+                ].map(({ id, label, Icon }) => (
+                  <DropdownMenuItem key={id} onClick={() => handleTabChange(id)} className={activeTab === id ? "bg-primary/10 text-primary font-semibold" : ""}>
+                    <Icon className="w-4 h-4 me-2" />
+                    {label}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={toggleLanguage}>
+                  <Globe className="w-4 h-4 me-2" />
+                  {language === "ar" ? "English" : "العربية"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={async () => { await supabase.auth.signOut(); navigate("/login"); }} className="text-destructive focus:text-destructive">
+                  <LogOut className="w-4 h-4 me-2" />
+                  {isRtl ? "تسجيل الخروج" : "Logout"}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>

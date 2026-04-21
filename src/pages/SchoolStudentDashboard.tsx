@@ -14,6 +14,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 import BackButton from "@/components/BackButton";
+import { TrendIndicator } from "@/components/TrendIndicator";
+import { bucketByDay } from "@/components/Sparkline";
 
 const SchoolStudentDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -201,19 +203,31 @@ const SchoolStudentDashboard = () => {
         {/* Stats */}
         <div className="grid grid-cols-4 gap-3 mb-8">
           <div className="bg-primary/5 rounded-xl p-3 text-center">
-            <p className="text-xl font-black text-primary">{subscriptions.length}</p>
+            <div className="flex items-center justify-center gap-1.5">
+              <p className="text-xl font-black text-primary">{subscriptions.length}</p>
+              <TrendIndicator data={bucketByDay(subscriptions.map((s: any) => s.created_at).filter(Boolean), 7)} />
+            </div>
             <p className="text-[10px] text-muted-foreground">{isRtl ? "مواد" : "Subjects"}</p>
           </div>
           <div className="bg-green-500/5 rounded-xl p-3 text-center">
-            <p className="text-xl font-black text-green-600">{totalCompleted}</p>
+            <div className="flex items-center justify-center gap-1.5">
+              <p className="text-xl font-black text-green-600">{totalCompleted}</p>
+              <TrendIndicator data={bucketByDay(progress.filter((p: any) => p.completed).map((p: any) => p.updated_at || p.created_at).filter(Boolean), 7)} />
+            </div>
             <p className="text-[10px] text-muted-foreground">{isRtl ? "مكتملة" : "Completed"}</p>
           </div>
           <div className="bg-amber-500/5 rounded-xl p-3 text-center">
-            <p className="text-xl font-black text-amber-500">{submissions.length}</p>
+            <div className="flex items-center justify-center gap-1.5">
+              <p className="text-xl font-black text-amber-500">{submissions.length}</p>
+              <TrendIndicator data={bucketByDay(submissions.map((s: any) => s.submitted_at).filter(Boolean), 7)} />
+            </div>
             <p className="text-[10px] text-muted-foreground">{isRtl ? "واجبات" : "Homework"}</p>
           </div>
           <div className="bg-red-500/5 rounded-xl p-3 text-center">
-            <p className="text-xl font-black text-red-500">{liveStreams.length}</p>
+            <div className="flex items-center justify-center gap-1.5">
+              <p className="text-xl font-black text-red-500">{liveStreams.length}</p>
+              <TrendIndicator data={bucketByDay(liveStreams.map((s: any) => s.scheduled_at || s.created_at).filter(Boolean), 7)} />
+            </div>
             <p className="text-[10px] text-muted-foreground">{isRtl ? "حصص مباشرة" : "Live Classes"}</p>
           </div>
         </div>

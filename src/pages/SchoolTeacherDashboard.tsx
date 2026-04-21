@@ -18,6 +18,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 import BackButton from "@/components/BackButton";
+import { TrendIndicator } from "@/components/TrendIndicator";
+import { bucketByDay } from "@/components/Sparkline";
 
 const SchoolTeacherDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -370,10 +372,22 @@ const SchoolTeacherDashboard = () => {
 
             {/* Stats */}
             <div className="grid grid-cols-4 gap-3 mb-8">
-              <div className="bg-primary/5 rounded-xl p-3 text-center"><p className="text-xl font-black text-primary">{totalViews}</p><p className="text-[10px] text-muted-foreground">{isRtl ? "مشاهدات" : "Views"}</p></div>
-              <div className="bg-primary/5 rounded-xl p-3 text-center"><p className="text-xl font-black text-primary">{courses.length}</p><p className="text-[10px] text-muted-foreground">{isRtl ? "مواد" : "Subjects"}</p></div>
-              <div className="bg-primary/5 rounded-xl p-3 text-center"><p className="text-xl font-black text-primary">{courses.reduce((a, c) => a + c.episode_count, 0)}</p><p className="text-[10px] text-muted-foreground">{isRtl ? "دروس" : "Lessons"}</p></div>
-              <div className="bg-green-500/5 rounded-xl p-3 text-center"><p className="text-xl font-black text-green-600">{teacherRatings.length > 0 ? (teacherRatings.reduce((a, r) => a + r.rating, 0) / teacherRatings.length).toFixed(1) : "—"}</p><p className="text-[10px] text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p></div>
+              <div className="bg-primary/5 rounded-xl p-3 text-center">
+                <div className="flex items-center justify-center gap-1.5"><p className="text-xl font-black text-primary">{totalViews}</p><TrendIndicator data={bucketByDay(courses.map((c: any) => c.created_at).filter(Boolean), 7)} /></div>
+                <p className="text-[10px] text-muted-foreground">{isRtl ? "مشاهدات" : "Views"}</p>
+              </div>
+              <div className="bg-primary/5 rounded-xl p-3 text-center">
+                <div className="flex items-center justify-center gap-1.5"><p className="text-xl font-black text-primary">{courses.length}</p><TrendIndicator data={bucketByDay(courses.map((c: any) => c.created_at).filter(Boolean), 7)} /></div>
+                <p className="text-[10px] text-muted-foreground">{isRtl ? "مواد" : "Subjects"}</p>
+              </div>
+              <div className="bg-primary/5 rounded-xl p-3 text-center">
+                <div className="flex items-center justify-center gap-1.5"><p className="text-xl font-black text-primary">{courses.reduce((a, c) => a + c.episode_count, 0)}</p><TrendIndicator data={bucketByDay(courses.map((c: any) => c.created_at).filter(Boolean), 7)} /></div>
+                <p className="text-[10px] text-muted-foreground">{isRtl ? "دروس" : "Lessons"}</p>
+              </div>
+              <div className="bg-green-500/5 rounded-xl p-3 text-center">
+                <div className="flex items-center justify-center gap-1.5"><p className="text-xl font-black text-green-600">{teacherRatings.length > 0 ? (teacherRatings.reduce((a, r) => a + r.rating, 0) / teacherRatings.length).toFixed(1) : "—"}</p><TrendIndicator data={bucketByDay(teacherRatings.map((r: any) => r.created_at).filter(Boolean), 7)} /></div>
+                <p className="text-[10px] text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
+              </div>
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

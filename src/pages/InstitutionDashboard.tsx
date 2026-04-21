@@ -25,6 +25,8 @@ import { toast as sonnerToast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 import BackButton from "@/components/BackButton";
+import { TrendIndicator } from "@/components/TrendIndicator";
+import { bucketByDay } from "@/components/Sparkline";
 
 interface Department {
   id: string;
@@ -1220,19 +1222,28 @@ const InstitutionDashboard = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
               <Card className="border border-primary/20">
                 <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-black text-primary">{totalDepts}</p>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-2xl font-black text-primary">{totalDepts}</p>
+                    <TrendIndicator data={bucketByDay(departments.map((d: any) => d.created_at).filter(Boolean), 7)} />
+                  </div>
                   <p className="text-xs text-muted-foreground">{isRtl ? "الأقسام" : "Departments"}</p>
                 </CardContent>
               </Card>
               <Card className="border border-blue-500/20">
                 <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-black text-blue-600">{totalStudents}</p>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-2xl font-black text-blue-600">{totalStudents}</p>
+                    <TrendIndicator data={bucketByDay(deptMembers.filter((m: any) => m.role === "student").map((m: any) => m.created_at).filter(Boolean), 7)} />
+                  </div>
                   <p className="text-xs text-muted-foreground">{isRtl ? "الطلاب" : "Students"}</p>
                 </CardContent>
               </Card>
               <Card className="border border-green-500/20">
                 <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-black text-green-600">{totalLecturers}</p>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-2xl font-black text-green-600">{totalLecturers}</p>
+                    <TrendIndicator data={bucketByDay(deptMembers.filter((m: any) => m.role === "lecturer").map((m: any) => m.created_at).filter(Boolean), 7)} />
+                  </div>
                   <p className="text-xs text-muted-foreground">{isRtl ? "المحاضرين" : "Lecturers"}</p>
                 </CardContent>
               </Card>
@@ -1252,13 +1263,19 @@ const InstitutionDashboard = () => {
             <div className="grid grid-cols-2 gap-3 mb-6">
               <Card className="border border-purple-500/20">
                 <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-black text-purple-600">{quizzes.length}</p>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-2xl font-black text-purple-600">{quizzes.length}</p>
+                    <TrendIndicator data={bucketByDay(quizzes.map((q: any) => q.created_at).filter(Boolean), 7)} />
+                  </div>
                   <p className="text-xs text-muted-foreground">{isRtl ? "الاختبارات" : "Quizzes"}</p>
                 </CardContent>
               </Card>
               <Card className="border border-blue-500/20">
                 <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-black text-blue-600">{assignments.length}</p>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-2xl font-black text-blue-600">{assignments.length}</p>
+                    <TrendIndicator data={bucketByDay(assignments.map((a: any) => a.created_at).filter(Boolean), 7)} />
+                  </div>
                   <p className="text-xs text-muted-foreground">{isRtl ? "الواجبات" : "Assignments"}</p>
                 </CardContent>
               </Card>
@@ -1290,15 +1307,21 @@ const InstitutionDashboard = () => {
               </Card>
               <Card className="border border-yellow-500/20">
                 <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-black text-yellow-600">
-                    {lecturerRatings.length > 0 ? (lecturerRatings.reduce((a: number, r: any) => a + r.rating, 0) / lecturerRatings.length).toFixed(1) : "0.0"}
-                  </p>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-2xl font-black text-yellow-600">
+                      {lecturerRatings.length > 0 ? (lecturerRatings.reduce((a: number, r: any) => a + r.rating, 0) / lecturerRatings.length).toFixed(1) : "0.0"}
+                    </p>
+                    <TrendIndicator data={bucketByDay(lecturerRatings.map((r: any) => r.created_at).filter(Boolean), 7)} />
+                  </div>
                   <p className="text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
                 </CardContent>
               </Card>
               <Card className="border border-red-500/20">
                 <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-black text-red-500">{liveStreams.filter(s => s.status === "live").length}</p>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-2xl font-black text-red-500">{liveStreams.filter(s => s.status === "live").length}</p>
+                    <TrendIndicator data={bucketByDay(liveStreams.map((s: any) => s.scheduled_at || s.created_at).filter(Boolean), 7)} />
+                  </div>
                   <p className="text-xs text-muted-foreground">{isRtl ? "بث مباشر الآن" : "Live Now"}</p>
                 </CardContent>
               </Card>

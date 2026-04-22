@@ -1107,56 +1107,73 @@ const InstitutionDashboard = () => {
             {memberProfileTab === "info" ? (
               <Card className="border-2">
                 <CardContent className="p-6 space-y-4">
-                  <div className="flex items-center gap-4 p-4 rounded-lg border">
-                    <User className="w-6 h-6 text-muted-foreground" />
-                    <div>
-                      <p className="text-xs text-muted-foreground">{isRtl ? "الاسم الكامل" : "Full Name"}</p>
-                      <p className="font-bold text-foreground text-lg">{selectedMember.full_name}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 p-4 rounded-lg border">
-                    <Users className="w-6 h-6 text-muted-foreground" />
-                    <div>
-                      <p className="text-xs text-muted-foreground">{isRtl ? "الدور" : "Role"}</p>
-                      <p className="font-bold text-foreground text-lg">
-                        {selectedMember.role === "lecturer" ? (isRtl ? "محاضر" : "Lecturer") : (isRtl ? "طالب" : "Student")}
-                      </p>
-                    </div>
-                  </div>
-                  {selectedMember.date_of_birth && (
-                    <div className="flex items-center gap-4 p-4 rounded-lg border">
-                      <Calendar className="w-6 h-6 text-muted-foreground" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">{isRtl ? "تاريخ الميلاد" : "Date of Birth"}</p>
-                        <p className="font-bold text-foreground text-lg">{selectedMember.date_of_birth}</p>
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-4 p-4 rounded-lg border">
-                    <LinkIcon className="w-6 h-6 text-muted-foreground" />
-                    <div>
-                      <p className="text-xs text-muted-foreground">{isRtl ? "حالة الحساب" : "Account Status"}</p>
-                      <p className="font-bold text-foreground text-lg">
-                        {selectedMember.user_id ? (isRtl ? "✅ مربوط بحساب" : "✅ Linked") : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending")}
-                      </p>
-                    </div>
-                  </div>
-                  {selectedMember.invitation_code && (
-                    <div className="flex items-center gap-4 p-4 rounded-lg border">
-                      <Ticket className="w-6 h-6 text-muted-foreground" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">{isRtl ? "كود الدعوة" : "Invitation Code"}</p>
-                        <code className="font-mono text-lg font-bold text-foreground">{selectedMember.invitation_code}</code>
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-4 p-4 rounded-lg border">
-                    <Clock className="w-6 h-6 text-muted-foreground" />
-                    <div>
-                      <p className="text-xs text-muted-foreground">{isRtl ? "تاريخ الانضمام" : "Joined Date"}</p>
-                      <p className="font-bold text-foreground text-lg">{new Date(selectedMember.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</p>
-                    </div>
-                  </div>
+                  {(() => {
+                    const linkedProfile = selectedMember.user_id ? profilesMap[selectedMember.user_id] : null;
+                    const roleLabelMap: Record<string, { ar: string; en: string }> = {
+                      lecturer: { ar: "محاضر", en: "Lecturer" },
+                      student: { ar: "طالب", en: "Student" },
+                      department_head: { ar: "رئيس قسم", en: "Department Head" },
+                      dean: { ar: "عميد الكلية", en: "Dean" },
+                      vice_dean_students: { ar: "وكيل الكلية لشئون الطلاب", en: "Vice Dean - Student Affairs" },
+                      vice_dean_postgrad: { ar: "وكيل الكلية للدراسات العليا", en: "Vice Dean - Postgraduate Studies" },
+                      vice_dean_environment: { ar: "وكيل الكلية لشئون البيئة", en: "Vice Dean - Environment Affairs" },
+                      vice_dean: { ar: "وكيل الكلية", en: "Vice Dean" },
+                    };
+                    const roleLabel = roleLabelMap[selectedMember.role] || { ar: selectedMember.role, en: selectedMember.role };
+                    const joinedDate = linkedProfile?.created_at || selectedMember.created_at;
+                    return (
+                      <>
+                        <div className="flex items-center gap-4 p-4 rounded-lg border">
+                          <User className="w-6 h-6 text-muted-foreground" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">{isRtl ? "الاسم الكامل" : "Full Name"}</p>
+                            <p className="font-bold text-foreground text-lg">{linkedProfile?.full_name || selectedMember.full_name}</p>
+                          </div>
+                        </div>
+                        {linkedProfile?.email && (
+                          <div className="flex items-center gap-4 p-4 rounded-lg border">
+                            <Mail className="w-6 h-6 text-muted-foreground" />
+                            <div className="min-w-0">
+                              <p className="text-xs text-muted-foreground">{isRtl ? "البريد الإلكتروني" : "Email"}</p>
+                              <p className="font-bold text-foreground text-lg break-all" dir="ltr">{linkedProfile.email}</p>
+                            </div>
+                          </div>
+                        )}
+                        {linkedProfile?.phone && (
+                          <div className="flex items-center gap-4 p-4 rounded-lg border">
+                            <Phone className="w-6 h-6 text-muted-foreground" />
+                            <div>
+                              <p className="text-xs text-muted-foreground">{isRtl ? "رقم الهاتف" : "Phone"}</p>
+                              <p className="font-bold text-foreground text-lg" dir="ltr">{linkedProfile.phone}</p>
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-4 p-4 rounded-lg border">
+                          <Users className="w-6 h-6 text-muted-foreground" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">{isRtl ? "الدور" : "Role"}</p>
+                            <p className="font-bold text-foreground text-lg">{isRtl ? roleLabel.ar : roleLabel.en}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4 p-4 rounded-lg border">
+                          <LinkIcon className="w-6 h-6 text-muted-foreground" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">{isRtl ? "حالة الحساب" : "Account Status"}</p>
+                            <p className="font-bold text-foreground text-lg">
+                              {selectedMember.user_id ? (isRtl ? "✅ مسجّل" : "✅ Registered") : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending")}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4 p-4 rounded-lg border">
+                          <Clock className="w-6 h-6 text-muted-foreground" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">{isRtl ? "تاريخ الانضمام" : "Joined Date"}</p>
+                            <p className="font-bold text-foreground text-lg">{new Date(joinedDate).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</p>
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </CardContent>
               </Card>
             ) : selectedMember.role === "lecturer" ? (

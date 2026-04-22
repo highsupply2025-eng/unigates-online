@@ -1565,13 +1565,30 @@ const InstitutionDashboard = () => {
                                   const text = isRtl
                                     ? `رابط الدعوة للانضمام كـ ${label.ar}:\n${inviteLink}`
                                     : `Invitation link to join as ${label.en}:\n${inviteLink}`;
+                                  const subject = isRtl ? `دعوة للانضمام كـ ${label.ar}` : `Invitation to join as ${label.en}`;
+                                  const gmailUrl = `https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
+                                  const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
                                   return (
-                                    <a href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
-                                      <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
-                                        <MessageCircle className="w-3.5 h-3.5 me-1" />
-                                        {isRtl ? "واتساب" : "WhatsApp"}
-                                      </Button>
-                                    </a>
+                                    <>
+                                      <a href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
+                                        <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
+                                          <MessageCircle className="w-3.5 h-3.5 me-1" />
+                                          {isRtl ? "واتساب" : "WhatsApp"}
+                                        </Button>
+                                      </a>
+                                      <a href={gmailUrl} target="_blank" rel="noopener noreferrer">
+                                        <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-red-600 border-red-300 hover:bg-red-50">
+                                          <Mail className="w-3.5 h-3.5 me-1" />
+                                          Gmail
+                                        </Button>
+                                      </a>
+                                      <a href={mailtoUrl}>
+                                        <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-blue-600 border-blue-300 hover:bg-blue-50">
+                                          <Mail className="w-3.5 h-3.5 me-1" />
+                                          {isRtl ? "إيميل" : "Email"}
+                                        </Button>
+                                      </a>
+                                    </>
                                   );
                                 })()}
                               </div>
@@ -2368,13 +2385,30 @@ const InstitutionDashboard = () => {
                                   const text = isRtl
                                     ? `رابط الدعوة للانضمام كـ ${label.ar}:\n${inviteLink}`
                                     : `Invitation link to join as ${label.en}:\n${inviteLink}`;
+                                  const subject = isRtl ? `دعوة للانضمام كـ ${label.ar}` : `Invitation to join as ${label.en}`;
+                                  const gmailUrl = `https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
+                                  const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
                                   return (
-                                    <a href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
-                                      <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
-                                        <MessageCircle className="w-3.5 h-3.5 me-1" />
-                                        {isRtl ? "واتساب" : "WhatsApp"}
-                                      </Button>
-                                    </a>
+                                    <>
+                                      <a href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
+                                        <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
+                                          <MessageCircle className="w-3.5 h-3.5 me-1" />
+                                          {isRtl ? "واتساب" : "WhatsApp"}
+                                        </Button>
+                                      </a>
+                                      <a href={gmailUrl} target="_blank" rel="noopener noreferrer">
+                                        <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-red-600 border-red-300 hover:bg-red-50">
+                                          <Mail className="w-3.5 h-3.5 me-1" />
+                                          Gmail
+                                        </Button>
+                                      </a>
+                                      <a href={mailtoUrl}>
+                                        <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-blue-600 border-blue-300 hover:bg-blue-50">
+                                          <Mail className="w-3.5 h-3.5 me-1" />
+                                          {isRtl ? "إيميل" : "Email"}
+                                        </Button>
+                                      </a>
+                                    </>
                                   );
                                 })()}
                               </div>
@@ -2507,6 +2541,9 @@ const InstitutionDashboard = () => {
                               ? `مرحباً ${member.full_name}، يمكنك التسجيل كرئيس قسم عبر هذا الرابط:\n${inviteLink}\nكود الدعوة: ${member.invitation_code}`
                               : `Hi ${member.full_name}, register as Department Head:\n${inviteLink}\nCode: ${member.invitation_code}`;
                             const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+                            const subjectRaw = isRtl ? "دعوة للتسجيل كرئيس قسم" : "Department Head Invitation";
+                            const gmailUrl = `https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&su=${encodeURIComponent(subjectRaw)}&body=${encodeURIComponent(shareText)}`;
+                            const mailtoUrl = `mailto:?subject=${encodeURIComponent(subjectRaw)}&body=${encodeURIComponent(shareText)}`;
                             return member.user_id ? (
                               <button
                                 key={member.id}
@@ -2542,11 +2579,23 @@ const InstitutionDashboard = () => {
                                       </p>
                                     </div>
                                   </div>
-                                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" title="WhatsApp">
-                                    <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-green-500/10 rounded-full">
-                                      <MessageCircle className="w-4 h-4 text-green-600" />
-                                    </Button>
-                                  </a>
+                                  <div className="flex items-center gap-1">
+                                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" title="WhatsApp">
+                                      <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-green-500/10 rounded-full">
+                                        <MessageCircle className="w-4 h-4 text-green-600" />
+                                      </Button>
+                                    </a>
+                                    <a href={gmailUrl} target="_blank" rel="noopener noreferrer" title="Gmail">
+                                      <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-red-500/10 rounded-full">
+                                        <Mail className="w-4 h-4 text-red-600" />
+                                      </Button>
+                                    </a>
+                                    <a href={mailtoUrl} title="Email">
+                                      <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-blue-500/10 rounded-full">
+                                        <Mail className="w-4 h-4 text-blue-600" />
+                                      </Button>
+                                    </a>
+                                  </div>
                                 </div>
                                 {member.invitation_code && (
                                   <div className="space-y-2 bg-background/70 rounded-lg p-3">

@@ -620,12 +620,15 @@ const DepartmentPage = () => {
         </Card>
 
         {/* Students Section */}
-        <Card className="border-2 border-blue-500/20">
-          <CardHeader className="pb-3">
+        <Card className="border-2 border-blue-500/30 shadow-md overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 h-1.5" />
+          <CardHeader className="pb-3 pt-4 bg-blue-50/40 dark:bg-blue-950/10">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <GraduationCap className="w-5 h-5 text-blue-600" />
-              {isRtl ? "الطلاب" : "Students"}
-              <Badge variant="outline" className="text-blue-600 border-blue-600 ms-2">
+              <div className="w-9 h-9 rounded-lg bg-blue-500/15 flex items-center justify-center">
+                <GraduationCap className="w-5 h-5 text-blue-600" />
+              </div>
+              <span className="font-extrabold">{isRtl ? "الطلاب" : "Students"}</span>
+              <Badge variant="outline" className="text-blue-700 border-blue-500 bg-blue-100/60 ms-2 font-bold">
                 {students.length}/{allStudents.length}
               </Badge>
             </CardTitle>

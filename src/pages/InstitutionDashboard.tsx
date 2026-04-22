@@ -644,6 +644,9 @@ const InstitutionDashboard = () => {
     const dept = departments.find(d => d.id === deptId);
     return (dept as any)?.lecturer_count || 0;
   };
+  const getDeptHeadsCount = (deptId: string) => {
+    return getMembersForDept(deptId).filter(m => m.role === "department_head").length;
+  };
 
   const totalStudents = departments.reduce((sum, d) => sum + getStudentsCount(d.id), 0);
   const totalLecturers = departments.reduce((sum, d) => sum + getLecturersCount(d.id), 0);
@@ -1441,6 +1444,7 @@ const InstitutionDashboard = () => {
               {filteredDepts.map(dept => {
                 const students = getStudentsCount(dept.id);
                 const lecturers = getLecturersCount(dept.id);
+                const heads = getDeptHeadsCount(dept.id);
                 const members = getMembersForDept(dept.id);
                 return (
                   <Card key={dept.id} className="border-2 border-primary/15 hover:shadow-xl hover:border-primary/30 transition-all bg-gradient-to-br from-primary/3 to-transparent">
@@ -1449,7 +1453,7 @@ const InstitutionDashboard = () => {
                         <div>
                           <h3 className="text-lg font-bold text-foreground">{dept.department_name}</h3>
                           <p className="text-sm text-muted-foreground">
-                            {students} {isRtl ? "طالب" : "students"} · {lecturers} {isRtl ? "محاضر" : "lecturers"}
+                            {students} {isRtl ? "طالب" : "students"} · {lecturers} {isRtl ? "محاضر" : "lecturers"} · {heads} {isRtl ? "رئيس قسم" : "head"}
                           </p>
                         </div>
                         <Badge variant={dept.status === "active" ? "default" : "destructive"}>
@@ -1457,7 +1461,7 @@ const InstitutionDashboard = () => {
                         </Badge>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-3 mb-4">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                         <div className="text-center p-2 rounded-lg bg-blue-500/10">
                           <p className="text-lg font-bold text-blue-600">{students}</p>
                           <p className="text-xs text-muted-foreground">{isRtl ? "طلاب" : "Students"}</p>
@@ -1465,6 +1469,10 @@ const InstitutionDashboard = () => {
                         <div className="text-center p-2 rounded-lg bg-green-500/10">
                           <p className="text-lg font-bold text-green-600">{lecturers}</p>
                           <p className="text-xs text-muted-foreground">{isRtl ? "محاضرين" : "Lecturers"}</p>
+                        </div>
+                        <div className="text-center p-2 rounded-lg bg-amber-500/10">
+                          <p className="text-lg font-bold text-amber-600">{heads}<span className="text-xs">/1</span></p>
+                          <p className="text-xs text-muted-foreground">{isRtl ? "رئيس قسم (مجاناً)" : "Head (Free)"}</p>
                         </div>
                         <div className="text-center p-2 rounded-lg bg-primary/10">
                           <p className="text-lg font-bold text-primary">{dept.payment_amount}</p>
@@ -2400,6 +2408,9 @@ const InstitutionDashboard = () => {
                     {isRtl ? `${newDeptLecturerCount} محاضر (مجاناً - حتى 10)` : `${newDeptLecturerCount} lecturers (Free - up to 10)`}
                   </p>
                 )}
+                <p className="text-xs text-amber-600 mt-1 font-semibold">
+                  {isRtl ? "✨ رئيس قسم واحد مجاناً (يتم تسجيله عبر رابط الدعوة)" : "✨ 1 Department Head free (via invitation link)"}
+                </p>
               </div>
             )}
           </div>

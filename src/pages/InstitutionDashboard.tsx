@@ -594,12 +594,16 @@ const InstitutionDashboard = () => {
 
       if (membersError) throw membersError;
 
-      const { error: departmentError } = await supabase
+      const { data: deletedDepartment, error: departmentError } = await supabase
         .from("departments")
         .delete()
-        .eq("id", deptId);
+        .eq("id", deptId)
+        .select("id");
 
       if (departmentError) throw departmentError;
+      if (!deletedDepartment || deletedDepartment.length === 0) {
+        throw new Error(isRtl ? "لم يتم حذف القسم فعلياً" : "Department was not actually deleted");
+      }
 
       setDeletedDeptIds(prev => {
         const next = new Set(prev);
@@ -609,6 +613,7 @@ const InstitutionDashboard = () => {
       });
       setDepartments(prev => prev.filter(d => d.id !== deptId));
       setDeptMembers(prev => prev.filter(m => m.department_id !== deptId));
+      await loadInstitutionData(institutionId, institutionType || "college");
       sonnerToast.success(isRtl ? "تم حذف القسم" : "Department Deleted", { description: deptName, duration: 2000 });
     } catch (error: any) {
       sonnerToast.error(isRtl ? "تعذر حذف القسم" : "Delete Error", {

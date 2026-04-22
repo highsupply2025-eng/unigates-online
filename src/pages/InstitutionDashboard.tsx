@@ -2378,7 +2378,28 @@ const InstitutionDashboard = () => {
                               ? `مرحباً ${member.full_name}، يمكنك التسجيل كرئيس قسم عبر هذا الرابط:\n${inviteLink}\nكود الدعوة: ${member.invitation_code}`
                               : `Hi ${member.full_name}, register as Department Head:\n${inviteLink}\nCode: ${member.invitation_code}`;
                             const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
-                            return (
+                            return member.user_id ? (
+                              <button
+                                key={member.id}
+                                onClick={() => {
+                                  setSelectedMember(member);
+                                  setMemberProfileTab("info");
+                                  setPageView("memberProfile");
+                                }}
+                                className="w-full p-4 rounded-xl border-2 border-amber-300 bg-amber-50/50 dark:bg-amber-950/20 flex items-center justify-between hover:bg-amber-100/60 dark:hover:bg-amber-900/30 transition-colors text-start"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <div className="w-9 h-9 rounded-full bg-amber-500/20 flex items-center justify-center">
+                                    <UserCheck className="w-4 h-4 text-amber-700" />
+                                  </div>
+                                  <p className="font-bold text-sm text-foreground">{member.full_name}</p>
+                                </div>
+                                <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1">
+                                  <CheckCircle className="w-3.5 h-3.5" />
+                                  {isRtl ? "مسجّل" : "Registered"}
+                                </Badge>
+                              </button>
+                            ) : (
                               <div key={member.id} className="p-4 rounded-xl border-2 border-amber-300 bg-amber-50/50 dark:bg-amber-950/20">
                                 <div className="flex items-center justify-between mb-3">
                                   <div className="flex items-center gap-2">
@@ -2388,7 +2409,7 @@ const InstitutionDashboard = () => {
                                     <div>
                                       <p className="font-bold text-sm text-foreground">{member.full_name}</p>
                                       <p className="text-xs text-muted-foreground">
-                                        {member.user_id ? (isRtl ? "✅ مربوط بحساب" : "✅ Linked") : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending")}
+                                        {isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending"}
                                       </p>
                                     </div>
                                   </div>

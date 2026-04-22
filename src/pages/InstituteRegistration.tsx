@@ -55,13 +55,13 @@ const InstituteRegistration = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <header className="border-b-2 border-primary/30 px-6 py-4 bg-card shadow-md">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <GraduationCap className="w-6 h-6 text-white" />
+      <header className="border-b-2 border-primary/30 px-3 sm:px-6 py-3 sm:py-4 bg-card shadow-md">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
+          <Link to="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+              <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
-            <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
+            <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight truncate">{t.brandName}</span>
           </Link>
           {/* Desktop */}
           <div className="hidden md:flex items-center gap-3">

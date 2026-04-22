@@ -2314,36 +2314,57 @@ const InstitutionDashboard = () => {
                 </CardContent>
               </Card>
             ) : !invitationDept ? (
-              /* Departments list view */
+              /* Approved Departments list - shown below leadership links */
               <div className="space-y-4">
-                <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
-                  <LinkIcon className="w-5 h-5 text-primary" />
-                  {isRtl ? "اختر القسم" : "Select Department"}
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex items-center gap-3 pt-2">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
+                    <Layers className="w-5 h-5 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground">
+                      {isRtl ? "الأقسام المعتمدة" : "Approved Departments"}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      {isRtl ? "اضغط على القسم لعرض رئيس القسم والمحاضرين والطلاب" : "Click a department to view Head, Lecturers & Students"}
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {departments.filter(d => d.status === "active").map(dept => {
                     const lecturers = getMembersForDept(dept.id).filter(m => m.role === "lecturer").length;
                     const students = getMembersForDept(dept.id).filter(m => m.role === "student").length;
+                    const head = getMembersForDept(dept.id).filter(m => m.role === "department_head").length;
                     return (
-                      <Card key={dept.id} className="border-2 cursor-pointer hover:shadow-xl hover:border-primary/50 transition-all" onClick={() => { setInvitationDept(dept); setInvitationView("main"); }}>
-                        <CardContent className="p-6">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                              <Layers className="w-6 h-6 text-primary" />
+                      <Card
+                        key={dept.id}
+                        className="group relative border-2 border-primary/20 cursor-pointer hover:shadow-2xl hover:border-primary hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+                        onClick={() => { setInvitationDept(dept); setInvitationView("main"); }}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <Badge className="absolute top-3 end-3 bg-emerald-600 hover:bg-emerald-700 text-white gap-1 shadow-md z-10">
+                          <CheckCircle className="w-3 h-3" />
+                          {isRtl ? "معتمد" : "Approved"}
+                        </Badge>
+                        <CardContent className="p-6 relative">
+                          <div className="flex flex-col items-center text-center mb-4">
+                            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center mb-3 shadow-xl group-hover:scale-110 transition-transform">
+                              <Layers className="w-10 h-10 text-primary-foreground" />
                             </div>
-                            <div>
-                              <h4 className="text-lg font-bold text-foreground">{dept.department_name}</h4>
-                              <p className="text-sm text-muted-foreground">{isRtl ? "روابط وأكواد الدعوة" : "Invitation Links & Codes"}</p>
-                            </div>
+                            <h4 className="text-lg font-bold text-foreground line-clamp-1">{dept.department_name}</h4>
+                            <p className="text-xs text-muted-foreground mt-1">{isRtl ? "روابط الدعوات" : "Invitation Links"}</p>
                           </div>
-                          <div className="grid grid-cols-2 gap-3">
-                            <div className="text-center p-2 rounded-lg bg-green-500/10">
-                              <p className="text-lg font-bold text-green-600">{lecturers}</p>
-                              <p className="text-xs text-muted-foreground">{isRtl ? "محاضرين" : "Lecturers"}</p>
+                          <div className="grid grid-cols-3 gap-2">
+                            <div className="text-center p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                              <p className="text-base font-bold text-amber-600">{head}</p>
+                              <p className="text-[10px] text-muted-foreground">{isRtl ? "رئيس" : "Head"}</p>
                             </div>
-                            <div className="text-center p-2 rounded-lg bg-blue-500/10">
-                              <p className="text-lg font-bold text-blue-600">{students}</p>
-                              <p className="text-xs text-muted-foreground">{isRtl ? "طلاب" : "Students"}</p>
+                            <div className="text-center p-2 rounded-lg bg-green-500/10 border border-green-500/20">
+                              <p className="text-base font-bold text-green-600">{lecturers}</p>
+                              <p className="text-[10px] text-muted-foreground">{isRtl ? "محاضرين" : "Lecturers"}</p>
+                            </div>
+                            <div className="text-center p-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                              <p className="text-base font-bold text-blue-600">{students}</p>
+                              <p className="text-[10px] text-muted-foreground">{isRtl ? "طلاب" : "Students"}</p>
                             </div>
                           </div>
                         </CardContent>

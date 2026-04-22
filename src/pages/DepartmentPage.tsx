@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ChevronLeft, ChevronRight, Copy, UserCheck, GraduationCap,
-  Layers, LinkIcon, MessageCircle, Loader2, Search, Filter, Download, Trash2, Pencil, UserPlus
+  Layers, LinkIcon, MessageCircle, Loader2, Search, Filter, Download, Trash2, Pencil, UserPlus, Crown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -91,6 +91,24 @@ const DepartmentPage = () => {
         hasMore = (batch?.length || 0) === 1000;
         from += 1000;
       }
+
+      // Auto-ensure a department_head invitation slot exists (only one allowed per department)
+      const hasHead = allMembers.some(m => m.role === "department_head");
+      if (!hasHead) {
+        const headInsert = {
+          department_id: deptId,
+          full_name: isRtl ? "رئيس القسم" : "Department Head",
+          role: "department_head",
+          invitation_code: crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase(),
+        };
+        const { data: newHead } = await supabase
+          .from("department_members")
+          .insert(headInsert)
+          .select()
+          .maybeSingle();
+        if (newHead) allMembers = [...allMembers, newHead as DepartmentMember];
+      }
+
       setMembers(allMembers);
 
       // Fetch profile data for linked members
@@ -209,6 +227,7 @@ const DepartmentPage = () => {
 
   const allLecturers = members.filter(m => m.role === "lecturer");
   const allStudents = members.filter(m => m.role === "student");
+  const deptHead = members.find(m => m.role === "department_head") || null;
   const lecturers = useMemo(() => filterMembers(allLecturers), [members, searchQuery, statusFilter]);
   const students = useMemo(() => filterMembers(allStudents), [members, searchQuery, statusFilter]);
 
@@ -358,9 +377,9 @@ const DepartmentPage = () => {
   return (
     <div className="min-h-screen bg-background" dir={dir}>
       <main className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <Button variant="outline" className="gap-2 mb-6" onClick={() => navigate("/institution/dashboard")}>
+        <Button variant="outline" className="gap-2 mb-6" onClick={() => navigate("/institution/dashboard?tab=invitations")}>
           {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-          {isRtl ? "رجوع للوحة التحكم" : "Back to Dashboard"}
+          {isRtl ? "رجوع للأقسام" : "Back to Departments"}
         </Button>
 
         {/* Department Header */}
@@ -426,6 +445,86 @@ const DepartmentPage = () => {
             </span>
           </div>
         </div>
+
+        {/* Department Head Section */}
+        {deptHead && (() => {
+          const headInviteLink = `${baseUrl}/signup/${instPath}/department_head?code=${deptHead.invitation_code}`;
+          const headProfile = deptHead.user_id ? profilesMap[deptHead.user_id] : null;
+          const headLinked = !!deptHead.user_id;
+          const headShareText = isRtl
+            ? `مرحباً، يمكنك التسجيل كرئيس قسم عبر هذا الرابط:\n${headInviteLink}\nكود الدعوة: ${deptHead.invitation_code}`
+            : `Hi, register as Department Head:\n${headInviteLink}\nCode: ${deptHead.invitation_code}`;
+          return (
+            <Card className="mb-6 border-2 border-amber-500/40 bg-amber-50/30 dark:bg-amber-950/10">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Crown className="w-5 h-5 text-amber-600" />
+                  {isRtl ? "رئيس القسم" : "Department Head"}
+                  <Badge variant="outline" className="text-amber-600 border-amber-600 ms-2">
+                    {headLinked ? (isRtl ? "1/1" : "1/1") : (isRtl ? "0/1" : "0/1")}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-xl border-2 bg-background">
+                  <button
+                    type="button"
+                    onClick={() => headLinked && navigate(`/institution/member/${deptHead.id}`)}
+                    className="flex items-center gap-3 min-w-0 text-start hover:opacity-80 transition-opacity flex-1"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0 overflow-hidden">
+                      {headProfile?.live_photo_url ? (
+                        <img src={headProfile.live_photo_url} alt={headProfile.full_name} className="w-full h-full object-cover" />
+                      ) : <Crown className="w-5 h-5 text-amber-600" />}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-foreground text-sm sm:text-base truncate">
+                        {headProfile?.full_name || (isRtl ? "في انتظار التسجيل" : "Awaiting registration")}
+                      </p>
+                      {headLinked && headProfile ? (
+                        <>
+                          <p className="text-xs text-muted-foreground truncate">{headProfile.email}</p>
+                          <p className="text-xs text-muted-foreground truncate" dir="ltr">{headProfile.phone}</p>
+                        </>
+                      ) : (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {isRtl ? "⏳ شارك رابط الدعوة لتسجيل رئيس القسم" : "⏳ Share invitation link to register"}
+                        </p>
+                      )}
+                    </div>
+                  </button>
+                  {headLinked ? (
+                    <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 shrink-0">
+                      <UserCheck className="w-3.5 h-3.5" />
+                      {isRtl ? "مسجّل" : "Registered"}
+                    </Badge>
+                  ) : (
+                    <div className="flex items-center gap-1.5 flex-wrap sm:justify-end">
+                      <Button size="sm" variant="outline" className="text-xs h-8 px-2" onClick={() => copyToClipboard(deptHead.invitation_code!)}>
+                        <Copy className="w-3.5 h-3.5 me-1" />
+                        {isRtl ? "نسخ الكود" : "Copy Code"}
+                      </Button>
+                      <Button size="sm" variant="outline" className="text-xs h-8 px-2" onClick={() => copyToClipboard(headInviteLink)}>
+                        <LinkIcon className="w-3.5 h-3.5 me-1" />
+                        {isRtl ? "نسخ الرابط" : "Copy Link"}
+                      </Button>
+                      <a
+                        href={`https://wa.me/?text=${encodeURIComponent(headShareText)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
+                          <MessageCircle className="w-3.5 h-3.5 me-1" />
+                          {isRtl ? "واتساب" : "WhatsApp"}
+                        </Button>
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })()}
 
         {/* Lecturers Section */}
         <Card className="mb-6 border-2 border-green-500/20">

@@ -2579,11 +2579,23 @@ const InstitutionDashboard = () => {
                                       </p>
                                     </div>
                                   </div>
-                                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" title="WhatsApp">
-                                    <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-green-500/10 rounded-full">
-                                      <MessageCircle className="w-4 h-4 text-green-600" />
-                                    </Button>
-                                  </a>
+                                  <div className="flex items-center gap-1">
+                                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" title="WhatsApp">
+                                      <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-green-500/10 rounded-full">
+                                        <MessageCircle className="w-4 h-4 text-green-600" />
+                                      </Button>
+                                    </a>
+                                    <a href={gmailUrl} target="_blank" rel="noopener noreferrer" title="Gmail">
+                                      <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-red-500/10 rounded-full">
+                                        <Mail className="w-4 h-4 text-red-600" />
+                                      </Button>
+                                    </a>
+                                    <a href={mailtoUrl} title="Email">
+                                      <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-blue-500/10 rounded-full">
+                                        <Mail className="w-4 h-4 text-blue-600" />
+                                      </Button>
+                                    </a>
+                                  </div>
                                 </div>
                                 {member.invitation_code && (
                                   <div className="space-y-2 bg-background/70 rounded-lg p-3">

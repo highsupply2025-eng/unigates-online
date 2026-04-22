@@ -2541,6 +2541,9 @@ const InstitutionDashboard = () => {
                               ? `مرحباً ${member.full_name}، يمكنك التسجيل كرئيس قسم عبر هذا الرابط:\n${inviteLink}\nكود الدعوة: ${member.invitation_code}`
                               : `Hi ${member.full_name}, register as Department Head:\n${inviteLink}\nCode: ${member.invitation_code}`;
                             const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+                            const subjectRaw = isRtl ? "دعوة للتسجيل كرئيس قسم" : "Department Head Invitation";
+                            const gmailUrl = `https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&su=${encodeURIComponent(subjectRaw)}&body=${encodeURIComponent(shareText)}`;
+                            const mailtoUrl = `mailto:?subject=${encodeURIComponent(subjectRaw)}&body=${encodeURIComponent(shareText)}`;
                             return member.user_id ? (
                               <button
                                 key={member.id}

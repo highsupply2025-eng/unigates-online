@@ -1205,7 +1205,7 @@ const InstitutionDashboard = () => {
               <BookOpen className="w-5 h-5 text-blue-500" />
               {isRtl ? "الأقسام والأعضاء" : "Departments & Members"}
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
               <Card className="border border-primary/20">
                 <CardContent className="p-4 text-center">
                   <div className="flex items-center justify-center gap-1.5">
@@ -1213,6 +1213,15 @@ const InstitutionDashboard = () => {
                     <TrendIndicator data={bucketByDay(departments.map((d: any) => d.created_at).filter(Boolean), 7)} />
                   </div>
                   <p className="text-xs text-muted-foreground">{isRtl ? "الأقسام" : "Departments"}</p>
+                </CardContent>
+              </Card>
+              <Card className="border border-indigo-500/20">
+                <CardContent className="p-4 text-center">
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-2xl font-black text-indigo-600">{deptMembers.filter((m: any) => m.role === "head").length}</p>
+                    <TrendIndicator data={bucketByDay(deptMembers.filter((m: any) => m.role === "head").map((m: any) => m.created_at).filter(Boolean), 7)} />
+                  </div>
+                  <p className="text-xs text-muted-foreground">{isRtl ? "رؤساء الأقسام" : "Department Heads"}</p>
                 </CardContent>
               </Card>
               <Card className="border border-blue-500/20">

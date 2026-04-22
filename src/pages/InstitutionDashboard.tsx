@@ -2454,7 +2454,28 @@ const InstitutionDashboard = () => {
                         const subjectRaw = isRtl ? "دعوة للتسجيل في منصة إدراك" : "Edrak Platform Invitation";
                         const gmailUrl = `https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&su=${encodeURIComponent(subjectRaw)}&body=${encodeURIComponent(shareText)}`;
                         const yahooUrl = `https://compose.mail.yahoo.com/?subject=${encodeURIComponent(subjectRaw)}&body=${encodeURIComponent(shareText)}`;
-                        return (
+                        return member.user_id ? (
+                          <button
+                            key={member.id}
+                            onClick={() => {
+                              setSelectedMember(member);
+                              setMemberProfileTab("info");
+                              setPageView("memberProfile");
+                            }}
+                            className="w-full p-4 rounded-xl border bg-card flex items-center justify-between hover:bg-accent/50 transition-colors text-start"
+                          >
+                            <div className="flex items-center gap-2">
+                              <div className={`w-9 h-9 rounded-full ${invitationView === "lecturer" ? "bg-green-500/10" : "bg-blue-500/10"} flex items-center justify-center`}>
+                                {invitationView === "lecturer" ? <UserCheck className="w-4 h-4 text-green-600" /> : <GraduationCap className="w-4 h-4 text-blue-600" />}
+                              </div>
+                              <p className="font-bold text-sm text-foreground">{member.full_name}</p>
+                            </div>
+                            <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1">
+                              <CheckCircle className="w-3.5 h-3.5" />
+                              {isRtl ? "مسجّل" : "Registered"}
+                            </Badge>
+                          </button>
+                        ) : (
                           <div key={member.id} className="p-4 rounded-xl border bg-card">
                             <div className="flex items-center justify-between mb-3">
                               <div className="flex items-center gap-2">
@@ -2464,7 +2485,7 @@ const InstitutionDashboard = () => {
                                 <div>
                                   <p className="font-bold text-sm text-foreground">{member.full_name}</p>
                                   <p className="text-xs text-muted-foreground">
-                                    {member.user_id ? (isRtl ? "✅ مربوط بحساب" : "✅ Linked") : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending")}
+                                    {isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending"}
                                   </p>
                                 </div>
                               </div>

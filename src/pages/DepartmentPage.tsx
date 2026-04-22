@@ -297,34 +297,48 @@ const DepartmentPage = () => {
       : `Hi ${member.full_name}, register on Edrak platform:\n${inviteLink}\nInvitation code: ${member.invitation_code}`;
 
     return (
-      <div key={member.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-xl border-2 bg-background hover:border-primary/40 transition-colors">
-        <button
-          type="button"
-          onClick={() => navigate(`/institution/member/${member.id}`)}
-          className="flex items-center gap-3 min-w-0 text-start hover:opacity-80 transition-opacity flex-1"
-        >
-          <div className={`w-10 h-10 rounded-full ${colorClass} flex items-center justify-center shrink-0 overflow-hidden`}>
-            {avatar ? (
-              <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
-            ) : icon}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="font-bold text-foreground text-sm sm:text-base truncate">{displayName}</p>
-            {isLinked && profile ? (
-              <>
-                <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
-                <p className="text-xs text-muted-foreground truncate" dir="ltr">{profile.phone}</p>
-              </>
-            ) : (
-              <p className="text-xs text-muted-foreground truncate">
-                {isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending"}
-              </p>
-            )}
-          </div>
-        </button>
-        <div className="flex items-center gap-1.5 flex-wrap sm:justify-end">
+      <div key={member.id} className="rounded-2xl border-2 bg-card shadow-sm hover:shadow-md hover:border-primary/40 transition-all overflow-hidden">
+        {/* Identity row */}
+        <div className="flex items-center gap-3 p-3 sm:p-4">
+          <button
+            type="button"
+            onClick={() => navigate(`/institution/member/${member.id}`)}
+            className="flex items-center gap-3 min-w-0 text-start hover:opacity-80 transition-opacity flex-1"
+          >
+            <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full ${colorClass} flex items-center justify-center shrink-0 overflow-hidden ring-2 ring-background shadow-sm`}>
+              {avatar ? (
+                <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
+              ) : icon}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-bold text-foreground text-sm sm:text-base truncate">{displayName}</p>
+              {isLinked && profile ? (
+                <>
+                  <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
+                  <p className="text-xs text-muted-foreground truncate" dir="ltr">{profile.phone}</p>
+                </>
+              ) : (
+                <p className="text-xs text-muted-foreground truncate">
+                  {isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending"}
+                </p>
+              )}
+            </div>
+          </button>
+          {isLinked && (
+            <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 shrink-0">
+              <UserCheck className="w-3.5 h-3.5" />
+              {isRtl ? "مسجّل" : "Registered"}
+            </Badge>
+          )}
+        </div>
+
+        {/* Actions row (separated) */}
+        <div className="border-t bg-muted/30 px-3 py-2.5 sm:px-4 flex items-center gap-1.5 flex-wrap">
           {!isLinked && (
             <>
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider me-1">
+                {isRtl ? "دعوة:" : "Invite:"}
+              </span>
               <Button size="sm" variant="outline" className="text-xs h-8 px-2" onClick={() => copyToClipboard(member.invitation_code!)}>
                 <Copy className="w-3.5 h-3.5 me-1" />
                 {isRtl ? "نسخ الكود" : "Copy Code"}
@@ -364,6 +378,7 @@ const DepartmentPage = () => {
                   </>
                 );
               })()}
+              <span className="mx-1 h-5 w-px bg-border" aria-hidden />
             </>
           )}
           <Button
@@ -371,6 +386,7 @@ const DepartmentPage = () => {
             variant="outline"
             className="h-8 w-8 p-0"
             onClick={() => openEditDialog(member)}
+            title={isRtl ? "تعديل" : "Edit"}
           >
             <Pencil className="w-3.5 h-3.5" />
           </Button>
@@ -379,6 +395,7 @@ const DepartmentPage = () => {
             variant="outline"
             className="h-8 w-8 p-0 text-destructive border-destructive/30 hover:bg-destructive/10"
             onClick={() => setMemberToDelete(member)}
+            title={isRtl ? "حذف" : "Delete"}
           >
             <Trash2 className="w-3.5 h-3.5" />
           </Button>
@@ -476,12 +493,15 @@ const DepartmentPage = () => {
             ? `مرحباً، يمكنك التسجيل كرئيس قسم عبر هذا الرابط:\n${headInviteLink}\nكود الدعوة: ${deptHead.invitation_code}`
             : `Hi, register as Department Head:\n${headInviteLink}\nCode: ${deptHead.invitation_code}`;
           return (
-            <Card className="mb-6 border-2 border-amber-500/40 bg-amber-50/30 dark:bg-amber-950/10">
-              <CardHeader className="pb-3">
+            <Card className="mb-8 border-2 border-amber-500/50 bg-gradient-to-br from-amber-50/60 to-amber-100/30 dark:from-amber-950/20 dark:to-amber-900/10 shadow-md overflow-hidden">
+              <div className="bg-gradient-to-r from-amber-500 to-amber-600 h-1.5" />
+              <CardHeader className="pb-3 pt-4">
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <Crown className="w-5 h-5 text-amber-600" />
-                  {isRtl ? "رئيس القسم" : "Department Head"}
-                  <Badge variant="outline" className="text-amber-600 border-amber-600 ms-2">
+                  <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center">
+                    <Crown className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <span className="font-extrabold">{isRtl ? "رئيس القسم" : "Department Head"}</span>
+                  <Badge variant="outline" className="text-amber-700 border-amber-500 bg-amber-100/60 ms-2 font-bold">
                     {headLinked ? (isRtl ? "1/1" : "1/1") : (isRtl ? "0/1" : "0/1")}
                   </Badge>
                 </CardTitle>
@@ -569,12 +589,15 @@ const DepartmentPage = () => {
         })()}
 
         {/* Lecturers Section */}
-        <Card className="mb-6 border-2 border-green-500/20">
-          <CardHeader className="pb-3">
+        <Card className="mb-8 border-2 border-green-500/30 shadow-md overflow-hidden">
+          <div className="bg-gradient-to-r from-green-500 to-emerald-600 h-1.5" />
+          <CardHeader className="pb-3 pt-4 bg-green-50/40 dark:bg-green-950/10">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <UserCheck className="w-5 h-5 text-green-600" />
-              {isRtl ? "المحاضرون" : "Lecturers"}
-              <Badge variant="outline" className="text-green-600 border-green-600 ms-2">
+              <div className="w-9 h-9 rounded-lg bg-green-500/15 flex items-center justify-center">
+                <UserCheck className="w-5 h-5 text-green-600" />
+              </div>
+              <span className="font-extrabold">{isRtl ? "المحاضرون" : "Lecturers"}</span>
+              <Badge variant="outline" className="text-green-700 border-green-500 bg-green-100/60 ms-2 font-bold">
                 {lecturers.length}/{allLecturers.length}
               </Badge>
             </CardTitle>
@@ -597,12 +620,15 @@ const DepartmentPage = () => {
         </Card>
 
         {/* Students Section */}
-        <Card className="border-2 border-blue-500/20">
-          <CardHeader className="pb-3">
+        <Card className="border-2 border-blue-500/30 shadow-md overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 h-1.5" />
+          <CardHeader className="pb-3 pt-4 bg-blue-50/40 dark:bg-blue-950/10">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <GraduationCap className="w-5 h-5 text-blue-600" />
-              {isRtl ? "الطلاب" : "Students"}
-              <Badge variant="outline" className="text-blue-600 border-blue-600 ms-2">
+              <div className="w-9 h-9 rounded-lg bg-blue-500/15 flex items-center justify-center">
+                <GraduationCap className="w-5 h-5 text-blue-600" />
+              </div>
+              <span className="font-extrabold">{isRtl ? "الطلاب" : "Students"}</span>
+              <Badge variant="outline" className="text-blue-700 border-blue-500 bg-blue-100/60 ms-2 font-bold">
                 {students.length}/{allStudents.length}
               </Badge>
             </CardTitle>

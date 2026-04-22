@@ -33,12 +33,11 @@ function StageView() {
   );
 
   return (
-    <GridLayout
-      tracks={tracks}
-      style={{ height: "calc(100vh - 120px)" }}
-    >
-      <ParticipantTile />
-    </GridLayout>
+    <div style={{ height: "calc(100vh - 120px)" }}>
+      <GridLayout tracks={tracks}>
+        <ParticipantTile />
+      </GridLayout>
+    </div>
   );
 }
 

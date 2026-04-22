@@ -220,8 +220,7 @@ const InstitutionDashboard = () => {
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
   const [addMemberDeptId, setAddMemberDeptId] = useState("");
   const [newMemberName, setNewMemberName] = useState("");
-  const [newMemberRole, setNewMemberRole] = useState<"student" | "lecturer">("student");
-  const [newMemberDob, setNewMemberDob] = useState("");
+  const [newMemberRole, setNewMemberRole] = useState<"student" | "lecturer" | "department_head">("student");
 
   // Payment
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
@@ -529,7 +528,7 @@ const InstitutionDashboard = () => {
         department_id: addMemberDeptId,
         full_name: newMemberName,
         role: newMemberRole,
-        date_of_birth: newMemberDob || null,
+        date_of_birth: null,
         invitation_code: code,
       });
       if (error) throw error;

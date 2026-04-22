@@ -227,6 +227,7 @@ const DepartmentPage = () => {
 
   const allLecturers = members.filter(m => m.role === "lecturer");
   const allStudents = members.filter(m => m.role === "student");
+  const deptHead = members.find(m => m.role === "department_head") || null;
   const lecturers = useMemo(() => filterMembers(allLecturers), [members, searchQuery, statusFilter]);
   const students = useMemo(() => filterMembers(allStudents), [members, searchQuery, statusFilter]);
 

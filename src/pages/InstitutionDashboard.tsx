@@ -220,8 +220,7 @@ const InstitutionDashboard = () => {
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
   const [addMemberDeptId, setAddMemberDeptId] = useState("");
   const [newMemberName, setNewMemberName] = useState("");
-  const [newMemberRole, setNewMemberRole] = useState<"student" | "lecturer">("student");
-  const [newMemberDob, setNewMemberDob] = useState("");
+  const [newMemberRole, setNewMemberRole] = useState<"student" | "lecturer" | "department_head">("student");
 
   // Payment
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
@@ -529,7 +528,7 @@ const InstitutionDashboard = () => {
         department_id: addMemberDeptId,
         full_name: newMemberName,
         role: newMemberRole,
-        date_of_birth: newMemberDob || null,
+        date_of_birth: null,
         invitation_code: code,
       });
       if (error) throw error;
@@ -540,7 +539,7 @@ const InstitutionDashboard = () => {
       });
       setShowAddMemberDialog(false);
       setNewMemberName("");
-      setNewMemberDob("");
+      setNewMemberRole("student");
       await loadInstitutionData(institutionId, institutionType || "college");
     } catch (error: any) {
       toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
@@ -2460,11 +2459,24 @@ const InstitutionDashboard = () => {
                   <UserCheck className="w-4 h-4" />
                   {isRtl ? "محاضر" : "Lecturer"}
                 </Button>
+                <Button
+                  type="button"
+                  variant={newMemberRole === "department_head" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setNewMemberRole("department_head")}
+                  className="flex-1 gap-1.5"
+                  disabled={getDeptHeadsCount(addMemberDeptId) >= 1}
+                  title={getDeptHeadsCount(addMemberDeptId) >= 1 ? (isRtl ? "تم تسجيل رئيس قسم بالفعل" : "Department head already registered") : ""}
+                >
+                  <UserCheck className="w-4 h-4" />
+                  {isRtl ? "رئيس قسم (مجاناً)" : "Head (Free)"}
+                </Button>
               </div>
-            </div>
-            <div>
-              <Label>{isRtl ? "تاريخ الميلاد (اختياري)" : "Date of Birth (optional)"}</Label>
-              <Input type="date" value={newMemberDob} onChange={e => setNewMemberDob(e.target.value)} />
+              {newMemberRole === "department_head" && (
+                <p className="text-xs text-amber-600 mt-2 font-semibold">
+                  {isRtl ? "✨ رئيس قسم واحد مجاني لكل قسم" : "✨ One free department head per department"}
+                </p>
+              )}
             </div>
           </div>
           <DialogFooter>

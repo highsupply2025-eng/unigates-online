@@ -2365,7 +2365,8 @@ const InstitutionDashboard = () => {
                   </div>
                   <h3 className="text-xl font-bold text-foreground">{invitationDept.department_name}</h3>
                 </div>
-                {(["lecturer", "student"] as const).map(viewKey => (
+                {(["lecturer", "student"] as const).map(viewKey => {
+                  return (
                 <div key={viewKey} className="space-y-3">
                 <div className="flex items-center gap-3 mb-1">
                   {viewKey === "lecturer" ? <UserCheck className="w-6 h-6 text-green-600" /> : <GraduationCap className="w-6 h-6 text-blue-600" />}
@@ -2741,7 +2742,8 @@ const InstitutionDashboard = () => {
                   );
                 })()}
                 </div>
-                ))}
+                );
+                })}
               </div>
             )}
           </TabsContent>

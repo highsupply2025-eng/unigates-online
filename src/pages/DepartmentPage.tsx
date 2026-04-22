@@ -446,6 +446,86 @@ const DepartmentPage = () => {
           </div>
         </div>
 
+        {/* Department Head Section */}
+        {deptHead && (() => {
+          const headInviteLink = `${baseUrl}/signup/${instPath}/department_head?code=${deptHead.invitation_code}`;
+          const headProfile = deptHead.user_id ? profilesMap[deptHead.user_id] : null;
+          const headLinked = !!deptHead.user_id;
+          const headShareText = isRtl
+            ? `مرحباً، يمكنك التسجيل كرئيس قسم عبر هذا الرابط:\n${headInviteLink}\nكود الدعوة: ${deptHead.invitation_code}`
+            : `Hi, register as Department Head:\n${headInviteLink}\nCode: ${deptHead.invitation_code}`;
+          return (
+            <Card className="mb-6 border-2 border-amber-500/40 bg-amber-50/30 dark:bg-amber-950/10">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Crown className="w-5 h-5 text-amber-600" />
+                  {isRtl ? "رئيس القسم" : "Department Head"}
+                  <Badge variant="outline" className="text-amber-600 border-amber-600 ms-2">
+                    {headLinked ? (isRtl ? "1/1" : "1/1") : (isRtl ? "0/1" : "0/1")}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-xl border-2 bg-background">
+                  <button
+                    type="button"
+                    onClick={() => headLinked && navigate(`/institution/member/${deptHead.id}`)}
+                    className="flex items-center gap-3 min-w-0 text-start hover:opacity-80 transition-opacity flex-1"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0 overflow-hidden">
+                      {headProfile?.live_photo_url ? (
+                        <img src={headProfile.live_photo_url} alt={headProfile.full_name} className="w-full h-full object-cover" />
+                      ) : <Crown className="w-5 h-5 text-amber-600" />}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-foreground text-sm sm:text-base truncate">
+                        {headProfile?.full_name || (isRtl ? "في انتظار التسجيل" : "Awaiting registration")}
+                      </p>
+                      {headLinked && headProfile ? (
+                        <>
+                          <p className="text-xs text-muted-foreground truncate">{headProfile.email}</p>
+                          <p className="text-xs text-muted-foreground truncate" dir="ltr">{headProfile.phone}</p>
+                        </>
+                      ) : (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {isRtl ? "⏳ شارك رابط الدعوة لتسجيل رئيس القسم" : "⏳ Share invitation link to register"}
+                        </p>
+                      )}
+                    </div>
+                  </button>
+                  {headLinked ? (
+                    <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 shrink-0">
+                      <UserCheck className="w-3.5 h-3.5" />
+                      {isRtl ? "مسجّل" : "Registered"}
+                    </Badge>
+                  ) : (
+                    <div className="flex items-center gap-1.5 flex-wrap sm:justify-end">
+                      <Button size="sm" variant="outline" className="text-xs h-8 px-2" onClick={() => copyToClipboard(deptHead.invitation_code!)}>
+                        <Copy className="w-3.5 h-3.5 me-1" />
+                        {isRtl ? "نسخ الكود" : "Copy Code"}
+                      </Button>
+                      <Button size="sm" variant="outline" className="text-xs h-8 px-2" onClick={() => copyToClipboard(headInviteLink)}>
+                        <LinkIcon className="w-3.5 h-3.5 me-1" />
+                        {isRtl ? "نسخ الرابط" : "Copy Link"}
+                      </Button>
+                      <a
+                        href={`https://wa.me/?text=${encodeURIComponent(headShareText)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
+                          <MessageCircle className="w-3.5 h-3.5 me-1" />
+                          {isRtl ? "واتساب" : "WhatsApp"}
+                        </Button>
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })()}
+
         {/* Lecturers Section */}
         <Card className="mb-6 border-2 border-green-500/20">
           <CardHeader className="pb-3">

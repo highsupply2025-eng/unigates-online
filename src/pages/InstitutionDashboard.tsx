@@ -935,6 +935,43 @@ const InstitutionDashboard = () => {
               </Button>
             </div>
 
+            {/* Department Head Section */}
+            <Card className="border-2 border-amber-300">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <UserCheck className="w-5 h-5 text-amber-600" />
+                  {isRtl ? "رئيس القسم" : "Department Head"}
+                  <Badge variant="outline" className="ms-2">{getMembersForDept(selectedDept.id).filter(m => m.role === "department_head" && m.user_id).length}</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {getMembersForDept(selectedDept.id).filter(m => m.role === "department_head" && m.user_id).length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد رئيس قسم مسجل" : "No registered department head"}</p>
+                ) : (
+                  <div className="space-y-2">
+                    {getMembersForDept(selectedDept.id).filter(m => m.role === "department_head" && m.user_id).map(member => (
+                      <div key={member.id} className="p-4 rounded-lg border-2 border-amber-300 bg-amber-50/50 dark:bg-amber-950/20">
+                        <div className="flex items-center justify-between cursor-pointer hover:bg-amber-100/40 dark:hover:bg-amber-900/30 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
+                              <UserCheck className="w-5 h-5 text-amber-700" />
+                            </div>
+                            <div>
+                              <p className="font-bold text-foreground">{member.full_name}</p>
+                              <p className="text-xs text-muted-foreground">{isRtl ? "✅ مفعّل" : "✅ Active"}</p>
+                            </div>
+                          </div>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); handleDeleteMember(member.id, member.full_name); }}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Lecturers Section */}
             <Card className="border-2">
               <CardHeader className="pb-2">

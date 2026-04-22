@@ -1565,13 +1565,30 @@ const InstitutionDashboard = () => {
                                   const text = isRtl
                                     ? `رابط الدعوة للانضمام كـ ${label.ar}:\n${inviteLink}`
                                     : `Invitation link to join as ${label.en}:\n${inviteLink}`;
+                                  const subject = isRtl ? `دعوة للانضمام كـ ${label.ar}` : `Invitation to join as ${label.en}`;
+                                  const gmailUrl = `https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
+                                  const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
                                   return (
-                                    <a href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
-                                      <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
-                                        <MessageCircle className="w-3.5 h-3.5 me-1" />
-                                        {isRtl ? "واتساب" : "WhatsApp"}
-                                      </Button>
-                                    </a>
+                                    <>
+                                      <a href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
+                                        <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
+                                          <MessageCircle className="w-3.5 h-3.5 me-1" />
+                                          {isRtl ? "واتساب" : "WhatsApp"}
+                                        </Button>
+                                      </a>
+                                      <a href={gmailUrl} target="_blank" rel="noopener noreferrer">
+                                        <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-red-600 border-red-300 hover:bg-red-50">
+                                          <Mail className="w-3.5 h-3.5 me-1" />
+                                          Gmail
+                                        </Button>
+                                      </a>
+                                      <a href={mailtoUrl}>
+                                        <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-blue-600 border-blue-300 hover:bg-blue-50">
+                                          <Mail className="w-3.5 h-3.5 me-1" />
+                                          {isRtl ? "إيميل" : "Email"}
+                                        </Button>
+                                      </a>
+                                    </>
                                   );
                                 })()}
                               </div>

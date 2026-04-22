@@ -241,6 +241,28 @@ const InstitutionDashboard = () => {
   const [pageView, setPageView] = useState<"main" | "members" | "memberProfile">("main");
   const [profilesMap, setProfilesMap] = useState<Record<string, { full_name: string; email: string; phone: string; role: string; created_at: string }>>({});
   const [leadershipMembers, setLeadershipMembers] = useState<Array<{ invitation_id: string; user_id: string; role: string; joined_at: string }>>([]);
+  // Mobile compact view: hides secondary widgets and shrinks card grids while scrolling
+  const [compactMode, setCompactMode] = useState(false);
+  const [scrolledFar, setScrolledFar] = useState(false);
+
+  // Auto-enable compact view while user scrolls down on mobile
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onScroll = () => {
+      const isMobileViewport = window.innerWidth < 768;
+      if (!isMobileViewport) {
+        setScrolledFar(false);
+        return;
+      }
+      setScrolledFar(window.scrollY > 240);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Effective compact view: manual toggle OR (mobile + scrolled far)
+  const isCompact = compactMode || scrolledFar;
 
   useEffect(() => {
     checkInstitutionAccess();

@@ -239,6 +239,8 @@ const InstitutionDashboard = () => {
   const [showMemberProfileDialog, setShowMemberProfileDialog] = useState(false);
   const [memberProfileTab, setMemberProfileTab] = useState<"info" | "stats">("info");
   const [pageView, setPageView] = useState<"main" | "members" | "memberProfile">("main");
+  const [profilesMap, setProfilesMap] = useState<Record<string, { full_name: string; email: string; phone: string; role: string; created_at: string }>>({});
+  const [leadershipMembers, setLeadershipMembers] = useState<Array<{ invitation_id: string; user_id: string; role: string; joined_at: string }>>([]);
 
   useEffect(() => {
     checkInstitutionAccess();
@@ -318,10 +320,10 @@ const InstitutionDashboard = () => {
     const filteredDepts = (depts || []).filter(d => !deletedDeptIdsRef.current.has(d.id));
     setDepartments(filteredDepts);
 
+    let allMembers: any[] = [];
     if (filteredDepts.length > 0) {
       const deptIds = filteredDepts.map(d => d.id);
       // Fetch all members in batches to avoid 1000-row limit
-      let allMembers: any[] = [];
       const batchSize = 1000;
       let from = 0;
       let hasMore = true;
@@ -339,6 +341,36 @@ const InstitutionDashboard = () => {
       setDeptMembers(allMembers);
     } else {
       setDeptMembers([]);
+    }
+
+    // Load leadership members (college only) — links invitations to user_ids
+    let leadershipMembersData: Array<{ invitation_id: string; user_id: string; role: string; joined_at: string }> = [];
+    if (instType === "college") {
+      const { data: cmData } = await supabase
+        .from("college_members")
+        .select("invitation_id, user_id, role, joined_at")
+        .eq("college_id", instId);
+      leadershipMembersData = (cmData || [])
+        .filter((m: any) => m.invitation_id && m.user_id)
+        .map((m: any) => ({ invitation_id: m.invitation_id, user_id: m.user_id, role: m.role, joined_at: m.joined_at }));
+    }
+    setLeadershipMembers(leadershipMembersData);
+
+    // Build profiles map for all linked users (dept members + leadership members)
+    const linkedUserIds = Array.from(new Set([
+      ...allMembers.filter((m: any) => m.user_id).map((m: any) => m.user_id),
+      ...leadershipMembersData.map(m => m.user_id),
+    ]));
+    if (linkedUserIds.length > 0) {
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, email, phone, role, created_at")
+        .in("user_id", linkedUserIds);
+      const map: Record<string, any> = {};
+      (profs || []).forEach((p: any) => { map[p.user_id] = p; });
+      setProfilesMap(map);
+    } else {
+      setProfilesMap({});
     }
 
     // Load live streams, attendance, quizzes, quiz submissions, assignments, and schedules
@@ -1075,56 +1107,73 @@ const InstitutionDashboard = () => {
             {memberProfileTab === "info" ? (
               <Card className="border-2">
                 <CardContent className="p-6 space-y-4">
-                  <div className="flex items-center gap-4 p-4 rounded-lg border">
-                    <User className="w-6 h-6 text-muted-foreground" />
-                    <div>
-                      <p className="text-xs text-muted-foreground">{isRtl ? "الاسم الكامل" : "Full Name"}</p>
-                      <p className="font-bold text-foreground text-lg">{selectedMember.full_name}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 p-4 rounded-lg border">
-                    <Users className="w-6 h-6 text-muted-foreground" />
-                    <div>
-                      <p className="text-xs text-muted-foreground">{isRtl ? "الدور" : "Role"}</p>
-                      <p className="font-bold text-foreground text-lg">
-                        {selectedMember.role === "lecturer" ? (isRtl ? "محاضر" : "Lecturer") : (isRtl ? "طالب" : "Student")}
-                      </p>
-                    </div>
-                  </div>
-                  {selectedMember.date_of_birth && (
-                    <div className="flex items-center gap-4 p-4 rounded-lg border">
-                      <Calendar className="w-6 h-6 text-muted-foreground" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">{isRtl ? "تاريخ الميلاد" : "Date of Birth"}</p>
-                        <p className="font-bold text-foreground text-lg">{selectedMember.date_of_birth}</p>
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-4 p-4 rounded-lg border">
-                    <LinkIcon className="w-6 h-6 text-muted-foreground" />
-                    <div>
-                      <p className="text-xs text-muted-foreground">{isRtl ? "حالة الحساب" : "Account Status"}</p>
-                      <p className="font-bold text-foreground text-lg">
-                        {selectedMember.user_id ? (isRtl ? "✅ مربوط بحساب" : "✅ Linked") : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending")}
-                      </p>
-                    </div>
-                  </div>
-                  {selectedMember.invitation_code && (
-                    <div className="flex items-center gap-4 p-4 rounded-lg border">
-                      <Ticket className="w-6 h-6 text-muted-foreground" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">{isRtl ? "كود الدعوة" : "Invitation Code"}</p>
-                        <code className="font-mono text-lg font-bold text-foreground">{selectedMember.invitation_code}</code>
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-4 p-4 rounded-lg border">
-                    <Clock className="w-6 h-6 text-muted-foreground" />
-                    <div>
-                      <p className="text-xs text-muted-foreground">{isRtl ? "تاريخ الانضمام" : "Joined Date"}</p>
-                      <p className="font-bold text-foreground text-lg">{new Date(selectedMember.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</p>
-                    </div>
-                  </div>
+                  {(() => {
+                    const linkedProfile = selectedMember.user_id ? profilesMap[selectedMember.user_id] : null;
+                    const roleLabelMap: Record<string, { ar: string; en: string }> = {
+                      lecturer: { ar: "محاضر", en: "Lecturer" },
+                      student: { ar: "طالب", en: "Student" },
+                      department_head: { ar: "رئيس قسم", en: "Department Head" },
+                      dean: { ar: "عميد الكلية", en: "Dean" },
+                      vice_dean_students: { ar: "وكيل الكلية لشئون الطلاب", en: "Vice Dean - Student Affairs" },
+                      vice_dean_postgrad: { ar: "وكيل الكلية للدراسات العليا", en: "Vice Dean - Postgraduate Studies" },
+                      vice_dean_environment: { ar: "وكيل الكلية لشئون البيئة", en: "Vice Dean - Environment Affairs" },
+                      vice_dean: { ar: "وكيل الكلية", en: "Vice Dean" },
+                    };
+                    const roleLabel = roleLabelMap[selectedMember.role] || { ar: selectedMember.role, en: selectedMember.role };
+                    const joinedDate = linkedProfile?.created_at || selectedMember.created_at;
+                    return (
+                      <>
+                        <div className="flex items-center gap-4 p-4 rounded-lg border">
+                          <User className="w-6 h-6 text-muted-foreground" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">{isRtl ? "الاسم الكامل" : "Full Name"}</p>
+                            <p className="font-bold text-foreground text-lg">{linkedProfile?.full_name || selectedMember.full_name}</p>
+                          </div>
+                        </div>
+                        {linkedProfile?.email && (
+                          <div className="flex items-center gap-4 p-4 rounded-lg border">
+                            <Mail className="w-6 h-6 text-muted-foreground" />
+                            <div className="min-w-0">
+                              <p className="text-xs text-muted-foreground">{isRtl ? "البريد الإلكتروني" : "Email"}</p>
+                              <p className="font-bold text-foreground text-lg break-all" dir="ltr">{linkedProfile.email}</p>
+                            </div>
+                          </div>
+                        )}
+                        {linkedProfile?.phone && (
+                          <div className="flex items-center gap-4 p-4 rounded-lg border">
+                            <Phone className="w-6 h-6 text-muted-foreground" />
+                            <div>
+                              <p className="text-xs text-muted-foreground">{isRtl ? "رقم الهاتف" : "Phone"}</p>
+                              <p className="font-bold text-foreground text-lg" dir="ltr">{linkedProfile.phone}</p>
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-4 p-4 rounded-lg border">
+                          <Users className="w-6 h-6 text-muted-foreground" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">{isRtl ? "الدور" : "Role"}</p>
+                            <p className="font-bold text-foreground text-lg">{isRtl ? roleLabel.ar : roleLabel.en}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4 p-4 rounded-lg border">
+                          <LinkIcon className="w-6 h-6 text-muted-foreground" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">{isRtl ? "حالة الحساب" : "Account Status"}</p>
+                            <p className="font-bold text-foreground text-lg">
+                              {selectedMember.user_id ? (isRtl ? "✅ مسجّل" : "✅ Registered") : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending")}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4 p-4 rounded-lg border">
+                          <Clock className="w-6 h-6 text-muted-foreground" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">{isRtl ? "تاريخ الانضمام" : "Joined Date"}</p>
+                            <p className="font-bold text-foreground text-lg">{new Date(joinedDate).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</p>
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </CardContent>
               </Card>
             ) : selectedMember.role === "lecturer" ? (
@@ -2143,6 +2192,9 @@ const InstitutionDashboard = () => {
                         const label = roleLabels[inv.role] || { ar: inv.role, en: inv.role, icon: <User className="w-5 h-5" /> };
                         const instPath = institutionType === "college" ? "college" : "institute";
                         const inviteLink = `${baseUrl}/signup/${instPath}/${inv.role}?code=${inv.invitation_code}`;
+                        const claimed = (inv.used_count || 0) >= 1;
+                        const linkedMember = leadershipMembers.find(lm => lm.invitation_id === inv.id);
+                        const linkedProfile = linkedMember ? profilesMap[linkedMember.user_id] : null;
                         return (
                           <div key={inv.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-xl border-2 bg-background">
                             <div className="flex items-center gap-3 min-w-0">
@@ -2151,41 +2203,70 @@ const InstitutionDashboard = () => {
                               </div>
                               <div className="min-w-0">
                                 <p className="font-bold text-foreground truncate">{isRtl ? label.ar : label.en}</p>
+                                {claimed && linkedProfile && (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedMember({
+                                        id: inv.id,
+                                        department_id: "",
+                                        full_name: linkedProfile.full_name,
+                                        role: inv.role,
+                                        date_of_birth: null,
+                                        photo_url: null,
+                                        invitation_code: inv.invitation_code,
+                                        user_id: linkedMember!.user_id,
+                                        created_at: linkedMember!.joined_at,
+                                      });
+                                      setMemberProfileTab("info");
+                                      setPageView("memberProfile");
+                                    }}
+                                    className="text-sm text-primary font-semibold hover:underline truncate text-start"
+                                  >
+                                    {linkedProfile.full_name}
+                                  </button>
+                                )}
                               </div>
                             </div>
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-xs h-8 px-2"
-                                onClick={() => copyToClipboard(inv.invitation_code)}
-                              >
-                                <Copy className="w-3.5 h-3.5 me-1" />
-                                {isRtl ? "نسخ الكود" : "Copy Code"}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-xs h-8 px-2"
-                                onClick={() => copyToClipboard(inviteLink)}
-                              >
-                                <LinkIcon className="w-3.5 h-3.5 me-1" />
-                                {isRtl ? "نسخ الرابط" : "Copy Link"}
-                              </Button>
-                              {(() => {
-                                const text = isRtl
-                                  ? `رابط الدعوة للانضمام كـ ${label.ar}:\n${inviteLink}`
-                                  : `Invitation link to join as ${label.en}:\n${inviteLink}`;
-                                return (
-                                  <a href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
-                                    <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
-                                      <MessageCircle className="w-3.5 h-3.5 me-1" />
-                                      {isRtl ? "واتساب" : "WhatsApp"}
-                                    </Button>
-                                  </a>
-                                );
-                              })()}
-                            </div>
+                            {claimed ? (
+                              <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1">
+                                <CheckCircle className="w-3.5 h-3.5" />
+                                {isRtl ? "مسجّل" : "Registered"}
+                              </Badge>
+                            ) : (
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-xs h-8 px-2"
+                                  onClick={() => copyToClipboard(inv.invitation_code)}
+                                >
+                                  <Copy className="w-3.5 h-3.5 me-1" />
+                                  {isRtl ? "نسخ الكود" : "Copy Code"}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-xs h-8 px-2"
+                                  onClick={() => copyToClipboard(inviteLink)}
+                                >
+                                  <LinkIcon className="w-3.5 h-3.5 me-1" />
+                                  {isRtl ? "نسخ الرابط" : "Copy Link"}
+                                </Button>
+                                {(() => {
+                                  const text = isRtl
+                                    ? `رابط الدعوة للانضمام كـ ${label.ar}:\n${inviteLink}`
+                                    : `Invitation link to join as ${label.en}:\n${inviteLink}`;
+                                  return (
+                                    <a href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
+                                      <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
+                                        <MessageCircle className="w-3.5 h-3.5 me-1" />
+                                        {isRtl ? "واتساب" : "WhatsApp"}
+                                      </Button>
+                                    </a>
+                                  );
+                                })()}
+                              </div>
+                            )}
                           </div>
                         );
                       });
@@ -2314,7 +2395,28 @@ const InstitutionDashboard = () => {
                               ? `مرحباً ${member.full_name}، يمكنك التسجيل كرئيس قسم عبر هذا الرابط:\n${inviteLink}\nكود الدعوة: ${member.invitation_code}`
                               : `Hi ${member.full_name}, register as Department Head:\n${inviteLink}\nCode: ${member.invitation_code}`;
                             const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
-                            return (
+                            return member.user_id ? (
+                              <button
+                                key={member.id}
+                                onClick={() => {
+                                  setSelectedMember(member);
+                                  setMemberProfileTab("info");
+                                  setPageView("memberProfile");
+                                }}
+                                className="w-full p-4 rounded-xl border-2 border-amber-300 bg-amber-50/50 dark:bg-amber-950/20 flex items-center justify-between hover:bg-amber-100/60 dark:hover:bg-amber-900/30 transition-colors text-start"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <div className="w-9 h-9 rounded-full bg-amber-500/20 flex items-center justify-center">
+                                    <UserCheck className="w-4 h-4 text-amber-700" />
+                                  </div>
+                                  <p className="font-bold text-sm text-foreground">{member.full_name}</p>
+                                </div>
+                                <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1">
+                                  <CheckCircle className="w-3.5 h-3.5" />
+                                  {isRtl ? "مسجّل" : "Registered"}
+                                </Badge>
+                              </button>
+                            ) : (
                               <div key={member.id} className="p-4 rounded-xl border-2 border-amber-300 bg-amber-50/50 dark:bg-amber-950/20">
                                 <div className="flex items-center justify-between mb-3">
                                   <div className="flex items-center gap-2">
@@ -2324,7 +2426,7 @@ const InstitutionDashboard = () => {
                                     <div>
                                       <p className="font-bold text-sm text-foreground">{member.full_name}</p>
                                       <p className="text-xs text-muted-foreground">
-                                        {member.user_id ? (isRtl ? "✅ مربوط بحساب" : "✅ Linked") : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending")}
+                                        {isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending"}
                                       </p>
                                     </div>
                                   </div>
@@ -2369,7 +2471,28 @@ const InstitutionDashboard = () => {
                         const subjectRaw = isRtl ? "دعوة للتسجيل في منصة إدراك" : "Edrak Platform Invitation";
                         const gmailUrl = `https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&su=${encodeURIComponent(subjectRaw)}&body=${encodeURIComponent(shareText)}`;
                         const yahooUrl = `https://compose.mail.yahoo.com/?subject=${encodeURIComponent(subjectRaw)}&body=${encodeURIComponent(shareText)}`;
-                        return (
+                        return member.user_id ? (
+                          <button
+                            key={member.id}
+                            onClick={() => {
+                              setSelectedMember(member);
+                              setMemberProfileTab("info");
+                              setPageView("memberProfile");
+                            }}
+                            className="w-full p-4 rounded-xl border bg-card flex items-center justify-between hover:bg-accent/50 transition-colors text-start"
+                          >
+                            <div className="flex items-center gap-2">
+                              <div className={`w-9 h-9 rounded-full ${invitationView === "lecturer" ? "bg-green-500/10" : "bg-blue-500/10"} flex items-center justify-center`}>
+                                {invitationView === "lecturer" ? <UserCheck className="w-4 h-4 text-green-600" /> : <GraduationCap className="w-4 h-4 text-blue-600" />}
+                              </div>
+                              <p className="font-bold text-sm text-foreground">{member.full_name}</p>
+                            </div>
+                            <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1">
+                              <CheckCircle className="w-3.5 h-3.5" />
+                              {isRtl ? "مسجّل" : "Registered"}
+                            </Badge>
+                          </button>
+                        ) : (
                           <div key={member.id} className="p-4 rounded-xl border bg-card">
                             <div className="flex items-center justify-between mb-3">
                               <div className="flex items-center gap-2">
@@ -2379,7 +2502,7 @@ const InstitutionDashboard = () => {
                                 <div>
                                   <p className="font-bold text-sm text-foreground">{member.full_name}</p>
                                   <p className="text-xs text-muted-foreground">
-                                    {member.user_id ? (isRtl ? "✅ مربوط بحساب" : "✅ Linked") : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending")}
+                                    {isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending"}
                                   </p>
                                 </div>
                               </div>

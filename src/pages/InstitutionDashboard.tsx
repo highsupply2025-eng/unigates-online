@@ -1466,7 +1466,7 @@ const InstitutionDashboard = () => {
                           <p className="text-xs text-muted-foreground">{isRtl ? "طلاب" : "Students"}</p>
                         </div>
                         <div className="text-center p-2 rounded-lg bg-green-500/10">
-                          <p className="text-lg font-bold text-green-600">{lecturers}</p>
+                          <p className="text-lg font-bold text-green-600">{lecturers}<span className="text-xs">/10</span></p>
                           <p className="text-xs text-muted-foreground">{isRtl ? "محاضرين" : "Lecturers"}</p>
                         </div>
                         <div className="text-center p-2 rounded-lg bg-amber-500/10">

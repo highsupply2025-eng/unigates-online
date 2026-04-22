@@ -2131,11 +2131,14 @@ const InstitutionDashboard = () => {
                       const isCollege = institutionType === "college";
                       const roleLabels: Record<string, { ar: string; en: string; icon: React.ReactNode }> = {
                         dean: { ar: isCollege ? "عميد الكلية" : "مدير المعهد", en: isCollege ? "Dean" : "Director", icon: <GraduationCap className="w-5 h-5 text-amber-600" /> },
-                        vice_dean: { ar: isCollege ? "وكيل الكلية" : "وكيل المعهد", en: isCollege ? "Vice Dean" : "Vice Director", icon: <Users className="w-5 h-5 text-purple-600" /> },
-                        department_head: { ar: "رئيس القسم", en: "Department Head", icon: <UserCheck className="w-5 h-5 text-blue-600" /> },
+                        vice_dean_students: { ar: isCollege ? "وكيل الكلية لشئون الطلاب" : "وكيل المعهد لشئون الطلاب", en: "Vice Dean - Student Affairs", icon: <Users className="w-5 h-5 text-purple-600" /> },
+                        vice_dean_postgrad: { ar: isCollege ? "وكيل الكلية للدراسات العليا" : "وكيل المعهد للدراسات العليا", en: "Vice Dean - Postgraduate Studies", icon: <Users className="w-5 h-5 text-blue-600" /> },
+                        vice_dean_environment: { ar: isCollege ? "وكيل الكلية لشئون البيئة" : "وكيل المعهد لشئون البيئة", en: "Vice Dean - Environment Affairs", icon: <Users className="w-5 h-5 text-green-600" /> },
                       };
-                      const roleOrder = ["dean", "vice_dean", "department_head"];
-                      const sorted = [...leadershipInvitations].sort((a: any, b: any) => roleOrder.indexOf(a.role) - roleOrder.indexOf(b.role));
+                      const roleOrder = ["dean", "vice_dean_students", "vice_dean_postgrad", "vice_dean_environment"];
+                      const sorted = [...leadershipInvitations]
+                        .filter((i: any) => roleOrder.includes(i.role))
+                        .sort((a: any, b: any) => roleOrder.indexOf(a.role) - roleOrder.indexOf(b.role));
                       return sorted.map((inv: any) => {
                         const label = roleLabels[inv.role] || { ar: inv.role, en: inv.role, icon: <User className="w-5 h-5" /> };
                         const instPath = institutionType === "college" ? "college" : "institute";

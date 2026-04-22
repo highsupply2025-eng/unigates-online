@@ -941,15 +941,15 @@ const InstitutionDashboard = () => {
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <UserCheck className="w-5 h-5 text-green-500" />
                   {isRtl ? "المحاضرون" : "Lecturers"}
-                  <Badge variant="outline" className="ms-2">{getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer").length}</Badge>
+                  <Badge variant="outline" className="ms-2">{getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer" && m.user_id).length}</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer").length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد محاضرون" : "No lecturers"}</p>
+                {getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer" && m.user_id).length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد محاضرون مسجلون" : "No registered lecturers"}</p>
                 ) : (
                   <div className="space-y-2">
-                    {getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer").map(member => (
+                    {getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer" && m.user_id).map(member => (
                       <div key={member.id} className="p-4 rounded-lg border bg-card">
                         <div className="flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
                           <div className="flex items-center gap-3">
@@ -1002,15 +1002,15 @@ const InstitutionDashboard = () => {
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <GraduationCap className="w-5 h-5 text-blue-500" />
                   {isRtl ? "الطلاب" : "Students"}
-                  <Badge variant="outline" className="ms-2">{getMembersForDept(selectedDept.id).filter(m => m.role === "student").length}</Badge>
+                  <Badge variant="outline" className="ms-2">{getMembersForDept(selectedDept.id).filter(m => m.role === "student" && m.user_id).length}</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {getMembersForDept(selectedDept.id).filter(m => m.role === "student").length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد طلاب" : "No students"}</p>
+                {getMembersForDept(selectedDept.id).filter(m => m.role === "student" && m.user_id).length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد طلاب مسجلون" : "No registered students"}</p>
                 ) : (
                   <div className="space-y-2">
-                    {getMembersForDept(selectedDept.id).filter(m => m.role === "student").map(member => (
+                    {getMembersForDept(selectedDept.id).filter(m => m.role === "student" && m.user_id).map(member => (
                       <div key={member.id} className="p-4 rounded-lg border bg-card">
                         <div className="flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
                           <div className="flex items-center gap-3">

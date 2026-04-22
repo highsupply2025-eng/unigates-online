@@ -589,12 +589,15 @@ const DepartmentPage = () => {
         })()}
 
         {/* Lecturers Section */}
-        <Card className="mb-6 border-2 border-green-500/20">
-          <CardHeader className="pb-3">
+        <Card className="mb-8 border-2 border-green-500/30 shadow-md overflow-hidden">
+          <div className="bg-gradient-to-r from-green-500 to-emerald-600 h-1.5" />
+          <CardHeader className="pb-3 pt-4 bg-green-50/40 dark:bg-green-950/10">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <UserCheck className="w-5 h-5 text-green-600" />
-              {isRtl ? "المحاضرون" : "Lecturers"}
-              <Badge variant="outline" className="text-green-600 border-green-600 ms-2">
+              <div className="w-9 h-9 rounded-lg bg-green-500/15 flex items-center justify-center">
+                <UserCheck className="w-5 h-5 text-green-600" />
+              </div>
+              <span className="font-extrabold">{isRtl ? "المحاضرون" : "Lecturers"}</span>
+              <Badge variant="outline" className="text-green-700 border-green-500 bg-green-100/60 ms-2 font-bold">
                 {lecturers.length}/{allLecturers.length}
               </Badge>
             </CardTitle>

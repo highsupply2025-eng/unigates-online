@@ -1205,7 +1205,7 @@ const InstitutionDashboard = () => {
               <BookOpen className="w-5 h-5 text-blue-500" />
               {isRtl ? "الأقسام والأعضاء" : "Departments & Members"}
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
               <Card className="border border-primary/20">
                 <CardContent className="p-4 text-center">
                   <div className="flex items-center justify-center gap-1.5">
@@ -1213,6 +1213,24 @@ const InstitutionDashboard = () => {
                     <TrendIndicator data={bucketByDay(departments.map((d: any) => d.created_at).filter(Boolean), 7)} />
                   </div>
                   <p className="text-xs text-muted-foreground">{isRtl ? "الأقسام" : "Departments"}</p>
+                </CardContent>
+              </Card>
+              <Card className="border border-rose-500/20">
+                <CardContent className="p-4 text-center">
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-2xl font-black text-rose-600">{deptMembers.filter((m: any) => m.role === "dean").length}</p>
+                    <TrendIndicator data={bucketByDay(deptMembers.filter((m: any) => m.role === "dean").map((m: any) => m.created_at).filter(Boolean), 7)} />
+                  </div>
+                  <p className="text-xs text-muted-foreground">{isRtl ? (institutionType === "college" ? "عميد الكلية" : "مدير المعهد") : (institutionType === "college" ? "Dean" : "Director")}</p>
+                </CardContent>
+              </Card>
+              <Card className="border border-purple-500/20">
+                <CardContent className="p-4 text-center">
+                  <div className="flex items-center justify-center gap-1.5">
+                    <p className="text-2xl font-black text-purple-600">{deptMembers.filter((m: any) => m.role === "vice_dean").length}</p>
+                    <TrendIndicator data={bucketByDay(deptMembers.filter((m: any) => m.role === "vice_dean").map((m: any) => m.created_at).filter(Boolean), 7)} />
+                  </div>
+                  <p className="text-xs text-muted-foreground">{isRtl ? (institutionType === "college" ? "وكلاء الكلية" : "وكلاء المعهد") : (institutionType === "college" ? "Vice Deans" : "Vice Directors")}</p>
                 </CardContent>
               </Card>
               <Card className="border border-indigo-500/20">

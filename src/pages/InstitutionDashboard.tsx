@@ -2288,10 +2288,13 @@ const InstitutionDashboard = () => {
                   </h3>
                 </div>
                 {(() => {
-                  const members = getMembersForDept(invitationDept.id).filter(m => m.role === invitationView);
                   const baseUrl = window.location.origin;
                   const roleParam = invitationView === "lecturer" ? "lecturer" : "student";
-                  if (members.length === 0) return (
+                  const headMembers = invitationView === "lecturer"
+                    ? getMembersForDept(invitationDept.id).filter(m => m.role === "department_head")
+                    : [];
+                  const members = getMembersForDept(invitationDept.id).filter(m => m.role === invitationView);
+                  if (members.length === 0 && headMembers.length === 0) return (
                     <p className="text-sm text-muted-foreground py-4 text-center">
                       {invitationView === "lecturer" ? (isRtl ? "لا يوجد محاضرون" : "No lecturers") : (isRtl ? "لا يوجد طلاب" : "No students")}
                     </p>

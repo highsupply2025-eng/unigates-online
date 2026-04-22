@@ -1471,7 +1471,7 @@ const InstitutionDashboard = () => {
                         </div>
                         <div className="text-center p-2 rounded-lg bg-amber-500/10">
                           <p className="text-lg font-bold text-amber-600">{heads}<span className="text-xs">/1</span></p>
-                          <p className="text-xs text-muted-foreground">{isRtl ? "رئيس قسم (مجاناً)" : "Head (Free)"}</p>
+                          <p className="text-xs text-muted-foreground">{isRtl ? "رئيس قسم" : "Head"}</p>
                         </div>
                         <div className="text-center p-2 rounded-lg bg-primary/10">
                           <p className="text-lg font-bold text-primary">{dept.payment_amount}</p>

@@ -1602,8 +1602,8 @@ const InstitutionDashboard = () => {
               </Card>
             )}
 
-            <div className="flex items-center justify-between mb-4 gap-3">
-              <div className="relative flex-1 max-w-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+              <div className="relative flex-1 sm:max-w-sm">
                 <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder={isRtl ? "بحث في الأقسام..." : "Search departments..."}
@@ -1612,7 +1612,7 @@ const InstitutionDashboard = () => {
                   className="ps-10"
                 />
               </div>
-              <Button onClick={() => setShowAddDeptDialog(true)} className="gap-2">
+              <Button onClick={() => setShowAddDeptDialog(true)} className="gap-2 w-full sm:w-auto shrink-0">
                 <Plus className="w-4 h-4" />
                 {isRtl ? "إضافة قسم" : "Add Department"}
               </Button>

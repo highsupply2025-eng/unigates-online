@@ -91,6 +91,24 @@ const DepartmentPage = () => {
         hasMore = (batch?.length || 0) === 1000;
         from += 1000;
       }
+
+      // Auto-ensure a department_head invitation slot exists (only one allowed per department)
+      const hasHead = allMembers.some(m => m.role === "department_head");
+      if (!hasHead) {
+        const headInsert = {
+          department_id: deptId,
+          full_name: isRtl ? "رئيس القسم" : "Department Head",
+          role: "department_head",
+          invitation_code: crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase(),
+        };
+        const { data: newHead } = await supabase
+          .from("department_members")
+          .insert(headInsert)
+          .select()
+          .maybeSingle();
+        if (newHead) allMembers = [...allMembers, newHead as DepartmentMember];
+      }
+
       setMembers(allMembers);
 
       // Fetch profile data for linked members

@@ -644,6 +644,9 @@ const InstitutionDashboard = () => {
     const dept = departments.find(d => d.id === deptId);
     return (dept as any)?.lecturer_count || 0;
   };
+  const getDeptHeadsCount = (deptId: string) => {
+    return getMembersForDept(deptId).filter(m => m.role === "department_head").length;
+  };
 
   const totalStudents = departments.reduce((sum, d) => sum + getStudentsCount(d.id), 0);
   const totalLecturers = departments.reduce((sum, d) => sum + getLecturersCount(d.id), 0);

@@ -2438,45 +2438,68 @@ const InstitutionDashboard = () => {
             </div>
             <div>
               <Label>{isRtl ? "الدور" : "Role"}</Label>
-              <div className="flex gap-3 mt-1">
-                <Button
-                  type="button"
-                  variant={newMemberRole === "student" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setNewMemberRole("student")}
-                  className="flex-1 gap-1.5"
-                >
-                  <GraduationCap className="w-4 h-4" />
-                  {isRtl ? "طالب" : "Student"}
-                </Button>
-                <Button
-                  type="button"
-                  variant={newMemberRole === "lecturer" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setNewMemberRole("lecturer")}
-                  className="flex-1 gap-1.5"
-                >
-                  <UserCheck className="w-4 h-4" />
-                  {isRtl ? "محاضر" : "Lecturer"}
-                </Button>
-                <Button
-                  type="button"
-                  variant={newMemberRole === "department_head" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setNewMemberRole("department_head")}
-                  className="flex-1 gap-1.5"
-                  disabled={getDeptHeadsCount(addMemberDeptId) >= 1}
-                  title={getDeptHeadsCount(addMemberDeptId) >= 1 ? (isRtl ? "تم تسجيل رئيس قسم بالفعل" : "Department head already registered") : ""}
-                >
-                  <UserCheck className="w-4 h-4" />
-                  {isRtl ? "رئيس قسم (مجاناً)" : "Head (Free)"}
-                </Button>
-              </div>
-              {newMemberRole === "department_head" && (
-                <p className="text-xs text-amber-600 mt-2 font-semibold">
-                  {isRtl ? "✨ رئيس قسم واحد مجاني لكل قسم" : "✨ One free department head per department"}
-                </p>
-              )}
+              {(() => {
+                const dept = departments.find(d => d.id === addMemberDeptId);
+                const studentCap = dept?.student_count || 0;
+                const lecturerCap = (dept as any)?.lecturer_count || 0;
+                const studentsRegistered = getMembersForDept(addMemberDeptId).filter(m => m.role === "student").length;
+                const lecturersRegistered = getMembersForDept(addMemberDeptId).filter(m => m.role === "lecturer").length;
+                const headsRegistered = getDeptHeadsCount(addMemberDeptId);
+                const studentFull = studentCap > 0 && studentsRegistered >= studentCap;
+                const lecturerFull = lecturerCap > 0 && lecturersRegistered >= lecturerCap;
+                const headFull = headsRegistered >= 1;
+                return (
+                  <>
+                    <div className="flex gap-3 mt-1">
+                      <Button
+                        type="button"
+                        variant={newMemberRole === "student" ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setNewMemberRole("student")}
+                        className="flex-1 gap-1.5"
+                        disabled={studentFull}
+                        title={studentFull ? (isRtl ? `تم الوصول للحد الأقصى (${studentCap})` : `Max reached (${studentCap})`) : ""}
+                      >
+                        <GraduationCap className="w-4 h-4" />
+                        {isRtl ? "طالب" : "Student"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={newMemberRole === "lecturer" ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setNewMemberRole("lecturer")}
+                        className="flex-1 gap-1.5"
+                        disabled={lecturerFull}
+                        title={lecturerFull ? (isRtl ? `تم الوصول للحد الأقصى (${lecturerCap})` : `Max reached (${lecturerCap})`) : ""}
+                      >
+                        <UserCheck className="w-4 h-4" />
+                        {isRtl ? "محاضر" : "Lecturer"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={newMemberRole === "department_head" ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setNewMemberRole("department_head")}
+                        className="flex-1 gap-1.5"
+                        disabled={headFull}
+                        title={headFull ? (isRtl ? "تم تسجيل رئيس قسم بالفعل" : "Department head already registered") : ""}
+                      >
+                        <UserCheck className="w-4 h-4" />
+                        {isRtl ? "رئيس قسم" : "Head"}
+                      </Button>
+                    </div>
+                    {newMemberRole === "student" && studentCap > 0 && (
+                      <p className="text-xs text-muted-foreground mt-2">{isRtl ? `المسجلون: ${studentsRegistered} / ${studentCap}` : `Registered: ${studentsRegistered} / ${studentCap}`}</p>
+                    )}
+                    {newMemberRole === "lecturer" && lecturerCap > 0 && (
+                      <p className="text-xs text-muted-foreground mt-2">{isRtl ? `المسجلون: ${lecturersRegistered} / ${lecturerCap}` : `Registered: ${lecturersRegistered} / ${lecturerCap}`}</p>
+                    )}
+                    {newMemberRole === "department_head" && (
+                      <p className="text-xs text-muted-foreground mt-2">{isRtl ? `المسجلون: ${headsRegistered} / 1` : `Registered: ${headsRegistered} / 1`}</p>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
           <DialogFooter>

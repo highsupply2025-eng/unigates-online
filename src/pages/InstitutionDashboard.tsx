@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
@@ -188,6 +188,7 @@ const InstitutionDashboard = () => {
 
   const [departments, setDepartments] = useState<Department[]>([]);
   const [deletedDeptIds, setDeletedDeptIds] = useState<Set<string>>(new Set());
+  const deletedDeptIdsRef = useRef<Set<string>>(new Set());
   const [deptMembers, setDeptMembers] = useState<DepartmentMember[]>([]);
   const [deptSearch, setDeptSearch] = useState("");
   const [isLeadershipRole, setIsLeadershipRole] = useState(false);
@@ -243,6 +244,10 @@ const InstitutionDashboard = () => {
   useEffect(() => {
     checkInstitutionAccess();
   }, []);
+
+  useEffect(() => {
+    deletedDeptIdsRef.current = deletedDeptIds;
+  }, [deletedDeptIds]);
 
   const checkInstitutionAccess = async () => {
     try {
@@ -311,7 +316,7 @@ const InstitutionDashboard = () => {
       .eq("institution_id", instId)
       .eq("institution_type", instType)
       .order("created_at", { ascending: false });
-    const filteredDepts = (depts || []).filter(d => !deletedDeptIds.has(d.id));
+    const filteredDepts = (depts || []).filter(d => !deletedDeptIdsRef.current.has(d.id));
     setDepartments(filteredDepts);
 
     if (filteredDepts.length > 0) {
@@ -581,18 +586,35 @@ const InstitutionDashboard = () => {
 
 
   const handleDeleteDepartment = async (deptId: string, deptName: string) => {
-    // Track deleted IDs to prevent re-appearing after reload
-    setDeletedDeptIds(prev => new Set(prev).add(deptId));
-    setDepartments(prev => prev.filter(d => d.id !== deptId));
-    setDeptMembers(prev => prev.filter(m => m.department_id !== deptId));
-    sonnerToast.success(isRtl ? "تم حذف القسم" : "Department Deleted", { description: deptName, duration: 2000 });
-
     try {
-      await supabase.from("department_members").delete().eq("department_id", deptId);
-      await supabase.from("departments").delete().eq("id", deptId);
+      const { error: membersError } = await supabase
+        .from("department_members")
+        .delete()
+        .eq("department_id", deptId);
+
+      if (membersError) throw membersError;
+
+      const { error: departmentError } = await supabase
+        .from("departments")
+        .delete()
+        .eq("id", deptId);
+
+      if (departmentError) throw departmentError;
+
+      setDeletedDeptIds(prev => {
+        const next = new Set(prev);
+        next.add(deptId);
+        deletedDeptIdsRef.current = next;
+        return next;
+      });
+      setDepartments(prev => prev.filter(d => d.id !== deptId));
+      setDeptMembers(prev => prev.filter(m => m.department_id !== deptId));
+      sonnerToast.success(isRtl ? "تم حذف القسم" : "Department Deleted", { description: deptName, duration: 2000 });
     } catch (error: any) {
-      sonnerToast.error(isRtl ? "خطأ في الحذف" : "Delete Error", { description: error.message, duration: 3000 });
-      setDeletedDeptIds(prev => { const s = new Set(prev); s.delete(deptId); return s; });
+      sonnerToast.error(isRtl ? "تعذر حذف القسم" : "Delete Error", {
+        description: error?.message || (isRtl ? "فشل حذف القسم من قاعدة البيانات" : "Failed to delete department from database"),
+        duration: 3000,
+      });
       await loadInstitutionData(institutionId, institutionType || "college");
     }
   };

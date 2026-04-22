@@ -374,10 +374,8 @@ const InstitutionDashboard = () => {
     Object.entries(counts).forEach(([sid, set]) => { countMap[sid] = set.size; });
     setStreamAttendance(countMap);
 
-    // Load or create leadership invitations
-    const leadershipRoles = instType === "college" 
-      ? ["department_head", "vice_dean", "dean"] 
-      : ["department_head", "vice_dean", "dean"];
+    // Load or create leadership invitations (Dean + 3 Vice Deans, no department head — that's per-department)
+    const leadershipRoles = ["dean", "vice_dean_students", "vice_dean_postgrad", "vice_dean_environment"];
     const tableName = instType === "college" ? "college_invitations" : "institute_invitations";
     const idColumn = instType === "college" ? "college_id" : "institute_id";
 

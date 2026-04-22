@@ -231,7 +231,7 @@ const Login = () => {
                   <UserPlus className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold">{t.signup}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/')} className="gap-2 cursor-pointer">
+                <DropdownMenuItem onClick={() => navigate('/university-platform')} className="gap-2 cursor-pointer">
                   <Home className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold">{t.home}</span>
                 </DropdownMenuItem>

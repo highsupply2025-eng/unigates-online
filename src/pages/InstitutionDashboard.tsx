@@ -343,6 +343,36 @@ const InstitutionDashboard = () => {
       setDeptMembers([]);
     }
 
+    // Load leadership members (college only) — links invitations to user_ids
+    let leadershipMembersData: Array<{ invitation_id: string; user_id: string; role: string; joined_at: string }> = [];
+    if (instType === "college") {
+      const { data: cmData } = await supabase
+        .from("college_members")
+        .select("invitation_id, user_id, role, joined_at")
+        .eq("college_id", instId);
+      leadershipMembersData = (cmData || [])
+        .filter((m: any) => m.invitation_id && m.user_id)
+        .map((m: any) => ({ invitation_id: m.invitation_id, user_id: m.user_id, role: m.role, joined_at: m.joined_at }));
+    }
+    setLeadershipMembers(leadershipMembersData);
+
+    // Build profiles map for all linked users (dept members + leadership members)
+    const linkedUserIds = Array.from(new Set([
+      ...allMembers.filter((m: any) => m.user_id).map((m: any) => m.user_id),
+      ...leadershipMembersData.map(m => m.user_id),
+    ]));
+    if (linkedUserIds.length > 0) {
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, email, phone, role, created_at")
+        .in("user_id", linkedUserIds);
+      const map: Record<string, any> = {};
+      (profs || []).forEach((p: any) => { map[p.user_id] = p; });
+      setProfilesMap(map);
+    } else {
+      setProfilesMap({});
+    }
+
     // Load live streams, attendance, quizzes, quiz submissions, assignments, and schedules
     const [streamsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, ratingsRes, assignmentsRes, assignSubsRes, resultsRes, instQuizzesRes] = await Promise.all([
       supabase.from("live_streams").select("*").order("scheduled_at", { ascending: false }).limit(50),

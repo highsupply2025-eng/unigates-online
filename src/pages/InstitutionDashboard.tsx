@@ -2740,6 +2740,8 @@ const InstitutionDashboard = () => {
                     </div>
                   );
                 })()}
+                </div>
+                ))}
               </div>
             )}
           </TabsContent>

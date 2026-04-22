@@ -25,6 +25,9 @@ const roleConfig: Record<string, { icon: any; labelAr: string; labelEn: string; 
   lecturer: { icon: BookOpen, labelAr: "محاضر", labelEn: "Lecturer", gradient: "from-emerald-500 to-emerald-700", shadow: "shadow-emerald-500/30", appRole: "lecturer" },
   department_head: { icon: UserCog, labelAr: "رئيس قسم", labelEn: "Department Head", gradient: "from-amber-500 to-amber-700", shadow: "shadow-amber-500/30", appRole: "department_head" },
   vice_dean: { icon: Shield, labelAr: "وكيل الكلية", labelEn: "Vice Dean", gradient: "from-purple-500 to-purple-700", shadow: "shadow-purple-500/30", appRole: "vice_dean" },
+  vice_dean_students: { icon: Shield, labelAr: "وكيل الكلية لشئون الطلاب", labelEn: "Vice Dean - Student Affairs", gradient: "from-purple-500 to-purple-700", shadow: "shadow-purple-500/30", appRole: "vice_dean" },
+  vice_dean_postgrad: { icon: Shield, labelAr: "وكيل الكلية للدراسات العليا", labelEn: "Vice Dean - Postgraduate Studies", gradient: "from-blue-500 to-blue-700", shadow: "shadow-blue-500/30", appRole: "vice_dean" },
+  vice_dean_environment: { icon: Shield, labelAr: "وكيل الكلية لشئون البيئة", labelEn: "Vice Dean - Environment Affairs", gradient: "from-green-500 to-green-700", shadow: "shadow-green-500/30", appRole: "vice_dean" },
   dean: { icon: Crown, labelAr: "عميد الكلية", labelEn: "Dean", gradient: "from-rose-500 to-rose-700", shadow: "shadow-rose-500/30", appRole: "dean" },
   admin: { icon: Building2, labelAr: "إدارة الكلية", labelEn: "College Admin", gradient: "from-primary to-[hsl(200,75%,30%)]", shadow: "shadow-primary/30", appRole: "lecturer" },
 };

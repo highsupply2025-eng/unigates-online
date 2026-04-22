@@ -2441,7 +2441,7 @@ const InstitutionDashboard = () => {
               {(() => {
                 const dept = departments.find(d => d.id === addMemberDeptId);
                 const studentCap = dept?.student_count || 0;
-                const lecturerCap = (dept as any)?.lecturer_count || 0;
+                const lecturerCap = 10;
                 const studentsRegistered = getMembersForDept(addMemberDeptId).filter(m => m.role === "student").length;
                 const lecturersRegistered = getMembersForDept(addMemberDeptId).filter(m => m.role === "lecturer").length;
                 const headsRegistered = getDeptHeadsCount(addMemberDeptId);

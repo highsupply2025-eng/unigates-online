@@ -1469,10 +1469,122 @@ const InstitutionDashboard = () => {
 
           {/* Departments Tab */}
           <TabsContent value="departments">
-            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
-              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-              {isRtl ? "الرئيسية" : "Home"}
-            </Button>
+            {/* Free Leadership Links - shown above departments */}
+            {leadershipInvitations.length > 0 && (
+              <Card className="mb-6 border-2 border-emerald-500/30 bg-emerald-50/30 dark:bg-emerald-950/10">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Star className="w-5 h-5 text-emerald-600" />
+                    {isRtl ? "روابط القيادة المجانية" : "Free Leadership Links"}
+                    <Badge variant="default" className="bg-emerald-600 text-white ms-2">{isRtl ? "مجاني" : "Free"}</Badge>
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    {isRtl ? "روابط دعوة مجانية لأعضاء القيادة - كل رابط صالح لاستخدام واحد" : "Free invitation links for leadership members - each link valid for one use"}
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {(() => {
+                      const baseUrl = window.location.origin;
+                      const isCollege = institutionType === "college";
+                      const roleLabels: Record<string, { ar: string; en: string; icon: React.ReactNode }> = {
+                        dean: { ar: isCollege ? "عميد الكلية" : "مدير المعهد", en: isCollege ? "Dean" : "Director", icon: <GraduationCap className="w-5 h-5 text-amber-600" /> },
+                        vice_dean_students: { ar: isCollege ? "وكيل الكلية لشئون الطلاب" : "وكيل المعهد لشئون الطلاب", en: "Vice Dean - Student Affairs", icon: <Users className="w-5 h-5 text-purple-600" /> },
+                        vice_dean_postgrad: { ar: isCollege ? "وكيل الكلية للدراسات العليا" : "وكيل المعهد للدراسات العليا", en: "Vice Dean - Postgraduate Studies", icon: <Users className="w-5 h-5 text-blue-600" /> },
+                        vice_dean_environment: { ar: isCollege ? "وكيل الكلية لشئون البيئة" : "وكيل المعهد لشئون البيئة", en: "Vice Dean - Environment Affairs", icon: <Users className="w-5 h-5 text-green-600" /> },
+                      };
+                      const roleOrder = ["dean", "vice_dean_students", "vice_dean_postgrad", "vice_dean_environment"];
+                      const sorted = [...leadershipInvitations]
+                        .filter((i: any) => roleOrder.includes(i.role))
+                        .sort((a: any, b: any) => roleOrder.indexOf(a.role) - roleOrder.indexOf(b.role));
+                      return sorted.map((inv: any) => {
+                        const label = roleLabels[inv.role] || { ar: inv.role, en: inv.role, icon: <User className="w-5 h-5" /> };
+                        const instPath = institutionType === "college" ? "college" : "institute";
+                        const inviteLink = `${baseUrl}/signup/${instPath}/${inv.role}?code=${inv.invitation_code}`;
+                        const claimed = (inv.used_count || 0) >= 1;
+                        const linkedMember = leadershipMembers.find(lm => lm.invitation_id === inv.id);
+                        const linkedProfile = linkedMember ? profilesMap[linkedMember.user_id] : null;
+                        return (
+                          <div key={inv.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-xl border-2 bg-background">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="w-10 h-10 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
+                                {label.icon}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-bold text-foreground truncate">{isRtl ? label.ar : label.en}</p>
+                                {claimed && linkedProfile && (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedMember({
+                                        id: inv.id,
+                                        department_id: "",
+                                        full_name: linkedProfile.full_name,
+                                        role: inv.role,
+                                        date_of_birth: null,
+                                        photo_url: null,
+                                        invitation_code: inv.invitation_code,
+                                        user_id: linkedMember!.user_id,
+                                        created_at: linkedMember!.joined_at,
+                                      });
+                                      setMemberProfileTab("info");
+                                      setPageView("memberProfile");
+                                    }}
+                                    className="text-sm text-primary font-semibold hover:underline truncate text-start"
+                                  >
+                                    {linkedProfile.full_name}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                            {claimed ? (
+                              <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1">
+                                <CheckCircle className="w-3.5 h-3.5" />
+                                {isRtl ? "مسجّل" : "Registered"}
+                              </Badge>
+                            ) : (
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-xs h-8 px-2"
+                                  onClick={() => copyToClipboard(inv.invitation_code)}
+                                >
+                                  <Copy className="w-3.5 h-3.5 me-1" />
+                                  {isRtl ? "نسخ الكود" : "Copy Code"}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-xs h-8 px-2"
+                                  onClick={() => copyToClipboard(inviteLink)}
+                                >
+                                  <LinkIcon className="w-3.5 h-3.5 me-1" />
+                                  {isRtl ? "نسخ الرابط" : "Copy Link"}
+                                </Button>
+                                {(() => {
+                                  const text = isRtl
+                                    ? `رابط الدعوة للانضمام كـ ${label.ar}:\n${inviteLink}`
+                                    : `Invitation link to join as ${label.en}:\n${inviteLink}`;
+                                  return (
+                                    <a href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
+                                      <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
+                                        <MessageCircle className="w-3.5 h-3.5 me-1" />
+                                        {isRtl ? "واتساب" : "WhatsApp"}
+                                      </Button>
+                                    </a>
+                                  );
+                                })()}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             <div className="flex items-center justify-between mb-4 gap-3">
               <div className="relative flex-1 max-w-sm">
                 <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />

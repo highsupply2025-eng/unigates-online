@@ -2301,6 +2301,64 @@ const InstitutionDashboard = () => {
                   );
                   return (
                     <div className="space-y-3">
+                      {invitationView === "lecturer" && headMembers.length > 0 && (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 mb-1">
+                            <UserCheck className="w-4 h-4 text-amber-600" />
+                            <h4 className="text-sm font-bold text-amber-700">{isRtl ? "رئيس القسم" : "Department Head"}</h4>
+                          </div>
+                          {headMembers.map(member => {
+                            const instPath = institutionType === "college" ? "college" : "institute";
+                            const inviteLink = `${baseUrl}/signup/${instPath}/department_head?code=${member.invitation_code}`;
+                            const shareText = isRtl
+                              ? `مرحباً ${member.full_name}، يمكنك التسجيل كرئيس قسم عبر هذا الرابط:\n${inviteLink}\nكود الدعوة: ${member.invitation_code}`
+                              : `Hi ${member.full_name}, register as Department Head:\n${inviteLink}\nCode: ${member.invitation_code}`;
+                            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+                            return (
+                              <div key={member.id} className="p-4 rounded-xl border-2 border-amber-300 bg-amber-50/50 dark:bg-amber-950/20">
+                                <div className="flex items-center justify-between mb-3">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-9 h-9 rounded-full bg-amber-500/20 flex items-center justify-center">
+                                      <UserCheck className="w-4 h-4 text-amber-700" />
+                                    </div>
+                                    <div>
+                                      <p className="font-bold text-sm text-foreground">{member.full_name}</p>
+                                      <p className="text-xs text-muted-foreground">
+                                        {member.user_id ? (isRtl ? "✅ مربوط بحساب" : "✅ Linked") : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending")}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" title="WhatsApp">
+                                    <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-green-500/10 rounded-full">
+                                      <MessageCircle className="w-4 h-4 text-green-600" />
+                                    </Button>
+                                  </a>
+                                </div>
+                                {member.invitation_code && (
+                                  <div className="space-y-2 bg-background/70 rounded-lg p-3">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-xs font-bold text-muted-foreground min-w-[45px]">{isRtl ? "الكود:" : "Code:"}</span>
+                                      <code className="text-sm font-mono bg-background px-2 py-1 rounded border flex-1">{member.invitation_code}</code>
+                                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => copyToClipboard(member.invitation_code!)}><Copy className="w-3.5 h-3.5" /></Button>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-xs font-bold text-muted-foreground min-w-[45px]">{isRtl ? "الرابط:" : "Link:"}</span>
+                                      <code className="text-xs font-mono bg-background px-2 py-1 rounded border flex-1 truncate" dir="ltr">{inviteLink}</code>
+                                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => copyToClipboard(inviteLink)}><Copy className="w-3.5 h-3.5" /></Button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                          {members.length > 0 && (
+                            <div className="flex items-center gap-2 mt-4 mb-1">
+                              <UserCheck className="w-4 h-4 text-green-600" />
+                              <h4 className="text-sm font-bold text-green-700">{isRtl ? "المحاضرون" : "Lecturers"}</h4>
+                            </div>
+                          )}
+                        </div>
+                      )}
                       {members.map(member => {
                         const instPath = institutionType === "college" ? "college" : "institute";
                         const inviteLink = `${baseUrl}/signup/${instPath}/${roleParam}?code=${member.invitation_code}`;

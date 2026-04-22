@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Globe, Eye, EyeOff, LogIn, UserPlus, ChevronDown, Menu } from "lucide-react";
+import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Globe, Eye, EyeOff, LogIn, UserPlus, ChevronDown, Menu, Home } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -231,8 +231,8 @@ const Login = () => {
                   <UserPlus className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold">{t.signup}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={goBack} className="gap-2 cursor-pointer">
-                  <ArrowLeft className="w-4 h-4 text-primary" />
+                <DropdownMenuItem onClick={() => navigate('/')} className="gap-2 cursor-pointer">
+                  <Home className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold">{t.home}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">

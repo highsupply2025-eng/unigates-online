@@ -2175,6 +2175,9 @@ const InstitutionDashboard = () => {
                         const label = roleLabels[inv.role] || { ar: inv.role, en: inv.role, icon: <User className="w-5 h-5" /> };
                         const instPath = institutionType === "college" ? "college" : "institute";
                         const inviteLink = `${baseUrl}/signup/${instPath}/${inv.role}?code=${inv.invitation_code}`;
+                        const claimed = (inv.used_count || 0) >= 1;
+                        const linkedMember = leadershipMembers.find(lm => lm.invitation_id === inv.id);
+                        const linkedProfile = linkedMember ? profilesMap[linkedMember.user_id] : null;
                         return (
                           <div key={inv.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-xl border-2 bg-background">
                             <div className="flex items-center gap-3 min-w-0">
@@ -2183,41 +2186,70 @@ const InstitutionDashboard = () => {
                               </div>
                               <div className="min-w-0">
                                 <p className="font-bold text-foreground truncate">{isRtl ? label.ar : label.en}</p>
+                                {claimed && linkedProfile && (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedMember({
+                                        id: inv.id,
+                                        department_id: "",
+                                        full_name: linkedProfile.full_name,
+                                        role: inv.role,
+                                        date_of_birth: null,
+                                        photo_url: null,
+                                        invitation_code: inv.invitation_code,
+                                        user_id: linkedMember!.user_id,
+                                        created_at: linkedMember!.joined_at,
+                                      });
+                                      setMemberProfileTab("info");
+                                      setPageView("memberProfile");
+                                    }}
+                                    className="text-sm text-primary font-semibold hover:underline truncate text-start"
+                                  >
+                                    {linkedProfile.full_name}
+                                  </button>
+                                )}
                               </div>
                             </div>
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-xs h-8 px-2"
-                                onClick={() => copyToClipboard(inv.invitation_code)}
-                              >
-                                <Copy className="w-3.5 h-3.5 me-1" />
-                                {isRtl ? "نسخ الكود" : "Copy Code"}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-xs h-8 px-2"
-                                onClick={() => copyToClipboard(inviteLink)}
-                              >
-                                <LinkIcon className="w-3.5 h-3.5 me-1" />
-                                {isRtl ? "نسخ الرابط" : "Copy Link"}
-                              </Button>
-                              {(() => {
-                                const text = isRtl
-                                  ? `رابط الدعوة للانضمام كـ ${label.ar}:\n${inviteLink}`
-                                  : `Invitation link to join as ${label.en}:\n${inviteLink}`;
-                                return (
-                                  <a href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
-                                    <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
-                                      <MessageCircle className="w-3.5 h-3.5 me-1" />
-                                      {isRtl ? "واتساب" : "WhatsApp"}
-                                    </Button>
-                                  </a>
-                                );
-                              })()}
-                            </div>
+                            {claimed ? (
+                              <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1">
+                                <CheckCircle className="w-3.5 h-3.5" />
+                                {isRtl ? "مسجّل" : "Registered"}
+                              </Badge>
+                            ) : (
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-xs h-8 px-2"
+                                  onClick={() => copyToClipboard(inv.invitation_code)}
+                                >
+                                  <Copy className="w-3.5 h-3.5 me-1" />
+                                  {isRtl ? "نسخ الكود" : "Copy Code"}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-xs h-8 px-2"
+                                  onClick={() => copyToClipboard(inviteLink)}
+                                >
+                                  <LinkIcon className="w-3.5 h-3.5 me-1" />
+                                  {isRtl ? "نسخ الرابط" : "Copy Link"}
+                                </Button>
+                                {(() => {
+                                  const text = isRtl
+                                    ? `رابط الدعوة للانضمام كـ ${label.ar}:\n${inviteLink}`
+                                    : `Invitation link to join as ${label.en}:\n${inviteLink}`;
+                                  return (
+                                    <a href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
+                                      <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
+                                        <MessageCircle className="w-3.5 h-3.5 me-1" />
+                                        {isRtl ? "واتساب" : "WhatsApp"}
+                                      </Button>
+                                    </a>
+                                  );
+                                })()}
+                              </div>
+                            )}
                           </div>
                         );
                       });

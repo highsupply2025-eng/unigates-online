@@ -1542,10 +1542,14 @@ const InstitutionDashboard = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => navigate(`/institution/department/${dept.id}`)}
+                          onClick={() => {
+                            setInvitationDept(dept);
+                            setInvitationView("main");
+                            handleTabChange("invitations");
+                          }}
                         >
                           <Users className="w-4 h-4 me-1" />
-                          {isRtl ? "صفحة القسم" : "Department Page"}
+                          {isRtl ? "صفحة الأعضاء" : "Members Page"}
                         </Button>
                         <Button
                           variant="outline"

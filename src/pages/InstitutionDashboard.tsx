@@ -2408,6 +2408,9 @@ const InstitutionDashboard = () => {
                     {isRtl ? `${newDeptLecturerCount} محاضر (مجاناً - حتى 10)` : `${newDeptLecturerCount} lecturers (Free - up to 10)`}
                   </p>
                 )}
+                <p className="text-xs text-amber-600 mt-1 font-semibold">
+                  {isRtl ? "✨ رئيس قسم واحد مجاناً (يتم تسجيله عبر رابط الدعوة)" : "✨ 1 Department Head free (via invitation link)"}
+                </p>
               </div>
             )}
           </div>

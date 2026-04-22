@@ -105,42 +105,49 @@ const AllPagesDropdown = () => {
     },
   ];
 
+  const [open, setOpen] = useState(false);
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
         <Button variant="default" size="sm" className="font-semibold gap-1.5 px-2 sm:px-3">
           <Menu className="w-4 h-4" />
           <span className="hidden sm:inline">{ar("كل الصفحات", "All Pages")}</span>
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-72 max-h-[80vh] p-0">
-        <ScrollArea className="h-[80vh]">
-          <div className="p-1">
-            <DropdownMenuLabel className="flex items-center gap-2">
-              <ExternalLink className="w-4 h-4 text-primary" />
-              {ar("كل صفحات الموقع", "All Site Pages")}
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {groups.map((group, gi) => (
-              <div key={group.title}>
-                <DropdownMenuLabel className="text-xs text-muted-foreground font-bold uppercase tracking-wider">
-                  {group.title}
-                </DropdownMenuLabel>
-                {group.items.map((it) => (
-                  <DropdownMenuItem key={it.to} asChild className="cursor-pointer">
-                    <Link to={it.to} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between gap-2 w-full">
-                      <span className="truncate">{it.label}</span>
-                      <span className="text-[10px] text-muted-foreground shrink-0" dir="ltr">{it.to}</span>
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-                {gi < groups.length - 1 && <DropdownMenuSeparator />}
-              </div>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        sideOffset={4}
+        className="w-72 max-h-[80vh] overflow-y-auto p-1 data-[state=open]:animate-none data-[state=closed]:animate-none"
+      >
+        <div className="flex items-center gap-2 px-2 py-1.5 text-sm font-semibold">
+          <ExternalLink className="w-4 h-4 text-primary" />
+          {ar("كل صفحات الموقع", "All Site Pages")}
+        </div>
+        <div className="h-px bg-border my-1" />
+        {groups.map((group, gi) => (
+          <div key={group.title}>
+            <div className="px-2 py-1.5 text-xs text-muted-foreground font-bold uppercase tracking-wider">
+              {group.title}
+            </div>
+            {group.items.map((it) => (
+              <Link
+                key={it.to}
+                to={it.to}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-between gap-2 w-full rounded-sm px-2 py-1.5 text-sm hover:bg-accent cursor-pointer"
+              >
+                <span className="truncate">{it.label}</span>
+                <span className="text-[10px] text-muted-foreground shrink-0" dir="ltr">{it.to}</span>
+              </Link>
             ))}
+            {gi < groups.length - 1 && <div className="h-px bg-border my-1" />}
           </div>
-        </ScrollArea>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        ))}
+      </PopoverContent>
+    </Popover>
   );
 };
 

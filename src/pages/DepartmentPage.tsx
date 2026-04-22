@@ -493,12 +493,15 @@ const DepartmentPage = () => {
             ? `مرحباً، يمكنك التسجيل كرئيس قسم عبر هذا الرابط:\n${headInviteLink}\nكود الدعوة: ${deptHead.invitation_code}`
             : `Hi, register as Department Head:\n${headInviteLink}\nCode: ${deptHead.invitation_code}`;
           return (
-            <Card className="mb-6 border-2 border-amber-500/40 bg-amber-50/30 dark:bg-amber-950/10">
-              <CardHeader className="pb-3">
+            <Card className="mb-8 border-2 border-amber-500/50 bg-gradient-to-br from-amber-50/60 to-amber-100/30 dark:from-amber-950/20 dark:to-amber-900/10 shadow-md overflow-hidden">
+              <div className="bg-gradient-to-r from-amber-500 to-amber-600 h-1.5" />
+              <CardHeader className="pb-3 pt-4">
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <Crown className="w-5 h-5 text-amber-600" />
-                  {isRtl ? "رئيس القسم" : "Department Head"}
-                  <Badge variant="outline" className="text-amber-600 border-amber-600 ms-2">
+                  <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center">
+                    <Crown className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <span className="font-extrabold">{isRtl ? "رئيس القسم" : "Department Head"}</span>
+                  <Badge variant="outline" className="text-amber-700 border-amber-500 bg-amber-100/60 ms-2 font-bold">
                     {headLinked ? (isRtl ? "1/1" : "1/1") : (isRtl ? "0/1" : "0/1")}
                   </Badge>
                 </CardTitle>

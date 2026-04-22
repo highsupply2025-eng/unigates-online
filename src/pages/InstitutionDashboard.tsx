@@ -320,10 +320,10 @@ const InstitutionDashboard = () => {
     const filteredDepts = (depts || []).filter(d => !deletedDeptIdsRef.current.has(d.id));
     setDepartments(filteredDepts);
 
+    let allMembers: any[] = [];
     if (filteredDepts.length > 0) {
       const deptIds = filteredDepts.map(d => d.id);
       // Fetch all members in batches to avoid 1000-row limit
-      let allMembers: any[] = [];
       const batchSize = 1000;
       let from = 0;
       let hasMore = true;

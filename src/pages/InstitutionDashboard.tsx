@@ -385,7 +385,7 @@ const InstitutionDashboard = () => {
       .eq(idColumn, instId)
       .in("role", leadershipRoles);
 
-    if (existingInvites && existingInvites.length >= 3) {
+    if (existingInvites && existingInvites.length >= leadershipRoles.length) {
       setLeadershipInvitations(existingInvites);
     } else {
       const existingRoles = (existingInvites || []).map((i: any) => i.role);
@@ -406,7 +406,10 @@ const InstitutionDashboard = () => {
             const isCollege = instType === "college";
             const roleNamesAr = missingRoles.map(r => 
               r === "dean" ? (isCollege ? "عميد الكلية" : "مدير المعهد") :
-              r === "vice_dean" ? (isCollege ? "وكيل الكلية" : "وكيل المعهد") : "رئيس القسم"
+              r === "vice_dean_students" ? (isCollege ? "وكيل الكلية لشئون الطلاب" : "وكيل المعهد لشئون الطلاب") :
+              r === "vice_dean_postgrad" ? (isCollege ? "وكيل الكلية للدراسات العليا" : "وكيل المعهد للدراسات العليا") :
+              r === "vice_dean_environment" ? (isCollege ? "وكيل الكلية لشئون البيئة" : "وكيل المعهد لشئون البيئة") :
+              r
             ).join("، ");
             await supabase.from("notifications").insert({
               sender_id: user.id,

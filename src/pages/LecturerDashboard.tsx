@@ -5,7 +5,7 @@ import {
   Upload, X, Radio, Calendar, ExternalLink, ClipboardList, Star, Send, ArrowLeft, ArrowRight, MonitorPlay, Link2, Copy, Check,
   Download, Users, Clock, BarChart3, CheckCircle, HelpCircle, MoreVertical, Menu
 } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import LiveStreamRoom from "@/components/LiveStreamRoom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -578,79 +578,48 @@ const LecturerDashboard = () => {
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {activeTab !== "home" && <BackButton />}
-            <Sheet>
-              <SheetTrigger asChild>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <button className="p-2 rounded-lg bg-primary/20 text-primary" aria-label="menu">
                   <Menu className="w-5 h-5" />
                 </button>
-              </SheetTrigger>
-              <SheetContent side={isRtl ? "right" : "left"} className="w-full sm:max-w-md p-0 overflow-y-auto">
-                <SheetHeader className="p-6 border-b bg-gradient-to-br from-primary/10 to-primary/5">
-                  <SheetTitle className="text-2xl font-bold text-primary text-start">
-                    {isRtl ? "القائمة" : "Menu"}
-                  </SheetTitle>
-                </SheetHeader>
-                <div className="p-4 grid grid-cols-2 gap-3">
-                  {[
-                    { id: "home", label: isRtl ? "الرئيسية" : "Home", Icon: BarChart3, color: "from-blue-500 to-blue-600" },
-                    { id: "courses", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video, color: "from-emerald-500 to-emerald-600" },
-                    { id: "live", label: isRtl ? "البث المباشر" : "Live Stream", Icon: Radio, color: "from-red-500 to-red-600" },
-                    { id: "quizzes", label: isRtl ? "الاختبارات أونلاين" : "Online Tests", Icon: HelpCircle, color: "from-purple-500 to-purple-600" },
-                    { id: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-orange-500 to-orange-600" },
-                    { id: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-pink-500 to-pink-600" },
-                    { id: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-cyan-500 to-cyan-600" },
-                    { id: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600" },
-                    { id: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, color: "from-indigo-500 to-indigo-600" },
-                  ].map(({ id, label, Icon, color }) => (
-                    <button
-                      key={id}
-                      onClick={() => {
-                        setActiveTab(id);
-                        (document.activeElement as HTMLElement)?.blur();
-                        document.querySelector<HTMLButtonElement>('[data-state="open"][aria-label="Close"]')?.click();
-                      }}
-                      className={`group flex flex-col items-center gap-3 p-4 rounded-2xl border-2 transition-all hover:scale-105 hover:shadow-lg ${
-                        activeTab === id ? "border-primary bg-primary/10" : "border-border bg-card"
-                      }`}
-                    >
-                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-md group-hover:shadow-xl transition-shadow`}>
-                        <Icon className="w-7 h-7 text-white" strokeWidth={2.5} />
-                      </div>
-                      <span className="text-sm font-semibold text-foreground text-center leading-tight">{label}</span>
-                    </button>
-                  ))}
-                  <button
-                    onClick={() => navigate("/institution/results/add")}
-                    className="group flex flex-col items-center gap-3 p-4 rounded-2xl border-2 border-border bg-card transition-all hover:scale-105 hover:shadow-lg"
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align={isRtl ? "start" : "end"} className="w-64 max-h-[80vh] overflow-y-auto">
+                {[
+                  { id: "home", label: isRtl ? "الرئيسية" : "Home", Icon: BarChart3 },
+                  { id: "courses", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video },
+                  { id: "live", label: isRtl ? "البث المباشر" : "Live Stream", Icon: Radio },
+                  { id: "quizzes", label: isRtl ? "الاختبارات أونلاين" : "Online Tests", Icon: HelpCircle },
+                  { id: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList },
+                  { id: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar },
+                  { id: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users },
+                  { id: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star },
+                  { id: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download },
+                ].map(({ id, label, Icon }) => (
+                  <DropdownMenuItem
+                    key={id}
+                    onClick={() => setActiveTab(id)}
+                    className={`gap-2 cursor-pointer ${activeTab === id ? "bg-primary/10 text-primary font-semibold" : ""}`}
                   >
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-md">
-                      <FileText className="w-7 h-7 text-white" strokeWidth={2.5} />
-                    </div>
-                    <span className="text-sm font-semibold text-foreground text-center leading-tight">{isRtl ? "النتائج" : "Results"}</span>
-                  </button>
-                </div>
-                <div className="p-4 border-t space-y-2">
-                  <button
-                    onClick={toggleLanguage}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center">
-                      <Globe className="w-5 h-5 text-white" strokeWidth={2.5} />
-                    </div>
-                    <span className="font-semibold text-foreground">{t.langSwitch}</span>
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-destructive/10 hover:bg-destructive/20 transition-colors"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
-                      <LogOut className="w-5 h-5 text-white" strokeWidth={2.5} />
-                    </div>
-                    <span className="font-semibold text-destructive">{t.logout}</span>
-                  </button>
-                </div>
-              </SheetContent>
-            </Sheet>
+                    <Icon className="w-4 h-4 text-primary" />
+                    <span className="text-sm">{label}</span>
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuItem onClick={() => navigate("/institution/results/add")} className="gap-2 cursor-pointer">
+                  <FileText className="w-4 h-4 text-primary" />
+                  <span className="text-sm">{isRtl ? "النتائج" : "Results"}</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
+                  <Globe className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-semibold">{t.langSwitch}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout} className="gap-2 cursor-pointer text-destructive focus:text-destructive">
+                  <LogOut className="w-4 h-4" />
+                  <span className="text-sm font-semibold">{t.logout}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>

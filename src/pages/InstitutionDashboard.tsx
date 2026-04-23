@@ -913,10 +913,9 @@ const InstitutionDashboard = () => {
                 ].map(({ id, label, Icon }) => (
                   <DropdownMenuItem
                     key={id}
-                    onSelect={(e) => {
-                      e.preventDefault();
+                    onSelect={() => {
+                      handleTabChange(id);
                       setMenuOpen(false);
-                      setTimeout(() => handleTabChange(id), 0);
                     }}
                     className={activeTab === id ? "bg-primary/10 text-primary font-semibold" : ""}
                   >
@@ -925,15 +924,15 @@ const InstitutionDashboard = () => {
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setMenuOpen(false); setTimeout(() => toggleLanguage(), 0); }}>
+                <DropdownMenuItem onSelect={() => { toggleLanguage(); setMenuOpen(false); }}>
                   <Globe className="w-4 h-4 me-2" />
                   {language === "ar" ? "English" : "العربية"}
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onSelect={(e) => {
-                    e.preventDefault();
+                  onSelect={async () => {
                     setMenuOpen(false);
-                    setTimeout(async () => { await supabase.auth.signOut(); navigate("/login"); }, 0);
+                    await supabase.auth.signOut();
+                    navigate("/login");
                   }}
                   className="text-destructive focus:text-destructive"
                 >

@@ -963,10 +963,6 @@ const InstitutionDashboard = () => {
         {pageView === "members" && selectedDept ? (
           /* Full-page Members View */
           <div className="space-y-4">
-            <Button variant="outline" className="gap-2" onClick={() => setPageView("main")}>
-              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-              {isRtl ? "رجوع للأقسام" : "Back to Departments"}
-            </Button>
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-black text-foreground flex items-center gap-2">
                 <Users className="w-6 h-6 text-primary" />

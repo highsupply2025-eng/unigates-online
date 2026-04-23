@@ -576,25 +576,50 @@ const InstitutionDashboard = () => {
   };
 
   const handleAddMember = async () => {
-    if (!newMemberName || !addMemberDeptId) return;
+    const count = parseInt(newMemberCount);
+    if (!count || count < 1 || !addMemberDeptId) return;
 
-    const code = generateCode();
+    const dept = departments.find(d => d.id === addMemberDeptId);
+    const studentCap = Math.min(dept?.student_count || 0, 2000);
+    const lecturerCap = 10;
+    const headCap = 3;
+    const studentsRegistered = getMembersForDept(addMemberDeptId).filter(m => m.role === "student").length;
+    const lecturersRegistered = getMembersForDept(addMemberDeptId).filter(m => m.role === "lecturer").length;
+    const headsRegistered = getDeptHeadsCount(addMemberDeptId);
+
+    let remaining = 0;
+    if (newMemberRole === "student") remaining = Math.max(0, studentCap - studentsRegistered);
+    else if (newMemberRole === "lecturer") remaining = Math.max(0, lecturerCap - lecturersRegistered);
+    else remaining = Math.max(0, headCap - headsRegistered);
+
+    if (count > remaining) {
+      toast({
+        title: isRtl ? "تجاوز الحد المسموح" : "Exceeds limit",
+        description: isRtl ? `يمكن إضافة ${remaining} فقط` : `Only ${remaining} can be added`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      const { error } = await supabase.from("department_members").insert({
+      const roleLabel = newMemberRole === "student" ? (isRtl ? "طالب" : "Student") : newMemberRole === "lecturer" ? (isRtl ? "محاضر" : "Lecturer") : (isRtl ? "رئيس قسم" : "Head");
+      const baseIndex = newMemberRole === "student" ? studentsRegistered : newMemberRole === "lecturer" ? lecturersRegistered : headsRegistered;
+      const rows = Array.from({ length: count }).map((_, i) => ({
         department_id: addMemberDeptId,
-        full_name: newMemberName,
+        full_name: `${roleLabel} #${baseIndex + i + 1}`,
         role: newMemberRole,
         date_of_birth: null,
-        invitation_code: code,
-      });
+        invitation_code: generateCode(),
+      }));
+      const { error } = await supabase.from("department_members").insert(rows);
       if (error) throw error;
 
       toast({
-        title: isRtl ? "تم إضافة العضو" : "Member Added",
-        description: isRtl ? `تم توليد كود الدعوة: ${code}` : `Invitation code generated: ${code}`,
+        title: isRtl ? "تم إضافة الأعضاء" : "Members Added",
+        description: isRtl ? `تمت إضافة ${count} عضو` : `${count} members added`,
       });
       setShowAddMemberDialog(false);
-      setNewMemberName("");
+      setNewMemberCount("");
       setNewMemberRole("student");
       await loadInstitutionData(institutionId, institutionType || "college");
     } catch (error: any) {

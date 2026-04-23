@@ -1199,9 +1199,9 @@ const LecturerDashboard = () => {
       {/* Episodes & Attachments Dialog */}
       <Dialog open={showEpisodeDialog} onOpenChange={setShowEpisodeDialog}>
         <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{isRtl ? "حلقات الدورة ومرفقاتها" : "Course Episodes & Attachments"}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{isRtl ? "المحاضرات والمرفقات" : "Lectures & Attachments"}</DialogTitle></DialogHeader>
           <div>
-            <h3 className="font-bold text-foreground mb-3 flex items-center gap-2"><Video className="w-4 h-4" /> {isRtl ? "الحلقات" : "Episodes"}</h3>
+            <h3 className="font-bold text-foreground mb-3 flex items-center gap-2"><Video className="w-4 h-4" /> {isRtl ? "المحاضرات" : "Lectures"}</h3>
             {episodes.length > 0 && <div className="space-y-2 mb-4">{episodes.map(ep => (
               <div key={ep.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
                 <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">{ep.episode_number}</span>
@@ -1210,7 +1210,7 @@ const LecturerDashboard = () => {
               </div>
             ))}</div>}
             <div className="space-y-3 p-4 rounded-lg border border-dashed">
-              <p className="text-sm font-semibold text-muted-foreground">{isRtl ? "إضافة حلقة جديدة" : "Add New Episode"}</p>
+              <p className="text-sm font-semibold text-muted-foreground">{isRtl ? "إضافة محاضرة جديدة" : "Add New Lecture"}</p>
               <div className="grid grid-cols-2 gap-3">
                 <Input placeholder={isRtl ? "عنوان (عربي)" : "Title (Arabic)"} value={newEpisode.title_ar} onChange={e => setNewEpisode(p => ({ ...p, title_ar: e.target.value }))} />
                 <Input placeholder={isRtl ? "عنوان (إنجليزي)" : "Title (English)"} value={newEpisode.title_en} onChange={e => setNewEpisode(p => ({ ...p, title_en: e.target.value }))} />

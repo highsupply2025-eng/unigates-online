@@ -110,7 +110,9 @@ const LecturerCourseContent = () => {
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <h1 className="text-lg font-bold text-foreground order-first">{isRtl ? "الحلقات والمرفقات" : "Episodes & Attachments"}</h1>
-          <div className="order-last"><BackButton /></div>
+          <Button size="icon" variant="default" className="order-last" onClick={() => navigate("/lecturer/dashboard")} aria-label={isRtl ? "رجوع" : "Back"}>
+            {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+          </Button>
         </div>
       </header>
       <main className="container mx-auto px-4 py-6 space-y-4 max-w-3xl">

@@ -267,7 +267,7 @@ const LeadershipDashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            {activeTab !== "overview" && <BackButton />}
+            
             <NotificationBell />
             <Sheet>
               <SheetTrigger asChild>

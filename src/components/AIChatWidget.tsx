@@ -13,7 +13,6 @@ const AIChatWidget = () => {
   const { language } = useLanguage();
   const isRtl = language === "ar";
   const location = useLocation();
-  if (location.pathname !== "/") return null;
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");

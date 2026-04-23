@@ -913,10 +913,9 @@ const InstitutionDashboard = () => {
                 ].map(({ id, label, Icon }) => (
                   <DropdownMenuItem
                     key={id}
-                    onSelect={(e) => {
-                      e.preventDefault();
+                    onSelect={() => {
+                      handleTabChange(id);
                       setMenuOpen(false);
-                      setTimeout(() => handleTabChange(id), 0);
                     }}
                     className={activeTab === id ? "bg-primary/10 text-primary font-semibold" : ""}
                   >

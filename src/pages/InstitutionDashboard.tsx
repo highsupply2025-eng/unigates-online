@@ -870,9 +870,9 @@ const InstitutionDashboard = () => {
               <LinkIcon className="w-4 h-4" />
               {isRtl ? "الدعوات" : "Invitations"}
             </Button>
-            <Button variant="outline" size="sm" className="gap-1.5 border-primary/30 hover:bg-primary/10" onClick={() => navigate("/leadership")}>
-              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-              {isRtl ? "لوحة القيادة" : "Leadership"}
+            <Button size="sm" className="gap-1.5 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:scale-105 transition-all" onClick={() => navigate("/leadership")}>
+              {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+              {isRtl ? "رجوع" : "Back"}
             </Button>
             <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5">
               <Globe className="w-4 h-4" />

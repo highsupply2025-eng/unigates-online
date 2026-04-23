@@ -886,13 +886,21 @@ const LecturerDashboard = () => {
 
               {/* ===== COURSES TAB ===== */}
               <TabsContent value="courses">
-                <div className="flex items-center justify-end mb-6">
+                <div className="flex items-center justify-end gap-2 mb-6">
                   <Button onClick={() => setShowNewCourse(true)} className="gap-2"><Plus className="w-4 h-4" />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => document.getElementById("lecturer-courses-grid")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                    className="gap-2"
+                  >
+                    <Video className="w-4 h-4" />{isRtl ? "المحاضرات" : "Lectures"}
+                    {courses.length > 0 && <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{courses.length}</span>}
+                  </Button>
                 </div>
                 {courses.length === 0 ? (
                   <div className="text-center py-16 text-muted-foreground">{isRtl ? "لا توجد دورات بعد. ابدأ بإنشاء أول دورة!" : "No courses yet."}</div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div id="lecturer-courses-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {courses.map(course => (
                       <Card key={course.id} className="overflow-hidden">
                         {course.thumbnail_url && <img src={course.thumbnail_url} alt="" className="w-full h-40 object-cover" />}

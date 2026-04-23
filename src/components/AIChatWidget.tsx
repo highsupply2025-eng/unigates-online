@@ -129,6 +129,8 @@ const AIChatWidget = () => {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}`, "_blank");
   };
 
+  if (location.pathname !== "/") return null;
+
   return (
     <>
       {/* Floating Button */}

@@ -220,7 +220,7 @@ const InstitutionDashboard = () => {
   // Add Member
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
   const [addMemberDeptId, setAddMemberDeptId] = useState("");
-  const [newMemberName, setNewMemberName] = useState("");
+  const [newMemberCount, setNewMemberCount] = useState("");
   const [newMemberRole, setNewMemberRole] = useState<"student" | "lecturer" | "department_head">("student");
 
   // Payment

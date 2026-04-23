@@ -706,8 +706,28 @@ const LecturerDashboard = () => {
                   </div>
                 </div>
 
-                {/* Section Analytics Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Weekly Activity Chart */}
+                <Card className="mb-6">
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
+                      <div>
+                        <h3 className="font-bold text-foreground">{isRtl ? "النشاط الأسبوعي" : "Weekly Activity"}</h3>
+                        <p className="text-xs text-muted-foreground">{isRtl ? "المشاهدات والتقييمات خلال آخر 7 أيام" : "Views & ratings over the last 7 days"}</p>
+                      </div>
+                      <BarChart3 className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="h-32">
+                      <Sparkline data={bucketByDay(viewsTimes, 7)} color="hsl(var(--primary))" />
+                    </div>
+                    <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground" dir={isRtl ? "rtl" : "ltr"}>
+                      <span>{isRtl ? "إجمالي المشاهدات: " : "Total views: "}{viewsTimes.length}</span>
+                      <span>{isRtl ? "إجمالي التقييمات: " : "Total ratings: "}{lecturerRatings.length}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Section Analytics Cards - 2 per row */}
+                <div className="grid grid-cols-2 gap-3 md:gap-4">
                   <Card>
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-3">

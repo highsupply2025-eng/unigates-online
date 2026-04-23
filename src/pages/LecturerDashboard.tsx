@@ -238,7 +238,7 @@ const LecturerDashboard = () => {
       if (error) throw error;
       toast({ title: isRtl ? "تم" : "Done", description: isRtl ? "تم إنشاء الدورة بنجاح" : "Course created successfully" });
       setShowNewCourse(false);
-      setNewCourse({ title_ar: "", title_en: "", category_ar: "", category_en: "", instructor_ar: "", instructor_en: "", is_free: false, price: 0 });
+      setNewCourse({ title_ar: "", title_en: "", category_ar: "", category_en: "", instructor_ar: "", instructor_en: "", is_free: false, price: 0, expires_at: "" });
       setThumbnail(null); setThumbnailPreview(null);
       await loadCourses(user.id);
     } catch (err: any) {

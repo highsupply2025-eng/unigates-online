@@ -285,7 +285,7 @@ const Signup = () => {
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
       <header className="border-b-2 border-primary/30 px-4 sm:px-6 py-4 bg-card shadow-md">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
+          <Link to="/university-platform" className="flex items-center gap-2 sm:gap-3 group">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center group-hover:scale-105 transition-transform">
               <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
@@ -306,7 +306,7 @@ const Signup = () => {
               if (selectedRole && !submitted) {
                 setSelectedRole(null);
               } else {
-                goBack();
+                navigate('/university-platform');
               }
             }}>
               {language === "ar" ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
@@ -330,7 +330,7 @@ const Signup = () => {
                   if (selectedRole && !submitted) {
                     setSelectedRole(null);
                   } else {
-                    goBack();
+                    navigate('/university-platform');
                   }
                 }} className="gap-2 cursor-pointer">
                   <ArrowLeft className="w-4 h-4 text-primary" />

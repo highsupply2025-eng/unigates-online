@@ -923,6 +923,18 @@ const InstitutionDashboard = () => {
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setMenuOpen(false);
+                    setTimeout(() => navigate("/leadership"), 0);
+                  }}
+                  className="text-primary font-semibold"
+                >
+                  {isRtl ? <ArrowRight className="w-4 h-4 me-2" /> : <ArrowLeft className="w-4 h-4 me-2" />}
+                  {isRtl ? "لوحة قيادة الكلية" : "Leadership Dashboard"}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setMenuOpen(false); setTimeout(() => toggleLanguage(), 0); }}>
                   <Globe className="w-4 h-4 me-2" />
                   {language === "ar" ? "English" : "العربية"}

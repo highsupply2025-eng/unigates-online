@@ -224,11 +224,13 @@ const LecturerDashboard = () => {
         const { data: urlData } = supabase.storage.from("course-thumbnails").getPublicUrl(path);
         thumbnailUrl = urlData.publicUrl;
       }
+      const lecturerName = profile?.full_name || user.email;
       const { error } = await supabase.from("courses").insert({
         title_ar: newCourse.title_ar, title_en: newCourse.title_en,
-        category_ar: newCourse.category_ar, category_en: newCourse.category_en,
-        instructor_ar: newCourse.instructor_ar || user.email,
-        instructor_en: newCourse.instructor_en || user.email,
+        category_ar: newCourse.category_ar || (isRtl ? "عام" : "General"),
+        category_en: newCourse.category_en || "General",
+        instructor_ar: lecturerName,
+        instructor_en: lecturerName,
         is_free: newCourse.is_free,
         creator_id: user.id, thumbnail_url: thumbnailUrl,
       } as any);

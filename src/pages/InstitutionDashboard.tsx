@@ -890,11 +890,23 @@ const InstitutionDashboard = () => {
               variant="outline"
               size="sm"
               className="gap-1 h-9 px-2.5 border-primary/30 hover:bg-primary/10"
-              onClick={() => navigate("/leadership")}
-              title={isRtl ? "لوحة قيادة الكلية" : "Leadership Dashboard"}
+              onClick={() => {
+                if (pageView === "members") {
+                  setPageView("main");
+                  setActiveTab("departments");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                } else {
+                  navigate("/leadership");
+                }
+              }}
+              title={pageView === "members" ? (isRtl ? "رجوع للأقسام" : "Back to Departments") : (isRtl ? "لوحة قيادة الكلية" : "Leadership Dashboard")}
             >
               {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-              <span className="text-xs font-bold">{isRtl ? "القيادة" : "Leadership"}</span>
+              <span className="text-xs font-bold">
+                {pageView === "members"
+                  ? (isRtl ? "الأقسام" : "Departments")
+                  : (isRtl ? "القيادة" : "Leadership")}
+              </span>
             </Button>
             <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
               <DropdownMenuTrigger asChild>

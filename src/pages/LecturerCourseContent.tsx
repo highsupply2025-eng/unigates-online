@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Plus, Upload, Video, FileText, Trash2, Paperclip } from "lucide-react";
+import { Plus, Upload, Video, FileText, Trash2, Paperclip, ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

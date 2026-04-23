@@ -931,7 +931,7 @@ const LecturerDashboard = () => {
                             }
                           </div>
                           <div className="flex gap-2 flex-wrap">
-                            <Button size="sm" variant="outline" className="flex-1" onClick={() => openEpisodes(course.id)}>
+                            <Button size="sm" variant="outline" className="flex-1" onClick={() => navigate(`/lecturer/course/${course.id}`)}>
                               <Plus className="w-3.5 h-3.5 me-1" />{isRtl ? "الحلقات والمرفقات" : "Episodes & Attachments"}
                             </Button>
                             <Button size="sm" variant="outline" className="gap-1" onClick={() => {

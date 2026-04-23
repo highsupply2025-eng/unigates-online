@@ -870,7 +870,10 @@ const InstitutionDashboard = () => {
               <LinkIcon className="w-4 h-4" />
               {isRtl ? "الدعوات" : "Invitations"}
             </Button>
-            <BackButton />
+            <Button variant="outline" size="sm" className="gap-1.5 border-primary/30 hover:bg-primary/10" onClick={() => navigate("/leadership")}>
+              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              {isRtl ? "لوحة القيادة" : "Leadership"}
+            </Button>
             <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5">
               <Globe className="w-4 h-4" />
               {t.langSwitch}

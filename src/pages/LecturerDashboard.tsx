@@ -209,8 +209,8 @@ const LecturerDashboard = () => {
 
   // Course CRUD
   const handleCreateCourse = async () => {
-    if (!newCourse.title_ar || !newCourse.title_en || !newCourse.category_ar || !newCourse.category_en) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى ملء جميع الحقول المطلوبة" : "Please fill all required fields", variant: "destructive" });
+    if (!newCourse.title_ar || !newCourse.title_en) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى إدخال اسم المحاضرة" : "Please enter the lecture name", variant: "destructive" });
       return;
     }
     setSavingCourse(true);

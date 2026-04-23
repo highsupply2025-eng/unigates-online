@@ -1213,7 +1213,7 @@ const LecturerDashboard = () => {
             </div>
             <div>
               <Label className="mb-1 block text-sm font-semibold">{isRtl ? "تاريخ إنشاء المحاضرة" : "Lecture Creation Date"}</Label>
-              <Input type="date" value={new Date().toISOString().slice(0, 10)} disabled readOnly className="bg-muted/50" />
+              <Input type="date" value={newCourse.created_at} onChange={e => setNewCourse(p => ({ ...p, created_at: e.target.value }))} />
             </div>
             <div>
               <Label className="mb-1 block text-sm font-semibold">{isRtl ? "تاريخ انتهاء المحاضرة" : "Lecture Expiry Date"}</Label>

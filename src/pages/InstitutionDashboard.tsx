@@ -887,13 +887,12 @@ const InstitutionDashboard = () => {
           </div>
           <div className="md:hidden flex items-center gap-1.5 shrink-0">
             <Button
-              variant="outline"
               size="sm"
-              className="gap-1 h-9 px-2.5 border-primary/30 hover:bg-primary/10"
+              className="gap-1 h-9 px-2.5 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:scale-105 transition-all"
               onClick={() => navigate("/leadership")}
               title={isRtl ? "رجوع للصفحة الرئيسية للكلية" : "Back to College Home"}
             >
-              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
               <span className="text-xs font-bold">{isRtl ? "رجوع" : "Back"}</span>
             </Button>
             <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>

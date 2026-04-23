@@ -870,7 +870,7 @@ const InstitutionDashboard = () => {
               <LinkIcon className="w-4 h-4" />
               {isRtl ? "الدعوات" : "Invitations"}
             </Button>
-            <Button size="sm" className="gap-1.5 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:scale-105 transition-all" onClick={() => navigate("/leadership/dashboard")}>
+            <Button size="sm" className="gap-1.5 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:scale-105 transition-all" onClick={() => activeTab !== "general" ? handleTabChange("general") : navigate("/leadership/dashboard")}>
               {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
               {isRtl ? "رجوع" : "Back"}
             </Button>
@@ -889,7 +889,7 @@ const InstitutionDashboard = () => {
             <Button
               size="sm"
               className="gap-1 h-9 px-2.5 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:scale-105 transition-all"
-              onClick={() => navigate("/leadership/dashboard")}
+              onClick={() => activeTab !== "general" ? handleTabChange("general") : navigate("/leadership/dashboard")}
               title={isRtl ? "رجوع للصفحة الرئيسية للكلية" : "Back to College Home"}
             >
               {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}

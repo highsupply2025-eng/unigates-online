@@ -2721,12 +2721,46 @@ const InstitutionDashboard = () => {
               <Input value={newDeptName} onChange={e => setNewDeptName(e.target.value)} placeholder={isRtl ? "مثال: قسم المحاسبة" : "e.g. Accounting Dept"} />
             </div>
             <div>
-              <Label>{isRtl ? "عدد الطلاب" : "Student Count"}</Label>
-              <Input type="number" value={newDeptStudentCount} onChange={e => setNewDeptStudentCount(e.target.value)} placeholder="0" />
+              <Label>{isRtl ? "عدد الطلاب (حتى 2000)" : "Student Count (up to 2000)"}</Label>
+              <Input
+                type="number"
+                min={0}
+                max={2000}
+                value={newDeptStudentCount}
+                onChange={e => {
+                  const v = Math.min(2000, Math.max(0, parseInt(e.target.value) || 0));
+                  setNewDeptStudentCount(e.target.value === "" ? "" : String(v));
+                }}
+                placeholder="0"
+              />
             </div>
             <div>
-              <Label>{isRtl ? "عدد المحاضرين" : "Lecturer Count"}</Label>
-              <Input type="number" value={newDeptLecturerCount} onChange={e => setNewDeptLecturerCount(e.target.value)} placeholder="0" />
+              <Label className="flex items-center gap-1.5"><UserCheck className="w-4 h-4" />{isRtl ? "عدد المحاضرين (حتى 10)" : "Lecturer Count (up to 10)"}</Label>
+              <Input
+                type="number"
+                min={0}
+                max={10}
+                value={newDeptLecturerCount}
+                onChange={e => {
+                  const v = Math.min(10, Math.max(0, parseInt(e.target.value) || 0));
+                  setNewDeptLecturerCount(e.target.value === "" ? "" : String(v));
+                }}
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <Label className="flex items-center gap-1.5"><UserCheck className="w-4 h-4" />{isRtl ? "عدد رؤساء الأقسام (حتى 3)" : "Department Heads (up to 3)"}</Label>
+              <Input
+                type="number"
+                min={0}
+                max={3}
+                value={newDeptHeadCount}
+                onChange={e => {
+                  const v = Math.min(3, Math.max(0, parseInt(e.target.value) || 0));
+                  setNewDeptHeadCount(e.target.value === "" ? "" : String(v));
+                }}
+                placeholder="0"
+              />
             </div>
             {newDeptStudentCount && parseInt(newDeptStudentCount) > 0 && (
               <div className="p-4 rounded-xl bg-primary/10 text-center border-2 border-primary/20">
@@ -2738,9 +2772,11 @@ const InstitutionDashboard = () => {
                     {isRtl ? `${newDeptLecturerCount} محاضر (مجاناً - حتى 10)` : `${newDeptLecturerCount} lecturers (Free - up to 10)`}
                   </p>
                 )}
-                <p className="text-xs text-amber-600 mt-1 font-semibold">
-                  {isRtl ? "✨ رئيس قسم واحد مجاناً (يتم تسجيله عبر رابط الدعوة)" : "✨ 1 Department Head free (via invitation link)"}
-                </p>
+                {newDeptHeadCount && parseInt(newDeptHeadCount) > 0 && (
+                  <p className="text-xs text-amber-600 mt-1 font-semibold">
+                    {isRtl ? `${newDeptHeadCount} رئيس قسم (مجاناً - حتى 3)` : `${newDeptHeadCount} heads (Free - up to 3)`}
+                  </p>
+                )}
               </div>
             )}
           </div>

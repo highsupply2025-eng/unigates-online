@@ -1170,17 +1170,13 @@ const LecturerDashboard = () => {
         <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{isRtl ? "إنشاء محاضرة جديدة" : "Create New Lecture"}</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المحاضرة (عربي)" : "Lecture Name (Arabic)"} *</Label><Input value={newCourse.title_ar} onChange={e => setNewCourse(p => ({ ...p, title_ar: e.target.value }))} /></div>
-              <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المحاضرة (إنجليزي)" : "Lecture Name (English)"} *</Label><Input value={newCourse.title_en} onChange={e => setNewCourse(p => ({ ...p, title_en: e.target.value }))} /></div>
-            </div>
             <div>
               <Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المحاضر" : "Lecturer Name"}</Label>
               <Input value={profile?.full_name || user?.email || ""} disabled readOnly className="bg-muted/50" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="mb-1 block text-sm font-semibold">{isRtl ? "التخصص (عربي)" : "Specialty (Arabic)"}</Label>
+                <Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المادة (عربي)" : "Subject (Arabic)"}</Label>
                 <Input
                   value={newCourse.category_ar}
                   onChange={e => setNewCourse(p => ({ ...p, category_ar: e.target.value }))}
@@ -1188,7 +1184,7 @@ const LecturerDashboard = () => {
                 />
               </div>
               <div>
-                <Label className="mb-1 block text-sm font-semibold">{isRtl ? "التخصص (إنجليزي)" : "Specialty (English)"}</Label>
+                <Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المادة (إنجليزي)" : "Subject (English)"}</Label>
                 <Input
                   value={newCourse.category_en}
                   onChange={e => setNewCourse(p => ({ ...p, category_en: e.target.value }))}
@@ -1196,24 +1192,18 @@ const LecturerDashboard = () => {
                 />
               </div>
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "عنوان المحاضرة (عربي)" : "Lecture Title (Arabic)"} *</Label><Input value={newCourse.title_ar} onChange={e => setNewCourse(p => ({ ...p, title_ar: e.target.value }))} /></div>
+              <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "عنوان المحاضرة (إنجليزي)" : "Lecture Title (English)"} *</Label><Input value={newCourse.title_en} onChange={e => setNewCourse(p => ({ ...p, title_en: e.target.value }))} /></div>
+            </div>
+            <div>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "تاريخ إنشاء المحاضرة" : "Lecture Creation Date"}</Label>
+              <Input type="date" value={new Date().toISOString().slice(0, 10)} disabled readOnly className="bg-muted/50" />
+            </div>
             <div>
               <Label className="mb-1 block text-sm font-semibold">{isRtl ? "تاريخ انتهاء المحاضرة" : "Lecture Expiry Date"}</Label>
               <Input type="date" value={newCourse.expires_at} onChange={e => setNewCourse(p => ({ ...p, expires_at: e.target.value }))} />
               <p className="text-xs text-muted-foreground mt-1">{isRtl ? "اختياري — تاريخ ينتهي بعده عرض المحاضرة" : "Optional — date after which the lecture is no longer shown"}</p>
-            </div>
-            <div>
-              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "صورة المحاضرة" : "Lecture Image"}</Label>
-              {thumbnailPreview ? (
-                <div className="relative w-full h-32 rounded-lg overflow-hidden border">
-                  <img src={thumbnailPreview} alt="" className="w-full h-full object-cover" />
-                  <button type="button" onClick={() => { setThumbnail(null); setThumbnailPreview(null); }} className="absolute top-2 right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center"><X className="w-3 h-3" /></button>
-                </div>
-              ) : (
-                <label className="flex flex-col items-center justify-center h-24 rounded-lg border-2 border-dashed bg-muted/50 cursor-pointer hover:border-primary/50">
-                  <Upload className="w-6 h-6 text-muted-foreground mb-1" /><span className="text-sm text-muted-foreground">{isRtl ? "اضغط لرفع صورة" : "Click to upload"}</span>
-                  <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) { setThumbnail(f); setThumbnailPreview(URL.createObjectURL(f)); } }} />
-                </label>
-              )}
             </div>
             <Button onClick={handleCreateCourse} disabled={savingCourse} className="w-full gap-2">
               {savingCourse ? <div className="animate-spin w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full" /> : (<><Plus className="w-4 h-4" />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</>)}

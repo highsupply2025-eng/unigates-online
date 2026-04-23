@@ -46,7 +46,7 @@ const LecturerDashboard = () => {
   const [showNewCourse, setShowNewCourse] = useState(false);
   const [newCourse, setNewCourse] = useState({
     title_ar: "", title_en: "", category_ar: "", category_en: "",
-    instructor_ar: "", instructor_en: "", is_free: false, price: 0,
+    instructor_ar: "", instructor_en: "", is_free: false, price: 0, created_at: new Date().toISOString().slice(0, 10),
     expires_at: "",
   });
   const [thumbnail, setThumbnail] = useState<File | null>(null);
@@ -235,11 +235,12 @@ const LecturerDashboard = () => {
         is_free: newCourse.is_free,
         creator_id: user.id, thumbnail_url: thumbnailUrl,
         expires_at: newCourse.expires_at || null,
+        created_at: newCourse.created_at ? new Date(newCourse.created_at).toISOString() : new Date().toISOString(),
       } as any);
       if (error) throw error;
       toast({ title: isRtl ? "تم" : "Done", description: isRtl ? "تم إنشاء الدورة بنجاح" : "Course created successfully" });
       setShowNewCourse(false);
-      setNewCourse({ title_ar: "", title_en: "", category_ar: "", category_en: "", instructor_ar: "", instructor_en: "", is_free: false, price: 0, expires_at: "" });
+      setNewCourse({ title_ar: "", title_en: "", category_ar: "", category_en: "", instructor_ar: "", instructor_en: "", is_free: false, price: 0, created_at: new Date().toISOString().slice(0, 10), expires_at: "" });
       setThumbnail(null); setThumbnailPreview(null);
       await loadCourses(user.id);
     } catch (err: any) {
@@ -1212,7 +1213,7 @@ const LecturerDashboard = () => {
             </div>
             <div>
               <Label className="mb-1 block text-sm font-semibold">{isRtl ? "تاريخ إنشاء المحاضرة" : "Lecture Creation Date"}</Label>
-              <Input type="date" value={new Date().toISOString().slice(0, 10)} disabled readOnly className="bg-muted/50" />
+              <Input type="date" value={newCourse.created_at} onChange={e => setNewCourse(p => ({ ...p, created_at: e.target.value }))} />
             </div>
             <div>
               <Label className="mb-1 block text-sm font-semibold">{isRtl ? "تاريخ انتهاء المحاضرة" : "Lecture Expiry Date"}</Label>

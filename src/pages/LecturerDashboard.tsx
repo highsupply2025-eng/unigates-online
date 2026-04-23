@@ -1178,6 +1178,24 @@ const LecturerDashboard = () => {
               <Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المحاضر" : "Lecturer Name"}</Label>
               <Input value={profile?.full_name || user?.email || ""} disabled readOnly className="bg-muted/50" />
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="mb-1 block text-sm font-semibold">{isRtl ? "التخصص (عربي)" : "Specialty (Arabic)"}</Label>
+                <Input
+                  value={newCourse.category_ar}
+                  onChange={e => setNewCourse(p => ({ ...p, category_ar: e.target.value }))}
+                  placeholder={isRtl ? "مثال: هندسة، طب، لغات" : "e.g. Engineering"}
+                />
+              </div>
+              <div>
+                <Label className="mb-1 block text-sm font-semibold">{isRtl ? "التخصص (إنجليزي)" : "Specialty (English)"}</Label>
+                <Input
+                  value={newCourse.category_en}
+                  onChange={e => setNewCourse(p => ({ ...p, category_en: e.target.value }))}
+                  placeholder="e.g. Engineering"
+                />
+              </div>
+            </div>
             <div>
               <Label className="mb-1 block text-sm font-semibold">{isRtl ? "تاريخ انتهاء المحاضرة" : "Lecture Expiry Date"}</Label>
               <Input type="date" value={newCourse.expires_at} onChange={e => setNewCourse(p => ({ ...p, expires_at: e.target.value }))} />

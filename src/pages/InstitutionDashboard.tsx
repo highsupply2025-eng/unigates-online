@@ -890,23 +890,11 @@ const InstitutionDashboard = () => {
               variant="outline"
               size="sm"
               className="gap-1 h-9 px-2.5 border-primary/30 hover:bg-primary/10"
-              onClick={() => {
-                if (pageView === "members") {
-                  setPageView("main");
-                  setActiveTab("departments");
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                } else {
-                  navigate("/leadership");
-                }
-              }}
-              title={pageView === "members" ? (isRtl ? "رجوع للأقسام" : "Back to Departments") : (isRtl ? "لوحة قيادة الكلية" : "Leadership Dashboard")}
+              onClick={() => navigate("/leadership")}
+              title={isRtl ? "رجوع للصفحة الرئيسية للكلية" : "Back to College Home"}
             >
               {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-              <span className="text-xs font-bold">
-                {pageView === "members"
-                  ? (isRtl ? "الأقسام" : "Departments")
-                  : (isRtl ? "القيادة" : "Leadership")}
-              </span>
+              <span className="text-xs font-bold">{isRtl ? "رجوع" : "Back"}</span>
             </Button>
             <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
               <DropdownMenuTrigger asChild>
@@ -1675,10 +1663,6 @@ const InstitutionDashboard = () => {
           {/* Live Streams Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="livestreams">
-              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
-                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                {isRtl ? "الرئيسية" : "Home"}
-              </Button>
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <Card className="bg-red-50 dark:bg-red-950/20 border-red-200">
                   <CardContent className="p-4 text-center">
@@ -1930,10 +1914,6 @@ const InstitutionDashboard = () => {
           {/* Schedules Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="schedules">
-              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
-                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                {isRtl ? "الرئيسية" : "Home"}
-              </Button>
               <h2 className="text-lg font-bold mb-4">{isRtl ? "جداول المحاضرات والاختبارات" : "Lectures & Exams Schedule"}</h2>
 
               {/* Exam Schedules */}
@@ -2031,10 +2011,6 @@ const InstitutionDashboard = () => {
           {/* Ratings Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="ratings">
-              <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
-                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                {isRtl ? "الرئيسية" : "Home"}
-              </Button>
               <h2 className="text-lg font-bold mb-4">{isRtl ? "تقييمات المحاضرين والطلاب" : "Lecturer & Student Ratings"}</h2>
 
               {/* Lecturer Ratings Summary */}
@@ -2248,10 +2224,6 @@ const InstitutionDashboard = () => {
 
           {/* Invitations Tab - Links & Codes */}
           <TabsContent value="invitations">
-            <Button variant="ghost" size="sm" className="gap-1 mb-4 text-muted-foreground hover:text-foreground" onClick={() => handleTabChange("general")}>
-              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-              {isRtl ? "الرئيسية" : "Home"}
-            </Button>
             {/* Free Leadership Links - Always visible */}
             {leadershipInvitations.length > 0 && (
               <Card className="mb-6 border-2 border-emerald-500/30 bg-emerald-50/30 dark:bg-emerald-950/10">

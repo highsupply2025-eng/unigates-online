@@ -879,9 +879,8 @@ const LecturerDashboard = () => {
 
               {/* ===== COURSES TAB ===== */}
               <TabsContent value="courses">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-foreground">{isRtl ? "دوراتي" : "My Courses"}</h2>
-                  <Button onClick={() => setShowNewCourse(true)} className="gap-2"><Plus className="w-4 h-4" />{isRtl ? "دورة جديدة" : "New Course"}</Button>
+                <div className="flex items-center justify-end mb-6">
+                  <Button onClick={() => setShowNewCourse(true)} className="gap-2"><Plus className="w-4 h-4" />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</Button>
                 </div>
                 {courses.length === 0 ? (
                   <div className="text-center py-16 text-muted-foreground">{isRtl ? "لا توجد دورات بعد. ابدأ بإنشاء أول دورة!" : "No courses yet."}</div>

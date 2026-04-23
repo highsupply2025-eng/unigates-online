@@ -924,16 +924,21 @@ const InstitutionDashboard = () => {
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setMenuOpen(false); setTimeout(() => toggleLanguage(), 0); }}>
+                <DropdownMenuItem onSelect={() => { toggleLanguage(); setMenuOpen(false); }}>
                   <Globe className="w-4 h-4 me-2" />
                   {language === "ar" ? "English" : "العربية"}
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onSelect={(e) => {
-                    e.preventDefault();
+                  onSelect={async () => {
                     setMenuOpen(false);
-                    setTimeout(async () => { await supabase.auth.signOut(); navigate("/login"); }, 0);
+                    await supabase.auth.signOut();
+                    navigate("/login");
                   }}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <LogOut className="w-4 h-4 me-2" />
+                  {isRtl ? "تسجيل الخروج" : "Logout"}
+                </DropdownMenuItem>
                   className="text-destructive focus:text-destructive"
                 >
                   <LogOut className="w-4 h-4 me-2" />

@@ -1626,9 +1626,9 @@ const InstitutionDashboard = () => {
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            setInvitationDept(dept);
-                            setInvitationView("main");
-                            handleTabChange("invitations");
+                            setSelectedDept(dept);
+                            setPageView("members");
+                            window.scrollTo({ top: 0, behavior: "smooth" });
                           }}
                         >
                           <Users className="w-4 h-4 me-1" />

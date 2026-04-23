@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, Send, ExternalLink } from "lucide-react";
+import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -11,6 +12,7 @@ type Message = { role: "user" | "assistant"; content: string };
 const AIChatWidget = () => {
   const { language } = useLanguage();
   const isRtl = language === "ar";
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -126,6 +128,8 @@ const AIChatWidget = () => {
   const openWhatsApp = () => {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}`, "_blank");
   };
+
+  if (location.pathname !== "/") return null;
 
   return (
     <>

@@ -47,6 +47,7 @@ const LecturerDashboard = () => {
   const [newCourse, setNewCourse] = useState({
     title_ar: "", title_en: "", category_ar: "", category_en: "",
     instructor_ar: "", instructor_en: "", is_free: false, price: 0,
+    expires_at: "",
   });
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
@@ -233,11 +234,12 @@ const LecturerDashboard = () => {
         instructor_en: lecturerName,
         is_free: newCourse.is_free,
         creator_id: user.id, thumbnail_url: thumbnailUrl,
+        expires_at: newCourse.expires_at || null,
       } as any);
       if (error) throw error;
       toast({ title: isRtl ? "تم" : "Done", description: isRtl ? "تم إنشاء الدورة بنجاح" : "Course created successfully" });
       setShowNewCourse(false);
-      setNewCourse({ title_ar: "", title_en: "", category_ar: "", category_en: "", instructor_ar: "", instructor_en: "", is_free: false, price: 0 });
+      setNewCourse({ title_ar: "", title_en: "", category_ar: "", category_en: "", instructor_ar: "", instructor_en: "", is_free: false, price: 0, expires_at: "" });
       setThumbnail(null); setThumbnailPreview(null);
       await loadCourses(user.id);
     } catch (err: any) {
@@ -1167,6 +1169,11 @@ const LecturerDashboard = () => {
             <div>
               <Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المحاضر" : "Lecturer Name"}</Label>
               <Input value={profile?.full_name || user?.email || ""} disabled readOnly className="bg-muted/50" />
+            </div>
+            <div>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "تاريخ انتهاء المحاضرة" : "Lecture Expiry Date"}</Label>
+              <Input type="date" value={newCourse.expires_at} onChange={e => setNewCourse(p => ({ ...p, expires_at: e.target.value }))} />
+              <p className="text-xs text-muted-foreground mt-1">{isRtl ? "اختياري — تاريخ ينتهي بعده عرض المحاضرة" : "Optional — date after which the lecture is no longer shown"}</p>
             </div>
             <div>
               <Label className="mb-1 block text-sm font-semibold">{isRtl ? "صورة المحاضرة" : "Lecture Image"}</Label>

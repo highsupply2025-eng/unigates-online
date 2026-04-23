@@ -567,6 +567,7 @@ export type Database = {
           created_at: string
           creator_id: string | null
           episode_count: number
+          expires_at: string | null
           id: string
           instructor_ar: string
           instructor_en: string
@@ -583,6 +584,7 @@ export type Database = {
           created_at?: string
           creator_id?: string | null
           episode_count?: number
+          expires_at?: string | null
           id?: string
           instructor_ar: string
           instructor_en: string
@@ -599,6 +601,7 @@ export type Database = {
           created_at?: string
           creator_id?: string | null
           episode_count?: number
+          expires_at?: string | null
           id?: string
           instructor_ar?: string
           instructor_en?: string

@@ -127,6 +127,8 @@ const LecturerDashboard = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigate("/login"); return; }
     setUser(user);
+    const { data: prof } = await supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
+    setProfile(prof);
     const { data: roles } = await supabase.from("user_roles").select("*").eq("user_id", user.id).eq("role", "lecturer");
     if (!roles || roles.length === 0) { setApproved(false); setLoading(false); return; }
     setApproved(roles[0].approved);

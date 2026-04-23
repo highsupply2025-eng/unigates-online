@@ -490,9 +490,25 @@ const InstitutionDashboard = () => {
 
   const handleAddDepartment = async () => {
     if (!newDeptName || !newDeptStudentCount || addingDept) return;
+    let studentCount = parseInt(newDeptStudentCount);
+    let lecturerCount = parseInt(newDeptLecturerCount) || 0;
+    let headCount = parseInt(newDeptHeadCount) || 0;
+
+    // Enforce caps
+    if (studentCount > 2000) {
+      toast({ title: isRtl ? "تجاوز الحد" : "Limit exceeded", description: isRtl ? "الحد الأقصى للطلاب 2000" : "Max students 2000", variant: "destructive" });
+      return;
+    }
+    if (lecturerCount > 10) {
+      toast({ title: isRtl ? "تجاوز الحد" : "Limit exceeded", description: isRtl ? "الحد الأقصى للمحاضرين 10" : "Max lecturers 10", variant: "destructive" });
+      return;
+    }
+    if (headCount > 3) {
+      toast({ title: isRtl ? "تجاوز الحد" : "Limit exceeded", description: isRtl ? "الحد الأقصى لرؤساء الأقسام 3" : "Max heads 3", variant: "destructive" });
+      return;
+    }
+
     setAddingDept(true);
-    const studentCount = parseInt(newDeptStudentCount);
-    const lecturerCount = parseInt(newDeptLecturerCount) || 0;
     const paymentAmount = studentCount * 299;
     const savedName = newDeptName;
 
@@ -515,6 +531,7 @@ const InstitutionDashboard = () => {
       setNewDeptName("");
       setNewDeptStudentCount("");
       setNewDeptLecturerCount("");
+      setNewDeptHeadCount("");
       setAddingDept(false);
 
       sonnerToast.success(
@@ -542,6 +559,14 @@ const InstitutionDashboard = () => {
           department_id: newDept.id,
           full_name: isRtl ? `محاضر ${i}` : `Lecturer ${i}`,
           role: "lecturer",
+          invitation_code: generateCode(),
+        });
+      }
+      for (let i = 1; i <= headCount; i++) {
+        memberInserts.push({
+          department_id: newDept.id,
+          full_name: isRtl ? `رئيس قسم ${i}` : `Head ${i}`,
+          role: "department_head",
           invitation_code: generateCode(),
         });
       }

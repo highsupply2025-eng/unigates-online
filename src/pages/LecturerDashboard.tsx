@@ -46,7 +46,7 @@ const LecturerDashboard = () => {
   const [showNewCourse, setShowNewCourse] = useState(false);
   const [newCourse, setNewCourse] = useState({
     title_ar: "", title_en: "", category_ar: "", category_en: "",
-    instructor_ar: "", instructor_en: "", is_free: false, price: 0,
+    instructor_ar: "", instructor_en: "", is_free: false, price: 0, created_at: new Date().toISOString().slice(0, 10),
     expires_at: "",
   });
   const [thumbnail, setThumbnail] = useState<File | null>(null);

@@ -1171,6 +1171,11 @@ const LecturerDashboard = () => {
               <Input value={profile?.full_name || user?.email || ""} disabled readOnly className="bg-muted/50" />
             </div>
             <div>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "تاريخ انتهاء المحاضرة" : "Lecture Expiry Date"}</Label>
+              <Input type="date" value={newCourse.expires_at} onChange={e => setNewCourse(p => ({ ...p, expires_at: e.target.value }))} />
+              <p className="text-xs text-muted-foreground mt-1">{isRtl ? "اختياري — تاريخ ينتهي بعده عرض المحاضرة" : "Optional — date after which the lecture is no longer shown"}</p>
+            </div>
+            <div>
               <Label className="mb-1 block text-sm font-semibold">{isRtl ? "صورة المحاضرة" : "Lecture Image"}</Label>
               {thumbnailPreview ? (
                 <div className="relative w-full h-32 rounded-lg overflow-hidden border">

@@ -939,11 +939,6 @@ const InstitutionDashboard = () => {
                   <LogOut className="w-4 h-4 me-2" />
                   {isRtl ? "تسجيل الخروج" : "Logout"}
                 </DropdownMenuItem>
-                  className="text-destructive focus:text-destructive"
-                >
-                  <LogOut className="w-4 h-4 me-2" />
-                  {isRtl ? "تسجيل الخروج" : "Logout"}
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

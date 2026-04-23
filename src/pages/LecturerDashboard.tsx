@@ -905,8 +905,22 @@ const LecturerDashboard = () => {
                       <Card key={course.id} className="overflow-hidden">
                         {course.thumbnail_url && <img src={course.thumbnail_url} alt="" className="w-full h-40 object-cover" />}
                         <CardContent className="p-4">
-                          <h3 className="font-bold text-foreground mb-1">{isRtl ? course.title_ar : course.title_en}</h3>
-                          <p className="text-sm text-muted-foreground mb-2">{isRtl ? course.category_ar : course.category_en}</p>
+                          <p className="text-xs text-muted-foreground mb-1">{isRtl ? "اسم المادة" : "Subject"}</p>
+                          <p className="text-base font-bold text-foreground mb-2" dir="rtl">{course.category_ar || course.category_en}</p>
+
+                          <p className="text-xs text-muted-foreground mb-1">{isRtl ? "عنوان المحاضرة" : "Lecture Title"}</p>
+                          <h3 className="font-semibold text-foreground mb-2" dir="rtl">{course.title_ar || course.title_en}</h3>
+
+                          <p className="text-xs text-muted-foreground mb-1">{isRtl ? "اسم المحاضر" : "Lecturer"}</p>
+                          <p className="text-sm text-foreground mb-2" dir="rtl">{course.instructor_ar || course.instructor_en}</p>
+
+                          <div className="text-xs text-muted-foreground space-y-1 mb-3">
+                            <p>{isRtl ? "تاريخ الإنشاء: " : "Created: "}{new Date(course.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</p>
+                            {course.expires_at && (
+                              <p>{isRtl ? "تاريخ الانتهاء: " : "Expires: "}{new Date(course.expires_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</p>
+                            )}
+                          </div>
+
                           <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
                             <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {courseViews[course.id] || 0}</span>
                             <span className="flex items-center gap-1"><Video className="w-3.5 h-3.5" /> {course.episode_count}</span>
@@ -917,7 +931,7 @@ const LecturerDashboard = () => {
                           </div>
                           <div className="flex gap-2 flex-wrap">
                             <Button size="sm" variant="outline" className="flex-1" onClick={() => openEpisodes(course.id)}>
-                              <Video className="w-3.5 h-3.5 me-1" />{isRtl ? "الحلقات" : "Episodes"}
+                              <Plus className="w-3.5 h-3.5 me-1" />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}
                             </Button>
                             <Button size="sm" variant="outline" className="gap-1" onClick={() => {
                               navigator.clipboard.writeText(`${window.location.origin}/courses?course=${course.id}`);

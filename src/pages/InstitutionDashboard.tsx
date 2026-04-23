@@ -1024,16 +1024,19 @@ const InstitutionDashboard = () => {
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <UserCheck className="w-5 h-5 text-amber-600" />
-                  {isRtl ? "رئيس القسم" : "Department Head"}
-                  <Badge variant="outline" className="ms-2">{getMembersForDept(selectedDept.id).filter(m => m.role === "department_head" && m.user_id).length}</Badge>
+                  {isRtl ? "رؤساء الأقسام" : "Department Heads"}
+                  <Badge variant="outline" className="ms-2">{getMembersForDept(selectedDept.id).filter(m => m.role === "department_head").length}</Badge>
                 </CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  {isRtl ? "كل رابط دعوة صالح للاستخدام مرة واحدة فقط" : "Each invitation link is valid for a single use only"}
+                </p>
               </CardHeader>
               <CardContent>
-                {getMembersForDept(selectedDept.id).filter(m => m.role === "department_head" && m.user_id).length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد رئيس قسم مسجل" : "No registered department head"}</p>
+                {getMembersForDept(selectedDept.id).filter(m => m.role === "department_head").length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد رؤساء أقسام" : "No department heads"}</p>
                 ) : (
                   <div className="space-y-2">
-                    {getMembersForDept(selectedDept.id).filter(m => m.role === "department_head" && m.user_id).map(member => (
+                    {getMembersForDept(selectedDept.id).filter(m => m.role === "department_head").map(member => (
                       <div key={member.id} className="p-4 rounded-lg border-2 border-amber-300 bg-amber-50/50 dark:bg-amber-950/20">
                         <div className="flex items-center justify-between cursor-pointer hover:bg-amber-100/40 dark:hover:bg-amber-900/30 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
                           <div className="flex items-center gap-3">
@@ -1042,13 +1045,37 @@ const InstitutionDashboard = () => {
                             </div>
                             <div>
                               <p className="font-bold text-foreground">{member.full_name}</p>
-                              <p className="text-xs text-muted-foreground">{isRtl ? "✅ مفعّل" : "✅ Active"}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {member.user_id ? (isRtl ? "✅ مفعّل" : "✅ Active") : (isRtl ? "⏳ في الانتظار - صالح لاستخدام واحد" : "⏳ Pending - single-use")}
+                              </p>
                             </div>
                           </div>
                           <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); handleDeleteMember(member.id, member.full_name); }}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
+                        {!member.user_id && member.invitation_code && (() => {
+                          const instPath = institutionType === "college" ? "college" : "institute";
+                          const memberInviteLink = `${window.location.origin}/signup/${instPath}/department_head?code=${member.invitation_code}`;
+                          const shareText = isRtl
+                            ? `مرحباً ${member.full_name}، يمكنك التسجيل عبر هذا الرابط (صالح لاستخدام واحد):\n${memberInviteLink}`
+                            : `Hi ${member.full_name}, register via this link (single-use):\n${memberInviteLink}`;
+                          return (
+                            <div className="flex items-center gap-2 mt-3 flex-wrap">
+                              <Button variant="outline" size="sm" className="text-xs h-8 px-2" onClick={(e) => { e.stopPropagation(); copyToClipboard(member.invitation_code!); }}>
+                                <Copy className="w-3.5 h-3.5 me-1" />{isRtl ? "نسخ الكود" : "Copy Code"}
+                              </Button>
+                              <Button variant="outline" size="sm" className="text-xs h-8 px-2" onClick={(e) => { e.stopPropagation(); copyToClipboard(memberInviteLink); }}>
+                                <LinkIcon className="w-3.5 h-3.5 me-1" />{isRtl ? "نسخ الرابط" : "Copy Link"}
+                              </Button>
+                              <a href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                                <Button variant="outline" size="sm" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
+                                  <MessageCircle className="w-3.5 h-3.5 me-1" />{isRtl ? "واتساب" : "WhatsApp"}
+                                </Button>
+                              </a>
+                            </div>
+                          );
+                        })()}
                       </div>
                     ))}
                   </div>
@@ -1062,15 +1089,18 @@ const InstitutionDashboard = () => {
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <UserCheck className="w-5 h-5 text-green-500" />
                   {isRtl ? "المحاضرون" : "Lecturers"}
-                  <Badge variant="outline" className="ms-2">{getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer" && m.user_id).length}</Badge>
+                  <Badge variant="outline" className="ms-2">{getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer").length}</Badge>
                 </CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  {isRtl ? "كل رابط دعوة صالح للاستخدام مرة واحدة فقط" : "Each invitation link is valid for a single use only"}
+                </p>
               </CardHeader>
               <CardContent>
-                {getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer" && m.user_id).length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد محاضرون مسجلون" : "No registered lecturers"}</p>
+                {getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer").length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد محاضرون" : "No lecturers"}</p>
                 ) : (
                   <div className="space-y-2">
-                    {getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer" && m.user_id).map(member => (
+                    {getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer").map(member => (
                       <div key={member.id} className="p-4 rounded-lg border bg-card">
                         <div className="flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
                           <div className="flex items-center gap-3">
@@ -1080,7 +1110,7 @@ const InstitutionDashboard = () => {
                             <div>
                               <p className="font-bold text-foreground">{member.full_name}</p>
                               <p className="text-xs text-muted-foreground">
-                                {member.user_id ? (isRtl ? "✅ مفعّل" : "✅ Active") : (isRtl ? "⏳ في الانتظار" : "⏳ Pending")}
+                                {member.user_id ? (isRtl ? "✅ مفعّل" : "✅ Active") : (isRtl ? "⏳ في الانتظار - صالح لاستخدام واحد" : "⏳ Pending - single-use")}
                               </p>
                             </div>
                           </div>
@@ -1088,12 +1118,12 @@ const InstitutionDashboard = () => {
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
-                        {member.invitation_code && (() => {
+                        {!member.user_id && member.invitation_code && (() => {
                           const instPath = institutionType === "college" ? "college" : "institute";
                           const memberInviteLink = `${window.location.origin}/signup/${instPath}/lecturer?code=${member.invitation_code}`;
                           const shareText = isRtl
-                            ? `مرحباً ${member.full_name}، يمكنك التسجيل عبر هذا الرابط:\n${memberInviteLink}`
-                            : `Hi ${member.full_name}, register via this link:\n${memberInviteLink}`;
+                            ? `مرحباً ${member.full_name}، يمكنك التسجيل عبر هذا الرابط (صالح لاستخدام واحد):\n${memberInviteLink}`
+                            : `Hi ${member.full_name}, register via this link (single-use):\n${memberInviteLink}`;
                           return (
                             <div className="flex items-center gap-2 mt-3 flex-wrap">
                               <Button variant="outline" size="sm" className="text-xs h-8 px-2" onClick={(e) => { e.stopPropagation(); copyToClipboard(member.invitation_code!); }}>
@@ -1123,15 +1153,18 @@ const InstitutionDashboard = () => {
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <GraduationCap className="w-5 h-5 text-blue-500" />
                   {isRtl ? "الطلاب" : "Students"}
-                  <Badge variant="outline" className="ms-2">{getMembersForDept(selectedDept.id).filter(m => m.role === "student" && m.user_id).length}</Badge>
+                  <Badge variant="outline" className="ms-2">{getMembersForDept(selectedDept.id).filter(m => m.role === "student").length}</Badge>
                 </CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  {isRtl ? "كل رابط دعوة صالح للاستخدام مرة واحدة فقط" : "Each invitation link is valid for a single use only"}
+                </p>
               </CardHeader>
               <CardContent>
-                {getMembersForDept(selectedDept.id).filter(m => m.role === "student" && m.user_id).length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد طلاب مسجلون" : "No registered students"}</p>
+                {getMembersForDept(selectedDept.id).filter(m => m.role === "student").length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد طلاب" : "No students"}</p>
                 ) : (
                   <div className="space-y-2">
-                    {getMembersForDept(selectedDept.id).filter(m => m.role === "student" && m.user_id).map(member => (
+                    {getMembersForDept(selectedDept.id).filter(m => m.role === "student").map(member => (
                       <div key={member.id} className="p-4 rounded-lg border bg-card">
                         <div className="flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
                           <div className="flex items-center gap-3">
@@ -1141,7 +1174,7 @@ const InstitutionDashboard = () => {
                             <div>
                               <p className="font-bold text-foreground">{member.full_name}</p>
                               <p className="text-xs text-muted-foreground">
-                                {member.user_id ? (isRtl ? "✅ مفعّل" : "✅ Active") : (isRtl ? "⏳ في الانتظار" : "⏳ Pending")}
+                                {member.user_id ? (isRtl ? "✅ مفعّل" : "✅ Active") : (isRtl ? "⏳ في الانتظار - صالح لاستخدام واحد" : "⏳ Pending - single-use")}
                               </p>
                             </div>
                           </div>
@@ -1149,12 +1182,12 @@ const InstitutionDashboard = () => {
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
-                        {member.invitation_code && (() => {
+                        {!member.user_id && member.invitation_code && (() => {
                           const instPath = institutionType === "college" ? "college" : "institute";
                           const memberInviteLink = `${window.location.origin}/signup/${instPath}/student?code=${member.invitation_code}`;
                           const shareText = isRtl
-                            ? `مرحباً ${member.full_name}، يمكنك التسجيل عبر هذا الرابط:\n${memberInviteLink}`
-                            : `Hi ${member.full_name}, register via this link:\n${memberInviteLink}`;
+                            ? `مرحباً ${member.full_name}، يمكنك التسجيل عبر هذا الرابط (صالح لاستخدام واحد):\n${memberInviteLink}`
+                            : `Hi ${member.full_name}, register via this link (single-use):\n${memberInviteLink}`;
                           return (
                             <div className="flex items-center gap-2 mt-3 flex-wrap">
                               <Button variant="outline" size="sm" className="text-xs h-8 px-2" onClick={(e) => { e.stopPropagation(); copyToClipboard(member.invitation_code!); }}>

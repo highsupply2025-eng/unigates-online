@@ -2738,21 +2738,22 @@ const InstitutionDashboard = () => {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>{isRtl ? "الاسم الكامل" : "Full Name"}</Label>
-              <Input value={newMemberName} onChange={e => setNewMemberName(e.target.value)} placeholder={isRtl ? "أدخل الاسم الكامل" : "Enter full name"} />
-            </div>
-            <div>
               <Label>{isRtl ? "الدور" : "Role"}</Label>
               {(() => {
                 const dept = departments.find(d => d.id === addMemberDeptId);
-                const studentCap = dept?.student_count || 0;
+                const studentCap = Math.min(dept?.student_count || 0, 2000);
                 const lecturerCap = 10;
+                const headCap = 3;
                 const studentsRegistered = getMembersForDept(addMemberDeptId).filter(m => m.role === "student").length;
                 const lecturersRegistered = getMembersForDept(addMemberDeptId).filter(m => m.role === "lecturer").length;
                 const headsRegistered = getDeptHeadsCount(addMemberDeptId);
                 const studentFull = studentCap > 0 && studentsRegistered >= studentCap;
-                const lecturerFull = lecturerCap > 0 && lecturersRegistered >= lecturerCap;
-                const headFull = headsRegistered >= 1;
+                const lecturerFull = lecturersRegistered >= lecturerCap;
+                const headFull = headsRegistered >= headCap;
+                const remaining =
+                  newMemberRole === "student" ? Math.max(0, studentCap - studentsRegistered)
+                  : newMemberRole === "lecturer" ? Math.max(0, lecturerCap - lecturersRegistered)
+                  : Math.max(0, headCap - headsRegistered);
                 return (
                   <>
                     <div className="flex gap-3 mt-1">
@@ -2787,21 +2788,35 @@ const InstitutionDashboard = () => {
                         onClick={() => setNewMemberRole("department_head")}
                         className="flex-1 gap-1.5"
                         disabled={headFull}
-                        title={headFull ? (isRtl ? "تم تسجيل رئيس قسم بالفعل" : "Department head already registered") : ""}
+                        title={headFull ? (isRtl ? `تم الوصول للحد الأقصى (${headCap})` : `Max reached (${headCap})`) : ""}
                       >
                         <UserCheck className="w-4 h-4" />
                         {isRtl ? "رئيس قسم" : "Head"}
                       </Button>
                     </div>
-                    {newMemberRole === "student" && studentCap > 0 && (
-                      <p className="text-xs text-muted-foreground mt-2">{isRtl ? `المسجلون: ${studentsRegistered} / ${studentCap}` : `Registered: ${studentsRegistered} / ${studentCap}`}</p>
+                    {newMemberRole === "student" && (
+                      <p className="text-xs text-muted-foreground mt-2">{isRtl ? `المسجلون: ${studentsRegistered} / ${studentCap} (الحد الأقصى 2000)` : `Registered: ${studentsRegistered} / ${studentCap} (max 2000)`}</p>
                     )}
-                    {newMemberRole === "lecturer" && lecturerCap > 0 && (
+                    {newMemberRole === "lecturer" && (
                       <p className="text-xs text-muted-foreground mt-2">{isRtl ? `المسجلون: ${lecturersRegistered} / ${lecturerCap}` : `Registered: ${lecturersRegistered} / ${lecturerCap}`}</p>
                     )}
                     {newMemberRole === "department_head" && (
-                      <p className="text-xs text-muted-foreground mt-2">{isRtl ? `المسجلون: ${headsRegistered} / 1` : `Registered: ${headsRegistered} / 1`}</p>
+                      <p className="text-xs text-muted-foreground mt-2">{isRtl ? `المسجلون: ${headsRegistered} / ${headCap}` : `Registered: ${headsRegistered} / ${headCap}`}</p>
                     )}
+                    <div className="mt-4">
+                      <Label>{isRtl ? "عدد الأعضاء المراد إضافتهم" : "Number of members to add"}</Label>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={remaining}
+                        value={newMemberCount}
+                        onChange={e => setNewMemberCount(e.target.value)}
+                        placeholder={isRtl ? `أدخل العدد (المتاح: ${remaining})` : `Enter count (available: ${remaining})`}
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {isRtl ? `المتاح للإضافة: ${remaining}` : `Available to add: ${remaining}`}
+                      </p>
+                    </div>
                   </>
                 );
               })()}
@@ -2811,7 +2826,7 @@ const InstitutionDashboard = () => {
             <Button variant="outline" onClick={() => setShowAddMemberDialog(false)}>
               {isRtl ? "إلغاء" : "Cancel"}
             </Button>
-            <Button onClick={handleAddMember} disabled={!newMemberName}>
+            <Button onClick={handleAddMember} disabled={!newMemberCount || parseInt(newMemberCount) < 1}>
               <Plus className="w-4 h-4 me-1" />
               {isRtl ? "إضافة" : "Add"}
             </Button>

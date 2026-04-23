@@ -883,7 +883,16 @@ const InstitutionDashboard = () => {
             </Button>
           </div>
           <div className="md:hidden flex items-center gap-1.5 shrink-0">
-            <BackButton />
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1 h-9 px-2.5 border-primary/30 hover:bg-primary/10"
+              onClick={() => navigate("/leadership")}
+              title={isRtl ? "لوحة قيادة الكلية" : "Leadership Dashboard"}
+            >
+              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              <span className="text-xs font-bold">{isRtl ? "القيادة" : "Leadership"}</span>
+            </Button>
             <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
               <DropdownMenuTrigger asChild>
                 <Button size="icon" className="rounded-xl w-9 h-9 bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-primary/25 text-white shrink-0">

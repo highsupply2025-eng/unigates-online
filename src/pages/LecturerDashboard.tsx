@@ -34,6 +34,7 @@ const LecturerDashboard = () => {
   const isRtl = dir === "rtl";
 
   const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
   const [approved, setApproved] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<any[]>([]);
@@ -126,6 +127,8 @@ const LecturerDashboard = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigate("/login"); return; }
     setUser(user);
+    const { data: prof } = await supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
+    setProfile(prof);
     const { data: roles } = await supabase.from("user_roles").select("*").eq("user_id", user.id).eq("role", "lecturer");
     if (!roles || roles.length === 0) { setApproved(false); setLoading(false); return; }
     setApproved(roles[0].approved);
@@ -206,8 +209,8 @@ const LecturerDashboard = () => {
 
   // Course CRUD
   const handleCreateCourse = async () => {
-    if (!newCourse.title_ar || !newCourse.title_en || !newCourse.category_ar || !newCourse.category_en) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى ملء جميع الحقول المطلوبة" : "Please fill all required fields", variant: "destructive" });
+    if (!newCourse.title_ar || !newCourse.title_en) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى إدخال اسم المحاضرة" : "Please enter the lecture name", variant: "destructive" });
       return;
     }
     setSavingCourse(true);
@@ -221,11 +224,13 @@ const LecturerDashboard = () => {
         const { data: urlData } = supabase.storage.from("course-thumbnails").getPublicUrl(path);
         thumbnailUrl = urlData.publicUrl;
       }
+      const lecturerName = profile?.full_name || user.email;
       const { error } = await supabase.from("courses").insert({
         title_ar: newCourse.title_ar, title_en: newCourse.title_en,
-        category_ar: newCourse.category_ar, category_en: newCourse.category_en,
-        instructor_ar: newCourse.instructor_ar || user.email,
-        instructor_en: newCourse.instructor_en || user.email,
+        category_ar: newCourse.category_ar || (isRtl ? "عام" : "General"),
+        category_en: newCourse.category_en || "General",
+        instructor_ar: lecturerName,
+        instructor_en: lecturerName,
         is_free: newCourse.is_free,
         creator_id: user.id, thumbnail_url: thumbnailUrl,
       } as any);
@@ -1153,40 +1158,18 @@ const LecturerDashboard = () => {
       {/* New Course Dialog */}
       <Dialog open={showNewCourse} onOpenChange={setShowNewCourse}>
         <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{isRtl ? "إنشاء دورة جديدة" : "Create New Course"}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{isRtl ? "إنشاء محاضرة جديدة" : "Create New Lecture"}</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
-              <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "العنوان (عربي)" : "Title (Arabic)"} *</Label><Input value={newCourse.title_ar} onChange={e => setNewCourse(p => ({ ...p, title_ar: e.target.value }))} /></div>
-              <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "العنوان (إنجليزي)" : "Title (English)"} *</Label><Input value={newCourse.title_en} onChange={e => setNewCourse(p => ({ ...p, title_en: e.target.value }))} /></div>
+              <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المحاضرة (عربي)" : "Lecture Name (Arabic)"} *</Label><Input value={newCourse.title_ar} onChange={e => setNewCourse(p => ({ ...p, title_ar: e.target.value }))} /></div>
+              <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المحاضرة (إنجليزي)" : "Lecture Name (English)"} *</Label><Input value={newCourse.title_en} onChange={e => setNewCourse(p => ({ ...p, title_en: e.target.value }))} /></div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "التصنيف (عربي)" : "Category (Arabic)"} *</Label><Input value={newCourse.category_ar} onChange={e => setNewCourse(p => ({ ...p, category_ar: e.target.value }))} /></div>
-              <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "التصنيف (إنجليزي)" : "Category (English)"} *</Label><Input value={newCourse.category_en} onChange={e => setNewCourse(p => ({ ...p, category_en: e.target.value }))} /></div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المحاضر (عربي)" : "Instructor (Arabic)"}</Label><Input value={newCourse.instructor_ar} onChange={e => setNewCourse(p => ({ ...p, instructor_ar: e.target.value }))} /></div>
-              <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المحاضر (إنجليزي)" : "Instructor (English)"}</Label><Input value={newCourse.instructor_en} onChange={e => setNewCourse(p => ({ ...p, instructor_en: e.target.value }))} /></div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Switch checked={newCourse.is_free} onCheckedChange={v => setNewCourse(p => ({ ...p, is_free: v, price: v ? 0 : p.price }))} />
-              <Label className="font-semibold">{isRtl ? "دورة مجانية" : "Free Course"}</Label>
-            </div>
-            {!newCourse.is_free && (
-              <div>
-                <Label className="mb-1 block text-sm font-semibold">{isRtl ? "سعر الدورة (جنيه)" : "Price (EGP)"} *</Label>
-                <Input type="number" min="0" value={newCourse.price || ""} onChange={e => setNewCourse(p => ({ ...p, price: Number(e.target.value) }))} placeholder="999" />
-                {newCourse.price > 0 && (
-                  <div className="mt-2 p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm">
-                    <div className="flex justify-between mb-1"><span className="text-muted-foreground">{isRtl ? "سعر الدورة:" : "Price:"}</span><span className="font-bold">{newCourse.price} {isRtl ? "جنيه" : "EGP"}</span></div>
-                    <div className="flex justify-between mb-1"><span className="text-muted-foreground">{isRtl ? "عمولة المنصة (30%):" : "Platform fee (30%):"}</span><span className="font-semibold text-destructive">-{(newCourse.price * 0.3).toFixed(0)}</span></div>
-                    <Separator className="my-1" />
-                    <div className="flex justify-between"><span className="font-bold">{isRtl ? "صافي الربح:" : "Earnings:"}</span><span className="font-black text-primary">{(newCourse.price * 0.7).toFixed(0)} {isRtl ? "جنيه" : "EGP"}</span></div>
-                  </div>
-                )}
-              </div>
-            )}
             <div>
-              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "الصورة المصغرة" : "Thumbnail"}</Label>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المحاضر" : "Lecturer Name"}</Label>
+              <Input value={profile?.full_name || user?.email || ""} disabled readOnly className="bg-muted/50" />
+            </div>
+            <div>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "صورة المحاضرة" : "Lecture Image"}</Label>
               {thumbnailPreview ? (
                 <div className="relative w-full h-32 rounded-lg overflow-hidden border">
                   <img src={thumbnailPreview} alt="" className="w-full h-full object-cover" />
@@ -1199,8 +1182,8 @@ const LecturerDashboard = () => {
                 </label>
               )}
             </div>
-            <Button onClick={handleCreateCourse} disabled={savingCourse} className="w-full">
-              {savingCourse ? <div className="animate-spin w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full" /> : (isRtl ? "إنشاء الدورة" : "Create Course")}
+            <Button onClick={handleCreateCourse} disabled={savingCourse} className="w-full gap-2">
+              {savingCourse ? <div className="animate-spin w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full" /> : (<><Plus className="w-4 h-4" />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</>)}
             </Button>
           </div>
         </DialogContent>

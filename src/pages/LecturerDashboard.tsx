@@ -234,6 +234,7 @@ const LecturerDashboard = () => {
         instructor_en: lecturerName,
         is_free: newCourse.is_free,
         creator_id: user.id, thumbnail_url: thumbnailUrl,
+        expires_at: newCourse.expires_at || null,
       } as any);
       if (error) throw error;
       toast({ title: isRtl ? "تم" : "Done", description: isRtl ? "تم إنشاء الدورة بنجاح" : "Course created successfully" });

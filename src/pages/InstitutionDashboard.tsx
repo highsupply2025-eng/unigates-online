@@ -170,6 +170,7 @@ const InstitutionDashboard = () => {
   
    const handleTabChange = (tab: string) => {
     setActiveTab(tab);
+    setPageView("main");
     if (tab === "general") {
       setSearchParams({});
     } else {

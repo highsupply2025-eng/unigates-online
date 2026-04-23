@@ -871,7 +871,7 @@ const InstitutionDashboard = () => {
               <LinkIcon className="w-4 h-4" />
               {isRtl ? "الدعوات" : "Invitations"}
             </Button>
-            <Button size="sm" className="gap-1.5 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:scale-105 transition-all" onClick={() => handleTabChange("general")}>
+            <Button size="sm" className="gap-1.5 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:scale-105 transition-all" onClick={() => { if (pageView === "members" || pageView === "memberProfile") { setPageView("main"); handleTabChange("departments"); } else { handleTabChange("general"); } }}>
               {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
               {isRtl ? "رجوع" : "Back"}
             </Button>
@@ -890,8 +890,8 @@ const InstitutionDashboard = () => {
             <Button
               size="sm"
               className="gap-1 h-9 px-2.5 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:scale-105 transition-all"
-              onClick={() => handleTabChange("general")}
-              title={isRtl ? "رجوع للصفحة الرئيسية للكلية" : "Back to College Home"}
+              onClick={() => { if (pageView === "members" || pageView === "memberProfile") { setPageView("main"); handleTabChange("departments"); } else { handleTabChange("general"); } }}
+              title={isRtl ? "رجوع" : "Back"}
             >
               {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
               <span className="text-xs font-bold">{isRtl ? "رجوع" : "Back"}</span>

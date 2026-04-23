@@ -20,6 +20,7 @@ const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const LiveStreams = lazy(() => import("./pages/LiveStreams"));
 const LecturerDashboard = lazy(() => import("./pages/LecturerDashboard"));
+const LecturerCourseContent = lazy(() => import("./pages/LecturerCourseContent"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const WatchStream = lazy(() => import("./pages/WatchStream"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
@@ -100,6 +101,7 @@ const App = () => (
               <Route path="/choose-plan" element={<ChoosePlan />} />
               <Route path="/payment" element={<Payment />} />
               <Route path="/lecturer/dashboard" element={<LecturerDashboard />} />
+              <Route path="/lecturer/course/:courseId" element={<LecturerCourseContent />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/stream/:streamId" element={<WatchStream />} />
               <Route path="/live" element={<LiveStreams />} />

@@ -927,7 +927,7 @@ const LecturerDashboard = () => {
                               <Plus className="w-3.5 h-3.5 me-1" />{isRtl ? "الحلقات والمرفقات" : "Episodes & Attachments"}
                             </Button>
                             <Button size="sm" variant="outline" className="gap-1" onClick={() => {
-                              navigator.clipboard.writeText(`${window.location.origin}/courses?course=${course.id}`);
+                              navigator.clipboard.writeText(`${window.location.origin}/lecturer/course/${course.id}`);
                               sonnerToast.success(isRtl ? "تم النسخ!" : "Copied!", { duration: 500 });
                             }}>
                               <Link2 className="w-3.5 h-3.5" />{isRtl ? "نسخ" : "Copy"}

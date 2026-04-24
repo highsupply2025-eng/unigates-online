@@ -318,12 +318,15 @@ const LecturerDashboard = () => {
     try {
       const { error } = await supabase.from("live_streams").insert({
         creator_id: user.id, title_ar: newStream.title_ar, title_en: newStream.title_en,
+        category_ar: newStream.category_ar || null, category_en: newStream.category_en || null,
+        instructor_ar: profile?.full_name || null, instructor_en: profile?.full_name || null,
         status: "scheduled", scheduled_at: newStream.scheduled_at || null,
+        expires_at: newStream.expires_at ? new Date(newStream.expires_at).toISOString() : null,
       });
       if (error) throw error;
       toast({ title: isRtl ? "تم" : "Done", description: isRtl ? "تم إنشاء البث بنجاح" : "Stream created" });
       setShowStreamDialog(false);
-      setNewStream({ title_ar: "", title_en: "", scheduled_at: "" });
+      setNewStream({ title_ar: "", title_en: "", category_ar: "", category_en: "", scheduled_at: "", expires_at: "" });
       await loadStreams(user.id);
     } catch (err: any) {
       toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });

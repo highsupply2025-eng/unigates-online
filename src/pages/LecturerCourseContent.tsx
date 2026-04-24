@@ -17,7 +17,7 @@ const LecturerCourseContent = () => {
   const navigate = useNavigate();
   const { dir } = useLanguage();
   const { toast } = useToast();
-  const handleBack = () => navigate("/lecturer/dashboard?tab=courses");
+  const handleBack = () => navigate("/lecturer/dashboard?tab=courses", { replace: true });
   const isRtl = dir === "rtl";
 
   const [user, setUser] = useState<any>(null);
@@ -111,7 +111,7 @@ const LecturerCourseContent = () => {
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <h1 className="text-lg font-bold text-foreground order-first">{isRtl ? "الحلقات والمرفقات" : "Episodes & Attachments"}</h1>
-          <Button size="icon" variant="default" className="order-last" onClick={handleBack} aria-label={isRtl ? "رجوع" : "Back"}>
+          <Button size="icon" variant="default" className="order-last touch-manipulation active:scale-95 transition-transform" onPointerDown={handleBack} aria-label={isRtl ? "رجوع" : "Back"}>
             {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
           </Button>
         </div>

@@ -152,12 +152,7 @@ const LecturerCourseContent = () => {
         )}
 
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <FileText className="w-4 h-4" /> {isRtl ? "الحلقات والمرفقات" : "Episodes & Attachments"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-6">
             <div>
               <p className="text-sm font-semibold mb-2 flex items-center gap-2"><Video className="w-4 h-4" /> {isRtl ? "الحلقات" : "Episodes"} ({episodes.length})</p>
               {episodes.length === 0 ? (

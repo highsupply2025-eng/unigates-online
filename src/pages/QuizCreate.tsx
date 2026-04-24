@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  ChevronLeft, ChevronRight, Plus, Trash2, CheckCircle, Clock, HelpCircle,
+  Plus, Trash2, CheckCircle, Clock, HelpCircle,
   GraduationCap, Save, Eye, EyeOff, BarChart3, Loader2, FileQuestion, ListChecks,
   Pencil, ArrowUp, ArrowDown, X, Shuffle, Zap, Image as ImageIcon, Type, ToggleLeft, AlignLeft, ListOrdered,
   Upload, Download, FileSpreadsheet, AlertCircle
@@ -516,11 +516,6 @@ const QuizCreate = () => {
     <div className="min-h-screen bg-background" dir={dir}>
       <SimpleHeader />
       <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-3 sm:mb-4 gap-2 text-muted-foreground hover:text-foreground">
-          {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-          {isRtl ? "رجوع" : "Back"}
-        </Button>
-
         <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
           <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center shrink-0">
             <FileQuestion className="w-6 h-6 sm:w-7 sm:h-7 text-amber-600" />

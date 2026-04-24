@@ -154,7 +154,7 @@ const LecturerCourseContent = () => {
         <Card>
           <CardContent className="space-y-4 pt-6">
             <div>
-              <p className="text-sm font-semibold mb-2 flex items-center gap-2"><Video className="w-4 h-4" /> {isRtl ? "الحلقات" : "Episodes"} ({episodes.length})</p>
+              <p className="text-sm font-semibold mb-2 flex items-center gap-2"><Video className="w-4 h-4" /> {isRtl ? "حلقة" : "Episode"} ({episodes.length})</p>
               {episodes.length === 0 ? (
                 <p className="text-xs text-muted-foreground">{isRtl ? "لا توجد حلقات بعد" : "No episodes yet"}</p>
               ) : (
@@ -175,7 +175,7 @@ const LecturerCourseContent = () => {
             </div>
             <Separator />
             <div>
-              <p className="text-sm font-semibold mb-2 flex items-center gap-2"><Paperclip className="w-4 h-4" /> {isRtl ? "المرفقات" : "Attachments"} ({attachments.length})</p>
+              <p className="text-sm font-semibold mb-2 flex items-center gap-2"><Paperclip className="w-4 h-4" /> {isRtl ? "مرفق" : "Attachment"} ({attachments.length})</p>
               {attachments.length === 0 ? (
                 <p className="text-xs text-muted-foreground">{isRtl ? "لا توجد مرفقات بعد" : "No attachments yet"}</p>
               ) : (

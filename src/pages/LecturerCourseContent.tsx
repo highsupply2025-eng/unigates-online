@@ -17,7 +17,7 @@ const LecturerCourseContent = () => {
   const navigate = useNavigate();
   const { dir } = useLanguage();
   const { toast } = useToast();
-  const handleBack = useSmartBack("/lecturer/dashboard");
+  const handleBack = () => navigate("/lecturer/dashboard");
   const isRtl = dir === "rtl";
 
   const [user, setUser] = useState<any>(null);

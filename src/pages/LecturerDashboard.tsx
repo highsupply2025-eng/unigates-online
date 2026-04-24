@@ -72,7 +72,7 @@ const LecturerDashboard = () => {
   // Live streams
   const [streams, setStreams] = useState<any[]>([]);
   const [showStreamDialog, setShowStreamDialog] = useState(false);
-  const [newStream, setNewStream] = useState({ title_ar: "", title_en: "", scheduled_at: "" });
+  const [newStream, setNewStream] = useState({ title_ar: "", title_en: "", category_ar: "", category_en: "", scheduled_at: "", expires_at: "" });
   const [savingStream, setSavingStream] = useState(false);
   const [activeStreamId, setActiveStreamId] = useState<string | null>(null);
   const [activeStreamTitle, setActiveStreamTitle] = useState("");

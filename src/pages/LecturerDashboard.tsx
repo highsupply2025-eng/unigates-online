@@ -588,22 +588,7 @@ const LecturerDashboard = () => {
             <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight truncate">{t.brandName}</span>
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => {
-                if (activeTab !== "home") {
-                  setActiveTab("home");
-                } else {
-                  handleHeaderBack();
-                }
-              }}
-              className="gap-1.5 font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/30"
-              aria-label={isRtl ? "رجوع" : "Back"}
-            >
-              {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
-              <span className="hidden sm:inline">{isRtl ? "رجوع" : "Back"}</span>
-            </Button>
+            {/* Back button removed per request */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="p-2 rounded-lg bg-primary/20 text-primary" aria-label="menu">

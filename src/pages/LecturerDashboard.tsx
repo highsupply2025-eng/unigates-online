@@ -23,14 +23,15 @@ import { useToast } from "@/hooks/use-toast";
 import { toast as sonnerToast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
-import BackButton from "@/components/BackButton";
 import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
+import { useSmartBack } from "@/hooks/use-smart-back";
 
 const LecturerDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const handleHeaderBack = useSmartBack("/");
   const isRtl = dir === "rtl";
 
   const [user, setUser] = useState<any>(null);
@@ -588,15 +589,7 @@ const LecturerDashboard = () => {
             <Button
               variant="default"
               size="sm"
-              onClick={() => {
-                if (activeTab !== "home") {
-                  setActiveTab("home");
-                } else if (window.history.length > 2) {
-                  navigate(-1);
-                } else {
-                  navigate("/");
-                }
-              }}
+              onClick={handleHeaderBack}
               className="gap-1.5 font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/30"
               aria-label={isRtl ? "رجوع" : "Back"}
             >

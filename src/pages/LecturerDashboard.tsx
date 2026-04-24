@@ -72,7 +72,7 @@ const LecturerDashboard = () => {
   // Live streams
   const [streams, setStreams] = useState<any[]>([]);
   const [showStreamDialog, setShowStreamDialog] = useState(false);
-  const [newStream, setNewStream] = useState({ title_ar: "", title_en: "", scheduled_at: "" });
+  const [newStream, setNewStream] = useState({ title_ar: "", title_en: "", category_ar: "", category_en: "", scheduled_at: "", expires_at: "" });
   const [savingStream, setSavingStream] = useState(false);
   const [activeStreamId, setActiveStreamId] = useState<string | null>(null);
   const [activeStreamTitle, setActiveStreamTitle] = useState("");
@@ -318,12 +318,15 @@ const LecturerDashboard = () => {
     try {
       const { error } = await supabase.from("live_streams").insert({
         creator_id: user.id, title_ar: newStream.title_ar, title_en: newStream.title_en,
+        category_ar: newStream.category_ar || null, category_en: newStream.category_en || null,
+        instructor_ar: profile?.full_name || null, instructor_en: profile?.full_name || null,
         status: "scheduled", scheduled_at: newStream.scheduled_at || null,
+        expires_at: newStream.expires_at ? new Date(newStream.expires_at).toISOString() : null,
       });
       if (error) throw error;
       toast({ title: isRtl ? "تم" : "Done", description: isRtl ? "تم إنشاء البث بنجاح" : "Stream created" });
       setShowStreamDialog(false);
-      setNewStream({ title_ar: "", title_en: "", scheduled_at: "" });
+      setNewStream({ title_ar: "", title_en: "", category_ar: "", category_en: "", scheduled_at: "", expires_at: "" });
       await loadStreams(user.id);
     } catch (err: any) {
       toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
@@ -1269,11 +1272,41 @@ const LecturerDashboard = () => {
         <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{isRtl ? "إنشاء بث مباشر" : "Create Live Stream"}</DialogTitle></DialogHeader>
           <div className="space-y-4">
+            <div>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المحاضر" : "Lecturer Name"}</Label>
+              <Input value={profile?.full_name || user?.email || ""} disabled readOnly className="bg-muted/50" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المادة (عربي)" : "Subject (Arabic)"}</Label>
+                <Input
+                  value={newStream.category_ar}
+                  onChange={e => setNewStream(p => ({ ...p, category_ar: e.target.value }))}
+                  placeholder={isRtl ? "مثال: هندسة، طب، لغات" : "e.g. Engineering"}
+                />
+              </div>
+              <div>
+                <Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المادة (إنجليزي)" : "Subject (English)"}</Label>
+                <Input
+                  value={newStream.category_en}
+                  onChange={e => setNewStream(p => ({ ...p, category_en: e.target.value }))}
+                  placeholder="e.g. Engineering"
+                />
+              </div>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "العنوان (عربي)" : "Title (Arabic)"} *</Label><Input value={newStream.title_ar} onChange={e => setNewStream(p => ({ ...p, title_ar: e.target.value }))} /></div>
               <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "العنوان (إنجليزي)" : "Title (English)"} *</Label><Input value={newStream.title_en} onChange={e => setNewStream(p => ({ ...p, title_en: e.target.value }))} /></div>
             </div>
-            <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "موعد البث" : "Scheduled Time"}</Label><Input type="datetime-local" value={newStream.scheduled_at} onChange={e => setNewStream(p => ({ ...p, scheduled_at: e.target.value }))} /></div>
+            <div>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "موعد البث" : "Scheduled Time"}</Label>
+              <Input type="datetime-local" value={newStream.scheduled_at} onChange={e => setNewStream(p => ({ ...p, scheduled_at: e.target.value }))} />
+            </div>
+            <div>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "تاريخ انتهاء البث" : "Stream Expiry Date"}</Label>
+              <Input type="date" value={newStream.expires_at} onChange={e => setNewStream(p => ({ ...p, expires_at: e.target.value }))} />
+              <p className="text-xs text-muted-foreground mt-1">{isRtl ? "اختياري — تاريخ ينتهي بعده عرض البث" : "Optional — date after which the stream is no longer shown"}</p>
+            </div>
             <Button onClick={handleCreateStream} disabled={savingStream} className="w-full">
               {savingStream ? <div className="animate-spin w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full" /> : (isRtl ? "إنشاء البث" : "Create Stream")}
             </Button>

@@ -1017,10 +1017,15 @@ export type Database = {
       }
       live_streams: {
         Row: {
+          category_ar: string | null
+          category_en: string | null
           course_id: string | null
           created_at: string
           creator_id: string
+          expires_at: string | null
           id: string
+          instructor_ar: string | null
+          instructor_en: string | null
           scheduled_at: string | null
           status: string
           stream_url: string | null
@@ -1028,10 +1033,15 @@ export type Database = {
           title_en: string
         }
         Insert: {
+          category_ar?: string | null
+          category_en?: string | null
           course_id?: string | null
           created_at?: string
           creator_id: string
+          expires_at?: string | null
           id?: string
+          instructor_ar?: string | null
+          instructor_en?: string | null
           scheduled_at?: string | null
           status?: string
           stream_url?: string | null
@@ -1039,10 +1049,15 @@ export type Database = {
           title_en: string
         }
         Update: {
+          category_ar?: string | null
+          category_en?: string | null
           course_id?: string | null
           created_at?: string
           creator_id?: string
+          expires_at?: string | null
           id?: string
+          instructor_ar?: string | null
+          instructor_en?: string | null
           scheduled_at?: string | null
           status?: string
           stream_url?: string | null

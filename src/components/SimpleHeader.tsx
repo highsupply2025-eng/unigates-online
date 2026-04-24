@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, Globe, ArrowLeft, Menu, LogIn } from "lucide-react";
+import { GraduationCap, ArrowLeft, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const SimpleHeader = () => {
-  const { toggleLanguage, t, dir, language } = useLanguage();
+  const { t, dir } = useLanguage();
   const navigate = useNavigate();
 
   return (
@@ -25,10 +25,6 @@ const SimpleHeader = () => {
 
         {/* Desktop buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white">
-            <Globe className="w-4 h-4" />
-            {language === "ar" ? "EN" : "AR"}
-          </Button>
           <Button size="icon" onClick={() => navigate('/')} className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white">
             <ArrowLeft className="w-5 h-5" />
           </Button>
@@ -42,11 +38,7 @@ const SimpleHeader = () => {
                 <Menu className="w-5 h-5" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-48">
-              <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
-                <Globe className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold">{language === "ar" ? "English" : "العربية"}</span>
-              </DropdownMenuItem>
+              <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-48">
               <DropdownMenuItem onClick={() => navigate('/')} className="gap-2 cursor-pointer">
                 <ArrowLeft className="w-4 h-4 text-primary" />
                 <span className="text-sm font-semibold">{t.home}</span>

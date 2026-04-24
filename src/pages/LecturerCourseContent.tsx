@@ -10,13 +10,14 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import BackButton from "@/components/BackButton";
+import { useSmartBack } from "@/hooks/use-smart-back";
 
 const LecturerCourseContent = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
   const { dir } = useLanguage();
   const { toast } = useToast();
+  const handleBack = useSmartBack("/lecturer/dashboard");
   const isRtl = dir === "rtl";
 
   const [user, setUser] = useState<any>(null);
@@ -110,7 +111,7 @@ const LecturerCourseContent = () => {
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <h1 className="text-lg font-bold text-foreground order-first">{isRtl ? "الحلقات والمرفقات" : "Episodes & Attachments"}</h1>
-          <Button size="icon" variant="default" className="order-last" onClick={() => navigate("/lecturer/dashboard")} aria-label={isRtl ? "رجوع" : "Back"}>
+          <Button size="icon" variant="default" className="order-last" onClick={handleBack} aria-label={isRtl ? "رجوع" : "Back"}>
             {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
           </Button>
         </div>

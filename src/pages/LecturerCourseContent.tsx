@@ -17,8 +17,7 @@ const LecturerCourseContent = () => {
   const navigate = useNavigate();
   const { dir } = useLanguage();
   const { toast } = useToast();
-  const handleBack = () => navigate("/lecturer/dashboard");
-  // ^ يرجع دائمًا إلى صفحة المحاضرات (لوحة المحاضر)
+  const handleBack = () => navigate("/lecturer/dashboard?tab=courses");
   const isRtl = dir === "rtl";
 
   const [user, setUser] = useState<any>(null);

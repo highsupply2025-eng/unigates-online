@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   GraduationCap, Plus, Eye, BookOpen, FileText, Video, Trash2, Globe, LogOut,
   Upload, X, Radio, Calendar, ExternalLink, ClipboardList, Star, Send, ArrowLeft, ArrowRight, MonitorPlay, Link2, Copy, Check,
@@ -31,8 +31,10 @@ const LecturerDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const handleHeaderBack = useSmartBack("/");
   const isRtl = dir === "rtl";
+  const requestedTab = new URLSearchParams(location.search).get("tab");
 
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
@@ -41,7 +43,7 @@ const LecturerDashboard = () => {
   const [courses, setCourses] = useState<any[]>([]);
   const [courseViews, setCourseViews] = useState<Record<string, number>>({});
   const [viewsTimes, setViewsTimes] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState("home");
+  const [activeTab, setActiveTab] = useState(requestedTab === "courses" ? "courses" : "home");
 
   // New course form
   const [showNewCourse, setShowNewCourse] = useState(false);

@@ -11,9 +11,10 @@ import {
 
 type SimpleHeaderProps = {
   backTo?: string;
+  mobileBackOnly?: boolean;
 };
 
-const SimpleHeader = ({ backTo = "/" }: SimpleHeaderProps) => {
+const SimpleHeader = ({ backTo = "/", mobileBackOnly = false }: SimpleHeaderProps) => {
   const { t, dir } = useLanguage();
   const navigate = useNavigate();
 
@@ -34,21 +35,32 @@ const SimpleHeader = ({ backTo = "/" }: SimpleHeaderProps) => {
           </Button>
         </div>
 
-        {/* Mobile/Tablet dropdown */}
+        {/* Mobile/Tablet action */}
         <div className="md:hidden">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="p-2 rounded-lg bg-primary/20 text-primary">
-                <Menu className="w-5 h-5" />
-              </button>
-            </DropdownMenuTrigger>
-              <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-48">
-              <DropdownMenuItem onClick={() => navigate(backTo)} className="gap-2 cursor-pointer">
-                <ArrowLeft className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold">{t.home}</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {mobileBackOnly ? (
+            <Button
+              size="icon"
+              onClick={() => navigate(backTo)}
+              className="rounded-lg bg-primary/20 text-primary hover:bg-primary/25"
+              variant="ghost"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="p-2 rounded-lg bg-primary/20 text-primary">
+                  <Menu className="w-5 h-5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align={dir === "rtl" ? "start" : "end"} className="w-48">
+                <DropdownMenuItem onClick={() => navigate(backTo)} className="gap-2 cursor-pointer">
+                  <ArrowLeft className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-semibold">{t.home}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
     </header>

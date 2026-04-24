@@ -10,13 +10,14 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import BackButton from "@/components/BackButton";
+import { useSmartBack } from "@/hooks/use-smart-back";
 
 const LecturerCourseContent = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
   const { dir } = useLanguage();
   const { toast } = useToast();
+  const handleBack = useSmartBack("/lecturer/dashboard");
   const isRtl = dir === "rtl";
 
   const [user, setUser] = useState<any>(null);

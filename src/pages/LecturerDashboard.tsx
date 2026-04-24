@@ -591,7 +591,13 @@ const LecturerDashboard = () => {
             <Button
               variant="default"
               size="sm"
-              onClick={handleHeaderBack}
+              onClick={() => {
+                if (activeTab !== "home") {
+                  setActiveTab("home");
+                } else {
+                  handleHeaderBack();
+                }
+              }}
               className="gap-1.5 font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/30"
               aria-label={isRtl ? "رجوع" : "Back"}
             >

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GraduationCap, ArrowLeft, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -17,6 +17,30 @@ type SimpleHeaderProps = {
 const SimpleHeader = ({ backTo = "/", mobileBackOnly = false }: SimpleHeaderProps) => {
   const { t, dir } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const getBackLabel = () => {
+    const pathname = location.pathname;
+
+    const pageLabels = [
+      { match: "/about", ar: "من نحن", en: "About" },
+      { match: "/contact", ar: "اتصل بنا", en: "Contact" },
+      { match: "/faq", ar: "الأسئلة الشائعة", en: "FAQ" },
+      { match: "/help-center", ar: "مركز المساعدة", en: "Help Center" },
+      { match: "/privacy", ar: "سياسة الخصوصية", en: "Privacy Policy" },
+      { match: "/terms", ar: "الشروط والأحكام", en: "Terms & Conditions" },
+      { match: "/blog", ar: "المدونة", en: "Blog" },
+      { match: "/partnerships", ar: "الشراكات", en: "Partnerships" },
+      { match: "/leadership/quiz-approvals", ar: "اعتمادات الاختبارات", en: "Quiz Approvals" },
+      { match: "/quiz/create", ar: "الاختبارات أونلاين", en: "Online Quizzes" },
+      { match: "/coming-soon", ar: "قريبًا", en: "Coming Soon" },
+    ];
+
+    const currentPage = pageLabels.find(({ match }) => pathname.startsWith(match));
+    if (!currentPage) return t.home;
+
+    return dir === "rtl" ? currentPage.ar : currentPage.en;
+  };
 
   return (
     <header className="border-b-2 border-primary/40 px-6 py-4 bg-card shadow-lg">
@@ -56,7 +80,7 @@ const SimpleHeader = ({ backTo = "/", mobileBackOnly = false }: SimpleHeaderProp
               <DropdownMenuContent align={dir === "rtl" ? "start" : "end"} className="w-48">
                 <DropdownMenuItem onClick={() => navigate(backTo)} className="gap-2 cursor-pointer">
                   <ArrowLeft className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-semibold">{t.home}</span>
+                    <span className="text-sm font-semibold">{getBackLabel()}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

@@ -514,7 +514,7 @@ const QuizCreate = () => {
 
   return (
     <div className="min-h-screen bg-background" dir={dir}>
-      <SimpleHeader backTo="/lecturer/dashboard?tab=quizzes" mobileBackOnly />
+      <SimpleHeader backTo="/lecturer/dashboard?tab=quizzes" mobileBackOnly useHistoryBack />
       <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
           <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center shrink-0">

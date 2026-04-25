@@ -12,9 +12,10 @@ import {
 type SimpleHeaderProps = {
   backTo?: string;
   mobileBackOnly?: boolean;
+  useHistoryBack?: boolean;
 };
 
-const SimpleHeader = ({ backTo = "/", mobileBackOnly = false }: SimpleHeaderProps) => {
+const SimpleHeader = ({ backTo = "/", mobileBackOnly = false, useHistoryBack = false }: SimpleHeaderProps) => {
   const { t, dir } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();

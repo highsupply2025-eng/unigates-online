@@ -632,7 +632,7 @@ const LecturerDashboard = () => {
                 ].map(({ id, label, Icon }) => (
                   <DropdownMenuItem
                     key={id}
-                    onClick={() => setActiveTab(id)}
+                    onClick={() => handleTabChange(id)}
                     className={`gap-2 cursor-pointer ${activeTab === id ? "bg-primary/10 text-primary font-semibold" : ""}`}
                   >
                     <Icon className="w-4 h-4 text-primary" />

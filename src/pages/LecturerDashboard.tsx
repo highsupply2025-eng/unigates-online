@@ -678,7 +678,7 @@ const LecturerDashboard = () => {
             {/* Quick Actions moved to dropdown menu */}
 
             {/* Tabs (triggers hidden — navigation via dropdown) */}
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
               <TabsList className="hidden">
                 <TabsTrigger value="home">home</TabsTrigger>
                 <TabsTrigger value="courses">courses</TabsTrigger>

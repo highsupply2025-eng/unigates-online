@@ -43,6 +43,14 @@ const SimpleHeader = ({ backTo = "/", mobileBackOnly = false, useHistoryBack = f
     return dir === "rtl" ? currentPage.ar : currentPage.en;
   };
 
+  const handleBack = () => {
+    if (useHistoryBack && window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate(backTo);
+    }
+  };
+
   return (
     <header className="border-b-2 border-primary/40 px-6 py-4 bg-card shadow-lg">
       <div className="max-w-6xl mx-auto flex items-center justify-between">

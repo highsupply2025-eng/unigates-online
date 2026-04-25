@@ -34,7 +34,9 @@ const LecturerDashboard = () => {
   const location = useLocation();
   const handleHeaderBack = useSmartBack("/");
   const isRtl = dir === "rtl";
+  const VALID_TABS = ["home", "courses", "live", "quizzes", "assignments", "schedules", "attendance", "ratings", "analytics"] as const;
   const requestedTab = new URLSearchParams(location.search).get("tab");
+  const initialTab = requestedTab && (VALID_TABS as readonly string[]).includes(requestedTab) ? requestedTab : "home";
 
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
@@ -43,7 +45,25 @@ const LecturerDashboard = () => {
   const [courses, setCourses] = useState<any[]>([]);
   const [courseViews, setCourseViews] = useState<Record<string, number>>({});
   const [viewsTimes, setViewsTimes] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState(requestedTab === "courses" ? "courses" : "home");
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  // Sync tab from URL (back/forward navigation)
+  useEffect(() => {
+    const t = new URLSearchParams(location.search).get("tab");
+    const next = t && (VALID_TABS as readonly string[]).includes(t) ? t : "home";
+    if (next !== activeTab) setActiveTab(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
+
+  // Update URL whenever the active tab changes (descriptive, shareable links)
+  const handleTabChange = (id: string) => {
+    setActiveTab(id);
+    const params = new URLSearchParams(location.search);
+    if (id === "home") params.delete("tab");
+    else params.set("tab", id);
+    const qs = params.toString();
+    navigate(`/lecturer/dashboard${qs ? `?${qs}` : ""}`, { replace: false });
+  };
 
   // New course form
   const [showNewCourse, setShowNewCourse] = useState(false);

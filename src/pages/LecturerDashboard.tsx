@@ -1009,7 +1009,7 @@ const LecturerDashboard = () => {
 
               {/* ===== ASSIGNMENTS TAB ===== */}
               <TabsContent value="assignments">
-                <div className="mb-6">
+                <div className={`mb-6 ${isRtl ? "text-right" : "text-left"}`}>
                   <h2 className="text-xl font-bold text-foreground mb-2">{isRtl ? "التكليفات والملفات الورقية" : "Assignments & Paper Files"}</h2>
                   <p className="text-sm text-muted-foreground">{isRtl ? "ارفع ملفات ورقية وتكليفات للطلبة. يستطيع الطلبة تنزيل الملفات وإرسال إجاباتهم." : "Upload paper files and assignments."}</p>
                 </div>

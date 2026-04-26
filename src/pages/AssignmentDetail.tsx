@@ -10,8 +10,11 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { FileText, Calendar, Star, Send, ArrowLeft } from "lucide-react";
 
+import { extractAssignmentId } from "@/lib/assignment-url";
+
 export default function AssignmentDetail() {
-  const { assignmentId } = useParams<{ assignmentId: string }>();
+  const { assignmentSlug } = useParams<{ assignmentSlug: string }>();
+  const assignmentId = extractAssignmentId(assignmentSlug);
   const { t, dir } = useLanguage();
   const isRtl = dir === "rtl";
   const { toast } = useToast();

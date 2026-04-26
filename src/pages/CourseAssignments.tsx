@@ -225,7 +225,7 @@ export default function CourseAssignments() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => navigate(`/assignment/${a.id}`)}
+                      onClick={() => navigate(buildAssignmentPath(a.id, a.title_en, a.title_ar))}
                       className="gap-1"
                     >
                       <Send className="w-3.5 h-3.5" />

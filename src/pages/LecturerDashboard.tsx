@@ -1348,7 +1348,7 @@ const LecturerDashboard = () => {
                   {a.due_date && <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{new Date(a.due_date).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</span>}
                 </div>
               </div>
-              <Button size="sm" variant="outline" onClick={() => navigate(`/assignment/${a.id}`)} className="gap-1"><Send className="w-3.5 h-3.5" />{isRtl ? "فتح الصفحة" : "Open Page"}</Button>
+              <Button size="sm" variant="outline" onClick={() => navigate(buildAssignmentPath(a.id, a.title_en, a.title_ar))} className="gap-1"><Send className="w-3.5 h-3.5" />{isRtl ? "فتح الصفحة" : "Open Page"}</Button>
             </div></CardContent></Card>
           ))}</div>}
           <Separator />

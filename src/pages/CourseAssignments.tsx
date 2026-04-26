@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import BackButton from "@/components/BackButton";
 import { ClipboardList, FileText, Calendar, Plus, Send, Upload } from "lucide-react";
+import { buildAssignmentPath } from "@/lib/assignment-url";
 
 export default function CourseAssignments() {
   const { courseId } = useParams<{ courseId: string }>();

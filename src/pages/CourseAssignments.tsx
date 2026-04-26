@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import BackButton from "@/components/BackButton";
 import { ClipboardList, FileText, Calendar, Plus, Send, Upload } from "lucide-react";
+import { buildAssignmentPath } from "@/lib/assignment-url";
 
 export default function CourseAssignments() {
   const { courseId } = useParams<{ courseId: string }>();
@@ -225,7 +226,7 @@ export default function CourseAssignments() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => navigate(`/assignment/${a.id}`)}
+                      onClick={() => navigate(buildAssignmentPath(a.id, a.title_en, a.title_ar))}
                       className="gap-1"
                     >
                       <Send className="w-3.5 h-3.5" />

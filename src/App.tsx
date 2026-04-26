@@ -132,7 +132,9 @@ const App = () => (
               <Route path="/institution/member/:memberId" element={<LecturerProfile />} />
               <Route path="/leadership/dashboard" element={<LeadershipDashboard />} />
               <Route path="/quiz/create/:courseId" element={<QuizCreate />} />
-              <Route path="/assignment/:assignmentId" element={<AssignmentDetail />} />
+              <Route path="/assignment/:assignmentSlug" element={<AssignmentDetail />} />
+              {/* Backwards compatibility: old plain UUID links */}
+              <Route path="/assignment/id/:assignmentSlug" element={<AssignmentDetail />} />
               <Route path="/course/:courseId/assignments" element={<CourseAssignments />} />
               <Route path="/institution/results/add" element={<AddStudentResult />} />
               

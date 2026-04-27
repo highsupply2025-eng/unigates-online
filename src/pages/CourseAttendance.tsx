@@ -289,9 +289,9 @@ const CourseAttendance = () => {
             <div className="text-[11px] text-muted-foreground">{count} {isRtl ? "سجل" : "records"}</div>
           </div>
         </div>
-        <Button size="sm" variant="outline" onClick={() => handlePrint(section)} className="gap-1.5 h-9 px-3 shrink-0 no-print font-semibold">
-          <Download className="w-4 h-4" strokeWidth={2.5} />
-          <span className="text-xs sm:text-sm">{isRtl ? "تصدير PDF" : "Export PDF"}</span>
+        <Button size="sm" variant="outline" onClick={() => exportPDF(section)} disabled={exporting === section} className="gap-1.5 h-9 px-3 shrink-0 no-print font-semibold">
+          {exporting === section ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" strokeWidth={2.5} />}
+          <span className="text-xs sm:text-sm">{exporting === section ? (isRtl ? "جارٍ التصدير..." : "Exporting...") : (isRtl ? "تصدير PDF" : "Export PDF")}</span>
         </Button>
       </div>
     );

@@ -1086,7 +1086,7 @@ const LecturerDashboard = () => {
                               </div>
                             </div>
                             <Button size="sm" variant="outline" onClick={() => navigate(buildSchedulePath(s.id, s.title_en, s.title_ar))} className="gap-1.5">
-                              <ExternalLink className="w-3.5 h-3.5" />{isRtl ? "فتح الصفحة" : "Open Page"}
+                              <ExternalLink className="w-3.5 h-3.5" />{isRtl ? "صفحة الجدول المستقلة" : "Open Standalone Schedule Page"}
                             </Button>
                             <Button size="sm" variant="destructive" onClick={() => handleDeleteSchedule(s.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
                           </CardContent>

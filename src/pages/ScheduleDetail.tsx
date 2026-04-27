@@ -128,27 +128,27 @@ const ScheduleDetail = () => {
   const fullyApproved = schedule.approved_by_head && schedule.approved_by_vice_dean && schedule.approved_by_dean;
 
   const ApprovalBadge = ({ ok, label }: { ok: boolean; label: string }) => (
-    <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${ok ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-400" : "bg-muted border-border text-muted-foreground"}`}>
-      {ok ? <CheckCircle2 className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
-      <span className="text-sm font-medium">{label}</span>
+    <div className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 ${ok ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-700 dark:text-emerald-400" : "bg-muted border-border text-muted-foreground"}`}>
+      {ok ? <CheckCircle2 className="w-5 h-5" strokeWidth={2.5} /> : <Clock className="w-5 h-5" strokeWidth={2.25} />}
+      <span className="text-sm font-semibold">{label}</span>
     </div>
   );
 
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <SimpleHeader backTo="/lecturer/dashboard?tab=schedules" mobileBackOnly />
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      <main className="max-w-4xl mx-auto px-3 sm:px-6 py-6 sm:py-8 space-y-4 sm:space-y-6">
 
-        <Card>
-          <CardHeader>
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isTest ? "bg-red-500/10" : "bg-primary/10"}`}>
-                  {isTest ? <ClipboardList className="w-6 h-6 text-red-500" /> : <BookOpen className="w-6 h-6 text-primary" />}
+        <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+          <CardHeader className="pb-4">
+            <div className="flex items-start justify-between gap-3 flex-wrap">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className={`w-14 h-14 shrink-0 rounded-2xl flex items-center justify-center shadow-sm ring-1 ${isTest ? "bg-red-500/15 ring-red-500/30" : "bg-primary/15 ring-primary/30"}`}>
+                  {isTest ? <ClipboardList className="w-7 h-7 text-red-500" strokeWidth={2.25} /> : <BookOpen className="w-7 h-7 text-primary" strokeWidth={2.25} />}
                 </div>
-                <div>
-                  <CardTitle className="text-2xl">{isRtl ? schedule.title_ar : schedule.title_en}</CardTitle>
-                  <p className="text-sm text-muted-foreground mt-1">
+                <div className="min-w-0 flex-1">
+                  <CardTitle className="text-xl sm:text-2xl truncate">{isRtl ? schedule.title_ar : schedule.title_en}</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1 truncate">
                     {course && (isRtl ? course.title_ar : course.title_en)}
                     {creatorName && ` • ${creatorName}`}
                   </p>
@@ -161,20 +161,26 @@ const ScheduleDetail = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/40">
-                <Calendar className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium">{schedule.scheduled_date}</span>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border/60">
+                <div className="w-10 h-10 shrink-0 rounded-lg bg-primary/15 ring-1 ring-primary/30 flex items-center justify-center">
+                  <Calendar className="w-5 h-5 text-primary" strokeWidth={2.25} />
+                </div>
+                <span className="text-sm font-semibold">{schedule.scheduled_date}</span>
               </div>
               {(schedule.start_time || schedule.end_time) && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/40">
-                  <Clock className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium">{schedule.start_time || "?"} - {schedule.end_time || "?"}</span>
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border/60">
+                  <div className="w-10 h-10 shrink-0 rounded-lg bg-primary/15 ring-1 ring-primary/30 flex items-center justify-center">
+                    <Clock className="w-5 h-5 text-primary" strokeWidth={2.25} />
+                  </div>
+                  <span className="text-sm font-semibold">{schedule.start_time || "?"} - {schedule.end_time || "?"}</span>
                 </div>
               )}
               {(schedule.location_ar || schedule.location_en) && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/40 sm:col-span-2">
-                  <MapPin className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium">{isRtl ? schedule.location_ar : schedule.location_en}</span>
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border/60 sm:col-span-2">
+                  <div className="w-10 h-10 shrink-0 rounded-lg bg-primary/15 ring-1 ring-primary/30 flex items-center justify-center">
+                    <MapPin className="w-5 h-5 text-primary" strokeWidth={2.25} />
+                  </div>
+                  <span className="text-sm font-semibold">{isRtl ? schedule.location_ar : schedule.location_en}</span>
                 </div>
               )}
             </div>
@@ -191,10 +197,12 @@ const ScheduleDetail = () => {
         </Card>
 
         {/* Approvals */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <ShieldCheck className="w-5 h-5 text-primary" />
+        <Card className="shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2.5 text-lg">
+              <div className="w-10 h-10 rounded-lg bg-primary/15 ring-1 ring-primary/30 flex items-center justify-center">
+                <ShieldCheck className="w-5 h-5 text-primary" strokeWidth={2.25} />
+              </div>
               {isRtl ? "اعتماد القيادة" : "Leadership Approvals"}
             </CardTitle>
           </CardHeader>

@@ -217,14 +217,14 @@ const CourseAttendance = () => {
 
       <div className="container mx-auto px-3 sm:px-6 py-6 sm:py-8 max-w-6xl">
         {/* Course title + read-only notice */}
-        <Card className="mb-6 shadow-sm">
-          <CardContent className={`p-4 sm:p-6 flex items-start gap-4 ${isRtl ? "flex-row-reverse text-right" : ""}`}>
-            <div className="w-14 h-14 shrink-0 rounded-2xl bg-primary/15 ring-1 ring-primary/30 flex items-center justify-center shadow-sm">
-              <Users className="w-7 h-7 text-primary" strokeWidth={2.25} />
+        <Card className="mb-6 shadow-sm border-2 border-primary/10">
+          <CardContent className={`p-4 sm:p-6 flex items-start gap-3 sm:gap-5 ${isRtl ? "flex-row-reverse text-right" : ""}`}>
+            <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-2xl bg-gradient-to-br from-primary/25 via-primary/15 to-primary/5 ring-2 ring-primary/40 flex items-center justify-center shadow-md">
+              <Users className="w-8 h-8 sm:w-10 sm:h-10 text-primary" strokeWidth={2.5} />
             </div>
             <div className="flex-1 min-w-0">
               <h2 className="text-lg sm:text-2xl font-bold truncate">{courseTitle || (isRtl ? "حضور المادة" : "Course Attendance")}</h2>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1 leading-relaxed">
                 {isRtl
                   ? "يتم احتساب الحضور تلقائياً لحظياً — للعرض فقط، لا يمكن التعديل"
                   : "Attendance auto-calculated in real time — read-only, cannot be edited"}
@@ -266,13 +266,13 @@ const CourseAttendance = () => {
               <Card className="shadow-sm overflow-hidden">
                 <TableToolbar section="lectures" count={lectureRows.length} />
                 <CardContent className="p-0 overflow-x-auto">
-                  <Table>
+                  <Table className="min-w-[640px]">
                     <TableHeader>
                       <TableRow>
-                        <TableHead>{isRtl ? "اسم الطالب" : "Student"}</TableHead>
-                        <TableHead>{isRtl ? "اسم المحاضرة" : "Lecture"}</TableHead>
-                        <TableHead>{isRtl ? "المادة" : "Course"}</TableHead>
-                        <TableHead>{isRtl ? "وقت الحضور" : "Attended at"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الطالب" : "Student"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم المحاضرة" : "Lecture"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المادة" : "Course"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "وقت الحضور" : "Attended at"}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -280,7 +280,7 @@ const CourseAttendance = () => {
                         const sch = a._schedule;
                         return (
                           <TableRow key={a.id} className={a._demo ? "bg-amber-500/5" : ""}>
-                            <TableCell className="font-medium">
+                            <TableCell className="font-medium whitespace-nowrap">
                               {studentName(a.user_id, a._demo)}
                               {a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}
                             </TableCell>
@@ -301,14 +301,14 @@ const CourseAttendance = () => {
               <Card className="shadow-sm overflow-hidden">
                 <TableToolbar section="streams" count={streamRows.length} />
                 <CardContent className="p-0 overflow-x-auto">
-                  <Table>
+                  <Table className="min-w-[640px]">
                     <TableHeader>
                       <TableRow>
-                        <TableHead>{isRtl ? "اسم الطالب" : "Student"}</TableHead>
-                        <TableHead>{isRtl ? "اسم البث المباشر" : "Live Stream"}</TableHead>
-                        <TableHead>{isRtl ? "المادة" : "Course"}</TableHead>
-                        <TableHead>{isRtl ? "وقت الانضمام" : "Joined"}</TableHead>
-                        <TableHead>{isRtl ? "المدة" : "Duration"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الطالب" : "Student"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم البث المباشر" : "Live Stream"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المادة" : "Course"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "وقت الانضمام" : "Joined"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المدة" : "Duration"}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -316,7 +316,7 @@ const CourseAttendance = () => {
                         const st = a._stream;
                         return (
                           <TableRow key={a.id} className={a._demo ? "bg-amber-500/5" : ""}>
-                            <TableCell className="font-medium">
+                            <TableCell className="font-medium whitespace-nowrap">
                               {studentName(a.user_id, a._demo)}
                               {a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}
                             </TableCell>
@@ -338,14 +338,14 @@ const CourseAttendance = () => {
               <Card className="shadow-sm overflow-hidden">
                 <TableToolbar section="tests" count={testRows.length} />
                 <CardContent className="p-0 overflow-x-auto">
-                  <Table>
+                  <Table className="min-w-[640px]">
                     <TableHeader>
                       <TableRow>
-                        <TableHead>{isRtl ? "اسم الطالب" : "Student"}</TableHead>
-                        <TableHead>{isRtl ? "اسم الاختبار" : "Test"}</TableHead>
-                        <TableHead>{isRtl ? "المادة" : "Course"}</TableHead>
-                        <TableHead>{isRtl ? "الدرجة" : "Score"}</TableHead>
-                        <TableHead>{isRtl ? "وقت التسليم" : "Submitted"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الطالب" : "Student"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الاختبار" : "Test"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المادة" : "Course"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "الدرجة" : "Score"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "وقت التسليم" : "Submitted"}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -353,7 +353,7 @@ const CourseAttendance = () => {
                         const qz = a._quiz;
                         return (
                           <TableRow key={a.id} className={a._demo ? "bg-amber-500/5" : ""}>
-                            <TableCell className="font-medium">
+                            <TableCell className="font-medium whitespace-nowrap">
                               {studentName(a.student_id, a._demo)}
                               {a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}
                             </TableCell>

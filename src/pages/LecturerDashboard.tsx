@@ -146,6 +146,9 @@ const LecturerDashboard = () => {
 
   // Attendance
   const [attendance, setAttendance] = useState<any[]>([]);
+  const [lectureAttendance, setLectureAttendance] = useState<any[]>([]);
+  const [testAttendance, setTestAttendance] = useState<any[]>([]);
+  const [profilesMap, setProfilesMap] = useState<Record<string, { full_name: string }>>({});
 
   useEffect(() => { checkAuth(); }, []);
 

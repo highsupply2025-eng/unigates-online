@@ -136,6 +136,7 @@ const App = () => (
               <Route path="/assignment/:assignmentSlug" element={<AssignmentDetail />} />
               {/* Backwards compatibility: old plain UUID links */}
               <Route path="/assignment/id/:assignmentSlug" element={<AssignmentDetail />} />
+              <Route path="/schedule/:scheduleSlug" element={<ScheduleDetail />} />
               <Route path="/course/:courseId/assignments" element={<CourseAssignments />} />
               <Route path="/institution/results/add" element={<AddStudentResult />} />
               

@@ -117,10 +117,9 @@ const ScheduleDetail = () => {
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!scheduleId || !schedule) return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
-      <SimpleHeader />
+      <SimpleHeader backTo="/lecturer/dashboard?tab=schedules" mobileBackOnly />
       <main className="max-w-3xl mx-auto px-4 py-12 text-center">
         <h1 className="text-2xl font-bold mb-2">{isRtl ? "الجدول غير موجود" : "Schedule not found"}</h1>
-        <Button variant="outline" onClick={() => navigate(-1)} className="mt-4 gap-2"><ArrowLeft className="w-4 h-4" />{isRtl ? "رجوع" : "Back"}</Button>
       </main>
     </div>
   );
@@ -137,11 +136,8 @@ const ScheduleDetail = () => {
 
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
-      <SimpleHeader />
+      <SimpleHeader backTo="/lecturer/dashboard?tab=schedules" mobileBackOnly />
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="gap-2">
-          <ArrowLeft className="w-4 h-4" />{isRtl ? "رجوع" : "Back"}
-        </Button>
 
         <Card>
           <CardHeader>

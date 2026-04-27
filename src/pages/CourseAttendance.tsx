@@ -280,7 +280,7 @@ const CourseAttendance = () => {
                         const sch = a._schedule;
                         return (
                           <TableRow key={a.id} className={a._demo ? "bg-amber-500/5" : ""}>
-                            <TableCell className="font-medium">
+                            <TableCell className="font-medium whitespace-nowrap">
                               {studentName(a.user_id, a._demo)}
                               {a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}
                             </TableCell>
@@ -316,7 +316,7 @@ const CourseAttendance = () => {
                         const st = a._stream;
                         return (
                           <TableRow key={a.id} className={a._demo ? "bg-amber-500/5" : ""}>
-                            <TableCell className="font-medium">
+                            <TableCell className="font-medium whitespace-nowrap">
                               {studentName(a.user_id, a._demo)}
                               {a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}
                             </TableCell>
@@ -353,7 +353,7 @@ const CourseAttendance = () => {
                         const qz = a._quiz;
                         return (
                           <TableRow key={a.id} className={a._demo ? "bg-amber-500/5" : ""}>
-                            <TableCell className="font-medium">
+                            <TableCell className="font-medium whitespace-nowrap">
                               {studentName(a.student_id, a._demo)}
                               {a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}
                             </TableCell>

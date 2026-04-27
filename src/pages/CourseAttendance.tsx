@@ -163,21 +163,31 @@ const CourseAttendance = () => {
     return profilesMap[id] || id.slice(0, 8);
   };
 
-  const TableToolbar = ({ section, count }: { section: "lectures" | "streams" | "tests"; count: number }) => (
-    <div className={`flex items-center justify-between gap-2 px-4 py-3 border-b border-border bg-muted/30 ${isRtl ? "flex-row-reverse" : ""}`}>
-      <div className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
-        {section === "lectures" && <BookOpen className="w-4 h-4 text-primary" strokeWidth={2.5} />}
-        {section === "streams" && <Radio className="w-4 h-4 text-red-500" strokeWidth={2.5} />}
-        {section === "tests" && <ClipboardList className="w-4 h-4 text-amber-500" strokeWidth={2.5} />}
-        <span className="font-semibold text-sm">{tabLabel}</span>
-        <span className="text-xs text-muted-foreground">({count})</span>
+  const TableToolbar = ({ section, count }: { section: "lectures" | "streams" | "tests"; count: number }) => {
+    const iconConfig = {
+      lectures: { Icon: BookOpen, color: "text-primary", bg: "from-primary/20 to-primary/5", ring: "ring-primary/30" },
+      streams: { Icon: Radio, color: "text-red-500", bg: "from-red-500/20 to-red-500/5", ring: "ring-red-500/30" },
+      tests: { Icon: ClipboardList, color: "text-amber-500", bg: "from-amber-500/20 to-amber-500/5", ring: "ring-amber-500/30" },
+    }[section];
+    const { Icon } = iconConfig;
+    return (
+      <div className={`flex items-center justify-between gap-2 px-3 sm:px-4 py-3 border-b border-border bg-muted/30 ${isRtl ? "flex-row-reverse" : ""}`}>
+        <div className={`flex items-center gap-2.5 min-w-0 ${isRtl ? "flex-row-reverse" : ""}`}>
+          <div className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-xl bg-gradient-to-br ${iconConfig.bg} ring-2 ${iconConfig.ring} flex items-center justify-center shadow-sm`}>
+            <Icon className={`w-5 h-5 ${iconConfig.color}`} strokeWidth={2.5} />
+          </div>
+          <div className="min-w-0">
+            <div className="font-bold text-sm sm:text-base truncate">{tabLabel}</div>
+            <div className="text-[11px] text-muted-foreground">{count} {isRtl ? "سجل" : "records"}</div>
+          </div>
+        </div>
+        <Button size="sm" variant="outline" onClick={() => handlePrint(section)} className="gap-1.5 h-9 px-3 shrink-0 no-print font-semibold">
+          <Download className="w-4 h-4" strokeWidth={2.5} />
+          <span className="text-xs sm:text-sm">{isRtl ? "تصدير PDF" : "Export PDF"}</span>
+        </Button>
       </div>
-      <Button size="sm" variant="outline" onClick={() => handlePrint(section)} className="gap-1.5 h-8 no-print">
-        <Download className="w-3.5 h-3.5" strokeWidth={2.5} />
-        <span className="text-xs font-medium">{isRtl ? "تصدير PDF" : "Export PDF"}</span>
-      </Button>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background" dir={dir}>

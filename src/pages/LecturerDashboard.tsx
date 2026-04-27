@@ -1056,7 +1056,7 @@ const LecturerDashboard = () => {
 
               {/* ===== SCHEDULES TAB ===== */}
               <TabsContent value="schedules">
-                <div className="flex items-center justify-between mb-6">
+                <div className={`mb-6 flex flex-col gap-3 ${isRtl ? "items-end text-right" : "items-start text-left"}`}>
                   <h2 className="text-xl font-bold text-foreground">{isRtl ? "جداول المحاضرات والاختبارات" : "Lecture & Test Schedules"}</h2>
                   <Button onClick={() => setShowScheduleDialog(true)} className="gap-2"><Plus className="w-4 h-4" />{isRtl ? "إضافة جدول" : "Add Schedule"}</Button>
                 </div>

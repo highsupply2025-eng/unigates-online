@@ -920,6 +920,15 @@ export type Database = {
       }
       lecture_schedules: {
         Row: {
+          approved_by_dean: boolean
+          approved_by_dean_at: string | null
+          approved_by_dean_id: string | null
+          approved_by_head: boolean
+          approved_by_head_at: string | null
+          approved_by_head_id: string | null
+          approved_by_vice_dean: boolean
+          approved_by_vice_dean_at: string | null
+          approved_by_vice_dean_id: string | null
           course_id: string
           created_at: string
           creator_id: string
@@ -929,6 +938,9 @@ export type Database = {
           location_en: string | null
           notes_ar: string | null
           notes_en: string | null
+          rejected_at: string | null
+          rejected_by: string | null
+          rejection_reason: string | null
           schedule_type: string
           scheduled_date: string
           start_time: string | null
@@ -936,6 +948,15 @@ export type Database = {
           title_en: string
         }
         Insert: {
+          approved_by_dean?: boolean
+          approved_by_dean_at?: string | null
+          approved_by_dean_id?: string | null
+          approved_by_head?: boolean
+          approved_by_head_at?: string | null
+          approved_by_head_id?: string | null
+          approved_by_vice_dean?: boolean
+          approved_by_vice_dean_at?: string | null
+          approved_by_vice_dean_id?: string | null
           course_id: string
           created_at?: string
           creator_id: string
@@ -945,6 +966,9 @@ export type Database = {
           location_en?: string | null
           notes_ar?: string | null
           notes_en?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
           schedule_type?: string
           scheduled_date: string
           start_time?: string | null
@@ -952,6 +976,15 @@ export type Database = {
           title_en: string
         }
         Update: {
+          approved_by_dean?: boolean
+          approved_by_dean_at?: string | null
+          approved_by_dean_id?: string | null
+          approved_by_head?: boolean
+          approved_by_head_at?: string | null
+          approved_by_head_id?: string | null
+          approved_by_vice_dean?: boolean
+          approved_by_vice_dean_at?: string | null
+          approved_by_vice_dean_id?: string | null
           course_id?: string
           created_at?: string
           creator_id?: string
@@ -961,6 +994,9 @@ export type Database = {
           location_en?: string | null
           notes_ar?: string | null
           notes_en?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
           schedule_type?: string
           scheduled_date?: string
           start_time?: string | null
@@ -1373,6 +1409,35 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedule_views: {
+        Row: {
+          id: string
+          schedule_id: string
+          user_id: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          schedule_id: string
+          user_id: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          schedule_id?: string
+          user_id?: string
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_views_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "lecture_schedules"
             referencedColumns: ["id"]
           },
         ]
@@ -1983,6 +2048,7 @@ export type Database = {
         Returns: boolean
       }
       quiz_results_approved: { Args: { _quiz_id: string }; Returns: boolean }
+      schedule_fully_approved: { Args: { _id: string }; Returns: boolean }
       submit_quiz: {
         Args: { _answers: Json; _quiz_id: string; _whatsapp?: string }
         Returns: Json

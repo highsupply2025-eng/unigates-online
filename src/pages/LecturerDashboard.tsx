@@ -1057,8 +1057,8 @@ const LecturerDashboard = () => {
               {/* ===== SCHEDULES TAB ===== */}
               <TabsContent value="schedules">
                 <div className={`mb-6 flex flex-col gap-3 ${isRtl ? "items-end text-right" : "items-start text-left"}`}>
-                  <h2 className="text-xl font-bold text-foreground">{isRtl ? "الجدول" : "Schedule"}</h2>
-                  <Button onClick={() => setShowScheduleDialog(true)} className="gap-2"><Plus className="w-4 h-4" />{isRtl ? "إضافة جدول" : "Add Schedule"}</Button>
+                  <h2 className="text-xl sm:text-2xl font-bold text-foreground">{isRtl ? "جداول المحاضرات والاختبارات" : "Lectures & Tests Schedules"}</h2>
+                  <Button onClick={() => setShowScheduleDialog(true)} className="gap-2 shadow-md hover:shadow-lg transition-shadow"><Plus className="w-5 h-5" strokeWidth={2.5} />{isRtl ? "إضافة جدول" : "Add Schedule"}</Button>
                 </div>
                 {schedules.length === 0 ? (
                   <div className="text-center py-16 text-muted-foreground">{isRtl ? "لا توجد جداول" : "No schedules yet"}</div>
@@ -1067,28 +1067,32 @@ const LecturerDashboard = () => {
                     {schedules.map(s => {
                       const fully = s.approved_by_head && s.approved_by_vice_dean && s.approved_by_dean;
                       return (
-                        <Card key={s.id}>
-                          <CardContent className="p-4 flex items-center gap-4">
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.schedule_type === 'test' ? 'bg-red-500/10' : 'bg-primary/10'}`}>
-                              {s.schedule_type === 'test' ? <ClipboardList className="w-5 h-5 text-red-500" /> : <BookOpen className="w-5 h-5 text-primary" />}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-bold text-foreground">{isRtl ? s.title_ar : s.title_en}</h3>
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1 flex-wrap">
-                                <Badge variant={s.schedule_type === 'test' ? "destructive" : "outline"}>
-                                  {s.schedule_type === 'test' ? (isRtl ? "اختبار" : "Test") : (isRtl ? "محاضرة" : "Lecture")}
-                                </Badge>
-                                <Badge variant={fully ? "default" : "secondary"} className={fully ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" : ""}>
-                                  {fully ? (isRtl ? "معتمد" : "Approved") : (isRtl ? "بانتظار الاعتماد" : "Pending")}
-                                </Badge>
-                                <span><Calendar className="w-3 h-3 inline me-1" />{s.scheduled_date}</span>
-                                {s.start_time && <span><Clock className="w-3 h-3 inline me-1" />{s.start_time} - {s.end_time || '?'}</span>}
+                        <Card key={s.id} className="hover:shadow-md transition-shadow">
+                          <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-4">
+                            <div className="flex items-start gap-3 flex-1 min-w-0">
+                              <div className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center shadow-sm ${s.schedule_type === 'test' ? 'bg-red-500/15 ring-1 ring-red-500/30' : 'bg-primary/15 ring-1 ring-primary/30'}`}>
+                                {s.schedule_type === 'test' ? <ClipboardList className="w-6 h-6 text-red-500" strokeWidth={2.25} /> : <BookOpen className="w-6 h-6 text-primary" strokeWidth={2.25} />}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-bold text-foreground truncate">{isRtl ? s.title_ar : s.title_en}</h3>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1.5 flex-wrap">
+                                  <Badge variant={s.schedule_type === 'test' ? "destructive" : "outline"}>
+                                    {s.schedule_type === 'test' ? (isRtl ? "اختبار" : "Test") : (isRtl ? "محاضرة" : "Lecture")}
+                                  </Badge>
+                                  <Badge variant={fully ? "default" : "secondary"} className={fully ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" : ""}>
+                                    {fully ? (isRtl ? "معتمد" : "Approved") : (isRtl ? "بانتظار الاعتماد" : "Pending")}
+                                  </Badge>
+                                  <span className="inline-flex items-center gap-1"><Calendar className="w-3.5 h-3.5" strokeWidth={2.25} />{s.scheduled_date}</span>
+                                  {s.start_time && <span className="inline-flex items-center gap-1"><Clock className="w-3.5 h-3.5" strokeWidth={2.25} />{s.start_time} - {s.end_time || '?'}</span>}
+                                </div>
                               </div>
                             </div>
-                            <Button size="sm" variant="outline" onClick={() => navigate(buildSchedulePath(s.id, s.title_en, s.title_ar))} className="gap-1.5">
-                              <ExternalLink className="w-3.5 h-3.5" />{isRtl ? "صفحة الجدول المستقلة" : "Open Standalone Schedule Page"}
-                            </Button>
-                            <Button size="sm" variant="destructive" onClick={() => handleDeleteSchedule(s.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                            <div className="flex items-center gap-2 sm:shrink-0 w-full sm:w-auto">
+                              <Button size="sm" variant="outline" onClick={() => navigate(buildSchedulePath(s.id, s.title_en, s.title_ar))} className="gap-1.5 flex-1 sm:flex-initial border-primary/40 text-primary hover:bg-primary/10">
+                                <ExternalLink className="w-4 h-4" strokeWidth={2.5} />{isRtl ? "مشاهدة الجدول" : "View Schedule"}
+                              </Button>
+                              <Button size="sm" variant="destructive" onClick={() => handleDeleteSchedule(s.id)} className="shrink-0"><Trash2 className="w-4 h-4" strokeWidth={2.5} /></Button>
+                            </div>
                           </CardContent>
                         </Card>
                       );

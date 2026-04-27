@@ -243,21 +243,21 @@ const CourseAttendance = () => {
           <div className="text-center py-16 text-muted-foreground">{isRtl ? "جارٍ التحميل..." : "Loading..."}</div>
         ) : (
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
-            <TabsList className="grid grid-cols-3 w-full mb-4 no-print">
-              <TabsTrigger value="lectures" className="gap-1.5">
-                <BookOpen className="w-4 h-4" />
-                <span className="hidden sm:inline">{isRtl ? "المحاضرات" : "Lectures"}</span>
-                <span className="sm:hidden text-xs">{lectureRows.length}</span>
+            <TabsList className="grid grid-cols-3 w-full mb-4 no-print h-auto p-1.5 gap-1">
+              <TabsTrigger value="lectures" className="flex-col sm:flex-row gap-1 sm:gap-2 py-2.5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary font-semibold">
+                <BookOpen className="w-5 h-5" strokeWidth={2.5} />
+                <span className="text-[11px] sm:text-sm">{isRtl ? "المحاضرات" : "Lectures"}</span>
+                <span className="text-[10px] opacity-70 hidden sm:inline">({lectureRows.length})</span>
               </TabsTrigger>
-              <TabsTrigger value="streams" className="gap-1.5">
-                <Radio className="w-4 h-4" />
-                <span className="hidden sm:inline">{isRtl ? "البث" : "Streams"}</span>
-                <span className="sm:hidden text-xs">{streamRows.length}</span>
+              <TabsTrigger value="streams" className="flex-col sm:flex-row gap-1 sm:gap-2 py-2.5 data-[state=active]:bg-red-500/10 data-[state=active]:text-red-500 font-semibold">
+                <Radio className="w-5 h-5" strokeWidth={2.5} />
+                <span className="text-[11px] sm:text-sm">{isRtl ? "البث" : "Streams"}</span>
+                <span className="text-[10px] opacity-70 hidden sm:inline">({streamRows.length})</span>
               </TabsTrigger>
-              <TabsTrigger value="tests" className="gap-1.5">
-                <ClipboardList className="w-4 h-4" />
-                <span className="hidden sm:inline">{isRtl ? "الاختبارات" : "Tests"}</span>
-                <span className="sm:hidden text-xs">{testRows.length}</span>
+              <TabsTrigger value="tests" className="flex-col sm:flex-row gap-1 sm:gap-2 py-2.5 data-[state=active]:bg-amber-500/10 data-[state=active]:text-amber-500 font-semibold">
+                <ClipboardList className="w-5 h-5" strokeWidth={2.5} />
+                <span className="text-[11px] sm:text-sm">{isRtl ? "الاختبارات" : "Tests"}</span>
+                <span className="text-[10px] opacity-70 hidden sm:inline">({testRows.length})</span>
               </TabsTrigger>
             </TabsList>
 

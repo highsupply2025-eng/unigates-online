@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -261,11 +261,33 @@ const CourseAttendance = () => {
               </TabsTrigger>
             </TabsList>
 
+            {/* Helpers for vertical (mobile) view */}
+            {(() => null)()}
+
             {/* Lectures */}
             <TabsContent value="lectures">
               <Card className="shadow-sm overflow-hidden">
                 <TableToolbar section="lectures" count={lectureRows.length} />
-                <CardContent className="p-0 overflow-x-auto">
+
+                {/* Mobile: vertical cards */}
+                <div className="md:hidden divide-y divide-border">
+                  {lectureRows.map((a) => {
+                    const sch = a._schedule;
+                    return (
+                      <div key={a.id} className={`p-4 space-y-2.5 ${a._demo ? "bg-amber-500/5" : ""}`}>
+                        <VRow label={isRtl ? "اسم الطالب" : "Student"} value={
+                          <>{studentName(a.user_id, a._demo)}{a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}</>
+                        } isRtl={isRtl} bold />
+                        <VRow label={isRtl ? "اسم المحاضرة" : "Lecture"} value={sch ? (isRtl ? sch.title_ar : sch.title_en) : "—"} isRtl={isRtl} />
+                        <VRow label={isRtl ? "المادة" : "Course"} value={courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")} isRtl={isRtl} />
+                        <VRow label={isRtl ? "وقت الحضور" : "Attended at"} value={new Date(a.viewed_at).toLocaleString(isRtl ? "ar-EG" : "en-US")} isRtl={isRtl} />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Desktop: table */}
+                <CardContent className="p-0 overflow-x-auto hidden md:block">
                   <Table className="min-w-[640px]">
                     <TableHeader>
                       <TableRow>
@@ -300,7 +322,25 @@ const CourseAttendance = () => {
             <TabsContent value="streams">
               <Card className="shadow-sm overflow-hidden">
                 <TableToolbar section="streams" count={streamRows.length} />
-                <CardContent className="p-0 overflow-x-auto">
+
+                <div className="md:hidden divide-y divide-border">
+                  {streamRows.map((a) => {
+                    const st = a._stream;
+                    return (
+                      <div key={a.id} className={`p-4 space-y-2.5 ${a._demo ? "bg-amber-500/5" : ""}`}>
+                        <VRow label={isRtl ? "اسم الطالب" : "Student"} value={
+                          <>{studentName(a.user_id, a._demo)}{a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}</>
+                        } isRtl={isRtl} bold />
+                        <VRow label={isRtl ? "اسم البث المباشر" : "Live Stream"} value={st ? (isRtl ? st.title_ar : st.title_en) : "—"} isRtl={isRtl} />
+                        <VRow label={isRtl ? "المادة" : "Course"} value={courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")} isRtl={isRtl} />
+                        <VRow label={isRtl ? "وقت الانضمام" : "Joined"} value={new Date(a.joined_at).toLocaleString(isRtl ? "ar-EG" : "en-US")} isRtl={isRtl} />
+                        <VRow label={isRtl ? "المدة" : "Duration"} value={`${a.duration_minutes || 0} ${isRtl ? "د" : "min"}`} isRtl={isRtl} />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <CardContent className="p-0 overflow-x-auto hidden md:block">
                   <Table className="min-w-[640px]">
                     <TableHeader>
                       <TableRow>
@@ -337,7 +377,25 @@ const CourseAttendance = () => {
             <TabsContent value="tests">
               <Card className="shadow-sm overflow-hidden">
                 <TableToolbar section="tests" count={testRows.length} />
-                <CardContent className="p-0 overflow-x-auto">
+
+                <div className="md:hidden divide-y divide-border">
+                  {testRows.map((a) => {
+                    const qz = a._quiz;
+                    return (
+                      <div key={a.id} className={`p-4 space-y-2.5 ${a._demo ? "bg-amber-500/5" : ""}`}>
+                        <VRow label={isRtl ? "اسم الطالب" : "Student"} value={
+                          <>{studentName(a.student_id, a._demo)}{a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}</>
+                        } isRtl={isRtl} bold />
+                        <VRow label={isRtl ? "اسم الاختبار" : "Test"} value={qz ? (isRtl ? qz.title_ar : qz.title_en) : "—"} isRtl={isRtl} />
+                        <VRow label={isRtl ? "المادة" : "Course"} value={courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")} isRtl={isRtl} />
+                        <VRow label={isRtl ? "الدرجة" : "Score"} value={`${a.score ?? "—"}${a.total_points ? ` / ${a.total_points}` : ""}`} isRtl={isRtl} />
+                        <VRow label={isRtl ? "وقت التسليم" : "Submitted"} value={new Date(a.submitted_at).toLocaleString(isRtl ? "ar-EG" : "en-US")} isRtl={isRtl} />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <CardContent className="p-0 overflow-x-auto hidden md:block">
                   <Table className="min-w-[640px]">
                     <TableHeader>
                       <TableRow>
@@ -375,5 +433,12 @@ const CourseAttendance = () => {
     </div>
   );
 };
+
+const VRow = ({ label, value, isRtl, bold }: { label: string; value: React.ReactNode; isRtl: boolean; bold?: boolean }) => (
+  <div className={`flex items-start justify-between gap-3 ${isRtl ? "flex-row-reverse" : ""}`}>
+    <span className="text-xs text-muted-foreground font-medium shrink-0 pt-0.5">{label}</span>
+    <span className={`text-sm ${bold ? "font-bold" : "font-medium"} text-foreground text-end break-words`}>{value}</span>
+  </div>
+);
 
 export default CourseAttendance;

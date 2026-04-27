@@ -58,6 +58,7 @@ const SchoolSignup = lazy(() => import("./pages/SchoolSignup"));
 const SchoolRegistration = lazy(() => import("./pages/SchoolRegistration"));
 const QuizCreate = lazy(() => import("./pages/QuizCreate"));
 const AssignmentDetail = lazy(() => import("./pages/AssignmentDetail"));
+const ScheduleDetail = lazy(() => import("./pages/ScheduleDetail"));
 const CourseAssignments = lazy(() => import("./pages/CourseAssignments"));
 const AddStudentResult = lazy(() => import("./pages/AddStudentResult"));
 
@@ -135,6 +136,7 @@ const App = () => (
               <Route path="/assignment/:assignmentSlug" element={<AssignmentDetail />} />
               {/* Backwards compatibility: old plain UUID links */}
               <Route path="/assignment/id/:assignmentSlug" element={<AssignmentDetail />} />
+              <Route path="/schedule/:scheduleSlug" element={<ScheduleDetail />} />
               <Route path="/course/:courseId/assignments" element={<CourseAssignments />} />
               <Route path="/institution/results/add" element={<AddStudentResult />} />
               

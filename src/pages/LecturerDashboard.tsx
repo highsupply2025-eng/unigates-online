@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { buildAssignmentPath } from "@/lib/assignment-url";
+import { buildSchedulePath } from "@/lib/schedule-url";
 import {
   GraduationCap, Plus, Eye, BookOpen, FileText, Video, Trash2, Globe, LogOut,
   Upload, X, Radio, Calendar, ExternalLink, ClipboardList, Star, Send, ArrowLeft, ArrowRight, MonitorPlay, Link2, Copy, Check,
@@ -1063,26 +1064,35 @@ const LecturerDashboard = () => {
                   <div className="text-center py-16 text-muted-foreground">{isRtl ? "لا توجد جداول" : "No schedules yet"}</div>
                 ) : (
                   <div className="space-y-3">
-                    {schedules.map(s => (
-                      <Card key={s.id}>
-                        <CardContent className="p-4 flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.schedule_type === 'test' ? 'bg-red-500/10' : 'bg-primary/10'}`}>
-                            {s.schedule_type === 'test' ? <ClipboardList className="w-5 h-5 text-red-500" /> : <BookOpen className="w-5 h-5 text-primary" />}
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-bold text-foreground">{isRtl ? s.title_ar : s.title_en}</h3>
-                            <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
-                              <Badge variant={s.schedule_type === 'test' ? "destructive" : "outline"}>
-                                {s.schedule_type === 'test' ? (isRtl ? "اختبار" : "Test") : (isRtl ? "محاضرة" : "Lecture")}
-                              </Badge>
-                              <span><Calendar className="w-3 h-3 inline me-1" />{s.scheduled_date}</span>
-                              {s.start_time && <span><Clock className="w-3 h-3 inline me-1" />{s.start_time} - {s.end_time || '?'}</span>}
+                    {schedules.map(s => {
+                      const fully = s.approved_by_head && s.approved_by_vice_dean && s.approved_by_dean;
+                      return (
+                        <Card key={s.id}>
+                          <CardContent className="p-4 flex items-center gap-4">
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.schedule_type === 'test' ? 'bg-red-500/10' : 'bg-primary/10'}`}>
+                              {s.schedule_type === 'test' ? <ClipboardList className="w-5 h-5 text-red-500" /> : <BookOpen className="w-5 h-5 text-primary" />}
                             </div>
-                          </div>
-                          <Button size="sm" variant="destructive" onClick={() => handleDeleteSchedule(s.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
-                        </CardContent>
-                      </Card>
-                    ))}
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-bold text-foreground">{isRtl ? s.title_ar : s.title_en}</h3>
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1 flex-wrap">
+                                <Badge variant={s.schedule_type === 'test' ? "destructive" : "outline"}>
+                                  {s.schedule_type === 'test' ? (isRtl ? "اختبار" : "Test") : (isRtl ? "محاضرة" : "Lecture")}
+                                </Badge>
+                                <Badge variant={fully ? "default" : "secondary"} className={fully ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" : ""}>
+                                  {fully ? (isRtl ? "معتمد" : "Approved") : (isRtl ? "بانتظار الاعتماد" : "Pending")}
+                                </Badge>
+                                <span><Calendar className="w-3 h-3 inline me-1" />{s.scheduled_date}</span>
+                                {s.start_time && <span><Clock className="w-3 h-3 inline me-1" />{s.start_time} - {s.end_time || '?'}</span>}
+                              </div>
+                            </div>
+                            <Button size="sm" variant="outline" onClick={() => navigate(buildSchedulePath(s.id, s.title_en, s.title_ar))} className="gap-1.5">
+                              <ExternalLink className="w-3.5 h-3.5" />{isRtl ? "فتح الصفحة" : "Open Page"}
+                            </Button>
+                            <Button size="sm" variant="destructive" onClick={() => handleDeleteSchedule(s.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </div>
                 )}
               </TabsContent>
@@ -1530,9 +1540,9 @@ const LecturerDashboard = () => {
           <DialogHeader><DialogTitle>{isRtl ? "إضافة جدول" : "Add Schedule"}</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "الدورة" : "Course"} *</Label>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "المادة" : "Course"} *</Label>
               <Select value={newSchedule.course_id} onValueChange={v => setNewSchedule(p => ({ ...p, course_id: v }))}>
-                <SelectTrigger><SelectValue placeholder={isRtl ? "اختر الدورة" : "Select course"} /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={isRtl ? "اختر المادة" : "Select course"} /></SelectTrigger>
                 <SelectContent>{courses.map(c => <SelectItem key={c.id} value={c.id}>{isRtl ? c.title_ar : c.title_en}</SelectItem>)}</SelectContent>
               </Select>
             </div>

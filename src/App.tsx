@@ -58,6 +58,7 @@ const SchoolSignup = lazy(() => import("./pages/SchoolSignup"));
 const SchoolRegistration = lazy(() => import("./pages/SchoolRegistration"));
 const QuizCreate = lazy(() => import("./pages/QuizCreate"));
 const AssignmentDetail = lazy(() => import("./pages/AssignmentDetail"));
+const ScheduleDetail = lazy(() => import("./pages/ScheduleDetail"));
 const CourseAssignments = lazy(() => import("./pages/CourseAssignments"));
 const AddStudentResult = lazy(() => import("./pages/AddStudentResult"));
 

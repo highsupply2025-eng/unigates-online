@@ -136,11 +136,8 @@ const ScheduleDetail = () => {
 
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
-      <SimpleHeader />
+      <SimpleHeader backTo="/lecturer/dashboard?tab=schedules" mobileBackOnly />
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="gap-2">
-          <ArrowLeft className="w-4 h-4" />{isRtl ? "رجوع" : "Back"}
-        </Button>
 
         <Card>
           <CardHeader>

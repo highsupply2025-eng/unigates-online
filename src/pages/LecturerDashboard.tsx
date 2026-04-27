@@ -1154,120 +1154,66 @@ const LecturerDashboard = () => {
 
               {/* ===== ATTENDANCE TAB ===== */}
               <TabsContent value="attendance">
-                <div className={`flex items-center justify-between gap-3 mb-6 ${isRtl ? "flex-row-reverse" : ""}`}>
+                <div className={`flex items-center justify-between gap-3 mb-2 ${isRtl ? "flex-row-reverse" : ""}`}>
                   <h2 className="text-xl sm:text-2xl font-bold text-foreground">{isRtl ? "حضور الطلاب" : "Student Attendance"}</h2>
-                  <Button size="sm" variant="outline" onClick={() => exportAnalyticsPDF("attendance")} className="gap-1.5">
-                    <Download className="w-4 h-4" strokeWidth={2.5} />{isRtl ? "تحميل PDF" : "Export PDF"}
-                  </Button>
                 </div>
+                <p className="text-sm text-muted-foreground mb-6">
+                  {isRtl
+                    ? "اختر مادة لعرض جداول حضور المحاضرات والبث والاختبارات (للعرض فقط، يُحتسب لحظياً)"
+                    : "Select a course to view lecture, stream and test attendance tables (read-only, real-time)"}
+                </p>
 
-                <Tabs defaultValue="lectures" className="w-full">
-                  <TabsList className="grid grid-cols-3 w-full mb-4">
-                    <TabsTrigger value="lectures" className="gap-1.5"><BookOpen className="w-4 h-4" />{isRtl ? "المحاضرات" : "Lectures"}</TabsTrigger>
-                    <TabsTrigger value="streams" className="gap-1.5"><Radio className="w-4 h-4" />{isRtl ? "البث" : "Streams"}</TabsTrigger>
-                    <TabsTrigger value="tests" className="gap-1.5"><ClipboardList className="w-4 h-4" />{isRtl ? "الاختبارات" : "Tests"}</TabsTrigger>
-                  </TabsList>
-
-                  {/* Lectures attendance */}
-                  <TabsContent value="lectures">
-                    {lectureAttendance.length === 0 ? (
-                      <div className="text-center py-16 text-muted-foreground">{isRtl ? "لا يوجد حضور للمحاضرات بعد" : "No lecture attendance yet"}</div>
-                    ) : (
-                      <Card><CardContent className="p-0 overflow-x-auto">
-                        <Table>
-                          <TableHeader><TableRow>
-                            <TableHead>{isRtl ? "اسم الطالب" : "Student"}</TableHead>
-                            <TableHead>{isRtl ? "اسم المحاضرة" : "Lecture"}</TableHead>
-                            <TableHead>{isRtl ? "المادة" : "Course"}</TableHead>
-                            <TableHead>{isRtl ? "وقت الحضور" : "Attended at"}</TableHead>
-                          </TableRow></TableHeader>
-                          <TableBody>
-                            {lectureAttendance.map(a => {
-                              const sch = a._schedule;
-                              const course = sch ? courses.find(c => c.id === sch.course_id) : null;
-                              return (
-                                <TableRow key={a.id}>
-                                  <TableCell className="font-medium">{profilesMap[a.user_id]?.full_name || a.user_id.slice(0,8)}</TableCell>
-                                  <TableCell>{sch ? (isRtl ? sch.title_ar : sch.title_en) : "—"}</TableCell>
-                                  <TableCell>{course ? (isRtl ? course.title_ar : course.title_en) : "—"}</TableCell>
-                                  <TableCell className="text-sm">{new Date(a.viewed_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US')}</TableCell>
-                                </TableRow>
-                              );
-                            })}
-                          </TableBody>
-                        </Table>
-                      </CardContent></Card>
-                    )}
-                  </TabsContent>
-
-                  {/* Streams attendance */}
-                  <TabsContent value="streams">
-                    {attendance.length === 0 ? (
-                      <div className="text-center py-16 text-muted-foreground">{isRtl ? "لا يوجد حضور للبث بعد" : "No stream attendance yet"}</div>
-                    ) : (
-                      <Card><CardContent className="p-0 overflow-x-auto">
-                        <Table>
-                          <TableHeader><TableRow>
-                            <TableHead>{isRtl ? "اسم الطالب" : "Student"}</TableHead>
-                            <TableHead>{isRtl ? "اسم البث المباشر" : "Live Stream"}</TableHead>
-                            <TableHead>{isRtl ? "المادة" : "Course"}</TableHead>
-                            <TableHead>{isRtl ? "وقت الانضمام" : "Joined"}</TableHead>
-                            <TableHead>{isRtl ? "المدة" : "Duration"}</TableHead>
-                          </TableRow></TableHeader>
-                          <TableBody>
-                            {attendance.map(a => {
-                              const stream = a._stream || streams.find(s => s.id === a.stream_id);
-                              const course = stream ? courses.find(c => c.id === stream.course_id) : null;
-                              return (
-                                <TableRow key={a.id}>
-                                  <TableCell className="font-medium">{profilesMap[a.user_id]?.full_name || a.user_id.slice(0,8)}</TableCell>
-                                  <TableCell>{stream ? (isRtl ? stream.title_ar : stream.title_en) : "—"}</TableCell>
-                                  <TableCell>{course ? (isRtl ? course.title_ar : course.title_en) : "—"}</TableCell>
-                                  <TableCell className="text-sm">{new Date(a.joined_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US')}</TableCell>
-                                  <TableCell>{a.duration_minutes || 0} {isRtl ? "د" : "min"}</TableCell>
-                                </TableRow>
-                              );
-                            })}
-                          </TableBody>
-                        </Table>
-                      </CardContent></Card>
-                    )}
-                  </TabsContent>
-
-                  {/* Tests attendance */}
-                  <TabsContent value="tests">
-                    {testAttendance.length === 0 ? (
-                      <div className="text-center py-16 text-muted-foreground">{isRtl ? "لا يوجد حضور للاختبارات بعد" : "No test attendance yet"}</div>
-                    ) : (
-                      <Card><CardContent className="p-0 overflow-x-auto">
-                        <Table>
-                          <TableHeader><TableRow>
-                            <TableHead>{isRtl ? "اسم الطالب" : "Student"}</TableHead>
-                            <TableHead>{isRtl ? "اسم الاختبار" : "Test"}</TableHead>
-                            <TableHead>{isRtl ? "المادة" : "Course"}</TableHead>
-                            <TableHead>{isRtl ? "الدرجة" : "Score"}</TableHead>
-                            <TableHead>{isRtl ? "وقت التسليم" : "Submitted"}</TableHead>
-                          </TableRow></TableHeader>
-                          <TableBody>
-                            {testAttendance.map(a => {
-                              const qz = a._quiz;
-                              const course = qz ? courses.find(c => c.id === qz.course_id) : null;
-                              return (
-                                <TableRow key={a.id}>
-                                  <TableCell className="font-medium">{profilesMap[a.student_id]?.full_name || a.student_id.slice(0,8)}</TableCell>
-                                  <TableCell>{qz ? (isRtl ? qz.title_ar : qz.title_en) : "—"}</TableCell>
-                                  <TableCell>{course ? (isRtl ? course.title_ar : course.title_en) : "—"}</TableCell>
-                                  <TableCell>{a.score ?? "—"}{a.total_points ? ` / ${a.total_points}` : ""}</TableCell>
-                                  <TableCell className="text-sm">{new Date(a.submitted_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US')}</TableCell>
-                                </TableRow>
-                              );
-                            })}
-                          </TableBody>
-                        </Table>
-                      </CardContent></Card>
-                    )}
-                  </TabsContent>
-                </Tabs>
+                {courses.length === 0 ? (
+                  <div className="text-center py-16 text-muted-foreground">
+                    {isRtl ? "لا توجد مواد بعد" : "No courses yet"}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {courses.map((c) => {
+                      const lecCount = lectureAttendance.filter((a: any) => a._schedule?.course_id === c.id).length;
+                      const strCount = attendance.filter((a: any) => (a._stream?.course_id) === c.id).length;
+                      const tstCount = testAttendance.filter((a: any) => a._quiz?.course_id === c.id).length;
+                      const total = lecCount + strCount + tstCount;
+                      return (
+                        <Card key={c.id} className="hover:shadow-lg transition-shadow cursor-pointer group" onClick={() => navigate(`/attendance/course/${c.id}`)}>
+                          <CardContent className="p-4 flex flex-col gap-3">
+                            <div className="flex items-start gap-3">
+                              <div className="w-12 h-12 shrink-0 rounded-xl bg-primary/15 ring-1 ring-primary/30 flex items-center justify-center shadow-sm">
+                                <Users className="w-6 h-6 text-primary" strokeWidth={2.25} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-bold truncate">{isRtl ? c.title_ar : c.title_en}</h3>
+                                <p className="text-xs text-muted-foreground mt-0.5">{isRtl ? c.category_ar : c.category_en}</p>
+                              </div>
+                              <Badge variant="secondary" className="shrink-0">{total}</Badge>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 text-center">
+                              <div className="bg-muted/50 rounded-lg py-2">
+                                <BookOpen className="w-4 h-4 mx-auto text-primary mb-1" strokeWidth={2.5} />
+                                <div className="text-sm font-bold">{lecCount}</div>
+                                <div className="text-[10px] text-muted-foreground">{isRtl ? "محاضرات" : "Lectures"}</div>
+                              </div>
+                              <div className="bg-muted/50 rounded-lg py-2">
+                                <Radio className="w-4 h-4 mx-auto text-red-500 mb-1" strokeWidth={2.5} />
+                                <div className="text-sm font-bold">{strCount}</div>
+                                <div className="text-[10px] text-muted-foreground">{isRtl ? "بث" : "Streams"}</div>
+                              </div>
+                              <div className="bg-muted/50 rounded-lg py-2">
+                                <ClipboardList className="w-4 h-4 mx-auto text-amber-500 mb-1" strokeWidth={2.5} />
+                                <div className="text-sm font-bold">{tstCount}</div>
+                                <div className="text-[10px] text-muted-foreground">{isRtl ? "اختبارات" : "Tests"}</div>
+                              </div>
+                            </div>
+                            <Button size="sm" variant="outline" className="w-full gap-1.5 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                              <ExternalLink className="w-4 h-4" strokeWidth={2.5} />
+                              {isRtl ? "عرض الجدول والتصدير" : "View & Export"}
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )}
               </TabsContent>
 
               {/* ===== RATINGS TAB ===== */}

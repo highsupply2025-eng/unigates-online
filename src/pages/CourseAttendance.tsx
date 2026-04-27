@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, ArrowRight, Download, BookOpen, Radio, ClipboardList, Users } from "lucide-react";
+import { ArrowLeft, ArrowRight, Download, BookOpen, Radio, ClipboardList, Users, Loader2 } from "lucide-react";
 import { useSmartBack } from "@/hooks/use-smart-back";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import { toast } from "sonner";
 
 const CourseAttendance = () => {
   const { courseId } = useParams<{ courseId: string }>();
@@ -118,10 +121,115 @@ const CourseAttendance = () => {
     setLoading(false);
   };
 
-  const handlePrint = (section: "lectures" | "streams" | "tests") => {
-    setActiveTab(section);
-    setTimeout(() => window.print(), 100);
+  const [exporting, setExporting] = useState<string | null>(null);
+
+  const exportPDF = async (section: "lectures" | "streams" | "tests") => {
+    setExporting(section);
+    try {
+      // Build offscreen table HTML
+      const title = section === "lectures"
+        ? (isRtl ? "حضور المحاضرات" : "Lecture Attendance")
+        : section === "streams"
+          ? (isRtl ? "حضور البث المباشر" : "Stream Attendance")
+          : (isRtl ? "حضور الاختبارات" : "Test Attendance");
+
+      let headers: string[] = [];
+      let rows: string[][] = [];
+      const courseName = courseTitle || (isRtl ? "مادة تجريبية" : "Demo course");
+
+      if (section === "lectures") {
+        headers = isRtl
+          ? ["اسم الطالب", "اسم المحاضرة", "المادة", "وقت الحضور"]
+          : ["Student", "Lecture", "Course", "Attended at"];
+        rows = lectureRows.map((a) => [
+          studentName(a.user_id, a._demo) + (a._demo ? (isRtl ? " (تجريبي)" : " (DEMO)") : ""),
+          a._schedule ? (isRtl ? a._schedule.title_ar : a._schedule.title_en) : "—",
+          courseName,
+          new Date(a.viewed_at).toLocaleString(isRtl ? "ar-EG" : "en-US"),
+        ]);
+      } else if (section === "streams") {
+        headers = isRtl
+          ? ["اسم الطالب", "اسم البث المباشر", "المادة", "وقت الانضمام", "المدة"]
+          : ["Student", "Live Stream", "Course", "Joined", "Duration"];
+        rows = streamRows.map((a) => [
+          studentName(a.user_id, a._demo) + (a._demo ? (isRtl ? " (تجريبي)" : " (DEMO)") : ""),
+          a._stream ? (isRtl ? a._stream.title_ar : a._stream.title_en) : "—",
+          courseName,
+          new Date(a.joined_at).toLocaleString(isRtl ? "ar-EG" : "en-US"),
+          `${a.duration_minutes || 0} ${isRtl ? "د" : "min"}`,
+        ]);
+      } else {
+        headers = isRtl
+          ? ["اسم الطالب", "اسم الاختبار", "المادة", "الدرجة", "وقت التسليم"]
+          : ["Student", "Test", "Course", "Score", "Submitted"];
+        rows = testRows.map((a) => [
+          studentName(a.student_id, a._demo) + (a._demo ? (isRtl ? " (تجريبي)" : " (DEMO)") : ""),
+          a._quiz ? (isRtl ? a._quiz.title_ar : a._quiz.title_en) : "—",
+          courseName,
+          `${a.score ?? "—"}${a.total_points ? ` / ${a.total_points}` : ""}`,
+          new Date(a.submitted_at).toLocaleString(isRtl ? "ar-EG" : "en-US"),
+        ]);
+      }
+
+      const container = document.createElement("div");
+      container.style.cssText = `position:fixed;left:-99999px;top:0;width:900px;background:#fff;padding:32px;font-family:'Cairo','Tajawal',Arial,sans-serif;direction:${isRtl ? "rtl" : "ltr"};color:#111;`;
+      container.innerHTML = `
+        <div style="border-bottom:3px solid #0d9488;padding-bottom:12px;margin-bottom:20px;">
+          <h1 style="font-size:22px;font-weight:800;margin:0 0 6px 0;">${escapeHtml(courseName)}</h1>
+          <h2 style="font-size:16px;font-weight:600;margin:0;color:#0d9488;">${escapeHtml(title)}</h2>
+          <p style="font-size:11px;color:#666;margin:6px 0 0 0;">${new Date().toLocaleString(isRtl ? "ar-EG" : "en-US")} — ${rows.length} ${isRtl ? "سجل" : "records"}</p>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr style="background:#0d9488;color:#fff;">
+              ${headers.map(h => `<th style="padding:10px 8px;text-align:${isRtl ? "right" : "left"};font-weight:700;border:1px solid #0d9488;">${escapeHtml(h)}</th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.length === 0
+              ? `<tr><td colspan="${headers.length}" style="padding:20px;text-align:center;color:#999;border:1px solid #ddd;">${isRtl ? "لا توجد سجلات" : "No records"}</td></tr>`
+              : rows.map((r, i) => `
+                <tr style="background:${i % 2 ? "#f9fafb" : "#fff"};">
+                  ${r.map(c => `<td style="padding:8px;border:1px solid #e5e7eb;text-align:${isRtl ? "right" : "left"};">${escapeHtml(c)}</td>`).join("")}
+                </tr>`).join("")}
+          </tbody>
+        </table>
+      `;
+      document.body.appendChild(container);
+
+      const canvas = await html2canvas(container, { scale: 2, useCORS: true, backgroundColor: "#ffffff", logging: false });
+      document.body.removeChild(container);
+
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const imgWidth = pageWidth - 20;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const imgData = canvas.toDataURL("image/png");
+
+      let heightLeft = imgHeight;
+      let position = 10;
+      pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+      heightLeft -= (pageHeight - 20);
+      while (heightLeft > 0) {
+        position = 10 - (imgHeight - heightLeft);
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+        heightLeft -= (pageHeight - 20);
+      }
+
+      const fname = `${courseName}-${title}-${new Date().toISOString().slice(0, 10)}.pdf`;
+      pdf.save(fname);
+      toast.success(isRtl ? "تم تصدير الملف بنجاح" : "PDF exported successfully");
+    } catch (e: any) {
+      console.error("PDF export error:", e);
+      toast.error(isRtl ? "فشل التصدير: " + (e?.message || "") : "Export failed: " + (e?.message || ""));
+    } finally {
+      setExporting(null);
+    }
   };
+
+  const escapeHtml = (s: string) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string);
 
   const courseTitle = course ? (isRtl ? course.title_ar : course.title_en) : "";
   const tabLabel =
@@ -181,9 +289,9 @@ const CourseAttendance = () => {
             <div className="text-[11px] text-muted-foreground">{count} {isRtl ? "سجل" : "records"}</div>
           </div>
         </div>
-        <Button size="sm" variant="outline" onClick={() => handlePrint(section)} className="gap-1.5 h-9 px-3 shrink-0 no-print font-semibold">
-          <Download className="w-4 h-4" strokeWidth={2.5} />
-          <span className="text-xs sm:text-sm">{isRtl ? "تصدير PDF" : "Export PDF"}</span>
+        <Button size="sm" variant="outline" onClick={() => exportPDF(section)} disabled={exporting === section} className="gap-1.5 h-9 px-3 shrink-0 no-print font-semibold">
+          {exporting === section ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" strokeWidth={2.5} />}
+          <span className="text-xs sm:text-sm">{exporting === section ? (isRtl ? "جارٍ التصدير..." : "Exporting...") : (isRtl ? "تصدير PDF" : "Export PDF")}</span>
         </Button>
       </div>
     );

@@ -227,12 +227,60 @@ const LecturerDashboard = () => {
   };
 
   const loadAttendance = async (userId: string) => {
-    // Get all streams by this lecturer, then attendance
-    const { data: myStreams } = await supabase.from("live_streams").select("id").eq("creator_id", userId);
+    const userIdsCollect = new Set<string>();
+
+    // 1) Stream attendance
+    const { data: myStreams } = await supabase.from("live_streams").select("id, title_ar, title_en, course_id").eq("creator_id", userId);
     if (myStreams && myStreams.length > 0) {
       const streamIds = myStreams.map(s => s.id);
       const { data } = await supabase.from("stream_attendance").select("*").in("stream_id", streamIds).order("joined_at", { ascending: false });
-      setAttendance(data || []);
+      const enriched = (data || []).map((a: any) => {
+        const st = myStreams.find(s => s.id === a.stream_id);
+        userIdsCollect.add(a.user_id);
+        return { ...a, _stream: st };
+      });
+      setAttendance(enriched);
+    } else {
+      setAttendance([]);
+    }
+
+    // 2) Lecture attendance via schedule_views (for lecture-type schedules)
+    const { data: mySchedules } = await supabase.from("lecture_schedules").select("id, title_ar, title_en, course_id, schedule_type").eq("creator_id", userId);
+    const lectureSchedules = (mySchedules || []).filter((s: any) => s.schedule_type === "lecture");
+    if (lectureSchedules.length > 0) {
+      const ids = lectureSchedules.map((s: any) => s.id);
+      const { data: views } = await supabase.from("schedule_views").select("*").in("schedule_id", ids).order("viewed_at", { ascending: false });
+      const enriched = (views || []).map((v: any) => {
+        const sch = lectureSchedules.find((s: any) => s.id === v.schedule_id);
+        userIdsCollect.add(v.user_id);
+        return { ...v, _schedule: sch };
+      });
+      setLectureAttendance(enriched);
+    } else {
+      setLectureAttendance([]);
+    }
+
+    // 3) Test attendance via quiz_submissions
+    const { data: myQuizzes } = await supabase.from("quizzes").select("id, title_ar, title_en, course_id").eq("creator_id", userId);
+    if (myQuizzes && myQuizzes.length > 0) {
+      const qIds = myQuizzes.map((q: any) => q.id);
+      const { data: subs } = await supabase.from("quiz_submissions").select("*").in("quiz_id", qIds).order("submitted_at", { ascending: false });
+      const enriched = (subs || []).map((s: any) => {
+        const qz = myQuizzes.find((q: any) => q.id === s.quiz_id);
+        userIdsCollect.add(s.student_id);
+        return { ...s, _quiz: qz };
+      });
+      setTestAttendance(enriched);
+    } else {
+      setTestAttendance([]);
+    }
+
+    // Resolve names
+    if (userIdsCollect.size > 0) {
+      const { data: profs } = await supabase.from("profiles").select("user_id, full_name").in("user_id", Array.from(userIdsCollect));
+      const map: Record<string, { full_name: string }> = {};
+      (profs || []).forEach((p: any) => { map[p.user_id] = { full_name: p.full_name }; });
+      setProfilesMap(map);
     }
   };
 

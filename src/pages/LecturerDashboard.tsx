@@ -1540,9 +1540,9 @@ const LecturerDashboard = () => {
           <DialogHeader><DialogTitle>{isRtl ? "إضافة جدول" : "Add Schedule"}</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "الدورة" : "Course"} *</Label>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "المادة" : "Course"} *</Label>
               <Select value={newSchedule.course_id} onValueChange={v => setNewSchedule(p => ({ ...p, course_id: v }))}>
-                <SelectTrigger><SelectValue placeholder={isRtl ? "اختر الدورة" : "Select course"} /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={isRtl ? "اختر المادة" : "Select course"} /></SelectTrigger>
                 <SelectContent>{courses.map(c => <SelectItem key={c.id} value={c.id}>{isRtl ? c.title_ar : c.title_en}</SelectItem>)}</SelectContent>
               </Select>
             </div>

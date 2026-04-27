@@ -1154,43 +1154,120 @@ const LecturerDashboard = () => {
 
               {/* ===== ATTENDANCE TAB ===== */}
               <TabsContent value="attendance">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-foreground">{isRtl ? "حضور الطلاب" : "Student Attendance"}</h2>
+                <div className={`flex items-center justify-between gap-3 mb-6 ${isRtl ? "flex-row-reverse" : ""}`}>
+                  <h2 className="text-xl sm:text-2xl font-bold text-foreground">{isRtl ? "حضور الطلاب" : "Student Attendance"}</h2>
                   <Button size="sm" variant="outline" onClick={() => exportAnalyticsPDF("attendance")} className="gap-1.5">
-                    <Download className="w-4 h-4" />{isRtl ? "تحميل PDF" : "Export PDF"}
+                    <Download className="w-4 h-4" strokeWidth={2.5} />{isRtl ? "تحميل PDF" : "Export PDF"}
                   </Button>
                 </div>
-                {attendance.length === 0 ? (
-                  <div className="text-center py-16 text-muted-foreground">{isRtl ? "لا توجد بيانات حضور بعد" : "No attendance data yet"}</div>
-                ) : (
-                  <Card>
-                    <CardContent className="p-0">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>{isRtl ? "البث" : "Stream"}</TableHead>
-                            <TableHead>{isRtl ? "الطالب" : "Student"}</TableHead>
+
+                <Tabs defaultValue="lectures" className="w-full">
+                  <TabsList className="grid grid-cols-3 w-full mb-4">
+                    <TabsTrigger value="lectures" className="gap-1.5"><BookOpen className="w-4 h-4" />{isRtl ? "المحاضرات" : "Lectures"}</TabsTrigger>
+                    <TabsTrigger value="streams" className="gap-1.5"><Radio className="w-4 h-4" />{isRtl ? "البث" : "Streams"}</TabsTrigger>
+                    <TabsTrigger value="tests" className="gap-1.5"><ClipboardList className="w-4 h-4" />{isRtl ? "الاختبارات" : "Tests"}</TabsTrigger>
+                  </TabsList>
+
+                  {/* Lectures attendance */}
+                  <TabsContent value="lectures">
+                    {lectureAttendance.length === 0 ? (
+                      <div className="text-center py-16 text-muted-foreground">{isRtl ? "لا يوجد حضور للمحاضرات بعد" : "No lecture attendance yet"}</div>
+                    ) : (
+                      <Card><CardContent className="p-0 overflow-x-auto">
+                        <Table>
+                          <TableHeader><TableRow>
+                            <TableHead>{isRtl ? "اسم الطالب" : "Student"}</TableHead>
+                            <TableHead>{isRtl ? "اسم المحاضرة" : "Lecture"}</TableHead>
+                            <TableHead>{isRtl ? "المادة" : "Course"}</TableHead>
+                            <TableHead>{isRtl ? "وقت الحضور" : "Attended at"}</TableHead>
+                          </TableRow></TableHeader>
+                          <TableBody>
+                            {lectureAttendance.map(a => {
+                              const sch = a._schedule;
+                              const course = sch ? courses.find(c => c.id === sch.course_id) : null;
+                              return (
+                                <TableRow key={a.id}>
+                                  <TableCell className="font-medium">{profilesMap[a.user_id]?.full_name || a.user_id.slice(0,8)}</TableCell>
+                                  <TableCell>{sch ? (isRtl ? sch.title_ar : sch.title_en) : "—"}</TableCell>
+                                  <TableCell>{course ? (isRtl ? course.title_ar : course.title_en) : "—"}</TableCell>
+                                  <TableCell className="text-sm">{new Date(a.viewed_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US')}</TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </CardContent></Card>
+                    )}
+                  </TabsContent>
+
+                  {/* Streams attendance */}
+                  <TabsContent value="streams">
+                    {attendance.length === 0 ? (
+                      <div className="text-center py-16 text-muted-foreground">{isRtl ? "لا يوجد حضور للبث بعد" : "No stream attendance yet"}</div>
+                    ) : (
+                      <Card><CardContent className="p-0 overflow-x-auto">
+                        <Table>
+                          <TableHeader><TableRow>
+                            <TableHead>{isRtl ? "اسم الطالب" : "Student"}</TableHead>
+                            <TableHead>{isRtl ? "اسم البث المباشر" : "Live Stream"}</TableHead>
+                            <TableHead>{isRtl ? "المادة" : "Course"}</TableHead>
                             <TableHead>{isRtl ? "وقت الانضمام" : "Joined"}</TableHead>
-                            <TableHead>{isRtl ? "المدة (دقائق)" : "Duration"}</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {attendance.map(a => {
-                            const stream = streams.find(s => s.id === a.stream_id);
-                            return (
-                              <TableRow key={a.id}>
-                                <TableCell className="font-medium">{stream ? (isRtl ? stream.title_ar : stream.title_en) : a.stream_id.slice(0,8)}</TableCell>
-                                <TableCell>{a.user_id.slice(0,8)}...</TableCell>
-                                <TableCell className="text-sm">{new Date(a.joined_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US')}</TableCell>
-                                <TableCell>{a.duration_minutes || 0} {isRtl ? "دقيقة" : "min"}</TableCell>
-                              </TableRow>
-                            );
-                          })}
-                        </TableBody>
-                      </Table>
-                    </CardContent>
-                  </Card>
-                )}
+                            <TableHead>{isRtl ? "المدة" : "Duration"}</TableHead>
+                          </TableRow></TableHeader>
+                          <TableBody>
+                            {attendance.map(a => {
+                              const stream = a._stream || streams.find(s => s.id === a.stream_id);
+                              const course = stream ? courses.find(c => c.id === stream.course_id) : null;
+                              return (
+                                <TableRow key={a.id}>
+                                  <TableCell className="font-medium">{profilesMap[a.user_id]?.full_name || a.user_id.slice(0,8)}</TableCell>
+                                  <TableCell>{stream ? (isRtl ? stream.title_ar : stream.title_en) : "—"}</TableCell>
+                                  <TableCell>{course ? (isRtl ? course.title_ar : course.title_en) : "—"}</TableCell>
+                                  <TableCell className="text-sm">{new Date(a.joined_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US')}</TableCell>
+                                  <TableCell>{a.duration_minutes || 0} {isRtl ? "د" : "min"}</TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </CardContent></Card>
+                    )}
+                  </TabsContent>
+
+                  {/* Tests attendance */}
+                  <TabsContent value="tests">
+                    {testAttendance.length === 0 ? (
+                      <div className="text-center py-16 text-muted-foreground">{isRtl ? "لا يوجد حضور للاختبارات بعد" : "No test attendance yet"}</div>
+                    ) : (
+                      <Card><CardContent className="p-0 overflow-x-auto">
+                        <Table>
+                          <TableHeader><TableRow>
+                            <TableHead>{isRtl ? "اسم الطالب" : "Student"}</TableHead>
+                            <TableHead>{isRtl ? "اسم الاختبار" : "Test"}</TableHead>
+                            <TableHead>{isRtl ? "المادة" : "Course"}</TableHead>
+                            <TableHead>{isRtl ? "الدرجة" : "Score"}</TableHead>
+                            <TableHead>{isRtl ? "وقت التسليم" : "Submitted"}</TableHead>
+                          </TableRow></TableHeader>
+                          <TableBody>
+                            {testAttendance.map(a => {
+                              const qz = a._quiz;
+                              const course = qz ? courses.find(c => c.id === qz.course_id) : null;
+                              return (
+                                <TableRow key={a.id}>
+                                  <TableCell className="font-medium">{profilesMap[a.student_id]?.full_name || a.student_id.slice(0,8)}</TableCell>
+                                  <TableCell>{qz ? (isRtl ? qz.title_ar : qz.title_en) : "—"}</TableCell>
+                                  <TableCell>{course ? (isRtl ? course.title_ar : course.title_en) : "—"}</TableCell>
+                                  <TableCell>{a.score ?? "—"}{a.total_points ? ` / ${a.total_points}` : ""}</TableCell>
+                                  <TableCell className="text-sm">{new Date(a.submitted_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US')}</TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </CardContent></Card>
+                    )}
+                  </TabsContent>
+                </Tabs>
               </TabsContent>
 
               {/* ===== RATINGS TAB ===== */}

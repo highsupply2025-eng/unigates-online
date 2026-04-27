@@ -266,13 +266,13 @@ const CourseAttendance = () => {
               <Card className="shadow-sm overflow-hidden">
                 <TableToolbar section="lectures" count={lectureRows.length} />
                 <CardContent className="p-0 overflow-x-auto">
-                  <Table>
+                  <Table className="min-w-[640px]">
                     <TableHeader>
                       <TableRow>
-                        <TableHead>{isRtl ? "اسم الطالب" : "Student"}</TableHead>
-                        <TableHead>{isRtl ? "اسم المحاضرة" : "Lecture"}</TableHead>
-                        <TableHead>{isRtl ? "المادة" : "Course"}</TableHead>
-                        <TableHead>{isRtl ? "وقت الحضور" : "Attended at"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الطالب" : "Student"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم المحاضرة" : "Lecture"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المادة" : "Course"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "وقت الحضور" : "Attended at"}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -301,14 +301,14 @@ const CourseAttendance = () => {
               <Card className="shadow-sm overflow-hidden">
                 <TableToolbar section="streams" count={streamRows.length} />
                 <CardContent className="p-0 overflow-x-auto">
-                  <Table>
+                  <Table className="min-w-[640px]">
                     <TableHeader>
                       <TableRow>
-                        <TableHead>{isRtl ? "اسم الطالب" : "Student"}</TableHead>
-                        <TableHead>{isRtl ? "اسم البث المباشر" : "Live Stream"}</TableHead>
-                        <TableHead>{isRtl ? "المادة" : "Course"}</TableHead>
-                        <TableHead>{isRtl ? "وقت الانضمام" : "Joined"}</TableHead>
-                        <TableHead>{isRtl ? "المدة" : "Duration"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الطالب" : "Student"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم البث المباشر" : "Live Stream"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المادة" : "Course"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "وقت الانضمام" : "Joined"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المدة" : "Duration"}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -338,14 +338,14 @@ const CourseAttendance = () => {
               <Card className="shadow-sm overflow-hidden">
                 <TableToolbar section="tests" count={testRows.length} />
                 <CardContent className="p-0 overflow-x-auto">
-                  <Table>
+                  <Table className="min-w-[640px]">
                     <TableHeader>
                       <TableRow>
-                        <TableHead>{isRtl ? "اسم الطالب" : "Student"}</TableHead>
-                        <TableHead>{isRtl ? "اسم الاختبار" : "Test"}</TableHead>
-                        <TableHead>{isRtl ? "المادة" : "Course"}</TableHead>
-                        <TableHead>{isRtl ? "الدرجة" : "Score"}</TableHead>
-                        <TableHead>{isRtl ? "وقت التسليم" : "Submitted"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الطالب" : "Student"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الاختبار" : "Test"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المادة" : "Course"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "الدرجة" : "Score"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "وقت التسليم" : "Submitted"}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>

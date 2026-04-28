@@ -5,7 +5,7 @@ import { buildSchedulePath } from "@/lib/schedule-url";
 import {
   GraduationCap, Plus, Eye, BookOpen, FileText, Video, Trash2, Globe, LogOut,
   Upload, X, Radio, Calendar, ExternalLink, ClipboardList, Star, Send, ArrowLeft, ArrowRight, MonitorPlay, Link2, Copy, Check,
-  Download, Users, Clock, BarChart3, CheckCircle, HelpCircle, MoreVertical, Menu
+  Download, Users, Clock, BarChart3, CheckCircle, HelpCircle, MoreVertical, Menu, Award, Home
 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import LiveStreamRoom from "@/components/LiveStreamRoom";

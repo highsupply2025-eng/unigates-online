@@ -671,9 +671,12 @@ const LecturerDashboard = () => {
                   <Menu className="w-5 h-5" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align={isRtl ? "start" : "end"} className="w-64 max-h-[80vh] overflow-y-auto">
+              <DropdownMenuContent align={isRtl ? "start" : "end"} className="w-72 max-h-[85vh] overflow-y-auto p-1.5">
+                <div className="px-2 py-1.5 text-[11px] text-muted-foreground font-bold uppercase tracking-wider">
+                  {isRtl ? "لوحة المحاضر" : "Lecturer Panel"}
+                </div>
                 {[
-                  { id: "home", label: isRtl ? "الرئيسية" : "Home", Icon: BarChart3 },
+                  { id: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home },
                   { id: "courses", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video },
                   { id: "live", label: isRtl ? "البث المباشر" : "Live Stream", Icon: Radio },
                   { id: "quizzes", label: isRtl ? "الاختبارات أونلاين" : "Online Tests", Icon: HelpCircle },
@@ -686,19 +689,37 @@ const LecturerDashboard = () => {
                   <DropdownMenuItem
                     key={id}
                     onClick={() => handleTabChange(id)}
-                    className={`gap-2 cursor-pointer ${activeTab === id ? "bg-primary/10 text-primary font-semibold" : ""}`}
+                    className={`gap-2.5 cursor-pointer rounded-md py-2 ${activeTab === id ? "bg-primary/10 text-primary font-semibold" : ""}`}
                   >
-                    <Icon className="w-4 h-4 text-primary" />
+                    <Icon className="w-4 h-4 text-primary shrink-0" />
                     <span className="text-sm">{label}</span>
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
-                  <Globe className="w-4 h-4 text-primary" />
+                <div className="px-2 py-1.5 text-[11px] text-muted-foreground font-bold uppercase tracking-wider">
+                  {isRtl ? "النتائج والاعتماد" : "Results & Approvals"}
+                </div>
+                <DropdownMenuItem
+                  onClick={() => navigate("/quiz-results")}
+                  className="gap-2.5 cursor-pointer rounded-md py-2"
+                >
+                  <Award className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-sm">{isRtl ? "نتائج الاختبارات" : "Quiz Results"}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => navigate("/leadership/quiz-approvals")}
+                  className="gap-2.5 cursor-pointer rounded-md py-2"
+                >
+                  <CheckCircle className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-sm">{isRtl ? "اعتماد الاختبارات" : "Quiz Approvals"}</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={toggleLanguage} className="gap-2.5 cursor-pointer rounded-md py-2">
+                  <Globe className="w-4 h-4 text-primary shrink-0" />
                   <span className="text-sm font-semibold">{t.langSwitch}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout} className="gap-2 cursor-pointer text-destructive focus:text-destructive">
-                  <LogOut className="w-4 h-4" />
+                <DropdownMenuItem onClick={handleLogout} className="gap-2.5 cursor-pointer rounded-md py-2 text-destructive focus:text-destructive">
+                  <LogOut className="w-4 h-4 shrink-0" />
                   <span className="text-sm font-semibold">{t.logout}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>

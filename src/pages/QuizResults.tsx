@@ -125,20 +125,64 @@ const QuizResults = () => {
       toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
       return;
     }
-    if (role === "dean") {
+
+    // Notify next step in approval chain (or all students when published)
+    const quizTitleAr = quiz.title_ar;
+    const quizTitleEn = quiz.title_en;
+
+    const notifyNext = async (nextRole: "department_head" | "vice_dean" | "dean", labelAr: string, labelEn: string) => {
+      const { data: nextUsers } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", nextRole)
+        .eq("approved", true);
+      const recipients = (nextUsers || []).map((u: any) => u.user_id).filter(Boolean);
+      if (recipients.length === 0) return;
+      await supabase.from("notifications").insert(recipients.map((rid: string) => ({
+        sender_id: userId,
+        recipient_id: rid,
+        notification_type: "quiz_approval_pending",
+        title_ar: `جاهز لاعتمادك: ${quizTitleAr}`,
+        title_en: `Ready for your approval: ${quizTitleEn}`,
+        message_ar: `تم إكمال المرحلة السابقة. ${labelAr} الآن.`,
+        message_en: `Previous stage completed. ${labelEn} now.`,
+      })));
+    };
+
+    if (isLecturerOfCourse) {
+      await notifyNext("department_head", "بانتظار اعتماد رئيس القسم", "Awaiting Department Head approval");
+    } else if (role === "department_head") {
+      await notifyNext("vice_dean", "بانتظار اعتماد الوكيل", "Awaiting Vice Dean approval");
+    } else if (role === "vice_dean") {
+      await notifyNext("dean", "بانتظار اعتماد العميد", "Awaiting Dean approval");
+    } else if (role === "dean") {
+      // Notify the lecturer that the chain is complete
+      if (course?.creator_id) {
+        await supabase.from("notifications").insert({
+          sender_id: userId,
+          recipient_id: course.creator_id,
+          notification_type: "quiz_result_published",
+          title_ar: `تم اعتماد النتائج: ${quizTitleAr}`,
+          title_en: `Results approved: ${quizTitleEn}`,
+          message_ar: "اكتملت سلسلة الاعتماد ونُشرت النتائج للطلاب.",
+          message_en: "Approval chain complete. Results published to students.",
+        });
+      }
+      // Notify all students who submitted
       const ids = Array.from(new Set(submissions.map(s => s.student_id)));
       if (ids.length > 0) {
         await supabase.from("notifications").insert(ids.map(sid => ({
           sender_id: userId, recipient_id: sid,
           notification_type: "quiz_result_published",
-          title_ar: `تم اعتماد نتيجة: ${quiz.title_ar}`,
-          title_en: `Result approved: ${quiz.title_en}`,
+          title_ar: `تم اعتماد نتيجة: ${quizTitleAr}`,
+          title_en: `Result approved: ${quizTitleEn}`,
           message_ar: "تم اعتماد نتيجتك. يمكنك مراجعتها الآن.",
           message_en: "Your result has been approved. You can review it now.",
         })));
       }
     }
-    toast({ title: isRtl ? "تم الاعتماد" : "Approved" });
+
+    toast({ title: isRtl ? "تم الاعتماد وإرسال الإشعارات" : "Approved & notifications sent" });
     await load();
   };
 

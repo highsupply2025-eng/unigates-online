@@ -692,10 +692,6 @@ const LecturerDashboard = () => {
                     <span className="text-sm">{label}</span>
                   </DropdownMenuItem>
                 ))}
-                <DropdownMenuItem onClick={() => navigate("/institution/results/add")} className="gap-2 cursor-pointer">
-                  <FileText className="w-4 h-4 text-primary" />
-                  <span className="text-sm">{isRtl ? "النتائج" : "Results"}</span>
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
                   <Globe className="w-4 h-4 text-primary" />

@@ -61,6 +61,7 @@ const AllPagesDropdown = () => {
         
         { to: "/leadership/dashboard", label: ar("لوحة القيادة", "Leadership Dashboard") },
         { to: "/leadership/quiz-approvals", label: ar("اعتماد الكويزات", "Quiz Approvals") },
+        { to: "/quiz-results", label: ar("نتائج الاختبارات", "Quiz Results") },
       ],
     },
     {
@@ -85,6 +86,7 @@ const AllPagesDropdown = () => {
         { to: "/student/results", label: ar("نتائجي", "My Results") },
         { to: "/student/analytics", label: ar("الإحصائيات", "Analytics") },
         { to: "/lecturer/dashboard", label: ar("لوحة المحاضر", "Lecturer Dashboard") },
+        { to: "/quiz-results", label: ar("نتائج الاختبارات", "Quiz Results") },
       ],
     },
     {

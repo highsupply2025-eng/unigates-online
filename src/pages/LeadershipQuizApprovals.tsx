@@ -104,6 +104,7 @@ const LeadershipQuizApprovals = () => {
 
   const canActOn = (quiz: any) => {
     if (quiz.rejected_by) return false;
+    if (!quiz.approved_by_lecturer) return false; // must wait lecturer first
     if (role === "department_head") return !quiz.approved_by_head;
     if (role === "vice_dean") return quiz.approved_by_head && !quiz.approved_by_vice_dean;
     if (role === "dean") return quiz.approved_by_head && quiz.approved_by_vice_dean && !quiz.approved_by_dean;
@@ -184,7 +185,7 @@ const LeadershipQuizApprovals = () => {
   };
 
   const filtered = quizzes.filter(q => {
-    const fullyApproved = q.approved_by_head && q.approved_by_vice_dean && q.approved_by_dean;
+    const fullyApproved = q.approved_by_lecturer && q.approved_by_head && q.approved_by_vice_dean && q.approved_by_dean;
     if (activeTab === "pending") return !fullyApproved && !q.rejected_by && canActOn(q);
     if (activeTab === "in_progress") return !fullyApproved && !q.rejected_by && !canActOn(q);
     if (activeTab === "approved") return fullyApproved;
@@ -255,6 +256,7 @@ const LeadershipQuizApprovals = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="flex flex-wrap gap-2 mb-3">
+                        <StepBadge done={q.approved_by_lecturer} label={isRtl ? "المحاضر" : "Lecturer"} />
                         <StepBadge done={q.approved_by_head} label={isRtl ? "رئيس القسم" : "Head"} />
                         <StepBadge done={q.approved_by_vice_dean} label={isRtl ? "وكيل الكلية" : "Vice Dean"} />
                         <StepBadge done={q.approved_by_dean} label={isRtl ? "العميد" : "Dean"} />

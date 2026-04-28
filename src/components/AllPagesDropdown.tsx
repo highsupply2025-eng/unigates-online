@@ -58,7 +58,6 @@ const AllPagesDropdown = () => {
         { to: "/signup/institute", label: ar("تسجيل معهد", "Institute Registration") },
         { to: "/signup/institute/admin", label: ar("أدمن معهد", "Institute Admin Signup") },
         { to: "/institution/dashboard", label: ar("لوحة المؤسسة", "Institution Dashboard") },
-        { to: "/institution/results/add", label: ar("إضافة نتيجة", "Add Result") },
         
         { to: "/leadership/dashboard", label: ar("لوحة القيادة", "Leadership Dashboard") },
         { to: "/leadership/quiz-approvals", label: ar("اعتماد الكويزات", "Quiz Approvals") },

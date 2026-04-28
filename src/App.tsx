@@ -61,7 +61,7 @@ const AssignmentDetail = lazy(() => import("./pages/AssignmentDetail"));
 const ScheduleDetail = lazy(() => import("./pages/ScheduleDetail"));
 const CourseAssignments = lazy(() => import("./pages/CourseAssignments"));
 const CourseAttendance = lazy(() => import("./pages/CourseAttendance"));
-const AddStudentResult = lazy(() => import("./pages/AddStudentResult"));
+const QuizResults = lazy(() => import("./pages/QuizResults"));
 
 const StudentResults = lazy(() => import("./pages/StudentResults"));
 const LeadershipQuizApprovals = lazy(() => import("./pages/LeadershipQuizApprovals"));
@@ -140,7 +140,7 @@ const App = () => (
               <Route path="/schedule/:scheduleSlug" element={<ScheduleDetail />} />
               <Route path="/course/:courseId/assignments" element={<CourseAssignments />} />
               <Route path="/attendance/course/:courseId" element={<CourseAttendance />} />
-              <Route path="/institution/results/add" element={<AddStudentResult />} />
+              <Route path="/quiz/:quizId/results" element={<QuizResults />} />
               
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/book-store/profile" element={<UserProfile />} />

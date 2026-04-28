@@ -1978,14 +1978,9 @@ const InstitutionDashboard = () => {
                                 </Badge>
                               </TableCell>
                               <TableCell>
-                                <div className="flex items-center gap-1">
-                                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => navigate(`/institution/results/add?id=${result.id}`)}>
-                                    <Pencil className="w-3.5 h-3.5" />
-                                  </Button>
-                                  <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => handleDeleteResult(result.id)}>
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </Button>
-                                </div>
+                                <span className="text-xs text-muted-foreground">
+                                  {isRtl ? "آلي" : "Auto"}
+                                </span>
                               </TableCell>
                             </TableRow>
                           ))

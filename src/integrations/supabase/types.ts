@@ -1323,6 +1323,9 @@ export type Database = {
           approved_by_head: boolean
           approved_by_head_at: string | null
           approved_by_head_id: string | null
+          approved_by_lecturer: boolean
+          approved_by_lecturer_at: string | null
+          approved_by_lecturer_id: string | null
           approved_by_vice_dean: boolean
           approved_by_vice_dean_at: string | null
           approved_by_vice_dean_id: string | null
@@ -1352,6 +1355,9 @@ export type Database = {
           approved_by_head?: boolean
           approved_by_head_at?: string | null
           approved_by_head_id?: string | null
+          approved_by_lecturer?: boolean
+          approved_by_lecturer_at?: string | null
+          approved_by_lecturer_id?: string | null
           approved_by_vice_dean?: boolean
           approved_by_vice_dean_at?: string | null
           approved_by_vice_dean_id?: string | null
@@ -1381,6 +1387,9 @@ export type Database = {
           approved_by_head?: boolean
           approved_by_head_at?: string | null
           approved_by_head_id?: string | null
+          approved_by_lecturer?: boolean
+          approved_by_lecturer_at?: string | null
+          approved_by_lecturer_id?: string | null
           approved_by_vice_dean?: boolean
           approved_by_vice_dean_at?: string | null
           approved_by_vice_dean_id?: string | null

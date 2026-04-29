@@ -94,23 +94,21 @@ const StudentAnalytics = () => {
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <StudentPageHeader titleAr="التحليلات" titleEn="Analytics" icon={<TrendingUp className="w-3.5 h-3.5" />} />
       <main className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8 space-y-5 sm:space-y-6">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
-          <Card><CardContent className="pt-4 pb-3 sm:pt-5 sm:pb-4 text-center px-2">
-            <p className="text-xl sm:text-2xl font-black text-primary">{avgQuiz}%</p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 truncate">{isRtl ? "متوسط الاختبارات" : "Avg Quiz"}</p>
-          </CardContent></Card>
-          <Card><CardContent className="pt-4 pb-3 sm:pt-5 sm:pb-4 text-center px-2">
-            <p className="text-xl sm:text-2xl font-black text-green-600">{attendance.length}</p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 truncate">{isRtl ? "بث حضرته" : "Attended"}</p>
-          </CardContent></Card>
-          <Card><CardContent className="pt-4 pb-3 sm:pt-5 sm:pb-4 text-center px-2">
-            <p className="text-xl sm:text-2xl font-black text-amber-500">{submissions.filter(s => s.grade).length}/{submissions.length}</p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 truncate">{isRtl ? "واجبات مُقيّمة" : "Graded"}</p>
-          </CardContent></Card>
-          <Card><CardContent className="pt-4 pb-3 sm:pt-5 sm:pb-4 text-center px-2">
-            <p className="text-xl sm:text-2xl font-black text-blue-500">{avgRating}</p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 truncate">{isRtl ? "متوسط تقييماتك" : "Avg Ratings"}</p>
-          </CardContent></Card>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
+          {[
+            { Icon: TrendingUp, value: `${avgQuiz}%`, label: isRtl ? "متوسط الاختبارات" : "Avg Quiz", color: "from-primary to-primary/70" },
+            { Icon: TrendingUp, value: attendance.length, label: isRtl ? "بث حضرته" : "Attended", color: "from-green-500 to-emerald-600" },
+            { Icon: TrendingUp, value: `${submissions.filter(s => s.grade).length}/${submissions.length}`, label: isRtl ? "واجبات مُقيّمة" : "Graded", color: "from-amber-500 to-orange-600" },
+            { Icon: TrendingUp, value: avgRating, label: isRtl ? "متوسط تقييماتك" : "Avg Ratings", color: "from-blue-500 to-indigo-600" },
+          ].map((s, i) => (
+            <Card key={i} className="hover:shadow-md transition-shadow"><CardContent className="pt-4 pb-3 sm:pt-5 sm:pb-4 text-center px-2">
+              <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl mx-auto mb-2 flex items-center justify-center bg-gradient-to-br ${s.color} shadow-md shadow-black/5`}>
+                <s.Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={2.5} />
+              </div>
+              <p className="text-lg sm:text-2xl font-black text-foreground">{s.value}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate">{s.label}</p>
+            </CardContent></Card>
+          ))}
         </div>
 
         {quizSubmissions.length > 0 && (

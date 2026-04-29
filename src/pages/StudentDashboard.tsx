@@ -136,77 +136,45 @@ const StudentDashboard = () => {
         </div>
 
         {/* KPI cards with sparklines */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <div className="bg-primary/5 rounded-xl p-4 text-center border border-primary/10">
-            <BookOpen className="w-5 h-5 mx-auto mb-1 text-primary" />
-            <div className="flex items-center justify-center gap-1.5">
-              <p className="text-2xl font-black text-primary">{counts.completed}</p>
-              <TrendIndicator data={bucketByDay(trends.completed, 7)} />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3 mb-6">
+          {[
+            { Icon: BookOpen, value: counts.completed, label: isRtl ? "حلقات مكتملة" : "Completed", trend: trends.completed, color: "from-primary to-primary/70", spark: "hsl(var(--primary))" },
+            { Icon: Eye, value: counts.attendance, label: isRtl ? "حضور البث" : "Attendance", trend: trends.attendance, color: "from-green-500 to-green-600", spark: "rgb(22 163 74)" },
+            { Icon: FileText, value: counts.submissions, label: isRtl ? "تكليفات مسلّمة" : "Submissions", trend: trends.submissions, color: "from-amber-500 to-amber-600", spark: "rgb(245 158 11)" },
+            { Icon: Star, value: counts.avgRating || "—", label: isRtl ? "متوسط التقييم" : "Avg Rating", trend: trends.ratings, color: "from-rose-500 to-rose-600", spark: "rgb(239 68 68)" },
+          ].map((k, i) => (
+            <div key={i} className="rounded-xl p-3 sm:p-4 text-center border border-border bg-card shadow-sm hover:shadow-md transition-shadow">
+              <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl mx-auto mb-2 flex items-center justify-center bg-gradient-to-br ${k.color} shadow-md shadow-black/5`}>
+                <k.Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" strokeWidth={2.5} />
+              </div>
+              <div className="flex items-center justify-center gap-1.5">
+                <p className="text-xl sm:text-2xl font-black text-foreground">{k.value}</p>
+                <TrendIndicator data={bucketByDay(k.trend, 7)} />
+              </div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate">{k.label}</p>
+              <Sparkline data={bucketByDay(k.trend, 7)} color={k.spark} />
             </div>
-            <p className="text-xs text-muted-foreground">{isRtl ? "حلقات مكتملة" : "Completed"}</p>
-            <Sparkline data={bucketByDay(trends.completed, 7)} color="hsl(var(--primary))" />
-          </div>
-          <div className="bg-green-500/5 rounded-xl p-4 text-center border border-green-500/10">
-            <Eye className="w-5 h-5 mx-auto mb-1 text-green-600" />
-            <div className="flex items-center justify-center gap-1.5">
-              <p className="text-2xl font-black text-green-600">{counts.attendance}</p>
-              <TrendIndicator data={bucketByDay(trends.attendance, 7)} />
-            </div>
-            <p className="text-xs text-muted-foreground">{isRtl ? "حضور البث" : "Attendance"}</p>
-            <Sparkline data={bucketByDay(trends.attendance, 7)} color="rgb(22 163 74)" />
-          </div>
-          <div className="bg-amber-500/5 rounded-xl p-4 text-center border border-amber-500/10">
-            <FileText className="w-5 h-5 mx-auto mb-1 text-amber-500" />
-            <div className="flex items-center justify-center gap-1.5">
-              <p className="text-2xl font-black text-amber-500">{counts.submissions}</p>
-              <TrendIndicator data={bucketByDay(trends.submissions, 7)} />
-            </div>
-            <p className="text-xs text-muted-foreground">{isRtl ? "تكليفات مسلّمة" : "Submissions"}</p>
-            <Sparkline data={bucketByDay(trends.submissions, 7)} color="rgb(245 158 11)" />
-          </div>
-          <div className="bg-red-500/5 rounded-xl p-4 text-center border border-red-500/10">
-            <Star className="w-5 h-5 mx-auto mb-1 text-red-500" />
-            <div className="flex items-center justify-center gap-1.5">
-              <p className="text-2xl font-black text-red-500">{counts.avgRating || "—"}</p>
-              <TrendIndicator data={bucketByDay(trends.ratings, 7)} />
-            </div>
-            <p className="text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
-            <Sparkline data={bucketByDay(trends.ratings, 7)} color="rgb(239 68 68)" />
-          </div>
+          ))}
         </div>
 
         {/* Section summary cards (display-only) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="p-5 rounded-xl border bg-card">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-                <Radio className="w-5 h-5 text-red-500" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          {[
+            { Icon: Radio, label: isRtl ? "البث المباشر" : "Live Streams", desc: isRtl ? `${counts.liveNow} بث مباشر الآن` : `${counts.liveNow} live now`, count: counts.liveNow, color: "from-red-500 to-rose-600" },
+            { Icon: BookOpen, label: isRtl ? "المحاضرات" : "Lectures", desc: isRtl ? `${counts.subscriptions} دورة نشطة` : `${counts.subscriptions} active courses`, count: counts.subscriptions, color: "from-emerald-500 to-emerald-600" },
+            { Icon: ClipboardList, label: isRtl ? "الاختبارات أونلاين" : "Online Tests", desc: isRtl ? `${counts.quizzes} اختبار متاح` : `${counts.quizzes} available`, count: counts.quizzes, color: "from-purple-500 to-purple-600" },
+          ].map((s, i) => (
+            <div key={i} className="p-4 sm:p-5 rounded-xl border bg-card shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between mb-3">
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br ${s.color} shadow-md shadow-black/10`}>
+                  <s.Icon className="w-5 h-5 text-white" strokeWidth={2.5} />
+                </div>
+                <Badge variant="secondary" className="font-bold">{s.count}</Badge>
               </div>
-              <Badge variant="secondary">{counts.liveNow}</Badge>
+              <h3 className="font-bold text-foreground mb-1">{s.label}</h3>
+              <p className="text-xs text-muted-foreground">{s.desc}</p>
             </div>
-            <h3 className="font-bold text-foreground mb-1">{isRtl ? "البث المباشر" : "Live Streams"}</h3>
-            <p className="text-xs text-muted-foreground">{isRtl ? `${counts.liveNow} بث مباشر الآن` : `${counts.liveNow} live now`}</p>
-          </div>
-          <div className="p-5 rounded-xl border bg-card">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-primary" />
-              </div>
-              <Badge variant="secondary">{counts.subscriptions}</Badge>
-            </div>
-            <h3 className="font-bold text-foreground mb-1">{isRtl ? "المحاضرات" : "Lectures"}</h3>
-            <p className="text-xs text-muted-foreground">{isRtl ? `${counts.subscriptions} دورة نشطة` : `${counts.subscriptions} active courses`}</p>
-          </div>
-          <div className="p-5 rounded-xl border bg-card">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                <ClipboardList className="w-5 h-5 text-amber-500" />
-              </div>
-              <Badge variant="secondary">{counts.quizzes}</Badge>
-            </div>
-            <h3 className="font-bold text-foreground mb-1">{isRtl ? "الاختبارات أونلاين" : "Online Tests"}</h3>
-            <p className="text-xs text-muted-foreground">{isRtl ? `${counts.quizzes} اختبار متاح` : `${counts.quizzes} available`}</p>
-          </div>
+          ))}
         </div>
       </main>
     </div>

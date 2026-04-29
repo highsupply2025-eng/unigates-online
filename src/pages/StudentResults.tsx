@@ -80,11 +80,13 @@ const StudentResults = () => {
       <StudentPageHeader titleAr="نتائج الاختبارات" titleEn="Quiz Results" />
       <main className="flex-1 container mx-auto px-3 sm:px-4 py-6 sm:py-10 max-w-6xl">
         <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
-            <Award className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
+          <h1 className="text-xl sm:text-3xl font-black flex items-center gap-2.5">
+            <span className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center bg-gradient-to-br from-pink-500 to-rose-600 shadow-md shadow-rose-500/25 shrink-0">
+              <Award className="w-5 h-5 sm:w-6 sm:h-6 text-white" strokeWidth={2.5} />
+            </span>
             {isRtl ? "نتائج الاختبارات" : "Quiz Results"}
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-xs sm:text-sm text-muted-foreground mt-2">
             {isRtl
               ? "تظهر النتائج بعد اعتماد رئيس القسم ووكيل الكلية والعميد."
               : "Results appear after approval by department head, vice dean, and dean."}
@@ -95,28 +97,24 @@ const StudentResults = () => {
           <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
-              <Card><CardContent className="p-4 sm:p-5">
-                <div className="flex items-center justify-between">
-                  <div><p className="text-xs text-muted-foreground">{isRtl ? "النتائج المعتمدة" : "Approved Results"}</p>
-                    <p className="text-2xl sm:text-3xl font-bold mt-1">{rows.length}</p></div>
-                  <BarChart3 className="w-8 h-8 text-primary/40" />
-                </div>
-              </CardContent></Card>
-              <Card><CardContent className="p-4 sm:p-5">
-                <div className="flex items-center justify-between">
-                  <div><p className="text-xs text-muted-foreground">{isRtl ? "ناجح" : "Passed"}</p>
-                    <p className="text-2xl sm:text-3xl font-bold mt-1 text-green-600">{passed}</p></div>
-                  <CheckCircle className="w-8 h-8 text-green-500/40" />
-                </div>
-              </CardContent></Card>
-              <Card><CardContent className="p-4 sm:p-5">
-                <div className="flex items-center justify-between">
-                  <div><p className="text-xs text-muted-foreground">{isRtl ? "المعدل" : "Average"}</p>
-                    <p className="text-2xl sm:text-3xl font-bold mt-1">{avg}%</p></div>
-                  <Award className="w-8 h-8 text-primary/40" />
-                </div>
-              </CardContent></Card>
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
+              {[
+                { Icon: BarChart3, value: rows.length, label: isRtl ? "المعتمدة" : "Approved", color: "from-primary to-primary/70" },
+                { Icon: CheckCircle, value: passed, label: isRtl ? "ناجح" : "Passed", color: "from-green-500 to-emerald-600" },
+                { Icon: Award, value: `${avg}%`, label: isRtl ? "المعدل" : "Average", color: "from-amber-500 to-orange-600" },
+              ].map((s, i) => (
+                <Card key={i} className="hover:shadow-md transition-shadow"><CardContent className="p-3 sm:p-5">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br ${s.color} shadow-md shadow-black/5`}>
+                      <s.Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={2.5} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{s.label}</p>
+                      <p className="text-lg sm:text-2xl font-black mt-0.5">{s.value}</p>
+                    </div>
+                  </div>
+                </CardContent></Card>
+              ))}
             </div>
 
             <Card>
@@ -129,39 +127,68 @@ const StudentResults = () => {
                     <p className="text-xs mt-1">{isRtl ? "بانتظار موافقة القيادة الأكاديمية" : "Awaiting academic leadership approval"}</p>
                   </div>
                 ) : (
-                  <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
-                    <Table>
-                      <TableHeader><TableRow>
-                        <TableHead className="text-xs sm:text-sm">{isRtl ? "الاختبار" : "Quiz"}</TableHead>
-                        <TableHead className="text-xs sm:text-sm">{isRtl ? "الكورس" : "Course"}</TableHead>
-                        <TableHead className="text-xs sm:text-sm">{isRtl ? "الدرجة" : "Score"}</TableHead>
-                        <TableHead className="text-xs sm:text-sm">{isRtl ? "النسبة" : "%"}</TableHead>
-                        <TableHead className="text-xs sm:text-sm">{isRtl ? "التاريخ" : "Date"}</TableHead>
-                        <TableHead className="text-xs sm:text-sm">{isRtl ? "تفاصيل" : "Details"}</TableHead>
-                      </TableRow></TableHeader>
-                      <TableBody>
-                        {rows.map(r => {
-                          const pct = r.total_points > 0 ? Math.round((r.score / r.total_points) * 100) : 0;
-                          return (
-                            <TableRow key={r.id}>
-                              <TableCell className="text-xs sm:text-sm font-medium">{isRtl ? r.quiz?.title_ar : r.quiz?.title_en}</TableCell>
-                              <TableCell className="text-xs sm:text-sm text-muted-foreground">{isRtl ? r.course?.title_ar : r.course?.title_en}</TableCell>
-                              <TableCell className="text-xs sm:text-sm font-bold">{r.score}/{r.total_points}</TableCell>
-                              <TableCell>
-                                <Badge variant={pct >= 50 ? "default" : "destructive"} className="text-[10px] sm:text-xs">{pct}%</Badge>
-                              </TableCell>
-                              <TableCell className="text-xs sm:text-sm whitespace-nowrap">{new Date(r.submitted_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</TableCell>
-                              <TableCell>
-                                <Button size="sm" variant="outline" className="gap-1 h-7 text-xs" onClick={() => openDetail(r)}>
-                                  <Eye className="w-3 h-3" />{isRtl ? "عرض" : "View"}
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  </div>
+                  <>
+                    {/* Mobile: card list */}
+                    <div className="grid gap-2 sm:hidden">
+                      {rows.map(r => {
+                        const pct = r.total_points > 0 ? Math.round((r.score / r.total_points) * 100) : 0;
+                        const ok = pct >= 50;
+                        return (
+                          <div key={r.id} className="rounded-xl border bg-card p-3 flex items-center gap-3">
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br shadow-md ${ok ? "from-green-500 to-emerald-600 shadow-green-500/25" : "from-red-500 to-rose-600 shadow-rose-500/25"}`}>
+                              {ok ? <CheckCircle className="w-5 h-5 text-white" strokeWidth={2.5} /> : <XCircle className="w-5 h-5 text-white" strokeWidth={2.5} />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-bold text-sm truncate">{isRtl ? r.quiz?.title_ar : r.quiz?.title_en}</h3>
+                              <p className="text-[11px] text-muted-foreground truncate">{isRtl ? r.course?.title_ar : r.course?.title_en}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge variant={ok ? "default" : "destructive"} className="text-[10px]">{pct}%</Badge>
+                                <span className="text-[11px] font-bold">{r.score}/{r.total_points}</span>
+                                <span className="text-[10px] text-muted-foreground">{new Date(r.submitted_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</span>
+                              </div>
+                            </div>
+                            <Button size="icon" variant="outline" className="h-8 w-8 shrink-0" onClick={() => openDetail(r)} aria-label={isRtl ? "عرض" : "View"}>
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {/* Desktop: table */}
+                    <div className="hidden sm:block overflow-x-auto">
+                      <Table>
+                        <TableHeader><TableRow>
+                          <TableHead className="text-xs sm:text-sm">{isRtl ? "الاختبار" : "Quiz"}</TableHead>
+                          <TableHead className="text-xs sm:text-sm">{isRtl ? "الكورس" : "Course"}</TableHead>
+                          <TableHead className="text-xs sm:text-sm">{isRtl ? "الدرجة" : "Score"}</TableHead>
+                          <TableHead className="text-xs sm:text-sm">{isRtl ? "النسبة" : "%"}</TableHead>
+                          <TableHead className="text-xs sm:text-sm">{isRtl ? "التاريخ" : "Date"}</TableHead>
+                          <TableHead className="text-xs sm:text-sm">{isRtl ? "تفاصيل" : "Details"}</TableHead>
+                        </TableRow></TableHeader>
+                        <TableBody>
+                          {rows.map(r => {
+                            const pct = r.total_points > 0 ? Math.round((r.score / r.total_points) * 100) : 0;
+                            return (
+                              <TableRow key={r.id}>
+                                <TableCell className="text-xs sm:text-sm font-medium">{isRtl ? r.quiz?.title_ar : r.quiz?.title_en}</TableCell>
+                                <TableCell className="text-xs sm:text-sm text-muted-foreground">{isRtl ? r.course?.title_ar : r.course?.title_en}</TableCell>
+                                <TableCell className="text-xs sm:text-sm font-bold">{r.score}/{r.total_points}</TableCell>
+                                <TableCell>
+                                  <Badge variant={pct >= 50 ? "default" : "destructive"} className="text-[10px] sm:text-xs">{pct}%</Badge>
+                                </TableCell>
+                                <TableCell className="text-xs sm:text-sm whitespace-nowrap">{new Date(r.submitted_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</TableCell>
+                                <TableCell>
+                                  <Button size="sm" variant="outline" className="gap-1 h-7 text-xs" onClick={() => openDetail(r)}>
+                                    <Eye className="w-3 h-3" />{isRtl ? "عرض" : "View"}
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </>
                 )}
               </CardContent>
             </Card>

@@ -44,27 +44,27 @@ const StudentAttendance = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <StudentPageHeader titleAr="الحضور" titleEn="Attendance" icon={<Users className="w-3 h-3" />} />
       <main className="flex-1 max-w-6xl mx-auto w-full px-3 sm:px-6 py-6">
-        <h1 className="text-2xl font-black mb-6 flex items-center gap-2">
-          <Users className="w-6 h-6 text-green-600" />
+        <h1 className="text-xl sm:text-2xl font-black mb-5 sm:mb-6 flex items-center gap-2.5">
+          <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-green-500 to-emerald-600 shadow-md shadow-green-500/25">
+            <Users className="w-5 h-5 text-white" strokeWidth={2.5} />
+          </span>
           {isRtl ? "سجل الحضور" : "Attendance Log"}
         </h1>
 
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          <Card><CardContent className="p-4 text-center">
-            <Eye className="w-5 h-5 mx-auto mb-1 text-green-600" />
-            <p className="text-2xl font-black">{stats.total}</p>
-            <p className="text-xs text-muted-foreground">{isRtl ? "إجمالي الحضور" : "Total"}</p>
-          </CardContent></Card>
-          <Card><CardContent className="p-4 text-center">
-            <Clock className="w-5 h-5 mx-auto mb-1 text-blue-600" />
-            <p className="text-2xl font-black">{stats.last7}</p>
-            <p className="text-xs text-muted-foreground">{isRtl ? "آخر 7 أيام" : "Last 7 days"}</p>
-          </CardContent></Card>
-          <Card><CardContent className="p-4 text-center">
-            <Clock className="w-5 h-5 mx-auto mb-1 text-amber-600" />
-            <p className="text-2xl font-black">{stats.totalMinutes}</p>
-            <p className="text-xs text-muted-foreground">{isRtl ? "دقائق المشاهدة" : "Watch minutes"}</p>
-          </CardContent></Card>
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
+          {[
+            { Icon: Eye, value: stats.total, label: isRtl ? "إجمالي الحضور" : "Total", color: "from-green-500 to-emerald-600" },
+            { Icon: Clock, value: stats.last7, label: isRtl ? "آخر 7 أيام" : "Last 7 days", color: "from-blue-500 to-indigo-600" },
+            { Icon: Clock, value: stats.totalMinutes, label: isRtl ? "دقائق المشاهدة" : "Watch min", color: "from-amber-500 to-orange-600" },
+          ].map((s, i) => (
+            <Card key={i} className="hover:shadow-md transition-shadow"><CardContent className="p-3 sm:p-4 text-center">
+              <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl mx-auto mb-1.5 flex items-center justify-center bg-gradient-to-br ${s.color} shadow-md shadow-black/5`}>
+                <s.Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={2.5} />
+              </div>
+              <p className="text-xl sm:text-2xl font-black">{s.value}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{s.label}</p>
+            </CardContent></Card>
+          ))}
         </div>
 
         {loading ? (

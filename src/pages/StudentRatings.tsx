@@ -40,8 +40,10 @@ const StudentRatings = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <StudentPageHeader titleAr="التقييمات" titleEn="Ratings" icon={<Star className="w-3 h-3" />} />
       <main className="flex-1 max-w-6xl mx-auto w-full px-3 sm:px-6 py-6">
-        <h1 className="text-2xl font-black mb-6 flex items-center gap-2">
-          <Star className="w-6 h-6 text-yellow-500" />
+        <h1 className="text-xl sm:text-2xl font-black mb-5 sm:mb-6 flex items-center gap-2.5">
+          <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-yellow-500 to-amber-600 shadow-md shadow-amber-500/25">
+            <Star className="w-5 h-5 text-white fill-white" strokeWidth={2.5} />
+          </span>
           {isRtl ? "تقييماتي للمحاضرين" : "My Lecturer Ratings"}
         </h1>
 

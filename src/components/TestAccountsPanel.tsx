@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,7 +27,7 @@ export default function TestAccountsPanel({ ar }: Props) {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [password, setPassword] = useState<string>("");
 
-  const run = async () => {
+  const run = async (silent = false) => {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("seed-test-accounts");
@@ -35,20 +35,33 @@ export default function TestAccountsPanel({ ar }: Props) {
       if ((data as any)?.error) throw new Error((data as any).error);
       setAccounts(((data as any)?.accounts || []) as Account[]);
       setPassword((data as any)?.password || "");
-      toast({
-        title: ar("تم إنشاء الحسابات", "Accounts ready"),
-        description: ar("جميع حسابات المراجعة جاهزة للاستخدام", "All review accounts are ready"),
-      });
+      if (!silent) {
+        toast({
+          title: ar("تم إنشاء الحسابات", "Accounts ready"),
+          description: ar("جميع حسابات المراجعة جاهزة للاستخدام", "All review accounts are ready"),
+        });
+      }
     } catch (e: any) {
-      toast({
-        title: ar("خطأ", "Error"),
-        description: e?.message || String(e),
-        variant: "destructive",
-      });
+      if (!silent) {
+        toast({
+          title: ar("خطأ", "Error"),
+          description: e?.message || String(e),
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  // Auto-seed once when the panel first mounts so review accounts
+  // are always available without needing to click the button.
+  const didAutoRun = useRef(false);
+  useEffect(() => {
+    if (didAutoRun.current) return;
+    didAutoRun.current = true;
+    run(true);
+  }, []);
 
   const copy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -75,7 +88,7 @@ export default function TestAccountsPanel({ ar }: Props) {
               </p>
             </div>
           </div>
-          <Button onClick={run} disabled={loading} className="gap-2 shrink-0">
+          <Button onClick={() => run(false)} disabled={loading} className="gap-2 shrink-0">
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}
             {ar("إنشاء/تحديث الحسابات", "Create / Refresh")}
           </Button>

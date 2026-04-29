@@ -1,10 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, Globe, ArrowLeft, ArrowRight, User, Home } from "lucide-react";
+import { GraduationCap, Home, BookOpen, Radio, ClipboardList, FileText, Calendar, Users, Star, Award, TrendingUp, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 import BackButton from "@/components/BackButton";
+import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Props {
@@ -23,6 +24,20 @@ const StudentPageHeader = ({ titleAr, titleEn, icon }: Props) => {
     navigate("/");
   };
 
+  const menuItems = [
+    { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: () => navigate("/student/dashboard") },
+    { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-emerald-500 to-emerald-600", onClick: () => navigate("/student/lectures") },
+    { key: "live", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-red-600", onClick: () => navigate("/student/live") },
+    { key: "quizzes", label: isRtl ? "الاختبارات أونلاين" : "Online Tests", Icon: ClipboardList, color: "from-purple-500 to-purple-600", onClick: () => navigate("/student/quizzes") },
+    { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: FileText, color: "from-amber-500 to-amber-600", onClick: () => navigate("/student/assignments") },
+    { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-blue-500 to-blue-600", onClick: () => navigate("/student/schedules") },
+    { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-green-500 to-green-600", onClick: () => navigate("/student/attendance") },
+    { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => navigate("/student/ratings") },
+    { key: "results", label: isRtl ? "نتائج الاختبارات" : "Exam Results", Icon: Award, color: "from-pink-500 to-rose-600", onClick: () => navigate("/student/results") },
+    { key: "analytics", label: isRtl ? "التحليلات" : "Analytics", Icon: TrendingUp, color: "from-indigo-500 to-indigo-600", onClick: () => navigate("/student/analytics") },
+    { key: "profile", label: isRtl ? "الحساب" : "Profile", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/profile") },
+  ];
+
   return (
     <header className="border-b border-border px-2 sm:px-6 py-2.5 sm:py-4 sticky top-0 z-30 bg-background/95 backdrop-blur">
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-1.5 sm:gap-3">
@@ -39,22 +54,11 @@ const StudentPageHeader = ({ titleAr, titleEn, icon }: Props) => {
         <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           <BackButton />
           <NotificationBell />
-          <Link to="/student/dashboard">
-            <Button variant="outline" size="icon" className="w-8 h-8 sm:w-9 sm:h-9" aria-label={isRtl ? "الرئيسية" : "Home"}>
-              <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            </Button>
-          </Link>
-          <Button variant="default" size="icon" onClick={toggleLanguage} className="w-8 h-8 sm:w-9 sm:h-9" aria-label="lang">
-            <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-          </Button>
-          <Link to="/profile">
-            <Button variant="outline" size="icon" className="w-8 h-8 sm:w-9 sm:h-9" aria-label="profile">
-              <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            </Button>
-          </Link>
-          <Button variant="default" size="icon" onClick={handleLogout} className="w-8 h-8 sm:w-9 sm:h-9" aria-label="logout">
-            {isRtl ? <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-          </Button>
+          <DashboardMenuDropdown
+            onLanguageToggle={toggleLanguage}
+            onLogout={handleLogout}
+            items={menuItems}
+          />
         </div>
       </div>
       <div className="max-w-6xl mx-auto mt-1.5 sm:hidden flex items-center gap-2 text-sm font-bold text-foreground">

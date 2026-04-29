@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { useToast } from "@/hooks/use-toast";
@@ -269,68 +269,21 @@ const LeadershipDashboard = () => {
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             
             <NotificationBell />
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button size="icon" className="rounded-xl w-9 h-9 bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-primary/25 text-white shrink-0">
-                  <Menu className="w-5 h-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side={isRtl ? "right" : "left"} className="w-full sm:max-w-md p-0 overflow-y-auto">
-                <SheetHeader className="p-6 border-b bg-gradient-to-br from-primary/10 to-primary/5">
-                  <SheetTitle className="text-2xl font-bold text-primary text-start">
-                    {isRtl ? "القائمة" : "Menu"}
-                  </SheetTitle>
-                </SheetHeader>
-                <div className="p-4 grid grid-cols-2 gap-3">
-                  {[
-                    { id: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600" },
-                    { id: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-red-600" },
-                    { id: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: CheckCircle, color: "from-emerald-500 to-emerald-600" },
-                    { id: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600" },
-                    { id: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-orange-500 to-orange-600" },
-                    { id: "schedule", label: isRtl ? "الجداول" : "Schedule", Icon: Calendar, color: "from-pink-500 to-pink-600" },
-                    { id: "files", label: isRtl ? "الملفات" : "Files", Icon: FileText, color: "from-indigo-500 to-indigo-600" },
-                  ].map(({ id, label, Icon, color }) => (
-                    <button
-                      key={id}
-                      onClick={() => { setActiveTab(id); document.querySelector<HTMLButtonElement>('[aria-label="Close"]')?.click(); }}
-                      className={`group flex flex-col items-center gap-3 p-4 rounded-2xl border-2 transition-all hover:scale-105 hover:shadow-lg ${activeTab === id ? "border-primary bg-primary/10" : "border-border bg-card"}`}
-                    >
-                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-md group-hover:shadow-xl transition-shadow`}>
-                        <Icon className="w-7 h-7 text-white" strokeWidth={2.5} />
-                      </div>
-                      <span className="text-sm font-semibold text-foreground text-center leading-tight">{label}</span>
-                    </button>
-                  ))}
-                  <button
-                    onClick={() => { navigate("/leadership/quiz-approvals"); document.querySelector<HTMLButtonElement>('[aria-label="Close"]')?.click(); }}
-                    className="group flex flex-col items-center gap-3 p-4 rounded-2xl border-2 border-border bg-card transition-all hover:scale-105 hover:shadow-lg"
-                  >
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-md">
-                      <ShieldCheck className="w-7 h-7 text-white" strokeWidth={2.5} />
-                    </div>
-                    <span className="text-sm font-semibold text-foreground text-center leading-tight">{isRtl ? "اعتماد النتائج" : "Approvals"}</span>
-                  </button>
-                </div>
-                <div className="p-4 border-t space-y-2">
-                  <button onClick={toggleLanguage} className="w-full flex items-center gap-3 p-3 rounded-xl bg-muted hover:bg-muted/80 transition-colors">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center">
-                      <Globe className="w-5 h-5 text-white" strokeWidth={2.5} />
-                    </div>
-                    <span className="font-semibold text-foreground">{t.langSwitch}</span>
-                  </button>
-                  <button
-                    onClick={async () => { await supabase.auth.signOut(); navigate("/login"); }}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-destructive/10 hover:bg-destructive/20 transition-colors"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
-                      <LogOut className="w-5 h-5 text-white" strokeWidth={2.5} />
-                    </div>
-                    <span className="font-semibold text-destructive">{isRtl ? "تسجيل الخروج" : "Logout"}</span>
-                  </button>
-                </div>
-              </SheetContent>
-            </Sheet>
+            <DashboardMenuDropdown
+              onLanguageToggle={toggleLanguage}
+              onLogout={async () => { await supabase.auth.signOut(); navigate("/login"); }}
+              logoutLabel={isRtl ? "تسجيل الخروج" : "Logout"}
+              items={[
+                { key: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: () => setActiveTab("overview"), active: activeTab === "overview" },
+                { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-red-600", onClick: () => setActiveTab("livestreams"), active: activeTab === "livestreams" },
+                { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: CheckCircle, color: "from-emerald-500 to-emerald-600", onClick: () => setActiveTab("quizresults"), active: activeTab === "quizresults" },
+                { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => setActiveTab("ratings"), active: activeTab === "ratings" },
+                { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-orange-500 to-orange-600", onClick: () => setActiveTab("assignments"), active: activeTab === "assignments" },
+                { key: "schedule", label: isRtl ? "الجداول" : "Schedule", Icon: Calendar, color: "from-pink-500 to-pink-600", onClick: () => setActiveTab("schedule"), active: activeTab === "schedule" },
+                { key: "files", label: isRtl ? "الملفات" : "Files", Icon: FileText, color: "from-indigo-500 to-indigo-600", onClick: () => setActiveTab("files"), active: activeTab === "files" },
+                { key: "approvals", label: isRtl ? "اعتماد النتائج" : "Approvals", Icon: ShieldCheck, color: "from-teal-500 to-teal-600", onClick: () => navigate("/leadership/quiz-approvals") },
+              ]}
+            />
           </div>
         </div>
       </header>

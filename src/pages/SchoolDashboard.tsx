@@ -6,7 +6,7 @@ import {
   GraduationCap, Calendar, Phone, Mail, CreditCard, Trash2, Share2,
   User, Ticket, Menu, LogOut, Home
 } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -350,61 +350,15 @@ const SchoolDashboard = () => {
           <div className="flex items-center gap-3">
             <BackButton />
             <NotificationBell />
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button size="icon" className="rounded-xl w-9 h-9 bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-primary/25 text-white shrink-0">
-                  <Menu className="w-5 h-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side={isRtl ? "right" : "left"} className="w-full sm:max-w-md p-0 overflow-y-auto">
-                <SheetHeader className="p-6 border-b bg-gradient-to-br from-primary/10 to-primary/5">
-                  <SheetTitle className="text-2xl font-bold text-primary text-start">
-                    {isRtl ? "القائمة" : "Menu"}
-                  </SheetTitle>
-                </SheetHeader>
-                <div className="p-4 grid grid-cols-2 gap-3">
-                  {[
-                    { onClick: () => navigate("/"), label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600" },
-                    { onClick: () => { setShowAddDeptDialog(true); }, label: isRtl ? "فصل جديد" : "New Class", Icon: Plus, color: "from-emerald-500 to-emerald-600" },
-                    { onClick: () => navigate("/profile"), label: isRtl ? "الحساب" : "Profile", Icon: User, color: "from-purple-500 to-purple-600" },
-                  ].map(({ onClick, label, Icon, color }) => (
-                    <button
-                      key={label}
-                      onClick={() => {
-                        onClick();
-                        document.querySelector<HTMLButtonElement>('[aria-label="Close"]')?.click();
-                      }}
-                      className="group flex flex-col items-center gap-3 p-4 rounded-2xl border-2 border-border bg-card transition-all hover:scale-105 hover:shadow-lg"
-                    >
-                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-md group-hover:shadow-xl transition-shadow`}>
-                        <Icon className="w-7 h-7 text-white" strokeWidth={2.5} />
-                      </div>
-                      <span className="text-sm font-semibold text-foreground text-center leading-tight">{label}</span>
-                    </button>
-                  ))}
-                </div>
-                <div className="p-4 border-t space-y-2">
-                  <button
-                    onClick={toggleLanguage}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center">
-                      <Globe className="w-5 h-5 text-white" strokeWidth={2.5} />
-                    </div>
-                    <span className="font-semibold text-foreground">{t.langSwitch}</span>
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-destructive/10 hover:bg-destructive/20 transition-colors"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
-                      <LogOut className="w-5 h-5 text-white" strokeWidth={2.5} />
-                    </div>
-                    <span className="font-semibold text-destructive">{t.logout}</span>
-                  </button>
-                </div>
-              </SheetContent>
-            </Sheet>
+            <DashboardMenuDropdown
+              onLanguageToggle={toggleLanguage}
+              onLogout={handleLogout}
+              items={[
+                { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: () => navigate("/") },
+                { key: "new-class", label: isRtl ? "فصل جديد" : "New Class", Icon: Plus, color: "from-emerald-500 to-emerald-600", onClick: () => setShowAddDeptDialog(true) },
+                { key: "profile", label: isRtl ? "الحساب" : "Profile", Icon: User, color: "from-purple-500 to-purple-600", onClick: () => navigate("/profile") },
+              ]}
+            />
           </div>
         </div>
       </header>

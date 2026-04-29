@@ -799,6 +799,9 @@ const AdminDashboard = () => {
                 )}
               </div>
             )}
+
+            {/* Review Test Accounts */}
+            <TestAccountsPanel ar={ar} />
           </TabsContent>
 
           {/* ===== Pending ===== */}

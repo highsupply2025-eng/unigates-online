@@ -11,6 +11,7 @@ import NotificationBell from "@/components/NotificationBell";
 import AdminPreviewLinks from "@/components/AdminPreviewLinks";
 import AllPagesDropdown from "@/components/AllPagesDropdown";
 import BackButton from "@/components/BackButton";
+import TestAccountsPanel from "@/components/TestAccountsPanel";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -799,6 +800,9 @@ const AdminDashboard = () => {
                 )}
               </div>
             )}
+
+            {/* Review Test Accounts */}
+            <TestAccountsPanel ar={ar} />
           </TabsContent>
 
           {/* ===== Pending ===== */}

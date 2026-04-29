@@ -80,11 +80,13 @@ const StudentResults = () => {
       <StudentPageHeader titleAr="نتائج الاختبارات" titleEn="Quiz Results" />
       <main className="flex-1 container mx-auto px-3 sm:px-4 py-6 sm:py-10 max-w-6xl">
         <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
-            <Award className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
+          <h1 className="text-xl sm:text-3xl font-black flex items-center gap-2.5">
+            <span className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center bg-gradient-to-br from-pink-500 to-rose-600 shadow-md shadow-rose-500/25 shrink-0">
+              <Award className="w-5 h-5 sm:w-6 sm:h-6 text-white" strokeWidth={2.5} />
+            </span>
             {isRtl ? "نتائج الاختبارات" : "Quiz Results"}
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-xs sm:text-sm text-muted-foreground mt-2">
             {isRtl
               ? "تظهر النتائج بعد اعتماد رئيس القسم ووكيل الكلية والعميد."
               : "Results appear after approval by department head, vice dean, and dean."}
@@ -95,28 +97,24 @@ const StudentResults = () => {
           <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
-              <Card><CardContent className="p-4 sm:p-5">
-                <div className="flex items-center justify-between">
-                  <div><p className="text-xs text-muted-foreground">{isRtl ? "النتائج المعتمدة" : "Approved Results"}</p>
-                    <p className="text-2xl sm:text-3xl font-bold mt-1">{rows.length}</p></div>
-                  <BarChart3 className="w-8 h-8 text-primary/40" />
-                </div>
-              </CardContent></Card>
-              <Card><CardContent className="p-4 sm:p-5">
-                <div className="flex items-center justify-between">
-                  <div><p className="text-xs text-muted-foreground">{isRtl ? "ناجح" : "Passed"}</p>
-                    <p className="text-2xl sm:text-3xl font-bold mt-1 text-green-600">{passed}</p></div>
-                  <CheckCircle className="w-8 h-8 text-green-500/40" />
-                </div>
-              </CardContent></Card>
-              <Card><CardContent className="p-4 sm:p-5">
-                <div className="flex items-center justify-between">
-                  <div><p className="text-xs text-muted-foreground">{isRtl ? "المعدل" : "Average"}</p>
-                    <p className="text-2xl sm:text-3xl font-bold mt-1">{avg}%</p></div>
-                  <Award className="w-8 h-8 text-primary/40" />
-                </div>
-              </CardContent></Card>
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
+              {[
+                { Icon: BarChart3, value: rows.length, label: isRtl ? "المعتمدة" : "Approved", color: "from-primary to-primary/70" },
+                { Icon: CheckCircle, value: passed, label: isRtl ? "ناجح" : "Passed", color: "from-green-500 to-emerald-600" },
+                { Icon: Award, value: `${avg}%`, label: isRtl ? "المعدل" : "Average", color: "from-amber-500 to-orange-600" },
+              ].map((s, i) => (
+                <Card key={i} className="hover:shadow-md transition-shadow"><CardContent className="p-3 sm:p-5">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br ${s.color} shadow-md shadow-black/5`}>
+                      <s.Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={2.5} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{s.label}</p>
+                      <p className="text-lg sm:text-2xl font-black mt-0.5">{s.value}</p>
+                    </div>
+                  </div>
+                </CardContent></Card>
+              ))}
             </div>
 
             <Card>

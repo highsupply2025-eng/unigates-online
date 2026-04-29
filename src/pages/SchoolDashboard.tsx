@@ -6,7 +6,7 @@ import {
   GraduationCap, Calendar, Phone, Mail, CreditCard, Trash2, Share2,
   User, Ticket, Menu, LogOut, Home
 } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

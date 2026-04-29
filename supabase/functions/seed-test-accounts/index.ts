@@ -1,6 +1,6 @@
 // Seed test accounts for review/QA
-// Creates one auto-approved user per role with a unified password.
-// SECURITY: This is a review-only utility. It requires the caller to be an admin.
+// Creates one auto-approved account per role with unified credentials.
+// SECURITY: Admin-only. For internal review/testing.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -10,31 +10,37 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+const PASSWORD = "admin1993";
+const DOMAIN = "marafa.com";
+
+// Sequential numbering across all accounts (admin1, admin2, ...).
 type RoleSpec = {
-  role: string;          // app_role
-  platform: string;      // courses | school | bookstore
-  full_name_ar: string;
+  kind: "user_role" | "college_admin" | "institute_admin" | "school_admin";
+  role?: string;       // app_role enum (only for kind=user_role)
+  platform?: string;   // courses | school | bookstore
+  label_ar: string;
 };
 
-const ROLES: RoleSpec[] = [
-  { role: "student",         platform: "courses",   full_name_ar: "حساب اختبار - طالب جامعي" },
-  { role: "lecturer",        platform: "courses",   full_name_ar: "حساب اختبار - محاضر" },
-  { role: "department_head", platform: "courses",   full_name_ar: "حساب اختبار - رئيس قسم" },
-  { role: "vice_dean",       platform: "courses",   full_name_ar: "حساب اختبار - وكيل عميد" },
-  { role: "dean",            platform: "courses",   full_name_ar: "حساب اختبار - عميد" },
-  { role: "college_admin",   platform: "courses",   full_name_ar: "حساب اختبار - إدارة كلية" },
-  { role: "institute_admin", platform: "courses",   full_name_ar: "حساب اختبار - إدارة معهد" },
-  { role: "school_admin",    platform: "school",    full_name_ar: "حساب اختبار - إدارة مدرسة" },
-  { role: "teacher",         platform: "school",    full_name_ar: "حساب اختبار - معلم" },
-  { role: "school_student",  platform: "school",    full_name_ar: "حساب اختبار - طالب مدرسة" },
-  { role: "parent",          platform: "school",    full_name_ar: "حساب اختبار - ولي أمر" },
-  { role: "publisher",       platform: "bookstore", full_name_ar: "حساب اختبار - ناشر" },
-  { role: "personal",        platform: "courses",   full_name_ar: "حساب اختبار - حساب شخصي" },
+const SEEDS: RoleSpec[] = [
+  // 1: app-role accounts (use complete_signup with force_approve)
+  { kind: "user_role", role: "student",         platform: "courses",   label_ar: "طالب جامعي" },
+  { kind: "user_role", role: "lecturer",        platform: "courses",   label_ar: "محاضر" },
+  { kind: "user_role", role: "department_head", platform: "courses",   label_ar: "رئيس قسم" },
+  { kind: "user_role", role: "vice_dean",       platform: "courses",   label_ar: "وكيل عميد" },
+  { kind: "user_role", role: "dean",            platform: "courses",   label_ar: "عميد" },
+  // 6-8: institution-admin accounts (logged via approved registration email)
+  { kind: "college_admin",   label_ar: "إدارة كلية" },
+  { kind: "institute_admin", label_ar: "إدارة معهد" },
+  { kind: "school_admin",    label_ar: "إدارة مدرسة" },
+  // 9-12: school sector roles
+  { kind: "user_role", role: "teacher",        platform: "school",    label_ar: "معلم" },
+  { kind: "user_role", role: "school_student", platform: "school",    label_ar: "طالب مدرسة" },
+  { kind: "user_role", role: "parent",         platform: "school",    label_ar: "ولي أمر" },
+  // 12: bookstore
+  { kind: "user_role", role: "publisher",      platform: "bookstore", label_ar: "ناشر" },
+  // 13: personal
+  { kind: "user_role", role: "personal",       platform: "courses",   label_ar: "حساب شخصي" },
 ];
-
-const PASSWORD = "admin1993";
-const EMAIL_BASE = "admin"; // -> admin1@marafa.com, admin2@marafa.com, ...
-const EMAIL_DOMAIN = "marafa.com";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -44,103 +50,140 @@ Deno.serve(async (req) => {
     const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    // Verify caller is an admin
+    // Verify admin caller
     const authHeader = req.headers.get("Authorization") || "";
     const userClient = createClient(SUPABASE_URL, ANON_KEY, {
       global: { headers: { Authorization: authHeader } },
     });
-    const { data: { user }, error: userErr } = await userClient.auth.getUser();
-    if (userErr || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    const { data: { user } } = await userClient.auth.getUser();
+    if (!user) {
+      return json({ error: "Unauthorized" }, 401);
     }
 
     const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    const { data: isAdmin } = await admin.rpc("has_role", {
-      _user_id: user.id, _role: "admin",
-    });
-    if (!isAdmin) {
-      return new Response(JSON.stringify({ error: "Forbidden — admin only" }), {
-        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    const { data: isAdmin } = await admin.rpc("has_role", { _user_id: user.id, _role: "admin" });
+    if (!isAdmin) return json({ error: "Forbidden — admin only" }, 403);
+
+    // Get all existing users once for idempotent lookup
+    const { data: list } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+    const byEmail: Record<string, string> = {};
+    for (const u of list?.users || []) {
+      if (u.email) byEmail[u.email.toLowerCase()] = u.id;
     }
 
     const results: any[] = [];
 
-    for (let i = 0; i < ROLES.length; i++) {
+    for (let i = 0; i < SEEDS.length; i++) {
       const idx = i + 1;
-      const spec = ROLES[i];
-      const email = `${EMAIL_BASE}${idx}@${EMAIL_DOMAIN}`;
+      const seed = SEEDS[i];
+      const email = `admin${idx}@${DOMAIN}`;
+      const fullName = `حساب اختبار - ${seed.label_ar}`;
 
-      // 1) Create auth user (idempotent: skip if exists)
-      let userId: string | null = null;
-      const { data: created, error: createErr } = await admin.auth.admin.createUser({
-        email,
-        password: PASSWORD,
-        email_confirm: true,
-        user_metadata: { full_name: spec.full_name_ar, role: spec.role, seeded: true },
-      });
-
-      if (createErr) {
-        // Look up existing user by email
-        const { data: list } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
-        const existing = list?.users?.find((u: any) => u.email?.toLowerCase() === email.toLowerCase());
-        if (existing) {
-          userId = existing.id;
-          // Reset password to ensure unified credential
-          await admin.auth.admin.updateUserById(existing.id, { password: PASSWORD, email_confirm: true });
+      try {
+        // 1) Create or reuse auth user
+        let uid = byEmail[email.toLowerCase()] || null;
+        if (!uid) {
+          const { data: created, error: ce } = await admin.auth.admin.createUser({
+            email, password: PASSWORD, email_confirm: true,
+            user_metadata: { full_name: fullName, seeded_role: seed.role || seed.kind },
+          });
+          if (ce || !created.user) throw new Error(ce?.message || "createUser failed");
+          uid = created.user.id;
         } else {
-          results.push({ email, role: spec.role, ok: false, error: createErr.message });
-          continue;
+          await admin.auth.admin.updateUserById(uid, { password: PASSWORD, email_confirm: true });
         }
-      } else {
-        userId = created.user.id;
-      }
 
-      if (!userId) {
-        results.push({ email, role: spec.role, ok: false, error: "No user id" });
-        continue;
-      }
-
-      // 2) Ensure profile exists (using force_approve so role is auto-approved)
-      const { data: existingProfile } = await admin
-        .from("profiles").select("user_id").eq("user_id", userId).maybeSingle();
-
-      if (!existingProfile) {
-        const { error: rpcErr } = await admin.rpc("complete_signup", {
-          p_user_id: userId,
-          p_role: spec.role,
-          p_full_name: spec.full_name_ar,
-          p_phone: "+201000000000",
-          p_email: email,
-          p_platform: spec.platform,
-          p_force_approve: true,
-        });
-        if (rpcErr) {
-          results.push({ email, role: spec.role, ok: false, error: rpcErr.message });
-          continue;
+        if (seed.kind === "user_role") {
+          // Profile + approved app_role
+          const { data: prof } = await admin.from("profiles").select("user_id").eq("user_id", uid).maybeSingle();
+          if (!prof) {
+            const { error: re } = await admin.rpc("complete_signup", {
+              p_user_id: uid,
+              p_role: seed.role!,
+              p_full_name: fullName,
+              p_phone: "+201000000000",
+              p_email: email,
+              p_platform: seed.platform!,
+              p_force_approve: true,
+            });
+            if (re) throw new Error(re.message);
+          } else {
+            await admin.from("user_roles").upsert(
+              { user_id: uid, role: seed.role as any, approved: true },
+              { onConflict: "user_id,role" } as any,
+            );
+          }
+        } else if (seed.kind === "college_admin") {
+          await upsertCollege(admin, email, fullName);
+        } else if (seed.kind === "institute_admin") {
+          await upsertInstitute(admin, email, fullName);
+        } else if (seed.kind === "school_admin") {
+          await upsertSchool(admin, email, fullName);
         }
-      } else {
-        // Make sure role row is approved
-        await admin.from("user_roles").upsert(
-          { user_id: userId, role: spec.role as any, approved: true },
-          { onConflict: "user_id,role" } as any,
-        );
-      }
 
-      results.push({ email, password: PASSWORD, role: spec.role, platform: spec.platform, ok: true });
+        results.push({ idx, email, password: PASSWORD, kind: seed.kind, role: seed.role || null, label: seed.label_ar, ok: true });
+      } catch (err: any) {
+        results.push({ idx, email, kind: seed.kind, ok: false, error: err?.message || String(err) });
+      }
     }
 
-    return new Response(JSON.stringify({ success: true, accounts: results }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return json({ success: true, password: PASSWORD, accounts: results });
   } catch (e: any) {
-    return new Response(JSON.stringify({ error: e?.message || String(e) }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return json({ error: e?.message || String(e) }, 500);
   }
 });
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status, headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+async function upsertCollege(admin: any, email: string, name: string) {
+  const { data: existing } = await admin.from("college_registrations").select("id").eq("email", email).maybeSingle();
+  if (existing) {
+    await admin.from("college_registrations").update({ status: "approved" }).eq("id", existing.id);
+  } else {
+    await admin.from("college_registrations").insert({
+      college_name: "كلية اختبار للمراجعة",
+      city: "القاهرة",
+      dean_name: name,
+      email, phone: "+201000000000",
+      type: "college",
+      status: "approved",
+    });
+  }
+}
+
+async function upsertInstitute(admin: any, email: string, name: string) {
+  const { data: existing } = await admin.from("institute_registrations").select("id").eq("email", email).maybeSingle();
+  if (existing) {
+    await admin.from("institute_registrations").update({ status: "approved" }).eq("id", existing.id);
+  } else {
+    await admin.from("institute_registrations").insert({
+      institute_name: "معهد اختبار للمراجعة",
+      city: "القاهرة",
+      director_name: name,
+      email, phone: "+201000000000",
+      status: "approved",
+    });
+  }
+}
+
+async function upsertSchool(admin: any, email: string, name: string) {
+  const { data: existing } = await admin.from("school_registrations").select("id").eq("email", email).maybeSingle();
+  if (existing) {
+    await admin.from("school_registrations").update({ status: "approved" }).eq("id", existing.id);
+  } else {
+    await admin.from("school_registrations").insert({
+      school_name: "مدرسة اختبار للمراجعة",
+      city: "القاهرة",
+      principal_name: name,
+      email, phone: "+201000000000",
+      status: "approved",
+    });
+  }
+}

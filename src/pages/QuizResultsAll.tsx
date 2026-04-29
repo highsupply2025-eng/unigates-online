@@ -37,6 +37,11 @@ const QuizResultsAll = () => {
     const { data: qs } = await supabase
       .from("quizzes")
       .select("id, title_ar, title_en, course_id, created_at, approved_by_lecturer, approved_by_head, approved_by_vice_dean, approved_by_dean, results_published, rejected_by")
+      .not("approved_by_lecturer", "is", null)
+      .not("approved_by_head", "is", null)
+      .not("approved_by_vice_dean", "is", null)
+      .not("approved_by_dean", "is", null)
+      .is("rejected_by", null)
       .order("created_at", { ascending: false });
     const list = qs || [];
     setQuizzes(list);
@@ -127,14 +132,14 @@ const QuizResultsAll = () => {
                 </h1>
                 <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
                   {isRtl
-                    ? "عرض جميع الاختبارات ونتائجها وحالة اعتمادها"
-                    : "All quizzes with results and approval status"}
+                    ? "عرض النتائج المعتمدة نهائياً فقط"
+                    : "Showing fully approved results only"}
                 </p>
                 <p className="text-xs sm:text-sm text-muted-foreground/80 mt-2 flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5 text-primary shrink-0" />
                   {isRtl
-                    ? "النتائج تُحسب آلياً — لا يوجد إدخال يدوي."
-                    : "Results are calculated automatically — no manual entry."}
+                    ? "النتائج تُحسب آلياً وتُعرض بعد اعتماد جميع المراحل."
+                    : "Results are calculated automatically and shown after full approval."}
                 </p>
               </div>
             </div>

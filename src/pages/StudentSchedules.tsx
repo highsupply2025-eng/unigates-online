@@ -38,9 +38,11 @@ const StudentSchedules = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <StudentPageHeader titleAr="الجداول" titleEn="Schedules" icon={<Calendar className="w-3 h-3" />} />
       <main className="flex-1 max-w-6xl mx-auto w-full px-3 sm:px-6 py-6">
-        <h1 className="text-2xl font-black mb-6 flex items-center gap-2">
-          <Calendar className="w-6 h-6 text-blue-500" />
-          {isRtl ? "جداول المحاضرات والاختبارات" : "Lectures & Tests Schedule"}
+        <h1 className="text-xl sm:text-2xl font-black mb-5 sm:mb-6 flex items-center gap-2.5">
+          <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md shadow-blue-500/25 shrink-0">
+            <Calendar className="w-5 h-5 text-white" strokeWidth={2.5} />
+          </span>
+          <span className="truncate">{isRtl ? "جداول المحاضرات والاختبارات" : "Lectures & Tests Schedule"}</span>
         </h1>
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">{isRtl ? "جاري التحميل..." : "Loading..."}</div>
@@ -51,21 +53,21 @@ const StudentSchedules = () => {
             {items.map(s => {
               const isTest = s.schedule_type === "test";
               return (
-                <Card key={s.id}>
-                  <CardContent className="p-4 flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isTest ? "bg-purple-500/10 text-purple-600" : "bg-emerald-500/10 text-emerald-600"}`}>
-                      {isTest ? <FileQuestion className="w-5 h-5" /> : <BookOpen className="w-5 h-5" />}
+                <Card key={s.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-3 sm:p-4 flex items-center gap-3">
+                    <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br shadow-md ${isTest ? "from-purple-500 to-fuchsia-600 shadow-purple-500/25" : "from-emerald-500 to-teal-600 shadow-emerald-500/25"}`}>
+                      {isTest ? <FileQuestion className="w-5 h-5 text-white" strokeWidth={2.5} /> : <BookOpen className="w-5 h-5 text-white" strokeWidth={2.5} />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-bold truncate">{isRtl ? s.title_ar : s.title_en}</h3>
-                      <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                      <h3 className="font-bold truncate text-sm sm:text-base">{isRtl ? s.title_ar : s.title_en}</h3>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1 text-[11px] sm:text-xs text-muted-foreground">
                         <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{s.scheduled_date}</span>
                         {(s.start_time || s.end_time) && (
                           <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{s.start_time || "-"} - {s.end_time || "-"}</span>
                         )}
                       </div>
                     </div>
-                    <Badge variant={isTest ? "default" : "secondary"}>
+                    <Badge variant={isTest ? "default" : "secondary"} className="shrink-0 text-[10px] sm:text-xs">
                       {isTest ? (isRtl ? "اختبار" : "Test") : (isRtl ? "محاضرة" : "Lecture")}
                     </Badge>
                   </CardContent>

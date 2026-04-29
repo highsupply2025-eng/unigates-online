@@ -97,25 +97,25 @@ Deno.serve(async (req) => {
         }
 
         if (seed.kind === "user_role") {
-          // Profile + approved app_role
-          const { data: prof } = await admin.from("profiles").select("user_id").eq("user_id", uid).maybeSingle();
-          if (!prof) {
-            const { error: re } = await admin.rpc("complete_signup", {
-              p_user_id: uid,
-              p_role: seed.role!,
-              p_full_name: fullName,
-              p_phone: "+201000000000",
-              p_email: email,
-              p_platform: seed.platform!,
-              p_force_approve: true,
-            });
-            if (re) throw new Error(re.message);
-          } else {
-            await admin.from("user_roles").upsert(
-              { user_id: uid, role: seed.role as any, approved: true },
-              { onConflict: "user_id,role" } as any,
-            );
-          }
+          // Direct upsert profile + approved role (avoid complete_signup which may fail for some roles)
+          const { error: pe } = await admin.from("profiles").upsert(
+            {
+              user_id: uid,
+              email,
+              full_name: fullName,
+              phone: "+201000000000",
+              role: seed.role!,
+              platform: seed.platform!,
+            },
+            { onConflict: "user_id" } as any,
+          );
+          if (pe) throw new Error(`profiles: ${pe.message}`);
+
+          const { error: ure } = await admin.from("user_roles").upsert(
+            { user_id: uid, role: seed.role as any, approved: true },
+            { onConflict: "user_id,role" } as any,
+          );
+          if (ure) throw new Error(`user_roles: ${ure.message}`);
         } else if (seed.kind === "college_admin") {
           await upsertCollege(admin, email, fullName);
         } else if (seed.kind === "institute_admin") {

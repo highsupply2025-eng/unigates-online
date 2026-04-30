@@ -46,6 +46,14 @@ const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true, backTo, bac
   return (
     <header className="border-b border-border px-2 sm:px-6 py-2.5 sm:py-4 sticky top-0 z-30 bg-background/95 backdrop-blur">
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-1.5 sm:gap-3">
+        {backTo && (
+          <Link to={backTo} className="order-first">
+            <Button variant="default" size="sm" className="gap-1.5 font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/30 active:scale-95 transition-transform">
+              {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+              <span className="hidden xs:inline">{isRtl ? (backLabelAr ?? "رجوع") : (backLabelEn ?? "Back")}</span>
+            </Button>
+          </Link>
+        )}
         <Link to="/student/dashboard" className="flex items-center gap-1.5 min-w-0 flex-1">
           <GraduationCap className="w-6 h-6 sm:w-8 sm:h-8 text-primary shrink-0" />
           <div className="min-w-0 hidden xs:block">
@@ -56,23 +64,16 @@ const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true, backTo, bac
             </Badge>
           </div>
         </Link>
-        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-          {!minimal && <NotificationBell />}
-          {backTo ? (
-            <Link to={backTo}>
-              <Button variant="default" size="sm" className="gap-1.5 font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/30 active:scale-95 transition-transform">
-                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                <span className="hidden xs:inline">{isRtl ? (backLabelAr ?? "رجوع") : (backLabelEn ?? "Back")}</span>
-              </Button>
-            </Link>
-          ) : (
+        {!backTo && (
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            {!minimal && <NotificationBell />}
             <DashboardMenuDropdown
               onLanguageToggle={toggleLanguage}
               onLogout={handleLogout}
               items={menuItems}
             />
-          )}
-        </div>
+          </div>
+        )}
       </div>
       <div className="max-w-6xl mx-auto mt-1.5 sm:hidden flex items-center gap-2 text-sm font-bold text-foreground">
         {icon}

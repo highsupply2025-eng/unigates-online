@@ -1759,6 +1759,20 @@ const InstitutionDashboard = () => {
           {/* Live Streams Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="livestreams">
+              <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
+                <h2 className="text-lg font-bold text-foreground">{isRtl ? "البث المباشر" : "Live Streams"}</h2>
+              </div>
+              <button
+                onClick={() => navigate("/institution/demo/livestreams")}
+                className="w-full mb-4 p-3 rounded-lg border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center justify-between gap-3"
+                dir={isRtl ? "rtl" : "ltr"}
+              >
+                <span className="flex items-center gap-2 text-sm font-medium text-primary">
+                  <Radio className="w-4 h-4" />
+                  {isRtl ? "عنصر تجريبي — افتح الصفحة المستقلة" : "Demo item — open standalone page"}
+                </span>
+                <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
+              </button>
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <Card className="bg-red-50 dark:bg-red-950/20 border-red-200">
                   <CardContent className="p-4 text-center">
@@ -1900,13 +1914,24 @@ const InstitutionDashboard = () => {
           {/* Quiz Results Tab - Results Management */}
           {(isLeadershipRole || institutionId) && (
             <TabsContent value="quizresults">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
                 <h2 className="text-xl font-bold text-foreground">{isRtl ? "إدارة النتائج" : "Results Management"}</h2>
                 <Button size="sm" variant="outline" className="gap-2" onClick={exportResultsToExcel} disabled={studentResults.length === 0}>
                   <Download className="w-4 h-4" />
                   {isRtl ? "تصدير Excel" : "Export Excel"}
                 </Button>
               </div>
+              <button
+                onClick={() => navigate("/institution/demo/quizresults")}
+                className="w-full mb-4 p-3 rounded-lg border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center justify-between gap-3"
+                dir={isRtl ? "rtl" : "ltr"}
+              >
+                <span className="flex items-center gap-2 text-sm font-medium text-primary">
+                  <CheckCircle className="w-4 h-4" />
+                  {isRtl ? "عنصر تجريبي — افتح الصفحة المستقلة" : "Demo item — open standalone page"}
+                </span>
+                <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
+              </button>
 
               {/* Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
@@ -2005,7 +2030,20 @@ const InstitutionDashboard = () => {
           {/* Schedules Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="schedules">
-              <h2 className="text-lg font-bold mb-4">{isRtl ? "جداول المحاضرات والاختبارات" : "Lectures & Exams Schedule"}</h2>
+              <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
+                <h2 className="text-lg font-bold text-foreground">{isRtl ? "جداول المحاضرات والاختبارات" : "Lectures & Exams Schedule"}</h2>
+              </div>
+              <button
+                onClick={() => navigate("/institution/demo/schedule")}
+                className="w-full mb-4 p-3 rounded-lg border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center justify-between gap-3"
+                dir={isRtl ? "rtl" : "ltr"}
+              >
+                <span className="flex items-center gap-2 text-sm font-medium text-primary">
+                  <Calendar className="w-4 h-4" />
+                  {isRtl ? "عنصر تجريبي — افتح الصفحة المستقلة" : "Demo item — open standalone page"}
+                </span>
+                <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
+              </button>
 
               {/* Exam Schedules */}
               {(() => {
@@ -2102,7 +2140,20 @@ const InstitutionDashboard = () => {
           {/* Ratings Tab - Leadership Only */}
           {isLeadershipRole && (
             <TabsContent value="ratings">
-              <h2 className="text-lg font-bold mb-4">{isRtl ? "تقييمات المحاضرين والطلاب" : "Lecturer & Student Ratings"}</h2>
+              <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
+                <h2 className="text-lg font-bold text-foreground">{isRtl ? "تقييمات المحاضرين والطلاب" : "Lecturer & Student Ratings"}</h2>
+              </div>
+              <button
+                onClick={() => navigate("/institution/demo/ratings")}
+                className="w-full mb-4 p-3 rounded-lg border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center justify-between gap-3"
+                dir={isRtl ? "rtl" : "ltr"}
+              >
+                <span className="flex items-center gap-2 text-sm font-medium text-primary">
+                  <Star className="w-4 h-4" />
+                  {isRtl ? "عنصر تجريبي — افتح الصفحة المستقلة" : "Demo item — open standalone page"}
+                </span>
+                <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
+              </button>
 
               {/* Lecturer Ratings Summary */}
               {(() => {

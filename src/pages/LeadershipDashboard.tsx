@@ -306,93 +306,80 @@ const LeadershipDashboard = () => {
               <h2 className="text-2xl font-bold text-foreground mb-1">{isRtl ? "الرئيسية" : "Home"}</h2>
               <p className="text-sm text-muted-foreground">{isRtl ? "نظرة عامة على نشاط الكلية خلال آخر 7 أيام" : "Overview of activity over the last 7 days"}</p>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
-              <Card className="border-2 border-primary/20">
-                <CardContent className="p-3 sm:p-4 text-center">
-                  <BookOpen className="w-7 h-7 sm:w-8 sm:h-8 text-primary mx-auto mb-2" />
-                  <div className="flex items-center justify-center gap-1.5">
-                    <p className="text-2xl sm:text-3xl font-black text-primary">{courses.length}</p>
-                    <TrendIndicator data={bucketByDay(courses.map((c: any) => c.created_at), 7)} />
+            {(() => {
+              const totalActivity = courses.length + liveStreams.length + assignments.length + quizzes.length + episodes.length + ratings.length;
+              const filesCount = episodes.filter((e: any) => e.file_url || e.attachment_url || e.pdf_url).length;
+              const menuStats = [
+                { key: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, gradient: "from-blue-500 to-blue-600", color: "rgb(59 130 246)", value: totalActivity, dates: [...courses, ...liveStreams, ...assignments, ...quizzes].map((x: any) => x.created_at) },
+                { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, gradient: "from-red-500 to-red-600", color: "rgb(239 68 68)", value: liveStreams.length, dates: liveStreams.map((s: any) => s.created_at) },
+                { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: CheckCircle, gradient: "from-emerald-500 to-emerald-600", color: "rgb(16 185 129)", value: quizSubmissions.length, dates: quizSubmissions.map((s: any) => s.submitted_at) },
+                { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, gradient: "from-yellow-500 to-amber-600", color: "rgb(245 158 11)", value: Number(avgRating), dates: ratings.map((r: any) => r.created_at) },
+                { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, gradient: "from-orange-500 to-orange-600", color: "rgb(249 115 22)", value: assignments.length, dates: assignments.map((a: any) => a.created_at) },
+                { key: "schedule", label: isRtl ? "الجداول" : "Schedule", Icon: Calendar, gradient: "from-pink-500 to-pink-600", color: "rgb(236 72 153)", value: episodes.length, dates: episodes.map((e: any) => e.created_at) },
+                { key: "files", label: isRtl ? "الملفات" : "Files", Icon: FileText, gradient: "from-indigo-500 to-indigo-600", color: "rgb(99 102 241)", value: filesCount, dates: episodes.filter((e: any) => e.file_url || e.attachment_url).map((e: any) => e.created_at) },
+                { key: "approvals", label: isRtl ? "اعتماد النتائج" : "Approvals", Icon: ShieldCheck, gradient: "from-teal-500 to-teal-600", color: "rgb(20 184 166)", value: quizzes.length, dates: quizzes.map((q: any) => q.created_at) },
+              ];
+              return (
+                <>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                    {menuStats.map(({ key, label, Icon, gradient, color, value, dates }) => (
+                      <button
+                        key={key}
+                        onClick={() => key === "approvals" ? navigate("/leadership/quiz-approvals") : setActiveTab(key)}
+                        className="group text-left"
+                      >
+                        <Card className="border-2 border-border hover:border-primary/40 transition-all hover:shadow-lg hover:-translate-y-0.5 h-full">
+                          <CardContent className="p-3 sm:p-4 text-center">
+                            <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br ${gradient} shadow-md flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform`}>
+                              <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" strokeWidth={2.4} />
+                            </div>
+                            <div className="flex items-center justify-center gap-1.5">
+                              <p className="text-2xl sm:text-3xl font-black" style={{ color }}>{value}</p>
+                              <TrendIndicator data={bucketByDay(dates, 7)} />
+                            </div>
+                            <p className="text-[11px] sm:text-xs text-muted-foreground font-bold leading-tight mt-0.5">{label}</p>
+                            <Sparkline data={bucketByDay(dates, 7)} color={color} />
+                          </CardContent>
+                        </Card>
+                      </button>
+                    ))}
                   </div>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "الدورات" : "Courses"}</p>
-                  <Sparkline data={bucketByDay(courses.map((c: any) => c.created_at), 7)} color="hsl(var(--primary))" />
-                </CardContent>
-              </Card>
-              <Card className="border-2 border-emerald-500/20">
-                <CardContent className="p-3 sm:p-4 text-center">
-                  <Radio className="w-7 h-7 sm:w-8 sm:h-8 text-emerald-500 mx-auto mb-2" />
-                  <div className="flex items-center justify-center gap-1.5">
-                    <p className="text-2xl sm:text-3xl font-black text-emerald-600">{liveNow.length}</p>
-                    <TrendIndicator data={bucketByDay(liveStreams.map((s: any) => s.created_at), 7)} />
-                  </div>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "بث مباشر الآن" : "Live Now"}</p>
-                  <Sparkline data={bucketByDay(liveStreams.map((s: any) => s.created_at), 7)} color="rgb(16 185 129)" />
-                </CardContent>
-              </Card>
-              <Card className="border-2 border-amber-500/20">
-                <CardContent className="p-3 sm:p-4 text-center">
-                  <Star className="w-7 h-7 sm:w-8 sm:h-8 text-amber-500 mx-auto mb-2" />
-                  <div className="flex items-center justify-center gap-1.5">
-                    <p className="text-2xl sm:text-3xl font-black text-amber-600">{avgRating}</p>
-                    <TrendIndicator data={bucketByDay(ratings.map((r: any) => r.created_at), 7)} />
-                  </div>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
-                  <Sparkline data={bucketByDay(ratings.map((r: any) => r.created_at), 7)} color="rgb(245 158 11)" />
-                </CardContent>
-              </Card>
-              <Card className="border-2 border-purple-500/20">
-                <CardContent className="p-3 sm:p-4 text-center">
-                  <ClipboardList className="w-7 h-7 sm:w-8 sm:h-8 text-purple-500 mx-auto mb-2" />
-                  <div className="flex items-center justify-center gap-1.5">
-                    <p className="text-2xl sm:text-3xl font-black text-purple-600">{assignments.length}</p>
-                    <TrendIndicator data={bucketByDay(assignments.map((a: any) => a.created_at), 7)} />
-                  </div>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "التكليفات" : "Assignments"}</p>
-                  <Sparkline data={bucketByDay(assignments.map((a: any) => a.created_at), 7)} color="rgb(168 85 247)" />
-                </CardContent>
-              </Card>
 
-            </div>
-
-            {/* Unified Stats Chart */}
-            <Card className="mb-6 border-2 border-primary/10">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm sm:text-base flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                  {isRtl ? "نظرة شاملة على الإحصائيات" : "Overall Statistics"}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-2 sm:p-4">
-                <div className="w-full h-56 sm:h-72">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={[
-                        { name: isRtl ? "الدورات" : "Courses", value: courses.length, fill: "hsl(var(--primary))" },
-                        { name: isRtl ? "بث مباشر" : "Live", value: liveStreams.length, fill: "rgb(16 185 129)" },
-                        { name: isRtl ? "التقييمات" : "Ratings", value: ratings.length, fill: "rgb(245 158 11)" },
-                        { name: isRtl ? "التكليفات" : "Assignments", value: assignments.length, fill: "rgb(168 85 247)" },
-                        { name: isRtl ? "الاختبارات" : "Quizzes", value: quizzes.length, fill: "rgb(59 130 246)" },
-                        { name: isRtl ? "الحلقات" : "Episodes", value: episodes.length, fill: "rgb(236 72 153)" },
-                      ]}
-                      margin={{ top: 10, right: 8, left: 0, bottom: 8 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                      <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} />
-                      <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
-                      <Tooltip
-                        contentStyle={{
-                          background: "hsl(var(--background))",
-                          border: "1px solid hsl(var(--border))",
-                          borderRadius: 8,
-                          fontSize: 12,
-                        }}
-                      />
-                      <Bar dataKey="value" radius={[6, 6, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
+                  {/* Unified Stats Chart */}
+                  <Card className="mb-6 border-2 border-primary/10">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+                        <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                        {isRtl ? "نظرة شاملة على الإحصائيات" : "Overall Statistics"}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-2 sm:p-4">
+                      <div className="w-full h-64 sm:h-80">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={menuStats.map(s => ({ name: s.label, value: s.value, fill: s.color }))}
+                            margin={{ top: 10, right: 8, left: 0, bottom: 40 }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                            <XAxis dataKey="name" tick={{ fontSize: 9 }} interval={0} angle={-30} textAnchor="end" height={50} />
+                            <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                            <Tooltip
+                              contentStyle={{
+                                background: "hsl(var(--background))",
+                                border: "1px solid hsl(var(--border))",
+                                borderRadius: 8,
+                                fontSize: 12,
+                              }}
+                            />
+                            <Bar dataKey="value" radius={[6, 6, 0, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              );
+            })()}
 
             {/* Quick Actions */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">

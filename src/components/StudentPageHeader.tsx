@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, Home, BookOpen, Radio, ClipboardList, FileText, Calendar, Users, Star, Award, TrendingUp, User } from "lucide-react";
+import { GraduationCap, Home, BookOpen, Radio, ClipboardList, FileText, Calendar, Users, Star, Award, TrendingUp, User, ArrowLeft, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 import DashboardMenuDropdown, { type DashboardMenuItem } from "@/components/DashboardMenuDropdown";
@@ -12,9 +13,13 @@ interface Props {
   titleEn: string;
   icon?: React.ReactNode;
   minimal?: boolean;
+  /** When set, replaces the dropdown menu with a back button that navigates to this path */
+  backTo?: string;
+  backLabelAr?: string;
+  backLabelEn?: string;
 }
 
-const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true }: Props) => {
+const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true, backTo, backLabelAr, backLabelEn }: Props) => {
   const { t, language, toggleLanguage } = useLanguage();
   const navigate = useNavigate();
   const isRtl = language === "ar";

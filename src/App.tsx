@@ -27,6 +27,7 @@ const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const StudentDashboard = lazy(() => import("./pages/StudentDashboard"));
 const StudentLectures = lazy(() => import("./pages/StudentLectures"));
+const StudentLectureDetail = lazy(() => import("./pages/StudentLectureDetail"));
 const StudentLive = lazy(() => import("./pages/StudentLive"));
 const StudentQuizzes = lazy(() => import("./pages/StudentQuizzes"));
 const StudentAnalytics = lazy(() => import("./pages/StudentAnalytics"));
@@ -152,6 +153,7 @@ const App = () => (
               <Route path="/book-store/profile" element={<UserProfile />} />
               <Route path="/student/dashboard" element={<StudentDashboard />} />
               <Route path="/student/lectures" element={<StudentLectures />} />
+              <Route path="/student/lectures/:lectureId" element={<StudentLectureDetail />} />
               <Route path="/student/live" element={<StudentLive />} />
               <Route path="/student/quizzes" element={<StudentQuizzes />} />
               <Route path="/student/results" element={<StudentResults />} />

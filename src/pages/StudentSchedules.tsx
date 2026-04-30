@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Calendar, Clock, BookOpen, FileQuestion } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -39,10 +39,31 @@ const StudentSchedules = () => {
       <main className="max-w-6xl mx-auto w-full px-3 sm:px-4 py-5 sm:py-8">
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">{isRtl ? "جاري التحميل..." : "Loading..."}</div>
-        ) : items.length === 0 ? (
-          <Card><CardContent className="py-12 text-center text-muted-foreground">{isRtl ? "لا توجد مواعيد حالياً" : "No scheduled events"}</CardContent></Card>
         ) : (
           <div className="grid gap-3">
+            {/* Demo schedule entry — always visible */}
+            <Link to="/student/schedules/demo-1" className="block">
+              <Card className="hover:shadow-md transition-shadow border-primary/20">
+                <CardContent className="p-3 sm:p-4 flex items-center gap-3">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br from-emerald-500 to-teal-600 shadow-md shadow-emerald-500/25">
+                    <BookOpen className="w-5 h-5 text-white" strokeWidth={2.5} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold truncate text-sm sm:text-base">
+                      {isRtl ? "محاضرة تجريبية - مقدمة في المادة" : "Demo Lecture - Introduction"}
+                    </h3>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1 text-[11px] sm:text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />2026-05-05</span>
+                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" />10:00 - 11:30</span>
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="shrink-0 text-[10px] sm:text-xs">
+                    {isRtl ? "محاضرة" : "Lecture"}
+                  </Badge>
+                </CardContent>
+              </Card>
+            </Link>
+
             {items.map(s => {
               const isTest = s.schedule_type === "test";
               return (

@@ -13,6 +13,7 @@ import NotificationBell from "@/components/NotificationBell";
 import BackButton from "@/components/BackButton";
 import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
+import { MiniBars } from "@/components/MiniBars";
 
 const StudentDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -139,15 +140,13 @@ const StudentDashboard = () => {
         {/* KPI cards with sparklines */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3 mb-6">
           {[
-            { Icon: BookOpen, value: counts.completed, label: isRtl ? "حلقات مكتملة" : "Completed", trend: trends.completed, color: "from-primary to-primary/70", spark: "hsl(var(--primary))" },
-            { Icon: Eye, value: counts.attendance, label: isRtl ? "حضور البث" : "Attendance", trend: trends.attendance, color: "from-green-500 to-green-600", spark: "rgb(22 163 74)" },
-            { Icon: FileText, value: counts.submissions, label: isRtl ? "تكليفات مسلّمة" : "Submissions", trend: trends.submissions, color: "from-amber-500 to-amber-600", spark: "rgb(245 158 11)" },
-            { Icon: Star, value: counts.avgRating || "—", label: isRtl ? "متوسط التقييم" : "Avg Rating", trend: trends.ratings, color: "from-rose-500 to-rose-600", spark: "rgb(239 68 68)" },
+            { value: counts.completed, label: isRtl ? "حلقات مكتملة" : "Completed", trend: trends.completed, spark: "hsl(var(--primary))" },
+            { value: counts.attendance, label: isRtl ? "حضور البث" : "Attendance", trend: trends.attendance, spark: "rgb(22 163 74)" },
+            { value: counts.submissions, label: isRtl ? "تكليفات مسلّمة" : "Submissions", trend: trends.submissions, spark: "rgb(245 158 11)" },
+            { value: counts.avgRating || "—", label: isRtl ? "متوسط التقييم" : "Avg Rating", trend: trends.ratings, spark: "rgb(239 68 68)" },
           ].map((k, i) => (
-            <div key={i} className="rounded-xl p-3 sm:p-4 text-center border border-border bg-card shadow-sm hover:shadow-md transition-shadow">
-              <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl mx-auto mb-2 flex items-center justify-center bg-gradient-to-br ${k.color} shadow-md shadow-black/5`}>
-                <k.Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" strokeWidth={2.5} />
-              </div>
+            <div key={i} className="rounded-xl p-3 sm:p-4 text-center border border-border bg-card shadow-sm">
+              <MiniBars data={bucketByDay(k.trend, 7)} color={k.spark} />
               <div className="flex items-center justify-center gap-1.5">
                 <p className="text-xl sm:text-2xl font-black text-foreground">{k.value}</p>
                 <TrendIndicator data={bucketByDay(k.trend, 7)} />

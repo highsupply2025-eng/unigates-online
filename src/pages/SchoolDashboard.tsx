@@ -20,6 +20,8 @@ import { useToast } from "@/hooks/use-toast";
 import { toast as sonnerToast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
+import { MiniBars } from "@/components/MiniBars";
+import { bucketByDay } from "@/components/Sparkline";
 import BackButton from "@/components/BackButton";
 
 interface Department {
@@ -371,10 +373,10 @@ const SchoolDashboard = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          <Card><CardContent className="pt-6 text-center"><Building2 className="w-7 h-7 text-primary mx-auto mb-1" /><p className="text-2xl font-black text-foreground">{departments.length}</p><p className="text-xs text-muted-foreground">{isRtl ? "فصول" : "Classes"}</p></CardContent></Card>
-          <Card><CardContent className="pt-6 text-center"><Users className="w-7 h-7 text-primary mx-auto mb-1" /><p className="text-2xl font-black text-foreground">{totalStudents}</p><p className="text-xs text-muted-foreground">{isRtl ? "طلاب" : "Students"}</p></CardContent></Card>
-          <Card><CardContent className="pt-6 text-center"><GraduationCap className="w-7 h-7 text-primary mx-auto mb-1" /><p className="text-2xl font-black text-foreground">{totalTeachers}</p><p className="text-xs text-muted-foreground">{isRtl ? "معلمون" : "Teachers"}</p></CardContent></Card>
-          <Card><CardContent className="pt-6 text-center"><UserCheck className="w-7 h-7 text-green-600 mx-auto mb-1" /><p className="text-2xl font-black text-foreground">{deptMembers.filter(m => m.user_id).length}</p><p className="text-xs text-muted-foreground">{isRtl ? "مُفعّلون" : "Active"}</p></CardContent></Card>
+          <Card><CardContent className="pt-6 text-center"><MiniBars data={bucketByDay(departments.map((d: any) => d.created_at).filter(Boolean), 7)} color="hsl(var(--primary))" /><p className="text-2xl font-black text-foreground">{departments.length}</p><p className="text-xs text-muted-foreground">{isRtl ? "فصول" : "Classes"}</p></CardContent></Card>
+          <Card><CardContent className="pt-6 text-center"><MiniBars data={bucketByDay(deptMembers.filter((m: any) => m.role === "student").map((m: any) => m.created_at).filter(Boolean), 7)} color="hsl(var(--primary))" /><p className="text-2xl font-black text-foreground">{totalStudents}</p><p className="text-xs text-muted-foreground">{isRtl ? "طلاب" : "Students"}</p></CardContent></Card>
+          <Card><CardContent className="pt-6 text-center"><MiniBars data={bucketByDay(deptMembers.filter((m: any) => m.role === "lecturer" || m.role === "teacher").map((m: any) => m.created_at).filter(Boolean), 7)} color="hsl(var(--primary))" /><p className="text-2xl font-black text-foreground">{totalTeachers}</p><p className="text-xs text-muted-foreground">{isRtl ? "معلمون" : "Teachers"}</p></CardContent></Card>
+          <Card><CardContent className="pt-6 text-center"><MiniBars data={bucketByDay(deptMembers.filter((m: any) => m.user_id).map((m: any) => m.created_at).filter(Boolean), 7)} color="rgb(22 163 74)" /><p className="text-2xl font-black text-foreground">{deptMembers.filter(m => m.user_id).length}</p><p className="text-xs text-muted-foreground">{isRtl ? "مُفعّلون" : "Active"}</p></CardContent></Card>
         </div>
 
         {/* Departments/Classes */}

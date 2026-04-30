@@ -9,7 +9,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
-import SiteFooter from "@/components/SiteFooter";
 
 const StudentResults = () => {
   const { dir } = useLanguage();
@@ -76,22 +75,14 @@ const StudentResults = () => {
     : 0;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <StudentPageHeader titleAr="نتائج الاختبارات" titleEn="Quiz Results" />
-      <main className="flex-1 container mx-auto px-3 sm:px-4 py-6 sm:py-10 max-w-6xl">
-        <div className="mb-6">
-          <h1 className="text-xl sm:text-3xl font-black flex items-center gap-2.5">
-            <span className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center bg-gradient-to-br from-pink-500 to-rose-600 shadow-md shadow-rose-500/25 shrink-0">
-              <Award className="w-5 h-5 sm:w-6 sm:h-6 text-white" strokeWidth={2.5} />
-            </span>
-            {isRtl ? "نتائج الاختبارات" : "Quiz Results"}
-          </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-2">
-            {isRtl
-              ? "تظهر النتائج بعد اعتماد رئيس القسم ووكيل الكلية والعميد."
-              : "Results appear after approval by department head, vice dean, and dean."}
-          </p>
-        </div>
+    <div className="min-h-screen bg-background" dir={dir}>
+      <StudentPageHeader titleAr="نتائج الاختبارات" titleEn="Quiz Results" icon={<Award className="w-3.5 h-3.5" />} />
+      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
+        <p className="text-xs sm:text-sm text-muted-foreground mb-5">
+          {isRtl
+            ? "تظهر النتائج بعد اعتماد رئيس القسم ووكيل الكلية والعميد."
+            : "Results appear after approval by department head, vice dean, and dean."}
+        </p>
 
         {loading ? (
           <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>

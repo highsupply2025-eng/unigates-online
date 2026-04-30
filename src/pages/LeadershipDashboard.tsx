@@ -421,8 +421,7 @@ const LeadershipDashboard = () => {
 
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <Radio className="w-4 h-4 text-red-500" />
+                  <CardTitle className="text-sm">
                     {isRtl ? "البث المباشر الحالي" : "Current Live Streams"}
                   </CardTitle>
                 </CardHeader>
@@ -460,8 +459,7 @@ const LeadershipDashboard = () => {
 
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-blue-500" />
+                  <CardTitle className="text-sm">
                     {isRtl ? "البث المجدول" : "Scheduled Streams"}
                   </CardTitle>
                 </CardHeader>

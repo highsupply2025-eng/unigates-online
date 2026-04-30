@@ -887,9 +887,12 @@ const InstitutionDashboard = () => {
       {/* Header */}
       <header className="border-b border-primary/20 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/25 shrink-0">
-              <Landmark className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+            <div className="relative shrink-0">
+              <div className="absolute inset-0 rounded-2xl bg-primary/40 blur-md animate-pulse" />
+              <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary via-primary to-[hsl(200,75%,30%)] flex items-center justify-center shadow-xl shadow-primary/40 ring-2 ring-primary/30 hover:scale-105 transition-transform">
+                <Landmark className="w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow-md" strokeWidth={2.4} />
+              </div>
             </div>
             <div className="min-w-0 flex-1">
               <h1 className="text-base sm:text-xl font-black text-foreground truncate">{institutionName}</h1>
@@ -936,8 +939,8 @@ const InstitutionDashboard = () => {
           <div className="md:hidden flex items-center gap-1.5 shrink-0">
             <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
               <DropdownMenuTrigger asChild>
-                <Button size="icon" className="rounded-xl w-9 h-9 bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-primary/25 text-white shrink-0">
-                  <Menu className="w-5 h-5" />
+                <Button size="icon" className="rounded-2xl w-11 h-11 bg-gradient-to-br from-primary via-primary to-[hsl(200,75%,30%)] shadow-xl shadow-primary/40 ring-2 ring-primary/30 text-white shrink-0 hover:scale-110 active:scale-95 transition-transform">
+                  <Menu className="w-6 h-6" strokeWidth={2.6} />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align={isRtl ? "start" : "end"} className="w-56 bg-background z-50">
@@ -1608,8 +1611,11 @@ const InstitutionDashboard = () => {
           <TabsContent value="departments">
             {/* Section header */}
             <div className="mb-5 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <BookOpen className="w-5 h-5 text-primary" />
+              <div className="relative shrink-0">
+                <div className="absolute inset-0 rounded-2xl bg-primary/30 blur-md" />
+                <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/15 to-transparent border-2 border-primary/40 flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 transition-transform">
+                  <BookOpen className="w-6 h-6 text-primary drop-shadow" strokeWidth={2.4} />
+                </div>
               </div>
               <div className="min-w-0">
                 <h2 className="text-xl sm:text-2xl font-extrabold text-foreground">{isRtl ? "الأقسام" : "Departments"}</h2>
@@ -1724,8 +1730,13 @@ const InstitutionDashboard = () => {
 
             {filteredDepts.length === 0 && (
               <div className="text-center py-16 text-muted-foreground">
-                <Layers className="w-16 h-16 mx-auto mb-4 opacity-20" />
-                <p className="text-lg">{isRtl ? "لا توجد أقسام" : "No departments found"}</p>
+                <div className="relative w-24 h-24 mx-auto mb-4">
+                  <div className="absolute inset-0 rounded-full bg-primary/10 blur-xl" />
+                  <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 border-2 border-primary/20 flex items-center justify-center">
+                    <Layers className="w-12 h-12 text-primary/60" strokeWidth={2} />
+                  </div>
+                </div>
+                <p className="text-lg font-semibold">{isRtl ? "لا توجد أقسام" : "No departments found"}</p>
               </div>
             )}
           </TabsContent>

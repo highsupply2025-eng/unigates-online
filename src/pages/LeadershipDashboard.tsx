@@ -384,158 +384,226 @@ const LeadershipDashboard = () => {
             <TabsTrigger value="notifications">notifications</TabsTrigger>
           </TabsList>
 
-          {/* Overview */}
+          {/* Overview - Lecturer-style design */}
           <TabsContent value="overview">
-            <div className="mb-6">
+            <div className="mb-6 text-right" dir="rtl">
               <h2 className="text-2xl font-bold text-foreground mb-1">{isRtl ? "الرئيسية" : "Home"}</h2>
               <p className="text-sm text-muted-foreground">{isRtl ? "نظرة عامة على نشاط الكلية خلال آخر 7 أيام" : "Overview of activity over the last 7 days"}</p>
             </div>
+
             {(() => {
               const totalActivity = courses.length + liveStreams.length + assignments.length + quizzes.length + episodes.length + ratings.length;
               const filesCount = episodes.filter((e: any) => e.file_url || e.attachment_url || e.pdf_url).length;
-              const menuStats = [
-                { key: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, gradient: "from-blue-500 to-blue-600", color: "rgb(59 130 246)", value: totalActivity, dates: [...courses, ...liveStreams, ...assignments, ...quizzes].map((x: any) => x.created_at) },
-                { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, gradient: "from-red-500 to-red-600", color: "rgb(239 68 68)", value: liveStreams.length, dates: liveStreams.map((s: any) => s.created_at) },
-                { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: CheckCircle, gradient: "from-emerald-500 to-emerald-600", color: "rgb(16 185 129)", value: quizSubmissions.length, dates: quizSubmissions.map((s: any) => s.submitted_at) },
-                { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, gradient: "from-yellow-500 to-amber-600", color: "rgb(245 158 11)", value: Number(avgRating), dates: ratings.map((r: any) => r.created_at) },
-                { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, gradient: "from-orange-500 to-orange-600", color: "rgb(249 115 22)", value: assignments.length, dates: assignments.map((a: any) => a.created_at) },
-                { key: "schedule", label: isRtl ? "الجداول" : "Schedule", Icon: Calendar, gradient: "from-pink-500 to-pink-600", color: "rgb(236 72 153)", value: episodes.length, dates: episodes.map((e: any) => e.created_at) },
-                { key: "files", label: isRtl ? "الملفات" : "Files", Icon: FileText, gradient: "from-indigo-500 to-indigo-600", color: "rgb(99 102 241)", value: filesCount, dates: episodes.filter((e: any) => e.file_url || e.attachment_url).map((e: any) => e.created_at) },
-                { key: "approvals", label: isRtl ? "اعتماد النتائج" : "Approvals", Icon: ShieldCheck, gradient: "from-teal-500 to-teal-600", color: "rgb(20 184 166)", value: quizzes.length, dates: quizzes.map((q: any) => q.created_at) },
-              ];
+              const allDates = [...courses, ...liveStreams, ...assignments, ...quizzes].map((x: any) => x.created_at);
               return (
                 <>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
-                    {menuStats.map(({ key, label, Icon, gradient, color, value, dates }) => (
-                      <button
-                        key={key}
-                        onClick={() => key === "approvals" ? navigate("/leadership/quiz-approvals") : setActiveTab(key)}
-                        className="group text-left"
-                      >
-                        <Card className="border-2 border-border hover:border-primary/40 transition-all hover:shadow-lg hover:-translate-y-0.5 h-full">
-                          <CardContent className="p-3 sm:p-4 text-center">
-                            <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br ${gradient} shadow-md flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform`}>
-                              <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" strokeWidth={2.4} />
-                            </div>
-                            <div className="flex items-center justify-center gap-1.5">
-                              <p className="text-2xl sm:text-3xl font-black" style={{ color }}>{value}</p>
-                              <TrendIndicator data={bucketByDay(dates, 7)} />
-                            </div>
-                            <p className="text-[11px] sm:text-xs text-muted-foreground font-bold leading-tight mt-0.5">{label}</p>
-                            <Sparkline data={bucketByDay(dates, 7)} color={color} />
-                          </CardContent>
-                        </Card>
-                      </button>
-                    ))}
+                  {/* Top KPIs - 4 cards lecturer-style */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                    <div className="bg-primary/5 rounded-xl p-4 text-center border border-primary/10">
+                      <BarChart3 className="w-5 h-5 mx-auto mb-1 text-primary" />
+                      <div className="flex items-center justify-center gap-1.5">
+                        <p className="text-2xl font-black text-primary">{totalActivity}</p>
+                        <TrendIndicator data={bucketByDay(allDates, 7)} />
+                      </div>
+                      <p className="text-xs text-muted-foreground">{isRtl ? "إجمالي النشاط" : "Total Activity"}</p>
+                      <Sparkline data={bucketByDay(allDates, 7)} color="hsl(var(--primary))" />
+                    </div>
+                    <div className="bg-primary/5 rounded-xl p-4 text-center border border-primary/10">
+                      <BookOpen className="w-5 h-5 mx-auto mb-1 text-primary" />
+                      <div className="flex items-center justify-center gap-1.5">
+                        <p className="text-2xl font-black text-primary">{courses.length}</p>
+                        <TrendIndicator data={bucketByDay(courses.map((c: any) => c.created_at), 7)} />
+                      </div>
+                      <p className="text-xs text-muted-foreground">{isRtl ? "الدورات" : "Courses"}</p>
+                      <Sparkline data={bucketByDay(courses.map((c: any) => c.created_at), 7)} color="hsl(var(--primary))" />
+                    </div>
+                    <div className="bg-primary/5 rounded-xl p-4 text-center border border-primary/10">
+                      <ClipboardList className="w-5 h-5 mx-auto mb-1 text-primary" />
+                      <div className="flex items-center justify-center gap-1.5">
+                        <p className="text-2xl font-black text-primary">{assignments.length}</p>
+                        <TrendIndicator data={bucketByDay(assignments.map((a: any) => a.created_at), 7)} />
+                      </div>
+                      <p className="text-xs text-muted-foreground">{isRtl ? "التكليفات" : "Assignments"}</p>
+                      <Sparkline data={bucketByDay(assignments.map((a: any) => a.created_at), 7)} color="hsl(var(--primary))" />
+                    </div>
+                    <div className="bg-green-500/5 rounded-xl p-4 text-center border border-green-500/10">
+                      <Star className="w-5 h-5 mx-auto mb-1 text-green-600" />
+                      <div className="flex items-center justify-center gap-1.5">
+                        <p className="text-2xl font-black text-green-600">
+                          {ratings.length > 0 ? avgRating : "—"}
+                        </p>
+                        <TrendIndicator data={bucketByDay(ratings.map((r: any) => r.created_at), 7)} />
+                      </div>
+                      <p className="text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
+                      <Sparkline data={bucketByDay(ratings.map((r: any) => r.created_at), 7)} color="rgb(22 163 74)" />
+                    </div>
                   </div>
 
-                  {/* Unified Stats Chart */}
-                  <Card className="mb-6 border-2 border-primary/10">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm sm:text-base flex items-center gap-2">
-                        <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                        {isRtl ? "نظرة شاملة على الإحصائيات" : "Overall Statistics"}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-2 sm:p-4">
-                      <div className="w-full h-64 sm:h-80">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart
-                            data={menuStats.map(s => ({ name: s.label, value: s.value, fill: s.color }))}
-                            margin={{ top: 10, right: 8, left: 0, bottom: 40 }}
-                          >
-                            <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                            <XAxis dataKey="name" tick={{ fontSize: 9 }} interval={0} angle={-30} textAnchor="end" height={50} />
-                            <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
-                            <Tooltip
-                              contentStyle={{
-                                background: "hsl(var(--background))",
-                                border: "1px solid hsl(var(--border))",
-                                borderRadius: 8,
-                                fontSize: 12,
-                              }}
-                            />
-                            <Bar dataKey="value" radius={[6, 6, 0, 0]} />
-                          </BarChart>
-                        </ResponsiveContainer>
+                  {/* Weekly Activity Chart */}
+                  <Card className="mb-6">
+                    <CardContent className="p-5">
+                      <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
+                        <div>
+                          <h3 className="font-bold text-foreground">{isRtl ? "النشاط الأسبوعي" : "Weekly Activity"}</h3>
+                          <p className="text-xs text-muted-foreground">{isRtl ? "نشاط الكلية خلال آخر 7 أيام" : "College activity over the last 7 days"}</p>
+                        </div>
+                        <BarChart3 className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="h-32">
+                        <Sparkline data={bucketByDay(allDates, 7)} color="hsl(var(--primary))" />
+                      </div>
+                      <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground" dir={isRtl ? "rtl" : "ltr"}>
+                        <span>{isRtl ? "إجمالي الأنشطة: " : "Total activities: "}{totalActivity}</span>
+                        <span>{isRtl ? "إجمالي التقييمات: " : "Total ratings: "}{ratings.length}</span>
                       </div>
                     </CardContent>
                   </Card>
+
+                  {/* Section Cards - 2 per row, lecturer-style */}
+                  <div className="grid grid-cols-2 gap-3 md:gap-4">
+                    <button onClick={() => setActiveTab("livestreams")} className="text-left">
+                      <Card className="hover:shadow-md transition-all h-full">
+                        <CardContent className="p-5">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
+                              <Radio className="w-5 h-5 text-red-500" />
+                            </div>
+                            <Badge variant="secondary">{liveStreams.length}</Badge>
+                          </div>
+                          <h3 className="font-bold text-foreground mb-1">{isRtl ? "البث المباشر" : "Live Streams"}</h3>
+                          <p className="text-xs text-muted-foreground">
+                            {isRtl
+                              ? `${liveNow.length} مباشر الآن • ${scheduledStreams.length} مجدول`
+                              : `${liveNow.length} live • ${scheduledStreams.length} scheduled`}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </button>
+
+                    <button onClick={() => setActiveTab("quizresults")} className="text-left">
+                      <Card className="hover:shadow-md transition-all h-full">
+                        <CardContent className="p-5">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                              <CheckCircle className="w-5 h-5 text-emerald-600" />
+                            </div>
+                            <Badge variant="secondary">{quizSubmissions.length}</Badge>
+                          </div>
+                          <h3 className="font-bold text-foreground mb-1">{isRtl ? "نتائج الاختبارات" : "Quiz Results"}</h3>
+                          <p className="text-xs text-muted-foreground">
+                            {isRtl ? `${quizzes.length} اختبار منشور` : `${quizzes.length} published`}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </button>
+
+                    <button onClick={() => setActiveTab("ratings")} className="text-left">
+                      <Card className="hover:shadow-md transition-all h-full">
+                        <CardContent className="p-5">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center">
+                              <Star className="w-5 h-5 text-yellow-500" />
+                            </div>
+                            <Badge variant="secondary">{ratings.length}</Badge>
+                          </div>
+                          <h3 className="font-bold text-foreground mb-1">{isRtl ? "التقييمات" : "Ratings"}</h3>
+                          <p className="text-xs text-muted-foreground">
+                            {isRtl ? `متوسط ${ratings.length > 0 ? avgRating : "—"}/5` : `Avg ${ratings.length > 0 ? avgRating : "—"}/5`}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </button>
+
+                    <button onClick={() => setActiveTab("assignments")} className="text-left">
+                      <Card className="hover:shadow-md transition-all h-full">
+                        <CardContent className="p-5">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
+                              <ClipboardList className="w-5 h-5 text-orange-500" />
+                            </div>
+                            <Badge variant="secondary">{assignments.length}</Badge>
+                          </div>
+                          <h3 className="font-bold text-foreground mb-1">{isRtl ? "التكليفات" : "Assignments"}</h3>
+                          <p className="text-xs text-muted-foreground">
+                            {isRtl ? "عرض جميع التكليفات" : "View all assignments"}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </button>
+
+                    <button onClick={() => setActiveTab("schedule")} className="text-left">
+                      <Card className="hover:shadow-md transition-all h-full">
+                        <CardContent className="p-5">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center">
+                              <Calendar className="w-5 h-5 text-pink-500" />
+                            </div>
+                            <Badge variant="secondary">{episodes.length}</Badge>
+                          </div>
+                          <h3 className="font-bold text-foreground mb-1">{isRtl ? "الجداول" : "Schedules"}</h3>
+                          <p className="text-xs text-muted-foreground">
+                            {isRtl ? "جداول المحاضرات والحلقات" : "Lectures & episodes schedule"}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </button>
+
+                    <button onClick={() => setActiveTab("files")} className="text-left">
+                      <Card className="hover:shadow-md transition-all h-full">
+                        <CardContent className="p-5">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center">
+                              <FileText className="w-5 h-5 text-indigo-500" />
+                            </div>
+                            <Badge variant="secondary">{filesCount}</Badge>
+                          </div>
+                          <h3 className="font-bold text-foreground mb-1">{isRtl ? "الملفات" : "Files"}</h3>
+                          <p className="text-xs text-muted-foreground">
+                            {isRtl ? "ملفات الدورات والتكليفات" : "Course & assignment files"}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </button>
+
+                    <button onClick={() => navigate("/leadership/quiz-approvals")} className="text-left">
+                      <Card className="hover:shadow-md transition-all h-full">
+                        <CardContent className="p-5">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center">
+                              <ShieldCheck className="w-5 h-5 text-teal-500" />
+                            </div>
+                            <Badge variant="secondary">{quizzes.length}</Badge>
+                          </div>
+                          <h3 className="font-bold text-foreground mb-1">{isRtl ? "اعتماد النتائج" : "Approvals"}</h3>
+                          <p className="text-xs text-muted-foreground">
+                            {isRtl ? "اعتماد نتائج الاختبارات" : "Approve quiz results"}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </button>
+
+                    <button onClick={() => setActiveTab("notifications")} className="text-left">
+                      <Card className="hover:shadow-md transition-all h-full">
+                        <CardContent className="p-5">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                              <Bell className="w-5 h-5 text-blue-500" />
+                            </div>
+                            {unreadNotifications > 0 && (
+                              <Badge variant="destructive">{unreadNotifications}</Badge>
+                            )}
+                          </div>
+                          <h3 className="font-bold text-foreground mb-1">{isRtl ? "الإشعارات" : "Notifications"}</h3>
+                          <p className="text-xs text-muted-foreground">
+                            {isRtl ? `${notifications.length} إشعار` : `${notifications.length} notifications`}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </button>
+                  </div>
                 </>
               );
             })()}
-
-            {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">
-                    {isRtl ? "البث المباشر الحالي" : "Current Live Streams"}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {liveNow.length === 0 ? (
-                    <p className="text-sm text-muted-foreground py-4 text-center">
-                      {isRtl ? "لا يوجد بث مباشر حالياً" : "No live streams right now"}
-                    </p>
-                  ) : (
-                    <div className="space-y-2">
-                      {liveNow.map(stream => (
-                         <div key={stream.id} className="flex items-center justify-between p-3 rounded-lg border bg-red-50 dark:bg-red-950/20">
-                          <div>
-                            <p className="font-bold text-sm">{isRtl ? stream.title_ar : stream.title_en}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge variant="destructive" className="text-[10px] animate-pulse">
-                                <Radio className="w-3 h-3 me-1" /> LIVE
-                              </Badge>
-                              <Badge variant="outline" className="text-[10px]">
-                                <Users className="w-3 h-3 me-1" />
-                                {streamAttendance[stream.id] || 0} {isRtl ? "طالب" : "students"}
-                              </Badge>
-                            </div>
-                          </div>
-                          <Button size="sm" variant="destructive" onClick={() => navigate(`/stream/${stream.id}`)}>
-                            <Eye className="w-4 h-4 me-1" />
-                            {isRtl ? "حضور" : "Join"}
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">
-                    {isRtl ? "البث المجدول" : "Scheduled Streams"}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {scheduledStreams.length === 0 ? (
-                    <p className="text-sm text-muted-foreground py-4 text-center">
-                      {isRtl ? "لا توجد بثوث مجدولة" : "No scheduled streams"}
-                    </p>
-                  ) : (
-                    <div className="space-y-2">
-                      {scheduledStreams.slice(0, 5).map(stream => (
-                        <div key={stream.id} className="flex items-center justify-between p-3 rounded-lg border">
-                          <div>
-                            <p className="font-bold text-sm">{isRtl ? stream.title_ar : stream.title_en}</p>
-                            <p className="text-xs text-muted-foreground">
-                              <Clock className="w-3 h-3 inline me-1" />
-                              {stream.scheduled_at ? new Date(stream.scheduled_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US') : '-'}
-                            </p>
-                          </div>
-                          <Badge variant="outline">{isRtl ? "مجدول" : "Scheduled"}</Badge>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
           </TabsContent>
 
           {/* Live Streams */}

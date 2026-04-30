@@ -398,69 +398,69 @@ const LeadershipDashboard = () => {
               return (
                 <>
                   {/* Top KPIs - 4 cards lecturer-style */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                    <div className="bg-primary/5 rounded-xl p-4 text-center border border-primary/10">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 mb-4 sm:mb-6">
+                    <div className="bg-primary/5 rounded-xl p-3 sm:p-4 text-center border border-primary/10">
                       <BarChart3 className="w-5 h-5 mx-auto mb-1 text-primary" />
-                      <div className="flex items-center justify-center gap-1.5">
-                        <p className="text-2xl font-black text-primary">{totalActivity}</p>
+                      <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                        <p className="text-xl sm:text-2xl font-black text-primary">{totalActivity}</p>
                         <TrendIndicator data={bucketByDay(allDates, 7)} />
                       </div>
-                      <p className="text-xs text-muted-foreground">{isRtl ? "إجمالي النشاط" : "Total Activity"}</p>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "إجمالي النشاط" : "Total Activity"}</p>
                       <Sparkline data={bucketByDay(allDates, 7)} color="hsl(var(--primary))" />
                     </div>
-                    <div className="bg-primary/5 rounded-xl p-4 text-center border border-primary/10">
+                    <div className="bg-primary/5 rounded-xl p-3 sm:p-4 text-center border border-primary/10">
                       <BookOpen className="w-5 h-5 mx-auto mb-1 text-primary" />
-                      <div className="flex items-center justify-center gap-1.5">
-                        <p className="text-2xl font-black text-primary">{courses.length}</p>
+                      <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                        <p className="text-xl sm:text-2xl font-black text-primary">{courses.length}</p>
                         <TrendIndicator data={bucketByDay(courses.map((c: any) => c.created_at), 7)} />
                       </div>
-                      <p className="text-xs text-muted-foreground">{isRtl ? "الدورات" : "Courses"}</p>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "الدورات" : "Courses"}</p>
                       <Sparkline data={bucketByDay(courses.map((c: any) => c.created_at), 7)} color="hsl(var(--primary))" />
                     </div>
-                    <div className="bg-primary/5 rounded-xl p-4 text-center border border-primary/10">
+                    <div className="bg-primary/5 rounded-xl p-3 sm:p-4 text-center border border-primary/10">
                       <ClipboardList className="w-5 h-5 mx-auto mb-1 text-primary" />
-                      <div className="flex items-center justify-center gap-1.5">
-                        <p className="text-2xl font-black text-primary">{assignments.length}</p>
+                      <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                        <p className="text-xl sm:text-2xl font-black text-primary">{assignments.length}</p>
                         <TrendIndicator data={bucketByDay(assignments.map((a: any) => a.created_at), 7)} />
                       </div>
-                      <p className="text-xs text-muted-foreground">{isRtl ? "التكليفات" : "Assignments"}</p>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "التكليفات" : "Assignments"}</p>
                       <Sparkline data={bucketByDay(assignments.map((a: any) => a.created_at), 7)} color="hsl(var(--primary))" />
                     </div>
-                    <div className="bg-green-500/5 rounded-xl p-4 text-center border border-green-500/10">
+                    <div className="bg-green-500/5 rounded-xl p-3 sm:p-4 text-center border border-green-500/10">
                       <Star className="w-5 h-5 mx-auto mb-1 text-green-600" />
-                      <div className="flex items-center justify-center gap-1.5">
-                        <p className="text-2xl font-black text-green-600">
+                      <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                        <p className="text-xl sm:text-2xl font-black text-green-600">
                           {ratings.length > 0 ? avgRating : "—"}
                         </p>
                         <TrendIndicator data={bucketByDay(ratings.map((r: any) => r.created_at), 7)} />
                       </div>
-                      <p className="text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
                       <Sparkline data={bucketByDay(ratings.map((r: any) => r.created_at), 7)} color="rgb(22 163 74)" />
                     </div>
                   </div>
 
                   {/* Weekly Activity Chart */}
-                  <Card className="mb-6">
-                    <CardContent className="p-5">
-                      <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
-                        <div>
-                          <h3 className="font-bold text-foreground">{isRtl ? "النشاط الأسبوعي" : "Weekly Activity"}</h3>
-                          <p className="text-xs text-muted-foreground">{isRtl ? "نشاط الكلية خلال آخر 7 أيام" : "College activity over the last 7 days"}</p>
+                  <Card className="mb-4 sm:mb-6">
+                    <CardContent className="p-4 sm:p-5">
+                      <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2" dir={isRtl ? "rtl" : "ltr"}>
+                        <div className="min-w-0">
+                          <h3 className="font-bold text-foreground text-sm sm:text-base">{isRtl ? "النشاط الأسبوعي" : "Weekly Activity"}</h3>
+                          <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "نشاط الكلية خلال آخر 7 أيام" : "College activity over the last 7 days"}</p>
                         </div>
-                        <BarChart3 className="w-5 h-5 text-primary" />
+                        <BarChart3 className="w-5 h-5 text-primary shrink-0" />
                       </div>
-                      <div className="h-32">
+                      <div className="h-24 sm:h-32">
                         <Sparkline data={bucketByDay(allDates, 7)} color="hsl(var(--primary))" />
                       </div>
-                      <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground" dir={isRtl ? "rtl" : "ltr"}>
+                      <div className="flex items-center justify-between mt-3 text-[11px] sm:text-xs text-muted-foreground gap-2" dir={isRtl ? "rtl" : "ltr"}>
                         <span>{isRtl ? "إجمالي الأنشطة: " : "Total activities: "}{totalActivity}</span>
                         <span>{isRtl ? "إجمالي التقييمات: " : "Total ratings: "}{ratings.length}</span>
                       </div>
                     </CardContent>
                   </Card>
 
-                  {/* Section Cards - 2 per row, lecturer-style */}
-                  <div className="grid grid-cols-2 gap-3 md:gap-4">
+                  {/* Section Cards - responsive grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
                     <button onClick={() => setActiveTab("livestreams")} className="text-left">
                       <Card className="hover:shadow-md transition-all h-full">
                         <CardContent className="p-5">

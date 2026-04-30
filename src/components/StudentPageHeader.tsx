@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, Home, BookOpen, Radio, ClipboardList, FileText, Calendar, Users, Star, Award, TrendingUp, User } from "lucide-react";
+import { GraduationCap, Home, BookOpen, Radio, ClipboardList, FileText, Calendar, Users, Star, Award, TrendingUp, User, ArrowLeft, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 import DashboardMenuDropdown, { type DashboardMenuItem } from "@/components/DashboardMenuDropdown";
@@ -12,9 +13,13 @@ interface Props {
   titleEn: string;
   icon?: React.ReactNode;
   minimal?: boolean;
+  /** When set, replaces the dropdown menu with a back button that navigates to this path */
+  backTo?: string;
+  backLabelAr?: string;
+  backLabelEn?: string;
 }
 
-const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true }: Props) => {
+const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true, backTo, backLabelAr, backLabelEn }: Props) => {
   const { t, language, toggleLanguage } = useLanguage();
   const navigate = useNavigate();
   const isRtl = language === "ar";
@@ -53,11 +58,20 @@ const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true }: Props) =>
         </Link>
         <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           {!minimal && <NotificationBell />}
-          <DashboardMenuDropdown
-            onLanguageToggle={toggleLanguage}
-            onLogout={handleLogout}
-            items={menuItems}
-          />
+          {backTo ? (
+            <Link to={backTo}>
+              <Button variant="default" size="sm" className="gap-1.5 font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/30 active:scale-95 transition-transform">
+                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                <span className="hidden xs:inline">{isRtl ? (backLabelAr ?? "رجوع") : (backLabelEn ?? "Back")}</span>
+              </Button>
+            </Link>
+          ) : (
+            <DashboardMenuDropdown
+              onLanguageToggle={toggleLanguage}
+              onLogout={handleLogout}
+              items={menuItems}
+            />
+          )}
         </div>
       </div>
       <div className="max-w-6xl mx-auto mt-1.5 sm:hidden flex items-center gap-2 text-sm font-bold text-foreground">

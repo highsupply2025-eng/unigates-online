@@ -27,6 +27,7 @@ const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const StudentDashboard = lazy(() => import("./pages/StudentDashboard"));
 const StudentLectures = lazy(() => import("./pages/StudentLectures"));
+const StudentLectureDetail = lazy(() => import("./pages/StudentLectureDetail"));
 const StudentLive = lazy(() => import("./pages/StudentLive"));
 const StudentQuizzes = lazy(() => import("./pages/StudentQuizzes"));
 const StudentAnalytics = lazy(() => import("./pages/StudentAnalytics"));

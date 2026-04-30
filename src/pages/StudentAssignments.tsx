@@ -4,7 +4,6 @@ import { ClipboardList, Calendar, CheckCircle2, AlertCircle } from "lucide-react
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
-import SiteFooter from "@/components/SiteFooter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,15 +42,9 @@ const StudentAssignments = () => {
   })(); }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <StudentPageHeader titleAr="التكليفات" titleEn="Assignments" icon={<ClipboardList className="w-3 h-3" />} />
-      <main className="flex-1 max-w-6xl mx-auto w-full px-3 sm:px-6 py-6">
-        <h1 className="text-xl sm:text-2xl font-black mb-5 sm:mb-6 flex items-center gap-2.5">
-          <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-amber-500 to-orange-600 shadow-md shadow-amber-500/25">
-            <ClipboardList className="w-5 h-5 text-white" strokeWidth={2.5} />
-          </span>
-          {isRtl ? "التكليفات" : "Assignments"}
-        </h1>
+    <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
+      <StudentPageHeader titleAr="التكليفات" titleEn="Assignments" icon={<ClipboardList className="w-3.5 h-3.5" />} />
+      <main className="max-w-6xl mx-auto w-full px-3 sm:px-4 py-5 sm:py-8">
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">{isRtl ? "جاري التحميل..." : "Loading..."}</div>
         ) : items.length === 0 ? (
@@ -93,7 +86,6 @@ const StudentAssignments = () => {
           </div>
         )}
       </main>
-      <SiteFooter />
     </div>
   );
 };

@@ -4,7 +4,6 @@ import { Users, Clock, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
-import SiteFooter from "@/components/SiteFooter";
 import { Card, CardContent } from "@/components/ui/card";
 
 const StudentAttendance = () => {
@@ -41,16 +40,9 @@ const StudentAttendance = () => {
   })(); }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <StudentPageHeader titleAr="الحضور" titleEn="Attendance" icon={<Users className="w-3 h-3" />} />
-      <main className="flex-1 max-w-6xl mx-auto w-full px-3 sm:px-6 py-6">
-        <h1 className="text-xl sm:text-2xl font-black mb-5 sm:mb-6 flex items-center gap-2.5">
-          <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-green-500 to-emerald-600 shadow-md shadow-green-500/25">
-            <Users className="w-5 h-5 text-white" strokeWidth={2.5} />
-          </span>
-          {isRtl ? "سجل الحضور" : "Attendance Log"}
-        </h1>
-
+    <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
+      <StudentPageHeader titleAr="الحضور" titleEn="Attendance" icon={<Users className="w-3.5 h-3.5" />} />
+      <main className="max-w-6xl mx-auto w-full px-3 sm:px-4 py-5 sm:py-8">
         <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
           {[
             { Icon: Eye, value: stats.total, label: isRtl ? "إجمالي الحضور" : "Total", color: "from-green-500 to-emerald-600" },
@@ -91,7 +83,6 @@ const StudentAttendance = () => {
           </div>
         )}
       </main>
-      <SiteFooter />
     </div>
   );
 };

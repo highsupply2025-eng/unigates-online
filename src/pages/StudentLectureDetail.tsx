@@ -24,22 +24,17 @@ const StudentLectureDetail = () => {
       "This is a demo lecture to showcase the lecture page layout, including the video, attached materials, and notes.",
   };
 
-  const BackIcon = isRtl ? ArrowRight : ArrowLeft;
-
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <StudentPageHeader
         titleAr="المحاضرات"
         titleEn="Lectures"
         icon={<BookOpen className="w-3.5 h-3.5" />}
+        backTo="/student/lectures"
+        backLabelAr="رجوع للمحاضرات"
+        backLabelEn="Back to Lectures"
       />
       <main className="max-w-5xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
-        <Link to="/student/lectures">
-          <Button variant="ghost" size="sm" className="mb-4 gap-2">
-            <BackIcon className="w-4 h-4" />
-            {isRtl ? "رجوع للمحاضرات" : "Back to Lectures"}
-          </Button>
-        </Link>
 
         <Card className="overflow-hidden mb-5">
           <div className="aspect-video bg-gradient-to-br from-primary/20 via-primary/10 to-background flex items-center justify-center relative">

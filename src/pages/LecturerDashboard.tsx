@@ -28,6 +28,7 @@ import NotificationBell from "@/components/NotificationBell";
 import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { MiniBars } from "@/components/MiniBars";
+import { SectionsActivityChart } from "@/components/SectionsActivityChart";
 import { useSmartBack } from "@/hooks/use-smart-back";
 
 const LecturerDashboard = () => {
@@ -810,6 +811,21 @@ const LecturerDashboard = () => {
                     <Sparkline data={bucketByDay(lecturerRatings.map((r: any) => r.created_at), 7)} color="rgb(22 163 74)" />
                   </div>
                 </div>
+
+                {/* Sections Overview Chart - activity per section in last 7 days */}
+                <SectionsActivityChart
+                  className="mb-6"
+                  sections={[
+                    { label: isRtl ? "المحاضرات" : "Lectures", color: "#3b82f6", timestamps: courses.map((x: any) => x.created_at) },
+                    { label: isRtl ? "البث المباشر" : "Live Streams", color: "#ef4444", timestamps: streams.map((x: any) => x.created_at || x.scheduled_at) },
+                    { label: isRtl ? "التكليفات" : "Assignments", color: "#f59e0b", timestamps: assignments.map((x: any) => x.created_at) },
+                    { label: isRtl ? "الاختبارات" : "Quizzes", color: "#8b5cf6", timestamps: quizzes.map((x: any) => x.created_at) },
+                    { label: isRtl ? "الإجابات" : "Submissions", color: "#14b8a6", timestamps: quizSubmissions.map((x: any) => x.submitted_at || x.created_at) },
+                    { label: isRtl ? "التقييمات" : "Ratings", color: "#22c55e", timestamps: lecturerRatings.map((x: any) => x.created_at) },
+                    { label: isRtl ? "الجداول" : "Schedules", color: "#ec4899", timestamps: schedules.map((x: any) => x.created_at) },
+                    { label: isRtl ? "المرفقات" : "Attachments", color: "#6366f1", timestamps: attachments.map((x: any) => x.created_at) },
+                  ]}
+                />
 
                 {/* Weekly Activity Chart */}
                 <Card className="mb-6">

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ClipboardList, Calendar, CheckCircle2, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -47,10 +47,34 @@ const StudentAssignments = () => {
       <main className="max-w-6xl mx-auto w-full px-3 sm:px-4 py-5 sm:py-8">
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">{isRtl ? "جاري التحميل..." : "Loading..."}</div>
-        ) : items.length === 0 ? (
-          <Card><CardContent className="py-12 text-center text-muted-foreground">{isRtl ? "لا توجد تكليفات حالياً" : "No assignments yet"}</CardContent></Card>
         ) : (
           <div className="grid gap-3">
+            {/* Demo assignment — always visible */}
+            <Link to="/student/assignments/demo-1" className="block">
+              <Card className="hover:shadow-md transition-shadow border-primary/20">
+                <CardContent className="p-4 flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold truncate">
+                      {isRtl ? "تكليف تجريبي - مقدمة في المادة" : "Demo Assignment - Course Introduction"}
+                    </h3>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                      {isRtl
+                        ? "هذا تكليف تجريبي لعرض شكل صفحة التكليف. اضغط لفتح الصفحة وحل التكليف."
+                        : "Demo assignment to showcase the detail page. Click to open and solve."}
+                    </p>
+                    <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                      <Calendar className="w-3 h-3" />
+                      2026-05-10
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-2 shrink-0">
+                    <Badge variant="secondary">{isRtl ? "مفتوح" : "Open"}</Badge>
+                    <Button size="sm">{isRtl ? "حل" : "Solve"}</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
             {items.map(a => {
               const submitted = submittedIds.has(a.id);
               const overdue = a.due_date && new Date(a.due_date) < new Date() && !submitted;

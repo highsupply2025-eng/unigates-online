@@ -233,6 +233,18 @@ const SchoolStudentDashboard = () => {
           </div>
         </div>
 
+        {/* Sections Overview Chart - activity per section in last 7 days */}
+        <SectionsActivityChart
+          className="mb-8"
+          sections={[
+            { label: isRtl ? "المواد" : "Subjects", color: "#3b82f6", timestamps: subscriptions.map((s: any) => s.created_at) },
+            { label: isRtl ? "المكتملة" : "Completed", color: "#22c55e", timestamps: progress.filter((p: any) => p.completed).map((p: any) => p.updated_at || p.created_at) },
+            { label: isRtl ? "الواجبات" : "Homework", color: "#f59e0b", timestamps: submissions.map((s: any) => s.submitted_at || s.created_at) },
+            { label: isRtl ? "البث المباشر" : "Live Classes", color: "#ef4444", timestamps: liveStreams.map((s: any) => s.scheduled_at || s.created_at) },
+            { label: isRtl ? "التقييمات" : "Ratings", color: "#8b5cf6", timestamps: ratings.map((r: any) => r.created_at) },
+          ]}
+        />
+
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6 flex-wrap">
             <TabsTrigger value="courses" className="gap-1.5"><BookOpen className="w-4 h-4" />{isRtl ? "الدروس" : "Lessons"}</TabsTrigger>

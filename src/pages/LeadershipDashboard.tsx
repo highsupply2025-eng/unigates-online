@@ -461,8 +461,8 @@ const LeadershipDashboard = () => {
 
                   {/* Section Cards - responsive grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
-                    <button onClick={() => setActiveTab("livestreams")} className="text-left">
-                      <Card className="hover:shadow-md transition-all h-full">
+                    <div className="text-left">
+                      <Card className="h-full">
                         <CardContent className="p-4 sm:p-5">
                           <div className="flex items-center justify-between mb-3">
                             <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
@@ -478,10 +478,10 @@ const LeadershipDashboard = () => {
                           </p>
                         </CardContent>
                       </Card>
-                    </button>
+                    </div>
 
-                    <button onClick={() => setActiveTab("quizresults")} className="text-left">
-                      <Card className="hover:shadow-md transition-all h-full">
+                    <div className="text-left">
+                      <Card className="h-full">
                         <CardContent className="p-4 sm:p-5">
                           <div className="flex items-center justify-between mb-3">
                             <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
@@ -495,10 +495,10 @@ const LeadershipDashboard = () => {
                           </p>
                         </CardContent>
                       </Card>
-                    </button>
+                    </div>
 
-                    <button onClick={() => setActiveTab("ratings")} className="text-left">
-                      <Card className="hover:shadow-md transition-all h-full">
+                    <div className="text-left">
+                      <Card className="h-full">
                         <CardContent className="p-4 sm:p-5">
                           <div className="flex items-center justify-between mb-3">
                             <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center">
@@ -512,10 +512,10 @@ const LeadershipDashboard = () => {
                           </p>
                         </CardContent>
                       </Card>
-                    </button>
+                    </div>
 
-                    <button onClick={() => setActiveTab("assignments")} className="text-left">
-                      <Card className="hover:shadow-md transition-all h-full">
+                    <div className="text-left">
+                      <Card className="h-full">
                         <CardContent className="p-4 sm:p-5">
                           <div className="flex items-center justify-between mb-3">
                             <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
@@ -529,10 +529,10 @@ const LeadershipDashboard = () => {
                           </p>
                         </CardContent>
                       </Card>
-                    </button>
+                    </div>
 
-                    <button onClick={() => setActiveTab("schedule")} className="text-left">
-                      <Card className="hover:shadow-md transition-all h-full">
+                    <div className="text-left">
+                      <Card className="h-full">
                         <CardContent className="p-4 sm:p-5">
                           <div className="flex items-center justify-between mb-3">
                             <div className="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center">
@@ -546,10 +546,10 @@ const LeadershipDashboard = () => {
                           </p>
                         </CardContent>
                       </Card>
-                    </button>
+                    </div>
 
-                    <button onClick={() => setActiveTab("files")} className="text-left">
-                      <Card className="hover:shadow-md transition-all h-full">
+                    <div className="text-left">
+                      <Card className="h-full">
                         <CardContent className="p-4 sm:p-5">
                           <div className="flex items-center justify-between mb-3">
                             <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center">
@@ -563,10 +563,10 @@ const LeadershipDashboard = () => {
                           </p>
                         </CardContent>
                       </Card>
-                    </button>
+                    </div>
 
-                    <button onClick={() => navigate("/leadership/quiz-approvals")} className="text-left">
-                      <Card className="hover:shadow-md transition-all h-full">
+                    <div className="text-left">
+                      <Card className="h-full">
                         <CardContent className="p-4 sm:p-5">
                           <div className="flex items-center justify-between mb-3">
                             <div className="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center">
@@ -580,10 +580,10 @@ const LeadershipDashboard = () => {
                           </p>
                         </CardContent>
                       </Card>
-                    </button>
+                    </div>
 
-                    <button onClick={() => setActiveTab("notifications")} className="text-left">
-                      <Card className="hover:shadow-md transition-all h-full">
+                    <div className="text-left">
+                      <Card className="h-full">
                         <CardContent className="p-4 sm:p-5">
                           <div className="flex items-center justify-between mb-3">
                             <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
@@ -599,7 +599,7 @@ const LeadershipDashboard = () => {
                           </p>
                         </CardContent>
                       </Card>
-                    </button>
+                    </div>
                   </div>
                 </>
               );

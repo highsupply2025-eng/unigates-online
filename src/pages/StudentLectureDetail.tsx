@@ -1,5 +1,5 @@
-import { useParams, Link } from "react-router-dom";
-import { BookOpen, Play, ArrowLeft, ArrowRight, Clock, FileText } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { BookOpen, Play, Clock, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

@@ -621,9 +621,21 @@ const LeadershipDashboard = () => {
 
           {/* Live Streams */}
           <TabsContent value="livestreams" id="section-livestreams">
-            <div className="flex items-center justify-between mb-4 flex-row-reverse">
-              <h2 className="text-lg font-bold">{isRtl ? "البث المباشر" : "Live Streams"}</h2>
+            <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
+              <h2 className="text-lg font-bold text-foreground">{isRtl ? "البث المباشر" : "Live Streams"}</h2>
             </div>
+            {/* Demo item (opens standalone page) */}
+            <button
+              onClick={() => navigate("/leadership/demo/livestreams")}
+              className="w-full mb-4 p-3 rounded-lg border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center justify-between gap-3"
+              dir={isRtl ? "rtl" : "ltr"}
+            >
+              <span className="flex items-center gap-2 text-sm font-medium text-primary">
+                <Radio className="w-4 h-4" />
+                {isRtl ? "عنصر تجريبي — افتح الصفحة المستقلة" : "Demo item — open standalone page"}
+              </span>
+              <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
+            </button>
 
             <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
               <button onClick={() => navigate("/leadership/streams/live")} className="text-left">
@@ -717,13 +729,24 @@ const LeadershipDashboard = () => {
 
           {/* Quiz Results */}
           <TabsContent value="quizresults" id="section-quizresults">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold">{isRtl ? "نتائج الاختبارات" : "Quiz Results"}</h2>
+            <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
+              <h2 className="text-lg font-bold text-foreground">{isRtl ? "نتائج الاختبارات" : "Quiz Results"}</h2>
               <Button size="sm" variant="outline" onClick={() => exportToPDF("quizresults")} className="gap-1.5">
                 <Download className="w-4 h-4" />
                 {isRtl ? "تحميل PDF" : "Export PDF"}
               </Button>
             </div>
+            <button
+              onClick={() => navigate("/leadership/demo/quizresults")}
+              className="w-full mb-4 p-3 rounded-lg border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center justify-between gap-3"
+              dir={isRtl ? "rtl" : "ltr"}
+            >
+              <span className="flex items-center gap-2 text-sm font-medium text-primary">
+                <CheckCircle className="w-4 h-4" />
+                {isRtl ? "عنصر تجريبي — افتح الصفحة المستقلة" : "Demo item — open standalone page"}
+              </span>
+              <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
+            </button>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <Card>
@@ -912,13 +935,24 @@ const LeadershipDashboard = () => {
 
           {/* Ratings */}
           <TabsContent value="ratings" id="section-ratings">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold">{isRtl ? "تقييمات المحاضرين" : "Lecturer Ratings"}</h2>
+            <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
+              <h2 className="text-lg font-bold text-foreground">{isRtl ? "تقييمات المحاضرين" : "Lecturer Ratings"}</h2>
               <Button size="sm" variant="outline" onClick={() => exportToPDF("ratings")} className="gap-1.5">
                 <Download className="w-4 h-4" />
                 {isRtl ? "تحميل PDF" : "Export PDF"}
               </Button>
             </div>
+            <button
+              onClick={() => navigate("/leadership/demo/ratings")}
+              className="w-full mb-4 p-3 rounded-lg border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center justify-between gap-3"
+              dir={isRtl ? "rtl" : "ltr"}
+            >
+              <span className="flex items-center gap-2 text-sm font-medium text-primary">
+                <Star className="w-4 h-4" />
+                {isRtl ? "عنصر تجريبي — افتح الصفحة المستقلة" : "Demo item — open standalone page"}
+              </span>
+              <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
+            </button>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <Card>
@@ -989,13 +1023,24 @@ const LeadershipDashboard = () => {
 
           {/* Assignments */}
           <TabsContent value="assignments" id="section-assignments">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold">{isRtl ? "التكليفات والاختبارات" : "Assignments & Tests"}</h2>
+            <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
+              <h2 className="text-lg font-bold text-foreground">{isRtl ? "التكليفات والاختبارات" : "Assignments & Tests"}</h2>
               <Button size="sm" variant="outline" onClick={() => exportToPDF("assignments")} className="gap-1.5">
                 <Download className="w-4 h-4" />
                 {isRtl ? "تحميل PDF" : "Export PDF"}
               </Button>
             </div>
+            <button
+              onClick={() => navigate("/leadership/demo/assignments")}
+              className="w-full mb-4 p-3 rounded-lg border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center justify-between gap-3"
+              dir={isRtl ? "rtl" : "ltr"}
+            >
+              <span className="flex items-center gap-2 text-sm font-medium text-primary">
+                <ClipboardList className="w-4 h-4" />
+                {isRtl ? "عنصر تجريبي — افتح الصفحة المستقلة" : "Demo item — open standalone page"}
+              </span>
+              <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
+            </button>
 
             <Card>
               <CardContent className="p-0">
@@ -1050,13 +1095,24 @@ const LeadershipDashboard = () => {
 
           {/* Schedule */}
           <TabsContent value="schedule" id="section-schedule">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold">{isRtl ? "جدول المحاضرات والاختبارات" : "Lectures & Tests Schedule"}</h2>
+            <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
+              <h2 className="text-lg font-bold text-foreground">{isRtl ? "جدول المحاضرات والاختبارات" : "Lectures & Tests Schedule"}</h2>
               <Button size="sm" variant="outline" onClick={() => exportToPDF("schedule")} className="gap-1.5">
                 <Download className="w-4 h-4" />
                 {isRtl ? "تحميل PDF" : "Export PDF"}
               </Button>
             </div>
+            <button
+              onClick={() => navigate("/leadership/demo/schedule")}
+              className="w-full mb-4 p-3 rounded-lg border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center justify-between gap-3"
+              dir={isRtl ? "rtl" : "ltr"}
+            >
+              <span className="flex items-center gap-2 text-sm font-medium text-primary">
+                <Calendar className="w-4 h-4" />
+                {isRtl ? "عنصر تجريبي — افتح الصفحة المستقلة" : "Demo item — open standalone page"}
+              </span>
+              <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
+            </button>
 
             {/* Upcoming Streams as schedule */}
             <Card className="mb-6">
@@ -1139,9 +1195,20 @@ const LeadershipDashboard = () => {
 
           {/* Files */}
           <TabsContent value="files">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold">{isRtl ? "الملفات المنشورة" : "Published Files"}</h2>
+            <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
+              <h2 className="text-lg font-bold text-foreground">{isRtl ? "الملفات المنشورة" : "Published Files"}</h2>
             </div>
+            <button
+              onClick={() => navigate("/leadership/demo/files")}
+              className="w-full mb-4 p-3 rounded-lg border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center justify-between gap-3"
+              dir={isRtl ? "rtl" : "ltr"}
+            >
+              <span className="flex items-center gap-2 text-sm font-medium text-primary">
+                <FileText className="w-4 h-4" />
+                {isRtl ? "عنصر تجريبي — افتح الصفحة المستقلة" : "Demo item — open standalone page"}
+              </span>
+              <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
+            </button>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Assignment files */}

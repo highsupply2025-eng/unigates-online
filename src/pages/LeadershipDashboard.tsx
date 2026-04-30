@@ -381,6 +381,7 @@ const LeadershipDashboard = () => {
             <TabsTrigger value="assignments">assignments</TabsTrigger>
             <TabsTrigger value="schedule">schedule</TabsTrigger>
             <TabsTrigger value="files">files</TabsTrigger>
+            <TabsTrigger value="notifications">notifications</TabsTrigger>
           </TabsList>
 
           {/* Overview */}
@@ -1108,6 +1109,61 @@ const LeadershipDashboard = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Notifications */}
+          <TabsContent value="notifications">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground mb-1">{isRtl ? "الإشعارات" : "Notifications"}</h2>
+                <p className="text-sm text-muted-foreground">
+                  {isRtl ? `لديك ${unreadNotifications} إشعار غير مقروء` : `You have ${unreadNotifications} unread notifications`}
+                </p>
+              </div>
+              {unreadNotifications > 0 && (
+                <Button size="sm" variant="outline" onClick={markAllNotificationsRead} className="gap-1.5">
+                  <CheckCheck className="w-4 h-4" />
+                  {isRtl ? "قراءة الكل" : "Mark all read"}
+                </Button>
+              )}
+            </div>
+
+            <Card>
+              <CardContent className="p-0">
+                {notifications.length === 0 ? (
+                  <div className="py-16 text-center text-muted-foreground">
+                    <Bell className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                    <p className="text-sm">{isRtl ? "لا توجد إشعارات" : "No notifications"}</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-border">
+                    {notifications.map(n => (
+                      <div
+                        key={n.id}
+                        className={`px-4 py-3 hover:bg-muted/30 transition-colors cursor-pointer ${!n.is_read ? "bg-primary/5" : ""}`}
+                        onClick={() => !n.is_read && markNotificationRead(n.id)}
+                      >
+                        <div className="flex items-start gap-3">
+                          {!n.is_read && <span className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <span className="font-semibold text-sm">{isRtl ? n.title_ar : n.title_en}</span>
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                                {n.notification_type}
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground">{isRtl ? n.message_ar : n.message_en}</p>
+                            <p className="text-[10px] text-muted-foreground/70 mt-1">
+                              {new Date(n.created_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US')}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>

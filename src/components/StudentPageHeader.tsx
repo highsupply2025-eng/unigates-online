@@ -54,17 +54,12 @@ const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true }: Props) =>
           </div>
         </Link>
         <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-          <BackButton />
-          {!minimal && (
-            <>
-              <NotificationBell />
-              <DashboardMenuDropdown
-                onLanguageToggle={toggleLanguage}
-                onLogout={handleLogout}
-                items={menuItems}
-              />
-            </>
-          )}
+          {!minimal && <NotificationBell />}
+          <DashboardMenuDropdown
+            onLanguageToggle={toggleLanguage}
+            onLogout={handleLogout}
+            items={menuItems}
+          />
         </div>
       </div>
       <div className="max-w-6xl mx-auto mt-1.5 sm:hidden flex items-center gap-2 text-sm font-bold text-foreground">

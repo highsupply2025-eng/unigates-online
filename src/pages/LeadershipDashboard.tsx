@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Globe, ArrowLeft, ArrowRight, Loader2, Users, BookOpen, Calendar,
   Video, FileText, Download, BarChart3, Clock, CheckCircle, AlertCircle,
-  GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, ShieldCheck, Menu, Home
+  GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, ShieldCheck, Menu, Home, Bell, CheckCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import NotificationBell from "@/components/NotificationBell";
+
 import BackButton from "@/components/BackButton";
 import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
@@ -42,10 +42,43 @@ const LeadershipDashboard = () => {
   const [streamAttendance, setStreamAttendance] = useState<Record<string, number>>({});
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [quizSubmissions, setQuizSubmissions] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
 
   useEffect(() => {
     checkAccess();
+    loadNotifications();
+    const channel = supabase
+      .channel('leadership-notifications')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, () => {
+        loadNotifications();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
   }, []);
+
+  const loadNotifications = async () => {
+    const { data } = await supabase
+      .from("notifications")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(50);
+    setNotifications(data || []);
+  };
+
+  const markNotificationRead = async (id: string) => {
+    await supabase.from("notifications").update({ is_read: true }).eq("id", id);
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+  };
+
+  const markAllNotificationsRead = async () => {
+    const unreadIds = notifications.filter(n => !n.is_read).map(n => n.id);
+    if (unreadIds.length === 0) return;
+    await Promise.all(unreadIds.map(id => supabase.from("notifications").update({ is_read: true }).eq("id", id)));
+    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+  };
+
+  const unreadNotifications = notifications.filter(n => !n.is_read).length;
+
 
   const checkAccess = async () => {
     try {
@@ -267,12 +300,15 @@ const LeadershipDashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            
-            <NotificationBell />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="p-2 rounded-lg bg-primary/20 text-primary" aria-label="menu">
+                <button className="relative p-2 rounded-lg bg-primary/20 text-primary" aria-label="menu">
                   <Menu className="w-5 h-5" />
+                  {unreadNotifications > 0 && (
+                    <span className="absolute -top-1 -end-1 w-4 h-4 rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center">
+                      {unreadNotifications > 9 ? "9+" : unreadNotifications}
+                    </span>
+                  )}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align={isRtl ? "start" : "end"} className="w-72 max-h-[85vh] overflow-y-auto p-1.5">
@@ -308,6 +344,18 @@ const LeadershipDashboard = () => {
                   <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
                   <span className="text-sm">{isRtl ? "اعتماد النتائج" : "Quiz Approvals"}</span>
                 </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setActiveTab("notifications")}
+                  className={`gap-2.5 cursor-pointer rounded-md py-2 ${activeTab === "notifications" ? "bg-primary/10 text-primary font-semibold" : ""}`}
+                >
+                  <Bell className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-sm flex-1">{isRtl ? "الإشعارات" : "Notifications"}</span>
+                  {unreadNotifications > 0 && (
+                    <Badge variant="destructive" className="text-[10px] px-1.5 py-0 h-4">
+                      {unreadNotifications}
+                    </Badge>
+                  )}
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={toggleLanguage} className="gap-2.5 cursor-pointer rounded-md py-2">
                   <Globe className="w-4 h-4 text-primary shrink-0" />
@@ -333,6 +381,7 @@ const LeadershipDashboard = () => {
             <TabsTrigger value="assignments">assignments</TabsTrigger>
             <TabsTrigger value="schedule">schedule</TabsTrigger>
             <TabsTrigger value="files">files</TabsTrigger>
+            <TabsTrigger value="notifications">notifications</TabsTrigger>
           </TabsList>
 
           {/* Overview */}
@@ -1060,6 +1109,61 @@ const LeadershipDashboard = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Notifications */}
+          <TabsContent value="notifications">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground mb-1">{isRtl ? "الإشعارات" : "Notifications"}</h2>
+                <p className="text-sm text-muted-foreground">
+                  {isRtl ? `لديك ${unreadNotifications} إشعار غير مقروء` : `You have ${unreadNotifications} unread notifications`}
+                </p>
+              </div>
+              {unreadNotifications > 0 && (
+                <Button size="sm" variant="outline" onClick={markAllNotificationsRead} className="gap-1.5">
+                  <CheckCheck className="w-4 h-4" />
+                  {isRtl ? "قراءة الكل" : "Mark all read"}
+                </Button>
+              )}
+            </div>
+
+            <Card>
+              <CardContent className="p-0">
+                {notifications.length === 0 ? (
+                  <div className="py-16 text-center text-muted-foreground">
+                    <Bell className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                    <p className="text-sm">{isRtl ? "لا توجد إشعارات" : "No notifications"}</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-border">
+                    {notifications.map(n => (
+                      <div
+                        key={n.id}
+                        className={`px-4 py-3 hover:bg-muted/30 transition-colors cursor-pointer ${!n.is_read ? "bg-primary/5" : ""}`}
+                        onClick={() => !n.is_read && markNotificationRead(n.id)}
+                      >
+                        <div className="flex items-start gap-3">
+                          {!n.is_read && <span className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <span className="font-semibold text-sm">{isRtl ? n.title_ar : n.title_en}</span>
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                                {n.notification_type}
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground">{isRtl ? n.message_ar : n.message_en}</p>
+                            <p className="text-[10px] text-muted-foreground/70 mt-1">
+                              {new Date(n.created_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US')}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>

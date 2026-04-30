@@ -1,18 +1,16 @@
+import { useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GraduationCap, Home, BookOpen, Radio, ClipboardList, FileText, Calendar, Users, Star, Award, TrendingUp, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
-import BackButton from "@/components/BackButton";
-import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
+import DashboardMenuDropdown, { type DashboardMenuItem } from "@/components/DashboardMenuDropdown";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Props {
   titleAr: string;
   titleEn: string;
   icon?: React.ReactNode;
-  /** When true, shows only the back button (used for sub-pages). Default: false. */
   minimal?: boolean;
 }
 
@@ -26,19 +24,19 @@ const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true }: Props) =>
     navigate("/");
   };
 
-  const menuItems = [
-    { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: () => navigate("/student/dashboard") },
-    { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-emerald-500 to-emerald-600", onClick: () => navigate("/student/lectures") },
-    { key: "live", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-red-600", onClick: () => navigate("/student/live") },
-    { key: "quizzes", label: isRtl ? "الاختبارات أونلاين" : "Online Tests", Icon: ClipboardList, color: "from-purple-500 to-purple-600", onClick: () => navigate("/student/quizzes") },
-    { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: FileText, color: "from-amber-500 to-amber-600", onClick: () => navigate("/student/assignments") },
-    { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-blue-500 to-blue-600", onClick: () => navigate("/student/schedules") },
-    { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-green-500 to-green-600", onClick: () => navigate("/student/attendance") },
-    { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => navigate("/student/ratings") },
-    { key: "results", label: isRtl ? "نتائج الاختبارات" : "Exam Results", Icon: Award, color: "from-pink-500 to-rose-600", onClick: () => navigate("/student/results") },
-    { key: "analytics", label: isRtl ? "التحليلات" : "Analytics", Icon: TrendingUp, color: "from-indigo-500 to-indigo-600", onClick: () => navigate("/student/analytics") },
-    { key: "profile", label: isRtl ? "الحساب" : "Profile", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/profile") },
-  ];
+  const menuItems = useMemo<DashboardMenuItem[]>(() => [
+    { key: "home",        label: isRtl ? "الرئيسية" : "Home",            Icon: Home,          color: "from-blue-500 to-blue-600",    path: "/student/dashboard",  prefetch: () => import("@/pages/StudentDashboard") },
+    { key: "lectures",    label: isRtl ? "المحاضرات" : "Lectures",       Icon: BookOpen,      color: "from-emerald-500 to-emerald-600", path: "/student/lectures",  prefetch: () => import("@/pages/StudentLectures") },
+    { key: "live",        label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio,        color: "from-red-500 to-red-600",      path: "/student/live",       prefetch: () => import("@/pages/StudentLive") },
+    { key: "quizzes",     label: isRtl ? "الاختبارات أونلاين" : "Online Tests", Icon: ClipboardList, color: "from-purple-500 to-purple-600", path: "/student/quizzes", prefetch: () => import("@/pages/StudentQuizzes") },
+    { key: "assignments", label: isRtl ? "التكليفات" : "Assignments",    Icon: FileText,      color: "from-amber-500 to-amber-600",  path: "/student/assignments", prefetch: () => import("@/pages/StudentAssignments") },
+    { key: "schedules",   label: isRtl ? "الجداول" : "Schedules",        Icon: Calendar,      color: "from-blue-500 to-blue-600",    path: "/student/schedules",  prefetch: () => import("@/pages/StudentSchedules") },
+    { key: "attendance",  label: isRtl ? "الحضور" : "Attendance",        Icon: Users,         color: "from-green-500 to-green-600",  path: "/student/attendance", prefetch: () => import("@/pages/StudentAttendance") },
+    { key: "ratings",     label: isRtl ? "التقييمات" : "Ratings",        Icon: Star,          color: "from-yellow-500 to-amber-600", path: "/student/ratings",    prefetch: () => import("@/pages/StudentRatings") },
+    { key: "results",     label: isRtl ? "نتائج الاختبارات" : "Exam Results", Icon: Award,    color: "from-pink-500 to-rose-600",    path: "/student/results",    prefetch: () => import("@/pages/StudentResults") },
+    { key: "analytics",   label: isRtl ? "التحليلات" : "Analytics",      Icon: TrendingUp,    color: "from-indigo-500 to-indigo-600", path: "/student/analytics", prefetch: () => import("@/pages/StudentAnalytics") },
+    { key: "profile",     label: isRtl ? "الحساب" : "Profile",           Icon: User,          color: "from-cyan-500 to-cyan-600",    path: "/profile",            prefetch: () => import("@/pages/UserProfile") },
+  ], [isRtl]);
 
   return (
     <header className="border-b border-border px-2 sm:px-6 py-2.5 sm:py-4 sticky top-0 z-30 bg-background/95 backdrop-blur">

@@ -306,10 +306,10 @@ const LeadershipDashboard = () => {
               <h2 className="text-2xl font-bold text-foreground mb-1">{isRtl ? "الرئيسية" : "Home"}</h2>
               <p className="text-sm text-muted-foreground">{isRtl ? "نظرة عامة على نشاط الكلية خلال آخر 7 أيام" : "Overview of activity over the last 7 days"}</p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
               <Card className="border-2 border-primary/20">
-                <CardContent className="p-4 text-center">
-                  <BookOpen className="w-8 h-8 text-primary mx-auto mb-2" />
+                <CardContent className="p-3 sm:p-4 text-center">
+                  <BookOpen className="w-7 h-7 sm:w-8 sm:h-8 text-primary mx-auto mb-2" />
                   <div className="flex items-center justify-center gap-1.5">
                     <p className="text-3xl font-black text-primary">{courses.length}</p>
                     <TrendIndicator data={bucketByDay(courses.map((c: any) => c.created_at), 7)} />

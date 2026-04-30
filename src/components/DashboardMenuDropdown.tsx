@@ -1,11 +1,10 @@
-import { LucideIcon, Menu, Globe, LogOut } from "lucide-react";
+import { useState } from "react";
+import { useLocation } from "react-router-dom";
+import { LucideIcon, Menu, Globe, LogOut, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -18,6 +17,8 @@ export interface DashboardMenuItem {
   color?: string;
   onClick: () => void;
   active?: boolean;
+  /** Optional path to auto-detect active state */
+  path?: string;
 }
 
 interface Props {
@@ -30,9 +31,10 @@ interface Props {
 }
 
 /**
- * Unified dropdown menu used across all dashboards (Student, School,
- * Leadership, ...). Replaces the previous side Sheet/Drawer with a compact
- * popover triggered from the header menu button.
+ * Unified, fast-access dropdown menu used across all dashboards.
+ * - 2-column grid for one-tap reach
+ * - Auto-detects active item from current route
+ * - Smooth open/close, large touch targets, mobile-friendly
  */
 const DashboardMenuDropdown = ({
   items,
@@ -44,78 +46,102 @@ const DashboardMenuDropdown = ({
 }: Props) => {
   const { t, language } = useLanguage();
   const isRtl = language === "ar";
+  const { pathname } = useLocation();
+  const [open, setOpen] = useState(false);
+
+  const close = () => setOpen(false);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button
           size="icon"
-          className="rounded-xl w-9 h-9 bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-primary/25 text-white shrink-0"
+          className="rounded-xl w-10 h-10 bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 text-white shrink-0 hover:scale-105 transition-transform active:scale-95"
           aria-label={isRtl ? "القائمة" : "Menu"}
         >
-          <Menu className="w-5 h-5" />
+          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        sideOffset={6}
-        className="w-64 max-h-[80vh] overflow-y-auto p-1"
+        sideOffset={8}
+        className="w-[min(92vw,22rem)] max-h-[80vh] overflow-y-auto p-3 rounded-2xl shadow-2xl border-border/60 bg-background/98 backdrop-blur-xl animate-in fade-in-0 zoom-in-95"
       >
-        <DropdownMenuLabel className="text-base font-bold text-primary">
-          {title ?? (isRtl ? "القائمة" : "Menu")}
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        {items.map((it, idx) => {
-          const Icon = it.Icon;
-          return (
-            <DropdownMenuItem
-              key={it.key ?? `${it.label}-${idx}`}
-              onSelect={(e) => {
-                e.preventDefault();
-                it.onClick();
-              }}
-              className={`flex items-center gap-3 cursor-pointer rounded-md px-2 py-2 ${
-                it.active ? "bg-primary/10 text-primary font-semibold" : ""
-              }`}
-            >
-              <span
-                className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-sm bg-gradient-to-br ${
-                  it.color ?? "from-primary to-primary/70"
+        <div className="flex items-center justify-between px-1 pb-2">
+          <span className="text-base font-extrabold text-primary">
+            {title ?? (isRtl ? "القائمة" : "Menu")}
+          </span>
+          <span className="text-[10px] text-muted-foreground font-medium">
+            {items.length} {isRtl ? "قسم" : "items"}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          {items.map((it, idx) => {
+            const Icon = it.Icon;
+            const isActive =
+              it.active ?? (it.path ? pathname === it.path : false);
+            return (
+              <button
+                key={it.key ?? `${it.label}-${idx}`}
+                onClick={() => {
+                  close();
+                  it.onClick();
+                }}
+                className={`group flex flex-col items-center gap-1.5 rounded-xl p-2.5 text-center transition-all active:scale-95 hover:-translate-y-0.5 ${
+                  isActive
+                    ? "bg-primary/10 ring-2 ring-primary/40"
+                    : "hover:bg-muted/60"
                 }`}
               >
-                <Icon className="w-4 h-4 text-white" strokeWidth={2.5} />
-              </span>
-              <span className="text-sm">{it.label}</span>
-            </DropdownMenuItem>
-          );
-        })}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onSelect={(e) => {
-            e.preventDefault();
-            onLanguageToggle();
-          }}
-          className="flex items-center gap-3 cursor-pointer rounded-md px-2 py-2"
-        >
-          <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center">
-            <Globe className="w-4 h-4 text-white" strokeWidth={2.5} />
-          </span>
-          <span className="text-sm font-medium">{langLabel ?? t.langSwitch}</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={(e) => {
-            e.preventDefault();
-            onLogout();
-          }}
-          className="flex items-center gap-3 cursor-pointer rounded-md px-2 py-2 text-destructive focus:text-destructive"
-        >
-          <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
-            <LogOut className="w-4 h-4 text-white" strokeWidth={2.5} />
-          </span>
-          <span className="text-sm font-semibold">
-            {logoutLabel ?? t.logout}
-          </span>
-        </DropdownMenuItem>
+                <span
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-md bg-gradient-to-br ${
+                    it.color ?? "from-primary to-primary/70"
+                  } group-hover:shadow-lg transition-shadow`}
+                >
+                  <Icon
+                    className="w-5 h-5 text-white"
+                    strokeWidth={2.5}
+                  />
+                </span>
+                <span
+                  className={`text-[11px] leading-tight font-semibold line-clamp-2 ${
+                    isActive ? "text-primary" : "text-foreground"
+                  }`}
+                >
+                  {it.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-3 pt-3 border-t border-border/60 grid grid-cols-2 gap-2">
+          <button
+            onClick={() => {
+              close();
+              onLanguageToggle();
+            }}
+            className="flex items-center justify-center gap-2 rounded-xl py-2.5 px-3 bg-muted/60 hover:bg-muted transition-colors active:scale-95"
+          >
+            <Globe className="w-4 h-4 text-foreground" strokeWidth={2.5} />
+            <span className="text-xs font-bold">
+              {langLabel ?? t.langSwitch}
+            </span>
+          </button>
+          <button
+            onClick={() => {
+              close();
+              onLogout();
+            }}
+            className="flex items-center justify-center gap-2 rounded-xl py-2.5 px-3 bg-gradient-to-br from-red-500 to-rose-600 text-white hover:shadow-lg shadow-red-500/30 transition-all active:scale-95"
+          >
+            <LogOut className="w-4 h-4" strokeWidth={2.5} />
+            <span className="text-xs font-bold">
+              {logoutLabel ?? t.logout}
+            </span>
+          </button>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );

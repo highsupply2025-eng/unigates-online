@@ -608,8 +608,8 @@ const LeadershipDashboard = () => {
 
           {/* Live Streams */}
           <TabsContent value="livestreams" id="section-livestreams">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold">{isRtl ? "تقرير البث المباشر" : "Live Stream Report"}</h2>
+            <div className="flex items-center justify-between mb-4 flex-row-reverse">
+              <h2 className="text-lg font-bold">{isRtl ? "البث المباشر" : "Live Streams"}</h2>
               <Button size="sm" variant="outline" onClick={() => exportToPDF("livestreams")} className="gap-1.5">
                 <Download className="w-4 h-4" />
                 {isRtl ? "تحميل PDF" : "Export PDF"}

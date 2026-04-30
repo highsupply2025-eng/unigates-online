@@ -300,12 +300,15 @@ const LeadershipDashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            
-            <NotificationBell />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="p-2 rounded-lg bg-primary/20 text-primary" aria-label="menu">
+                <button className="relative p-2 rounded-lg bg-primary/20 text-primary" aria-label="menu">
                   <Menu className="w-5 h-5" />
+                  {unreadNotifications > 0 && (
+                    <span className="absolute -top-1 -end-1 w-4 h-4 rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center">
+                      {unreadNotifications > 9 ? "9+" : unreadNotifications}
+                    </span>
+                  )}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align={isRtl ? "start" : "end"} className="w-72 max-h-[85vh] overflow-y-auto p-1.5">
@@ -340,6 +343,18 @@ const LeadershipDashboard = () => {
                 >
                   <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
                   <span className="text-sm">{isRtl ? "اعتماد النتائج" : "Quiz Approvals"}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setActiveTab("notifications")}
+                  className={`gap-2.5 cursor-pointer rounded-md py-2 ${activeTab === "notifications" ? "bg-primary/10 text-primary font-semibold" : ""}`}
+                >
+                  <Bell className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-sm flex-1">{isRtl ? "الإشعارات" : "Notifications"}</span>
+                  {unreadNotifications > 0 && (
+                    <Badge variant="destructive" className="text-[10px] px-1.5 py-0 h-4">
+                      {unreadNotifications}
+                    </Badge>
+                  )}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={toggleLanguage} className="gap-2.5 cursor-pointer rounded-md py-2">

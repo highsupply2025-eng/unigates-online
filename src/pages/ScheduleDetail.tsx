@@ -117,7 +117,7 @@ const ScheduleDetail = () => {
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!scheduleId || !schedule) return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
-      <SimpleHeader backTo="/lecturer/dashboard?tab=schedules" mobileBackOnly />
+      <SimpleHeader backTo="/lecturer/dashboard?tab=schedules" mobileBackOnly useHistoryBack />
       <main className="max-w-3xl mx-auto px-4 py-12 text-center">
         <h1 className="text-2xl font-bold mb-2">{isRtl ? "الجدول غير موجود" : "Schedule not found"}</h1>
       </main>
@@ -136,7 +136,7 @@ const ScheduleDetail = () => {
 
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
-      <SimpleHeader backTo="/lecturer/dashboard?tab=schedules" mobileBackOnly />
+      <SimpleHeader backTo="/lecturer/dashboard?tab=schedules" mobileBackOnly useHistoryBack />
       <main className="max-w-4xl mx-auto px-3 sm:px-6 py-6 sm:py-8 space-y-4 sm:space-y-6">
 
         <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">

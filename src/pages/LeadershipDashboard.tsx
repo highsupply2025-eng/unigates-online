@@ -353,8 +353,49 @@ const LeadershipDashboard = () => {
               </Card>
             </div>
 
+            {/* Unified Stats Chart */}
+            <Card className="mb-6 border-2 border-primary/10">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                  {isRtl ? "نظرة شاملة على الإحصائيات" : "Overall Statistics"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-2 sm:p-4">
+                <div className="w-full h-56 sm:h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={[
+                        { name: isRtl ? "الدورات" : "Courses", value: courses.length, fill: "hsl(var(--primary))" },
+                        { name: isRtl ? "بث مباشر" : "Live", value: liveStreams.length, fill: "rgb(16 185 129)" },
+                        { name: isRtl ? "التقييمات" : "Ratings", value: ratings.length, fill: "rgb(245 158 11)" },
+                        { name: isRtl ? "التكليفات" : "Assignments", value: assignments.length, fill: "rgb(168 85 247)" },
+                        { name: isRtl ? "الاختبارات" : "Quizzes", value: quizzes.length, fill: "rgb(59 130 246)" },
+                        { name: isRtl ? "الحلقات" : "Episodes", value: episodes.length, fill: "rgb(236 72 153)" },
+                      ]}
+                      margin={{ top: 10, right: 8, left: 0, bottom: 8 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                      <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} />
+                      <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                      <Tooltip
+                        contentStyle={{
+                          background: "hsl(var(--background))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: 8,
+                          fontSize: 12,
+                        }}
+                      />
+                      <Bar dataKey="value" radius={[6, 6, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center gap-2">

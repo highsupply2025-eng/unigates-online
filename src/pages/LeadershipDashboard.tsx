@@ -610,31 +610,36 @@ const LeadershipDashboard = () => {
           <TabsContent value="livestreams" id="section-livestreams">
             <div className="flex items-center justify-between mb-4 flex-row-reverse">
               <h2 className="text-lg font-bold">{isRtl ? "البث المباشر" : "Live Streams"}</h2>
-              <Button size="sm" variant="outline" onClick={() => exportToPDF("livestreams")} className="gap-1.5">
-                <Download className="w-4 h-4" />
-                {isRtl ? "تحميل PDF" : "Export PDF"}
-              </Button>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              <Card className="bg-red-50 dark:bg-red-950/20 border-red-200">
-                <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-black text-red-600">{liveNow.length}</p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "بث حالي" : "Live Now"}</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200">
-                <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-black text-blue-600">{scheduledStreams.length}</p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "مجدول" : "Scheduled"}</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-gray-50 dark:bg-gray-950/20 border-gray-200">
-                <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-black text-gray-600">{liveStreams.filter(s => s.status === "ended").length}</p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "منتهي" : "Ended"}</p>
-                </CardContent>
-              </Card>
+            <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
+              <button onClick={() => navigate("/leadership/streams/live")} className="text-left">
+                <Card className="bg-red-50 dark:bg-red-950/20 border-red-200 hover:shadow-md transition-shadow h-full">
+                  <CardContent className="p-3 sm:p-4 text-center">
+                    <Radio className="w-5 h-5 mx-auto mb-1 text-red-600" />
+                    <p className="text-xl sm:text-2xl font-black text-red-600">{liveNow.length}</p>
+                    <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "بث حالي" : "Live Now"}</p>
+                  </CardContent>
+                </Card>
+              </button>
+              <button onClick={() => navigate("/leadership/streams/scheduled")} className="text-left">
+                <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 hover:shadow-md transition-shadow h-full">
+                  <CardContent className="p-3 sm:p-4 text-center">
+                    <Calendar className="w-5 h-5 mx-auto mb-1 text-blue-600" />
+                    <p className="text-xl sm:text-2xl font-black text-blue-600">{scheduledStreams.length}</p>
+                    <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "مجدول" : "Scheduled"}</p>
+                  </CardContent>
+                </Card>
+              </button>
+              <button onClick={() => navigate("/leadership/streams/ended")} className="text-left">
+                <Card className="bg-gray-50 dark:bg-gray-950/20 border-gray-200 hover:shadow-md transition-shadow h-full">
+                  <CardContent className="p-3 sm:p-4 text-center">
+                    <CheckCircle className="w-5 h-5 mx-auto mb-1 text-gray-600" />
+                    <p className="text-xl sm:text-2xl font-black text-gray-600">{liveStreams.filter(s => s.status === "ended").length}</p>
+                    <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "منتهي" : "Ended"}</p>
+                  </CardContent>
+                </Card>
+              </button>
             </div>
 
             <Card>

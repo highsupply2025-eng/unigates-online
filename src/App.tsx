@@ -44,6 +44,7 @@ const InstitutionDashboard = lazy(() => import("./pages/InstitutionDashboard"));
 const DepartmentPage = lazy(() => import("./pages/DepartmentPage"));
 const LecturerProfile = lazy(() => import("./pages/LecturerProfile"));
 const LeadershipDashboard = lazy(() => import("./pages/LeadershipDashboard"));
+const LeadershipStreamsByStatus = lazy(() => import("./pages/LeadershipStreamsByStatus"));
 const About = lazy(() => import("./pages/About"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const Terms = lazy(() => import("./pages/Terms"));
@@ -144,6 +145,7 @@ const App = () => (
               <Route path="/institution/department/:deptId" element={<DepartmentPage />} />
               <Route path="/institution/member/:memberId" element={<LecturerProfile />} />
               <Route path="/leadership/dashboard" element={<LeadershipDashboard />} />
+              <Route path="/leadership/streams/:status" element={<LeadershipStreamsByStatus />} />
               <Route path="/quiz/create/:courseId" element={<QuizCreate />} />
               <Route path="/assignment/:assignmentSlug" element={<AssignmentDetail />} />
               {/* Backwards compatibility: old plain UUID links */}

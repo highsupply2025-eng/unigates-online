@@ -119,7 +119,7 @@ export default function AssignmentDetail() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <SimpleHeader backTo="/lecturer/dashboard?tab=assignments" mobileBackOnly />
+        <SimpleHeader backTo="/lecturer/dashboard?tab=assignments" mobileBackOnly useHistoryBack />
         <div className="container py-10 text-center text-muted-foreground">{isRtl ? "جارٍ التحميل..." : "Loading..."}</div>
       </div>
     );
@@ -128,7 +128,7 @@ export default function AssignmentDetail() {
   if (!assignment) {
     return (
       <div className="min-h-screen bg-background">
-        <SimpleHeader backTo="/lecturer/dashboard?tab=assignments" mobileBackOnly />
+        <SimpleHeader backTo="/lecturer/dashboard?tab=assignments" mobileBackOnly useHistoryBack />
         <div className="container py-10 text-center text-muted-foreground">{isRtl ? "التكليف غير موجود" : "Assignment not found"}</div>
       </div>
     );
@@ -136,7 +136,7 @@ export default function AssignmentDetail() {
 
   return (
     <div className="min-h-screen bg-background" dir={dir}>
-      <SimpleHeader backTo="/lecturer/dashboard?tab=assignments" mobileBackOnly />
+      <SimpleHeader backTo="/lecturer/dashboard?tab=assignments" mobileBackOnly useHistoryBack />
       <div className="container max-w-3xl py-6 px-4">
         <div className={isRtl ? "text-right" : "text-left"}>
           <h1 className="text-2xl font-bold text-foreground mb-2">{isRtl ? assignment.title_ar : assignment.title_en}</h1>

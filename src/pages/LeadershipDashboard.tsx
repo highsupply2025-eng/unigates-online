@@ -396,69 +396,44 @@ const LeadershipDashboard = () => {
                 <>
                   {/* Top KPIs - 4 cards lecturer-style */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 mb-4 sm:mb-6">
-                    {(() => {
-                      const MiniBars = ({ data, color }: { data: number[]; color: string }) => (
-                        <div className="w-12 h-6 mx-auto mb-1 flex items-end justify-center gap-[2px]">
-                          {(() => {
-                            const max = Math.max(...data, 1);
-                            return data.map((v, i) => (
-                              <div
-                                key={i}
-                                style={{
-                                  height: `${Math.max((v / max) * 100, 8)}%`,
-                                  backgroundColor: color,
-                                  width: "3px",
-                                  borderRadius: "1px",
-                                  opacity: v === 0 ? 0.25 : 1,
-                                }}
-                              />
-                            ));
-                          })()}
-                        </div>
-                      );
-                      return (
-                        <>
-                          <div className="bg-primary/5 rounded-xl p-3 sm:p-4 text-center border border-primary/10">
-                            <MiniBars data={bucketByDay(allDates, 7)} color="hsl(var(--primary))" />
-                            <div className="flex items-center justify-center gap-1.5 flex-wrap">
-                              <p className="text-xl sm:text-2xl font-black text-primary">{totalActivity}</p>
-                              <TrendIndicator data={bucketByDay(allDates, 7)} />
-                            </div>
-                            <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "إجمالي النشاط" : "Total Activity"}</p>
-                            <Sparkline data={bucketByDay(allDates, 7)} color="hsl(var(--primary))" />
-                          </div>
-                          <div className="bg-primary/5 rounded-xl p-3 sm:p-4 text-center border border-primary/10">
-                            <MiniBars data={bucketByDay(courses.map((c: any) => c.created_at), 7)} color="hsl(var(--primary))" />
-                            <div className="flex items-center justify-center gap-1.5 flex-wrap">
-                              <p className="text-xl sm:text-2xl font-black text-primary">{courses.length}</p>
-                              <TrendIndicator data={bucketByDay(courses.map((c: any) => c.created_at), 7)} />
-                            </div>
-                            <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "الدورات" : "Courses"}</p>
-                            <Sparkline data={bucketByDay(courses.map((c: any) => c.created_at), 7)} color="hsl(var(--primary))" />
-                          </div>
-                          <div className="bg-primary/5 rounded-xl p-3 sm:p-4 text-center border border-primary/10">
-                            <MiniBars data={bucketByDay(assignments.map((a: any) => a.created_at), 7)} color="hsl(var(--primary))" />
-                            <div className="flex items-center justify-center gap-1.5 flex-wrap">
-                              <p className="text-xl sm:text-2xl font-black text-primary">{assignments.length}</p>
-                              <TrendIndicator data={bucketByDay(assignments.map((a: any) => a.created_at), 7)} />
-                            </div>
-                            <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "التكليفات" : "Assignments"}</p>
-                            <Sparkline data={bucketByDay(assignments.map((a: any) => a.created_at), 7)} color="hsl(var(--primary))" />
-                          </div>
-                          <div className="bg-green-500/5 rounded-xl p-3 sm:p-4 text-center border border-green-500/10">
-                            <MiniBars data={bucketByDay(ratings.map((r: any) => r.created_at), 7)} color="rgb(22 163 74)" />
-                            <div className="flex items-center justify-center gap-1.5 flex-wrap">
-                              <p className="text-xl sm:text-2xl font-black text-green-600">
-                                {ratings.length > 0 ? avgRating : "—"}
-                              </p>
-                              <TrendIndicator data={bucketByDay(ratings.map((r: any) => r.created_at), 7)} />
-                            </div>
-                            <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
-                            <Sparkline data={bucketByDay(ratings.map((r: any) => r.created_at), 7)} color="rgb(22 163 74)" />
-                          </div>
-                        </>
-                      );
-                    })()}
+                    <div className="bg-primary/5 rounded-xl p-3 sm:p-4 text-center border border-primary/10">
+                      <MiniBars data={bucketByDay(allDates, 7)} color="hsl(var(--primary))" />
+                      <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                        <p className="text-xl sm:text-2xl font-black text-primary">{totalActivity}</p>
+                        <TrendIndicator data={bucketByDay(allDates, 7)} />
+                      </div>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "إجمالي النشاط" : "Total Activity"}</p>
+                      <Sparkline data={bucketByDay(allDates, 7)} color="hsl(var(--primary))" />
+                    </div>
+                    <div className="bg-primary/5 rounded-xl p-3 sm:p-4 text-center border border-primary/10">
+                      <MiniBars data={bucketByDay(courses.map((c: any) => c.created_at), 7)} color="hsl(var(--primary))" />
+                      <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                        <p className="text-xl sm:text-2xl font-black text-primary">{courses.length}</p>
+                        <TrendIndicator data={bucketByDay(courses.map((c: any) => c.created_at), 7)} />
+                      </div>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "الدورات" : "Courses"}</p>
+                      <Sparkline data={bucketByDay(courses.map((c: any) => c.created_at), 7)} color="hsl(var(--primary))" />
+                    </div>
+                    <div className="bg-primary/5 rounded-xl p-3 sm:p-4 text-center border border-primary/10">
+                      <MiniBars data={bucketByDay(assignments.map((a: any) => a.created_at), 7)} color="hsl(var(--primary))" />
+                      <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                        <p className="text-xl sm:text-2xl font-black text-primary">{assignments.length}</p>
+                        <TrendIndicator data={bucketByDay(assignments.map((a: any) => a.created_at), 7)} />
+                      </div>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "التكليفات" : "Assignments"}</p>
+                      <Sparkline data={bucketByDay(assignments.map((a: any) => a.created_at), 7)} color="hsl(var(--primary))" />
+                    </div>
+                    <div className="bg-green-500/5 rounded-xl p-3 sm:p-4 text-center border border-green-500/10">
+                      <MiniBars data={bucketByDay(ratings.map((r: any) => r.created_at), 7)} color="rgb(22 163 74)" />
+                      <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                        <p className="text-xl sm:text-2xl font-black text-green-600">
+                          {ratings.length > 0 ? avgRating : "—"}
+                        </p>
+                        <TrendIndicator data={bucketByDay(ratings.map((r: any) => r.created_at), 7)} />
+                      </div>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
+                      <Sparkline data={bucketByDay(ratings.map((r: any) => r.created_at), 7)} color="rgb(22 163 74)" />
+                    </div>
                   </div>
 
                   {/* Weekly Activity Chart */}

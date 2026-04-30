@@ -372,13 +372,7 @@ const SchoolDashboard = () => {
           <p className="text-muted-foreground">{isRtl ? "لوحة تحكم المدرسة" : "School Dashboard"}</p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          <Card><CardContent className="pt-6 text-center"><MiniBars data={bucketByDay(departments.map((d: any) => d.created_at).filter(Boolean), 7)} color="hsl(var(--primary))" /><p className="text-2xl font-black text-foreground">{departments.length}</p><p className="text-xs text-muted-foreground">{isRtl ? "فصول" : "Classes"}</p></CardContent></Card>
-          <Card><CardContent className="pt-6 text-center"><MiniBars data={bucketByDay(deptMembers.filter((m: any) => m.role === "student").map((m: any) => m.created_at).filter(Boolean), 7)} color="hsl(var(--primary))" /><p className="text-2xl font-black text-foreground">{totalStudents}</p><p className="text-xs text-muted-foreground">{isRtl ? "طلاب" : "Students"}</p></CardContent></Card>
-          <Card><CardContent className="pt-6 text-center"><MiniBars data={bucketByDay(deptMembers.filter((m: any) => m.role === "lecturer" || m.role === "teacher").map((m: any) => m.created_at).filter(Boolean), 7)} color="hsl(var(--primary))" /><p className="text-2xl font-black text-foreground">{totalTeachers}</p><p className="text-xs text-muted-foreground">{isRtl ? "معلمون" : "Teachers"}</p></CardContent></Card>
-          <Card><CardContent className="pt-6 text-center"><MiniBars data={bucketByDay(deptMembers.filter((m: any) => m.user_id).map((m: any) => m.created_at).filter(Boolean), 7)} color="rgb(22 163 74)" /><p className="text-2xl font-black text-foreground">{deptMembers.filter(m => m.user_id).length}</p><p className="text-xs text-muted-foreground">{isRtl ? "مُفعّلون" : "Active"}</p></CardContent></Card>
-        </div>
+
 
         {/* Sections Overview Chart - activity per section in last 7 days */}
         <SectionsActivityChart

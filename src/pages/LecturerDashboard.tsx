@@ -770,47 +770,7 @@ const LecturerDashboard = () => {
                   <p className="text-sm text-muted-foreground">{isRtl ? "نظرة عامة على نشاطك في جميع الأقسام" : "Overview of your activity across all sections"}</p>
                 </div>
 
-                {/* Top KPIs */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                  <div className="bg-primary/5 rounded-xl p-4 text-center border border-primary/10">
-                    <MiniBars data={bucketByDay(viewsTimes, 7)} color="hsl(var(--primary))" />
-                    <div className="flex items-center justify-center gap-1.5">
-                      <p className="text-2xl font-black text-primary">{totalViews}</p>
-                      <TrendIndicator data={bucketByDay(viewsTimes, 7)} />
-                    </div>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "إجمالي المشاهدات" : "Total Views"}</p>
-                    <Sparkline data={bucketByDay(viewsTimes, 7)} color="hsl(var(--primary))" />
-                  </div>
-                  <div className="bg-primary/5 rounded-xl p-4 text-center border border-primary/10">
-                    <MiniBars data={bucketByDay(courses.map((c: any) => c.created_at), 7)} color="hsl(var(--primary))" />
-                    <div className="flex items-center justify-center gap-1.5">
-                      <p className="text-2xl font-black text-primary">{courses.length}</p>
-                      <TrendIndicator data={bucketByDay(courses.map((c: any) => c.created_at), 7)} />
-                    </div>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "دورات" : "Courses"}</p>
-                    <Sparkline data={bucketByDay(courses.map((c: any) => c.created_at), 7)} color="hsl(var(--primary))" />
-                  </div>
-                  <div className="bg-primary/5 rounded-xl p-4 text-center border border-primary/10">
-                    <MiniBars data={bucketByDay(courses.map((c: any) => c.updated_at), 7)} color="hsl(var(--primary))" />
-                    <div className="flex items-center justify-center gap-1.5">
-                      <p className="text-2xl font-black text-primary">{courses.reduce((a, c) => a + c.episode_count, 0)}</p>
-                      <TrendIndicator data={bucketByDay(courses.map((c: any) => c.updated_at), 7)} />
-                    </div>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "حلقات" : "Episodes"}</p>
-                    <Sparkline data={bucketByDay(courses.map((c: any) => c.updated_at), 7)} color="hsl(var(--primary))" />
-                  </div>
-                  <div className="bg-green-500/5 rounded-xl p-4 text-center border border-green-500/10">
-                    <MiniBars data={bucketByDay(lecturerRatings.map((r: any) => r.created_at), 7)} color="rgb(22 163 74)" />
-                    <div className="flex items-center justify-center gap-1.5">
-                      <p className="text-2xl font-black text-green-600">
-                        {lecturerRatings.length > 0 ? (lecturerRatings.reduce((a, r) => a + r.rating, 0) / lecturerRatings.length).toFixed(1) : "—"}
-                      </p>
-                      <TrendIndicator data={bucketByDay(lecturerRatings.map((r: any) => r.created_at), 7)} />
-                    </div>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
-                    <Sparkline data={bucketByDay(lecturerRatings.map((r: any) => r.created_at), 7)} color="rgb(22 163 74)" />
-                  </div>
-                </div>
+
 
                 {/* Sections Overview Chart - activity per section in last 7 days */}
                 <SectionsActivityChart

@@ -14,6 +14,7 @@ import BackButton from "@/components/BackButton";
 import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { MiniBars } from "@/components/MiniBars";
+import { SectionsActivityChart } from "@/components/SectionsActivityChart";
 
 const StudentDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();

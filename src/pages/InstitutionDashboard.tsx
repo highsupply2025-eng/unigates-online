@@ -944,8 +944,6 @@ const InstitutionDashboard = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align={isRtl ? "start" : "end"} className="w-56 bg-background z-50">
-                <DropdownMenuLabel>{isRtl ? "القائمة" : "Menu"}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
                 {[
                   { id: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers },
                   { id: "notifications", label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell },

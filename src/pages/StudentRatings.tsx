@@ -4,7 +4,6 @@ import { Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
-import SiteFooter from "@/components/SiteFooter";
 import { Card, CardContent } from "@/components/ui/card";
 
 const StudentRatings = () => {
@@ -37,16 +36,9 @@ const StudentRatings = () => {
   })(); }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <StudentPageHeader titleAr="التقييمات" titleEn="Ratings" icon={<Star className="w-3 h-3" />} />
-      <main className="flex-1 max-w-6xl mx-auto w-full px-3 sm:px-6 py-6">
-        <h1 className="text-xl sm:text-2xl font-black mb-5 sm:mb-6 flex items-center gap-2.5">
-          <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-yellow-500 to-amber-600 shadow-md shadow-amber-500/25">
-            <Star className="w-5 h-5 text-white fill-white" strokeWidth={2.5} />
-          </span>
-          {isRtl ? "تقييماتي للمحاضرين" : "My Lecturer Ratings"}
-        </h1>
-
+    <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
+      <StudentPageHeader titleAr="التقييمات" titleEn="Ratings" icon={<Star className="w-3.5 h-3.5" />} />
+      <main className="max-w-6xl mx-auto w-full px-3 sm:px-4 py-5 sm:py-8">
         <Card className="mb-4">
           <CardContent className="p-5 text-center">
             <p className="text-xs text-muted-foreground mb-1">{isRtl ? "متوسط التقييم" : "Average Rating"}</p>
@@ -84,7 +76,6 @@ const StudentRatings = () => {
           </div>
         )}
       </main>
-      <SiteFooter />
     </div>
   );
 };

@@ -27,6 +27,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
+import { MiniBars } from "@/components/MiniBars";
 import { useSmartBack } from "@/hooks/use-smart-back";
 
 const LecturerDashboard = () => {
@@ -771,7 +772,7 @@ const LecturerDashboard = () => {
                 {/* Top KPIs */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                   <div className="bg-primary/5 rounded-xl p-4 text-center border border-primary/10">
-                    <Eye className="w-5 h-5 mx-auto mb-1 text-primary" />
+                    <MiniBars data={bucketByDay(viewsTimes, 7)} color="hsl(var(--primary))" />
                     <div className="flex items-center justify-center gap-1.5">
                       <p className="text-2xl font-black text-primary">{totalViews}</p>
                       <TrendIndicator data={bucketByDay(viewsTimes, 7)} />
@@ -780,7 +781,7 @@ const LecturerDashboard = () => {
                     <Sparkline data={bucketByDay(viewsTimes, 7)} color="hsl(var(--primary))" />
                   </div>
                   <div className="bg-primary/5 rounded-xl p-4 text-center border border-primary/10">
-                    <Video className="w-5 h-5 mx-auto mb-1 text-primary" />
+                    <MiniBars data={bucketByDay(courses.map((c: any) => c.created_at), 7)} color="hsl(var(--primary))" />
                     <div className="flex items-center justify-center gap-1.5">
                       <p className="text-2xl font-black text-primary">{courses.length}</p>
                       <TrendIndicator data={bucketByDay(courses.map((c: any) => c.created_at), 7)} />
@@ -789,7 +790,7 @@ const LecturerDashboard = () => {
                     <Sparkline data={bucketByDay(courses.map((c: any) => c.created_at), 7)} color="hsl(var(--primary))" />
                   </div>
                   <div className="bg-primary/5 rounded-xl p-4 text-center border border-primary/10">
-                    <BookOpen className="w-5 h-5 mx-auto mb-1 text-primary" />
+                    <MiniBars data={bucketByDay(courses.map((c: any) => c.updated_at), 7)} color="hsl(var(--primary))" />
                     <div className="flex items-center justify-center gap-1.5">
                       <p className="text-2xl font-black text-primary">{courses.reduce((a, c) => a + c.episode_count, 0)}</p>
                       <TrendIndicator data={bucketByDay(courses.map((c: any) => c.updated_at), 7)} />
@@ -798,7 +799,7 @@ const LecturerDashboard = () => {
                     <Sparkline data={bucketByDay(courses.map((c: any) => c.updated_at), 7)} color="hsl(var(--primary))" />
                   </div>
                   <div className="bg-green-500/5 rounded-xl p-4 text-center border border-green-500/10">
-                    <Star className="w-5 h-5 mx-auto mb-1 text-green-600" />
+                    <MiniBars data={bucketByDay(lecturerRatings.map((r: any) => r.created_at), 7)} color="rgb(22 163 74)" />
                     <div className="flex items-center justify-center gap-1.5">
                       <p className="text-2xl font-black text-green-600">
                         {lecturerRatings.length > 0 ? (lecturerRatings.reduce((a, r) => a + r.rating, 0) / lecturerRatings.length).toFixed(1) : "—"}

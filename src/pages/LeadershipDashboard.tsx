@@ -463,7 +463,7 @@ const LeadershipDashboard = () => {
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
                     <button onClick={() => setActiveTab("livestreams")} className="text-left">
                       <Card className="hover:shadow-md transition-all h-full">
-                        <CardContent className="p-5">
+                        <CardContent className="p-4 sm:p-5">
                           <div className="flex items-center justify-between mb-3">
                             <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
                               <Radio className="w-5 h-5 text-red-500" />
@@ -482,7 +482,7 @@ const LeadershipDashboard = () => {
 
                     <button onClick={() => setActiveTab("quizresults")} className="text-left">
                       <Card className="hover:shadow-md transition-all h-full">
-                        <CardContent className="p-5">
+                        <CardContent className="p-4 sm:p-5">
                           <div className="flex items-center justify-between mb-3">
                             <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
                               <CheckCircle className="w-5 h-5 text-emerald-600" />
@@ -499,7 +499,7 @@ const LeadershipDashboard = () => {
 
                     <button onClick={() => setActiveTab("ratings")} className="text-left">
                       <Card className="hover:shadow-md transition-all h-full">
-                        <CardContent className="p-5">
+                        <CardContent className="p-4 sm:p-5">
                           <div className="flex items-center justify-between mb-3">
                             <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center">
                               <Star className="w-5 h-5 text-yellow-500" />
@@ -516,7 +516,7 @@ const LeadershipDashboard = () => {
 
                     <button onClick={() => setActiveTab("assignments")} className="text-left">
                       <Card className="hover:shadow-md transition-all h-full">
-                        <CardContent className="p-5">
+                        <CardContent className="p-4 sm:p-5">
                           <div className="flex items-center justify-between mb-3">
                             <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
                               <ClipboardList className="w-5 h-5 text-orange-500" />
@@ -533,7 +533,7 @@ const LeadershipDashboard = () => {
 
                     <button onClick={() => setActiveTab("schedule")} className="text-left">
                       <Card className="hover:shadow-md transition-all h-full">
-                        <CardContent className="p-5">
+                        <CardContent className="p-4 sm:p-5">
                           <div className="flex items-center justify-between mb-3">
                             <div className="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center">
                               <Calendar className="w-5 h-5 text-pink-500" />
@@ -550,7 +550,7 @@ const LeadershipDashboard = () => {
 
                     <button onClick={() => setActiveTab("files")} className="text-left">
                       <Card className="hover:shadow-md transition-all h-full">
-                        <CardContent className="p-5">
+                        <CardContent className="p-4 sm:p-5">
                           <div className="flex items-center justify-between mb-3">
                             <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center">
                               <FileText className="w-5 h-5 text-indigo-500" />
@@ -567,7 +567,7 @@ const LeadershipDashboard = () => {
 
                     <button onClick={() => navigate("/leadership/quiz-approvals")} className="text-left">
                       <Card className="hover:shadow-md transition-all h-full">
-                        <CardContent className="p-5">
+                        <CardContent className="p-4 sm:p-5">
                           <div className="flex items-center justify-between mb-3">
                             <div className="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center">
                               <ShieldCheck className="w-5 h-5 text-teal-500" />
@@ -584,7 +584,7 @@ const LeadershipDashboard = () => {
 
                     <button onClick={() => setActiveTab("notifications")} className="text-left">
                       <Card className="hover:shadow-md transition-all h-full">
-                        <CardContent className="p-5">
+                        <CardContent className="p-4 sm:p-5">
                           <div className="flex items-center justify-between mb-3">
                             <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
                               <Bell className="w-5 h-5 text-blue-500" />

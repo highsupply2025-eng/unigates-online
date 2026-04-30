@@ -49,49 +49,72 @@ const StudentLectures = () => {
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <StudentPageHeader titleAr="المحاضرات" titleEn="Lectures" icon={<BookOpen className="w-3.5 h-3.5" />} />
       <main className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
-        {subscribedCourses.length === 0 ? (
-          <div className="text-center py-16">
-            <BookOpen className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-            <h3 className="text-lg font-bold text-foreground mb-2">{isRtl ? "لا توجد اشتراكات حالياً" : "No subscriptions yet"}</h3>
-            <p className="text-muted-foreground mb-4">{isRtl ? "تصفّح الدورات واشترك في المستوى المناسب لك" : "Browse courses and subscribe to a level"}</p>
-            <Link to="/courses"><Button>{isRtl ? "تصفّح الدورات" : "Browse Courses"}</Button></Link>
-          </div>
-        ) : (
-          <div className="grid gap-4">
-            {subscribedCourses.map(course => {
-              const prog = getCourseProgress(course.id, course.episode_count);
-              const sub = subscriptions.find(s => s.course_id === course.id);
-              return (
-                <Card key={course.id} className="overflow-hidden">
-                  <CardContent className="p-5">
-                    <div className="flex items-start justify-between gap-4 mb-3">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-foreground text-lg">{isRtl ? course.title_ar : course.title_en}</h3>
-                        <p className="text-sm text-muted-foreground">{isRtl ? course.instructor_ar : course.instructor_en}</p>
-                      </div>
-                      <Badge className="bg-primary/10 text-primary border-primary/20 shrink-0">
-                        <Crown className="w-3 h-3 me-1" />
-                        {isRtl ? `المستوى ${sub?.level_number}` : `Level ${sub?.level_number}`}
-                      </Badge>
+        <div className="grid gap-4">
+          {/* Demo lecture card - always visible */}
+          <Link to="/student/lectures/demo-1" className="block">
+            <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border-primary/20">
+              <CardContent className="p-5">
+                <div className="flex items-start justify-between gap-4 mb-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge variant="secondary" className="text-[10px]">{isRtl ? "تجريبي" : "Demo"}</Badge>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Progress value={prog} className="flex-1 h-2" />
-                      <span className="text-sm font-bold text-foreground">{prog}%</span>
+                    <h3 className="font-bold text-foreground text-lg">
+                      {isRtl ? "محاضرة تجريبية - مقدمة في المادة" : "Demo Lecture - Introduction"}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {isRtl ? "د. أحمد محمد" : "Dr. Ahmed Mohamed"}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <Play className="w-5 h-5 text-primary" />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mt-3">
+                  <span className="text-xs text-muted-foreground">
+                    {isRtl ? "المدة: 45:20" : "Duration: 45:20"}
+                  </span>
+                  <Button size="sm" variant="default" className="gap-1.5 pointer-events-none">
+                    <Play className="w-3.5 h-3.5" />{isRtl ? "مشاهدة" : "Watch"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {subscribedCourses.map(course => {
+            const prog = getCourseProgress(course.id, course.episode_count);
+            const sub = subscriptions.find(s => s.course_id === course.id);
+            return (
+              <Card key={course.id} className="overflow-hidden">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-foreground text-lg">{isRtl ? course.title_ar : course.title_en}</h3>
+                      <p className="text-sm text-muted-foreground">{isRtl ? course.instructor_ar : course.instructor_en}</p>
                     </div>
-                    <div className="flex items-center justify-between mt-3">
-                      <span className="text-xs text-muted-foreground">
-                        {progress.filter(p => p.course_id === course.id && p.completed).length}/{course.episode_count} {isRtl ? "حلقة" : "episodes"}
-                      </span>
-                      <Button size="sm" variant="default" className="gap-1.5">
-                        <Play className="w-3.5 h-3.5" />{isRtl ? "متابعة" : "Continue"}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
+                    <Badge className="bg-primary/10 text-primary border-primary/20 shrink-0">
+                      <Crown className="w-3 h-3 me-1" />
+                      {isRtl ? `المستوى ${sub?.level_number}` : `Level ${sub?.level_number}`}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Progress value={prog} className="flex-1 h-2" />
+                    <span className="text-sm font-bold text-foreground">{prog}%</span>
+                  </div>
+                  <div className="flex items-center justify-between mt-3">
+                    <span className="text-xs text-muted-foreground">
+                      {progress.filter(p => p.course_id === course.id && p.completed).length}/{course.episode_count} {isRtl ? "حلقة" : "episodes"}
+                    </span>
+                    <Button size="sm" variant="default" className="gap-1.5">
+                      <Play className="w-3.5 h-3.5" />{isRtl ? "متابعة" : "Continue"}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       </main>
     </div>
   );

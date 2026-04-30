@@ -380,6 +380,17 @@ const SchoolDashboard = () => {
           <Card><CardContent className="pt-6 text-center"><MiniBars data={bucketByDay(deptMembers.filter((m: any) => m.user_id).map((m: any) => m.created_at).filter(Boolean), 7)} color="rgb(22 163 74)" /><p className="text-2xl font-black text-foreground">{deptMembers.filter(m => m.user_id).length}</p><p className="text-xs text-muted-foreground">{isRtl ? "مُفعّلون" : "Active"}</p></CardContent></Card>
         </div>
 
+        {/* Sections Overview Chart - activity per section in last 7 days */}
+        <SectionsActivityChart
+          className="mb-8"
+          sections={[
+            { label: isRtl ? "الفصول" : "Classes", color: "#3b82f6", timestamps: departments.map((d: any) => d.created_at) },
+            { label: isRtl ? "الطلاب" : "Students", color: "#22c55e", timestamps: deptMembers.filter((m: any) => m.role === "student").map((m: any) => m.created_at) },
+            { label: isRtl ? "المعلمون" : "Teachers", color: "#f59e0b", timestamps: deptMembers.filter((m: any) => m.role === "lecturer" || m.role === "teacher").map((m: any) => m.created_at) },
+            { label: isRtl ? "المُفعّلون" : "Active", color: "#8b5cf6", timestamps: deptMembers.filter((m: any) => m.user_id).map((m: any) => m.created_at) },
+          ]}
+        />
+
         {/* Departments/Classes */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-foreground">{isRtl ? "الفصول الدراسية" : "Classes"}</h2>

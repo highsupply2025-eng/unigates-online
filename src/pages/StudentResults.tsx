@@ -257,7 +257,7 @@ const StudentResults = () => {
         </DialogContent>
       </Dialog>
 
-      <SiteFooter />
+      
     </div>
   );
 };

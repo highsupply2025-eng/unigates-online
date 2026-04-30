@@ -67,15 +67,6 @@ const DashboardMenuDropdown = ({
         sideOffset={8}
         className="w-[min(92vw,22rem)] max-h-[80vh] overflow-y-auto p-3 rounded-2xl shadow-2xl border-border/60 bg-background/98 backdrop-blur-xl animate-in fade-in-0 zoom-in-95"
       >
-        <div className="flex items-center justify-between px-1 pb-2">
-          <span className="text-base font-extrabold text-primary">
-            {title ?? (isRtl ? "القائمة" : "Menu")}
-          </span>
-          <span className="text-[10px] text-muted-foreground font-medium">
-            {items.length} {isRtl ? "قسم" : "items"}
-          </span>
-        </div>
-
         <div className="grid grid-cols-2 gap-2">
           {items.map((it, idx) => {
             const Icon = it.Icon;

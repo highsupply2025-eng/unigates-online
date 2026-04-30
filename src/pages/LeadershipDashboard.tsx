@@ -269,21 +269,56 @@ const LeadershipDashboard = () => {
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             
             <NotificationBell />
-            <DashboardMenuDropdown
-              onLanguageToggle={toggleLanguage}
-              onLogout={async () => { await supabase.auth.signOut(); navigate("/login"); }}
-              logoutLabel={isRtl ? "تسجيل الخروج" : "Logout"}
-              items={[
-                { key: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: () => setActiveTab("overview"), active: activeTab === "overview" },
-                { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-red-600", onClick: () => setActiveTab("livestreams"), active: activeTab === "livestreams" },
-                { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: CheckCircle, color: "from-emerald-500 to-emerald-600", onClick: () => setActiveTab("quizresults"), active: activeTab === "quizresults" },
-                { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => setActiveTab("ratings"), active: activeTab === "ratings" },
-                { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-orange-500 to-orange-600", onClick: () => setActiveTab("assignments"), active: activeTab === "assignments" },
-                { key: "schedule", label: isRtl ? "الجداول" : "Schedule", Icon: Calendar, color: "from-pink-500 to-pink-600", onClick: () => setActiveTab("schedule"), active: activeTab === "schedule" },
-                { key: "files", label: isRtl ? "الملفات" : "Files", Icon: FileText, color: "from-indigo-500 to-indigo-600", onClick: () => setActiveTab("files"), active: activeTab === "files" },
-                { key: "approvals", label: isRtl ? "اعتماد النتائج" : "Approvals", Icon: ShieldCheck, color: "from-teal-500 to-teal-600", onClick: () => navigate("/leadership/quiz-approvals") },
-              ]}
-            />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="p-2 rounded-lg bg-primary/20 text-primary" aria-label="menu">
+                  <Menu className="w-5 h-5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align={isRtl ? "start" : "end"} className="w-72 max-h-[85vh] overflow-y-auto p-1.5">
+                <div className="px-2 py-1.5 text-[11px] text-muted-foreground font-bold uppercase tracking-wider">
+                  {isRtl ? "لوحة القيادة" : "Leadership Panel"}
+                </div>
+                {[
+                  { id: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, onClick: () => setActiveTab("overview") },
+                  { id: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, onClick: () => setActiveTab("livestreams") },
+                  { id: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: CheckCircle, onClick: () => setActiveTab("quizresults") },
+                  { id: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, onClick: () => setActiveTab("ratings") },
+                  { id: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, onClick: () => setActiveTab("assignments") },
+                  { id: "schedule", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => setActiveTab("schedule") },
+                  { id: "files", label: isRtl ? "الملفات" : "Files", Icon: FileText, onClick: () => setActiveTab("files") },
+                ].map(({ id, label, Icon, onClick }) => (
+                  <DropdownMenuItem
+                    key={id}
+                    onClick={onClick}
+                    className={`gap-2.5 cursor-pointer rounded-md py-2 ${activeTab === id ? "bg-primary/10 text-primary font-semibold" : ""}`}
+                  >
+                    <Icon className="w-4 h-4 text-primary shrink-0" />
+                    <span className="text-sm">{label}</span>
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator />
+                <div className="px-2 py-1.5 text-[11px] text-muted-foreground font-bold uppercase tracking-wider">
+                  {isRtl ? "النتائج والاعتماد" : "Results & Approvals"}
+                </div>
+                <DropdownMenuItem
+                  onClick={() => navigate("/leadership/quiz-approvals")}
+                  className="gap-2.5 cursor-pointer rounded-md py-2"
+                >
+                  <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-sm">{isRtl ? "اعتماد النتائج" : "Quiz Approvals"}</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={toggleLanguage} className="gap-2.5 cursor-pointer rounded-md py-2">
+                  <Globe className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-sm font-semibold">{language === "ar" ? "EN" : "AR"}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={async () => { await supabase.auth.signOut(); navigate("/login"); }} className="gap-2.5 cursor-pointer rounded-md py-2 text-destructive focus:text-destructive">
+                  <LogOut className="w-4 h-4 shrink-0" />
+                  <span className="text-sm font-semibold">{isRtl ? "تسجيل الخروج" : "Logout"}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>

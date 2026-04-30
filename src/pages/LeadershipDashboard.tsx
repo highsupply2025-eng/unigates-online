@@ -675,12 +675,18 @@ const LeadershipDashboard = () => {
                             {stream.scheduled_at ? new Date(stream.scheduled_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US') : '-'}
                           </TableCell>
                           <TableCell>
-                            {stream.status === "live" && (
-                              <Button size="sm" variant="destructive" onClick={() => navigate(`/stream/${stream.id}`)}>
-                                <Eye className="w-4 h-4 me-1" />
-                                {isRtl ? "حضور" : "Join"}
-                              </Button>
-                            )}
+                            <Button
+                              size="sm"
+                              variant={stream.status === "live" ? "destructive" : "outline"}
+                              onClick={() => navigate(`/stream/${stream.id}`)}
+                            >
+                              <Eye className="w-4 h-4 me-1" />
+                              {stream.status === "live"
+                                ? (isRtl ? "حضور" : "Join")
+                                : stream.status === "scheduled"
+                                  ? (isRtl ? "تفاصيل" : "Details")
+                                  : (isRtl ? "عرض" : "View")}
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ))

@@ -138,25 +138,7 @@ const StudentDashboard = () => {
           </p>
         </div>
 
-        {/* KPI cards with sparklines */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3 mb-6">
-          {[
-            { value: counts.completed, label: isRtl ? "حلقات مكتملة" : "Completed", trend: trends.completed, spark: "hsl(var(--primary))" },
-            { value: counts.attendance, label: isRtl ? "حضور البث" : "Attendance", trend: trends.attendance, spark: "rgb(22 163 74)" },
-            { value: counts.submissions, label: isRtl ? "تكليفات مسلّمة" : "Submissions", trend: trends.submissions, spark: "rgb(245 158 11)" },
-            { value: counts.avgRating || "—", label: isRtl ? "متوسط التقييم" : "Avg Rating", trend: trends.ratings, spark: "rgb(239 68 68)" },
-          ].map((k, i) => (
-            <div key={i} className="rounded-xl p-3 sm:p-4 text-center border border-border bg-card shadow-sm">
-              <MiniBars data={bucketByDay(k.trend, 7)} color={k.spark} />
-              <div className="flex items-center justify-center gap-1.5">
-                <p className="text-xl sm:text-2xl font-black text-foreground">{k.value}</p>
-                <TrendIndicator data={bucketByDay(k.trend, 7)} />
-              </div>
-              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate">{k.label}</p>
-              <Sparkline data={bucketByDay(k.trend, 7)} color={k.spark} />
-            </div>
-          ))}
-        </div>
+
 
         {/* Sections Overview Chart - activity per section in last 7 days */}
         <SectionsActivityChart

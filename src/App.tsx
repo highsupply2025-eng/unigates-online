@@ -29,6 +29,7 @@ const StudentDashboard = lazy(() => import("./pages/StudentDashboard"));
 const StudentLectures = lazy(() => import("./pages/StudentLectures"));
 const StudentLectureDetail = lazy(() => import("./pages/StudentLectureDetail"));
 const StudentLive = lazy(() => import("./pages/StudentLive"));
+const StudentLiveDetail = lazy(() => import("./pages/StudentLiveDetail"));
 const StudentQuizzes = lazy(() => import("./pages/StudentQuizzes"));
 const StudentAnalytics = lazy(() => import("./pages/StudentAnalytics"));
 const UniversityPlatform = lazy(() => import("./pages/UniversityPlatform"));
@@ -157,6 +158,7 @@ const App = () => (
               <Route path="/student/lectures" element={<StudentLectures />} />
               <Route path="/student/lectures/:lectureId" element={<StudentLectureDetail />} />
               <Route path="/student/live" element={<StudentLive />} />
+              <Route path="/student/live/:streamId" element={<StudentLiveDetail />} />
               <Route path="/student/quizzes" element={<StudentQuizzes />} />
               <Route path="/student/results" element={<StudentResults />} />
               <Route path="/student/assignments" element={<StudentAssignments />} />

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ClipboardList, Play, CheckCircle, Timer, Shuffle, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -240,48 +240,68 @@ const StudentQuizzes = () => {
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <StudentPageHeader titleAr="الاختبارات أونلاين" titleEn="Quizzes Online" icon={<ClipboardList className="w-3.5 h-3.5" />} />
       <main className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
-        {available.length === 0 ? (
-          <div className="text-center py-16">
-            <ClipboardList className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-            <p className="text-lg text-muted-foreground">{isRtl ? "لا توجد اختبارات متاحة" : "No quizzes available"}</p>
-          </div>
-        ) : (
-          <div className="grid gap-4">
-            {available.map(quiz => {
-              const sub = submissions.find(s => s.quiz_id === quiz.id);
-              return (
-                <Card key={quiz.id}>
-                  <CardContent className="p-4 sm:p-5">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-foreground">{isRtl ? quiz.title_ar : quiz.title_en}</h3>
-                        <p className="text-sm text-muted-foreground mt-1">{isRtl ? quiz.description_ar : quiz.description_en}</p>
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1"><Timer className="w-3.5 h-3.5" />{quiz.duration_minutes || 30} {isRtl ? "دقيقة" : "min"}</span>
-                          <span>{getCourseName(quiz.course_id)}</span>
-                          {quiz.randomize_questions && <Badge variant="outline" className="gap-1 text-[10px]"><Shuffle className="w-3 h-3" />{isRtl ? "عشوائي" : "Random"}</Badge>}
-                          {quiz.show_results_immediately && <Badge variant="outline" className="gap-1 text-[10px]"><Zap className="w-3 h-3" />{isRtl ? "فوري" : "Instant"}</Badge>}
-                        </div>
-                      </div>
-                      {sub ? (
-                        <div className="text-center self-end sm:self-auto">
-                          <Badge className="bg-green-100 text-green-700 border-green-300 gap-1">
-                            <CheckCircle className="w-3 h-3" />{sub.score}/{sub.total_points}
-                          </Badge>
-                          <p className="text-[10px] text-muted-foreground mt-1">{isRtl ? "تم الحل" : "Completed"}</p>
-                        </div>
-                      ) : (
-                        <Button size="sm" onClick={() => startQuiz(quiz)} className="gap-1.5 self-end sm:self-auto">
-                          <Play className="w-4 h-4" />{isRtl ? "ابدأ الاختبار" : "Start Quiz"}
-                        </Button>
-                      )}
+        <div className="grid gap-4">
+          {/* Demo quiz — always visible */}
+          <Link to="/student/quizzes/demo-1" className="block">
+            <Card className="border-primary/20 hover:shadow-md transition-shadow">
+              <CardContent className="p-4 sm:p-5">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-foreground">
+                      {isRtl ? "اختبار تجريبي - تقييم سريع" : "Demo Quiz - Quick Assessment"}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {isRtl
+                        ? "اختبار قصير لعرض شكل صفحة الاختبار. اضغط للبدء."
+                        : "Short demo quiz showcasing the quiz page. Click to start."}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1"><Timer className="w-3.5 h-3.5" />15 {isRtl ? "دقيقة" : "min"}</span>
+                      <Badge variant="outline" className="gap-1 text-[10px]"><Zap className="w-3 h-3" />{isRtl ? "فوري" : "Instant"}</Badge>
                     </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
+                  </div>
+                  <Button size="sm" className="gap-1.5 self-end sm:self-auto">
+                    <Play className="w-4 h-4" />{isRtl ? "ابدأ الاختبار" : "Start Quiz"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {available.map(quiz => {
+            const sub = submissions.find(s => s.quiz_id === quiz.id);
+            return (
+              <Card key={quiz.id}>
+                <CardContent className="p-4 sm:p-5">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-foreground">{isRtl ? quiz.title_ar : quiz.title_en}</h3>
+                      <p className="text-sm text-muted-foreground mt-1">{isRtl ? quiz.description_ar : quiz.description_en}</p>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1"><Timer className="w-3.5 h-3.5" />{quiz.duration_minutes || 30} {isRtl ? "دقيقة" : "min"}</span>
+                        <span>{getCourseName(quiz.course_id)}</span>
+                        {quiz.randomize_questions && <Badge variant="outline" className="gap-1 text-[10px]"><Shuffle className="w-3 h-3" />{isRtl ? "عشوائي" : "Random"}</Badge>}
+                        {quiz.show_results_immediately && <Badge variant="outline" className="gap-1 text-[10px]"><Zap className="w-3 h-3" />{isRtl ? "فوري" : "Instant"}</Badge>}
+                      </div>
+                    </div>
+                    {sub ? (
+                      <div className="text-center self-end sm:self-auto">
+                        <Badge className="bg-green-100 text-green-700 border-green-300 gap-1">
+                          <CheckCircle className="w-3 h-3" />{sub.score}/{sub.total_points}
+                        </Badge>
+                        <p className="text-[10px] text-muted-foreground mt-1">{isRtl ? "تم الحل" : "Completed"}</p>
+                      </div>
+                    ) : (
+                      <Button size="sm" onClick={() => startQuiz(quiz)} className="gap-1.5 self-end sm:self-auto">
+                        <Play className="w-4 h-4" />{isRtl ? "ابدأ الاختبار" : "Start Quiz"}
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       </main>
     </div>
   );

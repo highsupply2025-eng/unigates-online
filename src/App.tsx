@@ -31,6 +31,7 @@ const StudentLectureDetail = lazy(() => import("./pages/StudentLectureDetail"));
 const StudentLive = lazy(() => import("./pages/StudentLive"));
 const StudentLiveDetail = lazy(() => import("./pages/StudentLiveDetail"));
 const StudentQuizzes = lazy(() => import("./pages/StudentQuizzes"));
+const StudentQuizDetail = lazy(() => import("./pages/StudentQuizDetail"));
 const StudentAnalytics = lazy(() => import("./pages/StudentAnalytics"));
 const UniversityPlatform = lazy(() => import("./pages/UniversityPlatform"));
 const CollegeRegistration = lazy(() => import("./pages/CollegeRegistration"));

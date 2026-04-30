@@ -19,6 +19,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 import BackButton from "@/components/BackButton";
 import { TrendIndicator } from "@/components/TrendIndicator";
+import { SectionsActivityChart } from "@/components/SectionsActivityChart";
 import { bucketByDay } from "@/components/Sparkline";
 
 const SchoolTeacherDashboard = () => {
@@ -389,6 +390,20 @@ const SchoolTeacherDashboard = () => {
                 <p className="text-[10px] text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
               </div>
             </div>
+
+            {/* Sections Overview Chart - activity per section in last 7 days */}
+            <SectionsActivityChart
+              className="mb-8"
+              sections={[
+                { label: isRtl ? "المواد" : "Subjects", color: "#3b82f6", timestamps: courses.map((c: any) => c.created_at) },
+                { label: isRtl ? "الدروس" : "Lessons", color: "#6366f1", timestamps: episodes.map((e: any) => e.created_at) },
+                { label: isRtl ? "البث المباشر" : "Live Streams", color: "#ef4444", timestamps: streams.map((s: any) => s.created_at || s.scheduled_at) },
+                { label: isRtl ? "الواجبات" : "Homework", color: "#f59e0b", timestamps: assignments.map((a: any) => a.created_at) },
+                { label: isRtl ? "الإجابات" : "Submissions", color: "#14b8a6", timestamps: submissions.map((s: any) => s.submitted_at || s.created_at) },
+                { label: isRtl ? "التقييمات" : "Ratings", color: "#22c55e", timestamps: teacherRatings.map((r: any) => r.created_at) },
+                { label: isRtl ? "المرفقات" : "Attachments", color: "#ec4899", timestamps: attachments.map((a: any) => a.created_at) },
+              ]}
+            />
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-4 mb-6">

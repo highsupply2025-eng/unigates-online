@@ -14,6 +14,7 @@ import BackButton from "@/components/BackButton";
 import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { MiniBars } from "@/components/MiniBars";
+import { SectionsActivityChart } from "@/components/SectionsActivityChart";
 
 const StudentDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -156,6 +157,17 @@ const StudentDashboard = () => {
             </div>
           ))}
         </div>
+
+        {/* Sections Overview Chart - activity per section in last 7 days */}
+        <SectionsActivityChart
+          className="mb-6"
+          sections={[
+            { label: isRtl ? "حلقات مكتملة" : "Completed", color: "#3b82f6", timestamps: trends.completed },
+            { label: isRtl ? "حضور البث" : "Attendance", color: "#22c55e", timestamps: trends.attendance },
+            { label: isRtl ? "تكليفات مسلّمة" : "Submissions", color: "#f59e0b", timestamps: trends.submissions },
+            { label: isRtl ? "التقييمات" : "Ratings", color: "#ef4444", timestamps: trends.ratings },
+          ]}
+        />
 
         {/* Section summary cards (display-only) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">

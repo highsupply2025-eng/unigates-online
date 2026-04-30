@@ -27,6 +27,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 import BackButton from "@/components/BackButton";
 import { TrendIndicator } from "@/components/TrendIndicator";
+import { SectionsActivityChart } from "@/components/SectionsActivityChart";
 import { bucketByDay } from "@/components/Sparkline";
 
 interface Department {
@@ -1416,6 +1417,22 @@ const InstitutionDashboard = () => {
             <div className="mb-6">
               <h2 className="text-xl font-bold text-foreground mb-1">{isRtl ? "الرئيسية" : "Home"}</h2>
             </div>
+
+            {/* Sections Overview Chart - activity per section in last 7 days */}
+            <SectionsActivityChart
+              className="mb-6"
+              sections={[
+                { label: isRtl ? "الأقسام" : "Departments", color: "#3b82f6", timestamps: departments.map((d: any) => d.created_at) },
+                { label: isRtl ? "الطلاب" : "Students", color: "#06b6d4", timestamps: deptMembers.filter((m: any) => m.role === "student").map((m: any) => m.created_at) },
+                { label: isRtl ? "المحاضرين" : "Lecturers", color: "#22c55e", timestamps: deptMembers.filter((m: any) => m.role === "lecturer").map((m: any) => m.created_at) },
+                { label: isRtl ? "البث المباشر" : "Live Streams", color: "#ef4444", timestamps: liveStreams.map((s: any) => s.created_at || s.scheduled_at) },
+                { label: isRtl ? "الاختبارات" : "Quizzes", color: "#8b5cf6", timestamps: quizzes.map((q: any) => q.created_at) },
+                { label: isRtl ? "الواجبات" : "Assignments", color: "#f59e0b", timestamps: assignments.map((a: any) => a.created_at) },
+                { label: isRtl ? "الإجابات" : "Submissions", color: "#14b8a6", timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
+                { label: isRtl ? "التقييمات" : "Ratings", color: "#ec4899", timestamps: lecturerRatings.map((r: any) => r.created_at) },
+                { label: isRtl ? "الجداول" : "Schedules", color: "#6366f1", timestamps: examSchedules.map((s: any) => s.created_at) },
+              ]}
+            />
 
             {/* Departments Summary */}
             <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">

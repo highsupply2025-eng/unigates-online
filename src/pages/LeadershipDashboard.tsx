@@ -20,6 +20,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import BackButton from "@/components/BackButton";
 import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
+import { MiniBars } from "@/components/MiniBars";
 
 const LeadershipDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();

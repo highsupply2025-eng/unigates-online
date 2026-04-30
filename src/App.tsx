@@ -31,6 +31,7 @@ const StudentLectureDetail = lazy(() => import("./pages/StudentLectureDetail"));
 const StudentLive = lazy(() => import("./pages/StudentLive"));
 const StudentLiveDetail = lazy(() => import("./pages/StudentLiveDetail"));
 const StudentQuizzes = lazy(() => import("./pages/StudentQuizzes"));
+const StudentQuizDetail = lazy(() => import("./pages/StudentQuizDetail"));
 const StudentAnalytics = lazy(() => import("./pages/StudentAnalytics"));
 const UniversityPlatform = lazy(() => import("./pages/UniversityPlatform"));
 const CollegeRegistration = lazy(() => import("./pages/CollegeRegistration"));
@@ -160,6 +161,7 @@ const App = () => (
               <Route path="/student/live" element={<StudentLive />} />
               <Route path="/student/live/:streamId" element={<StudentLiveDetail />} />
               <Route path="/student/quizzes" element={<StudentQuizzes />} />
+              <Route path="/student/quizzes/:quizId" element={<StudentQuizDetail />} />
               <Route path="/student/results" element={<StudentResults />} />
               <Route path="/student/assignments" element={<StudentAssignments />} />
               <Route path="/student/assignments/:assignmentId" element={<StudentAssignmentDetail />} />

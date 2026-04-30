@@ -312,9 +312,6 @@ const LeadershipDashboard = () => {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align={isRtl ? "start" : "end"} className="w-72 max-h-[85vh] overflow-y-auto p-1.5">
-                <div className="px-2 py-1.5 text-[11px] text-muted-foreground font-bold uppercase tracking-wider">
-                  {isRtl ? "لوحة القيادة" : "Leadership Panel"}
-                </div>
                 {[
                   { id: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, onClick: () => setActiveTab("overview") },
                   { id: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, onClick: () => setActiveTab("livestreams") },

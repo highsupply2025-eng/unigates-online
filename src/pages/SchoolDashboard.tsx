@@ -386,6 +386,15 @@ const SchoolDashboard = () => {
           ]}
         />
 
+        <WeeklyActivityCard
+          className="mb-8"
+          timestamps={[
+            ...departments.map((d: any) => d.created_at),
+            ...deptMembers.map((m: any) => m.created_at),
+          ]}
+          subtitle={isRtl ? "نشاط المدرسة خلال آخر 7 أيام" : "School activity over the last 7 days"}
+        />
+
         {/* Departments/Classes */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-foreground">{isRtl ? "الفصول الدراسية" : "Classes"}</h2>

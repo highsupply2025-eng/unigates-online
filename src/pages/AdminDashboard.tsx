@@ -772,6 +772,21 @@ const AdminDashboard = () => {
               ]}
             />
 
+            <WeeklyActivityCard
+              timestamps={[
+                ...allUsers.map((u: any) => u.created_at || u.profile?.created_at),
+                ...schoolRegistrations.map((s: any) => s.created_at),
+                ...colleges.map((c: any) => c.created_at),
+                ...institutes.map((i: any) => i.created_at),
+                ...courses.map((c: any) => c.created_at),
+                ...books.map((b: any) => b.created_at),
+                ...bookOrders.map((o: any) => o.created_at),
+                ...subscriptions.map((s: any) => s.created_at),
+                ...liveStreams.map((s: any) => s.created_at || s.scheduled_at),
+              ]}
+              subtitle="Platform activity over the last 7 days"
+            />
+
             {(stats.pendingCount > 0 || stats.pendingSchools > 0 || stats.pendingColleges > 0 || stats.pendingInstitutes > 0) && (
               <div className="grid gap-4 md:grid-cols-3">
                 {stats.pendingCount > 0 && (

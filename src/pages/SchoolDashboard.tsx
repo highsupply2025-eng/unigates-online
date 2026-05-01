@@ -22,6 +22,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 import { MiniBars } from "@/components/MiniBars";
 import { SectionsActivityChart } from "@/components/SectionsActivityChart";
+import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
 import { bucketByDay } from "@/components/Sparkline";
 import BackButton from "@/components/BackButton";
 

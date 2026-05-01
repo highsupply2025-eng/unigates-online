@@ -216,6 +216,19 @@ const SchoolStudentDashboard = () => {
           ]}
         />
 
+        <WeeklyActivityCard
+          className="mb-8"
+          timestamps={[
+            ...subscriptions.map((s: any) => s.created_at),
+            ...progress.map((p: any) => p.updated_at || p.created_at),
+            ...submissions.map((s: any) => s.submitted_at || s.created_at),
+            ...liveStreams.map((s: any) => s.scheduled_at || s.created_at),
+            ...ratings.map((r: any) => r.created_at),
+          ]}
+          ratingsCount={ratings.length}
+          subtitle={isRtl ? "نشاطك خلال آخر 7 أيام" : "Your activity over the last 7 days"}
+        />
+
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6 flex-wrap">
             <TabsTrigger value="courses" className="gap-1.5"><BookOpen className="w-4 h-4" />{isRtl ? "الدروس" : "Lessons"}</TabsTrigger>

@@ -152,6 +152,12 @@ const StudentDashboard = () => {
           ]}
         />
 
+        <WeeklyActivityCard
+          timestamps={[...trends.completed, ...trends.attendance, ...trends.submissions, ...trends.ratings]}
+          ratingsCount={trends.ratings.length}
+          subtitle={isRtl ? "نشاطك خلال آخر 7 أيام" : "Your activity over the last 7 days"}
+        />
+
         {/* Section summary cards (display-only) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {[

@@ -1435,6 +1435,21 @@ const InstitutionDashboard = () => {
               ]}
             />
 
+            <WeeklyActivityCard
+              timestamps={[
+                ...departments.map((d: any) => d.created_at),
+                ...deptMembers.map((m: any) => m.created_at),
+                ...liveStreams.map((s: any) => s.created_at || s.scheduled_at),
+                ...quizzes.map((q: any) => q.created_at),
+                ...assignments.map((a: any) => a.created_at),
+                ...quizSubmissions.map((s: any) => s.submitted_at || s.created_at),
+                ...lecturerRatings.map((r: any) => r.created_at),
+                ...examSchedules.map((s: any) => s.created_at),
+              ]}
+              ratingsCount={lecturerRatings.length}
+              subtitle={isRtl ? "نشاط المؤسسة خلال آخر 7 أيام" : "Institution activity over the last 7 days"}
+            />
+
             {/* Departments Summary */}
             <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-blue-500" />

@@ -388,6 +388,21 @@ const SchoolTeacherDashboard = () => {
               ]}
             />
 
+            <WeeklyActivityCard
+              className="mb-8"
+              timestamps={[
+                ...courses.map((c: any) => c.created_at),
+                ...episodes.map((e: any) => e.created_at),
+                ...streams.map((s: any) => s.created_at || s.scheduled_at),
+                ...assignments.map((a: any) => a.created_at),
+                ...submissions.map((s: any) => s.submitted_at || s.created_at),
+                ...teacherRatings.map((r: any) => r.created_at),
+                ...attachments.map((a: any) => a.created_at),
+              ]}
+              ratingsCount={teacherRatings.length}
+              subtitle={isRtl ? "نشاطك خلال آخر 7 أيام" : "Your activity over the last 7 days"}
+            />
+
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-4 mb-6">
                 <TabsTrigger value="courses" className="gap-2"><Video className="w-4 h-4" />{isRtl ? "الدروس" : "Lessons"}</TabsTrigger>

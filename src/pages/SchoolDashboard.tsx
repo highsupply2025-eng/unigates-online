@@ -23,6 +23,7 @@ import NotificationBell from "@/components/NotificationBell";
 import { MiniBars } from "@/components/MiniBars";
 import { SectionsActivityChart } from "@/components/SectionsActivityChart";
 import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
+import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { bucketByDay } from "@/components/Sparkline";
 import BackButton from "@/components/BackButton";
 
@@ -393,6 +394,16 @@ const SchoolDashboard = () => {
             ...deptMembers.map((m: any) => m.created_at),
           ]}
           subtitle={isRtl ? "نشاط المدرسة خلال آخر 7 أيام" : "School activity over the last 7 days"}
+        />
+
+        {/* Display-only stats grid mirroring the dropdown menu */}
+        <MenuItemsStatsGrid
+          className="mb-8"
+          items={[
+            { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", count: 0 },
+            { key: "new-class", label: isRtl ? "فصل جديد" : "New Class", Icon: Plus, color: "from-emerald-500 to-emerald-600", count: departments.length },
+            { key: "profile", label: isRtl ? "الحساب" : "Profile", Icon: User, color: "from-purple-500 to-purple-600", count: 0 },
+          ]}
         />
 
         {/* Departments/Classes */}

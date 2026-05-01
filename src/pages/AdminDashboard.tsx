@@ -788,6 +788,25 @@ const AdminDashboard = () => {
               subtitle="Platform activity over the last 7 days"
             />
 
+            {/* Display-only stats grid mirroring the dashboard tabs/menu */}
+            <MenuItemsStatsGrid
+              className="mb-6"
+              items={[
+                { key: "pending", label: ar("طلبات الانتظار", "Pending"), Icon: Clock, color: "from-amber-500 to-amber-600", count: stats.pendingCount },
+                { key: "schools", label: ar("المدارس", "Schools"), Icon: School, color: "from-blue-500 to-blue-600", count: stats.pendingSchools },
+                { key: "colleges", label: ar("الكليات", "Colleges"), Icon: Landmark, color: "from-indigo-500 to-indigo-600", count: stats.totalColleges },
+                { key: "institutes", label: ar("المعاهد", "Institutes"), Icon: Landmark, color: "from-violet-500 to-violet-600", count: stats.totalInstitutes },
+                { key: "users", label: ar("المستخدمين", "Users"), Icon: Users, color: "from-cyan-500 to-cyan-600", count: stats.totalUsers },
+                { key: "courses", label: ar("الدورات", "Courses"), Icon: BookOpen, color: "from-emerald-500 to-emerald-600", count: stats.totalCourses },
+                { key: "books", label: ar("الكتب", "Books"), Icon: BookMarked, color: "from-purple-500 to-purple-600", count: stats.totalBooks },
+                { key: "orders", label: ar("الطلبات", "Orders"), Icon: ShoppingCart, color: "from-orange-500 to-orange-600", count: stats.totalOrders },
+                { key: "subscriptions", label: ar("الاشتراكات", "Subscriptions"), Icon: CreditCard, color: "from-teal-500 to-teal-600", count: stats.totalSubscriptions },
+                { key: "streams", label: ar("البث المباشر", "Live Streams"), Icon: Radio, color: "from-red-500 to-rose-600", count: stats.totalStreams },
+                { key: "departments_admin", label: ar("الأقسام", "Departments"), Icon: Building2, color: "from-pink-500 to-pink-600", count: stats.pendingDepartments },
+                { key: "notifications", label: ar("الإشعارات", "Notifications"), Icon: Bell, color: "from-yellow-500 to-yellow-600", count: 0 },
+              ]}
+            />
+
             {(stats.pendingCount > 0 || stats.pendingSchools > 0 || stats.pendingColleges > 0 || stats.pendingInstitutes > 0) && (
               <div className="grid gap-4 md:grid-cols-3">
                 {stats.pendingCount > 0 && (

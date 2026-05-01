@@ -22,6 +22,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 import { MiniBars } from "@/components/MiniBars";
 import { SectionsActivityChart } from "@/components/SectionsActivityChart";
+import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
 import { bucketByDay } from "@/components/Sparkline";
 import BackButton from "@/components/BackButton";
 
@@ -383,6 +384,15 @@ const SchoolDashboard = () => {
             { label: isRtl ? "المعلمون" : "Teachers", color: "#f59e0b", timestamps: deptMembers.filter((m: any) => m.role === "lecturer" || m.role === "teacher").map((m: any) => m.created_at) },
             { label: isRtl ? "المُفعّلون" : "Active", color: "#8b5cf6", timestamps: deptMembers.filter((m: any) => m.user_id).map((m: any) => m.created_at) },
           ]}
+        />
+
+        <WeeklyActivityCard
+          className="mb-8"
+          timestamps={[
+            ...departments.map((d: any) => d.created_at),
+            ...deptMembers.map((m: any) => m.created_at),
+          ]}
+          subtitle={isRtl ? "نشاط المدرسة خلال آخر 7 أيام" : "School activity over the last 7 days"}
         />
 
         {/* Departments/Classes */}

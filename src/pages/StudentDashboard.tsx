@@ -15,6 +15,7 @@ import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { MiniBars } from "@/components/MiniBars";
 import { SectionsActivityChart } from "@/components/SectionsActivityChart";
+import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
 
 const StudentDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -149,6 +150,12 @@ const StudentDashboard = () => {
             { label: isRtl ? "تكليفات مسلّمة" : "Submissions", color: "#f59e0b", timestamps: trends.submissions },
             { label: isRtl ? "التقييمات" : "Ratings", color: "#ef4444", timestamps: trends.ratings },
           ]}
+        />
+
+        <WeeklyActivityCard
+          timestamps={[...trends.completed, ...trends.attendance, ...trends.submissions, ...trends.ratings]}
+          ratingsCount={trends.ratings.length}
+          subtitle={isRtl ? "نشاطك خلال آخر 7 أيام" : "Your activity over the last 7 days"}
         />
 
         {/* Section summary cards (display-only) */}

@@ -16,6 +16,7 @@ import NotificationBell from "@/components/NotificationBell";
 import BackButton from "@/components/BackButton";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { SectionsActivityChart } from "@/components/SectionsActivityChart";
+import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
 import { bucketByDay } from "@/components/Sparkline";
 
 const SchoolStudentDashboard = () => {
@@ -213,6 +214,19 @@ const SchoolStudentDashboard = () => {
             { label: isRtl ? "البث المباشر" : "Live Classes", color: "#ef4444", timestamps: liveStreams.map((s: any) => s.scheduled_at || s.created_at) },
             { label: isRtl ? "التقييمات" : "Ratings", color: "#8b5cf6", timestamps: ratings.map((r: any) => r.created_at) },
           ]}
+        />
+
+        <WeeklyActivityCard
+          className="mb-8"
+          timestamps={[
+            ...subscriptions.map((s: any) => s.created_at),
+            ...progress.map((p: any) => p.updated_at || p.created_at),
+            ...submissions.map((s: any) => s.submitted_at || s.created_at),
+            ...liveStreams.map((s: any) => s.scheduled_at || s.created_at),
+            ...ratings.map((r: any) => r.created_at),
+          ]}
+          ratingsCount={ratings.length}
+          subtitle={isRtl ? "نشاطك خلال آخر 7 أيام" : "Your activity over the last 7 days"}
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>

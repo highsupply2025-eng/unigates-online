@@ -16,6 +16,7 @@ import NotificationBell from "@/components/NotificationBell";
 import BackButton from "@/components/BackButton";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { SectionsActivityChart } from "@/components/SectionsActivityChart";
+import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
 import { bucketByDay } from "@/components/Sparkline";
 
 const SchoolStudentDashboard = () => {

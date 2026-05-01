@@ -29,6 +29,7 @@ import BackButton from "@/components/BackButton";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { SectionsActivityChart } from "@/components/SectionsActivityChart";
 import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
+import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { bucketByDay } from "@/components/Sparkline";
 
 interface Department {

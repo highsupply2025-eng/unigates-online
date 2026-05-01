@@ -17,6 +17,7 @@ import BackButton from "@/components/BackButton";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { SectionsActivityChart } from "@/components/SectionsActivityChart";
 import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
+import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { bucketByDay } from "@/components/Sparkline";
 
 const SchoolStudentDashboard = () => {
@@ -227,6 +228,18 @@ const SchoolStudentDashboard = () => {
           ]}
           ratingsCount={ratings.length}
           subtitle={isRtl ? "نشاطك خلال آخر 7 أيام" : "Your activity over the last 7 days"}
+        />
+
+        {/* Display-only stats grid mirroring the menu sections */}
+        <MenuItemsStatsGrid
+          className="mb-8"
+          items={[
+            { key: "courses", label: isRtl ? "الدروس" : "Lessons", Icon: BookOpen, color: "from-blue-500 to-blue-600", count: subscribedCourses.length },
+            { key: "browse", label: isRtl ? "تصفّح المواد" : "Browse", Icon: BarChart3, color: "from-indigo-500 to-indigo-600", count: courses.length },
+            { key: "live", label: isRtl ? "بث مباشر" : "Live", Icon: Radio, color: "from-red-500 to-rose-600", count: liveStreams.filter(s => s.status === "live").length },
+            { key: "assignments", label: isRtl ? "الواجبات" : "Homework", Icon: Award, color: "from-amber-500 to-amber-600", count: submissions.length },
+            { key: "rate", label: isRtl ? "التقييم" : "Rating", Icon: Star, color: "from-green-500 to-emerald-600", count: ratings.length },
+          ]}
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>

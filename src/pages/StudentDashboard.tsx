@@ -16,6 +16,7 @@ import { TrendIndicator } from "@/components/TrendIndicator";
 import { MiniBars } from "@/components/MiniBars";
 import { SectionsActivityChart } from "@/components/SectionsActivityChart";
 import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
+import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 
 const StudentDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();

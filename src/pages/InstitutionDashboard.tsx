@@ -29,6 +29,7 @@ import BackButton from "@/components/BackButton";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { SectionsActivityChart } from "@/components/SectionsActivityChart";
 import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
+import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { bucketByDay } from "@/components/Sparkline";
 
 interface Department {
@@ -1448,6 +1449,18 @@ const InstitutionDashboard = () => {
               ]}
               ratingsCount={lecturerRatings.length}
               subtitle={isRtl ? "نشاط المؤسسة خلال آخر 7 أيام" : "Institution activity over the last 7 days"}
+            />
+
+            {/* Display-only stats grid mirroring the dropdown menu */}
+            <MenuItemsStatsGrid
+              className="mb-6"
+              items={[
+                { key: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, color: "from-blue-500 to-blue-600", count: 0 },
+                { key: "notifications", label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell, color: "from-amber-500 to-amber-600", count: 0 },
+                { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, color: "from-indigo-500 to-indigo-600", count: departments.length },
+                { key: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, color: "from-green-500 to-emerald-600", count: quizSubmissions.length },
+                { key: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: LinkIcon, color: "from-purple-500 to-purple-600", count: 0 },
+              ]}
             />
 
             {/* Departments Summary */}

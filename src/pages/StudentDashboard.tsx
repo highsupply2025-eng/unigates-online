@@ -16,6 +16,7 @@ import { TrendIndicator } from "@/components/TrendIndicator";
 import { MiniBars } from "@/components/MiniBars";
 import { SectionsActivityChart } from "@/components/SectionsActivityChart";
 import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
+import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 
 const StudentDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -158,25 +159,21 @@ const StudentDashboard = () => {
           subtitle={isRtl ? "نشاطك خلال آخر 7 أيام" : "Your activity over the last 7 days"}
         />
 
-        {/* Section summary cards (display-only) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          {[
-            { Icon: Radio, label: isRtl ? "البث المباشر" : "Live Streams", desc: isRtl ? `${counts.liveNow} بث مباشر الآن` : `${counts.liveNow} live now`, count: counts.liveNow, color: "from-red-500 to-rose-600" },
-            { Icon: BookOpen, label: isRtl ? "المحاضرات" : "Lectures", desc: isRtl ? `${counts.subscriptions} دورة نشطة` : `${counts.subscriptions} active courses`, count: counts.subscriptions, color: "from-emerald-500 to-emerald-600" },
-            { Icon: ClipboardList, label: isRtl ? "الاختبارات أونلاين" : "Online Tests", desc: isRtl ? `${counts.quizzes} اختبار متاح` : `${counts.quizzes} available`, count: counts.quizzes, color: "from-purple-500 to-purple-600" },
-          ].map((s, i) => (
-            <div key={i} className="p-4 sm:p-5 rounded-xl border bg-card shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between mb-3">
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br ${s.color} shadow-md shadow-black/10`}>
-                  <s.Icon className="w-5 h-5 text-white" strokeWidth={2.5} />
-                </div>
-                <Badge variant="secondary" className="font-bold">{s.count}</Badge>
-              </div>
-              <h3 className="font-bold text-foreground mb-1">{s.label}</h3>
-              <p className="text-xs text-muted-foreground">{s.desc}</p>
-            </div>
-          ))}
-        </div>
+        {/* Display-only stats grid mirroring the dropdown menu */}
+        <MenuItemsStatsGrid
+          className="mt-4 sm:mt-6"
+          items={menuItems.map((m) => ({
+            key: m.to,
+            label: m.label,
+            Icon: m.Icon,
+            color: m.color,
+            count:
+              m.to === "/student/lectures" ? counts.subscriptions :
+              m.to === "/student/live" ? counts.liveNow :
+              m.to === "/student/quizzes" ? counts.quizzes :
+              0,
+          }))}
+        />
       </main>
     </div>
   );

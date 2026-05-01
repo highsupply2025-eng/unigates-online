@@ -13,6 +13,7 @@ import AllPagesDropdown from "@/components/AllPagesDropdown";
 import BackButton from "@/components/BackButton";
 import TestAccountsPanel from "@/components/TestAccountsPanel";
 import { SectionsActivityChart } from "@/components/SectionsActivityChart";
+import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

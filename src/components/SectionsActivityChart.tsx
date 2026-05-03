@@ -67,7 +67,7 @@ export const SectionsActivityChart = ({ sections, title, days = 7, className = "
               height={70}
               tickMargin={8}
               tickLine={false}
-　　　　　　　　 axisLine={{ stroke: "hsl(var(--border))" }}
+              axisLine={{ stroke: "hsl(var(--border))" }}
             />
             <YAxis allowDecimals={false} tick={{ fontSize: 11 }} width={32} />
             <Tooltip

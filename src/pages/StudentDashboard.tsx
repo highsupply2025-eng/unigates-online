@@ -111,7 +111,6 @@ const StudentDashboard = () => {
             </Badge>
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            <NotificationBell />
             <DashboardMenuDropdown
               onLanguageToggle={toggleLanguage}
               onLogout={handleLogout}

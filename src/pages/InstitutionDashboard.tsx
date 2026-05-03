@@ -28,7 +28,6 @@ import NotificationBell from "@/components/NotificationBell";
 import BackButton from "@/components/BackButton";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { SectionsActivityChart } from "@/components/SectionsActivityChart";
-import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { bucketByDay } from "@/components/Sparkline";
 
@@ -1436,20 +1435,6 @@ const InstitutionDashboard = () => {
               ]}
             />
 
-            <WeeklyActivityCard
-              timestamps={[
-                ...departments.map((d: any) => d.created_at),
-                ...deptMembers.map((m: any) => m.created_at),
-                ...liveStreams.map((s: any) => s.created_at || s.scheduled_at),
-                ...quizzes.map((q: any) => q.created_at),
-                ...assignments.map((a: any) => a.created_at),
-                ...quizSubmissions.map((s: any) => s.submitted_at || s.created_at),
-                ...lecturerRatings.map((r: any) => r.created_at),
-                ...examSchedules.map((s: any) => s.created_at),
-              ]}
-              ratingsCount={lecturerRatings.length}
-              subtitle={isRtl ? "نشاط المؤسسة خلال آخر 7 أيام" : "Institution activity over the last 7 days"}
-            />
 
             {/* Display-only stats grid mirroring the dropdown menu */}
             <MenuItemsStatsGrid

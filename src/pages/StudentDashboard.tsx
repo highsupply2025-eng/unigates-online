@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import NotificationBell from "@/components/NotificationBell";
+
 import BackButton from "@/components/BackButton";
 import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";

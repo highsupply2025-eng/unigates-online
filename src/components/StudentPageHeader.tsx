@@ -67,7 +67,6 @@ const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true, backTo, bac
         )}
         {!backTo && (
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-            {!minimal && <NotificationBell />}
             <DashboardMenuDropdown
               onLanguageToggle={toggleLanguage}
               onLogout={handleLogout}

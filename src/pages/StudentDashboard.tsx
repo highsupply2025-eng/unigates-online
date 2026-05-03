@@ -15,7 +15,6 @@ import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { MiniBars } from "@/components/MiniBars";
 import { SectionsActivityChart } from "@/components/SectionsActivityChart";
-import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 
 const StudentDashboard = () => {
@@ -152,11 +151,6 @@ const StudentDashboard = () => {
           ]}
         />
 
-        <WeeklyActivityCard
-          timestamps={[...trends.completed, ...trends.attendance, ...trends.submissions, ...trends.ratings]}
-          ratingsCount={trends.ratings.length}
-          subtitle={isRtl ? "نشاطك خلال آخر 7 أيام" : "Your activity over the last 7 days"}
-        />
 
         {/* Display-only stats grid mirroring the dropdown menu */}
         <MenuItemsStatsGrid

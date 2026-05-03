@@ -20,7 +20,6 @@ import NotificationBell from "@/components/NotificationBell";
 import BackButton from "@/components/BackButton";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { SectionsActivityChart } from "@/components/SectionsActivityChart";
-import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { bucketByDay } from "@/components/Sparkline";
 
@@ -389,20 +388,6 @@ const SchoolTeacherDashboard = () => {
               ]}
             />
 
-            <WeeklyActivityCard
-              className="mb-8"
-              timestamps={[
-                ...courses.map((c: any) => c.created_at),
-                ...episodes.map((e: any) => e.created_at),
-                ...streams.map((s: any) => s.created_at || s.scheduled_at),
-                ...assignments.map((a: any) => a.created_at),
-                ...submissions.map((s: any) => s.submitted_at || s.created_at),
-                ...teacherRatings.map((r: any) => r.created_at),
-                ...attachments.map((a: any) => a.created_at),
-              ]}
-              ratingsCount={teacherRatings.length}
-              subtitle={isRtl ? "نشاطك خلال آخر 7 أيام" : "Your activity over the last 7 days"}
-            />
 
             {/* Display-only stats grid mirroring the menu sections */}
             <MenuItemsStatsGrid

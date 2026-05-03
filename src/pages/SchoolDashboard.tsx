@@ -22,7 +22,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 import { MiniBars } from "@/components/MiniBars";
 import { SectionsActivityChart } from "@/components/SectionsActivityChart";
-import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { bucketByDay } from "@/components/Sparkline";
 import BackButton from "@/components/BackButton";
@@ -387,14 +386,6 @@ const SchoolDashboard = () => {
           ]}
         />
 
-        <WeeklyActivityCard
-          className="mb-8"
-          timestamps={[
-            ...departments.map((d: any) => d.created_at),
-            ...deptMembers.map((m: any) => m.created_at),
-          ]}
-          subtitle={isRtl ? "نشاط المدرسة خلال آخر 7 أيام" : "School activity over the last 7 days"}
-        />
 
         {/* Display-only stats grid mirroring the dropdown menu */}
         <MenuItemsStatsGrid

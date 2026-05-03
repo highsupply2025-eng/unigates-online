@@ -4,7 +4,7 @@ import { GraduationCap, Home, BookOpen, Radio, ClipboardList, FileText, Calendar
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import NotificationBell from "@/components/NotificationBell";
+
 import DashboardMenuDropdown, { type DashboardMenuItem } from "@/components/DashboardMenuDropdown";
 import { supabase } from "@/integrations/supabase/client";
 

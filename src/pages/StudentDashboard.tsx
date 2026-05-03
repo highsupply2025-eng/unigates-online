@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import NotificationBell from "@/components/NotificationBell";
+
 import BackButton from "@/components/BackButton";
 import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
@@ -111,7 +111,6 @@ const StudentDashboard = () => {
             </Badge>
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            <NotificationBell />
             <DashboardMenuDropdown
               onLanguageToggle={toggleLanguage}
               onLogout={handleLogout}

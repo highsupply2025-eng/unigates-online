@@ -9,6 +9,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useLanguage } from "@/contexts/LanguageContext";
+import NotificationsInline from "@/components/NotificationsInline";
 
 export interface DashboardMenuItem {
   key?: string;
@@ -30,6 +31,8 @@ interface Props {
   langLabel?: string;
   logoutLabel?: string;
   title?: string;
+  /** Set false to hide notifications inside the dropdown (defaults to true). */
+  showNotifications?: boolean;
 }
 
 const DashboardMenuDropdown = ({
@@ -39,12 +42,14 @@ const DashboardMenuDropdown = ({
   langLabel,
   logoutLabel,
   title,
+  showNotifications = true,
 }: Props) => {
   const { t, language } = useLanguage();
   const isRtl = language === "ar";
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [unread, setUnread] = useState(0);
 
   const close = useCallback(() => setOpen(false), []);
 
@@ -61,10 +66,15 @@ const DashboardMenuDropdown = ({
     <DropdownMenu open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
         <button
-          className="p-2 rounded-lg bg-primary/20 text-primary"
+          className="relative p-2 rounded-lg bg-primary/20 text-primary"
           aria-label={isRtl ? "القائمة" : "Menu"}
         >
           {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          {showNotifications && unread > 0 && !open && (
+            <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center">
+              {unread > 99 ? "99+" : unread}
+            </span>
+          )}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -74,6 +84,14 @@ const DashboardMenuDropdown = ({
         <div className="px-2 py-1.5 text-[11px] text-muted-foreground font-bold uppercase tracking-wider">
           {title ?? (isRtl ? "القائمة" : "Menu")}
         </div>
+        {showNotifications && (
+          <>
+            <div className="px-1 pb-1.5" onClick={(e) => e.stopPropagation()}>
+              <NotificationsInline onUnreadChange={setUnread} />
+            </div>
+            <DropdownMenuSeparator />
+          </>
+        )}
         {items.map((it, idx) => {
           const Icon = it.Icon;
           const isActive = it.active ?? (it.path ? pathname === it.path : false);

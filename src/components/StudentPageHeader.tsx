@@ -4,7 +4,7 @@ import { GraduationCap, Home, BookOpen, Radio, ClipboardList, FileText, Calendar
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import NotificationBell from "@/components/NotificationBell";
+
 import DashboardMenuDropdown, { type DashboardMenuItem } from "@/components/DashboardMenuDropdown";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -67,7 +67,6 @@ const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true, backTo, bac
         )}
         {!backTo && (
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-            {!minimal && <NotificationBell />}
             <DashboardMenuDropdown
               onLanguageToggle={toggleLanguage}
               onLogout={handleLogout}

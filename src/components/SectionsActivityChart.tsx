@@ -56,19 +56,20 @@ export const SectionsActivityChart = ({ sections, title, days = 7, className = "
           {title || (isRtl ? "نظرة شاملة على الإحصائيات" : "Overall Statistics Overview")}
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={260}>
-          <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 50 }}>
+      <CardContent className="px-2 sm:px-4">
+        <ResponsiveContainer width="100%" height={360}>
+          <BarChart data={data} margin={{ top: 10, right: 8, left: 0, bottom: 70 }}>
             <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
             <XAxis
               dataKey="name"
-              tick={{ fontSize: 10 }}
-              angle={-35}
-              textAnchor="end"
+              tick={{ fontSize: 11, fill: "hsl(var(--foreground))" }}
               interval={0}
-              height={60}
+              height={70}
+              tickMargin={8}
+              tickLine={false}
+              axisLine={{ stroke: "hsl(var(--border))" }}
             />
-            <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+            <YAxis allowDecimals={false} tick={{ fontSize: 11 }} width={32} />
             <Tooltip
               contentStyle={{ borderRadius: 8, fontSize: 12 }}
               formatter={(value: number) => [value, isRtl ? "النشاط (آخر 7 أيام)" : "Activity (last 7 days)"]}

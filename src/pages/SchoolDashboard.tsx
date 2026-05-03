@@ -354,7 +354,7 @@ const SchoolDashboard = () => {
           </Link>
           <div className="flex items-center gap-3">
             <BackButton />
-            <NotificationBell />
+            
             <DashboardMenuDropdown
               onLanguageToggle={toggleLanguage}
               onLogout={handleLogout}

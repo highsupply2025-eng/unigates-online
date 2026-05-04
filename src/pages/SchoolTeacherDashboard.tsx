@@ -389,17 +389,6 @@ const SchoolTeacherDashboard = () => {
             />
 
 
-            {/* Display-only stats grid mirroring the menu sections */}
-            <MenuItemsStatsGrid
-              className="mb-8"
-              items={[
-                { key: "courses", label: isRtl ? "الدروس" : "Lessons", Icon: Video, color: "from-blue-500 to-blue-600", count: courses.length },
-                { key: "live", label: isRtl ? "حصص مباشرة" : "Live", Icon: Radio, color: "from-red-500 to-rose-600", count: streams.length },
-                { key: "assignments", label: isRtl ? "الواجبات" : "Homework", Icon: ClipboardList, color: "from-amber-500 to-amber-600", count: assignments.length },
-                { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-green-500 to-emerald-600", count: teacherRatings.length },
-              ]}
-            />
-
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-4 mb-6">
                 <TabsTrigger value="courses" className="gap-2"><Video className="w-4 h-4" />{isRtl ? "الدروس" : "Lessons"}</TabsTrigger>

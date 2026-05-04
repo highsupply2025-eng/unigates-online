@@ -217,18 +217,6 @@ const SchoolStudentDashboard = () => {
         />
 
 
-        {/* Display-only stats grid mirroring the menu sections */}
-        <MenuItemsStatsGrid
-          className="mb-8"
-          items={[
-            { key: "courses", label: isRtl ? "الدروس" : "Lessons", Icon: BookOpen, color: "from-blue-500 to-blue-600", count: subscribedCourses.length },
-            { key: "browse", label: isRtl ? "تصفّح المواد" : "Browse", Icon: BarChart3, color: "from-indigo-500 to-indigo-600", count: courses.length },
-            { key: "live", label: isRtl ? "بث مباشر" : "Live", Icon: Radio, color: "from-red-500 to-rose-600", count: liveStreams.filter(s => s.status === "live").length },
-            { key: "assignments", label: isRtl ? "الواجبات" : "Homework", Icon: Award, color: "from-amber-500 to-amber-600", count: submissions.length },
-            { key: "rate", label: isRtl ? "التقييم" : "Rating", Icon: Star, color: "from-green-500 to-emerald-600", count: ratings.length },
-          ]}
-        />
-
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6 flex-wrap">
             <TabsTrigger value="courses" className="gap-1.5"><BookOpen className="w-4 h-4" />{isRtl ? "الدروس" : "Lessons"}</TabsTrigger>

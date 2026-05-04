@@ -150,23 +150,6 @@ const StudentDashboard = () => {
             { label: isRtl ? "التقييمات" : "Ratings", color: "#ef4444", timestamps: trends.ratings },
           ]}
         />
-
-
-        {/* Display-only stats grid mirroring the dropdown menu */}
-        <MenuItemsStatsGrid
-          className="mt-4 sm:mt-6"
-          items={menuItems.map((m) => ({
-            key: m.to,
-            label: m.label,
-            Icon: m.Icon,
-            color: m.color,
-            count:
-              m.to === "/student/lectures" ? counts.subscriptions :
-              m.to === "/student/live" ? counts.liveNow :
-              m.to === "/student/quizzes" ? counts.quizzes :
-              0,
-          }))}
-        />
       </main>
     </div>
   );

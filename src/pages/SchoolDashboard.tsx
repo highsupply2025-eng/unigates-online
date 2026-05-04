@@ -387,16 +387,6 @@ const SchoolDashboard = () => {
         />
 
 
-        {/* Display-only stats grid mirroring the dropdown menu */}
-        <MenuItemsStatsGrid
-          className="mb-8"
-          items={[
-            { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", count: 0 },
-            { key: "new-class", label: isRtl ? "فصل جديد" : "New Class", Icon: Plus, color: "from-emerald-500 to-emerald-600", count: departments.length },
-            { key: "profile", label: isRtl ? "الحساب" : "Profile", Icon: User, color: "from-purple-500 to-purple-600", count: 0 },
-          ]}
-        />
-
         {/* Departments/Classes */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-foreground">{isRtl ? "الفصول الدراسية" : "Classes"}</h2>

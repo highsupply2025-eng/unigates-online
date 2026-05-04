@@ -364,25 +364,7 @@ const LeadershipDashboard = () => {
                     ]}
                   />
 
-                  {/* Weekly Activity Chart */}
-                  <Card className="mb-4 sm:mb-6">
-                    <CardContent className="p-4 sm:p-5">
-                      <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2" dir={isRtl ? "rtl" : "ltr"}>
-                        <div className="min-w-0">
-                          <h3 className="font-bold text-foreground text-sm sm:text-base">{isRtl ? "النشاط الأسبوعي" : "Weekly Activity"}</h3>
-                          <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "نشاط الكلية خلال آخر 7 أيام" : "College activity over the last 7 days"}</p>
-                        </div>
-                        <BarChart3 className="w-5 h-5 text-primary shrink-0" />
-                      </div>
-                      <div className="h-24 sm:h-32">
-                        <Sparkline data={bucketByDay(allDates, 7)} color="hsl(var(--primary))" />
-                      </div>
-                      <div className="flex items-center justify-between mt-3 text-[11px] sm:text-xs text-muted-foreground gap-2" dir={isRtl ? "rtl" : "ltr"}>
-                        <span>{isRtl ? "إجمالي الأنشطة: " : "Total activities: "}{totalActivity}</span>
-                        <span>{isRtl ? "إجمالي التقييمات: " : "Total ratings: "}{ratings.length}</span>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  {/* Weekly Activity Chart removed */}
 
                   {/* Section Cards - responsive grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">

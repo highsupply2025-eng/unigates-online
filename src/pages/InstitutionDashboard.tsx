@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
+import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -939,50 +940,18 @@ const InstitutionDashboard = () => {
             </Button>
           </div>
           <div className="md:hidden flex items-center gap-1.5 shrink-0">
-            <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
-              <DropdownMenuTrigger asChild>
-                <Button size="icon" className="rounded-2xl w-11 h-11 bg-gradient-to-br from-primary via-primary to-[hsl(200,75%,30%)] shadow-xl shadow-primary/40 ring-2 ring-primary/30 text-white shrink-0 hover:scale-110 active:scale-95 transition-transform">
-                  <Menu className="w-6 h-6" strokeWidth={2.6} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align={isRtl ? "start" : "end"} className="w-56 bg-background z-50">
-                {[
-                  { id: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers },
-                  { id: "notifications", label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell },
-                  { id: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen },
-                  { id: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle },
-                  { id: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: LinkIcon },
-                ].map(({ id, label, Icon }) => (
-                  <DropdownMenuItem
-                    key={id}
-                    onSelect={() => {
-                      handleTabChange(id);
-                      setMenuOpen(false);
-                    }}
-                    className={activeTab === id ? "bg-primary/10 text-primary font-semibold" : ""}
-                  >
-                    <Icon className="w-4 h-4 me-2" />
-                    {label}
-                  </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => { toggleLanguage(); setMenuOpen(false); }}>
-                  <Globe className="w-4 h-4 me-2" />
-                  {language === "ar" ? "English" : "العربية"}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onSelect={async () => {
-                    setMenuOpen(false);
-                    await supabase.auth.signOut();
-                    navigate("/login");
-                  }}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <LogOut className="w-4 h-4 me-2" />
-                  {isRtl ? "تسجيل الخروج" : "Logout"}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <DashboardMenuDropdown
+              title={isRtl ? (institutionType === "college" ? "لوحة الكلية" : "لوحة المعهد") : (institutionType === "college" ? "College Panel" : "Institute Panel")}
+              onLanguageToggle={toggleLanguage}
+              onLogout={async () => { await supabase.auth.signOut(); navigate("/login"); }}
+              items={[
+                { key: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, onClick: () => handleTabChange("general"), active: activeTab === "general" },
+                { key: "notifications", label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell, onClick: () => handleTabChange("notifications"), active: activeTab === "notifications" },
+                { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, onClick: () => handleTabChange("departments"), active: activeTab === "departments" },
+                { key: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, onClick: () => handleTabChange("quizresults"), active: activeTab === "quizresults" },
+                { key: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: LinkIcon, onClick: () => handleTabChange("invitations"), active: activeTab === "invitations" },
+              ]}
+            />
           </div>
         </div>
       </header>

@@ -8,6 +8,7 @@ import {
   Download, Users, Clock, BarChart3, CheckCircle, HelpCircle, MoreVertical, Menu, Award, Home
 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import LiveStreamRoom from "@/components/LiveStreamRoom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -667,66 +668,24 @@ const LecturerDashboard = () => {
             <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight truncate">{t.brandName}</span>
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            {/* Back button removed per request */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="p-2 rounded-lg bg-primary/20 text-primary" aria-label="menu">
-                  <Menu className="w-5 h-5" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align={isRtl ? "start" : "end"} className="w-72 max-h-[85vh] overflow-y-auto p-1.5">
-                <div className="px-2 py-1.5 text-[11px] text-muted-foreground font-bold uppercase tracking-wider">
-                  {isRtl ? "لوحة المحاضر" : "Lecturer Panel"}
-                </div>
-                {[
-                  { id: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home },
-                  { id: "courses", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video },
-                  { id: "live", label: isRtl ? "البث المباشر" : "Live Stream", Icon: Radio },
-                  { id: "quizzes", label: isRtl ? "الاختبارات أونلاين" : "Online Tests", Icon: HelpCircle },
-                  { id: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList },
-                  { id: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar },
-                  { id: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users },
-                  { id: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star },
-                  { id: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download },
-                ].map(({ id, label, Icon }) => (
-                  <DropdownMenuItem
-                    key={id}
-                    onClick={() => handleTabChange(id)}
-                    className={`gap-2.5 cursor-pointer rounded-md py-2 ${activeTab === id ? "bg-primary/10 text-primary font-semibold" : ""}`}
-                  >
-                    <Icon className="w-4 h-4 text-primary shrink-0" />
-                    <span className="text-sm">{label}</span>
-                  </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                <div className="px-2 py-1.5 text-[11px] text-muted-foreground font-bold uppercase tracking-wider">
-                  {isRtl ? "النتائج والاعتماد" : "Results & Approvals"}
-                </div>
-                <DropdownMenuItem
-                  onClick={() => navigate("/quiz-results")}
-                  className="gap-2.5 cursor-pointer rounded-md py-2"
-                >
-                  <Award className="w-4 h-4 text-primary shrink-0" />
-                  <span className="text-sm">{isRtl ? "نتائج الاختبارات" : "Quiz Results"}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => navigate("/leadership/quiz-approvals")}
-                  className="gap-2.5 cursor-pointer rounded-md py-2"
-                >
-                  <CheckCircle className="w-4 h-4 text-primary shrink-0" />
-                  <span className="text-sm">{isRtl ? "اعتماد الاختبارات" : "Quiz Approvals"}</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={toggleLanguage} className="gap-2.5 cursor-pointer rounded-md py-2">
-                  <Globe className="w-4 h-4 text-primary shrink-0" />
-                  <span className="text-sm font-semibold">{t.langSwitch}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout} className="gap-2.5 cursor-pointer rounded-md py-2 text-destructive focus:text-destructive">
-                  <LogOut className="w-4 h-4 shrink-0" />
-                  <span className="text-sm font-semibold">{t.logout}</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <DashboardMenuDropdown
+              title={isRtl ? "لوحة المحاضر" : "Lecturer Panel"}
+              onLanguageToggle={toggleLanguage}
+              onLogout={handleLogout}
+              items={[
+                { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, onClick: () => handleTabChange("home"), active: activeTab === "home" },
+                { key: "courses", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video, onClick: () => handleTabChange("courses"), active: activeTab === "courses" },
+                { key: "live", label: isRtl ? "البث المباشر" : "Live Stream", Icon: Radio, onClick: () => handleTabChange("live"), active: activeTab === "live" },
+                { key: "quizzes", label: isRtl ? "الاختبارات أونلاين" : "Online Tests", Icon: HelpCircle, onClick: () => handleTabChange("quizzes"), active: activeTab === "quizzes" },
+                { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, onClick: () => handleTabChange("assignments"), active: activeTab === "assignments" },
+                { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => handleTabChange("schedules"), active: activeTab === "schedules" },
+                { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, onClick: () => handleTabChange("attendance"), active: activeTab === "attendance" },
+                { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, onClick: () => handleTabChange("ratings"), active: activeTab === "ratings" },
+                { key: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, onClick: () => handleTabChange("analytics"), active: activeTab === "analytics" },
+                { key: "quiz-results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, onClick: () => navigate("/quiz-results") },
+                { key: "quiz-approvals", label: isRtl ? "اعتماد الاختبارات" : "Quiz Approvals", Icon: CheckCircle, onClick: () => navigate("/leadership/quiz-approvals") },
+              ]}
+            />
           </div>
         </div>
       </header>
@@ -788,25 +747,7 @@ const LecturerDashboard = () => {
                   ]}
                 />
 
-                {/* Weekly Activity Chart */}
-                <Card className="mb-6">
-                  <CardContent className="p-5">
-                    <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
-                      <div>
-                        <h3 className="font-bold text-foreground">{isRtl ? "النشاط الأسبوعي" : "Weekly Activity"}</h3>
-                        <p className="text-xs text-muted-foreground">{isRtl ? "المشاهدات والتقييمات خلال آخر 7 أيام" : "Views & ratings over the last 7 days"}</p>
-                      </div>
-                      <BarChart3 className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="h-32">
-                      <Sparkline data={bucketByDay(viewsTimes, 7)} color="hsl(var(--primary))" />
-                    </div>
-                    <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground" dir={isRtl ? "rtl" : "ltr"}>
-                      <span>{isRtl ? "إجمالي المشاهدات: " : "Total views: "}{viewsTimes.length}</span>
-                      <span>{isRtl ? "إجمالي التقييمات: " : "Total ratings: "}{lecturerRatings.length}</span>
-                    </div>
-                  </CardContent>
-                </Card>
+                {/* Weekly Activity Card removed */}
 
                 {/* Display-only stats grid mirroring the dropdown menu */}
                 <MenuItemsStatsGrid

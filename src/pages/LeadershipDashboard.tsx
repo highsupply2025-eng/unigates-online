@@ -303,70 +303,21 @@ const LeadershipDashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="relative p-2 rounded-lg bg-primary/20 text-primary" aria-label="menu">
-                  <Menu className="w-5 h-5" />
-                  {unreadNotifications > 0 && (
-                    <span className="absolute -top-1 -end-1 w-4 h-4 rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center">
-                      {unreadNotifications > 9 ? "9+" : unreadNotifications}
-                    </span>
-                  )}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align={isRtl ? "start" : "end"} className="w-72 max-h-[85vh] overflow-y-auto p-1.5">
-                {[
-                  { id: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, onClick: () => setActiveTab("overview") },
-                  { id: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, onClick: () => setActiveTab("livestreams") },
-                  { id: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: CheckCircle, onClick: () => setActiveTab("quizresults") },
-                  { id: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, onClick: () => setActiveTab("ratings") },
-                  { id: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, onClick: () => setActiveTab("assignments") },
-                  { id: "schedule", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => setActiveTab("schedule") },
-                  { id: "files", label: isRtl ? "الملفات" : "Files", Icon: FileText, onClick: () => setActiveTab("files") },
-                ].map(({ id, label, Icon, onClick }) => (
-                  <DropdownMenuItem
-                    key={id}
-                    onClick={onClick}
-                    className={`gap-2.5 cursor-pointer rounded-md py-2 ${activeTab === id ? "bg-primary/10 text-primary font-semibold" : ""}`}
-                  >
-                    <Icon className="w-4 h-4 text-primary shrink-0" />
-                    <span className="text-sm">{label}</span>
-                  </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                <div className="px-2 py-1.5 text-[11px] text-muted-foreground font-bold uppercase tracking-wider">
-                  {isRtl ? "النتائج والاعتماد" : "Results & Approvals"}
-                </div>
-                <DropdownMenuItem
-                  onClick={() => navigate("/leadership/quiz-approvals")}
-                  className="gap-2.5 cursor-pointer rounded-md py-2"
-                >
-                  <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
-                  <span className="text-sm">{isRtl ? "اعتماد النتائج" : "Quiz Approvals"}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setActiveTab("notifications")}
-                  className={`gap-2.5 cursor-pointer rounded-md py-2 ${activeTab === "notifications" ? "bg-primary/10 text-primary font-semibold" : ""}`}
-                >
-                  <Bell className="w-4 h-4 text-primary shrink-0" />
-                  <span className="text-sm flex-1">{isRtl ? "الإشعارات" : "Notifications"}</span>
-                  {unreadNotifications > 0 && (
-                    <Badge variant="destructive" className="text-[10px] px-1.5 py-0 h-4">
-                      {unreadNotifications}
-                    </Badge>
-                  )}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={toggleLanguage} className="gap-2.5 cursor-pointer rounded-md py-2">
-                  <Globe className="w-4 h-4 text-primary shrink-0" />
-                  <span className="text-sm font-semibold">{language === "ar" ? "EN" : "AR"}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={async () => { await supabase.auth.signOut(); navigate("/login"); }} className="gap-2.5 cursor-pointer rounded-md py-2 text-destructive focus:text-destructive">
-                  <LogOut className="w-4 h-4 shrink-0" />
-                  <span className="text-sm font-semibold">{isRtl ? "تسجيل الخروج" : "Logout"}</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <DashboardMenuDropdown
+              title={isRtl ? getRoleLabel().ar : getRoleLabel().en}
+              onLanguageToggle={toggleLanguage}
+              onLogout={async () => { await supabase.auth.signOut(); navigate("/login"); }}
+              items={[
+                { key: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, onClick: () => setActiveTab("overview"), active: activeTab === "overview" },
+                { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, onClick: () => setActiveTab("livestreams"), active: activeTab === "livestreams" },
+                { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: CheckCircle, onClick: () => setActiveTab("quizresults"), active: activeTab === "quizresults" },
+                { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, onClick: () => setActiveTab("ratings"), active: activeTab === "ratings" },
+                { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, onClick: () => setActiveTab("assignments"), active: activeTab === "assignments" },
+                { key: "schedule", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => setActiveTab("schedule"), active: activeTab === "schedule" },
+                { key: "files", label: isRtl ? "الملفات" : "Files", Icon: FileText, onClick: () => setActiveTab("files"), active: activeTab === "files" },
+                { key: "approvals", label: isRtl ? "اعتماد النتائج" : "Quiz Approvals", Icon: ShieldCheck, onClick: () => navigate("/leadership/quiz-approvals") },
+              ]}
+            />
           </div>
         </div>
       </header>

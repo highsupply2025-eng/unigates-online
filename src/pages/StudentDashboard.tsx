@@ -15,6 +15,7 @@ import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { MiniBars } from "@/components/MiniBars";
 import { SectionsActivityChart } from "@/components/SectionsActivityChart";
+import { StudentPillActivityChart } from "@/components/StudentPillActivityChart";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 
 const StudentDashboard = () => {
@@ -141,7 +142,7 @@ const StudentDashboard = () => {
 
 
         {/* Sections Overview Chart - activity per section in last 7 days */}
-        <SectionsActivityChart
+        <StudentPillActivityChart
           className="mb-6"
           sections={[
             { label: isRtl ? "حلقات مكتملة" : "Completed", color: "#3b82f6", timestamps: trends.completed },

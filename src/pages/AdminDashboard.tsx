@@ -12,7 +12,7 @@ import AdminPreviewLinks from "@/components/AdminPreviewLinks";
 import AllPagesDropdown from "@/components/AllPagesDropdown";
 import BackButton from "@/components/BackButton";
 import TestAccountsPanel from "@/components/TestAccountsPanel";
-import { SectionsActivityChart } from "@/components/SectionsActivityChart";
+import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";

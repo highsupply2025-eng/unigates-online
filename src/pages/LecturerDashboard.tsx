@@ -29,7 +29,7 @@ import NotificationBell from "@/components/NotificationBell";
 import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { MiniBars } from "@/components/MiniBars";
-import { SectionsActivityChart } from "@/components/SectionsActivityChart";
+import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { useSmartBack } from "@/hooks/use-smart-back";
 

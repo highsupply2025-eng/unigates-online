@@ -19,7 +19,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 import BackButton from "@/components/BackButton";
 import { TrendIndicator } from "@/components/TrendIndicator";
-import { SectionsActivityChart } from "@/components/SectionsActivityChart";
+import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { bucketByDay } from "@/components/Sparkline";
 

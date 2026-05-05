@@ -21,7 +21,7 @@ import { toast as sonnerToast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 import { MiniBars } from "@/components/MiniBars";
-import { SectionsActivityChart } from "@/components/SectionsActivityChart";
+import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { bucketByDay } from "@/components/Sparkline";
 import BackButton from "@/components/BackButton";

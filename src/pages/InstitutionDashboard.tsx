@@ -995,8 +995,8 @@ const InstitutionDashboard = () => {
                       <div key={member.id} className="p-4 rounded-lg border-2 border-amber-300 bg-amber-50/50 dark:bg-amber-950/20">
                         <div className="flex items-center justify-between cursor-pointer hover:bg-amber-100/40 dark:hover:bg-amber-900/30 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
-                              <UserCheck className="w-5 h-5 text-amber-700" />
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 shadow-md shadow-black/10 flex items-center justify-center">
+                              <UserCheck className="w-5 h-5 text-white" />
                             </div>
                             <div>
                               <p className="font-bold text-foreground">{member.full_name}</p>
@@ -1059,8 +1059,8 @@ const InstitutionDashboard = () => {
                       <div key={member.id} className="p-4 rounded-lg border bg-card">
                         <div className="flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
-                              <UserCheck className="w-5 h-5 text-green-500" />
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-green-600 shadow-md shadow-black/10 flex items-center justify-center">
+                              <UserCheck className="w-5 h-5 text-white" />
                             </div>
                             <div>
                               <p className="font-bold text-foreground">{member.full_name}</p>
@@ -1123,8 +1123,8 @@ const InstitutionDashboard = () => {
                       <div key={member.id} className="p-4 rounded-lg border bg-card">
                         <div className="flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
-                              <GraduationCap className="w-5 h-5 text-blue-500" />
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shadow-black/10 flex items-center justify-center">
+                              <GraduationCap className="w-5 h-5 text-white" />
                             </div>
                             <div>
                               <p className="font-bold text-foreground">{member.full_name}</p>
@@ -1175,8 +1175,8 @@ const InstitutionDashboard = () => {
             </Button>
             <div className="flex items-center gap-3 mb-2">
               {selectedMember.role === "lecturer"
-                ? <div className="w-14 h-14 rounded-full bg-green-500/10 flex items-center justify-center"><UserCheck className="w-7 h-7 text-green-500" /></div>
-                : <div className="w-14 h-14 rounded-full bg-blue-500/10 flex items-center justify-center"><GraduationCap className="w-7 h-7 text-blue-500" /></div>}
+                ? <div className="w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-green-600 shadow-md shadow-black/10 flex items-center justify-center"><UserCheck className="w-7 h-7 text-white" /></div>
+                : <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shadow-black/10 flex items-center justify-center"><GraduationCap className="w-7 h-7 text-white" /></div>}
               <div>
                 <h2 className="text-2xl font-black text-foreground">{selectedMember.full_name}</h2>
                 <p className="text-sm text-muted-foreground">
@@ -1649,16 +1649,16 @@ const InstitutionDashboard = () => {
                       </div>
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                        <div className="text-center p-2 rounded-lg bg-blue-500/10">
-                          <p className="text-lg font-bold text-blue-600">{students}</p>
+                        <div className="text-center p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shadow-black/10">
+                          <p className="text-lg font-bold text-white">{students}</p>
                           <p className="text-xs text-muted-foreground">{isRtl ? "طلاب" : "Students"}</p>
                         </div>
-                        <div className="text-center p-2 rounded-lg bg-green-500/10">
-                          <p className="text-lg font-bold text-green-600">{lecturers}<span className="text-xs">/10</span></p>
+                        <div className="text-center p-2 rounded-lg bg-gradient-to-br from-green-500 to-green-600 shadow-md shadow-black/10">
+                          <p className="text-lg font-bold text-white">{lecturers}<span className="text-xs">/10</span></p>
                           <p className="text-xs text-muted-foreground">{isRtl ? "محاضرين" : "Lecturers"}</p>
                         </div>
-                        <div className="text-center p-2 rounded-lg bg-amber-500/10">
-                          <p className="text-lg font-bold text-amber-600">{heads}<span className="text-xs">/1</span></p>
+                        <div className="text-center p-2 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 shadow-md shadow-black/10">
+                          <p className="text-lg font-bold text-white">{heads}<span className="text-xs">/1</span></p>
                           <p className="text-xs text-muted-foreground">{isRtl ? "رئيس قسم" : "Head"}</p>
                         </div>
                         <div className="text-center p-2 rounded-lg bg-primary/10">
@@ -2040,8 +2040,8 @@ const InstitutionDashboard = () => {
                             {exams.map(sch => (
                               <div key={sch.id} className="flex items-center justify-between p-3 rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/20">
                                 <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
-                                    <ClipboardList className="w-5 h-5 text-red-500" />
+                                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-red-500 to-rose-600 shadow-md shadow-black/10 flex items-center justify-center">
+                                    <ClipboardList className="w-5 h-5 text-white" />
                                   </div>
                                   <div>
                                     <p className="font-bold text-sm">{isRtl ? sch.title_ar : sch.title_en}</p>
@@ -2519,16 +2519,16 @@ const InstitutionDashboard = () => {
                             <p className="text-xs text-muted-foreground mt-1">{isRtl ? "روابط الدعوات" : "Invitation Links"}</p>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
-                            <div className="text-center p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                              <p className="text-base font-bold text-amber-600">{head}</p>
+                            <div className="text-center p-2 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 shadow-md shadow-black/10 border border-amber-500/20">
+                              <p className="text-base font-bold text-white">{head}</p>
                               <p className="text-[10px] text-muted-foreground">{isRtl ? "رئيس" : "Head"}</p>
                             </div>
-                            <div className="text-center p-2 rounded-lg bg-green-500/10 border border-green-500/20">
-                              <p className="text-base font-bold text-green-600">{lecturers}</p>
+                            <div className="text-center p-2 rounded-lg bg-gradient-to-br from-green-500 to-green-600 shadow-md shadow-black/10 border border-green-500/20">
+                              <p className="text-base font-bold text-white">{lecturers}</p>
                               <p className="text-[10px] text-muted-foreground">{isRtl ? "محاضرين" : "Lecturers"}</p>
                             </div>
-                            <div className="text-center p-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                              <p className="text-base font-bold text-blue-600">{students}</p>
+                            <div className="text-center p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shadow-black/10 border border-blue-500/20">
+                              <p className="text-base font-bold text-white">{students}</p>
                               <p className="text-[10px] text-muted-foreground">{isRtl ? "طلاب" : "Students"}</p>
                             </div>
                           </div>
@@ -2601,8 +2601,8 @@ const InstitutionDashboard = () => {
                                 className="w-full p-4 rounded-xl border-2 border-amber-300 bg-amber-50/50 dark:bg-amber-950/20 flex items-center justify-between hover:bg-amber-100/60 dark:hover:bg-amber-900/30 transition-colors text-start"
                               >
                                 <div className="flex items-center gap-2">
-                                  <div className="w-9 h-9 rounded-full bg-amber-500/20 flex items-center justify-center">
-                                    <UserCheck className="w-4 h-4 text-amber-700" />
+                                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 shadow-md shadow-black/10 flex items-center justify-center">
+                                    <UserCheck className="w-4 h-4 text-white" />
                                   </div>
                                   <p className="font-bold text-sm text-foreground">{member.full_name}</p>
                                 </div>
@@ -2615,8 +2615,8 @@ const InstitutionDashboard = () => {
                               <div key={member.id} className="p-4 rounded-xl border-2 border-amber-300 bg-amber-50/50 dark:bg-amber-950/20">
                                 <div className="flex items-center justify-between mb-3">
                                   <div className="flex items-center gap-2">
-                                    <div className="w-9 h-9 rounded-full bg-amber-500/20 flex items-center justify-center">
-                                      <UserCheck className="w-4 h-4 text-amber-700" />
+                                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 shadow-md shadow-black/10 flex items-center justify-center">
+                                      <UserCheck className="w-4 h-4 text-white" />
                                     </div>
                                     <div>
                                       <p className="font-bold text-sm text-foreground">{member.full_name}</p>
@@ -2627,18 +2627,18 @@ const InstitutionDashboard = () => {
                                   </div>
                                   <div className="flex items-center gap-1">
                                     <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" title="WhatsApp">
-                                      <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-green-500/10 rounded-full">
-                                        <MessageCircle className="w-4 h-4 text-green-600" />
+                                      <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-gradient-to-br from-green-500 to-green-600 shadow-md shadow-black/10 rounded-full">
+                                        <MessageCircle className="w-4 h-4 text-white" />
                                       </Button>
                                     </a>
                                     <a href={gmailUrl} target="_blank" rel="noopener noreferrer" title="Gmail">
-                                      <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-red-500/10 rounded-full">
-                                        <Mail className="w-4 h-4 text-red-600" />
+                                      <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-gradient-to-br from-red-500 to-rose-600 shadow-md shadow-black/10 rounded-full">
+                                        <Mail className="w-4 h-4 text-white" />
                                       </Button>
                                     </a>
                                     <a href={mailtoUrl} title="Email">
-                                      <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-blue-500/10 rounded-full">
-                                        <Mail className="w-4 h-4 text-blue-600" />
+                                      <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shadow-black/10 rounded-full">
+                                        <Mail className="w-4 h-4 text-white" />
                                       </Button>
                                     </a>
                                   </div>
@@ -2689,8 +2689,8 @@ const InstitutionDashboard = () => {
                             className="w-full p-4 rounded-xl border bg-card flex items-center justify-between hover:bg-accent/50 transition-colors text-start"
                           >
                             <div className="flex items-center gap-2">
-                              <div className={`w-9 h-9 rounded-full ${viewKey === "lecturer" ? "bg-green-500/10" : "bg-blue-500/10"} flex items-center justify-center`}>
-                                {viewKey === "lecturer" ? <UserCheck className="w-4 h-4 text-green-600" /> : <GraduationCap className="w-4 h-4 text-blue-600" />}
+                              <div className={`w-9 h-9 rounded-full ${viewKey === "lecturer" ? "bg-gradient-to-br from-green-500 to-green-600 shadow-md shadow-black/10" : "bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shadow-black/10"} flex items-center justify-center`}>
+                                {viewKey === "lecturer" ? <UserCheck className="w-4 h-4 text-white" /> : <GraduationCap className="w-4 h-4 text-white" />}
                               </div>
                               <p className="font-bold text-sm text-foreground">{member.full_name}</p>
                             </div>
@@ -2703,8 +2703,8 @@ const InstitutionDashboard = () => {
                           <div key={member.id} className="p-4 rounded-xl border bg-card">
                             <div className="flex items-center justify-between mb-3">
                               <div className="flex items-center gap-2">
-                                <div className={`w-9 h-9 rounded-full ${viewKey === "lecturer" ? "bg-green-500/10" : "bg-blue-500/10"} flex items-center justify-center`}>
-                                  {viewKey === "lecturer" ? <UserCheck className="w-4 h-4 text-green-600" /> : <GraduationCap className="w-4 h-4 text-blue-600" />}
+                                <div className={`w-9 h-9 rounded-full ${viewKey === "lecturer" ? "bg-gradient-to-br from-green-500 to-green-600 shadow-md shadow-black/10" : "bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shadow-black/10"} flex items-center justify-center`}>
+                                  {viewKey === "lecturer" ? <UserCheck className="w-4 h-4 text-white" /> : <GraduationCap className="w-4 h-4 text-white" />}
                                 </div>
                                 <div>
                                   <p className="font-bold text-sm text-foreground">{member.full_name}</p>
@@ -2715,17 +2715,17 @@ const InstitutionDashboard = () => {
                               </div>
                               <div className="flex items-center gap-1.5">
                                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" title="WhatsApp">
-                                  <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-green-500/10 rounded-full">
+                                  <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-gradient-to-br from-green-500 to-green-600 shadow-md shadow-black/10 rounded-full">
                                     <svg viewBox="0 0 24 24" className="w-5 h-5" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                                   </Button>
                                 </a>
                                 <a href={gmailUrl} target="_blank" rel="noopener noreferrer" title="Gmail">
-                                  <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-red-500/10 rounded-full">
+                                  <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-gradient-to-br from-red-500 to-rose-600 shadow-md shadow-black/10 rounded-full">
                                     <svg viewBox="0 0 24 24" className="w-5 h-5"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 010 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z" fill="#EA4335"/></svg>
                                   </Button>
                                 </a>
                                 <a href={yahooUrl} target="_blank" rel="noopener noreferrer" title="Yahoo Mail">
-                                  <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-purple-500/10 rounded-full">
+                                  <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-gradient-to-br from-purple-500 to-purple-600 shadow-md shadow-black/10 rounded-full">
                                     <svg viewBox="0 0 24 24" className="w-5 h-5" fill="#6001D2"><path d="M13.412 12.281l3.863-8.144h3.014L15.368 14.03v5.832h-2.932V14.03L7.506 4.137h3.014l3.892 8.144zM4.776 16.327a1.941 1.941 0 110 3.882 1.941 1.941 0 010-3.882z"/></svg>
                                   </Button>
                                 </a>

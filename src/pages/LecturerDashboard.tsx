@@ -769,8 +769,8 @@ const LecturerDashboard = () => {
                   <Card>
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-                          <Radio className="w-5 h-5 text-red-500" />
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 shadow-md shadow-black/10 flex items-center justify-center">
+                          <Radio className="w-5 h-5 text-white" />
                         </div>
                         <Badge variant="secondary">{streams.length}</Badge>
                       </div>
@@ -786,8 +786,8 @@ const LecturerDashboard = () => {
                   <Card>
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                          <HelpCircle className="w-5 h-5 text-amber-500" />
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-md shadow-black/10 flex items-center justify-center">
+                          <HelpCircle className="w-5 h-5 text-white" />
                         </div>
                         <Badge variant="secondary">{quizzes.length}</Badge>
                       </div>
@@ -801,8 +801,8 @@ const LecturerDashboard = () => {
                   <Card>
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                          <ClipboardList className="w-5 h-5 text-blue-500" />
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shadow-black/10 flex items-center justify-center">
+                          <ClipboardList className="w-5 h-5 text-white" />
                         </div>
                         <Badge variant="secondary">{assignments.length}</Badge>
                       </div>
@@ -816,8 +816,8 @@ const LecturerDashboard = () => {
                   <Card>
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                          <Calendar className="w-5 h-5 text-purple-500" />
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-md shadow-black/10 flex items-center justify-center">
+                          <Calendar className="w-5 h-5 text-white" />
                         </div>
                         <Badge variant="secondary">{schedules.length}</Badge>
                       </div>
@@ -831,8 +831,8 @@ const LecturerDashboard = () => {
                   <Card>
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center">
-                          <Users className="w-5 h-5 text-teal-500" />
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 shadow-md shadow-black/10 flex items-center justify-center">
+                          <Users className="w-5 h-5 text-white" />
                         </div>
                         <Badge variant="secondary">{attendance.length}</Badge>
                       </div>
@@ -846,8 +846,8 @@ const LecturerDashboard = () => {
                   <Card>
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center">
-                          <Star className="w-5 h-5 text-yellow-500" />
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500 to-amber-600 shadow-md shadow-black/10 flex items-center justify-center">
+                          <Star className="w-5 h-5 text-white" />
                         </div>
                         <Badge variant="secondary">{lecturerRatings.length}</Badge>
                       </div>
@@ -861,8 +861,8 @@ const LecturerDashboard = () => {
                   <Card>
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center">
-                          <FileText className="w-5 h-5 text-pink-500" />
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-pink-600 shadow-md shadow-black/10 flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-white" />
                         </div>
                       </div>
                       <h3 className="font-bold text-foreground mb-1">{isRtl ? "النتائج" : "Results"}</h3>
@@ -875,8 +875,8 @@ const LecturerDashboard = () => {
                   <Card>
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
-                          <Download className="w-5 h-5 text-green-600" />
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 shadow-md shadow-black/10 flex items-center justify-center">
+                          <Download className="w-5 h-5 text-white" />
                         </div>
                       </div>
                       <h3 className="font-bold text-foreground mb-1">{isRtl ? "تحميل التقارير" : "Export Reports"}</h3>

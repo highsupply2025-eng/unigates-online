@@ -141,6 +141,24 @@ const StudentDashboard = () => {
 
 
 
+        {/* Menu items grid — mirrors dropdown items with live counts */}
+        <MenuItemsStatsGrid
+          className="mb-6"
+          items={menuItems
+            .filter((m) => m.to !== "/profile")
+            .map((m) => {
+              let count = 0;
+              if (m.to === "/student/lectures") count = counts.completed;
+              else if (m.to === "/student/live") count = counts.liveNow;
+              else if (m.to === "/student/quizzes") count = counts.quizzes;
+              else if (m.to === "/student/assignments") count = counts.submissions;
+              else if (m.to === "/student/attendance") count = counts.attendance;
+              else if (m.to === "/student/ratings") count = counts.avgRating;
+              else if (m.to === "/student/my-academic") count = counts.subscriptions;
+              return { key: m.to, label: m.label, Icon: m.Icon, color: m.color, count };
+            })}
+        />
+
         {/* Sections Overview Chart - activity per section in last 7 days */}
         <StudentPillActivityChart
           className="mb-6"

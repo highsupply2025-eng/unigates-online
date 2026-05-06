@@ -175,8 +175,8 @@ const SchoolStudentDashboard = () => {
           </Card>
           <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("live")}>
             <CardContent className="pt-6 pb-4 text-center">
-              <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-red-500/20 transition-colors">
-                <Radio className="w-7 h-7 text-red-500" />
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 shadow-md shadow-black/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-gradient-to-br from-red-500 to-rose-600 shadow-md shadow-black/10 transition-colors">
+                <Radio className="w-7 h-7 text-white" />
               </div>
               <p className="text-sm font-bold text-foreground">{isRtl ? "البث المباشر" : "Live Classes"}</p>
               <p className="text-xs text-muted-foreground mt-1">{liveStreams.filter(s => s.status === "live").length} {isRtl ? "مباشر الآن" : "live now"}</p>
@@ -184,8 +184,8 @@ const SchoolStudentDashboard = () => {
           </Card>
           <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("assignments")}>
             <CardContent className="pt-6 pb-4 text-center">
-              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-amber-500/20 transition-colors">
-                <Award className="w-7 h-7 text-amber-500" />
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-md shadow-black/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-gradient-to-br from-amber-500 to-amber-600 shadow-md shadow-black/10 transition-colors">
+                <Award className="w-7 h-7 text-white" />
               </div>
               <p className="text-sm font-bold text-foreground">{isRtl ? "الواجبات" : "Homework"}</p>
               <p className="text-xs text-muted-foreground mt-1">{submissions.filter(s => s.grade).length} {isRtl ? "مُقيّم" : "graded"}</p>
@@ -193,8 +193,8 @@ const SchoolStudentDashboard = () => {
           </Card>
           <Card className="cursor-pointer hover:shadow-lg hover:border-primary/40 transition-all group" onClick={() => setActiveTab("rate")}>
             <CardContent className="pt-6 pb-4 text-center">
-              <div className="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-green-500/20 transition-colors">
-                <Star className="w-7 h-7 text-green-600" />
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 shadow-md shadow-black/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-gradient-to-br from-green-500 to-green-600 shadow-md shadow-black/10 transition-colors">
+                <Star className="w-7 h-7 text-white" />
               </div>
               <p className="text-sm font-bold text-foreground">{isRtl ? "تقييم المعلم" : "Rate Teacher"}</p>
               <p className="text-xs text-muted-foreground mt-1">{isRtl ? "شارك رأيك" : "Share feedback"}</p>

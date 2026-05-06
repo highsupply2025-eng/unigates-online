@@ -23,6 +23,7 @@ import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { MiniBars } from "@/components/MiniBars";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
+import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 
 const LeadershipDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -366,148 +367,20 @@ const LeadershipDashboard = () => {
 
                   {/* Weekly Activity Chart removed */}
 
-                  {/* Section Cards - responsive grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
-                    <div className="text-left">
-                      <Card className="h-full">
-                        <CardContent className="p-4 sm:p-5">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-                              <Radio className="w-5 h-5 text-red-500" />
-                            </div>
-                            <Badge variant="secondary">{liveStreams.length}</Badge>
-                          </div>
-                          <h3 className="font-bold text-foreground mb-1">{isRtl ? "البث المباشر" : "Live Streams"}</h3>
-                          <p className="text-xs text-muted-foreground">
-                            {isRtl
-                              ? `${liveNow.length} مباشر الآن • ${scheduledStreams.length} مجدول`
-                              : `${liveNow.length} live • ${scheduledStreams.length} scheduled`}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </div>
+                  {/* Section Cards - responsive grid (vibrant icon style) */}
+                  <MenuItemsStatsGrid
+                    items={[
+                      { key: "live", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", count: liveStreams.length },
+                      { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: CheckCircle, color: "from-emerald-500 to-emerald-600", count: quizSubmissions.length },
+                      { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", count: ratings.length },
+                      { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-orange-500 to-orange-600", count: assignments.length },
+                      { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-pink-500 to-pink-600", count: episodes.length },
+                      { key: "files", label: isRtl ? "الملفات" : "Files", Icon: FileText, color: "from-indigo-500 to-indigo-600", count: filesCount },
+                      { key: "approvals", label: isRtl ? "اعتماد النتائج" : "Approvals", Icon: ShieldCheck, color: "from-teal-500 to-teal-600", count: quizzes.length },
+                      { key: "notifications", label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell, color: "from-blue-500 to-blue-600", count: unreadNotifications },
+                    ]}
+                  />
 
-                    <div className="text-left">
-                      <Card className="h-full">
-                        <CardContent className="p-4 sm:p-5">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                              <CheckCircle className="w-5 h-5 text-emerald-600" />
-                            </div>
-                            <Badge variant="secondary">{quizSubmissions.length}</Badge>
-                          </div>
-                          <h3 className="font-bold text-foreground mb-1">{isRtl ? "نتائج الاختبارات" : "Quiz Results"}</h3>
-                          <p className="text-xs text-muted-foreground">
-                            {isRtl ? `${quizzes.length} اختبار منشور` : `${quizzes.length} published`}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    <div className="text-left">
-                      <Card className="h-full">
-                        <CardContent className="p-4 sm:p-5">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center">
-                              <Star className="w-5 h-5 text-yellow-500" />
-                            </div>
-                            <Badge variant="secondary">{ratings.length}</Badge>
-                          </div>
-                          <h3 className="font-bold text-foreground mb-1">{isRtl ? "التقييمات" : "Ratings"}</h3>
-                          <p className="text-xs text-muted-foreground">
-                            {isRtl ? `متوسط ${ratings.length > 0 ? avgRating : "—"}/5` : `Avg ${ratings.length > 0 ? avgRating : "—"}/5`}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    <div className="text-left">
-                      <Card className="h-full">
-                        <CardContent className="p-4 sm:p-5">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
-                              <ClipboardList className="w-5 h-5 text-orange-500" />
-                            </div>
-                            <Badge variant="secondary">{assignments.length}</Badge>
-                          </div>
-                          <h3 className="font-bold text-foreground mb-1">{isRtl ? "التكليفات" : "Assignments"}</h3>
-                          <p className="text-xs text-muted-foreground">
-                            {isRtl ? "عرض جميع التكليفات" : "View all assignments"}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    <div className="text-left">
-                      <Card className="h-full">
-                        <CardContent className="p-4 sm:p-5">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center">
-                              <Calendar className="w-5 h-5 text-pink-500" />
-                            </div>
-                            <Badge variant="secondary">{episodes.length}</Badge>
-                          </div>
-                          <h3 className="font-bold text-foreground mb-1">{isRtl ? "الجداول" : "Schedules"}</h3>
-                          <p className="text-xs text-muted-foreground">
-                            {isRtl ? "جداول المحاضرات والحلقات" : "Lectures & episodes schedule"}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    <div className="text-left">
-                      <Card className="h-full">
-                        <CardContent className="p-4 sm:p-5">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center">
-                              <FileText className="w-5 h-5 text-indigo-500" />
-                            </div>
-                            <Badge variant="secondary">{filesCount}</Badge>
-                          </div>
-                          <h3 className="font-bold text-foreground mb-1">{isRtl ? "الملفات" : "Files"}</h3>
-                          <p className="text-xs text-muted-foreground">
-                            {isRtl ? "ملفات الدورات والتكليفات" : "Course & assignment files"}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    <div className="text-left">
-                      <Card className="h-full">
-                        <CardContent className="p-4 sm:p-5">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center">
-                              <ShieldCheck className="w-5 h-5 text-teal-500" />
-                            </div>
-                            <Badge variant="secondary">{quizzes.length}</Badge>
-                          </div>
-                          <h3 className="font-bold text-foreground mb-1">{isRtl ? "اعتماد النتائج" : "Approvals"}</h3>
-                          <p className="text-xs text-muted-foreground">
-                            {isRtl ? "اعتماد نتائج الاختبارات" : "Approve quiz results"}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    <div className="text-left">
-                      <Card className="h-full">
-                        <CardContent className="p-4 sm:p-5">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                              <Bell className="w-5 h-5 text-blue-500" />
-                            </div>
-                            {unreadNotifications > 0 && (
-                              <Badge variant="destructive">{unreadNotifications}</Badge>
-                            )}
-                          </div>
-                          <h3 className="font-bold text-foreground mb-1">{isRtl ? "الإشعارات" : "Notifications"}</h3>
-                          <p className="text-xs text-muted-foreground">
-                            {isRtl ? `${notifications.length} إشعار` : `${notifications.length} notifications`}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
                 </>
               );
             })()}

@@ -131,21 +131,27 @@ const StudentDashboard = () => {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-xl sm:text-2xl font-black text-foreground mb-1">
-            {isRtl ? `مرحباً ${profile?.full_name || ""}! 👋` : `Welcome ${profile?.full_name || ""}! 👋`}
-          </h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            {isRtl ? "نظرة عامة على نشاطك" : "Overview of your activity"}
+      <main className="flex-1 max-w-6xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
+        <div className="mb-6 text-right" dir="rtl">
+          <h2 className="text-2xl font-bold text-foreground mb-1">{isRtl ? "الرئيسية" : "Home"}</h2>
+          <p className="text-sm text-muted-foreground">
+            {isRtl ? `مرحباً ${profile?.full_name || ""} — نظرة عامة على نشاطك خلال آخر 7 أيام` : `Welcome ${profile?.full_name || ""} — overview of your activity over the last 7 days`}
           </p>
         </div>
 
-
+        {/* Sections Overview Chart - activity per section in last 7 days */}
+        <StudentPillActivityChart
+          className="mb-4 sm:mb-6"
+          sections={[
+            { label: isRtl ? "حلقات مكتملة" : "Completed", color: "#3b82f6", timestamps: trends.completed },
+            { label: isRtl ? "حضور البث" : "Attendance", color: "#22c55e", timestamps: trends.attendance },
+            { label: isRtl ? "تكليفات مسلّمة" : "Submissions", color: "#f59e0b", timestamps: trends.submissions },
+            { label: isRtl ? "التقييمات" : "Ratings", color: "#ef4444", timestamps: trends.ratings },
+          ]}
+        />
 
         {/* Menu items grid — mirrors dropdown items with live counts */}
         <MenuItemsStatsGrid
-          className="mb-6"
           items={menuItems
             .filter((m) => m.to !== "/profile")
             .map((m) => {
@@ -159,17 +165,6 @@ const StudentDashboard = () => {
               else if (m.to === "/student/my-academic") count = counts.subscriptions;
               return { key: m.to, label: m.label, Icon: m.Icon, color: m.color, count };
             })}
-        />
-
-        {/* Sections Overview Chart - activity per section in last 7 days */}
-        <StudentPillActivityChart
-          className="mb-6"
-          sections={[
-            { label: isRtl ? "حلقات مكتملة" : "Completed", color: "#3b82f6", timestamps: trends.completed },
-            { label: isRtl ? "حضور البث" : "Attendance", color: "#22c55e", timestamps: trends.attendance },
-            { label: isRtl ? "تكليفات مسلّمة" : "Submissions", color: "#f59e0b", timestamps: trends.submissions },
-            { label: isRtl ? "التقييمات" : "Ratings", color: "#ef4444", timestamps: trends.ratings },
-          ]}
         />
       </main>
     </div>

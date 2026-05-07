@@ -53,12 +53,12 @@ const SiteHeader = () => {
 
   return (
     <header className="absolute top-0 left-0 right-0 z-50">
-      <div className="flex items-center justify-between px-6 md:px-12 py-5">
-        <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-11 h-11 rounded-xl bg-primary flex items-center justify-center group-hover:bg-primary/90 transition-colors">
-            <GraduationCap className="w-7 h-7 text-primary-foreground" />
+      <div className="flex items-center justify-between px-4 sm:px-6 md:px-12 py-4 md:py-5 gap-2">
+        <Link to="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
+          <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-primary flex items-center justify-center group-hover:bg-primary/90 transition-colors flex-shrink-0">
+            <GraduationCap className="w-5 h-5 sm:w-7 sm:h-7 text-primary-foreground" />
           </div>
-          <span className="text-2xl md:text-3xl font-black text-primary-foreground tracking-tight drop-shadow-md">
+          <span className="text-xl sm:text-2xl md:text-3xl font-black text-primary-foreground tracking-tight drop-shadow-md truncate">
             {t.brandName}
           </span>
         </Link>

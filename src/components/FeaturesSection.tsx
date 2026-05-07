@@ -15,11 +15,11 @@ const FeaturesSection = () => {
   const { ref, isVisible } = useScrollAnimation();
 
   return (
-    <section ref={ref} className={`section-divider py-12 md:py-20 px-6 md:px-12 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-      <div className="max-w-full mx-auto">
+    <section ref={ref} className={`section-divider py-12 md:py-20 px-4 sm:px-6 md:px-12 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+      <div className="max-w-7xl mx-auto">
         <h2 className="text-2xl md:text-3xl font-bold mb-3">{t.features.title}</h2>
-        <p className="text-muted-foreground mb-10 max-w-xl">{t.features.subtitle}</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <p className="text-muted-foreground mb-8 md:mb-10 max-w-xl">{t.features.subtitle}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
           {t.features.items.map((feature, i) => {
             const Icon = icons[i];
             return (

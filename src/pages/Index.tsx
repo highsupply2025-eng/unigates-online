@@ -16,7 +16,7 @@ const Index = () => {
       <SiteHeader />
       <div className="relative">
         <HeroSection />
-        <div className="absolute bottom-8 left-0 right-0 z-20">
+        <div className="absolute bottom-4 sm:bottom-8 left-0 right-0 z-20">
           <StatsSection />
         </div>
       </div>

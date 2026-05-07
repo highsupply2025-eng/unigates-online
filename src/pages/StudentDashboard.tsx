@@ -100,16 +100,18 @@ const StudentDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background" dir={dir}>
-      <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4">
+    <div className="min-h-screen bg-background flex flex-col" dir={dir}>
+      <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/10 to-primary/5">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
-          <Link to="/" className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
-            <GraduationCap className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
-            <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight truncate">{t.brandName}</span>
-            <Badge className="bg-primary/10 text-primary border-primary/20 ms-1 sm:ms-2 hidden sm:inline-flex shrink-0">
-              <BookOpen className="w-3 h-3 me-1" />{isRtl ? "لوحة الطالب" : "Student"}
-            </Badge>
-          </Link>
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 flex items-center justify-center shrink-0">
+              <GraduationCap className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-base sm:text-xl font-black text-foreground truncate">{isRtl ? "لوحة الطالب" : "Student Dashboard"}</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">{profile?.full_name || (isRtl ? "طالب" : "Student")}</p>
+            </div>
+          </div>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <DashboardMenuDropdown
               onLanguageToggle={toggleLanguage}
@@ -129,21 +131,27 @@ const StudentDashboard = () => {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-xl sm:text-2xl font-black text-foreground mb-1">
-            {isRtl ? `مرحباً ${profile?.full_name || ""}! 👋` : `Welcome ${profile?.full_name || ""}! 👋`}
-          </h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            {isRtl ? "نظرة عامة على نشاطك" : "Overview of your activity"}
+      <main className="flex-1 max-w-6xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
+        <div className="mb-6 text-right" dir="rtl">
+          <h2 className="text-2xl font-bold text-foreground mb-1">{isRtl ? "الرئيسية" : "Home"}</h2>
+          <p className="text-sm text-muted-foreground">
+            {isRtl ? `مرحباً ${profile?.full_name || ""} — نظرة عامة على نشاطك خلال آخر 7 أيام` : `Welcome ${profile?.full_name || ""} — overview of your activity over the last 7 days`}
           </p>
         </div>
 
-
+        {/* Sections Overview Chart - activity per section in last 7 days */}
+        <StudentPillActivityChart
+          className="mb-4 sm:mb-6"
+          sections={[
+            { label: isRtl ? "حلقات مكتملة" : "Completed", color: "#3b82f6", timestamps: trends.completed },
+            { label: isRtl ? "حضور البث" : "Attendance", color: "#22c55e", timestamps: trends.attendance },
+            { label: isRtl ? "تكليفات مسلّمة" : "Submissions", color: "#f59e0b", timestamps: trends.submissions },
+            { label: isRtl ? "التقييمات" : "Ratings", color: "#ef4444", timestamps: trends.ratings },
+          ]}
+        />
 
         {/* Menu items grid — mirrors dropdown items with live counts */}
         <MenuItemsStatsGrid
-          className="mb-6"
           items={menuItems
             .filter((m) => m.to !== "/profile")
             .map((m) => {
@@ -157,17 +165,6 @@ const StudentDashboard = () => {
               else if (m.to === "/student/my-academic") count = counts.subscriptions;
               return { key: m.to, label: m.label, Icon: m.Icon, color: m.color, count };
             })}
-        />
-
-        {/* Sections Overview Chart - activity per section in last 7 days */}
-        <StudentPillActivityChart
-          className="mb-6"
-          sections={[
-            { label: isRtl ? "حلقات مكتملة" : "Completed", color: "#3b82f6", timestamps: trends.completed },
-            { label: isRtl ? "حضور البث" : "Attendance", color: "#22c55e", timestamps: trends.attendance },
-            { label: isRtl ? "تكليفات مسلّمة" : "Submissions", color: "#f59e0b", timestamps: trends.submissions },
-            { label: isRtl ? "التقييمات" : "Ratings", color: "#ef4444", timestamps: trends.ratings },
-          ]}
         />
       </main>
     </div>

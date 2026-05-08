@@ -351,17 +351,18 @@ const LeadershipDashboard = () => {
                 <>
 
 
-                  {/* Sections Overview Chart - activity per section in last 7 days */}
+                  {/* Sections Overview Chart - mirrors dropdown menu items */}
                   <SectionsActivityChart
                     className="mb-4 sm:mb-6"
                     sections={[
-                      { label: isRtl ? "البث المباشر" : "Live Streams", color: "#ef4444", timestamps: liveStreams.map((s: any) => s.created_at || s.scheduled_at) },
-                      { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", color: "#3b82f6", timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
-                      { label: isRtl ? "التقييمات" : "Ratings", color: "#22c55e", timestamps: ratings.map((r: any) => r.created_at) },
-                      { label: isRtl ? "التكليفات" : "Assignments", color: "#f59e0b", timestamps: assignments.map((a: any) => a.created_at) },
-                      { label: isRtl ? "الجداول" : "Schedules", color: "#8b5cf6", timestamps: liveStreams.filter((s: any) => s.status === "scheduled").map((s: any) => s.scheduled_at || s.created_at) },
-                      { label: isRtl ? "الملفات" : "Files", color: "#14b8a6", timestamps: episodes.filter((e: any) => e.file_url || e.attachment_url || e.pdf_url).map((e: any) => e.created_at) },
-                      { label: isRtl ? "اعتماد النتائج" : "Approvals", color: "#ec4899", timestamps: quizzes.map((q: any) => q.created_at) },
+                      { label: isRtl ? "البث المباشر" : "Live Streams", timestamps: liveStreams.map((s: any) => s.created_at || s.scheduled_at) },
+                      { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
+                      { label: isRtl ? "التقييمات" : "Ratings", timestamps: ratings.map((r: any) => r.created_at) },
+                      { label: isRtl ? "التكليفات" : "Assignments", timestamps: assignments.map((a: any) => a.created_at) },
+                      { label: isRtl ? "الجداول" : "Schedules", timestamps: liveStreams.filter((s: any) => s.status === "scheduled").map((s: any) => s.scheduled_at || s.created_at) },
+                      { label: isRtl ? "الملفات" : "Files", timestamps: episodes.filter((e: any) => e.file_url || e.attachment_url || e.pdf_url).map((e: any) => e.created_at) },
+                      { label: isRtl ? "اعتماد النتائج" : "Approvals", timestamps: quizzes.map((q: any) => q.created_at) },
+                      { label: isRtl ? "الإشعارات" : "Notifications", timestamps: notifications.map((n: any) => n.created_at) },
                     ]}
                   />
 

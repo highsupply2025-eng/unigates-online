@@ -732,18 +732,20 @@ const LecturerDashboard = () => {
 
 
 
-                {/* Sections Overview Chart - activity per section in last 7 days */}
+                {/* Sections Overview Chart - mirrors dropdown menu items */}
                 <SectionsActivityChart
                   className="mb-6"
                   sections={[
-                    { label: isRtl ? "المحاضرات" : "Lectures", color: "#3b82f6", timestamps: courses.map((x: any) => x.created_at) },
-                    { label: isRtl ? "البث المباشر" : "Live Streams", color: "#ef4444", timestamps: streams.map((x: any) => x.created_at || x.scheduled_at) },
-                    { label: isRtl ? "التكليفات" : "Assignments", color: "#f59e0b", timestamps: assignments.map((x: any) => x.created_at) },
-                    { label: isRtl ? "الاختبارات" : "Quizzes", color: "#8b5cf6", timestamps: quizzes.map((x: any) => x.created_at) },
-                    { label: isRtl ? "الإجابات" : "Submissions", color: "#14b8a6", timestamps: quizSubmissions.map((x: any) => x.submitted_at || x.created_at) },
-                    { label: isRtl ? "التقييمات" : "Ratings", color: "#22c55e", timestamps: lecturerRatings.map((x: any) => x.created_at) },
-                    { label: isRtl ? "الجداول" : "Schedules", color: "#ec4899", timestamps: schedules.map((x: any) => x.created_at) },
-                    { label: isRtl ? "المرفقات" : "Attachments", color: "#6366f1", timestamps: attachments.map((x: any) => x.created_at) },
+                    { label: isRtl ? "المحاضرات" : "Lectures", timestamps: courses.map((x: any) => x.created_at) },
+                    { label: isRtl ? "البث المباشر" : "Live Stream", timestamps: streams.map((x: any) => x.created_at || x.scheduled_at) },
+                    { label: isRtl ? "الاختبارات أونلاين" : "Online Tests", timestamps: quizzes.map((x: any) => x.created_at) },
+                    { label: isRtl ? "التكليفات" : "Assignments", timestamps: assignments.map((x: any) => x.created_at) },
+                    { label: isRtl ? "الجداول" : "Schedules", timestamps: schedules.map((x: any) => x.created_at) },
+                    { label: isRtl ? "الحضور" : "Attendance", timestamps: attendance.map((x: any) => x.joined_at || x.created_at) },
+                    { label: isRtl ? "التقييمات" : "Ratings", timestamps: lecturerRatings.map((x: any) => x.created_at) },
+                    { label: isRtl ? "تحميل التقارير" : "Reports", timestamps: attachments.map((x: any) => x.created_at) },
+                    { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", timestamps: quizSubmissions.map((x: any) => x.submitted_at || x.created_at) },
+                    { label: isRtl ? "اعتماد الاختبارات" : "Quiz Approvals", timestamps: quizzes.filter((q: any) => q.is_published).map((q: any) => q.updated_at || q.created_at) },
                   ]}
                 />
 

@@ -204,15 +204,15 @@ const SchoolStudentDashboard = () => {
 
 
 
-        {/* Sections Overview Chart - activity per section in last 7 days */}
+        {/* Sections Overview Chart - mirrors tab navigation items */}
         <SectionsActivityChart
           className="mb-8"
           sections={[
-            { label: isRtl ? "المواد" : "Subjects", color: "#3b82f6", timestamps: subscriptions.map((s: any) => s.created_at) },
-            { label: isRtl ? "المكتملة" : "Completed", color: "#22c55e", timestamps: progress.filter((p: any) => p.completed).map((p: any) => p.updated_at || p.created_at) },
-            { label: isRtl ? "الواجبات" : "Homework", color: "#f59e0b", timestamps: submissions.map((s: any) => s.submitted_at || s.created_at) },
-            { label: isRtl ? "البث المباشر" : "Live Classes", color: "#ef4444", timestamps: liveStreams.map((s: any) => s.scheduled_at || s.created_at) },
-            { label: isRtl ? "التقييمات" : "Ratings", color: "#8b5cf6", timestamps: ratings.map((r: any) => r.created_at) },
+            { label: isRtl ? "الدروس" : "Lessons", timestamps: subscriptions.map((s: any) => s.created_at) },
+            { label: isRtl ? "تصفّح المواد" : "Browse", timestamps: courses.map((c: any) => c.created_at) },
+            { label: isRtl ? "بث مباشر" : "Live", timestamps: liveStreams.map((s: any) => s.scheduled_at || s.created_at) },
+            { label: isRtl ? "الواجبات" : "Homework", timestamps: submissions.map((s: any) => s.submitted_at || s.created_at) },
+            { label: isRtl ? "التقييم" : "Rating", timestamps: ratings.map((r: any) => r.created_at) },
           ]}
         />
 

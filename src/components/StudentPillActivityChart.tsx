@@ -80,7 +80,8 @@ export const StudentPillActivityChart = ({
     };
   });
 
-  const maxCount = Math.max(1, ...data.map((d) => d.count));
+  const total = data.reduce((sum, d) => sum + d.count, 0);
+  const maxPct = Math.max(1, ...data.map((d) => (total > 0 ? (d.count / total) * 100 : 0)));
 
   return (
     <Card className={className}>
@@ -101,7 +102,8 @@ export const StudentPillActivityChart = ({
             {data.map((d, i) => {
               const minH = 48;
               const maxH = 230;
-              const h = minH + (d.count / maxCount) * (maxH - minH);
+              const pct = total > 0 ? (d.count / total) * 100 : 0;
+              const h = minH + (pct / maxPct) * (maxH - minH);
               const Icon = d.Icon;
               return (
                 <div
@@ -109,9 +111,9 @@ export const StudentPillActivityChart = ({
                   className="relative flex-1 min-w-0 flex flex-col items-center justify-end"
                   style={{ height: "100%" }}
                 >
-                  {/* value */}
+                  {/* value (percentage) */}
                   <div className="text-[12px] sm:text-sm font-extrabold text-foreground mb-1.5">
-                    {d.count}
+                    {Math.round(pct)}%
                   </div>
                   {/* pill bar with icon at the bottom */}
                   <div

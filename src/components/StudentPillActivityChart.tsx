@@ -80,7 +80,8 @@ export const StudentPillActivityChart = ({
     };
   });
 
-  const maxCount = Math.max(1, ...data.map((d) => d.count));
+  const total = data.reduce((sum, d) => sum + d.count, 0);
+  const maxPct = Math.max(1, ...data.map((d) => (total > 0 ? (d.count / total) * 100 : 0)));
 
   return (
     <Card className={className}>

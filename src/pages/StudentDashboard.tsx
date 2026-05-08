@@ -139,33 +139,53 @@ const StudentDashboard = () => {
           </p>
         </div>
 
-        {/* Sections Overview Chart - activity per section in last 7 days */}
-        <StudentPillActivityChart
-          className="mb-4 sm:mb-6"
-          sections={[
-            { label: isRtl ? "حلقات مكتملة" : "Completed", color: "#3b82f6", timestamps: trends.completed },
-            { label: isRtl ? "حضور البث" : "Attendance", color: "#22c55e", timestamps: trends.attendance },
-            { label: isRtl ? "تكليفات مسلّمة" : "Submissions", color: "#f59e0b", timestamps: trends.submissions },
-            { label: isRtl ? "التقييمات" : "Ratings", color: "#ef4444", timestamps: trends.ratings },
-          ]}
-        />
-
-        {/* Menu items grid — mirrors dropdown items with live counts */}
-        <MenuItemsStatsGrid
-          items={menuItems
-            .filter((m) => m.to !== "/profile")
-            .map((m) => {
-              let count = 0;
-              if (m.to === "/student/lectures") count = counts.completed;
-              else if (m.to === "/student/live") count = counts.liveNow;
-              else if (m.to === "/student/quizzes") count = counts.quizzes;
-              else if (m.to === "/student/assignments") count = counts.submissions;
-              else if (m.to === "/student/attendance") count = counts.attendance;
-              else if (m.to === "/student/ratings") count = counts.avgRating;
-              else if (m.to === "/student/my-academic") count = counts.subscriptions;
-              return { key: m.to, label: m.label, Icon: m.Icon, color: m.color, count };
-            })}
-        />
+        {/* Per-menu-item counts shared by chart and grid */}
+        {(() => {
+          const visibleMenu = menuItems.filter((m) => m.to !== "/profile");
+          const countFor = (to: string) => {
+            switch (to) {
+              case "/student/lectures": return counts.completed;
+              case "/student/live": return counts.liveNow;
+              case "/student/quizzes": return counts.quizzes;
+              case "/student/assignments": return counts.submissions;
+              case "/student/attendance": return counts.attendance;
+              case "/student/ratings": return counts.avgRating;
+              case "/student/results": return counts.completed;
+              case "/student/analytics": return counts.submissions + counts.attendance;
+              case "/student/my-academic": return counts.subscriptions;
+              case "/student/schedules": return 0;
+              default: return 0;
+            }
+          };
+          const tsFor = (to: string): string[] => {
+            switch (to) {
+              case "/student/lectures":
+              case "/student/results": return trends.completed;
+              case "/student/live":
+              case "/student/attendance": return trends.attendance;
+              case "/student/assignments":
+              case "/student/analytics": return trends.submissions;
+              case "/student/ratings": return trends.ratings;
+              default: return [];
+            }
+          };
+          return (
+            <>
+              <StudentPillActivityChart
+                className="mb-4 sm:mb-6"
+                sections={visibleMenu.map((m) => ({
+                  label: m.label,
+                  timestamps: tsFor(m.to),
+                }))}
+              />
+              <MenuItemsStatsGrid
+                items={visibleMenu.map((m) => ({
+                  key: m.to, label: m.label, Icon: m.Icon, color: m.color, count: countFor(m.to),
+                }))}
+              />
+            </>
+          );
+        })()}
       </main>
     </div>
   );

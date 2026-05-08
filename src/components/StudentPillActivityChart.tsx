@@ -108,7 +108,7 @@ export const StudentPillActivityChart = ({
               return (
                 <div
                   key={`${d.name}-${i}`}
-                  className="relative flex-1 min-w-0 flex flex-col items-center justify-end"
+                  className="relative flex-1 min-w-[56px] sm:min-w-[64px] flex flex-col items-center justify-end"
                   style={{ height: "100%" }}
                 >
                   {/* value (percentage) */}

@@ -26,7 +26,7 @@ const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true, backTo, bac
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    navigate("/");
+    navigate("/university-platform");
   };
 
   const menuItems = useMemo<DashboardMenuItem[]>(() => [

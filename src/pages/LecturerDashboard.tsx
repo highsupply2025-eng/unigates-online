@@ -652,7 +652,7 @@ const LecturerDashboard = () => {
     }
   };
 
-  const handleLogout = async () => { await supabase.auth.signOut(); navigate("/"); };
+  const handleLogout = async () => { await supabase.auth.signOut(); navigate("/university-platform"); };
 
   const totalViews = Object.values(courseViews).reduce((a, b) => a + b, 0);
 

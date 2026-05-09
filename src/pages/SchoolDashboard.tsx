@@ -213,7 +213,7 @@ const SchoolDashboard = () => {
     sonnerToast.success(isRtl ? "تم النسخ" : "Copied", { duration: 500 });
   };
 
-  const handleLogout = async () => { await supabase.auth.signOut(); navigate("/"); };
+  const handleLogout = async () => { await supabase.auth.signOut(); navigate("/school-platform"); };
 
   const totalStudents = deptMembers.filter(m => m.role === "student").length;
   const totalTeachers = deptMembers.filter(m => m.role === "lecturer").length;

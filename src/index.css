@@ -73,8 +73,9 @@
     word-break: break-word;
   }
 
-  /* Ensure raw <table> elements scroll horizontally on small screens */
-  table {
+  /* shadcn Table already wraps its <table> in an overflow-auto div.
+     For any raw <table> that isn't inside one, force a scroll wrapper. */
+  table:not(.relative > table):not([class*="caption-bottom"]) {
     display: block;
     width: 100%;
     max-width: 100%;

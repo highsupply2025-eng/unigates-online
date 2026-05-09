@@ -80,8 +80,8 @@ export const StudentPillActivityChart = ({
     };
   });
 
-  const total = data.reduce((sum, d) => sum + d.count, 0);
-  const maxPct = Math.max(1, ...data.map((d) => (total > 0 ? (d.count / total) * 100 : 0)));
+  // Percentage rule: every 100 occurrences = 1%
+  const maxPct = Math.max(1, ...data.map((d) => d.count / 100));
 
   return (
     <Card className={className}>
@@ -102,7 +102,7 @@ export const StudentPillActivityChart = ({
             {data.map((d, i) => {
               const minH = 48;
               const maxH = 230;
-              const pct = total > 0 ? (d.count / total) * 100 : 0;
+              const pct = d.count / 100;
               const h = minH + (pct / maxPct) * (maxH - minH);
               const Icon = d.Icon;
               return (

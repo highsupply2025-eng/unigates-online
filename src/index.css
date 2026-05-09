@@ -73,13 +73,11 @@
     word-break: break-word;
   }
 
-  /* shadcn Table already wraps its <table> in an overflow-auto div.
-     For any raw <table> that isn't inside one, force a scroll wrapper. */
-  table:not(.relative > table):not([class*="caption-bottom"]) {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    overflow-x: auto;
+  /* Wrap raw <table> elements in a horizontal scroller via parent.
+     shadcn's Table already provides its own overflow-auto wrapper, so we
+     only target tables NOT inside a [data-table-wrapper] or .overflow-auto. */
+  .table-scroll {
+    @apply w-full overflow-x-auto;
     -webkit-overflow-scrolling: touch;
   }
 }

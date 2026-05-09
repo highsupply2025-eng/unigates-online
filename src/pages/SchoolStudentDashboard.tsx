@@ -112,7 +112,7 @@ const SchoolStudentDashboard = () => {
     setSubmissions(data || []);
   };
 
-  const handleLogout = async () => { await supabase.auth.signOut(); navigate("/"); };
+  const handleLogout = async () => { await supabase.auth.signOut(); navigate("/school-platform"); };
 
   const getCourseProgress = (courseId: string) => {
     const course = courses.find(c => c.id === courseId);

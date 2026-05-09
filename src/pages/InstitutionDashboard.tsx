@@ -934,7 +934,7 @@ const InstitutionDashboard = () => {
             </Button>
             <Button variant="outline" size="sm" onClick={async () => {
               await supabase.auth.signOut();
-              navigate("/login");
+              navigate("/university-platform");
             }}>
               <LogOut className="w-4 h-4" />
             </Button>
@@ -943,7 +943,7 @@ const InstitutionDashboard = () => {
             <DashboardMenuDropdown
               title={isRtl ? (institutionType === "college" ? "لوحة الكلية" : "لوحة المعهد") : (institutionType === "college" ? "College Panel" : "Institute Panel")}
               onLanguageToggle={toggleLanguage}
-              onLogout={async () => { await supabase.auth.signOut(); navigate("/login"); }}
+              onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
               items={[
                 { key: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, onClick: () => handleTabChange("general"), active: activeTab === "general" },
                 { key: "notifications", label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell, onClick: () => handleTabChange("notifications"), active: activeTab === "notifications" },

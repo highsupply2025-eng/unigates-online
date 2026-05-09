@@ -307,7 +307,7 @@ const LeadershipDashboard = () => {
             <DashboardMenuDropdown
               title={isRtl ? getRoleLabel().ar : getRoleLabel().en}
               onLanguageToggle={toggleLanguage}
-              onLogout={async () => { await supabase.auth.signOut(); navigate("/login"); }}
+              onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
               items={[
                 { key: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, onClick: () => setActiveTab("overview"), active: activeTab === "overview" },
                 { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, onClick: () => setActiveTab("livestreams"), active: activeTab === "livestreams" },

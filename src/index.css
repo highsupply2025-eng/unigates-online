@@ -54,9 +54,32 @@
     @apply border-border;
   }
 
-  body {
+  html, body {
     @apply bg-background text-foreground;
     font-family: 'Cairo', 'Inter', system-ui, sans-serif;
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  /* Prevent images and media from causing horizontal overflow */
+  img, video, canvas, svg, iframe {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Long words / URLs should break instead of overflowing */
+  p, span, h1, h2, h3, h4, h5, h6, td, th, li, a, button, label {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  /* Ensure raw <table> elements scroll horizontally on small screens */
+  table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
 

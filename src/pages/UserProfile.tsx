@@ -1,15 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  User, Mail, Phone, Calendar, ArrowLeft, ArrowRight, Globe, LogOut,
-  GraduationCap, ShoppingBag, BookOpen, Clock, CheckCircle, XCircle, Home
-} from "lucide-react";
+import { User, Mail, Phone, Calendar, ShoppingBag, BookOpen, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import StudentPageHeader from "@/components/StudentPageHeader";
 
 interface ProfileData {
   full_name: string;

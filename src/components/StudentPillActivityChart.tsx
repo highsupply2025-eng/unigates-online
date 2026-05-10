@@ -91,10 +91,10 @@ export const StudentPillActivityChart = ({
           {title || (isRtl ? "نظرة شاملة على الإحصائيات" : "Overall Statistics Overview")}
         </CardTitle>
       </CardHeader>
-      <CardContent className="px-2 sm:px-4">
-        <div className="w-full overflow-x-auto">
+      <CardContent className="px-1 sm:px-4">
+        <div className="w-full">
           <div
-            className="relative flex items-end justify-between gap-2 sm:gap-3 md:gap-4 min-w-full px-2 pt-10 pb-2"
+            className="relative flex items-end justify-between gap-0.5 sm:gap-2 md:gap-3 w-full px-1 pt-10 pb-2"
             style={{ height: 340, direction: isRtl ? "rtl" : "ltr" }}
           >
             {/* baseline */}
@@ -108,16 +108,16 @@ export const StudentPillActivityChart = ({
               return (
                 <div
                   key={`${d.name}-${i}`}
-                  className="relative flex-1 min-w-[56px] sm:min-w-[64px] flex flex-col items-center justify-end"
+                  className="relative flex-1 min-w-0 flex flex-col items-center justify-end"
                   style={{ height: "100%" }}
                 >
                   {/* value (percentage) */}
-                  <div className="text-[12px] sm:text-sm font-extrabold text-foreground mb-1.5">
+                  <div className="text-[10px] sm:text-sm font-extrabold text-foreground mb-1.5">
                     {Math.round(pct)}%
                   </div>
                   {/* pill bar with icon at the bottom */}
                   <div
-                    className="relative w-full max-w-[32px] sm:max-w-[40px] md:max-w-[48px] rounded-full transition-all duration-500 flex items-end justify-center"
+                    className="relative w-full max-w-[18px] sm:max-w-[36px] md:max-w-[44px] rounded-full transition-all duration-500 flex items-end justify-center"
                     style={{
                       height: h,
                       background: `linear-gradient(180deg, ${d.palette.from} 0%, ${d.palette.to} 100%)`,
@@ -126,21 +126,21 @@ export const StudentPillActivityChart = ({
                   >
                     {/* highlighted icon disc at bar bottom */}
                     <div
-                      className="absolute -bottom-2 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ring-2 ring-background"
+                      className="absolute -bottom-2 w-5 h-5 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center ring-2 ring-background"
                       style={{
                         background: `linear-gradient(135deg, ${d.palette.from} 0%, ${d.palette.to} 100%)`,
                         boxShadow: `0 6px 14px -2px rgba(${d.palette.glow}, 0.7)`,
                       }}
                     >
                       <Icon
-                        className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white"
+                        className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-white"
                         strokeWidth={2.75}
                       />
                     </div>
                   </div>
                   {/* label */}
-                  <div className="mt-4 h-10 w-full flex items-start justify-center">
-                    <span className="text-[10px] sm:text-xs font-semibold text-foreground text-center leading-tight break-words">
+                  <div className="mt-4 h-12 w-full flex items-start justify-center">
+                    <span className="text-[8px] sm:text-[11px] md:text-xs font-semibold text-foreground text-center leading-tight break-words">
                       {d.name}
                     </span>
                   </div>

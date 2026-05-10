@@ -33,7 +33,7 @@ interface BookOrder {
 }
 
 const UserProfile = () => {
-  const { t, dir, language, toggleLanguage } = useLanguage();
+  const { dir, language } = useLanguage();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<ProfileData | null>(null);

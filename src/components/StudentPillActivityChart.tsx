@@ -86,7 +86,10 @@ export const StudentPillActivityChart = ({
   return (
     <Card className={className}>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm flex items-center gap-2 flex-row-reverse justify-end">
+        <CardTitle
+          dir={isRtl ? "rtl" : "ltr"}
+          className="text-sm flex items-center gap-2 justify-start w-full"
+        >
           <BarChart3 className="w-4 h-4 text-primary" />
           {title || (isRtl ? "نظرة شاملة على الإحصائيات" : "Overall Statistics Overview")}
         </CardTitle>

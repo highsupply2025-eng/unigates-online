@@ -126,21 +126,21 @@ export const StudentPillActivityChart = ({
                   >
                     {/* highlighted icon disc at bar bottom */}
                     <div
-                      className="absolute -bottom-2 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ring-2 ring-background"
+                      className="absolute -bottom-2 w-5 h-5 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center ring-2 ring-background"
                       style={{
                         background: `linear-gradient(135deg, ${d.palette.from} 0%, ${d.palette.to} 100%)`,
                         boxShadow: `0 6px 14px -2px rgba(${d.palette.glow}, 0.7)`,
                       }}
                     >
                       <Icon
-                        className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white"
+                        className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-white"
                         strokeWidth={2.75}
                       />
                     </div>
                   </div>
                   {/* label */}
-                  <div className="mt-4 h-10 w-full flex items-start justify-center">
-                    <span className="text-[10px] sm:text-xs font-semibold text-foreground text-center leading-tight break-words">
+                  <div className="mt-4 h-12 w-full flex items-start justify-center">
+                    <span className="text-[8px] sm:text-[11px] md:text-xs font-semibold text-foreground text-center leading-tight break-words">
                       {d.name}
                     </span>
                   </div>

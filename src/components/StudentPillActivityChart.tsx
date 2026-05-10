@@ -91,63 +91,59 @@ export const StudentPillActivityChart = ({
           {title || (isRtl ? "نظرة شاملة على الإحصائيات" : "Overall Statistics Overview")}
         </CardTitle>
       </CardHeader>
-      <CardContent className="px-1 sm:px-4">
-        <div className="w-full">
-          <div
-            className="relative flex items-end justify-between gap-0.5 sm:gap-2 md:gap-3 w-full px-1 pt-10 pb-2"
-            style={{ height: 340, direction: isRtl ? "rtl" : "ltr" }}
-          >
-            {/* baseline */}
-            <div className="absolute left-0 right-0 bottom-16 h-px bg-border" />
-            {data.map((d, i) => {
-              const minH = 48;
-              const maxH = 230;
-              const pct = d.count / 100;
-              const h = minH + (pct / maxPct) * (maxH - minH);
-              const Icon = d.Icon;
-              return (
+      <CardContent className="px-2 sm:px-4">
+        <div
+          className="grid grid-cols-5 gap-x-1 gap-y-4 sm:flex sm:items-end sm:justify-between sm:gap-3 md:gap-4 w-full pt-8 pb-2"
+          style={{ direction: isRtl ? "rtl" : "ltr" }}
+        >
+          {data.map((d, i) => {
+            const minH = 40;
+            const maxH = 180;
+            const pct = d.count / 100;
+            const h = minH + (pct / maxPct) * (maxH - minH);
+            const Icon = d.Icon;
+            return (
+              <div
+                key={`${d.name}-${i}`}
+                className="relative flex flex-col items-center justify-end sm:flex-1 sm:min-w-0"
+                style={{ minHeight: maxH + 80 }}
+              >
+                {/* value (percentage) */}
+                <div className="text-[10px] sm:text-sm font-extrabold text-foreground mb-1.5">
+                  {Math.round(pct)}%
+                </div>
+                {/* pill bar with icon at the bottom */}
                 <div
-                  key={`${d.name}-${i}`}
-                  className="relative flex-1 min-w-0 flex flex-col items-center justify-end"
-                  style={{ height: "100%" }}
+                  className="relative w-full max-w-[26px] sm:max-w-[40px] md:max-w-[48px] rounded-full transition-all duration-500 flex items-end justify-center"
+                  style={{
+                    height: h,
+                    background: `linear-gradient(180deg, ${d.palette.from} 0%, ${d.palette.to} 100%)`,
+                    boxShadow: `0 8px 20px -4px rgba(${d.palette.glow}, 0.55), inset 0 -4px 8px rgba(0,0,0,0.12), inset 0 2px 4px rgba(255,255,255,0.35)`,
+                  }}
                 >
-                  {/* value (percentage) */}
-                  <div className="text-[10px] sm:text-sm font-extrabold text-foreground mb-1.5">
-                    {Math.round(pct)}%
-                  </div>
-                  {/* pill bar with icon at the bottom */}
+                  {/* highlighted icon disc at bar bottom */}
                   <div
-                    className="relative w-full max-w-[18px] sm:max-w-[36px] md:max-w-[44px] rounded-full transition-all duration-500 flex items-end justify-center"
+                    className="absolute -bottom-2 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center ring-2 ring-background"
                     style={{
-                      height: h,
-                      background: `linear-gradient(180deg, ${d.palette.from} 0%, ${d.palette.to} 100%)`,
-                      boxShadow: `0 8px 20px -4px rgba(${d.palette.glow}, 0.55), inset 0 -4px 8px rgba(0,0,0,0.12), inset 0 2px 4px rgba(255,255,255,0.35)`,
+                      background: `linear-gradient(135deg, ${d.palette.from} 0%, ${d.palette.to} 100%)`,
+                      boxShadow: `0 6px 14px -2px rgba(${d.palette.glow}, 0.7)`,
                     }}
                   >
-                    {/* highlighted icon disc at bar bottom */}
-                    <div
-                      className="absolute -bottom-2 w-5 h-5 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center ring-2 ring-background"
-                      style={{
-                        background: `linear-gradient(135deg, ${d.palette.from} 0%, ${d.palette.to} 100%)`,
-                        boxShadow: `0 6px 14px -2px rgba(${d.palette.glow}, 0.7)`,
-                      }}
-                    >
-                      <Icon
-                        className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-white"
-                        strokeWidth={2.75}
-                      />
-                    </div>
-                  </div>
-                  {/* label */}
-                  <div className="mt-4 h-12 w-full flex items-start justify-center">
-                    <span className="text-[8px] sm:text-[11px] md:text-xs font-semibold text-foreground text-center leading-tight break-words">
-                      {d.name}
-                    </span>
+                    <Icon
+                      className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-white"
+                      strokeWidth={2.75}
+                    />
                   </div>
                 </div>
-              );
-            })}
-          </div>
+                {/* label */}
+                <div className="mt-4 h-10 w-full flex items-start justify-center px-0.5">
+                  <span className="text-[9px] sm:text-[11px] md:text-xs font-semibold text-foreground text-center leading-tight break-words">
+                    {d.name}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </CardContent>
     </Card>

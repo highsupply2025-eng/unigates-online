@@ -34,7 +34,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     language,
     t: translations[language],
     toggleLanguage,
-    dir: language === "ar" ? "rtl" : "ltr",
+    dir,
   };
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;

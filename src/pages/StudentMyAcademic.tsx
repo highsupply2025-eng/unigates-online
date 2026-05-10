@@ -25,15 +25,14 @@ const StudentMyAcademic = () => {
     { id: "demo-3", nameAr: "د. محمد إبراهيم", nameEn: "Dr. Mohamed Ibrahim", subjectAr: "نظم التشغيل", subjectEn: "Operating Systems", email: "mohamed@demo.edu", phone: "01000000003" },
   ];
 
-  const administration = [
-    { roleAr: "رئيس القسم", roleEn: "Department Head", nameAr: "د. خالد عبدالله", nameEn: "Dr. Khaled Abdullah", email: "head@demo.edu" },
-    { roleAr: "مدير الكلية", roleEn: "Faculty Director", nameAr: "د. ليلى حسن", nameEn: "Dr. Laila Hassan", email: "director@demo.edu" },
+  const leadership = [
+    { roleAr: "عميد الكلية", roleEn: "Dean", nameAr: "أ.د. عمر سليم", nameEn: "Prof. Omar Salim", email: "dean@demo.edu" },
+    { roleAr: "وكيل الكلية لشؤون التعليم والطلاب", roleEn: "Vice Dean for Education & Student Affairs", nameAr: "أ.د. هدى ناصر", nameEn: "Prof. Hoda Nasser", email: "vd.edu@demo.edu" },
+    { roleAr: "وكيل الكلية للدراسات العليا والبحوث", roleEn: "Vice Dean for Postgraduate Studies & Research", nameAr: "أ.د. طارق فؤاد", nameEn: "Prof. Tarek Fouad", email: "vd.research@demo.edu" },
+    { roleAr: "وكيل الكلية لشؤون خدمة المجتمع وتنمية البيئة", roleEn: "Vice Dean for Community Service & Environmental Development", nameAr: "أ.د. منى عبد الرحمن", nameEn: "Prof. Mona Abdelrahman", email: "vd.community@demo.edu" },
   ];
 
-  const leadership = [
-    { roleAr: "العميد", roleEn: "Dean", nameAr: "أ.د. عمر سليم", nameEn: "Prof. Omar Salim", email: "dean@demo.edu" },
-    { roleAr: "وكيل الكلية", roleEn: "Vice Dean", nameAr: "أ.د. هدى ناصر", nameEn: "Prof. Hoda Nasser", email: "vicedean@demo.edu" },
-  ];
+  const departmentHead = { roleAr: "رئيس القسم", roleEn: "Department Head", nameAr: "د. خالد عبدالله", nameEn: "Dr. Khaled Abdullah", email: "head@demo.edu" };
 
   return (
     <div className="min-h-screen bg-background" dir={dir}>

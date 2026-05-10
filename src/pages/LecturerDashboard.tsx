@@ -1005,18 +1005,20 @@ const LecturerDashboard = () => {
                   <div className="space-y-3">
                     {streams.map(stream => (
                       <Card key={stream.id}>
-                        <CardContent className="p-4 flex items-center gap-4">
-                          <div className={`w-3 h-3 rounded-full ${stream.status === 'live' ? 'bg-destructive animate-pulse' : stream.status === 'ended' ? 'bg-muted-foreground' : 'bg-primary'}`} />
-                          <div className="flex-1">
-                            <h3 className="font-bold text-foreground">{isRtl ? stream.title_ar : stream.title_en}</h3>
-                            <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
-                              <span className="capitalize px-2 py-0.5 rounded-full bg-muted font-semibold">
-                                {stream.status === 'live' ? (isRtl ? "🔴 مباشر" : "🔴 Live") : stream.status === 'ended' ? (isRtl ? "انتهى" : "Ended") : (isRtl ? "مجدول" : "Scheduled")}
-                              </span>
-                              {stream.scheduled_at && <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{new Date(stream.scheduled_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}</span>}
+                        <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                          <div className="flex items-start gap-3 flex-1 min-w-0">
+                            <div className={`w-3 h-3 rounded-full mt-1.5 shrink-0 ${stream.status === 'live' ? 'bg-destructive animate-pulse' : stream.status === 'ended' ? 'bg-muted-foreground' : 'bg-primary'}`} />
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-bold text-foreground truncate">{isRtl ? stream.title_ar : stream.title_en}</h3>
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1 flex-wrap">
+                                <span className="capitalize px-2 py-0.5 rounded-full bg-muted font-semibold whitespace-nowrap">
+                                  {stream.status === 'live' ? (isRtl ? "🔴 مباشر" : "🔴 Live") : stream.status === 'ended' ? (isRtl ? "انتهى" : "Ended") : (isRtl ? "مجدول" : "Scheduled")}
+                                </span>
+                                {stream.scheduled_at && <span className="flex items-center gap-1 whitespace-nowrap"><Calendar className="w-3 h-3" />{new Date(stream.scheduled_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}</span>}
+                              </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap shrink-0">
                             {stream.status === 'scheduled' && <Button size="sm" onClick={() => handleGoLive(stream)} className="gap-1"><Radio className="w-3.5 h-3.5" />{isRtl ? "ابدأ" : "Go Live"}</Button>}
                             {stream.status === 'live' && <Button size="sm" onClick={() => { setActiveStreamId(stream.id); setActiveStreamTitle(isRtl ? stream.title_ar : stream.title_en); }} className="gap-1"><MonitorPlay className="w-3.5 h-3.5" />{isRtl ? "دخول" : "Join"}</Button>}
                             {stream.status !== 'ended' && <Button size="sm" variant="secondary" onClick={() => handleUpdateStreamStatus(stream.id, 'ended')}>{isRtl ? "إنهاء" : "End"}</Button>}

@@ -55,8 +55,7 @@ const StudentMyAcademic = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <Badge variant="secondary" className="font-bold">{isRtl ? collegeInfo.levelAr : collegeInfo.levelEn}</Badge>
-            <Badge variant="outline" className="ms-2 border-primary/30">{isRtl ? "حساب تجريبي" : "Demo Account"}</Badge>
+            <Badge variant="outline" className="border-primary/30">{isRtl ? "حساب تجريبي" : "Demo Account"}</Badge>
           </CardContent>
         </Card>
 

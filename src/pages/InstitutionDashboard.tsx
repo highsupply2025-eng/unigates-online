@@ -907,7 +907,7 @@ const InstitutionDashboard = () => {
             </div>
           </div>
           {/* Desktop navigation icons */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden items-center gap-2">
             <Button variant={activeTab === "general" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("general")}>
               <Layers className="w-4 h-4" />
               {isRtl ? "الرئيسية" : "Home"}
@@ -939,7 +939,7 @@ const InstitutionDashboard = () => {
               <LogOut className="w-4 h-4" />
             </Button>
           </div>
-          <div className="md:hidden flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
             <DashboardMenuDropdown
               title={isRtl ? (institutionType === "college" ? "لوحة الكلية" : "لوحة المعهد") : (institutionType === "college" ? "College Panel" : "Institute Panel")}
               onLanguageToggle={toggleLanguage}

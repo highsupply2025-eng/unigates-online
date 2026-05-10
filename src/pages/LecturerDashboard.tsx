@@ -665,11 +665,13 @@ const LecturerDashboard = () => {
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
           <Link to="/" className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
             <GraduationCap className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
-            <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight truncate">{t.brandName}</span>
+            <div className="flex flex-col min-w-0">
+              <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight truncate leading-tight">{t.brandName}</span>
+              <span className="text-[11px] sm:text-xs text-muted-foreground font-semibold truncate">{isRtl ? "لوحة المحاضر" : "Lecturer Panel"}</span>
+            </div>
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <DashboardMenuDropdown
-              title={isRtl ? "لوحة المحاضر" : "Lecturer Panel"}
               onLanguageToggle={toggleLanguage}
               onLogout={handleLogout}
               items={[

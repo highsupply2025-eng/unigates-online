@@ -76,27 +76,11 @@ const UserProfile = () => {
 
   return (
     <div className="min-h-screen bg-background" dir={dir}>
-      {/* Header */}
-      <header className="border-b border-border px-6 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <GraduationCap className="w-8 h-8 text-primary" />
-            <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" asChild>
-              <Link to="/"><Home className="w-5 h-5" /></Link>
-            </Button>
-            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
-              <Globe className="w-4 h-4" />{t.langSwitch}
-            </Button>
-            <Button variant="default" size="sm" onClick={handleLogout} className="font-semibold gap-1.5">
-              {language === "ar" ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-              {t.logout}
-            </Button>
-          </div>
-        </div>
-      </header>
+      <StudentPageHeader
+        titleAr="بيانات الحساب"
+        titleEn="Account Details"
+        icon={<User className="w-4 h-4" />}
+      />
 
       <main className="max-w-5xl mx-auto px-4 py-8">
         {/* Profile Card */}

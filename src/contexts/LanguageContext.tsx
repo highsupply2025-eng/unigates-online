@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
 import { ar } from "@/i18n/ar";
 import { en } from "@/i18n/en";
 
@@ -23,11 +23,18 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     setLanguage((prev) => (prev === "ar" ? "en" : "ar"));
   }, []);
 
+  const dir = language === "ar" ? "rtl" : "ltr";
+
+  useEffect(() => {
+    document.documentElement.dir = dir;
+    document.documentElement.lang = language;
+  }, [dir, language]);
+
   const value: LanguageContextType = {
     language,
     t: translations[language],
     toggleLanguage,
-    dir: language === "ar" ? "rtl" : "ltr",
+    dir,
   };
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;

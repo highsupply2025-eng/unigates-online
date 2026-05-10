@@ -97,7 +97,6 @@ const DashboardMenuDropdown = ({
         align={isRtl ? "start" : "end"}
         sideOffset={10}
         className="w-[min(92vw,320px)] max-h-[85vh] overflow-y-auto p-2 rounded-2xl border-2 shadow-2xl"
-        dir={isRtl ? "rtl" : "ltr"}
       >
         {/* Header */}
         <div className="px-3 py-2.5 mb-1 rounded-xl bg-gradient-to-br from-primary/15 via-primary/10 to-transparent flex items-center justify-between">

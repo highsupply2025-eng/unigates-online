@@ -360,7 +360,7 @@ const SchoolDashboard = () => {
               items={[
                 { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: () => navigate("/") },
                 { key: "new-class", label: isRtl ? "فصل جديد" : "New Class", Icon: Plus, color: "from-emerald-500 to-emerald-600", onClick: () => setShowAddDeptDialog(true) },
-                { key: "profile", label: isRtl ? "الحساب" : "Profile", Icon: User, color: "from-purple-500 to-purple-600", onClick: () => navigate("/profile") },
+                { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-purple-500 to-purple-600", onClick: () => navigate("/profile") },
               ]}
             />
           </div>

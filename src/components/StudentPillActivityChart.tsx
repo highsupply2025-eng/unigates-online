@@ -91,10 +91,10 @@ export const StudentPillActivityChart = ({
           {title || (isRtl ? "نظرة شاملة على الإحصائيات" : "Overall Statistics Overview")}
         </CardTitle>
       </CardHeader>
-      <CardContent className="px-2 sm:px-4">
-        <div className="w-full overflow-x-auto">
+      <CardContent className="px-1 sm:px-4">
+        <div className="w-full">
           <div
-            className="relative flex items-end justify-between gap-2 sm:gap-3 md:gap-4 min-w-full px-2 pt-10 pb-2"
+            className="relative flex items-end justify-between gap-0.5 sm:gap-2 md:gap-3 w-full px-1 pt-10 pb-2"
             style={{ height: 340, direction: isRtl ? "rtl" : "ltr" }}
           >
             {/* baseline */}
@@ -108,16 +108,16 @@ export const StudentPillActivityChart = ({
               return (
                 <div
                   key={`${d.name}-${i}`}
-                  className="relative flex-1 min-w-[56px] sm:min-w-[64px] flex flex-col items-center justify-end"
+                  className="relative flex-1 min-w-0 flex flex-col items-center justify-end"
                   style={{ height: "100%" }}
                 >
                   {/* value (percentage) */}
-                  <div className="text-[12px] sm:text-sm font-extrabold text-foreground mb-1.5">
+                  <div className="text-[10px] sm:text-sm font-extrabold text-foreground mb-1.5">
                     {Math.round(pct)}%
                   </div>
                   {/* pill bar with icon at the bottom */}
                   <div
-                    className="relative w-full max-w-[32px] sm:max-w-[40px] md:max-w-[48px] rounded-full transition-all duration-500 flex items-end justify-center"
+                    className="relative w-full max-w-[18px] sm:max-w-[36px] md:max-w-[44px] rounded-full transition-all duration-500 flex items-end justify-center"
                     style={{
                       height: h,
                       background: `linear-gradient(180deg, ${d.palette.from} 0%, ${d.palette.to} 100%)`,

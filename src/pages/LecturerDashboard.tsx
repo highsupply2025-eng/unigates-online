@@ -889,6 +889,36 @@ const LecturerDashboard = () => {
                       </p>
                     </CardContent>
                   </Card>
+
+                  <Card>
+                    <CardContent className="p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-md shadow-black/10 flex items-center justify-center">
+                          <Award className="w-5 h-5 text-white" />
+                        </div>
+                        <Badge variant="secondary">{quizSubmissions.length}</Badge>
+                      </div>
+                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "نتائج الاختبارات" : "Quiz Results"}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {isRtl ? "عرض نتائج الطلاب" : "View student results"}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-md shadow-black/10 flex items-center justify-center">
+                          <CheckCircle className="w-5 h-5 text-white" />
+                        </div>
+                        <Badge variant="secondary">{quizzes.filter((q: any) => q.is_published).length}</Badge>
+                      </div>
+                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "اعتماد الاختبارات" : "Quiz Approvals"}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {isRtl ? "اعتماد ومراجعة الاختبارات" : "Approve and review quizzes"}
+                      </p>
+                    </CardContent>
+                  </Card>
                 </div>
               </TabsContent>
 

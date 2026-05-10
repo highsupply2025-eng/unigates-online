@@ -62,6 +62,56 @@ const StudentMyAcademic = () => {
           </CardContent>
         </Card>
 
+        {/* Leadership */}
+        <section>
+          <div className="flex items-center gap-2 mb-3">
+            <Crown className="w-5 h-5 text-amber-600" />
+            <h2 className="text-lg font-black">{isRtl ? "قيادة الكلية" : "College Leadership"}</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {leadership.map((p, i) => (
+              <Card key={i} className="hover:shadow-md transition-shadow border-amber-200/50">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white flex items-center justify-center shrink-0">
+                    <Crown className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <Badge variant="outline" className="mb-1 text-[10px] border-amber-300 text-amber-700">{isRtl ? p.roleAr : p.roleEn}</Badge>
+                    <h3 className="font-bold truncate">{isRtl ? p.nameAr : p.nameEn}</h3>
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                      <Mail className="w-3 h-3" />
+                      <span className="truncate">{p.email}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* Department Head */}
+        <section>
+          <div className="flex items-center gap-2 mb-3">
+            <Users className="w-5 h-5 text-blue-600" />
+            <h2 className="text-lg font-black">{isRtl ? "رئيس القسم" : "Department Head"}</h2>
+          </div>
+          <Card className="hover:shadow-md transition-shadow">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center shrink-0">
+                <Users className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <Badge variant="outline" className="mb-1 text-[10px]">{isRtl ? departmentHead.roleAr : departmentHead.roleEn}</Badge>
+                <h3 className="font-bold truncate">{isRtl ? departmentHead.nameAr : departmentHead.nameEn}</h3>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                  <Mail className="w-3 h-3" />
+                  <span className="truncate">{departmentHead.email}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
         {/* Lecturers */}
         <section>
           <div className="flex items-center gap-2 mb-3">
@@ -96,65 +146,6 @@ const StudentMyAcademic = () => {
           </div>
         </section>
 
-        {/* Administration */}
-        <section>
-          <div className="flex items-center gap-2 mb-3">
-            <Users className="w-5 h-5 text-blue-600" />
-            <h2 className="text-lg font-black">{isRtl ? "إدارة الكلية" : "College Administration"}</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {administration.map((a, i) => (
-              <Card key={i} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center shrink-0">
-                    <Users className="w-5 h-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <Badge variant="outline" className="mb-1 text-[10px]">{isRtl ? a.roleAr : a.roleEn}</Badge>
-                    <h3 className="font-bold truncate">{isRtl ? a.nameAr : a.nameEn}</h3>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-                      <Mail className="w-3 h-3" />
-                      <span className="truncate">{a.email}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        {/* Leadership */}
-        <section>
-          <div className="flex items-center gap-2 mb-3">
-            <Crown className="w-5 h-5 text-amber-600" />
-            <h2 className="text-lg font-black">{isRtl ? "القيادة" : "Leadership"}</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {leadership.map((p, i) => (
-              <Card key={i} className="hover:shadow-md transition-shadow border-amber-200/50">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white flex items-center justify-center shrink-0">
-                    <Crown className="w-5 h-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <Badge variant="outline" className="mb-1 text-[10px] border-amber-300 text-amber-700">{isRtl ? p.roleAr : p.roleEn}</Badge>
-                    <h3 className="font-bold truncate">{isRtl ? p.nameAr : p.nameEn}</h3>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-                      <Mail className="w-3 h-3" />
-                      <span className="truncate">{p.email}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        <div className="pt-2">
-          <Link to="/student/dashboard">
-            <Button variant="outline" className="w-full sm:w-auto">{isRtl ? "العودة للوحة" : "Back to Dashboard"}</Button>
-          </Link>
-        </div>
       </main>
     </div>
   );

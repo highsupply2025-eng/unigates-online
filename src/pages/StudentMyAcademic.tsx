@@ -1,8 +1,6 @@
-import { Link } from "react-router-dom";
 import { GraduationCap, Building2, Crown, Mail, Phone, BookOpen, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import StudentPageHeader from "@/components/StudentPageHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
 

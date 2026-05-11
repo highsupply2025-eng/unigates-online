@@ -355,13 +355,13 @@ const LeadershipDashboard = () => {
                   <SectionsActivityChart
                     className="mb-4 sm:mb-6"
                     sections={[
-                      { label: isRtl ? "البث المباشر" : "Live Streams", timestamps: liveStreams.map((s: any) => s.created_at || s.scheduled_at) },
-                      { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
-                      { label: isRtl ? "التقييمات" : "Ratings", timestamps: ratings.map((r: any) => r.created_at) },
-                      { label: isRtl ? "التكليفات" : "Assignments", timestamps: assignments.map((a: any) => a.created_at) },
-                      { label: isRtl ? "الجداول" : "Schedules", timestamps: liveStreams.filter((s: any) => s.status === "scheduled").map((s: any) => s.scheduled_at || s.created_at) },
-                      { label: isRtl ? "الملفات" : "Files", timestamps: episodes.filter((e: any) => e.file_url || e.attachment_url || e.pdf_url).map((e: any) => e.created_at) },
-                      { label: isRtl ? "الإشعارات" : "Notifications", timestamps: notifications.map((n: any) => n.created_at) },
+                      { label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, timestamps: liveStreams.map((s: any) => s.created_at || s.scheduled_at) },
+                      { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
+                      { label: isRtl ? "التقييمات" : "Ratings", Icon: Star, timestamps: ratings.map((r: any) => r.created_at) },
+                      { label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, timestamps: assignments.map((a: any) => a.created_at) },
+                      { label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, timestamps: liveStreams.filter((s: any) => s.status === "scheduled").map((s: any) => s.scheduled_at || s.created_at) },
+                      { label: isRtl ? "الملفات" : "Files", Icon: FileText, timestamps: episodes.filter((e: any) => e.file_url || e.attachment_url || e.pdf_url).map((e: any) => e.created_at) },
+                      { label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell, timestamps: notifications.map((n: any) => n.created_at) },
                     ]}
                   />
 

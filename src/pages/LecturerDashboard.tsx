@@ -1140,7 +1140,7 @@ const LecturerDashboard = () => {
                     {isRtl ? "لا توجد مواد بعد" : "No courses yet"}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5" dir={isRtl ? "rtl" : "ltr"}>
                     {courses.map((c) => {
                       const lecCount = lectureAttendance.filter((a: any) => a._schedule?.course_id === c.id).length;
                       const strCount = attendance.filter((a: any) => (a._stream?.course_id) === c.id).length;

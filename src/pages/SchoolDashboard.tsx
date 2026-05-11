@@ -243,7 +243,7 @@ const SchoolDashboard = () => {
               <TabsTrigger value="info">{isRtl ? "البيانات" : "Info"}</TabsTrigger>
               <TabsTrigger value="stats">{isRtl ? "الإحصائيات" : "Stats"}</TabsTrigger>
             </TabsList>
-            <TabsContent value="info">
+            <TabsContent value="info" dir={isRtl ? "rtl" : "ltr"}>
               <Card><CardContent className="p-6 space-y-4">
                 <div className="flex justify-between"><span className="text-muted-foreground">{isRtl ? "الفصل" : "Class"}</span><span className="font-bold text-foreground">{memberDept?.department_name || "—"}</span></div>
                 <Separator />
@@ -260,7 +260,7 @@ const SchoolDashboard = () => {
                 </div>
               </CardContent></Card>
             </TabsContent>
-            <TabsContent value="stats">
+            <TabsContent value="stats" dir={isRtl ? "rtl" : "ltr"}>
               <Card><CardContent className="p-6">
                 {selectedMember.role === "student" ? (
                   <div className="grid grid-cols-2 gap-4">

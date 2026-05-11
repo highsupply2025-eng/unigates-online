@@ -730,7 +730,7 @@ const AdminDashboard = () => {
           </TabsList>
 
           {/* ===== Overview ===== */}
-          <TabsContent value="overview">
+          <TabsContent value="overview" dir={isRtl ? "rtl" : "ltr"}>
             <AdminPreviewLinks />
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
               {[
@@ -827,7 +827,7 @@ const AdminDashboard = () => {
           </TabsContent>
 
           {/* ===== Pending ===== */}
-          <TabsContent value="pending">
+          <TabsContent value="pending" dir={isRtl ? "rtl" : "ltr"}>
             {pendingLecturers.length === 0 ? <EmptyState icon={CheckCircle} text={ar("لا توجد طلبات معلقة","No pending requests")} /> : (
               <div className="grid gap-4">
                 {pendingLecturers.map(l => (
@@ -853,7 +853,7 @@ const AdminDashboard = () => {
           </TabsContent>
 
           {/* ===== Schools ===== */}
-          <TabsContent value="schools">
+          <TabsContent value="schools" dir={isRtl ? "rtl" : "ltr"}>
             <ToolbarRow>
               <SearchBar value={schoolSearchQuery} onChange={setSchoolSearchQuery} placeholder={ar("بحث باسم المدرسة أو المدينة...","Search by school name or city...")} />
               <ExportButton onClick={exportSchools} />
@@ -888,7 +888,7 @@ const AdminDashboard = () => {
           </TabsContent>
 
           {/* ===== Colleges ===== */}
-          <TabsContent value="colleges">
+          <TabsContent value="colleges" dir={isRtl ? "rtl" : "ltr"}>
             <ToolbarRow>
               <SearchBar value={collegeSearch} onChange={setCollegeSearch} placeholder={ar("بحث باسم الكلية أو المدينة...","Search by college name or city...")} />
               <ExportButton onClick={exportColleges} />
@@ -1011,7 +1011,7 @@ const AdminDashboard = () => {
           </TabsContent>
 
           {/* ===== Institutes ===== */}
-          <TabsContent value="institutes">
+          <TabsContent value="institutes" dir={isRtl ? "rtl" : "ltr"}>
             <ToolbarRow>
               <SearchBar value={instituteSearch} onChange={setInstituteSearch} placeholder={ar("بحث باسم المعهد أو المدينة...","Search by institute name or city...")} />
               <ExportButton onClick={exportInstitutes} />
@@ -1120,7 +1120,7 @@ const AdminDashboard = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="users">
+          <TabsContent value="users" dir={isRtl ? "rtl" : "ltr"}>
             <ToolbarRow>
               <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder={ar("بحث بالاسم أو البريد...","Search by name or email...")} />
               <ExportButton onClick={exportUsers} />
@@ -1150,7 +1150,7 @@ const AdminDashboard = () => {
           </TabsContent>
 
           {/* ===== Courses ===== */}
-          <TabsContent value="courses">
+          <TabsContent value="courses" dir={isRtl ? "rtl" : "ltr"}>
             <ToolbarRow>
               <SearchBar value={courseSearch} onChange={setCourseSearch} placeholder={ar("بحث بعنوان الدورة أو المدرب...","Search by course title or instructor...")} />
               <ExportButton onClick={exportCourses} />
@@ -1182,7 +1182,7 @@ const AdminDashboard = () => {
           </TabsContent>
 
           {/* ===== Books ===== */}
-          <TabsContent value="books">
+          <TabsContent value="books" dir={isRtl ? "rtl" : "ltr"}>
             <ToolbarRow>
               <SearchBar value={bookSearch} onChange={setBookSearch} placeholder={ar("بحث بعنوان الكتاب أو المؤلف...","Search by book title or author...")} />
               <ExportButton onClick={exportBooks} />
@@ -1214,7 +1214,7 @@ const AdminDashboard = () => {
           </TabsContent>
 
           {/* ===== Orders ===== */}
-          <TabsContent value="orders">
+          <TabsContent value="orders" dir={isRtl ? "rtl" : "ltr"}>
             <ToolbarRow>
               <SearchBar value={orderSearch} onChange={setOrderSearch} placeholder={ar("بحث بعنوان الكتاب أو المشتري...","Search by book or buyer...")} />
               <ExportButton onClick={exportOrders} />
@@ -1248,7 +1248,7 @@ const AdminDashboard = () => {
           </TabsContent>
 
           {/* ===== Subscriptions ===== */}
-          <TabsContent value="subscriptions">
+          <TabsContent value="subscriptions" dir={isRtl ? "rtl" : "ltr"}>
             <ToolbarRow>
               <SearchBar value={subSearch} onChange={setSubSearch} placeholder={ar("بحث بعنوان الدورة أو المشترك...","Search by course or subscriber...")} />
               <ExportButton onClick={exportSubscriptions} />
@@ -1282,7 +1282,7 @@ const AdminDashboard = () => {
           </TabsContent>
 
           {/* ===== Live Streams ===== */}
-          <TabsContent value="streams">
+          <TabsContent value="streams" dir={isRtl ? "rtl" : "ltr"}>
             <ToolbarRow>
               <SearchBar value={streamSearch} onChange={setStreamSearch} placeholder={ar("بحث بعنوان البث أو المحاضر...","Search by stream title or lecturer...")} />
               <ExportButton onClick={exportStreams} />
@@ -1317,7 +1317,7 @@ const AdminDashboard = () => {
           </TabsContent>
 
           {/* ===== Departments Admin ===== */}
-          <TabsContent value="departments_admin">
+          <TabsContent value="departments_admin" dir={isRtl ? "rtl" : "ltr"}>
             <div className="space-y-4">
               <h2 className="text-lg font-bold flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-primary" />
@@ -1426,7 +1426,7 @@ const AdminDashboard = () => {
           </TabsContent>
 
           {/* ===== Notifications ===== */}
-          <TabsContent value="notifications">
+          <TabsContent value="notifications" dir={isRtl ? "rtl" : "ltr"}>
             <Card className="mb-6">
               <CardContent className="pt-6 space-y-4">
                 <h3 className="text-lg font-bold flex items-center gap-2"><Send className="w-5 h-5" />{ar("إرسال إشعار جديد","Send New Notification")}</h3>

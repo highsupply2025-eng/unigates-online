@@ -1383,7 +1383,7 @@ const InstitutionDashboard = () => {
           </div>
 
           {/* General Summary Tab */}
-          <TabsContent value="general">
+          <TabsContent value="general" dir={isRtl ? "rtl" : "ltr"}>
             <div className="mb-6">
               <h2 className="text-xl font-bold text-foreground mb-1">{isRtl ? "الرئيسية" : "Home"}</h2>
             </div>
@@ -1589,7 +1589,7 @@ const InstitutionDashboard = () => {
 
 
           {/* Departments Tab */}
-          <TabsContent value="departments">
+          <TabsContent value="departments" dir={isRtl ? "rtl" : "ltr"}>
             {/* Section header */}
             <div className="mb-5 flex items-center gap-3">
               <div className="relative shrink-0">
@@ -1724,7 +1724,7 @@ const InstitutionDashboard = () => {
 
           {/* Live Streams Tab - Leadership Only */}
           {isLeadershipRole && (
-            <TabsContent value="livestreams">
+            <TabsContent value="livestreams" dir={isRtl ? "rtl" : "ltr"}>
               <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
                 <h2 className="text-lg font-bold text-foreground">{isRtl ? "البث المباشر" : "Live Streams"}</h2>
               </div>
@@ -1879,7 +1879,7 @@ const InstitutionDashboard = () => {
 
           {/* Quiz Results Tab - Results Management */}
           {(isLeadershipRole || institutionId) && (
-            <TabsContent value="quizresults">
+            <TabsContent value="quizresults" dir={isRtl ? "rtl" : "ltr"}>
               <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
                 <h2 className="text-xl font-bold text-foreground">{isRtl ? "إدارة النتائج" : "Results Management"}</h2>
                 <Button size="sm" variant="outline" className="gap-2" onClick={exportResultsToExcel} disabled={studentResults.length === 0}>
@@ -1995,7 +1995,7 @@ const InstitutionDashboard = () => {
 
           {/* Schedules Tab - Leadership Only */}
           {isLeadershipRole && (
-            <TabsContent value="schedules">
+            <TabsContent value="schedules" dir={isRtl ? "rtl" : "ltr"}>
               <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
                 <h2 className="text-lg font-bold text-foreground">{isRtl ? "جداول المحاضرات والاختبارات" : "Lectures & Exams Schedule"}</h2>
               </div>
@@ -2105,7 +2105,7 @@ const InstitutionDashboard = () => {
 
           {/* Ratings Tab - Leadership Only */}
           {isLeadershipRole && (
-            <TabsContent value="ratings">
+            <TabsContent value="ratings" dir={isRtl ? "rtl" : "ltr"}>
               <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
                 <h2 className="text-lg font-bold text-foreground">{isRtl ? "تقييمات المحاضرين والطلاب" : "Lecturer & Student Ratings"}</h2>
               </div>
@@ -2331,7 +2331,7 @@ const InstitutionDashboard = () => {
           )}
 
           {/* Invitations Tab - Links & Codes */}
-          <TabsContent value="invitations">
+          <TabsContent value="invitations" dir={isRtl ? "rtl" : "ltr"}>
             <h2 className="text-2xl font-bold mb-4 text-foreground">{isRtl ? "روابط الدعوة" : "Invitation Links"}</h2>
             {/* Free Leadership Links - Always visible */}
             {leadershipInvitations.length > 0 && (
@@ -2754,7 +2754,7 @@ const InstitutionDashboard = () => {
           </TabsContent>
 
           {/* Notifications Tab */}
-          <TabsContent value="notifications">
+          <TabsContent value="notifications" dir={isRtl ? "rtl" : "ltr"}>
             <div className="mb-6">
               <h2 className="text-xl font-bold text-foreground">{isRtl ? "الإشعارات" : "Notifications"}</h2>
             </div>

@@ -231,7 +231,7 @@ const SchoolStudentDashboard = () => {
           </TabsList>
 
           {/* My Lessons */}
-          <TabsContent value="courses">
+          <TabsContent value="courses" dir={isRtl ? "rtl" : "ltr"}>
             {subscribedCourses.length === 0 ? (
               <div className="text-center py-16">
                 <BookOpen className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
@@ -278,7 +278,7 @@ const SchoolStudentDashboard = () => {
           </TabsContent>
 
           {/* Browse */}
-          <TabsContent value="browse">
+          <TabsContent value="browse" dir={isRtl ? "rtl" : "ltr"}>
             {courses.length === 0 ? (
               <p className="text-center text-muted-foreground py-12">{isRtl ? "لا توجد مواد متاحة" : "No subjects available"}</p>
             ) : (
@@ -307,7 +307,7 @@ const SchoolStudentDashboard = () => {
           </TabsContent>
 
           {/* Live */}
-          <TabsContent value="live">
+          <TabsContent value="live" dir={isRtl ? "rtl" : "ltr"}>
             {liveStreams.length === 0 ? (
               <div className="text-center py-16">
                 <Radio className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
@@ -341,7 +341,7 @@ const SchoolStudentDashboard = () => {
           </TabsContent>
 
           {/* Homework */}
-          <TabsContent value="assignments">
+          <TabsContent value="assignments" dir={isRtl ? "rtl" : "ltr"}>
             {submissions.length === 0 ? (
               <div className="text-center py-16">
                 <Award className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
@@ -367,7 +367,7 @@ const SchoolStudentDashboard = () => {
           </TabsContent>
 
           {/* Rate Teacher */}
-          <TabsContent value="rate">
+          <TabsContent value="rate" dir={isRtl ? "rtl" : "ltr"}>
             {subscribedCourses.length === 0 ? (
               <div className="text-center py-16">
                 <Star className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />

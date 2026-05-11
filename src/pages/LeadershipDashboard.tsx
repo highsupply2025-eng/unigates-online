@@ -361,7 +361,6 @@ const LeadershipDashboard = () => {
                       { label: isRtl ? "التكليفات" : "Assignments", timestamps: assignments.map((a: any) => a.created_at) },
                       { label: isRtl ? "الجداول" : "Schedules", timestamps: liveStreams.filter((s: any) => s.status === "scheduled").map((s: any) => s.scheduled_at || s.created_at) },
                       { label: isRtl ? "الملفات" : "Files", timestamps: episodes.filter((e: any) => e.file_url || e.attachment_url || e.pdf_url).map((e: any) => e.created_at) },
-                      { label: isRtl ? "اعتماد النتائج" : "Approvals", timestamps: quizzes.map((q: any) => q.created_at) },
                       { label: isRtl ? "الإشعارات" : "Notifications", timestamps: notifications.map((n: any) => n.created_at) },
                     ]}
                   />

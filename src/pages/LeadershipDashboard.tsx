@@ -297,9 +297,22 @@ const LeadershipDashboard = () => {
               <Landmark className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-base sm:text-xl font-black text-foreground truncate">{institutionName || (isRtl ? "لوحة القيادة" : "Leadership Dashboard")}</h1>
+              <h1 className="text-base sm:text-xl font-black text-foreground truncate">{isRtl ? "لوحة القيادة" : "Leadership Dashboard"}</h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
-                {isRtl ? getRoleLabel().ar : getRoleLabel().en}
+                {(() => {
+                  const map: Record<string, { ar: string; en: string }> = {
+                    overview: { ar: "الرئيسية", en: "Home" },
+                    livestreams: { ar: "البث المباشر", en: "Live Streams" },
+                    quizresults: { ar: "نتائج الاختبارات", en: "Quiz Results" },
+                    ratings: { ar: "التقييمات", en: "Ratings" },
+                    assignments: { ar: "التكليفات", en: "Assignments" },
+                    schedule: { ar: "الجداول", en: "Schedules" },
+                    files: { ar: "الملفات", en: "Files" },
+                    notifications: { ar: "الإشعارات", en: "Notifications" },
+                  };
+                  const cur = map[activeTab] ?? map.overview;
+                  return isRtl ? cur.ar : cur.en;
+                })()}
               </p>
             </div>
           </div>

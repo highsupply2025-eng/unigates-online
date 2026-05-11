@@ -764,9 +764,6 @@ const LecturerDashboard = () => {
                         <Badge variant="secondary">{courses.length}</Badge>
                       </div>
                       <h3 className="font-bold text-foreground mb-1">{isRtl ? "المحاضرات" : "Lectures"}</h3>
-                      <p className="text-xs text-muted-foreground">
-                        {isRtl ? `${courses.reduce((a, c) => a + c.episode_count, 0)} حلقة منشورة` : `${courses.reduce((a, c) => a + c.episode_count, 0)} episodes`}
-                      </p>
                     </CardContent>
                   </Card>
 
@@ -779,9 +776,6 @@ const LecturerDashboard = () => {
                         <Badge variant="secondary">{streams.length}</Badge>
                       </div>
                       <h3 className="font-bold text-foreground mb-1">{isRtl ? "البث المباشر" : "Live Streams"}</h3>
-                      <p className="text-xs text-muted-foreground">
-                        {isRtl ? `${streams.length} بث` : `${streams.length} streams`}
-                      </p>
                     </CardContent>
                   </Card>
 
@@ -794,9 +788,6 @@ const LecturerDashboard = () => {
                         <Badge variant="secondary">{quizzes.length}</Badge>
                       </div>
                       <h3 className="font-bold text-foreground mb-1">{isRtl ? "الاختبارات أونلاين" : "Online Tests"}</h3>
-                      <p className="text-xs text-muted-foreground">
-                        {isRtl ? "اختر دورة لعرض اختباراتها" : "Select a course to view tests"}
-                      </p>
                     </CardContent>
                   </Card>
 
@@ -809,9 +800,6 @@ const LecturerDashboard = () => {
                         <Badge variant="secondary">{assignments.length}</Badge>
                       </div>
                       <h3 className="font-bold text-foreground mb-1">{isRtl ? "التكليفات" : "Assignments"}</h3>
-                      <p className="text-xs text-muted-foreground">
-                        {isRtl ? "اختر دورة لعرض التكليفات" : "Select a course to view tasks"}
-                      </p>
                     </CardContent>
                   </Card>
 
@@ -824,9 +812,6 @@ const LecturerDashboard = () => {
                         <Badge variant="secondary">{schedules.length}</Badge>
                       </div>
                       <h3 className="font-bold text-foreground mb-1">{isRtl ? "الجداول" : "Schedules"}</h3>
-                      <p className="text-xs text-muted-foreground">
-                        {isRtl ? `${schedules.filter(s => new Date(s.scheduled_date) >= new Date()).length} قادمة` : `${schedules.filter(s => new Date(s.scheduled_date) >= new Date()).length} upcoming`}
-                      </p>
                     </CardContent>
                   </Card>
 
@@ -839,9 +824,6 @@ const LecturerDashboard = () => {
                         <Badge variant="secondary">{attendance.length}</Badge>
                       </div>
                       <h3 className="font-bold text-foreground mb-1">{isRtl ? "الحضور" : "Attendance"}</h3>
-                      <p className="text-xs text-muted-foreground">
-                        {isRtl ? "إجمالي سجلات الحضور" : "Total attendance records"}
-                      </p>
                     </CardContent>
                   </Card>
 
@@ -854,9 +836,6 @@ const LecturerDashboard = () => {
                         <Badge variant="secondary">{lecturerRatings.length}</Badge>
                       </div>
                       <h3 className="font-bold text-foreground mb-1">{isRtl ? "التقييمات" : "Ratings"}</h3>
-                      <p className="text-xs text-muted-foreground">
-                        {isRtl ? `متوسط ${lecturerRatings.length > 0 ? (lecturerRatings.reduce((a, r) => a + r.rating, 0) / lecturerRatings.length).toFixed(1) : "—"}/5` : `Avg ${lecturerRatings.length > 0 ? (lecturerRatings.reduce((a, r) => a + r.rating, 0) / lecturerRatings.length).toFixed(1) : "—"}/5`}
-                      </p>
                     </CardContent>
                   </Card>
 
@@ -868,9 +847,6 @@ const LecturerDashboard = () => {
                         </div>
                       </div>
                       <h3 className="font-bold text-foreground mb-1">{isRtl ? "النتائج" : "Results"}</h3>
-                      <p className="text-xs text-muted-foreground">
-                        {isRtl ? "إضافة وعرض نتائج الطلاب" : "Add and view student results"}
-                      </p>
                     </CardContent>
                   </Card>
 
@@ -882,9 +858,6 @@ const LecturerDashboard = () => {
                         </div>
                       </div>
                       <h3 className="font-bold text-foreground mb-1">{isRtl ? "تحميل التقارير" : "Export Reports"}</h3>
-                      <p className="text-xs text-muted-foreground">
-                        {isRtl ? "تصدير تقارير شاملة" : "Export full reports"}
-                      </p>
                     </CardContent>
                   </Card>
 
@@ -897,9 +870,6 @@ const LecturerDashboard = () => {
                         <Badge variant="secondary">{quizSubmissions.length}</Badge>
                       </div>
                       <h3 className="font-bold text-foreground mb-1">{isRtl ? "نتائج الاختبارات" : "Quiz Results"}</h3>
-                      <p className="text-xs text-muted-foreground">
-                        {isRtl ? "عرض نتائج الطلاب" : "View student results"}
-                      </p>
                     </CardContent>
                   </Card>
                 </div>

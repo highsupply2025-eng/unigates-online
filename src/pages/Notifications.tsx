@@ -287,11 +287,11 @@ const Notifications = () => {
         </div>
         <Link to={dashboardPath} className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 justify-end order-2">
           <div className="min-w-0 flex-1 text-end">
-            <h1 className="text-base sm:text-xl font-black text-foreground truncate">{headerTitle}</h1>
-            <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">{subtitle}</p>
+            <h1 className="text-base sm:text-xl font-black text-foreground truncate">{isRtl ? "الإشعارات" : "Notifications"}</h1>
+            <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">{headerTitle}</p>
           </div>
           <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 flex items-center justify-center shrink-0">
-            <HeaderIcon className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+            <Bell className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
           </div>
         </Link>
       </div>

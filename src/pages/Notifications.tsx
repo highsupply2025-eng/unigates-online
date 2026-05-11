@@ -127,6 +127,8 @@ const Notifications = () => {
         return {
           dashboardPath: "/admin/dashboard",
           subtitle: isRtl ? "لوحة المسؤول" : "Admin Panel",
+          headerTitle: isRtl ? "لوحة المسؤول" : "Admin Panel",
+          HeaderIcon: SchoolIcon,
           menuItems: [
             { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/admin/dashboard") },
             { key: "users", label: isRtl ? "المستخدمون" : "Users", Icon: Users, color: "from-emerald-500 to-emerald-600", onClick: goRoot("/admin/dashboard") },
@@ -142,6 +144,8 @@ const Notifications = () => {
         return {
           dashboardPath: "/lecturer/dashboard",
           subtitle: isRtl ? "لوحة المحاضر" : "Lecturer Panel",
+          headerTitle: isRtl ? "لوحة المحاضر" : "Lecturer Panel",
+          HeaderIcon: Video,
           menuItems: [
             { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/lecturer/dashboard") },
             { key: "courses", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video, color: "from-indigo-500 to-indigo-600", onClick: goRoot("/lecturer/dashboard") },
@@ -162,6 +166,8 @@ const Notifications = () => {
         return {
           dashboardPath: "/student/dashboard",
           subtitle: isRtl ? "لوحة الطالب" : "Student Dashboard",
+          headerTitle: isRtl ? "لوحة الطالب" : "Student Dashboard",
+          HeaderIcon: GraduationCap,
           menuItems: [
             { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/student") },
             { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-indigo-500 to-indigo-600", onClick: goRoot("/student/lectures") },
@@ -182,6 +188,8 @@ const Notifications = () => {
         return {
           dashboardPath: "/school/student/dashboard",
           subtitle: isRtl ? "الطالب المدرسي" : "School Student",
+          headerTitle: isRtl ? "الطالب المدرسي" : "School Student",
+          HeaderIcon: GraduationCap,
           menuItems: [
             { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/school/student/dashboard") },
             { key: "courses", label: isRtl ? "موادي" : "My Subjects", Icon: BookOpen, color: "from-emerald-500 to-emerald-600", onClick: goRoot("/school/student/dashboard") },
@@ -198,6 +206,8 @@ const Notifications = () => {
         return {
           dashboardPath: "/leadership/dashboard",
           subtitle: isRtl ? "لوحة القيادة" : "Leadership Panel",
+          headerTitle: isRtl ? "لوحة القيادة" : "Leadership Panel",
+          HeaderIcon: Landmark,
           menuItems: [
             { key: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/leadership/dashboard") },
             { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", onClick: goRoot("/leadership/dashboard") },
@@ -214,6 +224,8 @@ const Notifications = () => {
         return {
           dashboardPath: "/school/dashboard",
           subtitle: isRtl ? "لوحة المدرسة" : "School Panel",
+          headerTitle: isRtl ? "لوحة المدرسة" : "School Panel",
+          HeaderIcon: SchoolIcon,
           menuItems: [
             { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/school/dashboard") },
             { key: "new-class", label: isRtl ? "فصل جديد" : "New Class", Icon: Plus, color: "from-emerald-500 to-emerald-600", onClick: goRoot("/school/dashboard") },
@@ -225,6 +237,8 @@ const Notifications = () => {
         return {
           dashboardPath: "/school/teacher/dashboard",
           subtitle: isRtl ? "لوحة المعلم" : "Teacher Panel",
+          headerTitle: isRtl ? "لوحة المعلم" : "Teacher Panel",
+          HeaderIcon: GraduationCap,
           menuItems: [
             { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/school/teacher/dashboard") },
             { key: "courses", label: isRtl ? "المواد" : "Subjects", Icon: BookOpen, color: "from-emerald-500 to-emerald-600", onClick: goRoot("/school/teacher/dashboard") },
@@ -240,6 +254,8 @@ const Notifications = () => {
         return {
           dashboardPath: "/institution/dashboard",
           subtitle: isRtl ? "لوحة التحكم" : "Dashboard",
+          headerTitle: isRtl ? "لوحة التحكم" : "Dashboard",
+          HeaderIcon: Landmark,
           menuItems: [
             { key: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, color: "from-blue-500 to-blue-600", onClick: goRoot("/institution/dashboard") },
             { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, color: "from-emerald-500 to-emerald-600", onClick: goRoot("/institution/dashboard?tab=departments") },

@@ -136,20 +136,7 @@ const QuizResultsAll = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all border-border/60">
-            <CardContent className="p-4 sm:p-5">
-              <div className="flex items-center gap-3">
-                <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-primary/15 flex items-center justify-center">
-                  <BarChart3 className="w-6 h-6 sm:w-7 sm:h-7 text-primary" strokeWidth={2.5} />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">{isRtl ? "إجمالي الاختبارات" : "Quizzes"}</p>
-                  <p className="text-xl sm:text-2xl font-black mt-0.5">{quizzes.length}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all border-border/60">
             <CardContent className="p-4 sm:p-5">
               <div className="flex items-center gap-3">
@@ -157,7 +144,7 @@ const QuizResultsAll = () => {
                   <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7 text-green-600" strokeWidth={2.5} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">{isRtl ? "منشورة" : "Published"}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">{isRtl ? "معتمدة" : "Approved"}</p>
                   <p className="text-xl sm:text-2xl font-black mt-0.5 text-green-600">{publishedCount}</p>
                 </div>
               </div>
@@ -166,25 +153,12 @@ const QuizResultsAll = () => {
           <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all border-border/60">
             <CardContent className="p-4 sm:p-5">
               <div className="flex items-center gap-3">
-                <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-blue-500/15 flex items-center justify-center">
-                  <Users className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600" strokeWidth={2.5} />
+                <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-red-500/15 flex items-center justify-center">
+                  <XCircle className="w-6 h-6 sm:w-7 sm:h-7 text-red-600" strokeWidth={2.5} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">{isRtl ? "إجمالي الطلاب" : "Submissions"}</p>
-                  <p className="text-xl sm:text-2xl font-black mt-0.5">{totalSubs}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all border-border/60">
-            <CardContent className="p-4 sm:p-5">
-              <div className="flex items-center gap-3">
-                <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-amber-500/15 flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 sm:w-7 sm:h-7 text-amber-600" strokeWidth={2.5} />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">{isRtl ? "متوسط النجاح" : "Avg %"}</p>
-                  <p className="text-xl sm:text-2xl font-black mt-0.5">{overallAvg}%</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">{isRtl ? "غير معتمدة" : "Not Approved"}</p>
+                  <p className="text-xl sm:text-2xl font-black mt-0.5 text-red-600">{quizzes.length - publishedCount}</p>
                 </div>
               </div>
             </CardContent>

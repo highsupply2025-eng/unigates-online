@@ -56,9 +56,10 @@ const Notifications = () => {
       if (!user) return;
       const { data } = await supabase
         .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id);
-      const roles = (data || []).map((r: any) => r.role as string);
+        .select("role, approved")
+        .eq("user_id", user.id)
+        .eq("approved", true);
+      const roles = Array.from(new Set((data || []).map((r: any) => r.role as string)));
       setRole(pickPrimaryRole(roles));
     })();
   }, []);

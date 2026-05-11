@@ -23,7 +23,7 @@ const TableHeader = React.forwardRef<HTMLTableSectionElement, React.HTMLAttribut
     <thead
       ref={ref}
       className={cn(
-        "[&_tr]:border-b-2 [&_tr]:border-primary/30 bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5",
+        "[&_tr]:border-b-2 [&_tr]:border-primary/50 bg-gradient-to-r from-primary/30 via-primary/20 to-primary/15",
         className,
       )}
       {...props}

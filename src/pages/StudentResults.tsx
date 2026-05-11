@@ -77,7 +77,7 @@ const StudentResults = () => {
   return (
     <div className="min-h-screen bg-background" dir={dir}>
       <StudentPageHeader titleAr="نتائج الاختبارات" titleEn="Quiz Results" icon={<Award className="w-3.5 h-3.5" />} />
-      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
         <p className="text-xs sm:text-sm text-muted-foreground mb-5">
           {isRtl
             ? "تظهر النتائج بعد اعتماد رئيس القسم ووكيل الكلية والعميد."

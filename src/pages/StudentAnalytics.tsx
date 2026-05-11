@@ -93,7 +93,7 @@ const StudentAnalytics = () => {
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <StudentPageHeader titleAr="تحميل التقارير" titleEn="Export Reports" icon={<TrendingUp className="w-3.5 h-3.5" />} />
-      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8 space-y-5 sm:space-y-6">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8 space-y-5 sm:space-y-6">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
           {[
             { Icon: TrendingUp, value: `${avgQuiz}%`, label: isRtl ? "متوسط الاختبارات" : "Avg Quiz", color: "from-primary to-primary/70" },

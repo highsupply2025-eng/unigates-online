@@ -102,7 +102,7 @@ const StudentDashboard = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
       <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/10 to-primary/5">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 flex items-center justify-center shrink-0">
               <GraduationCap className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
@@ -131,7 +131,7 @@ const StudentDashboard = () => {
         </div>
       </header>
 
-      <main className="flex-1 max-w-6xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
         <div className="mb-6 text-start">
           <h2 className="text-2xl font-bold text-foreground mb-1">{isRtl ? "الرئيسية" : "Home"}</h2>
           <p className="text-sm text-muted-foreground">

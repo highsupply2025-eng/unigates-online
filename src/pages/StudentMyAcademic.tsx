@@ -40,7 +40,7 @@ const StudentMyAcademic = () => {
         icon={<GraduationCap className="w-3.5 h-3.5" />}
       />
 
-      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8 space-y-5">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8 space-y-5">
         {/* Affiliation card */}
         <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
           <CardHeader className="pb-3">

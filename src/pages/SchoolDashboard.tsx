@@ -227,12 +227,12 @@ const SchoolDashboard = () => {
     return (
       <div className="min-h-screen bg-background" dir={dir}>
         <header className="border-b border-border px-6 py-4">
-          <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2"><School className="w-8 h-8 text-primary" /><span className="text-2xl font-black text-foreground">{t.brandName}</span></Link>
             <Button variant="outline" size="sm" onClick={() => setPageView("members")} className="gap-1.5">{isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}{isRtl ? "رجوع" : "Back"}</Button>
           </div>
         </header>
-        <main className="max-w-4xl mx-auto px-4 py-8">
+        <main className="max-w-7xl mx-auto px-4 py-8">
           <div className="text-center mb-8">
             <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4"><User className="w-10 h-10 text-primary" /></div>
             <h1 className="text-2xl font-black text-foreground">{selectedMember.full_name}</h1>
@@ -293,12 +293,12 @@ const SchoolDashboard = () => {
     return (
       <div className="min-h-screen bg-background" dir={dir}>
         <header className="border-b border-border px-6 py-4">
-          <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2"><School className="w-8 h-8 text-primary" /><span className="text-2xl font-black text-foreground">{t.brandName}</span></Link>
             <Button variant="outline" size="sm" onClick={() => setPageView("main")} className="gap-1.5">{isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}{isRtl ? "رجوع" : "Back"}</Button>
           </div>
         </header>
-        <main className="max-w-4xl mx-auto px-4 py-8">
+        <main className="max-w-7xl mx-auto px-4 py-8">
           <h1 className="text-2xl font-black text-foreground mb-6">{selectedDept.department_name}</h1>
           <div className="flex items-center justify-between mb-4">
             <Badge className="bg-primary/10 text-primary">{students.length} {isRtl ? "طالب" : "students"} • {teachers.length} {isRtl ? "معلم" : "teachers"}</Badge>
@@ -345,7 +345,7 @@ const SchoolDashboard = () => {
   return (
     <div className="min-h-screen bg-background" dir={dir}>
       <header className="border-b border-border px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <School className="w-8 h-8 text-primary" />
             <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
@@ -367,7 +367,7 @@ const SchoolDashboard = () => {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-black text-foreground mb-1">{schoolName}</h1>
           <p className="text-muted-foreground">{isRtl ? "لوحة تحكم المدرسة" : "School Dashboard"}</p>

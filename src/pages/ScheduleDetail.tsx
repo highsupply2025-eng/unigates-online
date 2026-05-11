@@ -137,7 +137,7 @@ const ScheduleDetail = () => {
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <SimpleHeader backTo="/lecturer/dashboard?tab=schedules" mobileBackOnly useHistoryBack />
-      <main className="max-w-4xl mx-auto px-3 sm:px-6 py-6 sm:py-8 space-y-4 sm:space-y-6">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 py-6 sm:py-8 space-y-4 sm:space-y-6">
 
         <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-4">

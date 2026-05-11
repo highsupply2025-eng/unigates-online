@@ -131,7 +131,7 @@ const SchoolStudentDashboard = () => {
   return (
     <div className="min-h-screen bg-background" dir={dir}>
       <header className="border-b border-border px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <School className="w-8 h-8 text-primary" />
             <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
@@ -156,7 +156,7 @@ const SchoolStudentDashboard = () => {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-black text-foreground mb-1">
             {isRtl ? `مرحباً ${profile?.full_name || ""}! 👋` : `Welcome ${profile?.full_name || ""}! 👋`}

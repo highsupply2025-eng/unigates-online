@@ -118,7 +118,7 @@ const QuizResultsAll = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
       <LecturerPageHeader />
-      <main className="flex-1 max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8 w-full">
+      <main className="flex-1 max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8 w-full">
         {/* Page title */}
         <div className="flex items-center gap-3 mb-5 sm:mb-6">
           <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] flex items-center justify-center shadow-md shadow-primary/30">

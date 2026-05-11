@@ -313,10 +313,6 @@ const StudentQuizzes = () => {
               </Card>
             );
           })}
-                </CardContent>
-              </Card>
-            );
-          })}
         </div>
       </main>
     </div>

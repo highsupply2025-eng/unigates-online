@@ -311,7 +311,7 @@ const LeadershipDashboard = () => {
               items={[
                 { key: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, onClick: () => setActiveTab("overview"), active: activeTab === "overview" },
                 { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, onClick: () => setActiveTab("livestreams"), active: activeTab === "livestreams" },
-                { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: CheckCircle, onClick: () => setActiveTab("quizresults"), active: activeTab === "quizresults" },
+                { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, onClick: () => setActiveTab("quizresults"), active: activeTab === "quizresults" },
                 { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, onClick: () => setActiveTab("ratings"), active: activeTab === "ratings" },
                 { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, onClick: () => setActiveTab("assignments"), active: activeTab === "assignments" },
                 { key: "schedule", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => setActiveTab("schedule"), active: activeTab === "schedule" },

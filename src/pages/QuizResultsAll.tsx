@@ -118,33 +118,22 @@ const QuizResultsAll = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
       <SimpleHeader mobileBackOnly useHistoryBack />
-      <main className="flex-1 container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-6xl w-full">
-        {/* Hero */}
-        <Card className="mb-6 sm:mb-8 border-2 border-primary/20 bg-gradient-to-br from-primary/15 via-primary/5 to-background overflow-hidden">
-          <CardContent className="p-5 sm:p-8">
-            <div className="flex items-start gap-4 sm:gap-5">
-              <div className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] flex items-center justify-center shadow-xl shadow-primary/30 ring-4 ring-primary/10">
-                <Award className="w-9 h-9 sm:w-11 sm:h-11 text-primary-foreground" strokeWidth={2.5} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h1 className="text-2xl sm:text-3xl font-black mb-1.5 tracking-tight">
-                  {isRtl ? "نتائج الاختبارات" : "Quiz Results"}
-                </h1>
-                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                  {isRtl
-                    ? "عرض النتائج المعتمدة نهائياً فقط"
-                    : "Showing fully approved results only"}
-                </p>
-                <p className="text-xs sm:text-sm text-muted-foreground/80 mt-2 flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-primary shrink-0" />
-                  {isRtl
-                    ? "النتائج تُحسب آلياً وتُعرض بعد اعتماد جميع المراحل."
-                    : "Results are calculated automatically and shown after full approval."}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <main className="flex-1 max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8 w-full">
+        {/* Page title */}
+        <div className="flex items-center gap-3 mb-5 sm:mb-6">
+          <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] flex items-center justify-center shadow-md shadow-primary/30">
+            <Award className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" strokeWidth={2.5} />
+          </div>
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-2xl font-black tracking-tight leading-tight">
+              {isRtl ? "نتائج الاختبارات" : "Quiz Results"}
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-primary shrink-0" />
+              {isRtl ? "النتائج المعتمدة نهائياً فقط" : "Fully approved results only"}
+            </p>
+          </div>
+        </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">

@@ -435,7 +435,7 @@ const LeadershipDashboard = () => {
 
             <Card className="overflow-hidden border-2 border-primary/15 shadow-lg">
               <CardContent className="p-0">
-                <Table className="[&_th]:align-middle [&_td]:align-middle">
+                <Table className="[&_th]:align-middle [&_td]:align-middle [&_th]:text-start [&_td]:text-start">
                   <TableHeader>
                     <TableRow className="bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5 hover:bg-primary/15 border-b-2 border-primary/30">
                       <TableHead className="font-black text-primary text-[13px] uppercase tracking-wider py-4 w-[34%]">

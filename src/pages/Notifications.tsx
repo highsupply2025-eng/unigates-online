@@ -1,6 +1,10 @@
-import { useEffect, useState } from "react";
-import { Bell, CheckCheck, GraduationCap, ArrowLeft, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Bell, CheckCheck, GraduationCap, Home, Radio, Award, Star, ClipboardList,
+  Calendar, FileText, Layers, BookOpen, CheckCircle, Link as LinkIcon,
+  Plus, User, Users, Landmark, School as SchoolIcon, BookMarked,
+} from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
 import LecturerPageHeader from "@/components/LecturerPageHeader";
+import DashboardMenuDropdown, { type DashboardMenuItem } from "@/components/DashboardMenuDropdown";
 
 interface Notification {
   id: string;
@@ -27,23 +32,6 @@ const typeColors: Record<string, string> = {
   info: "bg-purple-100 text-purple-700",
 };
 
-// Map a role to its primary dashboard path.
-const roleDashboardPath = (role: string | null): string => {
-  switch (role) {
-    case "admin": return "/admin/dashboard";
-    case "lecturer": return "/lecturer/dashboard";
-    case "teacher": return "/school/teacher/dashboard";
-    case "school_student": return "/school/student/dashboard";
-    case "school": return "/school/dashboard";
-    case "dean":
-    case "vice_dean":
-    case "department_head": return "/leadership/dashboard";
-    case "student": return "/student/dashboard";
-    case "personal": return "/student/dashboard";
-    default: return "/profile";
-  }
-};
-
 // Pick the most relevant role when a user has multiple.
 const pickPrimaryRole = (roles: string[]): string | null => {
   const priority = [
@@ -56,7 +44,8 @@ const pickPrimaryRole = (roles: string[]): string | null => {
 };
 
 const Notifications = () => {
-  const { t, language } = useLanguage();
+  const { t, language, toggleLanguage } = useLanguage();
+  const navigate = useNavigate();
   const isRtl = language === "ar";
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -120,28 +109,126 @@ const Notifications = () => {
     return isRtl ? `منذ ${days} ي` : `${days}d ago`;
   };
 
-  // Generic minimal header used for roles that don't have a dedicated PageHeader
-  // (admin, leadership, school admin, school teacher, school student, institution, ...).
-  const dashboardPath = roleDashboardPath(role);
-  const GenericHeader = (
+  // Build the role-specific dropdown menu (mirrors each dashboard's menu).
+  const { dashboardPath, subtitle, menuItems } = useMemo<{
+    dashboardPath: string;
+    subtitle: string;
+    menuItems: DashboardMenuItem[];
+  }>(() => {
+    const goRoot = (path: string) => () => navigate(path);
+    const profileItem: DashboardMenuItem = {
+      key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details",
+      Icon: User, color: "from-cyan-500 to-cyan-600", onClick: goRoot("/profile"),
+    };
+
+    switch (role) {
+      case "admin":
+        return {
+          dashboardPath: "/admin/dashboard",
+          subtitle: isRtl ? "لوحة المسؤول" : "Admin Panel",
+          menuItems: [
+            { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/admin/dashboard") },
+            { key: "users", label: isRtl ? "المستخدمون" : "Users", Icon: Users, color: "from-emerald-500 to-emerald-600", onClick: goRoot("/admin/dashboard") },
+            { key: "schools", label: isRtl ? "المدارس" : "Schools", Icon: SchoolIcon, color: "from-cyan-500 to-cyan-600", onClick: goRoot("/admin/dashboard") },
+            { key: "colleges", label: isRtl ? "الكليات/المعاهد" : "Colleges/Institutes", Icon: Landmark, color: "from-indigo-500 to-indigo-600", onClick: goRoot("/admin/dashboard") },
+            { key: "courses", label: isRtl ? "الدورات" : "Courses", Icon: BookOpen, color: "from-amber-500 to-amber-600", onClick: goRoot("/admin/dashboard") },
+            { key: "books", label: isRtl ? "الكتب" : "Books", Icon: BookMarked, color: "from-pink-500 to-pink-600", onClick: goRoot("/admin/dashboard") },
+            profileItem,
+          ],
+        };
+
+      case "dean":
+      case "vice_dean":
+      case "department_head":
+        return {
+          dashboardPath: "/leadership/dashboard",
+          subtitle: isRtl ? "لوحة القيادة" : "Leadership Panel",
+          menuItems: [
+            { key: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/leadership/dashboard") },
+            { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", onClick: goRoot("/leadership/dashboard") },
+            { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-indigo-600", onClick: goRoot("/leadership/dashboard") },
+            { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: goRoot("/leadership/dashboard") },
+            { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-orange-500 to-orange-600", onClick: goRoot("/leadership/dashboard") },
+            { key: "schedule", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-pink-500 to-pink-600", onClick: goRoot("/leadership/dashboard") },
+            { key: "files", label: isRtl ? "الملفات" : "Files", Icon: FileText, color: "from-indigo-500 to-indigo-600", onClick: goRoot("/leadership/dashboard") },
+            profileItem,
+          ],
+        };
+
+      case "school":
+        return {
+          dashboardPath: "/school/dashboard",
+          subtitle: isRtl ? "لوحة المدرسة" : "School Panel",
+          menuItems: [
+            { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/school/dashboard") },
+            { key: "new-class", label: isRtl ? "فصل جديد" : "New Class", Icon: Plus, color: "from-emerald-500 to-emerald-600", onClick: goRoot("/school/dashboard") },
+            profileItem,
+          ],
+        };
+
+      case "teacher":
+        return {
+          dashboardPath: "/school/teacher/dashboard",
+          subtitle: isRtl ? "لوحة المعلم" : "Teacher Panel",
+          menuItems: [
+            { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/school/teacher/dashboard") },
+            { key: "courses", label: isRtl ? "المواد" : "Subjects", Icon: BookOpen, color: "from-emerald-500 to-emerald-600", onClick: goRoot("/school/teacher/dashboard") },
+            { key: "live", label: isRtl ? "الحصص المباشرة" : "Live Classes", Icon: Radio, color: "from-red-500 to-rose-600", onClick: goRoot("/school/teacher/dashboard") },
+            { key: "homework", label: isRtl ? "الواجبات" : "Homework", Icon: ClipboardList, color: "from-amber-500 to-amber-600", onClick: goRoot("/school/teacher/dashboard") },
+            { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-purple-500 to-purple-600", onClick: goRoot("/school/teacher/dashboard") },
+            { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: goRoot("/school/teacher/dashboard") },
+            profileItem,
+          ],
+        };
+
+      default: {
+        // Institution (college/institute) admins fall here.
+        return {
+          dashboardPath: "/institution/dashboard",
+          subtitle: isRtl ? "لوحة التحكم" : "Dashboard",
+          menuItems: [
+            { key: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, color: "from-blue-500 to-blue-600", onClick: goRoot("/institution/dashboard") },
+            { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, color: "from-emerald-500 to-emerald-600", onClick: goRoot("/institution/dashboard?tab=departments") },
+            { key: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, color: "from-indigo-500 to-indigo-600", onClick: goRoot("/institution/dashboard?tab=quizresults") },
+            { key: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: LinkIcon, color: "from-purple-500 to-purple-600", onClick: goRoot("/institution/dashboard?tab=invitations") },
+            profileItem,
+          ],
+        };
+      }
+    }
+  }, [role, isRtl, navigate]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/university-platform");
+  };
+
+  // Unified header (same look across all roles) with the role-aware dropdown menu.
+  const UnifiedHeader = (
     <header className="border-b border-border px-2 sm:px-6 py-2.5 sm:py-4 sticky top-0 z-30 bg-background/95 backdrop-blur">
-      <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
-        <Link to={dashboardPath} className="flex items-center gap-2 min-w-0 flex-1">
-          <GraduationCap className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
-          <div className="min-w-0">
-            <span className="block text-base sm:text-xl font-black text-foreground tracking-tight truncate">{t.brandName}</span>
-            <Badge className="bg-primary/10 text-primary border-primary/20 mt-0.5">
+      <div className="max-w-6xl mx-auto flex items-center justify-between gap-1.5 sm:gap-3">
+        <Link to={dashboardPath} className="flex items-center gap-1.5 min-w-0 flex-1">
+          <GraduationCap className="w-6 h-6 sm:w-8 sm:h-8 text-primary shrink-0" />
+          <div className="min-w-0 hidden xs:block">
+            <span className="block text-sm sm:text-xl font-black text-foreground tracking-tight truncate">{t.brandName}</span>
+            <Badge className="bg-primary/10 text-primary border-primary/20 hidden sm:inline-flex shrink-0 mt-0.5">
               <Bell className="w-3 h-3 me-1" />
-              {isRtl ? "الإشعارات" : "Notifications"}
+              <span>{isRtl ? "الإشعارات" : "Notifications"}</span>
             </Badge>
           </div>
         </Link>
-        <Link to={dashboardPath} className="shrink-0">
-          <Button size="sm" className="gap-1.5 font-bold shadow-md shadow-primary/30">
-            {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
-            <span className="hidden xs:inline">{isRtl ? "رجوع" : "Back"}</span>
-          </Button>
-        </Link>
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          <DashboardMenuDropdown
+            title={subtitle}
+            onLanguageToggle={toggleLanguage}
+            onLogout={handleLogout}
+            items={menuItems}
+          />
+        </div>
+      </div>
+      <div className="max-w-6xl mx-auto mt-1.5 sm:hidden flex items-center gap-2 text-sm font-bold text-foreground">
+        <Bell className="w-3.5 h-3.5 text-primary" />
+        <span>{isRtl ? "الإشعارات" : "Notifications"}</span>
       </div>
     </header>
   );
@@ -151,7 +238,7 @@ const Notifications = () => {
     if (role === "student" || role === "personal" || role === "school_student") {
       return <StudentPageHeader titleAr="الإشعارات" titleEn="Notifications" icon={<Bell className="w-3.5 h-3.5" />} />;
     }
-    return GenericHeader;
+    return UnifiedHeader;
   };
 
   return (

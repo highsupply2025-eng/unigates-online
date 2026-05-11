@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, type LucideIcon } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface SectionDatum {
@@ -10,6 +10,10 @@ export interface SectionDatum {
   timestamps: (string | Date | null | undefined)[];
   /** Bar color (HSL or hex). */
   color?: string;
+  /** Optional explicit icon (used by pill chart) — overrides label-based detection. */
+  Icon?: LucideIcon;
+  /** Optional explicit gradient palette for the pill chart. */
+  palette?: { from: string; to: string; glow: string };
 }
 
 interface Props {

@@ -75,8 +75,8 @@ export const StudentPillActivityChart = ({
     return {
       name: s.label,
       count,
-      palette: PALETTE[i % PALETTE.length],
-      Icon: pickIcon(s.label),
+      palette: s.palette ?? PALETTE[i % PALETTE.length],
+      Icon: s.Icon ?? pickIcon(s.label),
     };
   });
 

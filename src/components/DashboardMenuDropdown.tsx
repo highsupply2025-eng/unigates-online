@@ -1,6 +1,6 @@
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LucideIcon, Menu, Globe, LogOut, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { LucideIcon, Menu, Globe, LogOut, X, ChevronLeft, ChevronRight, Bell } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useLanguage } from "@/contexts/LanguageContext";
-import NotificationsInline from "@/components/NotificationsInline";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface DashboardMenuItem {
   key?: string;
@@ -31,7 +31,7 @@ interface Props {
   langLabel?: string;
   logoutLabel?: string;
   title?: string;
-  /** Set false to hide notifications inside the dropdown (defaults to true). */
+  /** Set false to hide the notifications entry (defaults to true). */
   showNotifications?: boolean;
 }
 
@@ -55,7 +55,6 @@ const DashboardMenuDropdown = ({
   onLogout,
   langLabel,
   logoutLabel,
-  title,
   showNotifications = true,
 }: Props) => {
   const { t, language } = useLanguage();
@@ -66,6 +65,25 @@ const DashboardMenuDropdown = ({
   const [unread, setUnread] = useState(0);
 
   const close = useCallback(() => setOpen(false), []);
+
+  const loadUnread = useCallback(async () => {
+    if (!showNotifications) return;
+    const { count } = await supabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("is_read", false);
+    setUnread(count ?? 0);
+  }, [showNotifications]);
+
+  useEffect(() => {
+    loadUnread();
+    if (!showNotifications) return;
+    const channel = supabase
+      .channel("notifications-badge")
+      .on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, loadUnread)
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [loadUnread, showNotifications]);
 
   const handleOpenChange = useCallback((next: boolean) => {
     setOpen(next);
@@ -98,29 +116,6 @@ const DashboardMenuDropdown = ({
         sideOffset={10}
         className="w-[min(92vw,320px)] max-h-[85vh] overflow-y-auto p-2 rounded-2xl border-2 shadow-2xl"
       >
-        {/* Header */}
-        <div className="px-3 py-2.5 mb-1 rounded-xl bg-gradient-to-br from-primary/15 via-primary/10 to-transparent flex items-center justify-between">
-          <span className="text-xs font-extrabold tracking-wider text-primary uppercase">
-            {title ?? (isRtl ? "القائمة الرئيسية" : "Main Menu")}
-          </span>
-          <button
-            onClick={close}
-            className="w-6 h-6 rounded-full bg-background/70 hover:bg-background flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-            aria-label={isRtl ? "إغلاق" : "Close"}
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
-        </div>
-
-        {showNotifications && (
-          <>
-            <div className="px-1 pb-1.5" onClick={(e) => e.stopPropagation()}>
-              <NotificationsInline onUnreadChange={setUnread} />
-            </div>
-            <DropdownMenuSeparator className="my-1.5" />
-          </>
-        )}
-
         {/* Items */}
         <div className="space-y-0.5">
           {items.map((it, idx) => {
@@ -160,6 +155,27 @@ const DashboardMenuDropdown = ({
 
         {/* Footer actions */}
         <div className="space-y-0.5">
+          {showNotifications && (
+            <DropdownMenuItem
+              onClick={() => { close(); navigate("/notifications"); }}
+              className={`group gap-3 cursor-pointer rounded-xl py-2.5 px-2.5 ${
+                pathname === "/notifications" ? "bg-primary/10 ring-1 ring-primary/30" : ""
+              }`}
+            >
+              <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 shadow-md shadow-black/10 flex items-center justify-center shrink-0">
+                <Bell className="w-4 h-4 text-white" strokeWidth={2.5} />
+                {unread > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center ring-2 ring-background">
+                    {unread > 99 ? "99+" : unread}
+                  </span>
+                )}
+              </div>
+              <span className="text-sm font-semibold flex-1 truncate">
+                {isRtl ? "الإشعارات" : "Notifications"}
+              </span>
+              <Chevron className="w-4 h-4 text-muted-foreground/50 group-hover:text-primary shrink-0 transition-colors" />
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem
             onClick={() => { close(); onLanguageToggle(); }}
             className="gap-3 cursor-pointer rounded-xl py-2.5 px-2.5"

@@ -379,10 +379,10 @@ const SchoolDashboard = () => {
         <SectionsActivityChart
           className="mb-8"
           sections={[
-            { label: isRtl ? "الفصول" : "Classes", color: "#3b82f6", timestamps: departments.map((d: any) => d.created_at) },
-            { label: isRtl ? "الطلاب" : "Students", color: "#22c55e", timestamps: deptMembers.filter((m: any) => m.role === "student").map((m: any) => m.created_at) },
-            { label: isRtl ? "المعلمون" : "Teachers", color: "#f59e0b", timestamps: deptMembers.filter((m: any) => m.role === "lecturer" || m.role === "teacher").map((m: any) => m.created_at) },
-            { label: isRtl ? "المُفعّلون" : "Active", color: "#8b5cf6", timestamps: deptMembers.filter((m: any) => m.user_id).map((m: any) => m.created_at) },
+            { label: isRtl ? "الفصول" : "Classes", Icon: Building2, color: "#3b82f6", timestamps: departments.map((d: any) => d.created_at) },
+            { label: isRtl ? "الطلاب" : "Students", Icon: GraduationCap, color: "#22c55e", timestamps: deptMembers.filter((m: any) => m.role === "student").map((m: any) => m.created_at) },
+            { label: isRtl ? "المعلمون" : "Teachers", Icon: UserCheck, color: "#f59e0b", timestamps: deptMembers.filter((m: any) => m.role === "lecturer" || m.role === "teacher").map((m: any) => m.created_at) },
+            { label: isRtl ? "المُفعّلون" : "Active", Icon: CheckCircle, color: "#8b5cf6", timestamps: deptMembers.filter((m: any) => m.user_id).map((m: any) => m.created_at) },
           ]}
         />
 

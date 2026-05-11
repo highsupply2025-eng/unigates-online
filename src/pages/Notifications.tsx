@@ -273,21 +273,11 @@ const Notifications = () => {
     navigate("/university-platform");
   };
 
-  // Unified header (same look across all roles) with the role-aware dropdown menu.
+  // Unified header — matches the dashboard header style across all roles.
   const UnifiedHeader = (
-    <header className="border-b border-border px-2 sm:px-6 py-2.5 sm:py-4 sticky top-0 z-30 bg-background/95 backdrop-blur">
-      <div className="max-w-6xl mx-auto flex items-center justify-between gap-1.5 sm:gap-3">
-        <Link to={dashboardPath} className="flex items-center gap-1.5 min-w-0 flex-1">
-          <GraduationCap className="w-6 h-6 sm:w-8 sm:h-8 text-primary shrink-0" />
-          <div className="min-w-0 hidden xs:block">
-            <span className="block text-sm sm:text-xl font-black text-foreground tracking-tight truncate">{t.brandName}</span>
-            <Badge className="bg-primary/10 text-primary border-primary/20 hidden sm:inline-flex shrink-0 mt-0.5">
-              <Bell className="w-3 h-3 me-1" />
-              <span>{isRtl ? "الإشعارات" : "Notifications"}</span>
-            </Badge>
-          </div>
-        </Link>
-        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+    <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 sticky top-0 z-30 bg-gradient-to-r from-primary/10 to-primary/5 backdrop-blur">
+      <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 order-1">
           <DashboardMenuDropdown
             title={subtitle}
             onLanguageToggle={toggleLanguage}
@@ -295,10 +285,15 @@ const Notifications = () => {
             items={menuItems}
           />
         </div>
-      </div>
-      <div className="max-w-6xl mx-auto mt-1.5 sm:hidden flex items-center gap-2 text-sm font-bold text-foreground">
-        <Bell className="w-3.5 h-3.5 text-primary" />
-        <span>{isRtl ? "الإشعارات" : "Notifications"}</span>
+        <Link to={dashboardPath} className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 justify-end order-2">
+          <div className="min-w-0 flex-1 text-end">
+            <h1 className="text-base sm:text-xl font-black text-foreground truncate">{headerTitle}</h1>
+            <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">{subtitle}</p>
+          </div>
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 flex items-center justify-center shrink-0">
+            <HeaderIcon className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+          </div>
+        </Link>
       </div>
     </header>
   );

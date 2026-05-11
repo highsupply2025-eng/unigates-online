@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import SimpleHeader from "@/components/SimpleHeader";
+import LecturerPageHeader from "@/components/LecturerPageHeader";
 import SiteFooter from "@/components/SiteFooter";
 
 const QuizResultsAll = () => {
@@ -117,7 +117,7 @@ const QuizResultsAll = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <SimpleHeader mobileBackOnly useHistoryBack />
+      <LecturerPageHeader />
       <main className="flex-1 max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8 w-full">
         {/* Page title */}
         <div className="flex items-center gap-3 mb-5 sm:mb-6">

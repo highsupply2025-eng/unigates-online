@@ -516,38 +516,40 @@ const LeadershipDashboard = () => {
               <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
             </button>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <p className="text-3xl font-black text-primary">{quizzes.length}</p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "إجمالي الاختبارات" : "Total Quizzes"}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <p className="text-3xl font-black text-emerald-600">{quizSubmissions.length}</p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "إجمالي التقديمات" : "Total Submissions"}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <p className="text-3xl font-black text-amber-600">
-                    {quizSubmissions.length > 0
-                      ? Math.round(quizSubmissions.reduce((a, s) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / quizSubmissions.length)
-                      : 0}%
-                  </p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "متوسط النتيجة" : "Avg Score"}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <p className="text-3xl font-black text-emerald-500">
-                    {quizSubmissions.filter(s => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "ناجح (≥50%)" : "Passed (≥50%)"}</p>
-                </CardContent>
-              </Card>
-            </div>
+            {(() => {
+              const passed = quizSubmissions.filter(s => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length;
+              const notPassed = quizSubmissions.length - passed;
+              return (
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
+                  <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all border-border/60">
+                    <CardContent className="p-4 sm:p-5">
+                      <div className="flex items-center gap-3">
+                        <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-green-500/15 flex items-center justify-center">
+                          <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7 text-green-600" strokeWidth={2.5} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">{isRtl ? "معتمدة" : "Approved"}</p>
+                          <p className="text-xl sm:text-2xl font-black mt-0.5 text-green-600">{passed}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all border-border/60">
+                    <CardContent className="p-4 sm:p-5">
+                      <div className="flex items-center gap-3">
+                        <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-red-500/15 flex items-center justify-center">
+                          <XCircle className="w-6 h-6 sm:w-7 sm:h-7 text-red-600" strokeWidth={2.5} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">{isRtl ? "غير معتمدة" : "Not Approved"}</p>
+                          <p className="text-xl sm:text-2xl font-black mt-0.5 text-red-600">{notPassed}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              );
+            })()}
 
             {/* Score Distribution Charts */}
             {quizSubmissions.length > 0 && (() => {

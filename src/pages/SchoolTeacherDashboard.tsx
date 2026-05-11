@@ -403,7 +403,7 @@ const SchoolTeacherDashboard = () => {
               </TabsList>
 
               {/* Courses/Lessons */}
-              <TabsContent value="courses">
+              <TabsContent value="courses" dir={isRtl ? "rtl" : "ltr"}>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-foreground">{isRtl ? "موادي" : "My Subjects"}</h2>
                   <Button onClick={() => setShowNewCourse(true)} className="gap-2"><Plus className="w-4 h-4" />{isRtl ? "مادة جديدة" : "New Subject"}</Button>
@@ -434,7 +434,7 @@ const SchoolTeacherDashboard = () => {
               </TabsContent>
 
               {/* Live */}
-              <TabsContent value="live">
+              <TabsContent value="live" dir={isRtl ? "rtl" : "ltr"}>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-foreground">{isRtl ? "الحصص المباشرة" : "Live Classes"}</h2>
                   <Button onClick={() => setShowStreamDialog(true)} className="gap-2"><Plus className="w-4 h-4" />{isRtl ? "حصة جديدة" : "New Class"}</Button>
@@ -473,7 +473,7 @@ const SchoolTeacherDashboard = () => {
               </TabsContent>
 
               {/* Assignments/Homework */}
-              <TabsContent value="assignments">
+              <TabsContent value="assignments" dir={isRtl ? "rtl" : "ltr"}>
                 <div className="mb-6">
                   <h2 className="text-xl font-bold text-foreground mb-2">{isRtl ? "الواجبات المدرسية" : "Homework & Assignments"}</h2>
                   <p className="text-sm text-muted-foreground">{isRtl ? "أنشئ واجبات وارفع ملفات للطلبة. يستطيع الطلبة تنزيلها وإرسال إجاباتهم لتقييمها." : "Create homework and upload files for students."}</p>
@@ -496,7 +496,7 @@ const SchoolTeacherDashboard = () => {
               </TabsContent>
 
               {/* Ratings */}
-              <TabsContent value="ratings">
+              <TabsContent value="ratings" dir={isRtl ? "rtl" : "ltr"}>
                 <div className="mb-6">
                   <h2 className="text-xl font-bold text-foreground mb-2">{isRtl ? "تقييمات الطلبة" : "Student Ratings"}</h2>
                   <p className="text-sm text-muted-foreground">{isRtl ? "تقييمات الطلبة لأدائك في المواد الدراسية" : "Student ratings for your teaching performance"}</p>

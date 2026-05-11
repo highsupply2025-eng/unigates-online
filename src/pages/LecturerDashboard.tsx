@@ -726,7 +726,7 @@ const LecturerDashboard = () => {
               </TabsList>
 
               {/* ===== HOME / ANALYTICS DASHBOARD ===== */}
-              <TabsContent value="home">
+              <TabsContent value="home" dir={isRtl ? "rtl" : "ltr"}>
                 <div className="mb-6 text-right" dir="rtl">
                   <h2 className="text-2xl font-bold text-foreground mb-1">{isRtl ? "الرئيسية" : "Home"}</h2>
                   <p className="text-sm text-muted-foreground">{isRtl ? "نظرة عامة على نشاطك في جميع الأقسام" : "Overview of your activity across all sections"}</p>
@@ -866,7 +866,7 @@ const LecturerDashboard = () => {
 
 
               {/* ===== COURSES TAB ===== */}
-              <TabsContent value="courses">
+              <TabsContent value="courses" dir={isRtl ? "rtl" : "ltr"}>
                 <div className="flex items-center justify-end gap-2 mb-6">
                   <Button onClick={() => setShowNewCourse(true)} className="gap-2"><Plus className="w-4 h-4" />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</Button>
                   <Button
@@ -930,7 +930,7 @@ const LecturerDashboard = () => {
               </TabsContent>
 
               {/* ===== LIVE STREAMING TAB ===== */}
-              <TabsContent value="live">
+              <TabsContent value="live" dir={isRtl ? "rtl" : "ltr"}>
                 <div className="flex items-center justify-between mb-6" dir={isRtl ? "rtl" : "ltr"}>
                   <h2 className="text-xl font-bold text-foreground order-1">{isRtl ? "البث المباشر" : "Live Streams"}</h2>
                   <Button onClick={() => setShowStreamDialog(true)} className="gap-2 order-2"><Plus className="w-4 h-4" />{isRtl ? "بث جديد" : "New Stream"}</Button>
@@ -974,7 +974,7 @@ const LecturerDashboard = () => {
               </TabsContent>
 
               {/* ===== ASSIGNMENTS TAB ===== */}
-              <TabsContent value="assignments">
+              <TabsContent value="assignments" dir={isRtl ? "rtl" : "ltr"}>
                 <div className={`mb-6 ${isRtl ? "text-right" : "text-left"}`}>
                   <h2 className="text-xl font-bold text-foreground mb-2">{isRtl ? "التكليفات والملفات الورقية" : "Assignments & Paper Files"}</h2>
                   
@@ -997,7 +997,7 @@ const LecturerDashboard = () => {
               </TabsContent>
 
               {/* ===== ONLINE QUIZZES TAB ===== */}
-              <TabsContent value="quizzes">
+              <TabsContent value="quizzes" dir={isRtl ? "rtl" : "ltr"}>
                 <div className={`mb-6 ${isRtl ? "text-right" : "text-left"}`} dir={isRtl ? "rtl" : "ltr"}>
                   <h2 className="text-xl font-bold text-foreground mb-2">{isRtl ? "الاختبارات الأونلاين" : "Online Tests"}</h2>
                   <p className="text-sm text-muted-foreground">{isRtl ? "أنشئ اختبارات أونلاين يحلها الطالب مباشرة مع تصحيح تلقائي" : "Create online tests with auto-grading"}</p>
@@ -1020,7 +1020,7 @@ const LecturerDashboard = () => {
               </TabsContent>
 
               {/* ===== SCHEDULES TAB ===== */}
-              <TabsContent value="schedules">
+              <TabsContent value="schedules" dir={isRtl ? "rtl" : "ltr"}>
                 <div className={`mb-6 flex flex-col gap-3 ${isRtl ? "items-end text-right" : "items-start text-left"}`}>
                   <h2 className="text-xl sm:text-2xl font-bold text-foreground">{isRtl ? "جداول المحاضرات والاختبارات" : "Lectures & Tests Schedules"}</h2>
                   <Button onClick={() => setShowScheduleDialog(true)} className="gap-2 shadow-md hover:shadow-lg transition-shadow"><Plus className="w-5 h-5" strokeWidth={2.5} />{isRtl ? "إضافة جدول" : "Add Schedule"}</Button>
@@ -1067,7 +1067,7 @@ const LecturerDashboard = () => {
               </TabsContent>
 
               {/* ===== ATTENDANCE TAB ===== */}
-              <TabsContent value="attendance">
+              <TabsContent value="attendance" dir={isRtl ? "rtl" : "ltr"}>
                 <div className={`flex items-center justify-between gap-3 mb-2 ${isRtl ? "flex-row-reverse" : ""}`}>
                   <h2 className="text-xl sm:text-2xl font-bold text-foreground">{isRtl ? "حضور الطلاب" : "Student Attendance"}</h2>
                 </div>
@@ -1141,7 +1141,7 @@ const LecturerDashboard = () => {
               </TabsContent>
 
               {/* ===== RATINGS TAB ===== */}
-              <TabsContent value="ratings">
+              <TabsContent value="ratings" dir={isRtl ? "rtl" : "ltr"}>
                 <div className="flex items-center justify-between mb-6" dir={isRtl ? "rtl" : "ltr"}>
                   <h2 className="text-xl font-bold text-foreground order-1">{isRtl ? "تقييمات الطلبة" : "Student Ratings"}</h2>
                   <Button size="sm" variant="outline" onClick={() => exportAnalyticsPDF("ratings")} className="gap-1.5 order-2">
@@ -1180,7 +1180,7 @@ const LecturerDashboard = () => {
               </TabsContent>
 
               {/* ===== ANALYTICS / EXPORT TAB ===== */}
-              <TabsContent value="analytics">
+              <TabsContent value="analytics" dir={isRtl ? "rtl" : "ltr"}>
                 <h2 className={`text-xl font-bold text-foreground mb-6 ${isRtl ? "text-right" : "text-left"}`}>{isRtl ? "تحميل التقارير" : "Export Reports"}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" dir={isRtl ? "rtl" : "ltr"}>
                   {[

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Globe, ArrowLeft, ArrowRight, Loader2, Users, BookOpen, Calendar,
   Video, FileText, Download, BarChart3, Clock, CheckCircle, AlertCircle,
-  GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, ShieldCheck, Menu, Home, Bell, CheckCheck, XCircle
+  GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, Menu, Home, Bell, CheckCheck, XCircle, Award
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -311,7 +311,7 @@ const LeadershipDashboard = () => {
               items={[
                 { key: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, onClick: () => setActiveTab("overview"), active: activeTab === "overview" },
                 { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, onClick: () => setActiveTab("livestreams"), active: activeTab === "livestreams" },
-                { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: CheckCircle, onClick: () => setActiveTab("quizresults"), active: activeTab === "quizresults" },
+                { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, onClick: () => setActiveTab("quizresults"), active: activeTab === "quizresults" },
                 { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, onClick: () => setActiveTab("ratings"), active: activeTab === "ratings" },
                 { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, onClick: () => setActiveTab("assignments"), active: activeTab === "assignments" },
                 { key: "schedule", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => setActiveTab("schedule"), active: activeTab === "schedule" },
@@ -361,7 +361,6 @@ const LeadershipDashboard = () => {
                       { label: isRtl ? "التكليفات" : "Assignments", timestamps: assignments.map((a: any) => a.created_at) },
                       { label: isRtl ? "الجداول" : "Schedules", timestamps: liveStreams.filter((s: any) => s.status === "scheduled").map((s: any) => s.scheduled_at || s.created_at) },
                       { label: isRtl ? "الملفات" : "Files", timestamps: episodes.filter((e: any) => e.file_url || e.attachment_url || e.pdf_url).map((e: any) => e.created_at) },
-                      { label: isRtl ? "اعتماد النتائج" : "Approvals", timestamps: quizzes.map((q: any) => q.created_at) },
                       { label: isRtl ? "الإشعارات" : "Notifications", timestamps: notifications.map((n: any) => n.created_at) },
                     ]}
                   />
@@ -372,12 +371,11 @@ const LeadershipDashboard = () => {
                   <MenuItemsStatsGrid
                     items={[
                       { key: "live", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", count: liveStreams.length },
-                      { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: CheckCircle, color: "from-emerald-500 to-emerald-600", count: quizSubmissions.length },
+                      { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-indigo-600", count: quizSubmissions.length },
                       { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", count: ratings.length },
                       { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-orange-500 to-orange-600", count: assignments.length },
                       { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-pink-500 to-pink-600", count: episodes.length },
                       { key: "files", label: isRtl ? "الملفات" : "Files", Icon: FileText, color: "from-indigo-500 to-indigo-600", count: filesCount },
-                      { key: "approvals", label: isRtl ? "اعتماد النتائج" : "Approvals", Icon: ShieldCheck, color: "from-teal-500 to-teal-600", count: quizzes.length },
                       { key: "notifications", label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell, color: "from-blue-500 to-blue-600", count: unreadNotifications },
                     ]}
                   />

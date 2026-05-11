@@ -316,7 +316,7 @@ const LeadershipDashboard = () => {
                 { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, onClick: () => setActiveTab("assignments"), active: activeTab === "assignments" },
                 { key: "schedule", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => setActiveTab("schedule"), active: activeTab === "schedule" },
                 { key: "files", label: isRtl ? "الملفات" : "Files", Icon: FileText, onClick: () => setActiveTab("files"), active: activeTab === "files" },
-                { key: "approvals", label: isRtl ? "اعتماد النتائج" : "Quiz Approvals", Icon: ShieldCheck, onClick: () => navigate("/leadership/quiz-approvals") },
+                
               ]}
             />
           </div>

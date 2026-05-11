@@ -685,7 +685,7 @@ const LecturerDashboard = () => {
                 { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, onClick: () => handleTabChange("ratings"), active: activeTab === "ratings" },
                 { key: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, onClick: () => handleTabChange("analytics"), active: activeTab === "analytics" },
                 { key: "quiz-results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, onClick: () => navigate("/quiz-results") },
-                { key: "quiz-approvals", label: isRtl ? "اعتماد الاختبارات" : "Quiz Approvals", Icon: CheckCircle, onClick: () => navigate("/leadership/quiz-approvals") },
+                
               ]}
             />
           </div>
@@ -747,7 +747,7 @@ const LecturerDashboard = () => {
                     { label: isRtl ? "التقييمات" : "Ratings", timestamps: lecturerRatings.map((x: any) => x.created_at) },
                     { label: isRtl ? "تحميل التقارير" : "Reports", timestamps: attachments.map((x: any) => x.created_at) },
                     { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", timestamps: quizSubmissions.map((x: any) => x.submitted_at || x.created_at) },
-                    { label: isRtl ? "اعتماد الاختبارات" : "Quiz Approvals", timestamps: quizzes.filter((q: any) => q.is_published).map((q: any) => q.updated_at || q.created_at) },
+                    
                   ]}
                 />
 
@@ -901,21 +901,6 @@ const LecturerDashboard = () => {
                       <h3 className="font-bold text-foreground mb-1">{isRtl ? "نتائج الاختبارات" : "Quiz Results"}</h3>
                       <p className="text-xs text-muted-foreground">
                         {isRtl ? "عرض نتائج الطلاب" : "View student results"}
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-5">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-md shadow-black/10 flex items-center justify-center">
-                          <CheckCircle className="w-5 h-5 text-white" />
-                        </div>
-                        <Badge variant="secondary">{quizzes.filter((q: any) => q.is_published).length}</Badge>
-                      </div>
-                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "اعتماد الاختبارات" : "Quiz Approvals"}</h3>
-                      <p className="text-xs text-muted-foreground">
-                        {isRtl ? "اعتماد ومراجعة الاختبارات" : "Approve and review quizzes"}
                       </p>
                     </CardContent>
                   </Card>

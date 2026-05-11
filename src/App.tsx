@@ -76,7 +76,7 @@ const StudentSchedules = lazy(() => import("./pages/StudentSchedules"));
 const StudentScheduleDetail = lazy(() => import("./pages/StudentScheduleDetail"));
 const StudentAttendance = lazy(() => import("./pages/StudentAttendance"));
 const StudentRatings = lazy(() => import("./pages/StudentRatings"));
-const LeadershipQuizApprovals = lazy(() => import("./pages/LeadershipQuizApprovals"));
+
 const StudentMyAcademic = lazy(() => import("./pages/StudentMyAcademic"));
 
 const queryClient = new QueryClient({
@@ -177,7 +177,7 @@ const App = () => (
               <Route path="/student/ratings" element={<StudentRatings />} />
               <Route path="/student/analytics" element={<StudentAnalytics />} />
               <Route path="/student/my-academic" element={<StudentMyAcademic />} />
-              <Route path="/leadership/quiz-approvals" element={<LeadershipQuizApprovals />} />
+              
               <Route path="/about" element={<About />} />
               <Route path="/help-center" element={<HelpCenter />} />
               <Route path="/terms" element={<Terms />} />

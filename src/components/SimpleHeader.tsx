@@ -32,7 +32,7 @@ const SimpleHeader = ({ backTo = "/", mobileBackOnly = false, useHistoryBack = f
       { match: "/terms", ar: "الشروط والأحكام", en: "Terms & Conditions" },
       { match: "/blog", ar: "المدونة", en: "Blog" },
       { match: "/partnerships", ar: "الشراكات", en: "Partnerships" },
-      { match: "/leadership/quiz-approvals", ar: "اعتمادات الاختبارات", en: "Quiz Approvals" },
+      
       { match: "/quiz/create", ar: "الاختبارات أونلاين", en: "Online Quizzes" },
       { match: "/coming-soon", ar: "قريبًا", en: "Coming Soon" },
     ];

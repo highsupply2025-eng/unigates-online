@@ -3,6 +3,7 @@ import {
   Bell, CheckCheck, GraduationCap, Home, Radio, Award, Star, ClipboardList,
   Calendar, FileText, Layers, BookOpen, CheckCircle, Link as LinkIcon,
   Plus, User, Users, Landmark, School as SchoolIcon, BookMarked,
+  Video, HelpCircle, Download, TrendingUp,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -10,8 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import StudentPageHeader from "@/components/StudentPageHeader";
-import LecturerPageHeader from "@/components/LecturerPageHeader";
 import DashboardMenuDropdown, { type DashboardMenuItem } from "@/components/DashboardMenuDropdown";
 
 interface Notification {

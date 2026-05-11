@@ -88,24 +88,33 @@ const StudentResults = () => {
           <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
         ) : (
           <>
-            <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
-              {[
-                { Icon: BarChart3, value: rows.length, label: isRtl ? "المعتمدة" : "Approved", color: "from-primary to-primary/70" },
-                { Icon: CheckCircle, value: passed, label: isRtl ? "ناجح" : "Passed", color: "from-green-500 to-emerald-600" },
-                { Icon: Award, value: `${avg}%`, label: isRtl ? "المعدل" : "Average", color: "from-amber-500 to-orange-600" },
-              ].map((s, i) => (
-                <Card key={i} className="hover:shadow-md transition-shadow"><CardContent className="p-3 sm:p-5">
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br ${s.color} shadow-md shadow-black/5`}>
-                      <s.Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={2.5} />
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
+              <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all border-border/60">
+                <CardContent className="p-4 sm:p-5">
+                  <div className="flex items-center gap-3">
+                    <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-green-500/15 flex items-center justify-center">
+                      <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7 text-green-600" strokeWidth={2.5} />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{s.label}</p>
-                      <p className="text-lg sm:text-2xl font-black mt-0.5">{s.value}</p>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">{isRtl ? "ناجح" : "Passed"}</p>
+                      <p className="text-xl sm:text-2xl font-black mt-0.5 text-green-600">{passed}</p>
                     </div>
                   </div>
-                </CardContent></Card>
-              ))}
+                </CardContent>
+              </Card>
+              <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all border-border/60">
+                <CardContent className="p-4 sm:p-5">
+                  <div className="flex items-center gap-3">
+                    <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-red-500/15 flex items-center justify-center">
+                      <XCircle className="w-6 h-6 sm:w-7 sm:h-7 text-red-600" strokeWidth={2.5} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">{isRtl ? "غير ناجح" : "Not Passed"}</p>
+                      <p className="text-xl sm:text-2xl font-black mt-0.5 text-red-600">{rows.length - passed}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             <Card>

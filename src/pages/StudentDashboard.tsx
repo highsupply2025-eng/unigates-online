@@ -94,7 +94,7 @@ const StudentDashboard = () => {
     { to: "/student/attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-emerald-500 to-emerald-600" },
     { to: "/student/ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600" },
     { to: "/student/results", label: isRtl ? "نتائج الاختبارات" : "Exam Results", Icon: Award, color: "from-teal-500 to-teal-600" },
-    { to: "/student/analytics", label: isRtl ? "التحليلات" : "Analytics", Icon: TrendingUp, color: "from-cyan-500 to-cyan-600" },
+    { to: "/student/analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: TrendingUp, color: "from-cyan-500 to-cyan-600" },
     { to: "/student/my-academic", label: isRtl ? "حسابي الأكاديمي" : "My Academic", Icon: GraduationCap, color: "from-green-500 to-green-600" },
     { to: "/profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-slate-500 to-slate-600" },
   ];

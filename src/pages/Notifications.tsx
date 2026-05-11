@@ -277,7 +277,16 @@ const Notifications = () => {
   const UnifiedHeader = (
     <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 sticky top-0 z-30 bg-gradient-to-r from-primary/10 to-primary/5 backdrop-blur">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 order-1">
+        <Link to={dashboardPath} className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 flex items-center justify-center shrink-0">
+            <HeaderIcon className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-base sm:text-xl font-black text-foreground truncate">{headerTitle}</h1>
+            <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">{isRtl ? "الإشعارات" : "Notifications"}</p>
+          </div>
+        </Link>
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           <DashboardMenuDropdown
             title={subtitle}
             onLanguageToggle={toggleLanguage}
@@ -285,15 +294,6 @@ const Notifications = () => {
             items={menuItems}
           />
         </div>
-        <Link to={dashboardPath} className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 justify-end order-2">
-          <div className="min-w-0 flex-1 text-end">
-            <h1 className="text-base sm:text-xl font-black text-foreground truncate">{headerTitle}</h1>
-            <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">{isRtl ? "الإشعارات" : "Notifications"}</p>
-          </div>
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 flex items-center justify-center shrink-0">
-            <HeaderIcon className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
-          </div>
-        </Link>
       </div>
     </header>
   );

@@ -898,11 +898,24 @@ const InstitutionDashboard = () => {
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-base sm:text-xl font-black text-foreground truncate">{institutionName}</h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
+              <h1 className="text-base sm:text-xl font-black text-foreground truncate">
                 {isRtl
                   ? (institutionType === "college" ? "لوحة تحكم الكلية" : "لوحة تحكم المعهد")
                   : (institutionType === "college" ? "College Dashboard" : "Institute Dashboard")}
+              </h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
+                {(() => {
+                  const map: Record<string, { ar: string; en: string }> = {
+                    general: { ar: "الرئيسية", en: "Home" },
+                    notifications: { ar: "الإشعارات", en: "Notifications" },
+                    departments: { ar: "الأقسام", en: "Departments" },
+                    quizresults: { ar: "النتائج", en: "Results" },
+                    invitations: { ar: "الدعوات", en: "Invitations" },
+                    livestreams: { ar: "البث المباشر", en: "Live Streams" },
+                  };
+                  const cur = map[activeTab] ?? map.general;
+                  return isRtl ? cur.ar : cur.en;
+                })()}
               </p>
             </div>
           </div>

@@ -422,7 +422,7 @@ const LeadershipDashboard = () => {
                   </CardContent>
                 </Card>
               </button>
-              <button onClick={() => navigate("/leadership/streams/ended")} className="text-left">
+              <button onClick={() => navigate("/leadership/streams/ended")} className={isRtl ? "text-right" : "text-left"}>
                 <Card className="bg-gray-50 dark:bg-gray-950/20 border-gray-200 hover:shadow-md transition-shadow h-full">
                   <CardContent className="p-3 sm:p-4 text-center">
                     <CheckCircle className="w-5 h-5 mx-auto mb-1 text-gray-600" />

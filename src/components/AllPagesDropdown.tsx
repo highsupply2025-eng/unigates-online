@@ -60,7 +60,7 @@ const AllPagesDropdown = () => {
         { to: "/institution/dashboard", label: ar("لوحة المؤسسة", "Institution Dashboard") },
         
         { to: "/leadership/dashboard", label: ar("لوحة القيادة", "Leadership Dashboard") },
-        { to: "/leadership/quiz-approvals", label: ar("اعتماد الكويزات", "Quiz Approvals") },
+        
         { to: "/quiz-results", label: ar("نتائج الاختبارات", "Quiz Results") },
       ],
     },

@@ -433,50 +433,94 @@ const LeadershipDashboard = () => {
               </button>
             </div>
 
-            <Card>
+            <Card className="overflow-hidden border-2 border-primary/15 shadow-lg">
               <CardContent className="p-0">
-                <Table>
+                <Table className="[&_th]:align-middle [&_td]:align-middle">
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>{isRtl ? "العنوان" : "Title"}</TableHead>
-                      <TableHead>{isRtl ? "الحالة" : "Status"}</TableHead>
-                      <TableHead>{isRtl ? "عدد الطلاب" : "Students"}</TableHead>
-                      <TableHead>{isRtl ? "الموعد" : "Scheduled"}</TableHead>
-                      <TableHead>{isRtl ? "إجراء" : "Action"}</TableHead>
+                    <TableRow className="bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5 hover:bg-primary/15 border-b-2 border-primary/30">
+                      <TableHead className="font-black text-primary text-[13px] uppercase tracking-wider py-4 w-[34%]">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Radio className="w-4 h-4" />
+                          {isRtl ? "العنوان" : "Title"}
+                        </span>
+                      </TableHead>
+                      <TableHead className="font-black text-primary text-[13px] uppercase tracking-wider py-4 w-[14%]">
+                        <span className="inline-flex items-center gap-1.5">
+                          <CheckCircle className="w-4 h-4" />
+                          {isRtl ? "الحالة" : "Status"}
+                        </span>
+                      </TableHead>
+                      <TableHead className="font-black text-primary text-[13px] uppercase tracking-wider py-4 w-[14%]">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Users className="w-4 h-4" />
+                          {isRtl ? "عدد الطلاب" : "Students"}
+                        </span>
+                      </TableHead>
+                      <TableHead className="font-black text-primary text-[13px] uppercase tracking-wider py-4 w-[24%]">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Calendar className="w-4 h-4" />
+                          {isRtl ? "الموعد" : "Scheduled"}
+                        </span>
+                      </TableHead>
+                      <TableHead className="font-black text-primary text-[13px] uppercase tracking-wider py-4 w-[14%]">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Eye className="w-4 h-4" />
+                          {isRtl ? "إجراء" : "Action"}
+                        </span>
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {liveStreams.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                        <TableCell colSpan={5} className="text-center text-muted-foreground py-10 font-semibold">
                           {isRtl ? "لا توجد بيانات" : "No data"}
                         </TableCell>
                       </TableRow>
                     ) : (
-                      liveStreams.map(stream => (
-                        <TableRow key={stream.id}>
-                          <TableCell className="font-medium">{isRtl ? stream.title_ar : stream.title_en}</TableCell>
-                          <TableCell>
-                            <Badge variant={stream.status === "live" ? "destructive" : stream.status === "scheduled" ? "outline" : "secondary"}>
+                      liveStreams.map((stream, idx) => (
+                        <TableRow
+                          key={stream.id}
+                          className={`border-b border-border/50 transition-colors hover:bg-primary/5 ${idx % 2 === 0 ? "bg-background" : "bg-muted/30"}`}
+                        >
+                          <TableCell className="font-bold text-foreground py-4">
+                            {isRtl ? stream.title_ar : stream.title_en}
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <Badge
+                              className={`font-bold px-3 py-1 text-[11px] ${
+                                stream.status === "live"
+                                  ? "bg-red-500 hover:bg-red-600 text-white shadow-md shadow-red-500/30 animate-pulse"
+                                  : stream.status === "scheduled"
+                                    ? "bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200"
+                                    : "bg-gray-100 text-gray-700 border border-gray-300"
+                              }`}
+                            >
                               {stream.status === "live" ? (isRtl ? "مباشر" : "Live") : stream.status === "scheduled" ? (isRtl ? "مجدول" : "Scheduled") : (isRtl ? "منتهي" : "Ended")}
                             </Badge>
                           </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Users className="w-4 h-4 text-muted-foreground" />
-                              <span className="font-bold">{streamAttendance[stream.id] || 0}</span>
+                          <TableCell className="py-4">
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900">
+                              <Users className="w-4 h-4 text-emerald-600" />
+                              <span className="font-black text-emerald-700 dark:text-emerald-400">{streamAttendance[stream.id] || 0}</span>
                             </div>
                           </TableCell>
-                          <TableCell className="text-sm">
+                          <TableCell className="py-4 text-sm font-semibold text-muted-foreground">
                             {stream.scheduled_at ? new Date(stream.scheduled_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US') : '-'}
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="py-4">
                             <Button
                               size="sm"
-                              variant={stream.status === "live" ? "destructive" : "outline"}
+                              className={`font-bold gap-1.5 shadow-sm ${
+                                stream.status === "live"
+                                  ? "bg-red-500 hover:bg-red-600 text-white shadow-red-500/30"
+                                  : stream.status === "scheduled"
+                                    ? "bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30"
+                                    : "bg-muted hover:bg-muted/80 text-foreground border border-border"
+                              }`}
                               onClick={() => navigate(`/stream/${stream.id}`)}
                             >
-                              <Eye className="w-4 h-4 me-1" />
+                              <Eye className="w-4 h-4" />
                               {stream.status === "live"
                                 ? (isRtl ? "حضور" : "Join")
                                 : stream.status === "scheduled"

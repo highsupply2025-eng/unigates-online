@@ -175,6 +175,7 @@ const StudentDashboard = () => {
                 className="mb-4 sm:mb-6"
                 sections={visibleMenu.map((m) => ({
                   label: m.label,
+                  Icon: m.Icon,
                   timestamps: tsFor(m.to),
                 }))}
               />

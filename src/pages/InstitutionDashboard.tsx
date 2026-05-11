@@ -1392,10 +1392,10 @@ const InstitutionDashboard = () => {
             <SectionsActivityChart
               className="mb-6"
               sections={[
-                { label: isRtl ? "الإشعارات" : "Notifications", timestamps: [] },
-                { label: isRtl ? "الأقسام" : "Departments", timestamps: departments.map((d: any) => d.created_at) },
-                { label: isRtl ? "النتائج" : "Results", timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
-                { label: isRtl ? "الدعوات" : "Invitations", timestamps: deptMembers.map((m: any) => m.created_at) },
+                { label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell, timestamps: [] },
+                { label: isRtl ? "الأقسام" : "Departments", Icon: Layers, timestamps: departments.map((d: any) => d.created_at) },
+                { label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
+                { label: isRtl ? "الدعوات" : "Invitations", Icon: Mail, timestamps: deptMembers.map((m: any) => m.created_at) },
               ]}
             />
 

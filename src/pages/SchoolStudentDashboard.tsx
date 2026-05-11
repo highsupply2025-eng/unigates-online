@@ -212,11 +212,11 @@ const SchoolStudentDashboard = () => {
         <SectionsActivityChart
           className="mb-8"
           sections={[
-            { label: isRtl ? "الدروس" : "Lessons", timestamps: subscriptions.map((s: any) => s.created_at) },
-            { label: isRtl ? "تصفّح المواد" : "Browse", timestamps: courses.map((c: any) => c.created_at) },
-            { label: isRtl ? "بث مباشر" : "Live", timestamps: liveStreams.map((s: any) => s.scheduled_at || s.created_at) },
-            { label: isRtl ? "الواجبات" : "Homework", timestamps: submissions.map((s: any) => s.submitted_at || s.created_at) },
-            { label: isRtl ? "التقييم" : "Rating", timestamps: ratings.map((r: any) => r.created_at) },
+            { label: isRtl ? "الدروس" : "Lessons", Icon: BookOpen, timestamps: subscriptions.map((s: any) => s.created_at) },
+            { label: isRtl ? "تصفّح المواد" : "Browse", Icon: BarChart3, timestamps: courses.map((c: any) => c.created_at) },
+            { label: isRtl ? "بث مباشر" : "Live", Icon: Radio, timestamps: liveStreams.map((s: any) => s.scheduled_at || s.created_at) },
+            { label: isRtl ? "الواجبات" : "Homework", Icon: Award, timestamps: submissions.map((s: any) => s.submitted_at || s.created_at) },
+            { label: isRtl ? "التقييم" : "Rating", Icon: Star, timestamps: ratings.map((r: any) => r.created_at) },
           ]}
         />
 

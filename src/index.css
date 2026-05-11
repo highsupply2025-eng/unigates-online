@@ -128,3 +128,14 @@
   [data-radix-dialog-overlay] { background: transparent !important; }
   [data-radix-dialog-content] { position: static !important; transform: none !important; box-shadow: none !important; border: none !important; max-height: none !important; overflow: visible !important; padding: 0 !important; }
 }
+
+/* Remove default focus ring/outline around dropdown menu triggers globally */
+button[aria-haspopup="menu"]:focus,
+button[aria-haspopup="menu"]:focus-visible,
+[data-radix-collection-item]:focus,
+[data-radix-collection-item]:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+}

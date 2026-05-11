@@ -39,7 +39,7 @@ export const SectionsActivityChart = ({ sections, title, days = 7, className = "
   const isRtl = language === "ar";
 
   const since = Date.now() - days * 24 * 60 * 60 * 1000;
-  const data = sections.map((s, i) => {
+  const baseData = sections.map((s, i) => {
     const count = (s.timestamps || []).filter((t) => {
       if (!t) return false;
       const ts = typeof t === "string" ? Date.parse(t) : t instanceof Date ? t.getTime() : 0;
@@ -51,6 +51,9 @@ export const SectionsActivityChart = ({ sections, title, days = 7, className = "
       color: s.color || DEFAULT_COLORS[i % DEFAULT_COLORS.length],
     };
   });
+  // In RTL, reverse the chart data so the visual order (right-to-left) matches
+  // the icon grid below (which also flows right-to-left in RTL).
+  const data = isRtl ? [...baseData].reverse() : baseData;
 
   return (
     <Card className={className}>

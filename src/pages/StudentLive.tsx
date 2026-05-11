@@ -28,7 +28,7 @@ const StudentLive = () => {
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <StudentPageHeader titleAr="البث المباشر" titleEn="Live Streams" icon={<Radio className="w-3.5 h-3.5" />} />
-      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
         <div className="grid gap-4">
           {/* Demo live stream — always visible */}
           <Link to="/student/live/demo-1" className="block">

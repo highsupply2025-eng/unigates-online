@@ -662,7 +662,7 @@ const LecturerDashboard = () => {
     <div className="min-h-screen bg-background" dir={dir}>
       {/* Header */}
       <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
           <Link to="/" className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
             <GraduationCap className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
             <div className="flex flex-col min-w-0">
@@ -692,7 +692,7 @@ const LecturerDashboard = () => {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
         {approved === false && (
           <div className="text-center py-20">
             <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">

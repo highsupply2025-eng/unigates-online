@@ -150,7 +150,7 @@ const StudentQuizzes = () => {
     return (
       <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
         <header className="border-b border-border px-4 py-3 sticky top-0 bg-background/95 backdrop-blur z-30">
-          <div className="max-w-4xl mx-auto flex items-center justify-between gap-2">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
             <h1 className="text-base font-bold text-foreground truncate">{isRtl ? activeQuiz.title_ar : activeQuiz.title_en}</h1>
             <div className="flex items-center gap-2 shrink-0">
               <Badge className={`gap-1 ${timeLeft < 60 ? 'bg-red-500 text-white' : 'bg-primary/10 text-primary'}`}>
@@ -160,7 +160,7 @@ const StudentQuizzes = () => {
             </div>
           </div>
         </header>
-        <main className="max-w-4xl mx-auto px-4 py-6 space-y-4">
+        <main className="max-w-7xl mx-auto px-4 py-6 space-y-4">
           {questions.map((q, idx) => (
             <Card key={q.id}>
               <CardContent className="p-4 sm:p-5">
@@ -239,7 +239,7 @@ const StudentQuizzes = () => {
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <StudentPageHeader titleAr="الاختبارات أونلاين" titleEn="Quizzes Online" icon={<ClipboardList className="w-3.5 h-3.5" />} />
-      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
         <div className="grid gap-4">
           {/* Demo quiz — always visible */}
           <Link to="/student/quizzes/demo-1" className="block">

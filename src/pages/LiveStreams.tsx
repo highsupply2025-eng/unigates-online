@@ -52,7 +52,7 @@ const LiveStreams = () => {
     <div className="min-h-screen bg-background" dir={dir}>
       {/* Header */}
       <header className="border-b border-border px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <GraduationCap className="w-8 h-8 text-primary" />
             <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
@@ -73,7 +73,7 @@ const LiveStreams = () => {
 
       {/* Hero Banner */}
       <div className="bg-gradient-to-br from-primary/10 via-background to-accent/10 py-12 px-6">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-7xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-destructive/10 text-destructive px-4 py-1.5 rounded-full mb-4">
             <Radio className="w-4 h-4 animate-pulse" />
             <span className="text-sm font-bold">{ls.liveBadge}</span>
@@ -83,7 +83,7 @@ const LiveStreams = () => {
         </div>
       </div>
 
-      <main className="max-w-6xl mx-auto px-6 py-10">
+      <main className="max-w-7xl mx-auto px-6 py-10">
         {isLoading ? (
           <div className="flex justify-center py-20">
             <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />

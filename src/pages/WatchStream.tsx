@@ -61,7 +61,7 @@ const WatchStream = () => {
     return (
       <div className="min-h-screen bg-background" dir={dir}>
         <header className="border-b border-border px-6 py-4">
-          <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2">
               <GraduationCap className="w-8 h-8 text-primary" />
               <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
@@ -115,7 +115,7 @@ const WatchStream = () => {
   return (
     <div className="min-h-screen bg-background" dir={dir}>
       <header className="border-b border-border px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <GraduationCap className="w-8 h-8 text-primary" />
             <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>

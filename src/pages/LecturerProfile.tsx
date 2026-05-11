@@ -194,7 +194,7 @@ const LecturerProfile = () => {
 
   return (
     <div className="min-h-screen bg-background" dir={dir}>
-      <main className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <Button
           variant="outline"
           className="gap-2 mb-4 sm:mb-6"

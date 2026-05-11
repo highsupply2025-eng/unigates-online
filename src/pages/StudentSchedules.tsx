@@ -36,7 +36,7 @@ const StudentSchedules = () => {
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <StudentPageHeader titleAr="الجداول" titleEn="Schedules" icon={<Calendar className="w-3.5 h-3.5" />} />
-      <main className="max-w-6xl mx-auto w-full px-3 sm:px-4 py-5 sm:py-8">
+      <main className="max-w-7xl mx-auto w-full px-3 sm:px-4 py-5 sm:py-8">
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">{isRtl ? "جاري التحميل..." : "Loading..."}</div>
         ) : (

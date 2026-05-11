@@ -38,7 +38,7 @@ const StudentRatings = () => {
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <StudentPageHeader titleAr="التقييمات" titleEn="Ratings" icon={<Star className="w-3.5 h-3.5" />} />
-      <main className="max-w-6xl mx-auto w-full px-3 sm:px-4 py-5 sm:py-8">
+      <main className="max-w-7xl mx-auto w-full px-3 sm:px-4 py-5 sm:py-8">
         <Card className="mb-4">
           <CardContent className="p-5 text-center">
             <p className="text-xs text-muted-foreground mb-1">{isRtl ? "متوسط التقييم" : "Average Rating"}</p>

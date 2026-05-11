@@ -100,7 +100,7 @@ const StudentQuizDetail = () => {
         backLabelAr="رجوع للاختبارات"
         backLabelEn="Back to Quizzes"
       />
-      <main className="max-w-4xl mx-auto px-3 sm:px-4 py-5 sm:py-8 space-y-5">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8 space-y-5">
         <Card className="overflow-hidden">
           <div className="bg-gradient-to-br from-purple-500 to-fuchsia-600 p-5 sm:p-6 text-white">
             <Badge className="bg-white/20 text-white border-white/30 mb-2 gap-1.5">

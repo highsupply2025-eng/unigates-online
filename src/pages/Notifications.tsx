@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Bell, CheckCheck } from "lucide-react";
+import { Bell, CheckCheck, GraduationCap, ArrowLeft, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,8 +27,36 @@ const typeColors: Record<string, string> = {
   info: "bg-purple-100 text-purple-700",
 };
 
+// Map a role to its primary dashboard path.
+const roleDashboardPath = (role: string | null): string => {
+  switch (role) {
+    case "admin": return "/admin/dashboard";
+    case "lecturer": return "/lecturer/dashboard";
+    case "teacher": return "/school/teacher/dashboard";
+    case "school_student": return "/school/student/dashboard";
+    case "school": return "/school/dashboard";
+    case "dean":
+    case "vice_dean":
+    case "department_head": return "/leadership/dashboard";
+    case "student": return "/student/dashboard";
+    case "personal": return "/student/dashboard";
+    default: return "/profile";
+  }
+};
+
+// Pick the most relevant role when a user has multiple.
+const pickPrimaryRole = (roles: string[]): string | null => {
+  const priority = [
+    "admin", "lecturer", "dean", "vice_dean", "department_head",
+    "school", "teacher", "school_student", "student", "personal",
+    "parent", "publisher",
+  ];
+  for (const r of priority) if (roles.includes(r)) return r;
+  return roles[0] ?? null;
+};
+
 const Notifications = () => {
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   const isRtl = language === "ar";
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,8 +71,7 @@ const Notifications = () => {
         .select("role")
         .eq("user_id", user.id);
       const roles = (data || []).map((r: any) => r.role as string);
-      if (roles.includes("lecturer")) setRole("lecturer");
-      else if (roles.length) setRole(roles[0]);
+      setRole(pickPrimaryRole(roles));
     })();
   }, []);
 
@@ -92,11 +120,43 @@ const Notifications = () => {
     return isRtl ? `منذ ${days} ي` : `${days}d ago`;
   };
 
+  // Generic minimal header used for roles that don't have a dedicated PageHeader
+  // (admin, leadership, school admin, school teacher, school student, institution, ...).
+  const dashboardPath = roleDashboardPath(role);
+  const GenericHeader = (
+    <header className="border-b border-border px-2 sm:px-6 py-2.5 sm:py-4 sticky top-0 z-30 bg-background/95 backdrop-blur">
+      <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
+        <Link to={dashboardPath} className="flex items-center gap-2 min-w-0 flex-1">
+          <GraduationCap className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
+          <div className="min-w-0">
+            <span className="block text-base sm:text-xl font-black text-foreground tracking-tight truncate">{t.brandName}</span>
+            <Badge className="bg-primary/10 text-primary border-primary/20 mt-0.5">
+              <Bell className="w-3 h-3 me-1" />
+              {isRtl ? "الإشعارات" : "Notifications"}
+            </Badge>
+          </div>
+        </Link>
+        <Link to={dashboardPath} className="shrink-0">
+          <Button size="sm" className="gap-1.5 font-bold shadow-md shadow-primary/30">
+            {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+            <span className="hidden xs:inline">{isRtl ? "رجوع" : "Back"}</span>
+          </Button>
+        </Link>
+      </div>
+    </header>
+  );
+
+  const renderHeader = () => {
+    if (role === "lecturer") return <LecturerPageHeader />;
+    if (role === "student" || role === "personal" || role === "school_student") {
+      return <StudentPageHeader titleAr="الإشعارات" titleEn="Notifications" icon={<Bell className="w-3.5 h-3.5" />} />;
+    }
+    return GenericHeader;
+  };
+
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
-      {role === "lecturer"
-        ? <LecturerPageHeader />
-        : <StudentPageHeader titleAr="الإشعارات" titleEn="Notifications" icon={<Bell className="w-3.5 h-3.5" />} />}
+      {renderHeader()}
       <main className="max-w-4xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">

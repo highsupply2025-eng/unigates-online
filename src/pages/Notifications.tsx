@@ -109,10 +109,12 @@ const Notifications = () => {
   };
 
   // Build the role-specific dropdown menu (mirrors each dashboard's menu).
-  const { dashboardPath, subtitle, menuItems } = useMemo<{
+  const { dashboardPath, subtitle, menuItems, headerTitle, HeaderIcon } = useMemo<{
     dashboardPath: string;
     subtitle: string;
     menuItems: DashboardMenuItem[];
+    headerTitle: string;
+    HeaderIcon: typeof Home;
   }>(() => {
     const goRoot = (path: string) => () => navigate(path);
     const profileItem: DashboardMenuItem = {
@@ -125,6 +127,8 @@ const Notifications = () => {
         return {
           dashboardPath: "/admin/dashboard",
           subtitle: isRtl ? "لوحة المسؤول" : "Admin Panel",
+          headerTitle: isRtl ? "لوحة المسؤول" : "Admin Panel",
+          HeaderIcon: SchoolIcon,
           menuItems: [
             { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/admin/dashboard") },
             { key: "users", label: isRtl ? "المستخدمون" : "Users", Icon: Users, color: "from-emerald-500 to-emerald-600", onClick: goRoot("/admin/dashboard") },
@@ -140,6 +144,8 @@ const Notifications = () => {
         return {
           dashboardPath: "/lecturer/dashboard",
           subtitle: isRtl ? "لوحة المحاضر" : "Lecturer Panel",
+          headerTitle: isRtl ? "لوحة المحاضر" : "Lecturer Panel",
+          HeaderIcon: Video,
           menuItems: [
             { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/lecturer/dashboard") },
             { key: "courses", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video, color: "from-indigo-500 to-indigo-600", onClick: goRoot("/lecturer/dashboard") },
@@ -160,6 +166,8 @@ const Notifications = () => {
         return {
           dashboardPath: "/student/dashboard",
           subtitle: isRtl ? "لوحة الطالب" : "Student Dashboard",
+          headerTitle: isRtl ? "لوحة الطالب" : "Student Dashboard",
+          HeaderIcon: GraduationCap,
           menuItems: [
             { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/student") },
             { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-indigo-500 to-indigo-600", onClick: goRoot("/student/lectures") },
@@ -180,6 +188,8 @@ const Notifications = () => {
         return {
           dashboardPath: "/school/student/dashboard",
           subtitle: isRtl ? "الطالب المدرسي" : "School Student",
+          headerTitle: isRtl ? "الطالب المدرسي" : "School Student",
+          HeaderIcon: GraduationCap,
           menuItems: [
             { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/school/student/dashboard") },
             { key: "courses", label: isRtl ? "موادي" : "My Subjects", Icon: BookOpen, color: "from-emerald-500 to-emerald-600", onClick: goRoot("/school/student/dashboard") },
@@ -196,6 +206,8 @@ const Notifications = () => {
         return {
           dashboardPath: "/leadership/dashboard",
           subtitle: isRtl ? "لوحة القيادة" : "Leadership Panel",
+          headerTitle: isRtl ? "لوحة القيادة" : "Leadership Panel",
+          HeaderIcon: Landmark,
           menuItems: [
             { key: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/leadership/dashboard") },
             { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", onClick: goRoot("/leadership/dashboard") },
@@ -212,6 +224,8 @@ const Notifications = () => {
         return {
           dashboardPath: "/school/dashboard",
           subtitle: isRtl ? "لوحة المدرسة" : "School Panel",
+          headerTitle: isRtl ? "لوحة المدرسة" : "School Panel",
+          HeaderIcon: SchoolIcon,
           menuItems: [
             { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/school/dashboard") },
             { key: "new-class", label: isRtl ? "فصل جديد" : "New Class", Icon: Plus, color: "from-emerald-500 to-emerald-600", onClick: goRoot("/school/dashboard") },
@@ -223,6 +237,8 @@ const Notifications = () => {
         return {
           dashboardPath: "/school/teacher/dashboard",
           subtitle: isRtl ? "لوحة المعلم" : "Teacher Panel",
+          headerTitle: isRtl ? "لوحة المعلم" : "Teacher Panel",
+          HeaderIcon: GraduationCap,
           menuItems: [
             { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/school/teacher/dashboard") },
             { key: "courses", label: isRtl ? "المواد" : "Subjects", Icon: BookOpen, color: "from-emerald-500 to-emerald-600", onClick: goRoot("/school/teacher/dashboard") },
@@ -238,6 +254,8 @@ const Notifications = () => {
         return {
           dashboardPath: "/institution/dashboard",
           subtitle: isRtl ? "لوحة التحكم" : "Dashboard",
+          headerTitle: isRtl ? "لوحة التحكم" : "Dashboard",
+          HeaderIcon: Landmark,
           menuItems: [
             { key: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, color: "from-blue-500 to-blue-600", onClick: goRoot("/institution/dashboard") },
             { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, color: "from-emerald-500 to-emerald-600", onClick: goRoot("/institution/dashboard?tab=departments") },
@@ -255,21 +273,11 @@ const Notifications = () => {
     navigate("/university-platform");
   };
 
-  // Unified header (same look across all roles) with the role-aware dropdown menu.
+  // Unified header — matches the dashboard header style across all roles.
   const UnifiedHeader = (
-    <header className="border-b border-border px-2 sm:px-6 py-2.5 sm:py-4 sticky top-0 z-30 bg-background/95 backdrop-blur">
-      <div className="max-w-6xl mx-auto flex items-center justify-between gap-1.5 sm:gap-3">
-        <Link to={dashboardPath} className="flex items-center gap-1.5 min-w-0 flex-1">
-          <GraduationCap className="w-6 h-6 sm:w-8 sm:h-8 text-primary shrink-0" />
-          <div className="min-w-0 hidden xs:block">
-            <span className="block text-sm sm:text-xl font-black text-foreground tracking-tight truncate">{t.brandName}</span>
-            <Badge className="bg-primary/10 text-primary border-primary/20 hidden sm:inline-flex shrink-0 mt-0.5">
-              <Bell className="w-3 h-3 me-1" />
-              <span>{isRtl ? "الإشعارات" : "Notifications"}</span>
-            </Badge>
-          </div>
-        </Link>
-        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+    <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 sticky top-0 z-30 bg-gradient-to-r from-primary/10 to-primary/5 backdrop-blur">
+      <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 order-1">
           <DashboardMenuDropdown
             title={subtitle}
             onLanguageToggle={toggleLanguage}
@@ -277,10 +285,15 @@ const Notifications = () => {
             items={menuItems}
           />
         </div>
-      </div>
-      <div className="max-w-6xl mx-auto mt-1.5 sm:hidden flex items-center gap-2 text-sm font-bold text-foreground">
-        <Bell className="w-3.5 h-3.5 text-primary" />
-        <span>{isRtl ? "الإشعارات" : "Notifications"}</span>
+        <Link to={dashboardPath} className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 justify-end order-2">
+          <div className="min-w-0 flex-1 text-end">
+            <h1 className="text-base sm:text-xl font-black text-foreground truncate">{headerTitle}</h1>
+            <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">{subtitle}</p>
+          </div>
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 flex items-center justify-center shrink-0">
+            <HeaderIcon className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+          </div>
+        </Link>
       </div>
     </header>
   );

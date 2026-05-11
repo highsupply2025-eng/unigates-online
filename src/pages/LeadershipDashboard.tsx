@@ -386,7 +386,7 @@ const LeadershipDashboard = () => {
           </TabsContent>
 
           {/* Live Streams */}
-          <TabsContent value="livestreams" id="section-livestreams">
+          <TabsContent value="livestreams" id="section-livestreams" dir={isRtl ? "rtl" : "ltr"}>
             <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
               <h2 className="text-lg font-bold text-foreground">{isRtl ? "البث المباشر" : "Live Streams"}</h2>
             </div>

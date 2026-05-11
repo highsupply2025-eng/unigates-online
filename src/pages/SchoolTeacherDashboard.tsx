@@ -386,10 +386,10 @@ const SchoolTeacherDashboard = () => {
             <SectionsActivityChart
               className="mb-8"
               sections={[
-                { label: isRtl ? "الدروس" : "Lessons", timestamps: episodes.map((e: any) => e.created_at) },
-                { label: isRtl ? "حصص مباشرة" : "Live", timestamps: streams.map((s: any) => s.created_at || s.scheduled_at) },
-                { label: isRtl ? "الواجبات" : "Homework", timestamps: assignments.map((a: any) => a.created_at) },
-                { label: isRtl ? "التقييمات" : "Ratings", timestamps: teacherRatings.map((r: any) => r.created_at) },
+                { label: isRtl ? "الدروس" : "Lessons", Icon: Video, timestamps: episodes.map((e: any) => e.created_at) },
+                { label: isRtl ? "حصص مباشرة" : "Live", Icon: Radio, timestamps: streams.map((s: any) => s.created_at || s.scheduled_at) },
+                { label: isRtl ? "الواجبات" : "Homework", Icon: ClipboardList, timestamps: assignments.map((a: any) => a.created_at) },
+                { label: isRtl ? "التقييمات" : "Ratings", Icon: Star, timestamps: teacherRatings.map((r: any) => r.created_at) },
               ]}
             />
 

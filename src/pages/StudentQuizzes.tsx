@@ -295,19 +295,24 @@ const StudentQuizzes = () => {
                           {quiz.show_results_immediately && <Badge className="gap-1 text-[10px] bg-amber-500/15 text-amber-700 border-amber-500/30"><Zap className="w-3 h-3" />{isRtl ? "فوري" : "Instant"}</Badge>}
                         </div>
                       </div>
-                    {sub ? (
-                      <div className="text-center self-end sm:self-auto">
-                        <Badge className="bg-green-100 text-green-700 border-green-300 gap-1">
-                          <CheckCircle className="w-3 h-3" />{sub.score}/{sub.total_points}
-                        </Badge>
-                        <p className="text-[10px] text-muted-foreground mt-1">{isRtl ? "تم الحل" : "Completed"}</p>
-                      </div>
-                    ) : (
-                      <Button size="sm" onClick={() => startQuiz(quiz)} className="gap-1.5 self-end sm:self-auto">
-                        <Play className="w-4 h-4" />{isRtl ? "ابدأ الاختبار" : "Start Quiz"}
-                      </Button>
-                    )}
+                      {sub ? (
+                        <div className="text-center self-end sm:self-auto">
+                          <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0 shadow-md shadow-green-500/30 gap-1">
+                            <CheckCircle className="w-3 h-3" />{sub.score}/{sub.total_points}
+                          </Badge>
+                          <p className="text-[10px] text-muted-foreground mt-1 font-semibold">{isRtl ? "تم الحل" : "Completed"}</p>
+                        </div>
+                      ) : (
+                        <Button size="sm" onClick={() => startQuiz(quiz)} className="gap-1.5 self-end sm:self-auto shadow-md shadow-primary/20">
+                          <Play className="w-4 h-4" />{isRtl ? "ابدأ الاختبار" : "Start Quiz"}
+                        </Button>
+                      )}
+                    </div>
                   </div>
+                </CardContent>
+              </Card>
+            );
+          })}
                 </CardContent>
               </Card>
             );

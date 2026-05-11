@@ -100,7 +100,7 @@ const DashboardMenuDropdown = ({
     <DropdownMenu open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
         <button
-          className="relative p-2 rounded-xl bg-primary/15 text-primary hover:bg-primary/25 active:scale-95 transition-all shadow-sm"
+          className="relative p-2 rounded-xl bg-primary/15 text-primary hover:bg-primary/25 active:scale-95 transition-all shadow-sm outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 ring-0"
           aria-label={isRtl ? "القائمة" : "Menu"}
         >
           {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

@@ -39,15 +39,17 @@ const StudentRatings = () => {
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <StudentPageHeader titleAr="التقييمات" titleEn="Ratings" icon={<Star className="w-3.5 h-3.5" />} />
       <main className="max-w-7xl mx-auto w-full px-3 sm:px-4 py-5 sm:py-8">
-        <Card className="mb-4">
+        <Card className="mb-4 border-s-4 border-s-yellow-500 bg-gradient-to-l from-yellow-500/10 via-amber-500/5 to-transparent shadow-lg">
           <CardContent className="p-5 text-center">
-            <p className="text-xs text-muted-foreground mb-1">{isRtl ? "متوسط التقييم" : "Average Rating"}</p>
-            <div className="flex items-center justify-center gap-1">
-              <Star className="w-6 h-6 fill-yellow-500 text-yellow-500" />
-              <span className="text-3xl font-black">{avg ? avg.toFixed(1) : "—"}</span>
-              <span className="text-muted-foreground text-sm">/ 5</span>
+            <p className="text-xs font-bold text-amber-700 mb-2 uppercase tracking-wider">{isRtl ? "متوسط التقييم" : "Average Rating"}</p>
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-yellow-400 to-amber-500 shadow-lg shadow-amber-500/40">
+                <Star className="w-5 h-5 fill-white text-white" />
+              </div>
+              <span className="text-4xl font-black bg-gradient-to-br from-amber-600 to-yellow-600 bg-clip-text text-transparent">{avg ? avg.toFixed(1) : "—"}</span>
+              <span className="text-muted-foreground text-base font-bold">/ 5</span>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">{rows.length} {isRtl ? "تقييم" : "ratings"}</p>
+            <p className="text-xs text-muted-foreground mt-2 font-semibold">{rows.length} {isRtl ? "تقييم" : "ratings"}</p>
           </CardContent>
         </Card>
 
@@ -58,18 +60,23 @@ const StudentRatings = () => {
         ) : (
           <div className="grid gap-2">
             {rows.map(r => (
-              <Card key={r.id}>
+              <Card key={r.id} className="border-s-4 border-s-yellow-500/60 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between gap-3 mb-1">
-                    <h3 className="font-semibold text-sm truncate">{r.lecturer?.full_name || "—"}</h3>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-gradient-to-br from-yellow-400 to-amber-500 shadow-md shadow-amber-500/30">
+                        <Star className="w-4 h-4 fill-white text-white" />
+                      </div>
+                      <h3 className="font-extrabold text-sm truncate tracking-tight">{r.lecturer?.full_name || "—"}</h3>
+                    </div>
                     <div className="flex items-center gap-0.5 shrink-0">
                       {Array.from({ length: 5 }).map((_, i) => (
                         <Star key={i} className={`w-4 h-4 ${i < r.rating ? "fill-yellow-500 text-yellow-500" : "text-muted-foreground/30"}`} />
                       ))}
                     </div>
                   </div>
-                  {r.comment && <p className="text-xs text-muted-foreground">{r.comment}</p>}
-                  <p className="text-[10px] text-muted-foreground mt-1">{new Date(r.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</p>
+                  {r.comment && <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{r.comment}</p>}
+                  <p className="text-[10px] text-muted-foreground mt-1 font-semibold">{new Date(r.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</p>
                 </CardContent>
               </Card>
             ))}

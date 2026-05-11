@@ -338,7 +338,7 @@ const LeadershipDashboard = () => {
 
           {/* Overview - Lecturer-style design */}
           <TabsContent value="overview" dir={isRtl ? "rtl" : "ltr"}>
-            <div className="mb-6 text-right" dir="rtl">
+            <div className="mb-6 text-start">
               <h2 className="text-2xl font-bold text-foreground mb-1">{isRtl ? "الرئيسية" : "Home"}</h2>
               <p className="text-sm text-muted-foreground">{isRtl ? "نظرة عامة على نشاط الكلية خلال آخر 7 أيام" : "Overview of activity over the last 7 days"}</p>
             </div>

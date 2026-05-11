@@ -132,7 +132,7 @@ const StudentDashboard = () => {
       </header>
 
       <main className="flex-1 max-w-6xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
-        <div className="mb-6 text-right" dir="rtl">
+        <div className="mb-6 text-start">
           <h2 className="text-2xl font-bold text-foreground mb-1">{isRtl ? "الرئيسية" : "Home"}</h2>
           <p className="text-sm text-muted-foreground">
             {isRtl ? `مرحباً ${profile?.full_name || ""} — نظرة عامة على نشاطك خلال آخر 7 أيام` : `Welcome ${profile?.full_name || ""} — overview of your activity over the last 7 days`}

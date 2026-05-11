@@ -1040,7 +1040,7 @@ const LecturerDashboard = () => {
                 {courses.length === 0 ? (
                   <div className="text-center py-16 text-muted-foreground">{isRtl ? "أنشئ دورة أولاً" : "Create a course first"}</div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" dir={isRtl ? "rtl" : "ltr"}>
                     {courses.map(course => (
                       <Card key={course.id} className="cursor-pointer card-hover" onClick={() => navigate(`/course/${course.id}/assignments`)}>
                         <CardContent className="p-5 text-center">
@@ -1140,7 +1140,7 @@ const LecturerDashboard = () => {
                     {isRtl ? "لا توجد مواد بعد" : "No courses yet"}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5" dir={isRtl ? "rtl" : "ltr"}>
                     {courses.map((c) => {
                       const lecCount = lectureAttendance.filter((a: any) => a._schedule?.course_id === c.id).length;
                       const strCount = attendance.filter((a: any) => (a._stream?.course_id) === c.id).length;
@@ -1240,7 +1240,7 @@ const LecturerDashboard = () => {
               {/* ===== ANALYTICS / EXPORT TAB ===== */}
               <TabsContent value="analytics">
                 <h2 className="text-xl font-bold text-foreground mb-6">{isRtl ? "لوحة التحليلات وتحميل التقارير" : "Analytics & Report Export"}</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" dir={isRtl ? "rtl" : "ltr"}>
                   {[
                     { key: "overview", icon: BarChart3, label: isRtl ? "تقرير شامل" : "Overview Report", color: "text-primary" },
                     { key: "attendance", icon: Users, label: isRtl ? "تقرير الحضور" : "Attendance Report", color: "text-blue-500" },

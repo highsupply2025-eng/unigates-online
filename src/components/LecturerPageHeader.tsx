@@ -18,7 +18,7 @@ const LecturerPageHeader = () => {
     navigate("/university-platform");
   };
 
-  const goDash = (tab: string) => navigate(`/lecturer-dashboard?tab=${tab}`);
+  const goDash = (tab: string) => navigate(tab === "home" ? `/lecturer/dashboard` : `/lecturer/dashboard?tab=${tab}`);
 
   const menuItems = useMemo<DashboardMenuItem[]>(() => [
     { key: "home",        label: isRtl ? "الرئيسية" : "Home",                  Icon: Home,          color: "from-blue-500 to-blue-600",       onClick: () => goDash("home") },
@@ -36,7 +36,7 @@ const LecturerPageHeader = () => {
   return (
     <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 sticky top-0 z-30 bg-background/95 backdrop-blur">
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
-        <Link to="/lecturer-dashboard" className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
+        <Link to="/lecturer/dashboard" className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
           <GraduationCap className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
           <div className="flex flex-col min-w-0">
             <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight truncate leading-tight">{t.brandName}</span>

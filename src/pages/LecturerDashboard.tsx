@@ -1040,7 +1040,7 @@ const LecturerDashboard = () => {
                 {courses.length === 0 ? (
                   <div className="text-center py-16 text-muted-foreground">{isRtl ? "أنشئ دورة أولاً" : "Create a course first"}</div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" dir={isRtl ? "rtl" : "ltr"}>
                     {courses.map(course => (
                       <Card key={course.id} className="cursor-pointer card-hover" onClick={() => navigate(`/course/${course.id}/assignments`)}>
                         <CardContent className="p-5 text-center">

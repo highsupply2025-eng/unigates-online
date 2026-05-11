@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  School, Plus, Eye, BookOpen, FileText, Video, Trash2, Globe,
+  School, Plus, Eye, BookOpen, FileText, Video, Trash2, Globe, Home, User,
   Upload, X, Radio, Calendar, ClipboardList, Star, Send, ArrowLeft, ArrowRight, MonitorPlay
 } from "lucide-react";
 import LiveStreamRoom from "@/components/LiveStreamRoom";
@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 import BackButton from "@/components/BackButton";
+import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
@@ -319,12 +320,19 @@ const SchoolTeacherDashboard = () => {
             <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
           </Link>
           <div className="flex items-center gap-3">
-            <BackButton />
-            <NotificationBell />
-            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5"><Globe className="w-4 h-4" />{t.langSwitch}</Button>
-            <Button variant="default" size="sm" onClick={handleLogout} className="font-semibold gap-1.5">
-              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}{t.logout}
-            </Button>
+            <DashboardMenuDropdown
+              onLanguageToggle={toggleLanguage}
+              onLogout={handleLogout}
+              items={[
+                { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: () => navigate("/") },
+                { key: "courses", label: isRtl ? "المواد" : "Subjects", Icon: BookOpen, color: "from-emerald-500 to-emerald-600", onClick: () => setActiveTab("courses"), active: activeTab === "courses" },
+                { key: "live", label: isRtl ? "الحصص المباشرة" : "Live Classes", Icon: Radio, color: "from-red-500 to-rose-600", onClick: () => setActiveTab("live"), active: activeTab === "live" },
+                { key: "homework", label: isRtl ? "الواجبات" : "Homework", Icon: ClipboardList, color: "from-amber-500 to-amber-600", onClick: () => setActiveTab("homework"), active: activeTab === "homework" },
+                { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-purple-500 to-purple-600", onClick: () => setActiveTab("schedules"), active: activeTab === "schedules" },
+                { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => setActiveTab("ratings"), active: activeTab === "ratings" },
+                { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/profile") },
+              ]}
+            />
           </div>
         </div>
       </header>

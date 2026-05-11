@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  School, Globe, BookOpen, Play, CheckCircle, Clock,
-  ArrowLeft, ArrowRight, Crown, BarChart3, Award, Radio, User, Star
+  School, Globe, BookOpen, Play, CheckCircle, Clock, Home, User,
+  ArrowLeft, ArrowRight, Crown, BarChart3, Award, Radio, Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 import BackButton from "@/components/BackButton";
+import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";

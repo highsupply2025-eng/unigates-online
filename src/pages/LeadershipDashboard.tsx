@@ -386,7 +386,7 @@ const LeadershipDashboard = () => {
           </TabsContent>
 
           {/* Live Streams */}
-          <TabsContent value="livestreams" id="section-livestreams">
+          <TabsContent value="livestreams" id="section-livestreams" dir={isRtl ? "rtl" : "ltr"}>
             <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
               <h2 className="text-lg font-bold text-foreground">{isRtl ? "البث المباشر" : "Live Streams"}</h2>
             </div>
@@ -404,7 +404,7 @@ const LeadershipDashboard = () => {
             </button>
 
             <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
-              <button onClick={() => navigate("/leadership/streams/live")} className="text-left">
+              <button onClick={() => navigate("/leadership/streams/live")} className={isRtl ? "text-right" : "text-left"}>
                 <Card className="bg-red-50 dark:bg-red-950/20 border-red-200 hover:shadow-md transition-shadow h-full">
                   <CardContent className="p-3 sm:p-4 text-center">
                     <Radio className="w-5 h-5 mx-auto mb-1 text-red-600" />
@@ -413,7 +413,7 @@ const LeadershipDashboard = () => {
                   </CardContent>
                 </Card>
               </button>
-              <button onClick={() => navigate("/leadership/streams/scheduled")} className="text-left">
+              <button onClick={() => navigate("/leadership/streams/scheduled")} className={isRtl ? "text-right" : "text-left"}>
                 <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 hover:shadow-md transition-shadow h-full">
                   <CardContent className="p-3 sm:p-4 text-center">
                     <Calendar className="w-5 h-5 mx-auto mb-1 text-blue-600" />
@@ -422,7 +422,7 @@ const LeadershipDashboard = () => {
                   </CardContent>
                 </Card>
               </button>
-              <button onClick={() => navigate("/leadership/streams/ended")} className="text-left">
+              <button onClick={() => navigate("/leadership/streams/ended")} className={isRtl ? "text-right" : "text-left"}>
                 <Card className="bg-gray-50 dark:bg-gray-950/20 border-gray-200 hover:shadow-md transition-shadow h-full">
                   <CardContent className="p-3 sm:p-4 text-center">
                     <CheckCircle className="w-5 h-5 mx-auto mb-1 text-gray-600" />

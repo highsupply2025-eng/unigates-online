@@ -1,6 +1,7 @@
 import { LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface MenuStatItem {
   key?: string;
@@ -19,15 +20,20 @@ interface Props {
 
 /**
  * Display-only grid that mirrors the dashboard's dropdown menu items.
- * Each card shows the menu icon + a numeric badge. Cards are NOT clickable
- * and do not navigate anywhere — they are pure visual indicators.
+ * In RTL, items are reversed and laid out LTR so the visual order
+ * exactly matches the activity chart above (which uses the same trick).
  */
 export const MenuItemsStatsGrid = ({ items, className = "" }: Props) => {
+  const { language } = useLanguage();
+  const isRtl = language === "ar";
+  const ordered = isRtl ? [...items].reverse() : items;
+
   return (
     <div
       className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 ${className}`}
+      style={{ direction: "ltr" }}
     >
-      {items.map((it, i) => {
+      {ordered.map((it, i) => {
         const Icon = it.Icon;
         const gradient = it.color ?? "from-primary to-primary/70";
         return (
@@ -35,6 +41,7 @@ export const MenuItemsStatsGrid = ({ items, className = "" }: Props) => {
             key={it.key ?? `${it.label}-${i}`}
             className="select-none cursor-default"
             aria-disabled="true"
+            style={{ direction: isRtl ? "rtl" : "ltr" }}
           >
             <CardContent className="p-4 sm:p-5">
               <div className="flex items-center justify-between mb-3">

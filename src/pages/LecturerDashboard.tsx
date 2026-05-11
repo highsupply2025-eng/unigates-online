@@ -661,13 +661,31 @@ const LecturerDashboard = () => {
   return (
     <div className="min-h-screen bg-background" dir={dir}>
       {/* Header */}
-      <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4">
+      <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/10 to-primary/5">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-          <Link to="/" className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
-            <GraduationCap className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
-            <div className="flex flex-col min-w-0">
-              <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight truncate leading-tight">{t.brandName}</span>
-              <span className="text-[11px] sm:text-xs text-muted-foreground font-semibold truncate">{isRtl ? "لوحة المحاضر" : "Lecturer Panel"}</span>
+          <Link to="/lecturer/dashboard" className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 flex items-center justify-center shrink-0">
+              <GraduationCap className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-base sm:text-xl font-black text-foreground truncate">{isRtl ? "لوحة المحاضر" : "Lecturer Dashboard"}</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
+                {(() => {
+                  const map: Record<string, { ar: string; en: string }> = {
+                    home: { ar: "الرئيسية", en: "Home" },
+                    courses: { ar: "المحاضرات", en: "Lectures" },
+                    live: { ar: "البث المباشر", en: "Live Stream" },
+                    quizzes: { ar: "الاختبارات أونلاين", en: "Online Tests" },
+                    assignments: { ar: "التكليفات", en: "Assignments" },
+                    schedules: { ar: "الجداول", en: "Schedules" },
+                    attendance: { ar: "الحضور", en: "Attendance" },
+                    ratings: { ar: "التقييمات", en: "Ratings" },
+                    analytics: { ar: "تحميل التقارير", en: "Export Reports" },
+                  };
+                  const cur = map[activeTab] ?? map.home;
+                  return isRtl ? cur.ar : cur.en;
+                })()}
+              </p>
             </div>
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">

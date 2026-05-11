@@ -66,16 +66,21 @@ const StudentAttendance = () => {
         ) : (
           <div className="grid gap-2">
             {rows.map(r => (
-              <Card key={r.id}>
+              <Card key={r.id} className="border-s-4 border-s-emerald-500/60 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                 <CardContent className="p-3 flex items-center justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold truncate text-sm">{isRtl ? (r.stream?.title_ar || "—") : (r.stream?.title_en || "—")}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(r.joined_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}
-                    </p>
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br from-emerald-500 to-teal-600 shadow-md shadow-emerald-500/25">
+                      <Eye className="w-5 h-5 text-white" strokeWidth={2.5} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-extrabold truncate text-sm tracking-tight">{isRtl ? (r.stream?.title_ar || "—") : (r.stream?.title_en || "—")}</h3>
+                      <p className="text-xs text-muted-foreground font-medium">
+                        {new Date(r.joined_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}
+                      </p>
+                    </div>
                   </div>
                   {r.duration_seconds != null && (
-                    <span className="text-xs text-muted-foreground shrink-0">{Math.round(r.duration_seconds / 60)} {isRtl ? "د" : "min"}</span>
+                    <span className="text-xs font-bold text-emerald-600 shrink-0 bg-emerald-500/10 px-2 py-1 rounded-md">{Math.round(r.duration_seconds / 60)} {isRtl ? "د" : "min"}</span>
                   )}
                 </CardContent>
               </Card>

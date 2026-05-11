@@ -32,50 +32,50 @@ const StudentLive = () => {
         <div className="grid gap-4">
           {/* Demo live stream — always visible */}
           <Link to="/student/live/demo-1" className="block">
-            <Card className="card-hover border-primary/20">
+            <Card className="border-s-4 border-s-red-500 bg-gradient-to-l from-red-500/5 to-transparent hover:shadow-xl hover:-translate-y-0.5 transition-all">
               <CardContent className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 bg-red-100">
-                    <Radio className="w-6 h-6 text-red-500 animate-pulse" />
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 bg-gradient-to-br from-red-500 to-rose-600 shadow-lg shadow-red-500/30">
+                    <Radio className="w-6 h-6 text-white animate-pulse" strokeWidth={2.5} />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-foreground">
+                    <p className="font-extrabold text-foreground tracking-tight">
                       {isRtl ? "بث تجريبي - شرح مباشر" : "Demo Live Stream - Live Session"}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    <p className="text-xs text-muted-foreground mt-0.5 font-medium">
                       {isRtl ? "د. أحمد محمد • مادة تجريبية" : "Dr. Ahmed Mohamed • Demo Course"}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 self-end sm:self-auto">
-                  <Badge className="bg-red-500 text-white gap-1">
+                  <Badge className="bg-gradient-to-r from-red-500 to-rose-600 text-white gap-1 shadow-md shadow-red-500/30 border-0">
                     <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                     {isRtl ? "مباشر" : "LIVE"}
                   </Badge>
-                  <Button size="sm">{isRtl ? "انضم" : "Join"}</Button>
+                  <Button size="sm" className="shadow-md">{isRtl ? "انضم" : "Join"}</Button>
                 </div>
               </CardContent>
             </Card>
           </Link>
 
           {streams.map(stream => (
-            <Card key={stream.id} className="card-hover">
+            <Card key={stream.id} className={`border-s-4 hover:shadow-lg hover:-translate-y-0.5 transition-all ${stream.status === "live" ? "border-s-red-500 bg-gradient-to-l from-red-500/5 to-transparent" : "border-s-muted-foreground/30"}`}>
               <CardContent className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${stream.status === "live" ? "bg-red-100" : "bg-muted"}`}>
-                    <Radio className={`w-6 h-6 ${stream.status === "live" ? "text-red-500 animate-pulse" : "text-muted-foreground"}`} />
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${stream.status === "live" ? "bg-gradient-to-br from-red-500 to-rose-600 shadow-red-500/30" : "bg-gradient-to-br from-slate-400 to-slate-500 shadow-slate-400/20"}`}>
+                    <Radio className={`w-6 h-6 text-white ${stream.status === "live" ? "animate-pulse" : ""}`} strokeWidth={2.5} />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-foreground">{isRtl ? stream.title_ar : stream.title_en}</p>
+                    <p className="font-extrabold text-foreground tracking-tight">{isRtl ? stream.title_ar : stream.title_en}</p>
                     {stream.scheduled_at && (
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-muted-foreground font-medium">
                         {new Date(stream.scheduled_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}
                       </p>
                     )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 self-end sm:self-auto">
-                  <Badge className={stream.status === "live" ? "bg-red-500 text-white" : "bg-muted text-muted-foreground"}>
+                  <Badge className={stream.status === "live" ? "bg-gradient-to-r from-red-500 to-rose-600 text-white border-0 shadow-md shadow-red-500/30" : "bg-muted text-muted-foreground border-0"}>
                     {stream.status === "live" ? (isRtl ? "مباشر" : "LIVE") : (isRtl ? "قادم" : "Upcoming")}
                   </Badge>
                   {stream.status === "live" && (

@@ -65,7 +65,7 @@ export const StudentPillActivityChart = ({
   const isRtl = language === "ar";
 
   const since = Date.now() - days * 24 * 60 * 60 * 1000;
-  const data = sections.map((s, i) => {
+  const baseData = sections.map((s, i) => {
     const count = (s.timestamps || []).filter((t) => {
       if (!t) return false;
       const ts =
@@ -79,6 +79,9 @@ export const StudentPillActivityChart = ({
       Icon: s.Icon ?? pickIcon(s.label),
     };
   });
+  // In RTL, reverse the visual order so the chart starts from the right
+  // with the first array item (matching the icon grid below it).
+  const data = isRtl ? [...baseData].reverse() : baseData;
 
   // Percentage rule: every 100 occurrences = 1%
   const maxPct = Math.max(1, ...data.map((d) => d.count / 100));

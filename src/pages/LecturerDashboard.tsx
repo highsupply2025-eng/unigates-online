@@ -780,9 +780,7 @@ const LecturerDashboard = () => {
                       </div>
                       <h3 className="font-bold text-foreground mb-1">{isRtl ? "البث المباشر" : "Live Streams"}</h3>
                       <p className="text-xs text-muted-foreground">
-                        {isRtl
-                          ? `${streams.filter(s => s.status === "live").length} مباشر الآن • ${streams.filter(s => s.status === "scheduled").length} مجدول`
-                          : `${streams.filter(s => s.status === "live").length} live • ${streams.filter(s => s.status === "scheduled").length} scheduled`}
+                        {isRtl ? `${streams.length} بث` : `${streams.length} streams`}
                       </p>
                     </CardContent>
                   </Card>

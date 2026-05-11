@@ -285,17 +285,9 @@ const Notifications = () => {
     </header>
   );
 
-  const renderHeader = () => {
-    if (role === "lecturer") return <LecturerPageHeader />;
-    if (role === "student" || role === "personal" || role === "school_student") {
-      return <StudentPageHeader titleAr="الإشعارات" titleEn="Notifications" icon={<Bell className="w-3.5 h-3.5" />} />;
-    }
-    return UnifiedHeader;
-  };
-
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
-      {renderHeader()}
+      {UnifiedHeader}
       <main className="max-w-4xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">

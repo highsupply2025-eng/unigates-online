@@ -1240,7 +1240,7 @@ const LecturerDashboard = () => {
               {/* ===== ANALYTICS / EXPORT TAB ===== */}
               <TabsContent value="analytics">
                 <h2 className="text-xl font-bold text-foreground mb-6">{isRtl ? "لوحة التحليلات وتحميل التقارير" : "Analytics & Report Export"}</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" dir={isRtl ? "rtl" : "ltr"}>
                   {[
                     { key: "overview", icon: BarChart3, label: isRtl ? "تقرير شامل" : "Overview Report", color: "text-primary" },
                     { key: "attendance", icon: Users, label: isRtl ? "تقرير الحضور" : "Attendance Report", color: "text-blue-500" },

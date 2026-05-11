@@ -53,6 +53,7 @@ const getSignedUrl = async (path: string | null): Promise<string | null> => {
 
 const AdminDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
+  const isRtl = language === "ar";
   const { toast } = useToast();
   const navigate = useNavigate();
 

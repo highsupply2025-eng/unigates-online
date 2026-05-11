@@ -243,26 +243,33 @@ const StudentQuizzes = () => {
         <div className="grid gap-4">
           {/* Demo quiz — always visible */}
           <Link to="/student/quizzes/demo-1" className="block">
-            <Card className="border-primary/20 hover:shadow-md transition-shadow">
+            <Card className="border-s-4 border-s-violet-500 bg-gradient-to-l from-violet-500/5 to-transparent hover:shadow-xl hover:-translate-y-0.5 transition-all">
               <CardContent className="p-4 sm:p-5">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg shadow-violet-500/30">
+                    <ClipboardList className="w-6 h-6 text-white" strokeWidth={2.5} />
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-foreground">
-                      {isRtl ? "اختبار تجريبي - تقييم سريع" : "Demo Quiz - Quick Assessment"}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {isRtl
-                        ? "اختبار قصير لعرض شكل صفحة الاختبار. اضغط للبدء."
-                        : "Short demo quiz showcasing the quiz page. Click to start."}
-                    </p>
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1"><Timer className="w-3.5 h-3.5" />15 {isRtl ? "دقيقة" : "min"}</span>
-                      <Badge variant="outline" className="gap-1 text-[10px]"><Zap className="w-3 h-3" />{isRtl ? "فوري" : "Instant"}</Badge>
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-extrabold text-foreground tracking-tight">
+                          {isRtl ? "اختبار تجريبي - تقييم سريع" : "Demo Quiz - Quick Assessment"}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mt-1 font-medium">
+                          {isRtl
+                            ? "اختبار قصير لعرض شكل صفحة الاختبار. اضغط للبدء."
+                            : "Short demo quiz showcasing the quiz page. Click to start."}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs">
+                          <span className="flex items-center gap-1 font-semibold text-violet-600"><Timer className="w-3.5 h-3.5" />15 {isRtl ? "دقيقة" : "min"}</span>
+                          <Badge className="gap-1 text-[10px] bg-amber-500/15 text-amber-700 border-amber-500/30"><Zap className="w-3 h-3" />{isRtl ? "فوري" : "Instant"}</Badge>
+                        </div>
+                      </div>
+                      <Button size="sm" className="gap-1.5 self-end sm:self-auto shadow-md shadow-primary/20">
+                        <Play className="w-4 h-4" />{isRtl ? "ابدأ الاختبار" : "Start Quiz"}
+                      </Button>
                     </div>
                   </div>
-                  <Button size="sm" className="gap-1.5 self-end sm:self-auto">
-                    <Play className="w-4 h-4" />{isRtl ? "ابدأ الاختبار" : "Start Quiz"}
-                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -271,19 +278,23 @@ const StudentQuizzes = () => {
           {available.map(quiz => {
             const sub = submissions.find(s => s.quiz_id === quiz.id);
             return (
-              <Card key={quiz.id}>
+              <Card key={quiz.id} className="border-s-4 border-s-violet-500/60 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                 <CardContent className="p-4 sm:p-5">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-foreground">{isRtl ? quiz.title_ar : quiz.title_en}</h3>
-                      <p className="text-sm text-muted-foreground mt-1">{isRtl ? quiz.description_ar : quiz.description_en}</p>
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1"><Timer className="w-3.5 h-3.5" />{quiz.duration_minutes || 30} {isRtl ? "دقيقة" : "min"}</span>
-                        <span>{getCourseName(quiz.course_id)}</span>
-                        {quiz.randomize_questions && <Badge variant="outline" className="gap-1 text-[10px]"><Shuffle className="w-3 h-3" />{isRtl ? "عشوائي" : "Random"}</Badge>}
-                        {quiz.show_results_immediately && <Badge variant="outline" className="gap-1 text-[10px]"><Zap className="w-3 h-3" />{isRtl ? "فوري" : "Instant"}</Badge>}
-                      </div>
+                  <div className="flex items-start gap-4">
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br from-violet-500 to-purple-600 shadow-md shadow-violet-500/25">
+                      <ClipboardList className="w-5 h-5 text-white" strokeWidth={2.5} />
                     </div>
+                    <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-extrabold text-foreground tracking-tight">{isRtl ? quiz.title_ar : quiz.title_en}</h3>
+                        <p className="text-sm text-muted-foreground mt-1">{isRtl ? quiz.description_ar : quiz.description_en}</p>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1 font-semibold text-violet-600"><Timer className="w-3.5 h-3.5" />{quiz.duration_minutes || 30} {isRtl ? "دقيقة" : "min"}</span>
+                          <span className="font-medium">{getCourseName(quiz.course_id)}</span>
+                          {quiz.randomize_questions && <Badge variant="outline" className="gap-1 text-[10px]"><Shuffle className="w-3 h-3" />{isRtl ? "عشوائي" : "Random"}</Badge>}
+                          {quiz.show_results_immediately && <Badge className="gap-1 text-[10px] bg-amber-500/15 text-amber-700 border-amber-500/30"><Zap className="w-3 h-3" />{isRtl ? "فوري" : "Instant"}</Badge>}
+                        </div>
+                      </div>
                     {sub ? (
                       <div className="text-center self-end sm:self-auto">
                         <Badge className="bg-green-100 text-green-700 border-green-300 gap-1">

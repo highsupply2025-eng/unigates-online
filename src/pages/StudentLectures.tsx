@@ -52,29 +52,29 @@ const StudentLectures = () => {
         <div className="grid gap-4">
           {/* Demo lecture card - always visible */}
           <Link to="/student/lectures/demo-1" className="block">
-            <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border-primary/20">
+            <Card className="overflow-hidden cursor-pointer border-s-4 border-s-primary border-y border-e bg-gradient-to-l from-primary/5 to-transparent hover:shadow-xl hover:-translate-y-0.5 transition-all">
               <CardContent className="p-5">
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Badge variant="secondary" className="text-[10px]">{isRtl ? "تجريبي" : "Demo"}</Badge>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Badge className="text-[10px] bg-primary/15 text-primary border-primary/30 font-bold">{isRtl ? "تجريبي" : "Demo"}</Badge>
                     </div>
-                    <h3 className="font-bold text-foreground text-lg">
+                    <h3 className="font-extrabold text-foreground text-lg tracking-tight">
                       {isRtl ? "محاضرة تجريبية - مقدمة في المادة" : "Demo Lecture - Introduction"}
                     </h3>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground font-medium">
                       {isRtl ? "د. أحمد محمد" : "Dr. Ahmed Mohamed"}
                     </p>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <Play className="w-5 h-5 text-primary" />
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 flex items-center justify-center shrink-0">
+                    <Play className="w-6 h-6 text-white" strokeWidth={2.5} />
                   </div>
                 </div>
-                <div className="flex items-center justify-between mt-3">
-                  <span className="text-xs text-muted-foreground">
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/60">
+                  <span className="text-xs font-semibold text-muted-foreground">
                     {isRtl ? "المدة: 45:20" : "Duration: 45:20"}
                   </span>
-                  <Button size="sm" variant="default" className="gap-1.5 pointer-events-none">
+                  <Button size="sm" variant="default" className="gap-1.5 pointer-events-none shadow-md shadow-primary/20">
                     <Play className="w-3.5 h-3.5" />{isRtl ? "مشاهدة" : "Watch"}
                   </Button>
                 </div>
@@ -86,14 +86,14 @@ const StudentLectures = () => {
             const prog = getCourseProgress(course.id, course.episode_count);
             const sub = subscriptions.find(s => s.course_id === course.id);
             return (
-              <Card key={course.id} className="overflow-hidden">
+              <Card key={course.id} className="overflow-hidden border-s-4 border-s-primary/60 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between gap-4 mb-3">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-foreground text-lg">{isRtl ? course.title_ar : course.title_en}</h3>
-                      <p className="text-sm text-muted-foreground">{isRtl ? course.instructor_ar : course.instructor_en}</p>
+                      <h3 className="font-extrabold text-foreground text-lg tracking-tight">{isRtl ? course.title_ar : course.title_en}</h3>
+                      <p className="text-sm text-muted-foreground font-medium">{isRtl ? course.instructor_ar : course.instructor_en}</p>
                     </div>
-                    <Badge className="bg-primary/10 text-primary border-primary/20 shrink-0">
+                    <Badge className="bg-gradient-to-br from-amber-500 to-orange-600 text-white border-0 shadow-md shadow-amber-500/20 shrink-0">
                       <Crown className="w-3 h-3 me-1" />
                       {isRtl ? `المستوى ${sub?.level_number}` : `Level ${sub?.level_number}`}
                     </Badge>

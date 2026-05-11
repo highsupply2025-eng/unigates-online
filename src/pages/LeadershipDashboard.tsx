@@ -337,7 +337,7 @@ const LeadershipDashboard = () => {
           </TabsList>
 
           {/* Overview - Lecturer-style design */}
-          <TabsContent value="overview">
+          <TabsContent value="overview" dir={isRtl ? "rtl" : "ltr"}>
             <div className="mb-6 text-right" dir="rtl">
               <h2 className="text-2xl font-bold text-foreground mb-1">{isRtl ? "الرئيسية" : "Home"}</h2>
               <p className="text-sm text-muted-foreground">{isRtl ? "نظرة عامة على نشاط الكلية خلال آخر 7 أيام" : "Overview of activity over the last 7 days"}</p>
@@ -494,7 +494,7 @@ const LeadershipDashboard = () => {
           </TabsContent>
 
           {/* Quiz Results */}
-          <TabsContent value="quizresults" id="section-quizresults">
+          <TabsContent value="quizresults" id="section-quizresults" dir={isRtl ? "rtl" : "ltr"}>
             <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
               <h2 className="text-lg font-bold text-foreground">{isRtl ? "نتائج الاختبارات" : "Quiz Results"}</h2>
               <Button size="sm" variant="outline" onClick={() => exportToPDF("quizresults")} className="gap-1.5">
@@ -702,7 +702,7 @@ const LeadershipDashboard = () => {
           </TabsContent>
 
           {/* Ratings */}
-          <TabsContent value="ratings" id="section-ratings">
+          <TabsContent value="ratings" id="section-ratings" dir={isRtl ? "rtl" : "ltr"}>
             <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
               <h2 className="text-lg font-bold text-foreground">{isRtl ? "تقييمات المحاضرين" : "Lecturer Ratings"}</h2>
               <Button size="sm" variant="outline" onClick={() => exportToPDF("ratings")} className="gap-1.5">
@@ -790,7 +790,7 @@ const LeadershipDashboard = () => {
           </TabsContent>
 
           {/* Assignments */}
-          <TabsContent value="assignments" id="section-assignments">
+          <TabsContent value="assignments" id="section-assignments" dir={isRtl ? "rtl" : "ltr"}>
             <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
               <h2 className="text-lg font-bold text-foreground">{isRtl ? "التكليفات والاختبارات" : "Assignments & Tests"}</h2>
               <Button size="sm" variant="outline" onClick={() => exportToPDF("assignments")} className="gap-1.5">
@@ -862,7 +862,7 @@ const LeadershipDashboard = () => {
           </TabsContent>
 
           {/* Schedule */}
-          <TabsContent value="schedule" id="section-schedule">
+          <TabsContent value="schedule" id="section-schedule" dir={isRtl ? "rtl" : "ltr"}>
             <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
               <h2 className="text-lg font-bold text-foreground">{isRtl ? "جدول المحاضرات والاختبارات" : "Lectures & Tests Schedule"}</h2>
               <Button size="sm" variant="outline" onClick={() => exportToPDF("schedule")} className="gap-1.5">
@@ -962,7 +962,7 @@ const LeadershipDashboard = () => {
           </TabsContent>
 
           {/* Files */}
-          <TabsContent value="files">
+          <TabsContent value="files" dir={isRtl ? "rtl" : "ltr"}>
             <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
               <h2 className="text-lg font-bold text-foreground">{isRtl ? "الملفات المنشورة" : "Published Files"}</h2>
             </div>
@@ -1039,7 +1039,7 @@ const LeadershipDashboard = () => {
           </TabsContent>
 
           {/* Notifications */}
-          <TabsContent value="notifications">
+          <TabsContent value="notifications" dir={isRtl ? "rtl" : "ltr"}>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-2xl font-bold text-foreground mb-1">{isRtl ? "الإشعارات" : "Notifications"}</h2>

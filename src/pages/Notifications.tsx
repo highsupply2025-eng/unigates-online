@@ -109,10 +109,12 @@ const Notifications = () => {
   };
 
   // Build the role-specific dropdown menu (mirrors each dashboard's menu).
-  const { dashboardPath, subtitle, menuItems } = useMemo<{
+  const { dashboardPath, subtitle, menuItems, headerTitle, HeaderIcon } = useMemo<{
     dashboardPath: string;
     subtitle: string;
     menuItems: DashboardMenuItem[];
+    headerTitle: string;
+    HeaderIcon: typeof Home;
   }>(() => {
     const goRoot = (path: string) => () => navigate(path);
     const profileItem: DashboardMenuItem = {

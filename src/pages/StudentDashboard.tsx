@@ -109,7 +109,7 @@ const StudentDashboard = () => {
             </div>
             <div className="min-w-0 flex-1">
               <h1 className="text-base sm:text-xl font-black text-foreground truncate">{isRtl ? "لوحة الطالب" : "Student Dashboard"}</h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">{profile?.full_name || (isRtl ? "طالب" : "Student")}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">{isRtl ? "الرئيسية" : "Home"}</p>
             </div>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
@@ -133,7 +133,6 @@ const StudentDashboard = () => {
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
         <div className="mb-6 text-start">
-          <h2 className="text-2xl font-bold text-foreground mb-1">{isRtl ? "الرئيسية" : "Home"}</h2>
           <p className="text-sm text-muted-foreground">
             {isRtl ? `مرحباً ${profile?.full_name || ""} — نظرة عامة على نشاطك خلال آخر 7 أيام` : `Welcome ${profile?.full_name || ""} — overview of your activity over the last 7 days`}
           </p>

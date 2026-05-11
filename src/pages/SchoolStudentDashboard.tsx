@@ -130,16 +130,33 @@ const SchoolStudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background" dir={dir}>
-      <header className="border-b border-border px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <School className="w-8 h-8 text-primary" />
-            <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
-            <Badge className="bg-primary/10 text-primary border-primary/20 ms-2">
-              <BookOpen className="w-3 h-3 me-1" />{isRtl ? "الطالب المدرسي" : "School Student"}
-            </Badge>
+      <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/10 to-primary/5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+          <Link to="/school/student/dashboard" className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 flex items-center justify-center shrink-0">
+              <School className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-base sm:text-xl font-black text-foreground truncate">{isRtl ? "لوحة الطالب المدرسي" : "School Student Dashboard"}</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
+                {(() => {
+                  const map: Record<string, { ar: string; en: string }> = {
+                    home: { ar: "الرئيسية", en: "Home" },
+                    courses: { ar: "موادي", en: "My Subjects" },
+                    browse: { ar: "تصفح", en: "Browse" },
+                    live: { ar: "البث المباشر", en: "Live" },
+                    homework: { ar: "الواجبات", en: "Homework" },
+                    assignments: { ar: "الواجبات", en: "Homework" },
+                    rate: { ar: "التقييمات", en: "Ratings" },
+                    ratings: { ar: "التقييمات", en: "Ratings" },
+                  };
+                  const cur = map[activeTab] ?? map.home;
+                  return isRtl ? cur.ar : cur.en;
+                })()}
+              </p>
+            </div>
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <DashboardMenuDropdown
               onLanguageToggle={toggleLanguage}
               onLogout={handleLogout}

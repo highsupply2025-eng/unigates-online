@@ -1142,9 +1142,9 @@ const LecturerDashboard = () => {
 
               {/* ===== RATINGS TAB ===== */}
               <TabsContent value="ratings">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-foreground">{isRtl ? "تقييمات الطلبة" : "Student Ratings"}</h2>
-                  <Button size="sm" variant="outline" onClick={() => exportAnalyticsPDF("ratings")} className="gap-1.5">
+                <div className="flex items-center justify-between mb-6" dir={isRtl ? "rtl" : "ltr"}>
+                  <h2 className="text-xl font-bold text-foreground order-1">{isRtl ? "تقييمات الطلبة" : "Student Ratings"}</h2>
+                  <Button size="sm" variant="outline" onClick={() => exportAnalyticsPDF("ratings")} className="gap-1.5 order-2">
                     <Download className="w-4 h-4" />{isRtl ? "تحميل PDF" : "Export PDF"}
                   </Button>
                 </div>

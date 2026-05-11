@@ -31,6 +31,21 @@ const Notifications = () => {
   const isRtl = language === "ar";
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id);
+      const roles = (data || []).map((r: any) => r.role as string);
+      if (roles.includes("lecturer")) setRole("lecturer");
+      else if (roles.length) setRole(roles[0]);
+    })();
+  }, []);
 
   const load = async () => {
     const { data } = await supabase

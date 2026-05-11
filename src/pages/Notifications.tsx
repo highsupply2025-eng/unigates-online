@@ -276,7 +276,7 @@ const Notifications = () => {
   // Unified header — matches the dashboard header style across all roles.
   const UnifiedHeader = (
     <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 sticky top-0 z-30 bg-gradient-to-r from-primary/10 to-primary/5 backdrop-blur">
-      <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 order-1">
           <DashboardMenuDropdown
             title={subtitle}
@@ -301,20 +301,21 @@ const Notifications = () => {
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       {UnifiedHeader}
-      <main className="max-w-4xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg sm:text-xl font-bold text-foreground">
-              {isRtl ? "كل الإشعارات" : "All Notifications"}
-            </h2>
+      <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
+        <div className="mb-6 text-start">
+          <h2 className="text-2xl sm:text-3xl font-black text-foreground flex items-center gap-2 flex-wrap">
+            {isRtl ? "كل الإشعارات" : "All Notifications"}
             {unread > 0 && (
               <Badge className="bg-destructive text-destructive-foreground">
                 {unread} {isRtl ? "جديد" : "new"}
               </Badge>
             )}
-          </div>
+          </h2>
+          <p className="text-sm text-muted-foreground font-bold mt-1">
+            {isRtl ? "إدارة وعرض جميع الإشعارات" : "Manage and view all notifications"}
+          </p>
           {unread > 0 && (
-            <Button size="sm" variant="outline" onClick={markAllRead} className="gap-1.5">
+            <Button size="sm" variant="outline" onClick={markAllRead} className="gap-1.5 mt-3">
               <CheckCheck className="w-4 h-4" />
               {isRtl ? "تعليم الكل كمقروء" : "Mark all read"}
             </Button>

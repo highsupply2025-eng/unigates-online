@@ -404,7 +404,7 @@ const LeadershipDashboard = () => {
             </button>
 
             <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
-              <button onClick={() => navigate("/leadership/streams/live")} className="text-left">
+              <button onClick={() => navigate("/leadership/streams/live")} className={isRtl ? "text-right" : "text-left"}>
                 <Card className="bg-red-50 dark:bg-red-950/20 border-red-200 hover:shadow-md transition-shadow h-full">
                   <CardContent className="p-3 sm:p-4 text-center">
                     <Radio className="w-5 h-5 mx-auto mb-1 text-red-600" />

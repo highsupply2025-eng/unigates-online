@@ -276,7 +276,7 @@ const Notifications = () => {
   // Unified header — matches the dashboard header style across all roles.
   const UnifiedHeader = (
     <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 sticky top-0 z-30 bg-gradient-to-r from-primary/10 to-primary/5 backdrop-blur">
-      <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 order-1">
           <DashboardMenuDropdown
             title={subtitle}

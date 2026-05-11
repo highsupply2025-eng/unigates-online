@@ -1020,18 +1020,18 @@ const LeadershipDashboard = () => {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center gap-2">
                     <BookOpen className="w-4 h-4 text-primary" />
-                    {isRtl ? "مرفقات الدورات" : "Course Attachments"}
+                    {isRtl ? "مرفقات المحاضرات" : "Lecture Attachments"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground py-4 text-center">
                     {isRtl 
-                      ? "يمكنك الاطلاع على مرفقات الدورات من خلال صفحة كل دورة"
-                      : "View course attachments through each course page"}
+                      ? "يمكنك الاطلاع على مرفقات المحاضرات من خلال صفحة كل محاضرة"
+                      : "View lecture attachments through each lecture page"}
                   </p>
                   <Button variant="outline" className="w-full" onClick={() => navigate("/courses")}>
                     <BookOpen className="w-4 h-4 me-2" />
-                    {isRtl ? "استعراض الدورات" : "Browse Courses"}
+                    {isRtl ? "استعراض المحاضرات" : "Browse Lectures"}
                   </Button>
                 </CardContent>
               </Card>

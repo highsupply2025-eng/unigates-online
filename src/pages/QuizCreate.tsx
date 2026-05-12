@@ -530,7 +530,7 @@ const QuizCreate = () => {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex items-center justify-end mb-5 sm:mb-6 gap-2">
+          <div className="flex flex-row-reverse items-center justify-start flex-wrap mb-5 sm:mb-6 gap-2">
             <Button
               onClick={() => setActiveTab(activeTab === "create" ? "list" : "create")}
               size="lg"
@@ -540,13 +540,23 @@ const QuizCreate = () => {
               {isRtl ? (activeTab === "create" ? "إغلاق" : "إنشاء اختبار") : (activeTab === "create" ? "Close" : "Create Quiz")}
             </Button>
             {selectedQuiz && (
-              <TabsList className="bg-amber-500/10 border-2 border-amber-500/20">
-                <TabsTrigger value="questions" className="gap-1.5 text-xs sm:text-sm font-bold data-[state=active]:bg-gradient-to-l data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md">
-                  <HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  {isRtl ? "الأسئلة" : "Questions"}
-                  {quizQuestions.length > 0 && <Badge variant="secondary" className="ms-1 h-4 px-1.5 text-[10px] bg-white/20 text-current">{quizQuestions.length}</Badge>}
-                </TabsTrigger>
-              </TabsList>
+              <Button
+                onClick={() => setActiveTab(activeTab === "questions" ? "list" : "questions")}
+                size="lg"
+                className={`gap-2 transition-all shadow-lg border-2 text-white font-extrabold text-sm sm:text-base tracking-tight hover:scale-[1.03] active:scale-[0.98] ${
+                  activeTab === "questions"
+                    ? "bg-gradient-to-l from-orange-600 via-amber-600 to-orange-700 border-orange-300/40 shadow-orange-500/40"
+                    : "bg-gradient-to-l from-amber-500 via-orange-500 to-amber-600 border-amber-300/40 shadow-amber-500/40"
+                }`}
+              >
+                <HelpCircle className="w-5 h-5 stroke-[2.5]" />
+                {isRtl ? "الأسئلة" : "Questions"}
+                {quizQuestions.length > 0 && (
+                  <Badge variant="secondary" className="ms-1 h-5 px-1.5 text-[11px] bg-white/25 text-white border-0 font-bold">
+                    {quizQuestions.length}
+                  </Badge>
+                )}
+              </Button>
             )}
           </div>
 

@@ -528,14 +528,24 @@ const QuizCreate = () => {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0 mb-4 sm:mb-5">
-            <TabsList className="inline-flex w-max sm:w-auto">
-              <TabsTrigger value="list" className="gap-1.5 text-xs sm:text-sm"><ListChecks className="w-3.5 h-3.5 sm:w-4 sm:h-4" />{isRtl ? "الاختبارات" : "Quizzes"}{quizzes.length > 0 && <Badge variant="secondary" className="ms-1 h-4 px-1.5 text-[10px]">{quizzes.length}</Badge>}</TabsTrigger>
-              <TabsTrigger value="create" className="gap-1.5 text-xs sm:text-sm"><Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />{isRtl ? "إنشاء" : "Create"}</TabsTrigger>
-              {selectedQuiz && (
-                <TabsTrigger value="questions" className="gap-1.5 text-xs sm:text-sm"><HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />{isRtl ? "الأسئلة" : "Questions"}{quizQuestions.length > 0 && <Badge variant="secondary" className="ms-1 h-4 px-1.5 text-[10px]">{quizQuestions.length}</Badge>}</TabsTrigger>
-              )}
-            </TabsList>
+          <div className="flex items-center justify-end mb-4 sm:mb-5 gap-2">
+            <Button
+              onClick={() => setActiveTab("create")}
+              size="sm"
+              className="gap-1.5 bg-gradient-to-l from-primary to-primary/80 hover:scale-[1.02] transition-transform shadow-md border-2 border-primary/20"
+            >
+              <Plus className="w-4 h-4" />
+              {isRtl ? "إنشاء اختبار" : "Create Quiz"}
+            </Button>
+            {selectedQuiz && (
+              <TabsList>
+                <TabsTrigger value="questions" className="gap-1.5 text-xs sm:text-sm">
+                  <HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  {isRtl ? "الأسئلة" : "Questions"}
+                  {quizQuestions.length > 0 && <Badge variant="secondary" className="ms-1 h-4 px-1.5 text-[10px]">{quizQuestions.length}</Badge>}
+                </TabsTrigger>
+              </TabsList>
+            )}
           </div>
 
           <TabsContent value="list">

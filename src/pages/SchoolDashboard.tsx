@@ -66,6 +66,7 @@ const SchoolDashboard = () => {
 
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
+  const [rangeDays, setRangeDays] = useState<7 | 30>(7);
   const [schoolName, setSchoolName] = useState("");
   const [schoolId, setSchoolId] = useState("");
 

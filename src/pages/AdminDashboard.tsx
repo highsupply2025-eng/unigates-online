@@ -759,8 +759,10 @@ const AdminDashboard = () => {
             </div>
 
             {/* Sections Overview Chart - activity per section in last 7 days */}
+            <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
             <SectionsActivityChart
               className="mb-6"
+              days={rangeDays}
               sections={[
                 { label: "Users", Icon: Users, color: "#3b82f6", timestamps: allUsers.map((u: any) => u.created_at || u.profile?.created_at) },
                 { label: "Lecturers", Icon: UserCheck, color: "#22c55e", timestamps: allUsers.filter((u: any) => u.role === "lecturer").map((u: any) => u.created_at || u.profile?.created_at) },

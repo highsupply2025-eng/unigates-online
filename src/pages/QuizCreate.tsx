@@ -21,7 +21,7 @@ import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import SimpleHeader from "@/components/SimpleHeader";
+import LecturerPageHeader from "@/components/LecturerPageHeader";
 import { parseQuizFile, downloadTemplate, ParsedQuestion } from "@/lib/quiz-import";
 
 type QType = "mcq" | "true_false" | "short_answer" | "fill_blank";
@@ -514,22 +514,18 @@ const QuizCreate = () => {
 
   return (
     <div className="min-h-screen bg-background" dir={dir}>
-      <SimpleHeader backTo="/lecturer/dashboard?tab=quizzes" mobileBackOnly />
+      <LecturerPageHeader
+        titleAr="إدارة الاختبار"
+        titleEn="Quiz Management"
+        icon={<FileQuestion className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
+      />
       <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center shrink-0">
-            <FileQuestion className="w-6 h-6 sm:w-7 sm:h-7 text-amber-600" />
+        {course && (
+          <div className="mb-6 sm:mb-8 flex items-center gap-2 text-sm text-muted-foreground">
+            <GraduationCap className="w-4 h-4 shrink-0" />
+            <span className="truncate font-semibold">{isRtl ? course.title_ar : course.title_en}</span>
           </div>
-          <div className="min-w-0">
-            <h1 className="text-lg sm:text-2xl font-black text-foreground truncate">{isRtl ? "إدارة الاختبارات" : "Quiz Management"}</h1>
-            {course && (
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1 flex items-center gap-1.5 truncate">
-                <GraduationCap className="w-3.5 h-3.5 shrink-0" />
-                <span className="truncate">{isRtl ? course.title_ar : course.title_en}</span>
-              </p>
-            )}
-          </div>
-        </div>
+        )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0 mb-4 sm:mb-5">

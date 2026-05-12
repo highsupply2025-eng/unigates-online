@@ -139,6 +139,44 @@ const LiveStreamRoom = ({ streamId, streamTitle, isHost, participantName, onClos
 
   if (!token || !serverUrl) return null;
 
+  // High-quality streaming configuration
+  const roomOptions: RoomOptions = useMemo(() => ({
+    adaptiveStream: true,
+    dynacast: true,
+    publishDefaults: {
+      simulcast: true,
+      videoSimulcastLayers: [VideoPresets.h360, VideoPresets.h720],
+      videoCodec: "vp9",
+      videoEncoding: {
+        maxBitrate: 4_500_000, // 4.5 Mbps for 1080p HQ
+        maxFramerate: 30,
+        priority: "high",
+      },
+      screenShareEncoding: {
+        maxBitrate: 6_000_000,
+        maxFramerate: 30,
+        priority: "high",
+      },
+      audioPreset: {
+        maxBitrate: 64_000,
+      },
+      red: true,
+      dtx: true,
+    },
+    videoCaptureDefaults: {
+      resolution: VideoPresets.h1080.resolution,
+      facingMode: "user",
+    },
+    screenShareCaptureDefaults: {
+      resolution: ScreenSharePresets.h1080fps30.resolution,
+    },
+    audioCaptureDefaults: {
+      autoGainControl: true,
+      echoCancellation: true,
+      noiseSuppression: true,
+    },
+  }), []);
+
   return (
     <div className="fixed inset-0 z-50 bg-background">
       {/* Header */}
@@ -147,7 +185,7 @@ const LiveStreamRoom = ({ streamId, streamTitle, isHost, participantName, onClos
           <Radio className="w-5 h-5 text-destructive animate-pulse" />
           <span className="font-bold text-foreground">{streamTitle}</span>
           <span className="text-xs bg-destructive text-destructive-foreground px-2 py-0.5 rounded-full">
-            {language === "ar" ? "مباشر" : "LIVE"}
+            {language === "ar" ? "🔴 مباشر HD" : "🔴 LIVE HD"}
           </span>
         </div>
         <Button variant="destructive" size="sm" onClick={handleDisconnect}>
@@ -162,6 +200,9 @@ const LiveStreamRoom = ({ streamId, streamTitle, isHost, participantName, onClos
         serverUrl={serverUrl}
         token={token}
         connect={true}
+        video={isHost}
+        audio={isHost}
+        options={roomOptions}
         onDisconnected={handleDisconnect}
         data-lk-theme="default"
         style={{ height: "calc(100vh - 56px)" }}

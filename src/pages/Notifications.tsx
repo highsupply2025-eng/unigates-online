@@ -303,25 +303,17 @@ const Notifications = () => {
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       {UnifiedHeader}
       <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
-        <div className="mb-6 text-start">
-          <h2 className="text-2xl sm:text-3xl font-black text-foreground flex items-center gap-2 flex-wrap">
-            {isRtl ? "كل الإشعارات" : "All Notifications"}
-            {unread > 0 && (
-              <Badge className="bg-destructive text-destructive-foreground">
-                {unread} {isRtl ? "جديد" : "new"}
-              </Badge>
-            )}
-          </h2>
-          <p className="text-sm text-muted-foreground font-bold mt-1">
-            {isRtl ? "إدارة وعرض جميع الإشعارات" : "Manage and view all notifications"}
-          </p>
-          {unread > 0 && (
-            <Button size="sm" variant="outline" onClick={markAllRead} className="gap-1.5 mt-3">
+        {(unread > 0) && (
+          <div className="mb-6 flex items-center gap-2 flex-wrap">
+            <Badge className="bg-destructive text-destructive-foreground">
+              {unread} {isRtl ? "جديد" : "new"}
+            </Badge>
+            <Button size="sm" variant="outline" onClick={markAllRead} className="gap-1.5">
               <CheckCheck className="w-4 h-4" />
               {isRtl ? "تعليم الكل كمقروء" : "Mark all read"}
             </Button>
-          )}
-        </div>
+          </div>
+        )}
 
         {loading ? (
           <div className="flex items-center justify-center py-20">

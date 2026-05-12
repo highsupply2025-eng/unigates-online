@@ -790,7 +790,7 @@ const LecturerDashboard = () => {
 
               {/* ===== COURSES TAB ===== */}
               <TabsContent value="courses" dir={isRtl ? "rtl" : "ltr"}>
-                <div className="flex items-center justify-end gap-2 mb-6">
+                <div className="flex items-center justify-start gap-2 mb-6">
                   <Button onClick={() => setShowNewCourse(true)} className="gap-2"><Plus className="w-4 h-4" />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</Button>
                   <Button
                     variant="outline"

@@ -403,8 +403,10 @@ const SchoolTeacherDashboard = () => {
 
 
             {/* Sections Overview Chart - mirrors tab navigation items */}
+            <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
             <SectionsActivityChart
               className="mb-8"
+              days={rangeDays}
               sections={[
                 { label: isRtl ? "الدروس" : "Lessons", Icon: Video, timestamps: episodes.map((e: any) => e.created_at) },
                 { label: isRtl ? "حصص مباشرة" : "Live", Icon: Radio, timestamps: streams.map((s: any) => s.created_at || s.scheduled_at) },

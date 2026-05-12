@@ -228,8 +228,10 @@ const SchoolStudentDashboard = () => {
 
 
         {/* Sections Overview Chart - mirrors tab navigation items */}
+        <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
         <SectionsActivityChart
           className="mb-8"
+          days={rangeDays}
           sections={[
             { label: isRtl ? "الدروس" : "Lessons", Icon: BookOpen, timestamps: subscriptions.map((s: any) => s.created_at) },
             { label: isRtl ? "تصفّح المواد" : "Browse", Icon: BarChart3, timestamps: courses.map((c: any) => c.created_at) },

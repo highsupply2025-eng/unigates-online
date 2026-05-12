@@ -47,6 +47,7 @@ const LecturerDashboard = () => {
 
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
+  const [rangeDays, setRangeDays] = useState<7 | 30>(7);
   const [approved, setApproved] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<any[]>([]);

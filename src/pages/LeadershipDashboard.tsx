@@ -297,7 +297,11 @@ const LeadershipDashboard = () => {
               <Landmark className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-base sm:text-xl font-black text-foreground truncate">{isRtl ? "لوحة القيادة" : "Leadership Dashboard"}</h1>
+              <h1 className="text-base sm:text-xl font-black text-foreground truncate">{(() => {
+                const r = getRoleLabel();
+                if (r.ar || r.en) return isRtl ? `لوحة ${r.ar}` : `${r.en} Dashboard`;
+                return isRtl ? "لوحة القيادة" : "Leadership Dashboard";
+              })()}</h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
                 {(() => {
                   const map: Record<string, { ar: string; en: string }> = {

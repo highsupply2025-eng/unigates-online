@@ -100,7 +100,7 @@ export const StudentPillActivityChart = ({
       <CardContent className="px-2 sm:px-4">
         <div
           className="grid grid-cols-5 gap-x-1 gap-y-4 sm:flex sm:items-end sm:justify-between sm:gap-3 md:gap-4 w-full pt-8 pb-2"
-          style={{ direction: "ltr" }}
+          style={{ direction: isRtl ? "rtl" : "ltr" }}
         >
           {data.map((d, i) => {
             const minH = 40;

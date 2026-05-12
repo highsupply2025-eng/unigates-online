@@ -551,15 +551,7 @@ const QuizCreate = () => {
           </div>
 
           <TabsContent value="list">
-            {quizzes.length === 0 ? (
-              <Card>
-                <CardContent className="py-16 text-center">
-                  <FileQuestion className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />
-                  <p className="text-lg font-bold text-muted-foreground mb-2">{isRtl ? "لا توجد اختبارات بعد" : "No quizzes yet"}</p>
-                  <Button onClick={() => setActiveTab("create")} className="gap-2 mt-3"><Plus className="w-4 h-4" />{isRtl ? "إنشاء اختبار" : "Create Quiz"}</Button>
-                </CardContent>
-              </Card>
-            ) : (
+            {quizzes.length === 0 ? null : (
               <div className="space-y-4">
                 {quizzes.map(q => (
                   <Card key={q.id} className="hover:shadow-md transition-shadow">

@@ -370,8 +370,10 @@ const LeadershipDashboard = () => {
 
 
                   {/* Sections Overview Chart - mirrors dropdown menu items */}
+                  <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
                   <SectionsActivityChart
                     className="mb-4 sm:mb-6"
+                    days={rangeDays}
                     sections={[
                       { label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, timestamps: liveStreams.map((s: any) => s.created_at || s.scheduled_at) },
                       { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },

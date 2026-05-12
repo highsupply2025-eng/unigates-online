@@ -175,9 +175,9 @@ const SchoolStudentDashboard = () => {
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-2xl font-black text-foreground mb-1">
+          <h2 className="text-xl font-bold text-foreground mb-1">
             {isRtl ? `مرحباً ${profile?.full_name || ""}! 👋` : `Welcome ${profile?.full_name || ""}! 👋`}
-          </h1>
+          </h2>
           <p className="text-muted-foreground">
             {isRtl ? "تابع دروسك واستمر في التعلّم" : "Track your lessons and keep learning"}
           </p>

@@ -1397,9 +1397,6 @@ const InstitutionDashboard = () => {
 
           {/* General Summary Tab */}
           <TabsContent value="general" dir={isRtl ? "rtl" : "ltr"}>
-            <div className="mb-6">
-              <h2 className="text-xl font-bold text-foreground mb-1">{isRtl ? "الرئيسية" : "Home"}</h2>
-            </div>
 
             {/* Sections Overview Chart - mirrors dropdown menu items */}
             <SectionsActivityChart

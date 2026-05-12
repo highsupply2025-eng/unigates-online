@@ -539,25 +539,6 @@ const QuizCreate = () => {
               <Plus className={`w-5 h-5 stroke-[2.5] transition-transform ${activeTab === "create" ? "rotate-45" : ""}`} />
               {isRtl ? (activeTab === "create" ? "إغلاق" : "إنشاء اختبار") : (activeTab === "create" ? "Close" : "Create Quiz")}
             </Button>
-            {selectedQuiz && (
-              <Button
-                onClick={() => setActiveTab(activeTab === "questions" ? "list" : "questions")}
-                size="lg"
-                className={`gap-2 transition-all shadow-lg border-2 text-white font-extrabold text-sm sm:text-base tracking-tight hover:scale-[1.03] active:scale-[0.98] ${
-                  activeTab === "questions"
-                    ? "bg-gradient-to-l from-orange-600 via-amber-600 to-orange-700 border-orange-300/40 shadow-orange-500/40"
-                    : "bg-gradient-to-l from-amber-500 via-orange-500 to-amber-600 border-amber-300/40 shadow-amber-500/40"
-                }`}
-              >
-                <HelpCircle className="w-5 h-5 stroke-[2.5]" />
-                {isRtl ? "الأسئلة" : "Questions"}
-                {quizQuestions.length > 0 && (
-                  <Badge variant="secondary" className="ms-1 h-5 px-1.5 text-[11px] bg-white/25 text-white border-0 font-bold">
-                    {quizQuestions.length}
-                  </Badge>
-                )}
-              </Button>
-            )}
           </div>
 
           <TabsContent value="list">

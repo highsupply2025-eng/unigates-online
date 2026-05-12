@@ -532,12 +532,12 @@ const QuizCreate = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center justify-end mb-5 sm:mb-6 gap-2">
             <Button
-              onClick={() => setActiveTab("create")}
+              onClick={() => setActiveTab(activeTab === "create" ? "list" : "create")}
               size="lg"
               className="gap-2 bg-gradient-to-l from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-600 hover:scale-[1.03] active:scale-[0.98] transition-all shadow-lg shadow-amber-500/40 border-2 border-amber-300/40 text-white font-extrabold text-sm sm:text-base tracking-tight"
             >
-              <Plus className="w-5 h-5 stroke-[2.5]" />
-              {isRtl ? "إنشاء اختبار" : "Create Quiz"}
+              <Plus className={`w-5 h-5 stroke-[2.5] transition-transform ${activeTab === "create" ? "rotate-45" : ""}`} />
+              {isRtl ? (activeTab === "create" ? "إغلاق" : "إنشاء اختبار") : (activeTab === "create" ? "Close" : "Create Quiz")}
             </Button>
             {selectedQuiz && (
               <TabsList className="bg-amber-500/10 border-2 border-amber-500/20">

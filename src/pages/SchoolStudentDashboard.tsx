@@ -17,6 +17,7 @@ import BackButton from "@/components/BackButton";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
+import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { bucketByDay } from "@/components/Sparkline";
 
@@ -28,6 +29,7 @@ const SchoolStudentDashboard = () => {
 
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
+  const [rangeDays, setRangeDays] = useState<7 | 30>(7);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("courses");
 
@@ -226,8 +228,10 @@ const SchoolStudentDashboard = () => {
 
 
         {/* Sections Overview Chart - mirrors tab navigation items */}
+        <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
         <SectionsActivityChart
           className="mb-8"
+          days={rangeDays}
           sections={[
             { label: isRtl ? "الدروس" : "Lessons", Icon: BookOpen, timestamps: subscriptions.map((s: any) => s.created_at) },
             { label: isRtl ? "تصفّح المواد" : "Browse", Icon: BarChart3, timestamps: courses.map((c: any) => c.created_at) },

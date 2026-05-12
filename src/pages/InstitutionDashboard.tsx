@@ -29,6 +29,7 @@ import NotificationBell from "@/components/NotificationBell";
 import BackButton from "@/components/BackButton";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
+import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { bucketByDay } from "@/components/Sparkline";
 
@@ -170,6 +171,7 @@ const InstitutionDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "general");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [rangeDays, setRangeDays] = useState<7 | 30>(7);
   
    const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -1400,8 +1402,10 @@ const InstitutionDashboard = () => {
           <TabsContent value="general" dir={isRtl ? "rtl" : "ltr"}>
 
             {/* Sections Overview Chart - mirrors dropdown menu items */}
+            <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
             <SectionsActivityChart
               className="mb-6"
+              days={rangeDays}
               sections={[
                 { label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell, timestamps: [] },
                 { label: isRtl ? "الأقسام" : "Departments", Icon: Layers, timestamps: departments.map((d: any) => d.created_at) },

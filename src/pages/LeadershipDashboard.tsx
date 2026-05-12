@@ -23,6 +23,7 @@ import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { MiniBars } from "@/components/MiniBars";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
+import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 
 const LeadershipDashboard = () => {
@@ -36,6 +37,7 @@ const LeadershipDashboard = () => {
   const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
   const [institutionName, setInstitutionName] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
+  const [rangeDays, setRangeDays] = useState<7 | 30>(7);
 
   // Data
   const [courses, setCourses] = useState<any[]>([]);
@@ -368,8 +370,10 @@ const LeadershipDashboard = () => {
 
 
                   {/* Sections Overview Chart - mirrors dropdown menu items */}
+                  <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
                   <SectionsActivityChart
                     className="mb-4 sm:mb-6"
+                    days={rangeDays}
                     sections={[
                       { label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, timestamps: liveStreams.map((s: any) => s.created_at || s.scheduled_at) },
                       { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },

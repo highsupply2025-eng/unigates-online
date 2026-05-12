@@ -21,6 +21,7 @@ import BackButton from "@/components/BackButton";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
+import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { bucketByDay } from "@/components/Sparkline";
 
@@ -32,6 +33,7 @@ const SchoolTeacherDashboard = () => {
 
   const [user, setUser] = useState<any>(null);
   const [approved, setApproved] = useState<boolean | null>(null);
+  const [rangeDays, setRangeDays] = useState<7 | 30>(7);
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<any[]>([]);
   const [courseViews, setCourseViews] = useState<Record<string, number>>({});
@@ -401,8 +403,10 @@ const SchoolTeacherDashboard = () => {
 
 
             {/* Sections Overview Chart - mirrors tab navigation items */}
+            <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
             <SectionsActivityChart
               className="mb-8"
+              days={rangeDays}
               sections={[
                 { label: isRtl ? "الدروس" : "Lessons", Icon: Video, timestamps: episodes.map((e: any) => e.created_at) },
                 { label: isRtl ? "حصص مباشرة" : "Live", Icon: Radio, timestamps: streams.map((s: any) => s.created_at || s.scheduled_at) },

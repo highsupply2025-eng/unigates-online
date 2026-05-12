@@ -30,6 +30,7 @@ import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { MiniBars } from "@/components/MiniBars";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
+import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { useSmartBack } from "@/hooks/use-smart-back";
 
@@ -46,6 +47,7 @@ const LecturerDashboard = () => {
 
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
+  const [rangeDays, setRangeDays] = useState<7 | 30>(7);
   const [approved, setApproved] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<any[]>([]);
@@ -752,8 +754,10 @@ const LecturerDashboard = () => {
 
 
                 {/* Sections Overview Chart - mirrors dropdown menu items */}
+                <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
                 <SectionsActivityChart
                   className="mb-6"
+                  days={rangeDays}
                   sections={[
                     { label: isRtl ? "المحاضرات" : "Lectures", timestamps: courses.map((x: any) => x.created_at), Icon: Video, palette: { from: "#06b6d4", to: "#14b8a6", glow: "20,184,166" } },
                     { label: isRtl ? "البث المباشر" : "Live Stream", timestamps: streams.map((x: any) => x.created_at || x.scheduled_at), Icon: Radio, palette: { from: "#ef4444", to: "#e11d48", glow: "239,68,68" } },

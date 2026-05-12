@@ -13,6 +13,7 @@ import AllPagesDropdown from "@/components/AllPagesDropdown";
 import BackButton from "@/components/BackButton";
 import TestAccountsPanel from "@/components/TestAccountsPanel";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
+import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -60,6 +61,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [rangeDays, setRangeDays] = useState<7 | 30>(7);
 
   const [pendingLecturers, setPendingLecturers] = useState<(UserRole & { profile?: Profile })[]>([]);
   const [allUsers, setAllUsers] = useState<(UserRole & { profile?: Profile })[]>([]);
@@ -757,8 +759,10 @@ const AdminDashboard = () => {
             </div>
 
             {/* Sections Overview Chart - activity per section in last 7 days */}
+            <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
             <SectionsActivityChart
               className="mb-6"
+              days={rangeDays}
               sections={[
                 { label: "Users", Icon: Users, color: "#3b82f6", timestamps: allUsers.map((u: any) => u.created_at || u.profile?.created_at) },
                 { label: "Lecturers", Icon: UserCheck, color: "#22c55e", timestamps: allUsers.filter((u: any) => u.role === "lecturer").map((u: any) => u.created_at || u.profile?.created_at) },

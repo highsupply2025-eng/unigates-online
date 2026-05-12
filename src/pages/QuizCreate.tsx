@@ -513,36 +513,38 @@ const QuizCreate = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background" dir={dir}>
+    <div className="min-h-screen bg-gradient-to-b from-amber-50/50 via-background to-background dark:from-amber-950/20" dir={dir}>
       <LecturerPageHeader
         titleAr="إدارة الاختبار"
         titleEn="Quiz Management"
-        icon={<FileQuestion className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
+        icon={<FileQuestion className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-600" />}
       />
       <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
         {course && (
-          <div className="mb-6 sm:mb-8 flex items-center gap-2 text-sm text-muted-foreground">
-            <GraduationCap className="w-4 h-4 shrink-0" />
-            <span className="truncate font-semibold">{isRtl ? course.title_ar : course.title_en}</span>
+          <div className="mb-6 sm:mb-8 flex items-center gap-2.5 p-3 rounded-xl bg-gradient-to-l from-amber-500/10 to-orange-500/5 border-2 border-amber-500/20 shadow-sm">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-md shrink-0">
+              <GraduationCap className="w-5 h-5 text-white" />
+            </div>
+            <span className="truncate font-extrabold text-base text-foreground">{isRtl ? course.title_ar : course.title_en}</span>
           </div>
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex items-center justify-end mb-4 sm:mb-5 gap-2">
+          <div className="flex items-center justify-end mb-5 sm:mb-6 gap-2">
             <Button
               onClick={() => setActiveTab("create")}
-              size="sm"
-              className="gap-1.5 bg-gradient-to-l from-primary to-primary/80 hover:scale-[1.02] transition-transform shadow-md border-2 border-primary/20"
+              size="lg"
+              className="gap-2 bg-gradient-to-l from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-600 hover:scale-[1.03] active:scale-[0.98] transition-all shadow-lg shadow-amber-500/40 border-2 border-amber-300/40 text-white font-extrabold text-sm sm:text-base tracking-tight"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-5 h-5 stroke-[2.5]" />
               {isRtl ? "إنشاء اختبار" : "Create Quiz"}
             </Button>
             {selectedQuiz && (
-              <TabsList>
-                <TabsTrigger value="questions" className="gap-1.5 text-xs sm:text-sm">
+              <TabsList className="bg-amber-500/10 border-2 border-amber-500/20">
+                <TabsTrigger value="questions" className="gap-1.5 text-xs sm:text-sm font-bold data-[state=active]:bg-gradient-to-l data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md">
                   <HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   {isRtl ? "الأسئلة" : "Questions"}
-                  {quizQuestions.length > 0 && <Badge variant="secondary" className="ms-1 h-4 px-1.5 text-[10px]">{quizQuestions.length}</Badge>}
+                  {quizQuestions.length > 0 && <Badge variant="secondary" className="ms-1 h-4 px-1.5 text-[10px] bg-white/20 text-current">{quizQuestions.length}</Badge>}
                 </TabsTrigger>
               </TabsList>
             )}

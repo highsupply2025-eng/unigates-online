@@ -125,59 +125,6 @@ const UserProfile = () => {
           </CardContent></Card>
         </div>
 
-        {/* Orders */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-primary" />
-              {language === "ar" ? "طلبات الكتب" : "Book Orders"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {orders.length === 0 ? (
-              <div className="text-center py-12">
-                <ShoppingBag className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-                <p className="text-lg text-muted-foreground">{language === "ar" ? "لم تقم بأي عملية شراء بعد" : "No purchases yet"}</p>
-                <Button asChild className="mt-4">
-                  <Link to="/book-store">{language === "ar" ? "تصفح متجر الكتب" : "Browse Book Store"}</Link>
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {orders.map(order => (
-                  <div key={order.id} className="flex items-center gap-4 p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors">
-                    {order.book?.cover_url ? (
-                      <img src={order.book.cover_url} alt="" className="w-14 h-20 rounded object-cover shrink-0" />
-                    ) : (
-                      <div className="w-14 h-20 rounded bg-muted flex items-center justify-center shrink-0">
-                        <BookOpen className="w-6 h-6 text-muted-foreground" />
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-foreground truncate">
-                        {language === "ar" ? order.book?.title_ar : order.book?.title_en}
-                      </p>
-                      <p className="text-sm text-muted-foreground truncate">
-                        {language === "ar" ? order.book?.author_ar : order.book?.author_en}
-                      </p>
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {new Date(order.created_at).toLocaleDateString(language === "ar" ? "ar-EG" : "en-US")}
-                        </span>
-                        <Badge variant="outline" className="text-xs">{order.book?.category}</Badge>
-                      </div>
-                    </div>
-                    <div className="text-end shrink-0">
-                      <p className="font-bold text-foreground">{Number(order.amount).toFixed(0)} {language === "ar" ? "ج.م" : "EGP"}</p>
-                      {statusBadge(order.status)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </main>
     </div>
   );

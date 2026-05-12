@@ -29,6 +29,7 @@ const SchoolStudentDashboard = () => {
 
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
+  const [rangeDays, setRangeDays] = useState<7 | 30>(7);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("courses");
 

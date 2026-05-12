@@ -554,41 +554,100 @@ const QuizCreate = () => {
             {quizzes.length === 0 ? null : (
               <div className="space-y-4">
                 {quizzes.map(q => (
-                  <Card key={q.id} className="hover:shadow-md transition-shadow">
+                  <Card
+                    key={q.id}
+                    dir="rtl"
+                    className="border-2 border-amber-500/30 shadow-xl shadow-amber-500/10 bg-gradient-to-bl from-amber-50/60 via-card to-orange-50/40 dark:from-amber-950/20 dark:to-orange-950/10 hover:shadow-2xl hover:shadow-amber-500/20 hover:border-amber-500/50 transition-all overflow-hidden"
+                  >
                     <CardContent className="p-4 sm:p-5">
-                      <div className="flex flex-col lg:flex-row items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-2 flex-wrap">
-                            <h3 className="text-base sm:text-lg font-bold text-foreground">{isRtl ? q.title_ar : q.title_en}</h3>
-                            <Badge variant={q.is_published ? "default" : "secondary"}>{q.is_published ? (isRtl ? "منشور ✅" : "Published") : (isRtl ? "مسودة" : "Draft")}</Badge>
-                            {q.randomize_questions && <Badge variant="outline" className="gap-1"><Shuffle className="w-3 h-3" />{isRtl ? "عشوائي" : "Random"}</Badge>}
-                            {q.show_results_immediately && <Badge variant="outline" className="gap-1"><Zap className="w-3 h-3" />{isRtl ? "نتيجة فورية" : "Instant"}</Badge>}
+                      <div className="flex flex-col lg:flex-row-reverse items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0 text-right">
+                          <div className="flex items-center gap-2 mb-2 flex-wrap justify-start">
+                            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg shadow-amber-500/40 flex items-center justify-center shrink-0">
+                              <FileQuestion className="w-5 h-5 text-white" />
+                            </div>
+                            <h3 className="text-base sm:text-lg font-extrabold tracking-tight bg-gradient-to-l from-amber-600 via-orange-600 to-amber-700 dark:from-amber-300 dark:via-orange-300 dark:to-amber-400 bg-clip-text text-transparent">
+                              {isRtl ? q.title_ar : q.title_en}
+                            </h3>
+                            <Badge
+                              variant={q.is_published ? "default" : "secondary"}
+                              className={q.is_published ? "bg-gradient-to-l from-emerald-500 to-green-600 text-white border-0 font-bold shadow-md shadow-emerald-500/30" : "font-bold"}
+                            >
+                              {q.is_published ? (isRtl ? "منشور ✅" : "Published") : (isRtl ? "مسودة" : "Draft")}
+                            </Badge>
+                            {q.randomize_questions && (
+                              <Badge variant="outline" className="gap-1 border-amber-500/40 text-amber-700 dark:text-amber-300 font-semibold">
+                                <Shuffle className="w-3 h-3" />{isRtl ? "عشوائي" : "Random"}
+                              </Badge>
+                            )}
+                            {q.show_results_immediately && (
+                              <Badge variant="outline" className="gap-1 border-orange-500/40 text-orange-700 dark:text-orange-300 font-semibold">
+                                <Zap className="w-3 h-3" />{isRtl ? "نتيجة فورية" : "Instant"}
+                              </Badge>
+                            )}
                           </div>
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
-                            <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{q.duration_minutes} {isRtl ? "دقيقة" : "min"}</span>
-                            {q.due_date && <span>{isRtl ? "الموعد:" : "Due:"} {new Date(q.due_date).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</span>}
+                          <div className="flex items-center gap-3 text-xs font-semibold text-muted-foreground flex-wrap justify-start">
+                            <span className="flex items-center gap-1 px-2 py-1 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-300">
+                              <Clock className="w-3.5 h-3.5" />{q.duration_minutes} {isRtl ? "دقيقة" : "min"}
+                            </span>
+                            {q.due_date && (
+                              <span className="flex items-center gap-1 px-2 py-1 rounded-md bg-orange-500/10 text-orange-700 dark:text-orange-300">
+                                <Calendar className="w-3.5 h-3.5" />
+                                {isRtl ? "الموعد:" : "Due:"} {new Date(q.due_date).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}
+                              </span>
+                            )}
                           </div>
                         </div>
-                        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full lg:w-auto">
-                          <Button size="sm" variant="outline" onClick={() => openQuizQuestions(q)} className="gap-1.5 text-xs"><HelpCircle className="w-3.5 h-3.5" />{isRtl ? "الأسئلة" : "Questions"}</Button>
-                          <Button size="sm" variant="outline" onClick={() => openResults(q.id)} className="gap-1.5 text-xs"><BarChart3 className="w-3.5 h-3.5" />{isRtl ? "النتائج" : "Results"}</Button>
-                          <Button size="sm" variant={q.is_published ? "secondary" : "default"} onClick={() => handlePublishQuiz(q.id, !q.is_published)} className="gap-1.5 text-xs">
+                        <div className="grid grid-cols-2 sm:flex sm:flex-row-reverse sm:items-center gap-2 w-full lg:w-auto">
+                          <Button
+                            size="sm"
+                            onClick={() => handlePublishQuiz(q.id, !q.is_published)}
+                            className={`gap-1.5 text-xs font-bold border-2 ${
+                              q.is_published
+                                ? "bg-gradient-to-l from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white border-slate-400/40 shadow-md shadow-slate-500/30"
+                                : "bg-gradient-to-l from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white border-emerald-300/40 shadow-md shadow-emerald-500/40"
+                            }`}
+                          >
                             {q.is_published ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                             {q.is_published ? (isRtl ? "إخفاء" : "Unpublish") : (isRtl ? "نشر" : "Publish")}
                           </Button>
-                          <Button size="sm" variant="destructive" onClick={() => handleDeleteQuiz(q.id)} className="gap-1.5 text-xs"><Trash2 className="w-3.5 h-3.5" /><span className="sm:hidden">{isRtl ? "حذف" : "Delete"}</span></Button>
+                          <Button
+                            size="sm"
+                            onClick={() => handleDeleteQuiz(q.id)}
+                            className="gap-1.5 text-xs font-bold bg-gradient-to-l from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white border-2 border-red-300/40 shadow-md shadow-red-500/40"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />{isRtl ? "حذف" : "Delete"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => openQuizQuestions(q)}
+                            className="gap-1.5 text-xs font-bold bg-gradient-to-l from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-2 border-amber-300/40 shadow-md shadow-amber-500/40"
+                          >
+                            <HelpCircle className="w-3.5 h-3.5" />{isRtl ? "الأسئلة" : "Questions"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => openResults(q.id)}
+                            className="gap-1.5 text-xs font-bold bg-gradient-to-l from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-2 border-blue-300/40 shadow-md shadow-blue-500/40"
+                          >
+                            <BarChart3 className="w-3.5 h-3.5" />{isRtl ? "النتائج" : "Results"}
+                          </Button>
                         </div>
                       </div>
 
                       {/* Inline template settings */}
-                      <div className="mt-4 pt-4 border-t flex flex-wrap items-center gap-4">
-                        <div className="flex items-center gap-2">
+                      <div className="mt-4 pt-4 border-t-2 border-amber-500/20 flex flex-wrap items-center gap-4 justify-start">
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
                           <Switch checked={!!q.randomize_questions} onCheckedChange={v => handleToggleQuizSetting(q.id, "randomize_questions", v)} />
-                          <Label className="text-xs cursor-pointer flex items-center gap-1"><Shuffle className="w-3 h-3" />{isRtl ? "ترتيب عشوائي" : "Randomize"}</Label>
+                          <Label className="text-xs font-bold cursor-pointer flex items-center gap-1 text-amber-700 dark:text-amber-300">
+                            <Shuffle className="w-3.5 h-3.5" />{isRtl ? "ترتيب عشوائي" : "Randomize"}
+                          </Label>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
                           <Switch checked={!!q.show_results_immediately} onCheckedChange={v => handleToggleQuizSetting(q.id, "show_results_immediately", v)} />
-                          <Label className="text-xs cursor-pointer flex items-center gap-1"><Zap className="w-3 h-3" />{isRtl ? "إظهار النتيجة فوراً" : "Instant results"}</Label>
+                          <Label className="text-xs font-bold cursor-pointer flex items-center gap-1 text-orange-700 dark:text-orange-300">
+                            <Zap className="w-3.5 h-3.5" />{isRtl ? "إظهار النتيجة فوراً" : "Instant results"}
+                          </Label>
                         </div>
                       </div>
                     </CardContent>

@@ -33,6 +33,7 @@ const SchoolTeacherDashboard = () => {
 
   const [user, setUser] = useState<any>(null);
   const [approved, setApproved] = useState<boolean | null>(null);
+  const [rangeDays, setRangeDays] = useState<7 | 30>(7);
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<any[]>([]);
   const [courseViews, setCourseViews] = useState<Record<string, number>>({});

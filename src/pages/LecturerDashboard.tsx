@@ -772,6 +772,7 @@ const LecturerDashboard = () => {
                 {/* Weekly Activity Card removed */}
 
                 <MenuItemsStatsGrid
+                  naturalRtl
                   items={[
                     { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video, color: "from-cyan-500 to-teal-600", count: courses.length },
                     { key: "live", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", count: streams.length },

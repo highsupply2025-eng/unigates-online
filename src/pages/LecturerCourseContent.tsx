@@ -269,7 +269,10 @@ const LecturerCourseContent = () => {
               <Input type="number" placeholder={isRtl ? "المدة (دقائق)" : "Duration (min)"} value={newEpisode.duration_minutes || ""} onChange={e => setNewEpisode(p => ({ ...p, duration_minutes: parseInt(e.target.value) || 0 }))} className="flex-1 min-w-[140px]" />
               <div className="flex items-center gap-2"><Switch checked={newEpisode.is_preview} onCheckedChange={v => setNewEpisode(p => ({ ...p, is_preview: v }))} /><Label className="text-sm">{isRtl ? "معاينة" : "Preview"}</Label></div>
             </div>
-            <Button size="sm" onClick={handleAddEpisode} disabled={savingEpisode}><Plus className="w-3.5 h-3.5 me-1" /> {isRtl ? "حفظ الحلقة" : "Save Episode"}</Button>
+            <Button size="sm" onClick={handleAddEpisode} disabled={savingEpisode || uploadingRecording || isRecording}>
+              <Plus className="w-3.5 h-3.5 me-1" />
+              {uploadingRecording ? (isRtl ? "جارٍ الرفع..." : "Uploading...") : (isRtl ? "حفظ الحلقة" : "Save Episode")}
+            </Button>
           </div>
         )}
 

@@ -40,6 +40,7 @@ const StudentDashboard = () => {
     submissions: [] as string[],
     ratings: [] as string[],
   });
+  const [rangeDays, setRangeDays] = useState<7 | 30>(7);
 
   useEffect(() => { (async () => {
     const { data: { user } } = await supabase.auth.getUser();

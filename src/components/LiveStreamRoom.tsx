@@ -7,12 +7,17 @@ import {
   GridLayout,
   ParticipantTile,
   useTracks,
+  useRoomContext,
+  useLocalParticipant,
+  useRemoteParticipants,
 } from "@livekit/components-react";
-import { Track, VideoPresets, ScreenSharePresets, type RoomOptions } from "livekit-client";
+import { Track, VideoPresets, ScreenSharePresets, RoomEvent, type RoomOptions } from "livekit-client";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { X, Radio, Users } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { X, Radio, Users, Mic, MicOff, Star, MessageSquare } from "lucide-react";
 
 interface LiveStreamRoomProps {
   streamId: string;

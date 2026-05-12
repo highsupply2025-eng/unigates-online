@@ -4,7 +4,7 @@ import {
   Plus, Trash2, CheckCircle, Clock, HelpCircle,
   GraduationCap, Save, Eye, EyeOff, BarChart3, Loader2, FileQuestion, ListChecks,
   Pencil, ArrowUp, ArrowDown, X, Shuffle, Zap, Image as ImageIcon, Type, ToggleLeft, AlignLeft, ListOrdered,
-  Upload, Download, FileSpreadsheet, AlertCircle
+  Upload, Download, FileSpreadsheet, AlertCircle, Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -599,58 +599,63 @@ const QuizCreate = () => {
           </TabsContent>
 
           <TabsContent value="create">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Plus className="w-5 h-5" />{isRtl ? "إنشاء قالب اختبار جديد" : "New Quiz Template"}</CardTitle>
+            <Card dir="rtl" className="border-2 border-amber-500/30 shadow-xl shadow-amber-500/10 bg-gradient-to-bl from-amber-50/60 via-card to-orange-50/40 dark:from-amber-950/20 dark:to-orange-950/10 overflow-hidden">
+              <CardHeader className="bg-gradient-to-l from-amber-500/15 via-orange-500/10 to-transparent border-b-2 border-amber-500/20">
+                <CardTitle className="flex items-center gap-3 text-lg sm:text-xl font-extrabold tracking-tight">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg shadow-amber-500/40 flex items-center justify-center">
+                    <Plus className="w-6 h-6 text-white stroke-[2.5]" />
+                  </div>
+                  <span className="bg-gradient-to-l from-amber-600 to-orange-600 bg-clip-text text-transparent">{isRtl ? "إنشاء قالب اختبار جديد" : "New Quiz Template"}</span>
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-5">
+              <CardContent className="space-y-5 pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label className="mb-2 block font-semibold">{isRtl ? "عنوان (عربي)" : "Title (Arabic)"} *</Label>
-                    <Input value={newQuiz.title_ar} onChange={e => setNewQuiz(p => ({ ...p, title_ar: e.target.value }))} />
+                    <Label className="mb-2 block font-extrabold text-sm flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-amber-500" />{isRtl ? "عنوان (عربي)" : "Title (Arabic)"} *</Label>
+                    <Input value={newQuiz.title_ar} onChange={e => setNewQuiz(p => ({ ...p, title_ar: e.target.value }))} className="border-2 border-amber-500/20 focus-visible:border-amber-500 focus-visible:ring-amber-500/30 font-semibold" />
                   </div>
                   <div>
-                    <Label className="mb-2 block font-semibold">{isRtl ? "عنوان (إنجليزي)" : "Title (English)"} *</Label>
-                    <Input value={newQuiz.title_en} onChange={e => setNewQuiz(p => ({ ...p, title_en: e.target.value }))} />
+                    <Label className="mb-2 block font-extrabold text-sm flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-amber-500" />{isRtl ? "عنوان (إنجليزي)" : "Title (English)"} *</Label>
+                    <Input value={newQuiz.title_en} onChange={e => setNewQuiz(p => ({ ...p, title_en: e.target.value }))} className="border-2 border-amber-500/20 focus-visible:border-amber-500 focus-visible:ring-amber-500/30 font-semibold" />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label className="mb-2 block font-semibold">{isRtl ? "وصف (عربي)" : "Description (Arabic)"}</Label>
-                    <Textarea value={newQuiz.description_ar} onChange={e => setNewQuiz(p => ({ ...p, description_ar: e.target.value }))} rows={3} />
+                    <Label className="mb-2 block font-extrabold text-sm flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-orange-500" />{isRtl ? "وصف (عربي)" : "Description (Arabic)"}</Label>
+                    <Textarea value={newQuiz.description_ar} onChange={e => setNewQuiz(p => ({ ...p, description_ar: e.target.value }))} rows={3} className="border-2 border-amber-500/20 focus-visible:border-amber-500 focus-visible:ring-amber-500/30 font-medium" />
                   </div>
                   <div>
-                    <Label className="mb-2 block font-semibold">{isRtl ? "وصف (إنجليزي)" : "Description (English)"}</Label>
-                    <Textarea value={newQuiz.description_en} onChange={e => setNewQuiz(p => ({ ...p, description_en: e.target.value }))} rows={3} />
+                    <Label className="mb-2 block font-extrabold text-sm flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-orange-500" />{isRtl ? "وصف (إنجليزي)" : "Description (English)"}</Label>
+                    <Textarea value={newQuiz.description_en} onChange={e => setNewQuiz(p => ({ ...p, description_en: e.target.value }))} rows={3} className="border-2 border-amber-500/20 focus-visible:border-amber-500 focus-visible:ring-amber-500/30 font-medium" />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label className="mb-2 block font-semibold">{isRtl ? "المدة (دقيقة)" : "Duration (min)"}</Label>
-                    <Input type="number" min={1} value={newQuiz.duration_minutes} onChange={e => setNewQuiz(p => ({ ...p, duration_minutes: parseInt(e.target.value) || 30 }))} />
+                    <Label className="mb-2 block font-extrabold text-sm flex items-center gap-1.5"><Clock className="w-4 h-4 text-amber-600" />{isRtl ? "المدة (دقيقة)" : "Duration (min)"}</Label>
+                    <Input type="number" min={1} value={newQuiz.duration_minutes} onChange={e => setNewQuiz(p => ({ ...p, duration_minutes: parseInt(e.target.value) || 30 }))} className="border-2 border-amber-500/20 focus-visible:border-amber-500 focus-visible:ring-amber-500/30 font-bold" />
                   </div>
                   <div>
-                    <Label className="mb-2 block font-semibold">{isRtl ? "الموعد النهائي" : "Due Date"}</Label>
-                    <Input type="datetime-local" value={newQuiz.due_date} onChange={e => setNewQuiz(p => ({ ...p, due_date: e.target.value }))} />
+                    <Label className="mb-2 block font-extrabold text-sm flex items-center gap-1.5"><Calendar className="w-4 h-4 text-orange-600" />{isRtl ? "الموعد النهائي" : "Due Date"}</Label>
+                    <Input type="datetime-local" value={newQuiz.due_date} onChange={e => setNewQuiz(p => ({ ...p, due_date: e.target.value }))} className="border-2 border-amber-500/20 focus-visible:border-amber-500 focus-visible:ring-amber-500/30 font-semibold" />
                   </div>
                 </div>
 
-                <Separator />
-                <p className="text-sm font-semibold">{isRtl ? "إعدادات القالب" : "Template Settings"}</p>
+                <Separator className="bg-amber-500/30" />
+                <p className="text-sm font-extrabold flex items-center gap-2 text-amber-700 dark:text-amber-400"><Zap className="w-4 h-4" />{isRtl ? "إعدادات القالب" : "Template Settings"}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
-                    <Label className="cursor-pointer flex items-center gap-2"><Shuffle className="w-4 h-4 text-primary" />{isRtl ? "ترتيب الأسئلة عشوائياً" : "Randomize question order"}</Label>
+                  <div className="flex items-center justify-between p-3.5 rounded-xl border-2 border-amber-500/20 bg-gradient-to-l from-amber-500/10 to-transparent hover:border-amber-500/40 transition-colors">
+                    <Label className="cursor-pointer flex items-center gap-2 font-bold text-sm"><Shuffle className="w-4 h-4 text-amber-600" />{isRtl ? "ترتيب الأسئلة عشوائياً" : "Randomize question order"}</Label>
                     <Switch checked={newQuiz.randomize_questions} onCheckedChange={v => setNewQuiz(p => ({ ...p, randomize_questions: v }))} />
                   </div>
-                  <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
-                    <Label className="cursor-pointer flex items-center gap-2"><Zap className="w-4 h-4 text-amber-500" />{isRtl ? "إظهار النتيجة فور التسليم" : "Show result immediately"}</Label>
+                  <div className="flex items-center justify-between p-3.5 rounded-xl border-2 border-orange-500/20 bg-gradient-to-l from-orange-500/10 to-transparent hover:border-orange-500/40 transition-colors">
+                    <Label className="cursor-pointer flex items-center gap-2 font-bold text-sm"><Zap className="w-4 h-4 text-orange-600" />{isRtl ? "إظهار النتيجة فور التسليم" : "Show result immediately"}</Label>
                     <Switch checked={newQuiz.show_results_immediately} onCheckedChange={v => setNewQuiz(p => ({ ...p, show_results_immediately: v }))} />
                   </div>
                 </div>
 
-                <Separator />
-                <Button onClick={handleCreateQuiz} disabled={savingQuiz || !newQuiz.title_ar || !newQuiz.title_en} className="w-full gap-2" size="lg">
-                  {savingQuiz ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                <Separator className="bg-amber-500/30" />
+                <Button onClick={handleCreateQuiz} disabled={savingQuiz || !newQuiz.title_ar || !newQuiz.title_en} className="w-full gap-2 bg-gradient-to-l from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-base shadow-lg shadow-amber-500/40 border-2 border-amber-300/40 hover:scale-[1.01] active:scale-[0.99] transition-all" size="lg">
+                  {savingQuiz ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5 stroke-[2.5]" />}
                   {isRtl ? "إنشاء القالب" : "Create Template"}
                 </Button>
               </CardContent>

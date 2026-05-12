@@ -4,7 +4,7 @@ import {
   Plus, Trash2, CheckCircle, Clock, HelpCircle,
   GraduationCap, Save, Eye, EyeOff, BarChart3, Loader2, FileQuestion, ListChecks,
   Pencil, ArrowUp, ArrowDown, X, Shuffle, Zap, Image as ImageIcon, Type, ToggleLeft, AlignLeft, ListOrdered,
-  Upload, Download, FileSpreadsheet, AlertCircle
+  Upload, Download, FileSpreadsheet, AlertCircle, Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

@@ -1414,6 +1414,16 @@ const InstitutionDashboard = () => {
               ]}
             />
 
+            <MenuItemsStatsGrid
+              className="mb-6"
+              items={[
+                { key: "notifications", label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell, color: "from-amber-500 to-amber-600", count: 0 },
+                { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: Layers, color: "from-blue-500 to-blue-600", count: departments.length },
+                { key: "results", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, color: "from-green-500 to-green-600", count: quizSubmissions.length },
+                { key: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: Mail, color: "from-purple-500 to-purple-600", count: deptMembers.length },
+              ]}
+            />
+
 
             {/* Departments Summary */}
             <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">

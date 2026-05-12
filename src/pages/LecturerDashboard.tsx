@@ -929,10 +929,8 @@ const LecturerDashboard = () => {
 
               {/* ===== ONLINE QUIZZES TAB ===== */}
               <TabsContent value="quizzes" dir={isRtl ? "rtl" : "ltr"}>
-                <div className={`mb-6 ${isRtl ? "text-right" : "text-left"}`} dir={isRtl ? "rtl" : "ltr"}>
-                  <h2 className="text-xl font-bold text-foreground mb-2">{isRtl ? "الاختبارات الأونلاين" : "Online Tests"}</h2>
-                  <p className="text-sm text-muted-foreground">{isRtl ? "أنشئ اختبارات أونلاين يحلها الطالب مباشرة مع تصحيح تلقائي" : "Create online tests with auto-grading"}</p>
-                </div>
+                <div className={`mb-6 ${isRtl ? "text-right" : "text-left"}`} dir={isRtl ? "rtl" : "ltr"} />
+
                 {courses.length === 0 ? (
                   <div className="text-center py-16 text-muted-foreground">{isRtl ? "أنشئ دورة أولاً" : "Create a course first"}</div>
                 ) : (

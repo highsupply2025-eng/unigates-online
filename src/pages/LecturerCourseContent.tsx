@@ -146,14 +146,19 @@ const LecturerCourseContent = () => {
     try {
       const nextNum = episodes.length + 1;
       const isFirstEpisode = nextNum === 1;
+      let videoUrl: string | null = newEpisode.video_url || null;
+      if (recordedBlob) {
+        videoUrl = await uploadRecordedEpisode();
+      }
       const { error } = await supabase.from("course_episodes").insert({
         course_id: courseId, title_ar: newEpisode.title_ar, title_en: newEpisode.title_en,
-        video_url: newEpisode.video_url || null, duration_minutes: newEpisode.duration_minutes || 0,
+        video_url: videoUrl, duration_minutes: newEpisode.duration_minutes || 0,
         is_preview: isFirstEpisode ? true : newEpisode.is_preview, episode_number: nextNum,
       });
       if (error) throw error;
       await supabase.from("courses").update({ episode_count: nextNum }).eq("id", courseId);
       setNewEpisode({ title_ar: "", title_en: "", video_url: "", duration_minutes: 0, is_preview: false });
+      resetRecording();
       setShowEpisodeForm(false);
       await loadAll();
       toast({ title: isRtl ? "تم" : "Done" });

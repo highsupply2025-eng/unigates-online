@@ -392,6 +392,16 @@ const SchoolDashboard = () => {
           ]}
         />
 
+        <MenuItemsStatsGrid
+          className="mb-8"
+          items={[
+            { key: "classes", label: isRtl ? "الفصول" : "Classes", Icon: Building2, color: "from-blue-500 to-blue-600", count: departments.length },
+            { key: "students", label: isRtl ? "الطلاب" : "Students", Icon: GraduationCap, color: "from-green-500 to-green-600", count: deptMembers.filter((m: any) => m.role === "student").length },
+            { key: "teachers", label: isRtl ? "المعلمون" : "Teachers", Icon: UserCheck, color: "from-amber-500 to-amber-600", count: deptMembers.filter((m: any) => m.role === "lecturer" || m.role === "teacher").length },
+            { key: "active", label: isRtl ? "المُفعّلون" : "Active", Icon: CheckCircle, color: "from-purple-500 to-purple-600", count: deptMembers.filter((m: any) => m.user_id).length },
+          ]}
+        />
+
 
         {/* Departments/Classes */}
         <div className="flex items-center justify-between mb-6">

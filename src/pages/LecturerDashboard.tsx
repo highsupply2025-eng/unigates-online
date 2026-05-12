@@ -771,115 +771,19 @@ const LecturerDashboard = () => {
 
                 {/* Weekly Activity Card removed */}
 
-                {/* Section Analytics Cards - 2 per row */}
-                <div className="grid grid-cols-2 gap-3 md:gap-4">
-                  <Card>
-                    <CardContent className="p-5">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                          <Video className="w-5 h-5 text-primary" />
-                        </div>
-                        <Badge variant="secondary">{courses.length}</Badge>
-                      </div>
-                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "المحاضرات" : "Lectures"}</h3>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-5">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 shadow-md shadow-black/10 flex items-center justify-center">
-                          <Radio className="w-5 h-5 text-white" />
-                        </div>
-                        <Badge variant="secondary">{streams.length}</Badge>
-                      </div>
-                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "البث المباشر" : "Live Streams"}</h3>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-5">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-md shadow-black/10 flex items-center justify-center">
-                          <HelpCircle className="w-5 h-5 text-white" />
-                        </div>
-                        <Badge variant="secondary">{quizzes.length}</Badge>
-                      </div>
-                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "الاختبارات أونلاين" : "Online Tests"}</h3>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-5">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shadow-black/10 flex items-center justify-center">
-                          <ClipboardList className="w-5 h-5 text-white" />
-                        </div>
-                        <Badge variant="secondary">{assignments.length}</Badge>
-                      </div>
-                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "التكليفات" : "Assignments"}</h3>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-5">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-md shadow-black/10 flex items-center justify-center">
-                          <Calendar className="w-5 h-5 text-white" />
-                        </div>
-                        <Badge variant="secondary">{schedules.length}</Badge>
-                      </div>
-                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "الجداول" : "Schedules"}</h3>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-5">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 shadow-md shadow-black/10 flex items-center justify-center">
-                          <Users className="w-5 h-5 text-white" />
-                        </div>
-                        <Badge variant="secondary">{attendance.length}</Badge>
-                      </div>
-                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "الحضور" : "Attendance"}</h3>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-5">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500 to-amber-600 shadow-md shadow-black/10 flex items-center justify-center">
-                          <Star className="w-5 h-5 text-white" />
-                        </div>
-                        <Badge variant="secondary">{lecturerRatings.length}</Badge>
-                      </div>
-                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "التقييمات" : "Ratings"}</h3>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-5">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 shadow-md shadow-black/10 flex items-center justify-center">
-                          <Download className="w-5 h-5 text-white" />
-                        </div>
-                      </div>
-                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "تحميل التقارير" : "Export Reports"}</h3>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-5">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-md shadow-black/10 flex items-center justify-center">
-                          <Award className="w-5 h-5 text-white" />
-                        </div>
-                        <Badge variant="secondary">{quizSubmissions.length}</Badge>
-                      </div>
-                      <h3 className="font-bold text-foreground mb-1">{isRtl ? "نتائج الاختبارات" : "Quiz Results"}</h3>
-                    </CardContent>
-                  </Card>
-                </div>
+                <MenuItemsStatsGrid
+                  items={[
+                    { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video, color: "from-cyan-500 to-teal-600", count: courses.length },
+                    { key: "live", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", count: streams.length },
+                    { key: "quizzes", label: isRtl ? "الاختبارات أونلاين" : "Online Tests", Icon: HelpCircle, color: "from-amber-500 to-amber-600", count: quizzes.length },
+                    { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-blue-500 to-blue-600", count: assignments.length },
+                    { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-purple-500 to-purple-600", count: schedules.length },
+                    { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-teal-500 to-teal-600", count: attendance.length },
+                    { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", count: lecturerRatings.length },
+                    { key: "results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-indigo-600", count: quizSubmissions.length },
+                    { key: "reports", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, color: "from-green-500 to-green-600", count: attachments.length },
+                  ]}
+                />
               </TabsContent>
 
 

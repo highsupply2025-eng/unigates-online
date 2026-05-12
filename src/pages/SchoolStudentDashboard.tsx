@@ -241,6 +241,17 @@ const SchoolStudentDashboard = () => {
           ]}
         />
 
+        <MenuItemsStatsGrid
+          className="mb-8"
+          items={[
+            { key: "lessons", label: isRtl ? "الدروس" : "Lessons", Icon: BookOpen, color: "from-indigo-500 to-indigo-600", count: subscriptions.length },
+            { key: "browse", label: isRtl ? "تصفّح المواد" : "Browse", Icon: BarChart3, color: "from-cyan-500 to-cyan-600", count: courses.length },
+            { key: "live", label: isRtl ? "بث مباشر" : "Live", Icon: Radio, color: "from-red-500 to-rose-600", count: liveStreams.length },
+            { key: "homework", label: isRtl ? "الواجبات" : "Homework", Icon: Award, color: "from-blue-500 to-blue-600", count: submissions.length },
+            { key: "rating", label: isRtl ? "التقييم" : "Rating", Icon: Star, color: "from-yellow-500 to-amber-600", count: ratings.length },
+          ]}
+        />
+
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6 flex-wrap">

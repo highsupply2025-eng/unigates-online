@@ -8,6 +8,9 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import Index from "./pages/Index";
 import AIChatWidget from "./components/AIChatWidget";
 import { useSingleSession } from "@/hooks/use-single-session";
+import ScrollToTop from "./components/ScrollToTop";
+import PageTransition from "./components/PageTransition";
+import RouteFallback from "./components/RouteFallback";
 
 const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));
@@ -104,7 +107,9 @@ const App = () => (
         <Sonner />
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <SessionGuard />
-          <Suspense fallback={<div className="min-h-screen bg-background" />}>
+          <ScrollToTop />
+          <Suspense fallback={<RouteFallback />}>
+            <PageTransition>
             <Routes>
               <Route path="/" element={<Index />} />
               {/* Courses auth */}
@@ -192,6 +197,7 @@ const App = () => (
               <Route path="/faq" element={<FAQ />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </PageTransition>
           </Suspense>
           <AIChatWidget />
         </BrowserRouter>

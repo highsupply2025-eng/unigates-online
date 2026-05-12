@@ -627,19 +627,62 @@ const QuizCreate = () => {
                       </div>
 
                       {/* Inline template settings */}
-                      <div className="mt-4 pt-4 border-t-2 border-amber-500/20 flex flex-wrap items-center gap-4 justify-start">
-                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                          <Switch checked={!!q.randomize_questions} onCheckedChange={v => handleToggleQuizSetting(q.id, "randomize_questions", v)} />
-                          <Label className="text-xs font-bold cursor-pointer flex items-center gap-1 text-amber-700 dark:text-amber-300">
-                            <Shuffle className="w-3.5 h-3.5" />{isRtl ? "ترتيب عشوائي" : "Randomize"}
-                          </Label>
-                        </div>
-                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                          <Switch checked={!!q.show_results_immediately} onCheckedChange={v => handleToggleQuizSetting(q.id, "show_results_immediately", v)} />
-                          <Label className="text-xs font-bold cursor-pointer flex items-center gap-1 text-orange-700 dark:text-orange-300">
-                            <Zap className="w-3.5 h-3.5" />{isRtl ? "إظهار النتيجة فوراً" : "Instant results"}
-                          </Label>
-                        </div>
+                      <div className="mt-4 pt-4 border-t-2 border-amber-500/20 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label
+                          className={`group relative flex items-center justify-between gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all border-2 overflow-hidden ${
+                            q.randomize_questions
+                              ? "bg-gradient-to-l from-amber-500 via-orange-500 to-amber-600 border-amber-300/50 shadow-lg shadow-amber-500/40"
+                              : "bg-gradient-to-l from-amber-500/10 to-orange-500/5 border-amber-500/30 hover:border-amber-500/60 hover:shadow-md"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-all ${
+                              q.randomize_questions
+                                ? "bg-white/25 shadow-inner"
+                                : "bg-gradient-to-br from-amber-500 to-orange-500 shadow-md shadow-amber-500/40"
+                            }`}>
+                              <Shuffle className={`w-4.5 h-4.5 stroke-[2.5] ${q.randomize_questions ? "text-white" : "text-white"}`} />
+                            </div>
+                            <span className={`text-sm font-extrabold tracking-tight ${
+                              q.randomize_questions ? "text-white drop-shadow" : "text-amber-700 dark:text-amber-300"
+                            }`}>
+                              {isRtl ? "ترتيب عشوائي" : "Randomize"}
+                            </span>
+                          </div>
+                          <Switch
+                            checked={!!q.randomize_questions}
+                            onCheckedChange={v => handleToggleQuizSetting(q.id, "randomize_questions", v)}
+                            className="data-[state=checked]:bg-white/30 data-[state=unchecked]:bg-amber-500/30"
+                          />
+                        </label>
+
+                        <label
+                          className={`group relative flex items-center justify-between gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all border-2 overflow-hidden ${
+                            q.show_results_immediately
+                              ? "bg-gradient-to-l from-orange-500 via-amber-500 to-orange-600 border-orange-300/50 shadow-lg shadow-orange-500/40"
+                              : "bg-gradient-to-l from-orange-500/10 to-amber-500/5 border-orange-500/30 hover:border-orange-500/60 hover:shadow-md"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-all ${
+                              q.show_results_immediately
+                                ? "bg-white/25 shadow-inner"
+                                : "bg-gradient-to-br from-orange-500 to-amber-500 shadow-md shadow-orange-500/40"
+                            }`}>
+                              <Zap className="w-4.5 h-4.5 stroke-[2.5] text-white" />
+                            </div>
+                            <span className={`text-sm font-extrabold tracking-tight ${
+                              q.show_results_immediately ? "text-white drop-shadow" : "text-orange-700 dark:text-orange-300"
+                            }`}>
+                              {isRtl ? "إظهار النتيجة فوراً" : "Instant results"}
+                            </span>
+                          </div>
+                          <Switch
+                            checked={!!q.show_results_immediately}
+                            onCheckedChange={v => handleToggleQuizSetting(q.id, "show_results_immediately", v)}
+                            className="data-[state=checked]:bg-white/30 data-[state=unchecked]:bg-orange-500/30"
+                          />
+                        </label>
                       </div>
                     </CardContent>
                   </Card>

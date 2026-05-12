@@ -7,12 +7,17 @@ import {
   GridLayout,
   ParticipantTile,
   useTracks,
+  useRoomContext,
+  useLocalParticipant,
+  useRemoteParticipants,
 } from "@livekit/components-react";
-import { Track, VideoPresets, ScreenSharePresets, type RoomOptions } from "livekit-client";
+import { Track, VideoPresets, ScreenSharePresets, RoomEvent, type RoomOptions } from "livekit-client";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { X, Radio, Users } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { X, Radio, Users, Mic, MicOff, Star, MessageSquare } from "lucide-react";
 
 interface LiveStreamRoomProps {
   streamId: string;
@@ -207,11 +212,197 @@ const LiveStreamRoom = ({ streamId, streamTitle, isHost, participantName, onClos
         data-lk-theme="default"
         style={{ height: "calc(100vh - 56px)" }}
       >
-        <VideoConference />
-        <RoomAudioRenderer />
+        <div className="relative h-full">
+          <VideoConference />
+          <RoomAudioRenderer />
+          {/* Listens for force-mute requests from host */}
+          {!isHost && <ForceMuteListener />}
+          {/* Floating action panels */}
+          <div className="absolute top-3 end-3 flex flex-col gap-2 z-20 pointer-events-none">
+            <div className="pointer-events-auto">
+              {isHost ? (
+                <HostMuteControls />
+              ) : (
+                <StreamRating streamId={streamId} />
+              )}
+            </div>
+          </div>
+        </div>
       </LiveKitRoom>
     </div>
   );
 };
+
+/* ---------- Host: mute specific participants via data channel ---------- */
+function HostMuteControls() {
+  const { language } = useLanguage();
+  const isAr = language === "ar";
+  const room = useRoomContext();
+  const remotes = useRemoteParticipants();
+  const [open, setOpen] = useState(false);
+  const { toast } = useToast();
+
+  const muteOne = useCallback(async (identity: string, name: string) => {
+    try {
+      const payload = new TextEncoder().encode(
+        JSON.stringify({ type: "force_mute", target: identity })
+      );
+      await room.localParticipant.publishData(payload, {
+        reliable: true,
+        destinationIdentities: [identity],
+        topic: "moderation",
+      });
+      toast({ title: isAr ? "تم كتم المشارك" : "Participant muted", description: name });
+    } catch (e: any) {
+      toast({ title: isAr ? "تعذر الكتم" : "Mute failed", description: e?.message, variant: "destructive" });
+    }
+  }, [room, toast, isAr]);
+
+  return (
+    <div className="bg-background/90 backdrop-blur border-2 border-primary/30 rounded-xl shadow-lg w-72 max-w-[85vw]">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between gap-2 px-3 py-2 font-bold text-sm"
+      >
+        <span className="flex items-center gap-2">
+          <Users className="w-4 h-4 text-primary" strokeWidth={2.5} />
+          {isAr ? `المشاركون (${remotes.length})` : `Participants (${remotes.length})`}
+        </span>
+        <span className="text-xs text-muted-foreground">{open ? "▾" : "▸"}</span>
+      </button>
+      {open && (
+        <div className="max-h-72 overflow-y-auto border-t border-border">
+          {remotes.length === 0 ? (
+            <p className="text-xs text-muted-foreground p-3 text-center">
+              {isAr ? "لا يوجد مشاركون بعد" : "No participants yet"}
+            </p>
+          ) : remotes.map(p => (
+            <div key={p.identity} className="flex items-center justify-between gap-2 px-3 py-2 border-b border-border last:border-0">
+              <span className="text-sm font-semibold truncate flex-1">{p.name || p.identity}</span>
+              <Button size="sm" variant="destructive" className="h-7 gap-1 text-xs" onClick={() => muteOne(p.identity, p.name || p.identity)}>
+                <MicOff className="w-3.5 h-3.5" /> {isAr ? "كتم" : "Mute"}
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------- Viewer: auto-mute self when host requests ---------- */
+function ForceMuteListener() {
+  const room = useRoomContext();
+  const { localParticipant } = useLocalParticipant();
+  const { toast } = useToast();
+  const { language } = useLanguage();
+  const isAr = language === "ar";
+
+  useEffect(() => {
+    const handler = (payload: Uint8Array, _participant: any, _kind: any, topic?: string) => {
+      try {
+        if (topic && topic !== "moderation") return;
+        const msg = JSON.parse(new TextDecoder().decode(payload));
+        if (msg?.type === "force_mute" && msg.target === localParticipant.identity) {
+          localParticipant.setMicrophoneEnabled(false);
+          toast({
+            title: isAr ? "تم كتم الميكروفون" : "Microphone muted",
+            description: isAr ? "قام المضيف بكتم الميكروفون الخاص بك" : "The host has muted your microphone",
+          });
+        }
+      } catch { /* ignore */ }
+    };
+    room.on(RoomEvent.DataReceived, handler);
+    return () => { room.off(RoomEvent.DataReceived, handler); };
+  }, [room, localParticipant, toast, isAr]);
+
+  return null;
+}
+
+/* ---------- Viewer: rate the live stream ---------- */
+function StreamRating({ streamId }: { streamId: string }) {
+  const { language } = useLanguage();
+  const isAr = language === "ar";
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const [hover, setHover] = useState(0);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("live_stream_ratings")
+        .select("rating, comment")
+        .eq("stream_id", streamId)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (data) { setRating(data.rating); setComment(data.comment || ""); setDone(true); }
+    })();
+  }, [streamId]);
+
+  const submit = async () => {
+    if (!rating) return;
+    setSaving(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setSaving(false); return; }
+    const { error } = await supabase
+      .from("live_stream_ratings")
+      .upsert({ stream_id: streamId, user_id: user.id, rating, comment: comment.trim() || null }, { onConflict: "stream_id,user_id" });
+    setSaving(false);
+    if (error) {
+      toast({ title: isAr ? "تعذر الحفظ" : "Save failed", description: error.message, variant: "destructive" });
+    } else {
+      setDone(true); setOpen(false);
+      toast({ title: isAr ? "شكراً لتقييمك!" : "Thanks for rating!" });
+    }
+  };
+
+  return (
+    <div className="bg-background/90 backdrop-blur border-2 border-primary/30 rounded-xl shadow-lg w-72 max-w-[85vw]">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between gap-2 px-3 py-2 font-bold text-sm"
+      >
+        <span className="flex items-center gap-2">
+          <Star className="w-4 h-4 text-yellow-500" fill={done ? "currentColor" : "none"} strokeWidth={2.5} />
+          {done
+            ? (isAr ? `تقييمك: ${rating}/5` : `Your rating: ${rating}/5`)
+            : (isAr ? "قيّم البث" : "Rate stream")}
+        </span>
+        <span className="text-xs text-muted-foreground">{open ? "▾" : "▸"}</span>
+      </button>
+      {open && (
+        <div className="p-3 border-t border-border space-y-3">
+          <div className="flex items-center justify-center gap-1">
+            {[1, 2, 3, 4, 5].map(n => (
+              <button key={n} onMouseEnter={() => setHover(n)} onMouseLeave={() => setHover(0)} onClick={() => setRating(n)}>
+                <Star
+                  className={`w-7 h-7 transition-transform ${(hover || rating) >= n ? "text-yellow-500 scale-110" : "text-muted-foreground"}`}
+                  fill={(hover || rating) >= n ? "currentColor" : "none"}
+                  strokeWidth={2}
+                />
+              </button>
+            ))}
+          </div>
+          <Textarea
+            value={comment}
+            onChange={e => setComment(e.target.value)}
+            rows={2}
+            placeholder={isAr ? "تعليق (اختياري)" : "Comment (optional)"}
+            className="text-sm"
+          />
+          <Button size="sm" className="w-full font-bold" disabled={!rating || saving} onClick={submit}>
+            {saving ? (isAr ? "جاري الحفظ..." : "Saving...") : (isAr ? "إرسال التقييم" : "Submit")}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default LiveStreamRoom;

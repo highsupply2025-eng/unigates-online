@@ -16,6 +16,9 @@ export interface MenuStatItem {
 interface Props {
   items: MenuStatItem[];
   className?: string;
+  /** When true in RTL: keep natural item order and lay grid out RTL,
+   *  so item[0] sits at the top-right. Default false (legacy behavior). */
+  naturalRtl?: boolean;
 }
 
 /**
@@ -23,15 +26,16 @@ interface Props {
  * In RTL, items are reversed and laid out LTR so the visual order
  * exactly matches the activity chart above (which uses the same trick).
  */
-export const MenuItemsStatsGrid = ({ items, className = "" }: Props) => {
+export const MenuItemsStatsGrid = ({ items, className = "", naturalRtl = false }: Props) => {
   const { language } = useLanguage();
   const isRtl = language === "ar";
-  const ordered = isRtl ? [...items].reverse() : items;
+  const useNatural = isRtl && naturalRtl;
+  const ordered = isRtl && !naturalRtl ? [...items].reverse() : items;
 
   return (
     <div
       className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 ${className}`}
-      style={{ direction: "ltr" }}
+      style={{ direction: useNatural ? "rtl" : "ltr" }}
     >
       {ordered.map((it, i) => {
         const Icon = it.Icon;

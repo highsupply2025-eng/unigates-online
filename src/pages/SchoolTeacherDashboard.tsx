@@ -415,6 +415,16 @@ const SchoolTeacherDashboard = () => {
               ]}
             />
 
+            <MenuItemsStatsGrid
+              className="mb-8"
+              items={[
+                { key: "lessons", label: isRtl ? "الدروس" : "Lessons", Icon: Video, color: "from-cyan-500 to-teal-600", count: episodes.length },
+                { key: "live", label: isRtl ? "حصص مباشرة" : "Live", Icon: Radio, color: "from-red-500 to-rose-600", count: streams.length },
+                { key: "homework", label: isRtl ? "الواجبات" : "Homework", Icon: ClipboardList, color: "from-blue-500 to-blue-600", count: assignments.length },
+                { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", count: teacherRatings.length },
+              ]}
+            />
+
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-4 mb-6">

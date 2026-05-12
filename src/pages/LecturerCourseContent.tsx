@@ -202,21 +202,35 @@ const LecturerCourseContent = () => {
 
   return (
     <div className="min-h-screen bg-background" dir={dir}>
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <h1 className="text-lg font-bold text-foreground order-first">{isRtl ? "الحلقات والمرفقات" : "Episodes & Attachments"}</h1>
-          <Button size="icon" variant="default" className="order-last touch-manipulation active:scale-95 transition-transform" onPointerDown={handleBack} aria-label={isRtl ? "رجوع" : "Back"}>
+      <header className="border-b bg-gradient-to-l from-primary/10 via-card to-card shadow-sm">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-foreground order-first tracking-tight flex items-center gap-2">
+            <span className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-md">
+              <Video className="w-5 h-5" />
+            </span>
+            {isRtl ? "الحلقات والمرفقات" : "Episodes & Attachments"}
+          </h1>
+          <Button size="icon" variant="default" className="order-last touch-manipulation active:scale-95 transition-transform shadow-md" onPointerDown={handleBack} aria-label={isRtl ? "رجوع" : "Back"}>
             {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
           </Button>
         </div>
       </header>
-      <main className="container mx-auto px-4 py-6 space-y-4 max-w-3xl">
-        <div className="flex flex-wrap gap-2">
-          <Button size="sm" onClick={() => { setShowEpisodeForm(v => !v); setShowAttachmentForm(false); }}>
-            <Plus className="w-3.5 h-3.5 me-1" /> {isRtl ? "أضف حلقة" : "Add Episode"}
+      <main className="container mx-auto px-4 py-6 space-y-5 max-w-3xl">
+        <div className="flex flex-wrap gap-3">
+          <Button
+            size="default"
+            onClick={() => { setShowEpisodeForm(v => !v); setShowAttachmentForm(false); }}
+            className="font-bold shadow-md hover:shadow-lg transition-all bg-gradient-to-l from-primary to-primary/80 hover:scale-[1.02]"
+          >
+            <Plus className="w-4 h-4 me-2" strokeWidth={3} /> {isRtl ? "أضف حلقة" : "Add Episode"}
           </Button>
-          <Button size="sm" variant="secondary" onClick={() => { setShowAttachmentForm(v => !v); setShowEpisodeForm(false); }}>
-            <Paperclip className="w-3.5 h-3.5 me-1" /> {isRtl ? "أضف مرفق" : "Add Attachment"}
+          <Button
+            size="default"
+            variant="secondary"
+            onClick={() => { setShowAttachmentForm(v => !v); setShowEpisodeForm(false); }}
+            className="font-bold shadow-md hover:shadow-lg transition-all border-2 border-primary/20 hover:scale-[1.02]"
+          >
+            <Paperclip className="w-4 h-4 me-2 text-primary" strokeWidth={2.5} /> {isRtl ? "أضف مرفق" : "Add Attachment"}
           </Button>
         </div>
 

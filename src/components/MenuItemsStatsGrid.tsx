@@ -16,6 +16,9 @@ export interface MenuStatItem {
 interface Props {
   items: MenuStatItem[];
   className?: string;
+  /** When true in RTL: keep natural item order and lay grid out RTL,
+   *  so item[0] sits at the top-right. Default false (legacy behavior). */
+  naturalRtl?: boolean;
 }
 
 /**

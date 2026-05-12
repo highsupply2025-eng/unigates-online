@@ -132,12 +132,6 @@ const StudentDashboard = () => {
       </header>
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
-        <div className="mb-6 text-start">
-          <p className="text-sm text-muted-foreground">
-            {isRtl ? `مرحباً ${profile?.full_name || ""} — نظرة عامة على نشاطك خلال آخر 7 أيام` : `Welcome ${profile?.full_name || ""} — overview of your activity over the last 7 days`}
-          </p>
-        </div>
-
         {/* Per-menu-item counts shared by chart and grid */}
         {(() => {
           const visibleMenu = menuItems.filter((m) => m.to !== "/profile");

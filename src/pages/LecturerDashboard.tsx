@@ -754,8 +754,10 @@ const LecturerDashboard = () => {
 
 
                 {/* Sections Overview Chart - mirrors dropdown menu items */}
+                <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
                 <SectionsActivityChart
                   className="mb-6"
+                  days={rangeDays}
                   sections={[
                     { label: isRtl ? "المحاضرات" : "Lectures", timestamps: courses.map((x: any) => x.created_at), Icon: Video, palette: { from: "#06b6d4", to: "#14b8a6", glow: "20,184,166" } },
                     { label: isRtl ? "البث المباشر" : "Live Stream", timestamps: streams.map((x: any) => x.created_at || x.scheduled_at), Icon: Radio, palette: { from: "#ef4444", to: "#e11d48", glow: "239,68,68" } },

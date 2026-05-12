@@ -956,6 +956,7 @@ const InstitutionDashboard = () => {
             <DashboardMenuDropdown
               title={isRtl ? (institutionType === "college" ? "لوحة الكلية" : "لوحة المعهد") : (institutionType === "college" ? "College Panel" : "Institute Panel")}
               onLanguageToggle={toggleLanguage}
+              showNotifications={false}
               onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
               items={[
                 { key: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, onClick: () => handleTabChange("general"), active: activeTab === "general" },

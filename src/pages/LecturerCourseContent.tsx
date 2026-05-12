@@ -228,7 +228,43 @@ const LecturerCourseContent = () => {
               <Input placeholder={isRtl ? "عنوان (عربي)" : "Title (Arabic)"} value={newEpisode.title_ar} onChange={e => setNewEpisode(p => ({ ...p, title_ar: e.target.value }))} />
               <Input placeholder={isRtl ? "عنوان (إنجليزي)" : "Title (English)"} value={newEpisode.title_en} onChange={e => setNewEpisode(p => ({ ...p, title_en: e.target.value }))} />
             </div>
-            <Input placeholder={isRtl ? "رابط الفيديو" : "Video URL"} value={newEpisode.video_url} onChange={e => setNewEpisode(p => ({ ...p, video_url: e.target.value }))} />
+            <div className="space-y-2 p-3 rounded-lg border bg-muted/30">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <p className="text-sm font-semibold flex items-center gap-2">
+                  <Video className="w-4 h-4" /> {isRtl ? "تسجيل الحلقة" : "Record Episode"}
+                  {isRecording && <span className="text-xs text-destructive font-mono">● {fmtTime(recordSeconds)}</span>}
+                  {!isRecording && recordedBlob && <span className="text-xs text-muted-foreground font-mono">{fmtTime(recordSeconds)}</span>}
+                </p>
+                <div className="flex items-center gap-2">
+                  {!isRecording && !recordedBlob && (
+                    <Button type="button" size="sm" variant="default" onClick={startRecording}>
+                      <Circle className="w-3.5 h-3.5 me-1 fill-current" /> {isRtl ? "بدء التسجيل" : "Start"}
+                    </Button>
+                  )}
+                  {isRecording && (
+                    <Button type="button" size="sm" variant="destructive" onClick={stopRecording}>
+                      <Square className="w-3.5 h-3.5 me-1 fill-current" /> {isRtl ? "إيقاف" : "Stop"}
+                    </Button>
+                  )}
+                  {!isRecording && recordedBlob && (
+                    <Button type="button" size="sm" variant="outline" onClick={resetRecording}>
+                      <RotateCcw className="w-3.5 h-3.5 me-1" /> {isRtl ? "إعادة" : "Retake"}
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <video
+                ref={videoPreviewRef}
+                playsInline
+                controls={!isRecording && !!recordedBlob}
+                className={`w-full rounded-md bg-black aspect-video ${!isRecording && !recordedBlob ? "hidden" : ""}`}
+              />
+              {!isRecording && !recordedBlob && (
+                <p className="text-xs text-muted-foreground">
+                  {isRtl ? "اضغط بدء التسجيل لتسجيل الحلقة من خلال الكاميرا والميكروفون." : "Click Start to record the episode using your camera and microphone."}
+                </p>
+              )}
+            </div>
             <div className="flex items-center gap-4 flex-wrap">
               <Input type="number" placeholder={isRtl ? "المدة (دقائق)" : "Duration (min)"} value={newEpisode.duration_minutes || ""} onChange={e => setNewEpisode(p => ({ ...p, duration_minutes: parseInt(e.target.value) || 0 }))} className="flex-1 min-w-[140px]" />
               <div className="flex items-center gap-2"><Switch checked={newEpisode.is_preview} onCheckedChange={v => setNewEpisode(p => ({ ...p, is_preview: v }))} /><Label className="text-sm">{isRtl ? "معاينة" : "Preview"}</Label></div>

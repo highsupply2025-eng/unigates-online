@@ -1402,8 +1402,10 @@ const InstitutionDashboard = () => {
           <TabsContent value="general" dir={isRtl ? "rtl" : "ltr"}>
 
             {/* Sections Overview Chart - mirrors dropdown menu items */}
+            <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
             <SectionsActivityChart
               className="mb-6"
+              days={rangeDays}
               sections={[
                 { label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell, timestamps: [] },
                 { label: isRtl ? "الأقسام" : "Departments", Icon: Layers, timestamps: departments.map((d: any) => d.created_at) },

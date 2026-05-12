@@ -165,8 +165,26 @@ const StudentDashboard = () => {
           };
           return (
             <>
+              <div className="mb-3 flex items-center justify-end gap-2">
+                <span className="text-xs font-bold text-muted-foreground">{isRtl ? "النطاق الزمني:" : "Time range:"}</span>
+                <div className="inline-flex rounded-lg border border-border bg-card p-0.5 shadow-sm">
+                  <button
+                    onClick={() => setRangeDays(7)}
+                    className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${rangeDays === 7 ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    {isRtl ? "آخر 7 أيام" : "Last 7 days"}
+                  </button>
+                  <button
+                    onClick={() => setRangeDays(30)}
+                    className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${rangeDays === 30 ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    {isRtl ? "آخر 30 يوم" : "Last 30 days"}
+                  </button>
+                </div>
+              </div>
               <StudentPillActivityChart
                 className="mb-4 sm:mb-6"
+                days={rangeDays}
                 sections={visibleMenu.map((m) => ({
                   label: m.label,
                   Icon: m.Icon,

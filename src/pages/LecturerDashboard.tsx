@@ -908,18 +908,26 @@ const LecturerDashboard = () => {
               <TabsContent value="assignments" dir={isRtl ? "rtl" : "ltr"}>
                 <div className={`mb-6 ${isRtl ? "text-right" : "text-left"}`}>
                   <h2 className="text-xl font-bold text-foreground mb-2">{isRtl ? "التكليفات والملفات الورقية" : "Assignments & Paper Files"}</h2>
-                  
                 </div>
-                {courses.length === 0 ? (
-                  <div className="text-center py-16 text-muted-foreground">{isRtl ? "أنشئ دورة أولاً" : "Create a course first"}</div>
-                ) : (
+                {courses.length > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" dir={isRtl ? "rtl" : "ltr"}>
                     {courses.map(course => (
-                      <Card key={course.id} className="cursor-pointer card-hover" onClick={() => navigate(`/course/${course.id}/assignments`)}>
-                        <CardContent className="p-5 text-center">
-                          <ClipboardList className="w-10 h-10 text-primary mx-auto mb-3" />
-                          <h3 className="font-bold text-foreground mb-1">{isRtl ? course.title_ar : course.title_en}</h3>
-                          <p className="text-sm text-muted-foreground">{isRtl ? "اضغط لإدارة التكليفات" : "Click to manage"}</p>
+                      <Card key={course.id} className="card-hover border-2 border-border hover:border-primary/40">
+                        <CardContent className="p-4 flex items-center gap-3">
+                          <span className="inline-flex items-center justify-center w-12 h-12 rounded-xl shrink-0 shadow-md bg-gradient-to-br from-primary to-primary/70 text-primary-foreground">
+                            <ClipboardList className="w-6 h-6" strokeWidth={2.5} />
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-extrabold text-foreground truncate text-base">{isRtl ? course.title_ar : course.title_en}</h3>
+                            <p className="text-xs text-muted-foreground truncate">{isRtl ? course.category_ar : course.category_en}</p>
+                          </div>
+                          <Button
+                            size="sm"
+                            onClick={() => navigate(`/course/${course.id}/assignments`)}
+                            className="gap-1.5 font-bold bg-gradient-to-l from-primary to-primary/80 hover:scale-[1.02] shadow-md border-2 border-primary/20 shrink-0"
+                          >
+                            <Plus className="w-4 h-4" strokeWidth={3} />{isRtl ? "أضف تكليف" : "Add Assignment"}
+                          </Button>
                         </CardContent>
                       </Card>
                     ))}
@@ -929,29 +937,25 @@ const LecturerDashboard = () => {
 
               {/* ===== ONLINE QUIZZES TAB ===== */}
               <TabsContent value="quizzes" dir={isRtl ? "rtl" : "ltr"}>
-                <div className="flex items-center justify-start mb-6" dir={isRtl ? "rtl" : "ltr"}>
-                  <Button
-                    onClick={() => {
-                      if (courses.length === 0) {
-                        toast({ title: isRtl ? "لا توجد دورات بعد" : "No courses yet", variant: "destructive" });
-                        return;
-                      }
-                      navigate(`/quiz/create/${courses[0].id}`);
-                    }}
-                    className="gap-2 font-bold bg-gradient-to-l from-primary to-primary/80 hover:scale-[1.02] shadow-md hover:shadow-lg transition-all border-2 border-primary/20"
-                  >
-                    <Plus className="w-4 h-4" strokeWidth={3} />{isRtl ? "أضف اختبار" : "Add Quiz"}
-                  </Button>
-                </div>
-
                 {courses.length > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" dir={isRtl ? "rtl" : "ltr"}>
                     {courses.map(course => (
-                      <Card key={course.id} className="cursor-pointer card-hover" onClick={() => navigate(`/quiz/create/${course.id}`)}>
-                        <CardContent className="p-5 text-center">
-                          <HelpCircle className="w-10 h-10 text-amber-500 mx-auto mb-3" />
-                          <h3 className="font-bold text-foreground mb-1">{isRtl ? course.title_ar : course.title_en}</h3>
-                          <p className="text-sm text-muted-foreground">{isRtl ? "إدارة الاختبارات الأونلاين" : "Manage online tests"}</p>
+                      <Card key={course.id} className="card-hover border-2 border-border hover:border-amber-500/40">
+                        <CardContent className="p-4 flex items-center gap-3">
+                          <span className="inline-flex items-center justify-center w-12 h-12 rounded-xl shrink-0 shadow-md bg-gradient-to-br from-amber-500 to-amber-600 text-white">
+                            <HelpCircle className="w-6 h-6" strokeWidth={2.5} />
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-extrabold text-foreground truncate text-base">{isRtl ? course.title_ar : course.title_en}</h3>
+                            <p className="text-xs text-muted-foreground truncate">{isRtl ? course.category_ar : course.category_en}</p>
+                          </div>
+                          <Button
+                            size="sm"
+                            onClick={() => navigate(`/quiz/create/${course.id}`)}
+                            className="gap-1.5 font-bold bg-gradient-to-l from-primary to-primary/80 hover:scale-[1.02] shadow-md border-2 border-primary/20 shrink-0"
+                          >
+                            <Plus className="w-4 h-4" strokeWidth={3} />{isRtl ? "أضف اختبار" : "Add Quiz"}
+                          </Button>
                         </CardContent>
                       </Card>
                     ))}

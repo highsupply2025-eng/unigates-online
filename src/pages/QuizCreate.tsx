@@ -530,7 +530,7 @@ const QuizCreate = () => {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex flex-row-reverse items-center justify-start flex-wrap mb-5 sm:mb-6 gap-2">
+          <div className="flex flex-col items-end mb-5 sm:mb-6 gap-2">
             <Button
               onClick={() => setActiveTab(activeTab === "create" ? "list" : "create")}
               size="lg"
@@ -538,6 +538,14 @@ const QuizCreate = () => {
             >
               <Plus className={`w-5 h-5 stroke-[2.5] transition-transform ${activeTab === "create" ? "rotate-45" : ""}`} />
               {isRtl ? (activeTab === "create" ? "إغلاق" : "إنشاء اختبار") : (activeTab === "create" ? "Close" : "Create Quiz")}
+            </Button>
+            <Button
+              onClick={() => navigate("/quiz-results")}
+              size="lg"
+              className="gap-2 bg-gradient-to-l from-blue-500 via-indigo-500 to-blue-600 hover:from-blue-600 hover:to-indigo-600 hover:scale-[1.03] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/40 border-2 border-blue-300/40 text-white font-extrabold text-sm sm:text-base tracking-tight"
+            >
+              <BarChart3 className="w-5 h-5 stroke-[2.5]" />
+              {isRtl ? "النتائج" : "Results"}
             </Button>
           </div>
 

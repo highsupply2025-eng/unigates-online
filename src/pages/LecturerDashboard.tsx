@@ -929,11 +929,22 @@ const LecturerDashboard = () => {
 
               {/* ===== ONLINE QUIZZES TAB ===== */}
               <TabsContent value="quizzes" dir={isRtl ? "rtl" : "ltr"}>
-                <div className={`mb-6 ${isRtl ? "text-right" : "text-left"}`} dir={isRtl ? "rtl" : "ltr"} />
+                <div className="flex items-center justify-start mb-6" dir={isRtl ? "rtl" : "ltr"}>
+                  <Button
+                    onClick={() => {
+                      if (courses.length === 0) {
+                        toast({ title: isRtl ? "لا توجد دورات بعد" : "No courses yet", variant: "destructive" });
+                        return;
+                      }
+                      navigate(`/quiz/create/${courses[0].id}`);
+                    }}
+                    className="gap-2 font-bold bg-gradient-to-l from-primary to-primary/80 hover:scale-[1.02] shadow-md hover:shadow-lg transition-all border-2 border-primary/20"
+                  >
+                    <Plus className="w-4 h-4" strokeWidth={3} />{isRtl ? "أضف اختبار" : "Add Quiz"}
+                  </Button>
+                </div>
 
-                {courses.length === 0 ? (
-                  <div className="text-center py-16 text-muted-foreground">{isRtl ? "أنشئ دورة أولاً" : "Create a course first"}</div>
-                ) : (
+                {courses.length > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" dir={isRtl ? "rtl" : "ltr"}>
                     {courses.map(course => (
                       <Card key={course.id} className="cursor-pointer card-hover" onClick={() => navigate(`/quiz/create/${course.id}`)}>

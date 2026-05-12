@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Plus, Upload, Video, FileText, Trash2, Paperclip, ArrowLeft, ArrowRight } from "lucide-react";
+import { Plus, Upload, Video, FileText, Trash2, Paperclip, ArrowLeft, ArrowRight, Circle, Square, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,6 +31,95 @@ const LecturerCourseContent = () => {
   const [attachmentName, setAttachmentName] = useState("");
   const [savingAttachment, setSavingAttachment] = useState(false);
 
+  // Recording state
+  const videoPreviewRef = useRef<HTMLVideoElement | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordedChunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
+  const timerRef = useRef<number | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const [recordedUrl, setRecordedUrl] = useState<string | null>(null);
+  const [recordSeconds, setRecordSeconds] = useState(0);
+  const [uploadingRecording, setUploadingRecording] = useState(false);
+
+  const stopStream = () => {
+    streamRef.current?.getTracks().forEach(t => t.stop());
+    streamRef.current = null;
+    if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
+  };
+
+  const startRecording = async () => {
+    try {
+      setRecordedBlob(null);
+      if (recordedUrl) { URL.revokeObjectURL(recordedUrl); setRecordedUrl(null); }
+      recordedChunksRef.current = [];
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: true });
+      streamRef.current = stream;
+      if (videoPreviewRef.current) {
+        videoPreviewRef.current.srcObject = stream;
+        videoPreviewRef.current.muted = true;
+        await videoPreviewRef.current.play().catch(() => {});
+      }
+      const mime = MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus")
+        ? "video/webm;codecs=vp9,opus"
+        : MediaRecorder.isTypeSupported("video/webm;codecs=vp8,opus")
+        ? "video/webm;codecs=vp8,opus"
+        : "video/webm";
+      const mr = new MediaRecorder(stream, { mimeType: mime });
+      mr.ondataavailable = e => { if (e.data.size > 0) recordedChunksRef.current.push(e.data); };
+      mr.onstop = () => {
+        const blob = new Blob(recordedChunksRef.current, { type: mime });
+        setRecordedBlob(blob);
+        const url = URL.createObjectURL(blob);
+        setRecordedUrl(url);
+        setNewEpisode(p => ({ ...p, duration_minutes: Math.max(1, Math.round(recordSeconds / 60)) }));
+        stopStream();
+        if (videoPreviewRef.current) {
+          videoPreviewRef.current.srcObject = null;
+          videoPreviewRef.current.src = url;
+          videoPreviewRef.current.muted = false;
+        }
+      };
+      mediaRecorderRef.current = mr;
+      mr.start(1000);
+      setIsRecording(true);
+      setRecordSeconds(0);
+      timerRef.current = window.setInterval(() => setRecordSeconds(s => s + 1), 1000);
+    } catch (err: any) {
+      toast({ title: isRtl ? "تعذر الوصول للكاميرا" : "Camera error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const stopRecording = () => {
+    mediaRecorderRef.current?.stop();
+    setIsRecording(false);
+  };
+
+  const resetRecording = () => {
+    if (recordedUrl) URL.revokeObjectURL(recordedUrl);
+    setRecordedUrl(null);
+    setRecordedBlob(null);
+    setRecordSeconds(0);
+    if (videoPreviewRef.current) { videoPreviewRef.current.src = ""; videoPreviewRef.current.srcObject = null; }
+  };
+
+  const uploadRecordedEpisode = async (): Promise<string | null> => {
+    if (!recordedBlob || !user || !courseId) return null;
+    setUploadingRecording(true);
+    try {
+      const path = `${user.id}/${courseId}/episodes/${Date.now()}.webm`;
+      const { error: upErr } = await supabase.storage.from("course-content").upload(path, recordedBlob, { contentType: recordedBlob.type });
+      if (upErr) throw upErr;
+      const { data: urlData } = supabase.storage.from("course-content").getPublicUrl(path);
+      return urlData.publicUrl;
+    } finally { setUploadingRecording(false); }
+  };
+
+  useEffect(() => () => { stopStream(); if (recordedUrl) URL.revokeObjectURL(recordedUrl); }, []);
+
+  const fmtTime = (s: number) => `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
+
   useEffect(() => {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -56,14 +145,19 @@ const LecturerCourseContent = () => {
     try {
       const nextNum = episodes.length + 1;
       const isFirstEpisode = nextNum === 1;
+      let videoUrl: string | null = newEpisode.video_url || null;
+      if (recordedBlob) {
+        videoUrl = await uploadRecordedEpisode();
+      }
       const { error } = await supabase.from("course_episodes").insert({
         course_id: courseId, title_ar: newEpisode.title_ar, title_en: newEpisode.title_en,
-        video_url: newEpisode.video_url || null, duration_minutes: newEpisode.duration_minutes || 0,
+        video_url: videoUrl, duration_minutes: newEpisode.duration_minutes || 0,
         is_preview: isFirstEpisode ? true : newEpisode.is_preview, episode_number: nextNum,
       });
       if (error) throw error;
       await supabase.from("courses").update({ episode_count: nextNum }).eq("id", courseId);
       setNewEpisode({ title_ar: "", title_en: "", video_url: "", duration_minutes: 0, is_preview: false });
+      resetRecording();
       setShowEpisodeForm(false);
       await loadAll();
       toast({ title: isRtl ? "تم" : "Done" });
@@ -133,12 +227,51 @@ const LecturerCourseContent = () => {
               <Input placeholder={isRtl ? "عنوان (عربي)" : "Title (Arabic)"} value={newEpisode.title_ar} onChange={e => setNewEpisode(p => ({ ...p, title_ar: e.target.value }))} />
               <Input placeholder={isRtl ? "عنوان (إنجليزي)" : "Title (English)"} value={newEpisode.title_en} onChange={e => setNewEpisode(p => ({ ...p, title_en: e.target.value }))} />
             </div>
-            <Input placeholder={isRtl ? "رابط الفيديو" : "Video URL"} value={newEpisode.video_url} onChange={e => setNewEpisode(p => ({ ...p, video_url: e.target.value }))} />
+            <div className="space-y-2 p-3 rounded-lg border bg-muted/30">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <p className="text-sm font-semibold flex items-center gap-2">
+                  <Video className="w-4 h-4" /> {isRtl ? "تسجيل الحلقة" : "Record Episode"}
+                  {isRecording && <span className="text-xs text-destructive font-mono">● {fmtTime(recordSeconds)}</span>}
+                  {!isRecording && recordedBlob && <span className="text-xs text-muted-foreground font-mono">{fmtTime(recordSeconds)}</span>}
+                </p>
+                <div className="flex items-center gap-2">
+                  {!isRecording && !recordedBlob && (
+                    <Button type="button" size="sm" variant="default" onClick={startRecording}>
+                      <Circle className="w-3.5 h-3.5 me-1 fill-current" /> {isRtl ? "بدء التسجيل" : "Start"}
+                    </Button>
+                  )}
+                  {isRecording && (
+                    <Button type="button" size="sm" variant="destructive" onClick={stopRecording}>
+                      <Square className="w-3.5 h-3.5 me-1 fill-current" /> {isRtl ? "إيقاف" : "Stop"}
+                    </Button>
+                  )}
+                  {!isRecording && recordedBlob && (
+                    <Button type="button" size="sm" variant="outline" onClick={resetRecording}>
+                      <RotateCcw className="w-3.5 h-3.5 me-1" /> {isRtl ? "إعادة" : "Retake"}
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <video
+                ref={videoPreviewRef}
+                playsInline
+                controls={!isRecording && !!recordedBlob}
+                className={`w-full rounded-md bg-black aspect-video ${!isRecording && !recordedBlob ? "hidden" : ""}`}
+              />
+              {!isRecording && !recordedBlob && (
+                <p className="text-xs text-muted-foreground">
+                  {isRtl ? "اضغط بدء التسجيل لتسجيل الحلقة من خلال الكاميرا والميكروفون." : "Click Start to record the episode using your camera and microphone."}
+                </p>
+              )}
+            </div>
             <div className="flex items-center gap-4 flex-wrap">
               <Input type="number" placeholder={isRtl ? "المدة (دقائق)" : "Duration (min)"} value={newEpisode.duration_minutes || ""} onChange={e => setNewEpisode(p => ({ ...p, duration_minutes: parseInt(e.target.value) || 0 }))} className="flex-1 min-w-[140px]" />
               <div className="flex items-center gap-2"><Switch checked={newEpisode.is_preview} onCheckedChange={v => setNewEpisode(p => ({ ...p, is_preview: v }))} /><Label className="text-sm">{isRtl ? "معاينة" : "Preview"}</Label></div>
             </div>
-            <Button size="sm" onClick={handleAddEpisode} disabled={savingEpisode}><Plus className="w-3.5 h-3.5 me-1" /> {isRtl ? "حفظ الحلقة" : "Save Episode"}</Button>
+            <Button size="sm" onClick={handleAddEpisode} disabled={savingEpisode || uploadingRecording || isRecording}>
+              <Plus className="w-3.5 h-3.5 me-1" />
+              {uploadingRecording ? (isRtl ? "جارٍ الرفع..." : "Uploading...") : (isRtl ? "حفظ الحلقة" : "Save Episode")}
+            </Button>
           </div>
         )}
 

@@ -61,6 +61,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [rangeDays, setRangeDays] = useState<7 | 30>(7);
 
   const [pendingLecturers, setPendingLecturers] = useState<(UserRole & { profile?: Profile })[]>([]);
   const [allUsers, setAllUsers] = useState<(UserRole & { profile?: Profile })[]>([]);

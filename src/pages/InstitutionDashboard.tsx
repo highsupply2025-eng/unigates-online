@@ -900,8 +900,8 @@ const InstitutionDashboard = () => {
             <div className="min-w-0 flex-1">
               <h1 className="text-base sm:text-xl font-black text-foreground truncate">
                 {isRtl
-                  ? (institutionType === "college" ? "لوحة تحكم الكلية" : "لوحة تحكم المعهد")
-                  : (institutionType === "college" ? "College Dashboard" : "Institute Dashboard")}
+                  ? (institutionType === "college" ? "لوحة ادارة الكلية" : "لوحة ادارة المعهد")
+                  : (institutionType === "college" ? "College Administration" : "Institute Administration")}
               </h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
                 {(() => {

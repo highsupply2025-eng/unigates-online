@@ -380,8 +380,10 @@ const SchoolDashboard = () => {
 
 
         {/* Sections Overview Chart - activity per section in last 7 days */}
+        <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
         <SectionsActivityChart
           className="mb-8"
+          days={rangeDays}
           sections={[
             { label: isRtl ? "الفصول" : "Classes", Icon: Building2, color: "#3b82f6", timestamps: departments.map((d: any) => d.created_at) },
             { label: isRtl ? "الطلاب" : "Students", Icon: GraduationCap, color: "#22c55e", timestamps: deptMembers.filter((m: any) => m.role === "student").map((m: any) => m.created_at) },

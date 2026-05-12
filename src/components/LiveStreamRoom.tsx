@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   LiveKitRoom,
   VideoConference,
@@ -8,7 +8,7 @@ import {
   ParticipantTile,
   useTracks,
 } from "@livekit/components-react";
-import { Track } from "livekit-client";
+import { Track, VideoPresets, ScreenSharePresets, type RoomOptions } from "livekit-client";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";

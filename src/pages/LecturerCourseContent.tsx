@@ -17,7 +17,16 @@ const LecturerCourseContent = () => {
   const navigate = useNavigate();
   const { dir } = useLanguage();
   const { toast } = useToast();
-  const handleBack = () => navigate("/lecturer/dashboard?tab=courses", { replace: true });
+  const smartBack = useSmartBack("/lecturer/dashboard?tab=courses");
+  const handleBack = () => {
+    // Free camera/mic resources immediately so navigation isn't blocked
+    try { streamRef.current?.getTracks().forEach(t => t.stop()); } catch {}
+    try { mediaRecorderRef.current?.state === "recording" && mediaRecorderRef.current.stop(); } catch {}
+    if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
+    if (recordedUrl) { try { URL.revokeObjectURL(recordedUrl); } catch {} }
+    // Prefer history.back() (uses bfcache → instant) with safe fallback
+    smartBack();
+  };
   const isRtl = dir === "rtl";
 
   const [user, setUser] = useState<any>(null);

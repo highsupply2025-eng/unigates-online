@@ -854,9 +854,8 @@ const LecturerDashboard = () => {
 
               {/* ===== LIVE STREAMING TAB ===== */}
               <TabsContent value="live" dir={isRtl ? "rtl" : "ltr"}>
-                <div className="flex items-center justify-between mb-6" dir={isRtl ? "rtl" : "ltr"}>
-                  <h2 className="text-xl font-bold text-foreground order-1">{isRtl ? "البث المباشر" : "Live Streams"}</h2>
-                  <Button onClick={() => setShowStreamDialog(true)} className="gap-2 order-2"><Plus className="w-4 h-4" />{isRtl ? "بث جديد" : "New Stream"}</Button>
+                <div className="flex items-center justify-start mb-6" dir={isRtl ? "rtl" : "ltr"}>
+                  <Button onClick={() => setShowStreamDialog(true)} className="gap-2"><Plus className="w-4 h-4" />{isRtl ? "بث جديد" : "New Stream"}</Button>
                 </div>
                 <div className="bg-accent/30 border border-border rounded-lg p-4 mb-6">
                   <p className="text-sm text-muted-foreground">

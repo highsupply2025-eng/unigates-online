@@ -135,7 +135,7 @@ const StudentDashboard = () => {
       <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
         {/* Per-menu-item counts shared by chart and grid */}
         {(() => {
-          const visibleMenu = menuItems.filter((m) => m.to !== "/profile");
+          const visibleMenu = menuItems.filter((m) => m.to !== "/profile" && m.to !== "/student/my-academic");
           const countFor = (to: string) => {
             switch (to) {
               case "/student/lectures": return counts.completed;

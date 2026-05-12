@@ -747,9 +747,6 @@ const LecturerDashboard = () => {
 
               {/* ===== HOME / ANALYTICS DASHBOARD ===== */}
               <TabsContent value="home" dir={isRtl ? "rtl" : "ltr"}>
-                <div className="mb-6 text-start">
-                  <p className="text-sm text-muted-foreground">{isRtl ? "نظرة عامة على نشاطك في جميع الأقسام" : "Overview of your activity across all sections"}</p>
-                </div>
 
 
 

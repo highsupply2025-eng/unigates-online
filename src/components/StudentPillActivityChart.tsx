@@ -79,9 +79,9 @@ export const StudentPillActivityChart = ({
       Icon: s.Icon ?? pickIcon(s.label),
     };
   });
-  // In RTL, reverse the visual order so the chart starts from the right
-  // with the first array item (matching the icon grid below it).
-  const data = isRtl ? [...baseData].reverse() : baseData;
+  // In RTL, keep natural order and lay the chart out RTL so the first item
+  // sits at the right (matching the icon grid below).
+  const data = baseData;
 
   // Percentage rule: every 100 occurrences = 1%
   const maxPct = Math.max(1, ...data.map((d) => d.count / 100));

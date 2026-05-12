@@ -26,7 +26,7 @@ interface Props {
  * In RTL, items are reversed and laid out LTR so the visual order
  * exactly matches the activity chart above (which uses the same trick).
  */
-export const MenuItemsStatsGrid = ({ items, className = "", naturalRtl = false }: Props) => {
+export const MenuItemsStatsGrid = ({ items, className = "", naturalRtl = true }: Props) => {
   const { language } = useLanguage();
   const isRtl = language === "ar";
   const useNatural = isRtl && naturalRtl;

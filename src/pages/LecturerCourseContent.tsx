@@ -298,22 +298,28 @@ const LecturerCourseContent = () => {
           </div>
         )}
 
-        <Card>
-          <CardContent className="space-y-4 pt-6">
+        <Card className="border-2 border-primary/10 shadow-lg">
+          <CardContent className="space-y-5 pt-6">
             <div>
-              <p className="text-sm font-semibold mb-2 flex items-center gap-2"><Video className="w-4 h-4" /> {isRtl ? "حلقة" : "Episode"} ({episodes.length})</p>
+              <p className="text-base font-extrabold mb-3 flex items-center gap-2 text-foreground">
+                <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-primary/15 text-primary">
+                  <Video className="w-4 h-4" strokeWidth={2.5} />
+                </span>
+                {isRtl ? "الحلقات" : "Episodes"}
+                <span className="text-xs font-bold bg-primary text-primary-foreground px-2 py-0.5 rounded-full">{episodes.length}</span>
+              </p>
               {episodes.length === 0 ? (
                 <p className="text-xs text-muted-foreground">{isRtl ? "لا توجد حلقات بعد" : "No episodes yet"}</p>
               ) : (
                 <div className="space-y-2">
                   {episodes.map(ep => (
-                    <div key={ep.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
-                      <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold shrink-0">{ep.episode_number}</span>
+                    <div key={ep.id} className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-l from-primary/5 to-muted/30 border border-primary/10 hover:border-primary/30 transition-colors">
+                      <span className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground flex items-center justify-center text-sm font-extrabold shrink-0 shadow-md">{ep.episode_number}</span>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm truncate">{isRtl ? ep.title_ar : ep.title_en}</p>
-                        {ep.duration_minutes > 0 && <p className="text-xs text-muted-foreground">{ep.duration_minutes} {isRtl ? "دقيقة" : "min"}</p>}
+                        <p className="font-bold text-sm truncate text-foreground">{isRtl ? ep.title_ar : ep.title_en}</p>
+                        {ep.duration_minutes > 0 && <p className="text-xs text-muted-foreground font-medium">{ep.duration_minutes} {isRtl ? "دقيقة" : "min"}</p>}
                       </div>
-                      {ep.is_preview && <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{isRtl ? "معاينة" : "Preview"}</span>}
+                      {ep.is_preview && <span className="text-xs font-bold bg-primary/15 text-primary px-2.5 py-1 rounded-full border border-primary/20">{isRtl ? "معاينة" : "Preview"}</span>}
                       <Button size="icon" variant="ghost" onClick={() => handleDeleteEpisode(ep.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
                     </div>
                   ))}
@@ -322,15 +328,23 @@ const LecturerCourseContent = () => {
             </div>
             <Separator />
             <div>
-              <p className="text-sm font-semibold mb-2 flex items-center gap-2"><Paperclip className="w-4 h-4" /> {isRtl ? "مرفق" : "Attachment"} ({attachments.length})</p>
+              <p className="text-base font-extrabold mb-3 flex items-center gap-2 text-foreground">
+                <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-primary/15 text-primary">
+                  <Paperclip className="w-4 h-4" strokeWidth={2.5} />
+                </span>
+                {isRtl ? "المرفقات" : "Attachments"}
+                <span className="text-xs font-bold bg-primary text-primary-foreground px-2 py-0.5 rounded-full">{attachments.length}</span>
+              </p>
               {attachments.length === 0 ? (
                 <p className="text-xs text-muted-foreground">{isRtl ? "لا توجد مرفقات بعد" : "No attachments yet"}</p>
               ) : (
                 <div className="space-y-2">
                   {attachments.map(att => (
-                    <div key={att.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
-                      <FileText className="w-4 h-4 text-muted-foreground shrink-0" />
-                      <a href={att.file_url} target="_blank" rel="noreferrer" className="flex-1 font-semibold text-sm hover:underline truncate">{att.name}</a>
+                    <div key={att.id} className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-l from-primary/5 to-muted/30 border border-primary/10 hover:border-primary/30 transition-colors">
+                      <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-primary/15 text-primary shrink-0">
+                        <FileText className="w-4 h-4" strokeWidth={2.5} />
+                      </span>
+                      <a href={att.file_url} target="_blank" rel="noreferrer" className="flex-1 font-bold text-sm hover:text-primary hover:underline truncate text-foreground">{att.name}</a>
                       <Button size="icon" variant="ghost" onClick={() => handleDeleteAttachment(att.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
                     </div>
                   ))}

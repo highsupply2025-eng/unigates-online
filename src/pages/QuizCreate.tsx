@@ -518,6 +518,7 @@ const QuizCreate = () => {
         titleAr="إدارة الاختبار"
         titleEn="Quiz Management"
         icon={<FileQuestion className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-600" />}
+        activeKey="quizzes"
       />
       <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
         {course && (

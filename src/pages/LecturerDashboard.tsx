@@ -791,59 +791,78 @@ const LecturerDashboard = () => {
               {/* ===== COURSES TAB ===== */}
               <TabsContent value="courses" dir={isRtl ? "rtl" : "ltr"}>
                 <div className="flex items-center justify-start gap-2 mb-6">
-                  <Button onClick={() => setShowNewCourse(true)} className="gap-2"><Plus className="w-4 h-4" />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</Button>
+                  <Button
+                    onClick={() => setShowNewCourse(true)}
+                    className="gap-2 font-bold bg-gradient-to-l from-primary to-primary/80 hover:scale-[1.02] shadow-md hover:shadow-lg transition-all border-2 border-primary/20"
+                  >
+                    <Plus className="w-4 h-4" strokeWidth={3} />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}
+                  </Button>
                   <Button
                     variant="outline"
                     onClick={() => document.getElementById("lecturer-courses-grid")?.scrollIntoView({ behavior: "smooth", block: "start" })}
-                    className="gap-2"
+                    className="gap-2 font-bold border-2 border-primary/30 hover:border-primary/60 hover:bg-primary/5 shadow-sm"
                   >
-                    <Video className="w-4 h-4" />{isRtl ? "المحاضرات" : "Lectures"}
-                    {courses.length > 0 && <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{courses.length}</span>}
+                    <Video className="w-4 h-4 text-primary" strokeWidth={2.5} />{isRtl ? "المحاضرات" : "Lectures"}
+                    {courses.length > 0 && <span className="text-xs font-bold bg-primary text-primary-foreground px-2 py-0.5 rounded-full shadow-sm">{courses.length}</span>}
                   </Button>
                 </div>
+                <div className="bg-gradient-to-l from-primary/10 via-card to-card border-2 border-primary/20 rounded-xl p-4 mb-6 shadow-sm">
+                  <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-md shrink-0">
+                      <Video className="w-4 h-4" strokeWidth={2.5} />
+                    </span>
+                    {isRtl ? "أنشئ محاضراتك وأدر الحلقات والمرفقات بسهولة من مكان واحد." : "Create your lectures and manage episodes and attachments from one place."}
+                  </p>
+                </div>
                 {courses.length === 0 ? (
-                  <div className="text-center py-16 text-muted-foreground">{isRtl ? "لا توجد دورات بعد. ابدأ بإنشاء أول دورة!" : "No courses yet."}</div>
+                  <div className="text-center py-16 font-bold text-muted-foreground">{isRtl ? "لا توجد محاضرات بعد. ابدأ بإنشاء أول محاضرة!" : "No lectures yet. Create your first one!"}</div>
                 ) : (
                   <div id="lecturer-courses-grid" dir={isRtl ? "rtl" : "ltr"} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {courses.map(course => (
-                      <Card key={course.id} className="overflow-hidden">
+                      <Card key={course.id} className="overflow-hidden bg-gradient-to-br from-card via-card to-primary/5 border-2 border-border hover:border-primary/40 hover:shadow-lg transition-all">
                         {course.thumbnail_url && <img src={course.thumbnail_url} alt="" className="w-full h-40 object-cover" />}
                         <CardContent className="p-4">
-                          <p className="text-xs text-muted-foreground mb-1">{isRtl ? "اسم المادة" : "Subject"}</p>
-                          <p className="text-base font-bold text-foreground mb-2" dir="rtl">{course.category_ar || course.category_en}</p>
+                          <p className="text-[11px] font-bold uppercase tracking-wider text-primary/80 mb-1 flex items-center gap-1">
+                            <BookOpen className="w-3 h-3" strokeWidth={2.5} />{isRtl ? "اسم المادة" : "Subject"}
+                          </p>
+                          <p className="text-base font-extrabold text-foreground mb-3 tracking-tight" dir="rtl">{course.category_ar || course.category_en}</p>
 
-                          <p className="text-xs text-muted-foreground mb-1">{isRtl ? "عنوان المحاضرة" : "Lecture Title"}</p>
-                          <h3 className="font-semibold text-foreground mb-2" dir="rtl">{course.title_ar || course.title_en}</h3>
+                          <p className="text-[11px] font-bold uppercase tracking-wider text-primary/80 mb-1 flex items-center gap-1">
+                            <Video className="w-3 h-3" strokeWidth={2.5} />{isRtl ? "عنوان المحاضرة" : "Lecture Title"}
+                          </p>
+                          <h3 className="font-extrabold text-foreground mb-3 text-lg tracking-tight leading-snug" dir="rtl">{course.title_ar || course.title_en}</h3>
 
-                          <p className="text-xs text-muted-foreground mb-1">{isRtl ? "اسم المحاضر" : "Lecturer"}</p>
-                          <p className="text-sm text-foreground mb-2" dir="rtl">{course.instructor_ar || course.instructor_en}</p>
+                          <p className="text-[11px] font-bold uppercase tracking-wider text-primary/80 mb-1 flex items-center gap-1">
+                            <GraduationCap className="w-3 h-3" strokeWidth={2.5} />{isRtl ? "اسم المحاضر" : "Lecturer"}
+                          </p>
+                          <p className="text-sm font-bold text-foreground mb-3" dir="rtl">{course.instructor_ar || course.instructor_en}</p>
 
-                          <div className="text-xs text-muted-foreground space-y-1 mb-3">
-                            <p>{isRtl ? "تاريخ الإنشاء: " : "Created: "}{new Date(course.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</p>
+                          <div className="text-xs font-semibold text-muted-foreground space-y-1 mb-3 border-t border-border/60 pt-3">
+                            <p className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-primary" strokeWidth={2.5} />{isRtl ? "تاريخ الإنشاء: " : "Created: "}{new Date(course.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</p>
                             {course.expires_at && (
-                              <p>{isRtl ? "تاريخ الانتهاء: " : "Expires: "}{new Date(course.expires_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</p>
+                              <p className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-destructive" strokeWidth={2.5} />{isRtl ? "تاريخ الانتهاء: " : "Expires: "}{new Date(course.expires_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</p>
                             )}
                           </div>
 
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                            <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {courseViews[course.id] || 0}</span>
-                            <span className="flex items-center gap-1"><Video className="w-3.5 h-3.5" /> {course.episode_count}</span>
+                          <div className="flex items-center gap-3 text-sm font-bold mb-3 flex-wrap">
+                            <span className="flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 text-primary"><Eye className="w-3.5 h-3.5" strokeWidth={2.5} /> {courseViews[course.id] || 0}</span>
+                            <span className="flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 text-primary"><Video className="w-3.5 h-3.5" strokeWidth={2.5} /> {course.episode_count}</span>
                             {course.is_free 
-                              ? <span className="text-primary font-semibold">{isRtl ? "مجاني" : "Free"}</span>
-                              : course.price > 0 && <span className="font-bold text-primary">{course.price} {isRtl ? "ج.م" : "EGP"}</span>
+                              ? <span className="px-2 py-1 rounded-lg bg-primary text-primary-foreground shadow-sm">{isRtl ? "مجاني" : "Free"}</span>
+                              : course.price > 0 && <span className="px-2 py-1 rounded-lg bg-gradient-to-l from-primary to-primary/80 text-primary-foreground shadow-sm">{course.price} {isRtl ? "ج.م" : "EGP"}</span>
                             }
                           </div>
                           <div className="flex gap-2 flex-wrap">
-                            <Button size="sm" variant="outline" className="flex-1" onClick={() => navigate(`/lecturer/course/${course.id}`)}>
-                              <Plus className="w-3.5 h-3.5 me-1" />{isRtl ? "الحلقات والمرفقات" : "Episodes & Attachments"}
+                            <Button size="sm" variant="outline" className="flex-1 font-bold border-2 border-primary/30 hover:border-primary/60 hover:bg-primary/5" onClick={() => navigate(`/lecturer/course/${course.id}`)}>
+                              <Plus className="w-3.5 h-3.5 me-1 text-primary" strokeWidth={3} />{isRtl ? "الحلقات والمرفقات" : "Episodes & Attachments"}
                             </Button>
-                            <Button size="sm" variant="outline" className="gap-1" onClick={() => {
+                            <Button size="sm" variant="outline" className="gap-1 font-bold border-2 border-primary/30 hover:border-primary/60 hover:bg-primary/5" onClick={() => {
                               navigator.clipboard.writeText(`${window.location.origin}/lecturer/course/${course.id}`);
                               sonnerToast.success(isRtl ? "تم النسخ!" : "Copied!", { duration: 500 });
                             }}>
-                              <Link2 className="w-3.5 h-3.5" />{isRtl ? "نسخ" : "Copy"}
+                              <Link2 className="w-3.5 h-3.5 text-primary" strokeWidth={2.5} />{isRtl ? "نسخ" : "Copy"}
                             </Button>
-                            <Button size="sm" variant="destructive" onClick={() => handleDeleteCourse(course.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                            <Button size="sm" variant="destructive" className="shadow-sm" onClick={() => handleDeleteCourse(course.id)}><Trash2 className="w-3.5 h-3.5" strokeWidth={2.5} /></Button>
                           </div>
                         </CardContent>
                       </Card>

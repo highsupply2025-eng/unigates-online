@@ -636,7 +636,7 @@ const QuizCreate = () => {
                           </Button>
                           <Button
                             size="sm"
-                            onClick={() => openResults(q.id)}
+                            onClick={() => navigate(`/quiz/${q.id}/results`)}
                             className="gap-1.5 text-xs font-bold bg-gradient-to-l from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-2 border-blue-300/40 shadow-md shadow-blue-500/40"
                           >
                             <BarChart3 className="w-3.5 h-3.5" />{isRtl ? "النتائج" : "Results"}

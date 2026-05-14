@@ -984,7 +984,7 @@ const LecturerDashboard = () => {
 
               {/* ===== SCHEDULES TAB ===== */}
               <TabsContent value="schedules" dir={isRtl ? "rtl" : "ltr"}>
-                <div className={`mb-6 flex flex-col gap-3 ${isRtl ? "items-end text-right" : "items-start text-left"}`}>
+                <div className={`mb-6 flex flex-col gap-3 ${isRtl ? "items-start text-right" : "items-end text-left"}`}>
                   <Button onClick={() => setShowScheduleDialog(true)} className="gap-2 shadow-md hover:shadow-lg transition-shadow"><Plus className="w-5 h-5" strokeWidth={2.5} />{isRtl ? "إضافة جدول" : "Add Schedule"}</Button>
                 </div>
                 {schedules.length === 0 ? (

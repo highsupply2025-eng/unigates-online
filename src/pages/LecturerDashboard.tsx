@@ -985,40 +985,41 @@ const LecturerDashboard = () => {
               {/* ===== SCHEDULES TAB ===== */}
               <TabsContent value="schedules" dir={isRtl ? "rtl" : "ltr"}>
                 <div className={`mb-6 flex flex-col gap-3 ${isRtl ? "items-start text-right" : "items-end text-left"}`}>
-                  <Button onClick={() => setShowScheduleDialog(true)} className="gap-2 shadow-md hover:shadow-lg transition-shadow"><Plus className="w-5 h-5" strokeWidth={2.5} />{isRtl ? "إضافة جدول" : "Add Schedule"}</Button>
+                  <Button onClick={() => setShowScheduleDialog(true)} className="gap-2 shadow-lg hover:shadow-xl transition-all bg-gradient-to-l from-primary to-primary/80 text-white font-bold text-base px-5 py-2.5"><Plus className="w-5 h-5" strokeWidth={2.5} />{isRtl ? "إضافة جدول" : "Add Schedule"}</Button>
                 </div>
                 {schedules.length === 0 ? (
-                  <div className="text-center py-16 text-muted-foreground">{isRtl ? "لا توجد جداول" : "No schedules yet"}</div>
+                  <div className="text-center py-16 text-muted-foreground text-lg font-semibold">{isRtl ? "لا توجد جداول" : "No schedules yet"}</div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {schedules.map(s => {
                       const fully = s.approved_by_head && s.approved_by_vice_dean && s.approved_by_dean;
+                      const isTest = s.schedule_type === 'test';
                       return (
-                        <Card key={s.id} className="hover:shadow-md transition-shadow">
-                          <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-4">
-                            <div className="flex items-start gap-3 flex-1 min-w-0">
-                              <div className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center shadow-sm ${s.schedule_type === 'test' ? 'bg-red-500/15 ring-1 ring-red-500/30' : 'bg-primary/15 ring-1 ring-primary/30'}`}>
-                                {s.schedule_type === 'test' ? <ClipboardList className="w-6 h-6 text-red-500" strokeWidth={2.25} /> : <BookOpen className="w-6 h-6 text-primary" strokeWidth={2.25} />}
+                        <Card key={s.id} className="hover:shadow-xl transition-all duration-300 border-2 border-border/60 hover:border-primary/30 overflow-hidden">
+                          <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+                            <div className="flex items-start gap-4 flex-1 min-w-0">
+                              <div className={`w-14 h-14 shrink-0 rounded-2xl flex items-center justify-center shadow-md ${isTest ? 'bg-gradient-to-br from-red-500 to-red-600' : 'bg-gradient-to-br from-primary to-primary/80'}`}>
+                                {isTest ? <ClipboardList className="w-7 h-7 text-white" strokeWidth={2.5} /> : <BookOpen className="w-7 h-7 text-white" strokeWidth={2.5} />}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <h3 className="font-bold text-foreground truncate">{isRtl ? s.title_ar : s.title_en}</h3>
-                                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1.5 flex-wrap">
-                                  <Badge variant={s.schedule_type === 'test' ? "destructive" : "outline"}>
-                                    {s.schedule_type === 'test' ? (isRtl ? "اختبار" : "Test") : (isRtl ? "محاضرة" : "Lecture")}
+                                <h3 className="font-extrabold text-foreground text-lg truncate">{isRtl ? s.title_ar : s.title_en}</h3>
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2 flex-wrap">
+                                  <Badge variant={isTest ? "destructive" : "default"} className={isTest ? "" : "bg-primary/15 text-primary border-primary/30 font-bold text-xs px-2.5 py-0.5"}>
+                                    {isTest ? (isRtl ? "اختبار" : "Test") : (isRtl ? "محاضرة" : "Lecture")}
                                   </Badge>
-                                  <Badge variant={fully ? "default" : "secondary"} className={fully ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" : ""}>
+                                  <Badge variant={fully ? "default" : "secondary"} className={fully ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 font-bold text-xs px-2.5 py-0.5" : "font-bold text-xs px-2.5 py-0.5"}>
                                     {fully ? (isRtl ? "معتمد" : "Approved") : (isRtl ? "بانتظار الاعتماد" : "Pending")}
                                   </Badge>
-                                  <span className="inline-flex items-center gap-1"><Calendar className="w-3.5 h-3.5" strokeWidth={2.25} />{s.scheduled_date}</span>
-                                  {s.start_time && <span className="inline-flex items-center gap-1"><Clock className="w-3.5 h-3.5" strokeWidth={2.25} />{s.start_time} - {s.end_time || '?'}</span>}
+                                  <span className="inline-flex items-center gap-1 font-medium"><Calendar className="w-4 h-4 text-primary" strokeWidth={2.25} />{s.scheduled_date}</span>
+                                  {s.start_time && <span className="inline-flex items-center gap-1 font-medium"><Clock className="w-4 h-4 text-primary" strokeWidth={2.25} />{s.start_time} - {s.end_time || '?'}</span>}
                                 </div>
                               </div>
                             </div>
                             <div className="flex items-center gap-2 sm:shrink-0 w-full sm:w-auto">
-                              <Button size="sm" variant="outline" onClick={() => navigate(buildSchedulePath(s.id, s.title_en, s.title_ar))} className="gap-1.5 flex-1 sm:flex-initial border-primary/40 text-primary hover:bg-primary/10">
+                              <Button size="sm" variant="outline" onClick={() => navigate(buildSchedulePath(s.id, s.title_en, s.title_ar))} className="gap-1.5 flex-1 sm:flex-initial border-2 border-primary/50 text-primary hover:bg-primary hover:text-white font-bold text-sm shadow-sm transition-all">
                                 <ExternalLink className="w-4 h-4" strokeWidth={2.5} />{isRtl ? "مشاهدة الجدول" : "View Schedule"}
                               </Button>
-                              <Button size="sm" variant="destructive" onClick={() => handleDeleteSchedule(s.id)} className="shrink-0"><Trash2 className="w-4 h-4" strokeWidth={2.5} /></Button>
+                              <Button size="sm" variant="destructive" onClick={() => handleDeleteSchedule(s.id)} className="shrink-0 shadow-sm"><Trash2 className="w-4 h-4" strokeWidth={2.5} /></Button>
                             </div>
                           </CardContent>
                         </Card>

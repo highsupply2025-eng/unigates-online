@@ -1045,45 +1045,45 @@ const LecturerDashboard = () => {
                       return (
                         <Card
                           key={c.id}
-                          className="hover:shadow-xl hover:-translate-y-0.5 transition-all cursor-pointer group border-border/60 overflow-hidden"
+                          className="hover:shadow-2xl hover:-translate-y-1 transition-all cursor-pointer group border-2 border-border/60 hover:border-primary/50 overflow-hidden"
                           onClick={() => navigate(`/attendance/course/${c.id}`)}
                         >
-                          <CardContent className="p-4 sm:p-5 flex flex-col gap-4">
+                          <CardContent className="p-5 flex flex-col gap-4">
                             <div className={`flex items-start gap-3 ${isRtl ? "flex-row-reverse text-right" : ""}`}>
-                              <div className="w-14 h-14 shrink-0 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 ring-2 ring-primary/30 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
-                                <Users className="w-7 h-7 text-primary" strokeWidth={2.5} />
+                              <div className="w-16 h-16 shrink-0 rounded-2xl bg-gradient-to-br from-primary to-primary/70 ring-4 ring-primary/20 flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                                <Users className="w-8 h-8 text-white" strokeWidth={2.75} />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <h3 className="font-bold text-base sm:text-lg truncate">{isRtl ? c.title_ar : c.title_en}</h3>
-                                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 truncate">{isRtl ? c.category_ar : c.category_en}</p>
+                                <h3 className="font-extrabold text-lg sm:text-xl truncate text-foreground">{isRtl ? c.title_ar : c.title_en}</h3>
+                                <p className="text-sm font-semibold text-muted-foreground mt-1 truncate">{isRtl ? c.category_ar : c.category_en}</p>
                               </div>
-                              <Badge variant="secondary" className="shrink-0 text-sm font-bold px-2.5 py-1">{total}</Badge>
+                              <Badge className="shrink-0 text-base font-extrabold px-3 py-1 bg-gradient-to-l from-primary to-primary/80 text-white shadow-md">{total}</Badge>
                             </div>
                             <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center">
-                              <div className="bg-primary/5 ring-1 ring-primary/15 rounded-xl py-3 px-1">
-                                <div className="w-9 h-9 mx-auto mb-1.5 rounded-full bg-primary/15 flex items-center justify-center">
-                                  <BookOpen className="w-5 h-5 text-primary" strokeWidth={2.5} />
+                              <div className="bg-gradient-to-br from-primary/15 to-primary/5 ring-2 ring-primary/30 rounded-xl py-3 px-1 shadow-sm">
+                                <div className="w-11 h-11 mx-auto mb-1.5 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-md">
+                                  <BookOpen className="w-6 h-6 text-white" strokeWidth={2.75} />
                                 </div>
-                                <div className="text-base sm:text-lg font-extrabold leading-none">{lecCount}</div>
-                                <div className="text-[10px] sm:text-xs text-muted-foreground mt-1">{isRtl ? "محاضرات" : "Lectures"}</div>
+                                <div className="text-xl font-black leading-none text-primary">{lecCount}</div>
+                                <div className="text-[11px] sm:text-xs font-bold text-foreground/80 mt-1.5">{isRtl ? "محاضرات" : "Lectures"}</div>
                               </div>
-                              <div className="bg-red-500/5 ring-1 ring-red-500/20 rounded-xl py-3 px-1">
-                                <div className="w-9 h-9 mx-auto mb-1.5 rounded-full bg-red-500/15 flex items-center justify-center">
-                                  <Radio className="w-5 h-5 text-red-500" strokeWidth={2.5} />
+                              <div className="bg-gradient-to-br from-red-500/15 to-red-500/5 ring-2 ring-red-500/30 rounded-xl py-3 px-1 shadow-sm">
+                                <div className="w-11 h-11 mx-auto mb-1.5 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-md">
+                                  <Radio className="w-6 h-6 text-white" strokeWidth={2.75} />
                                 </div>
-                                <div className="text-base sm:text-lg font-extrabold leading-none">{strCount}</div>
-                                <div className="text-[10px] sm:text-xs text-muted-foreground mt-1">{isRtl ? "بث" : "Streams"}</div>
+                                <div className="text-xl font-black leading-none text-red-600">{strCount}</div>
+                                <div className="text-[11px] sm:text-xs font-bold text-foreground/80 mt-1.5">{isRtl ? "بث" : "Streams"}</div>
                               </div>
-                              <div className="bg-amber-500/5 ring-1 ring-amber-500/20 rounded-xl py-3 px-1">
-                                <div className="w-9 h-9 mx-auto mb-1.5 rounded-full bg-amber-500/15 flex items-center justify-center">
-                                  <ClipboardList className="w-5 h-5 text-amber-500" strokeWidth={2.5} />
+                              <div className="bg-gradient-to-br from-amber-500/15 to-amber-500/5 ring-2 ring-amber-500/30 rounded-xl py-3 px-1 shadow-sm">
+                                <div className="w-11 h-11 mx-auto mb-1.5 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-md">
+                                  <ClipboardList className="w-6 h-6 text-white" strokeWidth={2.75} />
                                 </div>
-                                <div className="text-base sm:text-lg font-extrabold leading-none">{tstCount}</div>
-                                <div className="text-[10px] sm:text-xs text-muted-foreground mt-1">{isRtl ? "اختبارات" : "Tests"}</div>
+                                <div className="text-xl font-black leading-none text-amber-600">{tstCount}</div>
+                                <div className="text-[11px] sm:text-xs font-bold text-foreground/80 mt-1.5">{isRtl ? "اختبارات" : "Tests"}</div>
                               </div>
                             </div>
-                            <Button size="sm" variant="outline" className="w-full gap-2 h-10 font-semibold group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors">
-                              <ExternalLink className="w-4 h-4" strokeWidth={2.5} />
+                            <Button size="sm" className="w-full gap-2 h-11 font-extrabold text-base bg-gradient-to-l from-primary to-primary/80 text-white shadow-lg hover:shadow-xl transition-all">
+                              <ExternalLink className="w-5 h-5" strokeWidth={2.75} />
                               {isRtl ? "عرض الجدول" : "View Table"}
                             </Button>
                           </CardContent>

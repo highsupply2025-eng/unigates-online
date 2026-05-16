@@ -1132,20 +1132,22 @@ const LecturerDashboard = () => {
 
               {/* ===== ANALYTICS / EXPORT TAB ===== */}
               <TabsContent value="analytics" dir={isRtl ? "rtl" : "ltr"}>
-                <h2 className={`text-xl font-bold text-foreground mb-6 ${isRtl ? "text-right" : "text-left"}`}>{isRtl ? "تحميل التقارير" : "Export Reports"}</h2>
+                <h2 className={`text-2xl md:text-3xl font-black text-green-600 dark:text-green-400 mb-6 inline-flex items-center gap-2.5 drop-shadow-sm ${isRtl ? "flex-row" : "flex-row"}`}><Download className="w-7 h-7" strokeWidth={2.75} />{isRtl ? "تحميل التقارير" : "Export Reports"}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" dir={isRtl ? "rtl" : "ltr"}>
                   {[
-                    { key: "overview", icon: BarChart3, label: isRtl ? "تقرير شامل" : "Overview Report", color: "text-primary" },
-                    { key: "attendance", icon: Users, label: isRtl ? "تقرير الحضور" : "Attendance Report", color: "text-blue-500" },
-                    { key: "schedules", icon: Calendar, label: isRtl ? "تقرير الجداول" : "Schedules Report", color: "text-emerald-500" },
-                    { key: "ratings", icon: Star, label: isRtl ? "تقرير التقييمات" : "Ratings Report", color: "text-amber-500" },
+                    { key: "overview", icon: BarChart3, label: isRtl ? "تقرير شامل" : "Overview Report", from: "from-primary", to: "to-primary/70", text: "text-primary", border: "border-primary/30", hoverBorder: "hover:border-primary", shadow: "hover:shadow-primary/20" },
+                    { key: "attendance", icon: Users, label: isRtl ? "تقرير الحضور" : "Attendance Report", from: "from-blue-500", to: "to-blue-700", text: "text-blue-600 dark:text-blue-400", border: "border-blue-500/30", hoverBorder: "hover:border-blue-500", shadow: "hover:shadow-blue-500/20" },
+                    { key: "schedules", icon: Calendar, label: isRtl ? "تقرير الجداول" : "Schedules Report", from: "from-emerald-500", to: "to-emerald-700", text: "text-emerald-600 dark:text-emerald-400", border: "border-emerald-500/30", hoverBorder: "hover:border-emerald-500", shadow: "hover:shadow-emerald-500/20" },
+                    { key: "ratings", icon: Star, label: isRtl ? "تقرير التقييمات" : "Ratings Report", from: "from-amber-500", to: "to-amber-700", text: "text-amber-600 dark:text-amber-400", border: "border-amber-500/30", hoverBorder: "hover:border-amber-500", shadow: "hover:shadow-amber-500/20" },
                   ].map(item => (
-                    <Card key={item.key} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => exportAnalyticsPDF(item.key)}>
+                    <Card key={item.key} className={`cursor-pointer border-2 ${item.border} ${item.hoverBorder} hover:shadow-xl ${item.shadow} transition-all bg-gradient-to-br from-background to-muted/30`} onClick={() => exportAnalyticsPDF(item.key)}>
                       <CardContent className="p-6 text-center">
-                        <item.icon className={`w-10 h-10 mx-auto mb-3 ${item.color}`} />
-                        <h3 className="font-bold text-foreground mb-2">{item.label}</h3>
-                        <Button size="sm" variant="outline" className="gap-1.5">
-                          <Download className="w-4 h-4" />{isRtl ? "تحميل PDF" : "Export PDF"}
+                        <span className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mx-auto mb-4 shadow-lg bg-gradient-to-br ${item.from} ${item.to} text-white`}>
+                          <item.icon className="w-8 h-8" strokeWidth={2.75} />
+                        </span>
+                        <h3 className={`font-black text-lg mb-3 ${item.text}`}>{item.label}</h3>
+                        <Button size="sm" variant="outline" className={`gap-1.5 font-bold border-2 ${item.border} ${item.text} ${item.hoverBorder}`}>
+                          <Download className="w-4 h-4" strokeWidth={2.75} />{isRtl ? "تحميل PDF" : "Export PDF"}
                         </Button>
                       </CardContent>
                     </Card>

@@ -370,8 +370,8 @@ const CourseAttendance = () => {
                         <VRow label={isRtl ? "اسم الطالب" : "Student"} value={
                           <>{studentName(a.user_id, a._demo)}{a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}</>
                         } isRtl={isRtl} bold />
-                        <VRow label={isRtl ? "اسم المحاضرة" : "Lecture"} value={sch ? (isRtl ? sch.title_ar : sch.title_en) : "—"} isRtl={isRtl} />
                         <VRow label={isRtl ? "المادة" : "Course"} value={courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")} isRtl={isRtl} />
+                        <VRow label={isRtl ? "اسم المحاضرة" : "Lecture"} value={sch ? (isRtl ? sch.title_ar : sch.title_en) : "—"} isRtl={isRtl} />
                         <VRow label={isRtl ? "وقت الحضور" : "Attended at"} value={new Date(a.viewed_at).toLocaleString(isRtl ? "ar-EG" : "en-US")} isRtl={isRtl} />
                       </div>
                     );
@@ -384,8 +384,8 @@ const CourseAttendance = () => {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الطالب" : "Student"}</TableHead>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم المحاضرة" : "Lecture"}</TableHead>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المادة" : "Course"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم المحاضرة" : "Lecture"}</TableHead>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "وقت الحضور" : "Attended at"}</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -398,8 +398,8 @@ const CourseAttendance = () => {
                               {studentName(a.user_id, a._demo)}
                               {a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}
                             </TableCell>
-                            <TableCell>{sch ? (isRtl ? sch.title_ar : sch.title_en) : "—"}</TableCell>
                             <TableCell>{courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")}</TableCell>
+                            <TableCell>{sch ? (isRtl ? sch.title_ar : sch.title_en) : "—"}</TableCell>
                             <TableCell className="text-sm whitespace-nowrap">{new Date(a.viewed_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}</TableCell>
                           </TableRow>
                         );
@@ -423,8 +423,8 @@ const CourseAttendance = () => {
                         <VRow label={isRtl ? "اسم الطالب" : "Student"} value={
                           <>{studentName(a.user_id, a._demo)}{a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}</>
                         } isRtl={isRtl} bold />
-                        <VRow label={isRtl ? "اسم البث المباشر" : "Live Stream"} value={st ? (isRtl ? st.title_ar : st.title_en) : "—"} isRtl={isRtl} />
                         <VRow label={isRtl ? "المادة" : "Course"} value={courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")} isRtl={isRtl} />
+                        <VRow label={isRtl ? "اسم البث المباشر" : "Live Stream"} value={st ? (isRtl ? st.title_ar : st.title_en) : "—"} isRtl={isRtl} />
                         <VRow label={isRtl ? "وقت الانضمام" : "Joined"} value={new Date(a.joined_at).toLocaleString(isRtl ? "ar-EG" : "en-US")} isRtl={isRtl} />
                         <VRow label={isRtl ? "المدة" : "Duration"} value={`${a.duration_minutes || 0} ${isRtl ? "د" : "min"}`} isRtl={isRtl} />
                       </div>
@@ -437,8 +437,8 @@ const CourseAttendance = () => {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الطالب" : "Student"}</TableHead>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم البث المباشر" : "Live Stream"}</TableHead>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المادة" : "Course"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم البث المباشر" : "Live Stream"}</TableHead>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "وقت الانضمام" : "Joined"}</TableHead>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المدة" : "Duration"}</TableHead>
                       </TableRow>
@@ -452,8 +452,8 @@ const CourseAttendance = () => {
                               {studentName(a.user_id, a._demo)}
                               {a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}
                             </TableCell>
-                            <TableCell>{st ? (isRtl ? st.title_ar : st.title_en) : "—"}</TableCell>
                             <TableCell>{courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")}</TableCell>
+                            <TableCell>{st ? (isRtl ? st.title_ar : st.title_en) : "—"}</TableCell>
                             <TableCell className="text-sm whitespace-nowrap">{new Date(a.joined_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}</TableCell>
                             <TableCell>{a.duration_minutes || 0} {isRtl ? "د" : "min"}</TableCell>
                           </TableRow>
@@ -478,8 +478,8 @@ const CourseAttendance = () => {
                         <VRow label={isRtl ? "اسم الطالب" : "Student"} value={
                           <>{studentName(a.student_id, a._demo)}{a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}</>
                         } isRtl={isRtl} bold />
-                        <VRow label={isRtl ? "اسم الاختبار" : "Test"} value={qz ? (isRtl ? qz.title_ar : qz.title_en) : "—"} isRtl={isRtl} />
                         <VRow label={isRtl ? "المادة" : "Course"} value={courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")} isRtl={isRtl} />
+                        <VRow label={isRtl ? "اسم الاختبار" : "Test"} value={qz ? (isRtl ? qz.title_ar : qz.title_en) : "—"} isRtl={isRtl} />
                         <VRow label={isRtl ? "الدرجة" : "Score"} value={`${a.score ?? "—"}${a.total_points ? ` / ${a.total_points}` : ""}`} isRtl={isRtl} />
                         <VRow label={isRtl ? "وقت التسليم" : "Submitted"} value={new Date(a.submitted_at).toLocaleString(isRtl ? "ar-EG" : "en-US")} isRtl={isRtl} />
                       </div>
@@ -492,8 +492,8 @@ const CourseAttendance = () => {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الطالب" : "Student"}</TableHead>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الاختبار" : "Test"}</TableHead>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المادة" : "Course"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الاختبار" : "Test"}</TableHead>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "الدرجة" : "Score"}</TableHead>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "وقت التسليم" : "Submitted"}</TableHead>
                       </TableRow>
@@ -507,8 +507,8 @@ const CourseAttendance = () => {
                               {studentName(a.student_id, a._demo)}
                               {a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}
                             </TableCell>
-                            <TableCell>{qz ? (isRtl ? qz.title_ar : qz.title_en) : "—"}</TableCell>
                             <TableCell>{courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")}</TableCell>
+                            <TableCell>{qz ? (isRtl ? qz.title_ar : qz.title_en) : "—"}</TableCell>
                             <TableCell>{a.score ?? "—"}{a.total_points ? ` / ${a.total_points}` : ""}</TableCell>
                             <TableCell className="text-sm whitespace-nowrap">{new Date(a.submitted_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}</TableCell>
                           </TableRow>

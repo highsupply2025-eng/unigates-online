@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, ArrowRight, Download, BookOpen, Radio, ClipboardList, Users, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Download, BookOpen, Radio, ClipboardList, Users, Loader2, User, GraduationCap, Clock, Trophy, Timer, CheckCircle2 } from "lucide-react";
 import { useSmartBack } from "@/hooks/use-smart-back";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -382,25 +382,25 @@ const CourseAttendance = () => {
                 <CardContent className="p-0 overflow-x-auto hidden md:block">
                   <Table dir={isRtl ? "rtl" : "ltr"} className="min-w-[640px]">
                     <TableHeader>
-                      <TableRow>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الطالب" : "Student"}</TableHead>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المادة" : "Course"}</TableHead>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم المحاضرة" : "Lecture"}</TableHead>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "وقت الحضور" : "Attended at"}</TableHead>
+                      <TableRow className="bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5 hover:bg-primary/10 border-b-2 border-primary/30">
+                        <TableHead className="font-extrabold text-primary text-base whitespace-nowrap"><span className="inline-flex items-center gap-2"><User className="h-4 w-4" strokeWidth={2.75} />{isRtl ? "اسم الطالب" : "Student"}</span></TableHead>
+                        <TableHead className="font-extrabold text-primary text-base whitespace-nowrap"><span className="inline-flex items-center gap-2"><BookOpen className="h-4 w-4" strokeWidth={2.75} />{isRtl ? "المادة" : "Course"}</span></TableHead>
+                        <TableHead className="font-extrabold text-primary text-base whitespace-nowrap"><span className="inline-flex items-center gap-2"><GraduationCap className="h-4 w-4" strokeWidth={2.75} />{isRtl ? "اسم المحاضرة" : "Lecture"}</span></TableHead>
+                        <TableHead className="font-extrabold text-primary text-base whitespace-nowrap"><span className="inline-flex items-center gap-2"><Clock className="h-4 w-4" strokeWidth={2.75} />{isRtl ? "وقت الحضور" : "Attended at"}</span></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {lectureRows.map((a) => {
                         const sch = a._schedule;
                         return (
-                          <TableRow key={a.id} className={a._demo ? "bg-amber-500/5" : ""}>
-                            <TableCell className="font-medium whitespace-nowrap">
+                          <TableRow key={a.id} className={`${a._demo ? "bg-amber-500/5" : ""} hover:bg-primary/5 transition-colors`}>
+                            <TableCell className="font-extrabold text-foreground text-base whitespace-nowrap">
                               {studentName(a.user_id, a._demo)}
                               {a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}
                             </TableCell>
-                            <TableCell>{courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")}</TableCell>
-                            <TableCell>{sch ? (isRtl ? sch.title_ar : sch.title_en) : "—"}</TableCell>
-                            <TableCell className="text-sm whitespace-nowrap">{new Date(a.viewed_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}</TableCell>
+                            <TableCell className="font-bold text-foreground/90">{courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")}</TableCell>
+                            <TableCell className="font-bold text-foreground/90">{sch ? (isRtl ? sch.title_ar : sch.title_en) : "—"}</TableCell>
+                            <TableCell className="font-semibold text-primary whitespace-nowrap">{new Date(a.viewed_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}</TableCell>
                           </TableRow>
                         );
                       })}
@@ -435,27 +435,27 @@ const CourseAttendance = () => {
                 <CardContent className="p-0 overflow-x-auto hidden md:block">
                   <Table dir={isRtl ? "rtl" : "ltr"} className="min-w-[640px]">
                     <TableHeader>
-                      <TableRow>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الطالب" : "Student"}</TableHead>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المادة" : "Course"}</TableHead>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم البث المباشر" : "Live Stream"}</TableHead>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "وقت الانضمام" : "Joined"}</TableHead>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المدة" : "Duration"}</TableHead>
+                      <TableRow className="bg-gradient-to-r from-red-500/15 via-red-500/10 to-red-500/5 hover:bg-red-500/10 border-b-2 border-red-500/30">
+                        <TableHead className="font-extrabold text-red-600 dark:text-red-400 text-base whitespace-nowrap"><span className="inline-flex items-center gap-2"><User className="h-4 w-4" strokeWidth={2.75} />{isRtl ? "اسم الطالب" : "Student"}</span></TableHead>
+                        <TableHead className="font-extrabold text-red-600 dark:text-red-400 text-base whitespace-nowrap"><span className="inline-flex items-center gap-2"><BookOpen className="h-4 w-4" strokeWidth={2.75} />{isRtl ? "المادة" : "Course"}</span></TableHead>
+                        <TableHead className="font-extrabold text-red-600 dark:text-red-400 text-base whitespace-nowrap"><span className="inline-flex items-center gap-2"><Radio className="h-4 w-4" strokeWidth={2.75} />{isRtl ? "اسم البث المباشر" : "Live Stream"}</span></TableHead>
+                        <TableHead className="font-extrabold text-red-600 dark:text-red-400 text-base whitespace-nowrap"><span className="inline-flex items-center gap-2"><Clock className="h-4 w-4" strokeWidth={2.75} />{isRtl ? "وقت الانضمام" : "Joined"}</span></TableHead>
+                        <TableHead className="font-extrabold text-red-600 dark:text-red-400 text-base whitespace-nowrap"><span className="inline-flex items-center gap-2"><Timer className="h-4 w-4" strokeWidth={2.75} />{isRtl ? "المدة" : "Duration"}</span></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {streamRows.map((a) => {
                         const st = a._stream;
                         return (
-                          <TableRow key={a.id} className={a._demo ? "bg-amber-500/5" : ""}>
-                            <TableCell className="font-medium whitespace-nowrap">
+                          <TableRow key={a.id} className={`${a._demo ? "bg-amber-500/5" : ""} hover:bg-red-500/5 transition-colors`}>
+                            <TableCell className="font-extrabold text-foreground text-base whitespace-nowrap">
                               {studentName(a.user_id, a._demo)}
                               {a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}
                             </TableCell>
-                            <TableCell>{courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")}</TableCell>
-                            <TableCell>{st ? (isRtl ? st.title_ar : st.title_en) : "—"}</TableCell>
-                            <TableCell className="text-sm whitespace-nowrap">{new Date(a.joined_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}</TableCell>
-                            <TableCell>{a.duration_minutes || 0} {isRtl ? "د" : "min"}</TableCell>
+                            <TableCell className="font-bold text-foreground/90">{courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")}</TableCell>
+                            <TableCell className="font-bold text-foreground/90">{st ? (isRtl ? st.title_ar : st.title_en) : "—"}</TableCell>
+                            <TableCell className="font-semibold text-red-600 dark:text-red-400 whitespace-nowrap">{new Date(a.joined_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}</TableCell>
+                            <TableCell className="font-extrabold text-red-600 dark:text-red-400">{a.duration_minutes || 0} {isRtl ? "د" : "min"}</TableCell>
                           </TableRow>
                         );
                       })}
@@ -490,27 +490,27 @@ const CourseAttendance = () => {
                 <CardContent className="p-0 overflow-x-auto hidden md:block">
                   <Table dir={isRtl ? "rtl" : "ltr"} className="min-w-[640px]">
                     <TableHeader>
-                      <TableRow>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الطالب" : "Student"}</TableHead>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المادة" : "Course"}</TableHead>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الاختبار" : "Test"}</TableHead>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "الدرجة" : "Score"}</TableHead>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "وقت التسليم" : "Submitted"}</TableHead>
+                      <TableRow className="bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/5 hover:bg-amber-500/10 border-b-2 border-amber-500/30">
+                        <TableHead className="font-extrabold text-amber-700 dark:text-amber-400 text-base whitespace-nowrap"><span className="inline-flex items-center gap-2"><User className="h-4 w-4" strokeWidth={2.75} />{isRtl ? "اسم الطالب" : "Student"}</span></TableHead>
+                        <TableHead className="font-extrabold text-amber-700 dark:text-amber-400 text-base whitespace-nowrap"><span className="inline-flex items-center gap-2"><BookOpen className="h-4 w-4" strokeWidth={2.75} />{isRtl ? "المادة" : "Course"}</span></TableHead>
+                        <TableHead className="font-extrabold text-amber-700 dark:text-amber-400 text-base whitespace-nowrap"><span className="inline-flex items-center gap-2"><ClipboardList className="h-4 w-4" strokeWidth={2.75} />{isRtl ? "اسم الاختبار" : "Test"}</span></TableHead>
+                        <TableHead className="font-extrabold text-amber-700 dark:text-amber-400 text-base whitespace-nowrap"><span className="inline-flex items-center gap-2"><Trophy className="h-4 w-4" strokeWidth={2.75} />{isRtl ? "الدرجة" : "Score"}</span></TableHead>
+                        <TableHead className="font-extrabold text-amber-700 dark:text-amber-400 text-base whitespace-nowrap"><span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4" strokeWidth={2.75} />{isRtl ? "وقت التسليم" : "Submitted"}</span></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {testRows.map((a) => {
                         const qz = a._quiz;
                         return (
-                          <TableRow key={a.id} className={a._demo ? "bg-amber-500/5" : ""}>
-                            <TableCell className="font-medium whitespace-nowrap">
+                          <TableRow key={a.id} className={`${a._demo ? "bg-amber-500/5" : ""} hover:bg-amber-500/5 transition-colors`}>
+                            <TableCell className="font-extrabold text-foreground text-base whitespace-nowrap">
                               {studentName(a.student_id, a._demo)}
                               {a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}
                             </TableCell>
-                            <TableCell>{courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")}</TableCell>
-                            <TableCell>{qz ? (isRtl ? qz.title_ar : qz.title_en) : "—"}</TableCell>
-                            <TableCell>{a.score ?? "—"}{a.total_points ? ` / ${a.total_points}` : ""}</TableCell>
-                            <TableCell className="text-sm whitespace-nowrap">{new Date(a.submitted_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}</TableCell>
+                            <TableCell className="font-bold text-foreground/90">{courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")}</TableCell>
+                            <TableCell className="font-bold text-foreground/90">{qz ? (isRtl ? qz.title_ar : qz.title_en) : "—"}</TableCell>
+                            <TableCell className="font-extrabold text-amber-700 dark:text-amber-400 text-base">{a.score ?? "—"}{a.total_points ? ` / ${a.total_points}` : ""}</TableCell>
+                            <TableCell className="font-semibold text-amber-700 dark:text-amber-400 whitespace-nowrap">{new Date(a.submitted_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}</TableCell>
                           </TableRow>
                         );
                       })}

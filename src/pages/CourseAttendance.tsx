@@ -335,7 +335,7 @@ const CourseAttendance = () => {
           <div className="text-center py-16 text-muted-foreground">{isRtl ? "جارٍ التحميل..." : "Loading..."}</div>
         ) : (
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
-            <TabsList className="grid grid-cols-3 w-full mb-4 no-print h-auto p-2 gap-1.5 bg-muted/60 border-2 border-border/60">
+            <TabsList dir={isRtl ? "rtl" : "ltr"} className="grid grid-cols-3 w-full mb-4 no-print h-auto p-2 gap-1.5 bg-muted/60 border-2 border-border/60">
               <TabsTrigger value="lectures" className="flex-col sm:flex-row gap-1.5 sm:gap-2 py-3 font-extrabold data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
                 <BookOpen className="w-6 h-6" strokeWidth={2.75} />
                 <span className="text-xs sm:text-base">{isRtl ? "المحاضرات" : "Lectures"}</span>

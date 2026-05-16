@@ -437,8 +437,8 @@ const CourseAttendance = () => {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الطالب" : "Student"}</TableHead>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم البث المباشر" : "Live Stream"}</TableHead>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المادة" : "Course"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم البث المباشر" : "Live Stream"}</TableHead>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "وقت الانضمام" : "Joined"}</TableHead>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المدة" : "Duration"}</TableHead>
                       </TableRow>

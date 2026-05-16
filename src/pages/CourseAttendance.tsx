@@ -380,7 +380,7 @@ const CourseAttendance = () => {
 
                 {/* Desktop: table */}
                 <CardContent className="p-0 overflow-x-auto hidden md:block">
-                  <Table className="min-w-[640px]">
+                  <Table dir={isRtl ? "rtl" : "ltr"} className="min-w-[640px]">
                     <TableHeader>
                       <TableRow>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الطالب" : "Student"}</TableHead>
@@ -433,7 +433,7 @@ const CourseAttendance = () => {
                 </div>
 
                 <CardContent className="p-0 overflow-x-auto hidden md:block">
-                  <Table className="min-w-[640px]">
+                  <Table dir={isRtl ? "rtl" : "ltr"} className="min-w-[640px]">
                     <TableHeader>
                       <TableRow>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الطالب" : "Student"}</TableHead>
@@ -488,7 +488,7 @@ const CourseAttendance = () => {
                 </div>
 
                 <CardContent className="p-0 overflow-x-auto hidden md:block">
-                  <Table className="min-w-[640px]">
+                  <Table dir={isRtl ? "rtl" : "ltr"} className="min-w-[640px]">
                     <TableHeader>
                       <TableRow>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الطالب" : "Student"}</TableHead>

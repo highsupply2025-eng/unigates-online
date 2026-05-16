@@ -384,8 +384,8 @@ const CourseAttendance = () => {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الطالب" : "Student"}</TableHead>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم المحاضرة" : "Lecture"}</TableHead>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المادة" : "Course"}</TableHead>
+                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم المحاضرة" : "Lecture"}</TableHead>
                         <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "وقت الحضور" : "Attended at"}</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -398,8 +398,8 @@ const CourseAttendance = () => {
                               {studentName(a.user_id, a._demo)}
                               {a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}
                             </TableCell>
-                            <TableCell>{sch ? (isRtl ? sch.title_ar : sch.title_en) : "—"}</TableCell>
                             <TableCell>{courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")}</TableCell>
+                            <TableCell>{sch ? (isRtl ? sch.title_ar : sch.title_en) : "—"}</TableCell>
                             <TableCell className="text-sm whitespace-nowrap">{new Date(a.viewed_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}</TableCell>
                           </TableRow>
                         );

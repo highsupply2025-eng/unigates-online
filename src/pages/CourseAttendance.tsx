@@ -452,8 +452,8 @@ const CourseAttendance = () => {
                               {studentName(a.user_id, a._demo)}
                               {a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}
                             </TableCell>
-                            <TableCell>{st ? (isRtl ? st.title_ar : st.title_en) : "—"}</TableCell>
                             <TableCell>{courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")}</TableCell>
+                            <TableCell>{st ? (isRtl ? st.title_ar : st.title_en) : "—"}</TableCell>
                             <TableCell className="text-sm whitespace-nowrap">{new Date(a.joined_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}</TableCell>
                             <TableCell>{a.duration_minutes || 0} {isRtl ? "د" : "min"}</TableCell>
                           </TableRow>

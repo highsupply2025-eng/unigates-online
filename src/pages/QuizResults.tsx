@@ -212,35 +212,6 @@ const QuizResults = () => {
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
       <SimpleHeader />
       <main className="flex-1 container mx-auto px-3 sm:px-4 py-6 max-w-6xl w-full">
-        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-4 gap-2">
-          <ArrowIcon className="w-4 h-4" />{isRtl ? "رجوع" : "Back"}
-        </Button>
-
-        {/* Hero */}
-        <Card className="mb-6 border-2 border-primary/10 bg-gradient-to-br from-primary/15 via-primary/5 to-background">
-          <CardContent className="p-5 sm:p-7">
-            <div className="flex items-start gap-4">
-              <div className="shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
-                <Award className="w-8 h-8 sm:w-9 sm:h-9 text-primary-foreground" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h1 className="text-xl sm:text-2xl font-bold mb-1 break-words">
-                  {isRtl ? quiz.title_ar : quiz.title_en}
-                </h1>
-                {course && (
-                  <p className="text-sm text-muted-foreground">
-                    {isRtl ? course.title_ar : course.title_en} • {isRtl ? course.instructor_ar : course.instructor_en}
-                  </p>
-                )}
-                <p className="text-xs text-muted-foreground mt-2">
-                  {isRtl
-                    ? "النتائج تُحسب آلياً من إجابات الطلاب — لا يوجد إدخال يدوي."
-                    : "Results are calculated automatically from student answers — no manual entry."}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">

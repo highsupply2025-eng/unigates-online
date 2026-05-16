@@ -335,21 +335,21 @@ const CourseAttendance = () => {
           <div className="text-center py-16 text-muted-foreground">{isRtl ? "جارٍ التحميل..." : "Loading..."}</div>
         ) : (
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
-            <TabsList className="grid grid-cols-3 w-full mb-4 no-print h-auto p-1.5 gap-1">
-              <TabsTrigger value="lectures" className="flex-col sm:flex-row gap-1 sm:gap-2 py-2.5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary font-semibold">
-                <BookOpen className="w-5 h-5" strokeWidth={2.5} />
-                <span className="text-[11px] sm:text-sm">{isRtl ? "المحاضرات" : "Lectures"}</span>
-                <span className="text-[10px] opacity-70 hidden sm:inline">({lectureRows.length})</span>
+            <TabsList className="grid grid-cols-3 w-full mb-4 no-print h-auto p-2 gap-1.5 bg-muted/60 border-2 border-border/60">
+              <TabsTrigger value="lectures" className="flex-col sm:flex-row gap-1.5 sm:gap-2 py-3 font-extrabold data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
+                <BookOpen className="w-6 h-6" strokeWidth={2.75} />
+                <span className="text-xs sm:text-base">{isRtl ? "المحاضرات" : "Lectures"}</span>
+                <span className="text-[11px] opacity-80 hidden sm:inline font-bold">({lectureRows.length})</span>
               </TabsTrigger>
-              <TabsTrigger value="streams" className="flex-col sm:flex-row gap-1 sm:gap-2 py-2.5 data-[state=active]:bg-red-500/10 data-[state=active]:text-red-500 font-semibold">
-                <Radio className="w-5 h-5" strokeWidth={2.5} />
-                <span className="text-[11px] sm:text-sm">{isRtl ? "البث" : "Streams"}</span>
-                <span className="text-[10px] opacity-70 hidden sm:inline">({streamRows.length})</span>
+              <TabsTrigger value="streams" className="flex-col sm:flex-row gap-1.5 sm:gap-2 py-3 font-extrabold data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
+                <Radio className="w-6 h-6" strokeWidth={2.75} />
+                <span className="text-xs sm:text-base">{isRtl ? "البث" : "Streams"}</span>
+                <span className="text-[11px] opacity-80 hidden sm:inline font-bold">({streamRows.length})</span>
               </TabsTrigger>
-              <TabsTrigger value="tests" className="flex-col sm:flex-row gap-1 sm:gap-2 py-2.5 data-[state=active]:bg-amber-500/10 data-[state=active]:text-amber-500 font-semibold">
-                <ClipboardList className="w-5 h-5" strokeWidth={2.5} />
-                <span className="text-[11px] sm:text-sm">{isRtl ? "الاختبارات" : "Tests"}</span>
-                <span className="text-[10px] opacity-70 hidden sm:inline">({testRows.length})</span>
+              <TabsTrigger value="tests" className="flex-col sm:flex-row gap-1.5 sm:gap-2 py-3 font-extrabold data-[state=active]:bg-gradient-to-br data-[state=active]:from-amber-500 data-[state=active]:to-amber-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
+                <ClipboardList className="w-6 h-6" strokeWidth={2.75} />
+                <span className="text-xs sm:text-base">{isRtl ? "الاختبارات" : "Tests"}</span>
+                <span className="text-[11px] opacity-80 hidden sm:inline font-bold">({testRows.length})</span>
               </TabsTrigger>
             </TabsList>
 
@@ -528,8 +528,8 @@ const CourseAttendance = () => {
 
 const VRow = ({ label, value, isRtl, bold }: { label: string; value: React.ReactNode; isRtl: boolean; bold?: boolean }) => (
   <div className={`flex items-start justify-between gap-3 ${isRtl ? "flex-row-reverse" : ""}`}>
-    <span className="text-xs text-muted-foreground font-medium shrink-0 pt-0.5">{label}</span>
-    <span className={`text-sm ${bold ? "font-bold" : "font-medium"} text-foreground text-end break-words`}>{value}</span>
+    <span className="text-sm text-primary font-extrabold shrink-0 pt-0.5">{label}</span>
+    <span className={`text-sm ${bold ? "font-extrabold" : "font-bold"} text-foreground text-end break-words`}>{value}</span>
   </div>
 );
 

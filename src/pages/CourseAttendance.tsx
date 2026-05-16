@@ -423,8 +423,8 @@ const CourseAttendance = () => {
                         <VRow label={isRtl ? "اسم الطالب" : "Student"} value={
                           <>{studentName(a.user_id, a._demo)}{a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}</>
                         } isRtl={isRtl} bold />
-                        <VRow label={isRtl ? "اسم البث المباشر" : "Live Stream"} value={st ? (isRtl ? st.title_ar : st.title_en) : "—"} isRtl={isRtl} />
                         <VRow label={isRtl ? "المادة" : "Course"} value={courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")} isRtl={isRtl} />
+                        <VRow label={isRtl ? "اسم البث المباشر" : "Live Stream"} value={st ? (isRtl ? st.title_ar : st.title_en) : "—"} isRtl={isRtl} />
                         <VRow label={isRtl ? "وقت الانضمام" : "Joined"} value={new Date(a.joined_at).toLocaleString(isRtl ? "ar-EG" : "en-US")} isRtl={isRtl} />
                         <VRow label={isRtl ? "المدة" : "Duration"} value={`${a.duration_minutes || 0} ${isRtl ? "د" : "min"}`} isRtl={isRtl} />
                       </div>

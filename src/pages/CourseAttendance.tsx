@@ -370,6 +370,7 @@ const CourseAttendance = () => {
                         <VRow label={isRtl ? "اسم الطالب" : "Student"} value={
                           <>{studentName(a.user_id, a._demo)}{a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}</>
                         } isRtl={isRtl} bold />
+                        <VRow label={isRtl ? "المادة" : "Course"} value={courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")} isRtl={isRtl} />
                         <VRow label={isRtl ? "اسم المحاضرة" : "Lecture"} value={sch ? (isRtl ? sch.title_ar : sch.title_en) : "—"} isRtl={isRtl} />
                         <VRow label={isRtl ? "المادة" : "Course"} value={courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")} isRtl={isRtl} />
                         <VRow label={isRtl ? "وقت الحضور" : "Attended at"} value={new Date(a.viewed_at).toLocaleString(isRtl ? "ar-EG" : "en-US")} isRtl={isRtl} />

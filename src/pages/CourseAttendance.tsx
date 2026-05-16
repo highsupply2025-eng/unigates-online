@@ -324,17 +324,6 @@ const CourseAttendance = () => {
       </div>
 
       <div className="container mx-auto px-3 sm:px-6 py-6 sm:py-8 max-w-6xl">
-        {/* Course title + read-only notice */}
-        <Card className="mb-6 shadow-sm border-2 border-primary/10">
-          <CardContent className={`p-4 sm:p-6 flex items-start gap-3 sm:gap-5 ${isRtl ? "flex-row-reverse text-right" : ""}`}>
-            <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-2xl bg-gradient-to-br from-primary/25 via-primary/15 to-primary/5 ring-2 ring-primary/40 flex items-center justify-center shadow-md">
-              <Users className="w-8 h-8 sm:w-10 sm:h-10 text-primary" strokeWidth={2.5} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h2 className="text-lg sm:text-2xl font-bold truncate">{courseTitle || (isRtl ? "حضور المادة" : "Course Attendance")}</h2>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Print header */}
         <div className="print-only mb-6">

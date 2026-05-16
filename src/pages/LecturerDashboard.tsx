@@ -1132,7 +1132,7 @@ const LecturerDashboard = () => {
 
               {/* ===== ANALYTICS / EXPORT TAB ===== */}
               <TabsContent value="analytics" dir={isRtl ? "rtl" : "ltr"}>
-                <h2 className={`text-2xl md:text-3xl font-black text-green-600 dark:text-green-400 mb-6 inline-flex items-center gap-2.5 drop-shadow-sm ${isRtl ? "flex-row" : "flex-row"}`}><Download className="w-7 h-7" strokeWidth={2.75} />{isRtl ? "تحميل التقارير" : "Export Reports"}</h2>
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" dir={isRtl ? "rtl" : "ltr"}>
                   {[
                     { key: "overview", icon: BarChart3, label: isRtl ? "تقرير شامل" : "Overview Report", from: "from-primary", to: "to-primary/70", text: "text-primary", border: "border-primary/30", hoverBorder: "hover:border-primary", shadow: "hover:shadow-primary/20" },

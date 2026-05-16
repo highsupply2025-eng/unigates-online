@@ -284,7 +284,7 @@ const QuizResultsAll = () => {
           </CardContent>
         </Card>
       </main>
-      <SiteFooter />
+      
     </div>
   );
 };

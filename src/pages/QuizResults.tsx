@@ -399,7 +399,7 @@ const QuizResults = () => {
           </CardContent>
         </Card>
       </main>
-      <SiteFooter />
+      
     </div>
   );
 };

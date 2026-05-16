@@ -925,20 +925,17 @@ const LecturerDashboard = () => {
 
               {/* ===== ASSIGNMENTS TAB ===== */}
               <TabsContent value="assignments" dir={isRtl ? "rtl" : "ltr"}>
-                <div className={`mb-6 ${isRtl ? "text-right" : "text-left"}`}>
-                  <h2 className="text-xl font-bold text-foreground mb-2">{isRtl ? "التكليفات والملفات الورقية" : "Assignments & Paper Files"}</h2>
-                </div>
                 {courses.length > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" dir={isRtl ? "rtl" : "ltr"}>
                     {courses.map(course => (
-                      <Card key={course.id} className="card-hover border-2 border-border hover:border-primary/40">
+                      <Card key={course.id} className="card-hover border-2 border-blue-500/30 hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/20 transition-all bg-gradient-to-br from-blue-500/5 to-transparent">
                         <CardContent className="p-4 flex items-center gap-3">
-                          <span className="inline-flex items-center justify-center w-12 h-12 rounded-xl shrink-0 shadow-md bg-gradient-to-br from-primary to-primary/70 text-primary-foreground">
-                            <ClipboardList className="w-6 h-6" strokeWidth={2.5} />
+                          <span className="inline-flex items-center justify-center w-14 h-14 rounded-2xl shrink-0 shadow-lg bg-gradient-to-br from-blue-500 to-blue-700 text-white">
+                            <ClipboardList className="w-7 h-7" strokeWidth={2.75} />
                           </span>
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-extrabold text-foreground truncate text-base">{isRtl ? course.title_ar : course.title_en}</h3>
-                            <p className="text-xs text-muted-foreground truncate">{isRtl ? course.category_ar : course.category_en}</p>
+                            <h3 className="font-black text-foreground truncate text-lg">{isRtl ? course.title_ar : course.title_en}</h3>
+                            <p className="text-xs text-blue-600 dark:text-blue-400 truncate font-bold">{isRtl ? course.category_ar : course.category_en}</p>
                           </div>
                           <Button
                             size="sm"

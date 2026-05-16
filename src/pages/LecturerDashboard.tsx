@@ -1031,15 +1031,6 @@ const LecturerDashboard = () => {
 
               {/* ===== ATTENDANCE TAB ===== */}
               <TabsContent value="attendance" dir={isRtl ? "rtl" : "ltr"}>
-                <div className={`flex items-center justify-between gap-3 mb-2 ${isRtl ? "flex-row-reverse" : ""}`}>
-                  <h2 className="text-xl sm:text-2xl font-bold text-foreground">{isRtl ? "حضور الطلاب" : "Student Attendance"}</h2>
-                </div>
-                <p className={`text-base sm:text-lg font-semibold text-foreground mb-6 ${isRtl ? "text-right" : "text-left"}`}>
-                  {isRtl
-                    ? "اختر مادة لعرض جداول حضور المحاضرات والبث والاختبارات (للعرض فقط، يُحتسب لحظياً)"
-                    : "Select a course to view lecture, stream and test attendance tables (read-only, real-time)"}
-                </p>
-
                 {courses.length === 0 ? (
                   <div className="text-center py-16 text-muted-foreground">
                     {isRtl ? "لا توجد مواد بعد" : "No courses yet"}

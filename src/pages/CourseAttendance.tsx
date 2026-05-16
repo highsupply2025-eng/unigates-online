@@ -528,8 +528,8 @@ const CourseAttendance = () => {
 
 const VRow = ({ label, value, isRtl, bold }: { label: string; value: React.ReactNode; isRtl: boolean; bold?: boolean }) => (
   <div className={`flex items-start justify-between gap-3 ${isRtl ? "flex-row-reverse" : ""}`}>
-    <span className="text-xs text-muted-foreground font-medium shrink-0 pt-0.5">{label}</span>
-    <span className={`text-sm ${bold ? "font-bold" : "font-medium"} text-foreground text-end break-words`}>{value}</span>
+    <span className="text-sm text-primary font-extrabold shrink-0 pt-0.5">{label}</span>
+    <span className={`text-sm ${bold ? "font-extrabold" : "font-bold"} text-foreground text-end break-words`}>{value}</span>
   </div>
 );
 

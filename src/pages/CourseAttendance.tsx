@@ -382,25 +382,25 @@ const CourseAttendance = () => {
                 <CardContent className="p-0 overflow-x-auto hidden md:block">
                   <Table dir={isRtl ? "rtl" : "ltr"} className="min-w-[640px]">
                     <TableHeader>
-                      <TableRow>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم الطالب" : "Student"}</TableHead>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "المادة" : "Course"}</TableHead>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "اسم المحاضرة" : "Lecture"}</TableHead>
-                        <TableHead className="font-bold text-foreground whitespace-nowrap">{isRtl ? "وقت الحضور" : "Attended at"}</TableHead>
+                      <TableRow className="bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5 hover:bg-primary/10 border-b-2 border-primary/30">
+                        <TableHead className="font-extrabold text-primary text-base whitespace-nowrap"><span className="inline-flex items-center gap-2"><User className="h-4 w-4" strokeWidth={2.75} />{isRtl ? "اسم الطالب" : "Student"}</span></TableHead>
+                        <TableHead className="font-extrabold text-primary text-base whitespace-nowrap"><span className="inline-flex items-center gap-2"><BookOpen className="h-4 w-4" strokeWidth={2.75} />{isRtl ? "المادة" : "Course"}</span></TableHead>
+                        <TableHead className="font-extrabold text-primary text-base whitespace-nowrap"><span className="inline-flex items-center gap-2"><GraduationCap className="h-4 w-4" strokeWidth={2.75} />{isRtl ? "اسم المحاضرة" : "Lecture"}</span></TableHead>
+                        <TableHead className="font-extrabold text-primary text-base whitespace-nowrap"><span className="inline-flex items-center gap-2"><Clock className="h-4 w-4" strokeWidth={2.75} />{isRtl ? "وقت الحضور" : "Attended at"}</span></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {lectureRows.map((a) => {
                         const sch = a._schedule;
                         return (
-                          <TableRow key={a.id} className={a._demo ? "bg-amber-500/5" : ""}>
-                            <TableCell className="font-medium whitespace-nowrap">
+                          <TableRow key={a.id} className={`${a._demo ? "bg-amber-500/5" : ""} hover:bg-primary/5 transition-colors`}>
+                            <TableCell className="font-extrabold text-foreground text-base whitespace-nowrap">
                               {studentName(a.user_id, a._demo)}
                               {a._demo && <span className="ms-2 text-[10px] text-amber-600 font-bold">({isRtl ? "تجريبي" : "DEMO"})</span>}
                             </TableCell>
-                            <TableCell>{courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")}</TableCell>
-                            <TableCell>{sch ? (isRtl ? sch.title_ar : sch.title_en) : "—"}</TableCell>
-                            <TableCell className="text-sm whitespace-nowrap">{new Date(a.viewed_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}</TableCell>
+                            <TableCell className="font-bold text-foreground/90">{courseTitle || (isRtl ? "مادة تجريبية" : "Demo course")}</TableCell>
+                            <TableCell className="font-bold text-foreground/90">{sch ? (isRtl ? sch.title_ar : sch.title_en) : "—"}</TableCell>
+                            <TableCell className="font-semibold text-primary whitespace-nowrap">{new Date(a.viewed_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}</TableCell>
                           </TableRow>
                         );
                       })}

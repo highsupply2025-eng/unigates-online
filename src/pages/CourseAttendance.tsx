@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, ArrowRight, Download, BookOpen, Radio, ClipboardList, Users, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Download, BookOpen, Radio, ClipboardList, Users, Loader2, User, GraduationCap, Clock, Trophy, Timer, CheckCircle2 } from "lucide-react";
 import { useSmartBack } from "@/hooks/use-smart-back";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";

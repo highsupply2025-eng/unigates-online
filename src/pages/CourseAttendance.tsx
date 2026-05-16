@@ -332,11 +332,6 @@ const CourseAttendance = () => {
             </div>
             <div className="flex-1 min-w-0">
               <h2 className="text-lg sm:text-2xl font-bold truncate">{courseTitle || (isRtl ? "حضور المادة" : "Course Attendance")}</h2>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1 leading-relaxed">
-                {isRtl
-                  ? "يتم احتساب الحضور تلقائياً لحظياً — للعرض فقط، لا يمكن التعديل"
-                  : "Attendance auto-calculated in real time — read-only, cannot be edited"}
-              </p>
             </div>
           </CardContent>
         </Card>

@@ -355,8 +355,6 @@ const LeadershipDashboard = () => {
 
           {/* Overview - Lecturer-style design */}
           <TabsContent value="overview" dir={isRtl ? "rtl" : "ltr"}>
-          {/* Overview - Lecturer-style design */}
-          <TabsContent value="overview" dir={isRtl ? "rtl" : "ltr"}>
             {(() => {
               const filesCount = episodes.filter((e: any) => e.file_url || e.attachment_url || e.pdf_url).length;
               return (

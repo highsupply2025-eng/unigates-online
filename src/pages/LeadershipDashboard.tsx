@@ -386,7 +386,19 @@ const LeadershipDashboard = () => {
                     ]}
                   />
 
-                  {/* Weekly Activity Chart removed */}
+                  {/* Weekly Activity Chart */}
+                  <WeeklyActivityCard
+                    timestamps={[
+                      ...liveStreams.map((s: any) => s.created_at || s.scheduled_at),
+                      ...quizSubmissions.map((s: any) => s.submitted_at || s.created_at),
+                      ...ratings.map((r: any) => r.created_at),
+                      ...assignments.map((a: any) => a.created_at),
+                      ...episodes.map((e: any) => e.created_at),
+                      ...notifications.map((n: any) => n.created_at),
+                    ]}
+                    ratingsCount={ratings.length}
+                    subtitle={isRtl ? "نشاط الكلية خلال آخر 7 أيام" : "Faculty activity over the last 7 days"}
+                  />
 
                   {/* Section Cards - responsive grid (vibrant icon style) */}
                   <MenuItemsStatsGrid

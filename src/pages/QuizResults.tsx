@@ -41,41 +41,46 @@ const QuizResults = () => {
     if (!user) { navigate("/login"); return; }
     setUserId(user.id);
 
-    const { data: profile } = await supabase
-      .from("profiles").select("role").eq("user_id", user.id).maybeSingle();
-    const r = (profile?.role as Role) || "other";
+    // Run profile + quiz + submissions in parallel
+    const [profileRes, quizRes, subsRes] = await Promise.all([
+      supabase.from("profiles").select("role").eq("user_id", user.id).maybeSingle(),
+      supabase.from("quizzes").select("*").eq("id", quizId!).maybeSingle(),
+      supabase
+        .from("quiz_submissions")
+        .select("id, student_id, score, total_points, submitted_at")
+        .eq("quiz_id", quizId!)
+        .order("score", { ascending: false }),
+    ]);
+
+    const r = (profileRes.data?.role as Role) || "other";
     setRole(r);
 
-    const { data: q, error: qe } = await supabase
-      .from("quizzes").select("*").eq("id", quizId!).maybeSingle();
-    if (qe || !q) {
+    const q = quizRes.data;
+    if (quizRes.error || !q) {
       toast({ title: isRtl ? "غير موجود" : "Not found", variant: "destructive" });
       navigate(-1);
       return;
     }
     setQuiz(q);
 
-    const { data: c } = await supabase
-      .from("courses").select("id, title_ar, title_en, instructor_ar, instructor_en, creator_id")
-      .eq("id", q.course_id).maybeSingle();
-    setCourse(c);
+    const subs = subsRes.data || [];
+    setSubmissions(subs);
+    setLoading(false); // show page immediately; course + names hydrate after
 
-    const { data: subs } = await supabase
-      .from("quiz_submissions")
-      .select("id, student_id, score, total_points, submitted_at")
-      .eq("quiz_id", quizId!)
-      .order("score", { ascending: false });
-    setSubmissions(subs || []);
-
-    const ids = Array.from(new Set((subs || []).map(s => s.student_id)));
-    if (ids.length > 0) {
-      const { data: profs } = await supabase
-        .from("profiles").select("user_id, full_name").in("user_id", ids);
-      const map: Record<string, string> = {};
-      (profs || []).forEach((p: any) => { map[p.user_id] = p.full_name; });
-      setStudentNames(map);
-    }
-    setLoading(false);
+    // Fetch course + student names in parallel (non-blocking)
+    const ids = Array.from(new Set(subs.map((s: any) => s.student_id)));
+    const [courseRes, profsRes] = await Promise.all([
+      supabase
+        .from("courses").select("id, title_ar, title_en, instructor_ar, instructor_en, creator_id")
+        .eq("id", q.course_id).maybeSingle(),
+      ids.length > 0
+        ? supabase.from("profiles").select("user_id, full_name").in("user_id", ids)
+        : Promise.resolve({ data: [] as any[] }),
+    ]);
+    setCourse(courseRes.data);
+    const map: Record<string, string> = {};
+    (profsRes.data || []).forEach((p: any) => { map[p.user_id] = p.full_name; });
+    setStudentNames(map);
   };
 
   const isLecturerOfCourse = course && course.creator_id === userId;

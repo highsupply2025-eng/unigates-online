@@ -45,41 +45,42 @@ const QuizResultsAll = () => {
       .order("created_at", { ascending: false });
     const list = qs || [];
     setQuizzes(list);
+    setLoading(false); // show list immediately; stats hydrate next
 
     const courseIds = Array.from(new Set(list.map((q: any) => q.course_id).filter(Boolean)));
-    if (courseIds.length > 0) {
-      const { data: cs } = await supabase
-        .from("courses")
-        .select("id, title_ar, title_en, instructor_ar, instructor_en")
-        .in("id", courseIds);
-      const cmap: Record<string, any> = {};
-      (cs || []).forEach((c: any) => { cmap[c.id] = c; });
-      setCourses(cmap);
-    }
+    const quizIds = list.map((q: any) => q.id);
 
-    // submissions counts/avg per quiz
-    const { data: subs } = await supabase
-      .from("quiz_submissions")
-      .select("quiz_id, score, total_points")
-      .in("quiz_id", list.map((q: any) => q.id));
-    const cmap: Record<string, { total: number; passed: number; avg: number; sum: number }> = {};
-    (subs || []).forEach((s: any) => {
+    // Run courses + submissions queries in parallel (don't block UI)
+    const [coursesRes, subsRes] = await Promise.all([
+      courseIds.length > 0
+        ? supabase.from("courses").select("id, title_ar, title_en, instructor_ar, instructor_en").in("id", courseIds)
+        : Promise.resolve({ data: [] as any[] }),
+      quizIds.length > 0
+        ? supabase.from("quiz_submissions").select("quiz_id, score, total_points").in("quiz_id", quizIds)
+        : Promise.resolve({ data: [] as any[] }),
+    ]);
+
+    const cmapCourses: Record<string, any> = {};
+    (coursesRes.data || []).forEach((c: any) => { cmapCourses[c.id] = c; });
+    setCourses(cmapCourses);
+
+    const acc: Record<string, { total: number; passed: number; avg: number; sum: number }> = {};
+    (subsRes.data || []).forEach((s: any) => {
       const k = s.quiz_id;
-      if (!cmap[k]) cmap[k] = { total: 0, passed: 0, avg: 0, sum: 0 };
-      cmap[k].total += 1;
+      if (!acc[k]) acc[k] = { total: 0, passed: 0, avg: 0, sum: 0 };
+      acc[k].total += 1;
       const pct = s.total_points > 0 ? (s.score / s.total_points) * 100 : 0;
-      cmap[k].sum += pct;
-      if (pct >= 50) cmap[k].passed += 1;
+      acc[k].sum += pct;
+      if (pct >= 50) acc[k].passed += 1;
     });
     const final: Record<string, { total: number; passed: number; avg: number }> = {};
-    Object.entries(cmap).forEach(([k, v]) => {
+    Object.entries(acc).forEach(([k, v]) => {
       final[k] = { total: v.total, passed: v.passed, avg: v.total > 0 ? Math.round(v.sum / v.total) : 0 };
     });
     setCounts(final);
-    setLoading(false);
   };
 
-  if (loading) {
+  if (loading && quizzes.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />

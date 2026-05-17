@@ -22,8 +22,6 @@ import BackButton from "@/components/BackButton";
 import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { MiniBars } from "@/components/MiniBars";
-import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
-import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 
 const LeadershipDashboard = () => {

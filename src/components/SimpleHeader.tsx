@@ -53,16 +53,16 @@ const SimpleHeader = ({ backTo = "/", mobileBackOnly = false, useHistoryBack = f
   };
 
   return (
-    <header className="border-b-2 border-primary/40 px-6 py-4 bg-card shadow-lg">
-      <div className="max-w-6xl mx-auto flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3 group min-w-0">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/40 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
-            <GraduationCap className="w-7 h-7 text-white" />
+    <header className="border-b-2 border-primary/40 px-3 sm:px-6 py-3 sm:py-4 bg-card shadow-lg">
+      <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
+        <Link to="/" className="flex items-center gap-2 sm:gap-3 group min-w-0 flex-1">
+          <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/40 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+            <GraduationCap className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
           </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-2xl font-black text-foreground tracking-tight leading-tight">{t.brandName}</span>
+          <div className="flex flex-col min-w-0 flex-1">
+            <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight leading-tight truncate">{t.brandName}</span>
             {subtitle && (
-              <span className="text-xs sm:text-sm font-semibold text-primary truncate max-w-[200px] sm:max-w-md">
+              <span className="text-[11px] sm:text-sm font-semibold text-primary truncate leading-tight">
                 {subtitle}
               </span>
             )}

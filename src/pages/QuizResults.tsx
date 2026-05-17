@@ -133,10 +133,18 @@ const QuizResults = () => {
       update.approved_by_head = true;
       update.approved_by_head_at = now;
       update.approved_by_head_id = userId;
-    } else if (role === "vice_dean") {
-      update.approved_by_vice_dean = true;
-      update.approved_by_vice_dean_at = now;
-      update.approved_by_vice_dean_id = userId;
+    } else if (role === "vice_dean" && vdColumn) {
+      update[`approved_by_vice_dean_${vdColumn}`] = true;
+      update[`approved_by_vice_dean_${vdColumn}_at`] = now;
+      update[`approved_by_vice_dean_${vdColumn}_id`] = userId;
+      // Once all 3 vice deans approve, set the legacy combined flag
+      const otherCols = ["students", "postgrad", "environment"].filter(c => c !== vdColumn);
+      const willAllApprove = otherCols.every(c => quiz[`approved_by_vice_dean_${c}`]);
+      if (willAllApprove) {
+        update.approved_by_vice_dean = true;
+        update.approved_by_vice_dean_at = now;
+        update.approved_by_vice_dean_id = userId;
+      }
     } else if (role === "dean") {
       update.approved_by_dean = true;
       update.approved_by_dean_at = now;

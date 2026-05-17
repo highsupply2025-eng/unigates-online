@@ -42,8 +42,8 @@ const QuizResults = () => {
     if (!user) { navigate("/login"); return; }
     setUserId(user.id);
 
-    // Run profile + quiz + submissions in parallel
-    const [profileRes, quizRes, subsRes] = await Promise.all([
+    // Run profile + quiz + submissions + sub-role in parallel
+    const [profileRes, quizRes, subsRes, subRoleRes] = await Promise.all([
       supabase.from("profiles").select("role").eq("user_id", user.id).maybeSingle(),
       supabase.from("quizzes").select("*").eq("id", quizId!).maybeSingle(),
       supabase
@@ -51,10 +51,12 @@ const QuizResults = () => {
         .select("id, student_id, score, total_points, submitted_at")
         .eq("quiz_id", quizId!)
         .order("score", { ascending: false }),
+      supabase.rpc("get_user_sub_role", { _user_id: user.id } as any),
     ]);
 
     const r = (profileRes.data?.role as Role) || "other";
     setRole(r);
+    setSubRole((subRoleRes as any)?.data || "");
 
     const q = quizRes.data;
     if (quizRes.error || !q) {

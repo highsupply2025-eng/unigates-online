@@ -2,12 +2,11 @@ import { useLocation } from "react-router-dom";
 import { useEffect, useState, type ReactNode } from "react";
 
 /**
- * Lightweight fade-in transition on every route change.
- * No external dependencies — uses CSS opacity + translate.
+ * Very fast fade-in on route change. Kept short to feel near-instant.
  */
 const PageTransition = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useState(true);
 
   useEffect(() => {
     setShow(false);
@@ -18,8 +17,8 @@ const PageTransition = ({ children }: { children: ReactNode }) => {
   return (
     <div
       key={pathname}
-      className={`transition-all duration-300 ease-out ${
-        show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1"
+      className={`transition-opacity duration-150 ease-out ${
+        show ? "opacity-100" : "opacity-0"
       }`}
     >
       {children}

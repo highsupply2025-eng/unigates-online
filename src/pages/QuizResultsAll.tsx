@@ -211,10 +211,12 @@ const QuizResultsAll = () => {
                         <div className="flex items-center gap-2 pt-1">
                           <StepDot done={q.approved_by_lecturer} />
                           <StepDot done={q.approved_by_head} />
-                          <StepDot done={q.approved_by_vice_dean} />
+                          <StepDot done={q.approved_by_vice_dean_students} />
+                          <StepDot done={q.approved_by_vice_dean_postgrad} />
+                          <StepDot done={q.approved_by_vice_dean_environment} />
                           <StepDot done={q.approved_by_dean} />
                           <span className="text-[10px] font-bold text-muted-foreground ms-1">
-                            {isRtl ? "محاضر/قسم/وكيل/عميد" : "Lec/Head/Vice/Dean"}
+                            {isRtl ? "محاضر/قسم/طلاب/عليا/بيئة/عميد" : "Lec/Head/Std/PG/Env/Dean"}
                           </span>
                         </div>
                       </button>

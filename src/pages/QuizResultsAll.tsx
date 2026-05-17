@@ -113,7 +113,7 @@ const QuizResultsAll = () => {
 
   const totalSubs = Object.values(counts).reduce((a, c) => a + c.total, 0);
   const totalPassed = Object.values(counts).reduce((a, c) => a + c.passed, 0);
-  const publishedCount = quizzes.filter(q => q.approved_by_lecturer && q.approved_by_head && q.approved_by_vice_dean && q.approved_by_dean).length;
+  const publishedCount = quizzes.filter(q => q.approved_by_lecturer && q.approved_by_head && isAllVDApproved(q) && q.approved_by_dean).length;
   const overallAvg = quizzes.length > 0
     ? Math.round(Object.values(counts).reduce((a, c) => a + c.avg, 0) / Math.max(Object.keys(counts).length, 1))
     : 0;

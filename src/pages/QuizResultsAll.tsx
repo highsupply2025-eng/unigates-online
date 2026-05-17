@@ -119,21 +119,6 @@ const QuizResultsAll = () => {
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
       <LecturerPageHeader />
       <main className="flex-1 max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8 w-full">
-        {/* Page title */}
-        <div className="flex items-center gap-3 mb-5 sm:mb-6">
-          <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] flex items-center justify-center shadow-md shadow-primary/30">
-            <Award className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" strokeWidth={2.5} />
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-lg sm:text-2xl font-black tracking-tight leading-tight">
-              {isRtl ? "نتائج الاختبارات" : "Quiz Results"}
-            </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-primary shrink-0" />
-              {isRtl ? "النتائج المعتمدة نهائياً فقط" : "Fully approved results only"}
-            </p>
-          </div>
-        </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">

@@ -36,11 +36,9 @@ const QuizResultsAll = () => {
 
     const { data: qs } = await supabase
       .from("quizzes")
-      .select("id, title_ar, title_en, course_id, created_at, approved_by_lecturer, approved_by_head, approved_by_vice_dean, approved_by_dean, results_published, rejected_by")
+      .select("id, title_ar, title_en, course_id, created_at, approved_by_lecturer, approved_by_head, approved_by_vice_dean, approved_by_vice_dean_students, approved_by_vice_dean_postgrad, approved_by_vice_dean_environment, approved_by_dean, results_published, rejected_by")
       .not("approved_by_lecturer", "is", null)
       .not("approved_by_head", "is", null)
-      .not("approved_by_vice_dean", "is", null)
-      .not("approved_by_dean", "is", null)
       .is("rejected_by", null)
       .order("created_at", { ascending: false });
     const list = qs || [];
@@ -88,13 +86,17 @@ const QuizResultsAll = () => {
     );
   }
 
+  const isAllVDApproved = (q: any) =>
+    q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad && q.approved_by_vice_dean_environment;
+
   const getStatus = (q: any) => {
     if (q.rejected_by) return { label: isRtl ? "مرفوضة" : "Rejected", variant: "destructive" as const };
-    const fully = q.approved_by_lecturer && q.approved_by_head && q.approved_by_vice_dean && q.approved_by_dean;
+    const vdAll = isAllVDApproved(q);
+    const fully = q.approved_by_lecturer && q.approved_by_head && vdAll && q.approved_by_dean;
     if (fully) return { label: isRtl ? "منشورة" : "Published", variant: "default" as const };
     if (!q.approved_by_lecturer) return { label: isRtl ? "بانتظار المحاضر" : "Awaiting Lecturer", variant: "outline" as const };
     if (!q.approved_by_head) return { label: isRtl ? "بانتظار رئيس القسم" : "Awaiting Head", variant: "outline" as const };
-    if (!q.approved_by_vice_dean) return { label: isRtl ? "بانتظار الوكيل" : "Awaiting Vice Dean", variant: "outline" as const };
+    if (!vdAll) return { label: isRtl ? "بانتظار وكلاء الكلية" : "Awaiting Vice Deans", variant: "outline" as const };
     if (!q.approved_by_dean) return { label: isRtl ? "بانتظار العميد" : "Awaiting Dean", variant: "outline" as const };
     return { label: "—", variant: "outline" as const };
   };
@@ -111,7 +113,7 @@ const QuizResultsAll = () => {
 
   const totalSubs = Object.values(counts).reduce((a, c) => a + c.total, 0);
   const totalPassed = Object.values(counts).reduce((a, c) => a + c.passed, 0);
-  const publishedCount = quizzes.filter(q => q.approved_by_lecturer && q.approved_by_head && q.approved_by_vice_dean && q.approved_by_dean).length;
+  const publishedCount = quizzes.filter(q => q.approved_by_lecturer && q.approved_by_head && isAllVDApproved(q) && q.approved_by_dean).length;
   const overallAvg = quizzes.length > 0
     ? Math.round(Object.values(counts).reduce((a, c) => a + c.avg, 0) / Math.max(Object.keys(counts).length, 1))
     : 0;
@@ -209,10 +211,12 @@ const QuizResultsAll = () => {
                         <div className="flex items-center gap-2 pt-1">
                           <StepDot done={q.approved_by_lecturer} />
                           <StepDot done={q.approved_by_head} />
-                          <StepDot done={q.approved_by_vice_dean} />
+                          <StepDot done={q.approved_by_vice_dean_students} />
+                          <StepDot done={q.approved_by_vice_dean_postgrad} />
+                          <StepDot done={q.approved_by_vice_dean_environment} />
                           <StepDot done={q.approved_by_dean} />
                           <span className="text-[10px] font-bold text-muted-foreground ms-1">
-                            {isRtl ? "محاضر/قسم/وكيل/عميد" : "Lec/Head/Vice/Dean"}
+                            {isRtl ? "محاضر/قسم/طلاب/عليا/بيئة/عميد" : "Lec/Head/Std/PG/Env/Dean"}
                           </span>
                         </div>
                       </button>
@@ -257,7 +261,9 @@ const QuizResultsAll = () => {
                               <div className="flex items-center gap-2">
                                 <StepDot done={q.approved_by_lecturer} />
                                 <StepDot done={q.approved_by_head} />
-                                <StepDot done={q.approved_by_vice_dean} />
+                                <StepDot done={q.approved_by_vice_dean_students} />
+                                <StepDot done={q.approved_by_vice_dean_postgrad} />
+                                <StepDot done={q.approved_by_vice_dean_environment} />
                                 <StepDot done={q.approved_by_dean} />
                               </div>
                             </TableCell>

@@ -1363,7 +1363,16 @@ export type Database = {
           approved_by_lecturer_id: string | null
           approved_by_vice_dean: boolean
           approved_by_vice_dean_at: string | null
+          approved_by_vice_dean_environment: boolean
+          approved_by_vice_dean_environment_at: string | null
+          approved_by_vice_dean_environment_id: string | null
           approved_by_vice_dean_id: string | null
+          approved_by_vice_dean_postgrad: boolean
+          approved_by_vice_dean_postgrad_at: string | null
+          approved_by_vice_dean_postgrad_id: string | null
+          approved_by_vice_dean_students: boolean
+          approved_by_vice_dean_students_at: string | null
+          approved_by_vice_dean_students_id: string | null
           course_id: string
           created_at: string
           creator_id: string
@@ -1395,7 +1404,16 @@ export type Database = {
           approved_by_lecturer_id?: string | null
           approved_by_vice_dean?: boolean
           approved_by_vice_dean_at?: string | null
+          approved_by_vice_dean_environment?: boolean
+          approved_by_vice_dean_environment_at?: string | null
+          approved_by_vice_dean_environment_id?: string | null
           approved_by_vice_dean_id?: string | null
+          approved_by_vice_dean_postgrad?: boolean
+          approved_by_vice_dean_postgrad_at?: string | null
+          approved_by_vice_dean_postgrad_id?: string | null
+          approved_by_vice_dean_students?: boolean
+          approved_by_vice_dean_students_at?: string | null
+          approved_by_vice_dean_students_id?: string | null
           course_id: string
           created_at?: string
           creator_id: string
@@ -1427,7 +1445,16 @@ export type Database = {
           approved_by_lecturer_id?: string | null
           approved_by_vice_dean?: boolean
           approved_by_vice_dean_at?: string | null
+          approved_by_vice_dean_environment?: boolean
+          approved_by_vice_dean_environment_at?: string | null
+          approved_by_vice_dean_environment_id?: string | null
           approved_by_vice_dean_id?: string | null
+          approved_by_vice_dean_postgrad?: boolean
+          approved_by_vice_dean_postgrad_at?: string | null
+          approved_by_vice_dean_postgrad_id?: string | null
+          approved_by_vice_dean_students?: boolean
+          approved_by_vice_dean_students_at?: string | null
+          approved_by_vice_dean_students_id?: string | null
           course_id?: string
           created_at?: string
           creator_id?: string
@@ -2073,6 +2100,7 @@ export type Database = {
         }[]
       }
       get_user_email: { Args: { _user_id: string }; Returns: string }
+      get_user_sub_role: { Args: { _user_id: string }; Returns: string }
       has_approved_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

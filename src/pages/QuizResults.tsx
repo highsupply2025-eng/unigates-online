@@ -27,6 +27,7 @@ const QuizResults = () => {
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState(false);
   const [role, setRole] = useState<Role>("other");
+  const [subRole, setSubRole] = useState<string>(""); // e.g. vice_dean_students
   const [userId, setUserId] = useState<string>("");
   const [quiz, setQuiz] = useState<any>(null);
   const [course, setCourse] = useState<any>(null);
@@ -41,8 +42,8 @@ const QuizResults = () => {
     if (!user) { navigate("/login"); return; }
     setUserId(user.id);
 
-    // Run profile + quiz + submissions in parallel
-    const [profileRes, quizRes, subsRes] = await Promise.all([
+    // Run profile + quiz + submissions + sub-role in parallel
+    const [profileRes, quizRes, subsRes, subRoleRes] = await Promise.all([
       supabase.from("profiles").select("role").eq("user_id", user.id).maybeSingle(),
       supabase.from("quizzes").select("*").eq("id", quizId!).maybeSingle(),
       supabase
@@ -50,10 +51,12 @@ const QuizResults = () => {
         .select("id, student_id, score, total_points, submitted_at")
         .eq("quiz_id", quizId!)
         .order("score", { ascending: false }),
+      supabase.rpc("get_user_sub_role", { _user_id: user.id } as any),
     ]);
 
     const r = (profileRes.data?.role as Role) || "other";
     setRole(r);
+    setSubRole((subRoleRes as any)?.data || "");
 
     const q = quizRes.data;
     if (quizRes.error || !q) {
@@ -84,20 +87,36 @@ const QuizResults = () => {
   };
 
   const isLecturerOfCourse = course && course.creator_id === userId;
+  const allVDApproved = quiz
+    ? quiz.approved_by_vice_dean_students && quiz.approved_by_vice_dean_postgrad && quiz.approved_by_vice_dean_environment
+    : false;
+
+  // Which vice-dean column this user owns (if any)
+  const vdColumn =
+    subRole === "vice_dean_students" ? "students"
+    : subRole === "vice_dean_postgrad" ? "postgrad"
+    : subRole === "vice_dean_environment" ? "environment"
+    : "";
+
   const canAct = (() => {
     if (!quiz) return false;
     if (quiz.rejected_by) return false;
     if (isLecturerOfCourse && !quiz.approved_by_lecturer) return true;
     if (role === "department_head") return quiz.approved_by_lecturer && !quiz.approved_by_head;
-    if (role === "vice_dean") return quiz.approved_by_head && !quiz.approved_by_vice_dean;
-    if (role === "dean") return quiz.approved_by_vice_dean && !quiz.approved_by_dean;
+    if (role === "vice_dean" && vdColumn) {
+      if (!quiz.approved_by_head) return false;
+      return !quiz[`approved_by_vice_dean_${vdColumn}`];
+    }
+    if (role === "dean") return allVDApproved && !quiz.approved_by_dean;
     return false;
   })();
 
   const myStepLabel = isLecturerOfCourse
     ? (isRtl ? "اعتماد المحاضر" : "Lecturer Approval")
     : role === "department_head" ? (isRtl ? "اعتماد رئيس القسم" : "Department Head")
-    : role === "vice_dean" ? (isRtl ? "اعتماد الوكيل" : "Vice Dean")
+    : role === "vice_dean" && vdColumn === "students" ? (isRtl ? "اعتماد وكيل شؤون الطلاب" : "Vice Dean - Students")
+    : role === "vice_dean" && vdColumn === "postgrad" ? (isRtl ? "اعتماد وكيل الدراسات العليا" : "Vice Dean - Postgrad")
+    : role === "vice_dean" && vdColumn === "environment" ? (isRtl ? "اعتماد وكيل شؤون البيئة" : "Vice Dean - Environment")
     : role === "dean" ? (isRtl ? "اعتماد العميد" : "Dean")
     : "";
 
@@ -114,10 +133,18 @@ const QuizResults = () => {
       update.approved_by_head = true;
       update.approved_by_head_at = now;
       update.approved_by_head_id = userId;
-    } else if (role === "vice_dean") {
-      update.approved_by_vice_dean = true;
-      update.approved_by_vice_dean_at = now;
-      update.approved_by_vice_dean_id = userId;
+    } else if (role === "vice_dean" && vdColumn) {
+      update[`approved_by_vice_dean_${vdColumn}`] = true;
+      update[`approved_by_vice_dean_${vdColumn}_at`] = now;
+      update[`approved_by_vice_dean_${vdColumn}_id`] = userId;
+      // Once all 3 vice deans approve, set the legacy combined flag
+      const otherCols = ["students", "postgrad", "environment"].filter(c => c !== vdColumn);
+      const willAllApprove = otherCols.every(c => quiz[`approved_by_vice_dean_${c}`]);
+      if (willAllApprove) {
+        update.approved_by_vice_dean = true;
+        update.approved_by_vice_dean_at = now;
+        update.approved_by_vice_dean_id = userId;
+      }
     } else if (role === "dean") {
       update.approved_by_dean = true;
       update.approved_by_dean_at = now;
@@ -157,9 +184,13 @@ const QuizResults = () => {
     if (isLecturerOfCourse) {
       await notifyNext("department_head", "بانتظار اعتماد رئيس القسم", "Awaiting Department Head approval");
     } else if (role === "department_head") {
-      await notifyNext("vice_dean", "بانتظار اعتماد الوكيل", "Awaiting Vice Dean approval");
-    } else if (role === "vice_dean") {
-      await notifyNext("dean", "بانتظار اعتماد العميد", "Awaiting Dean approval");
+      await notifyNext("vice_dean", "بانتظار اعتماد وكلاء الكلية الثلاثة", "Awaiting approval from all three Vice Deans");
+    } else if (role === "vice_dean" && vdColumn) {
+      const otherCols = ["students", "postgrad", "environment"].filter(c => c !== vdColumn);
+      const willAllApprove = otherCols.every(c => quiz[`approved_by_vice_dean_${c}`]);
+      if (willAllApprove) {
+        await notifyNext("dean", "بانتظار اعتماد العميد", "Awaiting Dean approval");
+      }
     } else if (role === "dean") {
       // Notify the lecturer that the chain is complete
       if (course?.creator_id) {
@@ -204,7 +235,7 @@ const QuizResults = () => {
   const avg = total > 0
     ? Math.round(submissions.reduce((a, s) => a + (s.total_points > 0 ? (s.score / s.total_points) * 100 : 0), 0) / total)
     : 0;
-  const fullyApproved = quiz.approved_by_lecturer && quiz.approved_by_head && quiz.approved_by_vice_dean && quiz.approved_by_dean;
+  const fullyApproved = quiz.approved_by_lecturer && quiz.approved_by_head && allVDApproved && quiz.approved_by_dean;
 
   const StepBadge = ({ done, label }: { done: boolean; label: string }) => (
     <Badge variant={done ? "default" : "outline"} className="gap-1.5 text-xs py-1.5 px-3">
@@ -266,7 +297,9 @@ const QuizResults = () => {
             <div className="flex flex-wrap gap-2 mb-4">
               <StepBadge done={quiz.approved_by_lecturer} label={isRtl ? "المحاضر" : "Lecturer"} />
               <StepBadge done={quiz.approved_by_head} label={isRtl ? "رئيس القسم" : "Head"} />
-              <StepBadge done={quiz.approved_by_vice_dean} label={isRtl ? "وكيل الكلية" : "Vice Dean"} />
+              <StepBadge done={quiz.approved_by_vice_dean_students} label={isRtl ? "وكيل شؤون الطلاب" : "VD - Students"} />
+              <StepBadge done={quiz.approved_by_vice_dean_postgrad} label={isRtl ? "وكيل الدراسات العليا" : "VD - Postgrad"} />
+              <StepBadge done={quiz.approved_by_vice_dean_environment} label={isRtl ? "وكيل شؤون البيئة" : "VD - Environment"} />
               <StepBadge done={quiz.approved_by_dean} label={isRtl ? "العميد" : "Dean"} />
               {fullyApproved && (
                 <Badge className="gap-1.5 text-xs py-1.5 px-3 bg-green-600 hover:bg-green-700">

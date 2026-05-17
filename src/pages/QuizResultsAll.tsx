@@ -261,7 +261,9 @@ const QuizResultsAll = () => {
                               <div className="flex items-center gap-2">
                                 <StepDot done={q.approved_by_lecturer} />
                                 <StepDot done={q.approved_by_head} />
-                                <StepDot done={q.approved_by_vice_dean} />
+                                <StepDot done={q.approved_by_vice_dean_students} />
+                                <StepDot done={q.approved_by_vice_dean_postgrad} />
+                                <StepDot done={q.approved_by_vice_dean_environment} />
                                 <StepDot done={q.approved_by_dean} />
                               </div>
                             </TableCell>

@@ -223,14 +223,14 @@ const QuizResultsAll = () => {
                 <div className="hidden md:block overflow-x-auto">
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead>{isRtl ? "الاختبار" : "Quiz"}</TableHead>
-                        <TableHead>{isRtl ? "المادة" : "Course"}</TableHead>
-                        <TableHead>{isRtl ? "الطلاب" : "Students"}</TableHead>
-                        <TableHead>{isRtl ? "النجاح" : "Passed"}</TableHead>
-                        <TableHead>{isRtl ? "المتوسط" : "Avg"}</TableHead>
-                        <TableHead>{isRtl ? "سلسلة الاعتماد" : "Approval"}</TableHead>
-                        <TableHead>{isRtl ? "الحالة" : "Status"}</TableHead>
+                      <TableRow className="bg-muted/50 hover:bg-muted/50">
+                        <TableHead className="font-bold text-foreground">{isRtl ? "الاختبار" : "Quiz"}</TableHead>
+                        <TableHead className="font-bold text-foreground">{isRtl ? "المادة" : "Course"}</TableHead>
+                        <TableHead className="font-bold text-foreground">{isRtl ? "الطلاب" : "Students"}</TableHead>
+                        <TableHead className="font-bold text-foreground">{isRtl ? "النجاح" : "Passed"}</TableHead>
+                        <TableHead className="font-bold text-foreground">{isRtl ? "المتوسط" : "Avg"}</TableHead>
+                        <TableHead className="font-bold text-foreground">{isRtl ? "سلسلة الاعتماد" : "Approval"}</TableHead>
+                        <TableHead className="font-bold text-foreground">{isRtl ? "الحالة" : "Status"}</TableHead>
                         <TableHead></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -242,26 +242,26 @@ const QuizResultsAll = () => {
                         return (
                           <TableRow
                             key={q.id}
-                            className="cursor-pointer"
+                            className="cursor-pointer hover:bg-primary/5 transition-colors"
                             onClick={() => navigate(`/quiz/${q.id}/results`)}
                           >
-                            <TableCell className="font-medium">{isRtl ? q.title_ar : q.title_en}</TableCell>
-                            <TableCell className="text-sm text-muted-foreground">
+                            <TableCell className="font-black text-foreground">{isRtl ? q.title_ar : q.title_en}</TableCell>
+                            <TableCell className="text-sm font-bold text-primary/80">
                               {course ? (isRtl ? course.title_ar : course.title_en) : "—"}
                             </TableCell>
-                            <TableCell>{c.total}</TableCell>
-                            <TableCell className="text-green-600 font-medium">{c.passed}</TableCell>
-                            <TableCell><Badge variant="outline">{c.avg}%</Badge></TableCell>
+                            <TableCell className="font-black text-foreground">{c.total}</TableCell>
+                            <TableCell className="text-green-600 font-black">{c.passed}</TableCell>
+                            <TableCell><Badge variant="outline" className="font-bold">{c.avg}%</Badge></TableCell>
                             <TableCell>
-                              <div className="flex items-center gap-1.5">
+                              <div className="flex items-center gap-2">
                                 <StepDot done={q.approved_by_lecturer} />
                                 <StepDot done={q.approved_by_head} />
                                 <StepDot done={q.approved_by_vice_dean} />
                                 <StepDot done={q.approved_by_dean} />
                               </div>
                             </TableCell>
-                            <TableCell><Badge variant={st.variant}>{st.label}</Badge></TableCell>
-                            <TableCell><ChevronIcon className="w-4 h-4 text-muted-foreground" /></TableCell>
+                            <TableCell><Badge variant={st.variant} className="font-bold">{st.label}</Badge></TableCell>
+                            <TableCell><ChevronIcon className="w-5 h-5 text-primary" /></TableCell>
                           </TableRow>
                         );
                       })}

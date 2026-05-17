@@ -235,7 +235,7 @@ const QuizResults = () => {
   const avg = total > 0
     ? Math.round(submissions.reduce((a, s) => a + (s.total_points > 0 ? (s.score / s.total_points) * 100 : 0), 0) / total)
     : 0;
-  const fullyApproved = quiz.approved_by_lecturer && quiz.approved_by_head && quiz.approved_by_vice_dean && quiz.approved_by_dean;
+  const fullyApproved = quiz.approved_by_lecturer && quiz.approved_by_head && allVDApproved && quiz.approved_by_dean;
 
   const StepBadge = ({ done, label }: { done: boolean; label: string }) => (
     <Badge variant={done ? "default" : "outline"} className="gap-1.5 text-xs py-1.5 px-3">

@@ -122,28 +122,28 @@ const QuizResultsAll = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all border-border/60">
+          <Card className="border-2 border-green-500/30 hover:border-green-500 hover:shadow-xl hover:shadow-green-500/15 hover:-translate-y-0.5 transition-all bg-gradient-to-br from-green-500/5 to-transparent">
             <CardContent className="p-4 sm:p-5">
               <div className="flex items-center gap-3">
-                <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-green-500/15 flex items-center justify-center">
-                  <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7 text-green-600" strokeWidth={2.5} />
+                <div className="shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-green-500/25">
+                  <CheckCircle className="w-7 h-7 sm:w-8 sm:h-8 text-white" strokeWidth={2.75} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">{isRtl ? "معتمدة" : "Approved"}</p>
-                  <p className="text-xl sm:text-2xl font-black mt-0.5 text-green-600">{publishedCount}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground font-bold">{isRtl ? "معتمدة" : "Approved"}</p>
+                  <p className="text-2xl sm:text-3xl font-black mt-0.5 text-green-600 drop-shadow-sm">{publishedCount}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all border-border/60">
+          <Card className="border-2 border-red-500/30 hover:border-red-500 hover:shadow-xl hover:shadow-red-500/15 hover:-translate-y-0.5 transition-all bg-gradient-to-br from-red-500/5 to-transparent">
             <CardContent className="p-4 sm:p-5">
               <div className="flex items-center gap-3">
-                <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-red-500/15 flex items-center justify-center">
-                  <XCircle className="w-6 h-6 sm:w-7 sm:h-7 text-red-600" strokeWidth={2.5} />
+                <div className="shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/25">
+                  <XCircle className="w-7 h-7 sm:w-8 sm:h-8 text-white" strokeWidth={2.75} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">{isRtl ? "غير معتمدة" : "Not Approved"}</p>
-                  <p className="text-xl sm:text-2xl font-black mt-0.5 text-red-600">{quizzes.length - publishedCount}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground font-bold">{isRtl ? "غير معتمدة" : "Not Approved"}</p>
+                  <p className="text-2xl sm:text-3xl font-black mt-0.5 text-red-600 drop-shadow-sm">{quizzes.length - publishedCount}</p>
                 </div>
               </div>
             </CardContent>
@@ -151,8 +151,10 @@ const QuizResultsAll = () => {
         </div>
 
         {/* Search */}
-        <div className="mb-4">
+        <div className="relative mb-4">
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
+            className="ps-10 border-2 border-border/80 focus:border-primary"
             placeholder={isRtl ? "ابحث باسم الاختبار أو المادة..." : "Search by quiz or course..."}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -160,10 +162,12 @@ const QuizResultsAll = () => {
         </div>
 
         {/* List */}
-        <Card>
+        <Card className="border-2 border-border/60 shadow-sm">
           <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-primary" />
+            <CardTitle className="text-lg sm:text-xl font-black flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] flex items-center justify-center shadow-md shadow-primary/30">
+                <ShieldCheck className="w-5 h-5 text-primary-foreground" strokeWidth={2.5} />
+              </div>
               {isRtl ? "قائمة الاختبارات" : "Quizzes List"}
             </CardTitle>
           </CardHeader>

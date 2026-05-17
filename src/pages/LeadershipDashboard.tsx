@@ -355,36 +355,12 @@ const LeadershipDashboard = () => {
 
           {/* Overview - Lecturer-style design */}
           <TabsContent value="overview" dir={isRtl ? "rtl" : "ltr"}>
-            <div className="mb-6 text-start">
-              <p className="text-sm text-muted-foreground">{isRtl ? "نظرة عامة على نشاط الكلية خلال آخر 7 أيام" : "Overview of activity over the last 7 days"}</p>
-            </div>
-
+          {/* Overview - Lecturer-style design */}
+          <TabsContent value="overview" dir={isRtl ? "rtl" : "ltr"}>
             {(() => {
-              const totalActivity = courses.length + liveStreams.length + assignments.length + quizzes.length + episodes.length + ratings.length;
               const filesCount = episodes.filter((e: any) => e.file_url || e.attachment_url || e.pdf_url).length;
-              const allDates = [...courses, ...liveStreams, ...assignments, ...quizzes].map((x: any) => x.created_at);
               return (
                 <>
-
-
-                  {/* Sections Overview Chart - mirrors dropdown menu items */}
-                  <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
-                  <SectionsActivityChart
-                    className="mb-4 sm:mb-6"
-                    days={rangeDays}
-                    sections={[
-                      { label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, timestamps: liveStreams.map((s: any) => s.created_at || s.scheduled_at) },
-                      { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
-                      { label: isRtl ? "التقييمات" : "Ratings", Icon: Star, timestamps: ratings.map((r: any) => r.created_at) },
-                      { label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, timestamps: assignments.map((a: any) => a.created_at) },
-                      { label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, timestamps: liveStreams.filter((s: any) => s.status === "scheduled").map((s: any) => s.scheduled_at || s.created_at) },
-                      { label: isRtl ? "الملفات" : "Files", Icon: FileText, timestamps: episodes.filter((e: any) => e.file_url || e.attachment_url || e.pdf_url).map((e: any) => e.created_at) },
-                      { label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell, timestamps: notifications.map((n: any) => n.created_at) },
-                    ]}
-                  />
-
-                  {/* Weekly Activity Chart removed */}
-
                   {/* Section Cards - responsive grid (vibrant icon style) */}
                   <MenuItemsStatsGrid
                     items={[

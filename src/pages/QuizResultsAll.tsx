@@ -189,28 +189,28 @@ const QuizResultsAll = () => {
                       <button
                         key={q.id}
                         onClick={() => navigate(`/quiz/${q.id}/results`)}
-                        className="w-full text-start p-4 space-y-2 hover:bg-accent/50 transition-colors"
+                        className="w-full text-start p-4 space-y-2.5 hover:bg-primary/5 transition-colors"
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <p className="font-bold text-sm flex-1">{isRtl ? q.title_ar : q.title_en}</p>
-                          <ChevronIcon className="w-4 h-4 text-muted-foreground shrink-0" />
+                          <p className="font-black text-sm flex-1 text-foreground">{isRtl ? q.title_ar : q.title_en}</p>
+                          <ChevronIcon className="w-5 h-5 text-primary shrink-0" />
                         </div>
                         {course && (
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs font-bold text-primary/80">
                             {isRtl ? course.title_ar : course.title_en}
                           </p>
                         )}
-                        <Badge variant={st.variant} className="text-xs">{st.label}</Badge>
-                        <div className="flex items-center gap-3 text-xs pt-1">
-                          <span className="text-muted-foreground">{isRtl ? "طلاب:" : "Students:"} <b className="text-foreground">{c.total}</b></span>
-                          <span className="text-muted-foreground">{isRtl ? "متوسط:" : "Avg:"} <b className="text-foreground">{c.avg}%</b></span>
+                        <Badge variant={st.variant} className="text-xs font-bold px-2.5 py-1">{st.label}</Badge>
+                        <div className="flex items-center gap-4 text-xs pt-1">
+                          <span className="text-muted-foreground font-medium">{isRtl ? "طلاب:" : "Students:"} <b className="text-foreground font-black">{c.total}</b></span>
+                          <span className="text-muted-foreground font-medium">{isRtl ? "متوسط:" : "Avg:"} <b className="text-foreground font-black">{c.avg}%</b></span>
                         </div>
-                        <div className="flex items-center gap-1.5 pt-1">
+                        <div className="flex items-center gap-2 pt-1">
                           <StepDot done={q.approved_by_lecturer} />
                           <StepDot done={q.approved_by_head} />
                           <StepDot done={q.approved_by_vice_dean} />
                           <StepDot done={q.approved_by_dean} />
-                          <span className="text-[10px] text-muted-foreground ms-1">
+                          <span className="text-[10px] font-bold text-muted-foreground ms-1">
                             {isRtl ? "محاضر/قسم/وكيل/عميد" : "Lec/Head/Vice/Dean"}
                           </span>
                         </div>

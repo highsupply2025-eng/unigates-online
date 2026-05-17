@@ -13,9 +13,10 @@ type SimpleHeaderProps = {
   backTo?: string;
   mobileBackOnly?: boolean;
   useHistoryBack?: boolean;
+  subtitle?: string;
 };
 
-const SimpleHeader = ({ backTo = "/", mobileBackOnly = false, useHistoryBack = false }: SimpleHeaderProps) => {
+const SimpleHeader = ({ backTo = "/", mobileBackOnly = false, useHistoryBack = false, subtitle }: SimpleHeaderProps) => {
   const { t, dir } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
@@ -54,11 +55,18 @@ const SimpleHeader = ({ backTo = "/", mobileBackOnly = false, useHistoryBack = f
   return (
     <header className="border-b-2 border-primary/40 px-6 py-4 bg-card shadow-lg">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/40 flex items-center justify-center group-hover:scale-105 transition-transform">
+        <Link to="/" className="flex items-center gap-3 group min-w-0">
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/40 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
             <GraduationCap className="w-7 h-7 text-white" />
           </div>
-          <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
+          <div className="flex flex-col min-w-0">
+            <span className="text-2xl font-black text-foreground tracking-tight leading-tight">{t.brandName}</span>
+            {subtitle && (
+              <span className="text-xs sm:text-sm font-semibold text-primary truncate max-w-[200px] sm:max-w-md">
+                {subtitle}
+              </span>
+            )}
+          </div>
         </Link>
 
         {/* Desktop buttons */}

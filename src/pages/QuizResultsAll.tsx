@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, Award, BarChart3, CheckCircle, Clock,
-  Loader2, ShieldCheck, TrendingUp, Users, XCircle, ChevronLeft, ChevronRight,
+  Loader2, Search, ShieldCheck, TrendingUp, Users, XCircle, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

@@ -211,7 +211,7 @@ const QuizResults = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
       <SimpleHeader
-        backTo="/lecturer/quiz-results"
+        backTo="/quiz-results"
         useHistoryBack
         subtitle={isRtl ? (quiz.title_ar || quiz.title_en) : (quiz.title_en || quiz.title_ar)}
       />

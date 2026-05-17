@@ -27,6 +27,7 @@ const QuizResults = () => {
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState(false);
   const [role, setRole] = useState<Role>("other");
+  const [subRole, setSubRole] = useState<string>(""); // e.g. vice_dean_students
   const [userId, setUserId] = useState<string>("");
   const [quiz, setQuiz] = useState<any>(null);
   const [course, setCourse] = useState<any>(null);

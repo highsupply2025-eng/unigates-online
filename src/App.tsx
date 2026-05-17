@@ -11,6 +11,7 @@ import { useSingleSession } from "@/hooks/use-single-session";
 import ScrollToTop from "./components/ScrollToTop";
 import PageTransition from "./components/PageTransition";
 import RouteFallback from "./components/RouteFallback";
+import PrefetchRoutes from "./PrefetchRoutes";
 
 const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));

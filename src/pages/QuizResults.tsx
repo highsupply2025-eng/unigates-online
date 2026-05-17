@@ -297,7 +297,9 @@ const QuizResults = () => {
             <div className="flex flex-wrap gap-2 mb-4">
               <StepBadge done={quiz.approved_by_lecturer} label={isRtl ? "المحاضر" : "Lecturer"} />
               <StepBadge done={quiz.approved_by_head} label={isRtl ? "رئيس القسم" : "Head"} />
-              <StepBadge done={quiz.approved_by_vice_dean} label={isRtl ? "وكيل الكلية" : "Vice Dean"} />
+              <StepBadge done={quiz.approved_by_vice_dean_students} label={isRtl ? "وكيل شؤون الطلاب" : "VD - Students"} />
+              <StepBadge done={quiz.approved_by_vice_dean_postgrad} label={isRtl ? "وكيل الدراسات العليا" : "VD - Postgrad"} />
+              <StepBadge done={quiz.approved_by_vice_dean_environment} label={isRtl ? "وكيل شؤون البيئة" : "VD - Environment"} />
               <StepBadge done={quiz.approved_by_dean} label={isRtl ? "العميد" : "Dean"} />
               {fullyApproved && (
                 <Badge className="gap-1.5 text-xs py-1.5 px-3 bg-green-600 hover:bg-green-700">

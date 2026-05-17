@@ -109,6 +109,7 @@ const App = () => (
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <SessionGuard />
           <ScrollToTop />
+          <PrefetchRoutes />
           <Suspense fallback={<RouteFallback />}>
             <PageTransition>
             <Routes>

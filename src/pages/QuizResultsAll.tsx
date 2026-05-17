@@ -36,11 +36,9 @@ const QuizResultsAll = () => {
 
     const { data: qs } = await supabase
       .from("quizzes")
-      .select("id, title_ar, title_en, course_id, created_at, approved_by_lecturer, approved_by_head, approved_by_vice_dean, approved_by_dean, results_published, rejected_by")
+      .select("id, title_ar, title_en, course_id, created_at, approved_by_lecturer, approved_by_head, approved_by_vice_dean, approved_by_vice_dean_students, approved_by_vice_dean_postgrad, approved_by_vice_dean_environment, approved_by_dean, results_published, rejected_by")
       .not("approved_by_lecturer", "is", null)
       .not("approved_by_head", "is", null)
-      .not("approved_by_vice_dean", "is", null)
-      .not("approved_by_dean", "is", null)
       .is("rejected_by", null)
       .order("created_at", { ascending: false });
     const list = qs || [];

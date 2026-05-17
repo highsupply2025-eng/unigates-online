@@ -87,20 +87,36 @@ const QuizResults = () => {
   };
 
   const isLecturerOfCourse = course && course.creator_id === userId;
+  const allVDApproved = quiz
+    ? quiz.approved_by_vice_dean_students && quiz.approved_by_vice_dean_postgrad && quiz.approved_by_vice_dean_environment
+    : false;
+
+  // Which vice-dean column this user owns (if any)
+  const vdColumn =
+    subRole === "vice_dean_students" ? "students"
+    : subRole === "vice_dean_postgrad" ? "postgrad"
+    : subRole === "vice_dean_environment" ? "environment"
+    : "";
+
   const canAct = (() => {
     if (!quiz) return false;
     if (quiz.rejected_by) return false;
     if (isLecturerOfCourse && !quiz.approved_by_lecturer) return true;
     if (role === "department_head") return quiz.approved_by_lecturer && !quiz.approved_by_head;
-    if (role === "vice_dean") return quiz.approved_by_head && !quiz.approved_by_vice_dean;
-    if (role === "dean") return quiz.approved_by_vice_dean && !quiz.approved_by_dean;
+    if (role === "vice_dean" && vdColumn) {
+      if (!quiz.approved_by_head) return false;
+      return !quiz[`approved_by_vice_dean_${vdColumn}`];
+    }
+    if (role === "dean") return allVDApproved && !quiz.approved_by_dean;
     return false;
   })();
 
   const myStepLabel = isLecturerOfCourse
     ? (isRtl ? "اعتماد المحاضر" : "Lecturer Approval")
     : role === "department_head" ? (isRtl ? "اعتماد رئيس القسم" : "Department Head")
-    : role === "vice_dean" ? (isRtl ? "اعتماد الوكيل" : "Vice Dean")
+    : role === "vice_dean" && vdColumn === "students" ? (isRtl ? "اعتماد وكيل شؤون الطلاب" : "Vice Dean - Students")
+    : role === "vice_dean" && vdColumn === "postgrad" ? (isRtl ? "اعتماد وكيل الدراسات العليا" : "Vice Dean - Postgrad")
+    : role === "vice_dean" && vdColumn === "environment" ? (isRtl ? "اعتماد وكيل شؤون البيئة" : "Vice Dean - Environment")
     : role === "dean" ? (isRtl ? "اعتماد العميد" : "Dean")
     : "";
 

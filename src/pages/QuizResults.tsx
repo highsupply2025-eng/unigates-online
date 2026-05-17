@@ -184,9 +184,13 @@ const QuizResults = () => {
     if (isLecturerOfCourse) {
       await notifyNext("department_head", "بانتظار اعتماد رئيس القسم", "Awaiting Department Head approval");
     } else if (role === "department_head") {
-      await notifyNext("vice_dean", "بانتظار اعتماد الوكيل", "Awaiting Vice Dean approval");
-    } else if (role === "vice_dean") {
-      await notifyNext("dean", "بانتظار اعتماد العميد", "Awaiting Dean approval");
+      await notifyNext("vice_dean", "بانتظار اعتماد وكلاء الكلية الثلاثة", "Awaiting approval from all three Vice Deans");
+    } else if (role === "vice_dean" && vdColumn) {
+      const otherCols = ["students", "postgrad", "environment"].filter(c => c !== vdColumn);
+      const willAllApprove = otherCols.every(c => quiz[`approved_by_vice_dean_${c}`]);
+      if (willAllApprove) {
+        await notifyNext("dean", "بانتظار اعتماد العميد", "Awaiting Dean approval");
+      }
     } else if (role === "dean") {
       // Notify the lecturer that the chain is complete
       if (course?.creator_id) {

@@ -86,13 +86,17 @@ const QuizResultsAll = () => {
     );
   }
 
+  const isAllVDApproved = (q: any) =>
+    q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad && q.approved_by_vice_dean_environment;
+
   const getStatus = (q: any) => {
     if (q.rejected_by) return { label: isRtl ? "مرفوضة" : "Rejected", variant: "destructive" as const };
-    const fully = q.approved_by_lecturer && q.approved_by_head && q.approved_by_vice_dean && q.approved_by_dean;
+    const vdAll = isAllVDApproved(q);
+    const fully = q.approved_by_lecturer && q.approved_by_head && vdAll && q.approved_by_dean;
     if (fully) return { label: isRtl ? "منشورة" : "Published", variant: "default" as const };
     if (!q.approved_by_lecturer) return { label: isRtl ? "بانتظار المحاضر" : "Awaiting Lecturer", variant: "outline" as const };
     if (!q.approved_by_head) return { label: isRtl ? "بانتظار رئيس القسم" : "Awaiting Head", variant: "outline" as const };
-    if (!q.approved_by_vice_dean) return { label: isRtl ? "بانتظار الوكيل" : "Awaiting Vice Dean", variant: "outline" as const };
+    if (!vdAll) return { label: isRtl ? "بانتظار وكلاء الكلية" : "Awaiting Vice Deans", variant: "outline" as const };
     if (!q.approved_by_dean) return { label: isRtl ? "بانتظار العميد" : "Awaiting Dean", variant: "outline" as const };
     return { label: "—", variant: "outline" as const };
   };

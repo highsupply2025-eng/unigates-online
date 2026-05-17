@@ -210,7 +210,11 @@ const QuizResults = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <SimpleHeader />
+      <SimpleHeader
+        backTo="/lecturer/quiz-results"
+        useHistoryBack
+        subtitle={isRtl ? (quiz.title_ar || quiz.title_en) : (quiz.title_en || quiz.title_ar)}
+      />
       <main className="flex-1 container mx-auto px-3 sm:px-4 py-6 max-w-6xl w-full">
 
         {/* Stats */}

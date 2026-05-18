@@ -582,6 +582,106 @@ const LeadershipDashboard = () => {
             </Card>
           </TabsContent>
 
+          {/* Lectures */}
+          <TabsContent value="lectures" id="section-lectures" dir={isRtl ? "rtl" : "ltr"}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-primary" />
+                {isRtl ? "محاضرات المحاضرين" : "Lecturer Lectures"}
+              </h2>
+              <Badge variant="secondary" className="font-bold">{episodes.length}</Badge>
+            </div>
+
+            {courses.filter(c => episodes.some(e => e.course_id === c.id)).length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center text-muted-foreground">
+                  {isRtl ? "لا توجد محاضرات منشورة بعد" : "No published lectures yet"}
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {courses
+                  .filter(c => episodes.some(e => e.course_id === c.id))
+                  .map(course => {
+                    const courseEpisodes = episodes
+                      .filter(e => e.course_id === course.id)
+                      .sort((a, b) => (a.level_number - b.level_number) || (a.episode_number - b.episode_number));
+                    return (
+                      <Card key={course.id} className="overflow-hidden border-2 hover:border-primary/40 transition-colors">
+                        <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent pb-3">
+                          <div className="flex items-start justify-between gap-3 flex-wrap">
+                            <div className="min-w-0">
+                              <CardTitle className="text-base font-black text-foreground truncate">
+                                {isRtl ? course.title_ar : course.title_en}
+                              </CardTitle>
+                              <p className="text-xs text-muted-foreground font-bold mt-1 flex items-center gap-1.5">
+                                <GraduationCap className="w-3.5 h-3.5" />
+                                {isRtl ? course.instructor_ar : course.instructor_en}
+                              </p>
+                            </div>
+                            <Badge variant="outline" className="font-bold shrink-0">
+                              {courseEpisodes.length} {isRtl ? "محاضرة" : "lectures"}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>{isRtl ? "المحاضرة" : "Lecture"}</TableHead>
+                                <TableHead className="hidden sm:table-cell">{isRtl ? "المستوى" : "Level"}</TableHead>
+                                <TableHead className="hidden sm:table-cell">{isRtl ? "الحلقة" : "Episode"}</TableHead>
+                                <TableHead>{isRtl ? "المدة" : "Duration"}</TableHead>
+                                <TableHead className="text-end">{isRtl ? "إجراء" : "Action"}</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {courseEpisodes.map(ep => (
+                                <TableRow key={ep.id}>
+                                  <TableCell className="font-medium">
+                                    <div className="flex items-center gap-2">
+                                      <Video className="w-4 h-4 text-primary shrink-0" />
+                                      <span className="truncate">{isRtl ? ep.title_ar : ep.title_en}</span>
+                                      {ep.is_preview && (
+                                        <Badge variant="secondary" className="text-[10px] shrink-0">
+                                          {isRtl ? "تجريبي" : "Preview"}
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="hidden sm:table-cell">
+                                    <Badge variant="outline">{ep.level_number}</Badge>
+                                  </TableCell>
+                                  <TableCell className="hidden sm:table-cell">{ep.episode_number}</TableCell>
+                                  <TableCell>
+                                    <span className="flex items-center gap-1 text-xs font-bold text-muted-foreground">
+                                      <Clock className="w-3.5 h-3.5" />
+                                      {ep.duration_minutes || 0} {isRtl ? "د" : "min"}
+                                    </span>
+                                  </TableCell>
+                                  <TableCell className="text-end">
+                                    <Button
+                                      size="sm"
+                                      variant="default"
+                                      onClick={() => navigate(`/lecturer/course/${course.id}`)}
+                                      className="gap-1.5 font-bold"
+                                    >
+                                      <Eye className="w-3.5 h-3.5" />
+                                      {isRtl ? "عرض" : "View"}
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+              </div>
+            )}
+          </TabsContent>
+
           {/* Quiz Results */}
           <TabsContent value="quizresults" id="section-quizresults" dir={isRtl ? "rtl" : "ltr"}>
             <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>

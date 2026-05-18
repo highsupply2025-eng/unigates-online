@@ -367,6 +367,7 @@ const LeadershipDashboard = () => {
             <TabsTrigger value="lectures">lectures</TabsTrigger>
             <TabsTrigger value="quizresults">quizresults</TabsTrigger>
             <TabsTrigger value="quizzesonline">quizzesonline</TabsTrigger>
+            <TabsTrigger value="schedulesapproval">schedulesapproval</TabsTrigger>
             <TabsTrigger value="ratings">ratings</TabsTrigger>
             <TabsTrigger value="assignments">assignments</TabsTrigger>
             <TabsTrigger value="schedule">schedule</TabsTrigger>

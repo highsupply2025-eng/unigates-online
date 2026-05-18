@@ -350,6 +350,7 @@ const LeadershipDashboard = () => {
           <TabsList className="hidden">
             <TabsTrigger value="overview">overview</TabsTrigger>
             <TabsTrigger value="livestreams">livestreams</TabsTrigger>
+            <TabsTrigger value="lectures">lectures</TabsTrigger>
             <TabsTrigger value="quizresults">quizresults</TabsTrigger>
             <TabsTrigger value="ratings">ratings</TabsTrigger>
             <TabsTrigger value="assignments">assignments</TabsTrigger>

@@ -322,7 +322,7 @@ const LeadershipDashboard = () => {
                      livestreams: { ar: "البث المباشر", en: "Live Streams" },
                      lectures: { ar: "المحاضرات", en: "Lectures" },
                      quizresults: { ar: "نتائج الاختبارات", en: "Quiz Results" },
-                     quizzesonline: { ar: "الاختبارات اونلاين", en: "Online Quizzes" },
+                     quizzesonline: { ar: "اعتماد الاختبارات", en: "Quizzes Approval" },
                      schedulesapproval: { ar: "اعتماد الجداول", en: "Schedules Approval" },
                      ratings: { ar: "التقييمات", en: "Ratings" },
                      assignments: { ar: "التكليفات", en: "Assignments" },
@@ -345,7 +345,7 @@ const LeadershipDashboard = () => {
                 { key: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, onClick: () => setActiveTab("overview"), active: activeTab === "overview" },
                 { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, onClick: () => setActiveTab("livestreams"), active: activeTab === "livestreams" },
                 { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, onClick: () => setActiveTab("lectures"), active: activeTab === "lectures" },
-                { key: "quizzesonline", label: isRtl ? "الاختبارات اونلاين" : "Online Quizzes", Icon: ShieldCheck, onClick: () => setActiveTab("quizzesonline"), active: activeTab === "quizzesonline" },
+                { key: "quizzesonline", label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: ShieldCheck, onClick: () => setActiveTab("quizzesonline"), active: activeTab === "quizzesonline" },
                 { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, onClick: () => setActiveTab("schedulesapproval"), active: activeTab === "schedulesapproval" },
                 { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, onClick: () => setActiveTab("quizresults"), active: activeTab === "quizresults" },
                 { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, onClick: () => setActiveTab("ratings"), active: activeTab === "ratings" },
@@ -698,7 +698,7 @@ const LeadershipDashboard = () => {
             )}
           </TabsContent>
 
-          {/* Online Quizzes - approval workflow */}
+          {/* Quizzes Approval - approval workflow */}
           <TabsContent value="quizzesonline" id="section-quizzesonline" dir={isRtl ? "rtl" : "ltr"}>
             {(() => {
               const vdColumn =
@@ -804,7 +804,7 @@ const LeadershipDashboard = () => {
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
                       <ShieldCheck className="w-5 h-5 text-primary" />
-                      {isRtl ? "الاختبارات اونلاين" : "Online Quizzes"}
+                      {isRtl ? "اعتماد الاختبارات" : "Quizzes Approval"}
                     </h2>
                     <Badge variant="secondary" className="font-extrabold">
                       {isRtl ? `بانتظار اعتمادك: ${myTurn.length}` : `Awaiting you: ${myTurn.length}`}

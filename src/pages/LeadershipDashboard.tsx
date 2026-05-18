@@ -874,6 +874,175 @@ const LeadershipDashboard = () => {
             })()}
           </TabsContent>
 
+          {/* Schedules Approval workflow */}
+          <TabsContent value="schedulesapproval" id="section-schedulesapproval" dir={isRtl ? "rtl" : "ltr"}>
+            {(() => {
+              const stageOf = (s: any) => {
+                if (s.rejected_by) return { labelAr: "مرفوض", labelEn: "Rejected", color: "from-red-500 to-rose-600" };
+                if (!s.approved_by_head) return { labelAr: "بانتظار رئيس القسم", labelEn: "Awaiting Department Head", color: "from-amber-500 to-orange-600" };
+                if (!s.approved_by_vice_dean) return { labelAr: "بانتظار الوكلاء", labelEn: "Awaiting Vice Deans", color: "from-blue-500 to-indigo-600" };
+                if (!s.approved_by_dean) return { labelAr: "بانتظار العميد", labelEn: "Awaiting Dean", color: "from-violet-500 to-purple-600" };
+                return { labelAr: "معتمد بالكامل", labelEn: "Fully Approved", color: "from-emerald-500 to-green-600" };
+              };
+
+              const canActOn = (s: any) => {
+                if (s.rejected_by) return false;
+                if (userRole === "department_head") return !s.approved_by_head;
+                if (userRole === "vice_dean") return s.approved_by_head && !s.approved_by_vice_dean;
+                if (userRole === "dean") return s.approved_by_vice_dean && !s.approved_by_dean;
+                return false;
+              };
+
+              const pending = lectureSchedules.filter(s => !s.rejected_by && !(s.approved_by_head && s.approved_by_vice_dean && s.approved_by_dean));
+              const myTurn = pending.filter(canActOn);
+              const waiting = pending.filter(s => !canActOn(s));
+              const approved = lectureSchedules.filter(s => s.approved_by_head && s.approved_by_vice_dean && s.approved_by_dean);
+
+              const StageBadge = ({ s }: { s: any }) => {
+                const st = stageOf(s);
+                return (
+                  <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-extrabold text-white bg-gradient-to-r ${st.color} shadow-sm`}>
+                    <Calendar className="w-3 h-3" />
+                    {isRtl ? st.labelAr : st.labelEn}
+                  </span>
+                );
+              };
+
+              const goTo = (s: any) => {
+                const slug = (isRtl ? s.title_ar : s.title_en) || "schedule";
+                const safe = String(slug).toLowerCase().replace(/[^a-z0-9\u0600-\u06FF]+/g, "-").replace(/^-+|-+$/g, "");
+                navigate(`/schedule/${safe}-${s.id}`);
+              };
+
+              const SchedTable = ({ list, showAction }: { list: any[]; showAction: boolean }) => (
+                <div className="overflow-x-auto rounded-xl border border-border bg-card">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>{isRtl ? "العنوان" : "Title"}</TableHead>
+                        <TableHead className="hidden sm:table-cell">{isRtl ? "التاريخ" : "Date"}</TableHead>
+                        <TableHead>{isRtl ? "الحالة" : "Status"}</TableHead>
+                        <TableHead className="text-end">{isRtl ? "الإجراء" : "Action"}</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {list.map(s => {
+                        const course = courses.find(c => c.id === s.course_id);
+                        const act = canActOn(s);
+                        return (
+                          <TableRow key={s.id}>
+                            <TableCell className="font-bold">
+                              <div className="flex flex-col">
+                                <span>{isRtl ? s.title_ar : s.title_en}</span>
+                                {course && (
+                                  <span className="text-[10px] text-muted-foreground font-medium">
+                                    {isRtl ? course.title_ar : course.title_en}
+                                  </span>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="hidden sm:table-cell text-xs text-muted-foreground">
+                              {s.scheduled_date ? new Date(s.scheduled_date).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : "-"}
+                              {s.start_time ? ` · ${s.start_time}` : ""}
+                            </TableCell>
+                            <TableCell><StageBadge s={s} /></TableCell>
+                            <TableCell className="text-end">
+                              <Button
+                                size="sm"
+                                onClick={() => goTo(s)}
+                                className={showAction && act
+                                  ? "bg-gradient-to-r from-emerald-500 to-green-600 text-white font-extrabold shadow hover:shadow-lg"
+                                  : ""}
+                                variant={showAction && act ? "default" : "outline"}
+                              >
+                                {showAction && act
+                                  ? (isRtl ? "اعتماد الآن" : "Approve Now")
+                                  : (isRtl ? "عرض" : "View")}
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              );
+
+              return (
+                <>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-primary" />
+                      {isRtl ? "اعتماد الجداول" : "Schedules Approval"}
+                    </h2>
+                    <Badge variant="secondary" className="font-extrabold">
+                      {isRtl ? `بانتظار اعتمادك: ${myTurn.length}` : `Awaiting you: ${myTurn.length}`}
+                    </Badge>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-5">
+                    <Card className="bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/30">
+                      <CardContent className="p-3 sm:p-4 text-center">
+                        <div className="text-2xl sm:text-3xl font-black">{myTurn.length}</div>
+                        <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "بانتظار اعتمادك" : "Your turn"}</div>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/30">
+                      <CardContent className="p-3 sm:p-4 text-center">
+                        <div className="text-2xl sm:text-3xl font-black">{waiting.length}</div>
+                        <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "قيد المراحل الأخرى" : "In other stages"}</div>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30">
+                      <CardContent className="p-3 sm:p-4 text-center">
+                        <div className="text-2xl sm:text-3xl font-black">{approved.length}</div>
+                        <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "معتمد بالكامل" : "Fully approved"}</div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <div className="mb-6">
+                    <h3 className="text-sm font-extrabold text-foreground mb-2 flex items-center gap-1.5">
+                      <CheckCircle className="w-4 h-4 text-emerald-600" />
+                      {isRtl ? "بانتظار اعتمادك" : "Awaiting your approval"}
+                    </h3>
+                    {myTurn.length === 0 ? (
+                      <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                        {isRtl ? "لا توجد جداول تنتظر اعتمادك حالياً" : "No schedules awaiting your approval right now"}
+                      </div>
+                    ) : (
+                      <SchedTable list={myTurn} showAction />
+                    )}
+                  </div>
+
+                  <div className="mb-6">
+                    <h3 className="text-sm font-extrabold text-foreground mb-2 flex items-center gap-1.5">
+                      <Clock className="w-4 h-4 text-amber-600" />
+                      {isRtl ? "في انتظار مراحل أخرى" : "Pending in other stages"}
+                    </h3>
+                    {waiting.length === 0 ? (
+                      <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                        {isRtl ? "لا يوجد" : "None"}
+                      </div>
+                    ) : (
+                      <SchedTable list={waiting} showAction={false} />
+                    )}
+                  </div>
+
+                  {approved.length > 0 && (
+                    <div className="mb-2">
+                      <h3 className="text-sm font-extrabold text-foreground mb-2 flex items-center gap-1.5">
+                        <CheckCheck className="w-4 h-4 text-blue-600" />
+                        {isRtl ? "معتمد بالكامل" : "Fully approved"}
+                      </h3>
+                      <SchedTable list={approved} showAction={false} />
+                    </div>
+                  )}
+                </>
+              );
+            })()}
+          </TabsContent>
+
           {/* Quiz Results */}
           <TabsContent value="quizresults" id="section-quizresults" dir={isRtl ? "rtl" : "ltr"}>
             <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>

@@ -11,10 +11,10 @@ import BackButton from "@/components/BackButton";
 
 type StatusKey = "live" | "scheduled" | "ended";
 
-const STATUS_META: Record<StatusKey, { ar: string; en: string; Icon: any; color: string; bg: string }> = {
-  live:      { ar: "البث الحالي",  en: "Live Now",   Icon: Radio,        color: "text-red-600",   bg: "bg-red-50 dark:bg-red-950/20 border-red-200" },
-  scheduled: { ar: "البث المجدول", en: "Scheduled",  Icon: Calendar,     color: "text-blue-600",  bg: "bg-blue-50 dark:bg-blue-950/20 border-blue-200" },
-  ended:     { ar: "البث المنتهي", en: "Ended",      Icon: CheckCircle,  color: "text-gray-600",  bg: "bg-gray-50 dark:bg-gray-950/20 border-gray-200" },
+const STATUS_META: Record<StatusKey, { ar: string; en: string; Icon: any; color: string; bg: string; gradient: string; ring: string; shadow: string; action: { ar: string; en: string } }> = {
+  live:      { ar: "البث الحالي",  en: "Live Now",   Icon: Radio,        color: "text-red-600",   bg: "bg-red-50 dark:bg-red-950/20 border-red-200",   gradient: "from-red-500 via-rose-500 to-red-600",      ring: "ring-red-300/50",    shadow: "shadow-red-500/40",   action: { ar: "دخول وتفاعل",   en: "Join & Chat" } },
+  scheduled: { ar: "البث المجدول", en: "Scheduled",  Icon: Calendar,     color: "text-blue-600",  bg: "bg-blue-50 dark:bg-blue-950/20 border-blue-200", gradient: "from-blue-500 via-sky-500 to-indigo-600",   ring: "ring-blue-300/50",   shadow: "shadow-blue-500/30",  action: { ar: "دخول وتعليق",   en: "Enter & Comment" } },
+  ended:     { ar: "البث المنتهي", en: "Ended",      Icon: CheckCircle,  color: "text-slate-600", bg: "bg-slate-50 dark:bg-slate-950/20 border-slate-300", gradient: "from-slate-600 via-slate-700 to-slate-800", ring: "ring-slate-300/50",  shadow: "shadow-slate-700/30", action: { ar: "مشاهدة وتعليق", en: "Replay & Comment" } },
 };
 
 const LeadershipStreamsByStatus = () => {

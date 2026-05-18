@@ -1442,12 +1442,12 @@ const LeadershipDashboard = () => {
                   {isRtl ? "جدول البث المباشر" : "Live Stream Schedule"}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-0">
+              <CardContent className="p-0 overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>{isRtl ? "العنوان" : "Title"}</TableHead>
-                      <TableHead>{isRtl ? "الموعد" : "Date & Time"}</TableHead>
+                      <TableHead className="hidden sm:table-cell">{isRtl ? "الموعد" : "Date & Time"}</TableHead>
                       <TableHead>{isRtl ? "الحالة" : "Status"}</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -1461,8 +1461,8 @@ const LeadershipDashboard = () => {
                     ) : (
                       scheduledStreams.map(s => (
                         <TableRow key={s.id}>
-                          <TableCell className="font-medium">{isRtl ? s.title_ar : s.title_en}</TableCell>
-                          <TableCell>{s.scheduled_at ? new Date(s.scheduled_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US') : '-'}</TableCell>
+                          <TableCell className="font-medium max-w-[180px] sm:max-w-none truncate">{isRtl ? s.title_ar : s.title_en}</TableCell>
+                          <TableCell className="hidden sm:table-cell">{s.scheduled_at ? new Date(s.scheduled_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US') : '-'}</TableCell>
                           <TableCell><Badge variant="outline">{isRtl ? "مجدول" : "Scheduled"}</Badge></TableCell>
                         </TableRow>
                       ))

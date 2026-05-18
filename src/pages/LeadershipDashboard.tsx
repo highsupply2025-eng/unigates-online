@@ -1480,14 +1480,14 @@ const LeadershipDashboard = () => {
                   {isRtl ? "جدول المحاضرات" : "Lecture Schedule"}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-0">
+              <CardContent className="p-0 overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>{isRtl ? "المحاضرة" : "Lecture"}</TableHead>
-                      <TableHead>{isRtl ? "رقم الحلقة" : "Episode #"}</TableHead>
+                      <TableHead className="hidden sm:table-cell">{isRtl ? "رقم الحلقة" : "Episode #"}</TableHead>
                       <TableHead>{isRtl ? "المستوى" : "Level"}</TableHead>
-                      <TableHead>{isRtl ? "المدة (دقائق)" : "Duration (min)"}</TableHead>
+                      <TableHead className="hidden sm:table-cell">{isRtl ? "المدة (دقائق)" : "Duration (min)"}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1500,10 +1500,10 @@ const LeadershipDashboard = () => {
                     ) : (
                       episodes.slice(0, 30).map(e => (
                         <TableRow key={e.id}>
-                          <TableCell className="font-medium">{isRtl ? e.title_ar : e.title_en}</TableCell>
-                          <TableCell>{e.episode_number}</TableCell>
+                          <TableCell className="font-medium max-w-[180px] sm:max-w-none truncate">{isRtl ? e.title_ar : e.title_en}</TableCell>
+                          <TableCell className="hidden sm:table-cell">{e.episode_number}</TableCell>
                           <TableCell><Badge variant="outline">{e.level_number}</Badge></TableCell>
-                          <TableCell>{e.duration_minutes || "-"}</TableCell>
+                          <TableCell className="hidden sm:table-cell">{e.duration_minutes || "-"}</TableCell>
                         </TableRow>
                       ))
                     )}

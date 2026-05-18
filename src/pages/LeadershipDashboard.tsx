@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Globe, ArrowLeft, ArrowRight, Loader2, Users, BookOpen, Calendar,
   Video, FileText, Download, BarChart3, Clock, CheckCircle, AlertCircle,
-  GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, Menu, Home, Bell, CheckCheck, XCircle, Award
+  GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, Menu, Home, Bell, CheckCheck, XCircle, Award, ShieldCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,7 +34,9 @@ const LeadershipDashboard = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string>("");
   const [userRole, setUserRole] = useState("");
+  const [subRole, setSubRole] = useState<string>("");
   const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
   const [institutionName, setInstitutionName] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
@@ -105,6 +107,11 @@ const LeadershipDashboard = () => {
       }
 
       setUserRole(profile.role);
+      setUserId(user.id);
+      try {
+        const { data: sr } = await (supabase.rpc as any)("get_user_sub_role", { _user_id: user.id });
+        setSubRole((sr as any) || "");
+      } catch { /* noop */ }
 
       // Determine institution from college_members
       const { data: membership } = await supabase
@@ -312,6 +319,7 @@ const LeadershipDashboard = () => {
                      livestreams: { ar: "البث المباشر", en: "Live Streams" },
                      lectures: { ar: "المحاضرات", en: "Lectures" },
                      quizresults: { ar: "نتائج الاختبارات", en: "Quiz Results" },
+                     quizzesonline: { ar: "الاختبارات اونلاين", en: "Online Quizzes" },
                      ratings: { ar: "التقييمات", en: "Ratings" },
                      assignments: { ar: "التكليفات", en: "Assignments" },
                      schedule: { ar: "الجداول", en: "Schedules" },
@@ -333,6 +341,7 @@ const LeadershipDashboard = () => {
                 { key: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, onClick: () => setActiveTab("overview"), active: activeTab === "overview" },
                 { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, onClick: () => setActiveTab("livestreams"), active: activeTab === "livestreams" },
                 { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, onClick: () => setActiveTab("lectures"), active: activeTab === "lectures" },
+                { key: "quizzesonline", label: isRtl ? "الاختبارات اونلاين" : "Online Quizzes", Icon: ShieldCheck, onClick: () => setActiveTab("quizzesonline"), active: activeTab === "quizzesonline" },
                 { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, onClick: () => setActiveTab("quizresults"), active: activeTab === "quizresults" },
                 { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, onClick: () => setActiveTab("ratings"), active: activeTab === "ratings" },
                 { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, onClick: () => setActiveTab("assignments"), active: activeTab === "assignments" },
@@ -352,6 +361,7 @@ const LeadershipDashboard = () => {
             <TabsTrigger value="livestreams">livestreams</TabsTrigger>
             <TabsTrigger value="lectures">lectures</TabsTrigger>
             <TabsTrigger value="quizresults">quizresults</TabsTrigger>
+            <TabsTrigger value="quizzesonline">quizzesonline</TabsTrigger>
             <TabsTrigger value="ratings">ratings</TabsTrigger>
             <TabsTrigger value="assignments">assignments</TabsTrigger>
             <TabsTrigger value="schedule">schedule</TabsTrigger>
@@ -680,6 +690,182 @@ const LeadershipDashboard = () => {
                   })}
               </div>
             )}
+          </TabsContent>
+
+          {/* Online Quizzes - approval workflow */}
+          <TabsContent value="quizzesonline" id="section-quizzesonline" dir={isRtl ? "rtl" : "ltr"}>
+            {(() => {
+              const vdColumn =
+                subRole === "vice_dean_students" ? "students"
+                : subRole === "vice_dean_postgrad" ? "postgrad"
+                : subRole === "vice_dean_environment" ? "environment"
+                : "";
+
+              const stageOf = (q: any) => {
+                if (q.rejected_by) return { key: "rejected", labelAr: "مرفوض", labelEn: "Rejected", color: "from-red-500 to-rose-600" };
+                if (!q.approved_by_lecturer) return { key: "lecturer", labelAr: "بانتظار المحاضر", labelEn: "Awaiting Lecturer", color: "from-slate-400 to-slate-500" };
+                if (!q.approved_by_head) return { key: "head", labelAr: "بانتظار رئيس القسم", labelEn: "Awaiting Department Head", color: "from-amber-500 to-orange-600" };
+                const vdAll = q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad && q.approved_by_vice_dean_environment;
+                if (!vdAll) return { key: "vd", labelAr: "بانتظار وكلاء الكلية", labelEn: "Awaiting Vice Deans", color: "from-blue-500 to-indigo-600" };
+                if (!q.approved_by_dean) return { key: "dean", labelAr: "بانتظار العميد", labelEn: "Awaiting Dean", color: "from-violet-500 to-purple-600" };
+                return { key: "done", labelAr: "معتمد بالكامل", labelEn: "Fully Approved", color: "from-emerald-500 to-green-600" };
+              };
+
+              const canActOn = (q: any) => {
+                if (q.rejected_by) return false;
+                if (userRole === "department_head") return q.approved_by_lecturer && !q.approved_by_head;
+                if (userRole === "vice_dean" && vdColumn) {
+                  if (!q.approved_by_head) return false;
+                  return !q[`approved_by_vice_dean_${vdColumn}`];
+                }
+                if (userRole === "dean") {
+                  const vdAll = q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad && q.approved_by_vice_dean_environment;
+                  return vdAll && !q.approved_by_dean;
+                }
+                return false;
+              };
+
+              const pending = quizzes.filter(q => !q.rejected_by && !(q.approved_by_lecturer && q.approved_by_head && q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad && q.approved_by_vice_dean_environment && q.approved_by_dean));
+              const myTurn = pending.filter(canActOn);
+              const waiting = pending.filter(q => !canActOn(q));
+              const approved = quizzes.filter(q => q.approved_by_lecturer && q.approved_by_head && q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad && q.approved_by_vice_dean_environment && q.approved_by_dean);
+
+              const StageBadge = ({ q }: { q: any }) => {
+                const s = stageOf(q);
+                return (
+                  <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-extrabold text-white bg-gradient-to-r ${s.color} shadow-sm`}>
+                    <ShieldCheck className="w-3 h-3" />
+                    {isRtl ? s.labelAr : s.labelEn}
+                  </span>
+                );
+              };
+
+              const QuizTable = ({ list, showAction }: { list: any[]; showAction: boolean }) => (
+                <div className="overflow-x-auto rounded-xl border border-border bg-card">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>{isRtl ? "الاختبار" : "Quiz"}</TableHead>
+                        <TableHead className="hidden sm:table-cell">{isRtl ? "تاريخ الإنشاء" : "Created"}</TableHead>
+                        <TableHead>{isRtl ? "الحالة" : "Status"}</TableHead>
+                        <TableHead className="text-end">{isRtl ? "الإجراء" : "Action"}</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {list.map(q => {
+                        const course = courses.find(c => c.id === q.course_id);
+                        const act = canActOn(q);
+                        return (
+                          <TableRow key={q.id}>
+                            <TableCell className="font-bold">
+                              <div className="flex flex-col">
+                                <span>{isRtl ? q.title_ar : q.title_en}</span>
+                                {course && (
+                                  <span className="text-[10px] text-muted-foreground font-medium">
+                                    {isRtl ? course.title_ar : course.title_en}
+                                  </span>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="hidden sm:table-cell text-xs text-muted-foreground">
+                              {new Date(q.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}
+                            </TableCell>
+                            <TableCell><StageBadge q={q} /></TableCell>
+                            <TableCell className="text-end">
+                              <Button
+                                size="sm"
+                                onClick={() => navigate(`/quiz-results/${q.id}`)}
+                                className={showAction && act
+                                  ? "bg-gradient-to-r from-emerald-500 to-green-600 text-white font-extrabold shadow hover:shadow-lg"
+                                  : ""}
+                                variant={showAction && act ? "default" : "outline"}
+                              >
+                                {showAction && act
+                                  ? (isRtl ? "اعتماد الآن" : "Approve Now")
+                                  : (isRtl ? "عرض" : "View")}
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              );
+
+              return (
+                <>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+                      <ShieldCheck className="w-5 h-5 text-primary" />
+                      {isRtl ? "الاختبارات اونلاين" : "Online Quizzes"}
+                    </h2>
+                    <Badge variant="secondary" className="font-extrabold">
+                      {isRtl ? `بانتظار اعتمادك: ${myTurn.length}` : `Awaiting you: ${myTurn.length}`}
+                    </Badge>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-5">
+                    <Card className="bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/30">
+                      <CardContent className="p-3 sm:p-4 text-center">
+                        <div className="text-2xl sm:text-3xl font-black">{myTurn.length}</div>
+                        <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "بانتظار اعتمادك" : "Your turn"}</div>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/30">
+                      <CardContent className="p-3 sm:p-4 text-center">
+                        <div className="text-2xl sm:text-3xl font-black">{waiting.length}</div>
+                        <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "قيد المراحل الأخرى" : "In other stages"}</div>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30">
+                      <CardContent className="p-3 sm:p-4 text-center">
+                        <div className="text-2xl sm:text-3xl font-black">{approved.length}</div>
+                        <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "معتمد بالكامل" : "Fully approved"}</div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <div className="mb-6">
+                    <h3 className="text-sm font-extrabold text-foreground mb-2 flex items-center gap-1.5">
+                      <CheckCircle className="w-4 h-4 text-emerald-600" />
+                      {isRtl ? "بانتظار اعتمادك" : "Awaiting your approval"}
+                    </h3>
+                    {myTurn.length === 0 ? (
+                      <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                        {isRtl ? "لا توجد اختبارات تنتظر اعتمادك حالياً" : "No quizzes awaiting your approval right now"}
+                      </div>
+                    ) : (
+                      <QuizTable list={myTurn} showAction />
+                    )}
+                  </div>
+
+                  <div className="mb-6">
+                    <h3 className="text-sm font-extrabold text-foreground mb-2 flex items-center gap-1.5">
+                      <Clock className="w-4 h-4 text-amber-600" />
+                      {isRtl ? "في انتظار مراحل أخرى" : "Pending in other stages"}
+                    </h3>
+                    {waiting.length === 0 ? (
+                      <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                        {isRtl ? "لا يوجد" : "None"}
+                      </div>
+                    ) : (
+                      <QuizTable list={waiting} showAction={false} />
+                    )}
+                  </div>
+
+                  {approved.length > 0 && (
+                    <div className="mb-2">
+                      <h3 className="text-sm font-extrabold text-foreground mb-2 flex items-center gap-1.5">
+                        <Award className="w-4 h-4 text-blue-600" />
+                        {isRtl ? "معتمد بالكامل" : "Fully approved"}
+                      </h3>
+                      <QuizTable list={approved} showAction={false} />
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </TabsContent>
 
           {/* Quiz Results */}

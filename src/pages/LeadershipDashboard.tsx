@@ -440,29 +440,36 @@ const LeadershipDashboard = () => {
 
             <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
               <button onClick={() => navigate("/leadership/streams/live")} className={isRtl ? "text-right" : "text-left"}>
-                <Card className="bg-red-50 dark:bg-red-950/20 border-red-200 hover:shadow-md transition-shadow h-full">
-                  <CardContent className="p-3 sm:p-4 text-center">
-                    <Radio className="w-5 h-5 mx-auto mb-1 text-red-600" />
-                    <p className="text-xl sm:text-2xl font-black text-red-600">{liveNow.length}</p>
-                    <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "بث حالي" : "Live Now"}</p>
+                <Card className="relative overflow-hidden bg-gradient-to-br from-red-500 via-rose-500 to-red-600 border-2 border-red-400/60 shadow-xl shadow-red-500/30 hover:shadow-2xl hover:shadow-red-500/50 hover:-translate-y-1 transition-all h-full">
+                  <div className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-white animate-ping" />
+                  <CardContent className="p-4 sm:p-5 text-center relative">
+                    <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
+                      <Radio className="w-7 h-7 text-white" strokeWidth={2.8} />
+                    </div>
+                    <p className="text-3xl sm:text-4xl font-black text-white drop-shadow-md">{liveNow.length}</p>
+                    <p className="text-xs sm:text-sm font-extrabold text-white/95 tracking-wide mt-1">{isRtl ? "بث حالي" : "Live Now"}</p>
                   </CardContent>
                 </Card>
               </button>
               <button onClick={() => navigate("/leadership/streams/scheduled")} className={isRtl ? "text-right" : "text-left"}>
-                <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 hover:shadow-md transition-shadow h-full">
-                  <CardContent className="p-3 sm:p-4 text-center">
-                    <Calendar className="w-5 h-5 mx-auto mb-1 text-blue-600" />
-                    <p className="text-xl sm:text-2xl font-black text-blue-600">{scheduledStreams.length}</p>
-                    <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "مجدول" : "Scheduled"}</p>
+                <Card className="relative overflow-hidden bg-gradient-to-br from-blue-500 via-sky-500 to-indigo-600 border-2 border-blue-400/60 shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/50 hover:-translate-y-1 transition-all h-full">
+                  <CardContent className="p-4 sm:p-5 text-center relative">
+                    <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
+                      <Calendar className="w-7 h-7 text-white" strokeWidth={2.8} />
+                    </div>
+                    <p className="text-3xl sm:text-4xl font-black text-white drop-shadow-md">{scheduledStreams.length}</p>
+                    <p className="text-xs sm:text-sm font-extrabold text-white/95 tracking-wide mt-1">{isRtl ? "مجدول" : "Scheduled"}</p>
                   </CardContent>
                 </Card>
               </button>
               <button onClick={() => navigate("/leadership/streams/ended")} className={isRtl ? "text-right" : "text-left"}>
-                <Card className="bg-gray-50 dark:bg-gray-950/20 border-gray-200 hover:shadow-md transition-shadow h-full">
-                  <CardContent className="p-3 sm:p-4 text-center">
-                    <CheckCircle className="w-5 h-5 mx-auto mb-1 text-gray-600" />
-                    <p className="text-xl sm:text-2xl font-black text-gray-600">{liveStreams.filter(s => s.status === "ended").length}</p>
-                    <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "منتهي" : "Ended"}</p>
+                <Card className="relative overflow-hidden bg-gradient-to-br from-slate-600 via-slate-700 to-slate-800 border-2 border-slate-500/60 shadow-xl shadow-slate-700/30 hover:shadow-2xl hover:shadow-slate-700/50 hover:-translate-y-1 transition-all h-full">
+                  <CardContent className="p-4 sm:p-5 text-center relative">
+                    <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center ring-2 ring-white/30">
+                      <CheckCircle className="w-7 h-7 text-white" strokeWidth={2.8} />
+                    </div>
+                    <p className="text-3xl sm:text-4xl font-black text-white drop-shadow-md">{liveStreams.filter(s => s.status === "ended").length}</p>
+                    <p className="text-xs sm:text-sm font-extrabold text-white/95 tracking-wide mt-1">{isRtl ? "منتهي" : "Ended"}</p>
                   </CardContent>
                 </Card>
               </button>
@@ -546,21 +553,21 @@ const LeadershipDashboard = () => {
                           <TableCell className="py-4">
                             <Button
                               size="sm"
-                              className={`font-bold gap-1.5 shadow-sm ${
+                              className={`font-extrabold gap-1.5 shadow-md text-[13px] ${
                                 stream.status === "live"
-                                  ? "bg-red-500 hover:bg-red-600 text-white shadow-red-500/30"
+                                  ? "bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white shadow-red-500/40 ring-2 ring-red-300/40"
                                   : stream.status === "scheduled"
-                                    ? "bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30"
-                                    : "bg-muted hover:bg-muted/80 text-foreground border border-border"
+                                    ? "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-blue-500/30"
+                                    : "bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white shadow-slate-700/30"
                               }`}
                               onClick={() => navigate(`/stream/${stream.id}`)}
                             >
-                              <Eye className="w-4 h-4" />
+                              <Eye className="w-4 h-4" strokeWidth={2.6} />
                               {stream.status === "live"
-                                ? (isRtl ? "حضور" : "Join")
+                                ? (isRtl ? "دخول وتفاعل" : "Join & Chat")
                                 : stream.status === "scheduled"
-                                  ? (isRtl ? "تفاصيل" : "Details")
-                                  : (isRtl ? "عرض" : "View")}
+                                  ? (isRtl ? "دخول وتعليق" : "Enter & Comment")
+                                  : (isRtl ? "مشاهدة وتعليق" : "Replay & Comment")}
                             </Button>
                           </TableCell>
                         </TableRow>

@@ -11,10 +11,10 @@ import BackButton from "@/components/BackButton";
 
 type StatusKey = "live" | "scheduled" | "ended";
 
-const STATUS_META: Record<StatusKey, { ar: string; en: string; Icon: any; color: string; bg: string }> = {
-  live:      { ar: "البث الحالي",  en: "Live Now",   Icon: Radio,        color: "text-red-600",   bg: "bg-red-50 dark:bg-red-950/20 border-red-200" },
-  scheduled: { ar: "البث المجدول", en: "Scheduled",  Icon: Calendar,     color: "text-blue-600",  bg: "bg-blue-50 dark:bg-blue-950/20 border-blue-200" },
-  ended:     { ar: "البث المنتهي", en: "Ended",      Icon: CheckCircle,  color: "text-gray-600",  bg: "bg-gray-50 dark:bg-gray-950/20 border-gray-200" },
+const STATUS_META: Record<StatusKey, { ar: string; en: string; Icon: any; color: string; bg: string; gradient: string; ring: string; shadow: string; action: { ar: string; en: string } }> = {
+  live:      { ar: "البث الحالي",  en: "Live Now",   Icon: Radio,        color: "text-red-600",   bg: "bg-red-50 dark:bg-red-950/20 border-red-200",   gradient: "from-red-500 via-rose-500 to-red-600",      ring: "ring-red-300/50",    shadow: "shadow-red-500/40",   action: { ar: "دخول وتفاعل",   en: "Join & Chat" } },
+  scheduled: { ar: "البث المجدول", en: "Scheduled",  Icon: Calendar,     color: "text-blue-600",  bg: "bg-blue-50 dark:bg-blue-950/20 border-blue-200", gradient: "from-blue-500 via-sky-500 to-indigo-600",   ring: "ring-blue-300/50",   shadow: "shadow-blue-500/30",  action: { ar: "دخول وتعليق",   en: "Enter & Comment" } },
+  ended:     { ar: "البث المنتهي", en: "Ended",      Icon: CheckCircle,  color: "text-slate-600", bg: "bg-slate-50 dark:bg-slate-950/20 border-slate-300", gradient: "from-slate-600 via-slate-700 to-slate-800", ring: "ring-slate-300/50",  shadow: "shadow-slate-700/30", action: { ar: "مشاهدة وتعليق", en: "Replay & Comment" } },
 };
 
 const LeadershipStreamsByStatus = () => {
@@ -117,18 +117,18 @@ const LeadershipStreamsByStatus = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/10 to-primary/5">
+      <header className={`border-b-2 border-border px-3 sm:px-6 py-4 sm:py-5 bg-gradient-to-r ${meta.gradient} ${meta.shadow} shadow-xl`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
           <BackButton />
-          <div className="flex items-center gap-2">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${meta.bg}`}>
-              <Icon className={`w-5 h-5 ${meta.color}`} />
+          <div className="flex items-center gap-3">
+            <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40 ${key === "live" ? "animate-pulse" : ""}`}>
+              <Icon className="w-7 h-7 sm:w-8 sm:h-8 text-white" strokeWidth={2.8} />
             </div>
             <div className={isRtl ? "text-right" : "text-left"}>
-              <h1 className="text-base sm:text-lg font-bold text-foreground leading-tight">
+              <h1 className="text-lg sm:text-2xl font-black text-white leading-tight drop-shadow-md">
                 {isRtl ? meta.ar : meta.en}
               </h1>
-              <p className="text-[11px] sm:text-xs text-muted-foreground">
+              <p className="text-xs sm:text-sm font-bold text-white/95">
                 {isRtl ? `${streams.length} بث` : `${streams.length} streams`}
               </p>
             </div>
@@ -138,8 +138,8 @@ const LeadershipStreamsByStatus = () => {
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
         <div className="flex items-center justify-between mb-4 flex-row-reverse">
-          <h2 className="text-lg font-bold">{isRtl ? meta.ar : meta.en}</h2>
-          <Button size="sm" variant="outline" onClick={exportPDF} className="gap-1.5" disabled={!streams.length}>
+          <h2 className={`text-xl sm:text-2xl font-black ${meta.color}`}>{isRtl ? meta.ar : meta.en}</h2>
+          <Button size="sm" variant="outline" onClick={exportPDF} className="gap-1.5 font-bold" disabled={!streams.length}>
             <Download className="w-4 h-4" />
             {isRtl ? "تحميل PDF" : "Export PDF"}
           </Button>
@@ -188,15 +188,11 @@ const LeadershipStreamsByStatus = () => {
                         <TableCell>
                           <Button
                             size="sm"
-                            variant={key === "live" ? "destructive" : "outline"}
+                            className={`bg-gradient-to-r ${meta.gradient} hover:opacity-90 text-white font-extrabold shadow-md ${meta.shadow} ${key === "live" ? `ring-2 ${meta.ring}` : ""}`}
                             onClick={() => navigate(`/stream/${s.id}`)}
                           >
-                            <Eye className="w-4 h-4 me-1" />
-                            {key === "live"
-                              ? (isRtl ? "حضور" : "Join")
-                              : key === "scheduled"
-                                ? (isRtl ? "تفاصيل" : "Details")
-                                : (isRtl ? "عرض" : "View")}
+                            <Eye className="w-4 h-4 me-1" strokeWidth={2.6} />
+                            {isRtl ? meta.action.ar : meta.action.en}
                           </Button>
                         </TableCell>
                       </TableRow>

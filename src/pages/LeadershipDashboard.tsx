@@ -52,6 +52,7 @@ const LeadershipDashboard = () => {
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [quizSubmissions, setQuizSubmissions] = useState<any[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [lectureSchedules, setLectureSchedules] = useState<any[]>([]);
 
   useEffect(() => {
     checkAccess();

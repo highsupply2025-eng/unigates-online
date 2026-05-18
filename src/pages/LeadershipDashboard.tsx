@@ -107,6 +107,11 @@ const LeadershipDashboard = () => {
       }
 
       setUserRole(profile.role);
+      setUserId(user.id);
+      try {
+        const { data: sr } = await (supabase.rpc as any)("get_user_sub_role", { _user_id: user.id });
+        setSubRole((sr as any) || "");
+      } catch { /* noop */ }
 
       // Determine institution from college_members
       const { data: membership } = await supabase

@@ -323,6 +323,7 @@ const LeadershipDashboard = () => {
                      lectures: { ar: "المحاضرات", en: "Lectures" },
                      quizresults: { ar: "نتائج الاختبارات", en: "Quiz Results" },
                      quizzesonline: { ar: "الاختبارات اونلاين", en: "Online Quizzes" },
+                     schedulesapproval: { ar: "اعتماد الجداول", en: "Schedules Approval" },
                      ratings: { ar: "التقييمات", en: "Ratings" },
                      assignments: { ar: "التكليفات", en: "Assignments" },
                      schedule: { ar: "الجداول", en: "Schedules" },

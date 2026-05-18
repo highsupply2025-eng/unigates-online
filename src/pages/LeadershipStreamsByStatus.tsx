@@ -188,15 +188,11 @@ const LeadershipStreamsByStatus = () => {
                         <TableCell>
                           <Button
                             size="sm"
-                            variant={key === "live" ? "destructive" : "outline"}
+                            className={`bg-gradient-to-r ${meta.gradient} hover:opacity-90 text-white font-extrabold shadow-md ${meta.shadow} ${key === "live" ? `ring-2 ${meta.ring}` : ""}`}
                             onClick={() => navigate(`/stream/${s.id}`)}
                           >
-                            <Eye className="w-4 h-4 me-1" />
-                            {key === "live"
-                              ? (isRtl ? "حضور" : "Join")
-                              : key === "scheduled"
-                                ? (isRtl ? "تفاصيل" : "Details")
-                                : (isRtl ? "عرض" : "View")}
+                            <Eye className="w-4 h-4 me-1" strokeWidth={2.6} />
+                            {isRtl ? meta.action.ar : meta.action.en}
                           </Button>
                         </TableCell>
                       </TableRow>

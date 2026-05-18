@@ -553,21 +553,21 @@ const LeadershipDashboard = () => {
                           <TableCell className="py-4">
                             <Button
                               size="sm"
-                              className={`font-bold gap-1.5 shadow-sm ${
+                              className={`font-extrabold gap-1.5 shadow-md text-[13px] ${
                                 stream.status === "live"
-                                  ? "bg-red-500 hover:bg-red-600 text-white shadow-red-500/30"
+                                  ? "bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white shadow-red-500/40 ring-2 ring-red-300/40"
                                   : stream.status === "scheduled"
-                                    ? "bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30"
-                                    : "bg-muted hover:bg-muted/80 text-foreground border border-border"
+                                    ? "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-blue-500/30"
+                                    : "bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white shadow-slate-700/30"
                               }`}
                               onClick={() => navigate(`/stream/${stream.id}`)}
                             >
-                              <Eye className="w-4 h-4" />
+                              <Eye className="w-4 h-4" strokeWidth={2.6} />
                               {stream.status === "live"
-                                ? (isRtl ? "حضور" : "Join")
+                                ? (isRtl ? "دخول وتفاعل" : "Join & Chat")
                                 : stream.status === "scheduled"
-                                  ? (isRtl ? "تفاصيل" : "Details")
-                                  : (isRtl ? "عرض" : "View")}
+                                  ? (isRtl ? "دخول وتعليق" : "Enter & Comment")
+                                  : (isRtl ? "مشاهدة وتعليق" : "Replay & Comment")}
                             </Button>
                           </TableCell>
                         </TableRow>

@@ -307,19 +307,20 @@ const LeadershipDashboard = () => {
               })()}</h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
                 {(() => {
-                  const map: Record<string, { ar: string; en: string }> = {
-                    overview: { ar: "الرئيسية", en: "Home" },
-                    livestreams: { ar: "البث المباشر", en: "Live Streams" },
-                    quizresults: { ar: "نتائج الاختبارات", en: "Quiz Results" },
-                    ratings: { ar: "التقييمات", en: "Ratings" },
-                    assignments: { ar: "التكليفات", en: "Assignments" },
-                    schedule: { ar: "الجداول", en: "Schedules" },
-                    files: { ar: "الملفات", en: "Files" },
-                    notifications: { ar: "الإشعارات", en: "Notifications" },
-                  };
-                  const cur = map[activeTab] ?? map.overview;
-                  return isRtl ? cur.ar : cur.en;
-                })()}
+                   const map: Record<string, { ar: string; en: string }> = {
+                     overview: { ar: "الرئيسية", en: "Home" },
+                     livestreams: { ar: "البث المباشر", en: "Live Streams" },
+                     lectures: { ar: "المحاضرات", en: "Lectures" },
+                     quizresults: { ar: "نتائج الاختبارات", en: "Quiz Results" },
+                     ratings: { ar: "التقييمات", en: "Ratings" },
+                     assignments: { ar: "التكليفات", en: "Assignments" },
+                     schedule: { ar: "الجداول", en: "Schedules" },
+                     files: { ar: "الملفات", en: "Files" },
+                     notifications: { ar: "الإشعارات", en: "Notifications" },
+                   };
+                   const cur = map[activeTab] ?? map.overview;
+                   return isRtl ? cur.ar : cur.en;
+                 })()}
               </p>
             </div>
           </div>

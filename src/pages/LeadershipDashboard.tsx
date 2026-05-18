@@ -34,7 +34,9 @@ const LeadershipDashboard = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string>("");
   const [userRole, setUserRole] = useState("");
+  const [subRole, setSubRole] = useState<string>("");
   const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
   const [institutionName, setInstitutionName] = useState("");
   const [activeTab, setActiveTab] = useState("overview");

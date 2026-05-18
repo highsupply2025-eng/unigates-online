@@ -1207,35 +1207,37 @@ const LeadershipDashboard = () => {
                         <Progress value={avgScore} className="h-2" />
                       </div>
                     </div>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>{isRtl ? "الطالب" : "Student"}</TableHead>
-                          <TableHead>{isRtl ? "الدرجة" : "Score"}</TableHead>
-                          <TableHead>{isRtl ? "النسبة" : "Percentage"}</TableHead>
-                          <TableHead>{isRtl ? "التاريخ" : "Date"}</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {subs.map(sub => {
-                          const pct = Math.round(((sub.score || 0) / Math.max(sub.total_points || 1, 1)) * 100);
-                          return (
-                            <TableRow key={sub.id}>
-                              <TableCell className="text-sm">{sub.student_id?.slice(0, 8)}...</TableCell>
-                              <TableCell className="font-bold">{sub.score || 0}/{sub.total_points || 0}</TableCell>
-                              <TableCell>
-                                <Badge variant={pct >= 50 ? "default" : "destructive"}>
-                                  {pct}%
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-sm text-muted-foreground">
-                                {new Date(sub.submitted_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
+                    <div className="overflow-x-auto -mx-2 sm:mx-0">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>{isRtl ? "الطالب" : "Student"}</TableHead>
+                            <TableHead>{isRtl ? "الدرجة" : "Score"}</TableHead>
+                            <TableHead>{isRtl ? "النسبة" : "Percentage"}</TableHead>
+                            <TableHead className="hidden sm:table-cell">{isRtl ? "التاريخ" : "Date"}</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {subs.map(sub => {
+                            const pct = Math.round(((sub.score || 0) / Math.max(sub.total_points || 1, 1)) * 100);
+                            return (
+                              <TableRow key={sub.id}>
+                                <TableCell className="text-xs sm:text-sm">{sub.student_id?.slice(0, 8)}...</TableCell>
+                                <TableCell className="font-bold text-xs sm:text-sm">{sub.score || 0}/{sub.total_points || 0}</TableCell>
+                                <TableCell>
+                                  <Badge variant={pct >= 50 ? "default" : "destructive"}>
+                                    {pct}%
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
+                                  {new Date(sub.submitted_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
                   </CardContent>
                 </Card>
               );

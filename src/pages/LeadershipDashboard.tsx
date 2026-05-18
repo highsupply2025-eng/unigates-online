@@ -1592,17 +1592,18 @@ const LeadershipDashboard = () => {
 
           {/* Notifications */}
           <TabsContent value="notifications" dir={isRtl ? "rtl" : "ltr"}>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-2xl font-bold text-foreground mb-1">{isRtl ? "الإشعارات" : "Notifications"}</h2>
-                <p className="text-sm text-muted-foreground">
+            <div className="flex items-start justify-between gap-3 mb-4 flex-wrap">
+              <div className="min-w-0">
+                <h2 className="text-lg sm:text-2xl font-bold text-foreground mb-1">{isRtl ? "الإشعارات" : "Notifications"}</h2>
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {isRtl ? `لديك ${unreadNotifications} إشعار غير مقروء` : `You have ${unreadNotifications} unread notifications`}
                 </p>
               </div>
               {unreadNotifications > 0 && (
-                <Button size="sm" variant="outline" onClick={markAllNotificationsRead} className="gap-1.5">
+                <Button size="sm" variant="outline" onClick={markAllNotificationsRead} className="gap-1.5 shrink-0">
                   <CheckCheck className="w-4 h-4" />
-                  {isRtl ? "قراءة الكل" : "Mark all read"}
+                  <span className="hidden sm:inline">{isRtl ? "قراءة الكل" : "Mark all read"}</span>
+                  <span className="sm:hidden">{isRtl ? "قراءة الكل" : "All read"}</span>
                 </Button>
               )}
             </div>

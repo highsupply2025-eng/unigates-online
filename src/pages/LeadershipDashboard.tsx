@@ -1302,13 +1302,13 @@ const LeadershipDashboard = () => {
             </div>
 
             <Card>
-              <CardContent className="p-0">
+              <CardContent className="p-0 overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>{isRtl ? "التقييم" : "Rating"}</TableHead>
                       <TableHead>{isRtl ? "التعليق" : "Comment"}</TableHead>
-                      <TableHead>{isRtl ? "التاريخ" : "Date"}</TableHead>
+                      <TableHead className="hidden sm:table-cell">{isRtl ? "التاريخ" : "Date"}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1322,14 +1322,14 @@ const LeadershipDashboard = () => {
                       ratings.slice(0, 30).map(r => (
                         <TableRow key={r.id}>
                           <TableCell>
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-0.5">
                               {Array.from({ length: 5 }).map((_, i) => (
-                                <Star key={i} className={`w-4 h-4 ${i < r.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}`} />
+                                <Star key={i} className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${i < r.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}`} />
                               ))}
                             </div>
                           </TableCell>
-                          <TableCell className="text-sm">{r.comment || (isRtl ? "بدون تعليق" : "No comment")}</TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
+                          <TableCell className="text-xs sm:text-sm max-w-[180px] sm:max-w-none truncate">{r.comment || (isRtl ? "بدون تعليق" : "No comment")}</TableCell>
+                          <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
                             {new Date(r.created_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
                           </TableCell>
                         </TableRow>

@@ -640,26 +640,26 @@ const LeadershipDashboard = () => {
                             </Badge>
                           </div>
                         </CardHeader>
-                        <CardContent className="p-0">
+                        <CardContent className="p-0 overflow-x-auto">
                           <Table>
                             <TableHeader>
                               <TableRow>
                                 <TableHead>{isRtl ? "المحاضرة" : "Lecture"}</TableHead>
                                 <TableHead className="hidden sm:table-cell">{isRtl ? "المستوى" : "Level"}</TableHead>
                                 <TableHead className="hidden sm:table-cell">{isRtl ? "الحلقة" : "Episode"}</TableHead>
-                                <TableHead>{isRtl ? "المدة" : "Duration"}</TableHead>
+                                <TableHead className="hidden sm:table-cell">{isRtl ? "المدة" : "Duration"}</TableHead>
                                 <TableHead className="text-end">{isRtl ? "إجراء" : "Action"}</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
                               {courseEpisodes.map(ep => (
                                 <TableRow key={ep.id}>
-                                  <TableCell className="font-medium">
+                                  <TableCell className="font-medium max-w-[180px] sm:max-w-none">
                                     <div className="flex items-center gap-2">
                                       <Video className="w-4 h-4 text-primary shrink-0" />
                                       <span className="truncate">{isRtl ? ep.title_ar : ep.title_en}</span>
                                       {ep.is_preview && (
-                                        <Badge variant="secondary" className="text-[10px] shrink-0">
+                                        <Badge variant="secondary" className="text-[10px] shrink-0 hidden sm:inline-flex">
                                           {isRtl ? "تجريبي" : "Preview"}
                                         </Badge>
                                       )}
@@ -669,7 +669,7 @@ const LeadershipDashboard = () => {
                                     <Badge variant="outline">{ep.level_number}</Badge>
                                   </TableCell>
                                   <TableCell className="hidden sm:table-cell">{ep.episode_number}</TableCell>
-                                  <TableCell>
+                                  <TableCell className="hidden sm:table-cell">
                                     <span className="flex items-center gap-1 text-xs font-bold text-muted-foreground">
                                       <Clock className="w-3.5 h-3.5" />
                                       {ep.duration_minutes || 0} {isRtl ? "د" : "min"}
@@ -680,10 +680,10 @@ const LeadershipDashboard = () => {
                                       size="sm"
                                       variant="default"
                                       onClick={() => navigate(`/lecturer/course/${course.id}`)}
-                                      className="gap-1.5 font-bold"
+                                      className="gap-1 font-bold h-8 px-2 sm:h-9 sm:px-3"
                                     >
                                       <Eye className="w-3.5 h-3.5" />
-                                      {isRtl ? "عرض" : "View"}
+                                      <span className="hidden sm:inline">{isRtl ? "عرض" : "View"}</span>
                                     </Button>
                                   </TableCell>
                                 </TableRow>
@@ -1207,35 +1207,37 @@ const LeadershipDashboard = () => {
                         <Progress value={avgScore} className="h-2" />
                       </div>
                     </div>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>{isRtl ? "الطالب" : "Student"}</TableHead>
-                          <TableHead>{isRtl ? "الدرجة" : "Score"}</TableHead>
-                          <TableHead>{isRtl ? "النسبة" : "Percentage"}</TableHead>
-                          <TableHead>{isRtl ? "التاريخ" : "Date"}</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {subs.map(sub => {
-                          const pct = Math.round(((sub.score || 0) / Math.max(sub.total_points || 1, 1)) * 100);
-                          return (
-                            <TableRow key={sub.id}>
-                              <TableCell className="text-sm">{sub.student_id?.slice(0, 8)}...</TableCell>
-                              <TableCell className="font-bold">{sub.score || 0}/{sub.total_points || 0}</TableCell>
-                              <TableCell>
-                                <Badge variant={pct >= 50 ? "default" : "destructive"}>
-                                  {pct}%
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-sm text-muted-foreground">
-                                {new Date(sub.submitted_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
+                    <div className="overflow-x-auto -mx-2 sm:mx-0">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>{isRtl ? "الطالب" : "Student"}</TableHead>
+                            <TableHead>{isRtl ? "الدرجة" : "Score"}</TableHead>
+                            <TableHead>{isRtl ? "النسبة" : "Percentage"}</TableHead>
+                            <TableHead className="hidden sm:table-cell">{isRtl ? "التاريخ" : "Date"}</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {subs.map(sub => {
+                            const pct = Math.round(((sub.score || 0) / Math.max(sub.total_points || 1, 1)) * 100);
+                            return (
+                              <TableRow key={sub.id}>
+                                <TableCell className="text-xs sm:text-sm">{sub.student_id?.slice(0, 8)}...</TableCell>
+                                <TableCell className="font-bold text-xs sm:text-sm">{sub.score || 0}/{sub.total_points || 0}</TableCell>
+                                <TableCell>
+                                  <Badge variant={pct >= 50 ? "default" : "destructive"}>
+                                    {pct}%
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
+                                  {new Date(sub.submitted_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
                   </CardContent>
                 </Card>
               );
@@ -1272,41 +1274,41 @@ const LeadershipDashboard = () => {
               <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
             </button>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-6">
               <Card>
-                <CardContent className="p-4 text-center">
-                  <p className="text-3xl font-black text-amber-500">{avgRating}</p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
+                <CardContent className="p-3 sm:p-4 text-center">
+                  <p className="text-2xl sm:text-3xl font-black text-amber-500">{avgRating}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="p-4 text-center">
-                  <p className="text-3xl font-black text-primary">{ratings.length}</p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "عدد التقييمات" : "Total Ratings"}</p>
+                <CardContent className="p-3 sm:p-4 text-center">
+                  <p className="text-2xl sm:text-3xl font-black text-primary">{ratings.length}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "عدد التقييمات" : "Total Ratings"}</p>
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="p-4 text-center">
-                  <p className="text-3xl font-black text-emerald-500">{ratings.filter(r => r.rating >= 4).length}</p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "تقييم ممتاز (4+)" : "Excellent (4+)"}</p>
+                <CardContent className="p-3 sm:p-4 text-center">
+                  <p className="text-2xl sm:text-3xl font-black text-emerald-500">{ratings.filter(r => r.rating >= 4).length}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "تقييم ممتاز (4+)" : "Excellent (4+)"}</p>
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="p-4 text-center">
-                  <p className="text-3xl font-black text-red-500">{ratings.filter(r => r.rating <= 2).length}</p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "يحتاج تحسين (≤2)" : "Needs Improvement (≤2)"}</p>
+                <CardContent className="p-3 sm:p-4 text-center">
+                  <p className="text-2xl sm:text-3xl font-black text-red-500">{ratings.filter(r => r.rating <= 2).length}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "يحتاج تحسين (≤2)" : "Needs Improvement (≤2)"}</p>
                 </CardContent>
               </Card>
             </div>
 
             <Card>
-              <CardContent className="p-0">
+              <CardContent className="p-0 overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>{isRtl ? "التقييم" : "Rating"}</TableHead>
                       <TableHead>{isRtl ? "التعليق" : "Comment"}</TableHead>
-                      <TableHead>{isRtl ? "التاريخ" : "Date"}</TableHead>
+                      <TableHead className="hidden sm:table-cell">{isRtl ? "التاريخ" : "Date"}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1320,14 +1322,14 @@ const LeadershipDashboard = () => {
                       ratings.slice(0, 30).map(r => (
                         <TableRow key={r.id}>
                           <TableCell>
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-0.5">
                               {Array.from({ length: 5 }).map((_, i) => (
-                                <Star key={i} className={`w-4 h-4 ${i < r.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}`} />
+                                <Star key={i} className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${i < r.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}`} />
                               ))}
                             </div>
                           </TableCell>
-                          <TableCell className="text-sm">{r.comment || (isRtl ? "بدون تعليق" : "No comment")}</TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
+                          <TableCell className="text-xs sm:text-sm max-w-[180px] sm:max-w-none truncate">{r.comment || (isRtl ? "بدون تعليق" : "No comment")}</TableCell>
+                          <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
                             {new Date(r.created_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
                           </TableCell>
                         </TableRow>
@@ -1361,13 +1363,13 @@ const LeadershipDashboard = () => {
             </button>
 
             <Card>
-              <CardContent className="p-0">
+              <CardContent className="p-0 overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>{isRtl ? "العنوان" : "Title"}</TableHead>
-                      <TableHead>{isRtl ? "الوصف" : "Description"}</TableHead>
-                      <TableHead>{isRtl ? "الموعد النهائي" : "Due Date"}</TableHead>
+                      <TableHead className="hidden md:table-cell">{isRtl ? "الوصف" : "Description"}</TableHead>
+                      <TableHead className="hidden sm:table-cell">{isRtl ? "الموعد النهائي" : "Due Date"}</TableHead>
                       <TableHead>{isRtl ? "الملف" : "File"}</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -1381,11 +1383,11 @@ const LeadershipDashboard = () => {
                     ) : (
                       assignments.map(a => (
                         <TableRow key={a.id}>
-                          <TableCell className="font-medium">{isRtl ? a.title_ar : a.title_en}</TableCell>
-                          <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">
+                          <TableCell className="font-medium max-w-[160px] sm:max-w-none truncate">{isRtl ? a.title_ar : a.title_en}</TableCell>
+                          <TableCell className="hidden md:table-cell text-sm text-muted-foreground max-w-[200px] truncate">
                             {isRtl ? a.description_ar : a.description_en || "-"}
                           </TableCell>
-                          <TableCell className="text-sm">
+                          <TableCell className="hidden sm:table-cell text-sm">
                             {a.due_date ? (
                               <span className={new Date(a.due_date) < new Date() ? "text-red-500" : ""}>
                                 {new Date(a.due_date).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
@@ -1394,10 +1396,10 @@ const LeadershipDashboard = () => {
                           </TableCell>
                           <TableCell>
                             {a.file_url && (
-                              <Button size="sm" variant="outline" asChild>
+                              <Button size="sm" variant="outline" asChild className="h-8 px-2 sm:h-9 sm:px-3">
                                 <a href={a.file_url} target="_blank" rel="noopener noreferrer">
-                                  <Download className="w-4 h-4 me-1" />
-                                  {a.file_name || (isRtl ? "تحميل" : "Download")}
+                                  <Download className="w-4 h-4 sm:me-1" />
+                                  <span className="hidden sm:inline">{a.file_name || (isRtl ? "تحميل" : "Download")}</span>
                                 </a>
                               </Button>
                             )}
@@ -1440,12 +1442,12 @@ const LeadershipDashboard = () => {
                   {isRtl ? "جدول البث المباشر" : "Live Stream Schedule"}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-0">
+              <CardContent className="p-0 overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>{isRtl ? "العنوان" : "Title"}</TableHead>
-                      <TableHead>{isRtl ? "الموعد" : "Date & Time"}</TableHead>
+                      <TableHead className="hidden sm:table-cell">{isRtl ? "الموعد" : "Date & Time"}</TableHead>
                       <TableHead>{isRtl ? "الحالة" : "Status"}</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -1459,8 +1461,8 @@ const LeadershipDashboard = () => {
                     ) : (
                       scheduledStreams.map(s => (
                         <TableRow key={s.id}>
-                          <TableCell className="font-medium">{isRtl ? s.title_ar : s.title_en}</TableCell>
-                          <TableCell>{s.scheduled_at ? new Date(s.scheduled_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US') : '-'}</TableCell>
+                          <TableCell className="font-medium max-w-[180px] sm:max-w-none truncate">{isRtl ? s.title_ar : s.title_en}</TableCell>
+                          <TableCell className="hidden sm:table-cell">{s.scheduled_at ? new Date(s.scheduled_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US') : '-'}</TableCell>
                           <TableCell><Badge variant="outline">{isRtl ? "مجدول" : "Scheduled"}</Badge></TableCell>
                         </TableRow>
                       ))
@@ -1478,14 +1480,14 @@ const LeadershipDashboard = () => {
                   {isRtl ? "جدول المحاضرات" : "Lecture Schedule"}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-0">
+              <CardContent className="p-0 overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>{isRtl ? "المحاضرة" : "Lecture"}</TableHead>
-                      <TableHead>{isRtl ? "رقم الحلقة" : "Episode #"}</TableHead>
+                      <TableHead className="hidden sm:table-cell">{isRtl ? "رقم الحلقة" : "Episode #"}</TableHead>
                       <TableHead>{isRtl ? "المستوى" : "Level"}</TableHead>
-                      <TableHead>{isRtl ? "المدة (دقائق)" : "Duration (min)"}</TableHead>
+                      <TableHead className="hidden sm:table-cell">{isRtl ? "المدة (دقائق)" : "Duration (min)"}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1498,10 +1500,10 @@ const LeadershipDashboard = () => {
                     ) : (
                       episodes.slice(0, 30).map(e => (
                         <TableRow key={e.id}>
-                          <TableCell className="font-medium">{isRtl ? e.title_ar : e.title_en}</TableCell>
-                          <TableCell>{e.episode_number}</TableCell>
+                          <TableCell className="font-medium max-w-[180px] sm:max-w-none truncate">{isRtl ? e.title_ar : e.title_en}</TableCell>
+                          <TableCell className="hidden sm:table-cell">{e.episode_number}</TableCell>
                           <TableCell><Badge variant="outline">{e.level_number}</Badge></TableCell>
-                          <TableCell>{e.duration_minutes || "-"}</TableCell>
+                          <TableCell className="hidden sm:table-cell">{e.duration_minutes || "-"}</TableCell>
                         </TableRow>
                       ))
                     )}
@@ -1590,17 +1592,18 @@ const LeadershipDashboard = () => {
 
           {/* Notifications */}
           <TabsContent value="notifications" dir={isRtl ? "rtl" : "ltr"}>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-2xl font-bold text-foreground mb-1">{isRtl ? "الإشعارات" : "Notifications"}</h2>
-                <p className="text-sm text-muted-foreground">
+            <div className="flex items-start justify-between gap-3 mb-4 flex-wrap">
+              <div className="min-w-0">
+                <h2 className="text-lg sm:text-2xl font-bold text-foreground mb-1">{isRtl ? "الإشعارات" : "Notifications"}</h2>
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {isRtl ? `لديك ${unreadNotifications} إشعار غير مقروء` : `You have ${unreadNotifications} unread notifications`}
                 </p>
               </div>
               {unreadNotifications > 0 && (
-                <Button size="sm" variant="outline" onClick={markAllNotificationsRead} className="gap-1.5">
+                <Button size="sm" variant="outline" onClick={markAllNotificationsRead} className="gap-1.5 shrink-0">
                   <CheckCheck className="w-4 h-4" />
-                  {isRtl ? "قراءة الكل" : "Mark all read"}
+                  <span className="hidden sm:inline">{isRtl ? "قراءة الكل" : "Mark all read"}</span>
+                  <span className="sm:hidden">{isRtl ? "قراءة الكل" : "All read"}</span>
                 </Button>
               )}
             </div>

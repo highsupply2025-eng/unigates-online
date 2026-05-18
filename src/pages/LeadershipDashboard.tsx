@@ -640,26 +640,26 @@ const LeadershipDashboard = () => {
                             </Badge>
                           </div>
                         </CardHeader>
-                        <CardContent className="p-0">
+                        <CardContent className="p-0 overflow-x-auto">
                           <Table>
                             <TableHeader>
                               <TableRow>
                                 <TableHead>{isRtl ? "المحاضرة" : "Lecture"}</TableHead>
                                 <TableHead className="hidden sm:table-cell">{isRtl ? "المستوى" : "Level"}</TableHead>
                                 <TableHead className="hidden sm:table-cell">{isRtl ? "الحلقة" : "Episode"}</TableHead>
-                                <TableHead>{isRtl ? "المدة" : "Duration"}</TableHead>
+                                <TableHead className="hidden sm:table-cell">{isRtl ? "المدة" : "Duration"}</TableHead>
                                 <TableHead className="text-end">{isRtl ? "إجراء" : "Action"}</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
                               {courseEpisodes.map(ep => (
                                 <TableRow key={ep.id}>
-                                  <TableCell className="font-medium">
+                                  <TableCell className="font-medium max-w-[180px] sm:max-w-none">
                                     <div className="flex items-center gap-2">
                                       <Video className="w-4 h-4 text-primary shrink-0" />
                                       <span className="truncate">{isRtl ? ep.title_ar : ep.title_en}</span>
                                       {ep.is_preview && (
-                                        <Badge variant="secondary" className="text-[10px] shrink-0">
+                                        <Badge variant="secondary" className="text-[10px] shrink-0 hidden sm:inline-flex">
                                           {isRtl ? "تجريبي" : "Preview"}
                                         </Badge>
                                       )}
@@ -669,7 +669,7 @@ const LeadershipDashboard = () => {
                                     <Badge variant="outline">{ep.level_number}</Badge>
                                   </TableCell>
                                   <TableCell className="hidden sm:table-cell">{ep.episode_number}</TableCell>
-                                  <TableCell>
+                                  <TableCell className="hidden sm:table-cell">
                                     <span className="flex items-center gap-1 text-xs font-bold text-muted-foreground">
                                       <Clock className="w-3.5 h-3.5" />
                                       {ep.duration_minutes || 0} {isRtl ? "د" : "min"}
@@ -680,10 +680,10 @@ const LeadershipDashboard = () => {
                                       size="sm"
                                       variant="default"
                                       onClick={() => navigate(`/lecturer/course/${course.id}`)}
-                                      className="gap-1.5 font-bold"
+                                      className="gap-1 font-bold h-8 px-2 sm:h-9 sm:px-3"
                                     >
                                       <Eye className="w-3.5 h-3.5" />
-                                      {isRtl ? "عرض" : "View"}
+                                      <span className="hidden sm:inline">{isRtl ? "عرض" : "View"}</span>
                                     </Button>
                                   </TableCell>
                                 </TableRow>

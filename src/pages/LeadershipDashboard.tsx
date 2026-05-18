@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Globe, ArrowLeft, ArrowRight, Loader2, Users, BookOpen, Calendar,
   Video, FileText, Download, BarChart3, Clock, CheckCircle, AlertCircle,
-  GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, Menu, Home, Bell, CheckCheck, XCircle, Award
+  GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, Menu, Home, Bell, CheckCheck, XCircle, Award, ShieldCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

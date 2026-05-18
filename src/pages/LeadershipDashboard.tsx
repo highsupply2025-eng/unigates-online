@@ -1363,13 +1363,13 @@ const LeadershipDashboard = () => {
             </button>
 
             <Card>
-              <CardContent className="p-0">
+              <CardContent className="p-0 overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>{isRtl ? "العنوان" : "Title"}</TableHead>
-                      <TableHead>{isRtl ? "الوصف" : "Description"}</TableHead>
-                      <TableHead>{isRtl ? "الموعد النهائي" : "Due Date"}</TableHead>
+                      <TableHead className="hidden md:table-cell">{isRtl ? "الوصف" : "Description"}</TableHead>
+                      <TableHead className="hidden sm:table-cell">{isRtl ? "الموعد النهائي" : "Due Date"}</TableHead>
                       <TableHead>{isRtl ? "الملف" : "File"}</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -1383,11 +1383,11 @@ const LeadershipDashboard = () => {
                     ) : (
                       assignments.map(a => (
                         <TableRow key={a.id}>
-                          <TableCell className="font-medium">{isRtl ? a.title_ar : a.title_en}</TableCell>
-                          <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">
+                          <TableCell className="font-medium max-w-[160px] sm:max-w-none truncate">{isRtl ? a.title_ar : a.title_en}</TableCell>
+                          <TableCell className="hidden md:table-cell text-sm text-muted-foreground max-w-[200px] truncate">
                             {isRtl ? a.description_ar : a.description_en || "-"}
                           </TableCell>
-                          <TableCell className="text-sm">
+                          <TableCell className="hidden sm:table-cell text-sm">
                             {a.due_date ? (
                               <span className={new Date(a.due_date) < new Date() ? "text-red-500" : ""}>
                                 {new Date(a.due_date).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
@@ -1396,10 +1396,10 @@ const LeadershipDashboard = () => {
                           </TableCell>
                           <TableCell>
                             {a.file_url && (
-                              <Button size="sm" variant="outline" asChild>
+                              <Button size="sm" variant="outline" asChild className="h-8 px-2 sm:h-9 sm:px-3">
                                 <a href={a.file_url} target="_blank" rel="noopener noreferrer">
-                                  <Download className="w-4 h-4 me-1" />
-                                  {a.file_name || (isRtl ? "تحميل" : "Download")}
+                                  <Download className="w-4 h-4 sm:me-1" />
+                                  <span className="hidden sm:inline">{a.file_name || (isRtl ? "تحميل" : "Download")}</span>
                                 </a>
                               </Button>
                             )}

@@ -319,6 +319,7 @@ const LeadershipDashboard = () => {
                      livestreams: { ar: "البث المباشر", en: "Live Streams" },
                      lectures: { ar: "المحاضرات", en: "Lectures" },
                      quizresults: { ar: "نتائج الاختبارات", en: "Quiz Results" },
+                     quizzesonline: { ar: "الاختبارات اونلاين", en: "Online Quizzes" },
                      ratings: { ar: "التقييمات", en: "Ratings" },
                      assignments: { ar: "التكليفات", en: "Assignments" },
                      schedule: { ar: "الجداول", en: "Schedules" },

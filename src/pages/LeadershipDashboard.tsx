@@ -1274,29 +1274,29 @@ const LeadershipDashboard = () => {
               <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
             </button>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-6">
               <Card>
-                <CardContent className="p-4 text-center">
-                  <p className="text-3xl font-black text-amber-500">{avgRating}</p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
+                <CardContent className="p-3 sm:p-4 text-center">
+                  <p className="text-2xl sm:text-3xl font-black text-amber-500">{avgRating}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="p-4 text-center">
-                  <p className="text-3xl font-black text-primary">{ratings.length}</p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "عدد التقييمات" : "Total Ratings"}</p>
+                <CardContent className="p-3 sm:p-4 text-center">
+                  <p className="text-2xl sm:text-3xl font-black text-primary">{ratings.length}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "عدد التقييمات" : "Total Ratings"}</p>
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="p-4 text-center">
-                  <p className="text-3xl font-black text-emerald-500">{ratings.filter(r => r.rating >= 4).length}</p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "تقييم ممتاز (4+)" : "Excellent (4+)"}</p>
+                <CardContent className="p-3 sm:p-4 text-center">
+                  <p className="text-2xl sm:text-3xl font-black text-emerald-500">{ratings.filter(r => r.rating >= 4).length}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "تقييم ممتاز (4+)" : "Excellent (4+)"}</p>
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="p-4 text-center">
-                  <p className="text-3xl font-black text-red-500">{ratings.filter(r => r.rating <= 2).length}</p>
-                  <p className="text-xs text-muted-foreground">{isRtl ? "يحتاج تحسين (≤2)" : "Needs Improvement (≤2)"}</p>
+                <CardContent className="p-3 sm:p-4 text-center">
+                  <p className="text-2xl sm:text-3xl font-black text-red-500">{ratings.filter(r => r.rating <= 2).length}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "يحتاج تحسين (≤2)" : "Needs Improvement (≤2)"}</p>
                 </CardContent>
               </Card>
             </div>

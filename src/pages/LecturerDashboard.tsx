@@ -147,6 +147,7 @@ const LecturerDashboard = () => {
   const [newSchedule, setNewSchedule] = useState({
     course_id: "", title_ar: "", title_en: "", schedule_type: "lecture",
     scheduled_date: "", start_time: "", end_time: "", location_ar: "", location_en: "", notes_ar: "", notes_en: "",
+    vice_dean_type: "students",
   });
   const [savingSchedule, setSavingSchedule] = useState(false);
 

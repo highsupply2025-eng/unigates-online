@@ -1514,15 +1514,32 @@ const LecturerDashboard = () => {
               </Select>
             </div>
             <div>
-              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "وكيل الكلية المختص بالاعتماد" : "Responsible Vice Dean"} *</Label>
-              <Select value={newSchedule.vice_dean_type} onValueChange={v => setNewSchedule(p => ({ ...p, vice_dean_type: v }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="students">{isRtl ? "وكيل الكلية لشئون الطلاب" : "Vice Dean for Student Affairs"}</SelectItem>
-                  <SelectItem value="postgrad">{isRtl ? "وكيل الكلية للدراسات العليا" : "Vice Dean for Postgraduate Studies"}</SelectItem>
-                  <SelectItem value="environment">{isRtl ? "وكيل الكلية للبيئة وخدمة المجتمع" : "Vice Dean for Environment & Community Service"}</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "وكلاء الكلية المختصون بالاعتماد (يمكن اختيار أكثر من وكيل)" : "Responsible Vice Deans (multi-select)"} *</Label>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { v: "students", ar: "وكيل الكلية لشئون الطلاب", en: "Vice Dean for Student Affairs" },
+                  { v: "postgrad", ar: "وكيل الكلية للدراسات العليا", en: "Vice Dean for Postgraduate Studies" },
+                  { v: "environment", ar: "وكيل الكلية للبيئة وخدمة المجتمع", en: "Vice Dean for Environment & Community Service" },
+                ].map(opt => {
+                  const checked = newSchedule.vice_dean_types.includes(opt.v);
+                  return (
+                    <label key={opt.v} className={`flex items-center gap-3 p-2.5 rounded-lg border cursor-pointer transition-colors ${checked ? "border-primary bg-primary/10" : "border-border hover:border-primary/40"}`}>
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 accent-primary"
+                        checked={checked}
+                        onChange={e => setNewSchedule(p => ({
+                          ...p,
+                          vice_dean_types: e.target.checked
+                            ? [...p.vice_dean_types, opt.v]
+                            : p.vice_dean_types.filter(x => x !== opt.v),
+                        }))}
+                      />
+                      <span className="font-semibold text-sm">{isRtl ? opt.ar : opt.en}</span>
+                    </label>
+                  );
+                })}
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "العنوان (عربي)" : "Title (Arabic)"} *</Label><Input value={newSchedule.title_ar} onChange={e => setNewSchedule(p => ({ ...p, title_ar: e.target.value }))} /></div>

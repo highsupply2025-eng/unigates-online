@@ -57,7 +57,7 @@ const QuizCreate = () => {
     duration_minutes: 30, due_date: "",
     randomize_questions: false,
     show_results_immediately: true,
-    vice_dean_type: "students",
+    vice_dean_types: ["students"] as string[],
   });
   const [savingQuiz, setSavingQuiz] = useState(false);
 
@@ -121,11 +121,11 @@ const QuizCreate = () => {
         due_date: newQuiz.due_date || null,
         randomize_questions: newQuiz.randomize_questions,
         show_results_immediately: newQuiz.show_results_immediately,
-        vice_dean_type: newQuiz.vice_dean_type,
+        vice_dean_type: newQuiz.vice_dean_types,
       } as any);
       if (error) throw error;
       toast({ title: isRtl ? "تم إنشاء الاختبار بنجاح ✅" : "Quiz created ✅" });
-      setNewQuiz({ title_ar: "", title_en: "", description_ar: "", description_en: "", duration_minutes: 30, due_date: "", randomize_questions: false, show_results_immediately: true, vice_dean_type: "students" });
+      setNewQuiz({ title_ar: "", title_en: "", description_ar: "", description_en: "", duration_minutes: 30, due_date: "", randomize_questions: false, show_results_immediately: true, vice_dean_types: ["students"] });
       await loadQuizzes(courseId);
       setActiveTab("list");
     } catch (err: any) {
@@ -768,15 +768,32 @@ const QuizCreate = () => {
 
                 <Separator className="bg-amber-500/30" />
                 <div>
-                  <Label className="mb-2 block font-extrabold text-sm flex items-center gap-1.5"><GraduationCap className="w-4 h-4 text-amber-600" />{isRtl ? "وكيل الكلية المختص بالاعتماد" : "Responsible Vice Dean"} *</Label>
-                  <Select value={newQuiz.vice_dean_type} onValueChange={v => setNewQuiz(p => ({ ...p, vice_dean_type: v }))}>
-                    <SelectTrigger className="border-2 border-amber-500/20 focus:border-amber-500 font-semibold"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="students">{isRtl ? "وكيل الكلية لشئون الطلاب" : "Vice Dean for Student Affairs"}</SelectItem>
-                      <SelectItem value="postgrad">{isRtl ? "وكيل الكلية للدراسات العليا" : "Vice Dean for Postgraduate Studies"}</SelectItem>
-                      <SelectItem value="environment">{isRtl ? "وكيل الكلية للبيئة وخدمة المجتمع" : "Vice Dean for Environment & Community Service"}</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label className="mb-2 block font-extrabold text-sm flex items-center gap-1.5"><GraduationCap className="w-4 h-4 text-amber-600" />{isRtl ? "وكلاء الكلية المختصون بالاعتماد (يمكن اختيار أكثر من وكيل)" : "Responsible Vice Deans (multi-select)"} *</Label>
+                  <div className="grid grid-cols-1 gap-2">
+                    {[
+                      { v: "students", ar: "وكيل الكلية لشئون الطلاب", en: "Vice Dean for Student Affairs" },
+                      { v: "postgrad", ar: "وكيل الكلية للدراسات العليا", en: "Vice Dean for Postgraduate Studies" },
+                      { v: "environment", ar: "وكيل الكلية للبيئة وخدمة المجتمع", en: "Vice Dean for Environment & Community Service" },
+                    ].map(opt => {
+                      const checked = newQuiz.vice_dean_types.includes(opt.v);
+                      return (
+                        <label key={opt.v} className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-colors ${checked ? "border-amber-500 bg-amber-500/10" : "border-amber-500/20 hover:border-amber-500/40"}`}>
+                          <input
+                            type="checkbox"
+                            className="w-5 h-5 accent-amber-600"
+                            checked={checked}
+                            onChange={e => setNewQuiz(p => ({
+                              ...p,
+                              vice_dean_types: e.target.checked
+                                ? [...p.vice_dean_types, opt.v]
+                                : p.vice_dean_types.filter(x => x !== opt.v),
+                            }))}
+                          />
+                          <span className="font-bold text-sm">{isRtl ? opt.ar : opt.en}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 <Separator className="bg-amber-500/30" />

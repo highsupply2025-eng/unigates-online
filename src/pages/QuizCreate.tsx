@@ -57,6 +57,7 @@ const QuizCreate = () => {
     duration_minutes: 30, due_date: "",
     randomize_questions: false,
     show_results_immediately: true,
+    vice_dean_type: "students",
   });
   const [savingQuiz, setSavingQuiz] = useState(false);
 
@@ -120,10 +121,11 @@ const QuizCreate = () => {
         due_date: newQuiz.due_date || null,
         randomize_questions: newQuiz.randomize_questions,
         show_results_immediately: newQuiz.show_results_immediately,
+        vice_dean_type: newQuiz.vice_dean_type,
       } as any);
       if (error) throw error;
       toast({ title: isRtl ? "تم إنشاء الاختبار بنجاح ✅" : "Quiz created ✅" });
-      setNewQuiz({ title_ar: "", title_en: "", description_ar: "", description_en: "", duration_minutes: 30, due_date: "", randomize_questions: false, show_results_immediately: true });
+      setNewQuiz({ title_ar: "", title_en: "", description_ar: "", description_en: "", duration_minutes: 30, due_date: "", randomize_questions: false, show_results_immediately: true, vice_dean_type: "students" });
       await loadQuizzes(courseId);
       setActiveTab("list");
     } catch (err: any) {
@@ -762,6 +764,19 @@ const QuizCreate = () => {
                     <Label className="cursor-pointer flex items-center gap-2 font-bold text-sm"><Zap className="w-4 h-4 text-orange-600" />{isRtl ? "إظهار النتيجة فور التسليم" : "Show result immediately"}</Label>
                     <Switch checked={newQuiz.show_results_immediately} onCheckedChange={v => setNewQuiz(p => ({ ...p, show_results_immediately: v }))} />
                   </div>
+                </div>
+
+                <Separator className="bg-amber-500/30" />
+                <div>
+                  <Label className="mb-2 block font-extrabold text-sm flex items-center gap-1.5"><GraduationCap className="w-4 h-4 text-amber-600" />{isRtl ? "وكيل الكلية المختص بالاعتماد" : "Responsible Vice Dean"} *</Label>
+                  <Select value={newQuiz.vice_dean_type} onValueChange={v => setNewQuiz(p => ({ ...p, vice_dean_type: v }))}>
+                    <SelectTrigger className="border-2 border-amber-500/20 focus:border-amber-500 font-semibold"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="students">{isRtl ? "وكيل الكلية لشئون الطلاب" : "Vice Dean for Student Affairs"}</SelectItem>
+                      <SelectItem value="postgrad">{isRtl ? "وكيل الكلية للدراسات العليا" : "Vice Dean for Postgraduate Studies"}</SelectItem>
+                      <SelectItem value="environment">{isRtl ? "وكيل الكلية للبيئة وخدمة المجتمع" : "Vice Dean for Environment & Community Service"}</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <Separator className="bg-amber-500/30" />

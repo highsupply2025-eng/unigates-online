@@ -147,6 +147,7 @@ const LecturerDashboard = () => {
   const [newSchedule, setNewSchedule] = useState({
     course_id: "", title_ar: "", title_en: "", schedule_type: "lecture",
     scheduled_date: "", start_time: "", end_time: "", location_ar: "", location_en: "", notes_ar: "", notes_en: "",
+    vice_dean_type: "students",
   });
   const [savingSchedule, setSavingSchedule] = useState(false);
 
@@ -574,10 +575,11 @@ const LecturerDashboard = () => {
         start_time: newSchedule.start_time || null, end_time: newSchedule.end_time || null,
         location_ar: newSchedule.location_ar || null, location_en: newSchedule.location_en || null,
         notes_ar: newSchedule.notes_ar || null, notes_en: newSchedule.notes_en || null,
+        vice_dean_type: newSchedule.vice_dean_type,
       } as any);
       if (error) throw error;
       toast({ title: isRtl ? "تم" : "Done" });
-      setNewSchedule({ course_id: "", title_ar: "", title_en: "", schedule_type: "lecture", scheduled_date: "", start_time: "", end_time: "", location_ar: "", location_en: "", notes_ar: "", notes_en: "" });
+      setNewSchedule({ course_id: "", title_ar: "", title_en: "", schedule_type: "lecture", scheduled_date: "", start_time: "", end_time: "", location_ar: "", location_en: "", notes_ar: "", notes_en: "", vice_dean_type: "students" });
       setShowScheduleDialog(false);
       await loadSchedules(user.id);
     } catch (err: any) {
@@ -1508,6 +1510,17 @@ const LecturerDashboard = () => {
                 <SelectContent>
                   <SelectItem value="lecture">{isRtl ? "محاضرة" : "Lecture"}</SelectItem>
                   <SelectItem value="test">{isRtl ? "اختبار" : "Test"}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "وكيل الكلية المختص بالاعتماد" : "Responsible Vice Dean"} *</Label>
+              <Select value={newSchedule.vice_dean_type} onValueChange={v => setNewSchedule(p => ({ ...p, vice_dean_type: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="students">{isRtl ? "وكيل الكلية لشئون الطلاب" : "Vice Dean for Student Affairs"}</SelectItem>
+                  <SelectItem value="postgrad">{isRtl ? "وكيل الكلية للدراسات العليا" : "Vice Dean for Postgraduate Studies"}</SelectItem>
+                  <SelectItem value="environment">{isRtl ? "وكيل الكلية للبيئة وخدمة المجتمع" : "Vice Dean for Environment & Community Service"}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

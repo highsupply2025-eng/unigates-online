@@ -119,13 +119,20 @@ const QuizCreate = () => {
         description_en: newQuiz.description_en || null,
         duration_minutes: newQuiz.duration_minutes,
         due_date: newQuiz.due_date || null,
+      const { error } = await supabase.from("quizzes").insert({
+        course_id: courseId, creator_id: user.id,
+        title_ar: newQuiz.title_ar, title_en: newQuiz.title_en,
+        description_ar: newQuiz.description_ar || null,
+        description_en: newQuiz.description_en || null,
+        duration_minutes: newQuiz.duration_minutes,
+        due_date: newQuiz.due_date || null,
         randomize_questions: newQuiz.randomize_questions,
         show_results_immediately: newQuiz.show_results_immediately,
-        vice_dean_type: newQuiz.vice_dean_type,
+        vice_dean_type: newQuiz.vice_dean_types,
       } as any);
       if (error) throw error;
       toast({ title: isRtl ? "تم إنشاء الاختبار بنجاح ✅" : "Quiz created ✅" });
-      setNewQuiz({ title_ar: "", title_en: "", description_ar: "", description_en: "", duration_minutes: 30, due_date: "", randomize_questions: false, show_results_immediately: true, vice_dean_type: "students" });
+      setNewQuiz({ title_ar: "", title_en: "", description_ar: "", description_en: "", duration_minutes: 30, due_date: "", randomize_questions: false, show_results_immediately: true, vice_dean_types: ["students"] });
       await loadQuizzes(courseId);
       setActiveTab("list");
     } catch (err: any) {

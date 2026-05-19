@@ -1513,6 +1513,17 @@ const LecturerDashboard = () => {
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "وكيل الكلية المختص بالاعتماد" : "Responsible Vice Dean"} *</Label>
+              <Select value={newSchedule.vice_dean_type} onValueChange={v => setNewSchedule(p => ({ ...p, vice_dean_type: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="students">{isRtl ? "وكيل الكلية لشئون الطلاب" : "Vice Dean for Student Affairs"}</SelectItem>
+                  <SelectItem value="postgrad">{isRtl ? "وكيل الكلية للدراسات العليا" : "Vice Dean for Postgraduate Studies"}</SelectItem>
+                  <SelectItem value="environment">{isRtl ? "وكيل الكلية للبيئة وخدمة المجتمع" : "Vice Dean for Environment & Community Service"}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "العنوان (عربي)" : "Title (Arabic)"} *</Label><Input value={newSchedule.title_ar} onChange={e => setNewSchedule(p => ({ ...p, title_ar: e.target.value }))} /></div>
               <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "العنوان (إنجليزي)" : "Title (English)"} *</Label><Input value={newSchedule.title_en} onChange={e => setNewSchedule(p => ({ ...p, title_en: e.target.value }))} /></div>

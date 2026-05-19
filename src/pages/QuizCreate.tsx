@@ -57,7 +57,7 @@ const QuizCreate = () => {
     duration_minutes: 30, due_date: "",
     randomize_questions: false,
     show_results_immediately: true,
-    vice_dean_type: "students",
+    vice_dean_types: ["students"] as string[],
   });
   const [savingQuiz, setSavingQuiz] = useState(false);
 

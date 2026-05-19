@@ -767,6 +767,19 @@ const QuizCreate = () => {
                 </div>
 
                 <Separator className="bg-amber-500/30" />
+                <div>
+                  <Label className="mb-2 block font-extrabold text-sm flex items-center gap-1.5"><GraduationCap className="w-4 h-4 text-amber-600" />{isRtl ? "وكيل الكلية المختص بالاعتماد" : "Responsible Vice Dean"} *</Label>
+                  <Select value={newQuiz.vice_dean_type} onValueChange={v => setNewQuiz(p => ({ ...p, vice_dean_type: v }))}>
+                    <SelectTrigger className="border-2 border-amber-500/20 focus:border-amber-500 font-semibold"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="students">{isRtl ? "وكيل الكلية لشئون الطلاب" : "Vice Dean for Student Affairs"}</SelectItem>
+                      <SelectItem value="postgrad">{isRtl ? "وكيل الكلية للدراسات العليا" : "Vice Dean for Postgraduate Studies"}</SelectItem>
+                      <SelectItem value="environment">{isRtl ? "وكيل الكلية للبيئة وخدمة المجتمع" : "Vice Dean for Environment & Community Service"}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Separator className="bg-amber-500/30" />
                 <Button onClick={handleCreateQuiz} disabled={savingQuiz || !newQuiz.title_ar || !newQuiz.title_en} className="w-full gap-2 bg-gradient-to-l from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-base shadow-lg shadow-amber-500/40 border-2 border-amber-300/40 hover:scale-[1.01] active:scale-[0.99] transition-all" size="lg">
                   {savingQuiz ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5 stroke-[2.5]" />}
                   {isRtl ? "إنشاء القالب" : "Create Template"}

@@ -946,7 +946,7 @@ export type Database = {
           start_time: string | null
           title_ar: string
           title_en: string
-          vice_dean_type: string | null
+          vice_dean_type: string[] | null
         }
         Insert: {
           approved_by_dean?: boolean
@@ -975,7 +975,7 @@ export type Database = {
           start_time?: string | null
           title_ar: string
           title_en: string
-          vice_dean_type?: string | null
+          vice_dean_type?: string[] | null
         }
         Update: {
           approved_by_dean?: boolean
@@ -1004,7 +1004,7 @@ export type Database = {
           start_time?: string | null
           title_ar?: string
           title_en?: string
-          vice_dean_type?: string | null
+          vice_dean_type?: string[] | null
         }
         Relationships: [
           {
@@ -1394,7 +1394,7 @@ export type Database = {
           title_ar: string
           title_en: string
           updated_at: string
-          vice_dean_type: string | null
+          vice_dean_type: string[] | null
         }
         Insert: {
           approved_by_dean?: boolean
@@ -1436,7 +1436,7 @@ export type Database = {
           title_ar: string
           title_en: string
           updated_at?: string
-          vice_dean_type?: string | null
+          vice_dean_type?: string[] | null
         }
         Update: {
           approved_by_dean?: boolean
@@ -1478,7 +1478,7 @@ export type Database = {
           title_ar?: string
           title_en?: string
           updated_at?: string
-          vice_dean_type?: string | null
+          vice_dean_type?: string[] | null
         }
         Relationships: [
           {

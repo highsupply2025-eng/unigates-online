@@ -575,10 +575,11 @@ const LecturerDashboard = () => {
         start_time: newSchedule.start_time || null, end_time: newSchedule.end_time || null,
         location_ar: newSchedule.location_ar || null, location_en: newSchedule.location_en || null,
         notes_ar: newSchedule.notes_ar || null, notes_en: newSchedule.notes_en || null,
+        vice_dean_type: newSchedule.vice_dean_type,
       } as any);
       if (error) throw error;
       toast({ title: isRtl ? "تم" : "Done" });
-      setNewSchedule({ course_id: "", title_ar: "", title_en: "", schedule_type: "lecture", scheduled_date: "", start_time: "", end_time: "", location_ar: "", location_en: "", notes_ar: "", notes_en: "" });
+      setNewSchedule({ course_id: "", title_ar: "", title_en: "", schedule_type: "lecture", scheduled_date: "", start_time: "", end_time: "", location_ar: "", location_en: "", notes_ar: "", notes_en: "", vice_dean_type: "students" });
       setShowScheduleDialog(false);
       await loadSchedules(user.id);
     } catch (err: any) {

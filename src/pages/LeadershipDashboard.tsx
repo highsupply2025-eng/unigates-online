@@ -322,6 +322,7 @@ const LeadershipDashboard = () => {
                      livestreams: { ar: "البث المباشر", en: "Live Streams" },
                      lectures: { ar: "المحاضرات", en: "Lectures" },
                      quizresults: { ar: "نتائج الاختبارات", en: "Quiz Results" },
+                     quizzes: { ar: "الاختبارات", en: "Quizzes" },
                      quizzesonline: { ar: "اعتماد الاختبارات", en: "Quizzes Approval" },
                      schedulesapproval: { ar: "اعتماد الجداول", en: "Schedules Approval" },
                      ratings: { ar: "التقييمات", en: "Ratings" },
@@ -329,6 +330,7 @@ const LeadershipDashboard = () => {
                      schedule: { ar: "الجداول", en: "Schedules" },
                      files: { ar: "الملفات", en: "Files" },
                      notifications: { ar: "الإشعارات", en: "Notifications" },
+
                    };
                    const cur = map[activeTab] ?? map.overview;
                    return isRtl ? cur.ar : cur.en;

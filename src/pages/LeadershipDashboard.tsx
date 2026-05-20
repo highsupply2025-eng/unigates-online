@@ -46,6 +46,7 @@ const LeadershipDashboard = () => {
   const [courses, setCourses] = useState<any[]>([]);
   const [liveStreams, setLiveStreams] = useState<any[]>([]);
   const [assignments, setAssignments] = useState<any[]>([]);
+  const [assignmentSubmissions, setAssignmentSubmissions] = useState<any[]>([]);
   const [episodes, setEpisodes] = useState<any[]>([]);
   const [ratings, setRatings] = useState<any[]>([]);
   const [streamAttendance, setStreamAttendance] = useState<Record<string, number>>({});

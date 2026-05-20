@@ -1403,23 +1403,12 @@ const LeadershipDashboard = () => {
           {/* Assignments */}
           <TabsContent value="assignments" id="section-assignments" dir={isRtl ? "rtl" : "ltr"}>
             <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
-              <h2 className="text-lg font-bold text-foreground">{isRtl ? "التكليفات والاختبارات" : "Assignments & Tests"}</h2>
+              <h2 className="text-lg font-bold text-foreground">{isRtl ? "نتائج التكليفات" : "Assignment Results"}</h2>
               <Button size="sm" variant="outline" onClick={() => exportToPDF("assignments")} className="gap-1.5">
                 <Download className="w-4 h-4" />
                 {isRtl ? "تحميل PDF" : "Export PDF"}
               </Button>
             </div>
-            <button
-              onClick={() => navigate("/leadership/demo/assignments")}
-              className="w-full mb-4 p-3 rounded-lg border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center justify-between gap-3"
-              dir={isRtl ? "rtl" : "ltr"}
-            >
-              <span className="flex items-center gap-2 text-sm font-medium text-primary">
-                <ClipboardList className="w-4 h-4" />
-                {isRtl ? "عنصر تجريبي — افتح الصفحة المستقلة" : "Demo item — open standalone page"}
-              </span>
-              <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
-            </button>
 
             <Card>
               <CardContent className="p-0 overflow-x-auto">
@@ -1427,44 +1416,41 @@ const LeadershipDashboard = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>{isRtl ? "العنوان" : "Title"}</TableHead>
-                      <TableHead className="hidden md:table-cell">{isRtl ? "الوصف" : "Description"}</TableHead>
                       <TableHead className="hidden sm:table-cell">{isRtl ? "الموعد النهائي" : "Due Date"}</TableHead>
-                      <TableHead>{isRtl ? "الملف" : "File"}</TableHead>
+                      <TableHead className="text-center">{isRtl ? "التسليمات" : "Submissions"}</TableHead>
+                      <TableHead className="text-center">{isRtl ? "المُصححة" : "Graded"}</TableHead>
+                      <TableHead className="text-center">{isRtl ? "متوسط الدرجة" : "Avg. Grade"}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {assignments.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                        <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                           {isRtl ? "لا توجد تكليفات" : "No assignments"}
                         </TableCell>
                       </TableRow>
                     ) : (
-                      assignments.map(a => (
-                        <TableRow key={a.id}>
-                          <TableCell className="font-medium max-w-[160px] sm:max-w-none truncate">{isRtl ? a.title_ar : a.title_en}</TableCell>
-                          <TableCell className="hidden md:table-cell text-sm text-muted-foreground max-w-[200px] truncate">
-                            {isRtl ? a.description_ar : a.description_en || "-"}
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell text-sm">
-                            {a.due_date ? (
-                              <span className={new Date(a.due_date) < new Date() ? "text-red-500" : ""}>
-                                {new Date(a.due_date).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
-                              </span>
-                            ) : "-"}
-                          </TableCell>
-                          <TableCell>
-                            {a.file_url && (
-                              <Button size="sm" variant="outline" asChild className="h-8 px-2 sm:h-9 sm:px-3">
-                                <a href={a.file_url} target="_blank" rel="noopener noreferrer">
-                                  <Download className="w-4 h-4 sm:me-1" />
-                                  <span className="hidden sm:inline">{a.file_name || (isRtl ? "تحميل" : "Download")}</span>
-                                </a>
-                              </Button>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))
+                      assignments.map(a => {
+                        const subs = assignmentSubmissions.filter((s: any) => s.assignment_id === a.id);
+                        const graded = subs.filter((s: any) => s.grade != null && s.grade !== "");
+                        const numeric = graded.map((s: any) => parseFloat(String(s.grade))).filter((n: number) => !isNaN(n));
+                        const avg = numeric.length ? (numeric.reduce((x, y) => x + y, 0) / numeric.length).toFixed(1) : "-";
+                        return (
+                          <TableRow key={a.id}>
+                            <TableCell className="font-medium max-w-[160px] sm:max-w-none truncate">{isRtl ? a.title_ar : a.title_en}</TableCell>
+                            <TableCell className="hidden sm:table-cell text-sm">
+                              {a.due_date ? (
+                                <span className={new Date(a.due_date) < new Date() ? "text-red-500" : ""}>
+                                  {new Date(a.due_date).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
+                                </span>
+                              ) : "-"}
+                            </TableCell>
+                            <TableCell className="text-center">{subs.length}</TableCell>
+                            <TableCell className="text-center">{graded.length}</TableCell>
+                            <TableCell className="text-center font-semibold">{avg}</TableCell>
+                          </TableRow>
+                        );
+                      })
                     )}
                   </TableBody>
                 </Table>

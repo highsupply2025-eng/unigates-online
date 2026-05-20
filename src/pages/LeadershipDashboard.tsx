@@ -322,6 +322,7 @@ const LeadershipDashboard = () => {
                      livestreams: { ar: "البث المباشر", en: "Live Streams" },
                      lectures: { ar: "المحاضرات", en: "Lectures" },
                      quizresults: { ar: "نتائج الاختبارات", en: "Quiz Results" },
+                     quizzes: { ar: "الاختبارات", en: "Quizzes" },
                      quizzesonline: { ar: "اعتماد الاختبارات", en: "Quizzes Approval" },
                      schedulesapproval: { ar: "اعتماد الجداول", en: "Schedules Approval" },
                      ratings: { ar: "التقييمات", en: "Ratings" },
@@ -329,6 +330,7 @@ const LeadershipDashboard = () => {
                      schedule: { ar: "الجداول", en: "Schedules" },
                      files: { ar: "الملفات", en: "Files" },
                      notifications: { ar: "الإشعارات", en: "Notifications" },
+
                    };
                    const cur = map[activeTab] ?? map.overview;
                    return isRtl ? cur.ar : cur.en;
@@ -347,7 +349,9 @@ const LeadershipDashboard = () => {
                 { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, onClick: () => setActiveTab("lectures"), active: activeTab === "lectures" },
                 { key: "quizzesonline", label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: ShieldCheck, onClick: () => setActiveTab("quizzesonline"), active: activeTab === "quizzesonline" },
                 { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, onClick: () => setActiveTab("schedulesapproval"), active: activeTab === "schedulesapproval" },
+                { key: "quizzes", label: isRtl ? "الاختبارات" : "Quizzes", Icon: CheckCircle, onClick: () => setActiveTab("quizzes"), active: activeTab === "quizzes" },
                 { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, onClick: () => setActiveTab("quizresults"), active: activeTab === "quizresults" },
+
                 { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, onClick: () => setActiveTab("ratings"), active: activeTab === "ratings" },
                 { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, onClick: () => setActiveTab("assignments"), active: activeTab === "assignments" },
                 { key: "schedule", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => setActiveTab("schedule"), active: activeTab === "schedule" },
@@ -368,6 +372,8 @@ const LeadershipDashboard = () => {
             <TabsTrigger value="quizresults">quizresults</TabsTrigger>
             <TabsTrigger value="quizzesonline">quizzesonline</TabsTrigger>
             <TabsTrigger value="schedulesapproval">schedulesapproval</TabsTrigger>
+            <TabsTrigger value="quizzes">quizzes</TabsTrigger>
+
             <TabsTrigger value="ratings">ratings</TabsTrigger>
             <TabsTrigger value="assignments">assignments</TabsTrigger>
             <TabsTrigger value="schedule">schedule</TabsTrigger>
@@ -811,7 +817,7 @@ const LeadershipDashboard = () => {
                     </Badge>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-5">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-5">
                     <Card className="bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/30">
                       <CardContent className="p-3 sm:p-4 text-center">
                         <div className="text-2xl sm:text-3xl font-black">{myTurn.length}</div>
@@ -824,13 +830,8 @@ const LeadershipDashboard = () => {
                         <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "قيد المراحل الأخرى" : "In other stages"}</div>
                       </CardContent>
                     </Card>
-                    <Card className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30">
-                      <CardContent className="p-3 sm:p-4 text-center">
-                        <div className="text-2xl sm:text-3xl font-black">{approved.length}</div>
-                        <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "معتمد بالكامل" : "Fully approved"}</div>
-                      </CardContent>
-                    </Card>
                   </div>
+
 
                   <div className="mb-6">
                     <h3 className="text-sm font-extrabold text-foreground mb-2 flex items-center gap-1.5">
@@ -860,15 +861,6 @@ const LeadershipDashboard = () => {
                     )}
                   </div>
 
-                  {approved.length > 0 && (
-                    <div className="mb-2">
-                      <h3 className="text-sm font-extrabold text-foreground mb-2 flex items-center gap-1.5">
-                        <Award className="w-4 h-4 text-blue-600" />
-                        {isRtl ? "معتمد بالكامل" : "Fully approved"}
-                      </h3>
-                      <QuizTable list={approved} showAction={false} />
-                    </div>
-                  )}
                 </>
               );
             })()}
@@ -980,7 +972,7 @@ const LeadershipDashboard = () => {
                     </Badge>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-5">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-5">
                     <Card className="bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/30">
                       <CardContent className="p-3 sm:p-4 text-center">
                         <div className="text-2xl sm:text-3xl font-black">{myTurn.length}</div>
@@ -993,13 +985,8 @@ const LeadershipDashboard = () => {
                         <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "قيد المراحل الأخرى" : "In other stages"}</div>
                       </CardContent>
                     </Card>
-                    <Card className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30">
-                      <CardContent className="p-3 sm:p-4 text-center">
-                        <div className="text-2xl sm:text-3xl font-black">{approved.length}</div>
-                        <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "معتمد بالكامل" : "Fully approved"}</div>
-                      </CardContent>
-                    </Card>
                   </div>
+
 
                   <div className="mb-6">
                     <h3 className="text-sm font-extrabold text-foreground mb-2 flex items-center gap-1.5">
@@ -1029,15 +1016,83 @@ const LeadershipDashboard = () => {
                     )}
                   </div>
 
-                  {approved.length > 0 && (
-                    <div className="mb-2">
-                      <h3 className="text-sm font-extrabold text-foreground mb-2 flex items-center gap-1.5">
-                        <CheckCheck className="w-4 h-4 text-blue-600" />
-                        {isRtl ? "معتمد بالكامل" : "Fully approved"}
-                      </h3>
-                      <SchedTable list={approved} showAction={false} />
-                    </div>
-                  )}
+                </>
+              );
+            })()}
+          </TabsContent>
+
+          {/* Quizzes - Fully approved only, role-filtered */}
+          <TabsContent value="quizzes" id="section-quizzes" dir={isRtl ? "rtl" : "ltr"}>
+            {(() => {
+              const vdType =
+                subRole === "vice_dean_students" ? "students"
+                : subRole === "vice_dean_postgrad" ? "postgrad"
+                : subRole === "vice_dean_environment" ? "environment"
+                : "";
+
+              const fullyApproved = quizzes.filter((q: any) =>
+                q.approved_by_lecturer && q.approved_by_head &&
+                q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad && q.approved_by_vice_dean_environment &&
+                q.approved_by_dean
+              );
+
+              const visible = userRole === "vice_dean" && vdType
+                ? fullyApproved.filter((q: any) => Array.isArray(q.vice_dean_type) && q.vice_dean_type.includes(vdType))
+                : fullyApproved;
+
+              return (
+                <>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5 text-emerald-600" />
+                      {isRtl ? "الاختبارات المعتمدة" : "Approved Quizzes"}
+                    </h2>
+                    <Badge variant="secondary" className="font-extrabold">{visible.length}</Badge>
+                  </div>
+                  <div className="overflow-x-auto rounded-xl border border-border bg-card">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>{isRtl ? "الاختبار" : "Quiz"}</TableHead>
+                          <TableHead className="hidden sm:table-cell">{isRtl ? "تاريخ الإنشاء" : "Created"}</TableHead>
+                          <TableHead className="text-end">{isRtl ? "الإجراء" : "Action"}</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {visible.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
+                              {isRtl ? "لا توجد اختبارات معتمدة" : "No approved quizzes"}
+                            </TableCell>
+                          </TableRow>
+                        ) : visible.map((q: any) => {
+                          const course = courses.find((c: any) => c.id === q.course_id);
+                          return (
+                            <TableRow key={q.id}>
+                              <TableCell className="font-bold">
+                                <div className="flex flex-col">
+                                  <span>{isRtl ? q.title_ar : q.title_en}</span>
+                                  {course && (
+                                    <span className="text-[10px] text-muted-foreground font-medium">
+                                      {isRtl ? course.title_ar : course.title_en}
+                                    </span>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell className="hidden sm:table-cell text-xs text-muted-foreground">
+                                {new Date(q.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}
+                              </TableCell>
+                              <TableCell className="text-end">
+                                <Button size="sm" variant="outline" onClick={() => navigate(`/quiz-results/${q.id}`)}>
+                                  {isRtl ? "عرض" : "View"}
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </>
               );
             })()}
@@ -1045,6 +1100,7 @@ const LeadershipDashboard = () => {
 
           {/* Quiz Results */}
           <TabsContent value="quizresults" id="section-quizresults" dir={isRtl ? "rtl" : "ltr"}>
+
             <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
               <h2 className="text-lg font-bold text-foreground">{isRtl ? "نتائج الاختبارات" : "Quiz Results"}</h2>
               <Button size="sm" variant="outline" onClick={() => exportToPDF("quizresults")} className="gap-1.5">
@@ -1433,6 +1489,81 @@ const LeadershipDashboard = () => {
               </span>
               <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
             </button>
+
+            {/* Fully-approved lecture schedules - role filtered */}
+            {(() => {
+              const vdType =
+                subRole === "vice_dean_students" ? "students"
+                : subRole === "vice_dean_postgrad" ? "postgrad"
+                : subRole === "vice_dean_environment" ? "environment"
+                : "";
+              const approvedScheds = lectureSchedules.filter((s: any) =>
+                s.approved_by_head && s.approved_by_vice_dean && s.approved_by_dean
+              );
+              const visible = userRole === "vice_dean" && vdType
+                ? approvedScheds.filter((s: any) => Array.isArray(s.vice_dean_type) && s.vice_dean_type.includes(vdType))
+                : approvedScheds;
+              return (
+                <Card className="mb-6">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600" />
+                      {isRtl ? "الجداول المعتمدة" : "Approved Schedules"}
+                      <Badge variant="secondary" className="ms-auto">{visible.length}</Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0 overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>{isRtl ? "العنوان" : "Title"}</TableHead>
+                          <TableHead className="hidden sm:table-cell">{isRtl ? "التاريخ" : "Date"}</TableHead>
+                          <TableHead className="text-end">{isRtl ? "الإجراء" : "Action"}</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {visible.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={3} className="text-center text-muted-foreground py-6">
+                              {isRtl ? "لا توجد جداول معتمدة" : "No approved schedules"}
+                            </TableCell>
+                          </TableRow>
+                        ) : visible.map((s: any) => {
+                          const course = courses.find((c: any) => c.id === s.course_id);
+                          const slug = (isRtl ? s.title_ar : s.title_en) || "schedule";
+                          const safe = String(slug).toLowerCase().replace(/[^a-z0-9\u0600-\u06FF]+/g, "-").replace(/^-+|-+$/g, "");
+                          return (
+                            <TableRow key={s.id}>
+                              <TableCell className="font-bold">
+                                <div className="flex flex-col">
+                                  <span>{isRtl ? s.title_ar : s.title_en}</span>
+                                  {course && (
+                                    <span className="text-[10px] text-muted-foreground font-medium">
+                                      {isRtl ? course.title_ar : course.title_en}
+                                    </span>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell className="hidden sm:table-cell text-xs text-muted-foreground">
+                                {s.scheduled_date ? new Date(s.scheduled_date).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : "-"}
+                                {s.start_time ? ` · ${s.start_time}` : ""}
+                              </TableCell>
+                              <TableCell className="text-end">
+                                <Button size="sm" variant="outline" onClick={() => navigate(`/schedule/${safe}-${s.id}`)}>
+                                  {isRtl ? "عرض" : "View"}
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              );
+            })()}
+
+
 
             {/* Upcoming Streams as schedule */}
             <Card className="mb-6">

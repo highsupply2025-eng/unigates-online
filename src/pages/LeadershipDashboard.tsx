@@ -811,7 +811,7 @@ const LeadershipDashboard = () => {
                     </Badge>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-5">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-5">
                     <Card className="bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/30">
                       <CardContent className="p-3 sm:p-4 text-center">
                         <div className="text-2xl sm:text-3xl font-black">{myTurn.length}</div>
@@ -824,13 +824,8 @@ const LeadershipDashboard = () => {
                         <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "قيد المراحل الأخرى" : "In other stages"}</div>
                       </CardContent>
                     </Card>
-                    <Card className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30">
-                      <CardContent className="p-3 sm:p-4 text-center">
-                        <div className="text-2xl sm:text-3xl font-black">{approved.length}</div>
-                        <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "معتمد بالكامل" : "Fully approved"}</div>
-                      </CardContent>
-                    </Card>
                   </div>
+
 
                   <div className="mb-6">
                     <h3 className="text-sm font-extrabold text-foreground mb-2 flex items-center gap-1.5">

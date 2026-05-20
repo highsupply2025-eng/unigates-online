@@ -855,15 +855,6 @@ const LeadershipDashboard = () => {
                     )}
                   </div>
 
-                  {approved.length > 0 && (
-                    <div className="mb-2">
-                      <h3 className="text-sm font-extrabold text-foreground mb-2 flex items-center gap-1.5">
-                        <Award className="w-4 h-4 text-blue-600" />
-                        {isRtl ? "معتمد بالكامل" : "Fully approved"}
-                      </h3>
-                      <QuizTable list={approved} showAction={false} />
-                    </div>
-                  )}
                 </>
               );
             })()}

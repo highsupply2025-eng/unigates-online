@@ -1490,6 +1490,81 @@ const LeadershipDashboard = () => {
               <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
             </button>
 
+            {/* Fully-approved lecture schedules - role filtered */}
+            {(() => {
+              const vdType =
+                subRole === "vice_dean_students" ? "students"
+                : subRole === "vice_dean_postgrad" ? "postgrad"
+                : subRole === "vice_dean_environment" ? "environment"
+                : "";
+              const approvedScheds = lectureSchedules.filter((s: any) =>
+                s.approved_by_head && s.approved_by_vice_dean && s.approved_by_dean
+              );
+              const visible = userRole === "vice_dean" && vdType
+                ? approvedScheds.filter((s: any) => Array.isArray(s.vice_dean_type) && s.vice_dean_type.includes(vdType))
+                : approvedScheds;
+              return (
+                <Card className="mb-6">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600" />
+                      {isRtl ? "الجداول المعتمدة" : "Approved Schedules"}
+                      <Badge variant="secondary" className="ms-auto">{visible.length}</Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0 overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>{isRtl ? "العنوان" : "Title"}</TableHead>
+                          <TableHead className="hidden sm:table-cell">{isRtl ? "التاريخ" : "Date"}</TableHead>
+                          <TableHead className="text-end">{isRtl ? "الإجراء" : "Action"}</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {visible.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={3} className="text-center text-muted-foreground py-6">
+                              {isRtl ? "لا توجد جداول معتمدة" : "No approved schedules"}
+                            </TableCell>
+                          </TableRow>
+                        ) : visible.map((s: any) => {
+                          const course = courses.find((c: any) => c.id === s.course_id);
+                          const slug = (isRtl ? s.title_ar : s.title_en) || "schedule";
+                          const safe = String(slug).toLowerCase().replace(/[^a-z0-9\u0600-\u06FF]+/g, "-").replace(/^-+|-+$/g, "");
+                          return (
+                            <TableRow key={s.id}>
+                              <TableCell className="font-bold">
+                                <div className="flex flex-col">
+                                  <span>{isRtl ? s.title_ar : s.title_en}</span>
+                                  {course && (
+                                    <span className="text-[10px] text-muted-foreground font-medium">
+                                      {isRtl ? course.title_ar : course.title_en}
+                                    </span>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell className="hidden sm:table-cell text-xs text-muted-foreground">
+                                {s.scheduled_date ? new Date(s.scheduled_date).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : "-"}
+                                {s.start_time ? ` · ${s.start_time}` : ""}
+                              </TableCell>
+                              <TableCell className="text-end">
+                                <Button size="sm" variant="outline" onClick={() => navigate(`/schedule/${safe}-${s.id}`)}>
+                                  {isRtl ? "عرض" : "View"}
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              );
+            })()}
+
+
+
             {/* Upcoming Streams as schedule */}
             <Card className="mb-6">
               <CardHeader className="pb-2">

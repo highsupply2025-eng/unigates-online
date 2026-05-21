@@ -44,12 +44,21 @@ const StudentAssignmentDetail = () => {
       });
       return;
     }
+    // Mandatory rating before final submission
+    setShowRating(true);
+  };
+
+  const finalizeSubmission = (rating: number) => {
     setSubmitted(true);
+    setShowRating(false);
     toast({
       title: isRtl ? "تم التسليم" : "Submitted",
-      description: isRtl ? "تم تسليم التكليف بنجاح" : "Your assignment was submitted successfully",
+      description: isRtl
+        ? `تم تسليم التكليف بنجاح. تقييمك: ${rating}/5`
+        : `Assignment submitted successfully. Your rating: ${rating}/5`,
     });
   };
+
 
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>

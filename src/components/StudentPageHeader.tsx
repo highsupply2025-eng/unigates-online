@@ -17,9 +17,12 @@ interface Props {
   backTo?: string;
   backLabelAr?: string;
   backLabelEn?: string;
+  /** Optional click interceptor for the back button. If provided, navigation is suppressed and this handler runs instead. */
+  onBackClick?: () => void;
 }
 
-const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true, backTo, backLabelAr, backLabelEn }: Props) => {
+const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true, backTo, backLabelAr, backLabelEn, onBackClick }: Props) => {
+
   const { t, language, toggleLanguage } = useLanguage();
   const navigate = useNavigate();
   const isRtl = language === "ar";

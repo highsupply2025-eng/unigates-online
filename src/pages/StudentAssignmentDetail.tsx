@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
+import MandatoryRatingDialog from "@/components/MandatoryRatingDialog";
 import { toast } from "@/hooks/use-toast";
 
 const StudentAssignmentDetail = () => {
@@ -15,6 +16,8 @@ const StudentAssignmentDetail = () => {
   const isRtl = language === "ar";
   const [answer, setAnswer] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [showRating, setShowRating] = useState(false);
+
 
   const assignment = {
     id: assignmentId || "demo-1",

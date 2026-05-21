@@ -50,10 +50,14 @@ function StageView() {
 
 const LiveStreamRoom = ({ streamId, streamTitle, isHost, participantName, onClose }: LiveStreamRoomProps) => {
   const { language } = useLanguage();
+  const { toast } = useToast();
   const [token, setToken] = useState<string | null>(null);
   const [serverUrl, setServerUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showLeaveRating, setShowLeaveRating] = useState(false);
+  const [hasRated, setHasRated] = useState(false);
+
 
   const fetchToken = useCallback(async () => {
     try {

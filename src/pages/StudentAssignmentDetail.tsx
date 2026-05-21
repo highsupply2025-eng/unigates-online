@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
+import MandatoryRatingDialog from "@/components/MandatoryRatingDialog";
 import { toast } from "@/hooks/use-toast";
 
 const StudentAssignmentDetail = () => {
@@ -15,6 +16,8 @@ const StudentAssignmentDetail = () => {
   const isRtl = language === "ar";
   const [answer, setAnswer] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [showRating, setShowRating] = useState(false);
+
 
   const assignment = {
     id: assignmentId || "demo-1",
@@ -41,12 +44,21 @@ const StudentAssignmentDetail = () => {
       });
       return;
     }
+    // Mandatory rating before final submission
+    setShowRating(true);
+  };
+
+  const finalizeSubmission = (rating: number) => {
     setSubmitted(true);
+    setShowRating(false);
     toast({
       title: isRtl ? "تم التسليم" : "Submitted",
-      description: isRtl ? "تم تسليم التكليف بنجاح" : "Your assignment was submitted successfully",
+      description: isRtl
+        ? `تم تسليم التكليف بنجاح. تقييمك: ${rating}/5`
+        : `Assignment submitted successfully. Your rating: ${rating}/5`,
     });
   };
+
 
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
@@ -58,6 +70,12 @@ const StudentAssignmentDetail = () => {
         backLabelAr="رجوع للتكليفات"
         backLabelEn="Back to Assignments"
       />
+      <MandatoryRatingDialog
+        open={showRating}
+        kind="assignment"
+        onSubmit={(rating) => finalizeSubmission(rating)}
+      />
+
       <main className="max-w-5xl mx-auto px-3 sm:px-4 py-5 sm:py-8 space-y-5">
         <Card className="overflow-hidden">
           <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-5 sm:p-6 text-white">

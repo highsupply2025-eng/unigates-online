@@ -17,9 +17,12 @@ interface Props {
   backTo?: string;
   backLabelAr?: string;
   backLabelEn?: string;
+  /** Optional click interceptor for the back button. If provided, navigation is suppressed and this handler runs instead. */
+  onBackClick?: () => void;
 }
 
-const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true, backTo, backLabelAr, backLabelEn }: Props) => {
+const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true, backTo, backLabelAr, backLabelEn, onBackClick }: Props) => {
+
   const { t, language, toggleLanguage } = useLanguage();
   const navigate = useNavigate();
   const isRtl = language === "ar";
@@ -60,13 +63,26 @@ const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true, backTo, bac
           </div>
         </Link>
         {backTo && (
-          <Link to={backTo} className="shrink-0">
-            <Button variant="default" size="sm" className="gap-1.5 font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/30 active:scale-95 transition-transform">
+          onBackClick ? (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={onBackClick}
+              className="shrink-0 gap-1.5 font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/30 active:scale-95 transition-transform"
+            >
               {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
               <span className="hidden xs:inline">{isRtl ? (backLabelAr ?? "رجوع") : (backLabelEn ?? "Back")}</span>
             </Button>
-          </Link>
+          ) : (
+            <Link to={backTo} className="shrink-0">
+              <Button variant="default" size="sm" className="gap-1.5 font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/30 active:scale-95 transition-transform">
+                {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+                <span className="hidden xs:inline">{isRtl ? (backLabelAr ?? "رجوع") : (backLabelEn ?? "Back")}</span>
+              </Button>
+            </Link>
+          )
         )}
+
         {!backTo && (
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <DashboardMenuDropdown

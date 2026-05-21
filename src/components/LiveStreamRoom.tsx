@@ -17,7 +17,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
+import MandatoryRatingDialog from "@/components/MandatoryRatingDialog";
 import { X, Radio, Users, Mic, MicOff, Star, MessageSquare } from "lucide-react";
+
 
 interface LiveStreamRoomProps {
   streamId: string;
@@ -48,10 +50,14 @@ function StageView() {
 
 const LiveStreamRoom = ({ streamId, streamTitle, isHost, participantName, onClose }: LiveStreamRoomProps) => {
   const { language } = useLanguage();
+  const { toast } = useToast();
   const [token, setToken] = useState<string | null>(null);
   const [serverUrl, setServerUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showLeaveRating, setShowLeaveRating] = useState(false);
+  const [hasRated, setHasRated] = useState(false);
+
 
   const fetchToken = useCallback(async () => {
     try {
@@ -101,9 +107,42 @@ const LiveStreamRoom = ({ streamId, streamTitle, isHost, participantName, onClos
         .from("live_streams")
         .update({ status: "ended" })
         .eq("id", streamId);
+      onClose();
+      return;
+    }
+    // Viewers must rate before leaving
+    if (!hasRated) {
+      setShowLeaveRating(true);
+      return;
     }
     onClose();
-  }, [isHost, streamId, onClose]);
+  }, [isHost, streamId, onClose, hasRated]);
+
+  const handleRatingSubmit = useCallback(async (rating: number, comment: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      onClose();
+      return;
+    }
+    const { error: saveErr } = await supabase
+      .from("live_stream_ratings")
+      .upsert(
+        { stream_id: streamId, user_id: user.id, rating, comment: comment || null },
+        { onConflict: "stream_id,user_id" }
+      );
+    if (saveErr) {
+      toast({
+        title: language === "ar" ? "تعذر حفظ التقييم" : "Could not save rating",
+        description: saveErr.message,
+        variant: "destructive",
+      });
+      return;
+    }
+    setHasRated(true);
+    setShowLeaveRating(false);
+    onClose();
+  }, [streamId, onClose, toast, language]);
+
 
   if (loading) {
     return (
@@ -229,9 +268,17 @@ const LiveStreamRoom = ({ streamId, streamTitle, isHost, participantName, onClos
           </div>
         </div>
       </LiveKitRoom>
+      {!isHost && (
+        <MandatoryRatingDialog
+          open={showLeaveRating}
+          kind="stream"
+          onSubmit={handleRatingSubmit}
+        />
+      )}
     </div>
   );
 };
+
 
 /* ---------- Host: mute specific participants via data channel ---------- */
 function HostMuteControls() {

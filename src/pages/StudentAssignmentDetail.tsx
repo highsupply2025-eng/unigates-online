@@ -70,6 +70,12 @@ const StudentAssignmentDetail = () => {
         backLabelAr="رجوع للتكليفات"
         backLabelEn="Back to Assignments"
       />
+      <MandatoryRatingDialog
+        open={showRating}
+        kind="assignment"
+        onSubmit={(rating) => finalizeSubmission(rating)}
+      />
+
       <main className="max-w-5xl mx-auto px-3 sm:px-4 py-5 sm:py-8 space-y-5">
         <Card className="overflow-hidden">
           <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-5 sm:p-6 text-white">

@@ -17,7 +17,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
+import MandatoryRatingDialog from "@/components/MandatoryRatingDialog";
 import { X, Radio, Users, Mic, MicOff, Star, MessageSquare } from "lucide-react";
+
 
 interface LiveStreamRoomProps {
   streamId: string;

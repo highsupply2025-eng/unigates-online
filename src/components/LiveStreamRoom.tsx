@@ -107,9 +107,42 @@ const LiveStreamRoom = ({ streamId, streamTitle, isHost, participantName, onClos
         .from("live_streams")
         .update({ status: "ended" })
         .eq("id", streamId);
+      onClose();
+      return;
+    }
+    // Viewers must rate before leaving
+    if (!hasRated) {
+      setShowLeaveRating(true);
+      return;
     }
     onClose();
-  }, [isHost, streamId, onClose]);
+  }, [isHost, streamId, onClose, hasRated]);
+
+  const handleRatingSubmit = useCallback(async (rating: number, comment: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      onClose();
+      return;
+    }
+    const { error: saveErr } = await supabase
+      .from("live_stream_ratings")
+      .upsert(
+        { stream_id: streamId, user_id: user.id, rating, comment: comment || null },
+        { onConflict: "stream_id,user_id" }
+      );
+    if (saveErr) {
+      toast({
+        title: language === "ar" ? "تعذر حفظ التقييم" : "Could not save rating",
+        description: saveErr.message,
+        variant: "destructive",
+      });
+      return;
+    }
+    setHasRated(true);
+    setShowLeaveRating(false);
+    onClose();
+  }, [streamId, onClose, toast, language]);
+
 
   if (loading) {
     return (

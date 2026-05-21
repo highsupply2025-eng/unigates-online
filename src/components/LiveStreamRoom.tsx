@@ -268,9 +268,17 @@ const LiveStreamRoom = ({ streamId, streamTitle, isHost, participantName, onClos
           </div>
         </div>
       </LiveKitRoom>
+      {!isHost && (
+        <MandatoryRatingDialog
+          open={showLeaveRating}
+          kind="stream"
+          onSubmit={handleRatingSubmit}
+        />
+      )}
     </div>
   );
 };
+
 
 /* ---------- Host: mute specific participants via data channel ---------- */
 function HostMuteControls() {

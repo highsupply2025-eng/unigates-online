@@ -1,15 +1,22 @@
-import { useParams } from "react-router-dom";
+import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { BookOpen, Play, Clock, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
+import MandatoryRatingDialog from "@/components/MandatoryRatingDialog";
+import { useToast } from "@/hooks/use-toast";
 
 const StudentLectureDetail = () => {
   const { lectureId } = useParams();
+  const navigate = useNavigate();
   const { language } = useLanguage();
+  const { toast } = useToast();
   const isRtl = language === "ar";
+  const [showRating, setShowRating] = useState(false);
+
 
   const lecture = {
     id: lectureId || "demo-1",

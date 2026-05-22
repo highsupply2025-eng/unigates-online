@@ -9,6 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
 import MandatoryRatingDialog from "@/components/MandatoryRatingDialog";
 import { toast } from "@/hooks/use-toast";
+import { hasRated, markRated } from "@/lib/rating-storage";
 
 const StudentAssignmentDetail = () => {
   const { assignmentId } = useParams();

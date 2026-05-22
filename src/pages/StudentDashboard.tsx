@@ -118,7 +118,7 @@ const StudentDashboard = () => {
               onLanguageToggle={toggleLanguage}
               onLogout={handleLogout}
               items={[
-                { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: () => navigate("/student"), active: true },
+                { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: () => navigate("/student/dashboard"), active: true },
                 ...menuItems.map((m) => ({
                   key: m.to,
                   label: m.label,

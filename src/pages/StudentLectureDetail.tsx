@@ -8,6 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
 import MandatoryRatingDialog from "@/components/MandatoryRatingDialog";
 import { useToast } from "@/hooks/use-toast";
+import { hasRated, markRated } from "@/lib/rating-storage";
 
 const StudentLectureDetail = () => {
   const { lectureId } = useParams();
@@ -16,6 +17,14 @@ const StudentLectureDetail = () => {
   const { toast } = useToast();
   const isRtl = language === "ar";
   const [showRating, setShowRating] = useState(false);
+
+  const requestBack = () => {
+    if (hasRated("lecture", lectureId)) {
+      navigate("/student/lectures");
+    } else {
+      setShowRating(true);
+    }
+  };
 
 
   const lecture = {
@@ -40,12 +49,13 @@ const StudentLectureDetail = () => {
         backTo="/student/lectures"
         backLabelAr="رجوع للمحاضرات"
         backLabelEn="Back to Lectures"
-        onBackClick={() => setShowRating(true)}
+        onBackClick={requestBack}
       />
       <MandatoryRatingDialog
         open={showRating}
         kind="lecture"
         onSubmit={async (rating) => {
+          markRated("lecture", lectureId);
           toast({
             title: isRtl ? "شكراً لتقييمك!" : "Thanks for rating!",
             description: isRtl ? `تقييمك: ${rating}/5` : `Your rating: ${rating}/5`,

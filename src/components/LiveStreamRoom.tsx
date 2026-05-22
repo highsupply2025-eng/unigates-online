@@ -101,6 +101,24 @@ const LiveStreamRoom = ({ streamId, streamTitle, isHost, participantName, onClos
     fetchToken();
   }, [fetchToken]);
 
+  // Check if this viewer already rated this stream (don't prompt again)
+  useEffect(() => {
+    if (isHost) return;
+    let cancelled = false;
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("live_stream_ratings")
+        .select("rating")
+        .eq("stream_id", streamId)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!cancelled && data) setHasRated(true);
+    })();
+    return () => { cancelled = true; };
+  }, [streamId, isHost]);
+
   const handleDisconnect = useCallback(async () => {
     if (isHost) {
       await supabase

@@ -45,18 +45,25 @@ const StudentAssignmentDetail = () => {
       });
       return;
     }
-    // Mandatory rating before final submission
+    // Skip mandatory rating if the student already rated this assignment
+    if (hasRated("assignment", assignmentId)) {
+      finalizeSubmission(0);
+      return;
+    }
     setShowRating(true);
   };
 
   const finalizeSubmission = (rating: number) => {
+    if (rating > 0) markRated("assignment", assignmentId);
     setSubmitted(true);
     setShowRating(false);
     toast({
       title: isRtl ? "تم التسليم" : "Submitted",
-      description: isRtl
-        ? `تم تسليم التكليف بنجاح. تقييمك: ${rating}/5`
-        : `Assignment submitted successfully. Your rating: ${rating}/5`,
+      description: rating > 0
+        ? (isRtl
+            ? `تم تسليم التكليف بنجاح. تقييمك: ${rating}/5`
+            : `Assignment submitted successfully. Your rating: ${rating}/5`)
+        : (isRtl ? "تم تسليم التكليف بنجاح" : "Assignment submitted successfully"),
     });
   };
 

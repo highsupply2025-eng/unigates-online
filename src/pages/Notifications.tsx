@@ -170,7 +170,7 @@ const Notifications = () => {
           headerTitle: isRtl ? "لوحة الطالب" : "Student Dashboard",
           HeaderIcon: GraduationCap,
           menuItems: [
-            { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/student") },
+            { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/student/dashboard") },
             { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-indigo-500 to-indigo-600", onClick: goRoot("/student/lectures") },
             { key: "live", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", onClick: goRoot("/student/live") },
             { key: "quizzes", label: isRtl ? "الاختبارات أونلاين" : "Online Tests", Icon: ClipboardList, color: "from-purple-500 to-purple-600", onClick: goRoot("/student/quizzes") },

@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 interface Props {
   open: boolean;
   /** Target kind being rated — for labels only */
-  kind: "lecture" | "stream" | "assignment";
+  kind: "lecture" | "stream" | "assignment" | "quiz" | "schedule";
   /** Called with rating (1-5) and optional comment after a valid submission. Should perform/allow the gated action. */
   onSubmit: (rating: number, comment: string) => Promise<void> | void;
   /** Mandatory dialogs are not dismissible by default. */
@@ -20,6 +20,8 @@ const TITLES = {
   lecture: { ar: "قيّم المحاضرة قبل الإغلاق", en: "Rate the lecture before closing" },
   stream: { ar: "قيّم البث قبل المغادرة", en: "Rate the stream before leaving" },
   assignment: { ar: "قيّم التكليف قبل التسليم", en: "Rate the assignment before submitting" },
+  quiz: { ar: "قيّم الاختبار قبل الإنهاء", en: "Rate the quiz before finishing" },
+  schedule: { ar: "قيّم الجدول قبل الإغلاق", en: "Rate the schedule before closing" },
 };
 
 const MandatoryRatingDialog = ({ open, kind, onSubmit, onOpenChange }: Props) => {

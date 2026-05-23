@@ -1102,7 +1102,7 @@ const LecturerDashboard = () => {
                     <Download className="w-4 h-4" />{isRtl ? "تحميل PDF" : "Export PDF"}
                   </Button>
                 </div>
-                <RatingsBreakdown lecturerId={userId || undefined} />
+                <RatingsBreakdown lecturerId={user?.id || null} />
               </TabsContent>
 
               {/* ===== ANALYTICS / EXPORT TAB ===== */}

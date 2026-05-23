@@ -32,6 +32,7 @@ import { MiniBars } from "@/components/MiniBars";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
 import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
+import RatingsBreakdown from "@/components/RatingsBreakdown";
 import { useSmartBack } from "@/hooks/use-smart-back";
 
 const LecturerDashboard = () => {

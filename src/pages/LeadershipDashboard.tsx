@@ -26,6 +26,7 @@ import { StudentPillActivityChart as SectionsActivityChart } from "@/components/
 import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
+import RatingsBreakdown from "@/components/RatingsBreakdown";
 
 const LeadershipDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();

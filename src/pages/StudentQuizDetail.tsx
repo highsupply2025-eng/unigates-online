@@ -66,6 +66,9 @@ const StudentQuizDetail = () => {
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState(0);
 
+  const [showRating, setShowRating] = useState(false);
+  const [pendingScore, setPendingScore] = useState(0);
+
   const quiz = {
     id: quizId || "demo-1",
     titleAr: "اختبار تجريبي - تقييم سريع",
@@ -75,6 +78,11 @@ const StudentQuizDetail = () => {
     duration: 15,
     descAr: "اختبار تجريبي قصير لعرض شكل صفحة الاختبار. أجب على الأسئلة ثم اضغط تسليم.",
     descEn: "Short demo quiz showcasing the quiz page. Answer the questions then click submit.",
+  };
+
+  const finalize = (s: number) => {
+    setScore(s);
+    setSubmitted(true);
   };
 
   const handleSubmit = () => {
@@ -87,8 +95,12 @@ const StudentQuizDetail = () => {
       return;
     }
     const s = QUESTIONS.reduce((acc, q) => acc + (answers[q.id] === q.correct ? 1 : 0), 0);
-    setScore(s);
-    setSubmitted(true);
+    if (hasRated("quiz", quizId)) {
+      finalize(s);
+    } else {
+      setPendingScore(s);
+      setShowRating(true);
+    }
   };
 
   const pct = Math.round((score / QUESTIONS.length) * 100);

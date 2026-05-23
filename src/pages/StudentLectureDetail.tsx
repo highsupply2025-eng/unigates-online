@@ -55,7 +55,28 @@ const StudentLectureDetail = () => {
       <MandatoryRatingDialog
         open={showRating}
         kind="lecture"
-        onSubmit={async (rating) => {
+        onSubmit={async (rating, comment) => {
+          try {
+            const { data: auth } = await supabase.auth.getUser();
+            const uid = auth.user?.id;
+            if (uid && lectureId) {
+              // Try to look up course_id from course_episodes (lectureId may equal episode id)
+              const { data: ep } = await supabase
+                .from("course_episodes")
+                .select("course_id")
+                .eq("id", lectureId)
+                .maybeSingle();
+              await supabase.from("lecture_ratings").insert({
+                lecture_id: lectureId,
+                course_id: ep?.course_id ?? null,
+                user_id: uid,
+                rating,
+                comment: comment || null,
+              });
+            }
+          } catch (e) {
+            console.warn("lecture rating insert failed", e);
+          }
           markRated("lecture", lectureId);
           toast({
             title: isRtl ? "شكراً لتقييمك!" : "Thanks for rating!",

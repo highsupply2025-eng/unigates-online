@@ -6,7 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
+import MandatoryRatingDialog from "@/components/MandatoryRatingDialog";
 import { toast } from "@/hooks/use-toast";
+import { hasRated, markRated } from "@/lib/rating-storage";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Question {
   id: string;
@@ -63,6 +66,9 @@ const StudentQuizDetail = () => {
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState(0);
 
+  const [showRating, setShowRating] = useState(false);
+  const [pendingScore, setPendingScore] = useState(0);
+
   const quiz = {
     id: quizId || "demo-1",
     titleAr: "اختبار تجريبي - تقييم سريع",
@@ -72,6 +78,11 @@ const StudentQuizDetail = () => {
     duration: 15,
     descAr: "اختبار تجريبي قصير لعرض شكل صفحة الاختبار. أجب على الأسئلة ثم اضغط تسليم.",
     descEn: "Short demo quiz showcasing the quiz page. Answer the questions then click submit.",
+  };
+
+  const finalize = (s: number) => {
+    setScore(s);
+    setSubmitted(true);
   };
 
   const handleSubmit = () => {
@@ -84,8 +95,12 @@ const StudentQuizDetail = () => {
       return;
     }
     const s = QUESTIONS.reduce((acc, q) => acc + (answers[q.id] === q.correct ? 1 : 0), 0);
-    setScore(s);
-    setSubmitted(true);
+    if (hasRated("quiz", quizId)) {
+      finalize(s);
+    } else {
+      setPendingScore(s);
+      setShowRating(true);
+    }
   };
 
   const pct = Math.round((score / QUESTIONS.length) * 100);
@@ -99,6 +114,29 @@ const StudentQuizDetail = () => {
         backTo="/student/quizzes"
         backLabelAr="رجوع للاختبارات"
         backLabelEn="Back to Quizzes"
+      />
+      <MandatoryRatingDialog
+        open={showRating}
+        kind="quiz"
+        onSubmit={async (rating, comment) => {
+          try {
+            const { data: auth } = await supabase.auth.getUser();
+            const uid = auth.user?.id;
+            if (uid && quizId) {
+              await supabase.from("quiz_ratings").insert({
+                quiz_id: quizId,
+                user_id: uid,
+                rating,
+                comment: comment || null,
+              });
+            }
+          } catch (e) {
+            console.warn("quiz rating insert failed", e);
+          }
+          markRated("quiz", quizId);
+          setShowRating(false);
+          finalize(pendingScore);
+        }}
       />
       <main className="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8 space-y-5">
         <Card className="overflow-hidden">

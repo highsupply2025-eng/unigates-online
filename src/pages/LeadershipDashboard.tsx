@@ -26,6 +26,7 @@ import { StudentPillActivityChart as SectionsActivityChart } from "@/components/
 import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
+import RatingsBreakdown from "@/components/RatingsBreakdown";
 
 const LeadershipDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -1315,89 +1316,13 @@ const LeadershipDashboard = () => {
           {/* Ratings */}
           <TabsContent value="ratings" id="section-ratings" dir={isRtl ? "rtl" : "ltr"}>
             <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
-              <h2 className="text-lg font-bold text-foreground">{isRtl ? "تقييمات المحاضرين" : "Lecturer Ratings"}</h2>
+              <h2 className="text-lg font-bold text-foreground">{isRtl ? "تقييمات الطلبة" : "Student Ratings"}</h2>
               <Button size="sm" variant="outline" onClick={() => exportToPDF("ratings")} className="gap-1.5">
                 <Download className="w-4 h-4" />
                 {isRtl ? "تحميل PDF" : "Export PDF"}
               </Button>
             </div>
-            <button
-              onClick={() => navigate("/leadership/demo/ratings")}
-              className="w-full mb-4 p-3 rounded-lg border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center justify-between gap-3"
-              dir={isRtl ? "rtl" : "ltr"}
-            >
-              <span className="flex items-center gap-2 text-sm font-medium text-primary">
-                <Star className="w-4 h-4" />
-                {isRtl ? "عنصر تجريبي — افتح الصفحة المستقلة" : "Demo item — open standalone page"}
-              </span>
-              <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
-            </button>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-6">
-              <Card>
-                <CardContent className="p-3 sm:p-4 text-center">
-                  <p className="text-2xl sm:text-3xl font-black text-amber-500">{avgRating}</p>
-                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "متوسط التقييم" : "Avg Rating"}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-3 sm:p-4 text-center">
-                  <p className="text-2xl sm:text-3xl font-black text-primary">{ratings.length}</p>
-                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "عدد التقييمات" : "Total Ratings"}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-3 sm:p-4 text-center">
-                  <p className="text-2xl sm:text-3xl font-black text-emerald-500">{ratings.filter(r => r.rating >= 4).length}</p>
-                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "تقييم ممتاز (4+)" : "Excellent (4+)"}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-3 sm:p-4 text-center">
-                  <p className="text-2xl sm:text-3xl font-black text-red-500">{ratings.filter(r => r.rating <= 2).length}</p>
-                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "يحتاج تحسين (≤2)" : "Needs Improvement (≤2)"}</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card>
-              <CardContent className="p-0 overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{isRtl ? "التقييم" : "Rating"}</TableHead>
-                      <TableHead>{isRtl ? "التعليق" : "Comment"}</TableHead>
-                      <TableHead className="hidden sm:table-cell">{isRtl ? "التاريخ" : "Date"}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {ratings.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
-                          {isRtl ? "لا توجد تقييمات" : "No ratings yet"}
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      ratings.slice(0, 30).map(r => (
-                        <TableRow key={r.id}>
-                          <TableCell>
-                            <div className="flex items-center gap-0.5">
-                              {Array.from({ length: 5 }).map((_, i) => (
-                                <Star key={i} className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${i < r.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}`} />
-                              ))}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-xs sm:text-sm max-w-[180px] sm:max-w-none truncate">{r.comment || (isRtl ? "بدون تعليق" : "No comment")}</TableCell>
-                          <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
-                            {new Date(r.created_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            <RatingsBreakdown />
           </TabsContent>
 
           {/* Assignments */}

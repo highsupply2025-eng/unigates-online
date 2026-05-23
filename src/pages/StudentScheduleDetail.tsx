@@ -1,14 +1,24 @@
-import { useParams } from "react-router-dom";
-import { Calendar, Clock, MapPin, BookOpen, User, FileText } from "lucide-react";
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Calendar, Clock, MapPin, BookOpen, User, FileText, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
+import MandatoryRatingDialog from "@/components/MandatoryRatingDialog";
+import { hasRated, markRated } from "@/lib/rating-storage";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const StudentScheduleDetail = () => {
   const { scheduleId } = useParams();
+  const navigate = useNavigate();
   const { language } = useLanguage();
+  const { toast } = useToast();
   const isRtl = language === "ar";
+  const [showRating, setShowRating] = useState(false);
+  const alreadyRated = hasRated("schedule", scheduleId);
 
   const schedule = {
     id: scheduleId || "demo-1",
@@ -29,6 +39,11 @@ const StudentScheduleDetail = () => {
       "This is a demo schedule entry showcasing the detail layout, including session info, date, and location.",
   };
 
+  const requestBack = () => {
+    if (alreadyRated) navigate("/student/schedules");
+    else setShowRating(true);
+  };
+
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <StudentPageHeader
@@ -38,6 +53,34 @@ const StudentScheduleDetail = () => {
         backTo="/student/schedules"
         backLabelAr="رجوع للجداول"
         backLabelEn="Back to Schedules"
+        onBackClick={requestBack}
+      />
+      <MandatoryRatingDialog
+        open={showRating}
+        kind="schedule"
+        onSubmit={async (rating, comment) => {
+          try {
+            const { data: auth } = await supabase.auth.getUser();
+            const uid = auth.user?.id;
+            if (uid && scheduleId) {
+              await supabase.from("schedule_ratings").insert({
+                schedule_id: scheduleId,
+                user_id: uid,
+                rating,
+                comment: comment || null,
+              });
+            }
+          } catch (e) {
+            console.warn("schedule rating insert failed", e);
+          }
+          markRated("schedule", scheduleId);
+          toast({
+            title: isRtl ? "شكراً لتقييمك!" : "Thanks for rating!",
+            description: isRtl ? `تقييمك: ${rating}/5` : `Your rating: ${rating}/5`,
+          });
+          setShowRating(false);
+          navigate("/student/schedules");
+        }}
       />
       <main className="max-w-5xl mx-auto px-3 sm:px-4 py-5 sm:py-8 space-y-5">
         <Card className="overflow-hidden">
@@ -92,6 +135,15 @@ const StudentScheduleDetail = () => {
             </p>
           </CardContent>
         </Card>
+
+        {!alreadyRated && (
+          <div className="flex justify-center">
+            <Button onClick={() => setShowRating(true)} size="lg" className="gap-2">
+              <Star className="w-5 h-5" />
+              {isRtl ? "قيّم هذا الجدول" : "Rate this schedule"}
+            </Button>
+          </div>
+        )}
       </main>
     </div>
   );

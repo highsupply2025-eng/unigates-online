@@ -32,6 +32,7 @@ import { MiniBars } from "@/components/MiniBars";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
 import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
+import RatingsBreakdown from "@/components/RatingsBreakdown";
 import { useSmartBack } from "@/hooks/use-smart-back";
 
 const LecturerDashboard = () => {
@@ -1101,35 +1102,7 @@ const LecturerDashboard = () => {
                     <Download className="w-4 h-4" />{isRtl ? "تحميل PDF" : "Export PDF"}
                   </Button>
                 </div>
-                <Card className="mb-6 border-primary/20">
-                  <CardContent className="p-6 text-center">
-                    <div className="flex items-center justify-center gap-2 mb-2">
-                      {[1, 2, 3, 4, 5].map(star => {
-                        const avg = lecturerRatings.length > 0 ? lecturerRatings.reduce((a, r) => a + r.rating, 0) / lecturerRatings.length : 0;
-                        return <Star key={star} className={`w-6 h-6 ${star <= Math.round(avg) ? 'text-amber-400 fill-amber-400' : 'text-muted-foreground/30'}`} />;
-                      })}
-                    </div>
-                    <p className="text-2xl font-black text-primary">
-                      {lecturerRatings.length > 0 ? (lecturerRatings.reduce((a, r) => a + r.rating, 0) / lecturerRatings.length).toFixed(1) : "—"}
-                    </p>
-                    <p className="text-sm text-muted-foreground">{lecturerRatings.length} {isRtl ? "تقييم" : "ratings"}</p>
-                  </CardContent>
-                </Card>
-                {lecturerRatings.length > 0 && (
-                  <div className="space-y-3">
-                    {lecturerRatings.map(r => (
-                      <Card key={r.id}>
-                        <CardContent className="p-4">
-                          <div className="flex items-center gap-1 mb-2">
-                            {[1, 2, 3, 4, 5].map(s => <Star key={s} className={`w-4 h-4 ${s <= r.rating ? 'text-amber-400 fill-amber-400' : 'text-muted-foreground/30'}`} />)}
-                          </div>
-                          {r.comment && <p className="text-sm text-foreground">{r.comment}</p>}
-                          <p className="text-xs text-muted-foreground mt-2">{new Date(r.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</p>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
+                <RatingsBreakdown lecturerId={user?.id || null} />
               </TabsContent>
 
               {/* ===== ANALYTICS / EXPORT TAB ===== */}

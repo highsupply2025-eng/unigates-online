@@ -918,6 +918,36 @@ export type Database = {
         }
         Relationships: []
       }
+      lecture_ratings: {
+        Row: {
+          comment: string | null
+          course_id: string | null
+          created_at: string
+          id: string
+          lecture_id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          lecture_id: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          lecture_id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       lecture_schedules: {
         Row: {
           approved_by_dean: boolean
@@ -1312,6 +1342,36 @@ export type Database = {
           },
         ]
       }
+      quiz_ratings: {
+        Row: {
+          comment: string | null
+          course_id: string | null
+          created_at: string
+          id: string
+          quiz_id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          quiz_id: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          quiz_id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       quiz_submissions: {
         Row: {
           answers: Json
@@ -1489,6 +1549,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      schedule_ratings: {
+        Row: {
+          comment: string | null
+          course_id: string | null
+          created_at: string
+          id: string
+          rating: number
+          schedule_id: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          schedule_id: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          schedule_id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       schedule_views: {
         Row: {
@@ -2125,6 +2215,7 @@ export type Database = {
         Args: { _department_id: string; _user_id: string }
         Returns: boolean
       }
+      is_leadership: { Args: { _user_id: string }; Returns: boolean }
       quiz_results_approved: { Args: { _quiz_id: string }; Returns: boolean }
       schedule_fully_approved: { Args: { _id: string }; Returns: boolean }
       submit_quiz: {

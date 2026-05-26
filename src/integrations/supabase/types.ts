@@ -242,6 +242,60 @@ export type Database = {
         }
         Relationships: []
       }
+      cloudflare_live_streams: {
+        Row: {
+          created_at: string
+          description: string | null
+          ended_at: string | null
+          id: string
+          lecturer_id: string
+          live_input_uid: string
+          playback_dash_url: string | null
+          playback_hls_url: string | null
+          recording_uid: string | null
+          rtmps_stream_key: string
+          rtmps_url: string
+          started_at: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          ended_at?: string | null
+          id?: string
+          lecturer_id: string
+          live_input_uid: string
+          playback_dash_url?: string | null
+          playback_hls_url?: string | null
+          recording_uid?: string | null
+          rtmps_stream_key: string
+          rtmps_url: string
+          started_at?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          ended_at?: string | null
+          id?: string
+          lecturer_id?: string
+          live_input_uid?: string
+          playback_dash_url?: string | null
+          playback_hls_url?: string | null
+          recording_uid?: string | null
+          rtmps_stream_key?: string
+          rtmps_url?: string
+          started_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       college_invitations: {
         Row: {
           college_id: string
@@ -1962,6 +2016,51 @@ export type Database = {
           id?: string | null
           school_name?: string | null
           student_count?: number | null
+        }
+        Relationships: []
+      }
+      cloudflare_live_streams_public: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          ended_at: string | null
+          id: string | null
+          lecturer_id: string | null
+          live_input_uid: string | null
+          playback_dash_url: string | null
+          playback_hls_url: string | null
+          recording_uid: string | null
+          started_at: string | null
+          status: string | null
+          title: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          ended_at?: string | null
+          id?: string | null
+          lecturer_id?: string | null
+          live_input_uid?: string | null
+          playback_dash_url?: string | null
+          playback_hls_url?: string | null
+          recording_uid?: string | null
+          started_at?: string | null
+          status?: string | null
+          title?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          ended_at?: string | null
+          id?: string | null
+          lecturer_id?: string | null
+          live_input_uid?: string | null
+          playback_dash_url?: string | null
+          playback_hls_url?: string | null
+          recording_uid?: string | null
+          started_at?: string | null
+          status?: string | null
+          title?: string | null
         }
         Relationships: []
       }

@@ -363,9 +363,7 @@ const InstitutionDashboard = () => {
           max_uses: 1,
           is_active: true,
         }));
-        const { error: insertError } = await supabase.from(tableName as any).insert(inserts);
-        if (!insertError) {
-          // Free leadership invitations created — UI surfaces them via the Invitations tab.
+        await supabase.from(tableName as any).insert(inserts);
         const { data: allInvites } = await supabase
           .from(tableName as any)
           .select("*")

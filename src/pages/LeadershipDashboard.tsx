@@ -53,43 +53,16 @@ const LeadershipDashboard = () => {
   const [streamAttendance, setStreamAttendance] = useState<Record<string, number>>({});
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [quizSubmissions, setQuizSubmissions] = useState<any[]>([]);
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const notifications: any[] = [];
   const [lectureSchedules, setLectureSchedules] = useState<any[]>([]);
 
   useEffect(() => {
     checkAccess();
-    loadNotifications();
-    const channel = supabase
-      .channel('leadership-notifications')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, () => {
-        loadNotifications();
-      })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
   }, []);
 
-  const loadNotifications = async () => {
-    const { data } = await supabase
-      .from("notifications")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(50);
-    setNotifications(data || []);
-  };
-
-  const markNotificationRead = async (id: string) => {
-    await supabase.from("notifications").update({ is_read: true }).eq("id", id);
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
-  };
-
-  const markAllNotificationsRead = async () => {
-    const unreadIds = notifications.filter(n => !n.is_read).map(n => n.id);
-    if (unreadIds.length === 0) return;
-    await Promise.all(unreadIds.map(id => supabase.from("notifications").update({ is_read: true }).eq("id", id)));
-    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
-  };
-
-  const unreadNotifications = notifications.filter(n => !n.is_read).length;
+  const markNotificationRead = async (_id: string) => {};
+  const markAllNotificationsRead = async () => {};
+  const unreadNotifications = 0;
 
 
   const checkAccess = async () => {

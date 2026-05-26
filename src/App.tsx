@@ -29,7 +29,7 @@ const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const WatchStream = lazy(() => import("./pages/WatchStream"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
-const Notifications = lazy(() => import("./pages/Notifications"));
+
 const StudentDashboard = lazy(() => import("./pages/StudentDashboard"));
 const StudentLectures = lazy(() => import("./pages/StudentLectures"));
 const StudentLectureDetail = lazy(() => import("./pages/StudentLectureDetail"));
@@ -170,7 +170,7 @@ const App = () => (
               
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/book-store/profile" element={<UserProfile />} />
-              <Route path="/notifications" element={<Notifications />} />
+              
               <Route path="/student/dashboard" element={<StudentDashboard />} />
               <Route path="/student/lectures" element={<StudentLectures />} />
               <Route path="/student/lectures/:lectureId" element={<StudentLectureDetail />} />

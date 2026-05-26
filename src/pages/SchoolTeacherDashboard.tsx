@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import NotificationBell from "@/components/NotificationBell";
+
 import BackButton from "@/components/BackButton";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { TrendIndicator } from "@/components/TrendIndicator";

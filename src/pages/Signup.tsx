@@ -65,25 +65,15 @@ const Signup = () => {
     const code = deptInviteFromUrl || collegeInviteFromUrl;
     const role = roleFromUrl;
     if (code && role) {
-      // Try to determine institution type by checking both tables
+      // Use SECURITY DEFINER RPC to avoid exposing invitation tables
       const checkInstitution = async () => {
-        // Check college_invitations first
-        const { data: collegeData } = await supabase
-          .from("college_invitations")
-          .select("id")
-          .eq("invitation_code", code)
-          .maybeSingle();
-        if (collegeData) {
+        const { data: instRows } = await supabase.rpc("verify_institution_invitation" as any, { _code: code });
+        const inst = Array.isArray(instRows) && instRows.length > 0 ? (instRows[0] as any) : null;
+        if (inst?.kind === "college") {
           navigate(`/signup/college/${role}?code=${code}`, { replace: true });
           return;
         }
-        // Check institute_invitations
-        const { data: instituteData } = await supabase
-          .from("institute_invitations")
-          .select("id")
-          .eq("invitation_code", code)
-          .maybeSingle();
-        if (instituteData) {
+        if (inst?.kind === "institute") {
           navigate(`/signup/institute/${role}?code=${code}`, { replace: true });
           return;
         }

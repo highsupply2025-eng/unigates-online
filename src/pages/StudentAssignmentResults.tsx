@@ -157,7 +157,7 @@ const StudentAssignmentResults = () => {
                                 <div className="flex items-center gap-2 mt-1">
                                   {isGraded ? (
                                     <>
-                                      <Badge variant={ok ? "default" : "destructive"} className="text-[10px]">{r.grade}{r.assignment?.max_grade ? `/${r.assignment.max_grade}` : ""}</Badge>
+                                      <Badge variant={ok ? "default" : "destructive"} className="text-[10px]">{r.grade}</Badge>
                                       <span className="text-[11px] font-bold">{pct}%</span>
                                     </>
                                   ) : (
@@ -200,7 +200,7 @@ const StudentAssignmentResults = () => {
                                 <TableCell className="text-xs sm:text-sm font-medium">{isRtl ? r.assignment?.title_ar : r.assignment?.title_en}</TableCell>
                                 <TableCell className="text-xs sm:text-sm text-muted-foreground">{isRtl ? r.course?.title_ar : r.course?.title_en}</TableCell>
                                 <TableCell className="text-xs sm:text-sm font-bold">
-                                  {isGraded ? `${r.grade}${r.assignment?.max_grade ? `/${r.assignment.max_grade}` : ""}` : "—"}
+                                  {isGraded ? String(r.grade) : "—"}
                                 </TableCell>
                                 <TableCell>
                                   {isGraded ? (

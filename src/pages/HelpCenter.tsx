@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import SimpleHeader from "@/components/SimpleHeader";
+import SEO from "@/components/SEO";
 import SiteFooter from "@/components/SiteFooter";
 
 const HelpCenter = () => {
@@ -63,6 +64,10 @@ const HelpCenter = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
+      <SEO
+        title={isRtl ? "مركز المساعدة — UNIGATES" : "Help Center — UNIGATES"}
+        description={isRtl ? "إجابات ودعم حول الحساب، الدورات، المدفوعات، والإعدادات التقنية على منصة UNIGATES." : "Answers and support for accounts, courses, payments, and technical settings on UNIGATES."}
+      />
       <SimpleHeader />
 
       <main className="flex-1">

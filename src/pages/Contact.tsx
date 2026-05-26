@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import SimpleHeader from "@/components/SimpleHeader";
+import SEO from "@/components/SEO";
 import SiteFooter from "@/components/SiteFooter";
 import { useState } from "react";
 
@@ -75,6 +76,10 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
+      <SEO
+        title={isRtl ? "تواصل معنا — UNIGATES" : "Contact UNIGATES"}
+        description={isRtl ? "تواصل مع فريق UNIGATES عبر البريد الإلكتروني، الهاتف، أو نموذج التواصل." : "Get in touch with the UNIGATES team via email, phone, or our contact form."}
+      />
       <SimpleHeader />
 
       <main className="flex-1">

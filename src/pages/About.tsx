@@ -3,6 +3,7 @@ import { GraduationCap, Target, Eye, Users, BookOpen, Globe, Award } from "lucid
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import SimpleHeader from "@/components/SimpleHeader";
+import SEO from "@/components/SEO";
 import SiteFooter from "@/components/SiteFooter";
 
 const About = () => {
@@ -66,6 +67,10 @@ const About = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
+      <SEO
+        title={isRtl ? "عن UNIGATES — منصة تعليمية من دار عبيد" : "About UNIGATES — Educational Platform by Dar Obeid"}
+        description={isRtl ? "تعرف على رسالة ورؤية وقيم منصة UNIGATES التعليمية التابعة لدار عبيد." : "Learn about the mission, vision, and values of UNIGATES, an educational platform by Dar Obeid."}
+      />
       <SimpleHeader />
 
       <main className="flex-1">

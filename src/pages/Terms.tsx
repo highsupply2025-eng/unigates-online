@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { FileText } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import SimpleHeader from "@/components/SimpleHeader";
+import SEO from "@/components/SEO";
 import SiteFooter from "@/components/SiteFooter";
 
 const Terms = () => {
@@ -99,6 +100,10 @@ const Terms = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
+      <SEO
+        title={isRtl ? "شروط الاستخدام — UNIGATES" : "Terms of Service — UNIGATES"}
+        description={isRtl ? "الشروط والأحكام التي تنظم استخدام منصة UNIGATES التعليمية." : "The terms governing the use of the UNIGATES educational platform."}
+      />
       <SimpleHeader />
 
       <main className="flex-1">

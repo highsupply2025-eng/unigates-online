@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
+import StudentHero from "@/components/StudentHero";
 
 const shuffle = <T,>(arr: T[]): T[] => {
   const a = [...arr];
@@ -240,6 +241,15 @@ const StudentQuizzes = () => {
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <StudentPageHeader titleAr="الاختبارات" titleEn="Quizzes Online" icon={<ClipboardList className="w-3.5 h-3.5" />} />
       <main className="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
+        <StudentHero
+          titleAr="الاختبارات"
+          titleEn="Quizzes"
+          subtitleAr="ابدأ اختباراتك المتاحة وحقّق أفضل النتائج"
+          subtitleEn="Take your available quizzes and ace them"
+          Icon={ClipboardList}
+          gradient="from-violet-500 via-purple-600 to-fuchsia-700"
+          shadow="shadow-purple-500/30"
+        />
         <div className="grid gap-4">
           {/* Demo quiz — always visible */}
           <Link to="/student/quizzes/demo-1" className="block">

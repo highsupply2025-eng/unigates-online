@@ -1171,6 +1171,11 @@ const LecturerDashboard = () => {
                   ))}
                 </div>
               </TabsContent>
+
+              {/* ===== QUIZ RESULTS TAB ===== */}
+              <TabsContent value="quiz-results" dir={isRtl ? "rtl" : "ltr"}>
+                <QuizResultsAllContent />
+              </TabsContent>
             </Tabs>
           </>
         )}

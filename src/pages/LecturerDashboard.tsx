@@ -704,6 +704,7 @@ const LecturerDashboard = () => {
                     attendance: { ar: "الحضور", en: "Attendance" },
                      ratings: { ar: "تقييمات الطلاب", en: "Student Ratings" },
                      analytics: { ar: "تحميل التقارير", en: "Export Reports" },
+                     "quiz-results": { ar: "نتائج الاختبارات", en: "Quiz Results" },
                   };
                   const cur = map[activeTab] ?? map.home;
                   return isRtl ? cur.ar : cur.en;

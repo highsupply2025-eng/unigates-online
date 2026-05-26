@@ -1178,48 +1178,6 @@ export type Database = {
           },
         ]
       }
-      notifications: {
-        Row: {
-          created_at: string
-          id: string
-          is_read: boolean
-          message_ar: string
-          message_en: string
-          notification_type: string
-          recipient_id: string | null
-          sender_id: string
-          target_role: string | null
-          title_ar: string
-          title_en: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          is_read?: boolean
-          message_ar?: string
-          message_en?: string
-          notification_type?: string
-          recipient_id?: string | null
-          sender_id: string
-          target_role?: string | null
-          title_ar?: string
-          title_en?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          is_read?: boolean
-          message_ar?: string
-          message_en?: string
-          notification_type?: string
-          recipient_id?: string | null
-          sender_id?: string
-          target_role?: string | null
-          title_ar?: string
-          title_en?: string
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           additional_certs_urls: string[] | null

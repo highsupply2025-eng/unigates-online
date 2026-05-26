@@ -50,6 +50,15 @@ const StudentLectures = () => {
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <StudentPageHeader titleAr="المحاضرات" titleEn="Lectures" icon={<BookOpen className="w-3.5 h-3.5" />} />
       <main className="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
+        <StudentHero
+          titleAr="المحاضرات"
+          titleEn="Lectures"
+          subtitleAr="تابع كورساتك واستأنف من حيث توقفت"
+          subtitleEn="Track your courses and resume where you left off"
+          Icon={BookOpen}
+          gradient="from-emerald-500 via-teal-600 to-cyan-700"
+          shadow="shadow-emerald-500/30"
+        />
         <div className="grid gap-4">
           {/* Demo lecture card - always visible */}
           <Link to="/student/lectures/demo-1" className="block">

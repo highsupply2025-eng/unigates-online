@@ -746,6 +746,7 @@ const LecturerDashboard = () => {
             attendance:  { titleAr: "الحضور", titleEn: "Attendance", subAr: "متابعة حضور الطلاب", subEn: "Track student attendance", Icon: Users, gradient: "from-teal-600 via-emerald-600 to-green-600", shadow: "shadow-emerald-500/40" },
             ratings:     { titleAr: "تقييمات الطلاب", titleEn: "Student Ratings", subAr: "تقييم الطلاب لمحاضراتك", subEn: "Student feedback", Icon: Star, gradient: "from-yellow-500 via-amber-600 to-orange-600", shadow: "shadow-amber-500/40" },
             analytics:   { titleAr: "تحميل التقارير", titleEn: "Export Reports", subAr: "تنزيل تقارير الأداء", subEn: "Download performance reports", Icon: Download, gradient: "from-green-600 via-emerald-600 to-teal-600", shadow: "shadow-emerald-500/40" },
+            "quiz-results": { titleAr: "نتائج الاختبارات", titleEn: "Quiz Results", subAr: "متابعة نتائج الاختبارات والاعتماد", subEn: "Track quiz results & approvals", Icon: Award, gradient: "from-indigo-600 via-violet-600 to-purple-600", shadow: "shadow-violet-500/40" },
           };
           const h = heroMap[activeTab] ?? heroMap.home;
           return (

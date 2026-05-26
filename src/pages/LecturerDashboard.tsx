@@ -784,6 +784,7 @@ const LecturerDashboard = () => {
                 <TabsTrigger value="attendance">attendance</TabsTrigger>
                 <TabsTrigger value="ratings">ratings</TabsTrigger>
                 <TabsTrigger value="analytics">analytics</TabsTrigger>
+                <TabsTrigger value="quiz-results">quiz-results</TabsTrigger>
               </TabsList>
 
               {/* ===== HOME / ANALYTICS DASHBOARD ===== */}

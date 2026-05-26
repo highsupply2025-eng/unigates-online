@@ -85,6 +85,22 @@ const DashboardMenuDropdown = ({
     return () => { supabase.removeChannel(channel); };
   }, [loadUnread, showNotifications]);
 
+  // Eagerly prefetch every menu route chunk during browser idle time so that
+  // tapping an item navigates instantly without waiting for a JS chunk fetch.
+  useEffect(() => {
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+    };
+    const run = () => {
+      items.forEach((it) => { try { it.prefetch?.(); } catch { /* noop */ } });
+    };
+    if (typeof w.requestIdleCallback === "function") {
+      w.requestIdleCallback(run, { timeout: 2000 });
+    } else {
+      setTimeout(run, 800);
+    }
+  }, [items]);
+
   const handleOpenChange = useCallback((next: boolean) => {
     setOpen(next);
     if (next) {

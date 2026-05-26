@@ -34,7 +34,7 @@ const SimpleHeader = ({ backTo = "/", mobileBackOnly = false, useHistoryBack = f
       { match: "/blog", ar: "المدونة", en: "Blog" },
       { match: "/partnerships", ar: "الشراكات", en: "Partnerships" },
       
-      { match: "/quiz/create", ar: "الاختبارات أونلاين", en: "Online Quizzes" },
+      { match: "/quiz/create", ar: "الاختبارات", en: "Online Quizzes" },
       { match: "/coming-soon", ar: "قريبًا", en: "Coming Soon" },
     ];
 

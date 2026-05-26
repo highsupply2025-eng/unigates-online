@@ -31,7 +31,7 @@ const LecturerPageHeader = ({ titleAr, titleEn, icon, activeKey = "quiz-results"
     { key: "home",        label: isRtl ? "الرئيسية" : "Home",                  Icon: Home,          color: "from-blue-500 to-blue-600",       onClick: () => goDash("home") },
     { key: "courses",     label: isRtl ? "المحاضرات" : "Lectures",             Icon: Video,         color: "from-cyan-500 to-teal-600",       onClick: () => goDash("courses") },
     { key: "live",        label: isRtl ? "البث المباشر" : "Live Stream",        Icon: Radio,         color: "from-red-500 to-rose-600",        onClick: () => goDash("live") },
-    { key: "quizzes",     label: isRtl ? "الاختبارات أونلاين" : "Online Tests", Icon: HelpCircle,    color: "from-amber-500 to-amber-600",     onClick: () => goDash("quizzes") },
+    { key: "quizzes",     label: isRtl ? "الاختبارات" : "Online Tests", Icon: HelpCircle,    color: "from-amber-500 to-amber-600",     onClick: () => goDash("quizzes") },
     { key: "assignments", label: isRtl ? "التكليفات" : "Assignments",          Icon: ClipboardList, color: "from-blue-500 to-blue-600",       onClick: () => goDash("assignments") },
     { key: "schedules",   label: isRtl ? "الجداول" : "Schedules",              Icon: Calendar,      color: "from-purple-500 to-purple-600",   onClick: () => goDash("schedules") },
     { key: "attendance",  label: isRtl ? "الحضور" : "Attendance",              Icon: Users,         color: "from-teal-500 to-teal-600",       onClick: () => goDash("attendance") },

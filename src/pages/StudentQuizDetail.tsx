@@ -159,7 +159,7 @@ const StudentQuizDetail = () => {
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <StudentPageHeader
-        titleAr="الاختبارات أونلاين"
+        titleAr="الاختبارات"
         titleEn="Quizzes Online"
         icon={<ClipboardList className="w-3.5 h-3.5" />}
         backTo="/student/quizzes"

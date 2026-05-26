@@ -31,7 +31,7 @@ const StudentAssignmentResults = () => {
       if (asgIds.length > 0) {
         const { data: asgs } = await supabase
           .from("assignments")
-          .select("id, title_ar, title_en, course_id, max_grade")
+          .select("id, title_ar, title_en, course_id")
           .in("id", asgIds);
         (asgs || []).forEach(a => { asgsById[a.id] = a; });
       }

@@ -25,7 +25,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { toast as sonnerToast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
-import NotificationBell from "@/components/NotificationBell";
+
 import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import StudentHero from "@/components/StudentHero";

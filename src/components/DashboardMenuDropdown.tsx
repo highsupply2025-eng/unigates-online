@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LucideIcon, Menu, Globe, LogOut, X, ChevronLeft, ChevronRight, Bell } from "lucide-react";
+import { LucideIcon, Menu, Globe, LogOut, X, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,7 +9,6 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { supabase } from "@/integrations/supabase/client";
 
 export interface DashboardMenuItem {
   key?: string;
@@ -31,7 +30,7 @@ interface Props {
   langLabel?: string;
   logoutLabel?: string;
   title?: string;
-  /** Set false to hide the notifications entry (defaults to true). */
+  /** Deprecated — notifications were removed project-wide. Prop kept for backward compatibility. */
   showNotifications?: boolean;
 }
 
@@ -55,35 +54,14 @@ const DashboardMenuDropdown = ({
   onLogout,
   langLabel,
   logoutLabel,
-  showNotifications = true,
 }: Props) => {
   const { t, language } = useLanguage();
   const isRtl = language === "ar";
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [unread, setUnread] = useState(0);
 
   const close = useCallback(() => setOpen(false), []);
-
-  const loadUnread = useCallback(async () => {
-    if (!showNotifications) return;
-    const { count } = await supabase
-      .from("notifications")
-      .select("id", { count: "exact", head: true })
-      .eq("is_read", false);
-    setUnread(count ?? 0);
-  }, [showNotifications]);
-
-  useEffect(() => {
-    loadUnread();
-    if (!showNotifications) return;
-    const channel = supabase
-      .channel("notifications-badge")
-      .on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, loadUnread)
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [loadUnread, showNotifications]);
 
   // Eagerly prefetch every menu route chunk during browser idle time so that
   // tapping an item navigates instantly without waiting for a JS chunk fetch.
@@ -120,11 +98,6 @@ const DashboardMenuDropdown = ({
           aria-label={isRtl ? "القائمة" : "Menu"}
         >
           {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          {showNotifications && unread > 0 && !open && (
-            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center ring-2 ring-background animate-pulse">
-              {unread > 99 ? "99+" : unread}
-            </span>
-          )}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -171,27 +144,6 @@ const DashboardMenuDropdown = ({
 
         {/* Footer actions */}
         <div className="space-y-0.5">
-          {showNotifications && (
-            <DropdownMenuItem
-              onClick={() => { close(); navigate("/notifications"); }}
-              className={`group gap-3 cursor-pointer rounded-xl py-2.5 px-2.5 ${
-                pathname === "/notifications" ? "bg-primary/10 ring-1 ring-primary/30" : ""
-              }`}
-            >
-              <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 shadow-md shadow-black/10 flex items-center justify-center shrink-0">
-                <Bell className="w-4 h-4 text-white" strokeWidth={2.5} />
-                {unread > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center ring-2 ring-background">
-                    {unread > 99 ? "99+" : unread}
-                  </span>
-                )}
-              </div>
-              <span className="text-sm font-semibold flex-1 truncate">
-                {isRtl ? "الإشعارات" : "Notifications"}
-              </span>
-              <Chevron className="w-4 h-4 text-muted-foreground/50 group-hover:text-primary shrink-0 transition-colors" />
-            </DropdownMenuItem>
-          )}
           <DropdownMenuItem
             onClick={() => { close(); onLanguageToggle(); }}
             className="gap-3 cursor-pointer rounded-xl py-2.5 px-2.5"

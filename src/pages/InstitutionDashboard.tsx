@@ -777,7 +777,7 @@ const InstitutionDashboard = () => {
                 {(() => {
                   const map: Record<string, { ar: string; en: string }> = {
                     general: { ar: "الرئيسية", en: "Home" },
-                    notifications: { ar: "الإشعارات", en: "Notifications" },
+                    
                     departments: { ar: "الأقسام", en: "Departments" },
                     quizresults: { ar: "النتائج", en: "Results" },
                     invitations: { ar: "الدعوات", en: "Invitations" },
@@ -794,10 +794,6 @@ const InstitutionDashboard = () => {
             <Button variant={activeTab === "general" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("general")}>
               <Layers className="w-4 h-4" />
               {isRtl ? "الرئيسية" : "Home"}
-            </Button>
-            <Button variant={activeTab === "notifications" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("notifications")}>
-              <Bell className="w-4 h-4" />
-              {isRtl ? "الإشعارات" : "Notifications"}
             </Button>
             <Button variant={activeTab === "departments" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("departments")}>
               <BookOpen className="w-4 h-4" />
@@ -830,7 +826,7 @@ const InstitutionDashboard = () => {
               onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
               items={[
                 { key: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, onClick: () => handleTabChange("general"), active: activeTab === "general" },
-                { key: "notifications", label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell, onClick: () => handleTabChange("notifications"), active: activeTab === "notifications" },
+                
                 { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, onClick: () => handleTabChange("departments"), active: activeTab === "departments" },
                 { key: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, onClick: () => handleTabChange("quizresults"), active: activeTab === "quizresults" },
                 { key: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: LinkIcon, onClick: () => handleTabChange("invitations"), active: activeTab === "invitations" },
@@ -1262,7 +1258,7 @@ const InstitutionDashboard = () => {
               <TabsTrigger value="ratings" />
               
               <TabsTrigger value="invitations" />
-              <TabsTrigger value="notifications" />
+              
             </TabsList>
           </div>
 
@@ -1275,7 +1271,7 @@ const InstitutionDashboard = () => {
               className="mb-6"
               days={rangeDays}
               sections={[
-                { label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell, timestamps: [] },
+                
                 { label: isRtl ? "الأقسام" : "Departments", Icon: Layers, timestamps: departments.map((d: any) => d.created_at) },
                 { label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
                 { label: isRtl ? "الدعوات" : "Invitations", Icon: Mail, timestamps: deptMembers.map((m: any) => m.created_at) },
@@ -1285,7 +1281,7 @@ const InstitutionDashboard = () => {
             <MenuItemsStatsGrid
               className="mb-6"
               items={[
-                { key: "notifications", label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell, color: "from-amber-500 to-amber-600", count: 0 },
+                
                 { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: Layers, color: "from-blue-500 to-blue-600", count: departments.length },
                 { key: "results", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, color: "from-green-500 to-green-600", count: quizSubmissions.length },
                 { key: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: Mail, color: "from-purple-500 to-purple-600", count: deptMembers.length },

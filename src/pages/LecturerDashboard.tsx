@@ -680,7 +680,7 @@ const LecturerDashboard = () => {
                     home: { ar: "الرئيسية", en: "Home" },
                     courses: { ar: "المحاضرات", en: "Lectures" },
                     live: { ar: "البث المباشر", en: "Live Stream" },
-                    quizzes: { ar: "الاختبارات أونلاين", en: "Online Tests" },
+                    quizzes: { ar: "الاختبارات", en: "Online Tests" },
                     assignments: { ar: "التكليفات", en: "Assignments" },
                     schedules: { ar: "الجداول", en: "Schedules" },
                     attendance: { ar: "الحضور", en: "Attendance" },
@@ -701,7 +701,7 @@ const LecturerDashboard = () => {
                 { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, onClick: () => handleTabChange("home"), active: activeTab === "home" },
                 { key: "courses", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video, onClick: () => handleTabChange("courses"), active: activeTab === "courses" },
                 { key: "live", label: isRtl ? "البث المباشر" : "Live Stream", Icon: Radio, onClick: () => handleTabChange("live"), active: activeTab === "live" },
-                { key: "quizzes", label: isRtl ? "الاختبارات أونلاين" : "Online Tests", Icon: HelpCircle, onClick: () => handleTabChange("quizzes"), active: activeTab === "quizzes" },
+                { key: "quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: HelpCircle, onClick: () => handleTabChange("quizzes"), active: activeTab === "quizzes" },
                 { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, onClick: () => handleTabChange("assignments"), active: activeTab === "assignments" },
                 { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => handleTabChange("schedules"), active: activeTab === "schedules" },
                 { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, onClick: () => handleTabChange("attendance"), active: activeTab === "attendance" },
@@ -763,7 +763,7 @@ const LecturerDashboard = () => {
                   sections={[
                     { label: isRtl ? "المحاضرات" : "Lectures", timestamps: courses.map((x: any) => x.created_at), Icon: Video, palette: { from: "#06b6d4", to: "#14b8a6", glow: "20,184,166" } },
                     { label: isRtl ? "البث المباشر" : "Live Stream", timestamps: streams.map((x: any) => x.created_at || x.scheduled_at), Icon: Radio, palette: { from: "#ef4444", to: "#e11d48", glow: "239,68,68" } },
-                    { label: isRtl ? "الاختبارات أونلاين" : "Online Tests", timestamps: quizzes.map((x: any) => x.created_at), Icon: HelpCircle, palette: { from: "#f59e0b", to: "#d97706", glow: "245,158,11" } },
+                    { label: isRtl ? "الاختبارات" : "Online Tests", timestamps: quizzes.map((x: any) => x.created_at), Icon: HelpCircle, palette: { from: "#f59e0b", to: "#d97706", glow: "245,158,11" } },
                     { label: isRtl ? "التكليفات" : "Assignments", timestamps: assignments.map((x: any) => x.created_at), Icon: ClipboardList, palette: { from: "#3b82f6", to: "#2563eb", glow: "59,130,246" } },
                     { label: isRtl ? "الجداول" : "Schedules", timestamps: schedules.map((x: any) => x.created_at), Icon: Calendar, palette: { from: "#a855f7", to: "#9333ea", glow: "168,85,247" } },
                     { label: isRtl ? "الحضور" : "Attendance", timestamps: attendance.map((x: any) => x.joined_at || x.created_at), Icon: Users, palette: { from: "#14b8a6", to: "#0d9488", glow: "20,184,166" } },
@@ -781,7 +781,7 @@ const LecturerDashboard = () => {
                   items={[
                     { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video, color: "from-cyan-500 to-teal-600", count: courses.length },
                     { key: "live", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", count: streams.length },
-                    { key: "quizzes", label: isRtl ? "الاختبارات أونلاين" : "Online Tests", Icon: HelpCircle, color: "from-amber-500 to-amber-600", count: quizzes.length },
+                    { key: "quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: HelpCircle, color: "from-amber-500 to-amber-600", count: quizzes.length },
                     { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-blue-500 to-blue-600", count: assignments.length },
                     { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-purple-500 to-purple-600", count: schedules.length },
                     { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-teal-500 to-teal-600", count: attendance.length },
@@ -1357,7 +1357,7 @@ const LecturerDashboard = () => {
       {/* Quiz Management Dialog */}
       <Dialog open={showQuizDialog} onOpenChange={setShowQuizDialog}>
         <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{isRtl ? "إدارة الاختبارات الأونلاين" : "Online Test Management"}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{isRtl ? "إدارة الاختبارات" : "Online Test Management"}</DialogTitle></DialogHeader>
           {quizzes.length > 0 && <div className="space-y-3 mb-4">{quizzes.map(q => (
             <Card key={q.id}><CardContent className="p-4"><div className="flex items-start justify-between">
               <div>

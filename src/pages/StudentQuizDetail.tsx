@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { ClipboardList, Timer, CheckCircle, Award } from "lucide-react";
+import { ClipboardList, Timer, CheckCircle, Award, Lock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -65,6 +65,8 @@ const StudentQuizDetail = () => {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState(0);
+  const [alreadyTaken, setAlreadyTaken] = useState(false);
+  const [checking, setChecking] = useState(true);
 
   const [showRating, setShowRating] = useState(false);
   const [pendingScore, setPendingScore] = useState(0);
@@ -76,16 +78,63 @@ const StudentQuizDetail = () => {
     courseAr: "مادة تجريبية",
     courseEn: "Demo Course",
     duration: 15,
-    descAr: "اختبار تجريبي قصير لعرض شكل صفحة الاختبار. أجب على الأسئلة ثم اضغط تسليم.",
-    descEn: "Short demo quiz showcasing the quiz page. Answer the questions then click submit.",
+    descAr: "اختبار تجريبي قصير. أجب على الأسئلة ثم اضغط تسليم. يمكنك تقديم الاختبار مرة واحدة فقط.",
+    descEn: "Short demo quiz. Answer the questions then submit. You can submit this quiz only once.",
   };
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      if (!quizId) { setChecking(false); return; }
+      const { data: auth } = await supabase.auth.getUser();
+      const uid = auth.user?.id;
+      if (!uid) { setChecking(false); return; }
+      const { data } = await supabase
+        .from("quiz_submissions")
+        .select("score, total_points")
+        .eq("quiz_id", quizId)
+        .eq("student_id", uid)
+        .maybeSingle();
+      if (!active) return;
+      if (data) {
+        setAlreadyTaken(true);
+        setSubmitted(true);
+        const total = Number((data as any).total_points) || QUESTIONS.length;
+        const sc = Number((data as any).score) || 0;
+        setScore(total > 0 ? Math.round((sc / total) * QUESTIONS.length) : 0);
+      }
+      setChecking(false);
+    })();
+    return () => { active = false; };
+  }, [quizId]);
 
   const finalize = (s: number) => {
     setScore(s);
     setSubmitted(true);
   };
 
-  const handleSubmit = () => {
+  const persistSubmission = async (s: number) => {
+    if (!quizId) return;
+    try {
+      const { data: auth } = await supabase.auth.getUser();
+      const uid = auth.user?.id;
+      if (!uid) return;
+      const ansMap: Record<string, string> = {};
+      QUESTIONS.forEach(q => { if (answers[q.id]) ansMap[q.id] = answers[q.id]; });
+      await supabase.from("quiz_submissions").insert({
+        quiz_id: quizId,
+        student_id: uid,
+        answers: ansMap,
+        score: s,
+        total_points: QUESTIONS.length,
+      });
+    } catch (e) {
+      console.warn("submission persist failed", e);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (alreadyTaken) return;
     if (Object.keys(answers).length < QUESTIONS.length) {
       toast({
         title: isRtl ? "أسئلة غير مكتملة" : "Incomplete",
@@ -95,6 +144,8 @@ const StudentQuizDetail = () => {
       return;
     }
     const s = QUESTIONS.reduce((acc, q) => acc + (answers[q.id] === q.correct ? 1 : 0), 0);
+    await persistSubmission(s);
+    setAlreadyTaken(true);
     if (hasRated("quiz", quizId)) {
       finalize(s);
     } else {
@@ -178,13 +229,16 @@ const StudentQuizDetail = () => {
               <p className="text-muted-foreground text-sm">
                 {pct >= 50
                   ? (isRtl ? "أحسنت! نتيجة جيدة" : "Well done! Good score")
-                  : (isRtl ? "حاول مرة أخرى" : "Try again")}
+                  : (isRtl ? "يمكنك مراجعة المادة" : "Review the material")}
               </p>
-              <Button onClick={() => { setSubmitted(false); setAnswers({}); setScore(0); }}>
-                {isRtl ? "إعادة المحاولة" : "Retry"}
-              </Button>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted text-muted-foreground text-sm font-semibold">
+                <Lock className="w-4 h-4" />
+                {isRtl ? "تم تقديم الاختبار — لا يمكن إعادة المحاولة" : "Quiz submitted — retake not allowed"}
+              </div>
             </CardContent>
           </Card>
+        ) : checking ? (
+          <Card><CardContent className="p-10 text-center text-muted-foreground">{isRtl ? "جارٍ التحقق..." : "Checking..."}</CardContent></Card>
         ) : (
           <>
             {QUESTIONS.map((q, idx) => (

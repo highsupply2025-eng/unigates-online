@@ -27,6 +27,12 @@ const WatchStream = () => {
           .select("*")
           .eq("id", streamId)
           .single();
+
+        // Do not open this page when the stream is missing or has already ended
+        if (!data || data.status === "ended") {
+          navigate(-1);
+          return;
+        }
         setStream(data);
       }
       setLoading(false);

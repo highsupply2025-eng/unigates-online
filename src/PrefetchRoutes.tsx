@@ -13,7 +13,7 @@ const PrefetchRoutes = () => {
         () => import("./pages/Login"),
         () => import("./pages/Signup"),
         () => import("./pages/UserProfile"),
-        () => import("./pages/Notifications"),
+        
         () => import("./pages/LecturerDashboard"),
         () => import("./pages/StudentDashboard"),
         () => import("./pages/InstitutionDashboard"),

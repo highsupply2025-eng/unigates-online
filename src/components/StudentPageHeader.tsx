@@ -42,7 +42,7 @@ const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true, backTo, bac
     { key: "attendance",  label: isRtl ? "الحضور" : "Attendance",        Icon: Users,         color: "from-green-500 to-green-600",  path: "/student/attendance", prefetch: () => import("@/pages/StudentAttendance") },
     { key: "ratings",     label: isRtl ? "التقييمات" : "Ratings",        Icon: Star,          color: "from-yellow-500 to-amber-600", path: "/student/ratings",    prefetch: () => import("@/pages/StudentRatings") },
     { key: "results",     label: isRtl ? "نتائج الاختبارات" : "Exam Results", Icon: Award,    color: "from-pink-500 to-rose-600",    path: "/student/results",    prefetch: () => import("@/pages/StudentResults") },
-    { key: "analytics",   label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: TrendingUp,    color: "from-indigo-500 to-indigo-600", path: "/student/analytics", prefetch: () => import("@/pages/StudentAnalytics") },
+    { key: "assignment-results",   label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: TrendingUp,    color: "from-indigo-500 to-indigo-600", path: "/student/assignment-results", prefetch: () => import("@/pages/StudentAssignmentResults") },
     { key: "academic",    label: isRtl ? "حسابي الأكاديمي" : "My Academic", Icon: GraduationCap, color: "from-teal-500 to-teal-600",   path: "/student/my-academic", prefetch: () => import("@/pages/StudentMyAcademic") },
     { key: "profile",     label: isRtl ? "بيانات الحساب" : "Account Details",           Icon: User,          color: "from-cyan-500 to-cyan-600",    path: "/profile",            prefetch: () => import("@/pages/UserProfile") },
   ], [isRtl]);

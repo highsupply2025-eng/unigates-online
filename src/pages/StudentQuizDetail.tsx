@@ -113,7 +113,28 @@ const StudentQuizDetail = () => {
     setSubmitted(true);
   };
 
-  const handleSubmit = () => {
+  const persistSubmission = async (s: number) => {
+    if (!quizId) return;
+    try {
+      const { data: auth } = await supabase.auth.getUser();
+      const uid = auth.user?.id;
+      if (!uid) return;
+      const ansMap: Record<string, string> = {};
+      QUESTIONS.forEach(q => { if (answers[q.id]) ansMap[q.id] = answers[q.id]; });
+      await supabase.from("quiz_submissions").insert({
+        quiz_id: quizId,
+        student_id: uid,
+        answers: ansMap,
+        score: s,
+        total_points: QUESTIONS.length,
+      });
+    } catch (e) {
+      console.warn("submission persist failed", e);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (alreadyTaken) return;
     if (Object.keys(answers).length < QUESTIONS.length) {
       toast({
         title: isRtl ? "أسئلة غير مكتملة" : "Incomplete",
@@ -123,6 +144,8 @@ const StudentQuizDetail = () => {
       return;
     }
     const s = QUESTIONS.reduce((acc, q) => acc + (answers[q.id] === q.correct ? 1 : 0), 0);
+    await persistSubmission(s);
+    setAlreadyTaken(true);
     if (hasRated("quiz", quizId)) {
       finalize(s);
     } else {
@@ -206,13 +229,16 @@ const StudentQuizDetail = () => {
               <p className="text-muted-foreground text-sm">
                 {pct >= 50
                   ? (isRtl ? "أحسنت! نتيجة جيدة" : "Well done! Good score")
-                  : (isRtl ? "حاول مرة أخرى" : "Try again")}
+                  : (isRtl ? "يمكنك مراجعة المادة" : "Review the material")}
               </p>
-              <Button onClick={() => { setSubmitted(false); setAnswers({}); setScore(0); }}>
-                {isRtl ? "إعادة المحاولة" : "Retry"}
-              </Button>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted text-muted-foreground text-sm font-semibold">
+                <Lock className="w-4 h-4" />
+                {isRtl ? "تم تقديم الاختبار — لا يمكن إعادة المحاولة" : "Quiz submitted — retake not allowed"}
+              </div>
             </CardContent>
           </Card>
+        ) : checking ? (
+          <Card><CardContent className="p-10 text-center text-muted-foreground">{isRtl ? "جارٍ التحقق..." : "Checking..."}</CardContent></Card>
         ) : (
           <>
             {QUESTIONS.map((q, idx) => (

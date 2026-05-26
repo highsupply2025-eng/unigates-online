@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, Home, BookOpen, Radio, ClipboardList, FileText, Calendar, Users, Star, Award, TrendingUp, User, ArrowLeft, ArrowRight } from "lucide-react";
+import { GraduationCap, Home, BookOpen, Radio, ClipboardList, FileText, Calendar, Users, Star, Award, TrendingUp, User, Bell, ArrowLeft, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -37,14 +37,13 @@ const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true, backTo, bac
     { key: "lectures",    label: isRtl ? "المحاضرات" : "Lectures",       Icon: BookOpen,      color: "from-emerald-500 to-emerald-600", path: "/student/lectures",  prefetch: () => import("@/pages/StudentLectures") },
     { key: "live",        label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio,        color: "from-red-500 to-red-600",      path: "/student/live",       prefetch: () => import("@/pages/StudentLive") },
     { key: "quizzes",     label: isRtl ? "الاختبارات أونلاين" : "Online Tests", Icon: ClipboardList, color: "from-purple-500 to-purple-600", path: "/student/quizzes", prefetch: () => import("@/pages/StudentQuizzes") },
-    { key: "assignments", label: isRtl ? "التكليفات" : "Assignments",    Icon: FileText,      color: "from-amber-500 to-amber-600",  path: "/student/assignments", prefetch: () => import("@/pages/StudentAssignments") },
-    { key: "schedules",   label: isRtl ? "الجداول" : "Schedules",        Icon: Calendar,      color: "from-blue-500 to-blue-600",    path: "/student/schedules",  prefetch: () => import("@/pages/StudentSchedules") },
-    { key: "attendance",  label: isRtl ? "الحضور" : "Attendance",        Icon: Users,         color: "from-green-500 to-green-600",  path: "/student/attendance", prefetch: () => import("@/pages/StudentAttendance") },
-    { key: "ratings",     label: isRtl ? "التقييمات" : "Ratings",        Icon: Star,          color: "from-yellow-500 to-amber-600", path: "/student/ratings",    prefetch: () => import("@/pages/StudentRatings") },
     { key: "results",     label: isRtl ? "نتائج الاختبارات" : "Exam Results", Icon: Award,    color: "from-pink-500 to-rose-600",    path: "/student/results",    prefetch: () => import("@/pages/StudentResults") },
-    { key: "assignment-results",   label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: TrendingUp,    color: "from-indigo-500 to-indigo-600", path: "/student/assignment-results", prefetch: () => import("@/pages/StudentAssignmentResults") },
-    { key: "academic",    label: isRtl ? "حسابي الأكاديمي" : "My Academic", Icon: GraduationCap, color: "from-teal-500 to-teal-600",   path: "/student/my-academic", prefetch: () => import("@/pages/StudentMyAcademic") },
-    { key: "profile",     label: isRtl ? "بيانات الطالب" : "Student Details",           Icon: User,          color: "from-cyan-500 to-cyan-600",    path: "/profile",            prefetch: () => import("@/pages/UserProfile") },
+    { key: "assignments", label: isRtl ? "التكليفات" : "Assignments",    Icon: FileText,      color: "from-amber-500 to-amber-600",  path: "/student/assignments", prefetch: () => import("@/pages/StudentAssignments") },
+    { key: "assignment-results", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: TrendingUp, color: "from-indigo-500 to-indigo-600", path: "/student/assignment-results", prefetch: () => import("@/pages/StudentAssignmentResults") },
+    { key: "schedules",   label: isRtl ? "الجداول" : "Schedules",        Icon: Calendar,      color: "from-blue-500 to-blue-600",    path: "/student/schedules",  prefetch: () => import("@/pages/StudentSchedules") },
+    { key: "ratings",     label: isRtl ? "التقييمات" : "Ratings",        Icon: Star,          color: "from-yellow-500 to-amber-600", path: "/student/ratings",    prefetch: () => import("@/pages/StudentRatings") },
+    { key: "notifications", label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell,         color: "from-orange-500 to-orange-600", path: "/notifications",     prefetch: () => import("@/pages/Notifications") },
+    { key: "profile",     label: isRtl ? "بيانات الطالب" : "Student Details", Icon: User,    color: "from-cyan-500 to-cyan-600",    path: "/profile",            prefetch: () => import("@/pages/UserProfile") },
   ], [isRtl]);
 
   return (

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { ClipboardList, Calendar, FileText, Upload, CheckCircle2 } from "lucide-react";
+import { ClipboardList, Calendar, FileText, Upload, CheckCircle2, Lock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import StudentPageHeader from "@/components/StudentPageHeader";
 import MandatoryRatingDialog from "@/components/MandatoryRatingDialog";
 import { toast } from "@/hooks/use-toast";
 import { hasRated, markRated } from "@/lib/rating-storage";
+import { supabase } from "@/integrations/supabase/client";
 
 const StudentAssignmentDetail = () => {
   const { assignmentId } = useParams();
@@ -17,7 +18,45 @@ const StudentAssignmentDetail = () => {
   const isRtl = language === "ar";
   const [answer, setAnswer] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [alreadySubmitted, setAlreadySubmitted] = useState(false);
+  const [checking, setChecking] = useState(true);
   const [showRating, setShowRating] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || !assignmentId) {
+        // Fallback to localStorage for demo assignments
+        const key = `assignment_submitted:${assignmentId}:${user?.id ?? "anon"}`;
+        if (localStorage.getItem(key) === "1") {
+          if (!cancelled) { setAlreadySubmitted(true); setSubmitted(true); }
+        }
+        if (!cancelled) setChecking(false);
+        return;
+      }
+      const key = `assignment_submitted:${assignmentId}:${user.id}`;
+      const localFlag = localStorage.getItem(key) === "1";
+      // Try DB (real assignment ids only)
+      const isUuid = /^[0-9a-f-]{36}$/i.test(assignmentId);
+      let dbFound = false;
+      if (isUuid) {
+        const { data } = await supabase
+          .from("assignment_submissions")
+          .select("id")
+          .eq("assignment_id", assignmentId)
+          .eq("student_id", user.id)
+          .maybeSingle();
+        dbFound = !!data;
+      }
+      if (!cancelled && (localFlag || dbFound)) {
+        setAlreadySubmitted(true);
+        setSubmitted(true);
+      }
+      if (!cancelled) setChecking(false);
+    })();
+    return () => { cancelled = true; };
+  }, [assignmentId]);
 
 
   const assignment = {
@@ -37,6 +76,14 @@ const StudentAssignmentDetail = () => {
   };
 
   const handleSubmit = () => {
+    if (alreadySubmitted) {
+      toast({
+        title: isRtl ? "تم التسليم مسبقاً" : "Already submitted",
+        description: isRtl ? "لا يمكن إعادة تسليم التكليف" : "You cannot resubmit this assignment",
+        variant: "destructive",
+      });
+      return;
+    }
     if (!answer.trim()) {
       toast({
         title: isRtl ? "الإجابة فارغة" : "Empty answer",
@@ -53,10 +100,28 @@ const StudentAssignmentDetail = () => {
     setShowRating(true);
   };
 
+  const persistSubmission = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || !assignmentId) return;
+    const key = `assignment_submitted:${assignmentId}:${user.id}`;
+    localStorage.setItem(key, "1");
+    const isUuid = /^[0-9a-f-]{36}$/i.test(assignmentId);
+    if (isUuid) {
+      await supabase.from("assignment_submissions").insert({
+        assignment_id: assignmentId,
+        student_id: user.id,
+        file_url: answer.slice(0, 4000),
+        file_name: "answer.txt",
+      });
+    }
+  };
+
   const finalizeSubmission = (rating: number) => {
     if (rating > 0) markRated("assignment", assignmentId);
     setSubmitted(true);
+    setAlreadySubmitted(true);
     setShowRating(false);
+    persistSubmission();
     toast({
       title: isRtl ? "تم التسليم" : "Submitted",
       description: rating > 0
@@ -135,10 +200,20 @@ const StudentAssignmentDetail = () => {
               <Upload className="w-4 h-4 text-primary" />
               {isRtl ? "إجابتك" : "Your Answer"}
             </h2>
-            {submitted ? (
-              <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-700 dark:text-green-400 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4" />
-                {isRtl ? "تم تسليم التكليف بنجاح" : "Assignment submitted successfully"}
+            {checking ? (
+              <div className="text-sm text-muted-foreground">
+                {isRtl ? "جارٍ التحقق..." : "Checking..."}
+              </div>
+            ) : submitted || alreadySubmitted ? (
+              <div className="space-y-2">
+                <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-700 dark:text-green-400 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4" />
+                  {isRtl ? "تم تسليم التكليف بنجاح" : "Assignment submitted successfully"}
+                </div>
+                <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground flex items-center gap-2">
+                  <Lock className="w-3.5 h-3.5" />
+                  {isRtl ? "تم تسليم التكليف — لا يمكن إعادة التسليم" : "Assignment submitted — cannot be resubmitted"}
+                </div>
               </div>
             ) : (
               <>

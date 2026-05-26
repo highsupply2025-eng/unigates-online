@@ -186,14 +186,21 @@ const LeadershipStreamsByStatus = () => {
                           {s.scheduled_at ? new Date(s.scheduled_at).toLocaleString(isRtl ? "ar-EG" : "en-US") : "-"}
                         </TableCell>
                         <TableCell>
-                          <Button
-                            size="sm"
-                            className={`bg-gradient-to-r ${meta.gradient} hover:opacity-90 text-white font-extrabold shadow-md ${meta.shadow} ${key === "live" ? `ring-2 ${meta.ring}` : ""}`}
-                            onClick={() => navigate(`/stream/${s.id}`)}
-                          >
-                            <Eye className="w-4 h-4 me-1" strokeWidth={2.6} />
-                            {isRtl ? meta.action.ar : meta.action.en}
-                          </Button>
+                          {key === "ended" ? (
+                            <Button size="sm" disabled className="font-extrabold cursor-not-allowed opacity-70">
+                              <Lock className="w-4 h-4 me-1" strokeWidth={2.6} />
+                              {isRtl ? "البث منتهي" : "Stream ended"}
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              className={`bg-gradient-to-r ${meta.gradient} hover:opacity-90 text-white font-extrabold shadow-md ${meta.shadow} ${key === "live" ? `ring-2 ${meta.ring}` : ""}`}
+                              onClick={() => navigate(`/stream/${s.id}`)}
+                            >
+                              <Eye className="w-4 h-4 me-1" strokeWidth={2.6} />
+                              {isRtl ? meta.action.ar : meta.action.en}
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))

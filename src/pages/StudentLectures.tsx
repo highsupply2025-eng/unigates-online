@@ -53,7 +53,7 @@ const StudentLectures = () => {
         <StudentHero
           titleAr="المحاضرات"
           titleEn="Lectures"
-          subtitleAr="تابع كورساتك واستأنف من حيث توقفت"
+          subtitleAr="تابع محاضراتك واستأنف من حيث توقفت"
           subtitleEn="Track your courses and resume where you left off"
           Icon={BookOpen}
           gradient="from-emerald-500 via-teal-600 to-cyan-700"

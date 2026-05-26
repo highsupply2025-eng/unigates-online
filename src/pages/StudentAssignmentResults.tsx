@@ -59,7 +59,7 @@ const StudentAssignmentResults = () => {
   const avg = graded.length > 0
     ? Math.round(graded.reduce((acc, r) => {
         const num = parseFloat(String(r.grade));
-        const max = r.assignment?.max_grade ? parseFloat(String(r.assignment.max_grade)) : 100;
+        const max = 100;
         return acc + (isNaN(num) || max <= 0 ? 0 : (num / max) * 100);
       }, 0) / graded.length)
     : 0;
@@ -134,7 +134,7 @@ const StudentAssignmentResults = () => {
                     <div className="grid gap-2 sm:hidden">
                       {rows.map(r => {
                         const isGraded = r.grade != null && r.grade !== "";
-                        const max = r.assignment?.max_grade ? parseFloat(String(r.assignment.max_grade)) : 100;
+                        const max = 100;
                         const num = parseFloat(String(r.grade));
                         const pct = isGraded && !isNaN(num) && max > 0 ? Math.round((num / max) * 100) : 0;
                         const ok = pct >= 50;
@@ -191,7 +191,7 @@ const StudentAssignmentResults = () => {
                         <TableBody>
                           {rows.map(r => {
                             const isGraded = r.grade != null && r.grade !== "";
-                            const max = r.assignment?.max_grade ? parseFloat(String(r.assignment.max_grade)) : 100;
+                            const max = 100;
                             const num = parseFloat(String(r.grade));
                             const pct = isGraded && !isNaN(num) && max > 0 ? Math.round((num / max) * 100) : 0;
                             const feedback = isRtl ? r.feedback_ar : r.feedback_en;

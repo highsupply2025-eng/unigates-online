@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { ClipboardList, Calendar, FileText, Upload, CheckCircle2 } from "lucide-react";
+import { ClipboardList, Calendar, FileText, Upload, CheckCircle2, Lock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import StudentPageHeader from "@/components/StudentPageHeader";
 import MandatoryRatingDialog from "@/components/MandatoryRatingDialog";
 import { toast } from "@/hooks/use-toast";
 import { hasRated, markRated } from "@/lib/rating-storage";
+import { supabase } from "@/integrations/supabase/client";
 
 const StudentAssignmentDetail = () => {
   const { assignmentId } = useParams();
@@ -17,7 +18,45 @@ const StudentAssignmentDetail = () => {
   const isRtl = language === "ar";
   const [answer, setAnswer] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [alreadySubmitted, setAlreadySubmitted] = useState(false);
+  const [checking, setChecking] = useState(true);
   const [showRating, setShowRating] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || !assignmentId) {
+        // Fallback to localStorage for demo assignments
+        const key = `assignment_submitted:${assignmentId}:${user?.id ?? "anon"}`;
+        if (localStorage.getItem(key) === "1") {
+          if (!cancelled) { setAlreadySubmitted(true); setSubmitted(true); }
+        }
+        if (!cancelled) setChecking(false);
+        return;
+      }
+      const key = `assignment_submitted:${assignmentId}:${user.id}`;
+      const localFlag = localStorage.getItem(key) === "1";
+      // Try DB (real assignment ids only)
+      const isUuid = /^[0-9a-f-]{36}$/i.test(assignmentId);
+      let dbFound = false;
+      if (isUuid) {
+        const { data } = await supabase
+          .from("assignment_submissions")
+          .select("id")
+          .eq("assignment_id", assignmentId)
+          .eq("student_id", user.id)
+          .maybeSingle();
+        dbFound = !!data;
+      }
+      if (!cancelled && (localFlag || dbFound)) {
+        setAlreadySubmitted(true);
+        setSubmitted(true);
+      }
+      if (!cancelled) setChecking(false);
+    })();
+    return () => { cancelled = true; };
+  }, [assignmentId]);
 
 
   const assignment = {

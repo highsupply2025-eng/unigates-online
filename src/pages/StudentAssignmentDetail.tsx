@@ -200,10 +200,20 @@ const StudentAssignmentDetail = () => {
               <Upload className="w-4 h-4 text-primary" />
               {isRtl ? "إجابتك" : "Your Answer"}
             </h2>
-            {submitted ? (
-              <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-700 dark:text-green-400 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4" />
-                {isRtl ? "تم تسليم التكليف بنجاح" : "Assignment submitted successfully"}
+            {checking ? (
+              <div className="text-sm text-muted-foreground">
+                {isRtl ? "جارٍ التحقق..." : "Checking..."}
+              </div>
+            ) : submitted || alreadySubmitted ? (
+              <div className="space-y-2">
+                <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-700 dark:text-green-400 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4" />
+                  {isRtl ? "تم تسليم التكليف بنجاح" : "Assignment submitted successfully"}
+                </div>
+                <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground flex items-center gap-2">
+                  <Lock className="w-3.5 h-3.5" />
+                  {isRtl ? "تم تسليم التكليف — لا يمكن إعادة التسليم" : "Assignment submitted — cannot be resubmitted"}
+                </div>
               </div>
             ) : (
               <>

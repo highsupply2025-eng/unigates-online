@@ -1,29 +1,22 @@
-# تقييمات منفصلة لكل عنصر
+# إصلاح صفحة البث التجريبي للطالب
 
-## الهدف
-كل محاضرة/بث/اختبار/جدول يحصل على تقييم نجوم من الطالب، ويُعرض في صفحة التقييمات للمحاضر ورئيس القسم والعميد والوكلاء، مقسّماً إلى أربعة أقسام.
+## المشكلة
+في `src/pages/StudentLiveDetail.tsx` (صفحة البث التجريبي) زر **"انضم للبث"** عبارة عن `<Button>` بدون `onClick` ولا أي تنقل — لذلك لا يعمل عند الضغط.
 
-## التغييرات على قاعدة البيانات
-إضافة جداول تقييم لكل نوع (بنفس نمط `live_stream_ratings`):
-- `lecture_ratings` (lecture_id → course_episodes, course_id, user_id, rating 1-5, comment)
-- `quiz_ratings` (quiz_id, course_id, user_id, rating, comment)
-- `schedule_ratings` (schedule_id, course_id, user_id, rating, comment)
+## الخطة
 
-سياسات RLS:
-- الطالب يقرأ/يضيف تقييمه فقط (UNIQUE على user_id+target_id)
-- المحاضر صاحب الكورس يرى تقييمات عناصره
-- رئيس القسم/العميد/الوكلاء (has_approved_role) يرون كل التقييمات
-- في `schedule_ratings` يُسمح للوكيل المختار في `lecture_schedules.vice_dean_type` أيضاً (نكتفي بصلاحية الوكلاء عموماً للبساطة)
+### 1. تفعيل زر الانضمام
+- إضافة `useNavigate` وتوجيه الزر عند الضغط إلى `/stream/${streamId}` (نفس المسار الموجود في `App.tsx` لمشغّل `WatchStream` + `LiveStreamRoom`).
+- لو لم يوجد `streamId` (الحالة التجريبية المباشرة) نمرّر `demo-1`.
+- تحويل قسم الشاشة العلوية (الـ aspect-video) إلى عنصر قابل للنقر أيضاً (cursor-pointer + نفس التنقل) لتجربة أوضح.
 
-## الواجهة
-1. **MandatoryRatingDialog**: توسيع `kind` ليشمل `"quiz"` و`"schedule"`.
-2. **StudentQuizDetail**: عند انتهاء الاختبار يظهر الـ dialog ويُدرج في `quiz_ratings`، مع منع التكرار عبر `rating-storage` و الجدول.
-3. **StudentScheduleDetail**: عند الضغط على "إنهاء/حضرت" يظهر الـ dialog ويُدرج في `schedule_ratings`.
-4. **StudentLectureDetail**: تحويل الكتابة من `lecturer_ratings` إلى `lecture_ratings` الخاص بالحلقة.
-5. **مكوّن جديد `RatingsBreakdown`**: تبويبات (محاضرات/بث/اختبارات/جداول) كل تبويب يعرض المتوسط، عدد التقييمات، وآخر التعليقات مع النجوم.
-6. **LecturerDashboard** و **LeadershipDashboard**: استبدال محتوى تبويب "التقييمات" بالمكوّن الجديد، مع تصفية بيانات المحاضر على كورساته فقط.
+### 2. إبراز الألوان والأيقونات والخط (داخل نفس الصفحة فقط)
+- **العنوان**: تكبير الخط إلى `text-2xl sm:text-3xl font-extrabold` مع `tracking-tight` وإضافة accent gradient أحمر/وردي تحت العنوان.
+- **شارة LIVE**: تكبير الحجم، إضافة حلقة توهج (`ring-2 ring-red-500/40` + `shadow-lg shadow-red-500/40`).
+- **أيقونات المعلومات** (المحاضر/التاريخ/المشاهدين): وضعها داخل دوائر ملوّنة صغيرة (`bg-primary/10 text-primary rounded-full p-2`) بدل أيقونات عادية، مع تكبير الخط بجانبها إلى `text-base font-semibold`.
+- **زر الانضمام**: تكبيره (`size="lg"`)، gradient أحمر (`bg-gradient-to-r from-red-500 to-rose-600`)، أيقونة Radio أكبر مع `animate-pulse`، تأثير hover (`hover:shadow-xl hover:shadow-red-500/40 hover:scale-[1.02]`).
+- **عنوان قسم الدردشة**: تكبير الخط مع أيقونة داخل خلفية ملوّنة.
+- الالتزام بالـ design tokens (primary, foreground, muted) ولا نضيف ألوان مخصصة جديدة خارج الأحمر الموجود للبث المباشر.
 
-## ملاحظات تقنية
-- منع التكرار في storage + DB unique لضمان "تقييم واحد فقط لكل عنصر".
-- لا تغيير على تدفقات الموافقة أو الجداول الأخرى.
-- نُبقي `lecturer_ratings` كما هو (للتقييم العام للمحاضر) دون كسر.
+## الملفات المتأثرة
+- `src/pages/StudentLiveDetail.tsx` (تعديل فقط — لا تغييرات على قاعدة البيانات أو منطق الـ backend).

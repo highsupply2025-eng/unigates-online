@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { ClipboardList, Timer, CheckCircle, Award } from "lucide-react";
+import { ClipboardList, Timer, CheckCircle, Award, Lock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -65,6 +65,8 @@ const StudentQuizDetail = () => {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState(0);
+  const [alreadyTaken, setAlreadyTaken] = useState(false);
+  const [checking, setChecking] = useState(true);
 
   const [showRating, setShowRating] = useState(false);
   const [pendingScore, setPendingScore] = useState(0);
@@ -76,9 +78,35 @@ const StudentQuizDetail = () => {
     courseAr: "مادة تجريبية",
     courseEn: "Demo Course",
     duration: 15,
-    descAr: "اختبار تجريبي قصير لعرض شكل صفحة الاختبار. أجب على الأسئلة ثم اضغط تسليم.",
-    descEn: "Short demo quiz showcasing the quiz page. Answer the questions then click submit.",
+    descAr: "اختبار تجريبي قصير. أجب على الأسئلة ثم اضغط تسليم. يمكنك تقديم الاختبار مرة واحدة فقط.",
+    descEn: "Short demo quiz. Answer the questions then submit. You can submit this quiz only once.",
   };
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      if (!quizId) { setChecking(false); return; }
+      const { data: auth } = await supabase.auth.getUser();
+      const uid = auth.user?.id;
+      if (!uid) { setChecking(false); return; }
+      const { data } = await supabase
+        .from("quiz_submissions")
+        .select("score, total_points")
+        .eq("quiz_id", quizId)
+        .eq("student_id", uid)
+        .maybeSingle();
+      if (!active) return;
+      if (data) {
+        setAlreadyTaken(true);
+        setSubmitted(true);
+        const total = Number((data as any).total_points) || QUESTIONS.length;
+        const sc = Number((data as any).score) || 0;
+        setScore(total > 0 ? Math.round((sc / total) * QUESTIONS.length) : 0);
+      }
+      setChecking(false);
+    })();
+    return () => { active = false; };
+  }, [quizId]);
 
   const finalize = (s: number) => {
     setScore(s);

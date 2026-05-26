@@ -702,8 +702,8 @@ const LecturerDashboard = () => {
                     assignments: { ar: "التكليفات", en: "Assignments" },
                     schedules: { ar: "الجداول", en: "Schedules" },
                     attendance: { ar: "الحضور", en: "Attendance" },
-                    ratings: { ar: "التقييمات", en: "Ratings" },
-                    analytics: { ar: "تحميل التقارير", en: "Export Reports" },
+                     ratings: { ar: "تقييمات الطلاب", en: "Student Ratings" },
+                     analytics: { ar: "تحميل التقارير", en: "Export Reports" },
                   };
                   const cur = map[activeTab] ?? map.home;
                   return isRtl ? cur.ar : cur.en;
@@ -720,14 +720,13 @@ const LecturerDashboard = () => {
                 { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: () => handleTabChange("home"), active: activeTab === "home" },
                 { key: "courses", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video, color: "from-cyan-500 to-teal-600", onClick: () => handleTabChange("courses"), active: activeTab === "courses" },
                 { key: "live", label: isRtl ? "البث المباشر" : "Live Stream", Icon: Radio, color: "from-red-500 to-rose-600", onClick: () => handleTabChange("live"), active: activeTab === "live" },
-                { key: "quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: HelpCircle, color: "from-amber-500 to-amber-600", onClick: () => handleTabChange("quizzes"), active: activeTab === "quizzes" },
-                { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-blue-500 to-indigo-600", onClick: () => handleTabChange("assignments"), active: activeTab === "assignments" },
                 { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-purple-500 to-purple-600", onClick: () => handleTabChange("schedules"), active: activeTab === "schedules" },
-                { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-teal-500 to-emerald-600", onClick: () => handleTabChange("attendance"), active: activeTab === "attendance" },
-                { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => handleTabChange("ratings"), active: activeTab === "ratings" },
-                { key: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, color: "from-green-500 to-emerald-600", onClick: () => handleTabChange("analytics"), active: activeTab === "analytics" },
+                { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-blue-500 to-indigo-600", onClick: () => handleTabChange("assignments"), active: activeTab === "assignments" },
+                { key: "quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: HelpCircle, color: "from-amber-500 to-amber-600", onClick: () => handleTabChange("quizzes"), active: activeTab === "quizzes" },
                 { key: "quiz-results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", onClick: () => navigate("/quiz-results") },
-                { key: "student-ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-pink-500 to-rose-600", onClick: () => navigate("/staff/student-ratings") },
+                { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-teal-500 to-emerald-600", onClick: () => handleTabChange("attendance"), active: activeTab === "attendance" },
+                { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => handleTabChange("ratings"), active: activeTab === "ratings" },
+                { key: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, color: "from-green-500 to-emerald-600", onClick: () => handleTabChange("analytics"), active: activeTab === "analytics" },
               ]}
             />
           </div>
@@ -744,7 +743,7 @@ const LecturerDashboard = () => {
             assignments: { titleAr: "التكليفات", titleEn: "Assignments", subAr: "إنشاء ومتابعة التكليفات", subEn: "Create & track assignments", Icon: ClipboardList, gradient: "from-blue-600 via-indigo-600 to-purple-600", shadow: "shadow-indigo-500/40" },
             schedules:   { titleAr: "الجداول", titleEn: "Schedules", subAr: "الجداول والمواعيد", subEn: "Schedules & sessions", Icon: Calendar, gradient: "from-purple-600 via-violet-600 to-fuchsia-600", shadow: "shadow-violet-500/40" },
             attendance:  { titleAr: "الحضور", titleEn: "Attendance", subAr: "متابعة حضور الطلاب", subEn: "Track student attendance", Icon: Users, gradient: "from-teal-600 via-emerald-600 to-green-600", shadow: "shadow-emerald-500/40" },
-            ratings:     { titleAr: "التقييمات", titleEn: "Ratings", subAr: "تقييم الطلاب لمحاضراتك", subEn: "Student feedback", Icon: Star, gradient: "from-yellow-500 via-amber-600 to-orange-600", shadow: "shadow-amber-500/40" },
+            ratings:     { titleAr: "تقييمات الطلاب", titleEn: "Student Ratings", subAr: "تقييم الطلاب لمحاضراتك", subEn: "Student feedback", Icon: Star, gradient: "from-yellow-500 via-amber-600 to-orange-600", shadow: "shadow-amber-500/40" },
             analytics:   { titleAr: "تحميل التقارير", titleEn: "Export Reports", subAr: "تنزيل تقارير الأداء", subEn: "Download performance reports", Icon: Download, gradient: "from-green-600 via-emerald-600 to-teal-600", shadow: "shadow-emerald-500/40" },
           };
           const h = heroMap[activeTab] ?? heroMap.home;

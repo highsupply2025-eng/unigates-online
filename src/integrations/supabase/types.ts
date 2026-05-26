@@ -2328,6 +2328,10 @@ export type Database = {
         Args: { _answers: Json; _quiz_id: string; _whatsapp?: string }
         Returns: Json
       }
+      user_in_my_leadership_institution: {
+        Args: { _target_user: string }
+        Returns: boolean
+      }
       verify_department_invitation: {
         Args: { _code: string }
         Returns: {

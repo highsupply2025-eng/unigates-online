@@ -708,6 +708,8 @@ const LecturerDashboard = () => {
                 { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, onClick: () => handleTabChange("ratings"), active: activeTab === "ratings" },
                 { key: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, onClick: () => handleTabChange("analytics"), active: activeTab === "analytics" },
                 { key: "quiz-results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, onClick: () => navigate("/quiz-results") },
+                { key: "student-ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, onClick: () => navigate("/staff/student-ratings") },
+                
                 
               ]}
             />

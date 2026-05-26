@@ -165,13 +165,15 @@ const QuizResultsAll = () => {
         </div>
 
         {/* List */}
-        <Card className="border-2 border-border/60 shadow-sm">
+        <Card className="border-2 border-cyan-200/60 dark:border-cyan-900/50 shadow-sm bg-gradient-to-br from-card via-card to-cyan-50/30 dark:to-cyan-950/20">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg sm:text-xl font-black flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] flex items-center justify-center shadow-md shadow-primary/30">
-                <ShieldCheck className="w-5 h-5 text-primary-foreground" strokeWidth={2.5} />
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 via-teal-600 to-emerald-600 flex items-center justify-center shadow-lg shadow-teal-500/40 ring-2 ring-white/40 dark:ring-white/10">
+                <ShieldCheck className="w-5 h-5 text-white drop-shadow" strokeWidth={2.75} />
               </div>
-              {isRtl ? "قائمة الاختبارات" : "Quizzes List"}
+              <span className="bg-gradient-to-r from-cyan-700 via-teal-700 to-emerald-700 dark:from-cyan-300 dark:via-teal-300 dark:to-emerald-300 bg-clip-text text-transparent tracking-tight">
+                {isRtl ? "قائمة الاختبارات" : "Quizzes List"}
+              </span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0 sm:p-6 sm:pt-0">
@@ -183,7 +185,7 @@ const QuizResultsAll = () => {
             ) : (
               <>
                 {/* Mobile cards */}
-                <div className="md:hidden divide-y divide-border">
+                <div className="md:hidden divide-y-2 divide-cyan-200/40 dark:divide-cyan-900/40">
                   {filtered.map((q) => {
                     const c = counts[q.id] || { total: 0, passed: 0, avg: 0 };
                     const st = getStatus(q);
@@ -192,18 +194,19 @@ const QuizResultsAll = () => {
                       <button
                         key={q.id}
                         onClick={() => navigate(`/quiz/${q.id}/results`)}
-                        className="w-full text-start p-4 space-y-2.5 hover:bg-primary/5 transition-colors"
+                        className="w-full text-start p-4 space-y-2.5 hover:bg-gradient-to-l hover:from-cyan-50 hover:to-transparent dark:hover:from-cyan-950/40 transition-colors"
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <p className="font-black text-sm flex-1 text-foreground">{isRtl ? q.title_ar : q.title_en}</p>
-                          <ChevronIcon className="w-5 h-5 text-primary shrink-0" />
+                          <p className="font-black text-base flex-1 bg-gradient-to-r from-cyan-700 to-teal-700 dark:from-cyan-300 dark:to-teal-300 bg-clip-text text-transparent tracking-tight">{isRtl ? q.title_ar : q.title_en}</p>
+                          <ChevronIcon className="w-5 h-5 text-teal-600 dark:text-teal-400 shrink-0" strokeWidth={3} />
                         </div>
                         {course && (
-                          <p className="text-xs font-bold text-primary/80">
+                          <p className="text-xs font-extrabold bg-gradient-to-r from-teal-600 to-emerald-600 dark:from-teal-300 dark:to-emerald-300 bg-clip-text text-transparent">
                             {isRtl ? course.title_ar : course.title_en}
                           </p>
                         )}
-                        <Badge variant={st.variant} className="text-xs font-bold px-2.5 py-1">{st.label}</Badge>
+                        <Badge variant={st.variant} className="text-xs font-extrabold px-2.5 py-1 border-2">{st.label}</Badge>
+
                         <div className="flex items-center gap-4 text-xs pt-1">
                           <span className="text-muted-foreground font-medium">{isRtl ? "طلاب:" : "Students:"} <b className="text-foreground font-black">{c.total}</b></span>
                           <span className="text-muted-foreground font-medium">{isRtl ? "متوسط:" : "Avg:"} <b className="text-foreground font-black">{c.avg}%</b></span>

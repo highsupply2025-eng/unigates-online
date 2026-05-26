@@ -465,19 +465,6 @@ const InstitutionDashboard = () => {
         if (batchErr) console.error("Batch insert error:", batchErr);
       }
 
-      supabase.auth.getUser().then(({ data: { user } }) => {
-        if (user) {
-          supabase.from("notifications").insert({
-            sender_id: user.id,
-            target_role: "admin",
-            notification_type: "department_request",
-            title_ar: "طلب إنشاء قسم جديد",
-            title_en: "New Department Request",
-            message_ar: `طلب إنشاء قسم "${savedName}" - ${studentCount} طالب، ${lecturerCount} محاضر - ${institutionName} (${paymentAmount} جنيه/شهر)`,
-            message_en: `Request to create "${savedName}" - ${studentCount} students, ${lecturerCount} lecturers - ${institutionName} (${paymentAmount} EGP/month)`,
-          });
-        }
-      });
 
       // Refresh full data in background after member slots are created
       await loadInstitutionData(institutionId, institutionType || "college");

@@ -1,0 +1,22 @@
+# UNIGATES
+
+> UNIGATES is an Arabic/English educational platform by Dar Obeid offering online courses, a book store, and a school/university platform for students, teachers, and institutions.
+
+## Pages
+
+- [Home](/): Overview of UNIGATES platform and its sectors.
+- [About](/about): About UNIGATES and Dar Obeid.
+- [Courses](/courses): Online courses catalog.
+- [Book Store](/book-store): Digital and printed book store.
+- [School Platform](/school-platform): K-12 school management platform.
+- [University Platform](/university-platform): Higher-education platform for colleges and institutes.
+- [Blog](/blog): Articles and platform news.
+- [FAQ](/faq): Frequently asked questions.
+- [Help Center](/help-center): User support resources.
+- [Contact](/contact): Contact information.
+- [Partnerships](/partnerships): Partnership opportunities.
+
+## Optional
+
+- [Terms](/terms): Terms of service.
+- [Privacy](/privacy): Privacy policy.

@@ -7,7 +7,15 @@ const HeroSection = () => {
   return (
     <section className="relative min-h-[550px] md:min-h-[650px] lg:min-h-screen flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
-        <img src={eduHeroBg} alt="" className="w-full h-full object-cover object-top" />
+        <img
+          src={eduHeroBg}
+          alt=""
+          width={1920}
+          height={1080}
+          fetchPriority="high"
+          decoding="async"
+          className="w-full h-full object-cover object-top"
+        />
         <div className="absolute inset-0 hero-gradient" />
       </div>
 

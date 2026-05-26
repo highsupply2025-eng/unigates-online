@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS public.cloudflare_live_streams CASCADE;

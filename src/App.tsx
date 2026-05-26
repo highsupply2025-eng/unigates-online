@@ -84,8 +84,6 @@ const StudentRatings = lazy(() => import("./pages/StudentRatings"));
 const StaffStudentRatings = lazy(() => import("./pages/StaffStudentRatings"));
 
 const StudentMyAcademic = lazy(() => import("./pages/StudentMyAcademic"));
-const LecturerCloudflareStream = lazy(() => import("./pages/LecturerCloudflareStream"));
-const WatchCloudflareStream = lazy(() => import("./pages/WatchCloudflareStream"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -133,8 +131,6 @@ const App = () => (
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/stream/:streamId" element={<WatchStream />} />
               <Route path="/live" element={<LiveStreams />} />
-              <Route path="/lecturer/cloudflare-stream" element={<LecturerCloudflareStream />} />
-              <Route path="/cf-stream/:streamId" element={<WatchCloudflareStream />} />
               {/* Book Store + separate auth */}
               <Route path="/book-store" element={<ComingSoon />} />
               <Route path="/book-store/login" element={<ComingSoon />} />

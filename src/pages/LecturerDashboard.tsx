@@ -907,14 +907,6 @@ const LecturerDashboard = () => {
                   >
                     <Plus className="w-4 h-4" strokeWidth={3} />{isRtl ? "بث جديد" : "New Stream"}
                   </Button>
-                  <Button
-                    onClick={() => navigate("/lecturer/cloudflare-stream")}
-                    variant="outline"
-                    className="gap-2 font-bold border-2 border-destructive/40 text-destructive hover:bg-destructive/10"
-                  >
-                    <Radio className="w-4 h-4" strokeWidth={3} />
-                    {isRtl ? "بث Cloudflare (مشاهدون غير محدودين)" : "Cloudflare Stream (Unlimited viewers)"}
-                  </Button>
                 </div>
                 <div className="bg-gradient-to-l from-primary/10 via-card to-card border-2 border-primary/20 rounded-xl p-4 mb-6 shadow-sm">
                   <p className="text-sm font-semibold text-foreground flex items-center gap-2">

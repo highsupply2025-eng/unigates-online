@@ -2,6 +2,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { HelpCircle, GraduationCap, CreditCard, BookOpen, Shield, Users, Monitor, MessageCircle } from "lucide-react";
 import SimpleHeader from "@/components/SimpleHeader";
 import SiteFooter from "@/components/SiteFooter";
+import SEO from "@/components/SEO";
 import {
   Accordion,
   AccordionContent,
@@ -159,10 +160,29 @@ const FAQ = () => {
   const isRtl = language === "ar";
   const categories = isRtl ? faqCategories.ar : faqCategories.en;
 
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: categories.flatMap((c) =>
+      c.items.map((it) => ({
+        "@type": "Question",
+        name: it.q,
+        acceptedAnswer: { "@type": "Answer", text: it.a },
+      }))
+    ),
+  };
+
   return (
     <div dir={dir} className="min-h-screen bg-background flex flex-col">
+      <SEO
+        title={isRtl ? "الأسئلة الشائعة — UNIGATES" : "FAQ — UNIGATES"}
+        description={isRtl
+          ? "إجابات لأكثر الأسئلة شيوعاً حول منصة UNIGATES: الدورات، الاشتراكات، المؤسسات، ومتجر الكتب."
+          : "Answers to the most common questions about UNIGATES: courses, subscriptions, institutions, and the book store."}
+        jsonLd={faqJsonLd}
+      />
       <SimpleHeader />
-      <div className="flex-1 py-12 px-6 md:px-12">
+      <main className="flex-1 py-12 px-6 md:px-12">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
@@ -212,7 +232,7 @@ const FAQ = () => {
             })}
           </div>
         </div>
-      </div>
+      </main>
       <SiteFooter />
     </div>
   );

@@ -1277,6 +1277,7 @@ export type Database = {
       profiles: {
         Row: {
           additional_certs_urls: string[] | null
+          avatar_url: string | null
           created_at: string
           email: string
           full_name: string
@@ -1292,6 +1293,7 @@ export type Database = {
         }
         Insert: {
           additional_certs_urls?: string[] | null
+          avatar_url?: string | null
           created_at?: string
           email: string
           full_name: string
@@ -1307,6 +1309,7 @@ export type Database = {
         }
         Update: {
           additional_certs_urls?: string[] | null
+          avatar_url?: string | null
           created_at?: string
           email?: string
           full_name?: string

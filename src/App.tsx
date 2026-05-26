@@ -131,8 +131,6 @@ const App = () => (
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/stream/:streamId" element={<WatchStream />} />
               <Route path="/live" element={<LiveStreams />} />
-              <Route path="/lecturer/cloudflare-stream" element={<LecturerCloudflareStream />} />
-              <Route path="/cf-stream/:streamId" element={<WatchCloudflareStream />} />
               {/* Book Store + separate auth */}
               <Route path="/book-store" element={<ComingSoon />} />
               <Route path="/book-store/login" element={<ComingSoon />} />

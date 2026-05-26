@@ -26,7 +26,7 @@ const PrefetchRoutes = () => {
         () => import("./pages/StudentAssignments"),
         () => import("./pages/StudentSchedules"),
         () => import("./pages/StudentAttendance"),
-        () => import("./pages/StudentAnalytics"),
+        () => import("./pages/StudentAssignmentResults"),
         () => import("./pages/StudentMyAcademic"),
         () => import("./pages/Courses"),
         () => import("./pages/LiveStreams"),

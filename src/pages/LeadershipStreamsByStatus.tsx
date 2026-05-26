@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Download, Eye, Loader2, Radio, Calendar, CheckCircle, ArrowLeft, ArrowRight, Users } from "lucide-react";
+import { Download, Eye, Loader2, Radio, Calendar, CheckCircle, ArrowLeft, ArrowRight, Users, Lock } from "lucide-react";
 import BackButton from "@/components/BackButton";
 
 type StatusKey = "live" | "scheduled" | "ended";

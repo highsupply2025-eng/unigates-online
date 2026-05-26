@@ -876,12 +876,20 @@ const LecturerDashboard = () => {
 
               {/* ===== LIVE STREAMING TAB ===== */}
               <TabsContent value="live" dir={isRtl ? "rtl" : "ltr"}>
-                <div className="flex items-center justify-start mb-6" dir={isRtl ? "rtl" : "ltr"}>
+                <div className="flex items-center justify-start gap-2 mb-6 flex-wrap" dir={isRtl ? "rtl" : "ltr"}>
                   <Button
                     onClick={() => setShowStreamDialog(true)}
                     className="gap-2 font-bold bg-gradient-to-l from-primary to-primary/80 hover:scale-[1.02] shadow-md hover:shadow-lg transition-all border-2 border-primary/20"
                   >
                     <Plus className="w-4 h-4" strokeWidth={3} />{isRtl ? "بث جديد" : "New Stream"}
+                  </Button>
+                  <Button
+                    onClick={() => navigate("/lecturer/cloudflare-stream")}
+                    variant="outline"
+                    className="gap-2 font-bold border-2 border-destructive/40 text-destructive hover:bg-destructive/10"
+                  >
+                    <Radio className="w-4 h-4" strokeWidth={3} />
+                    {isRtl ? "بث Cloudflare (مشاهدون غير محدودين)" : "Cloudflare Stream (Unlimited viewers)"}
                   </Button>
                 </div>
                 <div className="bg-gradient-to-l from-primary/10 via-card to-card border-2 border-primary/20 rounded-xl p-4 mb-6 shadow-sm">

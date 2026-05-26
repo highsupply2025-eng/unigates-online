@@ -37,7 +37,7 @@ const LecturerPageHeader = ({ titleAr, titleEn, icon, activeKey = "quiz-results"
     { key: "attendance",  label: isRtl ? "الحضور" : "Attendance",              Icon: Users,         color: "from-teal-500 to-teal-600",       onClick: () => goDash("attendance") },
     { key: "ratings",     label: isRtl ? "التقييمات" : "Ratings",              Icon: Star,          color: "from-yellow-500 to-amber-600",    onClick: () => goDash("ratings") },
     { key: "analytics",   label: isRtl ? "تحميل التقارير" : "Export Reports",  Icon: Download,      color: "from-green-500 to-green-600",     onClick: () => goDash("analytics") },
-    { key: "quiz-results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award,         color: "from-indigo-500 to-indigo-600",   active: activeKey === "quiz-results", onClick: () => navigate("/quiz-results") },
+    { key: "quiz-results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award,         color: "from-indigo-500 to-indigo-600",   active: activeKey === "quiz-results", onClick: () => goDash("quiz-results") },
   ].map(it => ({ ...it, active: (it as any).active ?? (activeKey === it.key) })), [isRtl, navigate, activeKey]);
 
   const subtitleAr = titleAr ?? "نتائج الاختبارات";

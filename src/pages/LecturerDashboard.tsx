@@ -28,6 +28,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
+import StudentHero from "@/components/StudentHero";
 import { MiniBars } from "@/components/MiniBars";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
 import { TimeRangeToggle } from "@/components/TimeRangeToggle";
@@ -666,15 +667,20 @@ const LecturerDashboard = () => {
   return (
     <div className="min-h-screen bg-background" dir={dir}>
       {/* Header */}
-      <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/10 to-primary/5">
+      <header className="relative border-b-2 border-cyan-200/50 dark:border-cyan-900/50 px-3 sm:px-6 py-3 sm:py-4 sticky top-0 z-30 bg-gradient-to-r from-cyan-50 via-teal-50 to-emerald-50 dark:from-cyan-950/60 dark:via-teal-950/60 dark:to-emerald-950/60 backdrop-blur-xl shadow-sm">
+        <div className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 opacity-70" />
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-          <Link to="/lecturer/dashboard" className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 flex items-center justify-center shrink-0">
-              <GraduationCap className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+          <Link to="/lecturer/dashboard" className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 group">
+            <div className="relative w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-gradient-to-br from-cyan-500 via-teal-600 to-emerald-600 shadow-xl shadow-teal-500/40 flex items-center justify-center shrink-0 ring-2 ring-white/40 dark:ring-white/10 group-hover:scale-105 group-hover:shadow-teal-500/60 transition-all duration-300">
+              <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7 text-white drop-shadow" strokeWidth={2.5} />
+              <span className="absolute -top-0.5 -end-0.5 w-2.5 h-2.5 rounded-full bg-amber-400 ring-2 ring-white dark:ring-background animate-pulse" />
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-base sm:text-xl font-black text-foreground truncate">{isRtl ? "لوحة المحاضر" : "Lecturer Dashboard"}</h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
+              <h1 className="text-base sm:text-xl font-black truncate tracking-tight bg-gradient-to-r from-cyan-700 via-teal-700 to-emerald-700 dark:from-cyan-300 dark:via-teal-300 dark:to-emerald-300 bg-clip-text text-transparent">
+                {isRtl ? "لوحة المحاضر" : "Lecturer Dashboard"}
+              </h1>
+              <p className="text-[11px] sm:text-sm text-foreground/80 font-bold truncate mt-0.5">
+                <span className="bg-gradient-to-r from-cyan-600 to-emerald-600 dark:from-cyan-300 dark:to-emerald-300 bg-clip-text text-transparent">
                 {(() => {
                   const map: Record<string, { ar: string; en: string }> = {
                     home: { ar: "الرئيسية", en: "Home" },
@@ -690,6 +696,7 @@ const LecturerDashboard = () => {
                   const cur = map[activeTab] ?? map.home;
                   return isRtl ? cur.ar : cur.en;
                 })()}
+                </span>
               </p>
             </div>
           </Link>
@@ -698,19 +705,17 @@ const LecturerDashboard = () => {
               onLanguageToggle={toggleLanguage}
               onLogout={handleLogout}
               items={[
-                { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, onClick: () => handleTabChange("home"), active: activeTab === "home" },
-                { key: "courses", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video, onClick: () => handleTabChange("courses"), active: activeTab === "courses" },
-                { key: "live", label: isRtl ? "البث المباشر" : "Live Stream", Icon: Radio, onClick: () => handleTabChange("live"), active: activeTab === "live" },
-                { key: "quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: HelpCircle, onClick: () => handleTabChange("quizzes"), active: activeTab === "quizzes" },
-                { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, onClick: () => handleTabChange("assignments"), active: activeTab === "assignments" },
-                { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => handleTabChange("schedules"), active: activeTab === "schedules" },
-                { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, onClick: () => handleTabChange("attendance"), active: activeTab === "attendance" },
-                { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, onClick: () => handleTabChange("ratings"), active: activeTab === "ratings" },
-                { key: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, onClick: () => handleTabChange("analytics"), active: activeTab === "analytics" },
-                { key: "quiz-results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, onClick: () => navigate("/quiz-results") },
-                { key: "student-ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, onClick: () => navigate("/staff/student-ratings") },
-                
-                
+                { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: () => handleTabChange("home"), active: activeTab === "home" },
+                { key: "courses", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video, color: "from-cyan-500 to-teal-600", onClick: () => handleTabChange("courses"), active: activeTab === "courses" },
+                { key: "live", label: isRtl ? "البث المباشر" : "Live Stream", Icon: Radio, color: "from-red-500 to-rose-600", onClick: () => handleTabChange("live"), active: activeTab === "live" },
+                { key: "quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: HelpCircle, color: "from-amber-500 to-amber-600", onClick: () => handleTabChange("quizzes"), active: activeTab === "quizzes" },
+                { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-blue-500 to-indigo-600", onClick: () => handleTabChange("assignments"), active: activeTab === "assignments" },
+                { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-purple-500 to-purple-600", onClick: () => handleTabChange("schedules"), active: activeTab === "schedules" },
+                { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-teal-500 to-emerald-600", onClick: () => handleTabChange("attendance"), active: activeTab === "attendance" },
+                { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => handleTabChange("ratings"), active: activeTab === "ratings" },
+                { key: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, color: "from-green-500 to-emerald-600", onClick: () => handleTabChange("analytics"), active: activeTab === "analytics" },
+                { key: "quiz-results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", onClick: () => navigate("/quiz-results") },
+                { key: "student-ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-pink-500 to-rose-600", onClick: () => navigate("/staff/student-ratings") },
               ]}
             />
           </div>
@@ -718,6 +723,23 @@ const LecturerDashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
+        {approved === true && (() => {
+          const heroMap: Record<string, { titleAr: string; titleEn: string; subAr: string; subEn: string; Icon: typeof Home; gradient: string; shadow: string }> = {
+            home:        { titleAr: "الرئيسية", titleEn: "Home", subAr: "نظرة عامة ومؤشرات", subEn: "Overview & analytics", Icon: BarChart3, gradient: "from-cyan-600 via-teal-600 to-emerald-600", shadow: "shadow-teal-500/40" },
+            courses:     { titleAr: "المحاضرات", titleEn: "Lectures", subAr: "إدارة محتوى المحاضرات", subEn: "Manage your lectures", Icon: Video, gradient: "from-cyan-600 via-sky-600 to-blue-600", shadow: "shadow-sky-500/40" },
+            live:        { titleAr: "البث المباشر", titleEn: "Live Stream", subAr: "إنشاء وإدارة جلسات البث", subEn: "Create & manage live sessions", Icon: Radio, gradient: "from-red-600 via-rose-600 to-pink-600", shadow: "shadow-rose-500/40" },
+            quizzes:     { titleAr: "الاختبارات", titleEn: "Online Tests", subAr: "اختبارات قصيرة للطلاب", subEn: "Quick assessments", Icon: HelpCircle, gradient: "from-amber-600 via-orange-600 to-rose-600", shadow: "shadow-amber-500/40" },
+            assignments: { titleAr: "التكليفات", titleEn: "Assignments", subAr: "إنشاء ومتابعة التكليفات", subEn: "Create & track assignments", Icon: ClipboardList, gradient: "from-blue-600 via-indigo-600 to-purple-600", shadow: "shadow-indigo-500/40" },
+            schedules:   { titleAr: "الجداول", titleEn: "Schedules", subAr: "الجداول والمواعيد", subEn: "Schedules & sessions", Icon: Calendar, gradient: "from-purple-600 via-violet-600 to-fuchsia-600", shadow: "shadow-violet-500/40" },
+            attendance:  { titleAr: "الحضور", titleEn: "Attendance", subAr: "متابعة حضور الطلاب", subEn: "Track student attendance", Icon: Users, gradient: "from-teal-600 via-emerald-600 to-green-600", shadow: "shadow-emerald-500/40" },
+            ratings:     { titleAr: "التقييمات", titleEn: "Ratings", subAr: "تقييم الطلاب لمحاضراتك", subEn: "Student feedback", Icon: Star, gradient: "from-yellow-500 via-amber-600 to-orange-600", shadow: "shadow-amber-500/40" },
+            analytics:   { titleAr: "تحميل التقارير", titleEn: "Export Reports", subAr: "تنزيل تقارير الأداء", subEn: "Download performance reports", Icon: Download, gradient: "from-green-600 via-emerald-600 to-teal-600", shadow: "shadow-emerald-500/40" },
+          };
+          const h = heroMap[activeTab] ?? heroMap.home;
+          return (
+            <StudentHero titleAr={h.titleAr} titleEn={h.titleEn} subtitleAr={h.subAr} subtitleEn={h.subEn} Icon={h.Icon} gradient={h.gradient} shadow={h.shadow} />
+          );
+        })()}
         {approved === false && (
           <div className="text-center py-20">
             <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">

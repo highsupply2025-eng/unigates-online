@@ -44,17 +44,27 @@ const LecturerPageHeader = ({ titleAr, titleEn, icon, activeKey = "quiz-results"
   const subtitleEn = titleEn ?? "Quiz Results";
 
   return (
-    <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 sticky top-0 z-30 bg-gradient-to-r from-primary/10 to-primary/5 backdrop-blur">
+    <header className="relative border-b-2 border-cyan-200/50 dark:border-cyan-900/50 px-3 sm:px-6 py-3 sm:py-4 sticky top-0 z-30 bg-gradient-to-r from-cyan-50 via-teal-50 to-emerald-50 dark:from-cyan-950/60 dark:via-teal-950/60 dark:to-emerald-950/60 backdrop-blur-xl shadow-sm">
+      <div className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 opacity-70" />
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-        <Link to="/lecturer/dashboard" className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 flex items-center justify-center shrink-0">
-            <GraduationCap className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+        <Link to="/lecturer/dashboard" className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 group">
+          <div className="relative w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-gradient-to-br from-cyan-500 via-teal-600 to-emerald-600 shadow-xl shadow-teal-500/40 flex items-center justify-center shrink-0 ring-2 ring-white/40 dark:ring-white/10 group-hover:scale-105 group-hover:shadow-teal-500/60 transition-all duration-300">
+            <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7 text-white drop-shadow" strokeWidth={2.5} />
+            <span className="absolute -top-0.5 -end-0.5 w-2.5 h-2.5 rounded-full bg-amber-400 ring-2 ring-white dark:ring-background animate-pulse" />
           </div>
           <div className="min-w-0 flex-1">
-            <h1 className="text-base sm:text-xl font-black text-foreground truncate">{isRtl ? "لوحة المحاضر" : "Lecturer Dashboard"}</h1>
-            <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate flex items-center gap-1">
-              {icon}
-              <span>{isRtl ? subtitleAr : subtitleEn}</span>
+            <h1 className="text-base sm:text-xl font-black truncate tracking-tight bg-gradient-to-r from-cyan-700 via-teal-700 to-emerald-700 dark:from-cyan-300 dark:via-teal-300 dark:to-emerald-300 bg-clip-text text-transparent">
+              {isRtl ? "لوحة المحاضر" : "Lecturer Dashboard"}
+            </h1>
+            <p className="text-[11px] sm:text-sm text-foreground/80 font-bold truncate flex items-center gap-1.5 mt-0.5">
+              {icon && (
+                <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-gradient-to-br from-cyan-500 to-teal-600 text-white shadow shadow-teal-500/30">
+                  {icon}
+                </span>
+              )}
+              <span className="bg-gradient-to-r from-cyan-600 to-emerald-600 dark:from-cyan-300 dark:to-emerald-300 bg-clip-text text-transparent">
+                {isRtl ? subtitleAr : subtitleEn}
+              </span>
             </p>
           </div>
         </Link>

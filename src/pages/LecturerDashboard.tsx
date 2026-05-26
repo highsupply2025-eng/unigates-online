@@ -28,6 +28,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationBell from "@/components/NotificationBell";
 import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
+import StudentHero from "@/components/StudentHero";
 import { MiniBars } from "@/components/MiniBars";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
 import { TimeRangeToggle } from "@/components/TimeRangeToggle";

@@ -329,8 +329,7 @@ const LeadershipDashboard = () => {
                 { key: "quizzes", label: isRtl ? "الاختبارات" : "Quizzes", Icon: CheckCircle, onClick: () => setActiveTab("quizzes"), active: activeTab === "quizzes" },
                 { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, onClick: () => setActiveTab("quizresults"), active: activeTab === "quizresults" },
 
-                { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, onClick: () => setActiveTab("ratings"), active: activeTab === "ratings" },
-                { key: "student-ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, onClick: () => navigate("/staff/student-ratings") },
+                { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, onClick: () => setActiveTab("ratings"), active: activeTab === "ratings" },
                 ...(userRole === "department_head" ? [{ key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, onClick: () => setActiveTab("assignments"), active: activeTab === "assignments" }] : []),
                 { key: "schedule", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => setActiveTab("schedule"), active: activeTab === "schedule" },
                 { key: "files", label: isRtl ? "الملفات" : "Files", Icon: FileText, onClick: () => setActiveTab("files"), active: activeTab === "files" },

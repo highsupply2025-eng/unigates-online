@@ -723,6 +723,23 @@ const LecturerDashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
+        {approved === true && (() => {
+          const heroMap: Record<string, { titleAr: string; titleEn: string; subAr: string; subEn: string; Icon: typeof Home; gradient: string; shadow: string }> = {
+            home:        { titleAr: "الرئيسية", titleEn: "Home", subAr: "نظرة عامة ومؤشرات", subEn: "Overview & analytics", Icon: BarChart3, gradient: "from-cyan-600 via-teal-600 to-emerald-600", shadow: "shadow-teal-500/40" },
+            courses:     { titleAr: "المحاضرات", titleEn: "Lectures", subAr: "إدارة محتوى المحاضرات", subEn: "Manage your lectures", Icon: Video, gradient: "from-cyan-600 via-sky-600 to-blue-600", shadow: "shadow-sky-500/40" },
+            live:        { titleAr: "البث المباشر", titleEn: "Live Stream", subAr: "إنشاء وإدارة جلسات البث", subEn: "Create & manage live sessions", Icon: Radio, gradient: "from-red-600 via-rose-600 to-pink-600", shadow: "shadow-rose-500/40" },
+            quizzes:     { titleAr: "الاختبارات", titleEn: "Online Tests", subAr: "اختبارات قصيرة للطلاب", subEn: "Quick assessments", Icon: HelpCircle, gradient: "from-amber-600 via-orange-600 to-rose-600", shadow: "shadow-amber-500/40" },
+            assignments: { titleAr: "التكليفات", titleEn: "Assignments", subAr: "إنشاء ومتابعة التكليفات", subEn: "Create & track assignments", Icon: ClipboardList, gradient: "from-blue-600 via-indigo-600 to-purple-600", shadow: "shadow-indigo-500/40" },
+            schedules:   { titleAr: "الجداول", titleEn: "Schedules", subAr: "الجداول والمواعيد", subEn: "Schedules & sessions", Icon: Calendar, gradient: "from-purple-600 via-violet-600 to-fuchsia-600", shadow: "shadow-violet-500/40" },
+            attendance:  { titleAr: "الحضور", titleEn: "Attendance", subAr: "متابعة حضور الطلاب", subEn: "Track student attendance", Icon: Users, gradient: "from-teal-600 via-emerald-600 to-green-600", shadow: "shadow-emerald-500/40" },
+            ratings:     { titleAr: "التقييمات", titleEn: "Ratings", subAr: "تقييم الطلاب لمحاضراتك", subEn: "Student feedback", Icon: Star, gradient: "from-yellow-500 via-amber-600 to-orange-600", shadow: "shadow-amber-500/40" },
+            analytics:   { titleAr: "تحميل التقارير", titleEn: "Export Reports", subAr: "تنزيل تقارير الأداء", subEn: "Download performance reports", Icon: Download, gradient: "from-green-600 via-emerald-600 to-teal-600", shadow: "shadow-emerald-500/40" },
+          };
+          const h = heroMap[activeTab] ?? heroMap.home;
+          return (
+            <StudentHero titleAr={h.titleAr} titleEn={h.titleEn} subtitleAr={h.subAr} subtitleEn={h.subEn} Icon={h.Icon} gradient={h.gradient} shadow={h.shadow} />
+          );
+        })()}
         {approved === false && (
           <div className="text-center py-20">
             <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">

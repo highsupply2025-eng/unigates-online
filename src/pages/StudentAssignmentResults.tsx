@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
+import StudentHero from "@/components/StudentHero";
 
 const StudentAssignmentResults = () => {
   const { dir } = useLanguage();
@@ -68,6 +69,15 @@ const StudentAssignmentResults = () => {
     <div className="min-h-screen bg-background" dir={dir}>
       <StudentPageHeader titleAr="نتائج التكليفات" titleEn="Assignment Results" icon={<ClipboardCheck className="w-3.5 h-3.5" />} />
       <main className="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
+        <StudentHero
+          titleAr="نتائج التكليفات"
+          titleEn="Assignment Results"
+          subtitleAr="درجات وتعليقات الدكاترة على تكليفاتك"
+          subtitleEn="Grades and feedback on your assignments"
+          Icon={ClipboardCheck}
+          gradient="from-indigo-500 via-blue-600 to-cyan-700"
+          shadow="shadow-blue-500/30"
+        />
         <p className="text-xs sm:text-sm text-muted-foreground mb-5">
           {isRtl
             ? "تظهر نتائج التكليفات تلقائياً فور تصحيح المحاضر، دون الحاجة لأي اعتماد."

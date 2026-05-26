@@ -4,6 +4,7 @@ import { Star, BookOpen, FileText, ClipboardList, Radio, Download, Eye } from "l
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
+import StudentHero from "@/components/StudentHero";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
@@ -105,6 +106,15 @@ const StudentRatings = () => {
         icon={<Star className="w-3.5 h-3.5" />}
       />
       <main className="max-w-7xl mx-auto w-full px-3 sm:px-4 py-5 sm:py-8 space-y-4">
+        <StudentHero
+          titleAr="التقييمات"
+          titleEn="Ratings"
+          subtitleAr="آراؤك وتقييماتك للمحاضرين والمحتوى"
+          subtitleEn="Your ratings and feedback on lecturers and content"
+          Icon={Star}
+          gradient="from-yellow-500 via-amber-600 to-orange-600"
+          shadow="shadow-amber-500/30"
+        />
         {readOnly && (
           <div className="rounded-lg border border-border bg-muted/40 p-3 text-sm flex items-center gap-2">
             <Eye className="w-4 h-4 text-muted-foreground" />

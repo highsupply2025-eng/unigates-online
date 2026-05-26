@@ -2,6 +2,7 @@ import { GraduationCap, Building2, Crown, Mail, Phone, BookOpen, Users } from "l
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import StudentPageHeader from "@/components/StudentPageHeader";
+import StudentHero from "@/components/StudentHero";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const StudentMyAcademic = () => {
@@ -41,6 +42,15 @@ const StudentMyAcademic = () => {
       />
 
       <main className="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8 space-y-5">
+        <StudentHero
+          titleAr="حسابي الأكاديمي"
+          titleEn="My Academic Profile"
+          subtitleAr="بيانات كليتك، أساتذتك، والقيادة الأكاديمية"
+          subtitleEn="Your college, lecturers, and academic leadership"
+          Icon={GraduationCap}
+          gradient="from-cyan-500 via-blue-600 to-indigo-700"
+          shadow="shadow-cyan-500/30"
+        />
         {/* Affiliation card */}
         <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
           <CardHeader className="pb-3">

@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import Index from "./pages/Index";
 import AIChatWidget from "./components/AIChatWidget";
@@ -72,7 +72,7 @@ const ScheduleDetail = lazy(() => import("./pages/ScheduleDetail"));
 const CourseAssignments = lazy(() => import("./pages/CourseAssignments"));
 const CourseAttendance = lazy(() => import("./pages/CourseAttendance"));
 const QuizResults = lazy(() => import("./pages/QuizResults"));
-const QuizResultsAll = lazy(() => import("./pages/QuizResultsAll"));
+
 
 const StudentResults = lazy(() => import("./pages/StudentResults"));
 const StudentAssignments = lazy(() => import("./pages/StudentAssignments"));
@@ -165,7 +165,7 @@ const App = () => (
               <Route path="/course/:courseId/assignments" element={<CourseAssignments />} />
               <Route path="/attendance/course/:courseId" element={<CourseAttendance />} />
               <Route path="/quiz/:quizId/results" element={<QuizResults />} />
-              <Route path="/quiz-results" element={<QuizResultsAll />} />
+              <Route path="/quiz-results" element={<Navigate to="/lecturer/dashboard?tab=quiz-results" replace />} />
               
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/book-store/profile" element={<UserProfile />} />

@@ -19,7 +19,6 @@ const PrefetchRoutes = () => {
         () => import("./pages/InstitutionDashboard"),
         () => import("./pages/LeadershipDashboard"),
         () => import("./pages/QuizResults"),
-        () => import("./pages/QuizResultsAll"),
         () => import("./pages/StudentLectures"),
         () => import("./pages/StudentQuizzes"),
         () => import("./pages/StudentResults"),

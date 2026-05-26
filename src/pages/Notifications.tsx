@@ -141,26 +141,28 @@ const Notifications = () => {
           ],
         };
 
-      case "lecturer":
+      case "lecturer": {
+        const goDash = (tab: string) => () => navigate(tab === "home" ? "/lecturer/dashboard" : `/lecturer/dashboard?tab=${tab}`);
         return {
           dashboardPath: "/lecturer/dashboard",
           subtitle: isRtl ? "لوحة المحاضر" : "Lecturer Panel",
-          headerTitle: isRtl ? "لوحة المحاضر" : "Lecturer Panel",
-          HeaderIcon: Video,
+          headerTitle: isRtl ? "لوحة المحاضر" : "Lecturer Dashboard",
+          HeaderIcon: GraduationCap,
           menuItems: [
-            { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/lecturer/dashboard") },
-            { key: "courses", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video, color: "from-indigo-500 to-indigo-600", onClick: goRoot("/lecturer/dashboard") },
-            { key: "live", label: isRtl ? "البث المباشر" : "Live Stream", Icon: Radio, color: "from-red-500 to-rose-600", onClick: goRoot("/lecturer/dashboard") },
-            { key: "quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: HelpCircle, color: "from-purple-500 to-purple-600", onClick: goRoot("/lecturer/dashboard") },
-            { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-amber-500 to-amber-600", onClick: goRoot("/lecturer/dashboard") },
-            { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-pink-500 to-pink-600", onClick: goRoot("/lecturer/dashboard") },
-            { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-emerald-500 to-emerald-600", onClick: goRoot("/lecturer/dashboard") },
-            { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: goRoot("/lecturer/dashboard") },
-            { key: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, color: "from-cyan-500 to-cyan-600", onClick: goRoot("/lecturer/dashboard") },
-            { key: "quiz-results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-teal-500 to-teal-600", onClick: goRoot("/quiz-results") },
+            { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goDash("home") },
+            { key: "courses", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video, color: "from-cyan-500 to-teal-600", onClick: goDash("courses") },
+            { key: "live", label: isRtl ? "البث المباشر" : "Live Stream", Icon: Radio, color: "from-red-500 to-rose-600", onClick: goDash("live") },
+            { key: "quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: HelpCircle, color: "from-amber-500 to-amber-600", onClick: goDash("quizzes") },
+            { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-blue-500 to-blue-600", onClick: goDash("assignments") },
+            { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-purple-500 to-purple-600", onClick: goDash("schedules") },
+            { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-teal-500 to-teal-600", onClick: goDash("attendance") },
+            { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: goDash("ratings") },
+            { key: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, color: "from-green-500 to-green-600", onClick: goDash("analytics") },
+            { key: "quiz-results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-indigo-600", onClick: goRoot("/quiz-results") },
             profileItem,
           ],
         };
+      }
 
       case "student":
       case "personal":
@@ -171,19 +173,18 @@ const Notifications = () => {
           HeaderIcon: GraduationCap,
           menuItems: [
             { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: goRoot("/student/dashboard") },
-            { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-indigo-500 to-indigo-600", onClick: goRoot("/student/lectures") },
-            { key: "live", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", onClick: goRoot("/student/live") },
+            { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-emerald-500 to-emerald-600", onClick: goRoot("/student/lectures") },
+            { key: "live", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-red-600", onClick: goRoot("/student/live") },
             { key: "quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: ClipboardList, color: "from-purple-500 to-purple-600", onClick: goRoot("/student/quizzes") },
+            { key: "results", label: isRtl ? "نتائج الاختبارات" : "Exam Results", Icon: Award, color: "from-pink-500 to-rose-600", onClick: goRoot("/student/results") },
             { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: FileText, color: "from-amber-500 to-amber-600", onClick: goRoot("/student/assignments") },
-            { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-pink-500 to-pink-600", onClick: goRoot("/student/schedules") },
-            { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-emerald-500 to-emerald-600", onClick: goRoot("/student/attendance") },
+            { key: "assignment-results", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: TrendingUp, color: "from-indigo-500 to-indigo-600", onClick: goRoot("/student/assignment-results") },
+            { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-blue-500 to-blue-600", onClick: goRoot("/student/schedules") },
             { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: goRoot("/student/ratings") },
-            { key: "results", label: isRtl ? "نتائج الاختبارات" : "Exam Results", Icon: Award, color: "from-teal-500 to-teal-600", onClick: goRoot("/student/results") },
-            { key: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: TrendingUp, color: "from-cyan-500 to-cyan-600", onClick: goRoot("/student/analytics") },
-            { key: "academic", label: isRtl ? "حسابي الأكاديمي" : "My Academic", Icon: GraduationCap, color: "from-green-500 to-green-600", onClick: goRoot("/student/my-academic") },
             profileItem,
           ],
         };
+
 
       case "school_student":
         return {

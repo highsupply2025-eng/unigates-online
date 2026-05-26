@@ -76,6 +76,14 @@ const StudentAssignmentDetail = () => {
   };
 
   const handleSubmit = () => {
+    if (alreadySubmitted) {
+      toast({
+        title: isRtl ? "تم التسليم مسبقاً" : "Already submitted",
+        description: isRtl ? "لا يمكن إعادة تسليم التكليف" : "You cannot resubmit this assignment",
+        variant: "destructive",
+      });
+      return;
+    }
     if (!answer.trim()) {
       toast({
         title: isRtl ? "الإجابة فارغة" : "Empty answer",
@@ -92,10 +100,28 @@ const StudentAssignmentDetail = () => {
     setShowRating(true);
   };
 
+  const persistSubmission = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || !assignmentId) return;
+    const key = `assignment_submitted:${assignmentId}:${user.id}`;
+    localStorage.setItem(key, "1");
+    const isUuid = /^[0-9a-f-]{36}$/i.test(assignmentId);
+    if (isUuid) {
+      await supabase.from("assignment_submissions").insert({
+        assignment_id: assignmentId,
+        student_id: user.id,
+        file_url: answer.slice(0, 4000),
+        file_name: "answer.txt",
+      });
+    }
+  };
+
   const finalizeSubmission = (rating: number) => {
     if (rating > 0) markRated("assignment", assignmentId);
     setSubmitted(true);
+    setAlreadySubmitted(true);
     setShowRating(false);
+    persistSubmission();
     toast({
       title: isRtl ? "تم التسليم" : "Submitted",
       description: rating > 0

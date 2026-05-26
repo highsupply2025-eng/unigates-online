@@ -165,7 +165,7 @@ const App = () => (
               <Route path="/course/:courseId/assignments" element={<CourseAssignments />} />
               <Route path="/attendance/course/:courseId" element={<CourseAttendance />} />
               <Route path="/quiz/:quizId/results" element={<QuizResults />} />
-              <Route path="/quiz-results" element={<QuizResultsAll />} />
+              <Route path="/quiz-results" element={<Navigate to="/lecturer/dashboard?tab=quiz-results" replace />} />
               
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/book-store/profile" element={<UserProfile />} />

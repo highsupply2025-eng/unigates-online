@@ -42,7 +42,7 @@ const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true, backTo, bac
     { key: "assignment-results", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: TrendingUp, color: "from-indigo-500 to-indigo-600", path: "/student/assignment-results", prefetch: () => import("@/pages/StudentAssignmentResults") },
     { key: "schedules",   label: isRtl ? "الجداول" : "Schedules",        Icon: Calendar,      color: "from-blue-500 to-blue-600",    path: "/student/schedules",  prefetch: () => import("@/pages/StudentSchedules") },
     { key: "ratings",     label: isRtl ? "التقييمات" : "Ratings",        Icon: Star,          color: "from-yellow-500 to-amber-600", path: "/student/ratings",    prefetch: () => import("@/pages/StudentRatings") },
-    { key: "notifications", label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell,         color: "from-orange-500 to-orange-600", path: "/notifications",     prefetch: () => import("@/pages/Notifications") },
+    
     { key: "profile",     label: isRtl ? "بيانات الطالب" : "Student Details", Icon: User,    color: "from-cyan-500 to-cyan-600",    path: "/profile",            prefetch: () => import("@/pages/UserProfile") },
   ], [isRtl]);
 

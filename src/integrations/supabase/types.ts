@@ -2216,6 +2216,13 @@ export type Database = {
         Returns: boolean
       }
       is_leadership: { Args: { _user_id: string }; Returns: boolean }
+      leadership_institution_ids: {
+        Args: { _user_id: string }
+        Returns: {
+          institution_id: string
+          institution_type: string
+        }[]
+      }
       quiz_results_approved: { Args: { _quiz_id: string }; Returns: boolean }
       schedule_fully_approved: { Args: { _id: string }; Returns: boolean }
       submit_quiz: {

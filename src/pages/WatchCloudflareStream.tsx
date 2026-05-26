@@ -35,12 +35,12 @@ const WatchCloudflareStream = () => {
 
   const load = async () => {
     if (!streamId) return;
-    const { data } = await supabase
-      .from("cloudflare_live_streams_public" as any)
+    const { data } = await (supabase as any)
+      .from("cloudflare_live_streams_public")
       .select("id,title,description,playback_hls_url,status,started_at")
       .eq("id", streamId)
       .maybeSingle();
-    setStream(data as PublicStream | null);
+    setStream((data as unknown) as PublicStream | null);
     setLoading(false);
   };
 

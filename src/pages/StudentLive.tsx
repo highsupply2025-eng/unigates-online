@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
+import StudentHero from "@/components/StudentHero";
 
 const StudentLive = () => {
   const { language } = useLanguage();
@@ -29,6 +30,15 @@ const StudentLive = () => {
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <StudentPageHeader titleAr="البث المباشر" titleEn="Live Streams" icon={<Radio className="w-3.5 h-3.5" />} />
       <main className="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
+        <StudentHero
+          titleAr="البث المباشر"
+          titleEn="Live Streams"
+          subtitleAr="انضم لمحاضراتك المباشرة الآن"
+          subtitleEn="Join your live lectures now"
+          Icon={Radio}
+          gradient="from-red-500 via-rose-600 to-pink-700"
+          shadow="shadow-rose-500/30"
+        />
         <div className="grid gap-4">
           {/* Demo live stream — always visible */}
           <Link to="/student/live/demo-1" className="block">

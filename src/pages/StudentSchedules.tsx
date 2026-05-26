@@ -4,6 +4,7 @@ import { Calendar, Clock, BookOpen, FileQuestion } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
+import StudentHero from "@/components/StudentHero";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -37,6 +38,15 @@ const StudentSchedules = () => {
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <StudentPageHeader titleAr="الجداول" titleEn="Schedules" icon={<Calendar className="w-3.5 h-3.5" />} />
       <main className="max-w-7xl mx-auto w-full px-3 sm:px-4 py-5 sm:py-8">
+        <StudentHero
+          titleAr="الجداول"
+          titleEn="Schedules"
+          subtitleAr="مواعيد محاضراتك واختباراتك القادمة"
+          subtitleEn="Your upcoming lectures and tests"
+          Icon={Calendar}
+          gradient="from-blue-500 via-indigo-600 to-violet-700"
+          shadow="shadow-indigo-500/30"
+        />
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">{isRtl ? "جاري التحميل..." : "Loading..."}</div>
         ) : (

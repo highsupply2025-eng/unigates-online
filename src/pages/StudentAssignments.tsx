@@ -4,6 +4,7 @@ import { ClipboardList, Calendar, CheckCircle2, AlertCircle } from "lucide-react
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
+import StudentHero from "@/components/StudentHero";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,15 @@ const StudentAssignments = () => {
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <StudentPageHeader titleAr="التكليفات" titleEn="Assignments" icon={<ClipboardList className="w-3.5 h-3.5" />} />
       <main className="max-w-7xl mx-auto w-full px-3 sm:px-4 py-5 sm:py-8">
+        <StudentHero
+          titleAr="التكليفات"
+          titleEn="Assignments"
+          subtitleAr="سلّم تكليفاتك قبل انتهاء الموعد"
+          subtitleEn="Submit your assignments before the deadline"
+          Icon={ClipboardList}
+          gradient="from-amber-500 via-orange-600 to-red-600"
+          shadow="shadow-amber-500/30"
+        />
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">{isRtl ? "جاري التحميل..." : "Loading..."}</div>
         ) : (

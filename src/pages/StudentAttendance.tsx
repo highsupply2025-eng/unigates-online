@@ -4,6 +4,7 @@ import { Users, Clock, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
+import StudentHero from "@/components/StudentHero";
 import { Card, CardContent } from "@/components/ui/card";
 
 const StudentAttendance = () => {
@@ -43,6 +44,15 @@ const StudentAttendance = () => {
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <StudentPageHeader titleAr="الحضور" titleEn="Attendance" icon={<Users className="w-3.5 h-3.5" />} />
       <main className="max-w-7xl mx-auto w-full px-3 sm:px-4 py-5 sm:py-8">
+        <StudentHero
+          titleAr="الحضور"
+          titleEn="Attendance"
+          subtitleAr="سجل حضورك للبث المباشر"
+          subtitleEn="Your live stream attendance record"
+          Icon={Users}
+          gradient="from-green-500 via-emerald-600 to-teal-700"
+          shadow="shadow-emerald-500/30"
+        />
         <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
           {[
             { Icon: Eye, value: stats.total, label: isRtl ? "إجمالي الحضور" : "Total", color: "from-green-500 to-emerald-600" },

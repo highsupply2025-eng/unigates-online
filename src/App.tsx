@@ -84,8 +84,6 @@ const StudentRatings = lazy(() => import("./pages/StudentRatings"));
 const StaffStudentRatings = lazy(() => import("./pages/StaffStudentRatings"));
 
 const StudentMyAcademic = lazy(() => import("./pages/StudentMyAcademic"));
-const LecturerCloudflareStream = lazy(() => import("./pages/LecturerCloudflareStream"));
-const WatchCloudflareStream = lazy(() => import("./pages/WatchCloudflareStream"));
 
 const queryClient = new QueryClient({
   defaultOptions: {

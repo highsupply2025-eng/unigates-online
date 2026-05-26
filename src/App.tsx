@@ -81,7 +81,6 @@ const StudentSchedules = lazy(() => import("./pages/StudentSchedules"));
 const StudentScheduleDetail = lazy(() => import("./pages/StudentScheduleDetail"));
 
 const StudentRatings = lazy(() => import("./pages/StudentRatings"));
-const StaffStudentRatings = lazy(() => import("./pages/StaffStudentRatings"));
 
 const StudentMyAcademic = lazy(() => import("./pages/StudentMyAcademic"));
 

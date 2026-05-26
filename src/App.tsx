@@ -79,7 +79,7 @@ const StudentAssignments = lazy(() => import("./pages/StudentAssignments"));
 const StudentAssignmentDetail = lazy(() => import("./pages/StudentAssignmentDetail"));
 const StudentSchedules = lazy(() => import("./pages/StudentSchedules"));
 const StudentScheduleDetail = lazy(() => import("./pages/StudentScheduleDetail"));
-const StudentAttendance = lazy(() => import("./pages/StudentAttendance"));
+
 const StudentRatings = lazy(() => import("./pages/StudentRatings"));
 
 const StudentMyAcademic = lazy(() => import("./pages/StudentMyAcademic"));
@@ -186,7 +186,7 @@ const App = () => (
               <Route path="/student/assignments/:assignmentId" element={<StudentAssignmentDetail />} />
               <Route path="/student/schedules" element={<StudentSchedules />} />
               <Route path="/student/schedules/:scheduleId" element={<StudentScheduleDetail />} />
-              <Route path="/student/attendance" element={<StudentAttendance />} />
+              
               <Route path="/student/ratings" element={<StudentRatings />} />
               <Route path="/student/analytics" element={<StudentAnalytics />} />
               <Route path="/student/my-academic" element={<StudentMyAcademic />} />

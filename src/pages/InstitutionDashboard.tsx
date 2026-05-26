@@ -2646,13 +2646,6 @@ const InstitutionDashboard = () => {
             )}
           </TabsContent>
 
-          {/* Notifications Tab */}
-          <TabsContent value="notifications" dir={isRtl ? "rtl" : "ltr"}>
-            <div className="mb-6">
-              <h2 className="text-xl font-bold text-foreground">{isRtl ? "الإشعارات" : "Notifications"}</h2>
-            </div>
-            <NotificationsListInline isRtl={isRtl} />
-          </TabsContent>
         </Tabs>
         )}
       </main>

@@ -72,7 +72,7 @@ const ScheduleDetail = lazy(() => import("./pages/ScheduleDetail"));
 const CourseAssignments = lazy(() => import("./pages/CourseAssignments"));
 const CourseAttendance = lazy(() => import("./pages/CourseAttendance"));
 const QuizResults = lazy(() => import("./pages/QuizResults"));
-const QuizResultsAll = lazy(() => import("./pages/QuizResultsAll"));
+
 
 const StudentResults = lazy(() => import("./pages/StudentResults"));
 const StudentAssignments = lazy(() => import("./pages/StudentAssignments"));

@@ -1,6 +1,7 @@
 import { Shield } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import SimpleHeader from "@/components/SimpleHeader";
+import SEO from "@/components/SEO";
 import SiteFooter from "@/components/SiteFooter";
 
 const Privacy = () => {
@@ -44,6 +45,10 @@ const Privacy = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
+      <SEO
+        title={isRtl ? "سياسة الخصوصية — UNIGATES" : "Privacy Policy — UNIGATES"}
+        description={isRtl ? "اطلع على كيفية جمع وحماية واستخدام بياناتك على منصة UNIGATES." : "Learn how UNIGATES collects, protects, and uses your data."}
+      />
       <SimpleHeader />
 
       <main className="flex-1">

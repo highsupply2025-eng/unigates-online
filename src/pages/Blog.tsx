@@ -1,6 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { BookOpen, Calendar, User, Clock } from "lucide-react";
 import SimpleHeader from "@/components/SimpleHeader";
+import SEO from "@/components/SEO";
 import SiteFooter from "@/components/SiteFooter";
 
 const blogPosts = {
@@ -29,6 +30,10 @@ const Blog = () => {
 
   return (
     <div dir={isRtl ? "rtl" : "ltr"} className="min-h-screen bg-background flex flex-col">
+      <SEO
+        title={isRtl ? "مدونة UNIGATES — مقالات تعليمية وأكاديمية" : "UNIGATES Blog — Education & Career Articles"}
+        description={isRtl ? "مقالات ونصائح حول التعليم الجامعي، التعلم عن بُعد، وسوق العمل من فريق UNIGATES." : "Articles and tips on university education, remote learning, and the job market from the UNIGATES team."}
+      />
       <SimpleHeader />
 
       <main className="flex-1">

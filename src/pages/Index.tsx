@@ -4,29 +4,38 @@ import FeaturesSection from "@/components/FeaturesSection";
 import SiteFooter from "@/components/SiteFooter";
 import StatsSection from "@/components/StatsSection";
 import HomepageSections from "@/components/HomepageSections";
+import SEO from "@/components/SEO";
 
 
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
-  const { dir } = useLanguage();
+  const { dir, language } = useLanguage();
+  const isRtl = language === "ar";
 
   return (
     <div className="min-h-screen bg-background text-foreground" dir={dir}>
+      <SEO
+        title={isRtl ? "UNIGATES — منصة تعليمية عربية وإنجليزية" : "UNIGATES — Arabic & English Educational Platform"}
+        description={isRtl
+          ? "منصة UNIGATES التابعة لدار عبيد: دورات أونلاين، متجر كتب، ومنصات للمدارس والجامعات للطلاب والمعلمين والمؤسسات."
+          : "UNIGATES by Dar Obeid: online courses, a digital book store, and K-12 / university platforms for students, teachers, and institutions."}
+      />
       <SiteHeader />
-      <div className="relative">
-        <HeroSection />
-        <div className="absolute bottom-4 sm:bottom-8 left-0 right-0 z-20">
-          <StatsSection />
+      <main>
+        <div className="relative">
+          <HeroSection />
+          <div className="absolute bottom-4 sm:bottom-8 left-0 right-0 z-20">
+            <StatsSection />
+          </div>
         </div>
-      </div>
 
-      <HomepageSections />
+        <HomepageSections />
 
-      <div className="divide-y divide-border/40">
-        <FeaturesSection />
-      </div>
-
+        <div className="divide-y divide-border/40">
+          <FeaturesSection />
+        </div>
+      </main>
 
       <SiteFooter />
     </div>

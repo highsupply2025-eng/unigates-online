@@ -470,38 +470,38 @@ const LeadershipDashboard = () => {
               </button>
             </div>
 
-            <Card className="overflow-hidden border-2 border-primary/15 shadow-lg">
+            <Card className="overflow-hidden border-2 border-primary/25 shadow-xl">
               <CardContent className="p-0">
                 <Table className="[&_th]:align-middle [&_td]:align-middle [&_th]:text-start [&_td]:text-start">
                   <TableHeader>
-                    <TableRow className="bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5 hover:bg-primary/15 border-b-2 border-primary/30">
-                      <TableHead className="font-black text-primary text-[13px] uppercase tracking-wider py-4 w-[34%]">
-                        <span className="inline-flex items-center gap-1.5">
-                          <Radio className="w-4 h-4" />
+                    <TableRow className="bg-gradient-to-r from-primary/30 via-primary/20 to-primary/10 hover:bg-primary/25 border-b-4 border-primary/50">
+                      <TableHead className="font-black text-primary text-sm uppercase tracking-wider py-5 w-[34%]">
+                        <span className="inline-flex items-center gap-2">
+                          <Radio className="w-5 h-5" strokeWidth={2.6} />
                           {isRtl ? "العنوان" : "Title"}
                         </span>
                       </TableHead>
-                      <TableHead className="font-black text-primary text-[13px] uppercase tracking-wider py-4 w-[14%]">
-                        <span className="inline-flex items-center gap-1.5">
-                          <CheckCircle className="w-4 h-4" />
+                      <TableHead className="font-black text-primary text-sm uppercase tracking-wider py-5 w-[14%]">
+                        <span className="inline-flex items-center gap-2">
+                          <CheckCircle className="w-5 h-5" strokeWidth={2.6} />
                           {isRtl ? "الحالة" : "Status"}
                         </span>
                       </TableHead>
-                      <TableHead className="font-black text-primary text-[13px] uppercase tracking-wider py-4 w-[14%]">
-                        <span className="inline-flex items-center gap-1.5">
-                          <Users className="w-4 h-4" />
+                      <TableHead className="font-black text-primary text-sm uppercase tracking-wider py-5 w-[14%]">
+                        <span className="inline-flex items-center gap-2">
+                          <Users className="w-5 h-5" strokeWidth={2.6} />
                           {isRtl ? "عدد الطلاب" : "Students"}
                         </span>
                       </TableHead>
-                      <TableHead className="font-black text-primary text-[13px] uppercase tracking-wider py-4 w-[24%]">
-                        <span className="inline-flex items-center gap-1.5">
-                          <Calendar className="w-4 h-4" />
+                      <TableHead className="font-black text-primary text-sm uppercase tracking-wider py-5 w-[24%]">
+                        <span className="inline-flex items-center gap-2">
+                          <Calendar className="w-5 h-5" strokeWidth={2.6} />
                           {isRtl ? "الموعد" : "Scheduled"}
                         </span>
                       </TableHead>
-                      <TableHead className="font-black text-primary text-[13px] uppercase tracking-wider py-4 w-[14%]">
-                        <span className="inline-flex items-center gap-1.5">
-                          <Eye className="w-4 h-4" />
+                      <TableHead className="font-black text-primary text-sm uppercase tracking-wider py-5 w-[14%]">
+                        <span className="inline-flex items-center gap-2">
+                          <Eye className="w-5 h-5" strokeWidth={2.6} />
                           {isRtl ? "إجراء" : "Action"}
                         </span>
                       </TableHead>

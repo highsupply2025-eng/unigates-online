@@ -904,7 +904,7 @@ const LeadershipDashboard = () => {
                                 variant={showAction && act ? "default" : "outline"}
                               >
                                 {showAction && act
-                                  ? (isRtl ? "اعتماد الآن" : "Approve Now")
+                                  ? (isRtl ? "عرض ثم الاعتماد" : "Review & Approve")
                                   : (isRtl ? "عرض" : "View")}
                               </Button>
                             </TableCell>

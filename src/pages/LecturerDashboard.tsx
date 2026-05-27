@@ -608,11 +608,13 @@ const LecturerDashboard = () => {
   };
 
   // PDF Export
+  const escHtml = (s: any) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+
   const exportAnalyticsPDF = (section: string) => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
     const title = isRtl ? `تقرير - ${section}` : `Report - ${section}`;
-    printWindow.document.write(`<!DOCTYPE html><html dir="${dir}"><head><title>${title}</title>
+    printWindow.document.write(`<!DOCTYPE html><html dir="${dir}"><head><title>${escHtml(title)}</title>
       <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 40px; direction: ${dir}; }
         table { width: 100%; border-collapse: collapse; margin: 20px 0; }
@@ -646,26 +648,26 @@ const LecturerDashboard = () => {
         </div>
         <h2>${isRtl ? "الدورات" : "Courses"}</h2>
         <table><tr><th>${isRtl ? "الدورة" : "Course"}</th><th>${isRtl ? "الحلقات" : "Episodes"}</th><th>${isRtl ? "المشاهدات" : "Views"}</th></tr>
-        ${courses.map(c => `<tr><td>${isRtl ? c.title_ar : c.title_en}</td><td>${c.episode_count}</td><td>${courseViews[c.id] || 0}</td></tr>`).join('')}
+        ${courses.map(c => `<tr><td>${escHtml(isRtl ? c.title_ar : c.title_en)}</td><td>${c.episode_count}</td><td>${courseViews[c.id] || 0}</td></tr>`).join('')}
         </table>`;
       case "attendance":
         return `<h2>${isRtl ? "تقرير الحضور" : "Attendance Report"}</h2>
         <table><tr><th>${isRtl ? "البث" : "Stream"}</th><th>${isRtl ? "الطالب" : "Student"}</th><th>${isRtl ? "وقت الانضمام" : "Joined"}</th><th>${isRtl ? "المدة (دقائق)" : "Duration (min)"}</th></tr>
         ${attendance.map(a => {
           const stream = streams.find(s => s.id === a.stream_id);
-          return `<tr><td>${stream ? (isRtl ? stream.title_ar : stream.title_en) : a.stream_id.slice(0,8)}</td><td>${a.user_id.slice(0,8)}...</td><td>${new Date(a.joined_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US')}</td><td>${a.duration_minutes || 0}</td></tr>`;
+          return `<tr><td>${stream ? escHtml(isRtl ? stream.title_ar : stream.title_en) : escHtml(a.stream_id.slice(0,8))}</td><td>${escHtml(a.user_id.slice(0,8))}...</td><td>${new Date(a.joined_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US')}</td><td>${a.duration_minutes || 0}</td></tr>`;
         }).join('')}
         </table>`;
       case "schedules":
         return `<h2>${isRtl ? "الجداول" : "Schedules"}</h2>
         <table><tr><th>${isRtl ? "العنوان" : "Title"}</th><th>${isRtl ? "النوع" : "Type"}</th><th>${isRtl ? "التاريخ" : "Date"}</th><th>${isRtl ? "الوقت" : "Time"}</th></tr>
-        ${schedules.map(s => `<tr><td>${isRtl ? s.title_ar : s.title_en}</td><td>${s.schedule_type === 'lecture' ? (isRtl ? 'محاضرة' : 'Lecture') : (isRtl ? 'اختبار' : 'Test')}</td><td>${s.scheduled_date}</td><td>${s.start_time || '-'} - ${s.end_time || '-'}</td></tr>`).join('')}
+        ${schedules.map(s => `<tr><td>${escHtml(isRtl ? s.title_ar : s.title_en)}</td><td>${s.schedule_type === 'lecture' ? (isRtl ? 'محاضرة' : 'Lecture') : (isRtl ? 'اختبار' : 'Test')}</td><td>${escHtml(s.scheduled_date)}</td><td>${escHtml(s.start_time || '-')} - ${escHtml(s.end_time || '-')}</td></tr>`).join('')}
         </table>`;
       case "ratings":
         return `<h2>${isRtl ? "التقييمات" : "Ratings"}</h2>
         <div class="stat"><div class="stat-value">${avgRating}/5</div><div class="stat-label">${isRtl ? "المتوسط" : "Average"}</div></div>
         <table><tr><th>${isRtl ? "التقييم" : "Rating"}</th><th>${isRtl ? "التعليق" : "Comment"}</th><th>${isRtl ? "التاريخ" : "Date"}</th></tr>
-        ${lecturerRatings.map(r => `<tr><td>${r.rating}/5</td><td>${r.comment || '-'}</td><td>${new Date(r.created_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}</td></tr>`).join('')}
+        ${lecturerRatings.map(r => `<tr><td>${r.rating}/5</td><td>${escHtml(r.comment || '-')}</td><td>${new Date(r.created_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}</td></tr>`).join('')}
         </table>`;
       default: return "";
     }

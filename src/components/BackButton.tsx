@@ -7,24 +7,27 @@ interface BackButtonProps {
   className?: string;
   /** When true, navigates straight to /login instead of history.back() */
   toLogin?: boolean;
+  /** When set, navigates to this path instead of history.back() */
+  to?: string;
 }
 
 /**
- * Back button. Default: history.back(). With toLogin: navigates to /login.
+ * Back button. Default: history.back(). With toLogin: navigates to /login. With to: navigates to that path.
  * Arrow points in the reading direction (RTL → left arrow, LTR → right arrow).
  */
-const BackButton = ({ className = "", toLogin = false }: BackButtonProps) => {
+const BackButton = ({ className = "", toLogin = false, to }: BackButtonProps) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const ar = (a: string, e: string) => (language === "ar" ? a : e);
 
-  if (!toLogin && typeof window !== "undefined" && window.history.length <= 1) return null;
+  if (!toLogin && !to && typeof window !== "undefined" && window.history.length <= 1) return null;
 
   // Back direction: Arabic (RTL) → ArrowLeft, English (LTR) → ArrowRight
   const Icon = language === "ar" ? ArrowLeft : ArrowRight;
 
   const handleClick = () => {
     if (toLogin) navigate("/login");
+    else if (to) navigate(to);
     else navigate(-1);
   };
 

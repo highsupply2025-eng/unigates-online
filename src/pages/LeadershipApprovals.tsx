@@ -149,7 +149,7 @@ const LeadershipApprovals = () => {
               </p>
             </div>
           </div>
-          <BackButton />
+          <BackButton to={`/leadership/dashboard?tab=${type === "quizzes" ? "quizzesonline" : "schedulesapproval"}`} />
         </div>
       </header>
 

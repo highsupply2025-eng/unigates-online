@@ -931,6 +931,8 @@ const LeadershipDashboard = () => {
                 </div>
               );
 
+              const notApproved = [...myTurn, ...waiting];
+
               return (
                 <>
                   <div className="flex items-center justify-between mb-4">
@@ -944,49 +946,56 @@ const LeadershipDashboard = () => {
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-5">
-                    <Card className="bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/30">
-                      <CardContent className="p-3 sm:p-4 text-center">
-                        <div className="text-2xl sm:text-3xl font-black">{myTurn.length}</div>
-                        <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "بانتظار اعتمادك" : "Your turn"}</div>
-                      </CardContent>
-                    </Card>
+                    <button onClick={() => setSchedApprovedOpen(true)} className="text-start">
+                      <Card className="bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:scale-[1.02] transition-all cursor-pointer">
+                        <CardContent className="p-3 sm:p-4 text-center">
+                          <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7 mx-auto mb-1 opacity-95" />
+                          <div className="text-2xl sm:text-3xl font-black">{approved.length}</div>
+                          <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "معتمد" : "Approved"}</div>
+                        </CardContent>
+                      </Card>
+                    </button>
                     <Card className="bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/30">
                       <CardContent className="p-3 sm:p-4 text-center">
-                        <div className="text-2xl sm:text-3xl font-black">{waiting.length}</div>
-                        <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "قيد المراحل الأخرى" : "In other stages"}</div>
+                        <Clock className="w-6 h-6 sm:w-7 sm:h-7 mx-auto mb-1 opacity-95" />
+                        <div className="text-2xl sm:text-3xl font-black">{notApproved.length}</div>
+                        <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "غير معتمد" : "Not Approved"}</div>
                       </CardContent>
                     </Card>
-                  </div>
-
-
-                  <div className="mb-6">
-                    <h3 className="text-sm font-extrabold text-foreground mb-2 flex items-center gap-1.5">
-                      <CheckCircle className="w-4 h-4 text-emerald-600" />
-                      {isRtl ? "بانتظار اعتمادك" : "Awaiting your approval"}
-                    </h3>
-                    {myTurn.length === 0 ? (
-                      <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                        {isRtl ? "لا توجد جداول تنتظر اعتمادك حالياً" : "No schedules awaiting your approval right now"}
-                      </div>
-                    ) : (
-                      <SchedTable list={myTurn} showAction />
-                    )}
                   </div>
 
                   <div className="mb-6">
                     <h3 className="text-sm font-extrabold text-foreground mb-2 flex items-center gap-1.5">
                       <Clock className="w-4 h-4 text-amber-600" />
-                      {isRtl ? "في انتظار مراحل أخرى" : "Pending in other stages"}
+                      {isRtl ? "غير معتمد — اطّلع قبل الاعتماد" : "Not Approved — Review before approval"}
                     </h3>
-                    {waiting.length === 0 ? (
+                    {notApproved.length === 0 ? (
                       <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                        {isRtl ? "لا يوجد" : "None"}
+                        {isRtl ? "لا توجد جداول غير معتمدة" : "No pending schedules"}
                       </div>
                     ) : (
-                      <SchedTable list={waiting} showAction={false} />
+                      <SchedTable list={notApproved} showAction />
                     )}
                   </div>
 
+                  <Dialog open={schedApprovedOpen} onOpenChange={setSchedApprovedOpen}>
+                    <DialogContent className="max-w-3xl" dir={isRtl ? "rtl" : "ltr"}>
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                          <CheckCircle className="w-5 h-5 text-emerald-600" />
+                          {isRtl ? "الجداول المعتمدة" : "Approved Schedules"}
+                          <Badge variant="secondary" className="ms-auto">{approved.length}</Badge>
+                        </DialogTitle>
+                      </DialogHeader>
+                      {approved.length === 0 ? (
+                        <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                          {isRtl ? "لا توجد جداول معتمدة" : "No approved schedules"}
+                        </div>
+                      ) : (
+                        <SchedTable list={approved} showAction={false} />
+                      )}
+                    </DialogContent>
+                  </Dialog>
                 </>
               );
             })()}

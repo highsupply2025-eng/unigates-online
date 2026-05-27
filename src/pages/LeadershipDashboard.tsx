@@ -43,6 +43,8 @@ const LeadershipDashboard = () => {
   const [institutionName, setInstitutionName] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
   const [rangeDays, setRangeDays] = useState<7 | 30>(7);
+  const [quizApprovedOpen, setQuizApprovedOpen] = useState(false);
+  const [schedApprovedOpen, setSchedApprovedOpen] = useState(false);
 
   // Data
   const [courses, setCourses] = useState<any[]>([]);

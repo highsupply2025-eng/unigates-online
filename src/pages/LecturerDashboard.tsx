@@ -682,19 +682,20 @@ const LecturerDashboard = () => {
   return (
     <div className="min-h-screen bg-background" dir={dir}>
       {/* Header */}
-      <header className="relative border-b-2 border-cyan-200/50 dark:border-cyan-900/50 px-3 sm:px-6 py-3 sm:py-4 sticky top-0 z-30 bg-gradient-to-r from-cyan-50 via-teal-50 to-emerald-50 dark:from-cyan-950/60 dark:via-teal-950/60 dark:to-emerald-950/60 backdrop-blur-xl shadow-sm">
-        <div className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 opacity-70" />
+      <header className="relative border-b-2 border-cyan-200/50 dark:border-cyan-900/50 px-3 sm:px-6 py-3.5 sm:py-5 sticky top-0 z-30 bg-gradient-to-r from-cyan-50 via-teal-50 to-emerald-50 dark:from-cyan-950/60 dark:via-teal-950/60 dark:to-emerald-950/60 backdrop-blur-xl shadow-md">
+        <div className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 opacity-80" />
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-          <Link to="/lecturer/dashboard" className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 group">
-            <div className="relative w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-gradient-to-br from-cyan-500 via-teal-600 to-emerald-600 shadow-xl shadow-teal-500/40 flex items-center justify-center shrink-0 ring-2 ring-white/40 dark:ring-white/10 group-hover:scale-105 group-hover:shadow-teal-500/60 transition-all duration-300">
-              <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7 text-white drop-shadow" strokeWidth={2.5} />
+          <Link to="/lecturer/dashboard" className="flex items-center gap-2.5 sm:gap-4 min-w-0 flex-1 group">
+            <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-cyan-500 via-teal-600 to-emerald-600 shadow-xl shadow-teal-500/40 flex items-center justify-center shrink-0 ring-2 ring-white/40 dark:ring-white/10 group-hover:scale-105 group-hover:shadow-teal-500/60 transition-all duration-300">
+              <GraduationCap className="w-6 h-6 sm:w-8 sm:h-8 text-white drop-shadow" strokeWidth={2.5} />
               <span className="absolute -top-0.5 -end-0.5 w-2.5 h-2.5 rounded-full bg-amber-400 ring-2 ring-white dark:ring-background animate-pulse" />
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-base sm:text-xl font-black truncate tracking-tight bg-gradient-to-r from-cyan-700 via-teal-700 to-emerald-700 dark:from-cyan-300 dark:via-teal-300 dark:to-emerald-300 bg-clip-text text-transparent">
+              <h1 className="text-lg sm:text-2xl font-black truncate tracking-tight bg-gradient-to-r from-cyan-700 via-teal-700 to-emerald-700 dark:from-cyan-300 dark:via-teal-300 dark:to-emerald-300 bg-clip-text text-transparent">
                 {isRtl ? "لوحة المحاضر" : "Lecturer Dashboard"}
               </h1>
-              <p className="text-[11px] sm:text-sm text-foreground/80 font-bold truncate mt-0.5">
+              <p className="text-xs sm:text-base font-bold truncate mt-0.5">
+
                 <span className="bg-gradient-to-r from-cyan-600 to-emerald-600 dark:from-cyan-300 dark:to-emerald-300 bg-clip-text text-transparent">
                 {(() => {
                   const map: Record<string, { ar: string; en: string }> = {

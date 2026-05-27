@@ -50,6 +50,7 @@ const DepartmentPage = lazy(() => import("./pages/DepartmentPage"));
 const LecturerProfile = lazy(() => import("./pages/LecturerProfile"));
 const LeadershipDashboard = lazy(() => import("./pages/LeadershipDashboard"));
 const LeadershipStreamsByStatus = lazy(() => import("./pages/LeadershipStreamsByStatus"));
+const LeadershipApprovals = lazy(() => import("./pages/LeadershipApprovals"));
 const DemoItemPage = lazy(() => import("./pages/DemoItemPage"));
 const About = lazy(() => import("./pages/About"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));

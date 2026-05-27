@@ -34,6 +34,7 @@ const LeadershipDashboard = () => {
   const isRtl = dir === "rtl";
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string>("");
@@ -41,7 +42,15 @@ const LeadershipDashboard = () => {
   const [subRole, setSubRole] = useState<string>("");
   const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
   const [institutionName, setInstitutionName] = useState("");
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTabState] = useState(searchParams.get("tab") || "overview");
+  const setActiveTab = (tab: string) => {
+    setActiveTabState(tab);
+    setSearchParams(tab === "overview" ? {} : { tab }, { replace: true });
+  };
+  useEffect(() => {
+    const t = searchParams.get("tab");
+    if (t && t !== activeTab) setActiveTabState(t);
+  }, [searchParams]);
   const [rangeDays, setRangeDays] = useState<7 | 30>(7);
   const [quizApprovedOpen, setQuizApprovedOpen] = useState(false);
   const [schedApprovedOpen, setSchedApprovedOpen] = useState(false);

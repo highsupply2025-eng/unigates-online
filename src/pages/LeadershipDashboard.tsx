@@ -345,7 +345,7 @@ const LeadershipDashboard = () => {
 
             <TabsTrigger value="ratings">ratings</TabsTrigger>
             <TabsTrigger value="assignments">assignments</TabsTrigger>
-            <TabsTrigger value="schedule">schedule</TabsTrigger>
+            
           </TabsList>
 
           {/* Overview - Lecturer-style design */}

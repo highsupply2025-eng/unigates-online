@@ -305,7 +305,7 @@ const LeadershipDashboard = () => {
                      ratings: { ar: "التقييمات", en: "Ratings" },
                      assignments: { ar: "نتائج التكليفات", en: "Assignment Results" },
                      schedule: { ar: "الجداول", en: "Schedules" },
-                     files: { ar: "الملفات", en: "Files" },
+                     
                      notifications: { ar: "الإشعارات", en: "Notifications" },
 
                    };
@@ -353,7 +353,7 @@ const LeadershipDashboard = () => {
             <TabsTrigger value="ratings">ratings</TabsTrigger>
             <TabsTrigger value="assignments">assignments</TabsTrigger>
             <TabsTrigger value="schedule">schedule</TabsTrigger>
-            <TabsTrigger value="files">files</TabsTrigger>
+            
             <TabsTrigger value="notifications">notifications</TabsTrigger>
           </TabsList>
 
@@ -362,7 +362,7 @@ const LeadershipDashboard = () => {
 
             {(() => {
               const totalActivity = courses.length + liveStreams.length + assignments.length + quizzes.length + episodes.length + ratings.length;
-              const filesCount = episodes.filter((e: any) => e.file_url || e.attachment_url || e.pdf_url).length;
+              
               const allDates = [...courses, ...liveStreams, ...assignments, ...quizzes].map((x: any) => x.created_at);
               return (
                 <>
@@ -379,7 +379,7 @@ const LeadershipDashboard = () => {
                       { label: isRtl ? "التقييمات" : "Ratings", Icon: Star, timestamps: ratings.map((r: any) => r.created_at) },
                       { label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, timestamps: assignments.map((a: any) => a.created_at) },
                       { label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, timestamps: liveStreams.filter((s: any) => s.status === "scheduled").map((s: any) => s.scheduled_at || s.created_at) },
-                      { label: isRtl ? "الملفات" : "Files", Icon: FileText, timestamps: episodes.filter((e: any) => e.file_url || e.attachment_url || e.pdf_url).map((e: any) => e.created_at) },
+                      
                       { label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell, timestamps: notifications.map((n: any) => n.created_at) },
                     ]}
                   />
@@ -408,7 +408,7 @@ const LeadershipDashboard = () => {
                       { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", count: ratings.length },
                       { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-orange-500 to-orange-600", count: assignments.length },
                       { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-pink-500 to-pink-600", count: episodes.length },
-                      { key: "files", label: isRtl ? "الملفات" : "Files", Icon: FileText, color: "from-indigo-500 to-indigo-600", count: filesCount },
+                      
                       { key: "notifications", label: isRtl ? "الإشعارات" : "Notifications", Icon: Bell, color: "from-blue-500 to-blue-600", count: unreadNotifications },
                     ]}
                   />
@@ -1524,82 +1524,6 @@ const LeadershipDashboard = () => {
             </Card>
           </TabsContent>
 
-          {/* Files */}
-          <TabsContent value="files" dir={isRtl ? "rtl" : "ltr"}>
-            <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
-              <h2 className="text-lg font-bold text-foreground">{isRtl ? "الملفات المنشورة" : "Published Files"}</h2>
-            </div>
-            <button
-              onClick={() => navigate("/leadership/demo/files")}
-              className="w-full mb-4 p-3 rounded-lg border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center justify-between gap-3"
-              dir={isRtl ? "rtl" : "ltr"}
-            >
-              <span className="flex items-center gap-2 text-sm font-medium text-primary">
-                <FileText className="w-4 h-4" />
-                {isRtl ? "عنصر تجريبي — افتح الصفحة المستقلة" : "Demo item — open standalone page"}
-              </span>
-              <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
-            </button>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Assignment files */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <ClipboardList className="w-4 h-4 text-purple-500" />
-                    {isRtl ? "ملفات التكليفات" : "Assignment Files"}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {assignments.filter(a => a.file_url).length === 0 ? (
-                    <p className="text-sm text-muted-foreground py-4 text-center">
-                      {isRtl ? "لا توجد ملفات" : "No files"}
-                    </p>
-                  ) : (
-                    <div className="space-y-2">
-                      {assignments.filter(a => a.file_url).map(a => (
-                        <div key={a.id} className="flex items-center justify-between p-3 rounded-lg border">
-                          <div className="flex items-center gap-2">
-                            <FileText className="w-5 h-5 text-purple-500" />
-                            <div>
-                              <p className="text-sm font-medium">{isRtl ? a.title_ar : a.title_en}</p>
-                              <p className="text-xs text-muted-foreground">{a.file_name || ""}</p>
-                            </div>
-                          </div>
-                          <Button size="sm" variant="ghost" asChild>
-                            <a href={a.file_url} target="_blank" rel="noopener noreferrer">
-                              <Download className="w-4 h-4" />
-                            </a>
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Course attachments info */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-primary" />
-                    {isRtl ? "مرفقات المحاضرات" : "Lecture Attachments"}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground py-4 text-center">
-                    {isRtl 
-                      ? "يمكنك الاطلاع على مرفقات المحاضرات من خلال صفحة كل محاضرة"
-                      : "View lecture attachments through each lecture page"}
-                  </p>
-                  <Button variant="outline" className="w-full" onClick={() => navigate("/courses")}>
-                    <BookOpen className="w-4 h-4 me-2" />
-                    {isRtl ? "استعراض المحاضرات" : "Browse Lectures"}
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
 
           {/* Notifications */}
           <TabsContent value="notifications" dir={isRtl ? "rtl" : "ltr"}>

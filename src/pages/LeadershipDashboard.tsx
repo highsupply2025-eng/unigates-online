@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Globe, ArrowLeft, ArrowRight, Loader2, Users, BookOpen, Calendar,
   Video, FileText, Download, BarChart3, Clock, CheckCircle, AlertCircle,

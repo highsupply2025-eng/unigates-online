@@ -322,8 +322,8 @@ const LeadershipDashboard = () => {
               onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
               items={[
                 { key: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, onClick: () => setActiveTab("overview"), active: activeTab === "overview" },
-                { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, onClick: () => setActiveTab("livestreams"), active: activeTab === "livestreams" },
                 { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, onClick: () => setActiveTab("lectures"), active: activeTab === "lectures" },
+                { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, onClick: () => setActiveTab("livestreams"), active: activeTab === "livestreams" },
                 { key: "quizzesonline", label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: ShieldCheck, onClick: () => setActiveTab("quizzesonline"), active: activeTab === "quizzesonline" },
                 { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, onClick: () => setActiveTab("schedulesapproval"), active: activeTab === "schedulesapproval" },
                 { key: "quizzes", label: isRtl ? "الاختبارات" : "Quizzes", Icon: CheckCircle, onClick: () => setActiveTab("quizzes"), active: activeTab === "quizzes" },
@@ -332,8 +332,7 @@ const LeadershipDashboard = () => {
                 { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, onClick: () => setActiveTab("ratings"), active: activeTab === "ratings" },
                 ...(userRole === "department_head" ? [{ key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, onClick: () => setActiveTab("assignments"), active: activeTab === "assignments" }] : []),
                 { key: "schedule", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => setActiveTab("schedule"), active: activeTab === "schedule" },
-                { key: "files", label: isRtl ? "الملفات" : "Files", Icon: FileText, onClick: () => setActiveTab("files"), active: activeTab === "files" },
-                
+
               ]}
             />
           </div>

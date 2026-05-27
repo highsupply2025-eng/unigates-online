@@ -136,22 +136,26 @@ const LeadershipApprovals = () => {
 
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
-      <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/10 to-primary/5">
+      <header className="relative border-b-2 border-indigo-200/50 dark:border-indigo-900/50 px-3 sm:px-6 py-3.5 sm:py-5 sticky top-0 z-30 bg-gradient-to-r from-indigo-50 via-violet-50 to-fuchsia-50 dark:from-indigo-950/60 dark:via-violet-950/60 dark:to-fuchsia-950/60 backdrop-blur-xl shadow-md">
+        <div className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500 opacity-80" />
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br ${headerGradient} shadow-lg flex items-center justify-center shrink-0`}>
-              <HeaderIcon className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+          <div className="flex items-center gap-2.5 sm:gap-4 min-w-0 group">
+            <div className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br ${headerGradient} shadow-xl flex items-center justify-center shrink-0 ring-2 ring-white/40 dark:ring-white/10 group-hover:scale-105 transition-all duration-300`}>
+              <HeaderIcon className="w-6 h-6 sm:w-8 sm:h-8 text-white drop-shadow" strokeWidth={2.5} />
             </div>
             <div className="min-w-0">
-              <h1 className="text-base sm:text-xl font-black text-foreground truncate">{title}</h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold">
-                {isRtl ? `العدد: ${filtered.length}` : `Count: ${filtered.length}`}
+              <h1 className="text-lg sm:text-2xl font-black truncate tracking-tight bg-gradient-to-r from-indigo-700 via-violet-700 to-fuchsia-700 dark:from-indigo-300 dark:via-violet-300 dark:to-fuchsia-300 bg-clip-text text-transparent">{title}</h1>
+              <p className="text-xs sm:text-base font-bold mt-0.5">
+                <span className="bg-gradient-to-r from-indigo-600 to-fuchsia-600 dark:from-indigo-300 dark:to-fuchsia-300 bg-clip-text text-transparent">
+                  {isRtl ? `العدد: ${filtered.length}` : `Count: ${filtered.length}`}
+                </span>
               </p>
             </div>
           </div>
           <BackButton to={`/leadership/dashboard?tab=${type === "quizzes" ? "quizzesonline" : "schedulesapproval"}`} />
         </div>
       </header>
+
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
         {loading ? (

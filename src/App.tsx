@@ -156,6 +156,7 @@ const App = () => (
               <Route path="/institution/member/:memberId" element={<LecturerProfile />} />
               <Route path="/leadership/dashboard" element={<LeadershipDashboard />} />
               <Route path="/leadership/streams/:status" element={<LeadershipStreamsByStatus />} />
+              <Route path="/leadership/approvals/:type/:status" element={<LeadershipApprovals />} />
               <Route path="/leadership/demo/:section" element={<DemoItemPage />} />
               <Route path="/institution/demo/:section" element={<DemoItemPage />} />
               <Route path="/quiz/create/:courseId" element={<QuizCreate />} />

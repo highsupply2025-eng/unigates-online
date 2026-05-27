@@ -360,9 +360,6 @@ const LeadershipDashboard = () => {
 
           {/* Overview - Lecturer-style design */}
           <TabsContent value="overview" dir={isRtl ? "rtl" : "ltr"}>
-            <div className="mb-6 text-start">
-              <p className="text-sm text-muted-foreground">{isRtl ? "نظرة عامة على نشاط الكلية خلال آخر 7 أيام" : "Overview of activity over the last 7 days"}</p>
-            </div>
 
             {(() => {
               const totalActivity = courses.length + liveStreams.length + assignments.length + quizzes.length + episodes.length + ratings.length;

@@ -151,19 +151,20 @@ const LeadershipDashboard = () => {
     return labels[userRole] || { ar: "", en: "" };
   };
 
+  const escHtml = (s: any) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+
   const exportToPDF = (section: string) => {
     // Create a printable version
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
     const title = isRtl ? `تقرير - ${section}` : `Report - ${section}`;
-    const content = document.getElementById(`section-${section}`);
     
     printWindow.document.write(`
       <!DOCTYPE html>
       <html dir="${dir}">
       <head>
-        <title>${title}</title>
+        <title>${escHtml(title)}</title>
         <style>
           body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 40px; direction: ${dir}; }
           table { width: 100%; border-collapse: collapse; margin: 20px 0; }
@@ -184,7 +185,7 @@ const LeadershipDashboard = () => {
       </head>
       <body>
         <div class="header">
-          <h1>${institutionName}</h1>
+          <h1>${escHtml(institutionName)}</h1>
           <p>${isRtl ? getRoleLabel().ar : getRoleLabel().en} - ${new Date().toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}</p>
         </div>
         ${generatePDFContent(section)}

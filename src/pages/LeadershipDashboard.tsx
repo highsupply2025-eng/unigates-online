@@ -420,20 +420,17 @@ const LeadershipDashboard = () => {
 
           {/* Live Streams */}
           <TabsContent value="livestreams" id="section-livestreams" dir={isRtl ? "rtl" : "ltr"}>
-            <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
-              <h2 className="text-lg font-bold text-foreground">{isRtl ? "البث المباشر" : "Live Streams"}</h2>
-            </div>
             {/* Demo item (opens standalone page) */}
             <button
               onClick={() => navigate("/leadership/demo/livestreams")}
-              className="w-full mb-4 p-3 rounded-lg border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center justify-between gap-3"
+              className="w-full mb-5 p-4 rounded-xl border-2 border-dashed border-primary/60 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 hover:from-primary/20 hover:to-primary/20 transition-all flex items-center justify-between gap-3 shadow-sm hover:shadow-md"
               dir={isRtl ? "rtl" : "ltr"}
             >
-              <span className="flex items-center gap-2 text-sm font-medium text-primary">
-                <Radio className="w-4 h-4" />
+              <span className="flex items-center gap-2.5 text-base font-extrabold text-primary">
+                <Radio className="w-5 h-5" strokeWidth={2.6} />
                 {isRtl ? "عنصر تجريبي — افتح الصفحة المستقلة" : "Demo item — open standalone page"}
               </span>
-              <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
+              <span className="text-xs font-bold text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
             </button>
 
             <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">

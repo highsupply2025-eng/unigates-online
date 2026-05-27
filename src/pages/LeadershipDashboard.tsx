@@ -324,7 +324,7 @@ const LeadershipDashboard = () => {
                 
                 { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, onClick: () => setActiveTab("quizresults"), active: activeTab === "quizresults" },
                 ...(userRole === "department_head" ? [{ key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, onClick: () => setActiveTab("assignments"), active: activeTab === "assignments" }] : []),
-                { key: "schedule", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => setActiveTab("schedule"), active: activeTab === "schedule" },
+                
                 { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, onClick: () => setActiveTab("ratings"), active: activeTab === "ratings" },
 
               ]}

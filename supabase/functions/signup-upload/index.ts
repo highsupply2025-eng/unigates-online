@@ -12,6 +12,30 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Verify caller's JWT and ensure it matches the user_id in the form
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const userClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await userClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims?.sub) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    const authenticatedUserId = claimsData.claims.sub as string;
+
     const formData = await req.formData();
     const file = formData.get("file") as File;
     const userId = formData.get("user_id") as string;
@@ -21,6 +45,13 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ error: "Missing file, user_id, or folder" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (authenticatedUserId !== userId) {
+      return new Response(
+        JSON.stringify({ error: "Forbidden: user_id mismatch" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -37,15 +68,6 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
-
-    // Verify user exists
-    const { data: user, error: userError } = await supabaseAdmin.auth.admin.getUserById(userId);
-    if (userError || !user) {
-      return new Response(
-        JSON.stringify({ error: "User not found" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
 
     const ext = file.name.split(".").pop();
     const path = `${userId}/${folder}/${Date.now()}.${ext}`;

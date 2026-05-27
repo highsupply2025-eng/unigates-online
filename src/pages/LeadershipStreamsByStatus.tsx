@@ -71,18 +71,19 @@ const LeadershipStreamsByStatus = () => {
   const exportPDF = () => {
     const w = window.open("", "_blank");
     if (!w) return;
+    const esc = (s: any) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
     const title = isRtl ? `تقرير ${meta.ar}` : `${meta.en} Report`;
     const rows = streams.map(s => `
       <tr>
-        <td>${isRtl ? s.title_ar : s.title_en}</td>
-        <td>${isRtl ? (s.instructor_ar || "-") : (s.instructor_en || "-")}</td>
-        <td>${isRtl ? (s.category_ar || "-") : (s.category_en || "-")}</td>
+        <td>${esc(isRtl ? s.title_ar : s.title_en)}</td>
+        <td>${esc(isRtl ? (s.instructor_ar || "-") : (s.instructor_en || "-"))}</td>
+        <td>${esc(isRtl ? (s.category_ar || "-") : (s.category_en || "-"))}</td>
         <td>${attendance[s.id] || 0}</td>
         <td>${s.scheduled_at ? new Date(s.scheduled_at).toLocaleString(isRtl ? "ar-EG" : "en-US") : "-"}</td>
       </tr>
     `).join("");
     w.document.write(`
-      <!DOCTYPE html><html dir="${dir}"><head><title>${title}</title>
+      <!DOCTYPE html><html dir="${dir}"><head><title>${esc(title)}</title>
       <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 32px; direction: ${dir}; }
         h1 { color: #1a365d; margin: 0 0 8px; }
@@ -94,7 +95,7 @@ const LeadershipStreamsByStatus = () => {
         .stat-value { font-size: 22px; font-weight: 700; color: #1a365d; }
         .stat-label { font-size: 12px; color: #718096; }
       </style></head><body>
-        <h1>${title}</h1>
+        <h1>${esc(title)}</h1>
         <div class="meta">${new Date().toLocaleString(isRtl ? "ar-EG" : "en-US")}</div>
         <div class="stat"><div class="stat-value">${streams.length}</div><div class="stat-label">${isRtl ? "إجمالي البثوث" : "Total Streams"}</div></div>
         <table>

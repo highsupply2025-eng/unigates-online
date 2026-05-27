@@ -302,7 +302,7 @@ const LeadershipDashboard = () => {
                      schedulesapproval: { ar: "اعتماد الجداول", en: "Schedules Approval" },
                      ratings: { ar: "التقييمات", en: "Ratings" },
                      assignments: { ar: "نتائج التكليفات", en: "Assignment Results" },
-                      schedule: { ar: "الجداول", en: "Schedules" },
+                      
                     };
                    const cur = map[activeTab] ?? map.overview;
                    return isRtl ? cur.ar : cur.en;

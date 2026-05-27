@@ -50,6 +50,7 @@ const DepartmentPage = lazy(() => import("./pages/DepartmentPage"));
 const LecturerProfile = lazy(() => import("./pages/LecturerProfile"));
 const LeadershipDashboard = lazy(() => import("./pages/LeadershipDashboard"));
 const LeadershipStreamsByStatus = lazy(() => import("./pages/LeadershipStreamsByStatus"));
+const LeadershipApprovals = lazy(() => import("./pages/LeadershipApprovals"));
 const DemoItemPage = lazy(() => import("./pages/DemoItemPage"));
 const About = lazy(() => import("./pages/About"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
@@ -155,6 +156,7 @@ const App = () => (
               <Route path="/institution/member/:memberId" element={<LecturerProfile />} />
               <Route path="/leadership/dashboard" element={<LeadershipDashboard />} />
               <Route path="/leadership/streams/:status" element={<LeadershipStreamsByStatus />} />
+              <Route path="/leadership/approvals/:type/:status" element={<LeadershipApprovals />} />
               <Route path="/leadership/demo/:section" element={<DemoItemPage />} />
               <Route path="/institution/demo/:section" element={<DemoItemPage />} />
               <Route path="/quiz/create/:courseId" element={<QuizCreate />} />

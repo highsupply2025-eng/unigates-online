@@ -913,7 +913,7 @@ const LeadershipDashboard = () => {
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-5">
-                    <button onClick={() => setSchedApprovedOpen(true)} className="text-start">
+                    <button onClick={() => navigate("/leadership/approvals/schedules/approved")} className="text-start">
                       <Card className="bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:scale-[1.02] transition-all cursor-pointer">
                         <CardContent className="p-3 sm:p-4 text-center">
                           <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7 mx-auto mb-1 opacity-95" />
@@ -922,47 +922,17 @@ const LeadershipDashboard = () => {
                         </CardContent>
                       </Card>
                     </button>
-                    <Card className="bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/30">
-                      <CardContent className="p-3 sm:p-4 text-center">
-                        <Clock className="w-6 h-6 sm:w-7 sm:h-7 mx-auto mb-1 opacity-95" />
-                        <div className="text-2xl sm:text-3xl font-black">{notApproved.length}</div>
-                        <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "غير معتمد" : "Not Approved"}</div>
-                      </CardContent>
-                    </Card>
+                    <button onClick={() => navigate("/leadership/approvals/schedules/pending")} className="text-start">
+                      <Card className="bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/30 hover:shadow-xl hover:scale-[1.02] transition-all cursor-pointer">
+                        <CardContent className="p-3 sm:p-4 text-center">
+                          <Clock className="w-6 h-6 sm:w-7 sm:h-7 mx-auto mb-1 opacity-95" />
+                          <div className="text-2xl sm:text-3xl font-black">{notApproved.length}</div>
+                          <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "غير معتمد" : "Not Approved"}</div>
+                        </CardContent>
+                      </Card>
+                    </button>
                   </div>
 
-                  <div className="mb-6">
-                    <h3 className="text-sm font-extrabold text-foreground mb-2 flex items-center gap-1.5">
-                      <Clock className="w-4 h-4 text-amber-600" />
-                      {isRtl ? "غير معتمد — اطّلع قبل الاعتماد" : "Not Approved — Review before approval"}
-                    </h3>
-                    {notApproved.length === 0 ? (
-                      <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                        {isRtl ? "لا توجد جداول غير معتمدة" : "No pending schedules"}
-                      </div>
-                    ) : (
-                      <SchedTable list={notApproved} showAction />
-                    )}
-                  </div>
-
-                  <Dialog open={schedApprovedOpen} onOpenChange={setSchedApprovedOpen}>
-                    <DialogContent className="max-w-3xl" dir={isRtl ? "rtl" : "ltr"}>
-                      <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
-                          <CheckCircle className="w-5 h-5 text-emerald-600" />
-                          {isRtl ? "الجداول المعتمدة" : "Approved Schedules"}
-                          <Badge variant="secondary" className="ms-auto">{approved.length}</Badge>
-                        </DialogTitle>
-                      </DialogHeader>
-                      {approved.length === 0 ? (
-                        <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                          {isRtl ? "لا توجد جداول معتمدة" : "No approved schedules"}
-                        </div>
-                      ) : (
-                        <SchedTable list={approved} showAction={false} />
-                      )}
-                    </DialogContent>
-                  </Dialog>
                 </>
               );
             })()}

@@ -297,7 +297,7 @@ const LeadershipDashboard = () => {
                      livestreams: { ar: "البث المباشر", en: "Live Streams" },
                      lectures: { ar: "المحاضرات", en: "Lectures" },
                      quizresults: { ar: "نتائج الاختبارات", en: "Quiz Results" },
-                     quizzes: { ar: "الاختبارات", en: "Quizzes" },
+                     
                      quizzesonline: { ar: "اعتماد الاختبارات", en: "Quizzes Approval" },
                      schedulesapproval: { ar: "اعتماد الجداول", en: "Schedules Approval" },
                      ratings: { ar: "التقييمات", en: "Ratings" },
@@ -321,7 +321,7 @@ const LeadershipDashboard = () => {
                 { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, onClick: () => setActiveTab("livestreams"), active: activeTab === "livestreams" },
                 { key: "quizzesonline", label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: ShieldCheck, onClick: () => setActiveTab("quizzesonline"), active: activeTab === "quizzesonline" },
                 { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, onClick: () => setActiveTab("schedulesapproval"), active: activeTab === "schedulesapproval" },
-                { key: "quizzes", label: isRtl ? "الاختبارات" : "Quizzes", Icon: CheckCircle, onClick: () => setActiveTab("quizzes"), active: activeTab === "quizzes" },
+                
                 { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, onClick: () => setActiveTab("quizresults"), active: activeTab === "quizresults" },
                 ...(userRole === "department_head" ? [{ key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, onClick: () => setActiveTab("assignments"), active: activeTab === "assignments" }] : []),
                 { key: "schedule", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => setActiveTab("schedule"), active: activeTab === "schedule" },
@@ -342,7 +342,6 @@ const LeadershipDashboard = () => {
             <TabsTrigger value="quizresults">quizresults</TabsTrigger>
             <TabsTrigger value="quizzesonline">quizzesonline</TabsTrigger>
             <TabsTrigger value="schedulesapproval">schedulesapproval</TabsTrigger>
-            <TabsTrigger value="quizzes">quizzes</TabsTrigger>
 
             <TabsTrigger value="ratings">ratings</TabsTrigger>
             <TabsTrigger value="assignments">assignments</TabsTrigger>
@@ -750,7 +749,7 @@ const LeadershipDashboard = () => {
                                 variant={showAction && act ? "default" : "outline"}
                               >
                                 {showAction && act
-                                  ? (isRtl ? "اعتماد الآن" : "Approve Now")
+                                  ? (isRtl ? "عرض ثم الاعتماد" : "Review & Approve")
                                   : (isRtl ? "عرض" : "View")}
                               </Button>
                             </TableCell>
@@ -905,7 +904,7 @@ const LeadershipDashboard = () => {
                                 variant={showAction && act ? "default" : "outline"}
                               >
                                 {showAction && act
-                                  ? (isRtl ? "اعتماد الآن" : "Approve Now")
+                                  ? (isRtl ? "عرض ثم الاعتماد" : "Review & Approve")
                                   : (isRtl ? "عرض" : "View")}
                               </Button>
                             </TableCell>
@@ -978,82 +977,6 @@ const LeadershipDashboard = () => {
             })()}
           </TabsContent>
 
-          {/* Quizzes - Fully approved only, role-filtered */}
-          <TabsContent value="quizzes" id="section-quizzes" dir={isRtl ? "rtl" : "ltr"}>
-            {(() => {
-              const vdType =
-                subRole === "vice_dean_students" ? "students"
-                : subRole === "vice_dean_postgrad" ? "postgrad"
-                : subRole === "vice_dean_environment" ? "environment"
-                : "";
-
-              const fullyApproved = quizzes.filter((q: any) =>
-                q.approved_by_lecturer && q.approved_by_head &&
-                q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad && q.approved_by_vice_dean_environment &&
-                q.approved_by_dean
-              );
-
-              const visible = userRole === "vice_dean" && vdType
-                ? fullyApproved.filter((q: any) => Array.isArray(q.vice_dean_type) && q.vice_dean_type.includes(vdType))
-                : fullyApproved;
-
-              return (
-                <>
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5 text-emerald-600" />
-                      {isRtl ? "الاختبارات المعتمدة" : "Approved Quizzes"}
-                    </h2>
-                    <Badge variant="secondary" className="font-extrabold">{visible.length}</Badge>
-                  </div>
-                  <div className="overflow-x-auto rounded-xl border border-border bg-card">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>{isRtl ? "الاختبار" : "Quiz"}</TableHead>
-                          <TableHead className="hidden sm:table-cell">{isRtl ? "تاريخ الإنشاء" : "Created"}</TableHead>
-                          <TableHead className="text-end">{isRtl ? "الإجراء" : "Action"}</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {visible.length === 0 ? (
-                          <TableRow>
-                            <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
-                              {isRtl ? "لا توجد اختبارات معتمدة" : "No approved quizzes"}
-                            </TableCell>
-                          </TableRow>
-                        ) : visible.map((q: any) => {
-                          const course = courses.find((c: any) => c.id === q.course_id);
-                          return (
-                            <TableRow key={q.id}>
-                              <TableCell className="font-bold">
-                                <div className="flex flex-col">
-                                  <span>{isRtl ? q.title_ar : q.title_en}</span>
-                                  {course && (
-                                    <span className="text-[10px] text-muted-foreground font-medium">
-                                      {isRtl ? course.title_ar : course.title_en}
-                                    </span>
-                                  )}
-                                </div>
-                              </TableCell>
-                              <TableCell className="hidden sm:table-cell text-xs text-muted-foreground">
-                                {new Date(q.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}
-                              </TableCell>
-                              <TableCell className="text-end">
-                                <Button size="sm" variant="outline" onClick={() => navigate(`/quiz-results/${q.id}`)}>
-                                  {isRtl ? "عرض" : "View"}
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </>
-              );
-            })()}
-          </TabsContent>
 
           {/* Quiz Results */}
           <TabsContent value="quizresults" id="section-quizresults" dir={isRtl ? "rtl" : "ltr"}>

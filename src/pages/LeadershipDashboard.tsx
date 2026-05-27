@@ -420,20 +420,17 @@ const LeadershipDashboard = () => {
 
           {/* Live Streams */}
           <TabsContent value="livestreams" id="section-livestreams" dir={isRtl ? "rtl" : "ltr"}>
-            <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
-              <h2 className="text-lg font-bold text-foreground">{isRtl ? "البث المباشر" : "Live Streams"}</h2>
-            </div>
             {/* Demo item (opens standalone page) */}
             <button
               onClick={() => navigate("/leadership/demo/livestreams")}
-              className="w-full mb-4 p-3 rounded-lg border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center justify-between gap-3"
+              className="w-full mb-5 p-4 rounded-xl border-2 border-dashed border-primary/60 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 hover:from-primary/20 hover:to-primary/20 transition-all flex items-center justify-between gap-3 shadow-sm hover:shadow-md"
               dir={isRtl ? "rtl" : "ltr"}
             >
-              <span className="flex items-center gap-2 text-sm font-medium text-primary">
-                <Radio className="w-4 h-4" />
+              <span className="flex items-center gap-2.5 text-base font-extrabold text-primary">
+                <Radio className="w-5 h-5" strokeWidth={2.6} />
                 {isRtl ? "عنصر تجريبي — افتح الصفحة المستقلة" : "Demo item — open standalone page"}
               </span>
-              <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
+              <span className="text-xs font-bold text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
             </button>
 
             <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
@@ -473,38 +470,38 @@ const LeadershipDashboard = () => {
               </button>
             </div>
 
-            <Card className="overflow-hidden border-2 border-primary/15 shadow-lg">
+            <Card className="overflow-hidden border-2 border-primary/25 shadow-xl">
               <CardContent className="p-0">
                 <Table className="[&_th]:align-middle [&_td]:align-middle [&_th]:text-start [&_td]:text-start">
                   <TableHeader>
-                    <TableRow className="bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5 hover:bg-primary/15 border-b-2 border-primary/30">
-                      <TableHead className="font-black text-primary text-[13px] uppercase tracking-wider py-4 w-[34%]">
-                        <span className="inline-flex items-center gap-1.5">
-                          <Radio className="w-4 h-4" />
+                    <TableRow className="bg-gradient-to-r from-primary/30 via-primary/20 to-primary/10 hover:bg-primary/25 border-b-4 border-primary/50">
+                      <TableHead className="font-black text-primary text-sm uppercase tracking-wider py-5 w-[34%]">
+                        <span className="inline-flex items-center gap-2">
+                          <Radio className="w-5 h-5" strokeWidth={2.6} />
                           {isRtl ? "العنوان" : "Title"}
                         </span>
                       </TableHead>
-                      <TableHead className="font-black text-primary text-[13px] uppercase tracking-wider py-4 w-[14%]">
-                        <span className="inline-flex items-center gap-1.5">
-                          <CheckCircle className="w-4 h-4" />
+                      <TableHead className="font-black text-primary text-sm uppercase tracking-wider py-5 w-[14%]">
+                        <span className="inline-flex items-center gap-2">
+                          <CheckCircle className="w-5 h-5" strokeWidth={2.6} />
                           {isRtl ? "الحالة" : "Status"}
                         </span>
                       </TableHead>
-                      <TableHead className="font-black text-primary text-[13px] uppercase tracking-wider py-4 w-[14%]">
-                        <span className="inline-flex items-center gap-1.5">
-                          <Users className="w-4 h-4" />
+                      <TableHead className="font-black text-primary text-sm uppercase tracking-wider py-5 w-[14%]">
+                        <span className="inline-flex items-center gap-2">
+                          <Users className="w-5 h-5" strokeWidth={2.6} />
                           {isRtl ? "عدد الطلاب" : "Students"}
                         </span>
                       </TableHead>
-                      <TableHead className="font-black text-primary text-[13px] uppercase tracking-wider py-4 w-[24%]">
-                        <span className="inline-flex items-center gap-1.5">
-                          <Calendar className="w-4 h-4" />
+                      <TableHead className="font-black text-primary text-sm uppercase tracking-wider py-5 w-[24%]">
+                        <span className="inline-flex items-center gap-2">
+                          <Calendar className="w-5 h-5" strokeWidth={2.6} />
                           {isRtl ? "الموعد" : "Scheduled"}
                         </span>
                       </TableHead>
-                      <TableHead className="font-black text-primary text-[13px] uppercase tracking-wider py-4 w-[14%]">
-                        <span className="inline-flex items-center gap-1.5">
-                          <Eye className="w-4 h-4" />
+                      <TableHead className="font-black text-primary text-sm uppercase tracking-wider py-5 w-[14%]">
+                        <span className="inline-flex items-center gap-2">
+                          <Eye className="w-5 h-5" strokeWidth={2.6} />
                           {isRtl ? "إجراء" : "Action"}
                         </span>
                       </TableHead>

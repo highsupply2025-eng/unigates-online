@@ -102,17 +102,61 @@ Deno.serve(async (req) => {
       );
     }
 
-    // If isHost, verify they are the stream creator
-    if (isHost) {
-      const { data: stream } = await supabase
-        .from("live_streams")
-        .select("creator_id")
-        .eq("id", roomName)
-        .single();
+    // Authorization checks against live_streams + subscription for viewers
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
 
-      if (!stream || stream.creator_id !== userId) {
+    const { data: stream } = await supabaseAdmin
+      .from("live_streams")
+      .select("creator_id, course_id")
+      .eq("id", roomName)
+      .maybeSingle();
+
+    if (!stream) {
+      return new Response(
+        JSON.stringify({ error: "Stream not found" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (isHost) {
+      if (stream.creator_id !== userId) {
         return new Response(
           JSON.stringify({ error: "Only the stream creator can publish" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    } else {
+      // Viewer: allow creator, admins, or active subscribers of the stream's course
+      const isCreator = stream.creator_id === userId;
+      let allowed = isCreator;
+
+      if (!allowed) {
+        const { data: isAdmin } = await supabaseAdmin.rpc("has_role", {
+          _user_id: userId,
+          _role: "admin",
+        });
+        allowed = !!isAdmin;
+      }
+
+      if (!allowed && stream.course_id) {
+        const { data: sub } = await supabaseAdmin
+          .from("user_subscriptions")
+          .select("id, expires_at, status")
+          .eq("user_id", userId)
+          .eq("course_id", stream.course_id)
+          .eq("status", "active")
+          .maybeSingle();
+        if (sub && (!sub.expires_at || new Date(sub.expires_at) > new Date())) {
+          allowed = true;
+        }
+      }
+
+      if (!allowed) {
+        return new Response(
+          JSON.stringify({ error: "Not authorized to view this stream" }),
           { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }

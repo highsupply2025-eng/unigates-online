@@ -312,7 +312,7 @@ const LecturerCourseContent = () => {
           </div>
         )}
 
-        {showAttachmentForm && (
+        {!viewOnly && showAttachmentForm && (
           <div className="space-y-3 p-4 rounded-lg border border-dashed bg-card">
             <p className="text-sm font-semibold text-muted-foreground">{isRtl ? "إضافة مرفق" : "Add Attachment"}</p>
             <Input placeholder={isRtl ? "اسم الملف" : "File name"} value={attachmentName} onChange={e => setAttachmentName(e.target.value)} />

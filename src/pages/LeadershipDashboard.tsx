@@ -27,7 +27,7 @@ import { MiniBars } from "@/components/MiniBars";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
 import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
-import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
+
 import RatingsBreakdown from "@/components/RatingsBreakdown";
 
 const LeadershipDashboard = () => {

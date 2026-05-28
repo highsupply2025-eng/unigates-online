@@ -762,11 +762,7 @@ const LeadershipDashboard = () => {
 
               return (
                 <>
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-                      <ShieldCheck className="w-5 h-5 text-primary" />
-                      {isRtl ? "اعتماد الاختبارات" : "Quizzes Approval"}
-                    </h2>
+                  <div className="flex items-center justify-end mb-4">
                     <Badge variant="secondary" className="font-extrabold">
                       {isRtl ? `بانتظار اعتمادك: ${myTurn.length}` : `Awaiting you: ${myTurn.length}`}
                     </Badge>

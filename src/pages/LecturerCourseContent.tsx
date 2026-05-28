@@ -136,6 +136,17 @@ const LecturerCourseContent = () => {
       if (!user) { navigate("/login"); return; }
       setUser(user);
       if (!courseId) return;
+      // View-only mode for leadership roles (dean, vice deans, department head)
+      // when they aren't the course creator.
+      try {
+        const { data: course } = await supabase.from("courses").select("creator_id").eq("id", courseId).maybeSingle();
+        if (course && course.creator_id !== user.id) {
+          const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", user.id);
+          const leadershipRoles = ["dean", "vice_dean", "department_head"];
+          const isLeadership = (roles || []).some((r: any) => leadershipRoles.includes(r.role));
+          if (isLeadership) setViewOnly(true);
+        }
+      } catch { /* noop */ }
       await loadAll();
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps

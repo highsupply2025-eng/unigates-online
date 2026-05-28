@@ -237,25 +237,27 @@ const LecturerCourseContent = () => {
         </div>
       </header>
       <main className="container mx-auto px-4 py-6 space-y-5 max-w-3xl">
-        <div className="flex flex-wrap gap-3">
-          <Button
-            size="default"
-            onClick={() => { setShowEpisodeForm(v => !v); setShowAttachmentForm(false); }}
-            className="font-bold shadow-md hover:shadow-lg transition-all bg-gradient-to-l from-primary to-primary/80 hover:scale-[1.02]"
-          >
-            <Plus className="w-4 h-4 me-2" strokeWidth={3} /> {isRtl ? "أضف حلقة" : "Add Episode"}
-          </Button>
-          <Button
-            size="default"
-            variant="secondary"
-            onClick={() => { setShowAttachmentForm(v => !v); setShowEpisodeForm(false); }}
-            className="font-bold shadow-md hover:shadow-lg transition-all border-2 border-primary/20 hover:scale-[1.02]"
-          >
-            <Paperclip className="w-4 h-4 me-2 text-primary" strokeWidth={2.5} /> {isRtl ? "أضف مرفق" : "Add Attachment"}
-          </Button>
-        </div>
+        {!viewOnly && (
+          <div className="flex flex-wrap gap-3">
+            <Button
+              size="default"
+              onClick={() => { setShowEpisodeForm(v => !v); setShowAttachmentForm(false); }}
+              className="font-bold shadow-md hover:shadow-lg transition-all bg-gradient-to-l from-primary to-primary/80 hover:scale-[1.02]"
+            >
+              <Plus className="w-4 h-4 me-2" strokeWidth={3} /> {isRtl ? "أضف حلقة" : "Add Episode"}
+            </Button>
+            <Button
+              size="default"
+              variant="secondary"
+              onClick={() => { setShowAttachmentForm(v => !v); setShowEpisodeForm(false); }}
+              className="font-bold shadow-md hover:shadow-lg transition-all border-2 border-primary/20 hover:scale-[1.02]"
+            >
+              <Paperclip className="w-4 h-4 me-2 text-primary" strokeWidth={2.5} /> {isRtl ? "أضف مرفق" : "Add Attachment"}
+            </Button>
+          </div>
+        )}
 
-        {showEpisodeForm && (
+        {!viewOnly && showEpisodeForm && (
           <div className="space-y-3 p-4 rounded-lg border border-dashed bg-card">
             <p className="text-sm font-semibold text-muted-foreground">{isRtl ? "إضافة حلقة جديدة" : "Add New Episode"}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

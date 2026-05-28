@@ -464,34 +464,34 @@ const LeadershipDashboard = () => {
               <CardContent className="p-0">
                 <Table className="[&_th]:align-middle [&_td]:align-middle [&_th]:text-start [&_td]:text-start">
                   <TableHeader>
-                    <TableRow className="bg-gradient-to-r from-primary/30 via-primary/20 to-primary/10 hover:bg-primary/25 border-b-4 border-primary/50">
-                      <TableHead className="font-black text-primary text-sm uppercase tracking-wider py-5 w-[34%]">
-                        <span className="inline-flex items-center gap-2">
-                          <Radio className="w-5 h-5" strokeWidth={2.6} />
+                    <TableRow className="bg-gradient-to-r from-teal-600 via-cyan-600 to-teal-700 hover:from-teal-600 hover:to-teal-700 border-b-4 border-teal-800/50 shadow-md">
+                      <TableHead className="font-black text-white text-base sm:text-lg uppercase tracking-wider py-6 w-[34%] drop-shadow">
+                        <span className="inline-flex items-center gap-2.5">
+                          <Radio className="w-6 h-6" strokeWidth={2.8} />
                           {isRtl ? "العنوان" : "Title"}
                         </span>
                       </TableHead>
-                      <TableHead className="font-black text-primary text-sm uppercase tracking-wider py-5 w-[14%]">
-                        <span className="inline-flex items-center gap-2">
-                          <CheckCircle className="w-5 h-5" strokeWidth={2.6} />
+                      <TableHead className="font-black text-white text-base sm:text-lg uppercase tracking-wider py-6 w-[14%] drop-shadow">
+                        <span className="inline-flex items-center gap-2.5">
+                          <CheckCircle className="w-6 h-6" strokeWidth={2.8} />
                           {isRtl ? "الحالة" : "Status"}
                         </span>
                       </TableHead>
-                      <TableHead className="font-black text-primary text-sm uppercase tracking-wider py-5 w-[14%]">
-                        <span className="inline-flex items-center gap-2">
-                          <Users className="w-5 h-5" strokeWidth={2.6} />
+                      <TableHead className="font-black text-white text-base sm:text-lg uppercase tracking-wider py-6 w-[14%] drop-shadow">
+                        <span className="inline-flex items-center gap-2.5">
+                          <Users className="w-6 h-6" strokeWidth={2.8} />
                           {isRtl ? "عدد الطلاب" : "Students"}
                         </span>
                       </TableHead>
-                      <TableHead className="font-black text-primary text-sm uppercase tracking-wider py-5 w-[24%]">
-                        <span className="inline-flex items-center gap-2">
-                          <Calendar className="w-5 h-5" strokeWidth={2.6} />
+                      <TableHead className="font-black text-white text-base sm:text-lg uppercase tracking-wider py-6 w-[24%] drop-shadow">
+                        <span className="inline-flex items-center gap-2.5">
+                          <Calendar className="w-6 h-6" strokeWidth={2.8} />
                           {isRtl ? "الموعد" : "Scheduled"}
                         </span>
                       </TableHead>
-                      <TableHead className="font-black text-primary text-sm uppercase tracking-wider py-5 w-[14%]">
-                        <span className="inline-flex items-center gap-2">
-                          <Eye className="w-5 h-5" strokeWidth={2.6} />
+                      <TableHead className="font-black text-white text-base sm:text-lg uppercase tracking-wider py-6 w-[14%] drop-shadow">
+                        <span className="inline-flex items-center gap-2.5">
+                          <Eye className="w-6 h-6" strokeWidth={2.8} />
                           {isRtl ? "إجراء" : "Action"}
                         </span>
                       </TableHead>
@@ -500,7 +500,7 @@ const LeadershipDashboard = () => {
                   <TableBody>
                     {liveStreams.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center text-muted-foreground py-10 font-semibold">
+                        <TableCell colSpan={5} className="text-center text-muted-foreground py-12 font-bold text-base">
                           {isRtl ? "لا توجد بيانات" : "No data"}
                         </TableCell>
                       </TableRow>

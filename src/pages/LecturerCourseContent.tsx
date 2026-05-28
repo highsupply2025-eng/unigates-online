@@ -368,7 +368,7 @@ const LecturerCourseContent = () => {
                         <FileText className="w-4 h-4" strokeWidth={2.5} />
                       </span>
                       <a href={att.file_url} target="_blank" rel="noreferrer" className="flex-1 font-bold text-sm hover:text-primary hover:underline truncate text-foreground">{att.name}</a>
-                      <Button size="icon" variant="ghost" onClick={() => handleDeleteAttachment(att.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                      {!viewOnly && <Button size="icon" variant="ghost" onClick={() => handleDeleteAttachment(att.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>}
                     </div>
                   ))}
                 </div>

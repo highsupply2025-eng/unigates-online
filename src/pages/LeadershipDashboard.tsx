@@ -936,10 +936,9 @@ const LeadershipDashboard = () => {
           {/* Quiz Results */}
           <TabsContent value="quizresults" id="section-quizresults" dir={isRtl ? "rtl" : "ltr"}>
 
-            <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
-              <h2 className="text-lg font-bold text-foreground">{isRtl ? "نتائج الاختبارات" : "Quiz Results"}</h2>
-              <Button size="sm" variant="outline" onClick={() => exportToPDF("quizresults")} className="gap-1.5">
-                <Download className="w-4 h-4" />
+            <div className="flex items-center justify-end mb-4" dir={isRtl ? "rtl" : "ltr"}>
+              <Button size="sm" variant="outline" onClick={() => exportToPDF("quizresults")} className="gap-1.5 font-bold border-2 border-primary/40 hover:bg-primary/10">
+                <Download className="w-4 h-4" strokeWidth={2.6} />
                 {isRtl ? "تحميل PDF" : "Export PDF"}
               </Button>
             </div>
@@ -960,28 +959,28 @@ const LeadershipDashboard = () => {
               const notPassed = quizSubmissions.length - passed;
               return (
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
-                  <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all border-border/60">
+                  <Card className="relative overflow-hidden bg-gradient-to-br from-emerald-500 via-green-500 to-emerald-600 border-2 border-emerald-400/60 shadow-xl shadow-emerald-500/30 hover:shadow-2xl hover:shadow-emerald-500/50 hover:-translate-y-1 transition-all">
                     <CardContent className="p-4 sm:p-5">
                       <div className="flex items-center gap-3">
-                        <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-green-500/15 flex items-center justify-center">
-                          <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7 text-green-600" strokeWidth={2.5} />
+                        <div className="shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
+                          <CheckCircle className="w-8 h-8 sm:w-9 sm:h-9 text-white drop-shadow" strokeWidth={2.8} />
                         </div>
                         <div className="min-w-0">
-                          <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">{isRtl ? "معتمدة" : "Approved"}</p>
-                          <p className="text-xl sm:text-2xl font-black mt-0.5 text-green-600">{passed}</p>
+                          <p className="text-sm sm:text-base font-extrabold text-white/95 tracking-wide">{isRtl ? "معتمدة" : "Approved"}</p>
+                          <p className="text-3xl sm:text-4xl font-black mt-0.5 text-white drop-shadow-md">{passed}</p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
-                  <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all border-border/60">
+                  <Card className="relative overflow-hidden bg-gradient-to-br from-red-500 via-rose-500 to-red-600 border-2 border-red-400/60 shadow-xl shadow-red-500/30 hover:shadow-2xl hover:shadow-red-500/50 hover:-translate-y-1 transition-all">
                     <CardContent className="p-4 sm:p-5">
                       <div className="flex items-center gap-3">
-                        <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-red-500/15 flex items-center justify-center">
-                          <XCircle className="w-6 h-6 sm:w-7 sm:h-7 text-red-600" strokeWidth={2.5} />
+                        <div className="shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
+                          <XCircle className="w-8 h-8 sm:w-9 sm:h-9 text-white drop-shadow" strokeWidth={2.8} />
                         </div>
                         <div className="min-w-0">
-                          <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">{isRtl ? "غير معتمدة" : "Not Approved"}</p>
-                          <p className="text-xl sm:text-2xl font-black mt-0.5 text-red-600">{notPassed}</p>
+                          <p className="text-sm sm:text-base font-extrabold text-white/95 tracking-wide">{isRtl ? "غير معتمدة" : "Not Approved"}</p>
+                          <p className="text-3xl sm:text-4xl font-black mt-0.5 text-white drop-shadow-md">{notPassed}</p>
                         </div>
                       </div>
                     </CardContent>

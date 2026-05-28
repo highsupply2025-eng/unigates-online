@@ -936,10 +936,9 @@ const LeadershipDashboard = () => {
           {/* Quiz Results */}
           <TabsContent value="quizresults" id="section-quizresults" dir={isRtl ? "rtl" : "ltr"}>
 
-            <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
-              <h2 className="text-lg font-bold text-foreground">{isRtl ? "نتائج الاختبارات" : "Quiz Results"}</h2>
-              <Button size="sm" variant="outline" onClick={() => exportToPDF("quizresults")} className="gap-1.5">
-                <Download className="w-4 h-4" />
+            <div className="flex items-center justify-end mb-4" dir={isRtl ? "rtl" : "ltr"}>
+              <Button size="sm" variant="outline" onClick={() => exportToPDF("quizresults")} className="gap-1.5 font-bold border-2 border-primary/40 hover:bg-primary/10">
+                <Download className="w-4 h-4" strokeWidth={2.6} />
                 {isRtl ? "تحميل PDF" : "Export PDF"}
               </Button>
             </div>

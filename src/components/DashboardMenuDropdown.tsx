@@ -94,10 +94,10 @@ const DashboardMenuDropdown = ({
     <DropdownMenu open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
         <button
-          className="relative p-2 rounded-xl bg-primary/15 text-primary hover:bg-primary/25 active:scale-95 transition-all shadow-sm outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 ring-0"
+          className="relative p-2.5 rounded-xl bg-gradient-to-br from-teal-500 via-cyan-500 to-emerald-500 text-white hover:from-teal-600 hover:via-cyan-600 hover:to-emerald-600 active:scale-95 transition-all shadow-lg shadow-cyan-500/40 ring-2 ring-white/40 outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
           aria-label={isRtl ? "القائمة" : "Menu"}
         >
-          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          {open ? <X className="w-6 h-6 drop-shadow" strokeWidth={2.8} /> : <Menu className="w-6 h-6 drop-shadow" strokeWidth={2.8} />}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

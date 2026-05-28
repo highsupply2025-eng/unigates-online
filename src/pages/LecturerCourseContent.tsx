@@ -30,6 +30,7 @@ const LecturerCourseContent = () => {
   const isRtl = dir === "rtl";
 
   const [user, setUser] = useState<any>(null);
+  const [viewOnly, setViewOnly] = useState(false);
   const [episodes, setEpisodes] = useState<any[]>([]);
   const [attachments, setAttachments] = useState<any[]>([]);
   const [showEpisodeForm, setShowEpisodeForm] = useState(false);

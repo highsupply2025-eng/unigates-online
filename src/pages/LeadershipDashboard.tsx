@@ -27,7 +27,7 @@ import { MiniBars } from "@/components/MiniBars";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
 import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
-import { WeeklyActivityCard } from "@/components/WeeklyActivityCard";
+
 import RatingsBreakdown from "@/components/RatingsBreakdown";
 
 const LeadershipDashboard = () => {
@@ -388,20 +388,6 @@ const LeadershipDashboard = () => {
                     ]}
                   />
 
-                  {/* Weekly Activity Chart - hidden for department heads */}
-                  {userRole !== "department_head" && (
-                    <WeeklyActivityCard
-                      timestamps={[
-                        ...liveStreams.map((s: any) => s.created_at || s.scheduled_at),
-                        ...quizSubmissions.map((s: any) => s.submitted_at || s.created_at),
-                        ...ratings.map((r: any) => r.created_at),
-                        ...assignments.map((a: any) => a.created_at),
-                        ...episodes.map((e: any) => e.created_at),
-                      ]}
-                      ratingsCount={ratings.length}
-                      subtitle={isRtl ? "نشاط الكلية خلال آخر 7 أيام" : "Faculty activity over the last 7 days"}
-                    />
-                  )}
 
                   {/* Section Cards - mirrors dropdown menu, distinct icons from the chart above */}
                   <MenuItemsStatsGrid

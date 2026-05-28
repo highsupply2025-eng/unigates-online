@@ -566,13 +566,6 @@ const LeadershipDashboard = () => {
 
           {/* Lectures */}
           <TabsContent value="lectures" id="section-lectures" dir={isRtl ? "rtl" : "ltr"}>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-primary" />
-                {isRtl ? "محاضرات المحاضرين" : "Lecturer Lectures"}
-              </h2>
-              <Badge variant="secondary" className="font-bold">{episodes.length}</Badge>
-            </div>
 
             {courses.filter(c => episodes.some(e => e.course_id === c.id)).length === 0 ? (
               <Card>

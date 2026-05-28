@@ -43,22 +43,22 @@ export const MenuItemsStatsGrid = ({ items, className = "", naturalRtl = true }:
         return (
           <Card
             key={it.key ?? `${it.label}-${i}`}
-            className="select-none cursor-default"
+            className="select-none cursor-default border-2 border-border/60 hover:border-primary/40 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 overflow-hidden"
             aria-disabled="true"
             style={{ direction: isRtl ? "rtl" : "ltr" }}
           >
             <CardContent className="p-4 sm:p-5">
               <div className="flex items-center justify-between mb-3">
                 <div
-                  className={`w-11 h-11 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-md shadow-black/10`}
+                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-lg shadow-black/15 ring-2 ring-white/40`}
                 >
-                  <Icon className="w-5 h-5 text-white" strokeWidth={2.5} />
+                  <Icon className="w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow" strokeWidth={2.8} />
                 </div>
-                <Badge variant="secondary" className="font-bold">
+                <Badge variant="secondary" className="font-black text-base sm:text-lg px-3 py-1 shadow-sm">
                   {it.count ?? 0}
                 </Badge>
               </div>
-              <h3 className="font-bold text-foreground text-sm sm:text-base leading-tight">
+              <h3 className="font-extrabold text-foreground text-base sm:text-lg leading-tight tracking-tight">
                 {it.label}
               </h3>
             </CardContent>

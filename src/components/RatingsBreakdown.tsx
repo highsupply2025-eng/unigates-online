@@ -132,20 +132,32 @@ const RatingsBreakdown = ({ lecturerId }: Props) => {
   }, [lecturerId]);
 
   const tabs = useMemo(() => ([
-    { key: "lectures", labelAr: "تقييم المحاضرات", labelEn: "Lectures", Icon: BookOpen, rows: lectures, emptyAr: "لا توجد تقييمات للمحاضرات بعد", emptyEn: "No lecture ratings yet" },
-    { key: "streams", labelAr: "تقييم البث", labelEn: "Live Streams", Icon: Radio, rows: streams, emptyAr: "لا توجد تقييمات للبث بعد", emptyEn: "No stream ratings yet" },
-    { key: "quizzes", labelAr: "تقييم الاختبارات", labelEn: "Quizzes", Icon: ClipboardList, rows: quizzes, emptyAr: "لا توجد تقييمات للاختبارات بعد", emptyEn: "No quiz ratings yet" },
-    { key: "schedules", labelAr: "تقييم الجداول", labelEn: "Schedules", Icon: Calendar, rows: schedules, emptyAr: "لا توجد تقييمات للجداول بعد", emptyEn: "No schedule ratings yet" },
+    { key: "lectures", labelAr: "تقييم المحاضرات", labelEn: "Lectures", Icon: BookOpen, rows: lectures, emptyAr: "لا توجد تقييمات للمحاضرات بعد", emptyEn: "No lecture ratings yet",
+      activeGrad: "data-[state=active]:from-violet-600 data-[state=active]:via-purple-600 data-[state=active]:to-fuchsia-600",
+      iconColor: "text-violet-600" },
+    { key: "streams", labelAr: "تقييم البث", labelEn: "Live Streams", Icon: Radio, rows: streams, emptyAr: "لا توجد تقييمات للبث بعد", emptyEn: "No stream ratings yet",
+      activeGrad: "data-[state=active]:from-rose-500 data-[state=active]:via-red-500 data-[state=active]:to-orange-500",
+      iconColor: "text-rose-600" },
+    { key: "quizzes", labelAr: "تقييم الاختبارات", labelEn: "Quizzes", Icon: ClipboardList, rows: quizzes, emptyAr: "لا توجد تقييمات للاختبارات بعد", emptyEn: "No quiz ratings yet",
+      activeGrad: "data-[state=active]:from-amber-500 data-[state=active]:via-orange-500 data-[state=active]:to-yellow-500",
+      iconColor: "text-amber-600" },
+    { key: "schedules", labelAr: "تقييم الجداول", labelEn: "Schedules", Icon: Calendar, rows: schedules, emptyAr: "لا توجد تقييمات للجداول بعد", emptyEn: "No schedule ratings yet",
+      activeGrad: "data-[state=active]:from-teal-500 data-[state=active]:via-cyan-500 data-[state=active]:to-emerald-500",
+      iconColor: "text-teal-600" },
   ]), [lectures, streams, quizzes, schedules]);
 
   return (
     <Tabs defaultValue="lectures" className="w-full" dir={isRtl ? "rtl" : "ltr"}>
-      <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full h-auto gap-1 p-1">
+      <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full h-auto gap-2 p-2 bg-muted/50">
         {tabs.map((t) => (
-          <TabsTrigger key={t.key} value={t.key} className="gap-1.5 text-xs sm:text-sm py-2">
-            <t.Icon className="w-3.5 h-3.5" />
-            <span>{isRtl ? t.labelAr : t.labelEn}</span>
-            <Badge variant="secondary" className="ms-1 px-1.5 py-0 text-[10px]">{t.rows.length}</Badge>
+          <TabsTrigger
+            key={t.key}
+            value={t.key}
+            className={`gap-2 text-sm sm:text-base font-bold py-3 sm:py-3.5 rounded-lg bg-gradient-to-br ${t.activeGrad} data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-[1.02] transition-all`}
+          >
+            <t.Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${t.iconColor} data-[state=active]:text-white`} strokeWidth={2.6} />
+            <span className="drop-shadow-sm">{isRtl ? t.labelAr : t.labelEn}</span>
+            <Badge variant="secondary" className="ms-1 px-2 py-0.5 text-xs font-black">{t.rows.length}</Badge>
           </TabsTrigger>
         ))}
       </TabsList>

@@ -1145,8 +1145,7 @@ const LeadershipDashboard = () => {
 
           {/* Ratings */}
           <TabsContent value="ratings" id="section-ratings" dir={isRtl ? "rtl" : "ltr"}>
-            <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
-              <h2 className="text-lg font-bold text-foreground">{isRtl ? "تقييمات الطلبة" : "Student Ratings"}</h2>
+            <div className="flex items-center justify-end mb-4" dir={isRtl ? "rtl" : "ltr"}>
               <Button size="sm" variant="outline" onClick={() => exportToPDF("ratings")} className="gap-1.5">
                 <Download className="w-4 h-4" />
                 {isRtl ? "تحميل PDF" : "Export PDF"}

@@ -343,7 +343,7 @@ const LecturerCourseContent = () => {
                         {ep.duration_minutes > 0 && <p className="text-xs text-muted-foreground font-medium">{ep.duration_minutes} {isRtl ? "دقيقة" : "min"}</p>}
                       </div>
                       {ep.is_preview && <span className="text-xs font-bold bg-primary/15 text-primary px-2.5 py-1 rounded-full border border-primary/20">{isRtl ? "معاينة" : "Preview"}</span>}
-                      <Button size="icon" variant="ghost" onClick={() => handleDeleteEpisode(ep.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                      {!viewOnly && <Button size="icon" variant="ghost" onClick={() => handleDeleteEpisode(ep.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>}
                     </div>
                   ))}
                 </div>

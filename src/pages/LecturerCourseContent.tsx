@@ -30,6 +30,7 @@ const LecturerCourseContent = () => {
   const isRtl = dir === "rtl";
 
   const [user, setUser] = useState<any>(null);
+  const [viewOnly, setViewOnly] = useState(false);
   const [episodes, setEpisodes] = useState<any[]>([]);
   const [attachments, setAttachments] = useState<any[]>([]);
   const [showEpisodeForm, setShowEpisodeForm] = useState(false);
@@ -135,6 +136,17 @@ const LecturerCourseContent = () => {
       if (!user) { navigate("/login"); return; }
       setUser(user);
       if (!courseId) return;
+      // View-only mode for leadership roles (dean, vice deans, department head)
+      // when they aren't the course creator.
+      try {
+        const { data: course } = await supabase.from("courses").select("creator_id").eq("id", courseId).maybeSingle();
+        if (course && course.creator_id !== user.id) {
+          const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", user.id);
+          const leadershipRoles = ["dean", "vice_dean", "department_head"];
+          const isLeadership = (roles || []).some((r: any) => leadershipRoles.includes(r.role));
+          if (isLeadership) setViewOnly(true);
+        }
+      } catch { /* noop */ }
       await loadAll();
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -225,25 +237,27 @@ const LecturerCourseContent = () => {
         </div>
       </header>
       <main className="container mx-auto px-4 py-6 space-y-5 max-w-3xl">
-        <div className="flex flex-wrap gap-3">
-          <Button
-            size="default"
-            onClick={() => { setShowEpisodeForm(v => !v); setShowAttachmentForm(false); }}
-            className="font-bold shadow-md hover:shadow-lg transition-all bg-gradient-to-l from-primary to-primary/80 hover:scale-[1.02]"
-          >
-            <Plus className="w-4 h-4 me-2" strokeWidth={3} /> {isRtl ? "أضف حلقة" : "Add Episode"}
-          </Button>
-          <Button
-            size="default"
-            variant="secondary"
-            onClick={() => { setShowAttachmentForm(v => !v); setShowEpisodeForm(false); }}
-            className="font-bold shadow-md hover:shadow-lg transition-all border-2 border-primary/20 hover:scale-[1.02]"
-          >
-            <Paperclip className="w-4 h-4 me-2 text-primary" strokeWidth={2.5} /> {isRtl ? "أضف مرفق" : "Add Attachment"}
-          </Button>
-        </div>
+        {!viewOnly && (
+          <div className="flex flex-wrap gap-3">
+            <Button
+              size="default"
+              onClick={() => { setShowEpisodeForm(v => !v); setShowAttachmentForm(false); }}
+              className="font-bold shadow-md hover:shadow-lg transition-all bg-gradient-to-l from-primary to-primary/80 hover:scale-[1.02]"
+            >
+              <Plus className="w-4 h-4 me-2" strokeWidth={3} /> {isRtl ? "أضف حلقة" : "Add Episode"}
+            </Button>
+            <Button
+              size="default"
+              variant="secondary"
+              onClick={() => { setShowAttachmentForm(v => !v); setShowEpisodeForm(false); }}
+              className="font-bold shadow-md hover:shadow-lg transition-all border-2 border-primary/20 hover:scale-[1.02]"
+            >
+              <Paperclip className="w-4 h-4 me-2 text-primary" strokeWidth={2.5} /> {isRtl ? "أضف مرفق" : "Add Attachment"}
+            </Button>
+          </div>
+        )}
 
-        {showEpisodeForm && (
+        {!viewOnly && showEpisodeForm && (
           <div className="space-y-3 p-4 rounded-lg border border-dashed bg-card">
             <p className="text-sm font-semibold text-muted-foreground">{isRtl ? "إضافة حلقة جديدة" : "Add New Episode"}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -298,7 +312,7 @@ const LecturerCourseContent = () => {
           </div>
         )}
 
-        {showAttachmentForm && (
+        {!viewOnly && showAttachmentForm && (
           <div className="space-y-3 p-4 rounded-lg border border-dashed bg-card">
             <p className="text-sm font-semibold text-muted-foreground">{isRtl ? "إضافة مرفق" : "Add Attachment"}</p>
             <Input placeholder={isRtl ? "اسم الملف" : "File name"} value={attachmentName} onChange={e => setAttachmentName(e.target.value)} />
@@ -329,7 +343,7 @@ const LecturerCourseContent = () => {
                         {ep.duration_minutes > 0 && <p className="text-xs text-muted-foreground font-medium">{ep.duration_minutes} {isRtl ? "دقيقة" : "min"}</p>}
                       </div>
                       {ep.is_preview && <span className="text-xs font-bold bg-primary/15 text-primary px-2.5 py-1 rounded-full border border-primary/20">{isRtl ? "معاينة" : "Preview"}</span>}
-                      <Button size="icon" variant="ghost" onClick={() => handleDeleteEpisode(ep.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                      {!viewOnly && <Button size="icon" variant="ghost" onClick={() => handleDeleteEpisode(ep.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>}
                     </div>
                   ))}
                 </div>
@@ -354,7 +368,7 @@ const LecturerCourseContent = () => {
                         <FileText className="w-4 h-4" strokeWidth={2.5} />
                       </span>
                       <a href={att.file_url} target="_blank" rel="noreferrer" className="flex-1 font-bold text-sm hover:text-primary hover:underline truncate text-foreground">{att.name}</a>
-                      <Button size="icon" variant="ghost" onClick={() => handleDeleteAttachment(att.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                      {!viewOnly && <Button size="icon" variant="ghost" onClick={() => handleDeleteAttachment(att.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>}
                     </div>
                   ))}
                 </div>

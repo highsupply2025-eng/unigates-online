@@ -413,7 +413,7 @@ const DepartmentPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background" dir={dir}>
+    <div className="min-h-screen bg-background institution-admin-scope" dir={dir}>
       <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <Button variant="outline" className="gap-2 mb-6" onClick={() => navigate("/institution/dashboard?tab=departments")}>
           {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}

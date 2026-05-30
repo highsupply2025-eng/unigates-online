@@ -139,3 +139,44 @@ button[aria-haspopup="menu"]:focus-visible,
   --tw-ring-shadow: 0 0 #0000 !important;
   --tw-ring-offset-shadow: 0 0 #0000 !important;
 }
+
+/* ============================================================
+   College / Institute Administration — enhanced visual weight
+   Highlights primary color depth, icon stroke and typography
+   on every page wrapped in .institution-admin-scope
+   ============================================================ */
+.institution-admin-scope {
+  font-size: 1.04em;
+}
+.institution-admin-scope h1,
+.institution-admin-scope h2,
+.institution-admin-scope h3,
+.institution-admin-scope [class*="text-2xl"],
+.institution-admin-scope [class*="text-xl"],
+.institution-admin-scope [class*="text-lg"] {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.institution-admin-scope .text-xs { font-size: 0.8rem; }
+.institution-admin-scope .text-sm { font-size: 0.92rem; }
+.institution-admin-scope .text-base { font-size: 1.02rem; }
+
+/* Bolder icon strokes for clarity */
+.institution-admin-scope svg {
+  stroke-width: 2.25;
+}
+
+/* Deeper primary color shade for emphasis */
+.institution-admin-scope .text-primary {
+  color: hsl(var(--primary) / 1);
+  filter: saturate(1.15);
+}
+.institution-admin-scope .bg-primary\/10 {
+  background-color: hsl(var(--primary) / 0.16);
+}
+.institution-admin-scope .bg-primary\/15 {
+  background-color: hsl(var(--primary) / 0.22);
+}
+.institution-admin-scope .border-primary\/20 {
+  border-color: hsl(var(--primary) / 0.32);
+}

@@ -221,56 +221,84 @@ const LeadershipApprovals = () => {
               : (isQuizzes ? (isRtl ? "لا توجد اختبارات غير معتمدة" : "No pending quizzes") : (isRtl ? "لا توجد جداول غير معتمدة" : "No pending schedules"))}
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-border bg-card">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{isRtl ? (isQuizzes ? "الاختبار" : "العنوان") : (isQuizzes ? "Quiz" : "Title")}</TableHead>
-                  <TableHead className="hidden sm:table-cell">{isRtl ? "التاريخ" : "Date"}</TableHead>
-                  <TableHead className="text-end">{isRtl ? "الإجراء" : "Action"}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((row: any) => {
-                  const course = courses.find((c: any) => c.id === row.course_id);
-                  const act = isMyTurn(row);
-                  return (
-                    <TableRow key={row.id}>
-                      <TableCell className="font-bold">
-                        <div className="flex items-center gap-2">
-                          <ItemIcon className="w-4 h-4 text-primary shrink-0" />
-                          <div className="flex flex-col">
-                            <span>{isRtl ? row.title_ar : row.title_en}</span>
-                            {course && (
-                              <span className="text-[10px] text-muted-foreground font-medium">
-                                {isRtl ? course.title_ar : course.title_en}
-                              </span>
+          <>
+            {isApproved && (
+              <div className="flex items-center justify-end mb-3">
+                <Button
+                  size="sm"
+                  onClick={downloadAll}
+                  className="gap-1.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-extrabold shadow hover:shadow-lg"
+                >
+                  <Download className="w-4 h-4" strokeWidth={2.6} />
+                  {isRtl ? `تحميل الكل (${filtered.length})` : `Download all (${filtered.length})`}
+                </Button>
+              </div>
+            )}
+            <div className="overflow-x-auto rounded-xl border border-border bg-card">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{isRtl ? (isQuizzes ? "الاختبار" : "العنوان") : (isQuizzes ? "Quiz" : "Title")}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{isRtl ? "التاريخ" : "Date"}</TableHead>
+                    <TableHead className="text-end">{isRtl ? "الإجراء" : "Action"}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((row: any) => {
+                    const course = courses.find((c: any) => c.id === row.course_id);
+                    const act = isMyTurn(row);
+                    return (
+                      <TableRow key={row.id}>
+                        <TableCell className="font-bold">
+                          <div className="flex items-center gap-2">
+                            <ItemIcon className="w-4 h-4 text-primary shrink-0" />
+                            <div className="flex flex-col">
+                              <span>{isRtl ? row.title_ar : row.title_en}</span>
+                              {course && (
+                                <span className="text-[10px] text-muted-foreground font-medium">
+                                  {isRtl ? course.title_ar : course.title_en}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell text-xs text-muted-foreground">
+                          {(() => {
+                            const d = row.scheduled_date || row.created_at;
+                            return d ? new Date(d).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : "-";
+                          })()}
+                        </TableCell>
+                        <TableCell className="text-end">
+                          <div className="inline-flex items-center gap-1.5">
+                            <Button
+                              size="sm"
+                              onClick={() => goTo(row)}
+                              className={act ? "bg-gradient-to-r from-emerald-500 to-green-600 text-white font-extrabold shadow hover:shadow-lg gap-1" : "gap-1"}
+                              variant={act ? "default" : "outline"}
+                            >
+                              {act ? null : <Eye className="w-3.5 h-3.5" />}
+                              {actionLabel(row)}
+                            </Button>
+                            {isApproved && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => downloadOne(row)}
+                                className="gap-1 border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 font-bold"
+                              >
+                                <Download className="w-3.5 h-3.5" />
+                                <span className="hidden sm:inline">{isRtl ? "تحميل" : "Download"}</span>
+                              </Button>
                             )}
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell text-xs text-muted-foreground">
-                        {(() => {
-                          const d = row.scheduled_date || row.created_at;
-                          return d ? new Date(d).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : "-";
-                        })()}
-                      </TableCell>
-                      <TableCell className="text-end">
-                        <Button
-                          size="sm"
-                          onClick={() => goTo(row)}
-                          className={act ? "bg-gradient-to-r from-emerald-500 to-green-600 text-white font-extrabold shadow hover:shadow-lg" : ""}
-                          variant={act ? "default" : "outline"}
-                        >
-                          {actionLabel(row)}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         )}
       </main>
     </div>

@@ -9,8 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import BackButton from "@/components/BackButton";
-import { ClipboardList, FileText, Calendar, Plus, Send, Upload } from "lucide-react";
+import LecturerPageHeader from "@/components/LecturerPageHeader";
+import { ClipboardList, FileText, Calendar, Plus, Send, Upload, GraduationCap } from "lucide-react";
 import { buildAssignmentPath } from "@/lib/assignment-url";
 
 export default function CourseAssignments() {

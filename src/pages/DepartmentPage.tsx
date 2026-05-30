@@ -213,15 +213,15 @@ const DepartmentPage = () => {
   };
 
   const filterMembers = (list: DepartmentMember[]) => {
+    // Only registered members (linked to a real user account) are listed.
     return list.filter(m => {
+      if (!m.user_id) return false;
+      const profile = profilesMap[m.user_id];
+      const name = profile?.full_name || m.full_name;
       const matchesSearch = !searchQuery ||
-        m.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (m.invitation_code && m.invitation_code.toLowerCase().includes(searchQuery.toLowerCase()));
-      const matchesStatus =
-        statusFilter === "all" ||
-        (statusFilter === "linked" && m.user_id) ||
-        (statusFilter === "pending" && !m.user_id);
-      return matchesSearch && matchesStatus;
+        name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (profile?.email && profile.email.toLowerCase().includes(searchQuery.toLowerCase()));
+      return matchesSearch;
     });
   };
 

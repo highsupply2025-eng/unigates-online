@@ -788,8 +788,8 @@ const InstitutionDashboard = () => {
               <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
                 {(() => {
                   const map: Record<string, { ar: string; en: string }> = {
-                    general: { ar: "الرئيسية", en: "Home" },
-                    
+                    general: { ar: "الاختبارات", en: "Exams" },
+                    schedules: { ar: "الاختبارات", en: "Exams" },
                     departments: { ar: "الأقسام", en: "Departments" },
                     quizresults: { ar: "النتائج", en: "Results" },
                     invitations: { ar: "الدعوات", en: "Invitations" },

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Landmark, Loader2, Globe, ArrowLeft, ArrowRight, CheckCircle, Send, GraduationCap, Menu } from "lucide-react";
+import { Landmark, Loader2, Globe, ArrowLeft, ArrowRight, CheckCircle, Send, GraduationCap, Menu, ImagePlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,9 +30,13 @@ const CollegeAdminSignup = () => {
   const plan = searchParams.get("plan") || "monthly";
 
   const [collegeName, setCollegeName] = useState("");
+  const [universityName, setUniversityName] = useState("");
+  const [deanName, setDeanName] = useState("");
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
-  
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [countryCode, setCountryCode] = useState("+20");
@@ -46,8 +50,19 @@ const CollegeAdminSignup = () => {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "حجم الصورة يجب أن يكون أقل من 5 ميجابايت" : "Image must be less than 5MB", variant: "destructive" });
+      return;
+    }
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+  };
+
   const handleSubmit = async () => {
-    if (!collegeName || !city || !email || !phone || !password) {
+    if (!collegeName || !universityName || !deanName || !city || !email || !phone || !password) {
       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى ملء جميع الحقول المطلوبة" : "Please fill all required fields", variant: "destructive" });
       return;
     }
@@ -76,11 +91,26 @@ const CollegeAdminSignup = () => {
       });
       if (authError) throw authError;
 
+      let logoUrl: string | null = null;
+      if (logoFile) {
+        const ext = logoFile.name.split('.').pop() || 'jpg';
+        const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const { error: upErr } = await supabase.storage.from('college-logos').upload(path, logoFile, {
+          contentType: logoFile.type,
+          upsert: false,
+        });
+        if (upErr) throw upErr;
+        const { data: pub } = supabase.storage.from('college-logos').getPublicUrl(path);
+        logoUrl = pub.publicUrl;
+      }
+
       const { error } = await supabase.from("college_registrations").insert({
         college_name: collegeName,
+        university_name: universityName,
         city,
         address: address || null,
-        dean_name: collegeName,
+        dean_name: deanName,
+        logo_url: logoUrl,
         email,
         phone: `${countryCode}${phone}`,
         student_count: studentCount ? parseInt(studentCount) : 0,

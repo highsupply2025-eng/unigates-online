@@ -2654,14 +2654,13 @@ const InstitutionDashboard = () => {
               <Input value={newDeptName} onChange={e => setNewDeptName(e.target.value)} placeholder={isRtl ? "مثال: قسم المحاسبة" : "e.g. Accounting Dept"} />
             </div>
             <div>
-              <Label>{isRtl ? "عدد الطلاب (حتى 2000)" : "Student Count (up to 2000)"}</Label>
+              <Label>{isRtl ? "عدد الطلاب (غير محدود)" : "Student Count (unlimited)"}</Label>
               <Input
                 type="number"
                 min={0}
-                max={2000}
                 value={newDeptStudentCount}
                 onChange={e => {
-                  const v = Math.min(2000, Math.max(0, parseInt(e.target.value) || 0));
+                  const v = Math.max(0, parseInt(e.target.value) || 0);
                   setNewDeptStudentCount(e.target.value === "" ? "" : String(v));
                 }}
                 placeholder="0"

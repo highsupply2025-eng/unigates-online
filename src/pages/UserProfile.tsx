@@ -220,11 +220,17 @@ const UserProfile = () => {
 
   return (
     <div className="min-h-screen bg-background" dir={dir}>
-      <StudentPageHeader
-        titleAr="البيانات الشخصية"
-        titleEn="Personal Information"
-        icon={<User className="w-4 h-4" />}
-      />
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-3">
+          <BackButton />
+          <h1 className="text-base sm:text-lg font-extrabold text-foreground flex items-center gap-2">
+            <User className="w-4 h-4 text-primary" />
+            {isRtl ? "البيانات الشخصية" : "Personal Information"}
+          </h1>
+          <div className="w-[72px]" />
+        </div>
+      </header>
+
 
       <main className="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-8 space-y-5">
         {/* Hero card */}

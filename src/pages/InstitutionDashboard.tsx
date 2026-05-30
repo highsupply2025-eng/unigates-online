@@ -606,22 +606,38 @@ const InstitutionDashboard = () => {
     sonnerToast.success(isRtl ? "تم النسخ" : "Copied!", { duration: 500 });
   };
 
-  const getMembersForDept = (deptId: string) => deptMembers.filter(m => m.department_id === deptId);
+  // Pre-index members by department & role to avoid O(N) filters on every render
+  const membersIndex = useMemo(() => {
+    const map = new Map<string, { all: DepartmentMember[]; head: DepartmentMember[]; lecturer: DepartmentMember[]; student: DepartmentMember[] }>();
+    for (const m of deptMembers) {
+      let bucket = map.get(m.department_id);
+      if (!bucket) {
+        bucket = { all: [], head: [], lecturer: [], student: [] };
+        map.set(m.department_id, bucket);
+      }
+      bucket.all.push(m);
+      if (m.role === "department_head") bucket.head.push(m);
+      else if (m.role === "lecturer") bucket.lecturer.push(m);
+      else if (m.role === "student") bucket.student.push(m);
+    }
+    return map;
+  }, [deptMembers]);
+  const emptyBucket = useRef({ all: [] as DepartmentMember[], head: [] as DepartmentMember[], lecturer: [] as DepartmentMember[], student: [] as DepartmentMember[] }).current;
+  const getDeptBucket = (deptId: string) => membersIndex.get(deptId) || emptyBucket;
+  const getMembersForDept = (deptId: string) => getDeptBucket(deptId).all;
   const getStudentsCount = (deptId: string) => {
-    const fromMembers = getMembersForDept(deptId).filter(m => m.role === "student").length;
+    const fromMembers = getDeptBucket(deptId).student.length;
     if (fromMembers > 0) return fromMembers;
     const dept = departments.find(d => d.id === deptId);
     return dept?.student_count || 0;
   };
   const getLecturersCount = (deptId: string) => {
-    const fromMembers = getMembersForDept(deptId).filter(m => m.role === "lecturer").length;
+    const fromMembers = getDeptBucket(deptId).lecturer.length;
     if (fromMembers > 0) return fromMembers;
     const dept = departments.find(d => d.id === deptId);
     return (dept as any)?.lecturer_count || 0;
   };
-  const getDeptHeadsCount = (deptId: string) => {
-    return getMembersForDept(deptId).filter(m => m.role === "department_head").length;
-  };
+  const getDeptHeadsCount = (deptId: string) => getDeptBucket(deptId).head.length;
 
   const totalStudents = departments.reduce((sum, d) => sum + getStudentsCount(d.id), 0);
   const totalLecturers = departments.reduce((sum, d) => sum + getLecturersCount(d.id), 0);

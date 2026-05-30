@@ -905,7 +905,11 @@ ${rows.map((r: any, i: number) => `<tr>
       </header>
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
-        {pageView === "members" && selectedDept ? (
+        {pageView === "members" && selectedDept ? (() => {
+          const _b = getDeptBucket(selectedDept.id);
+          const _filt = (arr: DepartmentMember[]) => membersActiveOnly ? arr.filter(m => !!m.user_id) : arr;
+          const displayBucket = { all: _filt(_b.all), head: _filt(_b.head), lecturer: _filt(_b.lecturer), student: _filt(_b.student) };
+          return (
           /* Full-page Members View */
           <div className="space-y-4">
             <div className="flex items-center justify-between">

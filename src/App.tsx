@@ -145,10 +145,10 @@ const App = () => (
               <Route path="/school/dashboard" element={<SchoolDashboard />} />
               {/* University Platform */}
               <Route path="/university-platform" element={<UniversityPlatform />} />
-              <Route path="/signup/college" element={<CollegeRegistration />} />
+              <Route path="/signup/college" element={<Navigate to={`/signup/college/admin${typeof window !== 'undefined' ? window.location.search : ''}`} replace />} />
               <Route path="/signup/college/admin" element={<CollegeAdminSignup />} />
               <Route path="/signup/college/:role" element={<CollegeRoleSignup />} />
-              <Route path="/signup/institute" element={<InstituteRegistration />} />
+              <Route path="/signup/institute" element={<Navigate to={`/signup/institute/admin${typeof window !== 'undefined' ? window.location.search : ''}`} replace />} />
               <Route path="/signup/institute/admin" element={<InstituteAdminSignup />} />
               <Route path="/signup/institute/:role" element={<InstituteRoleSignup />} />
               <Route path="/institution/dashboard" element={<InstitutionDashboard />} />

@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Download, Eye, Loader2, Radio, Calendar, CheckCircle, ArrowLeft, ArrowRight, Users, Lock } from "lucide-react";
-import BackButton from "@/components/BackButton";
+import SubPageHeader from "@/components/SubPageHeader";
 
 type StatusKey = "live" | "scheduled" | "ended";
 
@@ -118,24 +118,12 @@ const LeadershipStreamsByStatus = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <header className={`border-b-2 border-border px-3 sm:px-6 py-4 sm:py-5 bg-gradient-to-r ${meta.gradient} ${meta.shadow} shadow-xl`}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-          <BackButton />
-          <div className="flex items-center gap-3">
-            <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40 ${key === "live" ? "animate-pulse" : ""}`}>
-              <Icon className="w-7 h-7 sm:w-8 sm:h-8 text-white" strokeWidth={2.8} />
-            </div>
-            <div className={isRtl ? "text-right" : "text-left"}>
-              <h1 className="text-lg sm:text-2xl font-black text-white leading-tight drop-shadow-md">
-                {isRtl ? meta.ar : meta.en}
-              </h1>
-              <p className="text-xs sm:text-sm font-bold text-white/95">
-                {isRtl ? `${streams.length} بث` : `${streams.length} streams`}
-              </p>
-            </div>
-          </div>
-        </div>
-      </header>
+      <SubPageHeader
+        titleAr={meta.ar}
+        titleEn={meta.en}
+        icon={<Icon className="w-5 h-5" />}
+        backTo="/leadership/dashboard?tab=livestreams"
+      />
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
         <div className="flex items-center justify-between mb-4 flex-row-reverse">

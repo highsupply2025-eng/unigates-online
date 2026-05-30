@@ -203,6 +203,21 @@ const CollegeAdminSignup = () => {
                 </div>
                 <div>
                   <Label className="mb-2 block font-bold text-primary">
+                    {isRtl ? "اسم الجامعة" : "University Name"} <span className="text-destructive">*</span>
+                  </Label>
+                  <Input placeholder={isRtl ? "أدخل اسم الجامعة" : "Enter university name"} value={universityName} onChange={(e) => setUniversityName(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label className="mb-2 block font-bold text-primary">
+                    {isRtl ? "اسم عميد الكلية" : "Dean Name"} <span className="text-destructive">*</span>
+                  </Label>
+                  <Input placeholder={isRtl ? "أدخل اسم عميد الكلية" : "Enter dean name"} value={deanName} onChange={(e) => setDeanName(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                </div>
+                <div>
+                  <Label className="mb-2 block font-bold text-primary">
                     {isRtl ? "المدينة" : "City"} <span className="text-destructive">*</span>
                   </Label>
                   <Input placeholder={isRtl ? "أدخل المدينة" : "Enter city"} value={city} onChange={(e) => setCity(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
@@ -213,6 +228,37 @@ const CollegeAdminSignup = () => {
                 <Label className="mb-2 block font-bold text-primary">{isRtl ? "العنوان التفصيلي" : "Detailed Address"}</Label>
                 <Input placeholder={isRtl ? "أدخل العنوان التفصيلي" : "Enter detailed address"} value={address} onChange={(e) => setAddress(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
               </div>
+
+              <div>
+                <Label className="mb-2 block font-bold text-primary">
+                  {isRtl ? "صورة الكلية" : "College Image"}
+                </Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  {isRtl ? "ستظهر تلقائياً في الصفحة الرئيسية بعد الموافقة على الطلب" : "Will appear automatically on the home page once approved"}
+                </p>
+                {logoPreview ? (
+                  <div className="relative inline-block">
+                    <img src={logoPreview} alt="preview" className="h-32 w-auto rounded-xl border-2 border-primary/30 object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => { setLogoFile(null); setLogoPreview(null); }}
+                      className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow"
+                      aria-label="remove"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center gap-2 h-32 border-2 border-dashed border-primary/30 rounded-xl cursor-pointer hover:bg-primary/5 transition-colors">
+                    <ImagePlus className="w-7 h-7 text-primary" />
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {isRtl ? "اضغط لاختيار صورة (حد أقصى 5 ميجابايت)" : "Click to upload an image (max 5MB)"}
+                    </span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
+                  </label>
+                )}
+              </div>
+
 
               <Separator />
 

@@ -2462,7 +2462,7 @@ const InstitutionDashboard = () => {
                   const headMembers = viewKey === "lecturer"
                     ? getDeptBucket(invitationDept.id).head
                     : [];
-                  const members = getMembersForDept(invitationDept.id).filter(m => m.role === viewKey);
+                  const members = viewKey === "lecturer" ? getDeptBucket(invitationDept.id).lecturer : getDeptBucket(invitationDept.id).student;
                   if (members.length === 0 && headMembers.length === 0) return (
                     <p className="text-sm text-muted-foreground py-4 text-center">
                       {viewKey === "lecturer" ? (isRtl ? "لا يوجد محاضرون" : "No lecturers") : (isRtl ? "لا يوجد طلاب" : "No students")}

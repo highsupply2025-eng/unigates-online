@@ -560,6 +560,57 @@ const InstitutionDashboard = () => {
     sonnerToast.success(isRtl ? "تم تصدير النتائج بنجاح" : "Results exported successfully");
   };
 
+  const exportResultsToPDF = () => {
+    // Only approved exam days
+    const approvedDays = new Set(
+      (examSchedules || [])
+        .filter((s: any) => s.schedule_type === 'exam' && s.approved_by_head && s.approved_by_vice_dean && s.approved_by_dean)
+        .map((s: any) => new Date(s.scheduled_date).toISOString().slice(0, 10))
+    );
+    const rows = studentResults.filter((r: any) => approvedDays.has(new Date(r.created_at).toISOString().slice(0, 10)));
+    if (rows.length === 0) {
+      sonnerToast.error(isRtl ? "لا توجد نتائج معتمدة للتصدير" : "No approved results to export");
+      return;
+    }
+    const w = window.open("", "_blank");
+    if (!w) return;
+    const title = isRtl ? `نتائج الاختبارات المعتمدة — ${institutionName || ""}` : `Approved Quiz Results — ${institutionName || ""}`;
+    const html = `<!doctype html><html lang="${isRtl ? "ar" : "en"}" dir="${isRtl ? "rtl" : "ltr"}"><head><meta charset="utf-8"/>
+<title>${title}</title>
+<style>
+*{box-sizing:border-box} body{font-family:'Cairo','Segoe UI',sans-serif;margin:24px;color:#0f172a}
+h1{margin:0 0 6px;font-size:22px} .sub{color:#64748b;font-size:13px;margin-bottom:18px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:10px;text-align:${isRtl ? "right" : "left"}}
+td{padding:8px 10px;border-bottom:1px solid #e2e8f0}
+tr:nth-child(even) td{background:#f8fafc}
+.b{font-weight:700}
+</style></head><body>
+<h1>${title}</h1>
+<div class="sub">${new Date().toLocaleDateString(isRtl ? "ar-EG" : "en-US")} — ${rows.length} ${isRtl ? "نتيجة" : "results"}</div>
+<table><thead><tr>
+<th>#</th>
+<th>${isRtl ? "اسم الطالب" : "Student"}</th>
+<th>${isRtl ? "القسم" : "Department"}</th>
+<th>${isRtl ? "التاريخ" : "Date"}</th>
+<th>${isRtl ? "الدرجة" : "Grade"}</th>
+<th>${isRtl ? "التقدير" : "Rating"}</th>
+</tr></thead><tbody>
+${rows.map((r: any, i: number) => `<tr>
+<td>${i + 1}</td>
+<td class="b">${r.student_name}</td>
+<td>${r.department_name}</td>
+<td>${new Date(r.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</td>
+<td class="b">${r.grade ?? "—"}</td>
+<td>${getRatingLabel(r.rating)}</td>
+</tr>`).join("")}
+</tbody></table>
+<script>setTimeout(()=>window.print(),300)</script>
+</body></html>`;
+    w.document.write(html);
+    w.document.close();
+  };
+
 
 
   const handleDeleteDepartment = async (deptId: string, deptName: string) => {
@@ -790,8 +841,8 @@ const InstitutionDashboard = () => {
               <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
                 {(() => {
                   const map: Record<string, { ar: string; en: string }> = {
-                    general: { ar: "الاختبارات", en: "Exams" },
-                    schedules: { ar: "الاختبارات", en: "Exams" },
+                    general: { ar: "الرئيسية", en: "Home" },
+                    schedules: { ar: "الجداول", en: "Schedules" },
                     departments: { ar: "الأقسام", en: "Departments" },
                     quizresults: { ar: "النتائج", en: "Results" },
                     invitations: { ar: "الدعوات", en: "Invitations" },
@@ -1617,7 +1668,11 @@ const InstitutionDashboard = () => {
                 </div>
                 <Button size="sm" variant="outline" className="gap-2 shrink-0" onClick={exportResultsToExcel} disabled={studentResults.length === 0}>
                   <Download className="w-4 h-4" />
-                  <span className="hidden sm:inline">{isRtl ? "تصدير Excel" : "Export Excel"}</span>
+                  <span className="hidden sm:inline">{isRtl ? "Excel" : "Excel"}</span>
+                </Button>
+                <Button size="sm" className="gap-2 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={exportResultsToPDF}>
+                  <Download className="w-4 h-4" />
+                  <span className="hidden sm:inline">{isRtl ? "تصدير PDF" : "Export PDF"}</span>
                 </Button>
               </div>
 
@@ -1633,14 +1688,20 @@ const InstitutionDashboard = () => {
                 <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
               </button>
 
-              {/* Quiz items — grouped by creation date, sorted newest first */}
+              {/* Quiz items — only approved exam days, grouped by date, newest first */}
               {(() => {
+                const approvedDays = new Set(
+                  (examSchedules || [])
+                    .filter((s: any) => s.schedule_type === 'exam' && s.approved_by_head && s.approved_by_vice_dean && s.approved_by_dean)
+                    .map((s: any) => new Date(s.scheduled_date).toISOString().slice(0, 10))
+                );
+                const onlyApproved = studentResults.filter((r: any) => approvedDays.has(new Date(r.created_at).toISOString().slice(0, 10)));
                 const q = resultSearch.trim().toLowerCase();
                 const filtered = q
-                  ? studentResults.filter(r =>
+                  ? onlyApproved.filter(r =>
                       r.student_name?.toLowerCase().includes(q) ||
                       r.department_name?.toLowerCase().includes(q))
-                  : studentResults;
+                  : onlyApproved;
                 const groups = new Map<string, typeof studentResults>();
                 for (const r of filtered) {
                   const day = new Date(r.created_at).toISOString().slice(0, 10);
@@ -1654,7 +1715,7 @@ const InstitutionDashboard = () => {
                     <Card>
                       <CardContent className="py-12 text-center">
                         <GraduationCap className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
-                        <p className="text-sm text-muted-foreground">{isRtl ? "لا توجد اختبارات بعد" : "No quizzes yet"}</p>
+                        <p className="text-sm text-muted-foreground">{isRtl ? "لا توجد نتائج اختبارات معتمدة بعد" : "No approved exam results yet"}</p>
                       </CardContent>
                     </Card>
                   );

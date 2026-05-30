@@ -1287,20 +1287,22 @@ const InstitutionDashboard = () => {
               className="mb-6"
               days={rangeDays}
               sections={[
-                
                 { label: isRtl ? "الأقسام" : "Departments", Icon: Layers, timestamps: departments.map((d: any) => d.created_at) },
+                { label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, timestamps: examSchedules.map((s: any) => s.created_at) },
                 { label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
                 { label: isRtl ? "الدعوات" : "Invitations", Icon: Mail, timestamps: deptMembers.map((m: any) => m.created_at) },
+                { label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, timestamps: [] },
               ]}
             />
 
             <MenuItemsStatsGrid
               className="mb-6"
               items={[
-                
                 { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: Layers, color: "from-blue-500 to-blue-600", count: departments.length },
+                { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-amber-500 to-orange-600", count: examSchedules.length },
                 { key: "results", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, color: "from-green-500 to-green-600", count: quizSubmissions.length },
                 { key: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: Mail, color: "from-purple-500 to-purple-600", count: deptMembers.length },
+                { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", count: 1 },
               ]}
             />
 

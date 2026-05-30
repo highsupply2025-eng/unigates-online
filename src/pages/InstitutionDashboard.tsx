@@ -822,7 +822,7 @@ ${rows.map((r: any, i: number) => `<tr>
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col" dir={dir}>
+    <div className="min-h-screen bg-background flex flex-col institution-admin-scope" dir={dir}>
       {/* Header */}
       <header className="border-b border-primary/20 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">

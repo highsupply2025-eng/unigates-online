@@ -178,16 +178,16 @@ const InstituteAdminSignup = () => {
       <main className="flex-1 flex items-center justify-center px-4 py-10">
         {!submitted ? (
           <div className="max-w-2xl w-full">
-            <div className="text-center mb-8">
-              <div className="flex justify-center mb-4">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-xl shadow-primary/30 flex items-center justify-center">
-                  <Landmark className="w-10 h-10 text-white" />
+            <div className="text-center mb-10">
+              <div className="flex justify-center mb-5">
+                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,90%,22%)] shadow-2xl shadow-primary/40 flex items-center justify-center ring-4 ring-primary/20">
+                  <Landmark className="w-14 h-14 text-white drop-shadow-lg" strokeWidth={2.5} />
                 </div>
               </div>
-              <h1 className="text-2xl md:text-3xl font-black text-primary mb-2">
+              <h1 className="text-3xl md:text-5xl font-black text-[hsl(195,95%,22%)] mb-3 tracking-tight drop-shadow-sm">
                 {isRtl ? "تسجيل معهد جديد" : "Register a New Institute"}
               </h1>
-              <p className="text-muted-foreground font-medium">
+              <p className="text-base md:text-lg text-foreground/80 font-semibold">
                 {isRtl ? "أكمل النموذج التالي وسيتم مراجعة طلبك من قبل إدارة المنصة" : "Complete the form below and your request will be reviewed by platform administration"}
               </p>
             </div>
@@ -195,22 +195,60 @@ const InstituteAdminSignup = () => {
             <div className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-2 block font-bold text-primary">
+                  <Label className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
                     {isRtl ? "اسم المعهد" : "Institute Name"} <span className="text-destructive">*</span>
                   </Label>
-                  <Input placeholder={isRtl ? "أدخل اسم المعهد" : "Enter institute name"} value={instituteName} onChange={(e) => setInstituteName(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                  <Input placeholder={isRtl ? "أدخل اسم المعهد" : "Enter institute name"} value={instituteName} onChange={(e) => setInstituteName(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" />
                 </div>
                 <div>
-                  <Label className="mb-2 block font-bold text-primary">
+                  <Label className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
+                    {isRtl ? "اسم مدير المعهد" : "Director Name"} <span className="text-destructive">*</span>
+                  </Label>
+                  <Input placeholder={isRtl ? "أدخل اسم مدير المعهد" : "Enter director name"} value={directorName} onChange={(e) => setDirectorName(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
                     {isRtl ? "المدينة" : "City"} <span className="text-destructive">*</span>
                   </Label>
-                  <Input placeholder={isRtl ? "أدخل المدينة" : "Enter city"} value={city} onChange={(e) => setCity(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                  <Input placeholder={isRtl ? "أدخل المدينة" : "Enter city"} value={city} onChange={(e) => setCity(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" />
+                </div>
+                <div>
+                  <Label className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">{isRtl ? "العنوان التفصيلي" : "Detailed Address"}</Label>
+                  <Input placeholder={isRtl ? "أدخل العنوان التفصيلي" : "Enter detailed address"} value={address} onChange={(e) => setAddress(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" />
                 </div>
               </div>
 
               <div>
-                <Label className="mb-2 block font-bold text-primary">{isRtl ? "العنوان التفصيلي" : "Detailed Address"}</Label>
-                <Input placeholder={isRtl ? "أدخل العنوان التفصيلي" : "Enter detailed address"} value={address} onChange={(e) => setAddress(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                <Label className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
+                  {isRtl ? "صورة المعهد" : "Institute Image"}
+                </Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  {isRtl ? "ستظهر تلقائياً في الصفحة الرئيسية بعد الموافقة على الطلب" : "Will appear automatically on the home page once approved"}
+                </p>
+                {logoPreview ? (
+                  <div className="relative inline-block">
+                    <img src={logoPreview} alt="preview" className="h-32 w-auto rounded-xl border-2 border-primary/30 object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => { setLogoFile(null); setLogoPreview(null); }}
+                      className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow"
+                      aria-label="remove"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center gap-2 h-32 border-2 border-dashed border-primary/30 rounded-xl cursor-pointer hover:bg-primary/5 transition-colors">
+                    <ImagePlus className="w-7 h-7 text-primary" />
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {isRtl ? "اضغط لاختيار صورة (حد أقصى 5 ميجابايت)" : "Click to upload an image (max 5MB)"}
+                    </span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
+                  </label>
+                )}
               </div>
 
               <Separator />

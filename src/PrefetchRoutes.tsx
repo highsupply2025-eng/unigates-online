@@ -17,6 +17,7 @@ const PrefetchRoutes = () => {
         () => import("./pages/LecturerDashboard"),
         () => import("./pages/StudentDashboard"),
         () => import("./pages/InstitutionDashboard"),
+        () => import("./pages/InstitutionProfile"),
         () => import("./pages/LeadershipDashboard"),
         // Institution sub-pages — prefetch so tab/section navigation feels instant
         () => import("./pages/DepartmentPage"),

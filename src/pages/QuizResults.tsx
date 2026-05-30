@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import SimpleHeader from "@/components/SimpleHeader";
+import SubPageHeader from "@/components/SubPageHeader";
 import SiteFooter from "@/components/SiteFooter";
 
 type Role = "lecturer" | "department_head" | "vice_dean" | "dean" | "admin" | "other";
@@ -186,10 +186,11 @@ const QuizResults = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <SimpleHeader
+      <SubPageHeader
+        titleAr="نتائج الاختبار"
+        titleEn="Quiz Results"
+        icon={<Award className="w-5 h-5" />}
         backTo="/quiz-results"
-        useHistoryBack
-        subtitle={isRtl ? (quiz.title_ar || quiz.title_en) : (quiz.title_en || quiz.title_ar)}
       />
       <main className="flex-1 container mx-auto px-3 sm:px-4 py-6 max-w-6xl w-full">
 

@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowLeft, ArrowRight, Download, BookOpen, Radio, ClipboardList, Users, Loader2, User, GraduationCap, Clock, Trophy, Timer, CheckCircle2 } from "lucide-react";
 import { useSmartBack } from "@/hooks/use-smart-back";
+import SubPageHeader from "@/components/SubPageHeader";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { toast } from "sonner";
@@ -309,18 +310,12 @@ const CourseAttendance = () => {
         .print-only { display: none; }
       `}</style>
 
-      {/* Header — Back button always on the LEFT, title on the right */}
-      <div className="bg-card border-b border-border no-print">
-        <div className="container mx-auto px-3 sm:px-6 py-4 flex items-center gap-3" dir="ltr">
-          <Button size="sm" onClick={handleBack} className="gap-2 shrink-0 bg-gradient-to-l from-primary to-primary/80 text-white font-extrabold text-base px-5 py-2.5 shadow-lg hover:shadow-xl border-2 border-primary/30 transition-all">
-            <ArrowLeft className="w-5 h-5" strokeWidth={2.75} />
-            {isRtl ? "رجوع" : "Back"}
-          </Button>
-          <h1 className="text-base sm:text-xl font-bold truncate flex-1 text-center" dir={dir}>
-            {isRtl ? "سجل الحضور" : "Attendance Log"}
-          </h1>
-          <div className="w-[80px] shrink-0" />
-        </div>
+      <div className="no-print">
+        <SubPageHeader
+          titleAr="سجل الحضور"
+          titleEn="Attendance Log"
+          icon={<Users className="w-5 h-5" />}
+        />
       </div>
 
       <div className="container mx-auto px-3 sm:px-6 py-6 sm:py-8 max-w-6xl">

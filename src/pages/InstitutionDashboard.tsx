@@ -152,6 +152,7 @@ const InstitutionDashboard = () => {
   const [showMemberProfileDialog, setShowMemberProfileDialog] = useState(false);
   const [memberProfileTab, setMemberProfileTab] = useState<"info" | "stats">("info");
   const [pageView, setPageView] = useState<"main" | "members" | "memberProfile">("main");
+  const [membersActiveOnly, setMembersActiveOnly] = useState(false);
   const [profilesMap, setProfilesMap] = useState<Record<string, { full_name: string; email: string; phone: string; role: string; created_at: string }>>({});
   const [leadershipMembers, setLeadershipMembers] = useState<Array<{ invitation_id: string; user_id: string; role: string; joined_at: string }>>([]);
   // Mobile compact view: hides secondary widgets and shrinks card grids while scrolling
@@ -904,7 +905,11 @@ ${rows.map((r: any, i: number) => `<tr>
       </header>
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
-        {pageView === "members" && selectedDept ? (
+        {pageView === "members" && selectedDept ? (() => {
+          const _b = getDeptBucket(selectedDept.id);
+          const _filt = (arr: DepartmentMember[]) => membersActiveOnly ? arr.filter(m => !!m.user_id) : arr;
+          const displayBucket = { all: _filt(_b.all), head: _filt(_b.head), lecturer: _filt(_b.lecturer), student: _filt(_b.student) };
+          return (
           /* Full-page Members View */
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -927,18 +932,18 @@ ${rows.map((r: any, i: number) => `<tr>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <UserCheck className="w-5 h-5 text-amber-600" />
                   {isRtl ? "رؤساء الأقسام" : "Department Heads"}
-                  <Badge variant="outline" className="ms-2">{getDeptBucket(selectedDept.id).head.length}</Badge>
+                  <Badge variant="outline" className="ms-2">{displayBucket.head.length}</Badge>
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
                   {isRtl ? "كل رابط دعوة صالح للاستخدام مرة واحدة فقط" : "Each invitation link is valid for a single use only"}
                 </p>
               </CardHeader>
               <CardContent>
-                {getDeptBucket(selectedDept.id).head.length === 0 ? (
+                {displayBucket.head.length === 0 ? (
                   <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد رؤساء أقسام" : "No department heads"}</p>
                 ) : (
                   <div className="space-y-2">
-                    {getDeptBucket(selectedDept.id).head.map(member => (
+                    {displayBucket.head.map(member => (
                       <div key={member.id} className="p-4 rounded-lg border-2 border-amber-300 bg-amber-50/50 dark:bg-amber-950/20">
                         <div className="flex items-center justify-between cursor-pointer hover:bg-amber-100/40 dark:hover:bg-amber-900/30 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
                           <div className="flex items-center gap-3">
@@ -991,18 +996,18 @@ ${rows.map((r: any, i: number) => `<tr>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <UserCheck className="w-5 h-5 text-green-500" />
                   {isRtl ? "المحاضرون" : "Lecturers"}
-                  <Badge variant="outline" className="ms-2">{getDeptBucket(selectedDept.id).lecturer.length}</Badge>
+                  <Badge variant="outline" className="ms-2">{displayBucket.lecturer.length}</Badge>
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
                   {isRtl ? "كل رابط دعوة صالح للاستخدام مرة واحدة فقط" : "Each invitation link is valid for a single use only"}
                 </p>
               </CardHeader>
               <CardContent>
-                {getDeptBucket(selectedDept.id).lecturer.length === 0 ? (
+                {displayBucket.lecturer.length === 0 ? (
                   <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد محاضرون" : "No lecturers"}</p>
                 ) : (
                   <div className="space-y-2">
-                    {getDeptBucket(selectedDept.id).lecturer.map(member => (
+                    {displayBucket.lecturer.map(member => (
                       <div key={member.id} className="p-4 rounded-lg border bg-card">
                         <div className="flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
                           <div className="flex items-center gap-3">
@@ -1055,18 +1060,18 @@ ${rows.map((r: any, i: number) => `<tr>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <GraduationCap className="w-5 h-5 text-blue-500" />
                   {isRtl ? "الطلاب" : "Students"}
-                  <Badge variant="outline" className="ms-2">{getDeptBucket(selectedDept.id).student.length}</Badge>
+                  <Badge variant="outline" className="ms-2">{displayBucket.student.length}</Badge>
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
                   {isRtl ? "كل رابط دعوة صالح للاستخدام مرة واحدة فقط" : "Each invitation link is valid for a single use only"}
                 </p>
               </CardHeader>
               <CardContent>
-                {getDeptBucket(selectedDept.id).student.length === 0 ? (
+                {displayBucket.student.length === 0 ? (
                   <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد طلاب" : "No students"}</p>
                 ) : (
                   <div className="space-y-2">
-                    {getDeptBucket(selectedDept.id).student.map(member => (
+                    {displayBucket.student.map(member => (
                       <div key={member.id} className="p-4 rounded-lg border bg-card">
                         <div className="flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
                           <div className="flex items-center gap-3">
@@ -1113,7 +1118,8 @@ ${rows.map((r: any, i: number) => `<tr>
               </CardContent>
             </Card>
           </div>
-        ) : pageView === "memberProfile" && selectedMember ? (
+          );
+        })() : pageView === "memberProfile" && selectedMember ? (
           /* Full-page Member Profile View */
           <div className="space-y-4">
             <Button variant="outline" className="gap-2" onClick={() => setPageView("members")}>
@@ -1407,12 +1413,29 @@ ${rows.map((r: any, i: number) => `<tr>
                   <Card key={dept.id} className="border-2 border-primary/15 hover:shadow-xl hover:border-primary/30 transition-all bg-gradient-to-br from-primary/3 to-transparent">
                     <CardContent className="p-5">
                       <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h3 className="text-lg font-bold text-foreground">{dept.department_name}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {students} {isRtl ? "طالب" : "students"} · {lecturers} {isRtl ? "محاضر" : "lecturers"} · {heads} {isRtl ? "رئيس قسم" : "head"}
-                          </p>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (dept.status !== "active") return;
+                            setSelectedDept(dept);
+                            setMembersActiveOnly(true);
+                            setPageView("members");
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          className={`flex items-center gap-2 text-start ${dept.status === "active" ? "cursor-pointer hover:text-primary transition-colors" : "cursor-default"}`}
+                          disabled={dept.status !== "active"}
+                          title={dept.status === "active" ? (isRtl ? "عرض الأعضاء المفعّلين" : "View active members") : ""}
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-black/10 flex items-center justify-center shrink-0">
+                            <Users className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-bold text-foreground">{dept.department_name}</h3>
+                            <p className="text-sm text-muted-foreground">
+                              {students} {isRtl ? "طالب" : "students"} · {lecturers} {isRtl ? "محاضر" : "lecturers"} · {heads} {isRtl ? "رئيس قسم" : "head"}
+                            </p>
+                          </div>
+                        </button>
                         <Badge variant={dept.status === "active" ? "default" : "destructive"}>
                           {dept.status === "active" ? (isRtl ? "مفعّل ✅" : "Active ✅") : (isRtl ? "بانتظار الموافقة" : "Pending")}
                         </Badge>
@@ -1438,18 +1461,6 @@ ${rows.map((r: any, i: number) => `<tr>
                       </div>
 
                       <div className="flex gap-2 flex-wrap">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedDept(dept);
-                            setPageView("members");
-                            window.scrollTo({ top: 0, behavior: "smooth" });
-                          }}
-                        >
-                          <Users className="w-4 h-4 me-1" />
-                          {isRtl ? "صفحة الأعضاء" : "Members Page"}
-                        </Button>
                         <Button
                           variant="outline"
                           size="sm"
@@ -1666,10 +1677,6 @@ ${rows.map((r: any, i: number) => `<tr>
                     className="ps-9"
                   />
                 </div>
-                <Button size="sm" variant="outline" className="gap-2 shrink-0" onClick={exportResultsToExcel} disabled={studentResults.length === 0}>
-                  <Download className="w-4 h-4" />
-                  <span className="hidden sm:inline">{isRtl ? "Excel" : "Excel"}</span>
-                </Button>
                 <Button size="sm" className="gap-2 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={exportResultsToPDF}>
                   <Download className="w-4 h-4" />
                   <span className="hidden sm:inline">{isRtl ? "تصدير PDF" : "Export PDF"}</span>

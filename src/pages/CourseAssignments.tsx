@@ -9,8 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import BackButton from "@/components/BackButton";
-import { ClipboardList, FileText, Calendar, Plus, Send, Upload } from "lucide-react";
+import LecturerPageHeader from "@/components/LecturerPageHeader";
+import { ClipboardList, FileText, Calendar, Plus, Send, Upload, GraduationCap } from "lucide-react";
 import { buildAssignmentPath } from "@/lib/assignment-url";
 
 export default function CourseAssignments() {
@@ -102,20 +102,23 @@ export default function CourseAssignments() {
   };
 
   return (
-    <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
-      <div className="container max-w-5xl mx-auto px-4 py-6">
-        <BackButton />
-        <div className="mb-6 mt-4">
-          <h1 className="text-2xl font-bold text-foreground mb-1 flex items-center gap-2">
-            <ClipboardList className="w-6 h-6 text-primary" />
-            {isRtl ? "إدارة التكليفات" : "Manage Assignments"}
-          </h1>
-          {course && (
-            <p className="text-sm text-muted-foreground">
-              {isRtl ? "الدورة:" : "Course:"} <span className="font-semibold">{isRtl ? course.title_ar : course.title_en}</span>
-            </p>
-          )}
-        </div>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50/50 via-background to-background dark:from-blue-950/20" dir={isRtl ? "rtl" : "ltr"}>
+      <LecturerPageHeader
+        titleAr="إدارة التكليفات"
+        titleEn="Assignments Management"
+        icon={<ClipboardList className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600" />}
+        activeKey="assignments"
+      />
+      <div className="container max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        {course && (
+          <div className="mb-6 sm:mb-8 flex items-center gap-2.5 p-3 rounded-xl bg-gradient-to-l from-blue-500/10 to-indigo-500/5 border-2 border-blue-500/20 shadow-sm">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-md shrink-0">
+              <GraduationCap className="w-5 h-5 text-white" />
+            </div>
+            <span className="truncate font-extrabold text-base text-foreground">{isRtl ? course.title_ar : course.title_en}</span>
+          </div>
+        )}
+
 
         {/* Create new assignment (paper file) */}
         <Card className="mb-8 border-dashed border-2">

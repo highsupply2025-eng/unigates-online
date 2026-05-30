@@ -13,7 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
-import StudentPageHeader from "@/components/StudentPageHeader";
+import { Landmark, ArrowLeft, ArrowRight, Globe, LogOut } from "lucide-react";
 
 interface InstitutionData {
   id: string;
@@ -241,11 +241,42 @@ const InstitutionProfile = () => {
 
   return (
     <div className="min-h-screen bg-background" dir={dir}>
-      <StudentPageHeader
-        titleAr="بيانات المؤسسة"
-        titleEn="Institution Profile"
-        icon={<Building2 className="w-4 h-4" />}
-      />
+      <header className="border-b border-primary/20 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent sticky top-0 z-30 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+            <div className="relative shrink-0">
+              <div className="absolute inset-0 rounded-2xl bg-primary/40 blur-md animate-pulse" />
+              <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary via-primary to-[hsl(200,75%,30%)] flex items-center justify-center shadow-xl shadow-primary/40 ring-2 ring-primary/30">
+                <Landmark className="w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow-md" strokeWidth={2.4} />
+              </div>
+            </div>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-base sm:text-xl font-black text-foreground truncate">
+                {isRtl
+                  ? (data.kind === "college" ? "لوحة ادارة الكلية" : "لوحة ادارة المعهد")
+                  : (data.kind === "college" ? "College Administration" : "Institute Administration")}
+              </h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
+                {isRtl ? "بيانات الحساب" : "Account Details"}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <Button variant="outline" size="sm" onClick={() => navigate("/institution/dashboard")} className="gap-1.5">
+              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              <span className="hidden sm:inline">{isRtl ? "رجوع" : "Back"}</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </header>
+
 
       <main className="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-8 space-y-5">
         {/* Hero */}

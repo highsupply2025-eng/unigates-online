@@ -30,8 +30,11 @@ const InstituteAdminSignup = () => {
   const plan = searchParams.get("plan") || "monthly";
 
   const [instituteName, setInstituteName] = useState("");
+  const [directorName, setDirectorName] = useState("");
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -46,6 +49,17 @@ const InstituteAdminSignup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "حجم الصورة يجب أن يكون أقل من 5 ميجابايت" : "Image must be less than 5MB", variant: "destructive" });
+      return;
+    }
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+  };
 
   const handleSubmit = async () => {
     if (!instituteName || !city || !email || !phone || !password) {

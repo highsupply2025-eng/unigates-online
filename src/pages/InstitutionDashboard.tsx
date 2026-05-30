@@ -475,7 +475,7 @@ const InstitutionDashboard = () => {
     if (!count || count < 1 || !addMemberDeptId) return;
 
     const dept = departments.find(d => d.id === addMemberDeptId);
-    const studentCap = Math.min(dept?.student_count || 0, 2000);
+    const studentCap = dept?.student_count || 0;
     const lecturerCap = 10;
     const headCap = 3;
     const studentsRegistered = getMembersForDept(addMemberDeptId).filter(m => m.role === "student").length;

@@ -81,10 +81,12 @@ const InstitutionDashboard = () => {
     setActiveTab(tab);
     setPageView("main");
     if (tab === "general") {
-      setSearchParams({});
+      setSearchParams({}, { replace: true });
     } else {
-      setSearchParams({ tab });
+      setSearchParams({ tab }, { replace: true });
     }
+    // Scroll to top instantly so the new tab feels immediate
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
   };
 
   useEffect(() => {

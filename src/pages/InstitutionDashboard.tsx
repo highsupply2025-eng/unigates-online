@@ -478,8 +478,8 @@ const InstitutionDashboard = () => {
     const studentCap = dept?.student_count || 0;
     const lecturerCap = 10;
     const headCap = 3;
-    const studentsRegistered = getMembersForDept(addMemberDeptId).filter(m => m.role === "student").length;
-    const lecturersRegistered = getMembersForDept(addMemberDeptId).filter(m => m.role === "lecturer").length;
+    const studentsRegistered = getDeptBucket(addMemberDeptId).student.length;
+    const lecturersRegistered = getDeptBucket(addMemberDeptId).lecturer.length;
     const headsRegistered = getDeptHeadsCount(addMemberDeptId);
 
     let remaining = 0;
@@ -872,18 +872,18 @@ const InstitutionDashboard = () => {
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <UserCheck className="w-5 h-5 text-amber-600" />
                   {isRtl ? "رؤساء الأقسام" : "Department Heads"}
-                  <Badge variant="outline" className="ms-2">{getMembersForDept(selectedDept.id).filter(m => m.role === "department_head").length}</Badge>
+                  <Badge variant="outline" className="ms-2">{getDeptBucket(selectedDept.id).head.length}</Badge>
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
                   {isRtl ? "كل رابط دعوة صالح للاستخدام مرة واحدة فقط" : "Each invitation link is valid for a single use only"}
                 </p>
               </CardHeader>
               <CardContent>
-                {getMembersForDept(selectedDept.id).filter(m => m.role === "department_head").length === 0 ? (
+                {getDeptBucket(selectedDept.id).head.length === 0 ? (
                   <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد رؤساء أقسام" : "No department heads"}</p>
                 ) : (
                   <div className="space-y-2">
-                    {getMembersForDept(selectedDept.id).filter(m => m.role === "department_head").map(member => (
+                    {getDeptBucket(selectedDept.id).head.map(member => (
                       <div key={member.id} className="p-4 rounded-lg border-2 border-amber-300 bg-amber-50/50 dark:bg-amber-950/20">
                         <div className="flex items-center justify-between cursor-pointer hover:bg-amber-100/40 dark:hover:bg-amber-900/30 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
                           <div className="flex items-center gap-3">
@@ -936,18 +936,18 @@ const InstitutionDashboard = () => {
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <UserCheck className="w-5 h-5 text-green-500" />
                   {isRtl ? "المحاضرون" : "Lecturers"}
-                  <Badge variant="outline" className="ms-2">{getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer").length}</Badge>
+                  <Badge variant="outline" className="ms-2">{getDeptBucket(selectedDept.id).lecturer.length}</Badge>
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
                   {isRtl ? "كل رابط دعوة صالح للاستخدام مرة واحدة فقط" : "Each invitation link is valid for a single use only"}
                 </p>
               </CardHeader>
               <CardContent>
-                {getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer").length === 0 ? (
+                {getDeptBucket(selectedDept.id).lecturer.length === 0 ? (
                   <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد محاضرون" : "No lecturers"}</p>
                 ) : (
                   <div className="space-y-2">
-                    {getMembersForDept(selectedDept.id).filter(m => m.role === "lecturer").map(member => (
+                    {getDeptBucket(selectedDept.id).lecturer.map(member => (
                       <div key={member.id} className="p-4 rounded-lg border bg-card">
                         <div className="flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
                           <div className="flex items-center gap-3">
@@ -1000,18 +1000,18 @@ const InstitutionDashboard = () => {
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <GraduationCap className="w-5 h-5 text-blue-500" />
                   {isRtl ? "الطلاب" : "Students"}
-                  <Badge variant="outline" className="ms-2">{getMembersForDept(selectedDept.id).filter(m => m.role === "student").length}</Badge>
+                  <Badge variant="outline" className="ms-2">{getDeptBucket(selectedDept.id).student.length}</Badge>
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
                   {isRtl ? "كل رابط دعوة صالح للاستخدام مرة واحدة فقط" : "Each invitation link is valid for a single use only"}
                 </p>
               </CardHeader>
               <CardContent>
-                {getMembersForDept(selectedDept.id).filter(m => m.role === "student").length === 0 ? (
+                {getDeptBucket(selectedDept.id).student.length === 0 ? (
                   <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد طلاب" : "No students"}</p>
                 ) : (
                   <div className="space-y-2">
-                    {getMembersForDept(selectedDept.id).filter(m => m.role === "student").map(member => (
+                    {getDeptBucket(selectedDept.id).student.map(member => (
                       <div key={member.id} className="p-4 rounded-lg border bg-card">
                         <div className="flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
                           <div className="flex items-center gap-3">
@@ -2392,9 +2392,9 @@ const InstitutionDashboard = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {departments.filter(d => d.status === "active").map(dept => {
-                    const lecturers = getMembersForDept(dept.id).filter(m => m.role === "lecturer").length;
-                    const students = getMembersForDept(dept.id).filter(m => m.role === "student").length;
-                    const head = getMembersForDept(dept.id).filter(m => m.role === "department_head").length;
+                    const lecturers = getDeptBucket(dept.id).lecturer.length;
+                    const students = getDeptBucket(dept.id).student.length;
+                    const head = getDeptBucket(dept.id).head.length;
                     return (
                       <Card
                         key={dept.id}
@@ -2460,7 +2460,7 @@ const InstitutionDashboard = () => {
                   const baseUrl = window.location.origin;
                   const roleParam = viewKey === "lecturer" ? "lecturer" : "student";
                   const headMembers = viewKey === "lecturer"
-                    ? getMembersForDept(invitationDept.id).filter(m => m.role === "department_head")
+                    ? getDeptBucket(invitationDept.id).head
                     : [];
                   const members = getMembersForDept(invitationDept.id).filter(m => m.role === viewKey);
                   if (members.length === 0 && headMembers.length === 0) return (
@@ -2754,8 +2754,8 @@ const InstitutionDashboard = () => {
                 const studentCap = dept?.student_count || 0;
                 const lecturerCap = 10;
                 const headCap = 3;
-                const studentsRegistered = getMembersForDept(addMemberDeptId).filter(m => m.role === "student").length;
-                const lecturersRegistered = getMembersForDept(addMemberDeptId).filter(m => m.role === "lecturer").length;
+                const studentsRegistered = getDeptBucket(addMemberDeptId).student.length;
+                const lecturersRegistered = getDeptBucket(addMemberDeptId).lecturer.length;
                 const headsRegistered = getDeptHeadsCount(addMemberDeptId);
                 const studentFull = studentCap > 0 && studentsRegistered >= studentCap;
                 const lecturerFull = lecturersRegistered >= lecturerCap;

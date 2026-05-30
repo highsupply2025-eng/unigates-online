@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Calendar, Clock, MapPin, BookOpen, ClipboardList, Users, CheckCircle2, XCircle, ShieldCheck, Loader2, ArrowLeft } from "lucide-react";
+import { Calendar, Clock, MapPin, BookOpen, ClipboardList, Users, CheckCircle2, XCircle, ShieldCheck, Loader2, GraduationCap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { extractScheduleId } from "@/lib/schedule-url";
-import SimpleHeader from "@/components/SimpleHeader";
+import LecturerPageHeader from "@/components/LecturerPageHeader";
 
 type Schedule = {
   id: string;

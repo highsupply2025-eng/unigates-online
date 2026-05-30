@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import LecturerPageHeader from "@/components/LecturerPageHeader";
+import SubPageHeader from "@/components/SubPageHeader";
 import { ClipboardList, FileText, Calendar, Plus, Send, Upload, GraduationCap } from "lucide-react";
 import { buildAssignmentPath } from "@/lib/assignment-url";
 
@@ -103,11 +103,11 @@ export default function CourseAssignments() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50/50 via-background to-background dark:from-blue-950/20" dir={isRtl ? "rtl" : "ltr"}>
-      <LecturerPageHeader
+      <SubPageHeader
         titleAr="إدارة التكليفات"
         titleEn="Assignments Management"
-        icon={<ClipboardList className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600" />}
-        activeKey="assignments"
+        icon={<ClipboardList className="w-5 h-5" />}
+        backTo="/lecturer/dashboard?tab=assignments"
       />
       <div className="container max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
         {course && (

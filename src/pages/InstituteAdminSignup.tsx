@@ -62,7 +62,7 @@ const InstituteAdminSignup = () => {
   };
 
   const handleSubmit = async () => {
-    if (!instituteName || !city || !email || !phone || !password) {
+    if (!instituteName || !directorName || !city || !email || !phone || !password) {
       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى ملء جميع الحقول المطلوبة" : "Please fill all required fields", variant: "destructive" });
       return;
     }
@@ -91,11 +91,25 @@ const InstituteAdminSignup = () => {
       });
       if (authError) throw authError;
 
+      let logoUrl: string | null = null;
+      if (logoFile) {
+        const ext = logoFile.name.split('.').pop() || 'jpg';
+        const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const { error: upErr } = await supabase.storage.from('institute-logos').upload(path, logoFile, {
+          contentType: logoFile.type,
+          upsert: false,
+        });
+        if (upErr) throw upErr;
+        const { data: pub } = supabase.storage.from('institute-logos').getPublicUrl(path);
+        logoUrl = pub.publicUrl;
+      }
+
       const { error } = await supabase.from("institute_registrations" as any).insert({
         institute_name: instituteName,
         city,
         address: address || null,
-        director_name: instituteName,
+        director_name: directorName,
+        logo_url: logoUrl,
         email,
         phone: `${countryCode}${phone}`,
         specialization: null,

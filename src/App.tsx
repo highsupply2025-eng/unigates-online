@@ -52,6 +52,7 @@ const LeadershipDashboard = lazy(() => import("./pages/LeadershipDashboard"));
 const LeadershipStreamsByStatus = lazy(() => import("./pages/LeadershipStreamsByStatus"));
 const LeadershipApprovals = lazy(() => import("./pages/LeadershipApprovals"));
 const DemoItemPage = lazy(() => import("./pages/DemoItemPage"));
+const InstitutionQuizResultsByDate = lazy(() => import("./pages/InstitutionQuizResultsByDate"));
 const About = lazy(() => import("./pages/About"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const Terms = lazy(() => import("./pages/Terms"));

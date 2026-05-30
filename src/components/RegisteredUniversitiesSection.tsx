@@ -25,7 +25,7 @@ const RegisteredUniversitiesSection = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("approved_colleges_public")
-        .select("id, college_name, city, student_count")
+        .select("id, college_name, university_name, dean_name, city, student_count, logo_url")
         .order("id", { ascending: false })
         .limit(10);
       if (error) throw error;
@@ -79,11 +79,11 @@ const RegisteredUniversitiesSection = () => {
               </button>
 
               <div ref={collegesScrollRef} className="flex gap-4 overflow-x-auto pb-4 px-2" style={{ scrollbarWidth: 'none' }}>
-                {colleges.map((col, i) => (
+                {colleges.map((col: any, i) => (
                   <div key={col.id} className="relative flex-shrink-0 w-[220px] md:w-[260px] group cursor-pointer card-hover">
                     <div className="aspect-video rounded-xl overflow-hidden relative shadow-lg group-hover:shadow-xl transition-shadow">
                       <img
-                        src={collegeImages[i % collegeImages.length]}
+                        src={col.logo_url || collegeImages[i % collegeImages.length]}
                         alt={col.college_name || ""}
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"
@@ -96,9 +96,19 @@ const RegisteredUniversitiesSection = () => {
                         </Badge>
                       </div>
                       <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
-                        <p className="text-sm font-bold text-white leading-snug mb-2 line-clamp-2">
+                        <p className="text-sm font-bold text-white leading-snug mb-1 line-clamp-2">
                           {col.college_name}
                         </p>
+                        {col.university_name && (
+                          <p className="text-[11px] text-white/80 mb-1 line-clamp-1">
+                            {col.university_name}
+                          </p>
+                        )}
+                        {col.dean_name && (
+                          <p className="text-[11px] text-white/70 mb-2 line-clamp-1">
+                            {isRtl ? "العميد: " : "Dean: "}{col.dean_name}
+                          </p>
+                        )}
                         <div className="flex items-center justify-between">
                           <span className="flex items-center gap-1 text-xs text-white/90">
                             <MapPin className="w-3 h-3" /> {col.city}

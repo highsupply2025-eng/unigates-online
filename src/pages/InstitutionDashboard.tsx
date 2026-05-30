@@ -380,11 +380,7 @@ const InstitutionDashboard = () => {
     let lecturerCount = parseInt(newDeptLecturerCount) || 0;
     let headCount = parseInt(newDeptHeadCount) || 0;
 
-    // Enforce caps
-    if (studentCount > 2000) {
-      toast({ title: isRtl ? "تجاوز الحد" : "Limit exceeded", description: isRtl ? "الحد الأقصى للطلاب 2000" : "Max students 2000", variant: "destructive" });
-      return;
-    }
+    // Enforce caps (students: unlimited)
     if (lecturerCount > 10) {
       toast({ title: isRtl ? "تجاوز الحد" : "Limit exceeded", description: isRtl ? "الحد الأقصى للمحاضرين 10" : "Max lecturers 10", variant: "destructive" });
       return;

@@ -263,17 +263,7 @@ const InstitutionProfile = () => {
             </div>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
-            <Button variant="outline" size="sm" onClick={() => navigate("/institution/dashboard")} className="gap-1.5">
-              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-              <span className="hidden sm:inline">{isRtl ? "رجوع" : "Back"}</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
-            >
-              <LogOut className="w-4 h-4" />
-            </Button>
+            <BackButton to="/institution/dashboard" />
           </div>
         </div>
       </header>

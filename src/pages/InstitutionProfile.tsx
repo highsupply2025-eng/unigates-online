@@ -13,7 +13,8 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
-import { Landmark, ArrowLeft, ArrowRight, Globe, LogOut } from "lucide-react";
+import { Landmark } from "lucide-react";
+import BackButton from "@/components/BackButton";
 
 interface InstitutionData {
   id: string;
@@ -240,7 +241,7 @@ const InstitutionProfile = () => {
     : (isRtl ? "اسم المدير" : "Director Name");
 
   return (
-    <div className="min-h-screen bg-background" dir={dir}>
+    <div className="min-h-screen bg-background institution-admin-scope" dir={dir}>
       <header className="border-b border-primary/20 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent sticky top-0 z-30 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
@@ -262,17 +263,7 @@ const InstitutionProfile = () => {
             </div>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
-            <Button variant="outline" size="sm" onClick={() => navigate("/institution/dashboard")} className="gap-1.5">
-              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-              <span className="hidden sm:inline">{isRtl ? "رجوع" : "Back"}</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
-            >
-              <LogOut className="w-4 h-4" />
-            </Button>
+            <BackButton to="/institution/dashboard" />
           </div>
         </div>
       </header>

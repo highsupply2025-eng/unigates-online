@@ -174,7 +174,7 @@ const InstitutionQuizResultsByDate = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background" dir={dir}>
+    <div className="min-h-screen bg-background institution-admin-scope" dir={dir}>
       <div className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white">
         <div className="max-w-6xl mx-auto px-4 py-5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">

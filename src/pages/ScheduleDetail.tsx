@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { extractScheduleId } from "@/lib/schedule-url";
-import LecturerPageHeader from "@/components/LecturerPageHeader";
+import SubPageHeader from "@/components/SubPageHeader";
 
 type Schedule = {
   id: string;
@@ -117,11 +117,11 @@ const ScheduleDetail = () => {
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!scheduleId || !schedule) return (
     <div className="min-h-screen bg-gradient-to-b from-violet-50/50 via-background to-background dark:from-violet-950/20" dir={isRtl ? "rtl" : "ltr"}>
-      <LecturerPageHeader
+      <SubPageHeader
         titleAr="إدارة الجدول"
         titleEn="Schedule Management"
-        icon={<Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-violet-600" />}
-        activeKey="schedules"
+        icon={<Calendar className="w-5 h-5" />}
+        backTo="/lecturer/dashboard?tab=schedules"
       />
       <main className="max-w-3xl mx-auto px-4 py-12 text-center">
         <h1 className="text-2xl font-bold mb-2">{isRtl ? "الجدول غير موجود" : "Schedule not found"}</h1>
@@ -141,11 +141,11 @@ const ScheduleDetail = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-violet-50/50 via-background to-background dark:from-violet-950/20" dir={isRtl ? "rtl" : "ltr"}>
-      <LecturerPageHeader
+      <SubPageHeader
         titleAr="إدارة الجدول"
         titleEn="Schedule Management"
-        icon={<Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-violet-600" />}
-        activeKey="schedules"
+        icon={<Calendar className="w-5 h-5" />}
+        backTo="/lecturer/dashboard?tab=schedules"
       />
       <main className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-8 space-y-4 sm:space-y-6">
 

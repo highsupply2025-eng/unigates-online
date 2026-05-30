@@ -21,7 +21,7 @@ import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import LecturerPageHeader from "@/components/LecturerPageHeader";
+import SubPageHeader from "@/components/SubPageHeader";
 import { parseQuizFile, downloadTemplate, ParsedQuestion } from "@/lib/quiz-import";
 
 type QType = "mcq" | "true_false" | "short_answer" | "fill_blank";
@@ -497,11 +497,11 @@ const QuizCreate = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50/50 via-background to-background dark:from-amber-950/20" dir={dir}>
-      <LecturerPageHeader
+      <SubPageHeader
         titleAr="إدارة الاختبار"
         titleEn="Quiz Management"
-        icon={<FileQuestion className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-600" />}
-        activeKey="quizzes"
+        icon={<FileQuestion className="w-5 h-5" />}
+        backTo="/lecturer/dashboard?tab=quizzes"
       />
       <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
         {course && (

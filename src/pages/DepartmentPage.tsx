@@ -444,25 +444,11 @@ const DepartmentPage = () => {
             <div className="relative flex-1">
               <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder={isRtl ? "ابحث بالاسم أو كود الدعوة..." : "Search by name or invitation code..."}
+                placeholder={isRtl ? "ابحث بالاسم أو البريد..." : "Search by name or email..."}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="ps-9"
               />
-            </div>
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <Filter className="w-4 h-4 text-muted-foreground shrink-0" />
-              {statusButtons.map(btn => (
-                <Button
-                  key={btn.value}
-                  size="sm"
-                  variant={statusFilter === btn.value ? "default" : "outline"}
-                  onClick={() => setStatusFilter(btn.value)}
-                  className="text-xs h-8 px-2"
-                >
-                  {isRtl ? btn.labelAr : btn.labelEn}
-                </Button>
-              ))}
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap">

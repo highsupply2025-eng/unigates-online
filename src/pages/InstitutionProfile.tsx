@@ -353,7 +353,9 @@ const InstitutionProfile = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Building2 className="w-5 h-5 text-primary" />
-              {isRtl ? "بيانات المؤسسة" : "Institution Information"}
+              {isRtl
+                ? (data.kind === "college" ? "بيانات الكلية" : "بيانات المعهد")
+                : (data.kind === "college" ? "College Information" : "Institute Information")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">

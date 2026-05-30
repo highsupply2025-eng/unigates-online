@@ -1600,13 +1600,23 @@ const InstitutionDashboard = () => {
           {/* Quiz Results Tab - Results Management */}
           {(isLeadershipRole || institutionId) && (
             <TabsContent value="quizresults" dir={isRtl ? "rtl" : "ltr"}>
-              <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
-                <h2 className="text-xl font-bold text-foreground">{isRtl ? "إدارة النتائج" : "Results Management"}</h2>
-                <Button size="sm" variant="outline" className="gap-2" onClick={exportResultsToExcel} disabled={studentResults.length === 0}>
+              {/* Search (replaces "Results Management" heading) + Excel */}
+              <div className="flex items-center gap-2 mb-4" dir={isRtl ? "rtl" : "ltr"}>
+                <div className="relative flex-1">
+                  <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder={isRtl ? "بحث باسم الطالب أو القسم..." : "Search by student or department..."}
+                    value={resultSearch}
+                    onChange={e => setResultSearch(e.target.value)}
+                    className="ps-9"
+                  />
+                </div>
+                <Button size="sm" variant="outline" className="gap-2 shrink-0" onClick={exportResultsToExcel} disabled={studentResults.length === 0}>
                   <Download className="w-4 h-4" />
-                  {isRtl ? "تصدير Excel" : "Export Excel"}
+                  <span className="hidden sm:inline">{isRtl ? "تصدير Excel" : "Export Excel"}</span>
                 </Button>
               </div>
+
               <button
                 onClick={() => navigate("/institution/demo/quizresults")}
                 className="w-full mb-4 p-3 rounded-lg border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center justify-between gap-3"
@@ -1619,97 +1629,75 @@ const InstitutionDashboard = () => {
                 <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
               </button>
 
-              {/* Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                <Card className="border border-primary/20">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-black text-primary">{studentResults.length}</p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "إجمالي النتائج" : "Total Results"}</p>
-                  </CardContent>
-                </Card>
-                <Card className="border border-emerald-500/20">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-black text-emerald-600">{studentResults.filter(r => r.rating === "excellent" || r.rating === "very_good").length}</p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "متفوق" : "Top Student"}</p>
-                  </CardContent>
-                </Card>
-                <Card className="border border-amber-500/20">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-black text-amber-600">{studentResults.filter(r => r.rating === "good" || r.rating === "acceptable").length}</p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "ناجح" : "Passed"}</p>
-                  </CardContent>
-                </Card>
-                <Card className="border border-red-500/20">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-black text-red-600">{studentResults.filter(r => r.rating === "fail").length}</p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "راسب" : "Failed"}</p>
-                  </CardContent>
-                </Card>
-              </div>
+              {/* Quiz items — grouped by creation date, sorted newest first */}
+              {(() => {
+                const q = resultSearch.trim().toLowerCase();
+                const filtered = q
+                  ? studentResults.filter(r =>
+                      r.student_name?.toLowerCase().includes(q) ||
+                      r.department_name?.toLowerCase().includes(q))
+                  : studentResults;
+                const groups = new Map<string, typeof studentResults>();
+                for (const r of filtered) {
+                  const day = new Date(r.created_at).toISOString().slice(0, 10);
+                  if (!groups.has(day)) groups.set(day, []);
+                  groups.get(day)!.push(r);
+                }
+                const sorted = Array.from(groups.entries()).sort((a, b) => b[0].localeCompare(a[0]));
 
-              {/* Search */}
-              <div className="relative mb-4">
-                <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder={isRtl ? "بحث بالاسم أو القسم..." : "Search by name or department..."}
-                  value={resultSearch}
-                  onChange={e => setResultSearch(e.target.value)}
-                  className="ps-9"
-                />
-              </div>
+                if (sorted.length === 0) {
+                  return (
+                    <Card>
+                      <CardContent className="py-12 text-center">
+                        <GraduationCap className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
+                        <p className="text-sm text-muted-foreground">{isRtl ? "لا توجد اختبارات بعد" : "No quizzes yet"}</p>
+                      </CardContent>
+                    </Card>
+                  );
+                }
 
-              {/* Results Table */}
-              <Card>
-                <CardContent className="p-0">
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="text-xs">#</TableHead>
-                          <TableHead className="text-xs">{isRtl ? "اسم الطالب" : "Student Name"}</TableHead>
-                          <TableHead className="text-xs">{isRtl ? "القسم" : "Department"}</TableHead>
-                          <TableHead className="text-xs">{isRtl ? "الدرجة العلمية" : "Degree"}</TableHead>
-                          <TableHead className="text-xs">{isRtl ? "الدرجة" : "Grade"}</TableHead>
-                          <TableHead className="text-xs">{isRtl ? "التقدير" : "Rating"}</TableHead>
-                          <TableHead className="text-xs">{isRtl ? "إجراءات" : "Actions"}</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredResults.length === 0 ? (
-                          <TableRow>
-                            <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                              <GraduationCap className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                              <p className="text-sm">{isRtl ? "لا توجد نتائج بعد" : "No results yet"}</p>
-                            </TableCell>
-                          </TableRow>
-                        ) : (
-                          filteredResults.map((result, idx) => (
-                            <TableRow key={result.id}>
-                              <TableCell className="text-xs font-medium">{idx + 1}</TableCell>
-                              <TableCell className="text-sm font-semibold">{result.student_name}</TableCell>
-                              <TableCell className="text-sm">{result.department_name}</TableCell>
-                              <TableCell className="text-xs">
-                                <Badge variant="outline" className="text-[10px]">{getDegreeLabel(result.academic_degree)}</Badge>
-                              </TableCell>
-                              <TableCell className="text-sm font-bold">{result.grade ?? "—"}</TableCell>
-                              <TableCell>
-                                <Badge className={`text-[10px] ${getRatingColor(result.rating)}`}>
-                                  {getRatingLabel(result.rating)}
-                                </Badge>
-                              </TableCell>
-                              <TableCell>
-                                <span className="text-xs text-muted-foreground">
-                                  {isRtl ? "آلي" : "Auto"}
-                                </span>
-                              </TableCell>
-                            </TableRow>
-                          ))
-                        )}
-                      </TableBody>
-                    </Table>
+                return (
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {sorted.map(([day, items]) => {
+                      const top = items.filter(r => r.rating === "excellent" || r.rating === "very_good").length;
+                      const pass = items.filter(r => r.rating === "good" || r.rating === "acceptable").length;
+                      const fail = items.filter(r => r.rating === "fail").length;
+                      const dateLabel = new Date(day).toLocaleDateString(isRtl ? "ar-EG" : "en-US", { year: "numeric", month: "long", day: "numeric" });
+                      const title = isRtl ? `اختبار ${dateLabel}` : `Quiz — ${dateLabel}`;
+                      return (
+                        <button
+                          key={day}
+                          onClick={() => navigate(`/institution/quiz-results/${day}`)}
+                          className="text-start group rounded-2xl border border-border bg-card hover:border-primary/40 hover:shadow-lg transition-all overflow-hidden"
+                          dir={isRtl ? "rtl" : "ltr"}
+                        >
+                          <div className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white p-4 flex items-center justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="text-xs opacity-90 flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" />{dateLabel}</p>
+                              <h3 className="font-extrabold text-base mt-0.5 truncate">{title}</h3>
+                            </div>
+                            <div className="w-11 h-11 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                              <ClipboardList className="w-5 h-5" />
+                            </div>
+                          </div>
+                          <div className="p-3 grid grid-cols-4 gap-2 text-center">
+                            <div><p className="text-base font-black text-primary">{items.length}</p><p className="text-[10px] text-muted-foreground">{isRtl ? "إجمالي" : "Total"}</p></div>
+                            <div><p className="text-base font-black text-emerald-600">{top}</p><p className="text-[10px] text-muted-foreground">{isRtl ? "متفوق" : "Top"}</p></div>
+                            <div><p className="text-base font-black text-amber-600">{pass}</p><p className="text-[10px] text-muted-foreground">{isRtl ? "ناجح" : "Pass"}</p></div>
+                            <div><p className="text-base font-black text-red-600">{fail}</p><p className="text-[10px] text-muted-foreground">{isRtl ? "راسب" : "Fail"}</p></div>
+                          </div>
+                          <div className="px-3 pb-3">
+                            <span className="text-[11px] text-primary font-medium inline-flex items-center gap-1 group-hover:gap-2 transition-all">
+                              {isRtl ? "اطلاع وتحميل PDF" : "View & download PDF"}
+                              <span className={isRtl ? "rotate-180" : ""}>→</span>
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
-                </CardContent>
-              </Card>
+                );
+              })()}
             </TabsContent>
           )}
 

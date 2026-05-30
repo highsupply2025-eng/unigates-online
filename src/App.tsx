@@ -160,6 +160,7 @@ const App = () => (
               <Route path="/leadership/approvals/:type/:status" element={<LeadershipApprovals />} />
               <Route path="/leadership/demo/:section" element={<DemoItemPage />} />
               <Route path="/institution/demo/:section" element={<DemoItemPage />} />
+              <Route path="/institution/quiz-results/:date" element={<InstitutionQuizResultsByDate />} />
               <Route path="/quiz/create/:courseId" element={<QuizCreate />} />
               <Route path="/assignment/:assignmentSlug" element={<AssignmentDetail />} />
               {/* Backwards compatibility: old plain UUID links */}

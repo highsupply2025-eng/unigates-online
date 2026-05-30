@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ShieldCheck, Calendar, CheckCircle, Clock, Loader2 } from "lucide-react";
+import { ShieldCheck, Calendar, CheckCircle, Clock, Loader2, Download, Eye } from "lucide-react";
 import BackButton from "@/components/BackButton";
 
 type ApprovalType = "quizzes" | "schedules";
@@ -134,6 +134,58 @@ const LeadershipApprovals = () => {
 
   const isMyTurn = (row: any) => !isApproved && (isQuizzes ? canActOnQuiz(row) : canActOnSched(row));
 
+  const escHtml = (s: any) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+
+  const buildPrintHtml = (rows: any[]) => {
+    const headerCols = isRtl
+      ? [isQuizzes ? "الاختبار" : "العنوان", "الدورة", "التاريخ", "الحالة"]
+      : [isQuizzes ? "Quiz" : "Title", "Course", "Date", "Status"];
+    const body = rows.map((row: any) => {
+      const course = courses.find((c: any) => c.id === row.course_id);
+      const d = row.scheduled_date || row.created_at;
+      const dateStr = d ? new Date(d).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : "-";
+      const statusStr = isRtl ? "معتمد بالكامل" : "Fully Approved";
+      return `<tr>
+        <td>${escHtml(isRtl ? row.title_ar : row.title_en)}</td>
+        <td>${escHtml(course ? (isRtl ? course.title_ar : course.title_en) : "-")}</td>
+        <td>${escHtml(dateStr)}</td>
+        <td><span class="badge">${escHtml(statusStr)}</span></td>
+      </tr>`;
+    }).join("");
+    return `<!DOCTYPE html><html dir="${dir}"><head><meta charset="utf-8"><title>${escHtml(title)}</title>
+      <style>
+        body { font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; padding: 32px; direction: ${dir}; }
+        h1 { color: #4338ca; margin: 0 0 6px; }
+        .meta { color: #64748b; margin-bottom: 24px; font-size: 13px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #e2e8f0; padding: 10px 12px; text-align: ${isRtl ? "right" : "left"}; font-size: 13px; }
+        th { background: linear-gradient(90deg,#10b981,#059669); color: #fff; font-weight: 800; }
+        tr:nth-child(even) td { background: #f8fafc; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; background: #d1fae5; color: #065f46; font-weight: 700; font-size: 11px; }
+        @media print { body { padding: 16px; } }
+      </style></head><body>
+      <h1>${escHtml(title)}</h1>
+      <div class="meta">${isRtl ? "العدد" : "Count"}: ${rows.length} · ${new Date().toLocaleString(isRtl ? "ar-EG" : "en-US")}</div>
+      <table><thead><tr>${headerCols.map(c => `<th>${escHtml(c)}</th>`).join("")}</tr></thead>
+      <tbody>${body || `<tr><td colspan="${headerCols.length}" style="text-align:center;color:#94a3b8;padding:24px;">${isRtl ? "لا توجد بيانات" : "No data"}</td></tr>`}</tbody></table>
+      <script>window.onload=()=>setTimeout(()=>window.print(),300);</script>
+      </body></html>`;
+  };
+
+  const downloadAll = () => {
+    const w = window.open("", "_blank");
+    if (!w) return;
+    w.document.write(buildPrintHtml(filtered));
+    w.document.close();
+  };
+
+  const downloadOne = (row: any) => {
+    const w = window.open("", "_blank");
+    if (!w) return;
+    w.document.write(buildPrintHtml([row]));
+    w.document.close();
+  };
+
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <header className="relative border-b-2 border-indigo-200/50 dark:border-indigo-900/50 px-3 sm:px-6 py-3.5 sm:py-5 sticky top-0 z-30 bg-gradient-to-r from-indigo-50 via-violet-50 to-fuchsia-50 dark:from-indigo-950/60 dark:via-violet-950/60 dark:to-fuchsia-950/60 backdrop-blur-xl shadow-md">
@@ -169,56 +221,84 @@ const LeadershipApprovals = () => {
               : (isQuizzes ? (isRtl ? "لا توجد اختبارات غير معتمدة" : "No pending quizzes") : (isRtl ? "لا توجد جداول غير معتمدة" : "No pending schedules"))}
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-border bg-card">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{isRtl ? (isQuizzes ? "الاختبار" : "العنوان") : (isQuizzes ? "Quiz" : "Title")}</TableHead>
-                  <TableHead className="hidden sm:table-cell">{isRtl ? "التاريخ" : "Date"}</TableHead>
-                  <TableHead className="text-end">{isRtl ? "الإجراء" : "Action"}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((row: any) => {
-                  const course = courses.find((c: any) => c.id === row.course_id);
-                  const act = isMyTurn(row);
-                  return (
-                    <TableRow key={row.id}>
-                      <TableCell className="font-bold">
-                        <div className="flex items-center gap-2">
-                          <ItemIcon className="w-4 h-4 text-primary shrink-0" />
-                          <div className="flex flex-col">
-                            <span>{isRtl ? row.title_ar : row.title_en}</span>
-                            {course && (
-                              <span className="text-[10px] text-muted-foreground font-medium">
-                                {isRtl ? course.title_ar : course.title_en}
-                              </span>
+          <>
+            {isApproved && (
+              <div className="flex items-center justify-end mb-3">
+                <Button
+                  size="sm"
+                  onClick={downloadAll}
+                  className="gap-1.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-extrabold shadow hover:shadow-lg"
+                >
+                  <Download className="w-4 h-4" strokeWidth={2.6} />
+                  {isRtl ? `تحميل الكل (${filtered.length})` : `Download all (${filtered.length})`}
+                </Button>
+              </div>
+            )}
+            <div className="overflow-x-auto rounded-xl border border-border bg-card">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{isRtl ? (isQuizzes ? "الاختبار" : "العنوان") : (isQuizzes ? "Quiz" : "Title")}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{isRtl ? "التاريخ" : "Date"}</TableHead>
+                    <TableHead className="text-end">{isRtl ? "الإجراء" : "Action"}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((row: any) => {
+                    const course = courses.find((c: any) => c.id === row.course_id);
+                    const act = isMyTurn(row);
+                    return (
+                      <TableRow key={row.id}>
+                        <TableCell className="font-bold">
+                          <div className="flex items-center gap-2">
+                            <ItemIcon className="w-4 h-4 text-primary shrink-0" />
+                            <div className="flex flex-col">
+                              <span>{isRtl ? row.title_ar : row.title_en}</span>
+                              {course && (
+                                <span className="text-[10px] text-muted-foreground font-medium">
+                                  {isRtl ? course.title_ar : course.title_en}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell text-xs text-muted-foreground">
+                          {(() => {
+                            const d = row.scheduled_date || row.created_at;
+                            return d ? new Date(d).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : "-";
+                          })()}
+                        </TableCell>
+                        <TableCell className="text-end">
+                          <div className="inline-flex items-center gap-1.5">
+                            <Button
+                              size="sm"
+                              onClick={() => goTo(row)}
+                              className={act ? "bg-gradient-to-r from-emerald-500 to-green-600 text-white font-extrabold shadow hover:shadow-lg gap-1" : "gap-1"}
+                              variant={act ? "default" : "outline"}
+                            >
+                              {act ? null : <Eye className="w-3.5 h-3.5" />}
+                              {actionLabel(row)}
+                            </Button>
+                            {isApproved && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => downloadOne(row)}
+                                className="gap-1 border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 font-bold"
+                              >
+                                <Download className="w-3.5 h-3.5" />
+                                <span className="hidden sm:inline">{isRtl ? "تحميل" : "Download"}</span>
+                              </Button>
                             )}
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell text-xs text-muted-foreground">
-                        {(() => {
-                          const d = row.scheduled_date || row.created_at;
-                          return d ? new Date(d).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : "-";
-                        })()}
-                      </TableCell>
-                      <TableCell className="text-end">
-                        <Button
-                          size="sm"
-                          onClick={() => goTo(row)}
-                          className={act ? "bg-gradient-to-r from-emerald-500 to-green-600 text-white font-extrabold shadow hover:shadow-lg" : ""}
-                          variant={act ? "default" : "outline"}
-                        >
-                          {actionLabel(row)}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         )}
       </main>
     </div>

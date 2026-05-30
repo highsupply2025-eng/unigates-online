@@ -1668,7 +1668,11 @@ ${rows.map((r: any, i: number) => `<tr>
                 </div>
                 <Button size="sm" variant="outline" className="gap-2 shrink-0" onClick={exportResultsToExcel} disabled={studentResults.length === 0}>
                   <Download className="w-4 h-4" />
-                  <span className="hidden sm:inline">{isRtl ? "تصدير Excel" : "Export Excel"}</span>
+                  <span className="hidden sm:inline">{isRtl ? "Excel" : "Excel"}</span>
+                </Button>
+                <Button size="sm" className="gap-2 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={exportResultsToPDF}>
+                  <Download className="w-4 h-4" />
+                  <span className="hidden sm:inline">{isRtl ? "تصدير PDF" : "Export PDF"}</span>
                 </Button>
               </div>
 

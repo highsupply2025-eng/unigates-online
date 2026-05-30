@@ -1688,14 +1688,20 @@ ${rows.map((r: any, i: number) => `<tr>
                 <span className="text-xs text-muted-foreground">{isRtl ? "تجريبي" : "Demo"}</span>
               </button>
 
-              {/* Quiz items — grouped by creation date, sorted newest first */}
+              {/* Quiz items — only approved exam days, grouped by date, newest first */}
               {(() => {
+                const approvedDays = new Set(
+                  (examSchedules || [])
+                    .filter((s: any) => s.schedule_type === 'exam' && s.approved_by_head && s.approved_by_vice_dean && s.approved_by_dean)
+                    .map((s: any) => new Date(s.scheduled_date).toISOString().slice(0, 10))
+                );
+                const onlyApproved = studentResults.filter((r: any) => approvedDays.has(new Date(r.created_at).toISOString().slice(0, 10)));
                 const q = resultSearch.trim().toLowerCase();
                 const filtered = q
-                  ? studentResults.filter(r =>
+                  ? onlyApproved.filter(r =>
                       r.student_name?.toLowerCase().includes(q) ||
                       r.department_name?.toLowerCase().includes(q))
-                  : studentResults;
+                  : onlyApproved;
                 const groups = new Map<string, typeof studentResults>();
                 for (const r of filtered) {
                   const day = new Date(r.created_at).toISOString().slice(0, 10);

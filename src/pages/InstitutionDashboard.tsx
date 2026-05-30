@@ -2789,7 +2789,7 @@ const InstitutionDashboard = () => {
                       </Button>
                     </div>
                     {newMemberRole === "student" && (
-                      <p className="text-xs text-muted-foreground mt-2">{isRtl ? `المسجلون: ${studentsRegistered} / ${studentCap} (الحد الأقصى 2000)` : `Registered: ${studentsRegistered} / ${studentCap} (max 2000)`}</p>
+                      <p className="text-xs text-muted-foreground mt-2">{isRtl ? `المسجلون: ${studentsRegistered} / ${studentCap}` : `Registered: ${studentsRegistered} / ${studentCap}`}</p>
                     )}
                     {newMemberRole === "lecturer" && (
                       <p className="text-xs text-muted-foreground mt-2">{isRtl ? `المسجلون: ${lecturersRegistered} / ${lecturerCap}` : `Registered: ${lecturersRegistered} / ${lecturerCap}`}</p>

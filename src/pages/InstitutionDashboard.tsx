@@ -1408,12 +1408,29 @@ ${rows.map((r: any, i: number) => `<tr>
                   <Card key={dept.id} className="border-2 border-primary/15 hover:shadow-xl hover:border-primary/30 transition-all bg-gradient-to-br from-primary/3 to-transparent">
                     <CardContent className="p-5">
                       <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h3 className="text-lg font-bold text-foreground">{dept.department_name}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {students} {isRtl ? "طالب" : "students"} · {lecturers} {isRtl ? "محاضر" : "lecturers"} · {heads} {isRtl ? "رئيس قسم" : "head"}
-                          </p>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (dept.status !== "active") return;
+                            setSelectedDept(dept);
+                            setMembersActiveOnly(true);
+                            setPageView("members");
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          className={`flex items-center gap-2 text-start ${dept.status === "active" ? "cursor-pointer hover:text-primary transition-colors" : "cursor-default"}`}
+                          disabled={dept.status !== "active"}
+                          title={dept.status === "active" ? (isRtl ? "عرض الأعضاء المفعّلين" : "View active members") : ""}
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-black/10 flex items-center justify-center shrink-0">
+                            <Users className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-bold text-foreground">{dept.department_name}</h3>
+                            <p className="text-sm text-muted-foreground">
+                              {students} {isRtl ? "طالب" : "students"} · {lecturers} {isRtl ? "محاضر" : "lecturers"} · {heads} {isRtl ? "رئيس قسم" : "head"}
+                            </p>
+                          </div>
+                        </button>
                         <Badge variant={dept.status === "active" ? "default" : "destructive"}>
                           {dept.status === "active" ? (isRtl ? "مفعّل ✅" : "Active ✅") : (isRtl ? "بانتظار الموافقة" : "Pending")}
                         </Badge>

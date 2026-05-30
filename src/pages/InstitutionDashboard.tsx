@@ -1460,18 +1460,6 @@ ${rows.map((r: any, i: number) => `<tr>
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            setSelectedDept(dept);
-                            setPageView("members");
-                            window.scrollTo({ top: 0, behavior: "smooth" });
-                          }}
-                        >
-                          <Users className="w-4 h-4 me-1" />
-                          {isRtl ? "صفحة الأعضاء" : "Members Page"}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
                             setAddMemberDeptId(dept.id);
                             setNewMemberRole("student");
                             setShowAddMemberDialog(true);

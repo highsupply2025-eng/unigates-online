@@ -218,11 +218,11 @@ const ScheduleDetail = () => {
 
 
         {/* Approvals */}
-        <Card className="shadow-sm">
+        <Card className="border-2 border-violet-500/30 shadow-xl shadow-violet-500/10 bg-gradient-to-bl from-violet-50/60 via-card to-fuchsia-50/40 dark:from-violet-950/20 dark:to-fuchsia-950/10">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2.5 text-lg">
-              <div className="w-10 h-10 rounded-lg bg-primary/15 ring-1 ring-primary/30 flex items-center justify-center">
-                <ShieldCheck className="w-5 h-5 text-primary" strokeWidth={2.25} />
+            <CardTitle className="flex items-center gap-2.5 text-lg font-extrabold">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-violet-500/40">
+                <ShieldCheck className="w-5 h-5 text-white" strokeWidth={2.5} />
               </div>
               {isRtl ? "اعتماد القيادة" : "Leadership Approvals"}
             </CardTitle>
@@ -234,13 +234,13 @@ const ScheduleDetail = () => {
               <ApprovalBadge ok={schedule.approved_by_dean} label={isRtl ? "العميد" : "Dean"} />
             </div>
             {fullyApproved ? (
-              <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
-                <CheckCircle2 className="w-4 h-4" />
+              <div className="flex items-center gap-2 text-sm font-bold text-emerald-600 dark:text-emerald-400 p-3 rounded-xl bg-emerald-500/10 border-2 border-emerald-500/30">
+                <CheckCircle2 className="w-5 h-5" strokeWidth={2.5} />
                 {isRtl ? "تم اعتماد الجدول وأصبح ظاهراً للطلبة" : "Schedule fully approved and visible to students"}
               </div>
             ) : (
-              <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
-                <Clock className="w-4 h-4" />
+              <div className="flex items-center gap-2 text-sm font-bold text-amber-600 dark:text-amber-400 p-3 rounded-xl bg-amber-500/10 border-2 border-amber-500/30">
+                <Clock className="w-5 h-5" strokeWidth={2.5} />
                 {isRtl ? "بانتظار اكتمال الموافقات لإظهاره للطلبة" : "Awaiting approvals before students can view"}
               </div>
             )}
@@ -248,18 +248,18 @@ const ScheduleDetail = () => {
             {isLeadership && (
               <div className="flex flex-wrap gap-2 pt-2">
                 {userRole === "department_head" && !schedule.approved_by_head && (
-                  <Button size="sm" onClick={() => approve("head")} disabled={acting} className="gap-1.5">
-                    <CheckCircle2 className="w-4 h-4" />{isRtl ? "اعتماد كرئيس قسم" : "Approve as Head"}
+                  <Button size="lg" onClick={() => approve("head")} disabled={acting} className="gap-2 bg-gradient-to-l from-violet-500 via-fuchsia-500 to-violet-600 hover:scale-[1.03] transition-all shadow-lg shadow-violet-500/40 border-2 border-violet-300/40 text-white font-extrabold">
+                    <CheckCircle2 className="w-5 h-5" strokeWidth={2.5} />{isRtl ? "اعتماد كرئيس قسم" : "Approve as Head"}
                   </Button>
                 )}
                 {userRole === "vice_dean" && !schedule.approved_by_vice_dean && (
-                  <Button size="sm" onClick={() => approve("vice_dean")} disabled={acting} className="gap-1.5">
-                    <CheckCircle2 className="w-4 h-4" />{isRtl ? "اعتماد كوكيل عميد" : "Approve as Vice Dean"}
+                  <Button size="lg" onClick={() => approve("vice_dean")} disabled={acting} className="gap-2 bg-gradient-to-l from-violet-500 via-fuchsia-500 to-violet-600 hover:scale-[1.03] transition-all shadow-lg shadow-violet-500/40 border-2 border-violet-300/40 text-white font-extrabold">
+                    <CheckCircle2 className="w-5 h-5" strokeWidth={2.5} />{isRtl ? "اعتماد كوكيل عميد" : "Approve as Vice Dean"}
                   </Button>
                 )}
                 {userRole === "dean" && !schedule.approved_by_dean && (
-                  <Button size="sm" onClick={() => approve("dean")} disabled={acting} className="gap-1.5">
-                    <CheckCircle2 className="w-4 h-4" />{isRtl ? "اعتماد كعميد" : "Approve as Dean"}
+                  <Button size="lg" onClick={() => approve("dean")} disabled={acting} className="gap-2 bg-gradient-to-l from-violet-500 via-fuchsia-500 to-violet-600 hover:scale-[1.03] transition-all shadow-lg shadow-violet-500/40 border-2 border-violet-300/40 text-white font-extrabold">
+                    <CheckCircle2 className="w-5 h-5" strokeWidth={2.5} />{isRtl ? "اعتماد كعميد" : "Approve as Dean"}
                   </Button>
                 )}
               </div>
@@ -269,23 +269,25 @@ const ScheduleDetail = () => {
 
         {/* Viewers (creator + leadership only) */}
         {canSeeViewers && (
-          <Card>
+          <Card className="border-2 border-violet-500/30 shadow-xl shadow-violet-500/10 bg-gradient-to-bl from-violet-50/60 via-card to-fuchsia-50/40 dark:from-violet-950/20 dark:to-fuchsia-950/10">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Users className="w-5 h-5 text-primary" />
+              <CardTitle className="flex items-center gap-2.5 text-lg font-extrabold">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-violet-500/40">
+                  <Users className="w-5 h-5 text-white" strokeWidth={2.5} />
+                </div>
                 {isRtl ? `من شاهد الصفحة (${viewers.length})` : `Page Viewers (${viewers.length})`}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {viewers.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{isRtl ? "لا توجد مشاهدات بعد" : "No viewers yet"}</p>
+                <p className="text-sm font-semibold text-muted-foreground">{isRtl ? "لا توجد مشاهدات بعد" : "No viewers yet"}</p>
               ) : (
                 <ul className="divide-y divide-border">
                   {viewers.map((v) => (
-                    <li key={v.id} className="flex items-center justify-between py-2 text-sm">
-                      <span className="font-medium">{v.profile?.full_name || v.user_id.slice(0, 8)}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {v.profile?.role && <Badge variant="outline" className="me-2">{v.profile.role}</Badge>}
+                    <li key={v.id} className="flex items-center justify-between py-2.5 text-sm">
+                      <span className="font-bold">{v.profile?.full_name || v.user_id.slice(0, 8)}</span>
+                      <span className="text-xs font-medium text-muted-foreground">
+                        {v.profile?.role && <Badge variant="outline" className="me-2 font-bold border-violet-500/40 text-violet-700 dark:text-violet-300">{v.profile.role}</Badge>}
                         {new Date(v.viewed_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}
                       </span>
                     </li>
@@ -296,6 +298,7 @@ const ScheduleDetail = () => {
           </Card>
         )}
       </main>
+
     </div>
   );
 };

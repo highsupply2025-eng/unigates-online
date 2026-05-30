@@ -591,9 +591,9 @@ const DepartmentPage = () => {
           <CardContent>
             {lecturers.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">
-                {searchQuery || statusFilter !== "all"
+                {searchQuery
                   ? (isRtl ? "لا توجد نتائج مطابقة" : "No matching results")
-                  : (isRtl ? "لا يوجد محاضرون بعد" : "No lecturers yet")}
+                  : (isRtl ? "لا يوجد محاضرون مسجّلون بعد" : "No registered lecturers yet")}
               </p>
             ) : (
               <div className="space-y-3">

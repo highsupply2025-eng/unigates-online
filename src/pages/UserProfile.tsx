@@ -52,58 +52,81 @@ const UserProfile = () => {
 
   useEffect(() => {
     (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { navigate("/login"); return; }
-      setUserId(user.id);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) { navigate("/login"); return; }
+        setUserId(user.id);
 
-      const { data } = await supabase
-        .from("profiles")
-        .select("full_name, email, phone, role, platform, created_at, avatar_url")
-        .eq("user_id", user.id)
-        .single();
-
-      if (data) {
-        setProfile(data);
-        setFullName(data.full_name || "");
-        setPhone(data.phone || "");
-      }
-
-      // Academic info via department_members → departments
-      const { data: membership } = await supabase
-        .from("department_members")
-        .select("department_id")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (membership?.department_id) {
-        const { data: dept } = await supabase
-          .from("departments")
-          .select("department_name, institution_id, institution_type")
-          .eq("id", membership.department_id)
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("full_name, email, phone, role, platform, created_at, avatar_url")
+          .eq("user_id", user.id)
           .maybeSingle();
 
-        if (dept) {
-          let collegeName: string | null = null;
-          if (dept.institution_type === "college") {
-            const { data: c } = await supabase
-              .from("college_registrations")
-              .select("college_name")
-              .eq("id", dept.institution_id)
-              .maybeSingle();
-            collegeName = c?.college_name ?? null;
-          } else if (dept.institution_type === "institute") {
-            const { data: c } = await supabase
-              .from("institute_registrations")
-              .select("institute_name")
-              .eq("id", dept.institution_id)
-              .maybeSingle();
-            collegeName = c?.institute_name ?? null;
-          }
-          setAcademic({ collegeName, departmentName: dept.department_name });
-        }
-      }
+        if (error) console.error("profile load error", error);
 
-      setLoading(false);
+        if (data) {
+          setProfile(data);
+          setFullName(data.full_name || "");
+          setPhone(data.phone || "");
+        } else {
+          // Fallback so page still renders even if no profile row exists
+          const meta = (user.user_metadata as any) || {};
+          setProfile({
+            full_name: meta.full_name || user.email?.split("@")[0] || "",
+            email: user.email || "",
+            phone: meta.phone || "",
+            role: meta.role || "personal",
+            platform: meta.platform || "courses",
+            created_at: user.created_at || new Date().toISOString(),
+            avatar_url: null,
+          });
+          setFullName(meta.full_name || "");
+        }
+
+        // Academic info — best-effort, never blocks page render
+        try {
+          const { data: membership } = await supabase
+            .from("department_members")
+            .select("department_id")
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+          if (membership?.department_id) {
+            const { data: dept } = await supabase
+              .from("departments")
+              .select("department_name, institution_id, institution_type")
+              .eq("id", membership.department_id)
+              .maybeSingle();
+
+            if (dept) {
+              let collegeName: string | null = null;
+              if (dept.institution_type === "college") {
+                const { data: c } = await supabase
+                  .from("college_registrations")
+                  .select("college_name")
+                  .eq("id", dept.institution_id)
+                  .maybeSingle();
+                collegeName = c?.college_name ?? null;
+              } else if (dept.institution_type === "institute") {
+                const { data: c } = await supabase
+                  .from("institute_registrations")
+                  .select("institute_name")
+                  .eq("id", dept.institution_id)
+                  .maybeSingle();
+                collegeName = c?.institute_name ?? null;
+              }
+              setAcademic({ collegeName, departmentName: dept.department_name });
+            }
+          }
+        } catch (e) {
+          console.error("academic load error", e);
+        }
+      } catch (e) {
+        console.error("profile page load error", e);
+      } finally {
+        setLoading(false);
+      }
     })();
   }, [navigate]);
 

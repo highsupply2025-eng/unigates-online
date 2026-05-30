@@ -53,6 +53,11 @@ const LeadershipDashboard = lazy(() => import("./pages/LeadershipDashboard"));
 const LeadershipStreamsByStatus = lazy(() => import("./pages/LeadershipStreamsByStatus"));
 const LeadershipApprovals = lazy(() => import("./pages/LeadershipApprovals"));
 const LeadershipProfile = lazy(() => import("./pages/LeadershipProfile"));
+const LecturerAccount = lazy(() => import("./pages/LecturerAccount"));
+const StudentAccount = lazy(() => import("./pages/StudentAccount"));
+const SchoolAdminAccount = lazy(() => import("./pages/SchoolAdminAccount"));
+const SchoolTeacherAccount = lazy(() => import("./pages/SchoolTeacherAccount"));
+const SchoolStudentAccount = lazy(() => import("./pages/SchoolStudentAccount"));
 const DemoItemPage = lazy(() => import("./pages/DemoItemPage"));
 const InstitutionQuizResultsByDate = lazy(() => import("./pages/InstitutionQuizResultsByDate"));
 const About = lazy(() => import("./pages/About"));
@@ -161,6 +166,11 @@ const App = () => (
               <Route path="/leadership/streams/:status" element={<LeadershipStreamsByStatus />} />
               <Route path="/leadership/approvals/:type/:status" element={<LeadershipApprovals />} />
               <Route path="/leadership/profile" element={<LeadershipProfile />} />
+              <Route path="/lecturer/profile" element={<LecturerAccount />} />
+              <Route path="/student/profile" element={<StudentAccount />} />
+              <Route path="/school/profile" element={<SchoolAdminAccount />} />
+              <Route path="/school/teacher/profile" element={<SchoolTeacherAccount />} />
+              <Route path="/school/student/profile" element={<SchoolStudentAccount />} />
               <Route path="/leadership/demo/:section" element={<DemoItemPage />} />
               <Route path="/institution/demo/:section" element={<DemoItemPage />} />
               <Route path="/institution/quiz-results/:date" element={<InstitutionQuizResultsByDate />} />

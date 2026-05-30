@@ -97,7 +97,7 @@ const StudentDashboard = () => {
     { to: "/student/results", label: isRtl ? "نتائج الاختبارات" : "Exam Results", Icon: Award, color: "from-teal-500 to-teal-600" },
     { to: "/student/assignment-results", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, color: "from-cyan-500 to-cyan-600" },
     
-    { to: "/profile", label: isRtl ? "بيانات الطالب" : "Student Details", Icon: User, color: "from-slate-500 to-slate-600" },
+    { to: "/student/profile", label: isRtl ? "بيانات الطالب" : "Student Details", Icon: User, color: "from-slate-500 to-slate-600" },
   ];
 
   return (
@@ -135,7 +135,7 @@ const StudentDashboard = () => {
       <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
         {/* Per-menu-item counts shared by chart and grid */}
         {(() => {
-          const visibleMenu = menuItems.filter((m) => m.to !== "/profile" && m.to !== "/student/my-academic");
+          const visibleMenu = menuItems.filter((m) => m.to !== "/student/profile" && m.to !== "/student/my-academic");
           const countFor = (to: string) => {
             switch (to) {
               case "/student/lectures": return counts.completed;

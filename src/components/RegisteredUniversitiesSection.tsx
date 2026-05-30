@@ -38,7 +38,7 @@ const RegisteredUniversitiesSection = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("approved_institutes_public")
-        .select("id, institute_name, city, student_count")
+        .select("id, institute_name, director_name, city, student_count, logo_url")
         .order("id", { ascending: false })
         .limit(10);
       if (error) throw error;
@@ -164,7 +164,7 @@ const RegisteredUniversitiesSection = () => {
                   <div key={inst.id} className="relative flex-shrink-0 w-[220px] md:w-[260px] group cursor-pointer card-hover">
                     <div className="aspect-video rounded-xl overflow-hidden relative shadow-lg group-hover:shadow-xl transition-shadow">
                       <img
-                        src={instituteImages[i % instituteImages.length]}
+                        src={inst.logo_url || instituteImages[i % instituteImages.length]}
                         alt={inst.institute_name || ""}
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"
@@ -177,9 +177,14 @@ const RegisteredUniversitiesSection = () => {
                         </Badge>
                       </div>
                       <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
-                        <p className="text-sm font-bold text-white leading-snug mb-2 line-clamp-2">
+                        <p className="text-sm font-bold text-white leading-snug mb-1 line-clamp-2">
                           {inst.institute_name}
                         </p>
+                        {inst.director_name && (
+                          <p className="text-[11px] text-white/70 mb-2 line-clamp-1">
+                            {isRtl ? "المدير: " : "Director: "}{inst.director_name}
+                          </p>
+                        )}
                         <div className="flex items-center justify-between">
                           <span className="flex items-center gap-1 text-xs text-white/90">
                             <MapPin className="w-3 h-3" /> {inst.city}

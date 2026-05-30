@@ -4,7 +4,7 @@ import {
   Globe, ArrowLeft, ArrowRight, Loader2, Users, BookOpen, Calendar,
   Video, FileText, Download, BarChart3, Clock, CheckCircle, AlertCircle,
   GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, Menu, Home, XCircle, Award, ShieldCheck,
-  Tv, CalendarCheck, BadgeCheck, ThumbsUp, NotebookPen, Trophy
+  Tv, CalendarCheck, BadgeCheck, ThumbsUp, NotebookPen, Trophy, User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

@@ -380,11 +380,7 @@ const InstitutionDashboard = () => {
     let lecturerCount = parseInt(newDeptLecturerCount) || 0;
     let headCount = parseInt(newDeptHeadCount) || 0;
 
-    // Enforce caps
-    if (studentCount > 2000) {
-      toast({ title: isRtl ? "تجاوز الحد" : "Limit exceeded", description: isRtl ? "الحد الأقصى للطلاب 2000" : "Max students 2000", variant: "destructive" });
-      return;
-    }
+    // Enforce caps (students: unlimited)
     if (lecturerCount > 10) {
       toast({ title: isRtl ? "تجاوز الحد" : "Limit exceeded", description: isRtl ? "الحد الأقصى للمحاضرين 10" : "Max lecturers 10", variant: "destructive" });
       return;
@@ -479,7 +475,7 @@ const InstitutionDashboard = () => {
     if (!count || count < 1 || !addMemberDeptId) return;
 
     const dept = departments.find(d => d.id === addMemberDeptId);
-    const studentCap = Math.min(dept?.student_count || 0, 2000);
+    const studentCap = dept?.student_count || 0;
     const lecturerCap = 10;
     const headCap = 3;
     const studentsRegistered = getMembersForDept(addMemberDeptId).filter(m => m.role === "student").length;
@@ -2658,14 +2654,13 @@ const InstitutionDashboard = () => {
               <Input value={newDeptName} onChange={e => setNewDeptName(e.target.value)} placeholder={isRtl ? "مثال: قسم المحاسبة" : "e.g. Accounting Dept"} />
             </div>
             <div>
-              <Label>{isRtl ? "عدد الطلاب (حتى 2000)" : "Student Count (up to 2000)"}</Label>
+              <Label>{isRtl ? "عدد الطلاب (غير محدود)" : "Student Count (unlimited)"}</Label>
               <Input
                 type="number"
                 min={0}
-                max={2000}
                 value={newDeptStudentCount}
                 onChange={e => {
-                  const v = Math.min(2000, Math.max(0, parseInt(e.target.value) || 0));
+                  const v = Math.max(0, parseInt(e.target.value) || 0);
                   setNewDeptStudentCount(e.target.value === "" ? "" : String(v));
                 }}
                 placeholder="0"
@@ -2740,7 +2735,7 @@ const InstitutionDashboard = () => {
               <Label>{isRtl ? "الدور" : "Role"}</Label>
               {(() => {
                 const dept = departments.find(d => d.id === addMemberDeptId);
-                const studentCap = Math.min(dept?.student_count || 0, 2000);
+                const studentCap = dept?.student_count || 0;
                 const lecturerCap = 10;
                 const headCap = 3;
                 const studentsRegistered = getMembersForDept(addMemberDeptId).filter(m => m.role === "student").length;
@@ -2794,7 +2789,7 @@ const InstitutionDashboard = () => {
                       </Button>
                     </div>
                     {newMemberRole === "student" && (
-                      <p className="text-xs text-muted-foreground mt-2">{isRtl ? `المسجلون: ${studentsRegistered} / ${studentCap} (الحد الأقصى 2000)` : `Registered: ${studentsRegistered} / ${studentCap} (max 2000)`}</p>
+                      <p className="text-xs text-muted-foreground mt-2">{isRtl ? `المسجلون: ${studentsRegistered} / ${studentCap}` : `Registered: ${studentsRegistered} / ${studentCap}`}</p>
                     )}
                     {newMemberRole === "lecturer" && (
                       <p className="text-xs text-muted-foreground mt-2">{isRtl ? `المسجلون: ${lecturersRegistered} / ${lecturerCap}` : `Registered: ${lecturersRegistered} / ${lecturerCap}`}</p>

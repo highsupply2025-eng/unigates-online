@@ -1713,8 +1713,8 @@ const InstitutionDashboard = () => {
             </TabsContent>
           )}
 
-          {/* Schedules Tab - Leadership Only */}
-          {isLeadershipRole && (
+          {/* Schedules Tab */}
+          {(
             <TabsContent value="schedules" dir={isRtl ? "rtl" : "ltr"}>
               <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
                 <h2 className="text-lg font-bold text-foreground">{isRtl ? "جداول المحاضرات والاختبارات" : "Lectures & Exams Schedule"}</h2>

@@ -352,11 +352,13 @@ export type Database = {
           dean_name: string
           email: string
           id: string
+          logo_url: string | null
           message: string | null
           phone: string
           status: string
           student_count: number | null
           type: string
+          university_name: string | null
           updated_at: string
         }
         Insert: {
@@ -368,11 +370,13 @@ export type Database = {
           dean_name: string
           email: string
           id?: string
+          logo_url?: string | null
           message?: string | null
           phone: string
           status?: string
           student_count?: number | null
           type?: string
+          university_name?: string | null
           updated_at?: string
         }
         Update: {
@@ -384,11 +388,13 @@ export type Database = {
           dean_name?: string
           email?: string
           id?: string
+          logo_url?: string | null
           message?: string | null
           phone?: string
           status?: string
           student_count?: number | null
           type?: string
+          university_name?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -1861,23 +1867,32 @@ export type Database = {
         Row: {
           city: string | null
           college_name: string | null
+          dean_name: string | null
           id: string | null
+          logo_url: string | null
           student_count: number | null
           type: string | null
+          university_name: string | null
         }
         Insert: {
           city?: string | null
           college_name?: string | null
+          dean_name?: string | null
           id?: string | null
+          logo_url?: string | null
           student_count?: number | null
           type?: string | null
+          university_name?: string | null
         }
         Update: {
           city?: string | null
           college_name?: string | null
+          dean_name?: string | null
           id?: string | null
+          logo_url?: string | null
           student_count?: number | null
           type?: string | null
+          university_name?: string | null
         }
         Relationships: []
       }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Landmark, Loader2, Globe, ArrowLeft, ArrowRight, CheckCircle, Send, GraduationCap, Menu } from "lucide-react";
+import { Landmark, Loader2, Globe, ArrowLeft, ArrowRight, CheckCircle, Send, GraduationCap, Menu, ImagePlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,9 +30,13 @@ const CollegeAdminSignup = () => {
   const plan = searchParams.get("plan") || "monthly";
 
   const [collegeName, setCollegeName] = useState("");
+  const [universityName, setUniversityName] = useState("");
+  const [deanName, setDeanName] = useState("");
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
-  
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [countryCode, setCountryCode] = useState("+20");
@@ -46,8 +50,19 @@ const CollegeAdminSignup = () => {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "حجم الصورة يجب أن يكون أقل من 5 ميجابايت" : "Image must be less than 5MB", variant: "destructive" });
+      return;
+    }
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+  };
+
   const handleSubmit = async () => {
-    if (!collegeName || !city || !email || !phone || !password) {
+    if (!collegeName || !universityName || !deanName || !city || !email || !phone || !password) {
       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى ملء جميع الحقول المطلوبة" : "Please fill all required fields", variant: "destructive" });
       return;
     }
@@ -76,11 +91,26 @@ const CollegeAdminSignup = () => {
       });
       if (authError) throw authError;
 
+      let logoUrl: string | null = null;
+      if (logoFile) {
+        const ext = logoFile.name.split('.').pop() || 'jpg';
+        const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const { error: upErr } = await supabase.storage.from('college-logos').upload(path, logoFile, {
+          contentType: logoFile.type,
+          upsert: false,
+        });
+        if (upErr) throw upErr;
+        const { data: pub } = supabase.storage.from('college-logos').getPublicUrl(path);
+        logoUrl = pub.publicUrl;
+      }
+
       const { error } = await supabase.from("college_registrations").insert({
         college_name: collegeName,
+        university_name: universityName,
         city,
         address: address || null,
-        dean_name: collegeName,
+        dean_name: deanName,
+        logo_url: logoUrl,
         email,
         phone: `${countryCode}${phone}`,
         student_count: studentCount ? parseInt(studentCount) : 0,
@@ -173,6 +203,21 @@ const CollegeAdminSignup = () => {
                 </div>
                 <div>
                   <Label className="mb-2 block font-bold text-primary">
+                    {isRtl ? "اسم الجامعة" : "University Name"} <span className="text-destructive">*</span>
+                  </Label>
+                  <Input placeholder={isRtl ? "أدخل اسم الجامعة" : "Enter university name"} value={universityName} onChange={(e) => setUniversityName(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label className="mb-2 block font-bold text-primary">
+                    {isRtl ? "اسم عميد الكلية" : "Dean Name"} <span className="text-destructive">*</span>
+                  </Label>
+                  <Input placeholder={isRtl ? "أدخل اسم عميد الكلية" : "Enter dean name"} value={deanName} onChange={(e) => setDeanName(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                </div>
+                <div>
+                  <Label className="mb-2 block font-bold text-primary">
                     {isRtl ? "المدينة" : "City"} <span className="text-destructive">*</span>
                   </Label>
                   <Input placeholder={isRtl ? "أدخل المدينة" : "Enter city"} value={city} onChange={(e) => setCity(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
@@ -183,6 +228,37 @@ const CollegeAdminSignup = () => {
                 <Label className="mb-2 block font-bold text-primary">{isRtl ? "العنوان التفصيلي" : "Detailed Address"}</Label>
                 <Input placeholder={isRtl ? "أدخل العنوان التفصيلي" : "Enter detailed address"} value={address} onChange={(e) => setAddress(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
               </div>
+
+              <div>
+                <Label className="mb-2 block font-bold text-primary">
+                  {isRtl ? "صورة الكلية" : "College Image"}
+                </Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  {isRtl ? "ستظهر تلقائياً في الصفحة الرئيسية بعد الموافقة على الطلب" : "Will appear automatically on the home page once approved"}
+                </p>
+                {logoPreview ? (
+                  <div className="relative inline-block">
+                    <img src={logoPreview} alt="preview" className="h-32 w-auto rounded-xl border-2 border-primary/30 object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => { setLogoFile(null); setLogoPreview(null); }}
+                      className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow"
+                      aria-label="remove"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center gap-2 h-32 border-2 border-dashed border-primary/30 rounded-xl cursor-pointer hover:bg-primary/5 transition-colors">
+                    <ImagePlus className="w-7 h-7 text-primary" />
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {isRtl ? "اضغط لاختيار صورة (حد أقصى 5 ميجابايت)" : "Click to upload an image (max 5MB)"}
+                    </span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
+                  </label>
+                )}
+              </div>
+
 
               <Separator />
 
@@ -256,7 +332,7 @@ const CollegeAdminSignup = () => {
                 <Textarea placeholder={isRtl ? "أي ملاحظات أو متطلبات خاصة..." : "Any notes or special requirements..."} value={message} onChange={(e) => setMessage(e.target.value)} className="min-h-[100px] border-2 border-primary/20 focus:border-primary" />
               </div>
 
-              <Button size="lg" className="w-full h-14 text-lg font-bold gap-2" disabled={!collegeName || !city || !email || !phone || !password || !confirmPassword || password !== confirmPassword || loading} onClick={handleSubmit}>
+              <Button size="lg" className="w-full h-14 text-lg font-bold gap-2" disabled={!collegeName || !universityName || !deanName || !city || !email || !phone || !password || !confirmPassword || password !== confirmPassword || loading} onClick={handleSubmit}>
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                 {isRtl ? "إرسال الطلب" : "Submit Request"}
               </Button>

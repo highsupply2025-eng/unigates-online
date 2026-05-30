@@ -906,7 +906,7 @@ ${rows.map((r: any, i: number) => `<tr>
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
         {pageView === "members" && selectedDept ? (() => {
-          const _b = getDeptBucket(selectedDept.id);
+          const _b = displayBucket;
           const _filt = (arr: DepartmentMember[]) => membersActiveOnly ? arr.filter(m => !!m.user_id) : arr;
           const displayBucket = { all: _filt(_b.all), head: _filt(_b.head), lecturer: _filt(_b.lecturer), student: _filt(_b.student) };
           return (
@@ -932,18 +932,18 @@ ${rows.map((r: any, i: number) => `<tr>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <UserCheck className="w-5 h-5 text-amber-600" />
                   {isRtl ? "رؤساء الأقسام" : "Department Heads"}
-                  <Badge variant="outline" className="ms-2">{getDeptBucket(selectedDept.id).head.length}</Badge>
+                  <Badge variant="outline" className="ms-2">{displayBucket.head.length}</Badge>
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
                   {isRtl ? "كل رابط دعوة صالح للاستخدام مرة واحدة فقط" : "Each invitation link is valid for a single use only"}
                 </p>
               </CardHeader>
               <CardContent>
-                {getDeptBucket(selectedDept.id).head.length === 0 ? (
+                {displayBucket.head.length === 0 ? (
                   <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد رؤساء أقسام" : "No department heads"}</p>
                 ) : (
                   <div className="space-y-2">
-                    {getDeptBucket(selectedDept.id).head.map(member => (
+                    {displayBucket.head.map(member => (
                       <div key={member.id} className="p-4 rounded-lg border-2 border-amber-300 bg-amber-50/50 dark:bg-amber-950/20">
                         <div className="flex items-center justify-between cursor-pointer hover:bg-amber-100/40 dark:hover:bg-amber-900/30 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
                           <div className="flex items-center gap-3">
@@ -996,18 +996,18 @@ ${rows.map((r: any, i: number) => `<tr>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <UserCheck className="w-5 h-5 text-green-500" />
                   {isRtl ? "المحاضرون" : "Lecturers"}
-                  <Badge variant="outline" className="ms-2">{getDeptBucket(selectedDept.id).lecturer.length}</Badge>
+                  <Badge variant="outline" className="ms-2">{displayBucket.lecturer.length}</Badge>
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
                   {isRtl ? "كل رابط دعوة صالح للاستخدام مرة واحدة فقط" : "Each invitation link is valid for a single use only"}
                 </p>
               </CardHeader>
               <CardContent>
-                {getDeptBucket(selectedDept.id).lecturer.length === 0 ? (
+                {displayBucket.lecturer.length === 0 ? (
                   <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد محاضرون" : "No lecturers"}</p>
                 ) : (
                   <div className="space-y-2">
-                    {getDeptBucket(selectedDept.id).lecturer.map(member => (
+                    {displayBucket.lecturer.map(member => (
                       <div key={member.id} className="p-4 rounded-lg border bg-card">
                         <div className="flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
                           <div className="flex items-center gap-3">
@@ -1060,18 +1060,18 @@ ${rows.map((r: any, i: number) => `<tr>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <GraduationCap className="w-5 h-5 text-blue-500" />
                   {isRtl ? "الطلاب" : "Students"}
-                  <Badge variant="outline" className="ms-2">{getDeptBucket(selectedDept.id).student.length}</Badge>
+                  <Badge variant="outline" className="ms-2">{displayBucket.student.length}</Badge>
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
                   {isRtl ? "كل رابط دعوة صالح للاستخدام مرة واحدة فقط" : "Each invitation link is valid for a single use only"}
                 </p>
               </CardHeader>
               <CardContent>
-                {getDeptBucket(selectedDept.id).student.length === 0 ? (
+                {displayBucket.student.length === 0 ? (
                   <p className="text-sm text-muted-foreground py-4 text-center">{isRtl ? "لا يوجد طلاب" : "No students"}</p>
                 ) : (
                   <div className="space-y-2">
-                    {getDeptBucket(selectedDept.id).student.map(member => (
+                    {displayBucket.student.map(member => (
                       <div key={member.id} className="p-4 rounded-lg border bg-card">
                         <div className="flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors rounded-lg" onClick={() => { setSelectedMember(member); setMemberProfileTab("info"); setPageView("memberProfile"); }}>
                           <div className="flex items-center gap-3">

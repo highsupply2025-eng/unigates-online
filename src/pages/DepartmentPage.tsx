@@ -213,15 +213,15 @@ const DepartmentPage = () => {
   };
 
   const filterMembers = (list: DepartmentMember[]) => {
+    // Only registered members (linked to a real user account) are listed.
     return list.filter(m => {
+      if (!m.user_id) return false;
+      const profile = profilesMap[m.user_id];
+      const name = profile?.full_name || m.full_name;
       const matchesSearch = !searchQuery ||
-        m.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (m.invitation_code && m.invitation_code.toLowerCase().includes(searchQuery.toLowerCase()));
-      const matchesStatus =
-        statusFilter === "all" ||
-        (statusFilter === "linked" && m.user_id) ||
-        (statusFilter === "pending" && !m.user_id);
-      return matchesSearch && matchesStatus;
+        name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (profile?.email && profile.email.toLowerCase().includes(searchQuery.toLowerCase()));
+      return matchesSearch;
     });
   };
 
@@ -444,25 +444,11 @@ const DepartmentPage = () => {
             <div className="relative flex-1">
               <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder={isRtl ? "ابحث بالاسم أو كود الدعوة..." : "Search by name or invitation code..."}
+                placeholder={isRtl ? "ابحث بالاسم أو البريد..." : "Search by name or email..."}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="ps-9"
               />
-            </div>
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <Filter className="w-4 h-4 text-muted-foreground shrink-0" />
-              {statusButtons.map(btn => (
-                <Button
-                  key={btn.value}
-                  size="sm"
-                  variant={statusFilter === btn.value ? "default" : "outline"}
-                  onClick={() => setStatusFilter(btn.value)}
-                  className="text-xs h-8 px-2"
-                >
-                  {isRtl ? btn.labelAr : btn.labelEn}
-                </Button>
-              ))}
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -485,7 +471,7 @@ const DepartmentPage = () => {
         </div>
 
         {/* Department Head Section */}
-        {deptHead && (() => {
+        {deptHead && deptHead.user_id && (() => {
           const headInviteLink = `${baseUrl}/signup/${instPath}/department_head?code=${deptHead.invitation_code}`;
           const headProfile = deptHead.user_id ? profilesMap[deptHead.user_id] : null;
           const headLinked = !!deptHead.user_id;
@@ -605,9 +591,9 @@ const DepartmentPage = () => {
           <CardContent>
             {lecturers.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">
-                {searchQuery || statusFilter !== "all"
+                {searchQuery
                   ? (isRtl ? "لا توجد نتائج مطابقة" : "No matching results")
-                  : (isRtl ? "لا يوجد محاضرون بعد" : "No lecturers yet")}
+                  : (isRtl ? "لا يوجد محاضرون مسجّلون بعد" : "No registered lecturers yet")}
               </p>
             ) : (
               <div className="space-y-3">
@@ -636,9 +622,9 @@ const DepartmentPage = () => {
           <CardContent>
             {students.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">
-                {searchQuery || statusFilter !== "all"
+                {searchQuery
                   ? (isRtl ? "لا توجد نتائج مطابقة" : "No matching results")
-                  : (isRtl ? "لا يوجد طلاب بعد" : "No students yet")}
+                  : (isRtl ? "لا يوجد طلاب مسجّلون بعد" : "No registered students yet")}
               </p>
             ) : (
               <div className="space-y-3">

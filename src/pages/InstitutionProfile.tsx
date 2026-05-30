@@ -13,7 +13,8 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
-import { Landmark, ArrowLeft, ArrowRight, Globe, LogOut } from "lucide-react";
+import { Landmark } from "lucide-react";
+import BackButton from "@/components/BackButton";
 
 interface InstitutionData {
   id: string;

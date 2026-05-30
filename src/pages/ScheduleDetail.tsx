@@ -215,56 +215,7 @@ const ScheduleDetail = () => {
           </CardContent>
         </Card>
 
-                </div>
-                <div className="min-w-0 flex-1">
-                  <CardTitle className="text-xl sm:text-2xl truncate">{isRtl ? schedule.title_ar : schedule.title_en}</CardTitle>
-                  <p className="text-sm text-muted-foreground mt-1 truncate">
-                    {course && (isRtl ? course.title_ar : course.title_en)}
-                    {creatorName && ` • ${creatorName}`}
-                  </p>
-                </div>
-              </div>
-              <Badge variant={isTest ? "destructive" : "outline"} className="shrink-0">
-                {isTest ? (isRtl ? "اختبار" : "Test") : (isRtl ? "محاضرة" : "Lecture")}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border/60">
-                <div className="w-10 h-10 shrink-0 rounded-lg bg-primary/15 ring-1 ring-primary/30 flex items-center justify-center">
-                  <Calendar className="w-5 h-5 text-primary" strokeWidth={2.25} />
-                </div>
-                <span className="text-sm font-semibold">{schedule.scheduled_date}</span>
-              </div>
-              {(schedule.start_time || schedule.end_time) && (
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border/60">
-                  <div className="w-10 h-10 shrink-0 rounded-lg bg-primary/15 ring-1 ring-primary/30 flex items-center justify-center">
-                    <Clock className="w-5 h-5 text-primary" strokeWidth={2.25} />
-                  </div>
-                  <span className="text-sm font-semibold">{schedule.start_time || "?"} - {schedule.end_time || "?"}</span>
-                </div>
-              )}
-              {(schedule.location_ar || schedule.location_en) && (
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border/60 sm:col-span-2">
-                  <div className="w-10 h-10 shrink-0 rounded-lg bg-primary/15 ring-1 ring-primary/30 flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-primary" strokeWidth={2.25} />
-                  </div>
-                  <span className="text-sm font-semibold">{isRtl ? schedule.location_ar : schedule.location_en}</span>
-                </div>
-              )}
-            </div>
-            {(schedule.notes_ar || schedule.notes_en) && (
-              <>
-                <Separator />
-                <div>
-                  <h4 className="text-sm font-bold mb-1">{isRtl ? "ملاحظات" : "Notes"}</h4>
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{isRtl ? schedule.notes_ar : schedule.notes_en}</p>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
+
 
         {/* Approvals */}
         <Card className="shadow-sm">

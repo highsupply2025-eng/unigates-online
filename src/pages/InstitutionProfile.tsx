@@ -353,13 +353,17 @@ const InstitutionProfile = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Building2 className="w-5 h-5 text-primary" />
-              {isRtl ? "بيانات المؤسسة" : "Institution Information"}
+              {isRtl
+                ? (data.kind === "college" ? "بيانات الكلية" : "بيانات المعهد")
+                : (data.kind === "college" ? "College Information" : "Institute Information")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label htmlFor="instName">{isRtl ? "اسم المؤسسة" : "Institution Name"}</Label>
+                <Label htmlFor="instName">{isRtl
+                  ? (data.kind === "college" ? "اسم الكلية" : "اسم المعهد")
+                  : (data.kind === "college" ? "College Name" : "Institute Name")}</Label>
                 <Input id="instName" value={data.name} disabled />
                 <p className="text-[11px] text-muted-foreground">{isRtl ? "للتغيير راسل الدعم" : "Contact support to change"}</p>
               </div>

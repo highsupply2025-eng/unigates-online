@@ -840,8 +840,10 @@ const InstitutionDashboard = () => {
                 { key: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, onClick: () => handleTabChange("general"), active: activeTab === "general" },
                 
                 { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, onClick: () => handleTabChange("departments"), active: activeTab === "departments" },
+                { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => handleTabChange("schedules"), active: activeTab === "schedules" },
                 { key: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, onClick: () => handleTabChange("quizresults"), active: activeTab === "quizresults" },
                 { key: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: LinkIcon, onClick: () => handleTabChange("invitations"), active: activeTab === "invitations" },
+                { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/profile") },
               ]}
             />
           </div>
@@ -1711,8 +1713,8 @@ const InstitutionDashboard = () => {
             </TabsContent>
           )}
 
-          {/* Schedules Tab - Leadership Only */}
-          {isLeadershipRole && (
+          {/* Schedules Tab */}
+          {(
             <TabsContent value="schedules" dir={isRtl ? "rtl" : "ltr"}>
               <div className="flex items-center justify-between mb-4" dir={isRtl ? "rtl" : "ltr"}>
                 <h2 className="text-lg font-bold text-foreground">{isRtl ? "جداول المحاضرات والاختبارات" : "Lectures & Exams Schedule"}</h2>

@@ -1118,7 +1118,8 @@ ${rows.map((r: any, i: number) => `<tr>
               </CardContent>
             </Card>
           </div>
-        ) : pageView === "memberProfile" && selectedMember ? (
+          );
+        })() : pageView === "memberProfile" && selectedMember ? (
           /* Full-page Member Profile View */
           <div className="space-y-4">
             <Button variant="outline" className="gap-2" onClick={() => setPageView("members")}>

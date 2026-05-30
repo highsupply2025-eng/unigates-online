@@ -767,6 +767,7 @@ export type Database = {
           email: string
           id: string
           institute_name: string
+          logo_url: string | null
           message: string | null
           phone: string
           specialization: string | null
@@ -783,6 +784,7 @@ export type Database = {
           email: string
           id?: string
           institute_name: string
+          logo_url?: string | null
           message?: string | null
           phone: string
           specialization?: string | null
@@ -799,6 +801,7 @@ export type Database = {
           email?: string
           id?: string
           institute_name?: string
+          logo_url?: string | null
           message?: string | null
           phone?: string
           specialization?: string | null
@@ -1899,23 +1902,26 @@ export type Database = {
       approved_institutes_public: {
         Row: {
           city: string | null
+          director_name: string | null
           id: string | null
           institute_name: string | null
-          specialization: string | null
+          logo_url: string | null
           student_count: number | null
         }
         Insert: {
           city?: string | null
+          director_name?: string | null
           id?: string | null
           institute_name?: string | null
-          specialization?: string | null
+          logo_url?: string | null
           student_count?: number | null
         }
         Update: {
           city?: string | null
+          director_name?: string | null
           id?: string | null
           institute_name?: string | null
-          specialization?: string | null
+          logo_url?: string | null
           student_count?: number | null
         }
         Relationships: []

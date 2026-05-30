@@ -1715,7 +1715,7 @@ ${rows.map((r: any, i: number) => `<tr>
                     <Card>
                       <CardContent className="py-12 text-center">
                         <GraduationCap className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
-                        <p className="text-sm text-muted-foreground">{isRtl ? "لا توجد اختبارات بعد" : "No quizzes yet"}</p>
+                        <p className="text-sm text-muted-foreground">{isRtl ? "لا توجد نتائج اختبارات معتمدة بعد" : "No approved exam results yet"}</p>
                       </CardContent>
                     </Card>
                   );

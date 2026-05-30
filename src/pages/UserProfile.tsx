@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
-import StudentPageHeader from "@/components/StudentPageHeader";
+import BackButton from "@/components/BackButton";
 
 interface ProfileData {
   full_name: string;

@@ -38,7 +38,7 @@ const RegisteredUniversitiesSection = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("approved_institutes_public")
-        .select("id, institute_name, city, student_count")
+        .select("id, institute_name, director_name, city, student_count, logo_url")
         .order("id", { ascending: false })
         .limit(10);
       if (error) throw error;

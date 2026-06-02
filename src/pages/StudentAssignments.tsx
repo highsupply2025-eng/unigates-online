@@ -19,7 +19,7 @@ const StudentAssignments = () => {
   const [items, setItems] = useState<any[]>([]);
   const [submittedIds, setSubmittedIds] = useState<Set<string>>(new Set());
 
-  useEffect(() => { (async () => {
+  const load = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigate("/login"); return; }
     const { data: subs } = await supabase
@@ -28,7 +28,7 @@ const StudentAssignments = () => {
       .eq("user_id", user.id)
       .eq("status", "active");
     const courseIds = (subs || []).map((s: any) => s.course_id);
-    if (courseIds.length === 0) { setLoading(false); return; }
+    if (courseIds.length === 0) { setItems([]); setLoading(false); return; }
     const { data: asgs } = await supabase
       .from("assignments")
       .select("*")
@@ -41,7 +41,11 @@ const StudentAssignments = () => {
       .eq("student_id", user.id);
     setSubmittedIds(new Set((mySubs || []).map((s: any) => s.assignment_id)));
     setLoading(false);
-  })(); }, [navigate]);
+  };
+
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [navigate]);
+
+  useRealtimeRefresh(["assignments", "user_subscriptions"], load);
 
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>

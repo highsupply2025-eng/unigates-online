@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 import StudentPageHeader from "@/components/StudentPageHeader";
 import StudentHero from "@/components/StudentHero";
 
@@ -43,7 +44,7 @@ const StudentQuizzes = () => {
   const [whatsappNumber, setWhatsappNumber] = useState("");
   const [resultView, setResultView] = useState<{ score: number; total: number; details: any[] } | null>(null);
 
-  useEffect(() => { (async () => {
+  const load = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigate("/login"); return; }
     setUser(user);
@@ -58,7 +59,11 @@ const StudentQuizzes = () => {
     setSubmissions(qs || []);
     setCourses(c || []);
     setLoading(false);
-  })(); }, [navigate]);
+  };
+
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [navigate]);
+
+  useRealtimeRefresh(["quizzes", "courses", "user_subscriptions"], load);
 
   useEffect(() => {
     if (!activeQuiz || resultView) return;

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 import BackButton from "@/components/BackButton";
@@ -42,7 +43,7 @@ const StudentDashboard = () => {
   });
   const [rangeDays, setRangeDays] = useState<7 | 30>(7);
 
-  useEffect(() => { (async () => {
+  const load = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigate("/login"); return; }
     const { data: p } = await supabase.from("profiles").select("*").eq("user_id", user.id).single();
@@ -80,7 +81,14 @@ const StudentDashboard = () => {
       ratings: (ratings.data || []).map((x: any) => x.created_at).filter(Boolean),
     });
     setLoading(false);
-  })(); }, [navigate]);
+  };
+
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [navigate]);
+
+  useRealtimeRefresh(
+    ["live_streams", "quizzes", "assignments", "lecture_schedules", "course_episodes", "user_subscriptions"],
+    load
+  );
 
   const handleLogout = async () => { await supabase.auth.signOut(); navigate("/university-platform"); };
 

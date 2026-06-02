@@ -21,7 +21,7 @@ const StudentLectures = () => {
   const [courses, setCourses] = useState<any[]>([]);
   const [progress, setProgress] = useState<any[]>([]);
 
-  useEffect(() => { (async () => {
+  const load = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigate("/login"); return; }
     const { data: subs } = await supabase.from("user_subscriptions").select("*").eq("user_id", user.id).eq("status", "active");
@@ -30,11 +30,17 @@ const StudentLectures = () => {
       const ids = [...new Set(subs.map(s => s.course_id))];
       const { data: c } = await supabase.from("courses").select("*").in("id", ids);
       setCourses(c || []);
+    } else {
+      setCourses([]);
     }
     const { data: prog } = await supabase.from("student_progress").select("*").eq("user_id", user.id);
     setProgress(prog || []);
     setLoading(false);
-  })(); }, [navigate]);
+  };
+
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [navigate]);
+
+  useRealtimeRefresh(["courses", "course_episodes", "user_subscriptions"], load);
 
   const subscribedIds = subscriptions.map(s => s.course_id);
   const subscribedCourses = courses.filter(c => subscribedIds.includes(c.id));

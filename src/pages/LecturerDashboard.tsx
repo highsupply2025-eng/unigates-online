@@ -729,7 +729,6 @@ const LecturerDashboard = () => {
                 { key: "quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: HelpCircle, color: "from-amber-500 to-amber-600", onClick: () => handleTabChange("quizzes"), active: activeTab === "quizzes" },
                 { key: "quiz-results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", onClick: () => handleTabChange("quiz-results"), active: activeTab === "quiz-results" },
                 { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-teal-500 to-emerald-600", onClick: () => handleTabChange("attendance"), active: activeTab === "attendance" },
-                { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => handleTabChange("ratings"), active: activeTab === "ratings" },
                 { key: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, color: "from-green-500 to-emerald-600", onClick: () => handleTabChange("analytics"), active: activeTab === "analytics" },
                 { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: Users, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/lecturer/profile") },
               ]}

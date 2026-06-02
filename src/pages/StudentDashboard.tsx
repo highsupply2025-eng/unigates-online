@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   GraduationCap, Globe, BookOpen, Award, Radio, User, Star, FileText,
-  ClipboardList, Calendar, TrendingUp, Menu, LogOut, Home, Eye, Users
+  ClipboardList, Calendar, TrendingUp, Menu, LogOut, Home, Eye, Users, ShieldCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

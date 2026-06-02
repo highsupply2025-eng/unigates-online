@@ -1134,16 +1134,8 @@ const LecturerDashboard = () => {
                 )}
               </TabsContent>
 
-              {/* ===== RATINGS TAB ===== */}
-              <TabsContent value="ratings" dir={isRtl ? "rtl" : "ltr"}>
-                <div className="flex items-center justify-between mb-6" dir={isRtl ? "rtl" : "ltr"}>
-                  <h2 className="text-2xl md:text-3xl font-black text-amber-600 dark:text-amber-400 order-1 inline-flex items-center gap-2.5 drop-shadow-sm"><Star className="w-7 h-7 fill-amber-400 text-amber-500" strokeWidth={2.75} />{isRtl ? "تقييم الطلبة" : "Student Ratings"}</h2>
-                  <Button size="sm" variant="outline" onClick={() => exportAnalyticsPDF("ratings")} className="gap-1.5 order-2">
-                    <Download className="w-4 h-4" />{isRtl ? "تحميل PDF" : "Export PDF"}
-                  </Button>
-                </div>
-                <RatingsBreakdown lecturerId={user?.id || null} />
-              </TabsContent>
+
+
 
               {/* ===== ANALYTICS / EXPORT TAB ===== */}
               <TabsContent value="analytics" dir={isRtl ? "rtl" : "ltr"}>

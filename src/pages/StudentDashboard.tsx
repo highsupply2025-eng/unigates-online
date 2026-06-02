@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   GraduationCap, Globe, BookOpen, Award, Radio, User, Star, FileText,
-  ClipboardList, Calendar, TrendingUp, Menu, LogOut, Home, Eye, Users
+  ClipboardList, Calendar, TrendingUp, Menu, LogOut, Home, Eye, Users, ShieldCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -100,6 +100,7 @@ const StudentDashboard = () => {
     { to: "/student/quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: ClipboardList, color: "from-purple-500 to-purple-600" },
     { to: "/student/assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: FileText, color: "from-amber-500 to-amber-600" },
     { to: "/student/schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-pink-500 to-pink-600" },
+    { to: "/student/presence-checkin", label: isRtl ? "إثبات الحضور" : "Verify Presence", Icon: ShieldCheck, color: "from-emerald-500 to-teal-600" },
     
     { to: "/student/ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600" },
     { to: "/student/results", label: isRtl ? "نتائج الاختبارات" : "Exam Results", Icon: Award, color: "from-teal-500 to-teal-600" },

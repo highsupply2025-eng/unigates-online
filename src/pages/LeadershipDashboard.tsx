@@ -338,7 +338,7 @@ const LeadershipDashboard = () => {
                 { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, color: "from-purple-500 to-fuchsia-600", onClick: () => setActiveTab("schedulesapproval"), active: activeTab === "schedulesapproval" },
                 { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", onClick: () => setActiveTab("quizresults"), active: activeTab === "quizresults" },
                 ...(userRole === "department_head" ? [{ key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, color: "from-blue-500 to-indigo-600", onClick: () => setActiveTab("assignments"), active: activeTab === "assignments" }] : []),
-                { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => setActiveTab("ratings"), active: activeTab === "ratings" },
+                ...(userRole === "dean" ? [{ key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => setActiveTab("ratings"), active: activeTab === "ratings" }] : []),
                 { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/leadership/profile") },
               ]}
             />
@@ -385,7 +385,7 @@ const LeadershipDashboard = () => {
                       { label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, timestamps: lectureSchedules.map((s: any) => s.created_at) },
                       { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
                       ...(userRole === "department_head" ? [{ label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, timestamps: assignmentSubmissions.map((s: any) => s.submitted_at || s.created_at) }] : []),
-                      { label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, timestamps: ratings.map((r: any) => r.created_at) },
+                      ...(userRole === "dean" ? [{ label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, timestamps: ratings.map((r: any) => r.created_at) }] : []),
                     ]}
                   />
 
@@ -399,7 +399,7 @@ const LeadershipDashboard = () => {
                       { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: CalendarCheck, color: "from-purple-500 to-fuchsia-600", count: lectureSchedules.length },
                       { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Trophy, color: "from-indigo-500 to-purple-600", count: quizSubmissions.length },
                       ...(userRole === "department_head" ? [{ key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: NotebookPen, color: "from-orange-500 to-orange-600", count: assignments.length }] : []),
-                      { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: ThumbsUp, color: "from-yellow-500 to-amber-600", count: ratings.length },
+                      ...(userRole === "dean" ? [{ key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: ThumbsUp, color: "from-yellow-500 to-amber-600", count: ratings.length }] : []),
                     ]}
                   />
 

@@ -44,7 +44,7 @@ const LecturerDashboard = () => {
   const location = useLocation();
   const handleHeaderBack = useSmartBack("/");
   const isRtl = dir === "rtl";
-  const VALID_TABS = ["home", "courses", "live", "quizzes", "assignments", "schedules", "attendance", "ratings", "analytics", "quiz-results"] as const;
+  const VALID_TABS = ["home", "courses", "live", "quizzes", "assignments", "schedules", "attendance", "analytics", "quiz-results"] as const;
   const requestedTab = new URLSearchParams(location.search).get("tab");
   const initialTab = requestedTab && (VALID_TABS as readonly string[]).includes(requestedTab) ? requestedTab : "home";
 
@@ -706,8 +706,7 @@ const LecturerDashboard = () => {
                     assignments: { ar: "التكليفات", en: "Assignments" },
                     schedules: { ar: "الجداول", en: "Schedules" },
                     attendance: { ar: "الحضور", en: "Attendance" },
-                     ratings: { ar: "تقييمات الطلاب", en: "Student Ratings" },
-                     analytics: { ar: "تحميل التقارير", en: "Export Reports" },
+                      analytics: { ar: "تحميل التقارير", en: "Export Reports" },
                      "quiz-results": { ar: "نتائج الاختبارات", en: "Quiz Results" },
                   };
                   const cur = map[activeTab] ?? map.home;
@@ -730,7 +729,6 @@ const LecturerDashboard = () => {
                 { key: "quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: HelpCircle, color: "from-amber-500 to-amber-600", onClick: () => handleTabChange("quizzes"), active: activeTab === "quizzes" },
                 { key: "quiz-results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", onClick: () => handleTabChange("quiz-results"), active: activeTab === "quiz-results" },
                 { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-teal-500 to-emerald-600", onClick: () => handleTabChange("attendance"), active: activeTab === "attendance" },
-                { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => handleTabChange("ratings"), active: activeTab === "ratings" },
                 { key: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, color: "from-green-500 to-emerald-600", onClick: () => handleTabChange("analytics"), active: activeTab === "analytics" },
                 { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: Users, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/lecturer/profile") },
               ]}
@@ -749,7 +747,6 @@ const LecturerDashboard = () => {
             assignments: { titleAr: "التكليفات", titleEn: "Assignments", subAr: "إنشاء ومتابعة التكليفات", subEn: "Create & track assignments", Icon: ClipboardList, gradient: "from-blue-600 via-indigo-600 to-purple-600", shadow: "shadow-indigo-500/40" },
             schedules:   { titleAr: "الجداول", titleEn: "Schedules", subAr: "الجداول والمواعيد", subEn: "Schedules & sessions", Icon: Calendar, gradient: "from-purple-600 via-violet-600 to-fuchsia-600", shadow: "shadow-violet-500/40" },
             attendance:  { titleAr: "الحضور", titleEn: "Attendance", subAr: "متابعة حضور الطلاب", subEn: "Track student attendance", Icon: Users, gradient: "from-teal-600 via-emerald-600 to-green-600", shadow: "shadow-emerald-500/40" },
-            ratings:     { titleAr: "تقييمات الطلاب", titleEn: "Student Ratings", subAr: "تقييم الطلاب لمحاضراتك", subEn: "Student feedback", Icon: Star, gradient: "from-yellow-500 via-amber-600 to-orange-600", shadow: "shadow-amber-500/40" },
             analytics:   { titleAr: "تحميل التقارير", titleEn: "Export Reports", subAr: "تنزيل تقارير الأداء", subEn: "Download performance reports", Icon: Download, gradient: "from-green-600 via-emerald-600 to-teal-600", shadow: "shadow-emerald-500/40" },
             "quiz-results": { titleAr: "نتائج الاختبارات", titleEn: "Quiz Results", subAr: "متابعة نتائج الاختبارات والاعتماد", subEn: "Track quiz results & approvals", Icon: Award, gradient: "from-indigo-600 via-violet-600 to-purple-600", shadow: "shadow-violet-500/40" },
           };
@@ -786,7 +783,6 @@ const LecturerDashboard = () => {
                 <TabsTrigger value="quizzes">quizzes</TabsTrigger>
                 <TabsTrigger value="schedules">schedules</TabsTrigger>
                 <TabsTrigger value="attendance">attendance</TabsTrigger>
-                <TabsTrigger value="ratings">ratings</TabsTrigger>
                 <TabsTrigger value="analytics">analytics</TabsTrigger>
                 <TabsTrigger value="quiz-results">quiz-results</TabsTrigger>
               </TabsList>
@@ -808,7 +804,6 @@ const LecturerDashboard = () => {
                     { label: isRtl ? "التكليفات" : "Assignments", timestamps: assignments.map((x: any) => x.created_at), Icon: ClipboardList, palette: { from: "#3b82f6", to: "#2563eb", glow: "59,130,246" } },
                     { label: isRtl ? "الجداول" : "Schedules", timestamps: schedules.map((x: any) => x.created_at), Icon: Calendar, palette: { from: "#a855f7", to: "#9333ea", glow: "168,85,247" } },
                     { label: isRtl ? "الحضور" : "Attendance", timestamps: attendance.map((x: any) => x.joined_at || x.created_at), Icon: Users, palette: { from: "#14b8a6", to: "#0d9488", glow: "20,184,166" } },
-                    { label: isRtl ? "التقييمات" : "Ratings", timestamps: lecturerRatings.map((x: any) => x.created_at), Icon: Star, palette: { from: "#eab308", to: "#d97706", glow: "234,179,8" } },
                     { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", timestamps: quizSubmissions.map((x: any) => x.submitted_at || x.created_at), Icon: Award, palette: { from: "#6366f1", to: "#4f46e5", glow: "99,102,241" } },
                     { label: isRtl ? "تحميل التقارير" : "Reports", timestamps: attachments.map((x: any) => x.created_at), Icon: Download, palette: { from: "#22c55e", to: "#16a34a", glow: "34,197,94" } },
                     
@@ -826,7 +821,6 @@ const LecturerDashboard = () => {
                     { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-blue-500 to-blue-600", count: assignments.length },
                     { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-purple-500 to-purple-600", count: schedules.length },
                     { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-teal-500 to-teal-600", count: attendance.length },
-                    { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", count: lecturerRatings.length },
                     { key: "results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-indigo-600", count: quizSubmissions.length },
                     { key: "reports", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, color: "from-green-500 to-green-600", count: attachments.length },
                   ]}
@@ -1140,16 +1134,8 @@ const LecturerDashboard = () => {
                 )}
               </TabsContent>
 
-              {/* ===== RATINGS TAB ===== */}
-              <TabsContent value="ratings" dir={isRtl ? "rtl" : "ltr"}>
-                <div className="flex items-center justify-between mb-6" dir={isRtl ? "rtl" : "ltr"}>
-                  <h2 className="text-2xl md:text-3xl font-black text-amber-600 dark:text-amber-400 order-1 inline-flex items-center gap-2.5 drop-shadow-sm"><Star className="w-7 h-7 fill-amber-400 text-amber-500" strokeWidth={2.75} />{isRtl ? "تقييم الطلبة" : "Student Ratings"}</h2>
-                  <Button size="sm" variant="outline" onClick={() => exportAnalyticsPDF("ratings")} className="gap-1.5 order-2">
-                    <Download className="w-4 h-4" />{isRtl ? "تحميل PDF" : "Export PDF"}
-                  </Button>
-                </div>
-                <RatingsBreakdown lecturerId={user?.id || null} />
-              </TabsContent>
+
+
 
               {/* ===== ANALYTICS / EXPORT TAB ===== */}
               <TabsContent value="analytics" dir={isRtl ? "rtl" : "ltr"}>
@@ -1159,7 +1145,7 @@ const LecturerDashboard = () => {
                     { key: "overview", icon: BarChart3, label: isRtl ? "تقرير شامل" : "Overview Report", from: "from-primary", to: "to-primary/70", text: "text-primary", border: "border-primary/30", hoverBorder: "hover:border-primary", shadow: "hover:shadow-primary/20" },
                     { key: "attendance", icon: Users, label: isRtl ? "تقرير الحضور" : "Attendance Report", from: "from-blue-500", to: "to-blue-700", text: "text-blue-600 dark:text-blue-400", border: "border-blue-500/30", hoverBorder: "hover:border-blue-500", shadow: "hover:shadow-blue-500/20" },
                     { key: "schedules", icon: Calendar, label: isRtl ? "تقرير الجداول" : "Schedules Report", from: "from-emerald-500", to: "to-emerald-700", text: "text-emerald-600 dark:text-emerald-400", border: "border-emerald-500/30", hoverBorder: "hover:border-emerald-500", shadow: "hover:shadow-emerald-500/20" },
-                    { key: "ratings", icon: Star, label: isRtl ? "تقرير التقييمات" : "Ratings Report", from: "from-amber-500", to: "to-amber-700", text: "text-amber-600 dark:text-amber-400", border: "border-amber-500/30", hoverBorder: "hover:border-amber-500", shadow: "hover:shadow-amber-500/20" },
+                    
                   ].map(item => (
                     <Card key={item.key} className={`cursor-pointer border-2 ${item.border} ${item.hoverBorder} hover:shadow-xl ${item.shadow} transition-all bg-gradient-to-br from-background to-muted/30`} onClick={() => exportAnalyticsPDF(item.key)}>
                       <CardContent className="p-6 text-center">

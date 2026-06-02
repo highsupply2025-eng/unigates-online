@@ -1662,6 +1662,48 @@ export type Database = {
           },
         ]
       }
+      student_presence_checkins: {
+        Row: {
+          accuracy_m: number | null
+          course_id: string | null
+          created_at: string
+          hall_code: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          schedule_id: string | null
+          selfie_url: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          accuracy_m?: number | null
+          course_id?: string | null
+          created_at?: string
+          hall_code?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          schedule_id?: string | null
+          selfie_url?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          accuracy_m?: number | null
+          course_id?: string | null
+          created_at?: string
+          hall_code?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          schedule_id?: string | null
+          selfie_url?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       student_progress: {
         Row: {
           completed: boolean

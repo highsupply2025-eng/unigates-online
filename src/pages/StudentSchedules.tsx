@@ -16,7 +16,7 @@ const StudentSchedules = () => {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<any[]>([]);
 
-  useEffect(() => { (async () => {
+  const load = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigate("/login"); return; }
     const { data: subs } = await supabase
@@ -25,7 +25,7 @@ const StudentSchedules = () => {
       .eq("user_id", user.id)
       .eq("status", "active");
     const courseIds = (subs || []).map((s: any) => s.course_id);
-    if (courseIds.length === 0) { setLoading(false); return; }
+    if (courseIds.length === 0) { setItems([]); setLoading(false); return; }
     const { data } = await supabase
       .from("lecture_schedules")
       .select("*")
@@ -33,7 +33,11 @@ const StudentSchedules = () => {
       .order("scheduled_date", { ascending: true });
     setItems(data || []);
     setLoading(false);
-  })(); }, [navigate]);
+  };
+
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [navigate]);
+
+  useRealtimeRefresh(["lecture_schedules", "user_subscriptions"], load);
 
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>

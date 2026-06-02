@@ -44,7 +44,7 @@ const LecturerDashboard = () => {
   const location = useLocation();
   const handleHeaderBack = useSmartBack("/");
   const isRtl = dir === "rtl";
-  const VALID_TABS = ["home", "courses", "live", "quizzes", "assignments", "schedules", "attendance", "ratings", "analytics", "quiz-results"] as const;
+  const VALID_TABS = ["home", "courses", "live", "quizzes", "assignments", "schedules", "attendance", "analytics", "quiz-results"] as const;
   const requestedTab = new URLSearchParams(location.search).get("tab");
   const initialTab = requestedTab && (VALID_TABS as readonly string[]).includes(requestedTab) ? requestedTab : "home";
 

@@ -399,7 +399,7 @@ const LeadershipDashboard = () => {
                       { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: CalendarCheck, color: "from-purple-500 to-fuchsia-600", count: lectureSchedules.length },
                       { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Trophy, color: "from-indigo-500 to-purple-600", count: quizSubmissions.length },
                       ...(userRole === "department_head" ? [{ key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: NotebookPen, color: "from-orange-500 to-orange-600", count: assignments.length }] : []),
-                      { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: ThumbsUp, color: "from-yellow-500 to-amber-600", count: ratings.length },
+                      ...(userRole === "dean" ? [{ key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: ThumbsUp, color: "from-yellow-500 to-amber-600", count: ratings.length }] : []),
                     ]}
                   />
 

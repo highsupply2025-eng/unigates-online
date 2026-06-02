@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ClipboardList, Calendar, CheckCircle2, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 import StudentPageHeader from "@/components/StudentPageHeader";
 import StudentHero from "@/components/StudentHero";
 import { Card, CardContent } from "@/components/ui/card";

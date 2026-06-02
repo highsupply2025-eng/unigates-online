@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 import BackButton from "@/components/BackButton";

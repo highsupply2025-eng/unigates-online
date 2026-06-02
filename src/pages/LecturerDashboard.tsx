@@ -804,7 +804,6 @@ const LecturerDashboard = () => {
                     { label: isRtl ? "التكليفات" : "Assignments", timestamps: assignments.map((x: any) => x.created_at), Icon: ClipboardList, palette: { from: "#3b82f6", to: "#2563eb", glow: "59,130,246" } },
                     { label: isRtl ? "الجداول" : "Schedules", timestamps: schedules.map((x: any) => x.created_at), Icon: Calendar, palette: { from: "#a855f7", to: "#9333ea", glow: "168,85,247" } },
                     { label: isRtl ? "الحضور" : "Attendance", timestamps: attendance.map((x: any) => x.joined_at || x.created_at), Icon: Users, palette: { from: "#14b8a6", to: "#0d9488", glow: "20,184,166" } },
-                    { label: isRtl ? "التقييمات" : "Ratings", timestamps: lecturerRatings.map((x: any) => x.created_at), Icon: Star, palette: { from: "#eab308", to: "#d97706", glow: "234,179,8" } },
                     { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", timestamps: quizSubmissions.map((x: any) => x.submitted_at || x.created_at), Icon: Award, palette: { from: "#6366f1", to: "#4f46e5", glow: "99,102,241" } },
                     { label: isRtl ? "تحميل التقارير" : "Reports", timestamps: attachments.map((x: any) => x.created_at), Icon: Download, palette: { from: "#22c55e", to: "#16a34a", glow: "34,197,94" } },
                     

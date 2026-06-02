@@ -385,7 +385,7 @@ const LeadershipDashboard = () => {
                       { label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, timestamps: lectureSchedules.map((s: any) => s.created_at) },
                       { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
                       ...(userRole === "department_head" ? [{ label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, timestamps: assignmentSubmissions.map((s: any) => s.submitted_at || s.created_at) }] : []),
-                      { label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, timestamps: ratings.map((r: any) => r.created_at) },
+                      ...(userRole === "dean" ? [{ label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, timestamps: ratings.map((r: any) => r.created_at) }] : []),
                     ]}
                   />
 

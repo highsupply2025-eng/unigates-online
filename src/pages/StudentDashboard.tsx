@@ -43,7 +43,7 @@ const StudentDashboard = () => {
   });
   const [rangeDays, setRangeDays] = useState<7 | 30>(7);
 
-  useEffect(() => { (async () => {
+  const load = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigate("/login"); return; }
     const { data: p } = await supabase.from("profiles").select("*").eq("user_id", user.id).single();
@@ -81,7 +81,14 @@ const StudentDashboard = () => {
       ratings: (ratings.data || []).map((x: any) => x.created_at).filter(Boolean),
     });
     setLoading(false);
-  })(); }, [navigate]);
+  };
+
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [navigate]);
+
+  useRealtimeRefresh(
+    ["live_streams", "quizzes", "assignments", "lecture_schedules", "course_episodes", "user_subscriptions"],
+    load
+  );
 
   const handleLogout = async () => { await supabase.auth.signOut(); navigate("/university-platform"); };
 

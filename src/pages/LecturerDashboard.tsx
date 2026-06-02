@@ -1145,7 +1145,7 @@ const LecturerDashboard = () => {
                     { key: "overview", icon: BarChart3, label: isRtl ? "تقرير شامل" : "Overview Report", from: "from-primary", to: "to-primary/70", text: "text-primary", border: "border-primary/30", hoverBorder: "hover:border-primary", shadow: "hover:shadow-primary/20" },
                     { key: "attendance", icon: Users, label: isRtl ? "تقرير الحضور" : "Attendance Report", from: "from-blue-500", to: "to-blue-700", text: "text-blue-600 dark:text-blue-400", border: "border-blue-500/30", hoverBorder: "hover:border-blue-500", shadow: "hover:shadow-blue-500/20" },
                     { key: "schedules", icon: Calendar, label: isRtl ? "تقرير الجداول" : "Schedules Report", from: "from-emerald-500", to: "to-emerald-700", text: "text-emerald-600 dark:text-emerald-400", border: "border-emerald-500/30", hoverBorder: "hover:border-emerald-500", shadow: "hover:shadow-emerald-500/20" },
-                    { key: "ratings", icon: Star, label: isRtl ? "تقرير التقييمات" : "Ratings Report", from: "from-amber-500", to: "to-amber-700", text: "text-amber-600 dark:text-amber-400", border: "border-amber-500/30", hoverBorder: "hover:border-amber-500", shadow: "hover:shadow-amber-500/20" },
+                    
                   ].map(item => (
                     <Card key={item.key} className={`cursor-pointer border-2 ${item.border} ${item.hoverBorder} hover:shadow-xl ${item.shadow} transition-all bg-gradient-to-br from-background to-muted/30`} onClick={() => exportAnalyticsPDF(item.key)}>
                       <CardContent className="p-6 text-center">

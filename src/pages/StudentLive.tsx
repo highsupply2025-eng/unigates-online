@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 import StudentPageHeader from "@/components/StudentPageHeader";
 import StudentHero from "@/components/StudentHero";
 

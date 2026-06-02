@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 import StudentPageHeader from "@/components/StudentPageHeader";
 import StudentHero from "@/components/StudentHero";
 

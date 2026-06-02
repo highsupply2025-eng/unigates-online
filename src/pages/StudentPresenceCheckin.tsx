@@ -155,7 +155,7 @@ export default function StudentPresenceCheckin() {
       <SubPageHeader
         titleAr="إثبات الحضور في القاعة"
         titleEn="Verify Presence in Hall"
-        icon={ShieldCheck}
+        icon={<ShieldCheck className="w-5 h-5" />}
         backTo="/student/dashboard"
       />
 

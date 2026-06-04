@@ -547,6 +547,69 @@ const InstitutionDashboard = () => {
     }
   };
 
+  const downloadAccountsTemplate = () => {
+    const header = [
+      isRtl ? "الاسم الكامل" : "full_name",
+      isRtl ? "البريد الإلكتروني" : "email",
+      isRtl ? "رقم الهاتف" : "phone",
+      isRtl ? "الدور" : "role",
+      isRtl ? "اسم القسم" : "department_name",
+    ];
+    const example = [
+      ["أحمد محمد", "ahmed@example.com", "+201000000001", "student", departments[0]?.department_name || ""],
+      ["د. سارة", "sara@example.com", "+201000000002", "lecturer", departments[0]?.department_name || ""],
+      ["رئيس قسم", "head@example.com", "+201000000003", "department_head", departments[0]?.department_name || ""],
+    ];
+    const ws = XLSX.utils.aoa_to_sheet([header, ...example]);
+    ws["!cols"] = [{ wch: 22 }, { wch: 28 }, { wch: 18 }, { wch: 16 }, { wch: 22 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Accounts");
+    XLSX.writeFile(wb, "accounts_template.xlsx");
+  };
+
+  const handleBulkAccountsFile = async (file: File) => {
+    if (!institutionId || !institutionType) return;
+    setBulkUploading(true);
+    setBulkResult(null);
+    try {
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: "array" });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const raw: any[] = XLSX.utils.sheet_to_json(ws, { defval: "" });
+      // Normalize headers (accept AR or EN)
+      const rows = raw.map((r) => ({
+        full_name: r.full_name || r["الاسم الكامل"] || r["الاسم"] || "",
+        email: r.email || r["البريد الإلكتروني"] || r["الايميل"] || r["الإيميل"] || "",
+        phone: r.phone || r["رقم الهاتف"] || r["الهاتف"] || "",
+        role: r.role || r["الدور"] || r["النوع"] || "",
+        department_name: r.department_name || r["اسم القسم"] || r["القسم"] || "",
+      }));
+      if (rows.length === 0) {
+        toast({ title: isRtl ? "ملف فارغ" : "Empty file", variant: "destructive" });
+        return;
+      }
+      const { data, error } = await supabase.functions.invoke("bulk-create-institution-accounts", {
+        body: { institution_type: institutionType, institution_id: institutionId, rows },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      setBulkResult(data as any);
+      toast({
+        title: isRtl ? "تم تفعيل الحسابات" : "Accounts activated",
+        description: isRtl
+          ? `تم إنشاء ${(data as any).created} من ${(data as any).total}`
+          : `Created ${(data as any).created} of ${(data as any).total}`,
+      });
+      await loadInstitutionData(institutionId, institutionType);
+    } catch (e: any) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: e?.message || String(e), variant: "destructive" });
+    } finally {
+      setBulkUploading(false);
+    }
+  };
+
+
+
   const exportResultsToExcel = () => {
     const data = studentResults.map((r, idx) => ({
       [isRtl ? "#" : "#"]: idx + 1,

@@ -39,7 +39,7 @@ const StudentLectures = () => {
   useRealtimeRefresh(["courses", "course_episodes", "user_subscriptions"], load);
 
   const subscribedIds = subscriptions.map(s => s.course_id);
-  const subscribedCourses = courses.filter(c => subscribedIds.includes(c.id));
+  const subscribedCourses = courses;
 
   const getCourseProgress = (courseId: string, episodeCount: number) => {
     if (!episodeCount) return 0;

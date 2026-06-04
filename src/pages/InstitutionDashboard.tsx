@@ -875,7 +875,7 @@ ${rows.map((r: any, i: number) => `<tr>
             </Button>
             <Button variant={activeTab === "invitations" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("invitations")}>
               <LinkIcon className="w-4 h-4" />
-              {isRtl ? "الدعوات" : "Invitations"}
+              {isRtl ? "إدارة الحسابات" : "Account Management"}
             </Button>
             <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5">
               <Globe className="w-4 h-4" />

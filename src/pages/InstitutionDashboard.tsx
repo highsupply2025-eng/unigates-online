@@ -80,6 +80,7 @@ const InstitutionDashboard = () => {
    const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     setPageView("main");
+    setAccountMgmtView("main");
     if (tab === "general") {
       setSearchParams({}, { replace: true });
     } else {
@@ -152,6 +153,9 @@ const InstitutionDashboard = () => {
   const [showMemberProfileDialog, setShowMemberProfileDialog] = useState(false);
   const [memberProfileTab, setMemberProfileTab] = useState<"info" | "stats">("info");
   const [pageView, setPageView] = useState<"main" | "members" | "memberProfile">("main");
+  const [accountMgmtView, setAccountMgmtView] = useState<"main" | "invitations" | "accounts">("main");
+  const [bulkUploading, setBulkUploading] = useState(false);
+  const [bulkResult, setBulkResult] = useState<{ created: number; failed: number; total: number; password: string; results: any[] } | null>(null);
   const [membersActiveOnly, setMembersActiveOnly] = useState(false);
   const [profilesMap, setProfilesMap] = useState<Record<string, { full_name: string; email: string; phone: string; role: string; created_at: string }>>({});
   const [leadershipMembers, setLeadershipMembers] = useState<Array<{ invitation_id: string; user_id: string; role: string; joined_at: string }>>([]);
@@ -543,6 +547,69 @@ const InstitutionDashboard = () => {
     }
   };
 
+  const downloadAccountsTemplate = () => {
+    const header = [
+      isRtl ? "الاسم الكامل" : "full_name",
+      isRtl ? "البريد الإلكتروني" : "email",
+      isRtl ? "رقم الهاتف" : "phone",
+      isRtl ? "الدور" : "role",
+      isRtl ? "اسم القسم" : "department_name",
+    ];
+    const example = [
+      ["أحمد محمد", "ahmed@example.com", "+201000000001", "student", departments[0]?.department_name || ""],
+      ["د. سارة", "sara@example.com", "+201000000002", "lecturer", departments[0]?.department_name || ""],
+      ["رئيس قسم", "head@example.com", "+201000000003", "department_head", departments[0]?.department_name || ""],
+    ];
+    const ws = XLSX.utils.aoa_to_sheet([header, ...example]);
+    ws["!cols"] = [{ wch: 22 }, { wch: 28 }, { wch: 18 }, { wch: 16 }, { wch: 22 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Accounts");
+    XLSX.writeFile(wb, "accounts_template.xlsx");
+  };
+
+  const handleBulkAccountsFile = async (file: File) => {
+    if (!institutionId || !institutionType) return;
+    setBulkUploading(true);
+    setBulkResult(null);
+    try {
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: "array" });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const raw: any[] = XLSX.utils.sheet_to_json(ws, { defval: "" });
+      // Normalize headers (accept AR or EN)
+      const rows = raw.map((r) => ({
+        full_name: r.full_name || r["الاسم الكامل"] || r["الاسم"] || "",
+        email: r.email || r["البريد الإلكتروني"] || r["الايميل"] || r["الإيميل"] || "",
+        phone: r.phone || r["رقم الهاتف"] || r["الهاتف"] || "",
+        role: r.role || r["الدور"] || r["النوع"] || "",
+        department_name: r.department_name || r["اسم القسم"] || r["القسم"] || "",
+      }));
+      if (rows.length === 0) {
+        toast({ title: isRtl ? "ملف فارغ" : "Empty file", variant: "destructive" });
+        return;
+      }
+      const { data, error } = await supabase.functions.invoke("bulk-create-institution-accounts", {
+        body: { institution_type: institutionType, institution_id: institutionId, rows },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      setBulkResult(data as any);
+      toast({
+        title: isRtl ? "تم تفعيل الحسابات" : "Accounts activated",
+        description: isRtl
+          ? `تم إنشاء ${(data as any).created} من ${(data as any).total}`
+          : `Created ${(data as any).created} of ${(data as any).total}`,
+      });
+      await loadInstitutionData(institutionId, institutionType);
+    } catch (e: any) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: e?.message || String(e), variant: "destructive" });
+    } finally {
+      setBulkUploading(false);
+    }
+  };
+
+
+
   const exportResultsToExcel = () => {
     const data = studentResults.map((r, idx) => ({
       [isRtl ? "#" : "#"]: idx + 1,
@@ -846,7 +913,7 @@ ${rows.map((r: any, i: number) => `<tr>
                     schedules: { ar: "الجداول", en: "Schedules" },
                     departments: { ar: "الأقسام", en: "Departments" },
                     quizresults: { ar: "النتائج", en: "Results" },
-                    invitations: { ar: "الدعوات", en: "Invitations" },
+                    invitations: { ar: "إدارة الحسابات", en: "Account Management" },
                     livestreams: { ar: "البث المباشر", en: "Live Streams" },
                   };
                   const cur = map[activeTab] ?? map.general;
@@ -871,7 +938,7 @@ ${rows.map((r: any, i: number) => `<tr>
             </Button>
             <Button variant={activeTab === "invitations" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("invitations")}>
               <LinkIcon className="w-4 h-4" />
-              {isRtl ? "الدعوات" : "Invitations"}
+              {isRtl ? "إدارة الحسابات" : "Account Management"}
             </Button>
             <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5">
               <Globe className="w-4 h-4" />
@@ -896,7 +963,7 @@ ${rows.map((r: any, i: number) => `<tr>
                 { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, onClick: () => handleTabChange("departments"), active: activeTab === "departments" },
                 { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => handleTabChange("schedules"), active: activeTab === "schedules" },
                 { key: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, onClick: () => handleTabChange("quizresults"), active: activeTab === "quizresults" },
-                { key: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: LinkIcon, onClick: () => handleTabChange("invitations"), active: activeTab === "invitations" },
+                { key: "invitations", label: isRtl ? "إدارة الحسابات" : "Account Management", Icon: LinkIcon, onClick: () => handleTabChange("invitations"), active: activeTab === "invitations" },
                 { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/institution/profile") },
               ]}
             />
@@ -2067,7 +2134,174 @@ ${rows.map((r: any, i: number) => `<tr>
 
           {/* Invitations Tab - Links & Codes */}
           <TabsContent value="invitations" dir={isRtl ? "rtl" : "ltr"}>
-            <h2 className="text-2xl font-bold mb-4 text-foreground">{isRtl ? "روابط الدعوة" : "Invitation Links"}</h2>
+            {(() => {
+              const approvedDeptCount = departments.filter(d => d.status === "active").length;
+              if (approvedDeptCount === 0) {
+                return (
+                  <Card className="border-2 border-dashed border-amber-400/50 bg-amber-50/30 dark:bg-amber-950/10">
+                    <CardContent className="py-16 text-center space-y-3">
+                      <div className="w-16 h-16 rounded-2xl bg-amber-500/20 flex items-center justify-center mx-auto">
+                        <Clock className="w-8 h-8 text-amber-600" />
+                      </div>
+                      <h3 className="text-xl font-black text-foreground">
+                        {isRtl ? "إدارة الحسابات مغلقة" : "Account Management is locked"}
+                      </h3>
+                      <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                        {isRtl
+                          ? "ستفتح هذه الصفحة بعد اعتماد قسم واحد على الأقل من قبل الإدارة."
+                          : "This page unlocks once at least one department is approved by the admin."}
+                      </p>
+                    </CardContent>
+                  </Card>
+                );
+              }
+              if (accountMgmtView === "main") {
+                return (
+                  <div className="space-y-4">
+                    <h2 className="text-2xl font-bold text-foreground">{isRtl ? "إدارة الحسابات" : "Account Management"}</h2>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <button onClick={() => setAccountMgmtView("invitations")} className="group text-start">
+                        <Card className="h-full border-2 hover:border-primary hover:shadow-xl transition-all">
+                          <CardContent className="p-8 flex flex-col items-center text-center gap-4">
+                            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                              <LinkIcon className="w-10 h-10 text-primary-foreground" />
+                            </div>
+                            <h3 className="text-xl font-black">{isRtl ? "الدعوات" : "Invitations"}</h3>
+                            <p className="text-sm text-muted-foreground">
+                              {isRtl ? "روابط وأكواد دعوة للأعضاء" : "Invite links and codes for members"}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      </button>
+                      <button onClick={() => setAccountMgmtView("accounts")} className="group text-start">
+                        <Card className="h-full border-2 hover:border-primary hover:shadow-xl transition-all">
+                          <CardContent className="p-8 flex flex-col items-center text-center gap-4">
+                            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                              <Users className="w-10 h-10 text-white" />
+                            </div>
+                            <h3 className="text-xl font-black">{isRtl ? "الحسابات" : "Accounts"}</h3>
+                            <p className="text-sm text-muted-foreground">
+                              {isRtl ? "رفع ملف Excel لتفعيل حسابات الطلاب والمحاضرين ورؤساء الأقسام تلقائياً" : "Upload an Excel file to auto-activate students, lecturers, and department heads"}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      </button>
+                    </div>
+                  </div>
+                );
+              }
+              if (accountMgmtView === "accounts") {
+                return (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" onClick={() => { setAccountMgmtView("main"); setBulkResult(null); }} className="gap-2">
+                          {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                          {isRtl ? "رجوع" : "Back"}
+                        </Button>
+                        <h2 className="text-2xl font-bold text-foreground">{isRtl ? "تفعيل الحسابات بالجملة" : "Bulk Account Activation"}</h2>
+                      </div>
+                      <Button variant="outline" size="sm" onClick={downloadAccountsTemplate} className="gap-2">
+                        <Download className="w-4 h-4" />
+                        {isRtl ? "تحميل القالب" : "Download Template"}
+                      </Button>
+                    </div>
+
+                    <Card className="border-2 border-dashed border-primary/40">
+                      <CardContent className="p-8 text-center space-y-4">
+                        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-lg mx-auto">
+                          <Users className="w-10 h-10 text-white" />
+                        </div>
+                        <h3 className="text-lg font-black">
+                          {isRtl ? "ارفع ملف Excel (.xlsx)" : "Upload Excel file (.xlsx)"}
+                        </h3>
+                        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                          {isRtl
+                            ? "الأعمدة المطلوبة: الاسم الكامل، البريد الإلكتروني، رقم الهاتف، الدور (student/lecturer/department_head)، اسم القسم. عند الرفع يتم إنشاء الحسابات وتفعيلها تلقائياً بكلمة مرور مؤقتة."
+                            : "Required columns: full_name, email, phone, role (student/lecturer/department_head), department_name. Accounts are created and activated automatically with a temporary password."}
+                        </p>
+                        <div>
+                          <input
+                            id="bulk-accounts-file"
+                            type="file"
+                            accept=".xlsx,.xls"
+                            className="hidden"
+                            onChange={(e) => {
+                              const f = e.target.files?.[0];
+                              if (f) handleBulkAccountsFile(f);
+                              e.target.value = "";
+                            }}
+                            disabled={bulkUploading}
+                          />
+                          <Button
+                            size="lg"
+                            disabled={bulkUploading}
+                            onClick={() => document.getElementById("bulk-accounts-file")?.click()}
+                            className="gap-2"
+                          >
+                            {bulkUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <PlusCircle className="w-5 h-5" />}
+                            {isRtl ? "اختر الملف" : "Choose File"}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {bulkResult && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            <CheckCircle className="w-5 h-5 text-emerald-600" />
+                            {isRtl ? "نتيجة الرفع" : "Upload Result"}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div className="flex flex-wrap gap-2 text-sm">
+                            <Badge className="bg-emerald-600 text-white">
+                              {isRtl ? `تم: ${bulkResult.created}` : `Created: ${bulkResult.created}`}
+                            </Badge>
+                            <Badge variant={bulkResult.failed > 0 ? "destructive" : "secondary"}>
+                              {isRtl ? `فشل: ${bulkResult.failed}` : `Failed: ${bulkResult.failed}`}
+                            </Badge>
+                            <Badge variant="outline">
+                              {isRtl ? `الإجمالي: ${bulkResult.total}` : `Total: ${bulkResult.total}`}
+                            </Badge>
+                          </div>
+                          <div className="bg-muted/40 rounded-lg p-3 flex items-center gap-2 text-sm">
+                            <span className="font-semibold">{isRtl ? "كلمة المرور المؤقتة:" : "Temporary password:"}</span>
+                            <code className="font-mono text-primary font-bold">{bulkResult.password}</code>
+                            <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { navigator.clipboard.writeText(bulkResult.password); sonnerToast.success(isRtl ? "تم النسخ" : "Copied"); }}>
+                              <Copy className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {isRtl ? "شارك كلمة المرور مع المستخدمين الجدد ليسجلوا الدخول بإيميلاتهم، ويمكنهم تغييرها لاحقاً." : "Share this password with the new users; they can log in with their emails and change it later."}
+                          </p>
+                          {bulkResult.failed > 0 && (
+                            <div className="max-h-64 overflow-auto border rounded-lg p-2 space-y-1">
+                              {bulkResult.results.filter((r: any) => !r.ok).map((r: any, i: number) => (
+                                <div key={i} className="text-xs flex justify-between gap-2 p-1 border-b last:border-0">
+                                  <span className="font-mono">#{r.row} {r.email}</span>
+                                  <span className="text-destructive truncate">{r.error}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                );
+              }
+              // accountMgmtView === "invitations"
+              return (
+              <>
+                <div className="mb-3">
+                  <Button variant="outline" size="sm" onClick={() => setAccountMgmtView("main")} className="gap-2">
+                    {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                    {isRtl ? "رجوع" : "Back"}
+                  </Button>
+                </div>
+                <h2 className="text-2xl font-bold mb-4 text-foreground">{isRtl ? "روابط الدعوة" : "Invitation Links"}</h2>
             {/* Free Leadership Links - Always visible */}
             {leadershipInvitations.length > 0 && (
               <Card className="mb-6 border-2 border-emerald-500/30 bg-emerald-50/30 dark:bg-emerald-950/10">
@@ -2486,6 +2720,9 @@ ${rows.map((r: any, i: number) => `<tr>
                 })}
               </div>
             )}
+              </>
+              );
+            })()}
           </TabsContent>
 
         </Tabs>

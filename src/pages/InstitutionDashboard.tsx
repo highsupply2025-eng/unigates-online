@@ -2720,6 +2720,9 @@ ${rows.map((r: any, i: number) => `<tr>
                 })}
               </div>
             )}
+              </>
+              );
+            })()}
           </TabsContent>
 
         </Tabs>

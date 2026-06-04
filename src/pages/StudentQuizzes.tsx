@@ -240,7 +240,7 @@ const StudentQuizzes = () => {
     );
   }
 
-  const available = quizzes.filter(q => subscribedIds.includes(q.course_id));
+  const available = quizzes;
 
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>

@@ -19,17 +19,10 @@ const StudentSchedules = () => {
   const load = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigate("/login"); return; }
-    const { data: subs } = await supabase
-      .from("user_subscriptions")
-      .select("course_id")
-      .eq("user_id", user.id)
-      .eq("status", "active");
-    const courseIds = (subs || []).map((s: any) => s.course_id);
-    if (courseIds.length === 0) { setItems([]); setLoading(false); return; }
+    // Show all schedules added by lecturers regardless of subscription
     const { data } = await supabase
       .from("lecture_schedules")
       .select("*")
-      .in("course_id", courseIds)
       .order("scheduled_date", { ascending: true });
     setItems(data || []);
     setLoading(false);

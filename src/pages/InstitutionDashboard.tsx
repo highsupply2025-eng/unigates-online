@@ -80,6 +80,7 @@ const InstitutionDashboard = () => {
    const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     setPageView("main");
+    setAccountMgmtView("main");
     if (tab === "general") {
       setSearchParams({}, { replace: true });
     } else {

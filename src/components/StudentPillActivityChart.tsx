@@ -154,7 +154,7 @@ export const StudentPillActivityChart = ({
                 {/* label */}
                 <div className="mt-5 h-10 w-full flex items-start justify-center px-0.5">
                   <span
-                    className="text-[10px] sm:text-xs md:text-sm font-bold text-foreground text-center leading-tight break-words"
+                    className="text-[10px] sm:text-[11px] md:text-xs font-bold text-foreground text-center leading-tight hyphens-none [word-break:keep-all] [overflow-wrap:normal]"
                   >
                     {d.name}
                   </span>

@@ -26,13 +26,9 @@ const StudentLectures = () => {
     if (!user) { navigate("/login"); return; }
     const { data: subs } = await supabase.from("user_subscriptions").select("*").eq("user_id", user.id).eq("status", "active");
     setSubscriptions(subs || []);
-    if (subs?.length) {
-      const ids = [...new Set(subs.map(s => s.course_id))];
-      const { data: c } = await supabase.from("courses").select("*").in("id", ids);
-      setCourses(c || []);
-    } else {
-      setCourses([]);
-    }
+    // Show ALL courses added by lecturers, not only subscribed ones
+    const { data: c } = await supabase.from("courses").select("*").order("created_at", { ascending: false });
+    setCourses(c || []);
     const { data: prog } = await supabase.from("student_progress").select("*").eq("user_id", user.id);
     setProgress(prog || []);
     setLoading(false);

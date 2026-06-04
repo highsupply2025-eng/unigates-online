@@ -850,7 +850,7 @@ ${rows.map((r: any, i: number) => `<tr>
                     schedules: { ar: "الجداول", en: "Schedules" },
                     departments: { ar: "الأقسام", en: "Departments" },
                     quizresults: { ar: "النتائج", en: "Results" },
-                    invitations: { ar: "الدعوات", en: "Invitations" },
+                    invitations: { ar: "إدارة الحسابات", en: "Account Management" },
                     livestreams: { ar: "البث المباشر", en: "Live Streams" },
                   };
                   const cur = map[activeTab] ?? map.general;

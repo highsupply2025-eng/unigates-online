@@ -22,17 +22,10 @@ const StudentAssignments = () => {
   const load = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigate("/login"); return; }
-    const { data: subs } = await supabase
-      .from("user_subscriptions")
-      .select("course_id")
-      .eq("user_id", user.id)
-      .eq("status", "active");
-    const courseIds = (subs || []).map((s: any) => s.course_id);
-    if (courseIds.length === 0) { setItems([]); setLoading(false); return; }
+    // Show all assignments added by lecturers regardless of subscription
     const { data: asgs } = await supabase
       .from("assignments")
       .select("*")
-      .in("course_id", courseIds)
       .order("due_date", { ascending: true });
     setItems(asgs || []);
     const { data: mySubs } = await supabase

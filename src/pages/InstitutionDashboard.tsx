@@ -177,6 +177,25 @@ const InstitutionDashboard = () => {
   const [accountSystemChoice, setAccountSystemChoice] = useState<"invitations" | "accounts" | null>(null);
   const [pendingChoice, setPendingChoice] = useState<"invitations" | "accounts" | null>(null);
   const [membersActiveOnly, setMembersActiveOnly] = useState(false);
+
+  // Load exclusive account-system choice from localStorage when institution is known
+  useEffect(() => {
+    if (!institutionId) return;
+    try {
+      const v = localStorage.getItem(`account_system_choice:${institutionId}`);
+      if (v === "invitations" || v === "accounts") setAccountSystemChoice(v);
+      else setAccountSystemChoice(null);
+    } catch {}
+  }, [institutionId]);
+
+  const confirmSystemChoice = (choice: "invitations" | "accounts") => {
+    try {
+      localStorage.setItem(`account_system_choice:${institutionId}`, choice);
+    } catch {}
+    setAccountSystemChoice(choice);
+    setPendingChoice(null);
+    setAccountMgmtView(choice);
+  };
   const [profilesMap, setProfilesMap] = useState<Record<string, { full_name: string; email: string; phone: string; role: string; created_at: string }>>({});
   const [leadershipMembers, setLeadershipMembers] = useState<Array<{ invitation_id: string; user_id: string; role: string; joined_at: string }>>([]);
   // Mobile compact view: hides secondary widgets and shrinks card grids while scrolling

@@ -2186,10 +2186,6 @@ ${rows.map((r: any, i: number) => `<tr>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between gap-2 flex-wrap">
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={() => { setAccountMgmtView("main"); setBulkResult(null); }} className="gap-2">
-                          {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                          {isRtl ? "رجوع" : "Back"}
-                        </Button>
                         <h2 className="text-2xl font-bold text-foreground">{isRtl ? "تفعيل الحسابات بالجملة" : "Bulk Account Activation"}</h2>
                       </div>
                       <Button variant="outline" size="sm" onClick={downloadAccountsTemplate} className="gap-2">

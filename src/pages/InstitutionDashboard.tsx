@@ -77,14 +77,26 @@ const InstitutionDashboard = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [rangeDays, setRangeDays] = useState<7 | 30>(7);
   
-   const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    setPageView("main");
-    setAccountMgmtView("main");
-    if (tab === "general") {
-      setSearchParams({}, { replace: true });
+   const handleTabChange = (tab: string, sub?: "main" | "invitations" | "accounts") => {
+    // Virtual "accounts" tab maps to the invitations TabsContent with a different sub-view
+    if (tab === "accounts") {
+      setActiveTab("invitations");
+      setPageView("main");
+      setAccountMgmtView("accounts");
+      setSearchParams({ tab: "accounts" }, { replace: true });
     } else {
-      setSearchParams({ tab }, { replace: true });
+      setActiveTab(tab);
+      setPageView("main");
+      if (tab === "invitations") {
+        setAccountMgmtView(sub ?? "invitations");
+      } else {
+        setAccountMgmtView("main");
+      }
+      if (tab === "general") {
+        setSearchParams({}, { replace: true });
+      } else {
+        setSearchParams({ tab }, { replace: true });
+      }
     }
     // Scroll to top instantly so the new tab feels immediate
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });

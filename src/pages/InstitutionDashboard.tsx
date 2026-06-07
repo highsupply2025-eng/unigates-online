@@ -931,10 +931,12 @@ ${rows.map((r: any, i: number) => `<tr>
                     schedules: { ar: "الجداول", en: "Schedules" },
                     departments: { ar: "الأقسام", en: "Departments" },
                     quizresults: { ar: "النتائج", en: "Results" },
-                    invitations: { ar: "إدارة الحسابات", en: "Account Management" },
+                    invitations: { ar: "الدعوات", en: "Invitations" },
+                    accounts: { ar: "الحسابات", en: "Accounts" },
                     livestreams: { ar: "البث المباشر", en: "Live Streams" },
                   };
-                  const cur = map[activeTab] ?? map.general;
+                  const key = activeTab === "invitations" && accountMgmtView === "accounts" ? "accounts" : activeTab;
+                  const cur = map[key] ?? map.general;
                   return isRtl ? cur.ar : cur.en;
                 })()}
               </p>

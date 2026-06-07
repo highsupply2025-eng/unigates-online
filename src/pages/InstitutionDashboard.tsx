@@ -956,9 +956,13 @@ ${rows.map((r: any, i: number) => `<tr>
               <CheckCircle className="w-4 h-4" />
               {isRtl ? "النتائج" : "Results"}
             </Button>
-            <Button variant={activeTab === "invitations" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("invitations")}>
-              <LinkIcon className="w-4 h-4" />
-              {isRtl ? "إدارة الحسابات" : "Account Management"}
+            <Button variant={activeTab === "invitations" && accountMgmtView !== "accounts" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("invitations", "invitations")}>
+              <Mail className="w-4 h-4" />
+              {isRtl ? "الدعوات" : "Invitations"}
+            </Button>
+            <Button variant={activeTab === "invitations" && accountMgmtView === "accounts" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("accounts")}>
+              <Users className="w-4 h-4" />
+              {isRtl ? "الحسابات" : "Accounts"}
             </Button>
             <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5">
               <Globe className="w-4 h-4" />

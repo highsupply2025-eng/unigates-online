@@ -2282,12 +2282,6 @@ ${rows.map((r: any, i: number) => `<tr>
               // accountMgmtView === "invitations"
               return (
               <>
-                <div className="mb-3">
-                  <Button variant="outline" size="sm" onClick={() => setAccountMgmtView("main")} className="gap-2">
-                    {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                    {isRtl ? "رجوع" : "Back"}
-                  </Button>
-                </div>
                 <h2 className="text-2xl font-bold mb-4 text-foreground">{isRtl ? "روابط الدعوة" : "Invitation Links"}</h2>
             {/* Free Leadership Links - Always visible */}
             {leadershipInvitations.length > 0 && (

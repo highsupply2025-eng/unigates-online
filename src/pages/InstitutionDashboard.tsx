@@ -2215,7 +2215,7 @@ ${rows.map((r: any, i: number) => `<tr>
                   <Card className="border-2 border-dashed border-destructive/40 bg-destructive/5">
                     <CardContent className="py-16 text-center space-y-3">
                       <div className="w-16 h-16 rounded-2xl bg-destructive/15 flex items-center justify-center mx-auto">
-                        <Lock className="w-8 h-8 text-destructive" />
+                        <ShieldAlert className="w-8 h-8 text-destructive" />
                       </div>
                       <h3 className="text-xl font-black text-foreground">
                         {isRtl ? `صفحة ${thisLabel} مغلقة` : `${thisLabel} page is locked`}

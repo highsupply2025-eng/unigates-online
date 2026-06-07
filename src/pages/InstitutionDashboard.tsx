@@ -2181,41 +2181,6 @@ ${rows.map((r: any, i: number) => `<tr>
                   </Card>
                 );
               }
-              if (accountMgmtView === "main") {
-                return (
-                  <div className="space-y-4">
-                    <h2 className="text-2xl font-bold text-foreground">{isRtl ? "إدارة الحسابات" : "Account Management"}</h2>
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      <button onClick={() => setAccountMgmtView("invitations")} className="group text-start">
-                        <Card className="h-full border-2 hover:border-primary hover:shadow-xl transition-all">
-                          <CardContent className="p-8 flex flex-col items-center text-center gap-4">
-                            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                              <LinkIcon className="w-10 h-10 text-primary-foreground" />
-                            </div>
-                            <h3 className="text-xl font-black">{isRtl ? "الدعوات" : "Invitations"}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {isRtl ? "روابط وأكواد دعوة للأعضاء" : "Invite links and codes for members"}
-                            </p>
-                          </CardContent>
-                        </Card>
-                      </button>
-                      <button onClick={() => setAccountMgmtView("accounts")} className="group text-start">
-                        <Card className="h-full border-2 hover:border-primary hover:shadow-xl transition-all">
-                          <CardContent className="p-8 flex flex-col items-center text-center gap-4">
-                            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                              <Users className="w-10 h-10 text-white" />
-                            </div>
-                            <h3 className="text-xl font-black">{isRtl ? "الحسابات" : "Accounts"}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {isRtl ? "رفع ملف Excel لتفعيل حسابات الطلاب والمحاضرين ورؤساء الأقسام تلقائياً" : "Upload an Excel file to auto-activate students, lecturers, and department heads"}
-                            </p>
-                          </CardContent>
-                        </Card>
-                      </button>
-                    </div>
-                  </div>
-                );
-              }
               if (accountMgmtView === "accounts") {
                 return (
                   <div className="space-y-4">

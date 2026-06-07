@@ -1451,6 +1451,7 @@ ${rows.map((r: any, i: number) => `<tr>
                 { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-amber-500 to-orange-600", count: examSchedules.length },
                 { key: "results", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, color: "from-green-500 to-green-600", count: quizSubmissions.length },
                 { key: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: Mail, color: "from-purple-500 to-purple-600", count: deptMembers.length },
+                { key: "accounts", label: isRtl ? "الحسابات" : "Accounts", Icon: Users, color: "from-emerald-500 to-emerald-600", count: 0 },
                 { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", count: 1 },
               ]}
             />

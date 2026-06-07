@@ -2202,6 +2202,68 @@ ${rows.map((r: any, i: number) => `<tr>
                   </Card>
                 );
               }
+              const requested: "invitations" | "accounts" = accountMgmtView === "accounts" ? "accounts" : "invitations";
+              // Exclusive choice: once a system is chosen, the other is locked
+              if (accountSystemChoice && accountSystemChoice !== requested) {
+                const otherLabel = accountSystemChoice === "invitations"
+                  ? (isRtl ? "الدعوات" : "Invitations")
+                  : (isRtl ? "الحسابات" : "Accounts");
+                const thisLabel = requested === "invitations"
+                  ? (isRtl ? "الدعوات" : "Invitations")
+                  : (isRtl ? "الحسابات" : "Accounts");
+                return (
+                  <Card className="border-2 border-dashed border-destructive/40 bg-destructive/5">
+                    <CardContent className="py-16 text-center space-y-3">
+                      <div className="w-16 h-16 rounded-2xl bg-destructive/15 flex items-center justify-center mx-auto">
+                        <Lock className="w-8 h-8 text-destructive" />
+                      </div>
+                      <h3 className="text-xl font-black text-foreground">
+                        {isRtl ? `صفحة ${thisLabel} مغلقة` : `${thisLabel} page is locked`}
+                      </h3>
+                      <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                        {isRtl
+                          ? `لقد قمت بتفعيل نظام «${otherLabel}» مسبقاً، ولا يمكن استخدام النظامين معاً.`
+                          : `You have already activated the "${otherLabel}" system. Both systems cannot be used together.`}
+                      </p>
+                    </CardContent>
+                  </Card>
+                );
+              }
+              // First-time selection: ask for confirmation
+              if (!accountSystemChoice) {
+                const thisLabel = requested === "invitations"
+                  ? (isRtl ? "الدعوات" : "Invitations")
+                  : (isRtl ? "الحسابات" : "Accounts");
+                const otherLabel = requested === "invitations"
+                  ? (isRtl ? "الحسابات" : "Accounts")
+                  : (isRtl ? "الدعوات" : "Invitations");
+                return (
+                  <Card className="border-2 border-dashed border-primary/40 bg-primary/5">
+                    <CardContent className="py-12 text-center space-y-4">
+                      <div className="w-16 h-16 rounded-2xl bg-primary/15 flex items-center justify-center mx-auto">
+                        <AlertTriangle className="w-8 h-8 text-primary" />
+                      </div>
+                      <h3 className="text-xl font-black text-foreground">
+                        {isRtl ? `تفعيل نظام «${thisLabel}»؟` : `Activate the "${thisLabel}" system?`}
+                      </h3>
+                      <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                        {isRtl
+                          ? `عند تفعيل نظام «${thisLabel}» سيتم إغلاق نظام «${otherLabel}» نهائياً ولن يمكن استخدامه. اختر بعناية.`
+                          : `Activating "${thisLabel}" will permanently lock the "${otherLabel}" system. Choose carefully.`}
+                      </p>
+                      <div className="flex items-center justify-center gap-2 flex-wrap">
+                        <Button onClick={() => confirmSystemChoice(requested)} className="gap-2">
+                          <CheckCircle className="w-4 h-4" />
+                          {isRtl ? `نعم، فعّل ${thisLabel}` : `Yes, activate ${thisLabel}`}
+                        </Button>
+                        <Button variant="outline" onClick={() => handleTabChange("general")}>
+                          {isRtl ? "إلغاء" : "Cancel"}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              }
               if (accountMgmtView === "accounts") {
                 return (
                   <div className="space-y-4">

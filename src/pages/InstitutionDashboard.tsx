@@ -171,7 +171,7 @@ const InstitutionDashboard = () => {
   const [showMemberProfileDialog, setShowMemberProfileDialog] = useState(false);
   const [memberProfileTab, setMemberProfileTab] = useState<"info" | "stats">("info");
   const [pageView, setPageView] = useState<"main" | "members" | "memberProfile">("main");
-  const [accountMgmtView, setAccountMgmtView] = useState<"main" | "invitations" | "accounts">("main");
+  const [accountMgmtView, setAccountMgmtView] = useState<"main" | "invitations" | "accounts">("invitations");
   const [bulkUploading, setBulkUploading] = useState(false);
   const [bulkResult, setBulkResult] = useState<{ created: number; failed: number; total: number; password: string; results: any[] } | null>(null);
   const [membersActiveOnly, setMembersActiveOnly] = useState(false);

@@ -174,6 +174,8 @@ const InstitutionDashboard = () => {
   const [accountMgmtView, setAccountMgmtView] = useState<"main" | "invitations" | "accounts">("invitations");
   const [bulkUploading, setBulkUploading] = useState(false);
   const [bulkResult, setBulkResult] = useState<{ created: number; failed: number; total: number; password: string; results: any[] } | null>(null);
+  const [accountSystemChoice, setAccountSystemChoice] = useState<"invitations" | "accounts" | null>(null);
+  const [pendingChoice, setPendingChoice] = useState<"invitations" | "accounts" | null>(null);
   const [membersActiveOnly, setMembersActiveOnly] = useState(false);
   const [profilesMap, setProfilesMap] = useState<Record<string, { full_name: string; email: string; phone: string; role: string; created_at: string }>>({});
   const [leadershipMembers, setLeadershipMembers] = useState<Array<{ invitation_id: string; user_id: string; role: string; joined_at: string }>>([]);

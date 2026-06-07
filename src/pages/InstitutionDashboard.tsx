@@ -77,14 +77,26 @@ const InstitutionDashboard = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [rangeDays, setRangeDays] = useState<7 | 30>(7);
   
-   const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    setPageView("main");
-    setAccountMgmtView("main");
-    if (tab === "general") {
-      setSearchParams({}, { replace: true });
+   const handleTabChange = (tab: string, sub?: "main" | "invitations" | "accounts") => {
+    // Virtual "accounts" tab maps to the invitations TabsContent with a different sub-view
+    if (tab === "accounts") {
+      setActiveTab("invitations");
+      setPageView("main");
+      setAccountMgmtView("accounts");
+      setSearchParams({ tab: "accounts" }, { replace: true });
     } else {
-      setSearchParams({ tab }, { replace: true });
+      setActiveTab(tab);
+      setPageView("main");
+      if (tab === "invitations") {
+        setAccountMgmtView(sub ?? "invitations");
+      } else {
+        setAccountMgmtView("main");
+      }
+      if (tab === "general") {
+        setSearchParams({}, { replace: true });
+      } else {
+        setSearchParams({ tab }, { replace: true });
+      }
     }
     // Scroll to top instantly so the new tab feels immediate
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
@@ -92,7 +104,13 @@ const InstitutionDashboard = () => {
 
   useEffect(() => {
     const tab = searchParams.get("tab") || "general";
-    if (tab !== activeTab) setActiveTab(tab);
+    if (tab === "accounts") {
+      if (activeTab !== "invitations") setActiveTab("invitations");
+      setAccountMgmtView("accounts");
+    } else {
+      if (tab !== activeTab) setActiveTab(tab);
+      if (tab === "invitations") setAccountMgmtView((v) => (v === "accounts" ? "invitations" : v));
+    }
   }, [searchParams]);
 
   const [institutionType, setInstitutionType] = useState<"college" | "institute" | null>(null);
@@ -153,7 +171,7 @@ const InstitutionDashboard = () => {
   const [showMemberProfileDialog, setShowMemberProfileDialog] = useState(false);
   const [memberProfileTab, setMemberProfileTab] = useState<"info" | "stats">("info");
   const [pageView, setPageView] = useState<"main" | "members" | "memberProfile">("main");
-  const [accountMgmtView, setAccountMgmtView] = useState<"main" | "invitations" | "accounts">("main");
+  const [accountMgmtView, setAccountMgmtView] = useState<"main" | "invitations" | "accounts">("invitations");
   const [bulkUploading, setBulkUploading] = useState(false);
   const [bulkResult, setBulkResult] = useState<{ created: number; failed: number; total: number; password: string; results: any[] } | null>(null);
   const [membersActiveOnly, setMembersActiveOnly] = useState(false);
@@ -913,10 +931,12 @@ ${rows.map((r: any, i: number) => `<tr>
                     schedules: { ar: "الجداول", en: "Schedules" },
                     departments: { ar: "الأقسام", en: "Departments" },
                     quizresults: { ar: "النتائج", en: "Results" },
-                    invitations: { ar: "إدارة الحسابات", en: "Account Management" },
+                    invitations: { ar: "الدعوات", en: "Invitations" },
+                    accounts: { ar: "الحسابات", en: "Accounts" },
                     livestreams: { ar: "البث المباشر", en: "Live Streams" },
                   };
-                  const cur = map[activeTab] ?? map.general;
+                  const key = activeTab === "invitations" && accountMgmtView === "accounts" ? "accounts" : activeTab;
+                  const cur = map[key] ?? map.general;
                   return isRtl ? cur.ar : cur.en;
                 })()}
               </p>
@@ -936,9 +956,13 @@ ${rows.map((r: any, i: number) => `<tr>
               <CheckCircle className="w-4 h-4" />
               {isRtl ? "النتائج" : "Results"}
             </Button>
-            <Button variant={activeTab === "invitations" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("invitations")}>
-              <LinkIcon className="w-4 h-4" />
-              {isRtl ? "إدارة الحسابات" : "Account Management"}
+            <Button variant={activeTab === "invitations" && accountMgmtView !== "accounts" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("invitations", "invitations")}>
+              <Mail className="w-4 h-4" />
+              {isRtl ? "الدعوات" : "Invitations"}
+            </Button>
+            <Button variant={activeTab === "invitations" && accountMgmtView === "accounts" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("accounts")}>
+              <Users className="w-4 h-4" />
+              {isRtl ? "الحسابات" : "Accounts"}
             </Button>
             <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5">
               <Globe className="w-4 h-4" />
@@ -963,7 +987,8 @@ ${rows.map((r: any, i: number) => `<tr>
                 { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, onClick: () => handleTabChange("departments"), active: activeTab === "departments" },
                 { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => handleTabChange("schedules"), active: activeTab === "schedules" },
                 { key: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, onClick: () => handleTabChange("quizresults"), active: activeTab === "quizresults" },
-                { key: "invitations", label: isRtl ? "إدارة الحسابات" : "Account Management", Icon: LinkIcon, onClick: () => handleTabChange("invitations"), active: activeTab === "invitations" },
+                { key: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: Mail, onClick: () => handleTabChange("invitations", "invitations"), active: activeTab === "invitations" && accountMgmtView !== "accounts" },
+                { key: "accounts", label: isRtl ? "الحسابات" : "Accounts", Icon: Users, onClick: () => handleTabChange("accounts"), active: activeTab === "invitations" && accountMgmtView === "accounts" },
                 { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/institution/profile") },
               ]}
             />
@@ -1426,6 +1451,7 @@ ${rows.map((r: any, i: number) => `<tr>
                 { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-amber-500 to-orange-600", count: examSchedules.length },
                 { key: "results", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, color: "from-green-500 to-green-600", count: quizSubmissions.length },
                 { key: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: Mail, color: "from-purple-500 to-purple-600", count: deptMembers.length },
+                { key: "accounts", label: isRtl ? "الحسابات" : "Accounts", Icon: Users, color: "from-emerald-500 to-emerald-600", count: 0 },
                 { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", count: 1 },
               ]}
             />
@@ -2155,50 +2181,11 @@ ${rows.map((r: any, i: number) => `<tr>
                   </Card>
                 );
               }
-              if (accountMgmtView === "main") {
-                return (
-                  <div className="space-y-4">
-                    <h2 className="text-2xl font-bold text-foreground">{isRtl ? "إدارة الحسابات" : "Account Management"}</h2>
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      <button onClick={() => setAccountMgmtView("invitations")} className="group text-start">
-                        <Card className="h-full border-2 hover:border-primary hover:shadow-xl transition-all">
-                          <CardContent className="p-8 flex flex-col items-center text-center gap-4">
-                            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                              <LinkIcon className="w-10 h-10 text-primary-foreground" />
-                            </div>
-                            <h3 className="text-xl font-black">{isRtl ? "الدعوات" : "Invitations"}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {isRtl ? "روابط وأكواد دعوة للأعضاء" : "Invite links and codes for members"}
-                            </p>
-                          </CardContent>
-                        </Card>
-                      </button>
-                      <button onClick={() => setAccountMgmtView("accounts")} className="group text-start">
-                        <Card className="h-full border-2 hover:border-primary hover:shadow-xl transition-all">
-                          <CardContent className="p-8 flex flex-col items-center text-center gap-4">
-                            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                              <Users className="w-10 h-10 text-white" />
-                            </div>
-                            <h3 className="text-xl font-black">{isRtl ? "الحسابات" : "Accounts"}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {isRtl ? "رفع ملف Excel لتفعيل حسابات الطلاب والمحاضرين ورؤساء الأقسام تلقائياً" : "Upload an Excel file to auto-activate students, lecturers, and department heads"}
-                            </p>
-                          </CardContent>
-                        </Card>
-                      </button>
-                    </div>
-                  </div>
-                );
-              }
               if (accountMgmtView === "accounts") {
                 return (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between gap-2 flex-wrap">
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={() => { setAccountMgmtView("main"); setBulkResult(null); }} className="gap-2">
-                          {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                          {isRtl ? "رجوع" : "Back"}
-                        </Button>
                         <h2 className="text-2xl font-bold text-foreground">{isRtl ? "تفعيل الحسابات بالجملة" : "Bulk Account Activation"}</h2>
                       </div>
                       <Button variant="outline" size="sm" onClick={downloadAccountsTemplate} className="gap-2">
@@ -2295,12 +2282,6 @@ ${rows.map((r: any, i: number) => `<tr>
               // accountMgmtView === "invitations"
               return (
               <>
-                <div className="mb-3">
-                  <Button variant="outline" size="sm" onClick={() => setAccountMgmtView("main")} className="gap-2">
-                    {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                    {isRtl ? "رجوع" : "Back"}
-                  </Button>
-                </div>
                 <h2 className="text-2xl font-bold mb-4 text-foreground">{isRtl ? "روابط الدعوة" : "Invitation Links"}</h2>
             {/* Free Leadership Links - Always visible */}
             {leadershipInvitations.length > 0 && (

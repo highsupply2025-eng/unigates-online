@@ -104,7 +104,13 @@ const InstitutionDashboard = () => {
 
   useEffect(() => {
     const tab = searchParams.get("tab") || "general";
-    if (tab !== activeTab) setActiveTab(tab);
+    if (tab === "accounts") {
+      if (activeTab !== "invitations") setActiveTab("invitations");
+      setAccountMgmtView("accounts");
+    } else {
+      if (tab !== activeTab) setActiveTab(tab);
+      if (tab === "invitations") setAccountMgmtView((v) => (v === "accounts" ? "invitations" : v));
+    }
   }, [searchParams]);
 
   const [institutionType, setInstitutionType] = useState<"college" | "institute" | null>(null);

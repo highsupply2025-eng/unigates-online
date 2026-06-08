@@ -18,6 +18,7 @@ const Login = lazy(() => import("./pages/Login"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Courses = lazy(() => import("./pages/Courses"));
+const CoursesPlatform = lazy(() => import("./pages/CoursesPlatform"));
 const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
 const Payment = lazy(() => import("./pages/Payment"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
@@ -124,8 +125,9 @@ const App = () => (
             <PageTransition>
             <Routes>
               <Route path="/" element={<Index />} />
-              {/* Courses auth */}
-              <Route path="/courses" element={<Courses />} />
+              {/* Courses platform landing + catalog */}
+              <Route path="/courses" element={<CoursesPlatform />} />
+              <Route path="/courses/browse" element={<Courses />} />
               <Route path="/signup" element={<Signup />} />
               
               <Route path="/signup/:role" element={<Signup />} />

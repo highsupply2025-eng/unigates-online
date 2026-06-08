@@ -125,7 +125,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               {/* Courses auth */}
-              <Route path="/courses" element={<ComingSoon />} />
+              <Route path="/courses" element={<Courses />} />
               <Route path="/signup" element={<Signup />} />
               
               <Route path="/signup/:role" element={<Signup />} />

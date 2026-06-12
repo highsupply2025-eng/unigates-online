@@ -1007,6 +1007,7 @@ ${rows.map((r: any, i: number) => `<tr>
                 { key: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, onClick: () => handleTabChange("general"), active: activeTab === "general" },
                 
                 { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, onClick: () => handleTabChange("departments"), active: activeTab === "departments" },
+                { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, onClick: () => handleTabChange("faculty"), active: activeTab === "faculty" },
                 { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => handleTabChange("schedules"), active: activeTab === "schedules" },
                 { key: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, onClick: () => handleTabChange("quizresults"), active: activeTab === "quizresults" },
                 { key: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: Mail, onClick: () => handleTabChange("invitations", "invitations"), active: activeTab === "invitations" && accountMgmtView !== "accounts" },

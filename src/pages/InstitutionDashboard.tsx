@@ -461,6 +461,10 @@ const InstitutionDashboard = () => {
       setNewDeptStudentCount("");
       setNewDeptLecturerCount("");
       setNewDeptHeadCount("");
+      const selectedLecturers = deptMembers.filter((m: any) =>
+        newDeptSelectedLecturerIds.includes(m.id) && m.role === "lecturer"
+      );
+      setNewDeptSelectedLecturerIds([]);
       setAddingDept(false);
 
       sonnerToast.success(
@@ -483,10 +487,23 @@ const InstitutionDashboard = () => {
           invitation_code: generateCode(),
         });
       }
-      for (let i = 1; i <= lecturerCount; i++) {
+      const blankLecturerSlots = Math.max(0, lecturerCount - selectedLecturers.length);
+      for (let i = 1; i <= blankLecturerSlots; i++) {
         memberInserts.push({
           department_id: newDept.id,
           full_name: isRtl ? `محاضر ${i}` : `Lecturer ${i}`,
+          role: "lecturer",
+          invitation_code: generateCode(),
+        });
+      }
+      // Pre-fill chosen existing lecturers in the new department
+      for (const lec of selectedLecturers) {
+        memberInserts.push({
+          department_id: newDept.id,
+          full_name: lec.full_name,
+          email: lec.email ?? null,
+          phone: lec.phone ?? null,
+          user_id: lec.user_id ?? null,
           role: "lecturer",
           invitation_code: generateCode(),
         });

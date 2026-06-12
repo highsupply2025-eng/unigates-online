@@ -146,6 +146,7 @@ const InstitutionDashboard = () => {
   const [newDeptStudentCount, setNewDeptStudentCount] = useState("");
   const [newDeptLecturerCount, setNewDeptLecturerCount] = useState("");
   const [newDeptHeadCount, setNewDeptHeadCount] = useState("");
+  const [newDeptSelectedLecturerIds, setNewDeptSelectedLecturerIds] = useState<string[]>([]);
   const [addingDept, setAddingDept] = useState(false);
 
   // Add Member

@@ -80,7 +80,7 @@ Deno.serve(async (req) => {
     for (let i = 0; i < SEEDS.length; i++) {
       const idx = i + 1;
       const seed = SEEDS[i];
-      const email = `admin${idx}@${DOMAIN}`;
+      const email = `${PREFIX}${idx}@${DOMAIN}`;
       const fullName = `حساب اختبار - ${seed.label_ar}`;
 
       try {

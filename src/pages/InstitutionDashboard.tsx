@@ -1507,8 +1507,14 @@ ${rows.map((r: any, i: number) => `<tr>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
-              <div className="relative flex-1 sm:max-w-sm">
+            <div className="flex flex-col mb-4 gap-3">
+              <div className={`flex ${isRtl ? "justify-start" : "justify-end"}`}>
+                <Button onClick={() => setShowAddDeptDialog(true)} className="gap-2 shrink-0">
+                  <Plus className="w-4 h-4" />
+                  {isRtl ? "إضافة قسم" : "Add Department"}
+                </Button>
+              </div>
+              <div className="relative w-full sm:max-w-sm">
                 <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder={isRtl ? "بحث في الأقسام..." : "Search departments..."}
@@ -1517,11 +1523,8 @@ ${rows.map((r: any, i: number) => `<tr>
                   className="ps-10"
                 />
               </div>
-              <Button onClick={() => setShowAddDeptDialog(true)} className="gap-2 w-full sm:w-auto shrink-0">
-                <Plus className="w-4 h-4" />
-                {isRtl ? "إضافة قسم" : "Add Department"}
-              </Button>
             </div>
+
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredDepts.map(dept => {

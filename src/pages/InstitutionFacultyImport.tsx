@@ -43,8 +43,8 @@ const InstitutionFacultyImport = () => {
           if (inst) { instId = inst.id; instType = "institute"; }
         }
         if (!instId || !instType) { navigate("/"); return; }
-        const { data: depts } = await supabase.from("departments").select("id, name").eq("institution_id", instId).eq("institution_type", instType);
-        setDepartments(depts || []);
+        const { data: depts } = await supabase.from("departments").select("id, department_name").eq("institution_id", instId).eq("institution_type", instType);
+        setDepartments((depts || []).map((d: any) => ({ id: d.id, name: d.department_name })));
       } finally {
         setLoading(false);
       }

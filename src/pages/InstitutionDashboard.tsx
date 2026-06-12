@@ -951,6 +951,7 @@ ${rows.map((r: any, i: number) => `<tr>
                     general: { ar: "الرئيسية", en: "Home" },
                     schedules: { ar: "الجداول", en: "Schedules" },
                     departments: { ar: "الأقسام", en: "Departments" },
+                    faculty: { ar: "أعضاء هيئة التدريس", en: "Faculty Members" },
                     quizresults: { ar: "النتائج", en: "Results" },
                     invitations: { ar: "الدعوات", en: "Invitations" },
                     accounts: { ar: "الحسابات", en: "Accounts" },

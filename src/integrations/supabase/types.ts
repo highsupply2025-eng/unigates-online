@@ -622,36 +622,63 @@ export type Database = {
       }
       department_members: {
         Row: {
+          address: string | null
           created_at: string
           date_of_birth: string | null
           department_id: string
+          email: string | null
           full_name: string
+          gender: string | null
+          hire_date: string | null
           id: string
           invitation_code: string | null
+          national_id: string | null
+          notes: string | null
+          phone: string | null
           photo_url: string | null
+          qualification: string | null
           role: string
+          specialization: string | null
           user_id: string | null
         }
         Insert: {
+          address?: string | null
           created_at?: string
           date_of_birth?: string | null
           department_id: string
+          email?: string | null
           full_name: string
+          gender?: string | null
+          hire_date?: string | null
           id?: string
           invitation_code?: string | null
+          national_id?: string | null
+          notes?: string | null
+          phone?: string | null
           photo_url?: string | null
+          qualification?: string | null
           role?: string
+          specialization?: string | null
           user_id?: string | null
         }
         Update: {
+          address?: string | null
           created_at?: string
           date_of_birth?: string | null
           department_id?: string
+          email?: string | null
           full_name?: string
+          gender?: string | null
+          hire_date?: string | null
           id?: string
           invitation_code?: string | null
+          national_id?: string | null
+          notes?: string | null
+          phone?: string | null
           photo_url?: string | null
+          qualification?: string | null
           role?: string
+          specialization?: string | null
           user_id?: string | null
         }
         Relationships: [

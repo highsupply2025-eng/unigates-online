@@ -1641,7 +1641,7 @@ ${rows.map((r: any, i: number) => `<tr>
                   {/* Quick actions */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
                     <button
-                      onClick={() => handleTabChange("accounts")}
+                      onClick={() => navigate("/institution/faculty/add")}
                       className="group text-start border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent hover:border-primary/50 hover:shadow-lg transition-all rounded-xl p-4 sm:p-5 flex items-center gap-3"
                     >
                       <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-md shrink-0">
@@ -1649,11 +1649,11 @@ ${rows.map((r: any, i: number) => `<tr>
                       </div>
                       <div className="min-w-0">
                         <p className="font-extrabold text-foreground text-sm sm:text-base">{isRtl ? "تسجيل البيانات" : "Register Data"}</p>
-                        <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "إضافة محاضر يدويًا" : "Add lecturer manually"}</p>
+                        <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "إضافة عضو يدويًا" : "Add member manually"}</p>
                       </div>
                     </button>
                     <button
-                      onClick={() => handleTabChange("accounts")}
+                      onClick={() => navigate("/institution/faculty/import")}
                       className="group text-start border-2 border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent hover:border-emerald-500/50 hover:shadow-lg transition-all rounded-xl p-4 sm:p-5 flex items-center gap-3"
                     >
                       <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-md shrink-0">
@@ -1661,7 +1661,7 @@ ${rows.map((r: any, i: number) => `<tr>
                       </div>
                       <div className="min-w-0">
                         <p className="font-extrabold text-foreground text-sm sm:text-base">{isRtl ? "رفع ملف Excel" : "Upload Excel File"}</p>
-                        <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "استيراد بيانات المحاضرين" : "Bulk import lecturers"}</p>
+                        <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "استيراد بيانات الأعضاء" : "Import members data"}</p>
                       </div>
                     </button>
                   </div>

@@ -11,9 +11,10 @@ const corsHeaders = {
 };
 
 const PASSWORD = "admin1993";
-const DOMAIN = "marafa.com";
+const DOMAIN = "unigates.online";
+const PREFIX = "darobaid";
 
-// Sequential numbering across all accounts (admin1, admin2, ...).
+// Sequential numbering across all accounts (darobaid1, darobaid2, ...).
 type RoleSpec = {
   kind: "user_role" | "college_admin" | "institute_admin" | "school_admin";
   role?: string;       // app_role enum (only for kind=user_role)

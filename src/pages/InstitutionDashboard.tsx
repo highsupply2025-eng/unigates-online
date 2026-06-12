@@ -1630,25 +1630,6 @@ ${rows.map((r: any, i: number) => `<tr>
 
           {/* Faculty Members Tab */}
           <TabsContent value="faculty" dir={isRtl ? "rtl" : "ltr"}>
-            {/* Section header — matches Departments style */}
-            <div className="mb-5 flex items-center gap-3">
-              <div className="relative shrink-0">
-                <div className="absolute inset-0 rounded-2xl bg-primary/30 blur-md" />
-                <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/15 to-transparent border-2 border-primary/40 flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 transition-transform">
-                  <GraduationCap className="w-6 h-6 text-primary drop-shadow" strokeWidth={2.4} />
-                </div>
-              </div>
-              <div className="min-w-0">
-                <h2 className="text-xl sm:text-2xl font-extrabold text-foreground">
-                  {isRtl ? "أعضاء هيئة التدريس" : "Faculty Members"}
-                </h2>
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  {isRtl
-                    ? (institutionType === "college" ? "جميع محاضري الكلية موزّعين على الأقسام" : "جميع محاضري المعهد موزّعين على الأقسام")
-                    : "All lecturers grouped by department"}
-                </p>
-              </div>
-            </div>
 
             {(() => {
               const lecturers = deptMembers.filter((m: any) => m.role === 'lecturer');

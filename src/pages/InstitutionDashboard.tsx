@@ -2299,7 +2299,7 @@ ${rows.map((r: any, i: number) => `<tr>
                         <Clock className="w-8 h-8 text-amber-600" />
                       </div>
                       <h3 className="text-xl font-black text-foreground">
-                        {isRtl ? "إدارة الحسابات مغلقة" : "Account Management is locked"}
+                        {isRtl ? "إدارة الدعوات مغلقة" : "Invitations Management is locked"}
                       </h3>
                       <p className="text-sm text-muted-foreground max-w-md mx-auto">
                         {isRtl

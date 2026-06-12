@@ -497,7 +497,7 @@ const InstitutionDashboard = () => {
         });
       }
       // Pre-fill chosen existing lecturers in the new department
-      for (const lec of selectedLecturers) {
+      for (const lec of selectedLecturers as any[]) {
         memberInserts.push({
           department_id: newDept.id,
           full_name: lec.full_name,

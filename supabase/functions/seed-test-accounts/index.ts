@@ -75,7 +75,23 @@ Deno.serve(async (req) => {
       if (u.email) byEmail[u.email.toLowerCase()] = u.id;
     }
 
+    // Cleanup: delete obsolete test accounts from previous domain (marafa.com)
+    for (const u of list?.users || []) {
+      const em = (u.email || "").toLowerCase();
+      if (/^admin\d+@marafa\.com$/.test(em)) {
+        try { await admin.auth.admin.deleteUser(u.id); } catch (_) {}
+      }
+    }
+
+    // Ensure the calling admin user uses the canonical admin email
+    const ADMIN_EMAIL = `${PREFIX}@${DOMAIN}`;
+    try {
+      await admin.auth.admin.updateUserById(user.id, { email: ADMIN_EMAIL, email_confirm: true });
+      await admin.from("profiles").update({ email: ADMIN_EMAIL }).eq("user_id", user.id);
+    } catch (_) {}
+
     const results: any[] = [];
+
 
     for (let i = 0; i < SEEDS.length; i++) {
       const idx = i + 1;

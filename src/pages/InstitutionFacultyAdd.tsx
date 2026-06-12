@@ -181,63 +181,68 @@ const InstitutionFacultyAdd = () => {
     }
   };
 
+  const labelCls = "flex items-center gap-2 text-base sm:text-lg font-extrabold text-foreground";
+  const iconCls = "w-5 h-5 sm:w-6 sm:h-6 text-primary";
+  const inputCls = "h-12 text-base border-2 border-primary/30 focus-visible:border-primary focus-visible:ring-primary/30 bg-card";
+  const triggerCls = "h-12 text-base border-2 border-primary/30 focus:border-primary focus:ring-primary/30 bg-card font-semibold";
+
   return (
-    <div dir={dir} className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <header className="border-b bg-gradient-to-l from-primary/10 via-card to-card shadow-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-3">
-          <h1 className="text-xl sm:text-2xl font-extrabold text-foreground flex items-center gap-2 min-w-0">
-            <span className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-md shrink-0">
-              <UserPlus className="w-5 h-5" strokeWidth={2.4} />
+    <div dir={dir} className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-primary/10">
+      <header className="border-b-2 border-primary/30 bg-gradient-to-l from-primary/25 via-primary/10 to-card shadow-lg sticky top-0 z-10 backdrop-blur">
+        <div className="container mx-auto px-4 py-5 flex items-center justify-between gap-3">
+          <h1 className="text-2xl sm:text-3xl font-black text-foreground flex items-center gap-3 min-w-0">
+            <span className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-xl shadow-primary/40 shrink-0">
+              <UserPlus className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.6} />
             </span>
-            <span className="truncate">{isRtl ? "إضافة عضو يدويًا" : "Add Member Manually"}</span>
+            <span className="truncate tracking-tight">{isRtl ? "إضافة عضو يدويًا" : "Add Member Manually"}</span>
           </h1>
-          <Button size="icon" variant="default" className="shadow-md shrink-0" onClick={() => navigate(-1)} aria-label={isRtl ? "رجوع" : "Back"}>
-            {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+          <Button size="icon" variant="default" className="shadow-lg shadow-primary/40 shrink-0 w-11 h-11" onClick={() => navigate(-1)} aria-label={isRtl ? "رجوع" : "Back"}>
+            {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
           </Button>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-6 sm:py-8">
         <form onSubmit={handleSubmit}>
-          <Card className="border-2 border-primary/20 max-w-4xl mx-auto">
-            <CardContent className="p-5 sm:p-8 space-y-6">
+          <Card className="border-2 border-primary/30 max-w-4xl mx-auto shadow-2xl shadow-primary/10 bg-gradient-to-br from-card via-card to-primary/5">
+            <CardContent className="p-5 sm:p-10 space-y-8">
               {/* Photo */}
-              <div className="flex flex-col items-center gap-3">
-                <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 border-primary/30 bg-muted flex items-center justify-center shadow-md">
+              <div className="flex flex-col items-center gap-4">
+                <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden border-[6px] border-primary/40 ring-4 ring-primary/15 bg-muted flex items-center justify-center shadow-xl shadow-primary/30">
                   {photoUrl ? (
                     <img src={photoUrl} alt={fullName || "photo"} className="w-full h-full object-cover" />
                   ) : (
-                    <UserRound className="w-12 h-12 text-muted-foreground" />
+                    <UserRound className="w-16 h-16 text-primary/60" strokeWidth={1.8} />
                   )}
                 </div>
                 <input ref={fileRef} type="file" accept="image/*" hidden onChange={handlePhotoChange} />
-                <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
-                  {uploading ? <Loader2 className="w-4 h-4 animate-spin me-2" /> : <Upload className="w-4 h-4 me-2" />}
+                <Button type="button" variant="default" size="lg" className="shadow-lg shadow-primary/30 font-bold text-base" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                  {uploading ? <Loader2 className="w-5 h-5 animate-spin me-2" /> : <Upload className="w-5 h-5 me-2" />}
                   {isRtl ? "رفع صورة شخصية" : "Upload Photo"}
                 </Button>
               </div>
 
               {/* Role + Department */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2"><Users2 className="w-4 h-4 text-primary" />{isRtl ? "المسمى الوظيفي" : "Role"} <span className="text-destructive">*</span></Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2.5">
+                  <Label className={labelCls}><Users2 className={iconCls} strokeWidth={2.4} />{isRtl ? "المسمى الوظيفي" : "Role"} <span className="text-destructive text-lg">*</span></Label>
                   <Select value={role} onValueChange={setRole}>
-                    <SelectTrigger><SelectValue placeholder={isRtl ? "اختر المسمى" : "Select role"} /></SelectTrigger>
+                    <SelectTrigger className={triggerCls}><SelectValue placeholder={isRtl ? "اختر المسمى" : "Select role"} /></SelectTrigger>
                     <SelectContent>
                       {ROLE_OPTIONS.map(r => (
-                        <SelectItem key={r.value} value={r.value}>{isRtl ? r.ar : r.en}</SelectItem>
+                        <SelectItem key={r.value} value={r.value} className="text-base">{isRtl ? r.ar : r.en}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2"><GraduationCap className="w-4 h-4 text-primary" />{isRtl ? "القسم" : "Department"} <span className="text-destructive">*</span></Label>
+                <div className="space-y-2.5">
+                  <Label className={labelCls}><GraduationCap className={iconCls} strokeWidth={2.4} />{isRtl ? "القسم" : "Department"} <span className="text-destructive text-lg">*</span></Label>
                   <Select value={departmentId} onValueChange={setDepartmentId} disabled={loadingDepts}>
-                    <SelectTrigger><SelectValue placeholder={loadingDepts ? (isRtl ? "جاري التحميل..." : "Loading...") : (isRtl ? "اختر القسم" : "Select department")} /></SelectTrigger>
+                    <SelectTrigger className={triggerCls}><SelectValue placeholder={loadingDepts ? (isRtl ? "جاري التحميل..." : "Loading...") : (isRtl ? "اختر القسم" : "Select department")} /></SelectTrigger>
                     <SelectContent>
                       {departments.map(d => (
-                        <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                        <SelectItem key={d.id} value={d.id} className="text-base">{d.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -245,75 +250,75 @@ const InstitutionFacultyAdd = () => {
               </div>
 
               {/* Basic */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>{isRtl ? "الاسم الكامل" : "Full Name"} <span className="text-destructive">*</span></Label>
-                  <Input value={fullName} onChange={e => setFullName(e.target.value)} placeholder={isRtl ? "الاسم رباعي" : "Full name"} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2.5">
+                  <Label className={labelCls}><UserRound className={iconCls} strokeWidth={2.4} />{isRtl ? "الاسم الكامل" : "Full Name"} <span className="text-destructive text-lg">*</span></Label>
+                  <Input className={inputCls} value={fullName} onChange={e => setFullName(e.target.value)} placeholder={isRtl ? "الاسم رباعي" : "Full name"} />
                 </div>
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2"><Calendar className="w-4 h-4 text-primary" />{isRtl ? "تاريخ الميلاد" : "Date of Birth"}</Label>
-                  <Input type="date" value={dateOfBirth} onChange={e => setDateOfBirth(e.target.value)} />
+                <div className="space-y-2.5">
+                  <Label className={labelCls}><Calendar className={iconCls} strokeWidth={2.4} />{isRtl ? "تاريخ الميلاد" : "Date of Birth"}</Label>
+                  <Input className={inputCls} type="date" value={dateOfBirth} onChange={e => setDateOfBirth(e.target.value)} />
                 </div>
-                <div className="space-y-2">
-                  <Label>{isRtl ? "النوع" : "Gender"}</Label>
+                <div className="space-y-2.5">
+                  <Label className={labelCls}><Users2 className={iconCls} strokeWidth={2.4} />{isRtl ? "النوع" : "Gender"}</Label>
                   <Select value={gender} onValueChange={setGender}>
-                    <SelectTrigger><SelectValue placeholder={isRtl ? "اختر" : "Select"} /></SelectTrigger>
+                    <SelectTrigger className={triggerCls}><SelectValue placeholder={isRtl ? "اختر" : "Select"} /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="male">{isRtl ? "ذكر" : "Male"}</SelectItem>
-                      <SelectItem value="female">{isRtl ? "أنثى" : "Female"}</SelectItem>
+                      <SelectItem value="male" className="text-base">{isRtl ? "ذكر" : "Male"}</SelectItem>
+                      <SelectItem value="female" className="text-base">{isRtl ? "أنثى" : "Female"}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2"><IdCard className="w-4 h-4 text-primary" />{isRtl ? "الرقم القومي" : "National ID"}</Label>
-                  <Input value={nationalId} onChange={e => setNationalId(e.target.value)} maxLength={20} />
+                <div className="space-y-2.5">
+                  <Label className={labelCls}><IdCard className={iconCls} strokeWidth={2.4} />{isRtl ? "الرقم القومي" : "National ID"}</Label>
+                  <Input className={inputCls} value={nationalId} onChange={e => setNationalId(e.target.value)} maxLength={20} />
                 </div>
               </div>
 
               {/* Contact */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2"><Mail className="w-4 h-4 text-primary" />{isRtl ? "البريد الإلكتروني" : "Email"}</Label>
-                  <Input type="email" value={email} onChange={e => setEmail(e.target.value)} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2.5">
+                  <Label className={labelCls}><Mail className={iconCls} strokeWidth={2.4} />{isRtl ? "البريد الإلكتروني" : "Email"}</Label>
+                  <Input className={inputCls} type="email" value={email} onChange={e => setEmail(e.target.value)} />
                 </div>
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2"><Phone className="w-4 h-4 text-primary" />{isRtl ? "رقم الهاتف" : "Phone"}</Label>
-                  <Input value={phone} onChange={e => setPhone(e.target.value)} />
+                <div className="space-y-2.5">
+                  <Label className={labelCls}><Phone className={iconCls} strokeWidth={2.4} />{isRtl ? "رقم الهاتف" : "Phone"}</Label>
+                  <Input className={inputCls} value={phone} onChange={e => setPhone(e.target.value)} />
                 </div>
-                <div className="space-y-2 md:col-span-2">
-                  <Label className="flex items-center gap-2"><MapPin className="w-4 h-4 text-primary" />{isRtl ? "العنوان" : "Address"}</Label>
-                  <Input value={address} onChange={e => setAddress(e.target.value)} />
+                <div className="space-y-2.5 md:col-span-2">
+                  <Label className={labelCls}><MapPin className={iconCls} strokeWidth={2.4} />{isRtl ? "العنوان" : "Address"}</Label>
+                  <Input className={inputCls} value={address} onChange={e => setAddress(e.target.value)} />
                 </div>
               </div>
 
               {/* Academic */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2"><BookOpen className="w-4 h-4 text-primary" />{isRtl ? "المؤهل العلمي" : "Qualification"}</Label>
-                  <Input value={qualification} onChange={e => setQualification(e.target.value)} placeholder={isRtl ? "مثال: دكتوراه" : "e.g. PhD"} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2.5">
+                  <Label className={labelCls}><BookOpen className={iconCls} strokeWidth={2.4} />{isRtl ? "المؤهل العلمي" : "Qualification"}</Label>
+                  <Input className={inputCls} value={qualification} onChange={e => setQualification(e.target.value)} placeholder={isRtl ? "مثال: دكتوراه" : "e.g. PhD"} />
                 </div>
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2"><GraduationCap className="w-4 h-4 text-primary" />{isRtl ? "التخصص" : "Specialization"}</Label>
-                  <Input value={specialization} onChange={e => setSpecialization(e.target.value)} />
+                <div className="space-y-2.5">
+                  <Label className={labelCls}><GraduationCap className={iconCls} strokeWidth={2.4} />{isRtl ? "التخصص" : "Specialization"}</Label>
+                  <Input className={inputCls} value={specialization} onChange={e => setSpecialization(e.target.value)} />
                 </div>
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2"><Briefcase className="w-4 h-4 text-primary" />{isRtl ? "تاريخ التعيين" : "Hire Date"}</Label>
-                  <Input type="date" value={hireDate} onChange={e => setHireDate(e.target.value)} />
+                <div className="space-y-2.5">
+                  <Label className={labelCls}><Briefcase className={iconCls} strokeWidth={2.4} />{isRtl ? "تاريخ التعيين" : "Hire Date"}</Label>
+                  <Input className={inputCls} type="date" value={hireDate} onChange={e => setHireDate(e.target.value)} />
                 </div>
               </div>
 
               {/* Notes */}
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2"><StickyNote className="w-4 h-4 text-primary" />{isRtl ? "ملاحظات" : "Notes"}</Label>
-                <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
+              <div className="space-y-2.5">
+                <Label className={labelCls}><StickyNote className={iconCls} strokeWidth={2.4} />{isRtl ? "ملاحظات" : "Notes"}</Label>
+                <Textarea className="text-base border-2 border-primary/30 focus-visible:border-primary focus-visible:ring-primary/30 bg-card" value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
               </div>
 
-              <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
-                <Button type="button" variant="outline" onClick={() => navigate(-1)} disabled={saving}>
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t-2 border-primary/15">
+                <Button type="button" variant="outline" size="lg" className="border-2 border-primary/30 font-bold text-base" onClick={() => navigate(-1)} disabled={saving}>
                   {isRtl ? "إلغاء" : "Cancel"}
                 </Button>
-                <Button type="submit" disabled={saving || !canSubmit} className="shadow-md">
-                  {saving ? <Loader2 className="w-4 h-4 animate-spin me-2" /> : <Save className="w-4 h-4 me-2" />}
+                <Button type="submit" size="lg" disabled={saving || !canSubmit} className="shadow-xl shadow-primary/40 font-extrabold text-base bg-gradient-to-l from-primary to-primary/80">
+                  {saving ? <Loader2 className="w-5 h-5 animate-spin me-2" /> : <Save className="w-5 h-5 me-2" />}
                   {isRtl ? "حفظ العضو" : "Save Member"}
                 </Button>
               </div>

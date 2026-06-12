@@ -2886,7 +2886,7 @@ ${rows.map((r: any, i: number) => `<tr>
               <Input value={newDeptName} onChange={e => setNewDeptName(e.target.value)} placeholder={isRtl ? "مثال: قسم المحاسبة" : "e.g. Accounting Dept"} />
             </div>
             <div>
-              <Label>{isRtl ? "عدد الطلاب (غير محدود)" : "Student Count (unlimited)"}</Label>
+              <Label>{isRtl ? "عدد الطلاب (غير محدود — مثال: 5000 أو أكثر)" : "Student Count (unlimited — e.g. 5000+)"}</Label>
               <Input
                 type="number"
                 min={0}
@@ -2895,60 +2895,38 @@ ${rows.map((r: any, i: number) => `<tr>
                   const v = Math.max(0, parseInt(e.target.value) || 0);
                   setNewDeptStudentCount(e.target.value === "" ? "" : String(v));
                 }}
-                placeholder="0"
-              />
-            </div>
-            <div>
-              <Label className="flex items-center gap-1.5"><UserCheck className="w-4 h-4" />{isRtl ? "عدد المحاضرين (حتى 10)" : "Lecturer Count (up to 10)"}</Label>
-              <Input
-                type="number"
-                min={0}
-                max={10}
-                value={newDeptLecturerCount}
-                onChange={e => {
-                  const v = Math.min(10, Math.max(0, parseInt(e.target.value) || 0));
-                  setNewDeptLecturerCount(e.target.value === "" ? "" : String(v));
-                }}
-                placeholder="0"
-              />
-            </div>
-            <div>
-              <Label className="flex items-center gap-1.5"><UserCheck className="w-4 h-4" />{isRtl ? "عدد رؤساء الأقسام (حتى 3)" : "Department Heads (up to 3)"}</Label>
-              <Input
-                type="number"
-                min={0}
-                max={3}
-                value={newDeptHeadCount}
-                onChange={e => {
-                  const v = Math.min(3, Math.max(0, parseInt(e.target.value) || 0));
-                  setNewDeptHeadCount(e.target.value === "" ? "" : String(v));
-                }}
-                placeholder="0"
+                placeholder={isRtl ? "مثال: 5000" : "e.g. 5000"}
               />
             </div>
             {(() => {
-              const linkedLecturers = (deptMembers as any[]).filter(m => m.role === "lecturer" && !!m.user_id);
-              // Deduplicate by user_id (a lecturer might appear in multiple dept slots)
+              // Show all faculty members (any role, linked or invited)
+              const allFaculty = (deptMembers as any[]).filter(m => !!m.full_name);
               const seen = new Set<string>();
-              const uniqueLecturers = linkedLecturers.filter(m => {
-                if (seen.has(m.user_id)) return false;
-                seen.add(m.user_id);
+              const uniqueFaculty = allFaculty.filter(m => {
+                const key = m.user_id || m.id;
+                if (seen.has(key)) return false;
+                seen.add(key);
                 return true;
               });
-              if (uniqueLecturers.length === 0) return null;
-              const lecCap = parseInt(newDeptLecturerCount) || 0;
-              const overLimit = lecCap > 0 && newDeptSelectedLecturerIds.length > lecCap;
+              if (uniqueFaculty.length === 0) return (
+                <div className="p-3 rounded-xl bg-muted/40 border-2 border-dashed border-border text-center">
+                  <Label className="flex items-center justify-center gap-1.5 text-muted-foreground">
+                    <GraduationCap className="w-4 h-4" />
+                    {isRtl ? "لا يوجد أعضاء هيئة تدريس بعد — أضفهم من صفحة أعضاء هيئة التدريس" : "No faculty members yet — add them from the Faculty page first"}
+                  </Label>
+                </div>
+              );
               return (
                 <div>
                   <Label className="flex items-center gap-1.5">
                     <GraduationCap className="w-4 h-4" />
                     {isRtl ? "اختر أعضاء هيئة التدريس لهذا القسم" : "Assign Faculty Members"}
                     <span className="text-xs text-muted-foreground">
-                      ({newDeptSelectedLecturerIds.length}{lecCap > 0 ? `/${lecCap}` : ""})
+                      ({newDeptSelectedLecturerIds.length})
                     </span>
                   </Label>
                   <div className="mt-2 border-2 border-border/60 rounded-xl p-2 max-h-48 overflow-y-auto space-y-1 bg-muted/30">
-                    {uniqueLecturers.map((lec: any) => {
+                    {uniqueFaculty.map((lec: any) => {
                       const checked = newDeptSelectedLecturerIds.includes(lec.id);
                       return (
                         <label
@@ -2965,16 +2943,16 @@ ${rows.map((r: any, i: number) => `<tr>
                             }}
                             className="w-4 h-4 accent-primary"
                           />
-                          <span className="text-sm font-semibold truncate">{lec.full_name}</span>
+                          <span className="text-sm font-semibold truncate flex-1">{lec.full_name}</span>
+                          {lec.role && (
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold">
+                              {lec.role}
+                            </span>
+                          )}
                         </label>
                       );
                     })}
                   </div>
-                  {overLimit && (
-                    <p className="text-xs text-destructive mt-1">
-                      {isRtl ? `العدد المحدد يتجاوز سعة القسم (${lecCap})` : `Selection exceeds department capacity (${lecCap})`}
-                    </p>
-                  )}
                 </div>
               );
             })()}
@@ -2983,16 +2961,6 @@ ${rows.map((r: any, i: number) => `<tr>
                 <p className="text-sm text-muted-foreground">{isRtl ? "تكلفة الاشتراك الشهري" : "Monthly subscription cost"}</p>
                 <p className="text-3xl font-black text-primary my-1">{parseInt(newDeptStudentCount) * 299} {isRtl ? "جنيه" : "EGP"}</p>
                 <p className="text-xs text-muted-foreground">{parseInt(newDeptStudentCount)} × 299 {isRtl ? "جنيه/طالب شهرياً" : "EGP/student/month"}</p>
-                {newDeptLecturerCount && parseInt(newDeptLecturerCount) > 0 && (
-                  <p className="text-xs text-green-600 mt-1 font-semibold">
-                    {isRtl ? `${newDeptLecturerCount} محاضر (مجاناً - حتى 10)` : `${newDeptLecturerCount} lecturers (Free - up to 10)`}
-                  </p>
-                )}
-                {newDeptHeadCount && parseInt(newDeptHeadCount) > 0 && (
-                  <p className="text-xs text-amber-600 mt-1 font-semibold">
-                    {isRtl ? `${newDeptHeadCount} رئيس قسم (مجاناً - حتى 3)` : `${newDeptHeadCount} heads (Free - up to 3)`}
-                  </p>
-                )}
               </div>
             )}
           </div>

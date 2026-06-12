@@ -1666,20 +1666,7 @@ ${rows.map((r: any, i: number) => `<tr>
                     </button>
                   </div>
 
-                  {lecturers.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-                      <div className="relative mb-4">
-                        <div className="absolute inset-0 rounded-full bg-primary/10 blur-xl" />
-                        <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 border-2 border-primary/20 flex items-center justify-center">
-                          <GraduationCap className="w-12 h-12 text-primary/60" strokeWidth={2} />
-                        </div>
-                      </div>
-                      <p className="text-lg font-semibold">{isRtl ? "لا يوجد محاضرون بعد" : "No lecturers yet"}</p>
-                      <p className="text-xs sm:text-sm mt-1">
-                        {isRtl ? "أضف محاضرين من شاشة الأقسام" : "Add lecturers from the Departments page"}
-                      </p>
-                    </div>
-                  ) : (
+                  {lecturers.length === 0 ? null : (
                     <div className="space-y-5">
                       {departments
                         .filter((d: any) => lecturers.some((m: any) => m.department_id === d.id))

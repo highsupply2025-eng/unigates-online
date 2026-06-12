@@ -2997,7 +2997,7 @@ ${rows.map((r: any, i: number) => `<tr>
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddDeptDialog(false)}>
+            <Button variant="outline" onClick={() => { setShowAddDeptDialog(false); setNewDeptSelectedLecturerIds([]); }}>
               {isRtl ? "إلغاء" : "Cancel"}
             </Button>
             <Button onClick={handleAddDepartment} disabled={!newDeptName || !newDeptStudentCount || addingDept}>

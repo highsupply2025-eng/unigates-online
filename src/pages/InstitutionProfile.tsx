@@ -232,45 +232,70 @@ const InstitutionProfile = () => {
     toast({ title: isRtl ? "تم تغيير كلمة المرور" : "Password updated" });
   };
 
-  if (loading) return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      <Loader2 className="w-8 h-8 animate-spin text-primary" />
-    </div>
-  );
-  if (!data) return null;
-
-  const initials = (data.name || "?").trim().charAt(0).toUpperCase();
-  const leaderLabel = data.kind === "college"
+  const initials = (data?.name || "?").trim().charAt(0).toUpperCase();
+  const leaderLabel = institutionType === "college"
     ? (isRtl ? "اسم العميد" : "Dean Name")
     : (isRtl ? "اسم المدير" : "Director Name");
 
-  return (
-    <div className="min-h-screen bg-background institution-admin-scope" dir={dir}>
-      <header className="border-b border-primary/20 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent sticky top-0 z-30 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
-            <div className="relative shrink-0">
-              <div className="absolute inset-0 rounded-2xl bg-primary/40 blur-md animate-pulse" />
-              <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary via-primary to-[hsl(200,75%,30%)] flex items-center justify-center shadow-xl shadow-primary/40 ring-2 ring-primary/30">
-                <Landmark className="w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow-md" strokeWidth={2.4} />
-              </div>
-            </div>
-            <div className="min-w-0 flex-1">
-              <h1 className="text-base sm:text-xl font-black text-foreground truncate">
-                {isRtl
-                  ? (data.kind === "college" ? "لوحة ادارة الكلية" : "لوحة ادارة المعهد")
-                  : (data.kind === "college" ? "College Administration" : "Institute Administration")}
-              </h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
-                {isRtl ? "بيانات الحساب" : "Account Details"}
-              </p>
+  const goDash = (tab: string) => navigate(`/institution/dashboard?tab=${tab}`);
+
+  const headerNode = (
+    <header className="border-b border-primary/20 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent sticky top-0 z-30 backdrop-blur-xl">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+          <div className="relative shrink-0">
+            <div className="absolute inset-0 rounded-2xl bg-primary/40 blur-md animate-pulse" />
+            <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary via-primary to-[hsl(200,75%,30%)] flex items-center justify-center shadow-xl shadow-primary/40 ring-2 ring-primary/30">
+              <Landmark className="w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow-md" strokeWidth={2.4} />
             </div>
           </div>
-          <div className="flex items-center gap-1.5 shrink-0">
-            <BackButton to="/institution/dashboard" />
+          <div className="min-w-0 flex-1">
+            <h1 className="text-base sm:text-xl font-black text-foreground truncate">
+              {isRtl
+                ? (institutionType === "college" ? "لوحة ادارة الكلية" : "لوحة ادارة المعهد")
+                : (institutionType === "college" ? "College Administration" : "Institute Administration")}
+            </h1>
+            <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
+              {isRtl ? "بيانات الحساب" : "Account Details"}
+            </p>
           </div>
         </div>
-      </header>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <DashboardMenuDropdown
+            title={isRtl ? (institutionType === "college" ? "لوحة الكلية" : "لوحة المعهد") : (institutionType === "college" ? "College Panel" : "Institute Panel")}
+            onLanguageToggle={toggleLanguage}
+            showNotifications={false}
+            onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
+            items={[
+              { key: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, onClick: () => goDash("general") },
+              { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, onClick: () => goDash("faculty") },
+              { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, onClick: () => goDash("departments") },
+              { key: "accounts", label: isRtl ? "الحسابات" : "Accounts", Icon: Users, onClick: () => goDash("accounts") },
+              { key: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: Mail, onClick: () => goDash("invitations") },
+              { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => goDash("schedules") },
+              { key: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, onClick: () => goDash("quizresults") },
+              { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", active: true, onClick: () => navigate("/institution/profile") },
+            ]}
+          />
+        </div>
+      </div>
+    </header>
+  );
+
+  if (loading || !data) return (
+    <div className="min-h-screen bg-background institution-admin-scope" dir={dir}>
+      {headerNode}
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-background institution-admin-scope" dir={dir}>
+      {headerNode}
+
+
 
 
       <main className="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-8 space-y-5">

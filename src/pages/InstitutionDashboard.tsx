@@ -4,7 +4,7 @@ import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Layers, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
-  User, Ticket, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell, PlusCircle, Pencil, Download, ShieldAlert, AlertTriangle
+  User, Ticket, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell, PlusCircle, Pencil, Download, ShieldAlert, AlertTriangle, UserPlus, FileSpreadsheet
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
@@ -1657,29 +1657,32 @@ ${rows.map((r: any, i: number) => `<tr>
 
               return (
                 <>
-                  {/* Quick stats */}
-                  <div className="grid grid-cols-3 gap-3 mb-5">
-                    <Card className="border-2 border-primary/15 bg-gradient-to-br from-primary/5 to-transparent">
-                      <CardContent className="p-3 sm:p-4 text-center">
-                        <GraduationCap className="w-5 h-5 text-primary mx-auto mb-1" />
-                        <p className="text-2xl font-black text-foreground">{lecturers.length}</p>
-                        <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "إجمالي المحاضرين" : "Total Lecturers"}</p>
-                      </CardContent>
-                    </Card>
-                    <Card className="border-2 border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent">
-                      <CardContent className="p-3 sm:p-4 text-center">
-                        <CheckCircle className="w-5 h-5 text-emerald-600 mx-auto mb-1" />
-                        <p className="text-2xl font-black text-foreground">{totalLinked}</p>
-                        <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "مفعّل" : "Active"}</p>
-                      </CardContent>
-                    </Card>
-                    <Card className="border-2 border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent">
-                      <CardContent className="p-3 sm:p-4 text-center">
-                        <Clock className="w-5 h-5 text-amber-600 mx-auto mb-1" />
-                        <p className="text-2xl font-black text-foreground">{totalPending}</p>
-                        <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "بانتظار التسجيل" : "Pending"}</p>
-                      </CardContent>
-                    </Card>
+                  {/* Quick actions */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+                    <button
+                      onClick={() => handleTabChange("accounts")}
+                      className="group text-start border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent hover:border-primary/50 hover:shadow-lg transition-all rounded-xl p-4 sm:p-5 flex items-center gap-3"
+                    >
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-md shrink-0">
+                        <UserPlus className="w-6 h-6 text-primary-foreground" strokeWidth={2.4} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-extrabold text-foreground text-sm sm:text-base">{isRtl ? "تسجيل البيانات" : "Register Data"}</p>
+                        <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "إضافة محاضر يدويًا" : "Add lecturer manually"}</p>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => handleTabChange("accounts")}
+                      className="group text-start border-2 border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent hover:border-emerald-500/50 hover:shadow-lg transition-all rounded-xl p-4 sm:p-5 flex items-center gap-3"
+                    >
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-md shrink-0">
+                        <FileSpreadsheet className="w-6 h-6 text-white" strokeWidth={2.4} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-extrabold text-foreground text-sm sm:text-base">{isRtl ? "رفع ملف Excel" : "Upload Excel File"}</p>
+                        <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "استيراد بيانات المحاضرين" : "Bulk import lecturers"}</p>
+                      </div>
+                    </button>
                   </div>
 
                   {lecturers.length === 0 ? (

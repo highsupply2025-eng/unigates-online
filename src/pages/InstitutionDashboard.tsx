@@ -146,6 +146,7 @@ const InstitutionDashboard = () => {
   const [newDeptStudentCount, setNewDeptStudentCount] = useState("");
   const [newDeptLecturerCount, setNewDeptLecturerCount] = useState("");
   const [newDeptHeadCount, setNewDeptHeadCount] = useState("");
+  const [newDeptSelectedLecturerIds, setNewDeptSelectedLecturerIds] = useState<string[]>([]);
   const [addingDept, setAddingDept] = useState(false);
 
   // Add Member
@@ -460,6 +461,10 @@ const InstitutionDashboard = () => {
       setNewDeptStudentCount("");
       setNewDeptLecturerCount("");
       setNewDeptHeadCount("");
+      const selectedLecturers = deptMembers.filter((m: any) =>
+        newDeptSelectedLecturerIds.includes(m.id) && m.role === "lecturer"
+      );
+      setNewDeptSelectedLecturerIds([]);
       setAddingDept(false);
 
       sonnerToast.success(
@@ -482,10 +487,23 @@ const InstitutionDashboard = () => {
           invitation_code: generateCode(),
         });
       }
-      for (let i = 1; i <= lecturerCount; i++) {
+      const blankLecturerSlots = Math.max(0, lecturerCount - selectedLecturers.length);
+      for (let i = 1; i <= blankLecturerSlots; i++) {
         memberInserts.push({
           department_id: newDept.id,
           full_name: isRtl ? `محاضر ${i}` : `Lecturer ${i}`,
+          role: "lecturer",
+          invitation_code: generateCode(),
+        });
+      }
+      // Pre-fill chosen existing lecturers in the new department
+      for (const lec of selectedLecturers as any[]) {
+        memberInserts.push({
+          department_id: newDept.id,
+          full_name: lec.full_name,
+          email: lec.email ?? null,
+          phone: lec.phone ?? null,
+          user_id: lec.user_id ?? null,
           role: "lecturer",
           invitation_code: generateCode(),
         });
@@ -2908,6 +2926,58 @@ ${rows.map((r: any, i: number) => `<tr>
                 placeholder="0"
               />
             </div>
+            {(() => {
+              const linkedLecturers = (deptMembers as any[]).filter(m => m.role === "lecturer" && !!m.user_id);
+              // Deduplicate by user_id (a lecturer might appear in multiple dept slots)
+              const seen = new Set<string>();
+              const uniqueLecturers = linkedLecturers.filter(m => {
+                if (seen.has(m.user_id)) return false;
+                seen.add(m.user_id);
+                return true;
+              });
+              if (uniqueLecturers.length === 0) return null;
+              const lecCap = parseInt(newDeptLecturerCount) || 0;
+              const overLimit = lecCap > 0 && newDeptSelectedLecturerIds.length > lecCap;
+              return (
+                <div>
+                  <Label className="flex items-center gap-1.5">
+                    <GraduationCap className="w-4 h-4" />
+                    {isRtl ? "اختر أعضاء هيئة التدريس لهذا القسم" : "Assign Faculty Members"}
+                    <span className="text-xs text-muted-foreground">
+                      ({newDeptSelectedLecturerIds.length}{lecCap > 0 ? `/${lecCap}` : ""})
+                    </span>
+                  </Label>
+                  <div className="mt-2 border-2 border-border/60 rounded-xl p-2 max-h-48 overflow-y-auto space-y-1 bg-muted/30">
+                    {uniqueLecturers.map((lec: any) => {
+                      const checked = newDeptSelectedLecturerIds.includes(lec.id);
+                      return (
+                        <label
+                          key={lec.id}
+                          className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${checked ? "bg-primary/10 border border-primary/30" : "hover:bg-background"}`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(e) => {
+                              setNewDeptSelectedLecturerIds(prev =>
+                                e.target.checked ? [...prev, lec.id] : prev.filter(id => id !== lec.id)
+                              );
+                            }}
+                            className="w-4 h-4 accent-primary"
+                          />
+                          <span className="text-sm font-semibold truncate">{lec.full_name}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  {overLimit && (
+                    <p className="text-xs text-destructive mt-1">
+                      {isRtl ? `العدد المحدد يتجاوز سعة القسم (${lecCap})` : `Selection exceeds department capacity (${lecCap})`}
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
             {newDeptStudentCount && parseInt(newDeptStudentCount) > 0 && (
               <div className="p-4 rounded-xl bg-primary/10 text-center border-2 border-primary/20">
                 <p className="text-sm text-muted-foreground">{isRtl ? "تكلفة الاشتراك الشهري" : "Monthly subscription cost"}</p>
@@ -2927,7 +2997,7 @@ ${rows.map((r: any, i: number) => `<tr>
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddDeptDialog(false)}>
+            <Button variant="outline" onClick={() => { setShowAddDeptDialog(false); setNewDeptSelectedLecturerIds([]); }}>
               {isRtl ? "إلغاء" : "Cancel"}
             </Button>
             <Button onClick={handleAddDepartment} disabled={!newDeptName || !newDeptStudentCount || addingDept}>

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Building2, Mail, Phone, MapPin, Camera, Lock, Save, Loader2,
   Eye, EyeOff, Users, ShieldCheck, Calendar, GraduationCap,
+  Layers, BookOpen, CheckCircle, User,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +15,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import { Landmark } from "lucide-react";
-import BackButton from "@/components/BackButton";
+import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
+
 
 interface InstitutionData {
   id: string;
@@ -34,9 +36,10 @@ interface InstitutionData {
 }
 
 const InstitutionProfile = () => {
-  const { dir, language } = useLanguage();
+  const { dir, language, toggleLanguage } = useLanguage();
   const isRtl = language === "ar";
   const navigate = useNavigate();
+  const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(true);
@@ -130,6 +133,7 @@ const InstitutionProfile = () => {
         }
 
         setData(row);
+        setInstitutionType(row.kind);
         setLeaderName(row.leaderName || "");
         setPhone(row.phone || "");
         setCity(row.city || "");

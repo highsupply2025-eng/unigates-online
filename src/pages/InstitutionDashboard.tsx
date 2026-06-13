@@ -614,8 +614,7 @@ const InstitutionDashboard = () => {
     ];
     const example = [
       ["أحمد محمد", "ahmed@example.com", "+201000000001", "student", departments[0]?.department_name || ""],
-      ["د. سارة", "sara@example.com", "+201000000002", "lecturer", departments[0]?.department_name || ""],
-      ["رئيس قسم", "head@example.com", "+201000000003", "department_head", departments[0]?.department_name || ""],
+      ["سارة علي", "sara@example.com", "+201000000002", "student", departments[0]?.department_name || ""],
     ];
     const ws = XLSX.utils.aoa_to_sheet([header, ...example]);
     ws["!cols"] = [{ wch: 22 }, { wch: 28 }, { wch: 18 }, { wch: 16 }, { wch: 22 }];

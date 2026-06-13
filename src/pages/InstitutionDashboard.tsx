@@ -637,7 +637,7 @@ const InstitutionDashboard = () => {
         full_name: r.full_name || r["الاسم الكامل"] || r["الاسم"] || "",
         email: r.email || r["البريد الإلكتروني"] || r["الايميل"] || r["الإيميل"] || "",
         phone: r.phone || r["رقم الهاتف"] || r["الهاتف"] || "",
-        role: r.role || r["الدور"] || r["النوع"] || "",
+        role: "student",
         department_name: r.department_name || r["اسم القسم"] || r["القسم"] || "",
       }));
       if (rows.length === 0) {

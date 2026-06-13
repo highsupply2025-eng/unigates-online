@@ -609,16 +609,14 @@ const InstitutionDashboard = () => {
       isRtl ? "الاسم الكامل" : "full_name",
       isRtl ? "البريد الإلكتروني" : "email",
       isRtl ? "رقم الهاتف" : "phone",
-      isRtl ? "الدور" : "role",
       isRtl ? "اسم القسم" : "department_name",
     ];
     const example = [
-      ["أحمد محمد", "ahmed@example.com", "+201000000001", "student", departments[0]?.department_name || ""],
-      ["د. سارة", "sara@example.com", "+201000000002", "lecturer", departments[0]?.department_name || ""],
-      ["رئيس قسم", "head@example.com", "+201000000003", "department_head", departments[0]?.department_name || ""],
+      ["أحمد محمد", "ahmed@example.com", "+201000000001", departments[0]?.department_name || ""],
+      ["سارة علي", "sara@example.com", "+201000000002", departments[0]?.department_name || ""],
     ];
     const ws = XLSX.utils.aoa_to_sheet([header, ...example]);
-    ws["!cols"] = [{ wch: 22 }, { wch: 28 }, { wch: 18 }, { wch: 16 }, { wch: 22 }];
+    ws["!cols"] = [{ wch: 22 }, { wch: 28 }, { wch: 18 }, { wch: 22 }];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Accounts");
     XLSX.writeFile(wb, "accounts_template.xlsx");
@@ -638,7 +636,7 @@ const InstitutionDashboard = () => {
         full_name: r.full_name || r["الاسم الكامل"] || r["الاسم"] || "",
         email: r.email || r["البريد الإلكتروني"] || r["الايميل"] || r["الإيميل"] || "",
         phone: r.phone || r["رقم الهاتف"] || r["الهاتف"] || "",
-        role: r.role || r["الدور"] || r["النوع"] || "",
+        role: "student",
         department_name: r.department_name || r["اسم القسم"] || r["القسم"] || "",
       }));
       if (rows.length === 0) {
@@ -2364,12 +2362,12 @@ ${rows.map((r: any, i: number) => `<tr>
                           <Users className="w-10 h-10 text-white" />
                         </div>
                         <h3 className="text-lg font-black">
-                          {isRtl ? "ارفع ملف Excel (.xlsx)" : "Upload Excel file (.xlsx)"}
+                          {isRtl ? "ارفع ملف Excel (.xlsx) للطلاب" : "Upload Excel file (.xlsx) for Students"}
                         </h3>
                         <p className="text-sm text-muted-foreground max-w-md mx-auto">
                           {isRtl
-                            ? "الأعمدة المطلوبة: الاسم الكامل، البريد الإلكتروني، رقم الهاتف، الدور (student/lecturer/department_head)، اسم القسم. عند الرفع يتم إنشاء الحسابات وتفعيلها تلقائياً بكلمة مرور مؤقتة."
-                            : "Required columns: full_name, email, phone, role (student/lecturer/department_head), department_name. Accounts are created and activated automatically with a temporary password."}
+                            ? "هذه الصفحة مخصصة لتفعيل حسابات الطلاب فقط. الأعمدة المطلوبة: الاسم الكامل، البريد الإلكتروني، رقم الهاتف، اسم القسم. عند الرفع يتم إنشاء الحسابات وتفعيلها تلقائياً بكلمة مرور مؤقتة. لإضافة أعضاء هيئة التدريس استخدم صفحة إضافة عضو هيئة التدريس (يدوياً أو برفع ملف)."
+                            : "This page is for student accounts only. Required columns: full_name, email, phone, department_name. Accounts are created with a temporary password. To add faculty members use the Faculty page (manual or file upload)."}
                         </p>
                         <div>
                           <input
@@ -2660,7 +2658,7 @@ ${rows.map((r: any, i: number) => `<tr>
                   </div>
                   <h3 className="text-xl font-bold text-foreground">{invitationDept.department_name}</h3>
                 </div>
-                {(["lecturer", "student"] as const).map(viewKey => {
+                {(["student"] as Array<"lecturer" | "student">).map(viewKey => {
                   return (
                 <div key={viewKey} className="space-y-3">
                 <div className="flex items-center gap-3 mb-1">

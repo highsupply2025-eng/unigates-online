@@ -609,15 +609,14 @@ const InstitutionDashboard = () => {
       isRtl ? "الاسم الكامل" : "full_name",
       isRtl ? "البريد الإلكتروني" : "email",
       isRtl ? "رقم الهاتف" : "phone",
-      isRtl ? "الدور" : "role",
       isRtl ? "اسم القسم" : "department_name",
     ];
     const example = [
-      ["أحمد محمد", "ahmed@example.com", "+201000000001", "student", departments[0]?.department_name || ""],
-      ["سارة علي", "sara@example.com", "+201000000002", "student", departments[0]?.department_name || ""],
+      ["أحمد محمد", "ahmed@example.com", "+201000000001", departments[0]?.department_name || ""],
+      ["سارة علي", "sara@example.com", "+201000000002", departments[0]?.department_name || ""],
     ];
     const ws = XLSX.utils.aoa_to_sheet([header, ...example]);
-    ws["!cols"] = [{ wch: 22 }, { wch: 28 }, { wch: 18 }, { wch: 16 }, { wch: 22 }];
+    ws["!cols"] = [{ wch: 22 }, { wch: 28 }, { wch: 18 }, { wch: 22 }];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Accounts");
     XLSX.writeFile(wb, "accounts_template.xlsx");

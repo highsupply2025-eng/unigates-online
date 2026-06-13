@@ -2363,12 +2363,12 @@ ${rows.map((r: any, i: number) => `<tr>
                           <Users className="w-10 h-10 text-white" />
                         </div>
                         <h3 className="text-lg font-black">
-                          {isRtl ? "ارفع ملف Excel (.xlsx)" : "Upload Excel file (.xlsx)"}
+                          {isRtl ? "ارفع ملف Excel (.xlsx) للطلاب" : "Upload Excel file (.xlsx) for Students"}
                         </h3>
                         <p className="text-sm text-muted-foreground max-w-md mx-auto">
                           {isRtl
-                            ? "الأعمدة المطلوبة: الاسم الكامل، البريد الإلكتروني، رقم الهاتف، الدور (student/lecturer/department_head)، اسم القسم. عند الرفع يتم إنشاء الحسابات وتفعيلها تلقائياً بكلمة مرور مؤقتة."
-                            : "Required columns: full_name, email, phone, role (student/lecturer/department_head), department_name. Accounts are created and activated automatically with a temporary password."}
+                            ? "هذه الصفحة مخصصة لتفعيل حسابات الطلاب فقط. الأعمدة المطلوبة: الاسم الكامل، البريد الإلكتروني، رقم الهاتف، اسم القسم. عند الرفع يتم إنشاء الحسابات وتفعيلها تلقائياً بكلمة مرور مؤقتة. لإضافة أعضاء هيئة التدريس استخدم صفحة إضافة عضو هيئة التدريس (يدوياً أو برفع ملف)."
+                            : "This page is for student accounts only. Required columns: full_name, email, phone, department_name. Accounts are created with a temporary password. To add faculty members use the Faculty page (manual or file upload)."}
                         </p>
                         <div>
                           <input

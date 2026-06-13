@@ -59,7 +59,7 @@ const SiteFooter = () => {
 
   const socialLinks = [
     { icon: FacebookIcon, label: "Facebook", href: "#", color: "bg-[#1877F2]" },
-    { icon: TwitterIcon, label: "Twitter", href: "#", color: "bg-[#000000]" },
+    { icon: TwitterIcon, label: "X", href: "https://x.com/UNIGATES_ONLINE", color: "bg-[#000000]" },
     { icon: YouTubeIcon, label: "YouTube", href: "https://www.youtube.com/@UNIGATESPLATFORM", color: "bg-[#FF0000]" },
     { icon: InstagramIcon, label: "Instagram", href: "#", color: "bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF]" },
     { icon: TikTokIcon, label: "TikTok", href: "#", color: "bg-[#000000]" },

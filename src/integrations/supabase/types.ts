@@ -2217,6 +2217,24 @@ export type Database = {
             }
             Returns: Json
           }
+      get_institution_quiz_for_student: {
+        Args: { _quiz_id: string }
+        Returns: {
+          id: string
+          option_a_ar: string
+          option_a_en: string
+          option_b_ar: string
+          option_b_en: string
+          option_c_ar: string
+          option_c_en: string
+          option_d_ar: string
+          option_d_en: string
+          points: number
+          question_ar: string
+          question_en: string
+          question_order: number
+        }[]
+      }
       get_my_submission_whatsapp: {
         Args: { _submission_id: string }
         Returns: string

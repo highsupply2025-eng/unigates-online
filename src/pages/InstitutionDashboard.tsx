@@ -2658,7 +2658,7 @@ ${rows.map((r: any, i: number) => `<tr>
                   </div>
                   <h3 className="text-xl font-bold text-foreground">{invitationDept.department_name}</h3>
                 </div>
-                {(["student"] as const).map(viewKey => {
+                {(["student"] as Array<"lecturer" | "student">).map(viewKey => {
                   return (
                 <div key={viewKey} className="space-y-3">
                 <div className="flex items-center gap-3 mb-1">

@@ -2897,7 +2897,7 @@ ${rows.map((r: any, i: number) => `<tr>
               />
             </div>
             {(() => {
-              // Show all faculty members (any role, linked or invited)
+              // Show all faculty members except the dean (dean is auto-assigned, shown separately)
               const allFaculty = (deptMembers as any[]).filter(m => !!m.full_name);
               const seen = new Set<string>();
               const uniqueFaculty = allFaculty.filter(m => {
@@ -2906,54 +2906,74 @@ ${rows.map((r: any, i: number) => `<tr>
                 seen.add(key);
                 return true;
               });
-              if (uniqueFaculty.length === 0) return (
-                <div className="p-3 rounded-xl bg-muted/40 border-2 border-dashed border-border text-center">
-                  <Label className="flex items-center justify-center gap-1.5 text-muted-foreground">
-                    <GraduationCap className="w-4 h-4" />
-                    {isRtl ? "لا يوجد أعضاء هيئة تدريس بعد — أضفهم من صفحة أعضاء هيئة التدريس" : "No faculty members yet — add them from the Faculty page first"}
-                  </Label>
-                </div>
-              );
+              const dean = uniqueFaculty.find(m => m.role === "dean");
+              const selectable = uniqueFaculty.filter(m => m.role !== "dean");
               return (
-                <div>
-                  <Label className="flex items-center gap-1.5">
-                    <GraduationCap className="w-4 h-4" />
-                    {isRtl ? "اختر أعضاء هيئة التدريس لهذا القسم" : "Assign Faculty Members"}
-                    <span className="text-xs text-muted-foreground">
-                      ({newDeptSelectedLecturerIds.length})
-                    </span>
-                  </Label>
-                  <div className="mt-2 border-2 border-border/60 rounded-xl p-2 max-h-48 overflow-y-auto space-y-1 bg-muted/30">
-                    {uniqueFaculty.map((lec: any) => {
-                      const checked = newDeptSelectedLecturerIds.includes(lec.id);
-                      return (
-                        <label
-                          key={lec.id}
-                          className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${checked ? "bg-primary/10 border border-primary/30" : "hover:bg-background"}`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={(e) => {
-                              setNewDeptSelectedLecturerIds(prev =>
-                                e.target.checked ? [...prev, lec.id] : prev.filter(id => id !== lec.id)
-                              );
-                            }}
-                            className="w-4 h-4 accent-primary"
-                          />
-                          <span className="text-sm font-semibold truncate flex-1">{lec.full_name}</span>
-                          {lec.role && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold">
-                              {lec.role}
-                            </span>
-                          )}
-                        </label>
-                      );
-                    })}
-                  </div>
+                <div className="space-y-3">
+                  {dean && (
+                    <div className="p-3 rounded-xl bg-primary/5 border-2 border-primary/20">
+                      <Label className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
+                        <GraduationCap className="w-4 h-4" />
+                        {isRtl ? "العميد (تلقائي)" : "Dean (auto-assigned)"}
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold flex-1">{dean.full_name}</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold">
+                          {isRtl ? "عميد" : "Dean"}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  {selectable.length === 0 ? (
+                    <div className="p-3 rounded-xl bg-muted/40 border-2 border-dashed border-border text-center">
+                      <Label className="flex items-center justify-center gap-1.5 text-muted-foreground">
+                        <GraduationCap className="w-4 h-4" />
+                        {isRtl ? "لا يوجد أعضاء هيئة تدريس بعد — أضفهم من صفحة أعضاء هيئة التدريس" : "No faculty members yet — add them from the Faculty page first"}
+                      </Label>
+                    </div>
+                  ) : (
+                    <div>
+                      <Label className="flex items-center gap-1.5">
+                        <GraduationCap className="w-4 h-4" />
+                        {isRtl ? "اختر أعضاء هيئة التدريس لهذا القسم" : "Assign Faculty Members"}
+                        <span className="text-xs text-muted-foreground">
+                          ({newDeptSelectedLecturerIds.length})
+                        </span>
+                      </Label>
+                      <div className="mt-2 border-2 border-border/60 rounded-xl p-2 max-h-48 overflow-y-auto space-y-1 bg-muted/30">
+                        {selectable.map((lec: any) => {
+                          const checked = newDeptSelectedLecturerIds.includes(lec.id);
+                          return (
+                            <label
+                              key={lec.id}
+                              className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${checked ? "bg-primary/10 border border-primary/30" : "hover:bg-background"}`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={(e) => {
+                                  setNewDeptSelectedLecturerIds(prev =>
+                                    e.target.checked ? [...prev, lec.id] : prev.filter(id => id !== lec.id)
+                                  );
+                                }}
+                                className="w-4 h-4 accent-primary"
+                              />
+                              <span className="text-sm font-semibold truncate flex-1">{lec.full_name}</span>
+                              {lec.role && (
+                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold">
+                                  {lec.role}
+                                </span>
+                              )}
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })()}
+
             {newDeptStudentCount && parseInt(newDeptStudentCount) > 0 && (
               <div className="p-4 rounded-xl bg-primary/10 text-center border-2 border-primary/20">
                 <p className="text-sm text-muted-foreground">{isRtl ? "تكلفة الاشتراك الشهري" : "Monthly subscription cost"}</p>

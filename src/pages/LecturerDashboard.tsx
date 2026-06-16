@@ -126,7 +126,7 @@ const LecturerDashboard = () => {
   const [assignments, setAssignments] = useState<any[]>([]);
   const [showAssignmentDialog, setShowAssignmentDialog] = useState(false);
   const [selectedAssignmentCourseId, setSelectedAssignmentCourseId] = useState<string | null>(null);
-  const [newAssignment, setNewAssignment] = useState({ title_ar: "", title_en: "", description_ar: "", description_en: "", due_date: "" });
+  const [newAssignment, setNewAssignment] = useState({ title_ar: "", title_en: "", description_ar: "", description_en: "", due_date: "", department_id: "" });
   const [assignmentFile, setAssignmentFile] = useState<File | null>(null);
   const [savingAssignment, setSavingAssignment] = useState(false);
 

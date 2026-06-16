@@ -613,6 +613,7 @@ const LecturerDashboard = () => {
     if (!newSchedule.course_id || !newSchedule.title_ar || !newSchedule.title_en || !newSchedule.scheduled_date) return;
     setSavingSchedule(true);
     try {
+      const parentCourse = courses.find(c => c.id === newSchedule.course_id);
       const { error } = await supabase.from("lecture_schedules").insert({
         course_id: newSchedule.course_id, creator_id: user.id,
         title_ar: newSchedule.title_ar, title_en: newSchedule.title_en,
@@ -621,6 +622,7 @@ const LecturerDashboard = () => {
         start_time: newSchedule.start_time || null, end_time: newSchedule.end_time || null,
         location_ar: newSchedule.location_ar || null, location_en: newSchedule.location_en || null,
         notes_ar: newSchedule.notes_ar || null, notes_en: newSchedule.notes_en || null,
+        department_id: parentCourse?.department_id || null,
         vice_dean_type: newSchedule.vice_dean_types,
       } as any);
       if (error) throw error;

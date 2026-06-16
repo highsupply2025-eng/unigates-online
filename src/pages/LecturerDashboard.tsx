@@ -494,13 +494,15 @@ const LecturerDashboard = () => {
         fileUrl = urlData.publicUrl;
         fileName = assignmentFile.name;
       }
+      const parentCourse = courses.find(c => c.id === selectedAssignmentCourseId);
       const { error } = await supabase.from("assignments").insert({
         course_id: selectedAssignmentCourseId, creator_id: user.id,
         title_ar: newAssignment.title_ar, title_en: newAssignment.title_en,
         description_ar: newAssignment.description_ar || null, description_en: newAssignment.description_en || null,
         file_url: fileUrl, file_name: fileName,
+        department_id: parentCourse?.department_id || null,
         due_date: newAssignment.due_date || null,
-      });
+      } as any);
       if (error) throw error;
       toast({ title: isRtl ? "تم" : "Done" });
       setNewAssignment({ title_ar: "", title_en: "", description_ar: "", description_en: "", due_date: "", department_id: "" });

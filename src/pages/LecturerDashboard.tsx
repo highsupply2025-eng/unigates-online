@@ -57,6 +57,8 @@ const LecturerDashboard = () => {
   const [courseViews, setCourseViews] = useState<Record<string, number>>({});
   const [viewsTimes, setViewsTimes] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState(initialTab);
+  // Departments the lecturer is a member of (used to scope every created item to a department)
+  const [myDepartments, setMyDepartments] = useState<Array<{ id: string; name_ar: string; name_en: string }>>([]);
 
   // Sync tab from URL (back/forward navigation)
   useEffect(() => {

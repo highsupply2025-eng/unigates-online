@@ -57,6 +57,8 @@ const LecturerDashboard = () => {
   const [courseViews, setCourseViews] = useState<Record<string, number>>({});
   const [viewsTimes, setViewsTimes] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState(initialTab);
+  // Departments the lecturer is a member of (used to scope every created item to a department)
+  const [myDepartments, setMyDepartments] = useState<Array<{ id: string; name_ar: string; name_en: string }>>([]);
 
   // Sync tab from URL (back/forward navigation)
   useEffect(() => {
@@ -93,7 +95,7 @@ const LecturerDashboard = () => {
   const [newCourse, setNewCourse] = useState({
     title_ar: "", title_en: "", category_ar: "", category_en: "",
     instructor_ar: "", instructor_en: "", is_free: false, price: 0, created_at: new Date().toISOString().slice(0, 10),
-    expires_at: "",
+    expires_at: "", department_id: "",
   });
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
@@ -115,7 +117,7 @@ const LecturerDashboard = () => {
   // Live streams
   const [streams, setStreams] = useState<any[]>([]);
   const [showStreamDialog, setShowStreamDialog] = useState(false);
-  const [newStream, setNewStream] = useState({ title_ar: "", title_en: "", category_ar: "", category_en: "", scheduled_at: "", expires_at: "" });
+  const [newStream, setNewStream] = useState({ title_ar: "", title_en: "", category_ar: "", category_en: "", scheduled_at: "", expires_at: "", department_id: "" });
   const [savingStream, setSavingStream] = useState(false);
   const [activeStreamId, setActiveStreamId] = useState<string | null>(null);
   const [activeStreamTitle, setActiveStreamTitle] = useState("");
@@ -124,7 +126,7 @@ const LecturerDashboard = () => {
   const [assignments, setAssignments] = useState<any[]>([]);
   const [showAssignmentDialog, setShowAssignmentDialog] = useState(false);
   const [selectedAssignmentCourseId, setSelectedAssignmentCourseId] = useState<string | null>(null);
-  const [newAssignment, setNewAssignment] = useState({ title_ar: "", title_en: "", description_ar: "", description_en: "", due_date: "" });
+  const [newAssignment, setNewAssignment] = useState({ title_ar: "", title_en: "", description_ar: "", description_en: "", due_date: "", department_id: "" });
   const [assignmentFile, setAssignmentFile] = useState<File | null>(null);
   const [savingAssignment, setSavingAssignment] = useState(false);
 
@@ -141,7 +143,7 @@ const LecturerDashboard = () => {
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [showQuizDialog, setShowQuizDialog] = useState(false);
   const [selectedQuizCourseId, setSelectedQuizCourseId] = useState<string | null>(null);
-  const [newQuiz, setNewQuiz] = useState({ title_ar: "", title_en: "", description_ar: "", description_en: "", duration_minutes: 30, due_date: "" });
+  const [newQuiz, setNewQuiz] = useState({ title_ar: "", title_en: "", description_ar: "", description_en: "", duration_minutes: 30, due_date: "", department_id: "" });
   const [savingQuiz, setSavingQuiz] = useState(false);
   const [showQuestionsDialog, setShowQuestionsDialog] = useState(false);
   const [selectedQuizId, setSelectedQuizId] = useState<string | null>(null);
@@ -162,7 +164,7 @@ const LecturerDashboard = () => {
   const [newSchedule, setNewSchedule] = useState({
     course_id: "", title_ar: "", title_en: "", schedule_type: "lecture",
     scheduled_date: "", start_time: "", end_time: "", location_ar: "", location_en: "", notes_ar: "", notes_en: "",
-    vice_dean_types: ["students"] as string[],
+    vice_dean_types: ["students"] as string[], department_id: "",
   });
   const [savingSchedule, setSavingSchedule] = useState(false);
 
@@ -190,9 +192,24 @@ const LecturerDashboard = () => {
         loadLecturerRatings(user.id),
         loadSchedules(user.id),
         loadAttendance(user.id),
+        loadMyDepartments(user.id),
       ]);
     }
     setLoading(false);
+  };
+
+  const loadMyDepartments = async (userId: string) => {
+    const { data } = await supabase
+      .from("department_members")
+      .select("department_id, departments(id, name_ar, name_en)")
+      .eq("user_id", userId);
+    const deps = (data || [])
+      .map((r: any) => r.departments)
+      .filter(Boolean) as Array<{ id: string; name_ar: string; name_en: string }>;
+    // de-dupe by id
+    const seen = new Set<string>();
+    const unique = deps.filter(d => (seen.has(d.id) ? false : (seen.add(d.id), true)));
+    setMyDepartments(unique);
   };
 
   const loadLecturerRatings = async (userId: string) => {
@@ -312,6 +329,10 @@ const LecturerDashboard = () => {
       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى إدخال اسم المحاضرة" : "Please enter the lecture name", variant: "destructive" });
       return;
     }
+    if (!newCourse.department_id) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى اختيار القسم" : "Please select a department", variant: "destructive" });
+      return;
+    }
     setSavingCourse(true);
     try {
       let thumbnailUrl: string | null = null;
@@ -332,13 +353,14 @@ const LecturerDashboard = () => {
         instructor_en: lecturerName,
         is_free: newCourse.is_free,
         creator_id: user.id, thumbnail_url: thumbnailUrl,
+        department_id: newCourse.department_id,
         expires_at: newCourse.expires_at || null,
         created_at: newCourse.created_at ? new Date(newCourse.created_at).toISOString() : new Date().toISOString(),
       } as any);
       if (error) throw error;
       toast({ title: isRtl ? "تم" : "Done", description: isRtl ? "تم إنشاء الدورة بنجاح" : "Course created successfully" });
       setShowNewCourse(false);
-      setNewCourse({ title_ar: "", title_en: "", category_ar: "", category_en: "", instructor_ar: "", instructor_en: "", is_free: false, price: 0, created_at: new Date().toISOString().slice(0, 10), expires_at: "" });
+      setNewCourse({ title_ar: "", title_en: "", category_ar: "", category_en: "", instructor_ar: "", instructor_en: "", is_free: false, price: 0, created_at: new Date().toISOString().slice(0, 10), expires_at: "", department_id: "" });
       setThumbnail(null); setThumbnailPreview(null);
       await loadCourses(user.id);
     } catch (err: any) {
@@ -409,6 +431,10 @@ const LecturerDashboard = () => {
       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى ملء جميع الحقول" : "Please fill all fields", variant: "destructive" });
       return;
     }
+    if (!newStream.department_id) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى اختيار القسم" : "Please select a department", variant: "destructive" });
+      return;
+    }
     setSavingStream(true);
     try {
       const { error } = await supabase.from("live_streams").insert({
@@ -416,12 +442,13 @@ const LecturerDashboard = () => {
         category_ar: newStream.category_ar || null, category_en: newStream.category_en || null,
         instructor_ar: profile?.full_name || null, instructor_en: profile?.full_name || null,
         status: "scheduled", scheduled_at: newStream.scheduled_at || null,
+        department_id: newStream.department_id,
         expires_at: newStream.expires_at ? new Date(newStream.expires_at).toISOString() : null,
-      });
+      } as any);
       if (error) throw error;
       toast({ title: isRtl ? "تم" : "Done", description: isRtl ? "تم إنشاء البث بنجاح" : "Stream created" });
       setShowStreamDialog(false);
-      setNewStream({ title_ar: "", title_en: "", category_ar: "", category_en: "", scheduled_at: "", expires_at: "" });
+      setNewStream({ title_ar: "", title_en: "", category_ar: "", category_en: "", scheduled_at: "", expires_at: "", department_id: "" });
       await loadStreams(user.id);
     } catch (err: any) {
       toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
@@ -467,16 +494,18 @@ const LecturerDashboard = () => {
         fileUrl = urlData.publicUrl;
         fileName = assignmentFile.name;
       }
+      const parentCourse = courses.find(c => c.id === selectedAssignmentCourseId);
       const { error } = await supabase.from("assignments").insert({
         course_id: selectedAssignmentCourseId, creator_id: user.id,
         title_ar: newAssignment.title_ar, title_en: newAssignment.title_en,
         description_ar: newAssignment.description_ar || null, description_en: newAssignment.description_en || null,
         file_url: fileUrl, file_name: fileName,
+        department_id: parentCourse?.department_id || null,
         due_date: newAssignment.due_date || null,
-      });
+      } as any);
       if (error) throw error;
       toast({ title: isRtl ? "تم" : "Done" });
-      setNewAssignment({ title_ar: "", title_en: "", description_ar: "", description_en: "", due_date: "" });
+      setNewAssignment({ title_ar: "", title_en: "", description_ar: "", description_en: "", due_date: "", department_id: "" });
       setAssignmentFile(null);
       await loadAssignments(selectedAssignmentCourseId);
     } catch (err: any) {
@@ -516,16 +545,18 @@ const LecturerDashboard = () => {
     if (!selectedQuizCourseId || !newQuiz.title_ar || !newQuiz.title_en) return;
     setSavingQuiz(true);
     try {
+      const parentCourse = courses.find(c => c.id === selectedQuizCourseId);
       const { error } = await supabase.from("quizzes").insert({
         course_id: selectedQuizCourseId, creator_id: user.id,
         title_ar: newQuiz.title_ar, title_en: newQuiz.title_en,
         description_ar: newQuiz.description_ar || null, description_en: newQuiz.description_en || null,
         duration_minutes: newQuiz.duration_minutes,
+        department_id: parentCourse?.department_id || null,
         due_date: newQuiz.due_date || null,
       } as any);
       if (error) throw error;
       toast({ title: isRtl ? "تم" : "Done" });
-      setNewQuiz({ title_ar: "", title_en: "", description_ar: "", description_en: "", duration_minutes: 30, due_date: "" });
+      setNewQuiz({ title_ar: "", title_en: "", description_ar: "", description_en: "", duration_minutes: 30, due_date: "", department_id: "" });
       await loadQuizzes(selectedQuizCourseId);
     } catch (err: any) {
       toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
@@ -582,6 +613,7 @@ const LecturerDashboard = () => {
     if (!newSchedule.course_id || !newSchedule.title_ar || !newSchedule.title_en || !newSchedule.scheduled_date) return;
     setSavingSchedule(true);
     try {
+      const parentCourse = courses.find(c => c.id === newSchedule.course_id);
       const { error } = await supabase.from("lecture_schedules").insert({
         course_id: newSchedule.course_id, creator_id: user.id,
         title_ar: newSchedule.title_ar, title_en: newSchedule.title_en,
@@ -590,11 +622,12 @@ const LecturerDashboard = () => {
         start_time: newSchedule.start_time || null, end_time: newSchedule.end_time || null,
         location_ar: newSchedule.location_ar || null, location_en: newSchedule.location_en || null,
         notes_ar: newSchedule.notes_ar || null, notes_en: newSchedule.notes_en || null,
+        department_id: parentCourse?.department_id || null,
         vice_dean_type: newSchedule.vice_dean_types,
       } as any);
       if (error) throw error;
       toast({ title: isRtl ? "تم" : "Done" });
-      setNewSchedule({ course_id: "", title_ar: "", title_en: "", schedule_type: "lecture", scheduled_date: "", start_time: "", end_time: "", location_ar: "", location_en: "", notes_ar: "", notes_en: "", vice_dean_types: ["students"] });
+      setNewSchedule({ course_id: "", title_ar: "", title_en: "", schedule_type: "lecture", scheduled_date: "", start_time: "", end_time: "", location_ar: "", location_en: "", notes_ar: "", notes_en: "", vice_dean_types: ["students"], department_id: "" });
       setShowScheduleDialog(false);
       await loadSchedules(user.id);
     } catch (err: any) {
@@ -1205,6 +1238,20 @@ const LecturerDashboard = () => {
               <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "عنوان المحاضرة (إنجليزي)" : "Lecture Title (English)"} *</Label><Input value={newCourse.title_en} onChange={e => setNewCourse(p => ({ ...p, title_en: e.target.value }))} /></div>
             </div>
             <div>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "القسم" : "Department"} *</Label>
+              <Select value={newCourse.department_id} onValueChange={v => setNewCourse(p => ({ ...p, department_id: v }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder={myDepartments.length === 0 ? (isRtl ? "لست عضواً في أي قسم" : "Not a member of any department") : (isRtl ? "اختر القسم" : "Select department")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {myDepartments.map(d => (
+                    <SelectItem key={d.id} value={d.id}>{isRtl ? d.name_ar : d.name_en}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">{isRtl ? "كل محتوى تنشئه في هذه المحاضرة سيكون متاحاً فقط لأعضاء هذا القسم" : "All content under this course will be visible only to members of the selected department"}</p>
+            </div>
+            <div>
               <Label className="mb-1 block text-sm font-semibold">{isRtl ? "تاريخ إنشاء المحاضرة" : "Lecture Creation Date"}</Label>
               <Input type="date" value={newCourse.created_at} onChange={e => setNewCourse(p => ({ ...p, created_at: e.target.value }))} />
             </div>
@@ -1295,6 +1342,20 @@ const LecturerDashboard = () => {
             <div className="grid grid-cols-2 gap-3">
               <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "العنوان (عربي)" : "Title (Arabic)"} *</Label><Input value={newStream.title_ar} onChange={e => setNewStream(p => ({ ...p, title_ar: e.target.value }))} /></div>
               <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "العنوان (إنجليزي)" : "Title (English)"} *</Label><Input value={newStream.title_en} onChange={e => setNewStream(p => ({ ...p, title_en: e.target.value }))} /></div>
+            </div>
+            <div>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "القسم" : "Department"} *</Label>
+              <Select value={newStream.department_id} onValueChange={v => setNewStream(p => ({ ...p, department_id: v }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder={myDepartments.length === 0 ? (isRtl ? "لست عضواً في أي قسم" : "Not a member of any department") : (isRtl ? "اختر القسم" : "Select department")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {myDepartments.map(d => (
+                    <SelectItem key={d.id} value={d.id}>{isRtl ? d.name_ar : d.name_en}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">{isRtl ? "البث سيظهر فقط لأعضاء هذا القسم" : "Stream will only be visible to members of this department"}</p>
             </div>
             <div>
               <Label className="mb-1 block text-sm font-semibold">{isRtl ? "موعد البث" : "Scheduled Time"}</Label>

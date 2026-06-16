@@ -478,7 +478,7 @@ const LecturerDashboard = () => {
       });
       if (error) throw error;
       toast({ title: isRtl ? "تم" : "Done" });
-      setNewAssignment({ title_ar: "", title_en: "", description_ar: "", description_en: "", due_date: "" });
+      setNewAssignment({ title_ar: "", title_en: "", description_ar: "", description_en: "", due_date: "", department_id: "" });
       setAssignmentFile(null);
       await loadAssignments(selectedAssignmentCourseId);
     } catch (err: any) {

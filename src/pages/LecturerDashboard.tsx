@@ -431,6 +431,10 @@ const LecturerDashboard = () => {
       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى ملء جميع الحقول" : "Please fill all fields", variant: "destructive" });
       return;
     }
+    if (!newStream.department_id) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى اختيار القسم" : "Please select a department", variant: "destructive" });
+      return;
+    }
     setSavingStream(true);
     try {
       const { error } = await supabase.from("live_streams").insert({
@@ -438,8 +442,9 @@ const LecturerDashboard = () => {
         category_ar: newStream.category_ar || null, category_en: newStream.category_en || null,
         instructor_ar: profile?.full_name || null, instructor_en: profile?.full_name || null,
         status: "scheduled", scheduled_at: newStream.scheduled_at || null,
+        department_id: newStream.department_id,
         expires_at: newStream.expires_at ? new Date(newStream.expires_at).toISOString() : null,
-      });
+      } as any);
       if (error) throw error;
       toast({ title: isRtl ? "تم" : "Done", description: isRtl ? "تم إنشاء البث بنجاح" : "Stream created" });
       setShowStreamDialog(false);

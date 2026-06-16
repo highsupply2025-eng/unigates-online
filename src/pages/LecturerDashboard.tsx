@@ -1344,6 +1344,20 @@ const LecturerDashboard = () => {
               <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "العنوان (إنجليزي)" : "Title (English)"} *</Label><Input value={newStream.title_en} onChange={e => setNewStream(p => ({ ...p, title_en: e.target.value }))} /></div>
             </div>
             <div>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "القسم" : "Department"} *</Label>
+              <Select value={newStream.department_id} onValueChange={v => setNewStream(p => ({ ...p, department_id: v }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder={myDepartments.length === 0 ? (isRtl ? "لست عضواً في أي قسم" : "Not a member of any department") : (isRtl ? "اختر القسم" : "Select department")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {myDepartments.map(d => (
+                    <SelectItem key={d.id} value={d.id}>{isRtl ? d.name_ar : d.name_en}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">{isRtl ? "البث سيظهر فقط لأعضاء هذا القسم" : "Stream will only be visible to members of this department"}</p>
+            </div>
+            <div>
               <Label className="mb-1 block text-sm font-semibold">{isRtl ? "موعد البث" : "Scheduled Time"}</Label>
               <Input type="datetime-local" value={newStream.scheduled_at} onChange={e => setNewStream(p => ({ ...p, scheduled_at: e.target.value }))} />
             </div>

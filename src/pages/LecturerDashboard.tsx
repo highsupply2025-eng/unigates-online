@@ -329,6 +329,10 @@ const LecturerDashboard = () => {
       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى إدخال اسم المحاضرة" : "Please enter the lecture name", variant: "destructive" });
       return;
     }
+    if (!newCourse.department_id) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى اختيار القسم" : "Please select a department", variant: "destructive" });
+      return;
+    }
     setSavingCourse(true);
     try {
       let thumbnailUrl: string | null = null;
@@ -349,6 +353,7 @@ const LecturerDashboard = () => {
         instructor_en: lecturerName,
         is_free: newCourse.is_free,
         creator_id: user.id, thumbnail_url: thumbnailUrl,
+        department_id: newCourse.department_id,
         expires_at: newCourse.expires_at || null,
         created_at: newCourse.created_at ? new Date(newCourse.created_at).toISOString() : new Date().toISOString(),
       } as any);

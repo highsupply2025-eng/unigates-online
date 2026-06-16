@@ -1238,6 +1238,20 @@ const LecturerDashboard = () => {
               <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "عنوان المحاضرة (إنجليزي)" : "Lecture Title (English)"} *</Label><Input value={newCourse.title_en} onChange={e => setNewCourse(p => ({ ...p, title_en: e.target.value }))} /></div>
             </div>
             <div>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "القسم" : "Department"} *</Label>
+              <Select value={newCourse.department_id} onValueChange={v => setNewCourse(p => ({ ...p, department_id: v }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder={myDepartments.length === 0 ? (isRtl ? "لست عضواً في أي قسم" : "Not a member of any department") : (isRtl ? "اختر القسم" : "Select department")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {myDepartments.map(d => (
+                    <SelectItem key={d.id} value={d.id}>{isRtl ? d.name_ar : d.name_en}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">{isRtl ? "كل محتوى تنشئه في هذه المحاضرة سيكون متاحاً فقط لأعضاء هذا القسم" : "All content under this course will be visible only to members of the selected department"}</p>
+            </div>
+            <div>
               <Label className="mb-1 block text-sm font-semibold">{isRtl ? "تاريخ إنشاء المحاضرة" : "Lecture Creation Date"}</Label>
               <Input type="date" value={newCourse.created_at} onChange={e => setNewCourse(p => ({ ...p, created_at: e.target.value }))} />
             </div>

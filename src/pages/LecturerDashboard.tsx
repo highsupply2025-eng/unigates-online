@@ -143,7 +143,7 @@ const LecturerDashboard = () => {
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [showQuizDialog, setShowQuizDialog] = useState(false);
   const [selectedQuizCourseId, setSelectedQuizCourseId] = useState<string | null>(null);
-  const [newQuiz, setNewQuiz] = useState({ title_ar: "", title_en: "", description_ar: "", description_en: "", duration_minutes: 30, due_date: "" });
+  const [newQuiz, setNewQuiz] = useState({ title_ar: "", title_en: "", description_ar: "", description_en: "", duration_minutes: 30, due_date: "", department_id: "" });
   const [savingQuiz, setSavingQuiz] = useState(false);
   const [showQuestionsDialog, setShowQuestionsDialog] = useState(false);
   const [selectedQuizId, setSelectedQuizId] = useState<string | null>(null);

@@ -192,9 +192,24 @@ const LecturerDashboard = () => {
         loadLecturerRatings(user.id),
         loadSchedules(user.id),
         loadAttendance(user.id),
+        loadMyDepartments(user.id),
       ]);
     }
     setLoading(false);
+  };
+
+  const loadMyDepartments = async (userId: string) => {
+    const { data } = await supabase
+      .from("department_members")
+      .select("department_id, departments(id, name_ar, name_en)")
+      .eq("user_id", userId);
+    const deps = (data || [])
+      .map((r: any) => r.departments)
+      .filter(Boolean) as Array<{ id: string; name_ar: string; name_en: string }>;
+    // de-dupe by id
+    const seen = new Set<string>();
+    const unique = deps.filter(d => (seen.has(d.id) ? false : (seen.add(d.id), true)));
+    setMyDepartments(unique);
   };
 
   const loadLecturerRatings = async (userId: string) => {

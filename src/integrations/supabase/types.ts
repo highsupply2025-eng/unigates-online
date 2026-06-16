@@ -93,6 +93,7 @@ export type Database = {
           course_id: string
           created_at: string
           creator_id: string
+          department_id: string | null
           description_ar: string | null
           description_en: string | null
           due_date: string | null
@@ -106,6 +107,7 @@ export type Database = {
           course_id: string
           created_at?: string
           creator_id: string
+          department_id?: string | null
           description_ar?: string | null
           description_en?: string | null
           due_date?: string | null
@@ -119,6 +121,7 @@ export type Database = {
           course_id?: string
           created_at?: string
           creator_id?: string
+          department_id?: string | null
           description_ar?: string | null
           description_en?: string | null
           due_date?: string | null
@@ -134,6 +137,13 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignments_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
             referencedColumns: ["id"]
           },
         ]
@@ -572,6 +582,7 @@ export type Database = {
           category_en: string
           created_at: string
           creator_id: string | null
+          department_id: string | null
           episode_count: number
           expires_at: string | null
           id: string
@@ -589,6 +600,7 @@ export type Database = {
           category_en: string
           created_at?: string
           creator_id?: string | null
+          department_id?: string | null
           episode_count?: number
           expires_at?: string | null
           id?: string
@@ -606,6 +618,7 @@ export type Database = {
           category_en?: string
           created_at?: string
           creator_id?: string | null
+          department_id?: string | null
           episode_count?: number
           expires_at?: string | null
           id?: string
@@ -618,7 +631,15 @@ export type Database = {
           title_en?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "courses_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       department_members: {
         Row: {
@@ -998,6 +1019,7 @@ export type Database = {
           course_id: string
           created_at: string
           creator_id: string
+          department_id: string | null
           end_time: string | null
           id: string
           location_ar: string | null
@@ -1027,6 +1049,7 @@ export type Database = {
           course_id: string
           created_at?: string
           creator_id: string
+          department_id?: string | null
           end_time?: string | null
           id?: string
           location_ar?: string | null
@@ -1056,6 +1079,7 @@ export type Database = {
           course_id?: string
           created_at?: string
           creator_id?: string
+          department_id?: string | null
           end_time?: string | null
           id?: string
           location_ar?: string | null
@@ -1078,6 +1102,13 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lecture_schedules_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
             referencedColumns: ["id"]
           },
         ]
@@ -1162,6 +1193,7 @@ export type Database = {
           course_id: string | null
           created_at: string
           creator_id: string
+          department_id: string | null
           expires_at: string | null
           id: string
           instructor_ar: string | null
@@ -1178,6 +1210,7 @@ export type Database = {
           course_id?: string | null
           created_at?: string
           creator_id: string
+          department_id?: string | null
           expires_at?: string | null
           id?: string
           instructor_ar?: string | null
@@ -1194,6 +1227,7 @@ export type Database = {
           course_id?: string | null
           created_at?: string
           creator_id?: string
+          department_id?: string | null
           expires_at?: string | null
           id?: string
           instructor_ar?: string | null
@@ -1210,6 +1244,13 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_streams_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
             referencedColumns: ["id"]
           },
         ]
@@ -1436,6 +1477,7 @@ export type Database = {
           course_id: string
           created_at: string
           creator_id: string
+          department_id: string | null
           description_ar: string | null
           description_en: string | null
           due_date: string | null
@@ -1478,6 +1520,7 @@ export type Database = {
           course_id: string
           created_at?: string
           creator_id: string
+          department_id?: string | null
           description_ar?: string | null
           description_en?: string | null
           due_date?: string | null
@@ -1520,6 +1563,7 @@ export type Database = {
           course_id?: string
           created_at?: string
           creator_id?: string
+          department_id?: string | null
           description_ar?: string | null
           description_en?: string | null
           due_date?: string | null
@@ -1543,6 +1587,13 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quizzes_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
             referencedColumns: ["id"]
           },
         ]
@@ -2297,6 +2348,10 @@ export type Database = {
       submit_quiz: {
         Args: { _answers: Json; _quiz_id: string; _whatsapp?: string }
         Returns: Json
+      }
+      user_in_department: {
+        Args: { _dept: string; _user: string }
+        Returns: boolean
       }
       user_in_my_leadership_institution: {
         Args: { _target_user: string }

@@ -527,7 +527,7 @@ const LecturerDashboard = () => {
       } as any);
       if (error) throw error;
       toast({ title: isRtl ? "تم" : "Done" });
-      setNewQuiz({ title_ar: "", title_en: "", description_ar: "", description_en: "", duration_minutes: 30, due_date: "" });
+      setNewQuiz({ title_ar: "", title_en: "", description_ar: "", description_en: "", duration_minutes: 30, due_date: "", department_id: "" });
       await loadQuizzes(selectedQuizCourseId);
     } catch (err: any) {
       toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });

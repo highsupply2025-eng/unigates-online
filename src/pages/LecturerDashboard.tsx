@@ -545,11 +545,13 @@ const LecturerDashboard = () => {
     if (!selectedQuizCourseId || !newQuiz.title_ar || !newQuiz.title_en) return;
     setSavingQuiz(true);
     try {
+      const parentCourse = courses.find(c => c.id === selectedQuizCourseId);
       const { error } = await supabase.from("quizzes").insert({
         course_id: selectedQuizCourseId, creator_id: user.id,
         title_ar: newQuiz.title_ar, title_en: newQuiz.title_en,
         description_ar: newQuiz.description_ar || null, description_en: newQuiz.description_en || null,
         duration_minutes: newQuiz.duration_minutes,
+        department_id: parentCourse?.department_id || null,
         due_date: newQuiz.due_date || null,
       } as any);
       if (error) throw error;

@@ -173,6 +173,12 @@ const InstitutionDashboard = () => {
   const [memberProfileTab, setMemberProfileTab] = useState<"info" | "stats">("info");
   const [pageView, setPageView] = useState<"main" | "members" | "memberProfile">("main");
   const [accountMgmtView, setAccountMgmtView] = useState<"main" | "invitations" | "accounts">("invitations");
+  const [showInviteLinkDialog, setShowInviteLinkDialog] = useState(false);
+  const [inviteLinkRole, setInviteLinkRole] = useState<"lecturer" | "student" | "department_head">("lecturer");
+  const [inviteLinkDeptId, setInviteLinkDeptId] = useState("");
+  const [generatedInviteLink, setGeneratedInviteLink] = useState("");
+  const [generatedInviteCode, setGeneratedInviteCode] = useState("");
+  const [generatingInviteLink, setGeneratingInviteLink] = useState(false);
   const [bulkUploading, setBulkUploading] = useState(false);
   const [bulkResult, setBulkResult] = useState<{ created: number; failed: number; total: number; password: string; results: any[] } | null>(null);
   const [accountSystemChoice, setAccountSystemChoice] = useState<"invitations" | "accounts" | null>(null);

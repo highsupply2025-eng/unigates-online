@@ -3005,10 +3005,10 @@ ${rows.map((r: any, i: number) => `<tr>
 
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setShowAddDeptDialog(false); setNewDeptSelectedLecturerIds([]); }}>
+            <Button variant="outline" onClick={() => { setShowAddDeptDialog(false); setNewDeptSelectedLecturerIds([]); setNewDeptCode(""); }}>
               {isRtl ? "إلغاء" : "Cancel"}
             </Button>
-            <Button onClick={handleAddDepartment} disabled={!newDeptName || !newDeptStudentCount || addingDept}>
+            <Button onClick={handleAddDepartment} disabled={!newDeptName || !newDeptCode || addingDept}>
               {addingDept ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : null}
               {isRtl ? "إضافة" : "Add"}
             </Button>

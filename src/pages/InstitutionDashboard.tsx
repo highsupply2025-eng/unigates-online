@@ -2891,7 +2891,13 @@ ${rows.map((r: any, i: number) => `<tr>
       </main>
 
       {/* Add Department Dialog */}
-      <Dialog open={showAddDeptDialog} onOpenChange={setShowAddDeptDialog}>
+      <Dialog
+        open={showAddDeptDialog}
+        onOpenChange={(open) => {
+          if (open && !newDeptCode) setNewDeptCode(generateCode());
+          setShowAddDeptDialog(open);
+        }}
+      >
         <DialogContent dir={dir}>
           <DialogHeader>
             <DialogTitle>{isRtl ? "إضافة قسم جديد" : "Add New Department"}</DialogTitle>
@@ -2902,17 +2908,22 @@ ${rows.map((r: any, i: number) => `<tr>
               <Input value={newDeptName} onChange={e => setNewDeptName(e.target.value)} placeholder={isRtl ? "مثال: قسم المحاسبة" : "e.g. Accounting Dept"} />
             </div>
             <div>
-              <Label>{isRtl ? "عدد الطلاب (غير محدود — مثال: 5000 أو أكثر)" : "Student Count (unlimited — e.g. 5000+)"}</Label>
-              <Input
-                type="number"
-                min={0}
-                value={newDeptStudentCount}
-                onChange={e => {
-                  const v = Math.max(0, parseInt(e.target.value) || 0);
-                  setNewDeptStudentCount(e.target.value === "" ? "" : String(v));
-                }}
-                placeholder={isRtl ? "مثال: 5000" : "e.g. 5000"}
-              />
+              <Label className="flex items-center gap-1.5">
+                {isRtl ? "كود القسم" : "Department Code"}
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-bold">{isRtl ? "تلقائي" : "Auto"}</span>
+              </Label>
+              <div className="flex items-center gap-2 mt-1.5">
+                <Input value={newDeptCode} readOnly dir="ltr" className="font-mono text-center tracking-widest bg-muted/50" />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setNewDeptCode(generateCode())}
+                  title={isRtl ? "توليد كود جديد" : "Generate new code"}
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
             {(() => {
               // Show all faculty members except the dean (dean is auto-assigned, shown separately)

@@ -715,6 +715,7 @@ export type Database = {
       departments: {
         Row: {
           created_at: string
+          department_code: string | null
           department_name: string
           id: string
           institution_id: string
@@ -728,6 +729,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          department_code?: string | null
           department_name: string
           id?: string
           institution_id: string
@@ -741,6 +743,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          department_code?: string | null
           department_name?: string
           id?: string
           institution_id?: string

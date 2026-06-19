@@ -486,14 +486,7 @@ const InstitutionDashboard = () => {
 
       // Background: create member slots in batches & notification (don't block UI)
       const memberInserts: any[] = [];
-      for (let i = 1; i <= studentCount; i++) {
-        memberInserts.push({
-          department_id: newDept.id,
-          full_name: isRtl ? `طالب ${i}` : `Student ${i}`,
-          role: "student",
-          invitation_code: generateCode(),
-        });
-      }
+      // Student slots are added later via invitations; no pre-created slots needed
       const blankLecturerSlots = Math.max(0, lecturerCount - selectedLecturers.length);
       for (let i = 1; i <= blankLecturerSlots; i++) {
         memberInserts.push({

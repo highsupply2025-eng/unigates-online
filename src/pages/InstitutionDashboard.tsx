@@ -3003,13 +3003,6 @@ ${rows.map((r: any, i: number) => `<tr>
               );
             })()}
 
-            {newDeptStudentCount && parseInt(newDeptStudentCount) > 0 && (
-              <div className="p-4 rounded-xl bg-primary/10 text-center border-2 border-primary/20">
-                <p className="text-sm text-muted-foreground">{isRtl ? "تكلفة الاشتراك الشهري" : "Monthly subscription cost"}</p>
-                <p className="text-3xl font-black text-primary my-1">{parseInt(newDeptStudentCount) * 299} {isRtl ? "جنيه" : "EGP"}</p>
-                <p className="text-xs text-muted-foreground">{parseInt(newDeptStudentCount)} × 299 {isRtl ? "جنيه/طالب شهرياً" : "EGP/student/month"}</p>
-              </div>
-            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setShowAddDeptDialog(false); setNewDeptSelectedLecturerIds([]); }}>

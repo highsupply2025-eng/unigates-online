@@ -430,8 +430,7 @@ const InstitutionDashboard = () => {
   };
 
   const handleAddDepartment = async () => {
-    if (!newDeptName || !newDeptStudentCount || addingDept) return;
-    let studentCount = parseInt(newDeptStudentCount);
+    if (!newDeptName || !newDeptCode || addingDept) return;
     let lecturerCount = parseInt(newDeptLecturerCount) || 0;
     let headCount = parseInt(newDeptHeadCount) || 0;
 
@@ -446,7 +445,6 @@ const InstitutionDashboard = () => {
     }
 
     setAddingDept(true);
-    const paymentAmount = studentCount * 299;
     const savedName = newDeptName;
 
     try {
@@ -454,9 +452,10 @@ const InstitutionDashboard = () => {
         institution_id: institutionId,
         institution_type: institutionType || "college",
         department_name: savedName,
-        student_count: studentCount,
+        department_code: newDeptCode,
+        student_count: 0,
         lecturer_count: lecturerCount,
-        payment_amount: paymentAmount,
+        payment_amount: 0,
         status: "pending",
         payment_status: "unpaid",
       }).select().single();

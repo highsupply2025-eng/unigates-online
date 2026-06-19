@@ -38,6 +38,7 @@ interface Department {
   institution_id: string;
   institution_type: string;
   department_name: string;
+  department_code: string | null;
   student_count: number;
   status: string;
   payment_status: string;

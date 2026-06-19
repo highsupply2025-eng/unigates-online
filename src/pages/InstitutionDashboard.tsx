@@ -4,7 +4,7 @@ import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Layers, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
-  User, Ticket, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell, PlusCircle, Pencil, Download, ShieldAlert, AlertTriangle, UserPlus, FileSpreadsheet
+  User, Ticket, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell, PlusCircle, Pencil, Download, ShieldAlert, AlertTriangle, UserPlus, FileSpreadsheet, RefreshCw
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
@@ -38,6 +38,7 @@ interface Department {
   institution_id: string;
   institution_type: string;
   department_name: string;
+  department_code: string | null;
   student_count: number;
   status: string;
   payment_status: string;
@@ -147,6 +148,7 @@ const InstitutionDashboard = () => {
   const [newDeptLecturerCount, setNewDeptLecturerCount] = useState("");
   const [newDeptHeadCount, setNewDeptHeadCount] = useState("");
   const [newDeptSelectedLecturerIds, setNewDeptSelectedLecturerIds] = useState<string[]>([]);
+  const [newDeptCode, setNewDeptCode] = useState("");
   const [addingDept, setAddingDept] = useState(false);
 
   // Add Member
@@ -428,8 +430,7 @@ const InstitutionDashboard = () => {
   };
 
   const handleAddDepartment = async () => {
-    if (!newDeptName || !newDeptStudentCount || addingDept) return;
-    let studentCount = parseInt(newDeptStudentCount);
+    if (!newDeptName || !newDeptCode || addingDept) return;
     let lecturerCount = parseInt(newDeptLecturerCount) || 0;
     let headCount = parseInt(newDeptHeadCount) || 0;
 
@@ -444,7 +445,6 @@ const InstitutionDashboard = () => {
     }
 
     setAddingDept(true);
-    const paymentAmount = studentCount * 299;
     const savedName = newDeptName;
 
     try {
@@ -452,9 +452,10 @@ const InstitutionDashboard = () => {
         institution_id: institutionId,
         institution_type: institutionType || "college",
         department_name: savedName,
-        student_count: studentCount,
+        department_code: newDeptCode,
+        student_count: 0,
         lecturer_count: lecturerCount,
-        payment_amount: paymentAmount,
+        payment_amount: 0,
         status: "pending",
         payment_status: "unpaid",
       }).select().single();
@@ -485,14 +486,7 @@ const InstitutionDashboard = () => {
 
       // Background: create member slots in batches & notification (don't block UI)
       const memberInserts: any[] = [];
-      for (let i = 1; i <= studentCount; i++) {
-        memberInserts.push({
-          department_id: newDept.id,
-          full_name: isRtl ? `طالب ${i}` : `Student ${i}`,
-          role: "student",
-          invitation_code: generateCode(),
-        });
-      }
+      // Student slots are added later via invitations; no pre-created slots needed
       const blankLecturerSlots = Math.max(0, lecturerCount - selectedLecturers.length);
       for (let i = 1; i <= blankLecturerSlots; i++) {
         memberInserts.push({
@@ -2897,7 +2891,13 @@ ${rows.map((r: any, i: number) => `<tr>
       </main>
 
       {/* Add Department Dialog */}
-      <Dialog open={showAddDeptDialog} onOpenChange={setShowAddDeptDialog}>
+      <Dialog
+        open={showAddDeptDialog}
+        onOpenChange={(open) => {
+          if (open && !newDeptCode) setNewDeptCode(generateCode());
+          setShowAddDeptDialog(open);
+        }}
+      >
         <DialogContent dir={dir}>
           <DialogHeader>
             <DialogTitle>{isRtl ? "إضافة قسم جديد" : "Add New Department"}</DialogTitle>
@@ -2908,17 +2908,22 @@ ${rows.map((r: any, i: number) => `<tr>
               <Input value={newDeptName} onChange={e => setNewDeptName(e.target.value)} placeholder={isRtl ? "مثال: قسم المحاسبة" : "e.g. Accounting Dept"} />
             </div>
             <div>
-              <Label>{isRtl ? "عدد الطلاب (غير محدود — مثال: 5000 أو أكثر)" : "Student Count (unlimited — e.g. 5000+)"}</Label>
-              <Input
-                type="number"
-                min={0}
-                value={newDeptStudentCount}
-                onChange={e => {
-                  const v = Math.max(0, parseInt(e.target.value) || 0);
-                  setNewDeptStudentCount(e.target.value === "" ? "" : String(v));
-                }}
-                placeholder={isRtl ? "مثال: 5000" : "e.g. 5000"}
-              />
+              <Label className="flex items-center gap-1.5">
+                {isRtl ? "كود القسم" : "Department Code"}
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-bold">{isRtl ? "تلقائي" : "Auto"}</span>
+              </Label>
+              <div className="flex items-center gap-2 mt-1.5">
+                <Input value={newDeptCode} readOnly dir="ltr" className="font-mono text-center tracking-widest bg-muted/50" />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setNewDeptCode(generateCode())}
+                  title={isRtl ? "توليد كود جديد" : "Generate new code"}
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
             {(() => {
               // Show all faculty members except the dean (dean is auto-assigned, shown separately)
@@ -2998,19 +3003,12 @@ ${rows.map((r: any, i: number) => `<tr>
               );
             })()}
 
-            {newDeptStudentCount && parseInt(newDeptStudentCount) > 0 && (
-              <div className="p-4 rounded-xl bg-primary/10 text-center border-2 border-primary/20">
-                <p className="text-sm text-muted-foreground">{isRtl ? "تكلفة الاشتراك الشهري" : "Monthly subscription cost"}</p>
-                <p className="text-3xl font-black text-primary my-1">{parseInt(newDeptStudentCount) * 299} {isRtl ? "جنيه" : "EGP"}</p>
-                <p className="text-xs text-muted-foreground">{parseInt(newDeptStudentCount)} × 299 {isRtl ? "جنيه/طالب شهرياً" : "EGP/student/month"}</p>
-              </div>
-            )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setShowAddDeptDialog(false); setNewDeptSelectedLecturerIds([]); }}>
+            <Button variant="outline" onClick={() => { setShowAddDeptDialog(false); setNewDeptSelectedLecturerIds([]); setNewDeptCode(""); }}>
               {isRtl ? "إلغاء" : "Cancel"}
             </Button>
-            <Button onClick={handleAddDepartment} disabled={!newDeptName || !newDeptStudentCount || addingDept}>
+            <Button onClick={handleAddDepartment} disabled={!newDeptName || !newDeptCode || addingDept}>
               {addingDept ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : null}
               {isRtl ? "إضافة" : "Add"}
             </Button>

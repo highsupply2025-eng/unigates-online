@@ -697,9 +697,10 @@ const InstitutionDashboard = () => {
     }
     const w = window.open("", "_blank");
     if (!w) return;
+    const esc = (s: any) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
     const title = isRtl ? `نتائج الاختبارات المعتمدة — ${institutionName || ""}` : `Approved Quiz Results — ${institutionName || ""}`;
     const html = `<!doctype html><html lang="${isRtl ? "ar" : "en"}" dir="${isRtl ? "rtl" : "ltr"}"><head><meta charset="utf-8"/>
-<title>${title}</title>
+<title>${esc(title)}</title>
 <style>
 *{box-sizing:border-box} body{font-family:'Cairo','Segoe UI',sans-serif;margin:24px;color:#0f172a}
 h1{margin:0 0 6px;font-size:22px} .sub{color:#64748b;font-size:13px;margin-bottom:18px}
@@ -709,8 +710,8 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0}
 tr:nth-child(even) td{background:#f8fafc}
 .b{font-weight:700}
 </style></head><body>
-<h1>${title}</h1>
-<div class="sub">${new Date().toLocaleDateString(isRtl ? "ar-EG" : "en-US")} — ${rows.length} ${isRtl ? "نتيجة" : "results"}</div>
+<h1>${esc(title)}</h1>
+<div class="sub">${esc(new Date().toLocaleDateString(isRtl ? "ar-EG" : "en-US"))} — ${rows.length} ${isRtl ? "نتيجة" : "results"}</div>
 <table><thead><tr>
 <th>#</th>
 <th>${isRtl ? "اسم الطالب" : "Student"}</th>
@@ -721,15 +722,16 @@ tr:nth-child(even) td{background:#f8fafc}
 </tr></thead><tbody>
 ${rows.map((r: any, i: number) => `<tr>
 <td>${i + 1}</td>
-<td class="b">${r.student_name}</td>
-<td>${r.department_name}</td>
-<td>${new Date(r.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</td>
-<td class="b">${r.grade ?? "—"}</td>
-<td>${getRatingLabel(r.rating)}</td>
+<td class="b">${esc(r.student_name)}</td>
+<td>${esc(r.department_name)}</td>
+<td>${esc(new Date(r.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US"))}</td>
+<td class="b">${esc(r.grade ?? "—")}</td>
+<td>${esc(getRatingLabel(r.rating))}</td>
 </tr>`).join("")}
 </tbody></table>
 <script>setTimeout(()=>window.print(),300)</script>
 </body></html>`;
+
     w.document.write(html);
     w.document.close();
   };

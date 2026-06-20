@@ -1763,6 +1763,56 @@ ${rows.map((r: any, i: number) => `<tr>
             })()}
           </TabsContent>
 
+          {/* Student Registration Tab */}
+          <TabsContent value="students" dir={isRtl ? "rtl" : "ltr"}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-5">
+              <button
+                onClick={() => navigate("/institution/faculty/add?role=student")}
+                className="group text-start border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent hover:border-primary/50 hover:shadow-lg transition-all rounded-xl p-4 sm:p-5 flex items-center gap-3"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-md shrink-0">
+                  <UserPlus className="w-6 h-6 text-primary-foreground" strokeWidth={2.4} />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-extrabold text-foreground text-sm sm:text-base">{isRtl ? "تسجيل البيانات" : "Register Data"}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "إضافة طالب يدويًا" : "Add student manually"}</p>
+                </div>
+              </button>
+              <button
+                onClick={() => navigate("/institution/faculty/import?role=student")}
+                className="group text-start border-2 border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent hover:border-emerald-500/50 hover:shadow-lg transition-all rounded-xl p-4 sm:p-5 flex items-center gap-3"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-md shrink-0">
+                  <FileSpreadsheet className="w-6 h-6 text-white" strokeWidth={2.4} />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-extrabold text-foreground text-sm sm:text-base">{isRtl ? "رفع ملف Excel" : "Upload Excel File"}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "استيراد بيانات الطلاب" : "Import students data"}</p>
+                </div>
+              </button>
+              <button
+                onClick={() => {
+                  setInviteLinkRole("student");
+                  setInviteLinkDeptId(departments[0]?.id || "");
+                  setGeneratedInviteLink("");
+                  setGeneratedInviteCode("");
+                  setShowInviteLinkDialog(true);
+                }}
+                className="group text-start border-2 border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent hover:border-amber-500/50 hover:shadow-lg transition-all rounded-xl p-4 sm:p-5 flex items-center gap-3"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-md shrink-0">
+                  <LinkIcon className="w-6 h-6 text-white" strokeWidth={2.4} />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-extrabold text-foreground text-sm sm:text-base">{isRtl ? "رابط الدعوة" : "Invitation Link"}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "توليد رابط تسجيل للطالب" : "Generate student signup link"}</p>
+                </div>
+              </button>
+            </div>
+          </TabsContent>
+
+
+
 
           {/* Live Streams Tab - Leadership Only */}
           {isLeadershipRole && (

@@ -83,7 +83,7 @@ const InstitutionFacultyImport = () => {
         const full_name = norm(r["الاسم الكامل"] || r["full_name"]);
         const roleRaw = norm(r["الوظيفة"] || r["role"]);
         const deptName = norm(r["القسم"] || r["department"]);
-        const role = ROLE_MAP[roleRaw] || ROLE_MAP[roleRaw.toLowerCase()];
+        const role = isStudent ? "student" : (ROLE_MAP[roleRaw] || ROLE_MAP[roleRaw.toLowerCase()]);
         const department_id = deptByName.get(deptName);
 
         if (!full_name || !role || !department_id) {

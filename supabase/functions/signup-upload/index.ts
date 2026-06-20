@@ -64,13 +64,41 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Enforce file size cap (10 MB)
+    const MAX_BYTES = 10 * 1024 * 1024;
+    if (file.size > MAX_BYTES) {
+      return new Response(
+        JSON.stringify({ error: "File too large (max 10MB)" }),
+        { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate MIME type against allowlist
+    const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf"];
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid file type. Allowed: JPEG, PNG, WEBP, GIF, PDF" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate extension against allowlist (defense in depth)
+    const ALLOWED_EXTS = ["jpg", "jpeg", "png", "webp", "gif", "pdf"];
+    const ext = (file.name.split(".").pop() || "").toLowerCase();
+    if (!ALLOWED_EXTS.includes(ext)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid file extension" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const ext = file.name.split(".").pop();
     const path = `${userId}/${folder}/${Date.now()}.${ext}`;
+
     const arrayBuffer = await file.arrayBuffer();
 
     const { error: uploadError } = await supabaseAdmin.storage

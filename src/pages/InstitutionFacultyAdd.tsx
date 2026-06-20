@@ -50,6 +50,9 @@ const InstitutionFacultyAdd = () => {
   const { language, dir } = useLanguage();
   const isRtl = language === "ar";
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const forcedRole = searchParams.get("role");
+  const isStudent = forcedRole === "student";
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [loadingDepts, setLoadingDepts] = useState(true);
@@ -59,7 +62,7 @@ const InstitutionFacultyAdd = () => {
 
   const [photoUrl, setPhotoUrl] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState(isStudent ? "student" : "");
   const [departmentId, setDepartmentId] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");

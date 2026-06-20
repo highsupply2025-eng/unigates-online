@@ -227,17 +227,19 @@ const InstitutionFacultyAdd = () => {
 
               {/* Role + Department */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-2.5">
-                  <Label className={labelCls}><Users2 className={iconCls} strokeWidth={2.4} />{isRtl ? "المسمى الوظيفي" : "Role"} <span className="text-destructive text-lg">*</span></Label>
-                  <Select value={role} onValueChange={setRole}>
-                    <SelectTrigger className={triggerCls}><SelectValue placeholder={isRtl ? "اختر المسمى" : "Select role"} /></SelectTrigger>
-                    <SelectContent>
-                      {ROLE_OPTIONS.map(r => (
-                        <SelectItem key={r.value} value={r.value} className="text-base">{isRtl ? r.ar : r.en}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {!isStudent && (
+                  <div className="space-y-2.5">
+                    <Label className={labelCls}><Users2 className={iconCls} strokeWidth={2.4} />{isRtl ? "المسمى الوظيفي" : "Role"} <span className="text-destructive text-lg">*</span></Label>
+                    <Select value={role} onValueChange={setRole}>
+                      <SelectTrigger className={triggerCls}><SelectValue placeholder={isRtl ? "اختر المسمى" : "Select role"} /></SelectTrigger>
+                      <SelectContent>
+                        {ROLE_OPTIONS.map(r => (
+                          <SelectItem key={r.value} value={r.value} className="text-base">{isRtl ? r.ar : r.en}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
                 <div className="space-y-2.5">
                   <Label className={labelCls}>{isRtl ? "القسم" : "Department"} <span className="text-destructive text-lg">*</span></Label>

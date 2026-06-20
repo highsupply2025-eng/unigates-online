@@ -23,6 +23,8 @@ const InstitutionFacultyImport = () => {
   const { language, dir } = useLanguage();
   const isRtl = language === "ar";
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isStudent = searchParams.get("role") === "student";
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [departments, setDepartments] = useState<{ id: string; name: string }[]>([]);

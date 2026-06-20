@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   UserPlus,
   ArrowLeft,
@@ -50,6 +50,9 @@ const InstitutionFacultyAdd = () => {
   const { language, dir } = useLanguage();
   const isRtl = language === "ar";
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const forcedRole = searchParams.get("role");
+  const isStudent = forcedRole === "student";
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [loadingDepts, setLoadingDepts] = useState(true);
@@ -59,7 +62,7 @@ const InstitutionFacultyAdd = () => {
 
   const [photoUrl, setPhotoUrl] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState(isStudent ? "student" : "");
   const [departmentId, setDepartmentId] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");
@@ -194,7 +197,7 @@ const InstitutionFacultyAdd = () => {
             <span className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-xl shadow-primary/40 shrink-0">
               <UserPlus className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.6} />
             </span>
-            <span className="truncate tracking-tight">{isRtl ? "إضافة عضو يدويًا" : "Add Member Manually"}</span>
+            <span className="truncate tracking-tight">{isStudent ? (isRtl ? "تسجيل طالب" : "Register Student") : (isRtl ? "إضافة عضو يدويًا" : "Add Member Manually")}</span>
           </h1>
           <Button size="icon" variant="default" className="shadow-lg shadow-primary/40 shrink-0 w-11 h-11" onClick={() => navigate(-1)} aria-label={isRtl ? "رجوع" : "Back"}>
             {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
@@ -224,17 +227,19 @@ const InstitutionFacultyAdd = () => {
 
               {/* Role + Department */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-2.5">
-                  <Label className={labelCls}><Users2 className={iconCls} strokeWidth={2.4} />{isRtl ? "المسمى الوظيفي" : "Role"} <span className="text-destructive text-lg">*</span></Label>
-                  <Select value={role} onValueChange={setRole}>
-                    <SelectTrigger className={triggerCls}><SelectValue placeholder={isRtl ? "اختر المسمى" : "Select role"} /></SelectTrigger>
-                    <SelectContent>
-                      {ROLE_OPTIONS.map(r => (
-                        <SelectItem key={r.value} value={r.value} className="text-base">{isRtl ? r.ar : r.en}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {!isStudent && (
+                  <div className="space-y-2.5">
+                    <Label className={labelCls}><Users2 className={iconCls} strokeWidth={2.4} />{isRtl ? "المسمى الوظيفي" : "Role"} <span className="text-destructive text-lg">*</span></Label>
+                    <Select value={role} onValueChange={setRole}>
+                      <SelectTrigger className={triggerCls}><SelectValue placeholder={isRtl ? "اختر المسمى" : "Select role"} /></SelectTrigger>
+                      <SelectContent>
+                        {ROLE_OPTIONS.map(r => (
+                          <SelectItem key={r.value} value={r.value} className="text-base">{isRtl ? r.ar : r.en}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
                 <div className="space-y-2.5">
                   <Label className={labelCls}>{isRtl ? "القسم" : "Department"} <span className="text-destructive text-lg">*</span></Label>

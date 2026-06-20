@@ -970,13 +970,11 @@ ${rows.map((r: any, i: number) => `<tr>
                     schedules: { ar: "الجداول", en: "Schedules" },
                     departments: { ar: "الأقسام", en: "Departments" },
                     faculty: { ar: "أعضاء هيئة التدريس", en: "Faculty Members" },
+                    students: { ar: "تسجيل الطلاب", en: "Student Registration" },
                     quizresults: { ar: "النتائج", en: "Results" },
-                    invitations: { ar: "الدعوات", en: "Invitations" },
-                    accounts: { ar: "الحسابات", en: "Accounts" },
                     livestreams: { ar: "البث المباشر", en: "Live Streams" },
                   };
-                  const key = activeTab === "invitations" && accountMgmtView === "accounts" ? "accounts" : activeTab;
-                  const cur = map[key] ?? map.general;
+                  const cur = map[activeTab] ?? map.general;
                   return isRtl ? cur.ar : cur.en;
                 })()}
               </p>
@@ -1026,8 +1024,7 @@ ${rows.map((r: any, i: number) => `<tr>
                 
                 { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, onClick: () => handleTabChange("faculty"), active: activeTab === "faculty" },
                 { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, onClick: () => handleTabChange("departments"), active: activeTab === "departments" },
-                { key: "accounts", label: isRtl ? "الحسابات" : "Accounts", Icon: Users, onClick: () => handleTabChange("accounts"), active: activeTab === "invitations" && accountMgmtView === "accounts" },
-                { key: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: Mail, onClick: () => handleTabChange("invitations", "invitations"), active: activeTab === "invitations" && accountMgmtView !== "accounts" },
+                { key: "students", label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, onClick: () => handleTabChange("students"), active: activeTab === "students" },
                 { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => handleTabChange("schedules"), active: activeTab === "schedules" },
                 { key: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, onClick: () => handleTabChange("quizresults"), active: activeTab === "quizresults" },
                 { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/institution/profile") },
@@ -1459,6 +1456,7 @@ ${rows.map((r: any, i: number) => `<tr>
               <TabsTrigger value="general" />
               <TabsTrigger value="departments" />
               <TabsTrigger value="faculty" />
+              <TabsTrigger value="students" />
               <TabsTrigger value="livestreams" />
               <TabsTrigger value="quizresults" />
               <TabsTrigger value="schedules" />
@@ -1764,6 +1762,56 @@ ${rows.map((r: any, i: number) => `<tr>
               );
             })()}
           </TabsContent>
+
+          {/* Student Registration Tab */}
+          <TabsContent value="students" dir={isRtl ? "rtl" : "ltr"}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-5">
+              <button
+                onClick={() => navigate("/institution/faculty/add?role=student")}
+                className="group text-start border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent hover:border-primary/50 hover:shadow-lg transition-all rounded-xl p-4 sm:p-5 flex items-center gap-3"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-md shrink-0">
+                  <UserPlus className="w-6 h-6 text-primary-foreground" strokeWidth={2.4} />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-extrabold text-foreground text-sm sm:text-base">{isRtl ? "تسجيل البيانات" : "Register Data"}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "إضافة طالب يدويًا" : "Add student manually"}</p>
+                </div>
+              </button>
+              <button
+                onClick={() => navigate("/institution/faculty/import?role=student")}
+                className="group text-start border-2 border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent hover:border-emerald-500/50 hover:shadow-lg transition-all rounded-xl p-4 sm:p-5 flex items-center gap-3"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-md shrink-0">
+                  <FileSpreadsheet className="w-6 h-6 text-white" strokeWidth={2.4} />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-extrabold text-foreground text-sm sm:text-base">{isRtl ? "رفع ملف Excel" : "Upload Excel File"}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "استيراد بيانات الطلاب" : "Import students data"}</p>
+                </div>
+              </button>
+              <button
+                onClick={() => {
+                  setInviteLinkRole("student");
+                  setInviteLinkDeptId(departments[0]?.id || "");
+                  setGeneratedInviteLink("");
+                  setGeneratedInviteCode("");
+                  setShowInviteLinkDialog(true);
+                }}
+                className="group text-start border-2 border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent hover:border-amber-500/50 hover:shadow-lg transition-all rounded-xl p-4 sm:p-5 flex items-center gap-3"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-md shrink-0">
+                  <LinkIcon className="w-6 h-6 text-white" strokeWidth={2.4} />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-extrabold text-foreground text-sm sm:text-base">{isRtl ? "رابط الدعوة" : "Invitation Link"}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "توليد رابط تسجيل للطالب" : "Generate student signup link"}</p>
+                </div>
+              </button>
+            </div>
+          </TabsContent>
+
+
 
 
           {/* Live Streams Tab - Leadership Only */}

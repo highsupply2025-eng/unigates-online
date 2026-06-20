@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { FileSpreadsheet, ArrowLeft, ArrowRight, Download, Upload, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import * as XLSX from "xlsx";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -23,6 +23,8 @@ const InstitutionFacultyImport = () => {
   const { language, dir } = useLanguage();
   const isRtl = language === "ar";
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isStudent = searchParams.get("role") === "student";
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [departments, setDepartments] = useState<{ id: string; name: string }[]>([]);
@@ -81,7 +83,7 @@ const InstitutionFacultyImport = () => {
         const full_name = norm(r["الاسم الكامل"] || r["full_name"]);
         const roleRaw = norm(r["الوظيفة"] || r["role"]);
         const deptName = norm(r["القسم"] || r["department"]);
-        const role = ROLE_MAP[roleRaw] || ROLE_MAP[roleRaw.toLowerCase()];
+        const role = isStudent ? "student" : (ROLE_MAP[roleRaw] || ROLE_MAP[roleRaw.toLowerCase()]);
         const department_id = deptByName.get(deptName);
 
         if (!full_name || !role || !department_id) {
@@ -133,7 +135,7 @@ const InstitutionFacultyImport = () => {
             <span className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-md shrink-0">
               <FileSpreadsheet className="w-5 h-5" strokeWidth={2.4} />
             </span>
-            <span className="truncate">{isRtl ? "رفع ملف Excel" : "Upload Excel File"}</span>
+            <span className="truncate">{isStudent ? (isRtl ? "رفع بيانات الطلاب" : "Upload Students File") : (isRtl ? "رفع ملف Excel" : "Upload Excel File")}</span>
           </h1>
           <Button size="icon" variant="default" className="shadow-md shrink-0" onClick={() => navigate(-1)} aria-label={isRtl ? "رجوع" : "Back"}>
             {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}

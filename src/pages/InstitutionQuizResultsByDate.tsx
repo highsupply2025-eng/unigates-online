@@ -117,8 +117,9 @@ const InstitutionQuizResultsByDate = () => {
   const downloadPDF = () => {
     const w = window.open("", "_blank");
     if (!w) return;
+    const esc = (s: any) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
     const html = `<!doctype html><html lang="${isRtl ? "ar" : "en"}" dir="${dir}"><head><meta charset="utf-8"/>
-<title>${isRtl ? titleAr : titleEn}</title>
+<title>${esc(isRtl ? titleAr : titleEn)}</title>
 <style>
   *{box-sizing:border-box} body{font-family:'Cairo','Segoe UI',sans-serif;margin:24px;color:#0f172a}
   h1{margin:0 0 6px;font-size:22px} .sub{color:#64748b;font-size:13px;margin-bottom:18px}
@@ -131,8 +132,8 @@ const InstitutionQuizResultsByDate = () => {
   tr:nth-child(even) td{background:#f8fafc}
   .b{font-weight:700}
 </style></head><body>
-<h1>${isRtl ? titleAr : titleEn}</h1>
-<div class="sub">${institutionName || ""}</div>
+<h1>${esc(isRtl ? titleAr : titleEn)}</h1>
+<div class="sub">${esc(institutionName || "")}</div>
 <div class="stats">
   <div class="stat"><b>${stats.total}</b>${isRtl ? "إجمالي" : "Total"}</div>
   <div class="stat" style="color:#059669"><b>${stats.top}</b>${isRtl ? "متفوق" : "Top"}</div>
@@ -151,16 +152,17 @@ const InstitutionQuizResultsByDate = () => {
   <tbody>
     ${rows.map((r, i) => `<tr>
       <td>${i + 1}</td>
-      <td class="b">${r.student_name}</td>
-      <td>${r.department_name}</td>
-      <td>${degreeLabel(r.academic_degree)}</td>
-      <td class="b">${r.grade ?? "—"}</td>
-      <td>${ratingLabel(r.rating)}</td>
+      <td class="b">${esc(r.student_name)}</td>
+      <td>${esc(r.department_name)}</td>
+      <td>${esc(degreeLabel(r.academic_degree))}</td>
+      <td class="b">${esc(r.grade ?? "—")}</td>
+      <td>${esc(ratingLabel(r.rating))}</td>
     </tr>`).join("")}
   </tbody>
 </table>
 <script>setTimeout(()=>window.print(),300)</script>
 </body></html>`;
+
     w.document.write(html);
     w.document.close();
   };

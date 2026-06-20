@@ -1456,6 +1456,7 @@ ${rows.map((r: any, i: number) => `<tr>
               <TabsTrigger value="general" />
               <TabsTrigger value="departments" />
               <TabsTrigger value="faculty" />
+              <TabsTrigger value="students" />
               <TabsTrigger value="livestreams" />
               <TabsTrigger value="quizresults" />
               <TabsTrigger value="schedules" />

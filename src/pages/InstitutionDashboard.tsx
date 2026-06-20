@@ -1024,8 +1024,7 @@ ${rows.map((r: any, i: number) => `<tr>
                 
                 { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, onClick: () => handleTabChange("faculty"), active: activeTab === "faculty" },
                 { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, onClick: () => handleTabChange("departments"), active: activeTab === "departments" },
-                { key: "accounts", label: isRtl ? "الحسابات" : "Accounts", Icon: Users, onClick: () => handleTabChange("accounts"), active: activeTab === "invitations" && accountMgmtView === "accounts" },
-                { key: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: Mail, onClick: () => handleTabChange("invitations", "invitations"), active: activeTab === "invitations" && accountMgmtView !== "accounts" },
+                { key: "students", label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, onClick: () => handleTabChange("students"), active: activeTab === "students" },
                 { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => handleTabChange("schedules"), active: activeTab === "schedules" },
                 { key: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, onClick: () => handleTabChange("quizresults"), active: activeTab === "quizresults" },
                 { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/institution/profile") },

@@ -197,7 +197,7 @@ const InstitutionFacultyAdd = () => {
             <span className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-xl shadow-primary/40 shrink-0">
               <UserPlus className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.6} />
             </span>
-            <span className="truncate tracking-tight">{isRtl ? "إضافة عضو يدويًا" : "Add Member Manually"}</span>
+            <span className="truncate tracking-tight">{isStudent ? (isRtl ? "تسجيل طالب" : "Register Student") : (isRtl ? "إضافة عضو يدويًا" : "Add Member Manually")}</span>
           </h1>
           <Button size="icon" variant="default" className="shadow-lg shadow-primary/40 shrink-0 w-11 h-11" onClick={() => navigate(-1)} aria-label={isRtl ? "رجوع" : "Back"}>
             {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}

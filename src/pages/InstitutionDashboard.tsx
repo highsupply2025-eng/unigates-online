@@ -970,13 +970,11 @@ ${rows.map((r: any, i: number) => `<tr>
                     schedules: { ar: "الجداول", en: "Schedules" },
                     departments: { ar: "الأقسام", en: "Departments" },
                     faculty: { ar: "أعضاء هيئة التدريس", en: "Faculty Members" },
+                    students: { ar: "تسجيل الطلاب", en: "Student Registration" },
                     quizresults: { ar: "النتائج", en: "Results" },
-                    invitations: { ar: "الدعوات", en: "Invitations" },
-                    accounts: { ar: "الحسابات", en: "Accounts" },
                     livestreams: { ar: "البث المباشر", en: "Live Streams" },
                   };
-                  const key = activeTab === "invitations" && accountMgmtView === "accounts" ? "accounts" : activeTab;
-                  const cur = map[key] ?? map.general;
+                  const cur = map[activeTab] ?? map.general;
                   return isRtl ? cur.ar : cur.en;
                 })()}
               </p>

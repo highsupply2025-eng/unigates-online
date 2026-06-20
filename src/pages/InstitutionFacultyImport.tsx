@@ -135,7 +135,7 @@ const InstitutionFacultyImport = () => {
             <span className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-md shrink-0">
               <FileSpreadsheet className="w-5 h-5" strokeWidth={2.4} />
             </span>
-            <span className="truncate">{isRtl ? "رفع ملف Excel" : "Upload Excel File"}</span>
+            <span className="truncate">{isStudent ? (isRtl ? "رفع بيانات الطلاب" : "Upload Students File") : (isRtl ? "رفع ملف Excel" : "Upload Excel File")}</span>
           </h1>
           <Button size="icon" variant="default" className="shadow-md shrink-0" onClick={() => navigate(-1)} aria-label={isRtl ? "رجوع" : "Back"}>
             {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}

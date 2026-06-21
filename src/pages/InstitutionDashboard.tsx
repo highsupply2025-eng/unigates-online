@@ -1518,87 +1518,89 @@ ${rows.map((r: any, i: number) => `<tr>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredDepts.map(dept => {
                 const students = getStudentsCount(dept.id);
-                const lecturers = getLecturersCount(dept.id);
-                const heads = getDeptHeadsCount(dept.id);
-                const members = getMembersForDept(dept.id);
                 return (
                   <Card key={dept.id} className="border-2 border-primary/15 hover:shadow-xl hover:border-primary/30 transition-all bg-gradient-to-br from-primary/3 to-transparent">
                     <CardContent className="p-5">
-                      <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-start justify-between gap-3 mb-4">
                         <button
                           type="button"
                           onClick={() => {
-                            if (dept.status !== "active") return;
                             setSelectedDept(dept);
                             setMembersActiveOnly(true);
                             setPageView("members");
                             window.scrollTo({ top: 0, behavior: "smooth" });
                           }}
-                          className={`flex items-center gap-2 text-start ${dept.status === "active" ? "cursor-pointer hover:text-primary transition-colors" : "cursor-default"}`}
-                          disabled={dept.status !== "active"}
-                          title={dept.status === "active" ? (isRtl ? "عرض الأعضاء المفعّلين" : "View active members") : ""}
+                          className="flex items-center gap-3 text-start flex-1 min-w-0 cursor-pointer hover:text-primary transition-colors"
+                          title={isRtl ? "عرض الأعضاء" : "View members"}
                         >
-                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-black/10 flex items-center justify-center shrink-0">
+                          <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-black/10 flex items-center justify-center shrink-0">
                             <Users className="w-5 h-5 text-white" />
                           </div>
-                          <div>
-                            <h3 className="text-lg font-bold text-foreground">{dept.department_name}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {students} {isRtl ? "طالب" : "students"} · {lecturers} {isRtl ? "محاضر" : "lecturers"} · {heads} {isRtl ? "رئيس قسم" : "head"}
+                          <div className="min-w-0">
+                            <h3 className="text-lg font-bold text-foreground truncate">{dept.department_name}</h3>
+                            <p className="text-xs text-muted-foreground">
+                              {students} {isRtl ? "طالب مسجل" : "registered students"}
                             </p>
                           </div>
                         </button>
-                        <Badge variant={dept.status === "active" ? "default" : "destructive"}>
-                          {dept.status === "active" ? (isRtl ? "مفعّل ✅" : "Active ✅") : (isRtl ? "بانتظار الموافقة" : "Pending")}
+                        <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/20 gap-1 shrink-0">
+                          <CheckCircle className="w-3 h-3" />
+                          {isRtl ? "مفعّل" : "Active"}
                         </Badge>
                       </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                        <div className="text-center p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shadow-black/10">
-                          <p className="text-lg font-bold text-white">{students}</p>
-                          <p className="text-xs text-muted-foreground">{isRtl ? "طلاب" : "Students"}</p>
-                        </div>
-                        <div className="text-center p-2 rounded-lg bg-gradient-to-br from-green-500 to-green-600 shadow-md shadow-black/10">
-                          <p className="text-lg font-bold text-white">{lecturers}<span className="text-xs">/10</span></p>
-                          <p className="text-xs text-muted-foreground">{isRtl ? "محاضرين" : "Lecturers"}</p>
-                        </div>
-                        <div className="text-center p-2 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 shadow-md shadow-black/10">
-                          <p className="text-lg font-bold text-white">{heads}<span className="text-xs">/1</span></p>
-                          <p className="text-xs text-muted-foreground">{isRtl ? "رئيس قسم" : "Head"}</p>
-                        </div>
-                        <div className="text-center p-2 rounded-lg bg-primary/10">
-                          <p className="text-lg font-bold text-primary">{dept.payment_amount}</p>
-                          <p className="text-xs text-muted-foreground">{isRtl ? "جنيه/شهر" : "EGP/mo"}</p>
+                      {/* Department code (copyable, fixed) */}
+                      <div className="flex items-center gap-2 mb-4 p-2.5 rounded-lg bg-muted/60 border border-border">
+                        <span className="text-[11px] font-bold text-muted-foreground shrink-0">
+                          {isRtl ? "كود القسم:" : "Department code:"}
+                        </span>
+                        <code dir="ltr" className="flex-1 font-mono font-bold tracking-widest text-center text-primary truncate">
+                          {dept.department_code}
+                        </code>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 px-2 gap-1"
+                          onClick={() => {
+                            navigator.clipboard.writeText(dept.department_code || "");
+                            sonnerToast.success(isRtl ? "تم النسخ" : "Copied", { duration: 1500 });
+                          }}
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                          {isRtl ? "نسخ" : "Copy"}
+                        </Button>
+                      </div>
+
+                      {/* Students count box */}
+                      <div className="grid grid-cols-1 mb-4">
+                        <div className="text-center p-3 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shadow-black/10">
+                          <p className="text-2xl font-extrabold text-white">{students}</p>
+                          <p className="text-xs text-white/90 font-bold">{isRtl ? "طلاب القسم" : "Department Students"}</p>
                         </div>
                       </div>
 
-                      <div className="flex gap-2 flex-wrap">
+                      <div className="flex gap-2 flex-wrap justify-end">
                         <Button
                           variant="outline"
                           size="sm"
+                          className="gap-1"
                           onClick={() => {
                             setAddMemberDeptId(dept.id);
                             setNewMemberRole("student");
                             setShowAddMemberDialog(true);
                           }}
                         >
-                          <Plus className="w-4 h-4 me-1" />
+                          <Plus className="w-4 h-4" />
                           {isRtl ? "إضافة عضو" : "Add Member"}
                         </Button>
-                        {dept.status !== "active" && (
-                          <Badge variant="outline" className="text-amber-600 border-amber-400 bg-amber-50">
-                            <Clock className="w-3 h-3 me-1" />
-                            {isRtl ? "بانتظار موافقة الإدارة" : "Pending admin approval"}
-                          </Badge>
-                        )}
                         <Button
                           variant="outline"
-                          size="sm"
-                          className="gap-1 text-destructive border-destructive/30 hover:bg-destructive/10"
+                          size="icon"
+                          className="text-destructive border-destructive/30 hover:bg-destructive/10"
                           onClick={() => handleDeleteDepartment(dept.id, dept.department_name)}
+                          title={isRtl ? "حذف القسم" : "Delete department"}
                         >
                           <Trash2 className="w-4 h-4" />
-                          {isRtl ? "حذف القسم" : "Delete"}
                         </Button>
                       </div>
                     </CardContent>
@@ -1606,6 +1608,7 @@ ${rows.map((r: any, i: number) => `<tr>
                 );
               })}
             </div>
+
 
             {filteredDepts.length === 0 && (
               <div className="text-center py-16 text-muted-foreground">

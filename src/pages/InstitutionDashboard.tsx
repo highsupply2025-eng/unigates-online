@@ -1507,30 +1507,11 @@ ${rows.map((r: any, i: number) => `<tr>
 
           {/* Departments Tab */}
           <TabsContent value="departments" dir={isRtl ? "rtl" : "ltr"}>
-            {/* Section header */}
-            <div className="mb-5">
-              <h2 className="text-xl sm:text-2xl font-extrabold text-foreground">{isRtl ? "الأقسام" : "Departments"}</h2>
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                {isRtl ? "إدارة أقسام الكلية وأعضائها" : "Manage your departments and members"}
-              </p>
-            </div>
-
-            <div className="flex flex-col mb-4 gap-3">
-              <div className={`flex ${isRtl ? "justify-start" : "justify-end"}`}>
-                <Button onClick={() => setShowAddDeptDialog(true)} className="gap-2 shrink-0">
-                  <Plus className="w-4 h-4" />
-                  {isRtl ? "إضافة قسم" : "Add Department"}
-                </Button>
-              </div>
-              <div className="relative w-full sm:max-w-sm">
-                <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder={isRtl ? "بحث في الأقسام..." : "Search departments..."}
-                  value={deptSearch}
-                  onChange={e => setDeptSearch(e.target.value)}
-                  className="ps-10"
-                />
-              </div>
+            <div className={`flex mb-4 ${isRtl ? "justify-start" : "justify-end"}`}>
+              <Button onClick={() => setShowAddDeptDialog(true)} className="gap-2 shrink-0">
+                <Plus className="w-4 h-4" />
+                {isRtl ? "إضافة قسم" : "Add Department"}
+              </Button>
             </div>
 
 

@@ -456,7 +456,7 @@ const InstitutionDashboard = () => {
         student_count: 0,
         lecturer_count: lecturerCount,
         payment_amount: 0,
-        status: "pending",
+        status: "active",
         payment_status: "unpaid",
       }).select().single();
       if (error) throw error;

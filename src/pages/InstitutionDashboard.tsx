@@ -3039,107 +3039,38 @@ ${rows.map((r: any, i: number) => `<tr>
         </DialogContent>
       </Dialog>
 
-      {/* Add Member Dialog */}
+      {/* Add Member Choice Dialog */}
       <Dialog open={showAddMemberDialog} onOpenChange={setShowAddMemberDialog}>
-        <DialogContent dir={dir}>
+        <DialogContent dir={dir} className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{isRtl ? "إضافة عضو جديد" : "Add New Member"}</DialogTitle>
+            <DialogTitle className="text-center">{isRtl ? "إضافة عضو جديد" : "Add New Member"}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>{isRtl ? "الدور" : "Role"}</Label>
-              {(() => {
-                const dept = departments.find(d => d.id === addMemberDeptId);
-                const studentCap = dept?.student_count || 0;
-                const lecturerCap = 10;
-                const headCap = 3;
-                const studentsRegistered = getDeptBucket(addMemberDeptId).student.length;
-                const lecturersRegistered = getDeptBucket(addMemberDeptId).lecturer.length;
-                const headsRegistered = getDeptHeadsCount(addMemberDeptId);
-                const studentFull = studentCap > 0 && studentsRegistered >= studentCap;
-                const lecturerFull = lecturersRegistered >= lecturerCap;
-                const headFull = headsRegistered >= headCap;
-                const remaining =
-                  newMemberRole === "student" ? Math.max(0, studentCap - studentsRegistered)
-                  : newMemberRole === "lecturer" ? Math.max(0, lecturerCap - lecturersRegistered)
-                  : Math.max(0, headCap - headsRegistered);
-                return (
-                  <>
-                    <div className="flex gap-3 mt-1">
-                      <Button
-                        type="button"
-                        variant={newMemberRole === "student" ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setNewMemberRole("student")}
-                        className="flex-1 gap-1.5"
-                        disabled={studentFull}
-                        title={studentFull ? (isRtl ? `تم الوصول للحد الأقصى (${studentCap})` : `Max reached (${studentCap})`) : ""}
-                      >
-                        <GraduationCap className="w-4 h-4" />
-                        {isRtl ? "طالب" : "Student"}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant={newMemberRole === "lecturer" ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setNewMemberRole("lecturer")}
-                        className="flex-1 gap-1.5"
-                        disabled={lecturerFull}
-                        title={lecturerFull ? (isRtl ? `تم الوصول للحد الأقصى (${lecturerCap})` : `Max reached (${lecturerCap})`) : ""}
-                      >
-                        <UserCheck className="w-4 h-4" />
-                        {isRtl ? "محاضر" : "Lecturer"}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant={newMemberRole === "department_head" ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setNewMemberRole("department_head")}
-                        className="flex-1 gap-1.5"
-                        disabled={headFull}
-                        title={headFull ? (isRtl ? `تم الوصول للحد الأقصى (${headCap})` : `Max reached (${headCap})`) : ""}
-                      >
-                        <UserCheck className="w-4 h-4" />
-                        {isRtl ? "رئيس قسم" : "Head"}
-                      </Button>
-                    </div>
-                    {newMemberRole === "student" && (
-                      <p className="text-xs text-muted-foreground mt-2">{isRtl ? `المسجلون: ${studentsRegistered} / ${studentCap}` : `Registered: ${studentsRegistered} / ${studentCap}`}</p>
-                    )}
-                    {newMemberRole === "lecturer" && (
-                      <p className="text-xs text-muted-foreground mt-2">{isRtl ? `المسجلون: ${lecturersRegistered} / ${lecturerCap}` : `Registered: ${lecturersRegistered} / ${lecturerCap}`}</p>
-                    )}
-                    {newMemberRole === "department_head" && (
-                      <p className="text-xs text-muted-foreground mt-2">{isRtl ? `المسجلون: ${headsRegistered} / ${headCap}` : `Registered: ${headsRegistered} / ${headCap}`}</p>
-                    )}
-                    <div className="mt-4">
-                      <Label>{isRtl ? "عدد الأعضاء المراد إضافتهم" : "Number of members to add"}</Label>
-                      <Input
-                        type="number"
-                        min={1}
-                        max={remaining}
-                        value={newMemberCount}
-                        onChange={e => setNewMemberCount(e.target.value)}
-                        placeholder={isRtl ? `أدخل العدد (المتاح: ${remaining})` : `Enter count (available: ${remaining})`}
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {isRtl ? `المتاح للإضافة: ${remaining}` : `Available to add: ${remaining}`}
-                      </p>
-                    </div>
-                  </>
-                );
-              })()}
-            </div>
+          <div className="grid grid-cols-2 gap-4 py-4">
+            <button
+              onClick={() => {
+                setShowAddMemberDialog(false);
+                navigate(`/institution/faculty/add?dept=${addMemberDeptId}`);
+              }}
+              className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 transition-all"
+            >
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/30">
+                <GraduationCap className="w-7 h-7 text-white" />
+              </div>
+              <span className="font-bold text-foreground text-sm">{isRtl ? "أعضاء هيئة التدريس" : "Faculty Members"}</span>
+            </button>
+            <button
+              onClick={() => {
+                setShowAddMemberDialog(false);
+                navigate(`/institution/faculty/add?role=student&dept=${addMemberDeptId}`);
+              }}
+              className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 transition-all"
+            >
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/30">
+                <UserPlus className="w-7 h-7 text-white" />
+              </div>
+              <span className="font-bold text-foreground text-sm">{isRtl ? "تسجيل الطلاب" : "Student Registration"}</span>
+            </button>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddMemberDialog(false)}>
-              {isRtl ? "إلغاء" : "Cancel"}
-            </Button>
-            <Button onClick={handleAddMember} disabled={!newMemberCount || parseInt(newMemberCount) < 1}>
-              <Plus className="w-4 h-4 me-1" />
-              {isRtl ? "إضافة" : "Add"}
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 

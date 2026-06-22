@@ -1517,7 +1517,6 @@ ${rows.map((r: any, i: number) => `<tr>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredDepts.map(dept => {
-                const students = getStudentsCount(dept.id);
                 return (
                   <Card key={dept.id} className="border-2 border-primary/15 hover:shadow-xl hover:border-primary/30 transition-all bg-gradient-to-br from-primary/3 to-transparent">
                     <CardContent className="p-5">
@@ -1538,9 +1537,6 @@ ${rows.map((r: any, i: number) => `<tr>
                           </div>
                           <div className="min-w-0">
                             <h3 className="text-lg font-bold text-foreground truncate">{dept.department_name}</h3>
-                            <p className="text-xs text-muted-foreground">
-                              {students} {isRtl ? "طالب مسجل" : "registered students"}
-                            </p>
                           </div>
                         </button>
                         <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/20 gap-1 shrink-0">

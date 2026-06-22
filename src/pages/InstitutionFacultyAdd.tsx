@@ -114,6 +114,10 @@ const InstitutionFacultyAdd = () => {
           .eq("institution_type", instType)
           .order("created_at", { ascending: false });
         setDepartments(depts || []);
+        const deptId = searchParams.get("dept");
+        if (deptId && depts?.find(d => d.id === deptId)) {
+          setDepartmentId(deptId);
+        }
       } finally {
         setLoadingDepts(false);
       }

@@ -1583,7 +1583,6 @@ ${rows.map((r: any, i: number) => `<tr>
                           className="gap-1"
                           onClick={() => {
                             setAddMemberDeptId(dept.id);
-                            setNewMemberRole("student");
                             setShowAddMemberDialog(true);
                           }}
                         >

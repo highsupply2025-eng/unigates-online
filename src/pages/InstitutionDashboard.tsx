@@ -1517,6 +1517,7 @@ ${rows.map((r: any, i: number) => `<tr>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredDepts.map(dept => {
+                const students = getStudentsCount(dept.id);
                 return (
                   <Card key={dept.id} className="border-2 border-primary/15 hover:shadow-xl hover:border-primary/30 transition-all bg-gradient-to-br from-primary/3 to-transparent">
                     <CardContent className="p-5">

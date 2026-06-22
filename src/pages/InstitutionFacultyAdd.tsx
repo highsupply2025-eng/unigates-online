@@ -109,13 +109,13 @@ const InstitutionFacultyAdd = () => {
 
         const { data: depts } = await supabase
           .from("departments")
-          .select("id, name")
+          .select("id, department_name")
           .eq("institution_id", instId)
           .eq("institution_type", instType)
           .order("created_at", { ascending: false });
         setDepartments(depts || []);
         const deptId = searchParams.get("dept");
-        if (deptId && depts?.find(d => d.id === deptId)) {
+        if (deptId && depts?.find((d: any) => d.id === deptId)) {
           setDepartmentId(deptId);
         }
       } finally {

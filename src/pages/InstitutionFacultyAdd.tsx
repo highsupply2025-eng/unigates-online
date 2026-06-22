@@ -251,7 +251,7 @@ const InstitutionFacultyAdd = () => {
                     <SelectTrigger className={triggerCls}><SelectValue placeholder={loadingDepts ? (isRtl ? "جاري التحميل..." : "Loading...") : (isRtl ? "اختر القسم" : "Select department")} /></SelectTrigger>
                     <SelectContent>
                       {departments.map(d => (
-                        <SelectItem key={d.id} value={d.id} className="text-base">{d.name}</SelectItem>
+                        <SelectItem key={d.id} value={d.id} className="text-base">{d.department_name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

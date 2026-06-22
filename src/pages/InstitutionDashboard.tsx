@@ -1538,9 +1538,6 @@ ${rows.map((r: any, i: number) => `<tr>
                           </div>
                           <div className="min-w-0">
                             <h3 className="text-lg font-bold text-foreground truncate">{dept.department_name}</h3>
-                            <p className="text-xs text-muted-foreground">
-                              {students} {isRtl ? "طالب مسجل" : "registered students"}
-                            </p>
                           </div>
                         </button>
                         <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/20 gap-1 shrink-0">

@@ -1018,22 +1018,34 @@ ${rows.map((r: any, i: number) => `<tr>
             </Button>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
-            <DashboardMenuDropdown
-              title={isRtl ? (institutionType === "college" ? "لوحة الكلية" : "لوحة المعهد") : (institutionType === "college" ? "College Panel" : "Institute Panel")}
-              onLanguageToggle={toggleLanguage}
-              showNotifications={false}
-              onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
-              items={[
-                { key: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, onClick: () => handleTabChange("general"), active: activeTab === "general" },
-                
-                { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, onClick: () => handleTabChange("faculty"), active: activeTab === "faculty" },
-                { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, onClick: () => handleTabChange("departments"), active: activeTab === "departments" },
-                { key: "students", label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, onClick: () => handleTabChange("students"), active: activeTab === "students" },
-                { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => handleTabChange("schedules"), active: activeTab === "schedules" },
-                { key: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, onClick: () => handleTabChange("quizresults"), active: activeTab === "quizresults" },
-                { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/institution/profile") },
-              ]}
-            />
+            {pageView === "members" && selectedDept ? (
+              <Button
+                size="icon"
+                variant="default"
+                className="rounded-xl shadow-md"
+                onClick={() => setPageView("main")}
+                aria-label={isRtl ? "رجوع" : "Back"}
+              >
+                {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
+              </Button>
+            ) : (
+              <DashboardMenuDropdown
+                title={isRtl ? (institutionType === "college" ? "لوحة الكلية" : "لوحة المعهد") : (institutionType === "college" ? "College Panel" : "Institute Panel")}
+                onLanguageToggle={toggleLanguage}
+                showNotifications={false}
+                onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
+                items={[
+                  { key: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, onClick: () => handleTabChange("general"), active: activeTab === "general" },
+
+                  { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, onClick: () => handleTabChange("faculty"), active: activeTab === "faculty" },
+                  { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, onClick: () => handleTabChange("departments"), active: activeTab === "departments" },
+                  { key: "students", label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, onClick: () => handleTabChange("students"), active: activeTab === "students" },
+                  { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => handleTabChange("schedules"), active: activeTab === "schedules" },
+                  { key: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, onClick: () => handleTabChange("quizresults"), active: activeTab === "quizresults" },
+                  { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/institution/profile") },
+                ]}
+              />
+            )}
           </div>
         </div>
       </header>

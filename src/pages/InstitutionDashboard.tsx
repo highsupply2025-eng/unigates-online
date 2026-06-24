@@ -1476,10 +1476,9 @@ ${rows.map((r: any, i: number) => `<tr>
               className="mb-6"
               days={rangeDays}
               sections={[
-                { label: isRtl ? "أعضاء هيئة التدريس" : "Faculty", Icon: GraduationCap, timestamps: deptMembers.filter((m: any) => m.role === 'lecturer').map((m: any) => m.created_at) },
-                { label: isRtl ? "الأقسام" : "Departments", Icon: Layers, timestamps: departments.map((d: any) => d.created_at) },
-                { label: isRtl ? "الحسابات" : "Accounts", Icon: Users, timestamps: [] },
-                { label: isRtl ? "الدعوات" : "Invitations", Icon: Mail, timestamps: deptMembers.map((m: any) => m.created_at) },
+                { label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, timestamps: deptMembers.filter((m: any) => m.role === 'lecturer').map((m: any) => m.created_at) },
+                { label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, timestamps: departments.map((d: any) => d.created_at) },
+                { label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, timestamps: deptMembers.filter((m: any) => m.role === 'student').map((m: any) => m.created_at) },
                 { label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, timestamps: examSchedules.map((s: any) => s.created_at) },
                 { label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
                 { label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, timestamps: [] },
@@ -1489,12 +1488,11 @@ ${rows.map((r: any, i: number) => `<tr>
             <MenuItemsStatsGrid
               className="mb-6"
               items={[
-                { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty", Icon: GraduationCap, color: "from-indigo-500 to-indigo-600", count: deptMembers.filter((m: any) => m.role === 'lecturer').length },
-                { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: Layers, color: "from-blue-500 to-blue-600", count: departments.length },
-                { key: "accounts", label: isRtl ? "الحسابات" : "Accounts", Icon: Users, color: "from-emerald-500 to-emerald-600", count: 0 },
-                { key: "invitations", label: isRtl ? "الدعوات" : "Invitations", Icon: Mail, color: "from-purple-500 to-purple-600", count: deptMembers.length },
-                { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-amber-500 to-orange-600", count: examSchedules.length },
-                { key: "results", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, color: "from-green-500 to-green-600", count: quizSubmissions.length },
+                { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, color: "from-indigo-500 to-indigo-600", count: deptMembers.filter((m: any) => m.role === 'lecturer').length },
+                { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, color: "from-purple-500 to-purple-600", count: departments.length },
+                { key: "students", label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, color: "from-orange-500 to-orange-600", count: deptMembers.filter((m: any) => m.role === 'student').length },
+                { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-emerald-500 to-emerald-600", count: examSchedules.length },
+                { key: "results", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, color: "from-sky-500 to-sky-600", count: quizSubmissions.length },
                 { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", count: 1 },
               ]}
             />

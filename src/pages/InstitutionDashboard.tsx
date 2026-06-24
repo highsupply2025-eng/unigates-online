@@ -1058,11 +1058,7 @@ ${rows.map((r: any, i: number) => `<tr>
           return (
           /* Full-page Members View */
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-black text-foreground flex items-center gap-2">
-                <Users className="w-6 h-6 text-primary" />
-                {selectedDept.department_name} - {isRtl ? "الأعضاء" : "Members"}
-              </h2>
+            <div className="flex items-center justify-end">
               <Button size="sm" onClick={() => {
                 setAddMemberDeptId(selectedDept.id);
                 setShowAddMemberDialog(true);

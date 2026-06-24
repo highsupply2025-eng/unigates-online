@@ -959,12 +959,16 @@ ${rows.map((r: any, i: number) => `<tr>
             </div>
             <div className="min-w-0 flex-1">
               <h1 className="text-base sm:text-xl font-black text-foreground truncate">
-                {isRtl
-                  ? (institutionType === "college" ? "لوحة ادارة الكلية" : "لوحة ادارة المعهد")
-                  : (institutionType === "college" ? "College Administration" : "Institute Administration")}
+                {pageView === "members" && selectedDept
+                  ? selectedDept.department_name
+                  : (isRtl
+                      ? (institutionType === "college" ? "لوحة ادارة الكلية" : "لوحة ادارة المعهد")
+                      : (institutionType === "college" ? "College Administration" : "Institute Administration"))}
               </h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
-                {(() => {
+                {pageView === "members" && selectedDept
+                  ? (isRtl ? "الأعضاء" : "Members")
+                  : (() => {
                   const map: Record<string, { ar: string; en: string }> = {
                     general: { ar: "الرئيسية", en: "Home" },
                     schedules: { ar: "الجداول", en: "Schedules" },

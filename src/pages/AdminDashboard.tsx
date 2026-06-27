@@ -31,17 +31,17 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 // ── Interfaces ──
 interface UserRole { id: string; user_id: string; role: string; approved: boolean; created_at: string; }
-interface SchoolRegistration { id: string; school_name: string; principal_name: string; city: string; phone: string; email: string; student_count: number | null; address: string | null; message: string | null; status: string; admin_notes: string | null; created_at: string; }
+interface SchoolRegistration { id: string; school_name: string; principal_name: string; city: string; phone: string; email: string; student_count: number | null; address: string | null; message: string | null; status: string; created_at: string; }
 interface Profile { id: string; user_id: string; full_name: string; email: string; phone: string; role: string; platform: string; university_cert_url: string | null; additional_certs_urls: string[] | null; id_photo_url: string | null; live_photo_url: string | null; created_at: string; }
 interface Course { id: string; title_ar: string; title_en: string; instructor_ar: string; instructor_en: string; category_ar: string; category_en: string; episode_count: number; is_free: boolean; thumbnail_url: string | null; created_at: string; }
 interface Book { id: string; title_ar: string; title_en: string; author_ar: string; author_en: string; category: string; price: number; original_price: number | null; is_bestseller: boolean | null; is_new: boolean | null; is_active: boolean | null; rating: number | null; reviews_count: number | null; cover_url: string | null; created_at: string; }
 interface BookOrder { id: string; user_id: string; book_id: string; amount: number; status: string; created_at: string; book?: Book; profile?: Profile; }
 interface Subscription { id: string; user_id: string; course_id: string; level_number: number; plan_type: string; amount_paid: number; status: string; starts_at: string; expires_at: string | null; created_at: string; course?: Course; profile?: Profile; }
 interface LiveStream { id: string; title_ar: string; title_en: string; creator_id: string; course_id: string | null; status: string; scheduled_at: string | null; created_at: string; profile?: Profile; }
-interface CollegeRegistration { id: string; college_name: string; dean_name: string; city: string; phone: string; email: string; student_count: number | null; address: string | null; message: string | null; status: string; admin_notes: string | null; created_at: string; }
+interface CollegeRegistration { id: string; college_name: string; dean_name: string; city: string; phone: string; email: string; student_count: number | null; address: string | null; message: string | null; status: string; created_at: string; }
 interface CollegeInvitation { id: string; college_id: string; invitation_code: string; role: string; max_uses: number; used_count: number; is_active: boolean; created_at: string; college?: CollegeRegistration; }
 interface CollegeMember { id: string; college_id: string; user_id: string; role: string; joined_at: string; college?: CollegeRegistration; profile?: Profile; }
-interface InstituteRegistration { id: string; institute_name: string; director_name: string; city: string; phone: string; email: string; student_count: number | null; specialization: string | null; address: string | null; message: string | null; status: string; admin_notes: string | null; created_at: string; }
+interface InstituteRegistration { id: string; institute_name: string; director_name: string; city: string; phone: string; email: string; student_count: number | null; specialization: string | null; address: string | null; message: string | null; status: string; created_at: string; }
 interface Department { id: string; institution_id: string; institution_type: string; department_name: string; student_count: number; status: string; payment_status: string; payment_amount: number; created_at: string; }
 interface DepartmentMember { id: string; department_id: string; full_name: string; role: string; date_of_birth: string | null; photo_url: string | null; invitation_code: string | null; user_id: string | null; created_at: string; }
 

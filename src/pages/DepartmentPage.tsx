@@ -420,29 +420,46 @@ const DepartmentPage = () => {
 
   return (
     <div className="min-h-screen bg-background institution-admin-scope" dir={dir}>
-      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <Button variant="outline" className="gap-2 mb-6" onClick={() => navigate("/institution/dashboard?tab=departments")}>
-          {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-          {isRtl ? "رجوع للأقسام" : "Back to Departments"}
-        </Button>
+      {/* Sticky Top Header */}
+      <header className="sticky top-0 z-30 border-b bg-gradient-to-l from-primary/10 via-card to-card shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/80">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between gap-3">
+          <h1 className="text-base sm:text-xl font-extrabold text-foreground flex items-center gap-2 min-w-0">
+            <span className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-md shrink-0">
+              <Layers className="w-5 h-5" />
+            </span>
+            <span className="truncate">{isRtl ? "إدارة القسم" : "Department Management"}</span>
+          </h1>
+          <Button
+            size="icon"
+            variant="default"
+            className="shadow-md shrink-0 active:scale-95 transition-transform"
+            onClick={() => navigate("/institution/dashboard?tab=departments")}
+            aria-label={isRtl ? "رجوع" : "Back"}
+          >
+            {isRtl ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+          </Button>
+        </div>
+      </header>
 
-        {/* Department Header */}
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        {/* Department Title */}
         <div className="flex items-center gap-3 sm:gap-4 mb-6">
           <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
             <Layers className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
           </div>
           <div className="min-w-0 flex-1">
-            <h1 className="text-lg sm:text-2xl font-black text-foreground truncate">{deptName}</h1>
+            <h2 className="text-lg sm:text-2xl font-black text-foreground truncate">{deptName}</h2>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
               <Badge variant={deptStatus === "active" ? "default" : "secondary"} className="text-xs">
                 {deptStatus === "active" ? (isRtl ? "مفعّل ✅" : "Active ✅") : (isRtl ? "بانتظار الموافقة" : "Pending")}
               </Badge>
               <span className="text-xs sm:text-sm text-muted-foreground">
-                {allLecturers.length} {isRtl ? "محاضر" : "lecturers"} · {allStudents.length} {isRtl ? "طالب" : "students"}
+                {allLecturers.length} {isRtl ? "عضو" : "members"} · {allStudents.length} {isRtl ? "طالب" : "students"}
               </span>
             </div>
           </div>
         </div>
+
 
         {/* Search, Filter & Export Bar */}
         <div className="flex flex-col gap-3 mb-6">
@@ -584,7 +601,7 @@ const DepartmentPage = () => {
               <div className="w-9 h-9 rounded-lg bg-green-500/15 flex items-center justify-center">
                 <UserCheck className="w-5 h-5 text-green-600" />
               </div>
-              <span className="font-extrabold">{isRtl ? "المحاضرون" : "Lecturers"}</span>
+              <span className="font-extrabold">{isRtl ? "الأعضاء" : "Members"}</span>
               <Badge variant="outline" className="text-green-700 border-green-500 bg-green-100/60 ms-2 font-bold">
                 {lecturers.length}/{allLecturers.length}
               </Badge>
@@ -595,8 +612,9 @@ const DepartmentPage = () => {
               <p className="text-sm text-muted-foreground text-center py-4">
                 {searchQuery
                   ? (isRtl ? "لا توجد نتائج مطابقة" : "No matching results")
-                  : (isRtl ? "لا يوجد محاضرون مسجّلون بعد" : "No registered lecturers yet")}
+                  : (isRtl ? "لا يوجد أعضاء مسجّلون بعد" : "No registered members yet")}
               </p>
+
             ) : (
               <div className="space-y-3">
                 {lecturers.map(member =>

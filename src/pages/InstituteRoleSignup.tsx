@@ -450,6 +450,42 @@ const InstituteRoleSignup = () => {
                 </div>
               </div>
 
+              {isStudentRole && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="mb-2 flex items-center gap-1.5 font-bold text-primary"><Calendar className="w-4 h-4" />{isRtl ? "تاريخ الميلاد" : "Date of Birth"}</Label>
+                    <Input type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                  </div>
+                  <div>
+                    <Label className="mb-2 flex items-center gap-1.5 font-bold text-primary"><Users2 className="w-4 h-4" />{isRtl ? "النوع" : "Gender"}</Label>
+                    <Select value={gender} onValueChange={setGender}>
+                      <SelectTrigger className="h-12 border-2 border-primary/20"><SelectValue placeholder={isRtl ? "اختر" : "Select"} /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">{isRtl ? "ذكر" : "Male"}</SelectItem>
+                        <SelectItem value="female">{isRtl ? "أنثى" : "Female"}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="mb-2 flex items-center gap-1.5 font-bold text-primary"><IdCard className="w-4 h-4" />{isRtl ? "الرقم القومي" : "National ID"}</Label>
+                    <Input value={nationalId} onChange={(e) => setNationalId(e.target.value)} maxLength={20} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                  </div>
+                  <div>
+                    <Label className="mb-2 flex items-center gap-1.5 font-bold text-primary"><BookOpen className="w-4 h-4" />{isRtl ? "المؤهل الدراسي" : "Study Qualification"}</Label>
+                    <Input value={qualification} onChange={(e) => setQualification(e.target.value)} placeholder={isRtl ? "مثال: الفرقة الثانية" : "e.g. 2nd year"} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label className="mb-2 flex items-center gap-1.5 font-bold text-primary"><MapPin className="w-4 h-4" />{isRtl ? "العنوان" : "Address"}</Label>
+                    <Input value={address} onChange={(e) => setAddress(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label className="mb-2 flex items-center gap-1.5 font-bold text-primary"><StickyNote className="w-4 h-4" />{isRtl ? "ملاحظات" : "Notes"}</Label>
+                    <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} className="border-2 border-primary/20 focus-visible:border-primary" />
+                  </div>
+                </div>
+              )}
+
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className="mb-2 block font-bold text-primary">

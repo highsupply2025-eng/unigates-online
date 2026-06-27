@@ -864,7 +864,7 @@ const AdminDashboard = () => {
             {filteredSchools.length === 0 ? <EmptyState icon={School} text={ar("لا توجد طلبات تسجيل مدارس","No school registration requests")} /> : (
               <div className="grid gap-4">
                 {filteredSchools.map(school => (
-                  <Card key={school.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => { setSelectedSchool(school); setAdminNotes(school.admin_notes || ""); setShowSchoolDialog(true); }}>
+                  <Card key={school.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => { setSelectedSchool(school); fetchAdminNotes("school", school.id).then(setAdminNotes); setShowSchoolDialog(true); }}>
                     <CardContent className="p-5 flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center"><School className="w-6 h-6 text-blue-600" /></div>
@@ -912,7 +912,7 @@ const AdminDashboard = () => {
                   const lecturerCount = members.filter(m => m.role === "lecturer").length;
 
                   return (
-                    <Card key={college.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => { setSelectedCollege(college); setCollegeAdminNotes(college.admin_notes || ""); setShowCollegeDialog(true); }}>
+                    <Card key={college.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => { setSelectedCollege(college); fetchAdminNotes("college", college.id).then(setCollegeAdminNotes); setShowCollegeDialog(true); }}>
                       <CardContent className="p-5">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-4">
@@ -1028,7 +1028,7 @@ const AdminDashboard = () => {
                 {filteredInstitutes.map(inst => {
                   const depts = getDepartmentsForInstitution(inst.id);
                   return (
-                    <Card key={inst.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => { setSelectedInstitute(inst); setInstituteAdminNotes(inst.admin_notes || ""); setShowInstituteDialog(true); }}>
+                    <Card key={inst.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => { setSelectedInstitute(inst); fetchAdminNotes("institute", inst.id).then(setInstituteAdminNotes); setShowInstituteDialog(true); }}>
                       <CardContent className="p-5">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-4">

@@ -3173,6 +3173,64 @@ ${rows.map((r: any, i: number) => `<tr>
         </DialogContent>
       </Dialog>
 
+      {/* Faculty Roles Selection Dialog */}
+      <Dialog open={showFacultyRolesDialog} onOpenChange={setShowFacultyRolesDialog}>
+        <DialogContent dir={dir} className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">{isRtl ? "اختر أعضاء هيئة التدريس" : "Select Faculty Members"}</DialogTitle>
+          </DialogHeader>
+          <div className="py-2 space-y-2 max-h-[60vh] overflow-y-auto">
+            {[
+              { value: "dean", ar: "عميد الكلية", en: "Dean" },
+              { value: "vice_dean_postgrad", ar: "وكيل الكلية للدراسات العليا", en: "Vice Dean - Postgraduate Studies" },
+              { value: "vice_dean_students", ar: "وكيل الكلية لشئون الطلاب", en: "Vice Dean - Student Affairs" },
+              { value: "vice_dean_community", ar: "وكيل الكلية لشئون البيئة وخدمة المجتمع", en: "Vice Dean - Environment & Community Service" },
+              { value: "department_head", ar: "رئيس القسم", en: "Department Head" },
+              { value: "professor", ar: "أستاذ دكتور", en: "Professor" },
+              { value: "doctor", ar: "دكتور", en: "Doctor" },
+              { value: "assistant_lecturer", ar: "معيد", en: "Assistant Lecturer" },
+            ].map((r) => {
+              const checked = selectedFacultyRoles.includes(r.value);
+              return (
+                <label
+                  key={r.value}
+                  className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${checked ? "border-primary bg-primary/10" : "border-primary/20 bg-card hover:border-primary/40"}`}
+                >
+                  <input
+                    type="checkbox"
+                    className="w-5 h-5 accent-primary cursor-pointer"
+                    checked={checked}
+                    onChange={(e) => {
+                      setSelectedFacultyRoles((prev) =>
+                        e.target.checked ? [...prev, r.value] : prev.filter((v) => v !== r.value)
+                      );
+                    }}
+                  />
+                  <span className="font-bold text-foreground flex-1">{isRtl ? r.ar : r.en}</span>
+                </label>
+              );
+            })}
+          </div>
+          <div className="flex justify-end gap-2 pt-2 border-t-2 border-primary/15">
+            <Button variant="outline" onClick={() => setShowFacultyRolesDialog(false)}>
+              {isRtl ? "إلغاء" : "Cancel"}
+            </Button>
+            <Button
+              disabled={selectedFacultyRoles.length === 0}
+              onClick={() => {
+                if (selectedFacultyRoles.length === 0) return;
+                const roles = selectedFacultyRoles.join(",");
+                setShowFacultyRolesDialog(false);
+                navigate(`/institution/faculty/add?dept=${addMemberDeptId}&roles=${encodeURIComponent(roles)}`);
+              }}
+            >
+              {isRtl ? "متابعة" : "Continue"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+
       {/* Add/Edit Result Dialog */}
       <Dialog open={showResultDialog} onOpenChange={setShowResultDialog}>
         <DialogContent dir={dir} className="max-w-md">

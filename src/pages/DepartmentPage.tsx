@@ -601,7 +601,7 @@ const DepartmentPage = () => {
               <div className="w-9 h-9 rounded-lg bg-green-500/15 flex items-center justify-center">
                 <UserCheck className="w-5 h-5 text-green-600" />
               </div>
-              <span className="font-extrabold">{isRtl ? "المحاضرون" : "Lecturers"}</span>
+              <span className="font-extrabold">{isRtl ? "الأعضاء" : "Members"}</span>
               <Badge variant="outline" className="text-green-700 border-green-500 bg-green-100/60 ms-2 font-bold">
                 {lecturers.length}/{allLecturers.length}
               </Badge>
@@ -612,8 +612,9 @@ const DepartmentPage = () => {
               <p className="text-sm text-muted-foreground text-center py-4">
                 {searchQuery
                   ? (isRtl ? "لا توجد نتائج مطابقة" : "No matching results")
-                  : (isRtl ? "لا يوجد محاضرون مسجّلون بعد" : "No registered lecturers yet")}
+                  : (isRtl ? "لا يوجد أعضاء مسجّلون بعد" : "No registered members yet")}
               </p>
+
             ) : (
               <div className="space-y-3">
                 {lecturers.map(member =>

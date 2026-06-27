@@ -1723,31 +1723,63 @@ ${rows.map((r: any, i: number) => `<tr>
                             const initials = (m.full_name || "").split(" ").map((n: string) => n[0]).slice(0, 2).join("").toUpperCase();
                             const roleLabel = ROLE_LABELS[m.role] || { ar: m.role, en: m.role };
                             return (
-                              <button
+                              <div
                                 key={m.id}
-                                onClick={() => navigate(`/institution/member/${m.id}`)}
-                                className="text-start flex items-center gap-3 p-3 rounded-xl border-2 border-border hover:border-primary/40 hover:bg-primary/5 transition-all"
+                                className="flex items-center gap-2 p-3 rounded-xl border-2 border-border hover:border-primary/40 hover:bg-primary/5 transition-all"
                               >
-                                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-bold flex items-center justify-center shrink-0 overflow-hidden">
-                                  {m.photo_url
-                                    ? <img src={m.photo_url} alt={m.full_name} className="w-full h-full object-cover" />
-                                    : <span className="text-sm">{initials || "?"}</span>}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-bold text-foreground truncate">{m.full_name}</p>
-                                  <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                                    <Badge variant="default" className="text-[10px] gap-1">
-                                      <GraduationCap className="w-3 h-3" />
-                                      {isRtl ? roleLabel.ar : roleLabel.en}
-                                    </Badge>
-                                    <Badge variant={linked ? "default" : "outline"} className="text-[10px]">
-                                      {linked
-                                        ? (isRtl ? "مفعّل" : "Active")
-                                        : (isRtl ? "بانتظار التسجيل" : "Pending")}
-                                    </Badge>
+                                <button
+                                  type="button"
+                                  onClick={() => navigate(`/institution/member/${m.id}`)}
+                                  className="text-start flex items-center gap-3 flex-1 min-w-0"
+                                >
+                                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-bold flex items-center justify-center shrink-0 overflow-hidden">
+                                    {m.photo_url
+                                      ? <img src={m.photo_url} alt={m.full_name} className="w-full h-full object-cover" />
+                                      : <span className="text-sm">{initials || "?"}</span>}
                                   </div>
-                                </div>
-                              </button>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-bold text-foreground truncate">{m.full_name}</p>
+                                    <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                                      <Badge variant="default" className="text-[10px] gap-1">
+                                        <GraduationCap className="w-3 h-3" />
+                                        {isRtl ? roleLabel.ar : roleLabel.en}
+                                      </Badge>
+                                      <Badge variant={linked ? "default" : "outline"} className="text-[10px]">
+                                        {linked
+                                          ? (isRtl ? "مفعّل" : "Active")
+                                          : (isRtl ? "بانتظار التسجيل" : "Pending")}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                </button>
+                                <button
+                                  type="button"
+                                  aria-label={isRtl ? "حذف العضو" : "Delete member"}
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    const ok = window.confirm(
+                                      isRtl
+                                        ? `هل تريد حذف العضو "${m.full_name}"؟`
+                                        : `Delete member "${m.full_name}"?`
+                                    );
+                                    if (!ok) return;
+                                    try {
+                                      const { error } = await supabase
+                                        .from("department_members")
+                                        .delete()
+                                        .eq("id", m.id);
+                                      if (error) throw error;
+                                      setDeptMembers((prev: any[]) => prev.filter((x) => x.id !== m.id));
+                                      sonnerToast.success(isRtl ? "تم حذف العضو" : "Member deleted", { duration: 2000 });
+                                    } catch (err: any) {
+                                      sonnerToast.error(isRtl ? "فشل الحذف" : "Delete failed", { description: err.message });
+                                    }
+                                  }}
+                                  className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-destructive hover:bg-destructive/10 transition-colors"
+                                >
+                                  <Trash2 className="w-4 h-4" strokeWidth={2.4} />
+                                </button>
+                              </div>
                             );
                           })}
                         </div>

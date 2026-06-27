@@ -1622,13 +1622,26 @@ ${rows.map((r: any, i: number) => `<tr>
                         </Button>
                       </div>
 
-                      {/* Students count box */}
-                      <div className="grid grid-cols-1 mb-4">
-                        <div className="text-center p-3 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shadow-black/10">
-                          <p className="text-2xl font-extrabold text-white">{students}</p>
-                          <p className="text-xs text-white/90 font-bold">{isRtl ? "طلاب القسم" : "Department Students"}</p>
+                      {/* Members & Students count box (clickable) */}
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/institution/department/${dept.id}`)}
+                        className="w-full text-center p-4 mb-4 rounded-xl bg-gradient-to-br from-indigo-500 via-blue-600 to-cyan-500 shadow-lg shadow-blue-900/20 hover:shadow-xl hover:scale-[1.02] active:scale-[0.99] transition-all duration-200 group relative overflow-hidden"
+                        aria-label={isRtl ? "فتح أعضاء وطلاب القسم" : "Open department members & students"}
+                      >
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,white,transparent_60%)] opacity-10 pointer-events-none" />
+                        <div className="flex items-center justify-center gap-2 mb-1">
+                          <GraduationCap className="w-5 h-5 text-white/95" />
+                          <p className="text-2xl font-extrabold text-white tracking-tight">{students}</p>
+                          <Users className="w-5 h-5 text-white/95" />
                         </div>
-                      </div>
+                        <p className="text-sm text-white font-extrabold tracking-wide">
+                          {isRtl ? "أعضاء وطلاب القسم" : "Department Members & Students"}
+                        </p>
+                        <p className="text-[11px] text-white/80 mt-1 font-medium">
+                          {isRtl ? "اضغط لعرض القائمة ←" : "Tap to view list →"}
+                        </p>
+                      </button>
 
                       <div className="flex gap-2 flex-wrap justify-end">
                         <Button

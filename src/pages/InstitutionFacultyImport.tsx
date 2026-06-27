@@ -75,6 +75,7 @@ const InstitutionFacultyImport = () => {
       if (data.length === 0) throw new Error(isRtl ? "الملف فارغ" : "Empty file");
 
       const deptByName = new Map(departments.map(d => [d.name.trim(), d.id]));
+      const defaultDeptId = departments[0]?.id;
       let success = 0, failed = 0;
       const errors: string[] = [];
 
@@ -84,11 +85,11 @@ const InstitutionFacultyImport = () => {
         const roleRaw = norm(r["الوظيفة"] || r["role"]);
         const deptName = norm(r["القسم"] || r["department"]);
         const role = isStudent ? "student" : (ROLE_MAP[roleRaw] || ROLE_MAP[roleRaw.toLowerCase()]);
-        const department_id = deptByName.get(deptName);
+        const department_id = (deptName && deptByName.get(deptName)) || defaultDeptId;
 
         if (!full_name || !role || !department_id) {
           failed++;
-          errors.push(`${isRtl ? "صف" : "Row"} ${i + 3}: ${!full_name ? (isRtl ? "اسم مفقود" : "missing name") : !role ? (isRtl ? "وظيفة غير صحيحة" : "invalid role") : (isRtl ? "قسم غير موجود" : "department not found")}`);
+          errors.push(`${isRtl ? "صف" : "Row"} ${i + 3}: ${!full_name ? (isRtl ? "اسم مفقود" : "missing name") : !role ? (isRtl ? "وظيفة غير صحيحة" : "invalid role") : (isRtl ? "لا يوجد قسم" : "no department")}`);
           continue;
         }
 

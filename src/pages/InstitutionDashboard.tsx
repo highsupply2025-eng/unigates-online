@@ -1675,6 +1675,76 @@ ${rows.map((r: any, i: number) => `<tr>
 
           {/* Faculty Members Tab */}
           <TabsContent value="faculty" dir={isRtl ? "rtl" : "ltr"}>
+            {assignDeptId && (() => {
+              const targetDept = departments.find((d: any) => d.id === assignDeptId);
+              if (!targetDept) return null;
+              return (
+                <div className="mb-4 p-4 rounded-2xl border-2 border-primary bg-primary/10 shadow-lg shadow-primary/15 flex flex-col sm:flex-row sm:items-center gap-3 sticky top-0 z-10 backdrop-blur">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-extrabold text-foreground text-sm sm:text-base flex items-center gap-2">
+                      <GraduationCap className="w-5 h-5 text-primary" />
+                      {isRtl ? "اختر الأعضاء لإضافتهم إلى قسم:" : "Select members to add to department:"}
+                      <span className="text-primary">{targetDept.department_name}</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {isRtl ? `تم تحديد ${assignSelectedIds.length} عضو` : `${assignSelectedIds.length} member(s) selected`}
+                    </p>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setAssignSelectedIds([]);
+                        setSearchParams({ tab: "faculty" });
+                      }}
+                    >
+                      {isRtl ? "إلغاء" : "Cancel"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      disabled={assignSelectedIds.length === 0 || assigning}
+                      onClick={async () => {
+                        if (assignSelectedIds.length === 0) return;
+                        setAssigning(true);
+                        try {
+                          const selected = (deptMembers as any[]).filter(m => assignSelectedIds.includes(m.id));
+                          const rows = selected.map((m: any) => ({
+                            department_id: assignDeptId,
+                            full_name: m.full_name,
+                            email: m.email ?? null,
+                            phone: m.phone ?? null,
+                            user_id: m.user_id ?? null,
+                            role: m.role,
+                            photo_url: m.photo_url ?? null,
+                            national_id: m.national_id ?? null,
+                            gender: m.gender ?? null,
+                            address: m.address ?? null,
+                            qualification: m.qualification ?? null,
+                            specialization: m.specialization ?? null,
+                            invitation_code: generateCode(),
+                          }));
+                          const { error } = await supabase.from("department_members").insert(rows);
+                          if (error) throw error;
+                          sonnerToast.success(isRtl ? "تم إضافة الأعضاء إلى القسم" : "Members added to department", { duration: 2000 });
+                          setAssignSelectedIds([]);
+                          setSearchParams({ tab: "departments" });
+                          if (institutionId && institutionType) await loadInstitutionData(institutionId, institutionType);
+                        } catch (err: any) {
+                          sonnerToast.error(isRtl ? "فشل الإضافة" : "Add failed", { description: err.message });
+                        } finally {
+                          setAssigning(false);
+                        }
+                      }}
+                    >
+                      {assigning ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : null}
+                      {isRtl ? `إضافة المحدد (${assignSelectedIds.length})` : `Add selected (${assignSelectedIds.length})`}
+                    </Button>
+                  </div>
+                </div>
+              );
+            })()}
+
 
             {(() => {
               const ROLE_ORDER: Record<string, number> = {

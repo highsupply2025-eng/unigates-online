@@ -456,10 +456,12 @@ const InstitutionDashboard = () => {
         .in("user_id", linkedUserIds);
       const map: Record<string, any> = {};
       (profs || []).forEach((p: any) => { map[p.user_id] = p; });
+      snapshotProfilesMap = map;
       setProfilesMap(map);
     } else {
       setProfilesMap({});
     }
+
 
     // Load live streams, attendance, quizzes, quiz submissions, assignments, and schedules
     const [streamsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, ratingsRes, assignmentsRes, assignSubsRes, resultsRes, instQuizzesRes] = await Promise.all([

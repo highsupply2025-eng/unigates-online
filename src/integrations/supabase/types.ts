@@ -2235,6 +2235,16 @@ export type Database = {
     }
     Functions: {
       calculate_weekly_top_courses: { Args: never; Returns: undefined }
+      claim_department_codes: {
+        Args: {
+          _codes: string[]
+          _email: string
+          _full_name: string
+          _phone: string
+          _user_id: string
+        }
+        Returns: Json
+      }
       claim_department_invitation: {
         Args: { _code: string; _user_id: string }
         Returns: Json
@@ -2359,6 +2369,16 @@ export type Database = {
       user_in_my_leadership_institution: {
         Args: { _target_user: string }
         Returns: boolean
+      }
+      verify_department_codes: {
+        Args: { _codes: string[] }
+        Returns: {
+          department_code: string
+          department_id: string
+          department_name: string
+          institution_id: string
+          institution_type: string
+        }[]
       }
       verify_department_invitation: {
         Args: { _code: string }

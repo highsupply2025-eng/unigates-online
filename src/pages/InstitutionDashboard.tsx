@@ -303,28 +303,7 @@ const InstitutionDashboard = () => {
   }, [deletedDeptIds]);
 
   const checkInstitutionAccess = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { navigate("/login"); return; }
 
-      // Check if the user has a leadership role
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      if (profile && ["department_head", "vice_dean", "dean"].includes(profile.role)) {
-        setIsLeadershipRole(true);
-      }
-
-      const { data: college } = await supabase
-        .from("college_registrations")
-        .select("*")
-        .eq("email", user.email)
-        .eq("status", "approved")
-        .maybeSingle();
-
-  const checkInstitutionAccess = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/login"); return; }

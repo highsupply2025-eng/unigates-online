@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
-import { GraduationCap, Globe, ArrowLeft, ArrowRight, Loader2, Eye, EyeOff, KeyRound, BookOpen, UserCog, Shield, Crown, Landmark, Menu } from "lucide-react";
+import { GraduationCap, Globe, ArrowLeft, ArrowRight, Loader2, Eye, EyeOff, KeyRound, BookOpen, UserCog, Shield, Crown, Landmark, Menu, Calendar, IdCard, MapPin, Users2, StickyNote } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

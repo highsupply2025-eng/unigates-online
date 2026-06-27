@@ -44,16 +44,49 @@ const InstituteRoleSignup = () => {
   const RoleIcon = config.icon;
 
   const codeFromUrl = searchParams.get("code") || "";
+  const deptCodesFromUrl = searchParams.get("dept") || "";
+  const isStudentRole = (role || "") === "student";
   const [invitationCode, setInvitationCode] = useState(codeFromUrl);
   const [codeVerified, setCodeVerified] = useState(false);
   const [verifyingCode, setVerifyingCode] = useState(false);
   const [verifiedInvitation, setVerifiedInvitation] = useState<any>(null);
 
+  const [deptCodesInput, setDeptCodesInput] = useState(deptCodesFromUrl);
+  const [verifiedDepts, setVerifiedDepts] = useState<any[]>([]);
+  const [verifyingDepts, setVerifyingDepts] = useState(false);
+
   useEffect(() => {
     if (codeFromUrl && !codeVerified && !verifyingCode) {
       verifyCode(codeFromUrl);
+    } else if (isStudentRole && deptCodesFromUrl && !codeVerified) {
+      verifyDeptCodes(deptCodesFromUrl);
     }
   }, []);
+
+  const verifyDeptCodes = async (input: string) => {
+    const codes = Array.from(new Set(input.split(/[\s,،]+/).map(c => c.trim().toUpperCase()).filter(Boolean)));
+    if (codes.length === 0) {
+      toast({ title: isRtl ? "أدخل كود قسم واحد على الأقل" : "Enter at least one department code", variant: "destructive" });
+      return;
+    }
+    setVerifyingDepts(true);
+    try {
+      const { data, error } = await supabase.rpc("verify_department_codes" as any, { _codes: codes });
+      if (error) throw error;
+      const rows = (data as any[]) || [];
+      if (rows.length === 0) {
+        toast({ title: isRtl ? "لا توجد أقسام بهذا الكود" : "No departments match these codes", variant: "destructive" });
+        return;
+      }
+      setVerifiedDepts(rows);
+      setCodeVerified(true);
+      toast({ title: isRtl ? `تم التحقق من ${rows.length} قسم` : `Verified ${rows.length} department(s)` });
+    } catch (e: any) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setVerifyingDepts(false);
+    }
+  };
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");

@@ -83,6 +83,13 @@ const CollegeRoleSignup = () => {
   const [photoUrl, setPhotoUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  // Extended student details (mirror "Add Member" form)
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [gender, setGender] = useState("");
+  const [nationalId, setNationalId] = useState("");
+  const [address, setAddress] = useState("");
+  const [qualification, setQualification] = useState("");
+  const [notes, setNotes] = useState("");
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

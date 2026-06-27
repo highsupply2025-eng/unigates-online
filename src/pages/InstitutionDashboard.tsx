@@ -187,6 +187,41 @@ const InstitutionDashboard = () => {
   const [pendingChoice, setPendingChoice] = useState<"invitations" | "accounts" | null>(null);
   const [membersActiveOnly, setMembersActiveOnly] = useState(false);
 
+  const generateInviteLinkNow = async (roleParam: "lecturer" | "student" | "department_head", deptId: string) => {
+    if (!deptId) {
+      toast({ title: isRtl ? "اختر القسم" : "Select a department", variant: "destructive" });
+      return;
+    }
+    setGeneratingInviteLink(true);
+    try {
+      const code = generateCode();
+      const instPath = institutionType === "college" ? "college" : "institute";
+      const link = `${window.location.origin}/signup/${instPath}/${roleParam}?code=${code}`;
+      const { error } = await supabase.from("department_members").insert({
+        department_id: deptId,
+        role: roleParam,
+        invitation_code: code,
+        full_name: isRtl ? "عضو جديد" : "New Member",
+      });
+      if (error) throw error;
+      setGeneratedInviteLink(link);
+      setGeneratedInviteCode(code);
+      await loadInstitutionData(institutionId, institutionType || "college");
+    } catch (err: any) {
+      toast({ title: isRtl ? "فشل التوليد" : "Generation failed", description: err.message, variant: "destructive" });
+    } finally {
+      setGeneratingInviteLink(false);
+    }
+  };
+
+  // Auto-generate one-time link as soon as dialog opens
+  useEffect(() => {
+    if (showInviteLinkDialog && !generatedInviteLink && !generatingInviteLink && inviteLinkDeptId) {
+      generateInviteLinkNow(inviteLinkRole, inviteLinkDeptId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showInviteLinkDialog]);
+
   // Load exclusive account-system choice from localStorage when institution is known
   useEffect(() => {
     if (!institutionId) return;

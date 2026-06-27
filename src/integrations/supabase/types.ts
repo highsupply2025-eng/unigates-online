@@ -355,7 +355,6 @@ export type Database = {
       college_registrations: {
         Row: {
           address: string | null
-          admin_notes: string | null
           city: string
           college_name: string
           created_at: string
@@ -373,7 +372,6 @@ export type Database = {
         }
         Insert: {
           address?: string | null
-          admin_notes?: string | null
           city: string
           college_name: string
           created_at?: string
@@ -391,7 +389,6 @@ export type Database = {
         }
         Update: {
           address?: string | null
-          admin_notes?: string | null
           city?: string
           college_name?: string
           created_at?: string
@@ -811,7 +808,6 @@ export type Database = {
       institute_registrations: {
         Row: {
           address: string | null
-          admin_notes: string | null
           city: string
           created_at: string
           director_name: string
@@ -828,7 +824,6 @@ export type Database = {
         }
         Insert: {
           address?: string | null
-          admin_notes?: string | null
           city: string
           created_at?: string
           director_name: string
@@ -845,7 +840,6 @@ export type Database = {
         }
         Update: {
           address?: string | null
-          admin_notes?: string | null
           city?: string
           created_at?: string
           director_name?: string
@@ -1601,6 +1595,27 @@ export type Database = {
           },
         ]
       }
+      registration_admin_notes: {
+        Row: {
+          kind: string
+          notes: string | null
+          registration_id: string
+          updated_at: string
+        }
+        Insert: {
+          kind: string
+          notes?: string | null
+          registration_id: string
+          updated_at?: string
+        }
+        Update: {
+          kind?: string
+          notes?: string | null
+          registration_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       schedule_ratings: {
         Row: {
           comment: string | null
@@ -1663,7 +1678,6 @@ export type Database = {
       school_registrations: {
         Row: {
           address: string | null
-          admin_notes: string | null
           city: string
           created_at: string
           email: string
@@ -1678,7 +1692,6 @@ export type Database = {
         }
         Insert: {
           address?: string | null
-          admin_notes?: string | null
           city: string
           created_at?: string
           email: string
@@ -1693,7 +1706,6 @@ export type Database = {
         }
         Update: {
           address?: string | null
-          admin_notes?: string | null
           city?: string
           created_at?: string
           email?: string

@@ -31,17 +31,17 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 // ── Interfaces ──
 interface UserRole { id: string; user_id: string; role: string; approved: boolean; created_at: string; }
-interface SchoolRegistration { id: string; school_name: string; principal_name: string; city: string; phone: string; email: string; student_count: number | null; address: string | null; message: string | null; status: string; admin_notes: string | null; created_at: string; }
+interface SchoolRegistration { id: string; school_name: string; principal_name: string; city: string; phone: string; email: string; student_count: number | null; address: string | null; message: string | null; status: string; created_at: string; }
 interface Profile { id: string; user_id: string; full_name: string; email: string; phone: string; role: string; platform: string; university_cert_url: string | null; additional_certs_urls: string[] | null; id_photo_url: string | null; live_photo_url: string | null; created_at: string; }
 interface Course { id: string; title_ar: string; title_en: string; instructor_ar: string; instructor_en: string; category_ar: string; category_en: string; episode_count: number; is_free: boolean; thumbnail_url: string | null; created_at: string; }
 interface Book { id: string; title_ar: string; title_en: string; author_ar: string; author_en: string; category: string; price: number; original_price: number | null; is_bestseller: boolean | null; is_new: boolean | null; is_active: boolean | null; rating: number | null; reviews_count: number | null; cover_url: string | null; created_at: string; }
 interface BookOrder { id: string; user_id: string; book_id: string; amount: number; status: string; created_at: string; book?: Book; profile?: Profile; }
 interface Subscription { id: string; user_id: string; course_id: string; level_number: number; plan_type: string; amount_paid: number; status: string; starts_at: string; expires_at: string | null; created_at: string; course?: Course; profile?: Profile; }
 interface LiveStream { id: string; title_ar: string; title_en: string; creator_id: string; course_id: string | null; status: string; scheduled_at: string | null; created_at: string; profile?: Profile; }
-interface CollegeRegistration { id: string; college_name: string; dean_name: string; city: string; phone: string; email: string; student_count: number | null; address: string | null; message: string | null; status: string; admin_notes: string | null; created_at: string; }
+interface CollegeRegistration { id: string; college_name: string; dean_name: string; city: string; phone: string; email: string; student_count: number | null; address: string | null; message: string | null; status: string; created_at: string; }
 interface CollegeInvitation { id: string; college_id: string; invitation_code: string; role: string; max_uses: number; used_count: number; is_active: boolean; created_at: string; college?: CollegeRegistration; }
 interface CollegeMember { id: string; college_id: string; user_id: string; role: string; joined_at: string; college?: CollegeRegistration; profile?: Profile; }
-interface InstituteRegistration { id: string; institute_name: string; director_name: string; city: string; phone: string; email: string; student_count: number | null; specialization: string | null; address: string | null; message: string | null; status: string; admin_notes: string | null; created_at: string; }
+interface InstituteRegistration { id: string; institute_name: string; director_name: string; city: string; phone: string; email: string; student_count: number | null; specialization: string | null; address: string | null; message: string | null; status: string; created_at: string; }
 interface Department { id: string; institution_id: string; institution_type: string; department_name: string; student_count: number; status: string; payment_status: string; payment_amount: number; created_at: string; }
 interface DepartmentMember { id: string; department_id: string; full_name: string; role: string; date_of_birth: string | null; photo_url: string | null; invitation_code: string | null; user_id: string | null; created_at: string; }
 
@@ -289,17 +289,36 @@ const AdminDashboard = () => {
     setShowDetailDialog(false);
   };
 
+  const upsertAdminNotes = async (kind: "college" | "institute" | "school", id: string, notes: string) => {
+    const trimmed = notes.trim();
+    if (!trimmed) {
+      await supabase.from("registration_admin_notes").delete().eq("kind", kind).eq("registration_id", id);
+      return;
+    }
+    await supabase.from("registration_admin_notes").upsert(
+      { kind, registration_id: id, notes: trimmed, updated_at: new Date().toISOString() },
+      { onConflict: "kind,registration_id" }
+    );
+  };
+
+  const fetchAdminNotes = async (kind: "college" | "institute" | "school", id: string): Promise<string> => {
+    const { data } = await supabase.from("registration_admin_notes").select("notes").eq("kind", kind).eq("registration_id", id).maybeSingle();
+    return (data?.notes as string | null) || "";
+  };
+
   const handleSchoolApprove = async (id: string) => {
-    const { error } = await supabase.from("school_registrations").update({ status: "approved", admin_notes: adminNotes || null }).eq("id", id);
+    const { error } = await supabase.from("school_registrations").update({ status: "approved" }).eq("id", id);
     if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
+    await upsertAdminNotes("school", id, adminNotes);
     showSuccess(language === "ar" ? "تم قبول المدرسة" : "School approved");
     setShowSchoolDialog(false); setAdminNotes("");
     await Promise.all([loadSchoolRegistrations(), loadStats()]);
   };
 
   const handleSchoolReject = async (id: string) => {
-    const { error } = await supabase.from("school_registrations").update({ status: "rejected", admin_notes: adminNotes || null }).eq("id", id);
+    const { error } = await supabase.from("school_registrations").update({ status: "rejected" }).eq("id", id);
     if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
+    await upsertAdminNotes("school", id, adminNotes);
     showSuccess(language === "ar" ? "تم رفض المدرسة" : "School rejected");
     setShowSchoolDialog(false); setAdminNotes("");
     await Promise.all([loadSchoolRegistrations(), loadStats()]);
@@ -307,16 +326,18 @@ const AdminDashboard = () => {
 
   // College handlers
   const handleCollegeApprove = async (id: string) => {
-    const { error } = await supabase.from("college_registrations").update({ status: "approved", admin_notes: collegeAdminNotes || null }).eq("id", id);
+    const { error } = await supabase.from("college_registrations").update({ status: "approved" }).eq("id", id);
     if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
+    await upsertAdminNotes("college", id, collegeAdminNotes);
     showSuccess(language === "ar" ? "تم قبول الكلية" : "College approved");
     setShowCollegeDialog(false); setCollegeAdminNotes("");
     await Promise.all([loadColleges(), loadStats()]);
   };
 
   const handleCollegeReject = async (id: string) => {
-    const { error } = await supabase.from("college_registrations").update({ status: "rejected", admin_notes: collegeAdminNotes || null }).eq("id", id);
+    const { error } = await supabase.from("college_registrations").update({ status: "rejected" }).eq("id", id);
     if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
+    await upsertAdminNotes("college", id, collegeAdminNotes);
     showSuccess(language === "ar" ? "تم رفض الكلية" : "College rejected");
     setShowCollegeDialog(false); setCollegeAdminNotes("");
     await Promise.all([loadColleges(), loadStats()]);
@@ -324,16 +345,18 @@ const AdminDashboard = () => {
 
   // Institute handlers
   const handleInstituteApprove = async (id: string) => {
-    const { error } = await supabase.from("institute_registrations" as any).update({ status: "approved", admin_notes: instituteAdminNotes || null }).eq("id", id);
+    const { error } = await supabase.from("institute_registrations" as any).update({ status: "approved" }).eq("id", id);
     if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
+    await upsertAdminNotes("institute", id, instituteAdminNotes);
     showSuccess(language === "ar" ? "تم قبول المعهد" : "Institute approved");
     setShowInstituteDialog(false); setInstituteAdminNotes("");
     await Promise.all([loadInstitutes(), loadStats()]);
   };
 
   const handleInstituteReject = async (id: string) => {
-    const { error } = await supabase.from("institute_registrations" as any).update({ status: "rejected", admin_notes: instituteAdminNotes || null }).eq("id", id);
+    const { error } = await supabase.from("institute_registrations" as any).update({ status: "rejected" }).eq("id", id);
     if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
+    await upsertAdminNotes("institute", id, instituteAdminNotes);
     showSuccess(language === "ar" ? "تم رفض المعهد" : "Institute rejected");
     setShowInstituteDialog(false); setInstituteAdminNotes("");
     await Promise.all([loadInstitutes(), loadStats()]);
@@ -841,7 +864,7 @@ const AdminDashboard = () => {
             {filteredSchools.length === 0 ? <EmptyState icon={School} text={ar("لا توجد طلبات تسجيل مدارس","No school registration requests")} /> : (
               <div className="grid gap-4">
                 {filteredSchools.map(school => (
-                  <Card key={school.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => { setSelectedSchool(school); setAdminNotes(school.admin_notes || ""); setShowSchoolDialog(true); }}>
+                  <Card key={school.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => { setSelectedSchool(school); fetchAdminNotes("school", school.id).then(setAdminNotes); setShowSchoolDialog(true); }}>
                     <CardContent className="p-5 flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center"><School className="w-6 h-6 text-blue-600" /></div>
@@ -889,7 +912,7 @@ const AdminDashboard = () => {
                   const lecturerCount = members.filter(m => m.role === "lecturer").length;
 
                   return (
-                    <Card key={college.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => { setSelectedCollege(college); setCollegeAdminNotes(college.admin_notes || ""); setShowCollegeDialog(true); }}>
+                    <Card key={college.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => { setSelectedCollege(college); fetchAdminNotes("college", college.id).then(setCollegeAdminNotes); setShowCollegeDialog(true); }}>
                       <CardContent className="p-5">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-4">
@@ -1005,7 +1028,7 @@ const AdminDashboard = () => {
                 {filteredInstitutes.map(inst => {
                   const depts = getDepartmentsForInstitution(inst.id);
                   return (
-                    <Card key={inst.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => { setSelectedInstitute(inst); setInstituteAdminNotes(inst.admin_notes || ""); setShowInstituteDialog(true); }}>
+                    <Card key={inst.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => { setSelectedInstitute(inst); fetchAdminNotes("institute", inst.id).then(setInstituteAdminNotes); setShowInstituteDialog(true); }}>
                       <CardContent className="p-5">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-4">

@@ -223,6 +223,16 @@ const InstituteRoleSignup = () => {
               .update({ user_id: authData.user.id, full_name: fullName })
               .eq("id", verifiedInvitation.id);
           }
+        } else if (verifiedDepts.length > 0) {
+          const codes = verifiedDepts.map((d: any) => d.department_code);
+          const { error: claimErr } = await supabase.rpc("claim_department_codes" as any, {
+            _user_id: authData.user.id,
+            _codes: codes,
+            _full_name: fullName,
+            _email: email,
+            _phone: `${countryCode}${phone}`,
+          });
+          if (claimErr) throw claimErr;
         }
       }
 

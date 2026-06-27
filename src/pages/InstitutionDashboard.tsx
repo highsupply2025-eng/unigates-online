@@ -355,7 +355,7 @@ const InstitutionDashboard = () => {
         setInstitutionType("college");
         setInstitutionName(college.college_name);
         setInstitutionId(college.id);
-        await loadInstitutionData(college.id, "college");
+        await loadInstitutionData(college.id, "college", college.college_name);
         setLoading(false);
         return;
       }

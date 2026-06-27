@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { GraduationCap, Globe, ArrowLeft, ArrowRight, Loader2, Eye, EyeOff, KeyRound, Users, BookOpen, UserCog, Shield, Crown, Building2, Menu } from "lucide-react";
+import { GraduationCap, Globe, ArrowLeft, ArrowRight, Loader2, Eye, EyeOff, KeyRound, Users, BookOpen, UserCog, Shield, Crown, Building2, Menu, UserPlus, Mail, Phone, UserRound, Upload, Save, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
 import { getAuthCallbackUrl } from "@/lib/auth-redirect";
+
 
 const countryCodes = [
   { code: "+20", country: "🇪🇬" }, { code: "+966", country: "🇸🇦" },

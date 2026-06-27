@@ -142,6 +142,7 @@ const DepartmentPage = () => {
 
       // Fetch profile data for linked members
       const linkedUserIds = allMembers.filter(m => m.user_id).map(m => m.user_id as string);
+      let snapshotMap: Record<string, { email: string; phone: string; live_photo_url: string | null; full_name: string }> = {};
       if (linkedUserIds.length > 0) {
         const { data: profilesData } = await supabase
           .from("profiles")
@@ -151,13 +152,24 @@ const DepartmentPage = () => {
         (profilesData || []).forEach((p: any) => {
           map[p.user_id] = { email: p.email, phone: p.phone, live_photo_url: p.live_photo_url, full_name: p.full_name };
         });
+        snapshotMap = map;
         setProfilesMap(map);
       }
+
+      // Save snapshot for instant revisit hydration
+      __deptCache.set(deptId, {
+        deptName: dept.department_name,
+        deptStatus: dept.status,
+        institutionType: dept.institution_type as "college" | "institute",
+        members: visibleMembers,
+        profilesMap: snapshotMap,
+      });
     } catch {
       navigate("/institution/dashboard");
     } finally {
       setLoading(false);
     }
+
   };
 
   const handleDeleteMember = async () => {

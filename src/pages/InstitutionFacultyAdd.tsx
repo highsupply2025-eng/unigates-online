@@ -151,8 +151,8 @@ const InstitutionFacultyAdd = () => {
   };
 
   const canSubmit = useMemo(
-    () => !!fullName.trim() && !!role && !!departmentId,
-    [fullName, role, departmentId]
+    () => !!fullName.trim() && !!role && (isStudent ? !!deptCodesInput.trim() : !!departmentId),
+    [fullName, role, departmentId, isStudent, deptCodesInput]
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -163,9 +163,7 @@ const InstitutionFacultyAdd = () => {
     }
     setSaving(true);
     try {
-      const invitationCode = `FAC-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
-      const { error } = await supabase.from("department_members").insert({
-        department_id: departmentId,
+      const baseRow: any = {
         full_name: fullName.trim(),
         role,
         date_of_birth: dateOfBirth || null,
@@ -179,10 +177,44 @@ const InstitutionFacultyAdd = () => {
         specialization: specialization.trim() || null,
         hire_date: hireDate || null,
         notes: notes.trim() || null,
-        invitation_code: invitationCode,
-      });
-      if (error) throw error;
-      toast({ title: isRtl ? "تم حفظ بيانات العضو" : "Member saved successfully" });
+      };
+
+      if (isStudent) {
+        const codes = Array.from(new Set(
+          deptCodesInput.split(/[\s,،]+/).map(c => c.trim().toUpperCase()).filter(Boolean)
+        ));
+        const { data: depts, error: deptErr } = await supabase
+          .from("departments")
+          .select("id, department_code")
+          .in("department_code", codes);
+        if (deptErr) throw deptErr;
+        if (!depts || depts.length === 0) {
+          toast({ title: isRtl ? "لا توجد أقسام بهذه الأكواد" : "No departments match those codes", variant: "destructive" });
+          setSaving(false);
+          return;
+        }
+        const rows = depts.map((d: any) => ({
+          ...baseRow,
+          department_id: d.id,
+          invitation_code: `STU-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}-${d.department_code}`,
+        }));
+        const { error } = await supabase.from("department_members").insert(rows);
+        if (error) throw error;
+        const missing = codes.filter(c => !depts.some((d: any) => (d.department_code || "").toUpperCase() === c));
+        toast({
+          title: isRtl ? `تم تسجيل الطالب في ${depts.length} قسم` : `Student enrolled in ${depts.length} department(s)`,
+          description: missing.length > 0 ? (isRtl ? `أكواد غير صالحة: ${missing.join(", ")}` : `Invalid codes: ${missing.join(", ")}`) : undefined,
+        });
+      } else {
+        const invitationCode = `FAC-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+        const { error } = await supabase.from("department_members").insert({
+          ...baseRow,
+          department_id: departmentId,
+          invitation_code: invitationCode,
+        });
+        if (error) throw error;
+        toast({ title: isRtl ? "تم حفظ بيانات العضو" : "Member saved successfully" });
+      }
       navigate(-1);
     } catch (err: any) {
       toast({ title: isRtl ? "فشل الحفظ" : "Save failed", description: err.message, variant: "destructive" });

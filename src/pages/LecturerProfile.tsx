@@ -227,7 +227,7 @@ const LecturerProfile = () => {
             size="icon"
             variant="default"
             className="shadow-lg shadow-primary/40 shrink-0 w-11 h-11"
-            onClick={() => navigate(`/institution/department/${member.department_id}`)}
+            onClick={() => navigate(`/institution/dashboard?tab=faculty`)}
             aria-label={isRtl ? "رجوع" : "Back"}
           >
             {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}

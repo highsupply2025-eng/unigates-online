@@ -109,7 +109,13 @@ const DepartmentPage = () => {
         if (newHead) allMembers = [...allMembers, newHead as DepartmentMember];
       }
 
-      setMembers(allMembers);
+      // Hide invite-link placeholders (pending signups)
+      const visibleMembers = allMembers.filter(m => {
+        if (m.user_id) return true;
+        const nm = (m.full_name || "").trim();
+        return nm !== "عضو جديد" && nm !== "New Member";
+      });
+      setMembers(visibleMembers);
 
       // Fetch profile data for linked members
       const linkedUserIds = allMembers.filter(m => m.user_id).map(m => m.user_id as string);

@@ -100,6 +100,13 @@ const InstituteRoleSignup = () => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [countdown, setCountdown] = useState(5);
+  // Extended student details (mirror Add Member)
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [gender, setGender] = useState("");
+  const [nationalId, setNationalId] = useState("");
+  const [address, setAddress] = useState("");
+  const [qualification, setQualification] = useState("");
+  const [notes, setNotes] = useState("");
 
   useEffect(() => {
     if (!submitted) return;

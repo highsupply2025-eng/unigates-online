@@ -3308,36 +3308,14 @@ ${rows.map((r: any, i: number) => `<tr>
             </Button>
             <Button
               onClick={async () => {
-                if (!inviteLinkDeptId) {
-                  toast({ title: isRtl ? "اختر القسم" : "Select a department", variant: "destructive" });
-                  return;
-                }
-                setGeneratingInviteLink(true);
-                try {
-                  const code = generateCode();
-                  const instPath = institutionType === "college" ? "college" : "institute";
-                  const link = `${window.location.origin}/signup/${instPath}/${inviteLinkRole}?code=${code}`;
-                  const { error } = await supabase.from("department_members").insert({
-                    department_id: inviteLinkDeptId,
-                    role: inviteLinkRole,
-                    invitation_code: code,
-                    full_name: isRtl ? "عضو جديد" : "New Member",
-                  });
-                  if (error) throw error;
-                  setGeneratedInviteLink(link);
-                  setGeneratedInviteCode(code);
-                  toast({ title: isRtl ? "تم توليد رابط الدعوة" : "Invitation link generated" });
-                  await loadInstitutionData(institutionId, institutionType || "college");
-                } catch (err: any) {
-                  toast({ title: isRtl ? "فشل التوليد" : "Generation failed", description: err.message, variant: "destructive" });
-                } finally {
-                  setGeneratingInviteLink(false);
-                }
+                setGeneratedInviteLink("");
+                setGeneratedInviteCode("");
+                await generateInviteLinkNow(inviteLinkRole, inviteLinkDeptId);
               }}
               disabled={generatingInviteLink || !inviteLinkDeptId}
             >
               {generatingInviteLink ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : <LinkIcon className="w-4 h-4 me-1" />}
-              {isRtl ? "توليد الرابط" : "Generate Link"}
+              {isRtl ? (generatedInviteLink ? "توليد رابط جديد" : "توليد الرابط") : (generatedInviteLink ? "Generate New Link" : "Generate Link")}
             </Button>
           </DialogFooter>
         </DialogContent>

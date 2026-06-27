@@ -241,6 +241,18 @@ const InstituteRoleSignup = () => {
             _phone: `${countryCode}${phone}`,
           });
           if (claimErr) throw claimErr;
+
+          await supabase
+            .from("department_members")
+            .update({
+              date_of_birth: dateOfBirth || null,
+              gender: gender || null,
+              national_id: nationalId.trim() || null,
+              address: address.trim() || null,
+              qualification: qualification.trim() || null,
+              notes: notes.trim() || null,
+            } as any)
+            .eq("user_id", authData.user.id);
         }
       }
 

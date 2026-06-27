@@ -294,6 +294,20 @@ const CollegeRoleSignup = () => {
             _phone: `${countryCode}${phone}`,
           });
           if (claimErr) throw claimErr;
+
+          // Persist extended student details (mirrors Add Member)
+          await supabase
+            .from("department_members")
+            .update({
+              photo_url: photoUrl || null,
+              date_of_birth: dateOfBirth || null,
+              gender: gender || null,
+              national_id: nationalId.trim() || null,
+              address: address.trim() || null,
+              qualification: qualification.trim() || null,
+              notes: notes.trim() || null,
+            } as any)
+            .eq("user_id", authData.user.id);
         }
       }
 

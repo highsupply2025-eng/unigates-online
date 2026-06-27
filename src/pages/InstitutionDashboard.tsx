@@ -1638,7 +1638,7 @@ ${rows.map((r: any, i: number) => `<tr>
                           }}
                         >
                           <Plus className="w-4 h-4" />
-                          {isRtl ? "إضافة عضو" : "Add Member"}
+                          {isRtl ? "إضافة أعضاء هيئة التدريس" : "Add Faculty Members"}
                         </Button>
                         <Button
                           variant="outline"

@@ -503,12 +503,13 @@ const InstitutionDashboard = () => {
       .eq(idColumn, instId)
       .in("role", leadershipRoles);
 
+    let finalLeadershipInvitations: any[] = existingInvites || [];
     if (existingInvites && existingInvites.length >= leadershipRoles.length) {
       setLeadershipInvitations(existingInvites);
     } else {
       const existingRoles = (existingInvites || []).map((i: any) => i.role);
       const missingRoles = leadershipRoles.filter(r => !existingRoles.includes(r));
-      
+
       if (missingRoles.length > 0) {
         const inserts = missingRoles.map(role => ({
           [idColumn]: instId,
@@ -523,9 +524,54 @@ const InstitutionDashboard = () => {
           .eq(idColumn, instId)
           .in("role", leadershipRoles);
         setLeadershipInvitations(allInvites || []);
+        finalLeadershipInvitations = allInvites || [];
       }
     }
+
+    // Persist a snapshot for instant rehydration on the next visit.
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.email) {
+        const visibleMembersSnapshot = (allMembers || []).filter((m: any) => {
+          if (m.user_id) return true;
+          const nm = (m.full_name || "").trim();
+          return nm !== "عضو جديد" && nm !== "New Member";
+        });
+        const profMap: Record<string, any> = {};
+        if (linkedUserIds.length > 0) {
+          // Re-read from state setter input we already used; fall back to refetch-free map.
+        }
+        __dashboardCache = {
+          email: user.email,
+          instType: instType as "college" | "institute",
+          instName: instType === "college" ? institutionName : institutionName,
+          instId,
+          isLeadershipRole,
+          departments: filteredDepts,
+          deptMembers: visibleMembersSnapshot,
+          profilesMap: (() => {
+            // capture latest map via closure of `map` above isn't accessible here;
+            // rebuild minimal map from members' user_ids by reading current state on next tick is unsafe.
+            // The full refresh on next mount will repopulate; reuse current in-memory map.
+            return (window as any).__lastProfilesMap || {};
+          })(),
+          leadershipMembers: leadershipMembersData,
+          liveStreams: streamsRes.data || [],
+          streamAttendance: countMap,
+          quizzes: quizzesRes.data || [],
+          quizSubmissions: quizSubsRes.data || [],
+          examSchedules: schedulesRes.data || [],
+          lecturerRatings: ratingsRes.data || [],
+          assignments: assignmentsRes.data || [],
+          assignmentSubmissions: assignSubsRes.data || [],
+          studentResults: resultsRes.data || [],
+          institutionQuizzes: instQuizzesRes.data || [],
+          leadershipInvitations: finalLeadershipInvitations,
+        };
+      }
+    } catch {}
   };
+
 
   const handleAddDepartment = async () => {
     if (!newDeptName || !newDeptCode || addingDept) return;

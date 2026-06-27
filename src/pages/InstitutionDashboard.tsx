@@ -1857,7 +1857,15 @@ ${rows.map((r: any, i: number) => `<tr>
                                 )}
                                 <button
                                   type="button"
-                                  onClick={() => navigate(`/institution/member/${m.id}`)}
+                                  onClick={() => {
+                                    if (isAssignMode) {
+                                      setAssignSelectedIds(prev =>
+                                        prev.includes(m.id) ? prev.filter(id => id !== m.id) : [...prev, m.id]
+                                      );
+                                    } else {
+                                      navigate(`/institution/member/${m.id}`);
+                                    }
+                                  }}
                                   className="text-start flex items-center gap-3 flex-1 min-w-0"
                                 >
                                   <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-bold flex items-center justify-center shrink-0 overflow-hidden">

@@ -117,11 +117,6 @@ const InstitutionFacultyAdd = () => {
         const deptId = searchParams.get("dept");
         if (deptId && depts?.find((d: any) => d.id === deptId)) {
           setDepartmentId(deptId);
-        } else {
-          // Department must be supplied via URL — members no longer pick it.
-          toast({ title: isRtl ? "يجب فتح هذه الصفحة من داخل القسم" : "Open this page from inside a department", variant: "destructive" });
-          navigate(-1);
-          return;
         }
       } finally {
         setLoadingDepts(false);
@@ -234,9 +229,9 @@ const InstitutionFacultyAdd = () => {
                 </Button>
               </div>
 
-              {/* Role */}
-              {!isStudent && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Role + Department */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {!isStudent && (
                   <div className="space-y-2.5">
                     <Label className={labelCls}><Users2 className={iconCls} strokeWidth={2.4} />{isRtl ? "المسمى الوظيفي" : "Role"} <span className="text-destructive text-lg">*</span></Label>
                     <Select value={role} onValueChange={setRole}>
@@ -248,8 +243,20 @@ const InstitutionFacultyAdd = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                )}
+
+                <div className="space-y-2.5">
+                  <Label className={labelCls}>{isRtl ? "القسم" : "Department"} <span className="text-destructive text-lg">*</span></Label>
+                  <Select value={departmentId} onValueChange={setDepartmentId} disabled={loadingDepts}>
+                    <SelectTrigger className={triggerCls}><SelectValue placeholder={loadingDepts ? (isRtl ? "جاري التحميل..." : "Loading...") : (isRtl ? "اختر القسم" : "Select department")} /></SelectTrigger>
+                    <SelectContent>
+                      {departments.map(d => (
+                        <SelectItem key={d.id} value={d.id} className="text-base">{d.department_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              )}
+              </div>
 
               {/* Basic */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

@@ -75,6 +75,18 @@ const InstitutionFacultyImport = () => {
       if (data.length === 0) throw new Error(isRtl ? "الملف فارغ" : "Empty file");
 
       const deptByName = new Map(departments.map(d => [d.name.trim(), d.id]));
+
+      // For student import, also fetch all department codes for lookup
+      let deptByCode = new Map<string, string>();
+      if (isStudent) {
+        const { data: allDepts } = await supabase
+          .from("departments")
+          .select("id, department_code");
+        (allDepts || []).forEach((d: any) => {
+          if (d.department_code) deptByCode.set(String(d.department_code).toUpperCase(), d.id);
+        });
+      }
+
       const defaultDeptId = departments[0]?.id;
       let success = 0, failed = 0;
       const errors: string[] = [];
@@ -83,19 +95,32 @@ const InstitutionFacultyImport = () => {
         const r = data[i];
         const full_name = norm(r["الاسم الكامل"] || r["full_name"]);
         const roleRaw = norm(r["الوظيفة"] || r["role"]);
-        const deptName = norm(r["القسم"] || r["department"]);
         const role = isStudent ? "student" : (ROLE_MAP[roleRaw] || ROLE_MAP[roleRaw.toLowerCase()]);
-        const department_id = (deptName && deptByName.get(deptName)) || defaultDeptId;
 
-        if (!full_name || !role || !department_id) {
+        // For students: resolve target departments by code(s) — may be multiple, comma-separated
+        let targetDeptIds: string[] = [];
+        if (isStudent) {
+          const codesRaw = norm(r["كود القسم"] || r["أكواد الأقسام"] || r["department_code"] || r["dept_code"]);
+          const codes = codesRaw.split(/[\s,،]+/).map(c => c.trim().toUpperCase()).filter(Boolean);
+          targetDeptIds = codes.map(c => deptByCode.get(c)).filter(Boolean) as string[];
+          if (targetDeptIds.length === 0) {
+            failed++;
+            errors.push(`${isRtl ? "صف" : "Row"} ${i + 3}: ${isRtl ? "كود القسم مفقود أو غير صالح" : "missing or invalid department code"}`);
+            continue;
+          }
+        } else {
+          const deptName = norm(r["القسم"] || r["department"]);
+          const dId = (deptName && deptByName.get(deptName)) || defaultDeptId;
+          if (dId) targetDeptIds = [dId];
+        }
+
+        if (!full_name || !role || targetDeptIds.length === 0) {
           failed++;
           errors.push(`${isRtl ? "صف" : "Row"} ${i + 3}: ${!full_name ? (isRtl ? "اسم مفقود" : "missing name") : !role ? (isRtl ? "وظيفة غير صحيحة" : "invalid role") : (isRtl ? "لا يوجد قسم" : "no department")}`);
           continue;
         }
 
-        const invitationCode = `FAC-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
-        const { error } = await supabase.from("department_members").insert({
-          department_id,
+        const baseRow = {
           full_name,
           role,
           date_of_birth: norm(r["تاريخ الميلاد (YYYY-MM-DD)"] || r["تاريخ الميلاد"] || r["date_of_birth"]) || null,
@@ -108,8 +133,14 @@ const InstitutionFacultyImport = () => {
           specialization: norm(r["التخصص"] || r["specialization"]) || null,
           hire_date: norm(r["تاريخ التعيين (YYYY-MM-DD)"] || r["تاريخ التعيين"] || r["hire_date"]) || null,
           notes: norm(r["ملاحظات"] || r["notes"]) || null,
-          invitation_code: invitationCode,
-        });
+        };
+
+        const rows = targetDeptIds.map(department_id => ({
+          ...baseRow,
+          department_id,
+          invitation_code: `${isStudent ? "STU" : "FAC"}-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
+        }));
+        const { error } = await supabase.from("department_members").insert(rows);
         if (error) { failed++; errors.push(`${isRtl ? "صف" : "Row"} ${i + 3}: ${error.message}`); }
         else success++;
       }

@@ -74,16 +74,12 @@ const warmPath = (path: string) => {
 
 const PrefetchRoutes = () => {
   useEffect(() => {
-    // 1) Warm everything in parallel right after first paint.
+    // 1) Warm everything in parallel ASAP so chunks are cached before any click.
+    //    We fire immediately (microtask) instead of waiting for idle — the
+    //    chunks are tiny and pipelined over one HTTP/2 connection, and the
+    //    earlier they arrive the more navigations feel instant.
     const kick = () => ALL_LOADERS.forEach(warm);
-    const w = window as Window & {
-      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
-    };
-    if (typeof w.requestIdleCallback === "function") {
-      w.requestIdleCallback(kick, { timeout: 1200 });
-    } else {
-      setTimeout(kick, 200);
-    }
+    queueMicrotask(kick);
 
     // 2) Intent-based prefetch: warm the matching chunk the instant the user
     //    hovers, touches, or focuses an internal link.

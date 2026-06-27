@@ -32,6 +32,16 @@ interface DepartmentMember {
 
 type StatusFilter = "all" | "linked" | "pending";
 
+// Module-level snapshot cache keyed by deptId, for instant revisit hydration.
+type DeptSnapshot = {
+  deptName: string;
+  deptStatus: string;
+  institutionType: "college" | "institute";
+  members: DepartmentMember[];
+  profilesMap: Record<string, { email: string; phone: string; live_photo_url: string | null; full_name: string }>;
+};
+const __deptCache = new Map<string, DeptSnapshot>();
+
 const DepartmentPage = () => {
   const { deptId } = useParams<{ deptId: string }>();
   const navigate = useNavigate();
@@ -57,6 +67,17 @@ const DepartmentPage = () => {
   const [adding, setAdding] = useState(false);
 
   useEffect(() => {
+    if (!deptId) return;
+    // Instant hydration from cached snapshot, then refresh in background.
+    const cached = __deptCache.get(deptId);
+    if (cached) {
+      setDeptName(cached.deptName);
+      setDeptStatus(cached.deptStatus);
+      setInstitutionType(cached.institutionType);
+      setMembers(cached.members);
+      setProfilesMap(cached.profilesMap);
+      setLoading(false);
+    }
     loadDepartmentData();
   }, [deptId]);
 
@@ -73,6 +94,8 @@ const DepartmentPage = () => {
         .maybeSingle();
 
       if (!dept) { navigate("/institution/dashboard"); return; }
+
+
 
       setDeptName(dept.department_name);
       setDeptStatus(dept.status);
@@ -119,6 +142,7 @@ const DepartmentPage = () => {
 
       // Fetch profile data for linked members
       const linkedUserIds = allMembers.filter(m => m.user_id).map(m => m.user_id as string);
+      let snapshotMap: Record<string, { email: string; phone: string; live_photo_url: string | null; full_name: string }> = {};
       if (linkedUserIds.length > 0) {
         const { data: profilesData } = await supabase
           .from("profiles")
@@ -128,13 +152,24 @@ const DepartmentPage = () => {
         (profilesData || []).forEach((p: any) => {
           map[p.user_id] = { email: p.email, phone: p.phone, live_photo_url: p.live_photo_url, full_name: p.full_name };
         });
+        snapshotMap = map;
         setProfilesMap(map);
       }
+
+      // Save snapshot for instant revisit hydration
+      __deptCache.set(deptId, {
+        deptName: dept.department_name,
+        deptStatus: dept.status,
+        institutionType: dept.institution_type as "college" | "institute",
+        members: visibleMembers,
+        profilesMap: snapshotMap,
+      });
     } catch {
       navigate("/institution/dashboard");
     } finally {
       setLoading(false);
     }
+
   };
 
   const handleDeleteMember = async () => {

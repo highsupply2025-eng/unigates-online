@@ -66,6 +66,32 @@ const generateCode = () => {
   return code;
 };
 
+// Module-level snapshot cache: lets revisits to the dashboard render instantly
+// from the last known state while a silent background refresh updates the data.
+type DashboardSnapshot = {
+  email: string;
+  instType: "college" | "institute";
+  instName: string;
+  instId: string;
+  isLeadershipRole: boolean;
+  departments: Department[];
+  deptMembers: DepartmentMember[];
+  profilesMap: Record<string, any>;
+  leadershipMembers: Array<{ invitation_id: string; user_id: string; role: string; joined_at: string }>;
+  liveStreams: any[];
+  streamAttendance: Record<string, number>;
+  quizzes: any[];
+  quizSubmissions: any[];
+  examSchedules: any[];
+  lecturerRatings: any[];
+  assignments: any[];
+  assignmentSubmissions: any[];
+  studentResults: any[];
+  institutionQuizzes: any[];
+  leadershipInvitations: any[];
+};
+let __dashboardCache: DashboardSnapshot | null = null;
+
 const InstitutionDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
@@ -277,9 +303,36 @@ const InstitutionDashboard = () => {
   }, [deletedDeptIds]);
 
   const checkInstitutionAccess = async () => {
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/login"); return; }
+
+      // Instant hydration from in-memory snapshot if it matches this user.
+      // The full refresh still runs below in the background.
+      if (__dashboardCache && __dashboardCache.email === user.email) {
+        const s = __dashboardCache;
+        setInstitutionType(s.instType);
+        setInstitutionName(s.instName);
+        setInstitutionId(s.instId);
+        setIsLeadershipRole(s.isLeadershipRole);
+        setDepartments(s.departments);
+        setDeptMembers(s.deptMembers);
+        setProfilesMap(s.profilesMap);
+        setLeadershipMembers(s.leadershipMembers);
+        setLiveStreams(s.liveStreams);
+        setStreamAttendance(s.streamAttendance);
+        setQuizzes(s.quizzes);
+        setQuizSubmissions(s.quizSubmissions);
+        setExamSchedules(s.examSchedules);
+        setLecturerRatings(s.lecturerRatings);
+        setAssignments(s.assignments);
+        setAssignmentSubmissions(s.assignmentSubmissions);
+        setStudentResults(s.studentResults);
+        setInstitutionQuizzes(s.institutionQuizzes);
+        setLeadershipInvitations(s.leadershipInvitations);
+        setLoading(false);
+      }
 
       // Check if the user has a leadership role
       const { data: profile } = await supabase
@@ -302,7 +355,7 @@ const InstitutionDashboard = () => {
         setInstitutionType("college");
         setInstitutionName(college.college_name);
         setInstitutionId(college.id);
-        await loadInstitutionData(college.id, "college");
+        await loadInstitutionData(college.id, "college", college.college_name);
         setLoading(false);
         return;
       }
@@ -318,7 +371,7 @@ const InstitutionDashboard = () => {
         setInstitutionType("institute");
         setInstitutionName(institute.institute_name);
         setInstitutionId(institute.id);
-        await loadInstitutionData(institute.id, "institute");
+        await loadInstitutionData(institute.id, "institute", institute.institute_name);
         setLoading(false);
         return;
       }
@@ -336,7 +389,10 @@ const InstitutionDashboard = () => {
     }
   };
 
-  const loadInstitutionData = async (instId: string, instType: string) => {
+
+  const loadInstitutionData = async (instId: string, instType: string, instName?: string) => {
+    let snapshotProfilesMap: Record<string, any> = {};
+
     const { data: depts } = await supabase
       .from("departments")
       .select("*")
@@ -400,10 +456,12 @@ const InstitutionDashboard = () => {
         .in("user_id", linkedUserIds);
       const map: Record<string, any> = {};
       (profs || []).forEach((p: any) => { map[p.user_id] = p; });
+      snapshotProfilesMap = map;
       setProfilesMap(map);
     } else {
       setProfilesMap({});
     }
+
 
     // Load live streams, attendance, quizzes, quiz submissions, assignments, and schedules
     const [streamsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, ratingsRes, assignmentsRes, assignSubsRes, resultsRes, instQuizzesRes] = await Promise.all([
@@ -449,12 +507,13 @@ const InstitutionDashboard = () => {
       .eq(idColumn, instId)
       .in("role", leadershipRoles);
 
+    let finalLeadershipInvitations: any[] = existingInvites || [];
     if (existingInvites && existingInvites.length >= leadershipRoles.length) {
       setLeadershipInvitations(existingInvites);
     } else {
       const existingRoles = (existingInvites || []).map((i: any) => i.role);
       const missingRoles = leadershipRoles.filter(r => !existingRoles.includes(r));
-      
+
       if (missingRoles.length > 0) {
         const inserts = missingRoles.map(role => ({
           [idColumn]: instId,
@@ -469,9 +528,50 @@ const InstitutionDashboard = () => {
           .eq(idColumn, instId)
           .in("role", leadershipRoles);
         setLeadershipInvitations(allInvites || []);
+        finalLeadershipInvitations = allInvites || [];
       }
     }
+
+    // Persist a snapshot for instant rehydration on the next visit.
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.email) {
+        const visibleMembersSnapshot = (allMembers || []).filter((m: any) => {
+          if (m.user_id) return true;
+          const nm = (m.full_name || "").trim();
+          return nm !== "عضو جديد" && nm !== "New Member";
+        });
+        const profMap: Record<string, any> = {};
+        if (linkedUserIds.length > 0) {
+          // Re-read from state setter input we already used; fall back to refetch-free map.
+        }
+        __dashboardCache = {
+          email: user.email,
+          instType: instType as "college" | "institute",
+          instName: instName || institutionName,
+          instId,
+          isLeadershipRole,
+          departments: filteredDepts,
+          deptMembers: visibleMembersSnapshot,
+          profilesMap: snapshotProfilesMap,
+          leadershipMembers: leadershipMembersData,
+          liveStreams: streamsRes.data || [],
+          streamAttendance: countMap,
+          quizzes: quizzesRes.data || [],
+          quizSubmissions: quizSubsRes.data || [],
+          examSchedules: schedulesRes.data || [],
+          lecturerRatings: ratingsRes.data || [],
+          assignments: assignmentsRes.data || [],
+          assignmentSubmissions: assignSubsRes.data || [],
+          studentResults: resultsRes.data || [],
+          institutionQuizzes: instQuizzesRes.data || [],
+          leadershipInvitations: finalLeadershipInvitations,
+        };
+      }
+    } catch {}
   };
+
+
 
   const handleAddDepartment = async () => {
     if (!newDeptName || !newDeptCode || addingDept) return;

@@ -1620,21 +1620,6 @@ ${rows.map((r: any, i: number) => `<tr>
                           <Copy className="w-3.5 h-3.5" />
                           {isRtl ? "نسخ" : "Copy"}
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 px-2 gap-1"
-                          onClick={() => {
-                            const instPath = institutionType === "college" ? "college" : "institute";
-                            const link = `${window.location.origin}/signup/${instPath}/student?dept=${dept.department_code}`;
-                            navigator.clipboard.writeText(link);
-                            sonnerToast.success(isRtl ? "تم نسخ رابط تسجيل الطلاب" : "Student signup link copied", { duration: 1800 });
-                          }}
-                          title={isRtl ? "رابط تسجيل الطلاب (متعدد الاستخدامات)" : "Public student signup link"}
-                        >
-                          <LinkIcon className="w-3.5 h-3.5" />
-                          {isRtl ? "رابط الطلاب" : "Student Link"}
-                        </Button>
                       </div>
 
                       {/* Students count box */}

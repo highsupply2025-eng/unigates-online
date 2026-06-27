@@ -1633,9 +1633,31 @@ ${rows.map((r: any, i: number) => `<tr>
           <TabsContent value="faculty" dir={isRtl ? "rtl" : "ltr"}>
 
             {(() => {
-              const lecturers = deptMembers.filter((m: any) => m.role === 'lecturer');
-              const totalLinked = lecturers.filter((m: any) => !!m.user_id).length;
-              const totalPending = lecturers.length - totalLinked;
+              const ROLE_ORDER: Record<string, number> = {
+                dean: 1,
+                vice_dean_postgrad: 2,
+                vice_dean_students: 3,
+                vice_dean_community: 4,
+                department_head: 5,
+                professor: 6,
+                doctor: 7,
+                lecturer: 8,
+                assistant_lecturer: 9,
+              };
+              const ROLE_LABELS: Record<string, { ar: string; en: string }> = {
+                dean: { ar: "عميد الكلية", en: "Dean" },
+                vice_dean_postgrad: { ar: "وكيل الكلية للدراسات العليا", en: "Vice Dean - Postgraduate" },
+                vice_dean_students: { ar: "وكيل الكلية لشئون الطلاب", en: "Vice Dean - Student Affairs" },
+                vice_dean_community: { ar: "وكيل الكلية لخدمة المجتمع", en: "Vice Dean - Community Service" },
+                department_head: { ar: "رئيس القسم", en: "Department Head" },
+                professor: { ar: "أستاذ دكتور", en: "Professor" },
+                doctor: { ar: "دكتور", en: "Doctor" },
+                lecturer: { ar: "محاضر", en: "Lecturer" },
+                assistant_lecturer: { ar: "معيد", en: "Assistant Lecturer" },
+              };
+              const faculty = (deptMembers as any[])
+                .filter((m) => m.role && m.role !== 'student' && !!m.full_name)
+                .sort((a, b) => (ROLE_ORDER[a.role] ?? 99) - (ROLE_ORDER[b.role] ?? 99));
 
               return (
                 <>
@@ -1685,60 +1707,52 @@ ${rows.map((r: any, i: number) => `<tr>
                     </button>
                   </div>
 
-                  {lecturers.length === 0 ? null : (
-                    <div className="space-y-5">
-                      {departments
-                        .filter((d: any) => lecturers.some((m: any) => m.department_id === d.id))
-                        .map((dept: any) => {
-                          const deptLecturers = lecturers.filter((m: any) => m.department_id === dept.id);
-                          return (
-                            <Card key={dept.id} className="border-2 border-primary/15 bg-gradient-to-br from-primary/3 to-transparent">
-                              <CardHeader className="pb-3">
-                                <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                                  <Layers className="w-4 h-4 text-primary" />
-                                  <span className="font-extrabold">{dept.department_name}</span>
-                                  <Badge variant="secondary" className="text-[10px]">{deptLecturers.length}</Badge>
-                                </CardTitle>
-                              </CardHeader>
-                              <CardContent>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                  {deptLecturers.map((m: any) => {
-                                    const linked = !!m.user_id;
-                                    const initials = (m.full_name || "").split(" ").map((n: string) => n[0]).slice(0, 2).join("").toUpperCase();
-                                    return (
-                                      <button
-                                        key={m.id}
-                                        onClick={() => navigate(`/institution/member/${m.id}`)}
-                                        className="text-start flex items-center gap-3 p-3 rounded-xl border-2 border-border hover:border-primary/40 hover:bg-primary/5 transition-all"
-                                      >
-                                        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-bold flex items-center justify-center shrink-0 overflow-hidden">
-                                          {m.photo_url
-                                            ? <img src={m.photo_url} alt={m.full_name} className="w-full h-full object-cover" />
-                                            : <span className="text-sm">{initials || "?"}</span>}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                          <p className="text-sm font-bold text-foreground truncate">{m.full_name}</p>
-                                          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                                            <Badge variant="default" className="text-[10px] gap-1">
-                                              <GraduationCap className="w-3 h-3" />
-                                              {isRtl ? "محاضر" : "Lecturer"}
-                                            </Badge>
-                                            <Badge variant={linked ? "default" : "outline"} className="text-[10px]">
-                                              {linked
-                                                ? (isRtl ? "مفعّل" : "Active")
-                                                : (isRtl ? "بانتظار التسجيل" : "Pending")}
-                                            </Badge>
-                                          </div>
-                                        </div>
-                                      </button>
-                                    );
-                                  })}
+                  {faculty.length > 0 && (
+                    <Card className="border-2 border-primary/15 bg-gradient-to-br from-primary/3 to-transparent">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                          <GraduationCap className="w-4 h-4 text-primary" />
+                          <span className="font-extrabold">{isRtl ? "أعضاء هيئة التدريس" : "Faculty Members"}</span>
+                          <Badge variant="secondary" className="text-[10px]">{faculty.length}</Badge>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {faculty.map((m: any) => {
+                            const linked = !!m.user_id;
+                            const initials = (m.full_name || "").split(" ").map((n: string) => n[0]).slice(0, 2).join("").toUpperCase();
+                            const roleLabel = ROLE_LABELS[m.role] || { ar: m.role, en: m.role };
+                            return (
+                              <button
+                                key={m.id}
+                                onClick={() => navigate(`/institution/member/${m.id}`)}
+                                className="text-start flex items-center gap-3 p-3 rounded-xl border-2 border-border hover:border-primary/40 hover:bg-primary/5 transition-all"
+                              >
+                                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-bold flex items-center justify-center shrink-0 overflow-hidden">
+                                  {m.photo_url
+                                    ? <img src={m.photo_url} alt={m.full_name} className="w-full h-full object-cover" />
+                                    : <span className="text-sm">{initials || "?"}</span>}
                                 </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
-                    </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-bold text-foreground truncate">{m.full_name}</p>
+                                  <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                                    <Badge variant="default" className="text-[10px] gap-1">
+                                      <GraduationCap className="w-3 h-3" />
+                                      {isRtl ? roleLabel.ar : roleLabel.en}
+                                    </Badge>
+                                    <Badge variant={linked ? "default" : "outline"} className="text-[10px]">
+                                      {linked
+                                        ? (isRtl ? "مفعّل" : "Active")
+                                        : (isRtl ? "بانتظار التسجيل" : "Pending")}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </CardContent>
+                    </Card>
                   )}
                 </>
               );

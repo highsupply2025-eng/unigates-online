@@ -3174,6 +3174,121 @@ ${rows.map((r: any, i: number) => `<tr>
         </DialogContent>
       </Dialog>
 
+      {/* Select Registered Faculty to Add to Department */}
+      <Dialog open={showSelectFacultyDialog} onOpenChange={setShowSelectFacultyDialog}>
+        <DialogContent dir={dir} className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{isRtl ? "إضافة من أعضاء هيئة التدريس المسجلين" : "Add from Registered Faculty Members"}</DialogTitle>
+          </DialogHeader>
+          {(() => {
+            // Faculty already in the target department
+            const existingUserIds = new Set(
+              (deptMembers as any[])
+                .filter(m => m.department_id === addMemberDeptId && m.user_id)
+                .map(m => m.user_id)
+            );
+            const existingNames = new Set(
+              (deptMembers as any[])
+                .filter(m => m.department_id === addMemberDeptId)
+                .map(m => (m.full_name || "").trim().toLowerCase())
+                .filter(Boolean)
+            );
+            // Pool of registered faculty across institution
+            const seen = new Set<string>();
+            const pool = (deptMembers as any[])
+              .filter(m => m.role && m.role !== "student" && !!m.full_name)
+              .filter(m => {
+                const key = m.user_id || m.id;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+              })
+              .filter(m => {
+                if (m.user_id && existingUserIds.has(m.user_id)) return false;
+                if (!m.user_id && existingNames.has((m.full_name || "").trim().toLowerCase())) return false;
+                return true;
+              });
+            return (
+              <div className="space-y-3">
+                {pool.length === 0 ? (
+                  <div className="p-4 rounded-xl bg-muted/40 border-2 border-dashed text-center text-sm text-muted-foreground">
+                    {isRtl ? "لا يوجد أعضاء مسجلون متاحون للإضافة" : "No registered members available to add"}
+                  </div>
+                ) : (
+                  <div className="border-2 border-border/60 rounded-xl p-2 max-h-72 overflow-y-auto space-y-1 bg-muted/30">
+                    {pool.map((m: any) => {
+                      const checked = selectFacultyMemberIds.includes(m.id);
+                      return (
+                        <label
+                          key={m.id}
+                          className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${checked ? "bg-primary/10 border border-primary/30" : "hover:bg-background"}`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(e) => {
+                              setSelectFacultyMemberIds(prev =>
+                                e.target.checked ? [...prev, m.id] : prev.filter(id => id !== m.id)
+                              );
+                            }}
+                            className="w-4 h-4 accent-primary"
+                          />
+                          <span className="text-sm font-semibold truncate flex-1">{m.full_name}</span>
+                          {m.role && (
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold">
+                              {m.role}
+                            </span>
+                          )}
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setShowSelectFacultyDialog(false); setSelectFacultyMemberIds([]); }}>
+              {isRtl ? "إلغاء" : "Cancel"}
+            </Button>
+            <Button
+              disabled={selectFacultyMemberIds.length === 0 || addingExistingFaculty || !addMemberDeptId}
+              onClick={async () => {
+                if (!addMemberDeptId || selectFacultyMemberIds.length === 0) return;
+                setAddingExistingFaculty(true);
+                try {
+                  const selected = (deptMembers as any[]).filter(m => selectFacultyMemberIds.includes(m.id));
+                  const rows = selected.map((m: any) => ({
+                    department_id: addMemberDeptId,
+                    user_id: m.user_id || null,
+                    full_name: m.full_name,
+                    role: m.role,
+                    photo_url: m.photo_url || null,
+                    phone: m.phone || null,
+                    email: m.email || null,
+                  }));
+                  const { error } = await supabase.from("department_members").insert(rows);
+                  if (error) throw error;
+                  sonnerToast.success(isRtl ? "تمت إضافة الأعضاء للقسم" : "Members added to department", { duration: 2000 });
+                  setShowSelectFacultyDialog(false);
+                  setSelectFacultyMemberIds([]);
+                  await loadData();
+                } catch (err: any) {
+                  sonnerToast.error(isRtl ? "فشل الإضافة" : "Add failed", { description: err.message });
+                } finally {
+                  setAddingExistingFaculty(false);
+                }
+              }}
+            >
+              {addingExistingFaculty ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : null}
+              {isRtl ? "إضافة للقسم" : "Add to Department"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+
+
       {/* Add/Edit Result Dialog */}
       <Dialog open={showResultDialog} onOpenChange={setShowResultDialog}>
         <DialogContent dir={dir} className="max-w-md">

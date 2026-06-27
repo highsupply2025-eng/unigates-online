@@ -174,6 +174,38 @@ const CollegeRoleSignup = () => {
     }
   };
 
+  const verifyDeptCodes = async (input: string) => {
+    const codes = Array.from(new Set(input.split(/[\s,،]+/).map(c => c.trim().toUpperCase()).filter(Boolean)));
+    if (codes.length === 0) {
+      toast({ title: isRtl ? "أدخل كود قسم واحد على الأقل" : "Enter at least one department code", variant: "destructive" });
+      return;
+    }
+    setVerifyingDepts(true);
+    try {
+      const { data, error } = await supabase
+        .from("departments")
+        .select("id, department_name, institution_id, institution_type, department_code")
+        .in("department_code", codes);
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        toast({ title: isRtl ? "لا توجد أقسام بهذا الكود" : "No departments match these codes", variant: "destructive" });
+        return;
+      }
+      setVerifiedDepts(data);
+      setCodeVerified(true);
+      const missing = codes.filter(c => !data.some((d: any) => (d.department_code || "").toUpperCase() === c));
+      if (missing.length > 0) {
+        toast({ title: isRtl ? `تم التحقق من ${data.length} قسم — أكواد غير صالحة: ${missing.join(", ")}` : `Verified ${data.length} — invalid: ${missing.join(", ")}` });
+      } else {
+        toast({ title: isRtl ? `تم التحقق من ${data.length} قسم` : `Verified ${data.length} department(s)` });
+      }
+    } catch (e: any) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setVerifyingDepts(false);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!fullName || !email || !phone || !password) {
       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى ملء جميع الحقول المطلوبة" : "Please fill all required fields", variant: "destructive" });

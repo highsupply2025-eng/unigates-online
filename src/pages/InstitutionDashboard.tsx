@@ -3139,13 +3139,13 @@ ${rows.map((r: any, i: number) => `<tr>
       <Dialog open={showAddMemberDialog} onOpenChange={setShowAddMemberDialog}>
         <DialogContent dir={dir} className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-center">{isRtl ? "إضافة عضو جديد" : "Add New Member"}</DialogTitle>
+            <DialogTitle className="text-center">{isRtl ? "إضافة عضو أو طالب جديد" : "Add New Member or Student"}</DialogTitle>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-4">
             <button
               onClick={() => {
                 setShowAddMemberDialog(false);
-                navigate(`/institution/faculty/add?dept=${addMemberDeptId}`);
+                handleTabChange("faculty");
               }}
               className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 transition-all"
             >
@@ -3157,7 +3157,7 @@ ${rows.map((r: any, i: number) => `<tr>
             <button
               onClick={() => {
                 setShowAddMemberDialog(false);
-                navigate(`/institution/faculty/add?role=student&dept=${addMemberDeptId}`);
+                handleTabChange("students");
               }}
               className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 transition-all"
             >

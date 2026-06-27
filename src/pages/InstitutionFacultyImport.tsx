@@ -200,9 +200,8 @@ const InstitutionFacultyImport = () => {
                 {isRtl ? "ملاحظات هامة:" : "Important notes:"}
               </h3>
               <ul className="text-muted-foreground list-disc ps-5 space-y-1">
-                <li>{isRtl ? "اسم القسم في الملف يجب أن يطابق اسم قسم موجود لديك." : "Department name must match an existing department."}</li>
                 <li>{isRtl ? "الوظيفة يجب أن تكون من القائمة المنسدلة في القالب." : "Role must be from the template dropdown."}</li>
-                <li>{isRtl ? "الحقول المطلوبة: الاسم، الوظيفة، القسم." : "Required: name, role, department."}</li>
+                <li>{isRtl ? "الحقول المطلوبة: الاسم والوظيفة فقط." : "Required: name and role only."}</li>
               </ul>
             </div>
           </CardContent>

@@ -154,8 +154,9 @@ const InstitutionDashboard = () => {
   // Add Member
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
   const [addMemberDeptId, setAddMemberDeptId] = useState("");
-  const [showFacultyRolesDialog, setShowFacultyRolesDialog] = useState(false);
-  const [selectedFacultyRoles, setSelectedFacultyRoles] = useState<string[]>([]);
+  const [assignSelectedIds, setAssignSelectedIds] = useState<string[]>([]);
+  const [assigning, setAssigning] = useState(false);
+  const assignDeptId = searchParams.get("assignDept") || "";
   const [newMemberCount, setNewMemberCount] = useState("");
   const [newMemberRole, setNewMemberRole] = useState<"student" | "lecturer" | "department_head">("student");
 
@@ -1674,6 +1675,76 @@ ${rows.map((r: any, i: number) => `<tr>
 
           {/* Faculty Members Tab */}
           <TabsContent value="faculty" dir={isRtl ? "rtl" : "ltr"}>
+            {assignDeptId && (() => {
+              const targetDept = departments.find((d: any) => d.id === assignDeptId);
+              if (!targetDept) return null;
+              return (
+                <div className="mb-4 p-4 rounded-2xl border-2 border-primary bg-primary/10 shadow-lg shadow-primary/15 flex flex-col sm:flex-row sm:items-center gap-3 sticky top-0 z-10 backdrop-blur">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-extrabold text-foreground text-sm sm:text-base flex items-center gap-2">
+                      <GraduationCap className="w-5 h-5 text-primary" />
+                      {isRtl ? "اختر الأعضاء لإضافتهم إلى قسم:" : "Select members to add to department:"}
+                      <span className="text-primary">{targetDept.department_name}</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {isRtl ? `تم تحديد ${assignSelectedIds.length} عضو` : `${assignSelectedIds.length} member(s) selected`}
+                    </p>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setAssignSelectedIds([]);
+                        setSearchParams({ tab: "faculty" });
+                      }}
+                    >
+                      {isRtl ? "إلغاء" : "Cancel"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      disabled={assignSelectedIds.length === 0 || assigning}
+                      onClick={async () => {
+                        if (assignSelectedIds.length === 0) return;
+                        setAssigning(true);
+                        try {
+                          const selected = (deptMembers as any[]).filter(m => assignSelectedIds.includes(m.id));
+                          const rows = selected.map((m: any) => ({
+                            department_id: assignDeptId,
+                            full_name: m.full_name,
+                            email: m.email ?? null,
+                            phone: m.phone ?? null,
+                            user_id: m.user_id ?? null,
+                            role: m.role,
+                            photo_url: m.photo_url ?? null,
+                            national_id: m.national_id ?? null,
+                            gender: m.gender ?? null,
+                            address: m.address ?? null,
+                            qualification: m.qualification ?? null,
+                            specialization: m.specialization ?? null,
+                            invitation_code: generateCode(),
+                          }));
+                          const { error } = await supabase.from("department_members").insert(rows);
+                          if (error) throw error;
+                          sonnerToast.success(isRtl ? "تم إضافة الأعضاء إلى القسم" : "Members added to department", { duration: 2000 });
+                          setAssignSelectedIds([]);
+                          setSearchParams({ tab: "departments" });
+                          if (institutionId && institutionType) await loadInstitutionData(institutionId, institutionType);
+                        } catch (err: any) {
+                          sonnerToast.error(isRtl ? "فشل الإضافة" : "Add failed", { description: err.message });
+                        } finally {
+                          setAssigning(false);
+                        }
+                      }}
+                    >
+                      {assigning ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : null}
+                      {isRtl ? `إضافة المحدد (${assignSelectedIds.length})` : `Add selected (${assignSelectedIds.length})`}
+                    </Button>
+                  </div>
+                </div>
+              );
+            })()}
+
 
             {(() => {
               const ROLE_ORDER: Record<string, number> = {
@@ -1765,14 +1836,36 @@ ${rows.map((r: any, i: number) => `<tr>
                             const linked = !!m.user_id;
                             const initials = (m.full_name || "").split(" ").map((n: string) => n[0]).slice(0, 2).join("").toUpperCase();
                             const roleLabel = ROLE_LABELS[m.role] || { ar: m.role, en: m.role };
+                            const isAssignMode = !!assignDeptId;
+                            const isChecked = assignSelectedIds.includes(m.id);
                             return (
                               <div
                                 key={m.id}
-                                className="flex items-center gap-2 p-3 rounded-xl border-2 border-border hover:border-primary/40 hover:bg-primary/5 transition-all"
+                                className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-all ${isAssignMode && isChecked ? "border-primary bg-primary/10" : "border-border hover:border-primary/40 hover:bg-primary/5"}`}
                               >
+                                {isAssignMode && (
+                                  <input
+                                    type="checkbox"
+                                    className="w-5 h-5 accent-primary cursor-pointer shrink-0"
+                                    checked={isChecked}
+                                    onChange={(e) => {
+                                      setAssignSelectedIds(prev =>
+                                        e.target.checked ? [...prev, m.id] : prev.filter(id => id !== m.id)
+                                      );
+                                    }}
+                                  />
+                                )}
                                 <button
                                   type="button"
-                                  onClick={() => navigate(`/institution/member/${m.id}`)}
+                                  onClick={() => {
+                                    if (isAssignMode) {
+                                      setAssignSelectedIds(prev =>
+                                        prev.includes(m.id) ? prev.filter(id => id !== m.id) : [...prev, m.id]
+                                      );
+                                    } else {
+                                      navigate(`/institution/member/${m.id}`);
+                                    }
+                                  }}
                                   className="text-start flex items-center gap-3 flex-1 min-w-0"
                                 >
                                   <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-bold flex items-center justify-center shrink-0 overflow-hidden">
@@ -3146,9 +3239,10 @@ ${rows.map((r: any, i: number) => `<tr>
           <div className="grid grid-cols-2 gap-4 py-4">
             <button
               onClick={() => {
+                const deptId = addMemberDeptId;
                 setShowAddMemberDialog(false);
-                setSelectedFacultyRoles([]);
-                setShowFacultyRolesDialog(true);
+                setAssignSelectedIds([]);
+                setSearchParams({ tab: "faculty", assignDept: deptId });
               }}
               className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 transition-all"
             >
@@ -3173,62 +3267,8 @@ ${rows.map((r: any, i: number) => `<tr>
         </DialogContent>
       </Dialog>
 
-      {/* Faculty Roles Selection Dialog */}
-      <Dialog open={showFacultyRolesDialog} onOpenChange={setShowFacultyRolesDialog}>
-        <DialogContent dir={dir} className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">{isRtl ? "اختر أعضاء هيئة التدريس" : "Select Faculty Members"}</DialogTitle>
-          </DialogHeader>
-          <div className="py-2 space-y-2 max-h-[60vh] overflow-y-auto">
-            {[
-              { value: "dean", ar: "عميد الكلية", en: "Dean" },
-              { value: "vice_dean_postgrad", ar: "وكيل الكلية للدراسات العليا", en: "Vice Dean - Postgraduate Studies" },
-              { value: "vice_dean_students", ar: "وكيل الكلية لشئون الطلاب", en: "Vice Dean - Student Affairs" },
-              { value: "vice_dean_community", ar: "وكيل الكلية لشئون البيئة وخدمة المجتمع", en: "Vice Dean - Environment & Community Service" },
-              { value: "department_head", ar: "رئيس القسم", en: "Department Head" },
-              { value: "professor", ar: "أستاذ دكتور", en: "Professor" },
-              { value: "doctor", ar: "دكتور", en: "Doctor" },
-              { value: "assistant_lecturer", ar: "معيد", en: "Assistant Lecturer" },
-            ].map((r) => {
-              const checked = selectedFacultyRoles.includes(r.value);
-              return (
-                <label
-                  key={r.value}
-                  className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${checked ? "border-primary bg-primary/10" : "border-primary/20 bg-card hover:border-primary/40"}`}
-                >
-                  <input
-                    type="checkbox"
-                    className="w-5 h-5 accent-primary cursor-pointer"
-                    checked={checked}
-                    onChange={(e) => {
-                      setSelectedFacultyRoles((prev) =>
-                        e.target.checked ? [...prev, r.value] : prev.filter((v) => v !== r.value)
-                      );
-                    }}
-                  />
-                  <span className="font-bold text-foreground flex-1">{isRtl ? r.ar : r.en}</span>
-                </label>
-              );
-            })}
-          </div>
-          <div className="flex justify-end gap-2 pt-2 border-t-2 border-primary/15">
-            <Button variant="outline" onClick={() => setShowFacultyRolesDialog(false)}>
-              {isRtl ? "إلغاء" : "Cancel"}
-            </Button>
-            <Button
-              disabled={selectedFacultyRoles.length === 0}
-              onClick={() => {
-                if (selectedFacultyRoles.length === 0) return;
-                const roles = selectedFacultyRoles.join(",");
-                setShowFacultyRolesDialog(false);
-                navigate(`/institution/faculty/add?dept=${addMemberDeptId}&roles=${encodeURIComponent(roles)}`);
-              }}
-            >
-              {isRtl ? "متابعة" : "Continue"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+
+
 
 
       {/* Add/Edit Result Dialog */}

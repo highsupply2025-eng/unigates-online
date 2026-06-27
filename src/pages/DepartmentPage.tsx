@@ -67,6 +67,17 @@ const DepartmentPage = () => {
   const [adding, setAdding] = useState(false);
 
   useEffect(() => {
+    if (!deptId) return;
+    // Instant hydration from cached snapshot, then refresh in background.
+    const cached = __deptCache.get(deptId);
+    if (cached) {
+      setDeptName(cached.deptName);
+      setDeptStatus(cached.deptStatus);
+      setInstitutionType(cached.institutionType);
+      setMembers(cached.members);
+      setProfilesMap(cached.profilesMap);
+      setLoading(false);
+    }
     loadDepartmentData();
   }, [deptId]);
 
@@ -83,6 +94,8 @@ const DepartmentPage = () => {
         .maybeSingle();
 
       if (!dept) { navigate("/institution/dashboard"); return; }
+
+
 
       setDeptName(dept.department_name);
       setDeptStatus(dept.status);

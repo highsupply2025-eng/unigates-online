@@ -246,7 +246,7 @@ const InstitutionFacultyAdd = () => {
                 )}
 
                 <div className="space-y-2.5">
-                  <Label className={labelCls}>{isRtl ? "القسم" : "Department"} <span className="text-destructive text-lg">*</span></Label>
+                  <Label className={labelCls}>{isRtl ? "القسم" : "Department"}</Label>
                   <Select value={departmentId} onValueChange={setDepartmentId} disabled={loadingDepts}>
                     <SelectTrigger className={triggerCls}><SelectValue placeholder={loadingDepts ? (isRtl ? "جاري التحميل..." : "Loading...") : (isRtl ? "اختر القسم" : "Select department")} /></SelectTrigger>
                     <SelectContent>

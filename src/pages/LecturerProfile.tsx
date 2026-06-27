@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  ChevronLeft, ChevronRight, Mail, Phone, Calendar, BookOpen, Users,
-  FileText, ClipboardList, Loader2, UserCheck, Unlink, Trash2, BadgeCheck,
-  Building2, Layers, MapPin, GraduationCap
+  ArrowLeft, ArrowRight, Mail, Phone, Calendar, BookOpen, Users,
+  FileText, ClipboardList, Loader2, Unlink, Trash2, BadgeCheck,
+  Building2, Layers, MapPin, GraduationCap, IdCard, UserRound,
+  Briefcase, StickyNote, Sparkles, ShieldCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -25,6 +26,16 @@ interface MemberRow {
   user_id: string | null;
   invitation_code: string | null;
   photo_url: string | null;
+  email: string | null;
+  phone: string | null;
+  date_of_birth: string | null;
+  gender: string | null;
+  national_id: string | null;
+  address: string | null;
+  qualification: string | null;
+  specialization: string | null;
+  hire_date: string | null;
+  notes: string | null;
   created_at: string;
 }
 interface ProfileRow {
@@ -44,6 +55,19 @@ interface Stats {
   quizzes: number;
 }
 
+const ROLE_LABELS: Record<string, { ar: string; en: string }> = {
+  dean: { ar: "عميد الكلية", en: "Dean" },
+  vice_dean_postgrad: { ar: "وكيل الكلية للدراسات العليا", en: "Vice Dean - Postgraduate" },
+  vice_dean_students: { ar: "وكيل الكلية لشئون الطلاب", en: "Vice Dean - Student Affairs" },
+  vice_dean_community: { ar: "وكيل الكلية لخدمة المجتمع", en: "Vice Dean - Community Service" },
+  department_head: { ar: "رئيس القسم", en: "Department Head" },
+  professor: { ar: "أستاذ دكتور", en: "Professor" },
+  doctor: { ar: "دكتور", en: "Doctor" },
+  lecturer: { ar: "محاضر", en: "Lecturer" },
+  assistant_lecturer: { ar: "معيد", en: "Assistant Lecturer" },
+  student: { ar: "طالب", en: "Student" },
+};
+
 const LecturerProfile = () => {
   const { memberId } = useParams<{ memberId: string }>();
   const navigate = useNavigate();
@@ -61,7 +85,7 @@ const LecturerProfile = () => {
   const [showDelete, setShowDelete] = useState(false);
   const [actioning, setActioning] = useState(false);
 
-  useEffect(() => { load(); }, [memberId]);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [memberId]);
 
   const load = async () => {
     if (!memberId) return;
@@ -85,17 +109,13 @@ const LecturerProfile = () => {
       if (deptInfo?.institution_id) {
         if (instType === "college") {
           const { data: c } = await supabase
-            .from("college_registrations")
-            .select("college_name")
-            .eq("id", deptInfo.institution_id)
-            .maybeSingle();
+            .from("college_registrations").select("college_name")
+            .eq("id", deptInfo.institution_id).maybeSingle();
           setInstitutionName(c?.college_name || "");
         } else {
           const { data: i } = await supabase
-            .from("institute_registrations")
-            .select("institute_name")
-            .eq("id", deptInfo.institution_id)
-            .maybeSingle();
+            .from("institute_registrations").select("institute_name")
+            .eq("id", deptInfo.institution_id).maybeSingle();
           setInstitutionName(i?.institute_name || "");
         }
       }
@@ -104,11 +124,9 @@ const LecturerProfile = () => {
         const { data: p } = await supabase
           .from("profiles")
           .select("full_name,email,phone,id_photo_url,live_photo_url,university_cert_url,additional_certs_urls,created_at")
-          .eq("user_id", m.user_id)
-          .maybeSingle();
+          .eq("user_id", m.user_id).maybeSingle();
         setProfile(p as ProfileRow | null);
 
-        // Stats (lecturer only)
         if (m.role === "lecturer") {
           const [coursesRes, assignmentsRes, quizzesRes] = await Promise.all([
             supabase.from("courses").select("id", { count: "exact", head: true }).eq("creator_id", m.user_id),
@@ -120,10 +138,8 @@ const LecturerProfile = () => {
           if (courseIds && courseIds.length) {
             const ids = courseIds.map((c) => c.id);
             const { count } = await supabase
-              .from("user_subscriptions")
-              .select("user_id", { count: "exact", head: true })
-              .in("course_id", ids)
-              .eq("status", "active");
+              .from("user_subscriptions").select("user_id", { count: "exact", head: true })
+              .in("course_id", ids).eq("status", "active");
             studentsCount = count || 0;
           }
           setStats({
@@ -145,19 +161,13 @@ const LecturerProfile = () => {
     if (!member) return;
     setActioning(true);
     try {
-      const { error } = await supabase
-        .from("department_members")
-        .update({ user_id: null })
-        .eq("id", member.id);
+      const { error } = await supabase.from("department_members").update({ user_id: null }).eq("id", member.id);
       if (error) throw error;
       sonnerToast.success(isRtl ? "تم إلغاء الربط" : "Unlinked", { duration: 1200 });
       navigate(`/institution/department/${member.department_id}`);
     } catch {
       sonnerToast.error(isRtl ? "فشل إلغاء الربط" : "Failed to unlink");
-    } finally {
-      setActioning(false);
-      setShowUnlink(false);
-    }
+    } finally { setActioning(false); setShowUnlink(false); }
   };
 
   const handleDelete = async () => {
@@ -170,16 +180,13 @@ const LecturerProfile = () => {
       navigate(`/institution/department/${member.department_id}`);
     } catch {
       sonnerToast.error(isRtl ? "فشل الحذف" : "Failed to delete");
-    } finally {
-      setActioning(false);
-      setShowDelete(false);
-    }
+    } finally { setActioning(false); setShowDelete(false); }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-primary/10">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
       </div>
     );
   }
@@ -191,212 +198,229 @@ const LecturerProfile = () => {
   const avatar = profile?.live_photo_url || member.photo_url;
   const initials = displayName.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
   const isLinked = !!member.user_id;
+  const roleLabel = ROLE_LABELS[member.role] || { ar: member.role, en: member.role };
+  const fmtDate = (d?: string | null) => d ? new Date(d).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : null;
+
+  const email = profile?.email || member.email;
+  const phone = profile?.phone || member.phone;
+  const dob = fmtDate(member.date_of_birth);
+  const hire = fmtDate(member.hire_date);
+  const gender = member.gender ? (isRtl ? (member.gender === "male" ? "ذكر" : "أنثى") : member.gender) : null;
 
   return (
-    <div className="min-h-screen bg-background institution-admin-scope" dir={dir}>
-      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <Button
-          variant="outline"
-          className="gap-2 mb-4 sm:mb-6"
-          onClick={() => navigate(`/institution/department/${member.department_id}`)}
-        >
-          {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-          {isRtl ? "رجوع للقسم" : "Back to Department"}
-        </Button>
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-primary/10 institution-admin-scope" dir={dir}>
+      {/* Sticky header */}
+      <header className="sticky top-0 z-20 border-b-2 border-primary/30 bg-gradient-to-l from-primary/25 via-primary/10 to-card backdrop-blur shadow-lg">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="inline-flex w-11 h-11 rounded-2xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground items-center justify-center shadow-lg shadow-primary/40 shrink-0">
+              <UserRound className="w-6 h-6" strokeWidth={2.6} />
+            </span>
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-xl font-black text-foreground truncate tracking-tight">
+                {isRtl ? "ملف العضو" : "Member Profile"}
+              </h1>
+              <p className="text-xs text-muted-foreground truncate">{isRtl ? roleLabel.ar : roleLabel.en}</p>
+            </div>
+          </div>
+          <Button
+            size="icon"
+            variant="default"
+            className="shadow-lg shadow-primary/40 shrink-0 w-11 h-11"
+            onClick={() => navigate(`/institution/department/${member.department_id}`)}
+            aria-label={isRtl ? "رجوع" : "Back"}
+          >
+            {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
+          </Button>
+        </div>
+      </header>
 
-        {/* Header card */}
-        <Card className="mb-4 sm:mb-6 border-2">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start text-center sm:text-start">
-              <Avatar className="w-20 h-20 sm:w-24 sm:h-24 border-2 border-primary/20">
+      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-6 sm:py-8 space-y-5 sm:space-y-6">
+        {/* Hero card */}
+        <Card className="border-2 border-primary/30 overflow-hidden shadow-2xl shadow-primary/10">
+          <div className="relative bg-gradient-to-br from-primary/30 via-primary/15 to-card p-6 sm:p-8">
+            <div className="absolute inset-0 pointer-events-none opacity-30" style={{
+              backgroundImage: "radial-gradient(circle at 20% 20%, hsl(var(--primary) / 0.3), transparent 50%), radial-gradient(circle at 80% 80%, hsl(var(--primary) / 0.2), transparent 50%)"
+            }} />
+            <div className="relative flex flex-col sm:flex-row gap-5 items-center sm:items-start text-center sm:text-start">
+              <Avatar className="w-28 h-28 sm:w-32 sm:h-32 border-[5px] border-card ring-4 ring-primary/40 shadow-2xl shadow-primary/30 shrink-0">
                 {avatar && <AvatarImage src={avatar} alt={displayName} />}
-                <AvatarFallback className="bg-primary/10 text-primary text-xl font-bold">
-                  {initials}
+                <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-3xl font-black">
+                  {initials || "?"}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap mb-2">
-                  <h1 className="text-xl sm:text-2xl font-black text-foreground">{displayName}</h1>
-                  {isLinked && <BadgeCheck className="w-5 h-5 text-emerald-600" />}
+              <div className="flex-1 min-w-0 space-y-3">
+                <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
+                  <h2 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">{displayName}</h2>
+                  {isLinked && <BadgeCheck className="w-7 h-7 text-emerald-500 drop-shadow" />}
                 </div>
                 <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
-                  <Badge variant={isLecturer ? "default" : "secondary"} className="text-xs">
-                    {isLecturer
-                      ? (isRtl ? "محاضر" : "Lecturer")
-                      : (isRtl ? "طالب" : "Student")}
+                  <Badge className="text-xs gap-1.5 px-3 py-1 bg-gradient-to-l from-primary to-primary/80 shadow-md">
+                    <GraduationCap className="w-3.5 h-3.5" />
+                    {isRtl ? roleLabel.ar : roleLabel.en}
                   </Badge>
-                  <Badge variant={isLinked ? "default" : "outline"} className="text-xs">
+                  <Badge variant={isLinked ? "default" : "outline"} className={`text-xs gap-1.5 px-3 py-1 ${isLinked ? "bg-emerald-500 hover:bg-emerald-500" : "border-amber-500/50 text-amber-700 dark:text-amber-300"}`}>
                     {isLinked
-                      ? (isRtl ? "✅ مربوط بحساب" : "✅ Linked")
-                      : (isRtl ? "⏳ بانتظار التسجيل" : "⏳ Pending")}
+                      ? <><ShieldCheck className="w-3.5 h-3.5" />{isRtl ? "حساب مفعّل" : "Active"}</>
+                      : <><Sparkles className="w-3.5 h-3.5" />{isRtl ? "بانتظار التسجيل" : "Pending"}</>}
                   </Badge>
                 </div>
+                {member.invitation_code && !isLinked && (
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border-2 border-dashed border-primary/40 bg-card/60 backdrop-blur">
+                    <span className="text-[11px] text-muted-foreground">{isRtl ? "رمز الدعوة:" : "Invite code:"}</span>
+                    <code className="text-xs font-bold text-primary tracking-wider">{member.invitation_code}</code>
+                  </div>
+                )}
               </div>
             </div>
-          </CardContent>
+          </div>
         </Card>
 
-        {/* Academic info */}
-        {(institutionName || deptName) && (
-          <Card className="mb-4 sm:mb-6">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base sm:text-lg">
-                {isRtl ? "البيانات الأكاديمية" : "Academic Information"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {institutionName && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Building2 className="w-4 h-4 text-muted-foreground shrink-0" />
-                  <span className="text-foreground">
-                    {isRtl
-                      ? (institutionType === "college" ? "الكلية: " : "المعهد: ")
-                      : (institutionType === "college" ? "College: " : "Institute: ")}
-                    <span className="font-semibold">{institutionName}</span>
-                  </span>
-                </div>
-              )}
-              {deptName && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Layers className="w-4 h-4 text-muted-foreground shrink-0" />
-                  <span className="text-foreground">
-                    {isRtl ? "القسم: " : "Department: "}
-                    <span className="font-semibold">{deptName}</span>
-                  </span>
-                </div>
-              )}
-              <div className="flex items-center gap-3 text-sm">
-                <GraduationCap className="w-4 h-4 text-muted-foreground shrink-0" />
-                <span className="text-foreground">
-                  {isRtl ? "الدور: " : "Role: "}
-                  <span className="font-semibold">
-                    {isLecturer ? (isRtl ? "محاضر" : "Lecturer") : (isRtl ? "طالب" : "Student")}
-                  </span>
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-
-        {/* Contact info */}
-        <Card className="mb-4 sm:mb-6">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base sm:text-lg">
-              {isRtl ? "بيانات التواصل" : "Contact Information"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {isLinked && profile ? (
-              <>
-                <div className="flex items-center gap-3 text-sm">
-                  <Mail className="w-4 h-4 text-muted-foreground shrink-0" />
-                  <span className="text-foreground break-all">{profile.email}</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <Phone className="w-4 h-4 text-muted-foreground shrink-0" />
-                  <span className="text-foreground" dir="ltr">{profile.phone}</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <Calendar className="w-4 h-4 text-muted-foreground shrink-0" />
-                  <span className="text-muted-foreground">
-                    {isRtl ? "انضم في " : "Joined "}
-                    {new Date(profile.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}
-                  </span>
-                </div>
-              </>
-            ) : (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                {isRtl
-                  ? "لم يكمل العضو التسجيل بعد. ستظهر بياناته هنا فور انضمامه."
-                  : "Member hasn't completed registration yet. Details will appear here once they join."}
-              </p>
+        {/* Two-column grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {/* Academic */}
+          <SectionCard
+            icon={<Building2 className="w-5 h-5" />}
+            title={isRtl ? "البيانات الأكاديمية" : "Academic Information"}
+            accent="from-primary to-primary/70"
+          >
+            {institutionName && (
+              <InfoRow icon={<Building2 className="w-4 h-4" />} label={isRtl ? (institutionType === "college" ? "الكلية" : "المعهد") : (institutionType === "college" ? "College" : "Institute")} value={institutionName} />
             )}
-          </CardContent>
-        </Card>
+            {deptName && <InfoRow icon={<Layers className="w-4 h-4" />} label={isRtl ? "القسم" : "Department"} value={deptName} />}
+            <InfoRow icon={<GraduationCap className="w-4 h-4" />} label={isRtl ? "الدور" : "Role"} value={isRtl ? roleLabel.ar : roleLabel.en} />
+            {member.qualification && <InfoRow icon={<BookOpen className="w-4 h-4" />} label={isRtl ? "المؤهل العلمي" : "Qualification"} value={member.qualification} />}
+            {member.specialization && <InfoRow icon={<Briefcase className="w-4 h-4" />} label={isRtl ? "التخصص" : "Specialization"} value={member.specialization} />}
+            {hire && <InfoRow icon={<Calendar className="w-4 h-4" />} label={isRtl ? "تاريخ التعيين" : "Hire Date"} value={hire} />}
+          </SectionCard>
 
-        {/* Stats (lecturer only) */}
+          {/* Personal */}
+          <SectionCard
+            icon={<UserRound className="w-5 h-5" />}
+            title={isRtl ? "البيانات الشخصية" : "Personal Information"}
+            accent="from-indigo-500 to-indigo-600"
+          >
+            {dob && <InfoRow icon={<Calendar className="w-4 h-4" />} label={isRtl ? "تاريخ الميلاد" : "Date of Birth"} value={dob} />}
+            {gender && <InfoRow icon={<UserRound className="w-4 h-4" />} label={isRtl ? "النوع" : "Gender"} value={gender} />}
+            {member.national_id && <InfoRow icon={<IdCard className="w-4 h-4" />} label={isRtl ? "الرقم القومي" : "National ID"} value={member.national_id} mono />}
+            {member.address && <InfoRow icon={<MapPin className="w-4 h-4" />} label={isRtl ? "العنوان" : "Address"} value={member.address} />}
+            {!dob && !gender && !member.national_id && !member.address && (
+              <EmptyHint text={isRtl ? "لا توجد بيانات شخصية مسجلة" : "No personal data on file"} />
+            )}
+          </SectionCard>
+
+          {/* Contact */}
+          <SectionCard
+            icon={<Mail className="w-5 h-5" />}
+            title={isRtl ? "بيانات التواصل" : "Contact Information"}
+            accent="from-emerald-500 to-emerald-600"
+          >
+            {email && <InfoRow icon={<Mail className="w-4 h-4" />} label={isRtl ? "البريد الإلكتروني" : "Email"} value={email} breakAll />}
+            {phone && <InfoRow icon={<Phone className="w-4 h-4" />} label={isRtl ? "رقم الهاتف" : "Phone"} value={phone} mono />}
+            {profile?.created_at && (
+              <InfoRow icon={<Calendar className="w-4 h-4" />} label={isRtl ? "انضم في" : "Joined"} value={fmtDate(profile.created_at) || "-"} />
+            )}
+            {!email && !phone && !profile && (
+              <EmptyHint text={isRtl ? "لم يكمل العضو التسجيل بعد." : "Member hasn't completed registration yet."} />
+            )}
+          </SectionCard>
+
+          {/* Notes */}
+          {member.notes && (
+            <SectionCard
+              icon={<StickyNote className="w-5 h-5" />}
+              title={isRtl ? "ملاحظات" : "Notes"}
+              accent="from-amber-500 to-amber-600"
+            >
+              <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{member.notes}</p>
+            </SectionCard>
+          )}
+        </div>
+
+        {/* Stats */}
         {isLecturer && isLinked && (
-          <Card className="mb-4 sm:mb-6">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base sm:text-lg">
-                {isRtl ? "الإحصائيات" : "Statistics"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <StatBox icon={<BookOpen className="w-5 h-5" />} value={stats.courses} label={isRtl ? "الدورات" : "Courses"} />
-                <StatBox icon={<Users className="w-5 h-5" />} value={stats.students} label={isRtl ? "الطلاب" : "Students"} />
-                <StatBox icon={<FileText className="w-5 h-5" />} value={stats.assignments} label={isRtl ? "تكليفات" : "Assignments"} />
-                <StatBox icon={<ClipboardList className="w-5 h-5" />} value={stats.quizzes} label={isRtl ? "اختبارات" : "Quizzes"} />
-              </div>
-            </CardContent>
-          </Card>
+          <SectionCard
+            icon={<Sparkles className="w-5 h-5" />}
+            title={isRtl ? "الإحصائيات" : "Statistics"}
+            accent="from-violet-500 to-violet-600"
+          >
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <StatBox icon={<BookOpen className="w-5 h-5" />} value={stats.courses} label={isRtl ? "الدورات" : "Courses"} color="from-primary to-primary/70" />
+              <StatBox icon={<Users className="w-5 h-5" />} value={stats.students} label={isRtl ? "الطلاب" : "Students"} color="from-emerald-500 to-emerald-600" />
+              <StatBox icon={<FileText className="w-5 h-5" />} value={stats.assignments} label={isRtl ? "تكليفات" : "Assignments"} color="from-amber-500 to-amber-600" />
+              <StatBox icon={<ClipboardList className="w-5 h-5" />} value={stats.quizzes} label={isRtl ? "اختبارات" : "Quizzes"} color="from-indigo-500 to-indigo-600" />
+            </div>
+          </SectionCard>
         )}
 
-        {/* Documents (lecturer only, when linked) */}
+        {/* Documents */}
         {isLecturer && isLinked && profile && (profile.university_cert_url || (profile.additional_certs_urls?.length ?? 0) > 0) && (
-          <Card className="mb-4 sm:mb-6">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base sm:text-lg">
-                {isRtl ? "الشهادات والمستندات" : "Documents & Certificates"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
+          <SectionCard
+            icon={<FileText className="w-5 h-5" />}
+            title={isRtl ? "الشهادات والمستندات" : "Documents & Certificates"}
+            accent="from-sky-500 to-sky-600"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {profile.university_cert_url && (
                 <a href={profile.university_cert_url} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-2 p-3 rounded-lg border hover:bg-accent transition-colors text-sm">
-                  <FileText className="w-4 h-4 text-primary" />
+                  className="flex items-center gap-3 p-3 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-sm font-semibold">
+                  <span className="inline-flex w-9 h-9 rounded-lg bg-gradient-to-br from-sky-500 to-sky-600 items-center justify-center shrink-0">
+                    <FileText className="w-4 h-4 text-white" />
+                  </span>
                   {isRtl ? "الشهادة الجامعية" : "University Certificate"}
                 </a>
               )}
               {profile.additional_certs_urls?.map((url, i) => (
                 <a key={i} href={url} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-2 p-3 rounded-lg border hover:bg-accent transition-colors text-sm">
-                  <FileText className="w-4 h-4 text-primary" />
+                  className="flex items-center gap-3 p-3 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-sm font-semibold">
+                  <span className="inline-flex w-9 h-9 rounded-lg bg-gradient-to-br from-sky-500 to-sky-600 items-center justify-center shrink-0">
+                    <FileText className="w-4 h-4 text-white" />
+                  </span>
                   {isRtl ? `شهادة إضافية ${i + 1}` : `Additional Certificate ${i + 1}`}
                 </a>
               ))}
-            </CardContent>
-          </Card>
+            </div>
+          </SectionCard>
         )}
 
         {/* Admin actions */}
-        <Card className="border-destructive/30">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base sm:text-lg">
-              {isRtl ? "إجراءات إدارية" : "Admin Actions"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            {isLinked && (
-              <Button variant="outline" size="sm" onClick={() => setShowUnlink(true)} className="gap-1.5">
-                <Unlink className="w-4 h-4" />
-                {isRtl ? "إلغاء الربط" : "Unlink Account"}
+        <Card className="border-2 border-destructive/30 bg-gradient-to-br from-destructive/5 to-transparent">
+          <CardContent className="p-5 sm:p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="inline-flex w-10 h-10 rounded-xl bg-gradient-to-br from-destructive to-destructive/70 text-destructive-foreground items-center justify-center shadow-md">
+                <ShieldCheck className="w-5 h-5" strokeWidth={2.6} />
+              </span>
+              <h3 className="text-base sm:text-lg font-black text-foreground">{isRtl ? "إجراءات إدارية" : "Admin Actions"}</h3>
+            </div>
+            <div className="flex flex-wrap gap-2.5">
+              {isLinked && (
+                <Button variant="outline" size="sm" onClick={() => setShowUnlink(true)} className="gap-1.5 border-2 font-bold">
+                  <Unlink className="w-4 h-4" />
+                  {isRtl ? "إلغاء الربط" : "Unlink Account"}
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDelete(true)}
+                className="gap-1.5 border-2 border-destructive/40 text-destructive hover:bg-destructive hover:text-destructive-foreground font-bold"
+              >
+                <Trash2 className="w-4 h-4" />
+                {isRtl ? "حذف العضو" : "Delete Member"}
               </Button>
-            )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowDelete(true)}
-              className="gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/10"
-            >
-              <Trash2 className="w-4 h-4" />
-              {isRtl ? "حذف العضو" : "Delete Member"}
-            </Button>
+            </div>
           </CardContent>
         </Card>
       </main>
 
-      {/* Unlink dialog */}
       <AlertDialog open={showUnlink} onOpenChange={setShowUnlink}>
         <AlertDialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg w-full">
           <AlertDialogHeader>
             <AlertDialogTitle>{isRtl ? "إلغاء ربط الحساب" : "Unlink Account"}</AlertDialogTitle>
             <AlertDialogDescription>
               {isRtl
-                ? "سيتم فصل حساب المستخدم عن هذا العضو. يبقى حساب المحاضر/الطالب موجوداً، لكنه لن يكون مرتبطاً بهذا القسم."
-                : "This will detach the user account from this member. The user account remains, but won't be linked to this department."}
+                ? "سيتم فصل حساب المستخدم عن هذا العضو. يبقى الحساب موجوداً، لكنه لن يكون مرتبطاً بهذا القسم."
+                : "This will detach the user account from this member. The account remains, but won't be linked to this department."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className={`gap-2 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
@@ -408,7 +432,6 @@ const LecturerProfile = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Delete dialog */}
       <AlertDialog open={showDelete} onOpenChange={setShowDelete}>
         <AlertDialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg w-full">
           <AlertDialogHeader>
@@ -435,11 +458,51 @@ const LecturerProfile = () => {
   );
 };
 
-const StatBox = ({ icon, value, label }: { icon: React.ReactNode; value: number; label: string }) => (
-  <div className="rounded-xl border-2 bg-card p-3 text-center">
-    <div className="flex justify-center text-primary mb-1">{icon}</div>
-    <p className="text-2xl font-black text-foreground">{value}</p>
-    <p className="text-xs text-muted-foreground">{label}</p>
+const SectionCard = ({
+  icon, title, accent, children,
+}: { icon: React.ReactNode; title: string; accent: string; children: React.ReactNode }) => (
+  <Card className="border-2 border-primary/15 bg-gradient-to-br from-card to-primary/5 shadow-lg shadow-primary/5">
+    <CardContent className="p-5 sm:p-6">
+      <div className="flex items-center gap-3 mb-4 pb-3 border-b-2 border-primary/10">
+        <span className={`inline-flex w-10 h-10 rounded-xl bg-gradient-to-br ${accent} text-white items-center justify-center shadow-md`}>
+          {icon}
+        </span>
+        <h3 className="text-base sm:text-lg font-black text-foreground tracking-tight">{title}</h3>
+      </div>
+      <div className="space-y-3">{children}</div>
+    </CardContent>
+  </Card>
+);
+
+const InfoRow = ({
+  icon, label, value, mono, breakAll,
+}: { icon: React.ReactNode; label: string; value: string; mono?: boolean; breakAll?: boolean }) => (
+  <div className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-primary/5 transition-colors">
+    <span className="inline-flex w-8 h-8 rounded-lg bg-primary/10 text-primary items-center justify-center shrink-0 mt-0.5">
+      {icon}
+    </span>
+    <div className="flex-1 min-w-0">
+      <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide mb-0.5">{label}</p>
+      <p className={`text-sm font-bold text-foreground ${breakAll ? "break-all" : ""} ${mono ? "font-mono tracking-wide" : ""}`} dir={mono ? "ltr" : undefined}>
+        {value}
+      </p>
+    </div>
+  </div>
+);
+
+const EmptyHint = ({ text }: { text: string }) => (
+  <p className="text-sm text-muted-foreground text-center py-6 italic">{text}</p>
+);
+
+const StatBox = ({
+  icon, value, label, color,
+}: { icon: React.ReactNode; value: number; label: string; color: string }) => (
+  <div className="rounded-2xl border-2 border-primary/15 bg-card p-4 text-center shadow-md hover:shadow-lg hover:border-primary/30 transition-all">
+    <div className={`inline-flex w-11 h-11 rounded-xl bg-gradient-to-br ${color} text-white items-center justify-center shadow-md mb-2`}>
+      {icon}
+    </div>
+    <p className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">{value}</p>
+    <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide mt-0.5">{label}</p>
   </div>
 );
 

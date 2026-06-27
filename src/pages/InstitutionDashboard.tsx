@@ -3232,32 +3232,6 @@ ${rows.map((r: any, i: number) => `<tr>
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
-              <Label>{isRtl ? "الدور" : "Role"}</Label>
-              <Select value={inviteLinkRole} onValueChange={(v: any) => setInviteLinkRole(v)}>
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder={isRtl ? "اختر الدور" : "Select role"} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="lecturer">{isRtl ? "محاضر" : "Lecturer"}</SelectItem>
-                  <SelectItem value="student">{isRtl ? "طالب" : "Student"}</SelectItem>
-                  <SelectItem value="department_head">{isRtl ? "رئيس قسم" : "Department Head"}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>{isRtl ? "القسم" : "Department"}</Label>
-              <Select value={inviteLinkDeptId} onValueChange={(v: any) => setInviteLinkDeptId(v)}>
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder={isRtl ? "اختر القسم" : "Select department"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {departments.map((dept: any) => (
-                    <SelectItem key={dept.id} value={dept.id}>{dept.department_name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
 
             {generatedInviteLink && (
               <div className="space-y-3 p-3 rounded-xl bg-amber-50/50 dark:bg-amber-950/10 border-2 border-amber-500/20">

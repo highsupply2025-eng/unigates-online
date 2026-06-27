@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { GraduationCap, Globe, ArrowLeft, ArrowRight, Loader2, Eye, EyeOff, KeyRound, Users, BookOpen, UserCog, Shield, Crown, Building2, Menu } from "lucide-react";
+import { GraduationCap, Globe, ArrowLeft, ArrowRight, Loader2, Eye, EyeOff, KeyRound, Users, BookOpen, UserCog, Shield, Crown, Building2, Menu, UserPlus, Mail, Phone, UserRound, Upload, Save, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
 import { getAuthCallbackUrl } from "@/lib/auth-redirect";
+
 
 const countryCodes = [
   { code: "+20", country: "🇪🇬" }, { code: "+966", country: "🇸🇦" },
@@ -68,6 +70,32 @@ const CollegeRoleSignup = () => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [countdown, setCountdown] = useState(5);
+  const [photoUrl, setPhotoUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: isRtl ? "حجم الصورة كبير (الحد 5MB)" : "Image too large (max 5MB)", variant: "destructive" });
+      return;
+    }
+    try {
+      setUploading(true);
+      const ext = file.name.split(".").pop();
+      const path = `signup/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+      setPhotoUrl(data.publicUrl);
+    } catch (err: any) {
+      toast({ title: isRtl ? "فشل رفع الصورة" : "Upload failed", description: err.message, variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
+  };
+
 
   useEffect(() => {
     if (!submitted) return;
@@ -249,204 +277,180 @@ const CollegeRoleSignup = () => {
     );
   }
 
+  const labelCls = "flex items-center gap-2 text-base sm:text-lg font-extrabold text-foreground";
+  const iconCls = "w-5 h-5 sm:w-6 sm:h-6 text-primary";
+  const inputCls = "h-12 text-base border-2 border-primary/30 focus-visible:border-primary focus-visible:ring-primary/30 bg-card";
+
   return (
-    <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      {/* Header */}
-      <header className="border-b-2 border-primary/30 px-4 sm:px-6 py-4 bg-card shadow-md">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-            </div>
-            <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
-          </Link>
-          {/* Desktop buttons */}
-          <div className="hidden md:flex items-center gap-3">
-            <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white">
-              <Globe className="w-4 h-4" />
-              {t.langSwitch}
+    <div dir={dir} className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-primary/10">
+      <header className="border-b-2 border-primary/30 bg-gradient-to-l from-primary/25 via-primary/10 to-card shadow-lg sticky top-0 z-10 backdrop-blur">
+        <div className="container mx-auto px-4 py-5 flex items-center justify-between gap-3">
+          <h1 className="text-2xl sm:text-3xl font-black text-foreground flex items-center gap-3 min-w-0">
+            <span className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-xl shadow-primary/40 shrink-0">
+              <UserPlus className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.6} />
+            </span>
+            <span className="truncate tracking-tight">
+              {isRtl ? `تسجيل حساب ${config.labelAr}` : `Register as ${config.labelEn}`}
+            </span>
+          </h1>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button size="icon" variant="default" className="shadow-lg shadow-primary/40 w-11 h-11" onClick={toggleLanguage} aria-label="Language">
+              <Globe className="w-5 h-5" />
             </Button>
-            <Button size="icon" className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white" onClick={goBack}>
+            <Button size="icon" variant="default" className="shadow-lg shadow-primary/40 w-11 h-11" onClick={goBack} aria-label={isRtl ? "رجوع" : "Back"}>
               {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
             </Button>
-          </div>
-          {/* Mobile dropdown */}
-          <div className="md:hidden">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size="icon" className="rounded-xl w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 text-white">
-                  <Menu className="w-5 h-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-48">
-                <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
-                  <Globe className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-semibold">{language === "ar" ? "English" : "العربية"}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={goBack} className="gap-2 cursor-pointer">
-                  {isRtl ? <ArrowLeft className="w-4 h-4 text-primary" /> : <ArrowRight className="w-4 h-4 text-primary" />}
-                  <span className="text-sm font-semibold">{isRtl ? "الرجوع" : "Back"}</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 flex items-center justify-center px-4 py-6 sm:py-10">
-        <div className="max-w-lg w-full">
-          {/* Role Header */}
-          <div className="text-center mb-6 sm:mb-8">
-            <div className="flex justify-center mb-3 sm:mb-4">
-              <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br ${config.gradient} shadow-xl ${config.shadow} flex items-center justify-center`}>
-                <RoleIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-              </div>
-            </div>
-            <h1 className="text-xl sm:text-2xl font-black text-primary mb-1">
-              {isRtl ? `تسجيل حساب ${config.labelAr}` : `Register as ${config.labelEn}`}
-            </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              {isRtl ? "يتطلب التسجيل كود دعوة صالح من الكلية" : "Registration requires a valid invitation code from the college"}
-            </p>
-          </div>
-
-          {/* Step 1: Invitation Code */}
-          {!codeVerified ? (
-            <div className="space-y-5">
-              <div className="rounded-2xl border-2 border-primary/20 bg-primary/5 p-6 space-y-4">
-                <div className="flex items-center gap-3">
-                  <KeyRound className="w-6 h-6 text-primary" />
-                  <h2 className="text-lg font-bold text-primary">
-                    {isRtl ? "كود الدعوة" : "Invitation Code"}
-                  </h2>
+      <main className="container mx-auto px-4 py-6 sm:py-8">
+        <Card className="border-2 border-primary/30 max-w-4xl mx-auto shadow-2xl shadow-primary/10 bg-gradient-to-br from-card via-card to-primary/5">
+          <CardContent className="p-5 sm:p-10 space-y-8">
+            {!codeVerified ? (
+              <div className="space-y-6">
+                <div className="flex flex-col items-center gap-3 text-center">
+                  <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br ${config.gradient} shadow-xl ${config.shadow} flex items-center justify-center`}>
+                    <RoleIcon className="w-10 h-10 sm:w-12 sm:h-12 text-white" strokeWidth={2.4} />
+                  </div>
+                  <p className="text-sm sm:text-base text-muted-foreground max-w-md">
+                    {isRtl ? "يتطلب التسجيل كود دعوة صالح من الكلية" : "Registration requires a valid invitation code from the college"}
+                  </p>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {isRtl
-                    ? "أدخل كود الدعوة الذي حصلت عليه من إدارة الكلية للتسجيل في المنصة"
-                    : "Enter the invitation code you received from the college administration to register"}
+                <div className="space-y-3">
+                  <Label className={labelCls}><KeyRound className={iconCls} strokeWidth={2.4} />{isRtl ? "كود الدعوة" : "Invitation Code"} <span className="text-destructive text-lg">*</span></Label>
+                  <Input
+                    placeholder={isRtl ? "أدخل كود الدعوة" : "Enter invitation code"}
+                    value={invitationCode}
+                    onChange={(e) => setInvitationCode(e.target.value)}
+                    className="h-14 text-center text-lg font-mono tracking-widest border-2 border-primary/30 focus-visible:border-primary bg-card"
+                    dir="ltr"
+                  />
+                  <Button
+                    size="lg"
+                    className="w-full shadow-xl shadow-primary/40 font-extrabold text-base bg-gradient-to-l from-primary to-primary/80"
+                    disabled={!invitationCode.trim() || verifyingCode}
+                    onClick={() => verifyCode()}
+                  >
+                    {verifyingCode ? <Loader2 className="w-5 h-5 animate-spin me-2" /> : <KeyRound className="w-5 h-5 me-2" />}
+                    {isRtl ? "تحقق من الكود" : "Verify Code"}
+                  </Button>
+                </div>
+                <p className="text-center text-sm text-muted-foreground">
+                  {isRtl ? "ليس لديك كود دعوة؟ تواصل مع إدارة الكلية" : "Don't have a code? Contact your college administration"}
                 </p>
-                <Input
-                  placeholder={isRtl ? "أدخل كود الدعوة" : "Enter invitation code"}
-                  value={invitationCode}
-                  onChange={(e) => setInvitationCode(e.target.value)}
-                  className="h-12 sm:h-14 text-center text-base sm:text-lg font-mono tracking-widest border-2 border-primary/30 focus:border-primary"
-                  dir="ltr"
-                />
-                <Button
-                  size="lg"
-                  className="w-full h-12 sm:h-14 text-base sm:text-lg font-bold gap-2"
-                  disabled={!invitationCode.trim() || verifyingCode}
-                  onClick={() => verifyCode()}
-                >
-                  {verifyingCode ? <Loader2 className="w-5 h-5 animate-spin" /> : <KeyRound className="w-5 h-5" />}
-                  {isRtl ? "تحقق من الكود" : "Verify Code"}
-                </Button>
               </div>
-
-              <p className="text-center text-sm text-muted-foreground">
-                {isRtl
-                  ? "ليس لديك كود دعوة؟ تواصل مع إدارة الكلية للحصول عليه"
-                  : "Don't have an invitation code? Contact your college administration to get one"}
-              </p>
-            </div>
-          ) : (
-            /* Step 2: Registration Form */
-            <div className="space-y-5">
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 flex items-center gap-2 text-emerald-700">
-                <KeyRound className="w-5 h-5" />
-                <span className="text-sm font-bold">
-                  {isRtl ? "تم التحقق من كود الدعوة بنجاح" : "Invitation code verified successfully"}
-                </span>
-              </div>
-
-              <div>
-                <Label className="mb-2 block font-bold text-primary">
-                  {isRtl ? "الاسم الكامل" : "Full Name"} <span className="text-destructive">*</span>
-                </Label>
-                <Input placeholder={isRtl ? "أدخل الاسم الكامل" : "Enter full name"} value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
-              </div>
-
-              <div>
-                <Label className="mb-2 block font-bold text-primary">
-                  {isRtl ? "البريد الإلكتروني" : "Email"} <span className="text-destructive">*</span>
-                </Label>
-                <Input type="email" placeholder="example@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
-              </div>
-
-              <div>
-                <Label className="mb-2 block font-bold text-primary">
-                  {isRtl ? "رقم الهاتف" : "Phone Number"} <span className="text-destructive">*</span>
-                </Label>
-                <div className="flex gap-2" dir="ltr">
-                  <Select value={countryCode} onValueChange={setCountryCode}>
-                    <SelectTrigger className="h-12 w-[110px] shrink-0"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {countryCodes.map((c) => (
-                        <SelectItem key={c.code} value={c.code}>{c.country} {c.code}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Input type="tel" placeholder="12345678" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12 flex-1 border-2 border-primary/20 focus:border-primary" dir="ltr" />
+            ) : (
+              <>
+                {/* Verified badge */}
+                <div className="rounded-xl border-2 border-emerald-500/40 bg-emerald-500/10 p-4 flex items-center justify-center gap-2 text-emerald-700 font-bold">
+                  <KeyRound className="w-5 h-5" />
+                  <span>{isRtl ? "تم التحقق من كود الدعوة بنجاح" : "Invitation code verified successfully"}</span>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label className="mb-2 block font-bold text-primary">
-                    {isRtl ? "الرقم السري" : "Password"} <span className="text-destructive">*</span>
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      placeholder={isRtl ? "أدخل الرقم السري" : "Enter password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="h-12 ps-12"
-                      dir="ltr"
-                    />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute top-1/2 -translate-y-1/2 start-3 text-muted-foreground hover:text-foreground bg-background px-1 rounded z-10">
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
+                {/* Photo */}
+                <div className="flex flex-col items-center gap-4">
+                  <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden border-[6px] border-primary/40 ring-4 ring-primary/15 bg-muted flex items-center justify-center shadow-xl shadow-primary/30">
+                    {photoUrl ? (
+                      <img src={photoUrl} alt={fullName || "photo"} className="w-full h-full object-cover" />
+                    ) : (
+                      <UserRound className="w-16 h-16 text-primary/60" strokeWidth={1.8} />
+                    )}
+                  </div>
+                  <input ref={fileRef} type="file" accept="image/*" hidden onChange={handlePhotoChange} />
+                  <Button type="button" variant="default" size="lg" className="shadow-lg shadow-primary/30 font-bold text-base" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                    {uploading ? <Loader2 className="w-5 h-5 animate-spin me-2" /> : <Upload className="w-5 h-5 me-2" />}
+                    {isRtl ? "رفع صورة شخصية" : "Upload Photo"}
+                  </Button>
+                </div>
+
+                {/* Basic */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="space-y-2.5 md:col-span-2">
+                    <Label className={labelCls}><UserRound className={iconCls} strokeWidth={2.4} />{isRtl ? "الاسم الكامل" : "Full Name"} <span className="text-destructive text-lg">*</span></Label>
+                    <Input className={inputCls} value={fullName} onChange={e => setFullName(e.target.value)} placeholder={isRtl ? "أدخل الاسم الكامل" : "Enter full name"} />
+                  </div>
+                  <div className="space-y-2.5">
+                    <Label className={labelCls}><Mail className={iconCls} strokeWidth={2.4} />{isRtl ? "البريد الإلكتروني" : "Email"} <span className="text-destructive text-lg">*</span></Label>
+                    <Input className={inputCls} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="example@email.com" dir="ltr" />
+                  </div>
+                  <div className="space-y-2.5">
+                    <Label className={labelCls}><Phone className={iconCls} strokeWidth={2.4} />{isRtl ? "رقم الهاتف" : "Phone"} <span className="text-destructive text-lg">*</span></Label>
+                    <div className="flex gap-2" dir="ltr">
+                      <Select value={countryCode} onValueChange={setCountryCode}>
+                        <SelectTrigger className="h-12 w-[110px] shrink-0 border-2 border-primary/30 bg-card font-semibold"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {countryCodes.map((c) => (
+                            <SelectItem key={c.code} value={c.code}>{c.country} {c.code}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input type="tel" placeholder="12345678" value={phone} onChange={e => setPhone(e.target.value)} className={`${inputCls} flex-1`} dir="ltr" />
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <Label className="mb-2 block font-bold text-primary">
-                    {isRtl ? "تأكيد الرقم السري" : "Confirm Password"} <span className="text-destructive">*</span>
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      type={showConfirmPassword ? "text" : "password"}
-                      placeholder={isRtl ? "أعد كتابة الرقم السري" : "Re-enter password"}
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="h-12 ps-12"
-                      dir="ltr"
-                    />
-                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute top-1/2 -translate-y-1/2 start-3 text-muted-foreground hover:text-foreground bg-background px-1 rounded z-10">
-                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
-                  {password && confirmPassword && password !== confirmPassword && (
-                    <p className="text-sm text-destructive mt-1">{isRtl ? "الرقم السري غير متطابق" : "Passwords do not match"}</p>
-                  )}
-                </div>
-              </div>
 
-              <Button
-                size="lg"
-                className="w-full h-12 sm:h-14 text-base sm:text-lg font-bold gap-2"
-                disabled={!fullName || !email || !phone || !password || !confirmPassword || password !== confirmPassword || loading}
-                onClick={handleSubmit}
-              >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <RoleIcon className="w-5 h-5" />}
-                {isRtl ? "إنشاء الحساب" : "Create Account"}
-              </Button>
-            </div>
-          )}
-        </div>
+                {/* Passwords */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="space-y-2.5">
+                    <Label className={labelCls}><Lock className={iconCls} strokeWidth={2.4} />{isRtl ? "الرقم السري" : "Password"} <span className="text-destructive text-lg">*</span></Label>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder={isRtl ? "أدخل الرقم السري" : "Enter password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className={`${inputCls} pe-12`}
+                        dir="ltr"
+                      />
+                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute top-1/2 -translate-y-1/2 end-3 text-muted-foreground hover:text-foreground">
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-2.5">
+                    <Label className={labelCls}><Lock className={iconCls} strokeWidth={2.4} />{isRtl ? "تأكيد الرقم السري" : "Confirm Password"} <span className="text-destructive text-lg">*</span></Label>
+                    <div className="relative">
+                      <Input
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder={isRtl ? "أعد كتابة الرقم السري" : "Re-enter password"}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className={`${inputCls} pe-12`}
+                        dir="ltr"
+                      />
+                      <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute top-1/2 -translate-y-1/2 end-3 text-muted-foreground hover:text-foreground">
+                        {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                    {password && confirmPassword && password !== confirmPassword && (
+                      <p className="text-sm text-destructive font-semibold">{isRtl ? "الرقم السري غير متطابق" : "Passwords do not match"}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t-2 border-primary/15">
+                  <Button type="button" variant="outline" size="lg" className="border-2 border-primary/30 font-bold text-base" onClick={goBack} disabled={loading}>
+                    {isRtl ? "إلغاء" : "Cancel"}
+                  </Button>
+                  <Button
+                    size="lg"
+                    disabled={!fullName || !email || !phone || !password || !confirmPassword || password !== confirmPassword || loading}
+                    onClick={handleSubmit}
+                    className="shadow-xl shadow-primary/40 font-extrabold text-base bg-gradient-to-l from-primary to-primary/80"
+                  >
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin me-2" /> : <Save className="w-5 h-5 me-2" />}
+                    {isRtl ? "إنشاء الحساب" : "Create Account"}
+                  </Button>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
       </main>
     </div>
   );
 };
 
 export default CollegeRoleSignup;
+

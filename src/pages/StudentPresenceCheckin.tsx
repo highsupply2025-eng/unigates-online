@@ -110,15 +110,15 @@ export default function StudentPresenceCheckin() {
       const uid = auth.user?.id;
       if (!uid) throw new Error("Not signed in");
 
-      // Upload selfie to avatars bucket (public) under user folder
+      // Upload selfie to private user-documents bucket under presence sub-folder
       let selfieUrl: string | null = null;
       try {
         const blob = await (await fetch(selfie)).blob();
-        const path = `${uid}/presence-${Date.now()}.jpg`;
-        const up = await supabase.storage.from("avatars").upload(path, blob, { contentType: "image/jpeg", upsert: false });
+        const path = `${uid}/presence/${Date.now()}.jpg`;
+        const up = await supabase.storage.from("user-documents").upload(path, blob, { contentType: "image/jpeg", upsert: false });
         if (!up.error) {
-          const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
-          selfieUrl = pub.publicUrl;
+          // Store the storage path; lecturers/admins generate signed URLs on demand.
+          selfieUrl = `user-documents/${path}`;
         }
       } catch {/* selfie still stored as null on failure */}
 

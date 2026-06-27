@@ -10,9 +10,19 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const PASSWORD = "admin1993";
+// Password is generated per invocation from SEED_TEST_PASSWORD secret or a random value.
+// Never hardcode credentials in source.
 const DOMAIN = "unigates.online";
 const PREFIX = "darobaid";
+
+function generatePassword(): string {
+  const fromEnv = Deno.env.get("SEED_TEST_PASSWORD");
+  if (fromEnv && fromEnv.length >= 12) return fromEnv;
+  // Random 24-char password
+  const bytes = new Uint8Array(18);
+  crypto.getRandomValues(bytes);
+  return btoa(String.fromCharCode(...bytes)).replace(/[+/=]/g, "").slice(0, 24) + "Aa1!";
+}
 
 // Sequential numbering across all accounts (darobaid1, darobaid2, ...).
 type RoleSpec = {
@@ -92,6 +102,8 @@ Deno.serve(async (req) => {
 
     const results: any[] = [];
 
+
+    const PASSWORD = generatePassword();
 
     for (let i = 0; i < SEEDS.length; i++) {
       const idx = i + 1;

@@ -47,15 +47,24 @@ const CollegeRoleSignup = () => {
   const RoleIcon = config.icon;
 
   const codeFromUrl = searchParams.get("code") || "";
+  const deptCodesFromUrl = searchParams.get("dept") || "";
+  const isStudentRole = (role || "") === "student";
   const [invitationCode, setInvitationCode] = useState(codeFromUrl);
   const [codeVerified, setCodeVerified] = useState(false);
   const [verifyingCode, setVerifyingCode] = useState(false);
   const [verifiedInvitation, setVerifiedInvitation] = useState<any>(null);
 
+  // Student department-code flow (multi-use, multi-department)
+  const [deptCodesInput, setDeptCodesInput] = useState(deptCodesFromUrl);
+  const [verifiedDepts, setVerifiedDepts] = useState<any[]>([]);
+  const [verifyingDepts, setVerifyingDepts] = useState(false);
+
   // Auto-verify if code is in URL
   useEffect(() => {
     if (codeFromUrl && !codeVerified && !verifyingCode) {
       verifyCode(codeFromUrl);
+    } else if (isStudentRole && deptCodesFromUrl && !codeVerified) {
+      verifyDeptCodes(deptCodesFromUrl);
     }
   }, []);
 

@@ -1836,11 +1836,25 @@ ${rows.map((r: any, i: number) => `<tr>
                             const linked = !!m.user_id;
                             const initials = (m.full_name || "").split(" ").map((n: string) => n[0]).slice(0, 2).join("").toUpperCase();
                             const roleLabel = ROLE_LABELS[m.role] || { ar: m.role, en: m.role };
+                            const isAssignMode = !!assignDeptId;
+                            const isChecked = assignSelectedIds.includes(m.id);
                             return (
                               <div
                                 key={m.id}
-                                className="flex items-center gap-2 p-3 rounded-xl border-2 border-border hover:border-primary/40 hover:bg-primary/5 transition-all"
+                                className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-all ${isAssignMode && isChecked ? "border-primary bg-primary/10" : "border-border hover:border-primary/40 hover:bg-primary/5"}`}
                               >
+                                {isAssignMode && (
+                                  <input
+                                    type="checkbox"
+                                    className="w-5 h-5 accent-primary cursor-pointer shrink-0"
+                                    checked={isChecked}
+                                    onChange={(e) => {
+                                      setAssignSelectedIds(prev =>
+                                        e.target.checked ? [...prev, m.id] : prev.filter(id => id !== m.id)
+                                      );
+                                    }}
+                                  />
+                                )}
                                 <button
                                   type="button"
                                   onClick={() => navigate(`/institution/member/${m.id}`)}

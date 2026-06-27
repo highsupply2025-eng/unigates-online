@@ -182,22 +182,20 @@ const CollegeRoleSignup = () => {
     }
     setVerifyingDepts(true);
     try {
-      const { data, error } = await supabase
-        .from("departments")
-        .select("id, department_name, institution_id, institution_type, department_code")
-        .in("department_code", codes);
+      const { data, error } = await supabase.rpc("verify_department_codes" as any, { _codes: codes });
       if (error) throw error;
-      if (!data || data.length === 0) {
+      const rows = (data as any[]) || [];
+      if (rows.length === 0) {
         toast({ title: isRtl ? "لا توجد أقسام بهذا الكود" : "No departments match these codes", variant: "destructive" });
         return;
       }
-      setVerifiedDepts(data);
+      setVerifiedDepts(rows);
       setCodeVerified(true);
-      const missing = codes.filter(c => !data.some((d: any) => (d.department_code || "").toUpperCase() === c));
+      const missing = codes.filter(c => !rows.some((d: any) => (d.department_code || "").toUpperCase() === c));
       if (missing.length > 0) {
-        toast({ title: isRtl ? `تم التحقق من ${data.length} قسم — أكواد غير صالحة: ${missing.join(", ")}` : `Verified ${data.length} — invalid: ${missing.join(", ")}` });
+        toast({ title: isRtl ? `تم التحقق من ${rows.length} قسم — أكواد غير صالحة: ${missing.join(", ")}` : `Verified ${rows.length} — invalid: ${missing.join(", ")}` });
       } else {
-        toast({ title: isRtl ? `تم التحقق من ${data.length} قسم` : `Verified ${data.length} department(s)` });
+        toast({ title: isRtl ? `تم التحقق من ${rows.length} قسم` : `Verified ${rows.length} department(s)` });
       }
     } catch (e: any) {
       toast({ title: isRtl ? "خطأ" : "Error", description: e.message, variant: "destructive" });

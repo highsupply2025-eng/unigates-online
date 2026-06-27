@@ -52,8 +52,6 @@ const InstitutionFacultyAdd = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const forcedRole = searchParams.get("role");
-  const rolesParam = searchParams.get("roles");
-  const preselectedRoles = rolesParam ? rolesParam.split(",").filter(Boolean) : [];
   const isStudent = forcedRole === "student";
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -64,7 +62,7 @@ const InstitutionFacultyAdd = () => {
 
   const [photoUrl, setPhotoUrl] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState(isStudent ? "student" : (preselectedRoles[0] || ""));
+  const [role, setRole] = useState(isStudent ? "student" : "");
   const [departmentId, setDepartmentId] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");

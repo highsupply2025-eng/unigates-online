@@ -231,8 +231,16 @@ const InstitutionFacultyImport = () => {
                 {isRtl ? "ملاحظات هامة:" : "Important notes:"}
               </h3>
               <ul className="text-muted-foreground list-disc ps-5 space-y-1">
-                <li>{isRtl ? "الوظيفة يجب أن تكون من القائمة المنسدلة في القالب." : "Role must be from the template dropdown."}</li>
-                <li>{isRtl ? "الحقول المطلوبة: الاسم والوظيفة فقط." : "Required: name and role only."}</li>
+                {!isStudent && <li>{isRtl ? "الوظيفة يجب أن تكون من القائمة المنسدلة في القالب." : "Role must be from the template dropdown."}</li>}
+                {isStudent ? (
+                  <>
+                    <li>{isRtl ? "أضف عمود «كود القسم» في الملف بكود القسم الموجود في لوحة الإدارة." : "Add a 'department_code' column with the code shown in the dashboard."}</li>
+                    <li>{isRtl ? "لإضافة الطالب لأكثر من قسم، افصل الأكواد بفاصلة في نفس الخلية. مثال: ABC123, XYZ789" : "To enroll a student in multiple departments, separate codes with commas in the same cell. e.g. ABC123, XYZ789"}</li>
+                    <li>{isRtl ? "الحقول المطلوبة: الاسم وكود القسم." : "Required: name and department code."}</li>
+                  </>
+                ) : (
+                  <li>{isRtl ? "الحقول المطلوبة: الاسم والوظيفة فقط." : "Required: name and role only."}</li>
+                )}
               </ul>
             </div>
           </CardContent>

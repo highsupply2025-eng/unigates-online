@@ -3147,9 +3147,10 @@ ${rows.map((r: any, i: number) => `<tr>
           <div className="grid grid-cols-2 gap-4 py-4">
             <button
               onClick={() => {
+                const deptId = addMemberDeptId;
                 setShowAddMemberDialog(false);
-                setSelectedFacultyRoles([]);
-                setShowFacultyRolesDialog(true);
+                setAssignSelectedIds([]);
+                setSearchParams({ tab: "faculty", assignDept: deptId });
               }}
               className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 transition-all"
             >

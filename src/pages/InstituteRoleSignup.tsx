@@ -339,37 +339,64 @@ const InstituteRoleSignup = () => {
                 <div className="flex items-center gap-3">
                   <KeyRound className="w-6 h-6 text-primary" />
                   <h2 className="text-lg font-bold text-primary">
-                    {isRtl ? "كود الدعوة" : "Invitation Code"}
+                    {isStudentRole ? (isRtl ? "كود/أكواد القسم" : "Department Code(s)") : (isRtl ? "كود الدعوة" : "Invitation Code")}
                   </h2>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  {isRtl
-                    ? "أدخل كود الدعوة الذي حصلت عليه من إدارة المعهد للتسجيل في المنصة"
-                    : "Enter the invitation code you received from the institute administration to register"}
+                  {isStudentRole
+                    ? (isRtl ? "أدخل كود القسم. يمكنك إدخال أكثر من كود مفصولة بفاصلة للالتحاق بأكثر من قسم." : "Enter your department code. Use commas to enter multiple codes and join several departments.")
+                    : (isRtl ? "أدخل كود الدعوة الذي حصلت عليه من إدارة المعهد للتسجيل في المنصة" : "Enter the invitation code from the institute administration")}
                 </p>
-                <Input
-                  placeholder={isRtl ? "أدخل كود الدعوة" : "Enter invitation code"}
-                  value={invitationCode}
-                  onChange={(e) => setInvitationCode(e.target.value)}
-                  className="h-12 sm:h-14 text-center text-base sm:text-lg font-mono tracking-widest border-2 border-primary/30 focus:border-primary"
-                  dir="ltr"
-                />
-                <Button size="lg" className="w-full h-12 sm:h-14 text-base sm:text-lg font-bold gap-2" disabled={!invitationCode.trim() || verifyingCode} onClick={() => verifyCode()}>
-                  {verifyingCode ? <Loader2 className="w-5 h-5 animate-spin" /> : <KeyRound className="w-5 h-5" />}
-                  {isRtl ? "تحقق من الكود" : "Verify Code"}
-                </Button>
+                {isStudentRole ? (
+                  <>
+                    <Input
+                      placeholder={isRtl ? "مثال: ABC123, XYZ789" : "e.g. ABC123, XYZ789"}
+                      value={deptCodesInput}
+                      onChange={(e) => setDeptCodesInput(e.target.value)}
+                      className="h-12 sm:h-14 text-center text-base sm:text-lg font-mono tracking-widest border-2 border-primary/30 focus:border-primary"
+                      dir="ltr"
+                    />
+                    <Button size="lg" className="w-full h-12 sm:h-14 text-base sm:text-lg font-bold gap-2" disabled={!deptCodesInput.trim() || verifyingDepts} onClick={() => verifyDeptCodes(deptCodesInput)}>
+                      {verifyingDepts ? <Loader2 className="w-5 h-5 animate-spin" /> : <KeyRound className="w-5 h-5" />}
+                      {isRtl ? "تحقق من الأكواد" : "Verify Codes"}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Input
+                      placeholder={isRtl ? "أدخل كود الدعوة" : "Enter invitation code"}
+                      value={invitationCode}
+                      onChange={(e) => setInvitationCode(e.target.value)}
+                      className="h-12 sm:h-14 text-center text-base sm:text-lg font-mono tracking-widest border-2 border-primary/30 focus:border-primary"
+                      dir="ltr"
+                    />
+                    <Button size="lg" className="w-full h-12 sm:h-14 text-base sm:text-lg font-bold gap-2" disabled={!invitationCode.trim() || verifyingCode} onClick={() => verifyCode()}>
+                      {verifyingCode ? <Loader2 className="w-5 h-5 animate-spin" /> : <KeyRound className="w-5 h-5" />}
+                      {isRtl ? "تحقق من الكود" : "Verify Code"}
+                    </Button>
+                  </>
+                )}
               </div>
               <p className="text-center text-sm text-muted-foreground">
-                {isRtl ? "ليس لديك كود دعوة؟ تواصل مع إدارة المعهد للحصول عليه" : "Don't have an invitation code? Contact your institute administration to get one"}
+                {isRtl ? "ليس لديك كود؟ تواصل مع إدارة المعهد للحصول عليه" : "Don't have a code? Contact your institute administration"}
               </p>
             </div>
           ) : (
             <div className="space-y-5">
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 flex items-center gap-2 text-emerald-700">
-                <KeyRound className="w-5 h-5" />
-                <span className="text-sm font-bold">
-                  {isRtl ? "تم التحقق من كود الدعوة بنجاح" : "Invitation code verified successfully"}
-                </span>
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 flex flex-col items-center gap-1 text-emerald-700">
+                <div className="flex items-center gap-2">
+                  <KeyRound className="w-5 h-5" />
+                  <span className="text-sm font-bold">
+                    {verifiedDepts.length > 0
+                      ? (isRtl ? `تم التحقق من ${verifiedDepts.length} قسم` : `${verifiedDepts.length} department(s) verified`)
+                      : (isRtl ? "تم التحقق من كود الدعوة بنجاح" : "Invitation code verified successfully")}
+                  </span>
+                </div>
+                {verifiedDepts.length > 0 && (
+                  <div className="text-xs font-semibold text-center">
+                    {verifiedDepts.map((d: any) => d.department_name).join(" • ")}
+                  </div>
+                )}
               </div>
 
               <div>

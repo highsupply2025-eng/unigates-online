@@ -390,7 +390,9 @@ const InstitutionDashboard = () => {
   };
 
 
-  const loadInstitutionData = async (instId: string, instType: string) => {
+  const loadInstitutionData = async (instId: string, instType: string, instName?: string) => {
+    let snapshotProfilesMap: Record<string, any> = {};
+
     const { data: depts } = await supabase
       .from("departments")
       .select("*")

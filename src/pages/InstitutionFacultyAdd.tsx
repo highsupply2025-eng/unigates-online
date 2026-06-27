@@ -117,6 +117,8 @@ const InstitutionFacultyAdd = () => {
         const deptId = searchParams.get("dept");
         if (deptId && depts?.find((d: any) => d.id === deptId)) {
           setDepartmentId(deptId);
+        } else if (depts && depts.length > 0) {
+          setDepartmentId(depts[0].id);
         }
       } finally {
         setLoadingDepts(false);
@@ -229,9 +231,9 @@ const InstitutionFacultyAdd = () => {
                 </Button>
               </div>
 
-              {/* Role + Department */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {!isStudent && (
+              {/* Role */}
+              {!isStudent && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-2.5">
                     <Label className={labelCls}><Users2 className={iconCls} strokeWidth={2.4} />{isRtl ? "المسمى الوظيفي" : "Role"} <span className="text-destructive text-lg">*</span></Label>
                     <Select value={role} onValueChange={setRole}>
@@ -243,20 +245,8 @@ const InstitutionFacultyAdd = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                )}
-
-                <div className="space-y-2.5">
-                  <Label className={labelCls}>{isRtl ? "القسم" : "Department"} <span className="text-destructive text-lg">*</span></Label>
-                  <Select value={departmentId} onValueChange={setDepartmentId} disabled={loadingDepts}>
-                    <SelectTrigger className={triggerCls}><SelectValue placeholder={loadingDepts ? (isRtl ? "جاري التحميل..." : "Loading...") : (isRtl ? "اختر القسم" : "Select department")} /></SelectTrigger>
-                    <SelectContent>
-                      {departments.map(d => (
-                        <SelectItem key={d.id} value={d.id} className="text-base">{d.department_name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                 </div>
-              </div>
+              )}
 
               {/* Basic */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

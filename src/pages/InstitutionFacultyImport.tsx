@@ -75,6 +75,7 @@ const InstitutionFacultyImport = () => {
       if (data.length === 0) throw new Error(isRtl ? "الملف فارغ" : "Empty file");
 
       const deptByName = new Map(departments.map(d => [d.name.trim(), d.id]));
+      const defaultDeptId = departments[0]?.id;
       let success = 0, failed = 0;
       const errors: string[] = [];
 
@@ -84,11 +85,11 @@ const InstitutionFacultyImport = () => {
         const roleRaw = norm(r["الوظيفة"] || r["role"]);
         const deptName = norm(r["القسم"] || r["department"]);
         const role = isStudent ? "student" : (ROLE_MAP[roleRaw] || ROLE_MAP[roleRaw.toLowerCase()]);
-        const department_id = deptByName.get(deptName);
+        const department_id = (deptName && deptByName.get(deptName)) || defaultDeptId;
 
         if (!full_name || !role || !department_id) {
           failed++;
-          errors.push(`${isRtl ? "صف" : "Row"} ${i + 3}: ${!full_name ? (isRtl ? "اسم مفقود" : "missing name") : !role ? (isRtl ? "وظيفة غير صحيحة" : "invalid role") : (isRtl ? "قسم غير موجود" : "department not found")}`);
+          errors.push(`${isRtl ? "صف" : "Row"} ${i + 3}: ${!full_name ? (isRtl ? "اسم مفقود" : "missing name") : !role ? (isRtl ? "وظيفة غير صحيحة" : "invalid role") : (isRtl ? "لا يوجد قسم" : "no department")}`);
           continue;
         }
 
@@ -199,9 +200,8 @@ const InstitutionFacultyImport = () => {
                 {isRtl ? "ملاحظات هامة:" : "Important notes:"}
               </h3>
               <ul className="text-muted-foreground list-disc ps-5 space-y-1">
-                <li>{isRtl ? "اسم القسم في الملف يجب أن يطابق اسم قسم موجود لديك." : "Department name must match an existing department."}</li>
                 <li>{isRtl ? "الوظيفة يجب أن تكون من القائمة المنسدلة في القالب." : "Role must be from the template dropdown."}</li>
-                <li>{isRtl ? "الحقول المطلوبة: الاسم، الوظيفة، القسم." : "Required: name, role, department."}</li>
+                <li>{isRtl ? "الحقول المطلوبة: الاسم والوظيفة فقط." : "Required: name and role only."}</li>
               </ul>
             </div>
           </CardContent>

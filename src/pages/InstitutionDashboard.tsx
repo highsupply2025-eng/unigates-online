@@ -548,17 +548,12 @@ const InstitutionDashboard = () => {
         __dashboardCache = {
           email: user.email,
           instType: instType as "college" | "institute",
-          instName: instType === "college" ? institutionName : institutionName,
+          instName: instName || institutionName,
           instId,
           isLeadershipRole,
           departments: filteredDepts,
           deptMembers: visibleMembersSnapshot,
-          profilesMap: (() => {
-            // capture latest map via closure of `map` above isn't accessible here;
-            // rebuild minimal map from members' user_ids by reading current state on next tick is unsafe.
-            // The full refresh on next mount will repopulate; reuse current in-memory map.
-            return (window as any).__lastProfilesMap || {};
-          })(),
+          profilesMap: snapshotProfilesMap,
           leadershipMembers: leadershipMembersData,
           liveStreams: streamsRes.data || [],
           streamAttendance: countMap,
@@ -575,6 +570,7 @@ const InstitutionDashboard = () => {
       }
     } catch {}
   };
+
 
 
   const handleAddDepartment = async () => {

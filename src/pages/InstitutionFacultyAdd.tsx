@@ -52,6 +52,8 @@ const InstitutionFacultyAdd = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const forcedRole = searchParams.get("role");
+  const rolesParam = searchParams.get("roles");
+  const preselectedRoles = rolesParam ? rolesParam.split(",").filter(Boolean) : [];
   const isStudent = forcedRole === "student";
   const fileRef = useRef<HTMLInputElement>(null);
 

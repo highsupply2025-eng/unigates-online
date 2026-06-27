@@ -281,6 +281,23 @@ const InstitutionFacultyAdd = () => {
                 </div>
               )}
 
+              {/* Department code(s) — student only */}
+              {isStudent && (
+                <div className="space-y-2.5">
+                  <Label className={labelCls}><Briefcase className={iconCls} strokeWidth={2.4} />{isRtl ? "أكواد الأقسام" : "Department Codes"} <span className="text-destructive text-lg">*</span></Label>
+                  <Input
+                    className={`${inputCls} font-mono tracking-widest`}
+                    value={deptCodesInput}
+                    onChange={e => setDeptCodesInput(e.target.value)}
+                    placeholder={isRtl ? "مثال: ABC123, XYZ789" : "e.g. ABC123, XYZ789"}
+                    dir="ltr"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {isRtl ? "أدخل كود قسم واحد أو أكثر مفصولة بفاصلة — سيُضاف الطالب لكل قسم تلقائياً." : "Enter one or more codes separated by commas — the student is added to each department automatically."}
+                  </p>
+                </div>
+              )}
+
               {/* Basic */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-2.5">

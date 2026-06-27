@@ -117,6 +117,11 @@ const InstitutionFacultyAdd = () => {
         const deptId = searchParams.get("dept");
         if (deptId && depts?.find((d: any) => d.id === deptId)) {
           setDepartmentId(deptId);
+        } else {
+          // Department must be supplied via URL — members no longer pick it.
+          toast({ title: isRtl ? "يجب فتح هذه الصفحة من داخل القسم" : "Open this page from inside a department", variant: "destructive" });
+          navigate(-1);
+          return;
         }
       } finally {
         setLoadingDepts(false);

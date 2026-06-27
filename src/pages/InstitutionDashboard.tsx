@@ -66,6 +66,32 @@ const generateCode = () => {
   return code;
 };
 
+// Module-level snapshot cache: lets revisits to the dashboard render instantly
+// from the last known state while a silent background refresh updates the data.
+type DashboardSnapshot = {
+  email: string;
+  instType: "college" | "institute";
+  instName: string;
+  instId: string;
+  isLeadershipRole: boolean;
+  departments: Department[];
+  deptMembers: DepartmentMember[];
+  profilesMap: Record<string, any>;
+  leadershipMembers: Array<{ invitation_id: string; user_id: string; role: string; joined_at: string }>;
+  liveStreams: any[];
+  streamAttendance: Record<string, number>;
+  quizzes: any[];
+  quizSubmissions: any[];
+  examSchedules: any[];
+  lecturerRatings: any[];
+  assignments: any[];
+  assignmentSubmissions: any[];
+  studentResults: any[];
+  institutionQuizzes: any[];
+  leadershipInvitations: any[];
+};
+let __dashboardCache: DashboardSnapshot | null = null;
+
 const InstitutionDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";

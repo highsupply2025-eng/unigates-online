@@ -94,11 +94,13 @@ const PrefetchRoutes = () => {
     };
 
     document.addEventListener("pointerover", onHint, { passive: true, capture: true });
+    document.addEventListener("pointerdown", onHint, { passive: true, capture: true });
     document.addEventListener("touchstart", onHint, { passive: true, capture: true });
     document.addEventListener("focusin", onHint, { capture: true });
 
     return () => {
       document.removeEventListener("pointerover", onHint, { capture: true } as EventListenerOptions);
+      document.removeEventListener("pointerdown", onHint, { capture: true } as EventListenerOptions);
       document.removeEventListener("touchstart", onHint, { capture: true } as EventListenerOptions);
       document.removeEventListener("focusin", onHint, { capture: true } as EventListenerOptions);
     };

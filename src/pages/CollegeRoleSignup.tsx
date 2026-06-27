@@ -277,6 +277,26 @@ const CollegeRoleSignup = () => {
               });
             }
           }
+        } else if (verifiedDepts.length > 0) {
+          // Student department-code flow: enroll into all matched departments
+          const memberRows = verifiedDepts.map((d: any) => ({
+            department_id: d.id,
+            user_id: authData.user.id,
+            full_name: fullName,
+            role: "student",
+            email,
+            phone: `${countryCode}${phone}`,
+            invitation_code: `STU-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}-${d.department_code}`,
+          }));
+          await supabase.from("department_members").insert(memberRows);
+          const collegeIds = Array.from(new Set(
+            verifiedDepts.filter((d: any) => d.institution_type === "college").map((d: any) => d.institution_id)
+          ));
+          if (collegeIds.length > 0) {
+            await supabase.from("college_members").insert(
+              collegeIds.map((cid) => ({ user_id: authData.user!.id, college_id: cid as string, role: "student" }))
+            );
+          }
         }
       }
 

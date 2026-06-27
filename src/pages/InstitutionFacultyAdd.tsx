@@ -343,13 +343,15 @@ const InstitutionFacultyAdd = () => {
               {/* Academic */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-2.5">
-                  <Label className={labelCls}><BookOpen className={iconCls} strokeWidth={2.4} />{isRtl ? "المؤهل العلمي" : "Qualification"}</Label>
-                  <Input className={inputCls} value={qualification} onChange={e => setQualification(e.target.value)} placeholder={isRtl ? "مثال: دكتوراه" : "e.g. PhD"} />
+                  <Label className={labelCls}><BookOpen className={iconCls} strokeWidth={2.4} />{isStudent ? (isRtl ? "المؤهل الدراسي" : "Study Qualification") : (isRtl ? "المؤهل العلمي" : "Qualification")}</Label>
+                  <Input className={inputCls} value={qualification} onChange={e => setQualification(e.target.value)} placeholder={isStudent ? (isRtl ? "مثال: الفرقة الثانية" : "e.g. 2nd year") : (isRtl ? "مثال: دكتوراه" : "e.g. PhD")} />
                 </div>
-                <div className="space-y-2.5">
-                  <Label className={labelCls}><GraduationCap className={iconCls} strokeWidth={2.4} />{isRtl ? "التخصص" : "Specialization"}</Label>
-                  <Input className={inputCls} value={specialization} onChange={e => setSpecialization(e.target.value)} />
-                </div>
+                {!isStudent && (
+                  <div className="space-y-2.5">
+                    <Label className={labelCls}><GraduationCap className={iconCls} strokeWidth={2.4} />{isRtl ? "التخصص" : "Specialization"}</Label>
+                    <Input className={inputCls} value={specialization} onChange={e => setSpecialization(e.target.value)} />
+                  </div>
+                )}
               </div>
 
               {/* Notes */}

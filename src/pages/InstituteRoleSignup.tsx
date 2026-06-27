@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
-import { GraduationCap, Globe, ArrowLeft, ArrowRight, Loader2, Eye, EyeOff, KeyRound, BookOpen, UserCog, Shield, Crown, Landmark, Menu } from "lucide-react";
+import { GraduationCap, Globe, ArrowLeft, ArrowRight, Loader2, Eye, EyeOff, KeyRound, BookOpen, UserCog, Shield, Crown, Landmark, Menu, Calendar, IdCard, MapPin, Users2, StickyNote } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -99,6 +100,13 @@ const InstituteRoleSignup = () => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [countdown, setCountdown] = useState(5);
+  // Extended student details (mirror Add Member)
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [gender, setGender] = useState("");
+  const [nationalId, setNationalId] = useState("");
+  const [address, setAddress] = useState("");
+  const [qualification, setQualification] = useState("");
+  const [notes, setNotes] = useState("");
 
   useEffect(() => {
     if (!submitted) return;
@@ -233,6 +241,18 @@ const InstituteRoleSignup = () => {
             _phone: `${countryCode}${phone}`,
           });
           if (claimErr) throw claimErr;
+
+          await supabase
+            .from("department_members")
+            .update({
+              date_of_birth: dateOfBirth || null,
+              gender: gender || null,
+              national_id: nationalId.trim() || null,
+              address: address.trim() || null,
+              qualification: qualification.trim() || null,
+              notes: notes.trim() || null,
+            } as any)
+            .eq("user_id", authData.user.id);
         }
       }
 
@@ -429,6 +449,42 @@ const InstituteRoleSignup = () => {
                   <Input type="tel" placeholder="12345678" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12 flex-1 border-2 border-primary/20 focus:border-primary" dir="ltr" />
                 </div>
               </div>
+
+              {isStudentRole && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="mb-2 flex items-center gap-1.5 font-bold text-primary"><Calendar className="w-4 h-4" />{isRtl ? "تاريخ الميلاد" : "Date of Birth"}</Label>
+                    <Input type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                  </div>
+                  <div>
+                    <Label className="mb-2 flex items-center gap-1.5 font-bold text-primary"><Users2 className="w-4 h-4" />{isRtl ? "النوع" : "Gender"}</Label>
+                    <Select value={gender} onValueChange={setGender}>
+                      <SelectTrigger className="h-12 border-2 border-primary/20"><SelectValue placeholder={isRtl ? "اختر" : "Select"} /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">{isRtl ? "ذكر" : "Male"}</SelectItem>
+                        <SelectItem value="female">{isRtl ? "أنثى" : "Female"}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="mb-2 flex items-center gap-1.5 font-bold text-primary"><IdCard className="w-4 h-4" />{isRtl ? "الرقم القومي" : "National ID"}</Label>
+                    <Input value={nationalId} onChange={(e) => setNationalId(e.target.value)} maxLength={20} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                  </div>
+                  <div>
+                    <Label className="mb-2 flex items-center gap-1.5 font-bold text-primary"><BookOpen className="w-4 h-4" />{isRtl ? "المؤهل الدراسي" : "Study Qualification"}</Label>
+                    <Input value={qualification} onChange={(e) => setQualification(e.target.value)} placeholder={isRtl ? "مثال: الفرقة الثانية" : "e.g. 2nd year"} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label className="mb-2 flex items-center gap-1.5 font-bold text-primary"><MapPin className="w-4 h-4" />{isRtl ? "العنوان" : "Address"}</Label>
+                    <Input value={address} onChange={(e) => setAddress(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label className="mb-2 flex items-center gap-1.5 font-bold text-primary"><StickyNote className="w-4 h-4" />{isRtl ? "ملاحظات" : "Notes"}</Label>
+                    <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} className="border-2 border-primary/20 focus-visible:border-primary" />
+                  </div>
+                </div>
+              )}
+
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>

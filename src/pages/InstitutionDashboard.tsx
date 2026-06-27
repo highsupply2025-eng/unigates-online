@@ -361,7 +361,13 @@ const InstitutionDashboard = () => {
         hasMore = rows.length === batchSize;
         from += batchSize;
       }
-      setDeptMembers(allMembers);
+      // Hide invite-link placeholders (pending signups) — only show members who completed registration or were added manually with a real name
+      const visibleMembers = allMembers.filter((m: any) => {
+        if (m.user_id) return true;
+        const nm = (m.full_name || "").trim();
+        return nm !== "عضو جديد" && nm !== "New Member";
+      });
+      setDeptMembers(visibleMembers);
     } else {
       setDeptMembers([]);
     }

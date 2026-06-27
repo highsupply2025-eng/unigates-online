@@ -324,6 +324,54 @@ const InstitutionDashboard = () => {
         .eq("status", "approved")
         .maybeSingle();
 
+  const checkInstitutionAccess = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { navigate("/login"); return; }
+
+      // Instant hydration from in-memory snapshot if it matches this user.
+      // The full refresh still runs below in the background.
+      if (__dashboardCache && __dashboardCache.email === user.email) {
+        const s = __dashboardCache;
+        setInstitutionType(s.instType);
+        setInstitutionName(s.instName);
+        setInstitutionId(s.instId);
+        setIsLeadershipRole(s.isLeadershipRole);
+        setDepartments(s.departments);
+        setDeptMembers(s.deptMembers);
+        setProfilesMap(s.profilesMap);
+        setLeadershipMembers(s.leadershipMembers);
+        setLiveStreams(s.liveStreams);
+        setStreamAttendance(s.streamAttendance);
+        setQuizzes(s.quizzes);
+        setQuizSubmissions(s.quizSubmissions);
+        setExamSchedules(s.examSchedules);
+        setLecturerRatings(s.lecturerRatings);
+        setAssignments(s.assignments);
+        setAssignmentSubmissions(s.assignmentSubmissions);
+        setStudentResults(s.studentResults);
+        setInstitutionQuizzes(s.institutionQuizzes);
+        setLeadershipInvitations(s.leadershipInvitations);
+        setLoading(false);
+      }
+
+      // Check if the user has a leadership role
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (profile && ["department_head", "vice_dean", "dean"].includes(profile.role)) {
+        setIsLeadershipRole(true);
+      }
+
+      const { data: college } = await supabase
+        .from("college_registrations")
+        .select("*")
+        .eq("email", user.email)
+        .eq("status", "approved")
+        .maybeSingle();
+
       if (college) {
         setInstitutionType("college");
         setInstitutionName(college.college_name);
@@ -361,6 +409,7 @@ const InstitutionDashboard = () => {
       setLoading(false);
     }
   };
+
 
   const loadInstitutionData = async (instId: string, instType: string) => {
     const { data: depts } = await supabase

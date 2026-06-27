@@ -495,6 +495,44 @@ const CollegeRoleSignup = () => {
                   </div>
                 </div>
 
+                {/* Extended student details — mirror Add Member */}
+                {isStudentRole && (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div className="space-y-2.5">
+                        <Label className={labelCls}><Calendar className={iconCls} strokeWidth={2.4} />{isRtl ? "تاريخ الميلاد" : "Date of Birth"}</Label>
+                        <Input className={inputCls} type="date" value={dateOfBirth} onChange={e => setDateOfBirth(e.target.value)} />
+                      </div>
+                      <div className="space-y-2.5">
+                        <Label className={labelCls}><Users2 className={iconCls} strokeWidth={2.4} />{isRtl ? "النوع" : "Gender"}</Label>
+                        <Select value={gender} onValueChange={setGender}>
+                          <SelectTrigger className="h-12 text-base border-2 border-primary/30 focus:border-primary bg-card font-semibold"><SelectValue placeholder={isRtl ? "اختر" : "Select"} /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="male" className="text-base">{isRtl ? "ذكر" : "Male"}</SelectItem>
+                            <SelectItem value="female" className="text-base">{isRtl ? "أنثى" : "Female"}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2.5">
+                        <Label className={labelCls}><IdCard className={iconCls} strokeWidth={2.4} />{isRtl ? "الرقم القومي" : "National ID"}</Label>
+                        <Input className={inputCls} value={nationalId} onChange={e => setNationalId(e.target.value)} maxLength={20} />
+                      </div>
+                      <div className="space-y-2.5">
+                        <Label className={labelCls}><BookOpen className={iconCls} strokeWidth={2.4} />{isRtl ? "المؤهل الدراسي" : "Study Qualification"}</Label>
+                        <Input className={inputCls} value={qualification} onChange={e => setQualification(e.target.value)} placeholder={isRtl ? "مثال: الفرقة الثانية" : "e.g. 2nd year"} />
+                      </div>
+                      <div className="space-y-2.5 md:col-span-2">
+                        <Label className={labelCls}><MapPin className={iconCls} strokeWidth={2.4} />{isRtl ? "العنوان" : "Address"}</Label>
+                        <Input className={inputCls} value={address} onChange={e => setAddress(e.target.value)} />
+                      </div>
+                      <div className="space-y-2.5 md:col-span-2">
+                        <Label className={labelCls}><StickyNote className={iconCls} strokeWidth={2.4} />{isRtl ? "ملاحظات" : "Notes"}</Label>
+                        <Textarea className="text-base border-2 border-primary/30 focus-visible:border-primary focus-visible:ring-primary/30 bg-card" value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
+                      </div>
+                    </div>
+                  </>
+                )}
+
                 {/* Passwords */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-2.5">

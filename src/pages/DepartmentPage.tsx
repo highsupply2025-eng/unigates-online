@@ -32,6 +32,16 @@ interface DepartmentMember {
 
 type StatusFilter = "all" | "linked" | "pending";
 
+// Module-level snapshot cache keyed by deptId, for instant revisit hydration.
+type DeptSnapshot = {
+  deptName: string;
+  deptStatus: string;
+  institutionType: "college" | "institute";
+  members: DepartmentMember[];
+  profilesMap: Record<string, { email: string; phone: string; live_photo_url: string | null; full_name: string }>;
+};
+const __deptCache = new Map<string, DeptSnapshot>();
+
 const DepartmentPage = () => {
   const { deptId } = useParams<{ deptId: string }>();
   const navigate = useNavigate();

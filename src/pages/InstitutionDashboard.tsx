@@ -3272,7 +3272,7 @@ ${rows.map((r: any, i: number) => `<tr>
                   sonnerToast.success(isRtl ? "تمت إضافة الأعضاء للقسم" : "Members added to department", { duration: 2000 });
                   setShowSelectFacultyDialog(false);
                   setSelectFacultyMemberIds([]);
-                  await loadData();
+                  await loadInstitutionData(institutionId, institutionType || "college");
                 } catch (err: any) {
                   sonnerToast.error(isRtl ? "فشل الإضافة" : "Add failed", { description: err.message });
                 } finally {

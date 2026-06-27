@@ -300,10 +300,6 @@ const InstitutionFacultyAdd = () => {
                   <Label className={labelCls}><GraduationCap className={iconCls} strokeWidth={2.4} />{isRtl ? "التخصص" : "Specialization"}</Label>
                   <Input className={inputCls} value={specialization} onChange={e => setSpecialization(e.target.value)} />
                 </div>
-                <div className="space-y-2.5">
-                  <Label className={labelCls}>{isRtl ? "تاريخ التعيين" : "Hire Date"}</Label>
-                  <Input className={inputCls} type="date" value={hireDate} onChange={e => setHireDate(e.target.value)} />
-                </div>
               </div>
 
               {/* Notes */}

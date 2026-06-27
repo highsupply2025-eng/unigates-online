@@ -117,6 +117,8 @@ const InstitutionFacultyAdd = () => {
         const deptId = searchParams.get("dept");
         if (deptId && depts?.find((d: any) => d.id === deptId)) {
           setDepartmentId(deptId);
+        } else if (depts && depts.length > 0) {
+          setDepartmentId(depts[0].id);
         }
       } finally {
         setLoadingDepts(false);

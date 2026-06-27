@@ -289,17 +289,36 @@ const AdminDashboard = () => {
     setShowDetailDialog(false);
   };
 
+  const upsertAdminNotes = async (kind: "college" | "institute" | "school", id: string, notes: string) => {
+    const trimmed = notes.trim();
+    if (!trimmed) {
+      await supabase.from("registration_admin_notes").delete().eq("kind", kind).eq("registration_id", id);
+      return;
+    }
+    await supabase.from("registration_admin_notes").upsert(
+      { kind, registration_id: id, notes: trimmed, updated_at: new Date().toISOString() },
+      { onConflict: "kind,registration_id" }
+    );
+  };
+
+  const fetchAdminNotes = async (kind: "college" | "institute" | "school", id: string): Promise<string> => {
+    const { data } = await supabase.from("registration_admin_notes").select("notes").eq("kind", kind).eq("registration_id", id).maybeSingle();
+    return (data?.notes as string | null) || "";
+  };
+
   const handleSchoolApprove = async (id: string) => {
-    const { error } = await supabase.from("school_registrations").update({ status: "approved", admin_notes: adminNotes || null }).eq("id", id);
+    const { error } = await supabase.from("school_registrations").update({ status: "approved" }).eq("id", id);
     if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
+    await upsertAdminNotes("school", id, adminNotes);
     showSuccess(language === "ar" ? "تم قبول المدرسة" : "School approved");
     setShowSchoolDialog(false); setAdminNotes("");
     await Promise.all([loadSchoolRegistrations(), loadStats()]);
   };
 
   const handleSchoolReject = async (id: string) => {
-    const { error } = await supabase.from("school_registrations").update({ status: "rejected", admin_notes: adminNotes || null }).eq("id", id);
+    const { error } = await supabase.from("school_registrations").update({ status: "rejected" }).eq("id", id);
     if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
+    await upsertAdminNotes("school", id, adminNotes);
     showSuccess(language === "ar" ? "تم رفض المدرسة" : "School rejected");
     setShowSchoolDialog(false); setAdminNotes("");
     await Promise.all([loadSchoolRegistrations(), loadStats()]);
@@ -307,16 +326,18 @@ const AdminDashboard = () => {
 
   // College handlers
   const handleCollegeApprove = async (id: string) => {
-    const { error } = await supabase.from("college_registrations").update({ status: "approved", admin_notes: collegeAdminNotes || null }).eq("id", id);
+    const { error } = await supabase.from("college_registrations").update({ status: "approved" }).eq("id", id);
     if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
+    await upsertAdminNotes("college", id, collegeAdminNotes);
     showSuccess(language === "ar" ? "تم قبول الكلية" : "College approved");
     setShowCollegeDialog(false); setCollegeAdminNotes("");
     await Promise.all([loadColleges(), loadStats()]);
   };
 
   const handleCollegeReject = async (id: string) => {
-    const { error } = await supabase.from("college_registrations").update({ status: "rejected", admin_notes: collegeAdminNotes || null }).eq("id", id);
+    const { error } = await supabase.from("college_registrations").update({ status: "rejected" }).eq("id", id);
     if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
+    await upsertAdminNotes("college", id, collegeAdminNotes);
     showSuccess(language === "ar" ? "تم رفض الكلية" : "College rejected");
     setShowCollegeDialog(false); setCollegeAdminNotes("");
     await Promise.all([loadColleges(), loadStats()]);
@@ -324,16 +345,18 @@ const AdminDashboard = () => {
 
   // Institute handlers
   const handleInstituteApprove = async (id: string) => {
-    const { error } = await supabase.from("institute_registrations" as any).update({ status: "approved", admin_notes: instituteAdminNotes || null }).eq("id", id);
+    const { error } = await supabase.from("institute_registrations" as any).update({ status: "approved" }).eq("id", id);
     if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
+    await upsertAdminNotes("institute", id, instituteAdminNotes);
     showSuccess(language === "ar" ? "تم قبول المعهد" : "Institute approved");
     setShowInstituteDialog(false); setInstituteAdminNotes("");
     await Promise.all([loadInstitutes(), loadStats()]);
   };
 
   const handleInstituteReject = async (id: string) => {
-    const { error } = await supabase.from("institute_registrations" as any).update({ status: "rejected", admin_notes: instituteAdminNotes || null }).eq("id", id);
+    const { error } = await supabase.from("institute_registrations" as any).update({ status: "rejected" }).eq("id", id);
     if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
+    await upsertAdminNotes("institute", id, instituteAdminNotes);
     showSuccess(language === "ar" ? "تم رفض المعهد" : "Institute rejected");
     setShowInstituteDialog(false); setInstituteAdminNotes("");
     await Promise.all([loadInstitutes(), loadStats()]);

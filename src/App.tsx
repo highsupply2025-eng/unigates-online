@@ -176,6 +176,7 @@ const App = () => (
               <Route path="/leadership/streams/:status" element={<LeadershipStreamsByStatus />} />
               <Route path="/leadership/approvals/:type/:status" element={<LeadershipApprovals />} />
               <Route path="/leadership/profile" element={<LeadershipProfile />} />
+              <Route path="/leadership/presence" element={<LeadershipPresence />} />
               <Route path="/lecturer/profile" element={<LecturerAccount />} />
               <Route path="/student/profile" element={<StudentAccount />} />
               <Route path="/school/profile" element={<SchoolAdminAccount />} />

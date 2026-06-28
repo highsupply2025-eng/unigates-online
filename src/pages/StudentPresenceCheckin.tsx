@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
-import SubPageHeader from "@/components/SubPageHeader";
+import StudentPageHeader from "@/components/StudentPageHeader";
 
 type Geo = { latitude: number; longitude: number; accuracy: number } | null;
 
@@ -152,11 +152,10 @@ export default function StudentPresenceCheckin() {
 
   return (
     <div className="min-h-screen bg-background" dir={isAr ? "rtl" : "ltr"}>
-      <SubPageHeader
+      <StudentPageHeader
         titleAr="إثبات الحضور في القاعة"
         titleEn="Verify Presence in Hall"
         icon={<ShieldCheck className="w-5 h-5" />}
-        backTo="/student/dashboard"
       />
 
       <main className="max-w-3xl mx-auto px-3 sm:px-4 py-5 sm:py-8 space-y-5">

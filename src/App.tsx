@@ -56,6 +56,7 @@ const LeadershipDashboard = lazy(() => import("./pages/LeadershipDashboard"));
 const LeadershipStreamsByStatus = lazy(() => import("./pages/LeadershipStreamsByStatus"));
 const LeadershipApprovals = lazy(() => import("./pages/LeadershipApprovals"));
 const LeadershipProfile = lazy(() => import("./pages/LeadershipProfile"));
+const LeadershipPresence = lazy(() => import("./pages/LeadershipPresence"));
 const LecturerAccount = lazy(() => import("./pages/LecturerAccount"));
 const StudentAccount = lazy(() => import("./pages/StudentAccount"));
 const SchoolAdminAccount = lazy(() => import("./pages/SchoolAdminAccount"));
@@ -175,6 +176,7 @@ const App = () => (
               <Route path="/leadership/streams/:status" element={<LeadershipStreamsByStatus />} />
               <Route path="/leadership/approvals/:type/:status" element={<LeadershipApprovals />} />
               <Route path="/leadership/profile" element={<LeadershipProfile />} />
+              <Route path="/leadership/presence" element={<LeadershipPresence />} />
               <Route path="/lecturer/profile" element={<LecturerAccount />} />
               <Route path="/student/profile" element={<StudentAccount />} />
               <Route path="/school/profile" element={<SchoolAdminAccount />} />

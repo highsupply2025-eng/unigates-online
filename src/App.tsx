@@ -178,7 +178,7 @@ const App = () => (
               <Route path="/leadership/profile" element={<LeadershipProfile />} />
               <Route path="/leadership/presence" element={<LeadershipPresence />} />
               <Route path="/lecturer/profile" element={<LecturerAccount />} />
-              <Route path="/student/profile" element={<StudentAccount />} />
+              <Route path="/student/profile" element={<Navigate to="/profile" replace />} />
               <Route path="/school/profile" element={<SchoolAdminAccount />} />
               <Route path="/school/teacher/profile" element={<SchoolTeacherAccount />} />
               <Route path="/school/student/profile" element={<SchoolStudentAccount />} />

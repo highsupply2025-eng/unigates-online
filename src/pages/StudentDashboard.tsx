@@ -106,7 +106,7 @@ const StudentDashboard = () => {
     { to: "/student/results", label: isRtl ? "نتائج الاختبارات" : "Exam Results", Icon: Award, color: "from-teal-500 to-teal-600" },
     { to: "/student/assignment-results", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, color: "from-cyan-500 to-cyan-600" },
     
-    { to: "/student/profile", label: isRtl ? "بيانات الطالب" : "Student Details", Icon: User, color: "from-slate-500 to-slate-600" },
+    { to: "/profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, color: "from-cyan-500 to-cyan-600" },
   ];
 
   return (

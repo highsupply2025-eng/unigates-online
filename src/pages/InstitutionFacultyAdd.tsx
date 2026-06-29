@@ -183,28 +183,39 @@ const InstitutionFacultyAdd = () => {
         const codes = Array.from(new Set(
           deptCodesInput.split(/[\s,،]+/).map(c => c.trim().toUpperCase()).filter(Boolean)
         ));
-        const { data: depts, error: deptErr } = await supabase
-          .from("departments")
-          .select("id, department_code")
-          .in("department_code", codes);
-        if (deptErr) throw deptErr;
-        if (!depts || depts.length === 0) {
-          toast({ title: isRtl ? "لا توجد أقسام بهذه الأكواد" : "No departments match those codes", variant: "destructive" });
-          setSaving(false);
-          return;
-        }
-        const rows = depts.map((d: any) => ({
-          ...baseRow,
-          department_id: d.id,
-          invitation_code: `STU-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}-${d.department_code}`,
-        }));
-        const { error } = await supabase.from("department_members").insert(rows);
-        if (error) throw error;
-        const missing = codes.filter(c => !depts.some((d: any) => (d.department_code || "").toUpperCase() === c));
-        toast({
-          title: isRtl ? `تم تسجيل الطالب في ${depts.length} قسم` : `Student enrolled in ${depts.length} department(s)`,
-          description: missing.length > 0 ? (isRtl ? `أكواد غير صالحة: ${missing.join(", ")}` : `Invalid codes: ${missing.join(", ")}`) : undefined,
+        // Call edge function to create the auth account instantly with a temporary password
+        const { data: resp, error: fnErr } = await supabase.functions.invoke("create-student-account", {
+          body: {
+            full_name: baseRow.full_name,
+            email: baseRow.email,
+            phone: baseRow.phone,
+            department_codes: codes,
+            extra: {
+              date_of_birth: baseRow.date_of_birth,
+              photo_url: baseRow.photo_url,
+              national_id: baseRow.national_id,
+              gender: baseRow.gender,
+              address: baseRow.address,
+              qualification: baseRow.qualification,
+              specialization: baseRow.specialization,
+              notes: baseRow.notes,
+            },
+          },
         });
+        if (fnErr || (resp && (resp as any).error)) {
+          throw new Error(((resp as any)?.error) || fnErr?.message || "Failed to create student account");
+        }
+        const r = resp as any;
+        const credLine = isRtl
+          ? `تم تفعيل الحساب فوراً ✓\nالبريد: ${r.email}\nكلمة المرور المؤقتة: ${r.password}`
+          : `Account activated instantly ✓\nEmail: ${r.email}\nTemp password: ${r.password}`;
+        try { await navigator.clipboard?.writeText(`${r.email}\n${r.password}`); } catch {}
+        toast({
+          title: isRtl ? `تم تسجيل الطالب في ${r.joined} قسم` : `Student enrolled in ${r.joined} department(s)`,
+          description: credLine + (r.missing?.length ? (isRtl ? `\nأكواد غير صالحة: ${r.missing.join(", ")}` : `\nInvalid codes: ${r.missing.join(", ")}`) : ""),
+          duration: 15000,
+        });
+
       } else {
         const invitationCode = `FAC-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
         const { error } = await supabase.from("department_members").insert({

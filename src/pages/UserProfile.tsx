@@ -42,6 +42,7 @@ const UserProfile = () => {
   const [userId, setUserId] = useState<string>("");
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [academic, setAcademic] = useState<AcademicData>({ collegeName: null, departmentName: null });
+  const [isManagedStudent, setIsManagedStudent] = useState(false);
 
   // edit state
   const [fullName, setFullName] = useState("");
@@ -98,6 +99,7 @@ const UserProfile = () => {
             .maybeSingle();
 
           if (membership?.department_id) {
+            setIsManagedStudent(true);
             const { data: dept } = await supabase
               .from("departments")
               .select("department_name, institution_id, institution_type")
@@ -343,13 +345,26 @@ const UserProfile = () => {
             <CardTitle className="text-base flex items-center gap-2">
               <User className="w-5 h-5 text-primary" />
               {isRtl ? "تعديل البيانات" : "Edit Information"}
+              {isManagedStudent && (
+                <Badge variant="outline" className="ms-auto gap-1 border-amber-500/60 text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40">
+                  <Lock className="w-3 h-3" />
+                  {isRtl ? "مغلقة — تُدار بواسطة الكلية" : "Locked — managed by college"}
+                </Badge>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {isManagedStudent && (
+              <div className="rounded-lg border-2 border-amber-300/60 dark:border-amber-700/50 bg-amber-50/70 dark:bg-amber-950/30 p-3 text-sm font-semibold text-amber-800 dark:text-amber-200">
+                {isRtl
+                  ? "بياناتك مسجلة من قِبَل إدارة الكلية ولا يمكن تعديلها من هنا. للتغيير، تواصل مع إدارة كليتك."
+                  : "Your information is registered by your college administration and cannot be edited here. Contact your college admin for changes."}
+              </div>
+            )}
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="fullName">{isRtl ? "الاسم الكامل" : "Full Name"}</Label>
-                <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} readOnly={isManagedStudent} disabled={isManagedStudent} />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="email">{isRtl ? "البريد الإلكتروني" : "Email"}</Label>
@@ -363,18 +378,21 @@ const UserProfile = () => {
                 <Label htmlFor="phone">{isRtl ? "رقم الهاتف" : "Phone"}</Label>
                 <div className="relative">
                   <Phone className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} className="ps-9" dir="ltr" />
+                  <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} className="ps-9" dir="ltr" readOnly={isManagedStudent} disabled={isManagedStudent} />
                 </div>
               </div>
             </div>
-            <div className="flex justify-end">
-              <Button onClick={saveInfo} disabled={savingInfo} className="gap-2">
-                {savingInfo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                {isRtl ? "حفظ التغييرات" : "Save Changes"}
-              </Button>
-            </div>
+            {!isManagedStudent && (
+              <div className="flex justify-end">
+                <Button onClick={saveInfo} disabled={savingInfo} className="gap-2">
+                  {savingInfo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  {isRtl ? "حفظ التغييرات" : "Save Changes"}
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
+
 
         {/* Change password */}
         <Card>

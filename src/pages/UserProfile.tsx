@@ -269,7 +269,7 @@ const UserProfile = () => {
       <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
         <Card className="border-2 border-primary/30 max-w-4xl mx-auto shadow-2xl shadow-primary/10 bg-gradient-to-br from-card via-card to-primary/5">
           <CardContent className="p-5 sm:p-10 space-y-8">
-            {/* Avatar */}
+            {/* Avatar (read-only) */}
             <div className="flex flex-col items-center gap-4">
               <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden border-[6px] border-primary/40 ring-4 ring-primary/15 bg-muted flex items-center justify-center shadow-xl shadow-primary/30">
                 {profile.avatar_url ? (
@@ -278,11 +278,6 @@ const UserProfile = () => {
                   <span className="text-5xl font-black text-primary/70">{initials}</span>
                 )}
               </div>
-              <input ref={fileRef} type="file" accept="image/*" hidden onChange={handleAvatarChange} />
-              <Button type="button" variant="default" size="lg" className="shadow-lg shadow-primary/30 font-bold text-base gap-2" onClick={() => fileRef.current?.click()} disabled={uploadingAvatar}>
-                {uploadingAvatar ? <Loader2 className="w-5 h-5 animate-spin" /> : <Camera className="w-5 h-5" />}
-                {isRtl ? "تغيير الصورة الشخصية" : "Change Photo"}
-              </Button>
               <div className="text-center space-y-2">
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">{profile.full_name}</h2>
                 <div className="flex flex-wrap justify-center gap-2">
@@ -314,42 +309,31 @@ const UserProfile = () => {
               </div>
             )}
 
-            {/* Managed notice */}
-            {isManagedStudent && (
-              <div className="rounded-xl border-2 border-amber-300/60 dark:border-amber-700/50 bg-amber-50/70 dark:bg-amber-950/30 p-4 text-sm sm:text-base font-bold text-amber-800 dark:text-amber-200 flex items-center gap-3">
-                <Lock className="w-5 h-5 shrink-0" />
-                <span>
-                  {isRtl
-                    ? "بياناتك مسجلة من قِبَل إدارة الكلية ولا يمكن تعديلها من هنا. للتغيير، تواصل مع إدارة كليتك."
-                    : "Your information is registered by your college administration and cannot be edited here. Contact your college admin for changes."}
-                </span>
-              </div>
-            )}
+            {/* Locked notice (all users) */}
+            <div className="rounded-xl border-2 border-amber-300/60 dark:border-amber-700/50 bg-amber-50/70 dark:bg-amber-950/30 p-4 text-sm sm:text-base font-bold text-amber-800 dark:text-amber-200 flex items-center gap-3">
+              <Lock className="w-5 h-5 shrink-0" />
+              <span>
+                {isRtl
+                  ? "بياناتك مسجلة من قِبَل إدارة الكلية ولا يمكن تعديلها من هنا. يمكنك فقط تغيير كلمة المرور. للتغيير، تواصل مع إدارة كليتك."
+                  : "Your information is registered by your college administration and is read-only. You can only change your password. Contact your college admin for changes."}
+              </span>
+            </div>
 
-            {/* Editable info */}
+            {/* Read-only info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2.5">
                 <Label className={labelCls}><User className={iconCls} strokeWidth={2.4} />{isRtl ? "الاسم الكامل" : "Full Name"}</Label>
-                <Input className={inputCls} value={fullName} onChange={(e) => setFullName(e.target.value)} readOnly={isManagedStudent} disabled={isManagedStudent} />
+                <Input className={inputCls} value={fullName} readOnly disabled />
               </div>
               <div className="space-y-2.5">
                 <Label className={labelCls}><Mail className={iconCls} strokeWidth={2.4} />{isRtl ? "البريد الإلكتروني" : "Email"}</Label>
-                <Input className={inputCls} value={profile.email} disabled dir="ltr" />
+                <Input className={inputCls} value={profile.email} readOnly disabled dir="ltr" />
               </div>
               <div className="space-y-2.5 md:col-span-2">
                 <Label className={labelCls}><Phone className={iconCls} strokeWidth={2.4} />{isRtl ? "رقم الهاتف" : "Phone"}</Label>
-                <Input className={inputCls} value={phone} onChange={(e) => setPhone(e.target.value)} dir="ltr" readOnly={isManagedStudent} disabled={isManagedStudent} />
+                <Input className={inputCls} value={phone} readOnly disabled dir="ltr" />
               </div>
             </div>
-
-            {!isManagedStudent && (
-              <div className="flex justify-end">
-                <Button onClick={saveInfo} disabled={savingInfo} size="lg" className="gap-2 shadow-lg shadow-primary/30 font-bold text-base">
-                  {savingInfo ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                  {isRtl ? "حفظ التغييرات" : "Save Changes"}
-                </Button>
-              </div>
-            )}
 
             <Separator className="my-2" />
 

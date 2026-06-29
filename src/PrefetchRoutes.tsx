@@ -31,12 +31,23 @@ const ROUTE_LOADERS: Array<[RegExp, Loader]> = [
   [/^\/leadership\/approvals\//, () => import("./pages/LeadershipApprovals")],
   [/^\/lecturer\/dashboard$/, () => import("./pages/LecturerDashboard")],
   [/^\/student\/dashboard$/, () => import("./pages/StudentDashboard")],
+  [/^\/student\/profile$/, () => import("./pages/StudentAccount")],
+  [/^\/student\/lectures\/[^/]+$/, () => import("./pages/StudentLectureDetail")],
   [/^\/student\/lectures/, () => import("./pages/StudentLectures")],
+  [/^\/student\/live\/[^/]+$/, () => import("./pages/StudentLiveDetail")],
+  [/^\/student\/live$/, () => import("./pages/StudentLive")],
+  [/^\/student\/quizzes\/[^/]+$/, () => import("./pages/StudentQuizDetail")],
   [/^\/student\/quizzes/, () => import("./pages/StudentQuizzes")],
   [/^\/student\/results/, () => import("./pages/StudentResults")],
-  [/^\/student\/assignments/, () => import("./pages/StudentAssignments")],
+  [/^\/student\/assignments\/[^/]+$/, () => import("./pages/StudentAssignmentDetail")],
+  [/^\/student\/assignments$/, () => import("./pages/StudentAssignments")],
+  [/^\/student\/assignment-results/, () => import("./pages/StudentAssignmentResults")],
+  [/^\/student\/schedules\/[^/]+$/, () => import("./pages/StudentScheduleDetail")],
   [/^\/student\/schedules/, () => import("./pages/StudentSchedules")],
   [/^\/student\/my-academic/, () => import("./pages/StudentMyAcademic")],
+  [/^\/student\/ratings/, () => import("./pages/StudentRatings")],
+  [/^\/student\/presence-checkin/, () => import("./pages/StudentPresenceCheckin")],
+  [/^\/student\/attendance/, () => import("./pages/StudentAttendance")],
   [/^\/assignment\//, () => import("./pages/AssignmentDetail")],
   [/^\/schedule\//, () => import("./pages/ScheduleDetail")],
   [/^\/quiz\/create\//, () => import("./pages/QuizCreate")],
@@ -52,9 +63,8 @@ const ROUTE_LOADERS: Array<[RegExp, Loader]> = [
 const ALL_LOADERS: Loader[] = ROUTE_LOADERS.map(([, l]) => l).concat([
   () => import("./pages/ComingSoon"),
   () => import("./pages/DemoItemPage"),
-  () => import("./pages/StudentAttendance"),
-  () => import("./pages/StudentAssignmentResults"),
 ]);
+
 
 const warmed = new Set<Loader>();
 const warm = (loader: Loader) => {

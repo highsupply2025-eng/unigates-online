@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Mail, Phone, Calendar, Camera, Lock, Save, Building2, GraduationCap, Loader2, Eye, EyeOff, Home, BookOpen, Radio, ClipboardList, FileText, Star, Award, ArrowLeft, ArrowRight } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { User, Mail, Phone, Calendar, Lock, Loader2, Eye, EyeOff, Home, BookOpen, Radio, ClipboardList, FileText, Star, Award, UserRound, Users2, IdCard, MapPin, Briefcase, GraduationCap } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,8 +10,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
-import { useSmartBack } from "@/hooks/use-smart-back";
-
 
 interface ProfileData {
   full_name: string;
@@ -24,31 +21,27 @@ interface ProfileData {
   avatar_url: string | null;
 }
 
-interface AcademicData {
-  collegeName: string | null;
-  departmentName: string | null;
+interface StudentRecord {
+  date_of_birth: string | null;
+  national_id: string | null;
+  gender: string | null;
+  address: string | null;
+  qualification: string | null;
+  photo_url: string | null;
+  department_codes: string[];
 }
 
 const UserProfile = () => {
   const { dir, language, toggleLanguage } = useLanguage();
   const isRtl = language === "ar";
   const navigate = useNavigate();
-  const goBack = useSmartBack("/");
-  const fileRef = useRef<HTMLInputElement>(null);
   const handleLogout = async () => { await supabase.auth.signOut(); navigate("/"); };
 
-
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string>("");
   const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [academic, setAcademic] = useState<AcademicData>({ collegeName: null, departmentName: null });
-  const [isManagedStudent, setIsManagedStudent] = useState(false);
-
-  // edit state
-  const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [savingInfo, setSavingInfo] = useState(false);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [record, setRecord] = useState<StudentRecord>({
+    date_of_birth: null, national_id: null, gender: null, address: null, qualification: null, photo_url: null, department_codes: [],
+  });
 
   // password
   const [newPass, setNewPass] = useState("");
@@ -61,22 +54,16 @@ const UserProfile = () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) { navigate("/login"); return; }
-        setUserId(user.id);
 
-        const { data, error } = await supabase
+        const { data: prof } = await supabase
           .from("profiles")
           .select("full_name, email, phone, role, platform, created_at, avatar_url")
           .eq("user_id", user.id)
           .maybeSingle();
 
-        if (error) console.error("profile load error", error);
-
-        if (data) {
-          setProfile(data);
-          setFullName(data.full_name || "");
-          setPhone(data.phone || "");
+        if (prof) {
+          setProfile(prof);
         } else {
-          // Fallback so page still renders even if no profile row exists
           const meta = (user.user_metadata as any) || {};
           setProfile({
             full_name: meta.full_name || user.email?.split("@")[0] || "",
@@ -87,47 +74,38 @@ const UserProfile = () => {
             created_at: user.created_at || new Date().toISOString(),
             avatar_url: null,
           });
-          setFullName(meta.full_name || "");
         }
 
-        // Academic info — best-effort, never blocks page render
+        // Load department_members rows (registration data set by the college)
         try {
-          const { data: membership } = await supabase
+          const { data: members } = await supabase
             .from("department_members")
-            .select("department_id")
-            .eq("user_id", user.id)
-            .maybeSingle();
+            .select("department_id, date_of_birth, national_id, gender, address, qualification, photo_url")
+            .eq("user_id", user.id);
 
-          if (membership?.department_id) {
-            setIsManagedStudent(true);
-            const { data: dept } = await supabase
-              .from("departments")
-              .select("department_name, institution_id, institution_type")
-              .eq("id", membership.department_id)
-              .maybeSingle();
-
-            if (dept) {
-              let collegeName: string | null = null;
-              if (dept.institution_type === "college") {
-                const { data: c } = await supabase
-                  .from("college_registrations")
-                  .select("college_name")
-                  .eq("id", dept.institution_id)
-                  .maybeSingle();
-                collegeName = c?.college_name ?? null;
-              } else if (dept.institution_type === "institute") {
-                const { data: c } = await supabase
-                  .from("institute_registrations")
-                  .select("institute_name")
-                  .eq("id", dept.institution_id)
-                  .maybeSingle();
-                collegeName = c?.institute_name ?? null;
-              }
-              setAcademic({ collegeName, departmentName: dept.department_name });
+          if (members && members.length > 0) {
+            const ids = members.map(m => m.department_id).filter(Boolean);
+            let codes: string[] = [];
+            if (ids.length) {
+              const { data: depts } = await supabase
+                .from("departments")
+                .select("id, department_code")
+                .in("id", ids);
+              codes = Array.from(new Set((depts || []).map((d: any) => d.department_code).filter(Boolean)));
             }
+            const first: any = members[0];
+            setRecord({
+              date_of_birth: first.date_of_birth ?? null,
+              national_id: first.national_id ?? null,
+              gender: first.gender ?? null,
+              address: first.address ?? null,
+              qualification: first.qualification ?? null,
+              photo_url: first.photo_url ?? null,
+              department_codes: codes,
+            });
           }
         } catch (e) {
-          console.error("academic load error", e);
+          console.error("student record load error", e);
         }
       } catch (e) {
         console.error("profile page load error", e);
@@ -136,65 +114,6 @@ const UserProfile = () => {
       }
     })();
   }, [navigate]);
-
-  const roleLabel = (r: string) => {
-    const map: Record<string, { ar: string; en: string }> = {
-      student: { ar: "طالب جامعي", en: "University Student" },
-      school_student: { ar: "طالب مدرسي", en: "School Student" },
-      lecturer: { ar: "محاضر", en: "Lecturer" },
-      teacher: { ar: "معلم", en: "Teacher" },
-      personal: { ar: "حساب شخصي", en: "Personal" },
-      admin: { ar: "مسؤول", en: "Admin" },
-    };
-    return map[r]?.[language] || r;
-  };
-
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !userId) return;
-    if (!file.type.startsWith("image/")) {
-      toast({ title: isRtl ? "ملف غير صالح" : "Invalid file", description: isRtl ? "يجب أن يكون الملف صورة" : "File must be an image", variant: "destructive" });
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: isRtl ? "حجم كبير" : "File too large", description: isRtl ? "الحد الأقصى 5 ميجابايت" : "Max 5 MB", variant: "destructive" });
-      return;
-    }
-    setUploadingAvatar(true);
-    try {
-      const ext = file.name.split(".").pop() || "jpg";
-      const path = `${userId}/avatar-${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, cacheControl: "3600" });
-      if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
-      const url = pub.publicUrl;
-      const { error: updErr } = await supabase.from("profiles").update({ avatar_url: url }).eq("user_id", userId);
-      if (updErr) throw updErr;
-      setProfile((p) => p ? { ...p, avatar_url: url } : p);
-      toast({ title: isRtl ? "تم تحديث الصورة" : "Avatar updated" });
-    } catch (err: any) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
-    } finally {
-      setUploadingAvatar(false);
-      if (fileRef.current) fileRef.current.value = "";
-    }
-  };
-
-  const saveInfo = async () => {
-    if (!fullName.trim()) {
-      toast({ title: isRtl ? "الاسم مطلوب" : "Name required", variant: "destructive" });
-      return;
-    }
-    setSavingInfo(true);
-    const { error } = await supabase.from("profiles").update({ full_name: fullName.trim(), phone: phone.trim() }).eq("user_id", userId);
-    setSavingInfo(false);
-    if (error) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
-      return;
-    }
-    setProfile((p) => p ? { ...p, full_name: fullName.trim(), phone: phone.trim() } : p);
-    toast({ title: isRtl ? "تم الحفظ" : "Saved" });
-  };
 
   const savePassword = async () => {
     if (newPass.length < 8) {
@@ -223,11 +142,11 @@ const UserProfile = () => {
   );
   if (!profile) return null;
 
-  const initials = (profile.full_name || "?").trim().charAt(0).toUpperCase();
-
   const labelCls = "flex items-center gap-2 text-base sm:text-lg font-extrabold text-foreground";
   const iconCls = "w-5 h-5 sm:w-6 sm:h-6 text-primary";
-  const inputCls = "h-12 text-base border-2 border-primary/30 focus-visible:border-primary focus-visible:ring-primary/30 bg-card";
+  const inputCls = "h-12 text-base border-2 border-primary/30 bg-card disabled:opacity-100 disabled:cursor-not-allowed";
+  const photoUrl = record.photo_url || profile.avatar_url;
+  const genderLabel = record.gender === "male" ? (isRtl ? "ذكر" : "Male") : record.gender === "female" ? (isRtl ? "أنثى" : "Female") : "";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-primary/10" dir={dir}>
@@ -242,7 +161,7 @@ const UserProfile = () => {
                 {isRtl ? "البيانات الشخصية" : "Personal Information"}
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground font-bold truncate mt-0.5">
-                {isRtl ? "إدارة بياناتك الشخصية" : "Manage your personal data"}
+                {isRtl ? "بياناتك مسجلة من قِبَل إدارة الكلية" : "Registered by your college administration"}
               </p>
             </div>
           </div>
@@ -269,71 +188,74 @@ const UserProfile = () => {
       <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
         <Card className="border-2 border-primary/30 max-w-4xl mx-auto shadow-2xl shadow-primary/10 bg-gradient-to-br from-card via-card to-primary/5">
           <CardContent className="p-5 sm:p-10 space-y-8">
-            {/* Avatar (read-only) */}
+            {/* Photo (read-only) */}
             <div className="flex flex-col items-center gap-4">
               <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden border-[6px] border-primary/40 ring-4 ring-primary/15 bg-muted flex items-center justify-center shadow-xl shadow-primary/30">
-                {profile.avatar_url ? (
-                  <img src={profile.avatar_url} alt={profile.full_name} className="w-full h-full object-cover" />
+                {photoUrl ? (
+                  <img src={photoUrl} alt={profile.full_name} className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-5xl font-black text-primary/70">{initials}</span>
+                  <UserRound className="w-16 h-16 text-primary/60" strokeWidth={1.8} />
                 )}
-              </div>
-              <div className="text-center space-y-2">
-                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">{profile.full_name}</h2>
-                <div className="flex flex-wrap justify-center gap-2">
-                  <Badge className="bg-gradient-to-r from-primary to-primary/70 text-primary-foreground font-bold">{roleLabel(profile.role)}</Badge>
-                  {profile.platform !== "courses" && (
-                    <Badge variant="outline" className="font-bold border-2">{profile.platform === "bookstore" ? (isRtl ? "متجر الكتب" : "Book Store") : (isRtl ? "المدرسة" : "School")}</Badge>
-                  )}
-                  <Badge variant="outline" className="gap-1 font-bold border-2">
-                    <Calendar className="w-3 h-3" />
-                    {isRtl ? "انضم" : "Joined"} {new Date(profile.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}
-                  </Badge>
-                </div>
               </div>
             </div>
 
-            {/* Academic info */}
-            {(academic.collegeName || academic.departmentName) && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {academic.collegeName && (
-                  <div className="space-y-2.5">
-                    <Label className={labelCls}><Building2 className={iconCls} strokeWidth={2.4} />{isRtl ? "الكلية / المعهد" : "College / Institute"}</Label>
-                    <Input className={inputCls} value={academic.collegeName} readOnly disabled />
-                  </div>
-                )}
-                {academic.departmentName && (
-                  <div className="space-y-2.5">
-                    <Label className={labelCls}><GraduationCap className={iconCls} strokeWidth={2.4} />{isRtl ? "القسم" : "Department"}</Label>
-                    <Input className={inputCls} value={academic.departmentName} readOnly disabled />
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Locked notice (all users) */}
+            {/* Locked notice */}
             <div className="rounded-xl border-2 border-amber-300/60 dark:border-amber-700/50 bg-amber-50/70 dark:bg-amber-950/30 p-4 text-sm sm:text-base font-bold text-amber-800 dark:text-amber-200 flex items-center gap-3">
               <Lock className="w-5 h-5 shrink-0" />
               <span>
                 {isRtl
-                  ? "بياناتك مسجلة من قِبَل إدارة الكلية ولا يمكن تعديلها من هنا. يمكنك فقط تغيير كلمة المرور. للتغيير، تواصل مع إدارة كليتك."
-                  : "Your information is registered by your college administration and is read-only. You can only change your password. Contact your college admin for changes."}
+                  ? "جميع الحقول مقفولة ولا يمكن تعديلها. يمكنك فقط تغيير كلمة المرور. للتغيير، تواصل مع إدارة كليتك."
+                  : "All fields are locked and read-only. You can only change your password. Contact your college admin for changes."}
               </span>
             </div>
 
-            {/* Read-only info */}
+            {/* Department codes */}
+            <div className="space-y-2.5">
+              <Label className={labelCls}><Briefcase className={iconCls} strokeWidth={2.4} />{isRtl ? "أكواد الأقسام" : "Department Codes"}</Label>
+              <Input className={`${inputCls} font-mono tracking-widest`} value={record.department_codes.join(", ")} readOnly disabled dir="ltr" />
+            </div>
+
+            {/* Basic */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2.5">
-                <Label className={labelCls}><User className={iconCls} strokeWidth={2.4} />{isRtl ? "الاسم الكامل" : "Full Name"}</Label>
-                <Input className={inputCls} value={fullName} readOnly disabled />
+                <Label className={labelCls}><UserRound className={iconCls} strokeWidth={2.4} />{isRtl ? "الاسم الكامل" : "Full Name"}</Label>
+                <Input className={inputCls} value={profile.full_name} readOnly disabled />
               </div>
+              <div className="space-y-2.5">
+                <Label className={labelCls}><Calendar className={iconCls} strokeWidth={2.4} />{isRtl ? "تاريخ الميلاد" : "Date of Birth"}</Label>
+                <Input className={inputCls} type="date" value={record.date_of_birth ?? ""} readOnly disabled />
+              </div>
+              <div className="space-y-2.5">
+                <Label className={labelCls}><Users2 className={iconCls} strokeWidth={2.4} />{isRtl ? "النوع" : "Gender"}</Label>
+                <Input className={inputCls} value={genderLabel} readOnly disabled />
+              </div>
+              <div className="space-y-2.5">
+                <Label className={labelCls}><IdCard className={iconCls} strokeWidth={2.4} />{isRtl ? "الرقم القومي" : "National ID"}</Label>
+                <Input className={inputCls} value={record.national_id ?? ""} readOnly disabled dir="ltr" />
+              </div>
+            </div>
+
+            {/* Contact */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2.5">
                 <Label className={labelCls}><Mail className={iconCls} strokeWidth={2.4} />{isRtl ? "البريد الإلكتروني" : "Email"}</Label>
                 <Input className={inputCls} value={profile.email} readOnly disabled dir="ltr" />
               </div>
-              <div className="space-y-2.5 md:col-span-2">
+              <div className="space-y-2.5">
                 <Label className={labelCls}><Phone className={iconCls} strokeWidth={2.4} />{isRtl ? "رقم الهاتف" : "Phone"}</Label>
-                <Input className={inputCls} value={phone} readOnly disabled dir="ltr" />
+                <Input className={inputCls} value={profile.phone} readOnly disabled dir="ltr" />
+              </div>
+              <div className="space-y-2.5 md:col-span-2">
+                <Label className={labelCls}><MapPin className={iconCls} strokeWidth={2.4} />{isRtl ? "العنوان" : "Address"}</Label>
+                <Input className={inputCls} value={record.address ?? ""} readOnly disabled />
+              </div>
+            </div>
+
+            {/* Academic */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-2.5">
+                <Label className={labelCls}><BookOpen className={iconCls} strokeWidth={2.4} />{isRtl ? "المؤهل الدراسي" : "Study Qualification"}</Label>
+                <Input className={inputCls} value={record.qualification ?? ""} readOnly disabled />
               </div>
             </div>
 

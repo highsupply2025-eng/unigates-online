@@ -99,6 +99,7 @@ const UserProfile = () => {
             .maybeSingle();
 
           if (membership?.department_id) {
+            setIsManagedStudent(true);
             const { data: dept } = await supabase
               .from("departments")
               .select("department_name, institution_id, institution_type")

@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
+import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 
 interface ProfileData {
   full_name: string;
@@ -49,71 +50,73 @@ const UserProfile = () => {
   const [showPass, setShowPass] = useState(false);
   const [savingPass, setSavingPass] = useState(false);
 
-  useEffect(() => {
-    (async () => {
+  const loadAll = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { navigate("/login"); return; }
+
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("full_name, email, phone, role, platform, created_at, avatar_url")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (prof) {
+        setProfile(prof);
+      } else {
+        const meta = (user.user_metadata as any) || {};
+        setProfile({
+          full_name: meta.full_name || user.email?.split("@")[0] || "",
+          email: user.email || "",
+          phone: meta.phone || "",
+          role: meta.role || "personal",
+          platform: meta.platform || "courses",
+          created_at: user.created_at || new Date().toISOString(),
+          avatar_url: null,
+        });
+      }
+
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) { navigate("/login"); return; }
+        const { data: members } = await supabase
+          .from("department_members")
+          .select("department_id, date_of_birth, national_id, gender, address, qualification, photo_url")
+          .eq("user_id", user.id);
 
-        const { data: prof } = await supabase
-          .from("profiles")
-          .select("full_name, email, phone, role, platform, created_at, avatar_url")
-          .eq("user_id", user.id)
-          .maybeSingle();
-
-        if (prof) {
-          setProfile(prof);
-        } else {
-          const meta = (user.user_metadata as any) || {};
-          setProfile({
-            full_name: meta.full_name || user.email?.split("@")[0] || "",
-            email: user.email || "",
-            phone: meta.phone || "",
-            role: meta.role || "personal",
-            platform: meta.platform || "courses",
-            created_at: user.created_at || new Date().toISOString(),
-            avatar_url: null,
+        if (members && members.length > 0) {
+          const ids = members.map(m => m.department_id).filter(Boolean);
+          let codes: string[] = [];
+          if (ids.length) {
+            const { data: depts } = await supabase
+              .from("departments")
+              .select("id, department_code")
+              .in("id", ids);
+            codes = Array.from(new Set((depts || []).map((d: any) => d.department_code).filter(Boolean)));
+          }
+          const first: any = members[0];
+          setRecord({
+            date_of_birth: first.date_of_birth ?? null,
+            national_id: first.national_id ?? null,
+            gender: first.gender ?? null,
+            address: first.address ?? null,
+            qualification: first.qualification ?? null,
+            photo_url: first.photo_url ?? null,
+            department_codes: codes,
           });
         }
-
-        // Load department_members rows (registration data set by the college)
-        try {
-          const { data: members } = await supabase
-            .from("department_members")
-            .select("department_id, date_of_birth, national_id, gender, address, qualification, photo_url")
-            .eq("user_id", user.id);
-
-          if (members && members.length > 0) {
-            const ids = members.map(m => m.department_id).filter(Boolean);
-            let codes: string[] = [];
-            if (ids.length) {
-              const { data: depts } = await supabase
-                .from("departments")
-                .select("id, department_code")
-                .in("id", ids);
-              codes = Array.from(new Set((depts || []).map((d: any) => d.department_code).filter(Boolean)));
-            }
-            const first: any = members[0];
-            setRecord({
-              date_of_birth: first.date_of_birth ?? null,
-              national_id: first.national_id ?? null,
-              gender: first.gender ?? null,
-              address: first.address ?? null,
-              qualification: first.qualification ?? null,
-              photo_url: first.photo_url ?? null,
-              department_codes: codes,
-            });
-          }
-        } catch (e) {
-          console.error("student record load error", e);
-        }
       } catch (e) {
-        console.error("profile page load error", e);
-      } finally {
-        setLoading(false);
+        console.error("student record load error", e);
       }
-    })();
-  }, [navigate]);
+    } catch (e) {
+      console.error("profile page load error", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { loadAll(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [navigate]);
+
+  // Auto-refresh when college admin updates the student's record
+  useRealtimeRefresh(["department_members", "profiles", "departments"], loadAll, true);
 
   const savePassword = async () => {
     if (newPass.length < 8) {

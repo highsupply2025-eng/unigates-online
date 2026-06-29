@@ -128,6 +128,7 @@ const PrefetchRoutes = () => {
     document.addEventListener("focusin", onHint, { capture: true });
 
     return () => {
+      if ((window as any).cancelIdleCallback) (window as any).cancelIdleCallback(handle);
       document.removeEventListener("pointerover", onHint, { capture: true } as EventListenerOptions);
       document.removeEventListener("pointerdown", onHint, { capture: true } as EventListenerOptions);
       document.removeEventListener("touchstart", onHint, { capture: true } as EventListenerOptions);

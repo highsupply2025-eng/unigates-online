@@ -225,16 +225,53 @@ const UserProfile = () => {
 
   return (
     <div className="min-h-screen bg-background" dir={dir}>
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
-        <div className="max-w-4xl mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-3">
-          <BackButton />
-          <h1 className="text-base sm:text-lg font-extrabold text-foreground flex items-center gap-2">
-            <User className="w-4 h-4 text-primary" />
-            {isRtl ? "البيانات الشخصية" : "Personal Information"}
-          </h1>
-          <div className="w-[72px]" />
+      <header className="relative border-b-2 border-indigo-200/50 dark:border-indigo-900/50 px-3 sm:px-6 py-3 sm:py-4 sticky top-0 z-40 bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/60 dark:via-purple-950/60 dark:to-pink-950/60 backdrop-blur-xl shadow-sm">
+        <div className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-70" />
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="relative w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-600 shadow-xl shadow-purple-500/40 flex items-center justify-center shrink-0 ring-2 ring-white/40 dark:ring-white/10">
+              <User className="w-6 h-6 sm:w-7 sm:h-7 text-white drop-shadow" strokeWidth={2.5} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-base sm:text-xl font-black truncate tracking-tight bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-700 dark:from-indigo-300 dark:via-purple-300 dark:to-pink-300 bg-clip-text text-transparent">
+                {isRtl ? "البيانات الشخصية" : "Personal Information"}
+              </h1>
+              <p className="text-[11px] sm:text-sm text-foreground/80 font-bold truncate mt-0.5">
+                <span className="bg-gradient-to-r from-indigo-600 to-pink-600 dark:from-indigo-300 dark:to-pink-300 bg-clip-text text-transparent">
+                  {isRtl ? "إدارة بياناتك الشخصية" : "Manage your personal data"}
+                </span>
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 order-first" style={{ marginInlineStart: 0, marginInlineEnd: "auto" }}>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={goBack}
+              className="gap-1.5 font-black bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-600 hover:from-indigo-600 hover:via-purple-700 hover:to-pink-700 text-white border-0 shadow-lg shadow-purple-500/40 hover:shadow-purple-500/60 active:scale-95 transition-all"
+            >
+              {isRtl ? <ArrowLeft className="w-4 h-4" strokeWidth={2.75} /> : <ArrowRight className="w-4 h-4" strokeWidth={2.75} />}
+              <span className="hidden xs:inline">{isRtl ? "رجوع" : "Back"}</span>
+            </Button>
+            <DashboardMenuDropdown
+              onLanguageToggle={toggleLanguage}
+              onLogout={handleLogout}
+              items={[
+                { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: () => navigate("/student/dashboard") },
+                { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-emerald-500 to-emerald-600", onClick: () => navigate("/student/lectures") },
+                { key: "live", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", onClick: () => navigate("/student/live") },
+                { key: "quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: ClipboardList, color: "from-purple-500 to-purple-600", onClick: () => navigate("/student/quizzes") },
+                { key: "results", label: isRtl ? "نتائج الاختبارات" : "Exam Results", Icon: Award, color: "from-pink-500 to-rose-600", onClick: () => navigate("/student/results") },
+                { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: FileText, color: "from-amber-500 to-amber-600", onClick: () => navigate("/student/assignments") },
+                { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-blue-500 to-blue-600", onClick: () => navigate("/student/schedules") },
+                { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => navigate("/student/ratings") },
+                { key: "profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => {}, active: true },
+              ]}
+            />
+          </div>
         </div>
       </header>
+
 
 
       <main className="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-8 space-y-5">

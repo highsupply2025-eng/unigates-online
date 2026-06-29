@@ -40,7 +40,18 @@ Deno.serve(async (req) => {
     let email = String(body.email || "").trim().toLowerCase();
     const phone = String(body.phone || "").trim();
     const codes: string[] = Array.from(new Set((body.department_codes || []).map((c: string) => String(c).trim().toUpperCase()).filter(Boolean)));
-    const extra = body.extra || {};
+    // Whitelist the only fields an institution admin is allowed to pass in
+    // `extra`. Spreading raw client input previously let a malicious admin
+    // override department_id/role/user_id and inject members into other
+    // institutions.
+    const ALLOWED_EXTRA = [
+      "date_of_birth", "photo_url", "national_id", "gender",
+      "address", "qualification", "specialization", "hire_date", "notes",
+    ] as const;
+    const rawExtra = (body.extra && typeof body.extra === "object") ? body.extra : {};
+    const extra: Record<string, unknown> = Object.fromEntries(
+      Object.entries(rawExtra).filter(([k]) => (ALLOWED_EXTRA as readonly string[]).includes(k))
+    );
 
     if (!fullName) return json({ error: "Missing full_name" }, 400);
     if (codes.length === 0) return json({ error: "Missing department codes" }, 400);

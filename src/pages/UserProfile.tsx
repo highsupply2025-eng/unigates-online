@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
+import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 
 interface ProfileData {
   full_name: string;

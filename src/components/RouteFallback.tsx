@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 const RouteFallback = () => {
   const [show, setShow] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setShow(true), 350);
+    const t = setTimeout(() => setShow(true), 600);
     return () => clearTimeout(t);
   }, []);
   if (!show) return null;

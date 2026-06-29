@@ -282,7 +282,9 @@ const UserProfile = () => {
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">{profile.full_name}</h2>
                 <div className="flex flex-wrap justify-center gap-2">
                   <Badge className="bg-gradient-to-r from-primary to-primary/70 text-primary-foreground font-bold">{roleLabel(profile.role)}</Badge>
-                  <Badge variant="outline" className="font-bold border-2">{profile.platform === "bookstore" ? (isRtl ? "متجر الكتب" : "Book Store") : profile.platform === "school" ? (isRtl ? "المدرسة" : "School") : (isRtl ? "الدورات" : "Courses")}</Badge>
+                  {profile.platform !== "courses" && (
+                    <Badge variant="outline" className="font-bold border-2">{profile.platform === "bookstore" ? (isRtl ? "متجر الكتب" : "Book Store") : (isRtl ? "المدرسة" : "School")}</Badge>
+                  )}
                   <Badge variant="outline" className="gap-1 font-bold border-2">
                     <Calendar className="w-3 h-3" />
                     {isRtl ? "انضم" : "Joined"} {new Date(profile.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}

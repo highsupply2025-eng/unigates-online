@@ -244,15 +244,6 @@ const UserProfile = () => {
             </div>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            <Button
-              variant="default"
-              size="sm"
-              onClick={goBack}
-              className="gap-1.5 font-black bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-600 hover:from-indigo-600 hover:via-purple-700 hover:to-pink-700 text-white border-0 shadow-lg shadow-purple-500/40 hover:shadow-purple-500/60 active:scale-95 transition-all"
-            >
-              {isRtl ? <ArrowLeft className="w-4 h-4" strokeWidth={2.75} /> : <ArrowRight className="w-4 h-4" strokeWidth={2.75} />}
-              <span className="hidden xs:inline">{isRtl ? "رجوع" : "Back"}</span>
-            </Button>
             <DashboardMenuDropdown
               onLanguageToggle={toggleLanguage}
               onLogout={handleLogout}

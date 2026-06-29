@@ -42,6 +42,7 @@ const UserProfile = () => {
   const [userId, setUserId] = useState<string>("");
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [academic, setAcademic] = useState<AcademicData>({ collegeName: null, departmentName: null });
+  const [isManagedStudent, setIsManagedStudent] = useState(false);
 
   // edit state
   const [fullName, setFullName] = useState("");

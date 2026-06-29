@@ -84,12 +84,31 @@ const warmPath = (path: string) => {
 
 const PrefetchRoutes = () => {
   useEffect(() => {
-    // 1) Warm everything in parallel ASAP so chunks are cached before any click.
-    //    We fire immediately (microtask) instead of waiting for idle — the
-    //    chunks are tiny and pipelined over one HTTP/2 connection, and the
-    //    earlier they arrive the more navigations feel instant.
-    const kick = () => ALL_LOADERS.forEach(warm);
-    queueMicrotask(kick);
+    // 1) Idle + connection-aware bulk warm.
+    //    Firing every route loader at first paint stole ~300ms of TBT and
+    //    pushed LCP back. We now wait until the browser is idle (or 2s after
+    //    paint) and skip entirely on Save-Data / 2g connections so the main
+    //    thread is free for the hero render.
+    const conn = (navigator as any).connection;
+    const slow = conn && (conn.saveData || /(^|-)2g$/.test(String(conn.effectiveType)));
+    const kick = () => {
+      if (slow) return;
+      // Stagger the wave: 4 chunks per idle slice so we never hog the network
+      // or main thread for more than a frame at a time.
+      let i = 0;
+      const step = () => {
+        const slice = ALL_LOADERS.slice(i, i + 4);
+        i += 4;
+        slice.forEach(warm);
+        if (i < ALL_LOADERS.length) {
+          (window.requestIdleCallback || ((cb: any) => setTimeout(cb, 50)))(step, { timeout: 1000 });
+        }
+      };
+      step();
+    };
+    const schedule = (window.requestIdleCallback || ((cb: any) => setTimeout(cb, 2000))) as any;
+    const handle = schedule(kick, { timeout: 3000 });
+
 
     // 2) Intent-based prefetch: warm the matching chunk the instant the user
     //    hovers, touches, or focuses an internal link.
@@ -109,6 +128,7 @@ const PrefetchRoutes = () => {
     document.addEventListener("focusin", onHint, { capture: true });
 
     return () => {
+      if ((window as any).cancelIdleCallback) (window as any).cancelIdleCallback(handle);
       document.removeEventListener("pointerover", onHint, { capture: true } as EventListenerOptions);
       document.removeEventListener("pointerdown", onHint, { capture: true } as EventListenerOptions);
       document.removeEventListener("touchstart", onHint, { capture: true } as EventListenerOptions);

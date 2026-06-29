@@ -243,7 +243,7 @@ const UserProfile = () => {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 order-first" style={{ marginInlineStart: 0, marginInlineEnd: "auto" }}>
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <Button
               variant="default"
               size="sm"

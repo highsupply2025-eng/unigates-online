@@ -30,10 +30,13 @@ interface AcademicData {
 }
 
 const UserProfile = () => {
-  const { dir, language } = useLanguage();
+  const { dir, language, toggleLanguage } = useLanguage();
   const isRtl = language === "ar";
   const navigate = useNavigate();
+  const goBack = useSmartBack("/");
   const fileRef = useRef<HTMLInputElement>(null);
+  const handleLogout = async () => { await supabase.auth.signOut(); navigate("/"); };
+
 
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string>("");

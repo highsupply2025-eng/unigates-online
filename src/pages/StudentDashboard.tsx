@@ -46,10 +46,12 @@ const StudentDashboard = () => {
   const load = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigate("/login"); return; }
-    const { data: p } = await supabase.from("profiles").select("*").eq("user_id", user.id).single();
-    setProfile(p);
 
-    const [subs, live, qz, prog, att, asg, ratings] = await Promise.all([
+    // Render the shell immediately; stream profile + stats in parallel.
+    setLoading(false);
+
+    const [pRes, subs, live, qz, prog, att, asg, ratings] = await Promise.all([
+      supabase.from("profiles").select("*").eq("user_id", user.id).single(),
       supabase.from("user_subscriptions").select("course_id").eq("user_id", user.id).eq("status", "active"),
       supabase.from("live_streams").select("id").eq("status", "live"),
       supabase.from("quizzes").select("id,course_id").eq("is_published", true),
@@ -58,6 +60,8 @@ const StudentDashboard = () => {
       supabase.from("assignment_submissions").select("id,submitted_at").eq("student_id", user.id),
       supabase.from("lecturer_ratings").select("rating,created_at").eq("student_id", user.id),
     ]);
+
+    setProfile(pRes.data);
 
     const subIds = (subs.data || []).map((s: any) => s.course_id);
     const availableQuizzes = (qz.data || []).filter((q: any) => subIds.includes(q.course_id));
@@ -80,7 +84,6 @@ const StudentDashboard = () => {
       submissions: (asg.data || []).map((x: any) => x.submitted_at).filter(Boolean),
       ratings: (ratings.data || []).map((x: any) => x.created_at).filter(Boolean),
     });
-    setLoading(false);
   };
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [navigate]);

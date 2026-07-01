@@ -26,22 +26,9 @@ export default defineConfig(({ mode }) => ({
     chunkSizeWarningLimit: 1200,
     modulePreload: { polyfill: true },
     rollupOptions: {
-      output: {
-        // Group large stable deps into long-cached vendor chunks so route
-        // chunks stay small and navigation feels instant.
-        manualChunks(id) {
-          if (!id.includes("node_modules")) return;
-          if (id.includes("react-dom") || id.includes("react-router") || id.includes("/react/")) return "react-vendor";
-          if (id.includes("@supabase")) return "supabase-vendor";
-          if (id.includes("@radix-ui")) return "radix-vendor";
-          if (id.includes("recharts") || id.includes("d3-")) return "charts-vendor";
-          if (id.includes("framer-motion")) return "motion-vendor";
-          if (id.includes("lucide-react")) return "icons-vendor";
-          if (id.includes("@tanstack")) return "query-vendor";
-          return "vendor";
-        },
-      },
+      output: {},
     },
+
   },
   esbuild: {
     legalComments: "none",

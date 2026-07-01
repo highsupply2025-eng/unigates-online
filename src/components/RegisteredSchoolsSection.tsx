@@ -50,15 +50,8 @@ const RegisteredSchoolsSection = () => {
 
         {hasData ? (
           <div className="relative flex items-center gap-2">
-            <button
-              onClick={() => scroll("left")}
-              className="absolute -left-5 z-10 w-9 h-9 rounded-full border border-border bg-background/90 backdrop-blur-sm flex items-center justify-center hover:bg-accent transition-colors shadow-md"
-              aria-label="Scroll left"
-            >
-              <ChevronLeft className="w-5 h-5 text-foreground" />
-            </button>
-
             <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-4 px-2" style={{ scrollbarWidth: 'none' }}>
+
               {schools.map((school, i) => (
                 <div key={school.id} className="relative flex-shrink-0 w-[220px] md:w-[260px] group cursor-pointer card-hover">
                   <div className="aspect-video rounded-xl overflow-hidden relative shadow-lg group-hover:shadow-xl transition-shadow">
@@ -94,15 +87,8 @@ const RegisteredSchoolsSection = () => {
                 </div>
               ))}
             </div>
-
-            <button
-              onClick={() => scroll("right")}
-              className="absolute -right-5 z-10 w-9 h-9 rounded-full border border-border bg-background/90 backdrop-blur-sm flex items-center justify-center hover:bg-accent transition-colors shadow-md"
-              aria-label="Scroll right"
-            >
-              <ChevronRight className="w-5 h-5 text-foreground" />
-            </button>
           </div>
+
         ) : !isLoading ? (
           <div className="flex justify-center">
             <div className="bg-card rounded-xl p-8 border-2 border-dashed border-border shadow-sm w-full max-w-sm text-center">

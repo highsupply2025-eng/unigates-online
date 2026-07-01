@@ -73,7 +73,7 @@ const HomepageShowcaseCarousel = ({
     let frameId: number;
     let lastTime = 0;
     // Convert speed to pixels per second (lower autoScrollSpeed = faster interval = faster scroll)
-    const pixelsPerSecond = 1000 / autoScrollSpeed;
+    const pixelsPerSecond = 4000 / autoScrollSpeed;
 
     const tick = (now: number) => {
       if (!isPausedRef.current) {
@@ -125,14 +125,6 @@ const HomepageShowcaseCarousel = ({
           onTouchStart={() => { isPausedRef.current = true; }}
           onTouchEnd={() => { setTimeout(() => { isPausedRef.current = false; }, 3000); }}
         >
-          <button
-            onClick={() => scroll("left")}
-            className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full border border-border bg-background/90 backdrop-blur-sm flex items-center justify-center hover:bg-accent transition-colors shadow-md"
-            aria-label="Scroll left"
-          >
-            <ChevronLeft className="w-5 h-5 text-foreground" />
-          </button>
-
           <div
             ref={scrollRef}
             className="flex gap-4 overflow-x-auto pb-4 px-2"
@@ -142,14 +134,6 @@ const HomepageShowcaseCarousel = ({
               <ShowcaseCard key={item.id} item={item} />
             ))}
           </div>
-
-          <button
-            onClick={() => scroll("right")}
-            className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full border border-border bg-background/90 backdrop-blur-sm flex items-center justify-center hover:bg-accent transition-colors shadow-md"
-            aria-label="Scroll right"
-          >
-            <ChevronRight className="w-5 h-5 text-foreground" />
-          </button>
         </div>
       </div>
     </section>

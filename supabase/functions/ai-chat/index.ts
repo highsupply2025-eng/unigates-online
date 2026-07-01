@@ -62,6 +62,18 @@ serve(async (req) => {
       });
     }
 
+    const MAX_MESSAGES = 20;
+    const MAX_CHARS = 4000;
+    if (messages.length > MAX_MESSAGES) {
+      return new Response(JSON.stringify({ error: "Too many messages" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const cleaned = messages
+      .filter((m: any) => m && (m.role === "user" || m.role === "assistant") && m.content != null)
+      .map((m: any) => ({ role: m.role, content: String(m.content).slice(0, MAX_CHARS) }));
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
@@ -77,7 +89,7 @@ serve(async (req) => {
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
-          ...messages,
+          ...cleaned,
         ],
         stream: true,
       }),

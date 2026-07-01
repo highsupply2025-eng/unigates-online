@@ -152,7 +152,7 @@ const AdminDashboard = () => {
   const checkAdmin = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigate("/login"); return; }
-    const { data: roles } = await supabase.from("user_roles").select("*").eq("user_id", user.id).eq("role", "admin");
+    const { data: roles } = await supabase.from("user_roles").select("*").eq("user_id", user.id).eq("role", "admin").eq("approved", true);
     if (!roles || roles.length === 0) { navigate("/"); return; }
     setIsAdmin(true);
     await loadAll();

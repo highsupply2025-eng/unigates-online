@@ -54,14 +54,6 @@ const HomeBooksSection = () => {
           </div>
         ) : (
           <div className="relative flex items-center gap-2">
-            <button
-              onClick={() => scroll("left")}
-              className="absolute -left-5 z-10 w-9 h-9 rounded-full border border-border bg-background/90 backdrop-blur-sm flex items-center justify-center hover:bg-accent transition-colors shadow-md"
-              aria-label="Scroll left"
-            >
-              <ChevronLeft className="w-5 h-5 text-foreground" />
-            </button>
-
             <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-4 px-2" style={{ scrollbarWidth: 'none' }}>
               {allFeaturedBooks.map((book, i) => (
                 <div key={book.id} className="relative flex-shrink-0 w-[180px] md:w-[210px] group cursor-pointer card-hover">
@@ -105,15 +97,8 @@ const HomeBooksSection = () => {
                 </div>
               ))}
             </div>
-
-            <button
-              onClick={() => scroll("right")}
-              className="absolute -right-5 z-10 w-9 h-9 rounded-full border border-border bg-background/90 backdrop-blur-sm flex items-center justify-center hover:bg-accent transition-colors shadow-md"
-              aria-label="Scroll right"
-            >
-              <ChevronRight className="w-5 h-5 text-foreground" />
-            </button>
           </div>
+
         )}
       </div>
     </section>

@@ -194,7 +194,7 @@ const CoursesPlatform = () => {
             </Link>
           </div>
 
-          <div className="max-w-3xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+          <div className="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-center">
             {statItems.map((item, i) => (
               <div key={i} ref={item.counter.ref} className="flex flex-col items-center gap-2 px-3 py-5 animate-fade-in bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 hover:bg-white/15 transition-all duration-300 shadow-lg shadow-black/10">
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg`}>

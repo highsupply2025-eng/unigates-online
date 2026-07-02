@@ -576,15 +576,26 @@ const AdminDashboard = () => {
   const openDetail = async (user: UserRole & { profile?: Profile }) => {
     setSelectedUser(user); setShowDetailDialog(true);
     if (user.profile) {
+      // Fetch identity documents from restricted table
+      const { data: docsData } = await supabase
+        .from('profile_documents')
+        .select('id_photo_url, university_cert_url, additional_certs_urls, live_photo_url')
+        .eq('user_id', user.profile.user_id)
+        .maybeSingle();
+      const docs: ProfileDocuments | null = docsData ?? null;
+      if (user.profile) user.profile.documents = docs;
+
       const urls: Record<string, string> = {};
-      for (const field of ['live_photo_url', 'id_photo_url', 'university_cert_url'] as const) {
-        const val = user.profile?.[field];
-        if (val) { const signed = await getSignedUrl(val); if (signed) urls[field] = signed; }
-      }
-      if (user.profile.additional_certs_urls) {
-        for (let i = 0; i < user.profile.additional_certs_urls.length; i++) {
-          const signed = await getSignedUrl(user.profile.additional_certs_urls[i]);
-          if (signed) urls[`cert_${i}`] = signed;
+      if (docs) {
+        for (const field of ['live_photo_url', 'id_photo_url', 'university_cert_url'] as const) {
+          const val = docs[field];
+          if (val) { const signed = await getSignedUrl(val); if (signed) urls[field] = signed; }
+        }
+        if (docs.additional_certs_urls) {
+          for (let i = 0; i < docs.additional_certs_urls.length; i++) {
+            const signed = await getSignedUrl(docs.additional_certs_urls[i]);
+            if (signed) urls[`cert_${i}`] = signed;
+          }
         }
       }
       setSignedUrls(urls);

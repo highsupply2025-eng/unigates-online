@@ -1252,52 +1252,70 @@ export type Database = {
           },
         ]
       }
-      profiles: {
+      profile_documents: {
         Row: {
           additional_certs_urls: string[] | null
-          avatar_url: string | null
           created_at: string
-          email: string
-          full_name: string
-          id: string
           id_photo_url: string | null
           live_photo_url: string | null
-          phone: string
-          platform: string
-          role: string
           university_cert_url: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           additional_certs_urls?: string[] | null
-          avatar_url?: string | null
           created_at?: string
-          email: string
-          full_name: string
-          id?: string
           id_photo_url?: string | null
           live_photo_url?: string | null
-          phone: string
-          platform?: string
-          role: string
           university_cert_url?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           additional_certs_urls?: string[] | null
+          created_at?: string
+          id_photo_url?: string | null
+          live_photo_url?: string | null
+          university_cert_url?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          phone: string
+          platform: string
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          phone: string
+          platform?: string
+          role: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
           avatar_url?: string | null
           created_at?: string
           email?: string
           full_name?: string
           id?: string
-          id_photo_url?: string | null
-          live_photo_url?: string | null
           phone?: string
           platform?: string
           role?: string
-          university_cert_url?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -2261,38 +2279,21 @@ export type Database = {
         Args: { _code: string; _user_id: string }
         Returns: Json
       }
-      complete_signup:
-        | {
-            Args: {
-              p_additional_certs_urls?: string[]
-              p_email: string
-              p_full_name: string
-              p_id_photo_url?: string
-              p_live_photo_url?: string
-              p_phone: string
-              p_platform?: string
-              p_role: string
-              p_university_cert_url?: string
-              p_user_id: string
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              p_additional_certs_urls?: string[]
-              p_email: string
-              p_force_approve?: boolean
-              p_full_name: string
-              p_id_photo_url?: string
-              p_live_photo_url?: string
-              p_phone: string
-              p_platform?: string
-              p_role: string
-              p_university_cert_url?: string
-              p_user_id: string
-            }
-            Returns: Json
-          }
+      complete_signup: {
+        Args: {
+          p_additional_certs_urls?: string[]
+          p_email: string
+          p_full_name: string
+          p_id_photo_url?: string
+          p_live_photo_url?: string
+          p_phone: string
+          p_platform?: string
+          p_role: string
+          p_university_cert_url?: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       get_institution_quiz_for_student: {
         Args: { _quiz_id: string }
         Returns: {

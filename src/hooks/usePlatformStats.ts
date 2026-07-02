@@ -13,6 +13,8 @@ export interface PlatformStats {
   students: number;
   universityStudents: number;
   schoolStudents: number;
+  trainingCenters: number;
+  languageCenters: number;
 }
 
 const QUERY_KEY = ["platform-stats"];

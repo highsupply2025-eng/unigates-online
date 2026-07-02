@@ -5,7 +5,7 @@ import {
   BookOpen, Users, GraduationCap, Globe, Home,
   Video, FileText, Award, ShieldCheck, MessageSquare, Layers,
   Sparkles, Trophy, Zap, Check, ArrowLeft, ArrowRight, Menu, X,
-  PlayCircle,
+  PlayCircle, User, BookOpenCheck, Building2, Languages,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -108,10 +108,10 @@ const CoursesPlatform = () => {
             <span className="text-2xl md:text-3xl font-black text-white tracking-tight drop-shadow-lg">{t.brandName}</span>
           </Link>
           <div className="hidden md:flex items-center gap-2">
-            <Link to="/login?platform=courses">
+            <Link to="/courses/login">
               <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">{t.login}</Button>
             </Link>
-            <Link to="/signup?platform=courses">
+            <Link to="/courses/signup">
               <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">{t.signup}</Button>
             </Link>
             <Link to="/courses/browse">
@@ -136,12 +136,12 @@ const CoursesPlatform = () => {
         {mobileMenuOpen && (
           <div className="relative z-40 md:hidden px-6 pb-4 animate-fade-in">
             <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-3 flex flex-col gap-2 shadow-2xl">
-              <Link to="/login?platform=courses" onClick={() => setMobileMenuOpen(false)}>
+              <Link to="/courses/login" onClick={() => setMobileMenuOpen(false)}>
                 <Button size="sm" className="w-full justify-start gap-3 font-bold h-11 text-sm bg-white/10 text-white border border-white/15 hover:bg-white/20">
                   <Users className="w-4 h-4" />{t.login}
                 </Button>
               </Link>
-              <Link to="/signup?platform=courses" onClick={() => setMobileMenuOpen(false)}>
+              <Link to="/courses/signup" onClick={() => setMobileMenuOpen(false)}>
                 <Button size="sm" className="w-full justify-start gap-3 font-bold h-11 text-sm bg-white/10 text-white border border-white/15 hover:bg-white/20">
                   <GraduationCap className="w-4 h-4" />{t.signup}
                 </Button>
@@ -179,13 +179,13 @@ const CoursesPlatform = () => {
           </p>
 
           <div className="flex flex-wrap justify-center gap-3 mb-12">
-            <Link to="/signup?platform=courses">
+            <Link to="/courses/signup">
               <Button size="lg" className="font-bold h-12 px-7 bg-white text-[hsl(330,70%,32%)] hover:bg-white/90 shadow-xl">
                 {isRtl ? "أنشئ حساب الآن" : "Create Account"}
                 <ArrowIcon className="w-4 h-4" />
               </Button>
             </Link>
-            <Link to="/login?platform=courses">
+            <Link to="/courses/login">
               <Button size="lg" variant="outline" className="font-bold h-12 px-7 bg-white/10 backdrop-blur-md text-white border-white/30 hover:bg-white/20">
                 {isRtl ? "تسجيل الدخول" : "Sign In"}
               </Button>
@@ -279,25 +279,31 @@ const CoursesPlatform = () => {
       </section>
 
       <Dialog open={showTypeDialog} onOpenChange={setShowTypeDialog}>
-        <DialogContent className="sm:max-w-md" dir={dir}>
+        <DialogContent className="sm:max-w-lg" dir={dir}>
           <DialogHeader>
             <DialogTitle className="text-center text-xl font-black">
               {isRtl ? "اختر نوع الحساب" : "Choose Account Type"}
             </DialogTitle>
           </DialogHeader>
-          <div className="grid grid-cols-2 gap-4 py-4">
-            <button onClick={() => { setShowTypeDialog(false); navigate("/signup/personal?platform=courses"); }} className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all duration-200 group">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[hsl(220,80%,55%)] to-[hsl(240,70%,50%)] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <Users className="w-8 h-8 text-white" />
-              </div>
-              <span className="font-bold text-foreground text-lg">{isRtl ? "طالب" : "Student"}</span>
-            </button>
-            <button onClick={() => { setShowTypeDialog(false); navigate("/signup/lecturer?platform=courses"); }} className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all duration-200 group">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[hsl(270,70%,55%)] to-[hsl(290,65%,48%)] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <GraduationCap className="w-8 h-8 text-white" />
-              </div>
-              <span className="font-bold text-foreground text-lg">{isRtl ? "محاضر" : "Lecturer"}</span>
-            </button>
+          <div className="grid grid-cols-2 gap-3 py-4">
+            {[
+              { role: "personal", ar: "طالب", en: "Student", Icon: User, color: "from-[hsl(220,80%,55%)] to-[hsl(240,70%,50%)]" },
+              { role: "lecturer", ar: "محاضر", en: "Lecturer", Icon: BookOpenCheck, color: "from-[hsl(270,70%,55%)] to-[hsl(290,65%,48%)]" },
+              { role: "teacher", ar: "معلّم", en: "Teacher", Icon: Users, color: "from-[hsl(155,70%,45%)] to-[hsl(170,65%,40%)]" },
+              { role: "training_center", ar: "مركز تدريب", en: "Training Center", Icon: Building2, color: "from-[hsl(35,90%,55%)] to-[hsl(25,85%,50%)]" },
+              { role: "language_center", ar: "مركز لغات", en: "Language Center", Icon: Languages, color: "from-[hsl(350,80%,55%)] to-[hsl(330,75%,50%)]" },
+            ].map(({ role, ar, en, Icon, color }) => (
+              <button
+                key={role}
+                onClick={() => { setShowTypeDialog(false); navigate(`/courses/signup?role=${role}`); }}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all duration-200 group"
+              >
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+                  <Icon className="w-7 h-7 text-white" />
+                </div>
+                <span className="font-bold text-foreground text-sm text-center">{isRtl ? ar : en}</span>
+              </button>
+            ))}
           </div>
         </DialogContent>
       </Dialog>

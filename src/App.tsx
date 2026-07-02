@@ -15,10 +15,12 @@ import PrefetchRoutes from "./PrefetchRoutes";
 
 const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));
+const CoursesPlatform = lazy(() => import("./pages/CoursesPlatform"));
+const CoursesSignup = lazy(() => import("./pages/CoursesSignup"));
+const CoursesLogin = lazy(() => import("./pages/CoursesLogin"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Courses = lazy(() => import("./pages/Courses"));
-const CoursesPlatform = lazy(() => import("./pages/CoursesPlatform"));
 const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
 const Payment = lazy(() => import("./pages/Payment"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
@@ -131,8 +133,10 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               {/* Courses platform — Coming Soon */}
-              <Route path="/courses" element={<ComingSoon />} />
+              <Route path="/courses" element={<CoursesPlatform />} />
               <Route path="/courses/browse" element={<ComingSoon />} />
+              <Route path="/courses/login" element={<CoursesLogin />} />
+              <Route path="/courses/signup" element={<CoursesSignup />} />
               <Route path="/signup" element={<Signup />} />
               
               <Route path="/signup/:role" element={<Signup />} />

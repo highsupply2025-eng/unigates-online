@@ -180,19 +180,6 @@ const CoursesPlatform = () => {
               : "A professional courses platform with protected video lectures, quizzes, and certified credentials to advance your career step by step"}
           </p>
 
-          <div className="flex flex-wrap justify-center gap-3 mb-12">
-            <Link to="/courses/signup">
-              <Button size="lg" className="font-bold h-12 px-7 bg-white text-[hsl(330,70%,32%)] hover:bg-white/90 shadow-xl">
-                {isRtl ? "أنشئ حساب الآن" : "Create Account"}
-                <ArrowIcon className="w-4 h-4" />
-              </Button>
-            </Link>
-            <Link to="/courses/login">
-              <Button size="lg" variant="outline" className="font-bold h-12 px-7 bg-white/10 backdrop-blur-md text-white border-white/30 hover:bg-white/20">
-                {isRtl ? "تسجيل الدخول" : "Sign In"}
-              </Button>
-            </Link>
-          </div>
 
           <div className="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-center">
             {statItems.map((item, i) => (

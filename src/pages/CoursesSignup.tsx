@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
-  GraduationCap, ArrowLeft, ArrowRight, Loader2, Globe, Eye, EyeOff,
+  GraduationCap, ArrowLeft, ArrowRight, Loader2, Globe, Eye, EyeOff, Home,
   User, BookOpenCheck, Users, Building2, Languages, CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -167,6 +167,11 @@ const CoursesSignup = () => {
             </span>
           </Link>
           <div className="flex items-center gap-2">
+            <Link to="/">
+              <Button size="sm" className="bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 font-bold gap-1.5" title={isRtl ? "الرئيسية" : "Home"}>
+                <Home className="w-4 h-4" />
+              </Button>
+            </Link>
             <Link to="/courses/login">
               <Button size="sm" className="bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 font-bold">
                 {isRtl ? "تسجيل الدخول" : "Sign In"}

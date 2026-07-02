@@ -136,7 +136,7 @@ const CoursesPlatform = () => {
         </header>
 
         {mobileMenuOpen && (
-          <div className="relative z-40 md:hidden px-6 pb-4 animate-fade-in">
+          <div className="relative z-40 lg:hidden px-4 sm:px-6 pb-4 animate-fade-in">
             <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-3 flex flex-col gap-2 shadow-2xl">
               <Link to="/courses/login" onClick={() => setMobileMenuOpen(false)}>
                 <Button size="sm" className="w-full justify-start gap-3 font-bold h-11 text-sm bg-white/10 text-white border border-white/15 hover:bg-white/20">

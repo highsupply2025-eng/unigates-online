@@ -102,6 +102,11 @@ const CoursesLogin = () => {
             </span>
           </Link>
           <div className="flex items-center gap-2">
+            <Link to="/">
+              <Button size="sm" className="bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 font-bold gap-1.5" title={isRtl ? "الرئيسية" : "Home"}>
+                <Home className="w-4 h-4" />
+              </Button>
+            </Link>
             <Link to="/courses/signup">
               <Button size="sm" className="bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 font-bold">
                 {isRtl ? "إنشاء حساب" : "Sign Up"}

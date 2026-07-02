@@ -121,11 +121,23 @@ const LecturerProfile = () => {
       }
 
       if (m.user_id) {
-        const { data: p } = await supabase
-          .from("profiles")
-          .select("full_name,email,phone,id_photo_url,live_photo_url,university_cert_url,additional_certs_urls,created_at")
-          .eq("user_id", m.user_id).maybeSingle();
-        setProfile(p as ProfileRow | null);
+        const [{ data: p }, { data: docs }] = await Promise.all([
+          supabase
+            .from("profiles")
+            .select("full_name,email,phone,created_at")
+            .eq("user_id", m.user_id).maybeSingle(),
+          supabase
+            .from("profile_documents")
+            .select("id_photo_url,live_photo_url,university_cert_url,additional_certs_urls")
+            .eq("user_id", m.user_id).maybeSingle(),
+        ]);
+        setProfile(p ? ({
+          ...(p as any),
+          id_photo_url: docs?.id_photo_url ?? null,
+          live_photo_url: docs?.live_photo_url ?? null,
+          university_cert_url: docs?.university_cert_url ?? null,
+          additional_certs_urls: docs?.additional_certs_urls ?? null,
+        } as ProfileRow) : null);
 
         if (m.role === "lecturer") {
           const [coursesRes, assignmentsRes, quizzesRes] = await Promise.all([

@@ -32,7 +32,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 // ── Interfaces ──
 interface UserRole { id: string; user_id: string; role: string; approved: boolean; created_at: string; }
 interface SchoolRegistration { id: string; school_name: string; principal_name: string; city: string; phone: string; email: string; student_count: number | null; address: string | null; message: string | null; status: string; created_at: string; }
-interface Profile { id: string; user_id: string; full_name: string; email: string; phone: string; role: string; platform: string; university_cert_url: string | null; additional_certs_urls: string[] | null; id_photo_url: string | null; live_photo_url: string | null; created_at: string; }
+interface ProfileDocuments { id_photo_url: string | null; university_cert_url: string | null; additional_certs_urls: string[] | null; live_photo_url: string | null; }
+interface Profile { id: string; user_id: string; full_name: string; email: string; phone: string; role: string; platform: string; created_at: string; documents?: ProfileDocuments | null; }
 interface Course { id: string; title_ar: string; title_en: string; instructor_ar: string; instructor_en: string; category_ar: string; category_en: string; episode_count: number; is_free: boolean; thumbnail_url: string | null; created_at: string; }
 interface Book { id: string; title_ar: string; title_en: string; author_ar: string; author_en: string; category: string; price: number; original_price: number | null; is_bestseller: boolean | null; is_new: boolean | null; is_active: boolean | null; rating: number | null; reviews_count: number | null; cover_url: string | null; created_at: string; }
 interface BookOrder { id: string; user_id: string; book_id: string; amount: number; status: string; created_at: string; book?: Book; profile?: Profile; }
@@ -575,15 +576,26 @@ const AdminDashboard = () => {
   const openDetail = async (user: UserRole & { profile?: Profile }) => {
     setSelectedUser(user); setShowDetailDialog(true);
     if (user.profile) {
+      // Fetch identity documents from restricted table
+      const { data: docsData } = await supabase
+        .from('profile_documents')
+        .select('id_photo_url, university_cert_url, additional_certs_urls, live_photo_url')
+        .eq('user_id', user.profile.user_id)
+        .maybeSingle();
+      const docs: ProfileDocuments | null = docsData ?? null;
+      if (user.profile) user.profile.documents = docs;
+
       const urls: Record<string, string> = {};
-      for (const field of ['live_photo_url', 'id_photo_url', 'university_cert_url'] as const) {
-        const val = user.profile?.[field];
-        if (val) { const signed = await getSignedUrl(val); if (signed) urls[field] = signed; }
-      }
-      if (user.profile.additional_certs_urls) {
-        for (let i = 0; i < user.profile.additional_certs_urls.length; i++) {
-          const signed = await getSignedUrl(user.profile.additional_certs_urls[i]);
-          if (signed) urls[`cert_${i}`] = signed;
+      if (docs) {
+        for (const field of ['live_photo_url', 'id_photo_url', 'university_cert_url'] as const) {
+          const val = docs[field];
+          if (val) { const signed = await getSignedUrl(val); if (signed) urls[field] = signed; }
+        }
+        if (docs.additional_certs_urls) {
+          for (let i = 0; i < docs.additional_certs_urls.length; i++) {
+            const signed = await getSignedUrl(docs.additional_certs_urls[i]);
+            if (signed) urls[`cert_${i}`] = signed;
+          }
         }
       }
       setSignedUrls(urls);
@@ -1713,7 +1725,7 @@ const AdminDashboard = () => {
                   <div className="grid grid-cols-2 gap-3">
                     {signedUrls.id_photo_url && <a href={signedUrls.id_photo_url} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors"><Shield className="w-6 h-6 text-primary mx-auto mb-1" /><p className="text-xs font-medium">{ar("صورة الهوية","ID Photo")}</p></a>}
                     {signedUrls.university_cert_url && <a href={signedUrls.university_cert_url} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors"><GraduationCap className="w-6 h-6 text-primary mx-auto mb-1" /><p className="text-xs font-medium">{ar("الشهادة الجامعية","University Cert")}</p></a>}
-                    {selectedUser.profile?.additional_certs_urls?.map((_, i) => signedUrls[`cert_${i}`] && <a key={i} href={signedUrls[`cert_${i}`]} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors"><BookOpen className="w-6 h-6 text-primary mx-auto mb-1" /><p className="text-xs font-medium">{ar(`شهادة إضافية ${i+1}`,`Certificate ${i+1}`)}</p></a>)}
+                    {selectedUser.profile?.documents?.additional_certs_urls?.map((_, i) => signedUrls[`cert_${i}`] && <a key={i} href={signedUrls[`cert_${i}`]} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors"><BookOpen className="w-6 h-6 text-primary mx-auto mb-1" /><p className="text-xs font-medium">{ar(`شهادة إضافية ${i+1}`,`Certificate ${i+1}`)}</p></a>)}
                   </div>
                 </div>
               )}

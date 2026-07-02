@@ -65,6 +65,8 @@ export const usePlatformStats = () => {
         publishers: Number(stats.publishers) || 0,
         teachers: Number(stats.teachers) || 0,
         parents: Number(stats.parents) || 0,
+        trainingCenters: Number(stats.training_centers) || 0,
+        languageCenters: Number(stats.language_centers) || 0,
       };
     },
     staleTime: 30_000,

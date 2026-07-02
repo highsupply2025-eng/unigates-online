@@ -24,15 +24,17 @@ const CoursesPlatform = () => {
 
   const { data: stats } = usePlatformStats();
   const lecturers = useCountUp(stats?.lecturers ?? 0);
-  const students = useCountUp(stats?.universityStudents ?? 0);
-  const courses = useCountUp(120);
-  const hours = useCountUp(2400);
+  const teachers = useCountUp(stats?.teachers ?? 0);
+  const students = useCountUp((stats?.universityStudents ?? 0) + (stats?.schoolStudents ?? 0));
+  const trainingCenters = useCountUp(stats?.trainingCenters ?? 0);
+  const languageCenters = useCountUp(stats?.languageCenters ?? 0);
 
   const statItems = [
-    { icon: PlayCircle, counter: courses, label: isRtl ? "دورة" : "Courses", color: "from-rose-500 to-pink-500" },
-    { icon: GraduationCap, counter: lecturers, label: isRtl ? "محاضر" : "Lecturers", color: "from-violet-500 to-purple-500" },
-    { icon: Users, counter: students, label: isRtl ? "طالب" : "Students", color: "from-indigo-500 to-blue-500" },
-    { icon: Award, counter: hours, label: isRtl ? "ساعة محتوى" : "Hours", color: "from-amber-500 to-orange-500" },
+    { icon: User, counter: students, label: isRtl ? "طالب" : "Students", color: "from-indigo-500 to-blue-500" },
+    { icon: BookOpenCheck, counter: lecturers, label: isRtl ? "محاضر" : "Lecturers", color: "from-violet-500 to-purple-500" },
+    { icon: Users, counter: teachers, label: isRtl ? "معلّم" : "Teachers", color: "from-emerald-500 to-teal-500" },
+    { icon: Building2, counter: trainingCenters, label: isRtl ? "مركز تدريب" : "Training Centers", color: "from-amber-500 to-orange-500" },
+    { icon: Languages, counter: languageCenters, label: isRtl ? "مركز لغات" : "Language Centers", color: "from-rose-500 to-pink-500" },
   ];
 
   const features = [
@@ -192,7 +194,7 @@ const CoursesPlatform = () => {
             </Link>
           </div>
 
-          <div className="max-w-3xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+          <div className="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-center">
             {statItems.map((item, i) => (
               <div key={i} ref={item.counter.ref} className="flex flex-col items-center gap-2 px-3 py-5 animate-fade-in bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 hover:bg-white/15 transition-all duration-300 shadow-lg shadow-black/10">
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg`}>

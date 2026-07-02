@@ -144,13 +144,15 @@ const DepartmentPage = () => {
       const linkedUserIds = allMembers.filter(m => m.user_id).map(m => m.user_id as string);
       let snapshotMap: Record<string, { email: string; phone: string; live_photo_url: string | null; full_name: string }> = {};
       if (linkedUserIds.length > 0) {
-        const { data: profilesData } = await supabase
-          .from("profiles")
-          .select("user_id,email,phone,live_photo_url,full_name")
-          .in("user_id", linkedUserIds);
+        const [{ data: profilesData }, { data: docsData }] = await Promise.all([
+          supabase.from("profiles").select("user_id,email,phone,full_name").in("user_id", linkedUserIds),
+          supabase.from("profile_documents").select("user_id,live_photo_url").in("user_id", linkedUserIds),
+        ]);
+        const docsById: Record<string, string | null> = {};
+        (docsData || []).forEach((d: any) => { docsById[d.user_id] = d.live_photo_url ?? null; });
         const map: Record<string, { email: string; phone: string; live_photo_url: string | null; full_name: string }> = {};
         (profilesData || []).forEach((p: any) => {
-          map[p.user_id] = { email: p.email, phone: p.phone, live_photo_url: p.live_photo_url, full_name: p.full_name };
+          map[p.user_id] = { email: p.email, phone: p.phone, live_photo_url: docsById[p.user_id] ?? null, full_name: p.full_name };
         });
         snapshotMap = map;
         setProfilesMap(map);

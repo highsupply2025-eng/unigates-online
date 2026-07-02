@@ -24,15 +24,17 @@ const CoursesPlatform = () => {
 
   const { data: stats } = usePlatformStats();
   const lecturers = useCountUp(stats?.lecturers ?? 0);
-  const students = useCountUp(stats?.universityStudents ?? 0);
-  const courses = useCountUp(120);
-  const hours = useCountUp(2400);
+  const teachers = useCountUp(stats?.teachers ?? 0);
+  const students = useCountUp((stats?.universityStudents ?? 0) + (stats?.schoolStudents ?? 0));
+  const trainingCenters = useCountUp(stats?.trainingCenters ?? 0);
+  const languageCenters = useCountUp(stats?.languageCenters ?? 0);
 
   const statItems = [
-    { icon: PlayCircle, counter: courses, label: isRtl ? "دورة" : "Courses", color: "from-rose-500 to-pink-500" },
-    { icon: GraduationCap, counter: lecturers, label: isRtl ? "محاضر" : "Lecturers", color: "from-violet-500 to-purple-500" },
-    { icon: Users, counter: students, label: isRtl ? "طالب" : "Students", color: "from-indigo-500 to-blue-500" },
-    { icon: Award, counter: hours, label: isRtl ? "ساعة محتوى" : "Hours", color: "from-amber-500 to-orange-500" },
+    { icon: User, counter: students, label: isRtl ? "طالب" : "Students", color: "from-indigo-500 to-blue-500" },
+    { icon: BookOpenCheck, counter: lecturers, label: isRtl ? "محاضر" : "Lecturers", color: "from-violet-500 to-purple-500" },
+    { icon: Users, counter: teachers, label: isRtl ? "معلّم" : "Teachers", color: "from-emerald-500 to-teal-500" },
+    { icon: Building2, counter: trainingCenters, label: isRtl ? "مركز تدريب" : "Training Centers", color: "from-amber-500 to-orange-500" },
+    { icon: Languages, counter: languageCenters, label: isRtl ? "مركز لغات" : "Language Centers", color: "from-rose-500 to-pink-500" },
   ];
 
   const features = [

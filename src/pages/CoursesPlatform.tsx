@@ -102,35 +102,35 @@ const CoursesPlatform = () => {
           backgroundSize: '32px 32px',
         }} />
 
-        <header className="relative z-50 flex items-center justify-between px-6 md:px-12 py-5">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover:bg-white/20 transition-all duration-300 shadow-lg shadow-black/10">
-              <GraduationCap className="w-7 h-7 text-white" />
+        <header className="relative z-50 flex items-center justify-between px-4 sm:px-6 md:px-12 py-4 sm:py-5 gap-2">
+          <Link to="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover:bg-white/20 transition-all duration-300 shadow-lg shadow-black/10 shrink-0">
+              <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
             </div>
-            <span className="text-2xl md:text-3xl font-black text-white tracking-tight drop-shadow-lg">{t.brandName}</span>
+            <span className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight drop-shadow-lg truncate">{t.brandName}</span>
           </Link>
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-2">
             <Link to="/courses/login">
-              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">{t.login}</Button>
+              <Button size="sm" className="font-bold px-4 xl:px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">{t.login}</Button>
             </Link>
             <Link to="/courses/signup">
-              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">{t.signup}</Button>
+              <Button size="sm" className="font-bold px-4 xl:px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">{t.signup}</Button>
             </Link>
             <Link to="/courses/browse">
-              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">{isRtl ? "تصفح الدورات" : "Browse Courses"}</Button>
+              <Button size="sm" className="font-bold px-4 xl:px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">{isRtl ? "تصفح الدورات" : "Browse Courses"}</Button>
             </Link>
             <Link to="/">
-              <Button size="sm" className="font-bold gap-1.5 px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
+              <Button size="sm" className="font-bold gap-1.5 px-4 xl:px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
                 <Home className="w-4 h-4" />
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
             </Link>
-            <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
+            <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 px-4 xl:px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
           </div>
-          <Button size="sm" className="md:hidden bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10 h-10 w-10 p-0" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+          <Button size="sm" className="lg:hidden bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10 h-10 w-10 p-0 shrink-0" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
         </header>

@@ -15,6 +15,9 @@ import PrefetchRoutes from "./PrefetchRoutes";
 
 const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));
+const CoursesPlatform = lazy(() => import("./pages/CoursesPlatform"));
+const CoursesSignup = lazy(() => import("./pages/CoursesSignup"));
+const CoursesLogin = lazy(() => import("./pages/CoursesLogin"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Courses = lazy(() => import("./pages/Courses"));

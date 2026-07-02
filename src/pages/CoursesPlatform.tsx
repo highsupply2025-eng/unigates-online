@@ -5,7 +5,7 @@ import {
   BookOpen, Users, GraduationCap, Globe, Home,
   Video, FileText, Award, ShieldCheck, MessageSquare, Layers,
   Sparkles, Trophy, Zap, Check, ArrowLeft, ArrowRight, Menu, X,
-  PlayCircle,
+  PlayCircle, User, BookOpenCheck, Building2, Languages,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

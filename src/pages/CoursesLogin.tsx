@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, Loader2, Globe, Eye, EyeOff } from "lucide-react";
+import { GraduationCap, Loader2, Globe, Eye, EyeOff, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

@@ -1725,7 +1725,7 @@ const AdminDashboard = () => {
                   <div className="grid grid-cols-2 gap-3">
                     {signedUrls.id_photo_url && <a href={signedUrls.id_photo_url} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors"><Shield className="w-6 h-6 text-primary mx-auto mb-1" /><p className="text-xs font-medium">{ar("صورة الهوية","ID Photo")}</p></a>}
                     {signedUrls.university_cert_url && <a href={signedUrls.university_cert_url} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors"><GraduationCap className="w-6 h-6 text-primary mx-auto mb-1" /><p className="text-xs font-medium">{ar("الشهادة الجامعية","University Cert")}</p></a>}
-                    {selectedUser.profile?.additional_certs_urls?.map((_, i) => signedUrls[`cert_${i}`] && <a key={i} href={signedUrls[`cert_${i}`]} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors"><BookOpen className="w-6 h-6 text-primary mx-auto mb-1" /><p className="text-xs font-medium">{ar(`شهادة إضافية ${i+1}`,`Certificate ${i+1}`)}</p></a>)}
+                    {selectedUser.profile?.documents?.additional_certs_urls?.map((_, i) => signedUrls[`cert_${i}`] && <a key={i} href={signedUrls[`cert_${i}`]} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-center hover:bg-muted/50 transition-colors"><BookOpen className="w-6 h-6 text-primary mx-auto mb-1" /><p className="text-xs font-medium">{ar(`شهادة إضافية ${i+1}`,`Certificate ${i+1}`)}</p></a>)}
                   </div>
                 </div>
               )}

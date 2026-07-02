@@ -102,41 +102,41 @@ const CoursesPlatform = () => {
           backgroundSize: '32px 32px',
         }} />
 
-        <header className="relative z-50 flex items-center justify-between px-6 md:px-12 py-5">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover:bg-white/20 transition-all duration-300 shadow-lg shadow-black/10">
-              <GraduationCap className="w-7 h-7 text-white" />
+        <header className="relative z-50 flex items-center justify-between px-4 sm:px-6 md:px-12 py-4 sm:py-5 gap-2">
+          <Link to="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover:bg-white/20 transition-all duration-300 shadow-lg shadow-black/10 shrink-0">
+              <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
             </div>
-            <span className="text-2xl md:text-3xl font-black text-white tracking-tight drop-shadow-lg">{t.brandName}</span>
+            <span className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight drop-shadow-lg truncate">{t.brandName}</span>
           </Link>
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-2">
             <Link to="/courses/login">
-              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">{t.login}</Button>
+              <Button size="sm" className="font-bold px-4 xl:px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">{t.login}</Button>
             </Link>
             <Link to="/courses/signup">
-              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">{t.signup}</Button>
+              <Button size="sm" className="font-bold px-4 xl:px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">{t.signup}</Button>
             </Link>
             <Link to="/courses/browse">
-              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">{isRtl ? "تصفح الدورات" : "Browse Courses"}</Button>
+              <Button size="sm" className="font-bold px-4 xl:px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">{isRtl ? "تصفح الدورات" : "Browse Courses"}</Button>
             </Link>
             <Link to="/">
-              <Button size="sm" className="font-bold gap-1.5 px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
+              <Button size="sm" className="font-bold gap-1.5 px-4 xl:px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
                 <Home className="w-4 h-4" />
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
             </Link>
-            <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
+            <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 px-4 xl:px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
           </div>
-          <Button size="sm" className="md:hidden bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10 h-10 w-10 p-0" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+          <Button size="sm" className="lg:hidden bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10 h-10 w-10 p-0 shrink-0" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
         </header>
 
         {mobileMenuOpen && (
-          <div className="relative z-40 md:hidden px-6 pb-4 animate-fade-in">
+          <div className="relative z-40 lg:hidden px-4 sm:px-6 pb-4 animate-fade-in">
             <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-3 flex flex-col gap-2 shadow-2xl">
               <Link to="/courses/login" onClick={() => setMobileMenuOpen(false)}>
                 <Button size="sm" className="w-full justify-start gap-3 font-bold h-11 text-sm bg-white/10 text-white border border-white/15 hover:bg-white/20">
@@ -165,30 +165,30 @@ const CoursesPlatform = () => {
           </div>
         )}
 
-        <div className="relative z-10 pb-20 px-6 md:px-12 text-center max-w-4xl mx-auto pt-14">
-          <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl shadow-black/20">
-              <PlayCircle className="w-10 h-10 text-white drop-shadow-lg" />
+        <div className="relative z-10 pb-12 sm:pb-20 px-4 sm:px-6 md:px-12 text-center max-w-4xl mx-auto pt-8 sm:pt-14">
+          <div className="flex justify-center mb-4 sm:mb-6">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl shadow-black/20">
+              <PlayCircle className="w-8 h-8 sm:w-10 sm:h-10 text-white drop-shadow-lg" />
             </div>
           </div>
-          <h1 className="text-3xl md:text-5xl font-black text-white mb-4 leading-tight drop-shadow-lg">
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-black text-white mb-3 sm:mb-4 leading-tight drop-shadow-lg">
             {isRtl ? "الدورات التعليمية" : "Online Courses"}
           </h1>
-          <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-white/80 text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed">
             {isRtl
               ? "منصة دورات احترافية بمحاضرات فيديو محمية واختبارات وشهادات معتمدة لتطور مسارك المهني خطوة بخطوة"
               : "A professional courses platform with protected video lectures, quizzes, and certified credentials to advance your career step by step"}
           </p>
 
 
-          <div className="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-center">
+          <div className="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3 text-center">
             {statItems.map((item, i) => (
-              <div key={i} ref={item.counter.ref} className="flex flex-col items-center gap-2 px-3 py-5 animate-fade-in bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 hover:bg-white/15 transition-all duration-300 shadow-lg shadow-black/10">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg`}>
-                  <item.icon className="w-6 h-6 text-white" />
+              <div key={i} ref={item.counter.ref} className="flex flex-col items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-3 sm:py-5 animate-fade-in bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 hover:bg-white/15 transition-all duration-300 shadow-lg shadow-black/10">
+                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg`}>
+                  <item.icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <span className="text-3xl md:text-4xl font-black text-white drop-shadow-md">{item.counter.count}</span>
-                <span className="text-xs font-bold text-white/80">{item.label}</span>
+                <span className="text-2xl sm:text-3xl md:text-4xl font-black text-white drop-shadow-md">{item.counter.count}</span>
+                <span className="text-[11px] sm:text-xs font-bold text-white/80">{item.label}</span>
               </div>
             ))}
           </div>

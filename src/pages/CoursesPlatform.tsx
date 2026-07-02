@@ -279,25 +279,31 @@ const CoursesPlatform = () => {
       </section>
 
       <Dialog open={showTypeDialog} onOpenChange={setShowTypeDialog}>
-        <DialogContent className="sm:max-w-md" dir={dir}>
+        <DialogContent className="sm:max-w-lg" dir={dir}>
           <DialogHeader>
             <DialogTitle className="text-center text-xl font-black">
               {isRtl ? "اختر نوع الحساب" : "Choose Account Type"}
             </DialogTitle>
           </DialogHeader>
-          <div className="grid grid-cols-2 gap-4 py-4">
-            <button onClick={() => { setShowTypeDialog(false); navigate("/courses/signup?role=personal"); }} className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all duration-200 group">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[hsl(220,80%,55%)] to-[hsl(240,70%,50%)] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <Users className="w-8 h-8 text-white" />
-              </div>
-              <span className="font-bold text-foreground text-lg">{isRtl ? "طالب" : "Student"}</span>
-            </button>
-            <button onClick={() => { setShowTypeDialog(false); navigate("/courses/signup?role=lecturer"); }} className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all duration-200 group">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[hsl(270,70%,55%)] to-[hsl(290,65%,48%)] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <GraduationCap className="w-8 h-8 text-white" />
-              </div>
-              <span className="font-bold text-foreground text-lg">{isRtl ? "محاضر" : "Lecturer"}</span>
-            </button>
+          <div className="grid grid-cols-2 gap-3 py-4">
+            {[
+              { role: "personal", ar: "طالب", en: "Student", Icon: User, color: "from-[hsl(220,80%,55%)] to-[hsl(240,70%,50%)]" },
+              { role: "lecturer", ar: "محاضر", en: "Lecturer", Icon: BookOpenCheck, color: "from-[hsl(270,70%,55%)] to-[hsl(290,65%,48%)]" },
+              { role: "teacher", ar: "معلّم", en: "Teacher", Icon: Users, color: "from-[hsl(155,70%,45%)] to-[hsl(170,65%,40%)]" },
+              { role: "training_center", ar: "مركز تدريب", en: "Training Center", Icon: Building2, color: "from-[hsl(35,90%,55%)] to-[hsl(25,85%,50%)]" },
+              { role: "language_center", ar: "مركز لغات", en: "Language Center", Icon: Languages, color: "from-[hsl(350,80%,55%)] to-[hsl(330,75%,50%)]" },
+            ].map(({ role, ar, en, Icon, color }) => (
+              <button
+                key={role}
+                onClick={() => { setShowTypeDialog(false); navigate(`/courses/signup?role=${role}`); }}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all duration-200 group"
+              >
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+                  <Icon className="w-7 h-7 text-white" />
+                </div>
+                <span className="font-bold text-foreground text-sm text-center">{isRtl ? ar : en}</span>
+              </button>
+            ))}
           </div>
         </DialogContent>
       </Dialog>

@@ -32,7 +32,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 // ── Interfaces ──
 interface UserRole { id: string; user_id: string; role: string; approved: boolean; created_at: string; }
 interface SchoolRegistration { id: string; school_name: string; principal_name: string; city: string; phone: string; email: string; student_count: number | null; address: string | null; message: string | null; status: string; created_at: string; }
-interface Profile { id: string; user_id: string; full_name: string; email: string; phone: string; role: string; platform: string; university_cert_url: string | null; additional_certs_urls: string[] | null; id_photo_url: string | null; live_photo_url: string | null; created_at: string; }
+interface ProfileDocuments { id_photo_url: string | null; university_cert_url: string | null; additional_certs_urls: string[] | null; live_photo_url: string | null; }
+interface Profile { id: string; user_id: string; full_name: string; email: string; phone: string; role: string; platform: string; created_at: string; documents?: ProfileDocuments | null; }
 interface Course { id: string; title_ar: string; title_en: string; instructor_ar: string; instructor_en: string; category_ar: string; category_en: string; episode_count: number; is_free: boolean; thumbnail_url: string | null; created_at: string; }
 interface Book { id: string; title_ar: string; title_en: string; author_ar: string; author_en: string; category: string; price: number; original_price: number | null; is_bestseller: boolean | null; is_new: boolean | null; is_active: boolean | null; rating: number | null; reviews_count: number | null; cover_url: string | null; created_at: string; }
 interface BookOrder { id: string; user_id: string; book_id: string; amount: number; status: string; created_at: string; book?: Book; profile?: Profile; }

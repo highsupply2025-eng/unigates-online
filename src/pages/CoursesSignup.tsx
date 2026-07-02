@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
-  GraduationCap, ArrowLeft, ArrowRight, Loader2, Globe, Eye, EyeOff,
+  GraduationCap, ArrowLeft, ArrowRight, Loader2, Globe, Eye, EyeOff, Home,
   User, BookOpenCheck, Users, Building2, Languages, CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

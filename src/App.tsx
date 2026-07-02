@@ -130,9 +130,9 @@ const App = () => (
             <PageTransition>
             <Routes>
               <Route path="/" element={<Index />} />
-              {/* Courses platform */}
-              <Route path="/courses" element={<CoursesPlatform />} />
-              <Route path="/courses/browse" element={<Courses />} />
+              {/* Courses platform — Coming Soon */}
+              <Route path="/courses" element={<ComingSoon />} />
+              <Route path="/courses/browse" element={<ComingSoon />} />
               <Route path="/signup" element={<Signup />} />
               
               <Route path="/signup/:role" element={<Signup />} />

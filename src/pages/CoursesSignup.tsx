@@ -256,15 +256,15 @@ const CoursesSignup = () => {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="fullName">{isRtl ? "الاسم الكامل" : "Full Name"}</Label>
-                  <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+                  <Label htmlFor="courses_full_name">{isRtl ? "الاسم الكامل" : "Full Name"}</Label>
+                  <Input id="courses_full_name" name="full_name" autoComplete="name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
                 </div>
                 <div>
-                  <Label htmlFor="email">{isRtl ? "البريد الإلكتروني" : "Email"}</Label>
-                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                  <Label htmlFor="courses_email">{isRtl ? "البريد الإلكتروني" : "Email"}</Label>
+                  <Input id="courses_email" name="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                 </div>
                 <div>
-                  <Label>{isRtl ? "رقم الهاتف" : "Phone"}</Label>
+                  <Label htmlFor="courses_phone">{isRtl ? "رقم الهاتف" : "Phone"}</Label>
                   <div className="flex gap-2">
                     <Select value={countryCode} onValueChange={setCountryCode}>
                       <SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
@@ -274,14 +274,14 @@ const CoursesSignup = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                    <Input value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))} required className="flex-1" />
+                    <Input id="courses_phone" name="phone" type="tel" autoComplete="tel-national" value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))} required className="flex-1" />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="password">{isRtl ? "كلمة المرور" : "Password"}</Label>
+                  <Label htmlFor="courses_password">{isRtl ? "كلمة المرور" : "Password"}</Label>
                   <div className="relative">
-                    <Input id="password" type={showPwd ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required />
-                    <button type="button" onClick={() => setShowPwd(!showPwd)} className="absolute end-2 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    <Input id="courses_password" name="password" type={showPwd ? "text" : "password"} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                    <button type="button" aria-label={showPwd ? (isRtl ? "إخفاء كلمة المرور" : "Hide password") : (isRtl ? "إظهار كلمة المرور" : "Show password")} onClick={() => setShowPwd(!showPwd)} className="absolute end-2 top-1/2 -translate-y-1/2 text-muted-foreground">
                       {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
@@ -290,10 +290,10 @@ const CoursesSignup = () => {
                   </p>
                 </div>
                 <div>
-                  <Label htmlFor="confirmPassword">{isRtl ? "تأكيد كلمة المرور" : "Confirm Password"}</Label>
+                  <Label htmlFor="courses_confirm_password">{isRtl ? "تأكيد كلمة المرور" : "Confirm Password"}</Label>
                   <div className="relative">
-                    <Input id="confirmPassword" type={showConfirmPwd ? "text" : "password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
-                    <button type="button" onClick={() => setShowConfirmPwd(!showConfirmPwd)} className="absolute end-2 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    <Input id="courses_confirm_password" name="confirm_password" type={showConfirmPwd ? "text" : "password"} autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+                    <button type="button" aria-label={showConfirmPwd ? (isRtl ? "إخفاء تأكيد كلمة المرور" : "Hide confirm password") : (isRtl ? "إظهار تأكيد كلمة المرور" : "Show confirm password")} onClick={() => setShowConfirmPwd(!showConfirmPwd)} className="absolute end-2 top-1/2 -translate-y-1/2 text-muted-foreground">
                       {showConfirmPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>

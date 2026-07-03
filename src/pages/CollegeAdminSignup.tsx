@@ -247,7 +247,7 @@ const CollegeAdminSignup = () => {
               </div>
 
               <div>
-                <Label htmlFor="college_logo" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
+                <Label className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
                   {isRtl ? "صورة الكلية" : "College Image"}
                 </Label>
                 <p className="text-xs text-muted-foreground mb-2">
@@ -266,7 +266,7 @@ const CollegeAdminSignup = () => {
                     </button>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center gap-2 h-32 border-2 border-dashed border-primary/30 rounded-xl cursor-pointer hover:bg-primary/5 transition-colors">
+                  <label htmlFor="college_logo" className="flex flex-col items-center justify-center gap-2 h-32 border-2 border-dashed border-primary/30 rounded-xl cursor-pointer hover:bg-primary/5 transition-colors">
                     <ImagePlus className="w-7 h-7 text-primary" />
                     <span className="text-sm font-medium text-muted-foreground">
                       {isRtl ? "اضغط لاختيار صورة (حد أقصى 5 ميجابايت)" : "Click to upload an image (max 5MB)"}

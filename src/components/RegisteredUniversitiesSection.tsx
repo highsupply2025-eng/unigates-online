@@ -79,6 +79,11 @@ const RegisteredUniversitiesSection = () => {
                         alt={col.college_name || ""}
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"
+                        onError={(e) => {
+                          const img = e.currentTarget;
+                          const fallback = collegeImages[i % collegeImages.length];
+                          if (img.src !== fallback) img.src = fallback;
+                        }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                       <div className="absolute top-3 left-3 z-10">

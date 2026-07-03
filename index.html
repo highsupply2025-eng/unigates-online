@@ -51,8 +51,7 @@
     <div id="root">
       <!-- Progressive fallback shown before JS boots. React clears it on mount. -->
       <div id="app-boot-fallback" style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#ffffff;color:#0f172a;font-family:'Cairo','Segoe UI',system-ui,sans-serif;padding:24px;text-align:center;" dir="rtl">
-        <div style="width:44px;height:44px;border:3px solid #e2e8f0;border-top-color:#2563eb;border-radius:50%;animation:unig-spin 0.9s linear infinite;margin-bottom:18px;"></div>
-        <div style="font-size:15px;font-weight:600;opacity:0.85;">جارٍ تحميل UNIGATES…</div>
+        <img src="/loading-logo.png" alt="UNIGATES" style="width:180px;height:auto;animation:unig-pulse 1.6s ease-in-out infinite;" />
         <div id="app-boot-slow" style="display:none;margin-top:18px;max-width:420px;">
           <div style="font-size:13px;line-height:1.7;opacity:0.75;margin-bottom:12px;">
             يستغرق التحميل وقتًا أطول من المعتاد. تحقّق من اتصالك بالإنترنت.
@@ -61,8 +60,9 @@
             إعادة المحاولة
           </button>
         </div>
-        <style>@keyframes unig-spin{to{transform:rotate(360deg)}}</style>
+        <style>@keyframes unig-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.96)}}</style>
       </div>
+
       <script>
         // If the app hasn't mounted after 8s, surface the retry UI.
         setTimeout(function () {

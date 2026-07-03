@@ -146,7 +146,7 @@ const InstituteAdminSignup = () => {
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
-            <Button size="icon" className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white" onClick={goBack}>
+            <Button size="icon" aria-label={isRtl ? "الرجوع" : "Back"} className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white" onClick={goBack}>
               {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
             </Button>
           </div>
@@ -154,7 +154,7 @@ const InstituteAdminSignup = () => {
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="icon" className="rounded-xl w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 text-white">
+                <Button size="icon" aria-label={isRtl ? "فتح القائمة" : "Open menu"} className="rounded-xl w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 text-white">
                   <Menu className="w-5 h-5" />
                 </Button>
               </DropdownMenuTrigger>
@@ -195,29 +195,29 @@ const InstituteAdminSignup = () => {
             <div className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
+                  <Label htmlFor="institute_name" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
                     {isRtl ? "اسم المعهد" : "Institute Name"} <span className="text-destructive">*</span>
                   </Label>
-                  <Input placeholder={isRtl ? "أدخل اسم المعهد" : "Enter institute name"} value={instituteName} onChange={(e) => setInstituteName(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" />
+                  <Input id="institute_name" name="institute_name" autoComplete="organization" placeholder={isRtl ? "أدخل اسم المعهد" : "Enter institute name"} value={instituteName} onChange={(e) => setInstituteName(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" />
                 </div>
                 <div>
-                  <Label className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
+                  <Label htmlFor="institute_director_name" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
                     {isRtl ? "اسم مدير المعهد" : "Director Name"} <span className="text-destructive">*</span>
                   </Label>
-                  <Input placeholder={isRtl ? "أدخل اسم مدير المعهد" : "Enter director name"} value={directorName} onChange={(e) => setDirectorName(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" />
+                  <Input id="institute_director_name" name="director_name" autoComplete="name" placeholder={isRtl ? "أدخل اسم مدير المعهد" : "Enter director name"} value={directorName} onChange={(e) => setDirectorName(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
+                  <Label htmlFor="institute_city" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
                     {isRtl ? "المدينة" : "City"} <span className="text-destructive">*</span>
                   </Label>
-                  <Input placeholder={isRtl ? "أدخل المدينة" : "Enter city"} value={city} onChange={(e) => setCity(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" />
+                  <Input id="institute_city" name="city" autoComplete="address-level2" placeholder={isRtl ? "أدخل المدينة" : "Enter city"} value={city} onChange={(e) => setCity(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" />
                 </div>
                 <div>
-                  <Label className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">{isRtl ? "العنوان التفصيلي" : "Detailed Address"}</Label>
-                  <Input placeholder={isRtl ? "أدخل العنوان التفصيلي" : "Enter detailed address"} value={address} onChange={(e) => setAddress(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" />
+                  <Label htmlFor="institute_address" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">{isRtl ? "العنوان التفصيلي" : "Detailed Address"}</Label>
+                  <Input id="institute_address" name="address" autoComplete="street-address" placeholder={isRtl ? "أدخل العنوان التفصيلي" : "Enter detailed address"} value={address} onChange={(e) => setAddress(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" />
                 </div>
               </div>
 
@@ -235,18 +235,18 @@ const InstituteAdminSignup = () => {
                       type="button"
                       onClick={() => { setLogoFile(null); setLogoPreview(null); }}
                       className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow"
-                      aria-label="remove"
+                      aria-label={isRtl ? "حذف صورة المعهد" : "Remove institute image"}
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center gap-2 h-32 border-2 border-dashed border-primary/30 rounded-xl cursor-pointer hover:bg-primary/5 transition-colors">
+                  <label htmlFor="institute_logo" className="flex flex-col items-center justify-center gap-2 h-32 border-2 border-dashed border-primary/30 rounded-xl cursor-pointer hover:bg-primary/5 transition-colors">
                     <ImagePlus className="w-7 h-7 text-primary" />
                     <span className="text-sm font-medium text-muted-foreground">
                       {isRtl ? "اضغط لاختيار صورة (حد أقصى 5 ميجابايت)" : "Click to upload an image (max 5MB)"}
                     </span>
-                    <input type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
+                    <input id="institute_logo" name="institute_logo" type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
                   </label>
                 )}
               </div>
@@ -255,19 +255,19 @@ const InstituteAdminSignup = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
+                  <Label htmlFor="institute_email" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
                     {isRtl ? "البريد الإلكتروني" : "Email"} <span className="text-destructive">*</span>
                   </Label>
-                  <Input type="email" placeholder="institute@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" dir="ltr" />
+                  <Input id="institute_email" name="email" type="email" autoComplete="email" placeholder="institute@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" dir="ltr" />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
+                  <Label htmlFor="institute_password" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
                     {isRtl ? "الرقم السري" : "Password"} <span className="text-destructive">*</span>
                   </Label>
-                  <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12" dir="ltr" />
+                  <Input id="institute_password" name="password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12" dir="ltr" />
                   {password && (
                     <div className="mt-2 space-y-1 text-xs">
                       <p className={/[A-Z]/.test(password) ? "text-green-600" : "text-destructive"}>{isRtl ? "✓ حرف كبير إنجليزي" : "✓ Uppercase letter"}</p>
@@ -279,11 +279,11 @@ const InstituteAdminSignup = () => {
                   )}
                 </div>
                 <div>
-                  <Label className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
+                  <Label htmlFor="institute_confirm_password" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
                     {isRtl ? "إعادة كتابة الرقم السري" : "Confirm Password"} <span className="text-destructive">*</span>
                   </Label>
                   
-                  <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12" dir="ltr" />
+                  <Input id="institute_confirm_password" name="confirm_password" type="password" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12" dir="ltr" />
                   {password && confirmPassword && password !== confirmPassword && (
                     <p className="text-sm text-destructive mt-1">{isRtl ? "الرقم السري غير متطابق" : "Passwords do not match"}</p>
                   )}
@@ -292,7 +292,7 @@ const InstituteAdminSignup = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
+                  <Label htmlFor="institute_phone" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
                     {isRtl ? "رقم الهاتف" : "Phone Number"} <span className="text-destructive">*</span>
                   </Label>
                   <div className="flex gap-2" dir="ltr">
@@ -304,25 +304,25 @@ const InstituteAdminSignup = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                    <Input type="tel" placeholder="12345678" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12 flex-1 text-base border-2 border-primary/40 focus:border-primary bg-card" dir="ltr" />
+                    <Input id="institute_phone" name="phone" type="tel" autoComplete="tel-national" placeholder="12345678" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12 flex-1 text-base border-2 border-primary/40 focus:border-primary bg-card" dir="ltr" />
                   </div>
                 </div>
                 <div>
-                  <Label className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">{isRtl ? "عدد الأقسام" : "Number of Departments"}</Label>
-                  <Input type="number" placeholder={isRtl ? "مثال: 5" : "e.g. 5"} value={studentCount} onChange={(e) => setStudentCount(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" dir="ltr" />
+                  <Label htmlFor="institute_department_count" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">{isRtl ? "عدد الأقسام" : "Number of Departments"}</Label>
+                  <Input id="institute_department_count" name="department_count" type="number" autoComplete="off" placeholder={isRtl ? "مثال: 5" : "e.g. 5"} value={studentCount} onChange={(e) => setStudentCount(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" dir="ltr" />
                 </div>
               </div>
               <div>
-                <Label className="mb-2 flex items-center gap-2 text-base font-extrabold text-[hsl(195,95%,22%)]">
+                <Label htmlFor="institute_student_count" className="mb-2 flex items-center gap-2 text-base font-extrabold text-[hsl(195,95%,22%)]">
                   <Users className="w-4 h-4" />
                   {isRtl ? "عدد الطلاب (تقريبي)" : "Student Count (approx.)"}
                 </Label>
-                <Input type="number" placeholder={isRtl ? "مثال: 500" : "e.g. 500"} value={actualStudentCount} onChange={(e) => setActualStudentCount(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" dir="ltr" />
+                <Input id="institute_student_count" name="student_count" type="number" autoComplete="off" placeholder={isRtl ? "مثال: 500" : "e.g. 500"} value={actualStudentCount} onChange={(e) => setActualStudentCount(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" dir="ltr" />
               </div>
 
               <div>
-                <Label className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">{isRtl ? "رسالة إضافية" : "Additional Message"}</Label>
-                <Textarea placeholder={isRtl ? "أي ملاحظات أو متطلبات خاصة..." : "Any notes or special requirements..."} value={message} onChange={(e) => setMessage(e.target.value)} className="min-h-[100px] text-base border-2 border-primary/40 focus:border-primary bg-card" />
+                <Label htmlFor="institute_message" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">{isRtl ? "رسالة إضافية" : "Additional Message"}</Label>
+                <Textarea id="institute_message" name="message" autoComplete="off" placeholder={isRtl ? "أي ملاحظات أو متطلبات خاصة..." : "Any notes or special requirements..."} value={message} onChange={(e) => setMessage(e.target.value)} className="min-h-[100px] text-base border-2 border-primary/40 focus:border-primary bg-card" />
               </div>
 
               <Button size="lg" className="w-full h-14 text-lg font-bold gap-2" disabled={!instituteName || !city || !email || !phone || !password || !confirmPassword || password !== confirmPassword || loading} onClick={handleSubmit}>

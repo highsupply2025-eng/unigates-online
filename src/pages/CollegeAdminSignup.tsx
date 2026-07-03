@@ -337,6 +337,10 @@ const CollegeAdminSignup = () => {
                 {isRtl ? "إرسال الطلب" : "Submit Request"}
               </Button>
 
+              <p className="text-center text-sm font-semibold text-muted-foreground pt-2">
+                {isRtl ? "تسجيل الكلية يخضع لموافقة إدارة المنصة" : "College registration is subject to the platform administration's approval"}
+              </p>
+
             </div>
           </div>
         ) : (

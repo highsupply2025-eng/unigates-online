@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Deny quiz questions to non-managers" ON public.institution_quiz_questions;

@@ -179,12 +179,12 @@ const BookStoreSignup = () => {
 
             <div className="space-y-4">
               <div>
-                <Label className="mb-2 block font-semibold">{t.signupPage.fullName} <span className="text-destructive">*</span></Label>
-                <Input placeholder={t.signupPage.fullNamePlaceholder} value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-12" />
+                <Label htmlFor="bs_full_name" className="mb-2 block font-semibold">{t.signupPage.fullName} <span className="text-destructive">*</span></Label>
+                <Input id="bs_full_name" name="full_name" autoComplete="name" placeholder={t.signupPage.fullNamePlaceholder} value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-12" />
               </div>
 
               <div>
-                <Label className="mb-2 block font-semibold">{t.signupPage.phone} <span className="text-destructive">*</span></Label>
+                <Label htmlFor="bs_phone" className="mb-2 block font-semibold">{t.signupPage.phone} <span className="text-destructive">*</span></Label>
                 <div className="flex gap-2" dir="ltr">
                   <Select value={countryCode} onValueChange={setCountryCode}>
                     <SelectTrigger className="h-12 w-[110px] shrink-0">
@@ -196,20 +196,20 @@ const BookStoreSignup = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                  <Input type="tel" placeholder={t.signupPage.phonePlaceholder} value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12 flex-1" dir="ltr" />
+                  <Input id="bs_phone" name="phone" type="tel" autoComplete="tel-national" placeholder={t.signupPage.phonePlaceholder} value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12 flex-1" dir="ltr" />
                 </div>
               </div>
 
               <div>
-                <Label className="mb-2 block font-semibold">{t.signupPage.email} <span className="text-destructive">*</span></Label>
-                <Input type="email" placeholder={t.signupPage.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} className="h-12" dir="ltr" />
+                <Label htmlFor="bs_email" className="mb-2 block font-semibold">{t.signupPage.email} <span className="text-destructive">*</span></Label>
+                <Input id="bs_email" name="email" type="email" autoComplete="email" placeholder={t.signupPage.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} className="h-12" dir="ltr" />
               </div>
 
               <div>
-                <Label className="mb-2 block font-bold text-primary">{t.signupPage.password} <span className="text-destructive">*</span></Label>
+                <Label htmlFor="bs_password" className="mb-2 block font-bold text-primary">{t.signupPage.password} <span className="text-destructive">*</span></Label>
                 <div className="relative">
-                  <Input type={showPassword ? "text" : "password"} placeholder={t.signupPage.passwordPlaceholder} value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pe-10 border-2 border-primary/20 focus:border-primary" dir="ltr" />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors">
+                  <Input id="bs_password" name="password" type={showPassword ? "text" : "password"} autoComplete="new-password" placeholder={t.signupPage.passwordPlaceholder} value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pe-10 border-2 border-primary/20 focus:border-primary" dir="ltr" />
+                  <button type="button" aria-label={showPassword ? (language === "ar" ? "إخفاء كلمة المرور" : "Hide password") : (language === "ar" ? "إظهار كلمة المرور" : "Show password")} onClick={() => setShowPassword(!showPassword)} className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors">
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
@@ -217,18 +217,19 @@ const BookStoreSignup = () => {
               </div>
 
               <div>
-                <Label className="mb-2 block font-bold text-primary">{t.signupPage.confirmPassword} <span className="text-destructive">*</span></Label>
-                <Input type={showConfirmPassword ? "text" : "password"} placeholder={t.signupPage.confirmPasswordPlaceholder} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
+                <Label htmlFor="bs_confirm_password" className="mb-2 block font-bold text-primary">{t.signupPage.confirmPassword} <span className="text-destructive">*</span></Label>
+                <Input id="bs_confirm_password" name="confirm_password" type={showConfirmPassword ? "text" : "password"} autoComplete="new-password" placeholder={t.signupPage.confirmPasswordPlaceholder} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" dir="ltr" />
                 <div className="flex items-center justify-between mt-1">
                   {confirmPassword && password !== confirmPassword ? (
                     <p className="text-xs text-destructive">{t.signupPage.passwordMismatch}</p>
                   ) : <span />}
-                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors">
+                  <button type="button" aria-label={showConfirmPassword ? (language === "ar" ? "إخفاء كلمة المرور" : "Hide password") : (language === "ar" ? "إظهار كلمة المرور" : "Show password")} onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors">
                     {showConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     {showConfirmPassword ? (language === "ar" ? "إخفاء" : "Hide") : (language === "ar" ? "إظهار" : "Show")}
                   </button>
                 </div>
               </div>
+
 
               <Button
                 size="lg"

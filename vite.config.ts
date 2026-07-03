@@ -12,6 +12,14 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
+  define: {
+    // Unique build ID baked into the client. Used to detect stale bundles and
+    // force a hard reload (+ Service Worker eviction) when the deployed
+    // version differs from what the browser last loaded.
+    __UNIGATES_BUILD_ID__: JSON.stringify(
+      process.env.LOVABLE_BUILD_ID || `${Date.now()}-${mode}`,
+    ),
+  },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
     alias: {

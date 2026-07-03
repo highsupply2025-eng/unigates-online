@@ -29,6 +29,23 @@ window.addEventListener("unhandledrejection", (e) => {
   if (isChunkErr(msg)) tryReloadOnce();
 });
 
+// Evict any stale Service Worker + its caches from previous deploys.
+// A cached SW can intercept module requests and return the wrong Content-Type
+// (e.g. `application/octet-stream`), which browsers refuse to execute per
+// strict MIME rules. Unregistering here guarantees the next reload fetches
+// fresh JS directly from the server.
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker
+    .getRegistrations()
+    .then((regs) => Promise.all(regs.map((r) => r.unregister())))
+    .then((results) => {
+      if (results.some(Boolean) && "caches" in window) {
+        return caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))));
+      }
+    })
+    .catch(() => {});
+}
+
 const rootEl = document.getElementById("root")!;
 // Clear the static HTML fallback loader before React takes over.
 rootEl.innerHTML = "";

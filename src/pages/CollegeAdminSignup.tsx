@@ -120,7 +120,24 @@ const CollegeAdminSignup = () => {
       if (error) throw error;
       setSubmitted(true);
     } catch (error: any) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+      const msg: string = error?.message || "";
+      const secMatch = msg.match(/after (\d+) seconds/i);
+      let friendly = msg;
+      if (secMatch) {
+        const s = secMatch[1];
+        friendly = isRtl
+          ? `لدواعٍ أمنية، يرجى المحاولة مرة أخرى بعد ${s} ثانية.`
+          : `For security purposes, please try again after ${s} seconds.`;
+      } else if (/already registered|already been registered|User already/i.test(msg)) {
+        friendly = isRtl
+          ? "هذا البريد الإلكتروني مُسجّل بالفعل. يرجى تسجيل الدخول أو استخدام بريد آخر."
+          : "This email is already registered. Please log in or use another email.";
+      } else if (/rate limit/i.test(msg)) {
+        friendly = isRtl
+          ? "تم تجاوز الحد المسموح من المحاولات. يرجى الانتظار قليلاً ثم إعادة المحاولة."
+          : "Too many attempts. Please wait a moment and try again.";
+      }
+      toast({ title: isRtl ? "خطأ" : "Error", description: friendly, variant: "destructive" });
     } finally {
       setLoading(false);
     }

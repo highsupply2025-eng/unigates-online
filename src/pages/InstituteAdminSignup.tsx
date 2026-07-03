@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
 import { getAuthCallbackUrl } from "@/lib/auth-redirect";
+import { uploadSignupLogo } from "@/lib/signup-logo-upload";
 
 const countryCodes = [
   { code: "+20", country: "🇪🇬" }, { code: "+966", country: "🇸🇦" },
@@ -93,15 +94,7 @@ const InstituteAdminSignup = () => {
 
       let logoUrl: string | null = null;
       if (logoFile) {
-        const ext = logoFile.name.split('.').pop() || 'jpg';
-        const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-        const { error: upErr } = await supabase.storage.from('institute-logos').upload(path, logoFile, {
-          contentType: logoFile.type,
-          upsert: false,
-        });
-        if (upErr) throw upErr;
-        const { data: pub } = supabase.storage.from('institute-logos').getPublicUrl(path);
-        logoUrl = pub.publicUrl;
+        logoUrl = await uploadSignupLogo("institute", logoFile);
       }
 
       const { error } = await supabase.from("institute_registrations" as any).insert({

@@ -100,20 +100,20 @@ const Contact = () => {
               <h2 className="text-2xl font-black text-foreground mb-6">{c.formTitle}</h2>
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <Label className="text-foreground font-bold">{c.name}</Label>
-                  <Input required className="mt-1.5 border-2 border-primary/20 focus:border-primary" />
+                  <Label htmlFor="contact_name" className="text-foreground font-bold">{c.name}</Label>
+                  <Input id="contact_name" name="name" autoComplete="name" required className="mt-1.5 border-2 border-primary/20 focus:border-primary" />
                 </div>
                 <div>
-                  <Label className="text-foreground font-bold">{c.email}</Label>
-                  <Input type="email" required className="mt-1.5 border-2 border-primary/20 focus:border-primary" />
+                  <Label htmlFor="contact_email" className="text-foreground font-bold">{c.email}</Label>
+                  <Input id="contact_email" name="email" type="email" autoComplete="email" required className="mt-1.5 border-2 border-primary/20 focus:border-primary" />
                 </div>
                 <div>
-                  <Label className="text-foreground font-bold">{c.subject}</Label>
-                  <Input required className="mt-1.5 border-2 border-primary/20 focus:border-primary" />
+                  <Label htmlFor="contact_subject" className="text-foreground font-bold">{c.subject}</Label>
+                  <Input id="contact_subject" name="subject" required className="mt-1.5 border-2 border-primary/20 focus:border-primary" />
                 </div>
                 <div>
-                  <Label className="text-foreground font-bold">{c.message}</Label>
-                  <Textarea required rows={5} className="mt-1.5 border-2 border-primary/20 focus:border-primary" />
+                  <Label htmlFor="contact_message" className="text-foreground font-bold">{c.message}</Label>
+                  <Textarea id="contact_message" name="message" required rows={5} className="mt-1.5 border-2 border-primary/20 focus:border-primary" />
                 </div>
                 <Button type="submit" disabled={sending} className="w-full bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] shadow-md text-white font-bold h-12">
                   {sending ? c.sending : c.send}

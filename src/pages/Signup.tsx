@@ -299,7 +299,7 @@ const Signup = () => {
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
-            <Button size="icon" className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white" onClick={() => {
+            <Button size="icon" aria-label={language === "ar" ? "الرجوع" : "Back"} className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white" onClick={() => {
               if (selectedRole && !submitted) {
                 setSelectedRole(null);
               } else {
@@ -314,7 +314,7 @@ const Signup = () => {
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="p-2 rounded-lg bg-primary/20 text-primary hover:bg-primary/30 transition-colors">
+                <button aria-label={language === "ar" ? "فتح القائمة" : "Open menu"} className="p-2 rounded-lg bg-primary/20 text-primary hover:bg-primary/30 transition-colors">
                   <Menu className="w-5 h-5" />
                 </button>
               </DropdownMenuTrigger>
@@ -484,7 +484,7 @@ const Signup = () => {
                     {idPhotoPreview ? (
                       <div className="relative w-full h-40 rounded-xl overflow-hidden border border-border">
                         <img src={idPhotoPreview} alt={t.signupPage.idPhoto} className="w-full h-full object-cover" />
-                        <button type="button" onClick={() => { setIdPhoto(null); setIdPhotoPreview(null); }} className="absolute top-2 left-2 w-8 h-8 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
+                        <button type="button" aria-label={language === "ar" ? "حذف صورة الهوية" : "Remove ID photo"} onClick={() => { setIdPhoto(null); setIdPhotoPreview(null); }} className="absolute top-2 left-2 w-8 h-8 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
                           <X className="w-4 h-4" />
                         </button>
                       </div>
@@ -506,7 +506,7 @@ const Signup = () => {
                       {uniCertPreview ? (
                         <div className="relative w-full h-40 rounded-xl overflow-hidden border border-border">
                           <img src={uniCertPreview} alt={t.signupPage.uniCert} className="w-full h-full object-cover" />
-                          <button type="button" onClick={() => { setUniCert(null); setUniCertPreview(null); }} className="absolute top-2 left-2 w-8 h-8 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
+                          <button type="button" aria-label={language === "ar" ? "حذف الشهادة الجامعية" : "Remove university certificate"} onClick={() => { setUniCert(null); setUniCertPreview(null); }} className="absolute top-2 left-2 w-8 h-8 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
                             <X className="w-4 h-4" />
                           </button>
                         </div>
@@ -530,7 +530,7 @@ const Signup = () => {
                         {additionalCertPreviews.map((preview, i) => (
                           <div key={i} className="relative h-28 rounded-lg overflow-hidden border border-border">
                             <img src={preview} alt={`${t.signupPage.additionalCerts} ${i + 1}`} className="w-full h-full object-cover" />
-                            <button type="button" onClick={() => removeAdditionalCert(i)} className="absolute top-1 left-1 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
+                            <button type="button" aria-label={language === "ar" ? `حذف الشهادة الإضافية ${i + 1}` : `Remove additional certificate ${i + 1}`} onClick={() => removeAdditionalCert(i)} className="absolute top-1 left-1 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
                               <X className="w-3 h-3" />
                             </button>
                           </div>
@@ -552,7 +552,7 @@ const Signup = () => {
                     {livePhotoPreview ? (
                       <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-primary mx-auto">
                         <img src={livePhotoPreview} alt={t.signupPage.livePhoto} className="w-full h-full object-cover" />
-                        <button type="button" onClick={() => { setLivePhoto(null); setLivePhotoPreview(null); }} className="absolute top-1 left-1 w-8 h-8 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
+                        <button type="button" aria-label={language === "ar" ? "حذف الصورة الشخصية" : "Remove live photo"} onClick={() => { setLivePhoto(null); setLivePhotoPreview(null); }} className="absolute top-1 left-1 w-8 h-8 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
                           <X className="w-4 h-4" />
                         </button>
                       </div>

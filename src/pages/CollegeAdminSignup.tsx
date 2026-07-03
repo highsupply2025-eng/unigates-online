@@ -164,7 +164,7 @@ const CollegeAdminSignup = () => {
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
-            <Button size="icon" className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white" onClick={goBack}>
+            <Button size="icon" aria-label={isRtl ? "الرجوع" : "Back"} className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white" onClick={goBack}>
               {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
             </Button>
           </div>
@@ -172,7 +172,7 @@ const CollegeAdminSignup = () => {
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="icon" className="rounded-xl w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 text-white">
+                <Button size="icon" aria-label={isRtl ? "فتح القائمة" : "Open menu"} className="rounded-xl w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 text-white">
                   <Menu className="w-5 h-5" />
                 </Button>
               </DropdownMenuTrigger>
@@ -260,7 +260,7 @@ const CollegeAdminSignup = () => {
                       type="button"
                       onClick={() => { setLogoFile(null); setLogoPreview(null); }}
                       className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow"
-                      aria-label="remove"
+                      aria-label={isRtl ? "حذف صورة الكلية" : "Remove college image"}
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>

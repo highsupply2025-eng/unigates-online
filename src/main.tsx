@@ -29,22 +29,57 @@ window.addEventListener("unhandledrejection", (e) => {
   if (isChunkErr(msg)) tryReloadOnce();
 });
 
-// Evict any stale Service Worker + its caches from previous deploys.
-// A cached SW can intercept module requests and return the wrong Content-Type
-// (e.g. `application/octet-stream`), which browsers refuse to execute per
-// strict MIME rules. Unregistering here guarantees the next reload fetches
-// fresh JS directly from the server.
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker
-    .getRegistrations()
-    .then((regs) => Promise.all(regs.map((r) => r.unregister())))
-    .then((results) => {
-      if (results.some(Boolean) && "caches" in window) {
-        return caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))));
+// Build-time constant injected by Vite (`define` in vite.config.ts).
+declare const __UNIGATES_BUILD_ID__: string;
+const BUILD_ID: string =
+  typeof __UNIGATES_BUILD_ID__ !== "undefined" ? __UNIGATES_BUILD_ID__ : "dev";
+const BUILD_ID_KEY = "__unigates_build_id__";
+const BUILD_RELOAD_KEY = "__unigates_build_reload__";
+
+/**
+ * Strict version-mismatch guard.
+ * Compares the build ID baked into this bundle with the last one the browser
+ * saw. If they differ (new deploy), we:
+ *   1. unregister every Service Worker (any scope, any script)
+ *   2. wipe Cache Storage
+ *   3. persist the new build ID
+ *   4. hard-reload the page ONCE per new build to fetch fresh JS/CSS.
+ * If they match, we still opportunistically evict any leftover SW from an
+ * older deploy that may still be intercepting module requests.
+ */
+(function enforceBuildFreshness() {
+  try {
+    const previous = localStorage.getItem(BUILD_ID_KEY);
+    const changed = previous !== null && previous !== BUILD_ID;
+    // Always record the current build ID so future loads can compare.
+    localStorage.setItem(BUILD_ID_KEY, BUILD_ID);
+
+    const evictSWsAndCaches = async () => {
+      if ("serviceWorker" in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map((r) => r.unregister().catch(() => false)));
       }
-    })
-    .catch(() => {});
-}
+      if ("caches" in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k).catch(() => false)));
+      }
+    };
+
+    if (changed) {
+      // New build detected — force a clean reload exactly once per new build.
+      const reloadedFor = sessionStorage.getItem(BUILD_RELOAD_KEY);
+      if (reloadedFor !== BUILD_ID) {
+        sessionStorage.setItem(BUILD_RELOAD_KEY, BUILD_ID);
+        evictSWsAndCaches().finally(() => window.location.reload());
+      }
+    } else {
+      // Same build: still evict any stale SW silently in the background.
+      evictSWsAndCaches().catch(() => {});
+    }
+  } catch {
+    /* storage unavailable — skip silently */
+  }
+})();
 
 const rootEl = document.getElementById("root")!;
 // Clear the static HTML fallback loader before React takes over.

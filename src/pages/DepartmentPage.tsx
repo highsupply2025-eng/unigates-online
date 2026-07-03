@@ -350,7 +350,12 @@ const DepartmentPage = () => {
           >
             <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full ${colorClass} flex items-center justify-center shrink-0 overflow-hidden ring-2 ring-background shadow-sm`}>
               {avatar ? (
-                <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
+                <img
+                  src={avatar}
+                  alt={displayName}
+                  className="w-full h-full object-cover"
+                  onError={(e) => { e.currentTarget.style.display = "none"; }}
+                />
               ) : icon}
             </div>
             <div className="min-w-0 flex-1">
@@ -557,7 +562,12 @@ const DepartmentPage = () => {
                   >
                     <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0 overflow-hidden">
                       {headProfile?.live_photo_url ? (
-                        <img src={headProfile.live_photo_url} alt={headProfile.full_name} className="w-full h-full object-cover" />
+                        <img
+                          src={headProfile.live_photo_url}
+                          alt={headProfile.full_name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => { e.currentTarget.style.display = "none"; }}
+                        />
                       ) : <Crown className="w-5 h-5 text-amber-600" />}
                     </div>
                     <div className="min-w-0 flex-1">

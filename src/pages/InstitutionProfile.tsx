@@ -306,7 +306,15 @@ const InstitutionProfile = () => {
               <div className="relative shrink-0">
                 <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-br from-primary to-primary/60 ring-4 ring-background shadow-xl overflow-hidden flex items-center justify-center">
                   {data.logo_url ? (
-                    <img src={data.logo_url} alt={data.name} className="w-full h-full object-cover" />
+                    <img
+                      src={data.logo_url}
+                      alt={data.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                        setData((d) => (d ? { ...d, logo_url: null } : d));
+                      }}
+                    />
                   ) : (
                     <span className="text-3xl font-black text-primary-foreground">{initials}</span>
                   )}

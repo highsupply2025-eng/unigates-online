@@ -209,7 +209,7 @@ const AdminDashboard = () => {
 
 
   const loadColleges = async () => {
-    const { data } = await supabase.from("college_registrations").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase.from("college_registrations").select("*").eq("email_confirmed", true).order("created_at", { ascending: false });
     setColleges(data || []);
   };
 

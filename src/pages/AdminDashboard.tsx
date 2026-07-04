@@ -234,7 +234,7 @@ const AdminDashboard = () => {
   };
 
   const loadInstitutes = async () => {
-    const { data } = await supabase.from("institute_registrations" as any).select("*").order("created_at", { ascending: false });
+    const { data } = await supabase.from("institute_registrations" as any).select("*").eq("email_confirmed", true).order("created_at", { ascending: false });
     setInstitutes((data as any[]) || []);
   };
 

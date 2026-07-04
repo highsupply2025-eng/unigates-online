@@ -209,7 +209,7 @@ const AdminDashboard = () => {
 
 
   const loadColleges = async () => {
-    const { data } = await supabase.from("college_registrations").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase.from("college_registrations").select("*").eq("email_confirmed", true).order("created_at", { ascending: false });
     setColleges(data || []);
   };
 
@@ -234,7 +234,7 @@ const AdminDashboard = () => {
   };
 
   const loadInstitutes = async () => {
-    const { data } = await supabase.from("institute_registrations" as any).select("*").order("created_at", { ascending: false });
+    const { data } = await supabase.from("institute_registrations" as any).select("*").eq("email_confirmed", true).order("created_at", { ascending: false });
     setInstitutes((data as any[]) || []);
   };
 
@@ -260,10 +260,10 @@ const AdminDashboard = () => {
       supabase.from("book_orders").select("*", { count: "exact", head: true }),
       supabase.from("user_subscriptions").select("*", { count: "exact", head: true }),
       supabase.from("live_streams").select("*", { count: "exact", head: true }),
-      supabase.from("college_registrations").select("*", { count: "exact", head: true }),
-      supabase.from("college_registrations").select("*", { count: "exact", head: true }).eq("status", "pending"),
-      supabase.from("institute_registrations" as any).select("*", { count: "exact", head: true }),
-      supabase.from("institute_registrations" as any).select("*", { count: "exact", head: true }).eq("status", "pending"),
+      supabase.from("college_registrations").select("*", { count: "exact", head: true }).eq("email_confirmed", true),
+      supabase.from("college_registrations").select("*", { count: "exact", head: true }).eq("status", "pending").eq("email_confirmed", true),
+      supabase.from("institute_registrations" as any).select("*", { count: "exact", head: true }).eq("email_confirmed", true),
+      supabase.from("institute_registrations" as any).select("*", { count: "exact", head: true }).eq("status", "pending").eq("email_confirmed", true),
       supabase.from("departments" as any).select("*", { count: "exact", head: true }),
       supabase.from("departments" as any).select("*", { count: "exact", head: true }).eq("payment_status", "unpaid"),
     ]);

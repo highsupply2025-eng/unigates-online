@@ -9,17 +9,28 @@ const AuthCallback = () => {
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
 
   useEffect(() => {
+    const markConfirmed = async (email?: string | null) => {
+      if (!email) return;
+      try {
+        await supabase.rpc("confirm_registration_email" as any, { _email: email });
+      } catch {
+        // best-effort; ignore
+      }
+    };
+
     const handleCallback = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
-        
+
         if (error) throw error;
 
         if (session) {
+          await markConfirmed(session.user?.email);
           setStatus("success");
         } else {
           const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             if (event === "SIGNED_IN" && session) {
+              markConfirmed(session.user?.email);
               setStatus("success");
               subscription.unsubscribe();
             }

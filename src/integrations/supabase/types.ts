@@ -360,6 +360,7 @@ export type Database = {
           created_at: string
           dean_name: string
           email: string
+          email_confirmed: boolean
           id: string
           logo_url: string | null
           message: string | null
@@ -377,6 +378,7 @@ export type Database = {
           created_at?: string
           dean_name: string
           email: string
+          email_confirmed?: boolean
           id?: string
           logo_url?: string | null
           message?: string | null
@@ -394,6 +396,7 @@ export type Database = {
           created_at?: string
           dean_name?: string
           email?: string
+          email_confirmed?: boolean
           id?: string
           logo_url?: string | null
           message?: string | null
@@ -899,6 +902,7 @@ export type Database = {
           created_at: string
           director_name: string
           email: string
+          email_confirmed: boolean
           id: string
           institute_name: string
           logo_url: string | null
@@ -915,6 +919,7 @@ export type Database = {
           created_at?: string
           director_name: string
           email: string
+          email_confirmed?: boolean
           id?: string
           institute_name: string
           logo_url?: string | null
@@ -931,6 +936,7 @@ export type Database = {
           created_at?: string
           director_name?: string
           email?: string
+          email_confirmed?: boolean
           id?: string
           institute_name?: string
           logo_url?: string | null
@@ -2407,6 +2413,10 @@ export type Database = {
           p_user_id: string
         }
         Returns: Json
+      }
+      confirm_registration_email: {
+        Args: { _email: string }
+        Returns: undefined
       }
       delete_email: {
         Args: { message_id: number; queue_name: string }

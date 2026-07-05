@@ -52,12 +52,12 @@ const AuthCallback = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0a1628] via-[#0d1f3c] to-[#0a1628] flex flex-col items-center justify-center" dir="rtl">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center" dir="rtl">
       <div className="text-center max-w-md mx-auto px-4">
         {/* Logo */}
         <div className="flex items-center justify-center mb-8">
           <img 
-            src="/images/unigates-logo.png" 
+            src="/images/unigates-logo-white.png" 
             alt="UNIGATES" 
             className="w-44 h-44 object-contain"
           />

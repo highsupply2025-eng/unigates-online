@@ -2494,6 +2494,7 @@ export type Database = {
         Args: { _department_id: string; _user_id: string }
         Returns: boolean
       }
+      is_email_confirmed: { Args: { _user_id: string }; Returns: boolean }
       is_leadership: { Args: { _user_id: string }; Returns: boolean }
       leadership_institution_ids: {
         Args: { _user_id: string }

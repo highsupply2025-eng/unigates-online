@@ -1,0 +1,54 @@
+# Cache strategy — prevent stale versions from double-loading the app.
+#
+# HTML + entry files must always revalidate so returning visitors get the
+# newest asset manifest on the very first request (no reload loop).
+# Hashed build assets under /assets/ are immutable and safe to long-cache.
+# Service-worker files must never be cached so the kill-switch can update
+# instantly on every visit.
+
+/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/sw.js
+  Cache-Control: no-store
+  Service-Worker-Allowed: /
+
+/service-worker.js
+  Cache-Control: no-store
+  Service-Worker-Allowed: /
+
+/manifest.webmanifest
+  Cache-Control: public, max-age=300, must-revalidate
+
+/manifest.json
+  Cache-Control: public, max-age=300, must-revalidate
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.png
+  Cache-Control: public, max-age=86400, must-revalidate
+
+/*.jpg
+  Cache-Control: public, max-age=86400, must-revalidate
+
+/*.jpeg
+  Cache-Control: public, max-age=86400, must-revalidate
+
+/*.svg
+  Cache-Control: public, max-age=86400, must-revalidate
+
+/*.webp
+  Cache-Control: public, max-age=86400, must-revalidate

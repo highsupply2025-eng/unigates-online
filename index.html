@@ -45,34 +45,27 @@
       }
     </script>
     <script>
-      // Evict any stale Service Worker BEFORE module scripts load.
-      // A leftover SW from a previous deploy can intercept /src/main.tsx and
-      // return the wrong MIME type ("application/octet-stream"), which the
-      // browser refuses to execute per strict MIME rules.
+      // Silently unregister any leftover Service Worker from a previous deploy.
+      // We do NOT reload here — reloading caused the home page to load twice
+      // on returning visitors. The unregister takes effect on the next visit
+      // naturally; module scripts on this load are served fresh from the network.
       (function () {
         try {
           if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function (regs) {
               if (!regs || !regs.length) return;
-              var RELOAD_KEY = '__unigates_sw_evicted__';
-              Promise.all(regs.map(function (r) { return r.unregister(); })).then(function () {
-                var clearCaches = ('caches' in window)
-                  ? caches.keys().then(function (keys) {
-                      return Promise.all(keys.map(function (k) { return caches.delete(k); }));
-                    })
-                  : Promise.resolve();
-                return clearCaches;
-              }).then(function () {
-                if (!sessionStorage.getItem(RELOAD_KEY)) {
-                  sessionStorage.setItem(RELOAD_KEY, '1');
-                  location.reload();
-                }
-              }).catch(function () {});
+              regs.forEach(function (r) { r.unregister().catch(function () {}); });
+              if ('caches' in window) {
+                caches.keys().then(function (keys) {
+                  keys.forEach(function (k) { caches.delete(k).catch(function () {}); });
+                }).catch(function () {});
+              }
             }).catch(function () {});
           }
         } catch (e) {}
       })();
     </script>
+
   </head>
 
   <body>

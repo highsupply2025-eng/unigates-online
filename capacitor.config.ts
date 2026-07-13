@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.6530b1d88d644a1bb26b383d9aa20082',
+  appId: 'com.unigates.online',
   appName: 'marafa-eg',
   webDir: 'dist',
   server: {

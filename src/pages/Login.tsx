@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Globe, Eye, EyeOff, LogIn, UserPlus, ChevronDown, Menu, Home } from "lucide-react";
 import {
   DropdownMenu,
@@ -21,6 +21,15 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  // If Supabase's OAuth consent (or any protected route) sent us here,
+  // consume `?next=` and return the user there after sign-in.
+  const nextParam = searchParams.get("next");
+  const safeNext =
+    nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")
+      ? nextParam
+      : null;
+  const goNext = (fallback: string) => navigate(safeNext ?? fallback);
   const goBack = useSmartBack();
   const { toast } = useToast();
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -60,13 +69,13 @@ const Login = () => {
       const schoolStudentRole = roles?.find((r) => r.role === "school_student");
 
       if (adminRole) {
-        navigate("/admin/dashboard");
+        goNext("/admin/dashboard");
         return;
       }
 
       if (leadershipRole || ["department_head", "vice_dean", "dean"].includes(profileRole || "")) {
         if (leadershipRole ? leadershipRole.approved : true) {
-          navigate("/leadership/dashboard");
+          goNext("/leadership/dashboard");
         } else {
           toast({
             title: language === "ar" ? "الحساب قيد المراجعة" : "Account Under Review",
@@ -82,7 +91,7 @@ const Login = () => {
 
       if (lecturerRole || profileRole === "lecturer") {
         if (lecturerRole?.approved) {
-          navigate("/lecturer/dashboard");
+          goNext("/lecturer/dashboard");
         } else {
           toast({
             title: language === "ar" ? "الحساب قيد المراجعة" : "Account Under Review",
@@ -97,17 +106,17 @@ const Login = () => {
       }
 
       if (personalRole || ["personal", "student", "parent"].includes(profileRole || "")) {
-        navigate("/student/dashboard");
+        goNext("/student/dashboard");
         return;
       }
 
       if (schoolTeacherRole || profileRole === "teacher") {
-        navigate("/school/teacher/dashboard");
+        goNext("/school/teacher/dashboard");
         return;
       }
 
       if (schoolStudentRole || profileRole === "school_student") {
-        navigate("/school/student/dashboard");
+        goNext("/school/student/dashboard");
         return;
       }
 
@@ -131,7 +140,7 @@ const Login = () => {
         const instituteReg = instituteResult.data;
 
         if (collegeReg?.status === "approved" || instituteReg?.status === "approved") {
-          navigate("/institution/dashboard");
+          goNext("/institution/dashboard");
           return;
         }
 
@@ -155,7 +164,7 @@ const Login = () => {
       }
 
       if (institutionType === "college" || institutionType === "institute") {
-        navigate("/institution/dashboard");
+        goNext("/institution/dashboard");
         return;
       }
 

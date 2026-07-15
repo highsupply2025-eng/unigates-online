@@ -45,8 +45,21 @@ function genCode() {
   return c;
 }
 
+// Cryptographically strong per-user temporary password.
+// 16 chars from a URL-safe alphabet, guaranteed to include letters + digits.
 function genPassword() {
-  return `Tmp${Math.random().toString(36).slice(2, 8)}${Math.floor(Math.random() * 9000 + 1000)}`;
+  const alpha = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+  const digits = "23456789";
+  const all = alpha + digits + "!@#$%^&*";
+  const buf = new Uint32Array(16);
+  crypto.getRandomValues(buf);
+  let out = "";
+  for (let i = 0; i < 16; i++) out += all[buf[i] % all.length];
+  // Ensure at least one digit + one letter
+  const d = new Uint32Array(2);
+  crypto.getRandomValues(d);
+  out = alpha[d[0] % alpha.length] + digits[d[1] % digits.length] + out.slice(2);
+  return out;
 }
 
 Deno.serve(async (req) => {
@@ -104,7 +117,6 @@ Deno.serve(async (req) => {
       if (u.email) byEmail[u.email.toLowerCase()] = u.id;
     }
 
-    const password = genPassword();
     const results: any[] = [];
 
     for (let i = 0; i < rows.length; i++) {
@@ -128,18 +140,23 @@ Deno.serve(async (req) => {
         // ok – phone optional for now
       }
 
+      // Unique, cryptographically-strong password per user.
+      const password = genPassword();
+
       try {
         let uid = byEmail[email] || null;
+        let createdNow = false;
         if (!uid) {
           const { data: created, error: ce } = await admin.auth.admin.createUser({
             email,
             password,
             email_confirm: true,
-            user_metadata: { full_name, seeded_via: "institution_bulk" },
+            user_metadata: { full_name, seeded_via: "institution_bulk", must_reset_password: true },
           });
           if (ce || !created.user) throw new Error(ce?.message || "createUser failed");
           uid = created.user.id;
           byEmail[email] = uid;
+          createdNow = true;
         }
 
         // Upsert profile
@@ -181,14 +198,14 @@ Deno.serve(async (req) => {
           if (dme) throw new Error(`member: ${dme.message}`);
         }
 
-        results.push({ row: i + 2, email, ok: true, role });
+        results.push({ row: i + 2, email, ok: true, role, password: createdNow ? password : undefined });
       } catch (err: any) {
         results.push({ row: i + 2, email, ok: false, error: err?.message || String(err) });
       }
     }
 
     const ok = results.filter((r) => r.ok).length;
-    return json({ success: true, total: rows.length, created: ok, failed: rows.length - ok, password, results });
+    return json({ success: true, total: rows.length, created: ok, failed: rows.length - ok, results });
   } catch (e: any) {
     return json({ error: e?.message || String(e) }, 500);
   }

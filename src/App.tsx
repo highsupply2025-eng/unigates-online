@@ -99,6 +99,8 @@ const StudentRatings = lazy(() => import("./pages/StudentRatings"));
 const StudentPresenceCheckin = lazy(() => import("./pages/StudentPresenceCheckin"));
 
 const StudentMyAcademic = lazy(() => import("./pages/StudentMyAcademic"));
+const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -233,6 +235,7 @@ const App = () => (
               <Route path="/certificates" element={<ComingSoon />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/faq" element={<FAQ />} />
+              <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             </PageTransition>

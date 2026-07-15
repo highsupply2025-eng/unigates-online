@@ -335,7 +335,7 @@ const InstituteAdminSignup = () => {
                 <Textarea id="institute_message" name="message" autoComplete="off" placeholder={isRtl ? "أي ملاحظات أو متطلبات خاصة..." : "Any notes or special requirements..."} value={message} onChange={(e) => setMessage(e.target.value)} className="min-h-[100px] text-base border-2 border-primary/40 focus:border-primary bg-card" />
               </div>
 
-              <Button size="lg" className="w-full h-14 text-lg font-bold gap-2" disabled={!instituteName || !city || !email || !phone || !password || !confirmPassword || password !== confirmPassword || loading} onClick={handleSubmit}>
+              <Button type="button" size="lg" className="w-full h-14 text-lg font-bold gap-2" disabled={!instituteName || !directorName || !city || !email || !phone || !password || !confirmPassword || password !== confirmPassword || loading} onClick={handleSubmit}>
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                 {isRtl ? "إرسال الطلب" : "Submit Request"}
               </Button>

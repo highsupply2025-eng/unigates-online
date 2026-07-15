@@ -31,6 +31,10 @@ const LeadershipStreamsByStatus = () => {
   const [loading, setLoading] = useState(true);
   const [streams, setStreams] = useState<any[]>([]);
   const [attendance, setAttendance] = useState<Record<string, number>>({});
+  const [refreshTick, setRefreshTick] = useState(0);
+
+  // Auto-refresh on live changes (mirrors college & institute dashboards)
+  useRealtimeRefresh(["live_streams", "stream_attendance"], () => setRefreshTick((n) => n + 1));
 
   useEffect(() => {
     let cancelled = false;

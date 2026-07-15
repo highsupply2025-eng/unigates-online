@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ShieldCheck, Calendar, CheckCircle, Clock, Loader2, Download, Eye } from "lucide-react";
 import SubPageHeader from "@/components/SubPageHeader";
+import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 
 type ApprovalType = "quizzes" | "schedules";
 type ApprovalStatus = "approved" | "pending";

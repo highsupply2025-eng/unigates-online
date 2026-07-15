@@ -64,7 +64,8 @@ serve(async (req) => {
 
   try {
     // Public endpoint: allow anonymous chat. Only rate-limit input size.
-
+    const body = await req.json().catch(() => ({}));
+    const messages = body?.messages;
 
     if (!messages || !Array.isArray(messages)) {
       return new Response(JSON.stringify({ error: "Messages array is required" }), {

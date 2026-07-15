@@ -240,34 +240,34 @@ const UniversityPlatform = () => {
           </div>
         )}
 
-        <div className="relative z-10 pb-20 px-6 md:px-12 text-center max-w-4xl mx-auto pt-14">
-          <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl shadow-black/20">
-              <Landmark className="w-10 h-10 text-white drop-shadow-lg" />
+        <div className="relative z-10 pb-8 md:pb-12 px-6 md:px-12 text-center max-w-4xl mx-auto pt-6 md:pt-8">
+          <div className="flex justify-center mb-3 md:mb-4">
+            <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl shadow-black/20">
+              <Landmark className="w-7 h-7 md:w-8 md:h-8 text-white drop-shadow-lg" />
             </div>
           </div>
-          <h1 className="text-3xl md:text-5xl font-black text-white mb-4 leading-tight drop-shadow-lg">
+          <h1 className="text-2xl md:text-4xl font-black text-white mb-2 md:mb-3 leading-tight drop-shadow-lg">
             {isRtl ? "المنصة الجامعية" : "University Platform"}
           </h1>
-          <p className="text-white/75 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-white/75 text-sm md:text-base max-w-2xl mx-auto mb-5 md:mb-6 leading-relaxed">
             {isRtl
               ? "منصة أكاديمية شاملة تربط الكليات والمعاهد بأحدث تقنيات التعليم الرقمي لتمكين الطلاب والأساتذة من تجربة تعليمية استثنائية"
               : "A comprehensive academic platform connecting colleges and institutes with cutting-edge digital education technology for an exceptional learning experience"}
           </p>
 
           {/* Stats with colored icon backgrounds */}
-          <div className="max-w-3xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+          <div className="max-w-3xl mx-auto grid grid-cols-4 gap-2 md:gap-3 text-center">
             {statItems.map((item, i) => (
               <div
                 key={i}
                 ref={item.counter.ref}
-                className="flex flex-col items-center gap-2 px-3 py-5 animate-fade-in bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 hover:bg-white/15 transition-all duration-300 shadow-lg shadow-black/10"
+                className="flex flex-col items-center gap-1 md:gap-1.5 px-1.5 py-2.5 md:px-3 md:py-4 animate-fade-in bg-white/10 backdrop-blur-md rounded-xl md:rounded-2xl border border-white/15 hover:bg-white/15 transition-all duration-300 shadow-lg shadow-black/10"
               >
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg`}>
-                  <item.icon className="w-6 h-6 text-white" />
+                <div className={`w-8 h-8 md:w-11 md:h-11 rounded-lg md:rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg`}>
+                  <item.icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
                 </div>
-                <span className="text-3xl md:text-4xl font-black text-white drop-shadow-md">{item.counter.count}</span>
-                <span className="text-xs font-bold text-white/80">{item.label}</span>
+                <span className="text-lg md:text-3xl font-black text-white drop-shadow-md">{item.counter.count}</span>
+                <span className="text-[9px] md:text-xs font-bold text-white/80 leading-tight">{item.label}</span>
               </div>
             ))}
           </div>

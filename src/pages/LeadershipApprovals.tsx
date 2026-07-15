@@ -26,6 +26,13 @@ const LeadershipApprovals = () => {
   const [courses, setCourses] = useState<any[]>([]);
   const [userRole, setUserRole] = useState("");
   const [subRole, setSubRole] = useState<string>("");
+  const [refreshTick, setRefreshTick] = useState(0);
+
+  // Auto-refresh for both college & institute approval boards
+  useRealtimeRefresh(
+    ["quizzes", "lecture_schedules", "courses", "user_roles"],
+    () => setRefreshTick((n) => n + 1)
+  );
 
   useEffect(() => {
     let cancelled = false;

@@ -211,7 +211,7 @@ const InstitutionDashboard = () => {
   const [generatedInviteCode, setGeneratedInviteCode] = useState("");
   const [generatingInviteLink, setGeneratingInviteLink] = useState(false);
   const [bulkUploading, setBulkUploading] = useState(false);
-  const [bulkResult, setBulkResult] = useState<{ created: number; failed: number; total: number; password: string; results: any[] } | null>(null);
+  const [bulkResult, setBulkResult] = useState<{ created: number; failed: number; total: number; results: any[] } | null>(null);
   const [accountSystemChoice, setAccountSystemChoice] = useState<"invitations" | "accounts" | null>(null);
   const [pendingChoice, setPendingChoice] = useState<"invitations" | "accounts" | null>(null);
   const [membersActiveOnly, setMembersActiveOnly] = useState(false);

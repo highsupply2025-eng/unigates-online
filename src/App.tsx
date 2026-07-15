@@ -235,6 +235,7 @@ const App = () => (
               <Route path="/certificates" element={<ComingSoon />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/faq" element={<FAQ />} />
+              <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             </PageTransition>

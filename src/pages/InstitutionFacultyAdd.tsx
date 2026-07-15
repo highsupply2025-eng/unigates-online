@@ -138,7 +138,8 @@ const InstitutionFacultyAdd = () => {
       setUploading(true);
       const { data: { user } } = await supabase.auth.getUser();
       const ext = file.name.split(".").pop();
-      const path = `faculty/${user?.id || "anon"}/${Date.now()}.${ext}`;
+      if (!user?.id) throw new Error(isRtl ? "يجب تسجيل الدخول" : "Must be logged in");
+      const path = `${user.id}/faculty/${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
       if (error) throw error;
       const { data } = supabase.storage.from("avatars").getPublicUrl(path);

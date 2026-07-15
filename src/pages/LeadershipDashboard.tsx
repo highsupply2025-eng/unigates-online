@@ -29,6 +29,7 @@ import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 
 import RatingsBreakdown from "@/components/RatingsBreakdown";
+import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 
 const LeadershipDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();

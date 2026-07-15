@@ -2668,15 +2668,39 @@ ${rows.map((r: any, i: number) => `<tr>
                               {isRtl ? `الإجمالي: ${bulkResult.total}` : `Total: ${bulkResult.total}`}
                             </Badge>
                           </div>
-                          <div className="bg-muted/40 rounded-lg p-3 flex items-center gap-2 text-sm">
-                            <span className="font-semibold">{isRtl ? "كلمة المرور المؤقتة:" : "Temporary password:"}</span>
-                            <code className="font-mono text-primary font-bold">{bulkResult.password}</code>
-                            <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { navigator.clipboard.writeText(bulkResult.password); sonnerToast.success(isRtl ? "تم النسخ" : "Copied"); }}>
-                              <Copy className="w-3.5 h-3.5" />
-                            </Button>
+                          <div className="bg-muted/40 rounded-lg p-3 space-y-2">
+                            <div className="flex items-center justify-between gap-2 text-sm">
+                              <span className="font-semibold">{isRtl ? "كلمات مرور مؤقتة (فريدة لكل حساب):" : "Temporary passwords (unique per account):"}</span>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7"
+                                onClick={() => {
+                                  const lines = bulkResult.results
+                                    .filter((r: any) => r.ok && r.password)
+                                    .map((r: any) => `${r.email},${r.password}`)
+                                    .join("\n");
+                                  navigator.clipboard.writeText(lines);
+                                  sonnerToast.success(isRtl ? "تم نسخ كل الحسابات" : "All accounts copied");
+                                }}
+                              >
+                                <Copy className="w-3.5 h-3.5 me-1" /> {isRtl ? "نسخ الكل" : "Copy all"}
+                              </Button>
+                            </div>
+                            <div className="max-h-48 overflow-auto text-xs space-y-1">
+                              {bulkResult.results.filter((r: any) => r.ok && r.password).map((r: any, i: number) => (
+                                <div key={i} className="flex items-center gap-2 py-1 border-b last:border-0">
+                                  <span className="font-mono flex-1 truncate">{r.email}</span>
+                                  <code className="font-mono text-primary font-bold">{r.password}</code>
+                                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => { navigator.clipboard.writeText(`${r.email}\n${r.password}`); sonnerToast.success(isRtl ? "تم النسخ" : "Copied"); }}>
+                                    <Copy className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                           <p className="text-xs text-muted-foreground">
-                            {isRtl ? "شارك كلمة المرور مع المستخدمين الجدد ليسجلوا الدخول بإيميلاتهم، ويمكنهم تغييرها لاحقاً." : "Share this password with the new users; they can log in with their emails and change it later."}
+                            {isRtl ? "لكل حساب كلمة مرور مؤقتة فريدة. شارك كل واحدة مع صاحبها، وسيُطلب منه تغييرها عند أول تسجيل دخول." : "Each account has its own unique temporary password. Share each one privately with its owner; they'll be prompted to change it on first login."}
                           </p>
                           {bulkResult.failed > 0 && (
                             <div className="max-h-64 overflow-auto border rounded-lg p-2 space-y-1">

@@ -117,7 +117,6 @@ Deno.serve(async (req) => {
       if (u.email) byEmail[u.email.toLowerCase()] = u.id;
     }
 
-    const password = genPassword();
     const results: any[] = [];
 
     for (let i = 0; i < rows.length; i++) {
@@ -141,18 +140,23 @@ Deno.serve(async (req) => {
         // ok – phone optional for now
       }
 
+      // Unique, cryptographically-strong password per user.
+      const password = genPassword();
+
       try {
         let uid = byEmail[email] || null;
+        let createdNow = false;
         if (!uid) {
           const { data: created, error: ce } = await admin.auth.admin.createUser({
             email,
             password,
             email_confirm: true,
-            user_metadata: { full_name, seeded_via: "institution_bulk" },
+            user_metadata: { full_name, seeded_via: "institution_bulk", must_reset_password: true },
           });
           if (ce || !created.user) throw new Error(ce?.message || "createUser failed");
           uid = created.user.id;
           byEmail[email] = uid;
+          createdNow = true;
         }
 
         // Upsert profile

@@ -56,6 +56,9 @@ export default function LeadershipPresence() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date]);
 
+  // Live updates for both college & institute dashboards
+  useRealtimeRefresh(["student_presence_checkins", "profiles"], () => load());
+
   const load = async () => {
     setLoading(true);
     try {

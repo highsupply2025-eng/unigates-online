@@ -320,16 +320,14 @@ const InstituteAdminSignup = () => {
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="institute_department_count" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">{isRtl ? "عدد الأقسام" : "Number of Departments"}</Label>
-                  <Input id="institute_department_count" name="department_count" type="number" autoComplete="off" placeholder={isRtl ? "مثال: 5" : "e.g. 5"} value={studentCount} onChange={(e) => setStudentCount(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" dir="ltr" />
+                  <Label htmlFor="institute_student_count" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">{isRtl ? "عدد الطلاب (تقريبي)" : "Student Count (approx.)"}</Label>
+                  <Input id="institute_student_count" name="student_count" type="number" autoComplete="off" placeholder={isRtl ? "مثال: 500" : "e.g. 500"} value={actualStudentCount} onChange={(e) => setActualStudentCount(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" dir="ltr" />
                 </div>
               </div>
+
               <div>
-                <Label htmlFor="institute_student_count" className="mb-2 flex items-center gap-2 text-base font-extrabold text-[hsl(195,95%,22%)]">
-                  <Users className="w-4 h-4" />
-                  {isRtl ? "عدد الطلاب (تقريبي)" : "Student Count (approx.)"}
-                </Label>
-                <Input id="institute_student_count" name="student_count" type="number" autoComplete="off" placeholder={isRtl ? "مثال: 500" : "e.g. 500"} value={actualStudentCount} onChange={(e) => setActualStudentCount(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" dir="ltr" />
+                <Label htmlFor="institute_department_count" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">{isRtl ? "عدد الأقسام العلمية" : "Number of Departments"}</Label>
+                <Input id="institute_department_count" name="department_count" type="number" autoComplete="off" placeholder={isRtl ? "مثال: 5" : "e.g. 5"} value={studentCount} onChange={(e) => setStudentCount(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" dir="ltr" />
               </div>
 
               <div>
@@ -341,6 +339,11 @@ const InstituteAdminSignup = () => {
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                 {isRtl ? "إرسال الطلب" : "Submit Request"}
               </Button>
+
+              <p className="text-center text-sm font-semibold text-muted-foreground pt-2">
+                {isRtl ? "تسجيل المعهد يخضع لموافقة إدارة المنصة" : "Institute registration is subject to the platform administration's approval"}
+              </p>
+
 
               {/* Pricing Banner */}
               <div className="rounded-2xl border-2 border-primary/20 bg-primary/5 p-6 space-y-4">

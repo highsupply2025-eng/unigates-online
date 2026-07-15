@@ -68,7 +68,7 @@ const LeadershipApprovals = () => {
       setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [type, isQuizzes, navigate]);
+  }, [type, isQuizzes, navigate, refreshTick]);
 
   const vdColumn =
     subRole === "vice_dean_students" ? "students"

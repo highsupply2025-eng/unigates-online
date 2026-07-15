@@ -225,10 +225,12 @@ const InstituteAdminSignup = () => {
                   </Label>
                   <Input id="institute_city" name="city" autoComplete="address-level2" placeholder={isRtl ? "أدخل المدينة" : "Enter city"} value={city} onChange={(e) => setCity(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" />
                 </div>
-                <div>
-                  <Label htmlFor="institute_address" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">{isRtl ? "العنوان التفصيلي" : "Detailed Address"}</Label>
-                  <Input id="institute_address" name="address" autoComplete="street-address" placeholder={isRtl ? "أدخل العنوان التفصيلي" : "Enter detailed address"} value={address} onChange={(e) => setAddress(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" />
-                </div>
+                <div />
+              </div>
+
+              <div>
+                <Label htmlFor="institute_address" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">{isRtl ? "العنوان التفصيلي" : "Detailed Address"}</Label>
+                <Input id="institute_address" name="address" autoComplete="street-address" placeholder={isRtl ? "أدخل العنوان التفصيلي" : "Enter detailed address"} value={address} onChange={(e) => setAddress(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" />
               </div>
 
               <div>
@@ -318,16 +320,14 @@ const InstituteAdminSignup = () => {
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="institute_department_count" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">{isRtl ? "عدد الأقسام" : "Number of Departments"}</Label>
-                  <Input id="institute_department_count" name="department_count" type="number" autoComplete="off" placeholder={isRtl ? "مثال: 5" : "e.g. 5"} value={studentCount} onChange={(e) => setStudentCount(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" dir="ltr" />
+                  <Label htmlFor="institute_student_count" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">{isRtl ? "عدد الطلاب (تقريبي)" : "Student Count (approx.)"}</Label>
+                  <Input id="institute_student_count" name="student_count" type="number" autoComplete="off" placeholder={isRtl ? "مثال: 500" : "e.g. 500"} value={actualStudentCount} onChange={(e) => setActualStudentCount(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" dir="ltr" />
                 </div>
               </div>
+
               <div>
-                <Label htmlFor="institute_student_count" className="mb-2 flex items-center gap-2 text-base font-extrabold text-[hsl(195,95%,22%)]">
-                  <Users className="w-4 h-4" />
-                  {isRtl ? "عدد الطلاب (تقريبي)" : "Student Count (approx.)"}
-                </Label>
-                <Input id="institute_student_count" name="student_count" type="number" autoComplete="off" placeholder={isRtl ? "مثال: 500" : "e.g. 500"} value={actualStudentCount} onChange={(e) => setActualStudentCount(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" dir="ltr" />
+                <Label htmlFor="institute_department_count" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">{isRtl ? "عدد الأقسام العلمية" : "Number of Departments"}</Label>
+                <Input id="institute_department_count" name="department_count" type="number" autoComplete="off" placeholder={isRtl ? "مثال: 5" : "e.g. 5"} value={studentCount} onChange={(e) => setStudentCount(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" dir="ltr" />
               </div>
 
               <div>
@@ -340,48 +340,10 @@ const InstituteAdminSignup = () => {
                 {isRtl ? "إرسال الطلب" : "Submit Request"}
               </Button>
 
-              {/* Pricing Banner */}
-              <div className="rounded-2xl border-2 border-primary/20 bg-primary/5 p-6 space-y-4">
-                {plan === "free" ? (
-                  <>
-                    <div className="flex items-center justify-center gap-3">
-                      <div className="bg-gradient-to-br from-[hsl(174,72%,46%)] to-[hsl(174,72%,36%)] text-white rounded-xl px-5 py-3 text-center">
-                        <p className="text-3xl font-black">{isRtl ? "مجاناً" : "Free"}</p>
-                        <p className="text-xs font-semibold opacity-90">{isRtl ? "لمدة 15 يوم" : "for 15 days"}</p>
-                      </div>
-                    </div>
-                    <div className="text-center space-y-2">
-                      <h3 className="text-lg font-bold text-foreground">{isRtl ? "خطة مجانية" : "Free Plan"}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {isRtl ? "هذه خطة مجانية تجريبية لمدة 15 يوماً. يخضع الطلب لمراجعة المنصة والموافقة عليه قبل تفعيل الحساب." : "This is a free trial plan for 15 days. Your request is subject to platform review and approval before account activation."}
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-center gap-2 text-sm text-[hsl(174,72%,36%)] font-semibold">
-                      <CheckCircle className="w-4 h-4" />
-                      <span>{isRtl ? "يخضع لمراجعة المنصة" : "Subject to platform review"}</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex items-center justify-center gap-3">
-                      <div className="bg-primary text-primary-foreground rounded-xl px-5 py-3 text-center">
-                        <p className="text-3xl font-black">299</p>
-                        <p className="text-xs font-semibold opacity-90">{isRtl ? "جنيه / طالب / شهرياً" : "EGP / Student / Monthly"}</p>
-                      </div>
-                    </div>
-                    <div className="text-center space-y-2">
-                      <h3 className="text-lg font-bold text-foreground">{isRtl ? "خطة اشتراك المعهد" : "Institute Subscription Plan"}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {isRtl ? "التسجيل مجاني تماماً. يخضع الطلب لمراجعة المنصة والتواصل مع المعهد لإبرام العقد. يتم تفعيل الحساب بعد الموافقة من لوحة الإدارة." : "Registration is completely free. Your request will be reviewed by the platform and we will contact the institute to finalize the contract. Account activation is done after admin approval."}
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold">
-                      <CheckCircle className="w-4 h-4" />
-                      <span>{isRtl ? "يخضع لمراجعة المنصة" : "Subject to platform review"}</span>
-                    </div>
-                  </>
-                )}
-              </div>
+              <p className="text-center text-sm font-semibold text-muted-foreground pt-2">
+                {isRtl ? "تسجيل المعهد يخضع لموافقة إدارة المنصة" : "Institute registration is subject to the platform administration's approval"}
+              </p>
+
             </div>
           </div>
         ) : (

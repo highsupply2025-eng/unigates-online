@@ -48,6 +48,18 @@ Deno.serve(async (req) => {
     );
   }
 
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+    req.headers.get("cf-connecting-ip") ||
+    req.headers.get("x-real-ip") ||
+    "unknown";
+  if (!rateLimit(ip)) {
+    return new Response(
+      JSON.stringify({ error: "Too many uploads. Please try again later." }),
+      { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
+
   try {
     const formData = await req.formData();
     const file = formData.get("file");

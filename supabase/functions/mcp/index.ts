@@ -3,7 +3,7 @@
 // supabase function: mcp
 // Bundled from src/lib/mcp/index.ts by @lovable.dev/mcp-js.
 // src/lib/mcp/index.ts
-import { defineMcp } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { auth, defineMcp } from "npm:@lovable.dev/mcp-js@0.20.0";
 
 // src/lib/mcp/tools/ping.ts
 import { defineTool } from "npm:@lovable.dev/mcp-js@0.20.0";
@@ -61,11 +61,16 @@ var list_courses_default = defineTool2({
 });
 
 // src/lib/mcp/index.ts
+var projectRef = "tgdkxzzkvfyazmnawkpw";
 var mcp_default = defineMcp({
   name: "unigates-mcp",
   title: "UNIGATES MCP",
-  version: "0.1.0",
-  instructions: "Tools for the UNIGATES education platform (courses, bookstore, schools). Use `ping` to verify connectivity and `list_courses` to browse or search the public course catalog.",
+  version: "0.2.0",
+  instructions: "Tools for the UNIGATES education platform (courses, bookstore, schools). Use `ping` to verify connectivity and `list_courses` to browse or search the course catalog.",
+  auth: auth.oauth.issuer({
+    issuer: `https://${projectRef}.supabase.co/auth/v1`,
+    acceptedAudiences: "authenticated"
+  }),
   tools: [ping_default, list_courses_default]
 });
 

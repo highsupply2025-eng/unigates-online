@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Download, Eye, Loader2, Radio, Calendar, CheckCircle, ArrowLeft, ArrowRight, Users, Lock } from "lucide-react";
 import SubPageHeader from "@/components/SubPageHeader";
+import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 
 type StatusKey = "live" | "scheduled" | "ended";
 

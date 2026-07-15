@@ -344,49 +344,6 @@ const InstituteAdminSignup = () => {
                 {isRtl ? "تسجيل المعهد يخضع لموافقة إدارة المنصة" : "Institute registration is subject to the platform administration's approval"}
               </p>
 
-
-              {/* Pricing Banner */}
-              <div className="rounded-2xl border-2 border-primary/20 bg-primary/5 p-6 space-y-4">
-                {plan === "free" ? (
-                  <>
-                    <div className="flex items-center justify-center gap-3">
-                      <div className="bg-gradient-to-br from-[hsl(174,72%,46%)] to-[hsl(174,72%,36%)] text-white rounded-xl px-5 py-3 text-center">
-                        <p className="text-3xl font-black">{isRtl ? "مجاناً" : "Free"}</p>
-                        <p className="text-xs font-semibold opacity-90">{isRtl ? "لمدة 15 يوم" : "for 15 days"}</p>
-                      </div>
-                    </div>
-                    <div className="text-center space-y-2">
-                      <h3 className="text-lg font-bold text-foreground">{isRtl ? "خطة مجانية" : "Free Plan"}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {isRtl ? "هذه خطة مجانية تجريبية لمدة 15 يوماً. يخضع الطلب لمراجعة المنصة والموافقة عليه قبل تفعيل الحساب." : "This is a free trial plan for 15 days. Your request is subject to platform review and approval before account activation."}
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-center gap-2 text-sm text-[hsl(174,72%,36%)] font-semibold">
-                      <CheckCircle className="w-4 h-4" />
-                      <span>{isRtl ? "يخضع لمراجعة المنصة" : "Subject to platform review"}</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex items-center justify-center gap-3">
-                      <div className="bg-primary text-primary-foreground rounded-xl px-5 py-3 text-center">
-                        <p className="text-3xl font-black">299</p>
-                        <p className="text-xs font-semibold opacity-90">{isRtl ? "جنيه / طالب / شهرياً" : "EGP / Student / Monthly"}</p>
-                      </div>
-                    </div>
-                    <div className="text-center space-y-2">
-                      <h3 className="text-lg font-bold text-foreground">{isRtl ? "خطة اشتراك المعهد" : "Institute Subscription Plan"}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {isRtl ? "التسجيل مجاني تماماً. يخضع الطلب لمراجعة المنصة والتواصل مع المعهد لإبرام العقد. يتم تفعيل الحساب بعد الموافقة من لوحة الإدارة." : "Registration is completely free. Your request will be reviewed by the platform and we will contact the institute to finalize the contract. Account activation is done after admin approval."}
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold">
-                      <CheckCircle className="w-4 h-4" />
-                      <span>{isRtl ? "يخضع لمراجعة المنصة" : "Subject to platform review"}</span>
-                    </div>
-                  </>
-                )}
-              </div>
             </div>
           </div>
         ) : (

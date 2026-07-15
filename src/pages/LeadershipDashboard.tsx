@@ -29,6 +29,7 @@ import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 
 import RatingsBreakdown from "@/components/RatingsBreakdown";
+import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 
 const LeadershipDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -72,6 +73,17 @@ const LeadershipDashboard = () => {
   useEffect(() => {
     checkAccess();
   }, []);
+
+  // Live updates: mirror any change from the backend into college & institute dashboards without refresh
+  useRealtimeRefresh(
+    [
+      "courses","live_streams","assignments","course_episodes","lecturer_ratings",
+      "stream_attendance","quizzes","quiz_submissions","lecture_schedules",
+      "assignment_submissions","college_members","department_members","departments"
+    ],
+    () => { loadData(); },
+    !loading
+  );
 
 
 

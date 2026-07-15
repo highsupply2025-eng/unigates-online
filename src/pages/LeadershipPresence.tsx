@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
+import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 
 type Row = {
   id: string;
@@ -54,6 +55,9 @@ export default function LeadershipPresence() {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date]);
+
+  // Live updates for both college & institute dashboards
+  useRealtimeRefresh(["student_presence_checkins", "profiles"], () => load());
 
   const load = async () => {
     setLoading(true);

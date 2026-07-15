@@ -16,6 +16,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import { Landmark } from "lucide-react";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
+import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 
 
 interface InstitutionData {
@@ -59,6 +60,15 @@ const InstitutionProfile = () => {
   const [confirmPass, setConfirmPass] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [savingPass, setSavingPass] = useState(false);
+  const [refreshTick, setRefreshTick] = useState(0);
+
+  // Auto-refresh institution profile (college & institute) on any change
+  useRealtimeRefresh(
+    ["college_registrations", "institute_registrations", "departments"],
+    () => setRefreshTick((n) => n + 1)
+  );
+
+
 
   useEffect(() => {
     (async () => {
@@ -151,7 +161,7 @@ const InstitutionProfile = () => {
         setLoading(false);
       }
     })();
-  }, [navigate, isRtl]);
+  }, [navigate, isRtl, refreshTick]);
 
   const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

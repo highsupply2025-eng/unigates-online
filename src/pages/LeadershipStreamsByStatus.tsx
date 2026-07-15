@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Download, Eye, Loader2, Radio, Calendar, CheckCircle, ArrowLeft, ArrowRight, Users, Lock } from "lucide-react";
 import SubPageHeader from "@/components/SubPageHeader";
+import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 
 type StatusKey = "live" | "scheduled" | "ended";
 
@@ -30,6 +31,10 @@ const LeadershipStreamsByStatus = () => {
   const [loading, setLoading] = useState(true);
   const [streams, setStreams] = useState<any[]>([]);
   const [attendance, setAttendance] = useState<Record<string, number>>({});
+  const [refreshTick, setRefreshTick] = useState(0);
+
+  // Auto-refresh on live changes (mirrors college & institute dashboards)
+  useRealtimeRefresh(["live_streams", "stream_attendance"], () => setRefreshTick((n) => n + 1));
 
   useEffect(() => {
     let cancelled = false;
@@ -66,7 +71,7 @@ const LeadershipStreamsByStatus = () => {
     };
     load();
     return () => { cancelled = true; };
-  }, [key]);
+  }, [key, refreshTick]);
 
   const exportPDF = () => {
     const w = window.open("", "_blank");

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ShieldCheck, Calendar, CheckCircle, Clock, Loader2, Download, Eye } from "lucide-react";
 import SubPageHeader from "@/components/SubPageHeader";
+import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 
 type ApprovalType = "quizzes" | "schedules";
 type ApprovalStatus = "approved" | "pending";
@@ -25,6 +26,13 @@ const LeadershipApprovals = () => {
   const [courses, setCourses] = useState<any[]>([]);
   const [userRole, setUserRole] = useState("");
   const [subRole, setSubRole] = useState<string>("");
+  const [refreshTick, setRefreshTick] = useState(0);
+
+  // Auto-refresh for both college & institute approval boards
+  useRealtimeRefresh(
+    ["quizzes", "lecture_schedules", "courses", "user_roles"],
+    () => setRefreshTick((n) => n + 1)
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -60,7 +68,7 @@ const LeadershipApprovals = () => {
       setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [type, isQuizzes, navigate]);
+  }, [type, isQuizzes, navigate, refreshTick]);
 
   const vdColumn =
     subRole === "vice_dean_students" ? "students"

@@ -198,14 +198,14 @@ Deno.serve(async (req) => {
           if (dme) throw new Error(`member: ${dme.message}`);
         }
 
-        results.push({ row: i + 2, email, ok: true, role });
+        results.push({ row: i + 2, email, ok: true, role, password: createdNow ? password : undefined });
       } catch (err: any) {
         results.push({ row: i + 2, email, ok: false, error: err?.message || String(err) });
       }
     }
 
     const ok = results.filter((r) => r.ok).length;
-    return json({ success: true, total: rows.length, created: ok, failed: rows.length - ok, password, results });
+    return json({ success: true, total: rows.length, created: ok, failed: rows.length - ok, results });
   } catch (e: any) {
     return json({ error: e?.message || String(e) }, 500);
   }

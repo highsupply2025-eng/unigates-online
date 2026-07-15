@@ -60,6 +60,15 @@ const InstitutionProfile = () => {
   const [confirmPass, setConfirmPass] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [savingPass, setSavingPass] = useState(false);
+  const [refreshTick, setRefreshTick] = useState(0);
+
+  // Auto-refresh institution profile (college & institute) on any change
+  useRealtimeRefresh(
+    ["college_registrations", "institute_registrations", "departments"],
+    () => setRefreshTick((n) => n + 1)
+  );
+
+
 
   useEffect(() => {
     (async () => {

@@ -21,6 +21,15 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  // If Supabase's OAuth consent (or any protected route) sent us here,
+  // consume `?next=` and return the user there after sign-in.
+  const nextParam = searchParams.get("next");
+  const safeNext =
+    nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")
+      ? nextParam
+      : null;
+  const goNext = (fallback: string) => navigate(safeNext ?? fallback);
   const goBack = useSmartBack();
   const { toast } = useToast();
   const { t, dir, language, toggleLanguage } = useLanguage();

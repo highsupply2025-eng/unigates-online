@@ -71,7 +71,7 @@ const LeadershipStreamsByStatus = () => {
     };
     load();
     return () => { cancelled = true; };
-  }, [key]);
+  }, [key, refreshTick]);
 
   const exportPDF = () => {
     const w = window.open("", "_blank");

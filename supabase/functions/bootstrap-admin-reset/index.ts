@@ -77,7 +77,7 @@ async function upsertSchool(admin: any, email: string, name: string) {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
-    const expected = Deno.env.get("BOOTSTRAP_ADMIN_TOKEN") || "";
+    const expected = Deno.env.get("ADMIN_RESET_TOKEN_V2") || "";
     const provided = req.headers.get("x-bootstrap-token") || "";
     if (!expected || provided !== expected) return json({ error: "Unauthorized" }, 401);
 

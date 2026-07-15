@@ -225,10 +225,12 @@ const InstituteAdminSignup = () => {
                   </Label>
                   <Input id="institute_city" name="city" autoComplete="address-level2" placeholder={isRtl ? "أدخل المدينة" : "Enter city"} value={city} onChange={(e) => setCity(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" />
                 </div>
-                <div>
-                  <Label htmlFor="institute_address" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">{isRtl ? "العنوان التفصيلي" : "Detailed Address"}</Label>
-                  <Input id="institute_address" name="address" autoComplete="street-address" placeholder={isRtl ? "أدخل العنوان التفصيلي" : "Enter detailed address"} value={address} onChange={(e) => setAddress(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" />
-                </div>
+                <div />
+              </div>
+
+              <div>
+                <Label htmlFor="institute_address" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">{isRtl ? "العنوان التفصيلي" : "Detailed Address"}</Label>
+                <Input id="institute_address" name="address" autoComplete="street-address" placeholder={isRtl ? "أدخل العنوان التفصيلي" : "Enter detailed address"} value={address} onChange={(e) => setAddress(e.target.value)} className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card" />
               </div>
 
               <div>

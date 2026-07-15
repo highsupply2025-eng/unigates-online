@@ -112,7 +112,24 @@ const InstituteAdminSignup = () => {
       if (error) throw error;
       setSubmitted(true);
     } catch (error: any) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+      const msg: string = error?.message || "";
+      const secMatch = msg.match(/after (\d+) seconds/i);
+      let friendly = msg;
+      if (secMatch) {
+        const s = secMatch[1];
+        friendly = isRtl
+          ? `لدواعٍ أمنية، يرجى المحاولة مرة أخرى بعد ${s} ثانية.`
+          : `For security purposes, please try again after ${s} seconds.`;
+      } else if (/already registered|already been registered|User already/i.test(msg)) {
+        friendly = isRtl
+          ? "هذا البريد الإلكتروني مُسجّل بالفعل. يرجى تسجيل الدخول أو استخدام بريد آخر."
+          : "This email is already registered. Please log in or use another email.";
+      } else if (/rate limit/i.test(msg)) {
+        friendly = isRtl
+          ? "تم تجاوز الحد المسموح من المحاولات. يرجى الانتظار قليلاً ثم إعادة المحاولة."
+          : "Too many attempts. Please wait a moment and try again.";
+      }
+      toast({ title: isRtl ? "خطأ" : "Error", description: friendly, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -318,7 +335,7 @@ const InstituteAdminSignup = () => {
                 <Textarea id="institute_message" name="message" autoComplete="off" placeholder={isRtl ? "أي ملاحظات أو متطلبات خاصة..." : "Any notes or special requirements..."} value={message} onChange={(e) => setMessage(e.target.value)} className="min-h-[100px] text-base border-2 border-primary/40 focus:border-primary bg-card" />
               </div>
 
-              <Button size="lg" className="w-full h-14 text-lg font-bold gap-2" disabled={!instituteName || !city || !email || !phone || !password || !confirmPassword || password !== confirmPassword || loading} onClick={handleSubmit}>
+              <Button type="button" size="lg" className="w-full h-14 text-lg font-bold gap-2" disabled={!instituteName || !directorName || !city || !email || !phone || !password || !confirmPassword || password !== confirmPassword || loading} onClick={handleSubmit}>
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                 {isRtl ? "إرسال الطلب" : "Submit Request"}
               </Button>

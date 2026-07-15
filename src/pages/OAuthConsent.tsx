@@ -27,9 +27,10 @@ export default function OAuthConsent() {
       const { data, error } = await supabase.auth.oauth.getAuthorizationDetails(authorizationId);
       if (!active) return;
       if (error) return setError(error.message);
-      const immediate = data?.redirect_url ?? data?.redirect_to;
-      if (immediate && !data?.client) { window.location.href = immediate; return; }
-      setDetails(data);
+      const d: any = data;
+      const immediate = d?.redirect_url ?? d?.redirect_to;
+      if (immediate && !d?.client) { window.location.href = immediate; return; }
+      setDetails(d);
     })();
     return () => { active = false; };
   }, [authorizationId]);

@@ -161,7 +161,7 @@ const InstitutionProfile = () => {
         setLoading(false);
       }
     })();
-  }, [navigate, isRtl]);
+  }, [navigate, isRtl, refreshTick]);
 
   const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

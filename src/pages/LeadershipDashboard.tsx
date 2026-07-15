@@ -74,6 +74,17 @@ const LeadershipDashboard = () => {
     checkAccess();
   }, []);
 
+  // Live updates: mirror any change from the backend into college & institute dashboards without refresh
+  useRealtimeRefresh(
+    [
+      "courses","live_streams","assignments","course_episodes","lecturer_ratings",
+      "stream_attendance","quizzes","quiz_submissions","lecture_schedules",
+      "assignment_submissions","college_members","department_members","departments"
+    ],
+    () => { loadData(); },
+    !loading
+  );
+
 
 
   const checkAccess = async () => {

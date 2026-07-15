@@ -99,6 +99,8 @@ const StudentRatings = lazy(() => import("./pages/StudentRatings"));
 const StudentPresenceCheckin = lazy(() => import("./pages/StudentPresenceCheckin"));
 
 const StudentMyAcademic = lazy(() => import("./pages/StudentMyAcademic"));
+const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
+
 
 const queryClient = new QueryClient({
   defaultOptions: {

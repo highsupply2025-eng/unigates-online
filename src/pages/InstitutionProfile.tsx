@@ -16,6 +16,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import { Landmark } from "lucide-react";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
+import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 
 
 interface InstitutionData {

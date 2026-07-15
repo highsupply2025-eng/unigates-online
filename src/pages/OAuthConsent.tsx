@@ -42,7 +42,7 @@ export default function OAuthConsent() {
       ? await supabase.auth.oauth.approveAuthorization(authorizationId)
       : await supabase.auth.oauth.denyAuthorization(authorizationId);
     if (error) { setBusy(false); return setError(error.message); }
-    const target = data?.redirect_url ?? data?.redirect_to;
+    const target = (data as any)?.redirect_url ?? (data as any)?.redirect_to;
     if (!target) { setBusy(false); return setError("No redirect returned by the authorization server."); }
     window.location.href = target;
   }

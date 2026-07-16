@@ -180,3 +180,63 @@ button[aria-haspopup="menu"]:focus-visible,
 .institution-admin-scope .border-primary\/20 {
   border-color: hsl(var(--primary) / 0.32);
 }
+
+/* ============================================================
+   Native App (Capacitor) — safe-area, no-select, app-like feel
+   Activated only when `initNativeApp()` adds `.is-native-app`
+   to <html>. Web browsers are unaffected.
+   ============================================================ */
+:root {
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+}
+
+html.is-native-app,
+html.is-native-app body {
+  /* Prevent overscroll bounce/pull-to-refresh inside the webview */
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+
+/* Keep text selection available inside inputs/textareas/content areas */
+html.is-native-app {
+  -webkit-user-select: none;
+  user-select: none;
+}
+html.is-native-app input,
+html.is-native-app textarea,
+html.is-native-app [contenteditable],
+html.is-native-app .allow-select,
+html.is-native-app p,
+html.is-native-app span,
+html.is-native-app li,
+html.is-native-app h1,
+html.is-native-app h2,
+html.is-native-app h3,
+html.is-native-app h4,
+html.is-native-app h5,
+html.is-native-app h6 {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Reserve room for the phone status bar & home indicator so
+   headers/footers never sit underneath system UI. */
+html.is-native-app body {
+  padding-top: var(--safe-area-top);
+  padding-bottom: var(--safe-area-bottom);
+  padding-left: var(--safe-area-left);
+  padding-right: var(--safe-area-right);
+  background-color: #0f766e; /* matches status bar so any gap blends in */
+}
+
+/* Utility for fixed elements that need to clear the notch themselves */
+.safe-top { padding-top: var(--safe-area-top); }
+.safe-bottom { padding-bottom: var(--safe-area-bottom); }
+.pt-safe { padding-top: calc(var(--safe-area-top) + 0.25rem); }
+.pb-safe { padding-bottom: calc(var(--safe-area-bottom) + 0.25rem); }
+

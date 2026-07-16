@@ -93,13 +93,10 @@ const InstituteRoleSignup = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [countryCode, setCountryCode] = useState("+20");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [generatedPassword, setGeneratedPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [countdown, setCountdown] = useState(5);
+  const [countdown, setCountdown] = useState(15);
   // Extended student details (mirror Add Member)
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");

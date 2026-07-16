@@ -131,7 +131,6 @@ const InstitutionFacultyImport = () => {
           address: norm(r["العنوان"] || r["address"]) || null,
           qualification: norm(r["المؤهل الدراسي"] || r["المؤهل العلمي"] || r["qualification"]) || null,
           specialization: isStudent ? null : (norm(r["التخصص"] || r["specialization"]) || null),
-          hire_date: norm(r["تاريخ التعيين (YYYY-MM-DD)"] || r["تاريخ التعيين"] || r["hire_date"]) || null,
           notes: norm(r["ملاحظات"] || r["notes"]) || null,
         };
 

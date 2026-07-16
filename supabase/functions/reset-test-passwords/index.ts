@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
   const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
-  const password = "admin1993";
+  const password = "Admin@1993Secure";
   const results: any[] = [];
   const { data: list } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
   for (const u of list?.users || []) {

@@ -286,15 +286,29 @@ const InstituteRoleSignup = () => {
           <h2 className="text-xl sm:text-2xl font-black text-primary">
             {isRtl ? "تم إنشاء الحساب بنجاح!" : "Account Created Successfully!"}
           </h2>
-          <p className="text-sm sm:text-base text-muted-foreground px-2">
+          <div className="rounded-xl border-2 border-primary/40 bg-primary/5 p-4 text-start space-y-2">
+            <div className="text-sm font-bold text-foreground">{isRtl ? "بياناتك للدخول:" : "Your login credentials:"}</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">{isRtl ? "البريد الإلكتروني" : "Email"}</div>
+            <div dir="ltr" className="font-mono text-sm sm:text-base font-bold bg-card border rounded p-2 break-all">{email}</div>
+            <div className="text-xs sm:text-sm text-muted-foreground pt-2">{isRtl ? "الرقم السري المؤقت" : "Temporary password"}</div>
+            <div dir="ltr" className="font-mono text-sm sm:text-base font-bold bg-card border rounded p-2 break-all">{generatedPassword}</div>
+            <Button
+              type="button" variant="outline" size="sm" className="w-full mt-1"
+              onClick={() => {
+                navigator.clipboard?.writeText(`${email}\n${generatedPassword}`);
+                toast({ title: isRtl ? "تم النسخ" : "Copied" });
+              }}
+            >
+              {isRtl ? "نسخ البيانات" : "Copy credentials"}
+            </Button>
+          </div>
+          <p className="text-sm sm:text-base text-foreground font-semibold px-2">
             {isRtl
-              ? "تم تفعيل حسابك فوراً. يرجى تأكيد بريدك الإلكتروني ثم تسجيل الدخول."
-              : "Your account has been activated immediately. Please confirm your email and then log in."}
+              ? "احفظ هذه البيانات. عند أول تسجيل دخول سيُطلب منك تغيير الرقم السري."
+              : "Save these credentials. On first login you will be asked to change the password."}
           </p>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            {isRtl
-              ? `سيتم تحويلك لصفحة تسجيل الدخول خلال ${countdown} ثوانٍ...`
-              : `Redirecting to login page in ${countdown} seconds...`}
+            {isRtl ? `سيتم تحويلك لصفحة تسجيل الدخول خلال ${countdown} ثوانٍ...` : `Redirecting to login page in ${countdown} seconds...`}
           </p>
           <Link to="/login" className="inline-block w-full sm:w-auto">
             <Button size="lg" className="mt-2 font-bold w-full sm:w-auto">

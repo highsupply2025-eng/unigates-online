@@ -13,6 +13,7 @@ import PageTransition from "./components/PageTransition";
 import RouteFallback from "./components/RouteFallback";
 import PrefetchRoutes from "./PrefetchRoutes";
 import BottomNav from "./components/BottomNav";
+import ForcePasswordChangeDialog from "./components/ForcePasswordChangeDialog";
 
 const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));

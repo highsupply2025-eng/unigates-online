@@ -5,5 +5,7 @@ project_id = "tgdkxzzkvfyazmnawkpw"
     verify_jwt = false
   [functions.create-student-account]
     verify_jwt = true
+  [functions.create-faculty-account]
+    verify_jwt = true
   [functions.process-email-queue]
     verify_jwt = true

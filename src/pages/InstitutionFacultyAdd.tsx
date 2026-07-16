@@ -266,17 +266,39 @@ const InstitutionFacultyAdd = () => {
           deptIdToUse = newDept.id;
         }
 
-        const invitationCode = `FAC-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
-        const { error } = await supabase.from("department_members").insert({
-          ...baseRow,
-          department_id: deptIdToUse,
-          invitation_code: invitationCode,
+        const { data: resp, error: fnErr } = await supabase.functions.invoke("create-faculty-account", {
+          body: {
+            full_name: baseRow.full_name,
+            role,
+            department_id: deptIdToUse,
+            email: baseRow.email,
+            phone: baseRow.phone,
+            extra: {
+              date_of_birth: baseRow.date_of_birth,
+              photo_url: baseRow.photo_url,
+              national_id: baseRow.national_id,
+              gender: baseRow.gender,
+              address: baseRow.address,
+              qualification: baseRow.qualification,
+              specialization: baseRow.specialization,
+              hire_date: baseRow.hire_date,
+              notes: baseRow.notes,
+            },
+          },
         });
-        if (error) {
-          console.error("Supabase insert failed:", error);
-          throw error;
+        if (fnErr || (resp && (resp as any).error)) {
+          throw new Error(((resp as any)?.error) || fnErr?.message || "Failed to create faculty account");
         }
-        toast({ title: isRtl ? "تم حفظ بيانات العضو" : "Member saved successfully" });
+        const r = resp as any;
+        const credLine = isRtl
+          ? `تم تفعيل الحساب فوراً ✓\nالبريد: ${r.email}\nكلمة المرور المؤقتة: ${r.password}\n(سيُطلب من العضو تغييرها عند أول تسجيل دخول)`
+          : `Account activated ✓\nEmail: ${r.email}\nTemp password: ${r.password}\n(Member will be forced to change it on first login)`;
+        try { await navigator.clipboard?.writeText(`${r.email}\n${r.password}`); } catch {}
+        toast({
+          title: isRtl ? "تم إضافة العضو وإنشاء حسابه" : "Member added and account created",
+          description: credLine,
+          duration: 20000,
+        });
       }
       navigate(-1);
     } catch (err: any) {

@@ -243,11 +243,15 @@ const InstitutionFacultyAdd = () => {
           department_id: departmentId,
           invitation_code: invitationCode,
         });
-        if (error) throw error;
+        if (error) {
+          console.error("Supabase insert failed:", error);
+          throw error;
+        }
         toast({ title: isRtl ? "تم حفظ بيانات العضو" : "Member saved successfully" });
       }
       navigate(-1);
     } catch (err: any) {
+      console.error("Save failed:", err);
       toast({ title: isRtl ? "فشل الحفظ" : "Save failed", description: err.message, variant: "destructive" });
     } finally {
       setSaving(false);

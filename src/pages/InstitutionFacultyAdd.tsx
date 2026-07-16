@@ -64,6 +64,8 @@ const InstitutionFacultyAdd = () => {
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState(isStudent ? "student" : "");
   const [departmentId, setDepartmentId] = useState("");
+  const [institutionId, setInstitutionId] = useState<string>("");
+  const [institutionType, setInstitutionType] = useState<"college" | "institute" | "">("");
   const [deptCodesInput, setDeptCodesInput] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");
@@ -107,6 +109,9 @@ const InstitutionFacultyAdd = () => {
           navigate("/");
           return;
         }
+        setInstitutionId(instId);
+        setInstitutionType(instType);
+
 
         const { data: depts } = await supabase
           .from("departments")
@@ -151,9 +156,11 @@ const InstitutionFacultyAdd = () => {
     }
   };
 
+  // department_id is auto-resolved (or auto-created) in handleSubmit for faculty,
+  // so it's intentionally excluded from client validation.
   const canSubmit = useMemo(
-    () => !!fullName.trim() && !!role && (isStudent ? !!deptCodesInput.trim() : !!departmentId),
-    [fullName, role, departmentId, isStudent, deptCodesInput]
+    () => !!fullName.trim() && !!role && (isStudent ? !!deptCodesInput.trim() : true),
+    [fullName, role, isStudent, deptCodesInput]
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -169,9 +176,7 @@ const InstitutionFacultyAdd = () => {
       const missing: string[] = [];
       if (!fullName.trim()) missing.push("fullName");
       if (!role) missing.push("role");
-      if (isStudent ? !deptCodesInput.trim() : !departmentId) {
-        missing.push(isStudent ? "deptCodesInput" : "departmentId");
-      }
+      if (isStudent && !deptCodesInput.trim()) missing.push("deptCodesInput");
       console.warn("Validation failed. Missing fields:", missing);
       toast({
         title: isRtl ? "أكمل الحقول المطلوبة" : "Complete required fields",
@@ -237,10 +242,34 @@ const InstitutionFacultyAdd = () => {
         });
 
       } else {
+        // Resolve department: use selected, else first loaded, else auto-create a default one.
+        let deptIdToUse = departmentId || departments[0]?.id || "";
+        if (!deptIdToUse) {
+          if (!institutionId || !institutionType) {
+            throw new Error(isRtl ? "تعذر تحديد المؤسسة" : "Institution not resolved");
+          }
+          const defaultCode = `GEN-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+          const { data: newDept, error: dErr } = await supabase
+            .from("departments")
+            .insert({
+              institution_id: institutionId,
+              institution_type: institutionType,
+              department_name: isRtl ? "عام" : "General",
+              department_code: defaultCode,
+            })
+            .select("id")
+            .single();
+          if (dErr || !newDept) {
+            console.error("Auto-create department failed:", dErr);
+            throw dErr || new Error("Failed to create default department");
+          }
+          deptIdToUse = newDept.id;
+        }
+
         const invitationCode = `FAC-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
         const { error } = await supabase.from("department_members").insert({
           ...baseRow,
-          department_id: departmentId,
+          department_id: deptIdToUse,
           invitation_code: invitationCode,
         });
         if (error) {

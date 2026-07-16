@@ -73,13 +73,10 @@ const CollegeRoleSignup = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [countryCode, setCountryCode] = useState("+20");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [generatedPassword, setGeneratedPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [countdown, setCountdown] = useState(5);
+  const [countdown, setCountdown] = useState(15);
   const [photoUrl, setPhotoUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -214,25 +211,20 @@ const CollegeRoleSignup = () => {
   };
 
   const handleSubmit = async () => {
-    if (!fullName || !email || !phone || !password) {
+    if (!fullName || !email || !phone) {
       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى ملء جميع الحقول المطلوبة" : "Please fill all required fields", variant: "destructive" });
-      return;
-    }
-    if (password !== confirmPassword) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "الرقم السري غير متطابق" : "Passwords do not match", variant: "destructive" });
-      return;
-    }
-    if (password.length < 6) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "الرقم السري يجب أن يكون 6 أحرف على الأقل" : "Password must be at least 6 characters", variant: "destructive" });
       return;
     }
 
     setLoading(true);
     try {
+      // Auto-generate a temporary password (member will be forced to change on first login)
+      const tempPassword = `Ug${Math.random().toString(36).slice(2, 8)}!${Math.floor(Math.random() * 9000 + 1000)}`;
+
       // 1. Create auth account
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
-        password,
+        password: tempPassword,
         options: {
           emailRedirectTo: getAuthCallbackUrl(),
           data: { role: role, institution_type: 'college' },
@@ -255,6 +247,13 @@ const CollegeRoleSignup = () => {
         if (rpcError) throw rpcError;
         const result = rpcData as any;
         if (result && !result.success) throw new Error(result.error);
+
+        // Force change password on first login
+        await supabase
+          .from("profiles")
+          .update({ must_change_password: true } as any)
+          .eq("user_id", authData.user.id);
+
 
         // 3. Handle invitation source
         if (verifiedInvitation) {
@@ -325,6 +324,8 @@ const CollegeRoleSignup = () => {
         }
       }
 
+      setGeneratedPassword(tempPassword);
+      try { await navigator.clipboard?.writeText(`${email}\n${tempPassword}`); } catch {}
       setSubmitted(true);
     } catch (error: any) {
       toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
@@ -343,15 +344,29 @@ const CollegeRoleSignup = () => {
           <h2 className="text-xl sm:text-2xl font-black text-primary">
             {isRtl ? "تم إنشاء الحساب بنجاح!" : "Account Created Successfully!"}
           </h2>
-          <p className="text-sm sm:text-base text-muted-foreground px-2">
+          <div className="rounded-xl border-2 border-primary/40 bg-primary/5 p-4 text-start space-y-2">
+            <div className="text-sm font-bold text-foreground">{isRtl ? "بياناتك للدخول:" : "Your login credentials:"}</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">{isRtl ? "البريد الإلكتروني" : "Email"}</div>
+            <div dir="ltr" className="font-mono text-sm sm:text-base font-bold bg-card border rounded p-2 break-all">{email}</div>
+            <div className="text-xs sm:text-sm text-muted-foreground pt-2">{isRtl ? "الرقم السري المؤقت" : "Temporary password"}</div>
+            <div dir="ltr" className="font-mono text-sm sm:text-base font-bold bg-card border rounded p-2 break-all">{generatedPassword}</div>
+            <Button
+              type="button" variant="outline" size="sm" className="w-full mt-1"
+              onClick={() => {
+                navigator.clipboard?.writeText(`${email}\n${generatedPassword}`);
+                toast({ title: isRtl ? "تم النسخ" : "Copied" });
+              }}
+            >
+              {isRtl ? "نسخ البيانات" : "Copy credentials"}
+            </Button>
+          </div>
+          <p className="text-sm sm:text-base text-foreground font-semibold px-2">
             {isRtl
-              ? "تم تفعيل حسابك فوراً. يرجى تأكيد بريدك الإلكتروني ثم تسجيل الدخول."
-              : "Your account has been activated immediately. Please confirm your email and then log in."}
+              ? "احفظ هذه البيانات. عند أول تسجيل دخول سيُطلب منك تغيير الرقم السري."
+              : "Save these credentials. On first login you will be asked to change the password."}
           </p>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            {isRtl
-              ? `سيتم تحويلك لصفحة تسجيل الدخول خلال ${countdown} ثوانٍ...`
-              : `Redirecting to login page in ${countdown} seconds...`}
+            {isRtl ? `سيتم تحويلك لصفحة تسجيل الدخول خلال ${countdown} ثوانٍ...` : `Redirecting to login page in ${countdown} seconds...`}
           </p>
           <Link to="/login" className="inline-block w-full sm:w-auto">
             <Button size="lg" className="mt-2 font-bold w-full sm:w-auto">
@@ -587,42 +602,13 @@ const CollegeRoleSignup = () => {
                   </div>
                 )}
 
-                {/* Passwords */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="space-y-2.5">
-                    <Label className={labelCls}><Lock className={iconCls} strokeWidth={2.4} />{isRtl ? "الرقم السري" : "Password"} <span className="text-destructive text-lg">*</span></Label>
-                    <div className="relative">
-                      <Input
-                        type={showPassword ? "text" : "password"}
-                        placeholder={isRtl ? "أدخل الرقم السري" : "Enter password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className={`${inputCls} pe-12`}
-                        dir="ltr"
-                      />
-                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute top-1/2 -translate-y-1/2 end-3 text-muted-foreground hover:text-foreground">
-                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="space-y-2.5">
-                    <Label className={labelCls}><Lock className={iconCls} strokeWidth={2.4} />{isRtl ? "تأكيد الرقم السري" : "Confirm Password"} <span className="text-destructive text-lg">*</span></Label>
-                    <div className="relative">
-                      <Input
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder={isRtl ? "أعد كتابة الرقم السري" : "Re-enter password"}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className={`${inputCls} pe-12`}
-                        dir="ltr"
-                      />
-                      <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute top-1/2 -translate-y-1/2 end-3 text-muted-foreground hover:text-foreground">
-                        {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                      </button>
-                    </div>
-                    {password && confirmPassword && password !== confirmPassword && (
-                      <p className="text-sm text-destructive font-semibold">{isRtl ? "الرقم السري غير متطابق" : "Passwords do not match"}</p>
-                    )}
+                {/* Auto-generated password notice */}
+                <div className="rounded-xl border-2 border-primary/30 bg-primary/5 p-4 flex items-start gap-3">
+                  <Lock className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                  <div className="text-sm sm:text-base text-foreground/90 font-semibold">
+                    {isRtl
+                      ? "سيتم إنشاء رقم سري مؤقت تلقائيًا وعرضه لك بعد إتمام التسجيل. عند أول تسجيل دخول سيُطلب منك تغييره."
+                      : "A temporary password will be generated automatically and shown after registration. You will be asked to change it on first login."}
                   </div>
                 </div>
 
@@ -632,7 +618,7 @@ const CollegeRoleSignup = () => {
                   </Button>
                   <Button
                     size="lg"
-                    disabled={!fullName || !email || !phone || !password || !confirmPassword || password !== confirmPassword || loading}
+                    disabled={!fullName || !email || !phone || loading}
                     onClick={handleSubmit}
                     className="shadow-xl shadow-primary/40 font-extrabold text-base bg-gradient-to-l from-primary to-primary/80"
                   >

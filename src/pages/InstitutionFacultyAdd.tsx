@@ -108,7 +108,9 @@ const InstitutionFacultyAdd = () => {
           toast({ title: isRtl ? "غير مصرح" : "Unauthorized", variant: "destructive" });
           navigate("/");
           return;
-        }
+        setInstitutionId(instId);
+        setInstitutionType(instType);
+
 
         const { data: depts } = await supabase
           .from("departments")

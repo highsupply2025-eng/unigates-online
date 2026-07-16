@@ -132,7 +132,6 @@ const InstitutionFacultyImport = () => {
           qualification: norm(r["المؤهل الدراسي"] || r["المؤهل العلمي"] || r["qualification"]) || null,
           specialization: isStudent ? null : (norm(r["التخصص"] || r["specialization"]) || null),
           notes: norm(r["ملاحظات"] || r["notes"]) || null,
-          notes: norm(r["ملاحظات"] || r["notes"]) || null,
         };
 
         const rows = targetDeptIds.map(department_id => ({

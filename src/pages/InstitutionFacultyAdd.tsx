@@ -399,7 +399,13 @@ const InstitutionFacultyAdd = () => {
                 <Button type="button" variant="outline" size="lg" className="border-2 border-primary/30 font-bold text-base" onClick={() => navigate(-1)} disabled={saving}>
                   {isRtl ? "إلغاء" : "Cancel"}
                 </Button>
-                <Button type="submit" size="lg" disabled={saving || !canSubmit} className="shadow-xl shadow-primary/40 font-extrabold text-base bg-gradient-to-l from-primary to-primary/80 gap-2">
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={saving}
+                  onClick={() => console.log("Save button clicked", { canSubmit, saving, fullName, role, departmentId, deptCodesInput, isStudent, departmentsCount: departments.length })}
+                  className="shadow-xl shadow-primary/40 font-extrabold text-base bg-gradient-to-l from-primary to-primary/80 gap-2"
+                >
                   {saving ? <Loader2 className="w-5 h-5 animate-spin shrink-0" /> : <Save className="w-5 h-5 shrink-0" strokeWidth={2.5} />}
                   <span>{isRtl ? "حفظ العضو" : "Save Member"}</span>
                 </Button>

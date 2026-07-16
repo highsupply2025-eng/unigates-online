@@ -242,10 +242,34 @@ const InstitutionFacultyAdd = () => {
         });
 
       } else {
+        // Resolve department: use selected, else first loaded, else auto-create a default one.
+        let deptIdToUse = departmentId || departments[0]?.id || "";
+        if (!deptIdToUse) {
+          if (!institutionId || !institutionType) {
+            throw new Error(isRtl ? "تعذر تحديد المؤسسة" : "Institution not resolved");
+          }
+          const defaultCode = `GEN-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+          const { data: newDept, error: dErr } = await supabase
+            .from("departments")
+            .insert({
+              institution_id: institutionId,
+              institution_type: institutionType,
+              department_name: isRtl ? "عام" : "General",
+              department_code: defaultCode,
+            })
+            .select("id")
+            .single();
+          if (dErr || !newDept) {
+            console.error("Auto-create department failed:", dErr);
+            throw dErr || new Error("Failed to create default department");
+          }
+          deptIdToUse = newDept.id;
+        }
+
         const invitationCode = `FAC-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
         const { error } = await supabase.from("department_members").insert({
           ...baseRow,
-          department_id: departmentId,
+          department_id: deptIdToUse,
           invitation_code: invitationCode,
         });
         if (error) {

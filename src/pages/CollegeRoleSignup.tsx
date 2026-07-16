@@ -588,42 +588,13 @@ const CollegeRoleSignup = () => {
                   </div>
                 )}
 
-                {/* Passwords */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="space-y-2.5">
-                    <Label className={labelCls}><Lock className={iconCls} strokeWidth={2.4} />{isRtl ? "الرقم السري" : "Password"} <span className="text-destructive text-lg">*</span></Label>
-                    <div className="relative">
-                      <Input
-                        type={showPassword ? "text" : "password"}
-                        placeholder={isRtl ? "أدخل الرقم السري" : "Enter password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className={`${inputCls} pe-12`}
-                        dir="ltr"
-                      />
-                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute top-1/2 -translate-y-1/2 end-3 text-muted-foreground hover:text-foreground">
-                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="space-y-2.5">
-                    <Label className={labelCls}><Lock className={iconCls} strokeWidth={2.4} />{isRtl ? "تأكيد الرقم السري" : "Confirm Password"} <span className="text-destructive text-lg">*</span></Label>
-                    <div className="relative">
-                      <Input
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder={isRtl ? "أعد كتابة الرقم السري" : "Re-enter password"}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className={`${inputCls} pe-12`}
-                        dir="ltr"
-                      />
-                      <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute top-1/2 -translate-y-1/2 end-3 text-muted-foreground hover:text-foreground">
-                        {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                      </button>
-                    </div>
-                    {password && confirmPassword && password !== confirmPassword && (
-                      <p className="text-sm text-destructive font-semibold">{isRtl ? "الرقم السري غير متطابق" : "Passwords do not match"}</p>
-                    )}
+                {/* Auto-generated password notice */}
+                <div className="rounded-xl border-2 border-primary/30 bg-primary/5 p-4 flex items-start gap-3">
+                  <Lock className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                  <div className="text-sm sm:text-base text-foreground/90 font-semibold">
+                    {isRtl
+                      ? "سيتم إنشاء رقم سري مؤقت تلقائيًا وعرضه لك بعد إتمام التسجيل. عند أول تسجيل دخول سيُطلب منك تغييره."
+                      : "A temporary password will be generated automatically and shown after registration. You will be asked to change it on first login."}
                   </div>
                 </div>
 
@@ -633,7 +604,7 @@ const CollegeRoleSignup = () => {
                   </Button>
                   <Button
                     size="lg"
-                    disabled={!fullName || !email || !phone || !password || !confirmPassword || password !== confirmPassword || loading}
+                    disabled={!fullName || !email || !phone || loading}
                     onClick={handleSubmit}
                     className="shadow-xl shadow-primary/40 font-extrabold text-base bg-gradient-to-l from-primary to-primary/80"
                   >

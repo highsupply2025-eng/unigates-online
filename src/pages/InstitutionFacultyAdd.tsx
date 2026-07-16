@@ -171,9 +171,7 @@ const InstitutionFacultyAdd = () => {
       const missing: string[] = [];
       if (!fullName.trim()) missing.push("fullName");
       if (!role) missing.push("role");
-      if (isStudent ? !deptCodesInput.trim() : !departmentId) {
-        missing.push(isStudent ? "deptCodesInput" : "departmentId");
-      }
+      if (isStudent && !deptCodesInput.trim()) missing.push("deptCodesInput");
       console.warn("Validation failed. Missing fields:", missing);
       toast({
         title: isRtl ? "أكمل الحقول المطلوبة" : "Complete required fields",

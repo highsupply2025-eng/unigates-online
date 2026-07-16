@@ -1382,6 +1382,7 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          must_change_password: boolean
           phone: string
           platform: string
           role: string
@@ -1394,6 +1395,7 @@ export type Database = {
           email: string
           full_name: string
           id?: string
+          must_change_password?: boolean
           phone: string
           platform?: string
           role: string
@@ -1406,6 +1408,7 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          must_change_password?: boolean
           phone?: string
           platform?: string
           role?: string

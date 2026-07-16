@@ -540,35 +540,13 @@ const InstituteRoleSignup = () => {
 
 
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label className="mb-2 block font-bold text-primary">
-                    {isRtl ? "الرقم السري" : "Password"} <span className="text-destructive">*</span>
-                  </Label>
-                  <div className="relative">
-                    <Input type={showPassword ? "text" : "password"} placeholder={isRtl ? "أدخل الرقم السري" : "Enter password"} value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 ps-12" dir="ltr" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute top-1/2 -translate-y-1/2 start-3 text-muted-foreground hover:text-foreground bg-background px-1 rounded z-10">
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <Label className="mb-2 block font-bold text-primary">
-                    {isRtl ? "تأكيد الرقم السري" : "Confirm Password"} <span className="text-destructive">*</span>
-                  </Label>
-                  <div className="relative">
-                    <Input type={showConfirmPassword ? "text" : "password"} placeholder={isRtl ? "أعد كتابة الرقم السري" : "Re-enter password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12 ps-12" dir="ltr" />
-                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute top-1/2 -translate-y-1/2 start-3 text-muted-foreground hover:text-foreground bg-background px-1 rounded z-10">
-                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
-                  {password && confirmPassword && password !== confirmPassword && (
-                    <p className="text-sm text-destructive mt-1">{isRtl ? "الرقم السري غير متطابق" : "Passwords do not match"}</p>
-                  )}
-                </div>
+              <div className="rounded-xl border-2 border-primary/30 bg-primary/5 p-4 text-sm sm:text-base text-foreground/90 font-semibold">
+                {isRtl
+                  ? "سيتم إنشاء رقم سري مؤقت تلقائيًا وعرضه لك بعد إتمام التسجيل. عند أول تسجيل دخول سيُطلب منك تغييره."
+                  : "A temporary password will be generated automatically and shown after registration. You will be asked to change it on first login."}
               </div>
 
-              <Button size="lg" className="w-full h-12 sm:h-14 text-base sm:text-lg font-bold gap-2" disabled={!fullName || !email || !phone || !password || !confirmPassword || password !== confirmPassword || loading} onClick={handleSubmit}>
+              <Button size="lg" className="w-full h-12 sm:h-14 text-base sm:text-lg font-bold gap-2" disabled={!fullName || !email || !phone || loading} onClick={handleSubmit}>
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <RoleIcon className="w-5 h-5" />}
                 {isRtl ? "إنشاء الحساب" : "Create Account"}
               </Button>

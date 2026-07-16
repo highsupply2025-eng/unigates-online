@@ -10,7 +10,12 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "android:dev": "git pull && npm install && npx cap sync android && npx cap run android",
+    "android:sync": "git pull && npx cap sync android",
+    "android:open": "npx cap open android",
+    "ios:dev": "git pull && npm install && npx cap sync ios && npx cap run ios",
+    "mobile:setup": "npm install && npx cap add android"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",

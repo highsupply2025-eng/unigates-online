@@ -7,5 +7,3 @@ project_id = "tgdkxzzkvfyazmnawkpw"
     verify_jwt = true
   [functions.process-email-queue]
     verify_jwt = true
-  [functions.reset-test-passwords]
-    verify_jwt = false

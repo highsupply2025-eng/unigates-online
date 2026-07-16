@@ -273,7 +273,20 @@ const CollegeRoleSignup = () => {
             // Link user to existing department member record and update profile data
             await supabase
               .from("department_members")
-              .update({ user_id: authData.user.id, full_name: fullName })
+              .update({
+                user_id: authData.user.id,
+                full_name: fullName,
+                email: email.trim() || null,
+                phone: `${countryCode}${phone}`,
+                photo_url: photoUrl || null,
+                date_of_birth: dateOfBirth || null,
+                gender: gender || null,
+                national_id: nationalId.trim() || null,
+                address: address.trim() || null,
+                qualification: qualification.trim() || null,
+                specialization: specialization.trim() || null,
+                notes: notes.trim() || null,
+              } as any)
               .eq("id", verifiedInvitation.id);
             // Also join college_members if department has institution_id
             if (verifiedInvitation.departments?.institution_id) {

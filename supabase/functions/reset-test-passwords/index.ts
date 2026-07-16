@@ -9,7 +9,7 @@ const cors = {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
   const token = req.headers.get("x-reset-token") || "";
-  const expected = Deno.env.get("ADMIN_RESET_TOKEN_V2") || "";
+  const expected = Deno.env.get("ONESHOT_RESET_TOKEN_20260716") || "";
   if (!expected || token !== expected) {
     return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...cors, "Content-Type": "application/json" } });
   }

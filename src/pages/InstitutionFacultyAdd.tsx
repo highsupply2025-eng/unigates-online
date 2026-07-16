@@ -151,9 +151,11 @@ const InstitutionFacultyAdd = () => {
     }
   };
 
+  // department_id is auto-resolved (or auto-created) in handleSubmit for faculty,
+  // so it's intentionally excluded from client validation.
   const canSubmit = useMemo(
-    () => !!fullName.trim() && !!role && (isStudent ? !!deptCodesInput.trim() : !!departmentId),
-    [fullName, role, departmentId, isStudent, deptCodesInput]
+    () => !!fullName.trim() && !!role && (isStudent ? !!deptCodesInput.trim() : true),
+    [fullName, role, isStudent, deptCodesInput]
   );
 
   const handleSubmit = async (e: React.FormEvent) => {

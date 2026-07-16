@@ -256,15 +256,16 @@ const Login = () => {
 
       <Separator />
 
-      <main className="flex-1 flex items-center justify-center px-4 py-8 md:py-16">
-        <form onSubmit={handleLogin} className="max-w-md w-full text-center space-y-4 md:space-y-6">
-          <div className="flex justify-center mb-2 md:mb-4">
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-xl shadow-primary/30 flex items-center justify-center">
-              <GraduationCap className="w-8 h-8 md:w-10 md:h-10 text-white" />
+      <main className="flex-1 flex items-center justify-center px-4 py-4 md:py-8">
+        <form onSubmit={handleLogin} className="max-w-md w-full text-center space-y-3 md:space-y-4">
+          <div className="flex justify-center mb-1">
+            <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center">
+              <GraduationCap className="w-6 h-6 md:w-7 md:h-7 text-white" />
             </div>
           </div>
-          <h1 className="text-xl md:text-3xl font-black text-foreground mb-1 md:mb-2">{t.loginPage.title}</h1>
-          <p className="text-sm md:text-base text-muted-foreground mb-4 md:mb-6">{t.loginPage.subtitle}</p>
+          <h1 className="text-lg md:text-2xl font-black text-foreground">{t.loginPage.title}</h1>
+          <p className="text-xs md:text-sm text-muted-foreground mb-2">{t.loginPage.subtitle}</p>
+
 
           <Input
             type="email"

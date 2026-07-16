@@ -345,33 +345,34 @@ const Signup = () => {
 
       <Separator />
 
-      <main className="flex-1 flex items-center justify-center px-4 py-6 sm:py-10">
+      <main className="flex-1 flex items-center justify-center px-4 py-4 sm:py-6">
         {!selectedRole ? (
           /* Step 1: Role Selection Cards */
           <div className="max-w-lg w-full text-center">
-            <div className="flex justify-center mb-4 sm:mb-6">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-xl shadow-primary/30 flex items-center justify-center">
-                <GraduationCap className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+            <div className="flex justify-center mb-3">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center">
+                <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
               </div>
             </div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground mb-2">
+            <h1 className="text-lg sm:text-xl md:text-2xl font-black text-foreground mb-1">
               {language === "ar" ? "اختر نوع الحساب" : "Choose Account Type"}
             </h1>
-            <p className="text-sm sm:text-base text-primary/70 font-medium mb-2">{language === "ar" ? "حدد نوع حسابك للمتابعة" : "Select your account type to continue"}</p>
+            <p className="text-xs sm:text-sm text-primary/70 font-medium mb-4">{language === "ar" ? "حدد نوع حسابك للمتابعة" : "Select your account type to continue"}</p>
             
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 max-w-md mx-auto">
+            <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
               {additionalLinks.map((item) => {
                 const Icon = item.icon;
                 return (
                   <Link
                     key={item.labelEn}
                     to={item.href}
-                    className="group p-4 sm:p-6 rounded-2xl border-2 border-primary/20 bg-card hover:border-primary hover:shadow-xl hover:shadow-primary/15 shadow-md transition-all duration-200 text-center"
+                    className="group p-3 sm:p-4 rounded-2xl border-2 border-primary/20 bg-card hover:border-primary hover:shadow-xl hover:shadow-primary/15 shadow-md transition-all duration-200 text-center"
                   >
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
-                      <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/30 flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                      <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
-                    <h3 className="text-base sm:text-lg font-bold text-primary">{language === "ar" ? item.labelAr : item.labelEn}</h3>
+                    <h3 className="text-sm sm:text-base font-bold text-primary">{language === "ar" ? item.labelAr : item.labelEn}</h3>
+
                   </Link>
                 );
               })}

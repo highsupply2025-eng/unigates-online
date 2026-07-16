@@ -64,6 +64,8 @@ const InstitutionFacultyAdd = () => {
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState(isStudent ? "student" : "");
   const [departmentId, setDepartmentId] = useState("");
+  const [institutionId, setInstitutionId] = useState<string>("");
+  const [institutionType, setInstitutionType] = useState<"college" | "institute" | "">("");
   const [deptCodesInput, setDeptCodesInput] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");

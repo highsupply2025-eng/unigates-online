@@ -244,6 +244,7 @@ const App = () => (
           </Suspense>
           <AIChatWidget />
           <BottomNav />
+          <ForcePasswordChangeDialog />
         </BrowserRouter>
       </LanguageProvider>
     </TooltipProvider>

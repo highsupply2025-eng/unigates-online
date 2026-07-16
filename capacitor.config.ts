@@ -6,8 +6,8 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   backgroundColor: '#0f766e',
   server: {
-    url: 'https://6530b1d8-8d64-4a1b-b26b-383d9aa20082.lovableproject.com?forceHideBadge=true',
-    cleartext: true,
+    url: 'https://unigates.online',
+    cleartext: false,
   },
   android: {
     allowMixedContent: false,

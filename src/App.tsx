@@ -12,6 +12,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import PageTransition from "./components/PageTransition";
 import RouteFallback from "./components/RouteFallback";
 import PrefetchRoutes from "./PrefetchRoutes";
+import BottomNav from "./components/BottomNav";
 
 const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));
@@ -241,6 +242,7 @@ const App = () => (
             </PageTransition>
           </Suspense>
           <AIChatWidget />
+          <BottomNav />
         </BrowserRouter>
       </LanguageProvider>
     </TooltipProvider>

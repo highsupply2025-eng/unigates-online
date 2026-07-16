@@ -211,25 +211,20 @@ const CollegeRoleSignup = () => {
   };
 
   const handleSubmit = async () => {
-    if (!fullName || !email || !phone || !password) {
+    if (!fullName || !email || !phone) {
       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى ملء جميع الحقول المطلوبة" : "Please fill all required fields", variant: "destructive" });
-      return;
-    }
-    if (password !== confirmPassword) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "الرقم السري غير متطابق" : "Passwords do not match", variant: "destructive" });
-      return;
-    }
-    if (password.length < 6) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "الرقم السري يجب أن يكون 6 أحرف على الأقل" : "Password must be at least 6 characters", variant: "destructive" });
       return;
     }
 
     setLoading(true);
     try {
+      // Auto-generate a temporary password (member will be forced to change on first login)
+      const tempPassword = `Ug${Math.random().toString(36).slice(2, 8)}!${Math.floor(Math.random() * 9000 + 1000)}`;
+
       // 1. Create auth account
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
-        password,
+        password: tempPassword,
         options: {
           emailRedirectTo: getAuthCallbackUrl(),
           data: { role: role, institution_type: 'college' },
@@ -252,6 +247,13 @@ const CollegeRoleSignup = () => {
         if (rpcError) throw rpcError;
         const result = rpcData as any;
         if (result && !result.success) throw new Error(result.error);
+
+        // Force change password on first login
+        await supabase
+          .from("profiles")
+          .update({ must_change_password: true } as any)
+          .eq("user_id", authData.user.id);
+
 
         // 3. Handle invitation source
         if (verifiedInvitation) {

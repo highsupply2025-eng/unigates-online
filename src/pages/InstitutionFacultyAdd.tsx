@@ -308,25 +308,26 @@ const InstitutionFacultyAdd = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 sm:py-8">
+      <main className="container mx-auto px-4 py-3 sm:py-5">
         <form onSubmit={handleSubmit}>
           <Card className="border-2 border-primary/30 max-w-4xl mx-auto shadow-2xl shadow-primary/10 bg-gradient-to-br from-card via-card to-primary/5">
-            <CardContent className="p-5 sm:p-10 space-y-8">
+            <CardContent className="p-4 sm:p-6 space-y-5">
               {/* Photo */}
-              <div className="flex flex-col items-center gap-4">
-                <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden border-[6px] border-primary/40 ring-4 ring-primary/15 bg-muted flex items-center justify-center shadow-xl shadow-primary/30">
+              <div className="flex flex-col items-center gap-2">
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-4 border-primary/40 ring-2 ring-primary/15 bg-muted flex items-center justify-center shadow-lg shadow-primary/30">
                   {photoUrl ? (
                     <img src={photoUrl} alt={fullName || "photo"} className="w-full h-full object-cover" />
                   ) : (
-                    <UserRound className="w-16 h-16 text-primary/60" strokeWidth={1.8} />
+                    <UserRound className="w-10 h-10 text-primary/60" strokeWidth={1.8} />
                   )}
                 </div>
                 <input ref={fileRef} type="file" accept="image/*" hidden onChange={handlePhotoChange} />
-                <Button type="button" variant="default" size="lg" className="shadow-lg shadow-primary/30 font-bold text-base" onClick={() => fileRef.current?.click()} disabled={uploading}>
-                  {uploading ? <Loader2 className="w-5 h-5 animate-spin me-2" /> : <Upload className="w-5 h-5 me-2" />}
+                <Button type="button" variant="default" size="sm" className="shadow-md shadow-primary/30 font-bold text-sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                  {uploading ? <Loader2 className="w-4 h-4 animate-spin me-2" /> : <Upload className="w-4 h-4 me-2" />}
                   {isRtl ? "رفع صورة شخصية" : "Upload Photo"}
                 </Button>
               </div>
+
 
               {/* Role */}
               {!isStudent && (

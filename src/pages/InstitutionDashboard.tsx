@@ -217,17 +217,35 @@ const InstitutionDashboard = () => {
   const [membersActiveOnly, setMembersActiveOnly] = useState(false);
 
   const generateInviteLinkNow = async (roleParam: "lecturer" | "student" | "department_head", deptId: string) => {
-    if (!deptId) {
-      toast({ title: isRtl ? "اختر القسم" : "Select a department", variant: "destructive" });
-      return;
-    }
     setGeneratingInviteLink(true);
     try {
+      let effectiveDeptId = deptId;
+
+      // If no department is selected/available, auto-create a default one for this institution
+      if (!effectiveDeptId) {
+        if (!institutionId || !institutionType) {
+          throw new Error(isRtl ? "لم يتم التعرف على المؤسسة" : "Institution not identified");
+        }
+        const { data: newDept, error: deptErr } = await supabase
+          .from("departments")
+          .insert({
+            institution_id: institutionId,
+            institution_type: institutionType,
+            department_name: isRtl ? "عام" : "General",
+            department_code: `GEN-${Math.random().toString(36).slice(2, 7).toUpperCase()}`,
+          } as any)
+          .select("id")
+          .single();
+        if (deptErr) throw deptErr;
+        effectiveDeptId = (newDept as any).id;
+        setInviteLinkDeptId(effectiveDeptId);
+      }
+
       const code = generateCode();
       const instPath = institutionType === "college" ? "college" : "institute";
       const link = `${window.location.origin}/signup/${instPath}/${roleParam}?code=${code}`;
       const { error } = await supabase.from("department_members").insert({
-        department_id: deptId,
+        department_id: effectiveDeptId,
         role: roleParam,
         invitation_code: code,
         full_name: isRtl ? "عضو جديد" : "New Member",
@@ -235,9 +253,10 @@ const InstitutionDashboard = () => {
       if (error) throw error;
       setGeneratedInviteLink(link);
       setGeneratedInviteCode(code);
-      await loadInstitutionData(institutionId, institutionType || "college");
+      await loadInstitutionData(institutionId!, institutionType || "college");
     } catch (err: any) {
-      toast({ title: isRtl ? "فشل التوليد" : "Generation failed", description: err.message, variant: "destructive" });
+      console.error("generateInviteLinkNow failed:", err);
+      toast({ title: isRtl ? "فشل التوليد" : "Generation failed", description: err.message || String(err), variant: "destructive" });
     } finally {
       setGeneratingInviteLink(false);
     }
@@ -245,11 +264,12 @@ const InstitutionDashboard = () => {
 
   // Auto-generate one-time link as soon as dialog opens
   useEffect(() => {
-    if (showInviteLinkDialog && !generatedInviteLink && !generatingInviteLink && inviteLinkDeptId) {
+    if (showInviteLinkDialog && !generatedInviteLink && !generatingInviteLink) {
       generateInviteLinkNow(inviteLinkRole, inviteLinkDeptId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showInviteLinkDialog]);
+
 
   // Load exclusive account-system choice from localStorage when institution is known
   useEffect(() => {
@@ -3548,7 +3568,8 @@ ${rows.map((r: any, i: number) => `<tr>
                 setGeneratedInviteCode("");
                 await generateInviteLinkNow(inviteLinkRole, inviteLinkDeptId);
               }}
-              disabled={generatingInviteLink || !inviteLinkDeptId}
+              disabled={generatingInviteLink}
+
             >
               {generatingInviteLink ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : <LinkIcon className="w-4 h-4 me-1" />}
               {isRtl ? (generatedInviteLink ? "توليد رابط جديد" : "توليد الرابط") : (generatedInviteLink ? "Generate New Link" : "Generate Link")}

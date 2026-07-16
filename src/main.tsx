@@ -2,7 +2,12 @@ import { createRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import AppErrorBoundary from "./components/AppErrorBoundary";
+import { initNativeApp } from "./lib/native-app";
 import "./index.css";
+
+// Boot native (Capacitor) integrations if we're running inside the APK/IPA.
+// Safe no-op in normal browsers.
+initNativeApp();
 
 // Global safety-net for lazy-chunk load failures triggered outside React render.
 const isChunkErr = (msg: string) =>

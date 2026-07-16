@@ -106,6 +106,7 @@ const InstituteRoleSignup = () => {
   const [nationalId, setNationalId] = useState("");
   const [address, setAddress] = useState("");
   const [qualification, setQualification] = useState("");
+  const [specialization, setSpecialization] = useState("");
   const [notes, setNotes] = useState("");
 
   useEffect(() => {

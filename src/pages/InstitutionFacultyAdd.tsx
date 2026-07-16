@@ -158,10 +158,29 @@ const InstitutionFacultyAdd = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("handleSubmit called");
+    const formData = {
+      fullName, role, departmentId, deptCodesInput, dateOfBirth, gender,
+      email, phone, nationalId, address, qualification, specialization,
+      hireDate, notes, photoUrl, isStudent,
+    };
+    console.log(formData);
     if (!canSubmit) {
-      toast({ title: isRtl ? "أكمل الحقول المطلوبة" : "Complete required fields", variant: "destructive" });
+      const missing: string[] = [];
+      if (!fullName.trim()) missing.push("fullName");
+      if (!role) missing.push("role");
+      if (isStudent ? !deptCodesInput.trim() : !departmentId) {
+        missing.push(isStudent ? "deptCodesInput" : "departmentId");
+      }
+      console.warn("Validation failed. Missing fields:", missing);
+      toast({
+        title: isRtl ? "أكمل الحقول المطلوبة" : "Complete required fields",
+        description: `Missing: ${missing.join(", ")}`,
+        variant: "destructive",
+      });
       return;
     }
+    console.log("Sending to Supabase...");
     setSaving(true);
     try {
       const baseRow: any = {
@@ -224,11 +243,15 @@ const InstitutionFacultyAdd = () => {
           department_id: departmentId,
           invitation_code: invitationCode,
         });
-        if (error) throw error;
+        if (error) {
+          console.error("Supabase insert failed:", error);
+          throw error;
+        }
         toast({ title: isRtl ? "تم حفظ بيانات العضو" : "Member saved successfully" });
       }
       navigate(-1);
     } catch (err: any) {
+      console.error("Save failed:", err);
       toast({ title: isRtl ? "فشل الحفظ" : "Save failed", description: err.message, variant: "destructive" });
     } finally {
       setSaving(false);

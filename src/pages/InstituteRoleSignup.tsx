@@ -106,6 +106,7 @@ const InstituteRoleSignup = () => {
   const [nationalId, setNationalId] = useState("");
   const [address, setAddress] = useState("");
   const [qualification, setQualification] = useState("");
+  const [specialization, setSpecialization] = useState("");
   const [notes, setNotes] = useState("");
 
   useEffect(() => {
@@ -228,7 +229,19 @@ const InstituteRoleSignup = () => {
             // Link user and update profile data
             await supabase
               .from("department_members")
-              .update({ user_id: authData.user.id, full_name: fullName })
+              .update({
+                user_id: authData.user.id,
+                full_name: fullName,
+                email: email.trim() || null,
+                phone: `${countryCode}${phone}`,
+                date_of_birth: dateOfBirth || null,
+                gender: gender || null,
+                national_id: nationalId.trim() || null,
+                address: address.trim() || null,
+                qualification: qualification.trim() || null,
+                specialization: specialization.trim() || null,
+                notes: notes.trim() || null,
+              } as any)
               .eq("id", verifiedInvitation.id);
           }
         } else if (verifiedDepts.length > 0) {
@@ -484,6 +497,48 @@ const InstituteRoleSignup = () => {
                   </div>
                 </div>
               )}
+
+              {/* Extended faculty details — mirror Add Member */}
+              {!isStudentRole && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="mb-2 flex items-center gap-1.5 font-bold text-primary"><Calendar className="w-4 h-4" />{isRtl ? "تاريخ الميلاد" : "Date of Birth"}</Label>
+                    <Input type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                  </div>
+                  <div>
+                    <Label className="mb-2 flex items-center gap-1.5 font-bold text-primary"><Users2 className="w-4 h-4" />{isRtl ? "النوع" : "Gender"}</Label>
+                    <Select value={gender} onValueChange={setGender}>
+                      <SelectTrigger className="h-12 border-2 border-primary/20"><SelectValue placeholder={isRtl ? "اختر" : "Select"} /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">{isRtl ? "ذكر" : "Male"}</SelectItem>
+                        <SelectItem value="female">{isRtl ? "أنثى" : "Female"}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="mb-2 flex items-center gap-1.5 font-bold text-primary"><IdCard className="w-4 h-4" />{isRtl ? "الرقم القومي" : "National ID"}</Label>
+                    <Input value={nationalId} onChange={(e) => setNationalId(e.target.value)} maxLength={20} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                  </div>
+                  <div>
+                    <Label className="mb-2 flex items-center gap-1.5 font-bold text-primary"><BookOpen className="w-4 h-4" />{isRtl ? "المؤهل العلمي" : "Qualification"}</Label>
+                    <Input value={qualification} onChange={(e) => setQualification(e.target.value)} placeholder={isRtl ? "مثال: دكتوراه" : "e.g. PhD"} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                  </div>
+                  <div>
+                    <Label className="mb-2 flex items-center gap-1.5 font-bold text-primary"><GraduationCap className="w-4 h-4" />{isRtl ? "التخصص" : "Specialization"}</Label>
+                    <Input value={specialization} onChange={(e) => setSpecialization(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                  </div>
+                  <div>
+                    <Label className="mb-2 flex items-center gap-1.5 font-bold text-primary"><MapPin className="w-4 h-4" />{isRtl ? "العنوان" : "Address"}</Label>
+                    <Input value={address} onChange={(e) => setAddress(e.target.value)} className="h-12 border-2 border-primary/20 focus:border-primary" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label className="mb-2 flex items-center gap-1.5 font-bold text-primary"><StickyNote className="w-4 h-4" />{isRtl ? "ملاحظات" : "Notes"}</Label>
+                    <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} className="border-2 border-primary/20 focus-visible:border-primary" />
+                  </div>
+                </div>
+              )}
+
+
 
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

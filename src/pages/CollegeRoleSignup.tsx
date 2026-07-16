@@ -89,6 +89,7 @@ const CollegeRoleSignup = () => {
   const [nationalId, setNationalId] = useState("");
   const [address, setAddress] = useState("");
   const [qualification, setQualification] = useState("");
+  const [specialization, setSpecialization] = useState("");
   const [notes, setNotes] = useState("");
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -272,7 +273,20 @@ const CollegeRoleSignup = () => {
             // Link user to existing department member record and update profile data
             await supabase
               .from("department_members")
-              .update({ user_id: authData.user.id, full_name: fullName })
+              .update({
+                user_id: authData.user.id,
+                full_name: fullName,
+                email: email.trim() || null,
+                phone: `${countryCode}${phone}`,
+                photo_url: photoUrl || null,
+                date_of_birth: dateOfBirth || null,
+                gender: gender || null,
+                national_id: nationalId.trim() || null,
+                address: address.trim() || null,
+                qualification: qualification.trim() || null,
+                specialization: specialization.trim() || null,
+                notes: notes.trim() || null,
+              } as any)
               .eq("id", verifiedInvitation.id);
             // Also join college_members if department has institution_id
             if (verifiedInvitation.departments?.institution_id) {
@@ -531,6 +545,46 @@ const CollegeRoleSignup = () => {
                       </div>
                     </div>
                   </>
+                )}
+
+                {/* Extended faculty details — mirror Add Member */}
+                {!isStudentRole && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="space-y-2.5">
+                      <Label className={labelCls}><Calendar className={iconCls} strokeWidth={2.4} />{isRtl ? "تاريخ الميلاد" : "Date of Birth"}</Label>
+                      <Input className={inputCls} type="date" value={dateOfBirth} onChange={e => setDateOfBirth(e.target.value)} />
+                    </div>
+                    <div className="space-y-2.5">
+                      <Label className={labelCls}><Users2 className={iconCls} strokeWidth={2.4} />{isRtl ? "النوع" : "Gender"}</Label>
+                      <Select value={gender} onValueChange={setGender}>
+                        <SelectTrigger className="h-12 text-base border-2 border-primary/30 focus:border-primary bg-card font-semibold"><SelectValue placeholder={isRtl ? "اختر" : "Select"} /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="male" className="text-base">{isRtl ? "ذكر" : "Male"}</SelectItem>
+                          <SelectItem value="female" className="text-base">{isRtl ? "أنثى" : "Female"}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2.5">
+                      <Label className={labelCls}><IdCard className={iconCls} strokeWidth={2.4} />{isRtl ? "الرقم القومي" : "National ID"}</Label>
+                      <Input className={inputCls} value={nationalId} onChange={e => setNationalId(e.target.value)} maxLength={20} />
+                    </div>
+                    <div className="space-y-2.5">
+                      <Label className={labelCls}><BookOpen className={iconCls} strokeWidth={2.4} />{isRtl ? "المؤهل العلمي" : "Qualification"}</Label>
+                      <Input className={inputCls} value={qualification} onChange={e => setQualification(e.target.value)} placeholder={isRtl ? "مثال: دكتوراه" : "e.g. PhD"} />
+                    </div>
+                    <div className="space-y-2.5">
+                      <Label className={labelCls}><GraduationCap className={iconCls} strokeWidth={2.4} />{isRtl ? "التخصص" : "Specialization"}</Label>
+                      <Input className={inputCls} value={specialization} onChange={e => setSpecialization(e.target.value)} />
+                    </div>
+                    <div className="space-y-2.5">
+                      <Label className={labelCls}><MapPin className={iconCls} strokeWidth={2.4} />{isRtl ? "العنوان" : "Address"}</Label>
+                      <Input className={inputCls} value={address} onChange={e => setAddress(e.target.value)} />
+                    </div>
+                    <div className="space-y-2.5 md:col-span-2">
+                      <Label className={labelCls}><StickyNote className={iconCls} strokeWidth={2.4} />{isRtl ? "ملاحظات" : "Notes"}</Label>
+                      <Textarea className="text-base border-2 border-primary/30 focus-visible:border-primary focus-visible:ring-primary/30 bg-card" value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
+                    </div>
+                  </div>
                 )}
 
                 {/* Passwords */}

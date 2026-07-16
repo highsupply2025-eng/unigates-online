@@ -229,7 +229,19 @@ const InstituteRoleSignup = () => {
             // Link user and update profile data
             await supabase
               .from("department_members")
-              .update({ user_id: authData.user.id, full_name: fullName })
+              .update({
+                user_id: authData.user.id,
+                full_name: fullName,
+                email: email.trim() || null,
+                phone: `${countryCode}${phone}`,
+                date_of_birth: dateOfBirth || null,
+                gender: gender || null,
+                national_id: nationalId.trim() || null,
+                address: address.trim() || null,
+                qualification: qualification.trim() || null,
+                specialization: specialization.trim() || null,
+                notes: notes.trim() || null,
+              } as any)
               .eq("id", verifiedInvitation.id);
           }
         } else if (verifiedDepts.length > 0) {

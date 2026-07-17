@@ -23,15 +23,27 @@ export default function ForcePasswordChangeDialog() {
   const [saving, setSaving] = useState(false);
   const justChangedRef = useRef(false);
 
+  // Always re-fetch the freshest session + user profile from the backend
+  // before deciding whether to display the dialog. No cached values.
   const check = async () => {
     if (justChangedRef.current) { setOpen(false); return; }
+
+    // 1) Refresh session so the client holds an up-to-date access token
+    await supabase.auth.refreshSession().catch(() => {});
+
+    // 2) Re-fetch the authoritative user from the Auth server
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setOpen(false); return; }
-    const { data: prof } = await supabase
+
+    // 3) Re-fetch the profile row directly from the DB (no cache)
+    const { data: prof, error } = await supabase
       .from("profiles")
       .select("must_change_password, email")
       .eq("user_id", user.id)
       .maybeSingle();
+
+    if (error) { setOpen(false); return; }
+
     if ((prof as any)?.must_change_password === true) {
       setEmail((prof as any).email || user.email || "");
       setOpen(true);
@@ -47,6 +59,7 @@ export default function ForcePasswordChangeDialog() {
     });
     return () => { sub.subscription.unsubscribe(); };
   }, []);
+
 
   const submit = async () => {
     if (next.length < 8) {
@@ -87,8 +100,9 @@ export default function ForcePasswordChangeDialog() {
         throw new Error(isRtl ? "تعذر تحديث حالة الحساب" : "Failed to persist flag");
       }
 
-      // 5. Refresh session so cached user metadata is updated
+      // 5. Refresh session AND re-fetch profile from backend to confirm state
       await supabase.auth.refreshSession();
+      await supabase.auth.getUser();
 
       // 6. Prevent onAuthStateChange from reopening
       justChangedRef.current = true;
@@ -96,6 +110,7 @@ export default function ForcePasswordChangeDialog() {
       setCurrent(""); setNext(""); setConfirm("");
 
       toast({ title: isRtl ? "تم تغيير كلمة السر بنجاح" : "Password changed successfully" });
+
     } catch (e: any) {
       toast({ title: isRtl ? "فشل تغيير كلمة السر" : "Change failed", description: e.message, variant: "destructive" });
     } finally {

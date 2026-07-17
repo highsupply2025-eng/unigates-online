@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { FunctionsHttpError } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -19,7 +20,13 @@ type CompletePasswordChangeResult = {
   profile?: ForcePasswordProfile;
 };
 
-const errorMessage = (error: unknown) => error instanceof Error ? error.message : String(error);
+const errorMessage = async (error: unknown) => {
+  if (error instanceof FunctionsHttpError) {
+    const body = await error.context.json().catch(() => null) as { error?: string } | null;
+    return body?.error || error.message;
+  }
+  return error instanceof Error ? error.message : String(error);
+};
 
 /**
  * Global dialog: forces users flagged with profiles.must_change_password=true
@@ -129,7 +136,7 @@ export default function ForcePasswordChangeDialog() {
       toast({ title: isRtl ? "تم تغيير كلمة السر بنجاح" : "Password changed successfully" });
 
     } catch (e: unknown) {
-      toast({ title: isRtl ? "فشل تغيير كلمة السر" : "Change failed", description: errorMessage(e), variant: "destructive" });
+      toast({ title: isRtl ? "فشل تغيير كلمة السر" : "Change failed", description: await errorMessage(e), variant: "destructive" });
     } finally {
       savingRef.current = false;
       setSaving(false);

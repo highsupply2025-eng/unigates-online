@@ -22,10 +22,14 @@ export default function ForcePasswordChangeDialog() {
   const [confirm, setConfirm] = useState("");
   const [saving, setSaving] = useState(false);
   const justChangedRef = useRef(false);
+  const savingRef = useRef(false);
+  const checkSeqRef = useRef(0);
 
   // Always re-fetch the freshest session + user profile from the backend
   // before deciding whether to display the dialog. No cached values.
   const check = async () => {
+    const seq = ++checkSeqRef.current;
+    if (savingRef.current) return;
     if (justChangedRef.current) { setOpen(false); return; }
 
     // 1) Refresh session so the client holds an up-to-date access token
@@ -43,6 +47,7 @@ export default function ForcePasswordChangeDialog() {
       .maybeSingle();
 
     if (error) { setOpen(false); return; }
+    if (seq !== checkSeqRef.current || savingRef.current) return;
 
     if ((prof as any)?.must_change_password === true) {
       setEmail((prof as any).email || user.email || "");
@@ -71,40 +76,37 @@ export default function ForcePasswordChangeDialog() {
       return;
     }
     setSaving(true);
+    savingRef.current = true;
+    checkSeqRef.current += 1;
     try {
-      // 1. Verify current (temporary) password
-      const { error: signErr } = await supabase.auth.signInWithPassword({ email, password: current });
-      if (signErr) throw new Error(isRtl ? "كلمة السر الحالية غير صحيحة" : "Current password is incorrect");
-
-      const { data: { user: authedUser } } = await supabase.auth.getUser();
-      if (!authedUser) throw new Error(isRtl ? "لم يتم العثور على المستخدم" : "User not found");
-
-      // 2. Update password
-      const { error: upErr } = await supabase.auth.updateUser({ password: next });
-      if (upErr) throw upErr;
-
-      // 3. Clear the must_change_password flag in the DB immediately
-      const { error: profErr } = await supabase
-        .from("profiles")
-        .update({ must_change_password: false } as any)
-        .eq("user_id", authedUser.id);
-      if (profErr) throw profErr;
-
-      // 4. Verify the flag was persisted (backend truth)
-      const { data: verifyProf } = await supabase
-        .from("profiles")
-        .select("must_change_password")
-        .eq("user_id", authedUser.id)
-        .maybeSingle();
-      if ((verifyProf as any)?.must_change_password === true) {
-        throw new Error(isRtl ? "تعذر تحديث حالة الحساب" : "Failed to persist flag");
+      // Backend verifies the temporary password, updates the auth password,
+      // clears profiles.must_change_password, commits, then returns success.
+      const { data: result, error: fnErr } = await supabase.functions.invoke("complete-password-change", {
+        body: { current_password: current, new_password: next },
+      });
+      if (fnErr) throw fnErr;
+      if (!(result as any)?.success || (result as any)?.profile?.must_change_password !== false) {
+        throw new Error((result as any)?.error || (isRtl ? "تعذر تحديث حالة الحساب" : "Failed to persist flag"));
       }
 
-      // 5. Refresh session AND re-fetch profile from backend to confirm state
-      await supabase.auth.refreshSession();
-      await supabase.auth.getUser();
+      // Regenerate the JWT/session, then read the authoritative user + profile.
+      const { error: refreshErr } = await supabase.auth.refreshSession();
+      if (refreshErr) throw refreshErr;
 
-      // 6. Prevent onAuthStateChange from reopening
+      const { data: { user: refreshedUser }, error: userErr } = await supabase.auth.getUser();
+      if (userErr || !refreshedUser) throw userErr || new Error(isRtl ? "لم يتم العثور على المستخدم" : "User not found");
+
+      const { data: freshProfile, error: profileErr } = await supabase
+        .from("profiles")
+        .select("must_change_password, email")
+        .eq("user_id", refreshedUser.id)
+        .maybeSingle();
+      if (profileErr) throw profileErr;
+      if ((freshProfile as any)?.must_change_password !== false) {
+        throw new Error(isRtl ? "ما زال الحساب يتطلب تغيير كلمة السر" : "Password-change flag is still enabled");
+      }
+
+      // Prevent any in-flight auth event from reopening the modal.
       justChangedRef.current = true;
       setOpen(false);
       setCurrent(""); setNext(""); setConfirm("");
@@ -114,6 +116,7 @@ export default function ForcePasswordChangeDialog() {
     } catch (e: any) {
       toast({ title: isRtl ? "فشل تغيير كلمة السر" : "Change failed", description: e.message, variant: "destructive" });
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
   };

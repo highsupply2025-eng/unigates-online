@@ -175,7 +175,7 @@ Deno.serve(async (req) => {
       },
       profile: committedProfile,
     });
-  } catch (error: any) {
-    return json({ success: false, error: error?.message || String(error) }, 500);
+  } catch (error: unknown) {
+    return json({ success: false, error: error instanceof Error ? error.message : String(error) }, 500);
   }
 });

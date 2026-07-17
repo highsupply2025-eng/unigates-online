@@ -8,6 +8,19 @@ import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Loader2, KeyRound } from "lucide-react";
 
+type ForcePasswordProfile = {
+  email: string | null;
+  must_change_password: boolean;
+};
+
+type CompletePasswordChangeResult = {
+  success?: boolean;
+  error?: string;
+  profile?: ForcePasswordProfile;
+};
+
+const errorMessage = (error: unknown) => error instanceof Error ? error.message : String(error);
+
 /**
  * Global dialog: forces users flagged with profiles.must_change_password=true
  * to set a new password before continuing. Non-dismissible.
@@ -21,7 +34,6 @@ export default function ForcePasswordChangeDialog() {
   const [next, setNext] = useState("");
   const [confirm, setConfirm] = useState("");
   const [saving, setSaving] = useState(false);
-  const justChangedRef = useRef(false);
   const savingRef = useRef(false);
   const checkSeqRef = useRef(0);
 
@@ -30,7 +42,6 @@ export default function ForcePasswordChangeDialog() {
   const check = async () => {
     const seq = ++checkSeqRef.current;
     if (savingRef.current) return;
-    if (justChangedRef.current) { setOpen(false); return; }
 
     // 1) Refresh session so the client holds an up-to-date access token
     await supabase.auth.refreshSession().catch(() => {});
@@ -49,8 +60,9 @@ export default function ForcePasswordChangeDialog() {
     if (error) { setOpen(false); return; }
     if (seq !== checkSeqRef.current || savingRef.current) return;
 
-    if ((prof as any)?.must_change_password === true) {
-      setEmail((prof as any).email || user.email || "");
+    const profile = prof as ForcePasswordProfile | null;
+    if (profile?.must_change_password === true) {
+      setEmail(profile.email || user.email || "");
       setOpen(true);
     } else {
       setOpen(false);
@@ -81,16 +93,16 @@ export default function ForcePasswordChangeDialog() {
     try {
       // Backend verifies the temporary password, updates the auth password,
       // clears profiles.must_change_password, commits, then returns success.
-      const { data: result, error: fnErr } = await supabase.functions.invoke("complete-password-change", {
+      const { data: result, error: fnErr } = await supabase.functions.invoke<CompletePasswordChangeResult>("complete-password-change", {
         body: { current_password: current, new_password: next },
       });
       if (fnErr) throw fnErr;
-      if (!(result as any)?.success || (result as any)?.profile?.must_change_password !== false) {
-        throw new Error((result as any)?.error || (isRtl ? "تعذر تحديث حالة الحساب" : "Failed to persist flag"));
+      if (!result?.success || result.profile?.must_change_password !== false) {
+        throw new Error(result?.error || (isRtl ? "تعذر تحديث حالة الحساب" : "Failed to persist flag"));
       }
 
       // Regenerate the JWT/session with the new password, then read the authoritative user + profile.
-      const freshEmail = (result as any).profile?.email || email;
+      const freshEmail = result.profile.email || email;
       const { error: signInErr } = await supabase.auth.signInWithPassword({ email: freshEmail, password: next });
       if (signInErr) throw signInErr;
 
@@ -106,19 +118,18 @@ export default function ForcePasswordChangeDialog() {
         .eq("user_id", refreshedUser.id)
         .maybeSingle();
       if (profileErr) throw profileErr;
-      if ((freshProfile as any)?.must_change_password !== false) {
+      const verifiedProfile = freshProfile as ForcePasswordProfile | null;
+      if (verifiedProfile?.must_change_password !== false) {
         throw new Error(isRtl ? "ما زال الحساب يتطلب تغيير كلمة السر" : "Password-change flag is still enabled");
       }
 
-      // Prevent any in-flight auth event from reopening the modal.
-      justChangedRef.current = true;
       setOpen(false);
       setCurrent(""); setNext(""); setConfirm("");
 
       toast({ title: isRtl ? "تم تغيير كلمة السر بنجاح" : "Password changed successfully" });
 
-    } catch (e: any) {
-      toast({ title: isRtl ? "فشل تغيير كلمة السر" : "Change failed", description: e.message, variant: "destructive" });
+    } catch (e: unknown) {
+      toast({ title: isRtl ? "فشل تغيير كلمة السر" : "Change failed", description: errorMessage(e), variant: "destructive" });
     } finally {
       savingRef.current = false;
       setSaving(false);

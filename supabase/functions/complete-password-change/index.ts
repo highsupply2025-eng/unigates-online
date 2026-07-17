@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    const { data: profileBefore, error: beforeError } = await userClient
+    const { data: profileBefore, error: beforeError } = await admin
       .from("profiles")
       .select("user_id, email, must_change_password, updated_at")
       .eq("user_id", user.id)
@@ -107,10 +107,12 @@ Deno.serve(async (req) => {
       return json({ success: false, error: passwordError?.message || "Password update failed" }, 500);
     }
 
-    // 2) Clear the database flag through the authenticated user's context.
-    // The database helper uses RLS/auth.uid(), updates updated_at, clears
+    // 2) Clear the database flag through the trusted backend helper.
+    // The helper verifies the target user, updates updated_at, clears
     // temporary_password when that column exists, and verifies exactly one row changed.
-    const { data: updateRows, error: profileError } = await userClient.rpc("complete_password_change_profile_update");
+    const { data: updateRows, error: profileError } = await admin.rpc("complete_password_change_profile_update", {
+      p_user_id: user.id,
+    });
     const updateResult = Array.isArray(updateRows) ? updateRows[0] : updateRows;
 
     if (profileError || !updateResult) {
@@ -149,7 +151,7 @@ Deno.serve(async (req) => {
     }
 
     // 3) Re-read from the database as the final authoritative state before reporting success.
-    const { data: committedProfile, error: commitError } = await userClient
+    const { data: committedProfile, error: commitError } = await admin
       .from("profiles")
       .select("user_id, email, must_change_password, updated_at")
       .eq("user_id", user.id)

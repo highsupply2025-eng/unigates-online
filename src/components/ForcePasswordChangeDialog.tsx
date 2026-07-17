@@ -21,8 +21,12 @@ export default function ForcePasswordChangeDialog() {
   const [next, setNext] = useState("");
   const [confirm, setConfirm] = useState("");
   const [saving, setSaving] = useState(false);
+  const [justChanged, setJustChanged] = useState(false);
+
+
 
   const check = async () => {
+    if (justChanged) return;
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setOpen(false); return; }
     const { data: prof } = await supabase
@@ -37,6 +41,7 @@ export default function ForcePasswordChangeDialog() {
       setOpen(false);
     }
   };
+
 
   useEffect(() => {
     check();
@@ -61,16 +66,20 @@ export default function ForcePasswordChangeDialog() {
       const { error: signErr } = await supabase.auth.signInWithPassword({ email, password: current });
       if (signErr) throw new Error(isRtl ? "كلمة السر الحالية غير صحيحة" : "Current password is incorrect");
 
+      // Mark profile flag first, so any auth state re-check sees the updated value
+      const { data: { user: preUser } } = await supabase.auth.getUser();
+      if (preUser) {
+        await supabase.from("profiles").update({ must_change_password: false } as any).eq("user_id", preUser.id);
+      }
+      setJustChanged(true);
+      setOpen(false);
+
       const { error: upErr } = await supabase.auth.updateUser({ password: next });
       if (upErr) throw upErr;
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase.from("profiles").update({ must_change_password: false } as any).eq("user_id", user.id);
-      }
       toast({ title: isRtl ? "تم تغيير كلمة السر بنجاح" : "Password changed successfully" });
       setCurrent(""); setNext(""); setConfirm("");
-      setOpen(false);
+
     } catch (e: any) {
       toast({ title: isRtl ? "فشل تغيير كلمة السر" : "Change failed", description: e.message, variant: "destructive" });
     } finally {

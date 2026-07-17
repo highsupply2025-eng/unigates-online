@@ -7,7 +7,5 @@ project_id = "tgdkxzzkvfyazmnawkpw"
     verify_jwt = true
   [functions.create-faculty-account]
     verify_jwt = true
-  [functions.complete-password-change]
-    verify_jwt = true
   [functions.process-email-queue]
     verify_jwt = true

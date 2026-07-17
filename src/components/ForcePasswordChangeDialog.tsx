@@ -100,8 +100,9 @@ export default function ForcePasswordChangeDialog() {
         throw new Error(isRtl ? "تعذر تحديث حالة الحساب" : "Failed to persist flag");
       }
 
-      // 5. Refresh session so cached user metadata is updated
+      // 5. Refresh session AND re-fetch profile from backend to confirm state
       await supabase.auth.refreshSession();
+      await supabase.auth.getUser();
 
       // 6. Prevent onAuthStateChange from reopening
       justChangedRef.current = true;
@@ -109,6 +110,7 @@ export default function ForcePasswordChangeDialog() {
       setCurrent(""); setNext(""); setConfirm("");
 
       toast({ title: isRtl ? "تم تغيير كلمة السر بنجاح" : "Password changed successfully" });
+
     } catch (e: any) {
       toast({ title: isRtl ? "فشل تغيير كلمة السر" : "Change failed", description: e.message, variant: "destructive" });
     } finally {

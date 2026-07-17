@@ -21,6 +21,9 @@ export default function ForcePasswordChangeDialog() {
   const [next, setNext] = useState("");
   const [confirm, setConfirm] = useState("");
   const [saving, setSaving] = useState(false);
+  const [justChanged, setJustChanged] = useState(false);
+
+
 
   const check = async () => {
     const { data: { user } } = await supabase.auth.getUser();

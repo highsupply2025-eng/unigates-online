@@ -89,7 +89,11 @@ export default function ForcePasswordChangeDialog() {
         throw new Error((result as any)?.error || (isRtl ? "تعذر تحديث حالة الحساب" : "Failed to persist flag"));
       }
 
-      // Regenerate the JWT/session, then read the authoritative user + profile.
+      // Regenerate the JWT/session with the new password, then read the authoritative user + profile.
+      const freshEmail = (result as any).profile?.email || email;
+      const { error: signInErr } = await supabase.auth.signInWithPassword({ email: freshEmail, password: next });
+      if (signInErr) throw signInErr;
+
       const { error: refreshErr } = await supabase.auth.refreshSession();
       if (refreshErr) throw refreshErr;
 

@@ -26,6 +26,7 @@ export default function ForcePasswordChangeDialog() {
 
 
   const check = async () => {
+    if (justChanged) return;
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setOpen(false); return; }
     const { data: prof } = await supabase
@@ -40,6 +41,7 @@ export default function ForcePasswordChangeDialog() {
       setOpen(false);
     }
   };
+
 
   useEffect(() => {
     check();

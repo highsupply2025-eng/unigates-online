@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -21,12 +21,10 @@ export default function ForcePasswordChangeDialog() {
   const [next, setNext] = useState("");
   const [confirm, setConfirm] = useState("");
   const [saving, setSaving] = useState(false);
-  const [justChanged, setJustChanged] = useState(false);
-
-
+  const justChangedRef = useRef(false);
 
   const check = async () => {
-    if (justChanged) return;
+    if (justChangedRef.current) { setOpen(false); return; }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setOpen(false); return; }
     const { data: prof } = await supabase
@@ -34,14 +32,13 @@ export default function ForcePasswordChangeDialog() {
       .select("must_change_password, email")
       .eq("user_id", user.id)
       .maybeSingle();
-    if ((prof as any)?.must_change_password) {
+    if ((prof as any)?.must_change_password === true) {
       setEmail((prof as any).email || user.email || "");
       setOpen(true);
     } else {
       setOpen(false);
     }
   };
-
 
   useEffect(() => {
     check();
@@ -62,24 +59,43 @@ export default function ForcePasswordChangeDialog() {
     }
     setSaving(true);
     try {
-      // Verify current password
+      // 1. Verify current (temporary) password
       const { error: signErr } = await supabase.auth.signInWithPassword({ email, password: current });
       if (signErr) throw new Error(isRtl ? "كلمة السر الحالية غير صحيحة" : "Current password is incorrect");
 
-      // Mark profile flag first, so any auth state re-check sees the updated value
-      const { data: { user: preUser } } = await supabase.auth.getUser();
-      if (preUser) {
-        await supabase.from("profiles").update({ must_change_password: false } as any).eq("user_id", preUser.id);
-      }
-      setJustChanged(true);
-      setOpen(false);
+      const { data: { user: authedUser } } = await supabase.auth.getUser();
+      if (!authedUser) throw new Error(isRtl ? "لم يتم العثور على المستخدم" : "User not found");
 
+      // 2. Update password
       const { error: upErr } = await supabase.auth.updateUser({ password: next });
       if (upErr) throw upErr;
 
-      toast({ title: isRtl ? "تم تغيير كلمة السر بنجاح" : "Password changed successfully" });
+      // 3. Clear the must_change_password flag in the DB immediately
+      const { error: profErr } = await supabase
+        .from("profiles")
+        .update({ must_change_password: false } as any)
+        .eq("user_id", authedUser.id);
+      if (profErr) throw profErr;
+
+      // 4. Verify the flag was persisted (backend truth)
+      const { data: verifyProf } = await supabase
+        .from("profiles")
+        .select("must_change_password")
+        .eq("user_id", authedUser.id)
+        .maybeSingle();
+      if ((verifyProf as any)?.must_change_password === true) {
+        throw new Error(isRtl ? "تعذر تحديث حالة الحساب" : "Failed to persist flag");
+      }
+
+      // 5. Refresh session so cached user metadata is updated
+      await supabase.auth.refreshSession();
+
+      // 6. Prevent onAuthStateChange from reopening
+      justChangedRef.current = true;
+      setOpen(false);
       setCurrent(""); setNext(""); setConfirm("");
 
+      toast({ title: isRtl ? "تم تغيير كلمة السر بنجاح" : "Password changed successfully" });
     } catch (e: any) {
       toast({ title: isRtl ? "فشل تغيير كلمة السر" : "Change failed", description: e.message, variant: "destructive" });
     } finally {

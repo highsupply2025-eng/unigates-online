@@ -59,6 +59,26 @@
     font-family: 'Cairo', 'Inter', system-ui, sans-serif;
     overflow-x: hidden;
     max-width: 100vw;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Global responsive container: full-width sections, capped content */
+  .app-container {
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: 1rem;   /* mobile 16px */
+  }
+  @media (min-width: 640px) {
+    .app-container { padding-inline: 1.5rem; } /* tablet 24px */
+  }
+  @media (min-width: 1024px) {
+    .app-container { padding-inline: 2rem; }   /* desktop 32px */
+  }
+  .app-content {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
   }
 
   /* Prevent images and media from causing horizontal overflow */

@@ -2402,6 +2402,18 @@ export type Database = {
         Args: { _code: string; _user_id: string }
         Returns: Json
       }
+      complete_password_change_profile_update: {
+        Args: never
+        Returns: {
+          after_must_change_password: boolean
+          before_must_change_password: boolean
+          profile_email: string
+          profile_updated_at: string
+          profile_user_id: string
+          rows_updated: number
+          temporary_password_column_present: boolean
+        }[]
+      }
       complete_signup: {
         Args: {
           p_additional_certs_urls?: string[]

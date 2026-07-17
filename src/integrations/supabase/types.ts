@@ -2403,7 +2403,7 @@ export type Database = {
         Returns: Json
       }
       complete_password_change_profile_update: {
-        Args: never
+        Args: { p_user_id?: string }
         Returns: {
           after_must_change_password: boolean
           before_must_change_password: boolean

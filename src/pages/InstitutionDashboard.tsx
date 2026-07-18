@@ -646,6 +646,7 @@ const InstitutionDashboard = () => {
         };
       }
     } catch {}
+    setLastLoadedAt(Date.now());
   };
 
 

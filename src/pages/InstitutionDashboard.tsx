@@ -66,6 +66,26 @@ const generateCode = () => {
   return code;
 };
 
+// Unified faculty role set. All these count as "faculty member" in stats.
+// Keep in sync with role dropdowns and edge functions.
+const FACULTY_ROLES = new Set<string>([
+  "dean",
+  "vice_dean",
+  "vice_dean_postgrad",
+  "vice_dean_students",
+  "vice_dean_community",
+  "vice_dean_environment",
+  "department_head",
+  "professor",
+  "doctor",
+  "lecturer",
+  "assistant_lecturer",
+]);
+const isFacultyMember = (member: any) =>
+  Boolean(member?.role && FACULTY_ROLES.has(String(member.role)));
+
+export const FORCE_REFRESH_KEY = "institution-dashboard-force-refresh";
+
 // Module-level snapshot cache: lets revisits to the dashboard render instantly
 // from the last known state while a silent background refresh updates the data.
 type DashboardSnapshot = {

@@ -98,6 +98,9 @@ const InstitutionFacultyAdd = () => {
   const [specialization, setSpecialization] = useState("");
   const [hireDate, setHireDate] = useState("");
   const [notes, setNotes] = useState("");
+  const [tempPassword, setTempPassword] = useState<string>(() => generateStrongPassword());
+  const [showPassword, setShowPassword] = useState(false);
+
 
   useEffect(() => {
     (async () => {

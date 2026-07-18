@@ -180,6 +180,7 @@ const App = () => (
               <Route path="/institution/dashboard" element={<InstitutionDashboard />} />
               <Route path="/institution/faculty/add" element={<InstitutionFacultyAdd />} />
               <Route path="/institution/faculty/import" element={<InstitutionFacultyImport />} />
+              <Route path="/institution/faculty/:memberId/edit" element={<InstitutionFacultyEdit />} />
               <Route path="/institution/department/:deptId" element={<DepartmentPage />} />
               <Route path="/institution/member/:memberId" element={<LecturerProfile />} />
               <Route path="/leadership/dashboard" element={<LeadershipDashboard />} />

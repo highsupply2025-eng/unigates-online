@@ -139,18 +139,43 @@ const InstitutionFacultyAdd = () => {
         setInstitutionType(instType);
 
 
-        const { data: depts } = await supabase
-          .from("departments")
-          .select("id, department_name")
-          .eq("institution_id", instId)
-          .eq("institution_type", instType)
-          .order("created_at", { ascending: false });
-        setDepartments(depts || []);
-        const deptId = searchParams.get("dept");
-        if (deptId && depts?.find((d: any) => d.id === deptId)) {
-          setDepartmentId(deptId);
+        const deptIdParam = searchParams.get("dept");
+
+        if (!isStudent) {
+          // Faculty add: department MUST come from context (route param). No selector.
+          if (!deptIdParam) {
+            setContextError(
+              isRtl
+                ? "تعذّر تحديد القسم الحالي. يرجى العودة إلى صفحة القسم والمحاولة مرة أخرى."
+                : "Unable to determine the current department. Please return to the department page and try again."
+            );
+            return;
+          }
+          const { data: dept } = await supabase
+            .from("departments")
+            .select("id, department_name, institution_id, institution_type")
+            .eq("id", deptIdParam)
+            .maybeSingle();
+          if (!dept || dept.institution_id !== instId || dept.institution_type !== instType) {
+            setContextError(
+              isRtl
+                ? "تعذّر تحديد القسم الحالي. يرجى العودة إلى صفحة القسم والمحاولة مرة أخرى."
+                : "Unable to determine the current department. Please return to the department page and try again."
+            );
+            return;
+          }
+          setDepartmentId(dept.id);
+          setCurrentDepartmentName(dept.department_name);
+        } else {
+          // Student flow: keep existing behavior (list departments for reference / codes UI).
+          const { data: depts } = await supabase
+            .from("departments")
+            .select("id, department_name")
+            .eq("institution_id", instId)
+            .eq("institution_type", instType)
+            .order("created_at", { ascending: false });
+          setDepartments(depts || []);
         }
-        // Do NOT auto-select first department — user must pick explicitly.
       } finally {
         setLoadingDepts(false);
       }

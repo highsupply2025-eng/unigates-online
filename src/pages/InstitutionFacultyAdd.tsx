@@ -317,7 +317,8 @@ const InstitutionFacultyAdd = () => {
           duration: 20000,
         });
       }
-      navigate(-1);
+      try { sessionStorage.setItem("institution-dashboard-force-refresh", Date.now().toString()); } catch {}
+      navigate(`/institution/dashboard?tab=${isStudent ? "students" : "faculty"}`, { replace: true });
     } catch (err: any) {
       console.error("Save failed:", err);
       toast({ title: isRtl ? "فشل الحفظ" : "Save failed", description: err.message, variant: "destructive" });

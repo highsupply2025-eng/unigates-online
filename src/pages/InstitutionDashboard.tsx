@@ -66,6 +66,26 @@ const generateCode = () => {
   return code;
 };
 
+// Unified faculty role set. All these count as "faculty member" in stats.
+// Keep in sync with role dropdowns and edge functions.
+const FACULTY_ROLES = new Set<string>([
+  "dean",
+  "vice_dean",
+  "vice_dean_postgrad",
+  "vice_dean_students",
+  "vice_dean_community",
+  "vice_dean_environment",
+  "department_head",
+  "professor",
+  "doctor",
+  "lecturer",
+  "assistant_lecturer",
+]);
+const isFacultyMember = (member: any) =>
+  Boolean(member?.role && FACULTY_ROLES.has(String(member.role)));
+
+export const FORCE_REFRESH_KEY = "institution-dashboard-force-refresh";
+
 // Module-level snapshot cache: lets revisits to the dashboard render instantly
 // from the last known state while a silent background refresh updates the data.
 type DashboardSnapshot = {
@@ -103,6 +123,32 @@ const InstitutionDashboard = () => {
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "general");
   const [menuOpen, setMenuOpen] = useState(false);
   const [rangeDays, setRangeDays] = useState<7 | 30>(7);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastLoadedAt, setLastLoadedAt] = useState<number | null>(null);
+  const [nowTick, setNowTick] = useState(0);
+  useEffect(() => {
+    const t = window.setInterval(() => setNowTick(v => v + 1), 30000);
+    return () => window.clearInterval(t);
+  }, []);
+  const formatLastUpdated = (ts: number | null) => {
+    if (!ts) return isRtl ? "—" : "—";
+    const diff = Math.max(0, Date.now() - ts);
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return isRtl ? "الآن" : "just now";
+    if (mins === 1) return isRtl ? "منذ دقيقة" : "1 min ago";
+    if (mins < 60) return isRtl ? `منذ ${mins} دقيقة` : `${mins} min ago`;
+    const hrs = Math.floor(mins / 60);
+    return isRtl ? `منذ ${hrs} ساعة` : `${hrs} h ago`;
+  };
+  const handleManualRefresh = async () => {
+    if (refreshing || !institutionId || !institutionType) return;
+    setRefreshing(true);
+    try {
+      await loadInstitutionData(institutionId, institutionType, institutionName);
+    } finally {
+      setRefreshing(false);
+    }
+  };
   
    const handleTabChange = (tab: string, sub?: "main" | "invitations" | "accounts") => {
     // Virtual "accounts" tab maps to the invitations TabsContent with a different sub-view
@@ -328,9 +374,20 @@ const InstitutionDashboard = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/login"); return; }
 
+      // If a force-refresh signal is present (e.g. after adding a faculty
+      // member), skip cache hydration so stale numbers never flash.
+      let forceRefresh = false;
+      try {
+        if (sessionStorage.getItem(FORCE_REFRESH_KEY)) {
+          forceRefresh = true;
+          sessionStorage.removeItem(FORCE_REFRESH_KEY);
+          __dashboardCache = null;
+        }
+      } catch {}
+
       // Instant hydration from in-memory snapshot if it matches this user.
       // The full refresh still runs below in the background.
-      if (__dashboardCache && __dashboardCache.email === user.email) {
+      if (!forceRefresh && __dashboardCache && __dashboardCache.email === user.email) {
         const s = __dashboardCache;
         setInstitutionType(s.instType);
         setInstitutionName(s.instName);
@@ -589,6 +646,7 @@ const InstitutionDashboard = () => {
         };
       }
     } catch {}
+    setLastLoadedAt(Date.now());
   };
 
 
@@ -1647,12 +1705,30 @@ ${rows.map((r: any, i: number) => `<tr>
           <TabsContent value="general" dir={isRtl ? "rtl" : "ltr"}>
 
             {/* Sections Overview Chart - mirrors dropdown menu items */}
-            <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
+            <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+              <TimeRangeToggle value={rangeDays} onChange={setRangeDays} />
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground" aria-live="polite" data-tick={nowTick}>
+                  {isRtl ? "آخر تحديث: " : "Updated: "}{formatLastUpdated(lastLoadedAt)}
+                </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleManualRefresh}
+                  disabled={refreshing || !institutionId}
+                  className="gap-1.5"
+                  aria-label={isRtl ? "تحديث" : "Refresh"}
+                >
+                  {refreshing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                  <span className="hidden sm:inline">{isRtl ? "تحديث" : "Refresh"}</span>
+                </Button>
+              </div>
+            </div>
             <SectionsActivityChart
               className="mb-6"
               days={rangeDays}
               sections={[
-                { label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, timestamps: deptMembers.filter((m: any) => m.role === 'lecturer').map((m: any) => m.created_at) },
+                { label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, timestamps: deptMembers.filter(isFacultyMember).map((m: any) => m.created_at) },
                 { label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, timestamps: departments.map((d: any) => d.created_at) },
                 { label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, timestamps: deptMembers.filter((m: any) => m.role === 'student').map((m: any) => m.created_at) },
                 { label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, timestamps: examSchedules.map((s: any) => s.created_at) },
@@ -1664,7 +1740,7 @@ ${rows.map((r: any, i: number) => `<tr>
             <MenuItemsStatsGrid
               className="mb-6"
               items={[
-                { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, color: "from-indigo-500 to-indigo-600", count: deptMembers.filter((m: any) => m.role === 'lecturer').length },
+                { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, color: "from-indigo-500 to-indigo-600", count: deptMembers.filter(isFacultyMember).length },
                 { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, color: "from-purple-500 to-purple-600", count: departments.length },
                 { key: "students", label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, color: "from-orange-500 to-orange-600", count: deptMembers.filter((m: any) => m.role === 'student').length },
                 { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-emerald-500 to-emerald-600", count: examSchedules.length },

@@ -1684,7 +1684,7 @@ ${rows.map((r: any, i: number) => `<tr>
             <MenuItemsStatsGrid
               className="mb-6"
               items={[
-                { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, color: "from-indigo-500 to-indigo-600", count: deptMembers.filter((m: any) => m.role === 'lecturer').length },
+                { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, color: "from-indigo-500 to-indigo-600", count: deptMembers.filter(isFacultyMember).length },
                 { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, color: "from-purple-500 to-purple-600", count: departments.length },
                 { key: "students", label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, color: "from-orange-500 to-orange-600", count: deptMembers.filter((m: any) => m.role === 'student').length },
                 { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-emerald-500 to-emerald-600", count: examSchedules.length },

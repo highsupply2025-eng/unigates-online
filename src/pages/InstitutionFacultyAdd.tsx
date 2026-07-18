@@ -147,14 +147,16 @@ const InstitutionFacultyAdd = () => {
         const deptId = searchParams.get("dept");
         if (deptId && depts?.find((d: any) => d.id === deptId)) {
           setDepartmentId(deptId);
-        } else if (depts && depts.length > 0) {
-          setDepartmentId(depts[0].id);
         }
+        // Do NOT auto-select first department — user must pick explicitly.
       } finally {
         setLoadingDepts(false);
       }
     })();
+    // Clear temporary password when leaving the page.
+    return () => { setTempPassword(""); };
   }, []);
+
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

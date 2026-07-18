@@ -844,6 +844,42 @@ export type Database = {
         }
         Relationships: []
       }
+      faculty_edit_audit: {
+        Row: {
+          changes: Json
+          created_at: string
+          edited_by: string
+          edited_by_email: string | null
+          id: string
+          institution_id: string | null
+          institution_type: string | null
+          member_department_member_id: string | null
+          member_user_id: string
+        }
+        Insert: {
+          changes?: Json
+          created_at?: string
+          edited_by: string
+          edited_by_email?: string | null
+          id?: string
+          institution_id?: string | null
+          institution_type?: string | null
+          member_department_member_id?: string | null
+          member_user_id: string
+        }
+        Update: {
+          changes?: Json
+          created_at?: string
+          edited_by?: string
+          edited_by_email?: string | null
+          id?: string
+          institution_id?: string | null
+          institution_type?: string | null
+          member_department_member_id?: string | null
+          member_user_id?: string
+        }
+        Relationships: []
+      }
       institute_invitations: {
         Row: {
           created_at: string
@@ -2557,6 +2593,23 @@ export type Database = {
       submit_quiz: {
         Args: { _answers: Json; _quiz_id: string; _whatsapp?: string }
         Returns: Json
+      }
+      update_faculty_member_tx: {
+        Args: {
+          p_app_role: Database["public"]["Enums"]["app_role"]
+          p_avatar_url: string
+          p_extra: Json
+          p_full_name: string
+          p_institution_id: string
+          p_institution_type: string
+          p_new_department_id: string
+          p_old_department_id: string
+          p_phone: string
+          p_profile_role: string
+          p_specific_role: string
+          p_user_id: string
+        }
+        Returns: undefined
       }
       user_in_department: {
         Args: { _dept: string; _user: string }

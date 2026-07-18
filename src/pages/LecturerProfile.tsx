@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, Mail, Phone, Calendar, BookOpen, Users,
-  FileText, ClipboardList, Loader2, Unlink, Trash2, BadgeCheck,
+  FileText, ClipboardList, Loader2, Unlink, Trash2, BadgeCheck, Pencil,
   Building2, Layers, MapPin, GraduationCap, IdCard, UserRound,
   Briefcase, StickyNote, Sparkles, ShieldCheck
 } from "lucide-react";
@@ -405,6 +405,17 @@ const LecturerProfile = () => {
               <h3 className="text-base sm:text-lg font-black text-foreground">{isRtl ? "إجراءات إدارية" : "Admin Actions"}</h3>
             </div>
             <div className="flex flex-wrap gap-2.5">
+              {isLinked && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => navigate(`/institution/faculty/${memberId}/edit`)}
+                  className="gap-1.5 font-bold shadow-md shadow-primary/30"
+                >
+                  <Pencil className="w-4 h-4" />
+                  {isRtl ? "تعديل العضو" : "Edit Member"}
+                </Button>
+              )}
               {isLinked && (
                 <Button variant="outline" size="sm" onClick={() => setShowUnlink(true)} className="gap-1.5 border-2 font-bold">
                   <Unlink className="w-4 h-4" />

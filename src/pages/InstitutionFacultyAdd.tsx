@@ -579,6 +579,7 @@ const InstitutionFacultyAdd = () => {
             </CardContent>
           </Card>
         </form>
+        )}
       </main>
     </div>
   );

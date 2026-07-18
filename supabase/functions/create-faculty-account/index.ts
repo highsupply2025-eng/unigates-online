@@ -161,13 +161,16 @@ Deno.serve(async (req) => {
     }
 
     // ---- Create auth user ----
-    const password = genPassword();
+    const providedPassword = typeof body.temporary_password === "string" ? body.temporary_password.trim() : "";
+    const passwordOk = providedPassword.length >= 8 && /[A-Z]/.test(providedPassword) && /[a-z]/.test(providedPassword) && /\d/.test(providedPassword) && !/\s/.test(providedPassword);
+    const password = passwordOk ? providedPassword : genPassword();
     const { data: created, error: ce } = await admin.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
       user_metadata: { full_name: fullName, seeded_via: "institution_admin" },
     });
+
     if (ce || !created?.user) return fail("auth_create", ce?.message || "createUser failed");
     const uid = created.user.id;
     createdUid = uid;

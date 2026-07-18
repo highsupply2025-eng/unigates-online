@@ -254,15 +254,15 @@ const InstitutionFacultyAdd = () => {
           throw new Error(((resp as any)?.error) || fnErr?.message || "Failed to create student account");
         }
         const r = resp as any;
-        const credLine = isRtl
-          ? `تم تفعيل الحساب فوراً ✓\nالبريد: ${r.email}\nكلمة المرور المؤقتة: ${r.password}`
-          : `Account activated instantly ✓\nEmail: ${r.email}\nTemp password: ${r.password}`;
-        try { await navigator.clipboard?.writeText(`${r.email}\n${r.password}`); } catch {}
         toast({
           title: isRtl ? `تم تسجيل الطالب في ${r.joined} قسم` : `Student enrolled in ${r.joined} department(s)`,
-          description: credLine + (r.missing?.length ? (isRtl ? `\nأكواد غير صالحة: ${r.missing.join(", ")}` : `\nInvalid codes: ${r.missing.join(", ")}`) : ""),
-          duration: 15000,
+          description: (isRtl
+            ? `تم تفعيل الحساب بنجاح. البريد: ${r.email}`
+            : `Account activated. Email: ${r.email}`)
+            + (r.missing?.length ? (isRtl ? `\nأكواد غير صالحة: ${r.missing.join(", ")}` : `\nInvalid codes: ${r.missing.join(", ")}`) : ""),
+          duration: 8000,
         });
+
 
       } else {
         // Resolve department: use selected, else first loaded, else auto-create a default one.

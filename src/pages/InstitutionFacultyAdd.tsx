@@ -80,6 +80,8 @@ const InstitutionFacultyAdd = () => {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [departments, setDepartments] = useState<any[]>([]);
+  const [currentDepartmentName, setCurrentDepartmentName] = useState<string>("");
+  const [contextError, setContextError] = useState<string>("");
 
   const [photoUrl, setPhotoUrl] = useState("");
   const [fullName, setFullName] = useState("");

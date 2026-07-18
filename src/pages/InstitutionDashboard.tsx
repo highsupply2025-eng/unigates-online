@@ -123,6 +123,32 @@ const InstitutionDashboard = () => {
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "general");
   const [menuOpen, setMenuOpen] = useState(false);
   const [rangeDays, setRangeDays] = useState<7 | 30>(7);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastLoadedAt, setLastLoadedAt] = useState<number | null>(null);
+  const [nowTick, setNowTick] = useState(0);
+  useEffect(() => {
+    const t = window.setInterval(() => setNowTick(v => v + 1), 30000);
+    return () => window.clearInterval(t);
+  }, []);
+  const formatLastUpdated = (ts: number | null) => {
+    if (!ts) return isRtl ? "—" : "—";
+    const diff = Math.max(0, Date.now() - ts);
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return isRtl ? "الآن" : "just now";
+    if (mins === 1) return isRtl ? "منذ دقيقة" : "1 min ago";
+    if (mins < 60) return isRtl ? `منذ ${mins} دقيقة` : `${mins} min ago`;
+    const hrs = Math.floor(mins / 60);
+    return isRtl ? `منذ ${hrs} ساعة` : `${hrs} h ago`;
+  };
+  const handleManualRefresh = async () => {
+    if (refreshing || !institutionId || !institutionType) return;
+    setRefreshing(true);
+    try {
+      await loadInstitutionData(institutionId, institutionType, institutionName);
+    } finally {
+      setRefreshing(false);
+    }
+  };
   
    const handleTabChange = (tab: string, sub?: "main" | "invitations" | "accounts") => {
     // Virtual "accounts" tab maps to the invitations TabsContent with a different sub-view

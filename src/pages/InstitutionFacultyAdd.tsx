@@ -371,7 +371,7 @@ const InstitutionFacultyAdd = () => {
               </div>
 
 
-              {/* Role */}
+              {/* Role + Department (faculty only) */}
               {!isStudent && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-2.5">
@@ -385,8 +385,63 @@ const InstitutionFacultyAdd = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="space-y-2.5">
+                    <Label className={labelCls}><Briefcase className={iconCls} strokeWidth={2.4} />{isRtl ? "القسم" : "Department"} <span className="text-destructive text-lg">*</span></Label>
+                    <Select value={departmentId} onValueChange={setDepartmentId} disabled={loadingDepts || departments.length === 0}>
+                      <SelectTrigger className={triggerCls}>
+                        <SelectValue placeholder={loadingDepts ? (isRtl ? "جارٍ التحميل..." : "Loading...") : (departments.length === 0 ? (isRtl ? "لا توجد أقسام — أضف قسماً أولاً" : "No departments — add one first") : (isRtl ? "اختر القسم" : "Select department"))} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {departments.map((d: any) => (
+                          <SelectItem key={d.id} value={d.id} className="text-base">{d.department_name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               )}
+
+              {/* Login details — faculty only */}
+              {!isStudent && (
+                <div className="space-y-2.5 rounded-lg border border-primary/30 bg-primary/5 p-4">
+                  <Label className={labelCls}>
+                    <KeyRound className={iconCls} strokeWidth={2.4} />
+                    {isRtl ? "بيانات الدخول (كلمة مرور مؤقتة)" : "Login Details (Temporary Password)"}
+                    <span className="text-destructive text-lg">*</span>
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      className={`${inputCls} font-mono tracking-wider`}
+                      type={showPassword ? "text" : "password"}
+                      value={tempPassword}
+                      onChange={e => setTempPassword(e.target.value)}
+                      dir="ltr"
+                      autoComplete="new-password"
+                      spellCheck={false}
+                    />
+                    <Button type="button" variant="outline" size="icon" onClick={() => setShowPassword(v => !v)} aria-label={isRtl ? "إظهار/إخفاء" : "Show/Hide"}>
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                    <Button type="button" variant="outline" size="icon" onClick={async () => { try { await navigator.clipboard.writeText(tempPassword); toast({ title: isRtl ? "تم النسخ" : "Copied" }); } catch {} }} aria-label={isRtl ? "نسخ" : "Copy"}>
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                    <Button type="button" variant="outline" size="icon" onClick={() => setTempPassword(generateStrongPassword())} aria-label={isRtl ? "توليد" : "Regenerate"}>
+                      <RefreshCw className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {isRtl
+                      ? "شارك هذه البيانات مع العضو الآن. سيُطلب منه تغيير كلمة المرور عند أول تسجيل دخول."
+                      : "Share these credentials with the member now. They will be forced to change the password on first sign-in."}
+                  </p>
+                  {!isStrongPassword(tempPassword) && (
+                    <p className="text-xs text-destructive">
+                      {isRtl ? "كلمة المرور ضعيفة: 8 أحرف+ تحتوي حرفاً كبيراً وصغيراً ورقماً." : "Weak password: 8+ chars with upper, lower and a digit."}
+                    </p>
+                  )}
+                </div>
+              )}
+
 
               {/* Department code(s) — student only */}
               {isStudent && (

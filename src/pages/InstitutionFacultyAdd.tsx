@@ -398,7 +398,22 @@ const InstitutionFacultyAdd = () => {
               </div>
 
 
-              {/* Role + Department (faculty only) */}
+              {/* Current Department banner (faculty only, read-only, derived from context) */}
+              {!isStudent && currentDepartmentName && (
+                <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-4 flex items-center gap-3">
+                  <Briefcase className={iconCls} strokeWidth={2.4} />
+                  <div className="min-w-0">
+                    <div className="text-xs font-semibold text-muted-foreground">
+                      {isRtl ? "إضافة عضو جديد إلى قسم:" : "Add New Member to:"}
+                    </div>
+                    <div className="text-lg font-extrabold text-foreground truncate">
+                      {currentDepartmentName}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Role (faculty only) — department is fixed from context and not editable */}
               {!isStudent && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-2.5">
@@ -408,19 +423,6 @@ const InstitutionFacultyAdd = () => {
                       <SelectContent>
                         {ROLE_OPTIONS.map(r => (
                           <SelectItem key={r.value} value={r.value} className="text-base">{isRtl ? r.ar : r.en}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2.5">
-                    <Label className={labelCls}><Briefcase className={iconCls} strokeWidth={2.4} />{isRtl ? "القسم" : "Department"} <span className="text-destructive text-lg">*</span></Label>
-                    <Select value={departmentId} onValueChange={setDepartmentId} disabled={loadingDepts || departments.length === 0}>
-                      <SelectTrigger className={triggerCls}>
-                        <SelectValue placeholder={loadingDepts ? (isRtl ? "جارٍ التحميل..." : "Loading...") : (departments.length === 0 ? (isRtl ? "لا توجد أقسام — أضف قسماً أولاً" : "No departments — add one first") : (isRtl ? "اختر القسم" : "Select department"))} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {departments.map((d: any) => (
-                          <SelectItem key={d.id} value={d.id} className="text-base">{d.department_name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>

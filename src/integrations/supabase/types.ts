@@ -1383,7 +1383,7 @@ export type Database = {
           full_name: string
           id: string
           must_change_password: boolean
-          phone: string
+          phone: string | null
           platform: string
           role: string
           updated_at: string
@@ -1396,7 +1396,7 @@ export type Database = {
           full_name: string
           id?: string
           must_change_password?: boolean
-          phone: string
+          phone?: string | null
           platform?: string
           role: string
           updated_at?: string
@@ -1409,7 +1409,7 @@ export type Database = {
           full_name?: string
           id?: string
           must_change_password?: boolean
-          phone?: string
+          phone?: string | null
           platform?: string
           role?: string
           updated_at?: string
@@ -2535,6 +2535,23 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      save_faculty_member_tx: {
+        Args: {
+          p_app_role: Database["public"]["Enums"]["app_role"]
+          p_department_id: string
+          p_email: string
+          p_extra: Json
+          p_full_name: string
+          p_institution_id: string
+          p_institution_type: string
+          p_invitation_code: string
+          p_phone: string
+          p_profile_role: string
+          p_specific_role: string
+          p_user_id: string
+        }
+        Returns: undefined
       }
       schedule_fully_approved: { Args: { _id: string }; Returns: boolean }
       submit_quiz: {

@@ -54,6 +54,7 @@ const InstituteAdminSignup = lazy(() => import("./pages/InstituteAdminSignup"));
 const InstitutionDashboard = lazy(() => import("./pages/InstitutionDashboard"));
 const InstitutionFacultyAdd = lazy(() => import("./pages/InstitutionFacultyAdd"));
 const InstitutionFacultyImport = lazy(() => import("./pages/InstitutionFacultyImport"));
+const InstitutionFacultyEdit = lazy(() => import("./pages/InstitutionFacultyEdit"));
 const DepartmentPage = lazy(() => import("./pages/DepartmentPage"));
 const LecturerProfile = lazy(() => import("./pages/LecturerProfile"));
 const LeadershipDashboard = lazy(() => import("./pages/LeadershipDashboard"));

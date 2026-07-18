@@ -18,6 +18,11 @@ import {
   Users2,
   StickyNote,
   UserRound,
+  KeyRound,
+  Eye,
+  EyeOff,
+  Copy,
+  RefreshCw,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -34,6 +39,22 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+
+function generateStrongPassword(): string {
+  const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const lower = "abcdefghijkmnpqrstuvwxyz";
+  const digits = "23456789";
+  const symbols = "!@#$%&*";
+  const all = upper + lower + digits + symbols;
+  const pick = (s: string) => s[Math.floor(Math.random() * s.length)];
+  const arr = [pick(upper), pick(lower), pick(digits), pick(symbols)];
+  for (let i = 0; i < 8; i++) arr.push(pick(all));
+  return arr.sort(() => Math.random() - 0.5).join("");
+}
+function isStrongPassword(p: string): boolean {
+  return p.length >= 8 && /[A-Z]/.test(p) && /[a-z]/.test(p) && /\d/.test(p) && !/\s/.test(p);
+}
+
 
 const ROLE_OPTIONS: { value: string; ar: string; en: string }[] = [
   { value: "dean", ar: "عميد الكلية", en: "Dean" },

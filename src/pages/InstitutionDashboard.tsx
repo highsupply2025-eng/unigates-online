@@ -1672,7 +1672,7 @@ ${rows.map((r: any, i: number) => `<tr>
               className="mb-6"
               days={rangeDays}
               sections={[
-                { label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, timestamps: deptMembers.filter((m: any) => m.role === 'lecturer').map((m: any) => m.created_at) },
+                { label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, timestamps: deptMembers.filter(isFacultyMember).map((m: any) => m.created_at) },
                 { label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, timestamps: departments.map((d: any) => d.created_at) },
                 { label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, timestamps: deptMembers.filter((m: any) => m.role === 'student').map((m: any) => m.created_at) },
                 { label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, timestamps: examSchedules.map((s: any) => s.created_at) },

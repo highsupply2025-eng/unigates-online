@@ -265,37 +265,19 @@ const InstitutionFacultyAdd = () => {
 
 
       } else {
-        // Resolve department: use selected, else first loaded, else auto-create a default one.
-        let deptIdToUse = departmentId || departments[0]?.id || "";
-        if (!deptIdToUse) {
-          if (!institutionId || !institutionType) {
-            throw new Error(isRtl ? "تعذر تحديد المؤسسة" : "Institution not resolved");
-          }
-          const defaultCode = `GEN-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
-          const { data: newDept, error: dErr } = await supabase
-            .from("departments")
-            .insert({
-              institution_id: institutionId,
-              institution_type: institutionType,
-              department_name: isRtl ? "عام" : "General",
-              department_code: defaultCode,
-            })
-            .select("id")
-            .single();
-          if (dErr || !newDept) {
-            console.error("Auto-create department failed:", dErr);
-            throw dErr || new Error("Failed to create default department");
-          }
-          deptIdToUse = newDept.id;
+        // Department is required from the user — never auto-create "General/عام".
+        if (!departmentId) {
+          throw new Error(isRtl ? "اختر القسم" : "Select a department");
         }
 
         const { data: resp, error: fnErr } = await supabase.functions.invoke("create-faculty-account", {
           body: {
             full_name: baseRow.full_name,
             role,
-            department_id: deptIdToUse,
+            department_id: departmentId,
             email: baseRow.email,
             phone: baseRow.phone,
+            temporary_password: tempPassword,
             extra: {
               date_of_birth: baseRow.date_of_birth,
               photo_url: baseRow.photo_url,
@@ -309,8 +291,6 @@ const InstitutionFacultyAdd = () => {
             },
           },
         });
-        // supabase.functions.invoke swallows the response body on non-2xx.
-        // Parse the real error from FunctionsHttpError.context.
         if (fnErr) {
           let realMsg = fnErr.message || "Failed to create faculty account";
           let realStep = "";
@@ -323,23 +303,22 @@ const InstitutionFacultyAdd = () => {
               if (parsed?.step) realStep = parsed.step;
             }
           } catch (e) { console.error("Parse edge error failed:", e); }
-          console.error("create-faculty-account error:", { step: realStep, message: realMsg, raw: fnErr });
           throw new Error(realStep ? `[${realStep}] ${realMsg}` : realMsg);
         }
-        if (resp && (resp as any).error) {
-          throw new Error((resp as any).error);
-        }
+        if (resp && (resp as any).error) throw new Error((resp as any).error);
+
         const r = resp as any;
-        const credLine = isRtl
-          ? `تم تفعيل الحساب فوراً ✓\nالبريد: ${r.email}\nكلمة المرور المؤقتة: ${r.password}\n(سيُطلب من العضو تغييرها عند أول تسجيل دخول)`
-          : `Account activated ✓\nEmail: ${r.email}\nTemp password: ${r.password}\n(Member will be forced to change it on first login)`;
-        try { await navigator.clipboard?.writeText(`${r.email}\n${r.password}`); } catch {}
         toast({
-          title: isRtl ? "تم إضافة العضو وإنشاء حسابه" : "Member added and account created",
-          description: credLine,
-          duration: 20000,
+          title: isRtl ? "تمت إضافة العضو وإنشاء حسابه بنجاح" : "Member added and account created",
+          description: isRtl
+            ? `تم تفعيل الحساب، ويجب على العضو تغيير كلمة المرور المؤقتة عند أول تسجيل دخول.\nالبريد: ${r.email}`
+            : `The account is active. The member must change the temporary password on first sign-in.\nEmail: ${r.email}`,
+          duration: 8000,
         });
+        // Clear password from memory immediately.
+        setTempPassword("");
       }
+
       try { sessionStorage.setItem("institution-dashboard-force-refresh", Date.now().toString()); } catch {}
       navigate(`/institution/dashboard?tab=${isStudent ? "students" : "faculty"}`, { replace: true });
     } catch (err: any) {

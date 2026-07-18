@@ -182,37 +182,34 @@ const InstitutionFacultyAdd = () => {
     }
   };
 
-  // department_id is auto-resolved (or auto-created) in handleSubmit for faculty,
-  // so it's intentionally excluded from client validation.
   const canSubmit = useMemo(
-    () => !!fullName.trim() && !!role && (isStudent ? !!deptCodesInput.trim() : true),
-    [fullName, role, isStudent, deptCodesInput]
+    () =>
+      !!fullName.trim() &&
+      !!role &&
+      (isStudent ? !!deptCodesInput.trim() : !!departmentId) &&
+      (isStudent || isStrongPassword(tempPassword)),
+    [fullName, role, isStudent, deptCodesInput, departmentId, tempPassword]
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("handleSubmit called");
-    const formData = {
-      fullName, role, departmentId, deptCodesInput, dateOfBirth, gender,
-      email, phone, nationalId, address, qualification, specialization,
-      hireDate, notes, photoUrl, isStudent,
-    };
-    console.log(formData);
+    if (saving) return; // idempotency guard
     if (!canSubmit) {
       const missing: string[] = [];
-      if (!fullName.trim()) missing.push("fullName");
-      if (!role) missing.push("role");
-      if (isStudent && !deptCodesInput.trim()) missing.push("deptCodesInput");
-      console.warn("Validation failed. Missing fields:", missing);
+      if (!fullName.trim()) missing.push(isRtl ? "الاسم" : "Full name");
+      if (!role) missing.push(isRtl ? "المسمى الوظيفي" : "Role");
+      if (!isStudent && !departmentId) missing.push(isRtl ? "القسم" : "Department");
+      if (isStudent && !deptCodesInput.trim()) missing.push(isRtl ? "أكواد الأقسام" : "Department codes");
+      if (!isStudent && !isStrongPassword(tempPassword)) missing.push(isRtl ? "كلمة مرور قوية" : "Strong password");
       toast({
         title: isRtl ? "أكمل الحقول المطلوبة" : "Complete required fields",
-        description: `Missing: ${missing.join(", ")}`,
+        description: missing.join(" • "),
         variant: "destructive",
       });
       return;
     }
-    console.log("Sending to Supabase...");
     setSaving(true);
+
     try {
       const baseRow: any = {
         full_name: fullName.trim(),

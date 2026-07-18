@@ -117,19 +117,20 @@ const InstitutionFacultyEdit = () => {
         }
         setInstitutionName((inst as any)[nameCol] || "");
 
-        // Load all departments for this institution
-        const { data: depts } = await supabase
-          .from("departments")
-          .select("id, department_name")
-          .eq("institution_id", instId)
-          .eq("institution_type", instType)
-          .order("department_name");
+        // Load departments + profile in parallel (independent queries).
+        const [{ data: depts }, { data: prof }] = await Promise.all([
+          supabase
+            .from("departments")
+            .select("id, department_name")
+            .eq("institution_id", instId)
+            .eq("institution_type", instType)
+            .order("department_name"),
+          supabase
+            .from("profiles").select("full_name, phone, email")
+            .eq("user_id", m.user_id).maybeSingle(),
+        ]);
         setDepartments(depts || []);
 
-        // Load profile fields
-        const { data: prof } = await supabase
-          .from("profiles").select("full_name, phone, email")
-          .eq("user_id", m.user_id).maybeSingle();
 
         setUserId(m.user_id);
         setPhotoUrl(m.photo_url || "");

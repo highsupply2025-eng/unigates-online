@@ -18,6 +18,11 @@ import {
   Users2,
   StickyNote,
   UserRound,
+  KeyRound,
+  Eye,
+  EyeOff,
+  Copy,
+  RefreshCw,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -34,6 +39,22 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+
+function generateStrongPassword(): string {
+  const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const lower = "abcdefghijkmnpqrstuvwxyz";
+  const digits = "23456789";
+  const symbols = "!@#$%&*";
+  const all = upper + lower + digits + symbols;
+  const pick = (s: string) => s[Math.floor(Math.random() * s.length)];
+  const arr = [pick(upper), pick(lower), pick(digits), pick(symbols)];
+  for (let i = 0; i < 8; i++) arr.push(pick(all));
+  return arr.sort(() => Math.random() - 0.5).join("");
+}
+function isStrongPassword(p: string): boolean {
+  return p.length >= 8 && /[A-Z]/.test(p) && /[a-z]/.test(p) && /\d/.test(p) && !/\s/.test(p);
+}
+
 
 const ROLE_OPTIONS: { value: string; ar: string; en: string }[] = [
   { value: "dean", ar: "عميد الكلية", en: "Dean" },
@@ -77,6 +98,9 @@ const InstitutionFacultyAdd = () => {
   const [specialization, setSpecialization] = useState("");
   const [hireDate, setHireDate] = useState("");
   const [notes, setNotes] = useState("");
+  const [tempPassword, setTempPassword] = useState<string>(() => generateStrongPassword());
+  const [showPassword, setShowPassword] = useState(false);
+
 
   useEffect(() => {
     (async () => {
@@ -123,14 +147,16 @@ const InstitutionFacultyAdd = () => {
         const deptId = searchParams.get("dept");
         if (deptId && depts?.find((d: any) => d.id === deptId)) {
           setDepartmentId(deptId);
-        } else if (depts && depts.length > 0) {
-          setDepartmentId(depts[0].id);
         }
+        // Do NOT auto-select first department — user must pick explicitly.
       } finally {
         setLoadingDepts(false);
       }
     })();
+    // Clear temporary password when leaving the page.
+    return () => { setTempPassword(""); };
   }, []);
+
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -156,37 +182,34 @@ const InstitutionFacultyAdd = () => {
     }
   };
 
-  // department_id is auto-resolved (or auto-created) in handleSubmit for faculty,
-  // so it's intentionally excluded from client validation.
   const canSubmit = useMemo(
-    () => !!fullName.trim() && !!role && (isStudent ? !!deptCodesInput.trim() : true),
-    [fullName, role, isStudent, deptCodesInput]
+    () =>
+      !!fullName.trim() &&
+      !!role &&
+      (isStudent ? !!deptCodesInput.trim() : !!departmentId) &&
+      (isStudent || isStrongPassword(tempPassword)),
+    [fullName, role, isStudent, deptCodesInput, departmentId, tempPassword]
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("handleSubmit called");
-    const formData = {
-      fullName, role, departmentId, deptCodesInput, dateOfBirth, gender,
-      email, phone, nationalId, address, qualification, specialization,
-      hireDate, notes, photoUrl, isStudent,
-    };
-    console.log(formData);
+    if (saving) return; // idempotency guard
     if (!canSubmit) {
       const missing: string[] = [];
-      if (!fullName.trim()) missing.push("fullName");
-      if (!role) missing.push("role");
-      if (isStudent && !deptCodesInput.trim()) missing.push("deptCodesInput");
-      console.warn("Validation failed. Missing fields:", missing);
+      if (!fullName.trim()) missing.push(isRtl ? "الاسم" : "Full name");
+      if (!role) missing.push(isRtl ? "المسمى الوظيفي" : "Role");
+      if (!isStudent && !departmentId) missing.push(isRtl ? "القسم" : "Department");
+      if (isStudent && !deptCodesInput.trim()) missing.push(isRtl ? "أكواد الأقسام" : "Department codes");
+      if (!isStudent && !isStrongPassword(tempPassword)) missing.push(isRtl ? "كلمة مرور قوية" : "Strong password");
       toast({
         title: isRtl ? "أكمل الحقول المطلوبة" : "Complete required fields",
-        description: `Missing: ${missing.join(", ")}`,
+        description: missing.join(" • "),
         variant: "destructive",
       });
       return;
     }
-    console.log("Sending to Supabase...");
     setSaving(true);
+
     try {
       const baseRow: any = {
         full_name: fullName.trim(),
@@ -231,48 +254,30 @@ const InstitutionFacultyAdd = () => {
           throw new Error(((resp as any)?.error) || fnErr?.message || "Failed to create student account");
         }
         const r = resp as any;
-        const credLine = isRtl
-          ? `تم تفعيل الحساب فوراً ✓\nالبريد: ${r.email}\nكلمة المرور المؤقتة: ${r.password}`
-          : `Account activated instantly ✓\nEmail: ${r.email}\nTemp password: ${r.password}`;
-        try { await navigator.clipboard?.writeText(`${r.email}\n${r.password}`); } catch {}
         toast({
           title: isRtl ? `تم تسجيل الطالب في ${r.joined} قسم` : `Student enrolled in ${r.joined} department(s)`,
-          description: credLine + (r.missing?.length ? (isRtl ? `\nأكواد غير صالحة: ${r.missing.join(", ")}` : `\nInvalid codes: ${r.missing.join(", ")}`) : ""),
-          duration: 15000,
+          description: (isRtl
+            ? `تم تفعيل الحساب بنجاح. البريد: ${r.email}`
+            : `Account activated. Email: ${r.email}`)
+            + (r.missing?.length ? (isRtl ? `\nأكواد غير صالحة: ${r.missing.join(", ")}` : `\nInvalid codes: ${r.missing.join(", ")}`) : ""),
+          duration: 8000,
         });
 
+
       } else {
-        // Resolve department: use selected, else first loaded, else auto-create a default one.
-        let deptIdToUse = departmentId || departments[0]?.id || "";
-        if (!deptIdToUse) {
-          if (!institutionId || !institutionType) {
-            throw new Error(isRtl ? "تعذر تحديد المؤسسة" : "Institution not resolved");
-          }
-          const defaultCode = `GEN-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
-          const { data: newDept, error: dErr } = await supabase
-            .from("departments")
-            .insert({
-              institution_id: institutionId,
-              institution_type: institutionType,
-              department_name: isRtl ? "عام" : "General",
-              department_code: defaultCode,
-            })
-            .select("id")
-            .single();
-          if (dErr || !newDept) {
-            console.error("Auto-create department failed:", dErr);
-            throw dErr || new Error("Failed to create default department");
-          }
-          deptIdToUse = newDept.id;
+        // Department is required from the user — never auto-create "General/عام".
+        if (!departmentId) {
+          throw new Error(isRtl ? "اختر القسم" : "Select a department");
         }
 
         const { data: resp, error: fnErr } = await supabase.functions.invoke("create-faculty-account", {
           body: {
             full_name: baseRow.full_name,
             role,
-            department_id: deptIdToUse,
+            department_id: departmentId,
             email: baseRow.email,
             phone: baseRow.phone,
+            temporary_password: tempPassword,
             extra: {
               date_of_birth: baseRow.date_of_birth,
               photo_url: baseRow.photo_url,
@@ -286,8 +291,6 @@ const InstitutionFacultyAdd = () => {
             },
           },
         });
-        // supabase.functions.invoke swallows the response body on non-2xx.
-        // Parse the real error from FunctionsHttpError.context.
         if (fnErr) {
           let realMsg = fnErr.message || "Failed to create faculty account";
           let realStep = "";
@@ -300,23 +303,22 @@ const InstitutionFacultyAdd = () => {
               if (parsed?.step) realStep = parsed.step;
             }
           } catch (e) { console.error("Parse edge error failed:", e); }
-          console.error("create-faculty-account error:", { step: realStep, message: realMsg, raw: fnErr });
           throw new Error(realStep ? `[${realStep}] ${realMsg}` : realMsg);
         }
-        if (resp && (resp as any).error) {
-          throw new Error((resp as any).error);
-        }
+        if (resp && (resp as any).error) throw new Error((resp as any).error);
+
         const r = resp as any;
-        const credLine = isRtl
-          ? `تم تفعيل الحساب فوراً ✓\nالبريد: ${r.email}\nكلمة المرور المؤقتة: ${r.password}\n(سيُطلب من العضو تغييرها عند أول تسجيل دخول)`
-          : `Account activated ✓\nEmail: ${r.email}\nTemp password: ${r.password}\n(Member will be forced to change it on first login)`;
-        try { await navigator.clipboard?.writeText(`${r.email}\n${r.password}`); } catch {}
         toast({
-          title: isRtl ? "تم إضافة العضو وإنشاء حسابه" : "Member added and account created",
-          description: credLine,
-          duration: 20000,
+          title: isRtl ? "تمت إضافة العضو وإنشاء حسابه بنجاح" : "Member added and account created",
+          description: isRtl
+            ? `تم تفعيل الحساب، ويجب على العضو تغيير كلمة المرور المؤقتة عند أول تسجيل دخول.\nالبريد: ${r.email}`
+            : `The account is active. The member must change the temporary password on first sign-in.\nEmail: ${r.email}`,
+          duration: 8000,
         });
+        // Clear password from memory immediately.
+        setTempPassword("");
       }
+
       try { sessionStorage.setItem("institution-dashboard-force-refresh", Date.now().toString()); } catch {}
       navigate(`/institution/dashboard?tab=${isStudent ? "students" : "faculty"}`, { replace: true });
     } catch (err: any) {
@@ -369,7 +371,7 @@ const InstitutionFacultyAdd = () => {
               </div>
 
 
-              {/* Role */}
+              {/* Role + Department (faculty only) */}
               {!isStudent && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-2.5">
@@ -383,8 +385,63 @@ const InstitutionFacultyAdd = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="space-y-2.5">
+                    <Label className={labelCls}><Briefcase className={iconCls} strokeWidth={2.4} />{isRtl ? "القسم" : "Department"} <span className="text-destructive text-lg">*</span></Label>
+                    <Select value={departmentId} onValueChange={setDepartmentId} disabled={loadingDepts || departments.length === 0}>
+                      <SelectTrigger className={triggerCls}>
+                        <SelectValue placeholder={loadingDepts ? (isRtl ? "جارٍ التحميل..." : "Loading...") : (departments.length === 0 ? (isRtl ? "لا توجد أقسام — أضف قسماً أولاً" : "No departments — add one first") : (isRtl ? "اختر القسم" : "Select department"))} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {departments.map((d: any) => (
+                          <SelectItem key={d.id} value={d.id} className="text-base">{d.department_name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               )}
+
+              {/* Login details — faculty only */}
+              {!isStudent && (
+                <div className="space-y-2.5 rounded-lg border border-primary/30 bg-primary/5 p-4">
+                  <Label className={labelCls}>
+                    <KeyRound className={iconCls} strokeWidth={2.4} />
+                    {isRtl ? "بيانات الدخول (كلمة مرور مؤقتة)" : "Login Details (Temporary Password)"}
+                    <span className="text-destructive text-lg">*</span>
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      className={`${inputCls} font-mono tracking-wider`}
+                      type={showPassword ? "text" : "password"}
+                      value={tempPassword}
+                      onChange={e => setTempPassword(e.target.value)}
+                      dir="ltr"
+                      autoComplete="new-password"
+                      spellCheck={false}
+                    />
+                    <Button type="button" variant="outline" size="icon" onClick={() => setShowPassword(v => !v)} aria-label={isRtl ? "إظهار/إخفاء" : "Show/Hide"}>
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                    <Button type="button" variant="outline" size="icon" onClick={async () => { try { await navigator.clipboard.writeText(tempPassword); toast({ title: isRtl ? "تم النسخ" : "Copied" }); } catch {} }} aria-label={isRtl ? "نسخ" : "Copy"}>
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                    <Button type="button" variant="outline" size="icon" onClick={() => setTempPassword(generateStrongPassword())} aria-label={isRtl ? "توليد" : "Regenerate"}>
+                      <RefreshCw className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {isRtl
+                      ? "شارك هذه البيانات مع العضو الآن. سيُطلب منه تغيير كلمة المرور عند أول تسجيل دخول."
+                      : "Share these credentials with the member now. They will be forced to change the password on first sign-in."}
+                  </p>
+                  {!isStrongPassword(tempPassword) && (
+                    <p className="text-xs text-destructive">
+                      {isRtl ? "كلمة المرور ضعيفة: 8 أحرف+ تحتوي حرفاً كبيراً وصغيراً ورقماً." : "Weak password: 8+ chars with upper, lower and a digit."}
+                    </p>
+                  )}
+                </div>
+              )}
+
 
               {/* Department code(s) — student only */}
               {isStudent && (

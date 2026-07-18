@@ -1705,7 +1705,25 @@ ${rows.map((r: any, i: number) => `<tr>
           <TabsContent value="general" dir={isRtl ? "rtl" : "ltr"}>
 
             {/* Sections Overview Chart - mirrors dropdown menu items */}
-            <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
+            <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+              <TimeRangeToggle value={rangeDays} onChange={setRangeDays} />
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground" aria-live="polite" data-tick={nowTick}>
+                  {isRtl ? "آخر تحديث: " : "Updated: "}{formatLastUpdated(lastLoadedAt)}
+                </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleManualRefresh}
+                  disabled={refreshing || !institutionId}
+                  className="gap-1.5"
+                  aria-label={isRtl ? "تحديث" : "Refresh"}
+                >
+                  {refreshing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                  <span className="hidden sm:inline">{isRtl ? "تحديث" : "Refresh"}</span>
+                </Button>
+              </div>
+            </div>
             <SectionsActivityChart
               className="mb-6"
               days={rangeDays}

@@ -286,8 +286,25 @@ const InstitutionFacultyAdd = () => {
             },
           },
         });
-        if (fnErr || (resp && (resp as any).error)) {
-          throw new Error(((resp as any)?.error) || fnErr?.message || "Failed to create faculty account");
+        // supabase.functions.invoke swallows the response body on non-2xx.
+        // Parse the real error from FunctionsHttpError.context.
+        if (fnErr) {
+          let realMsg = fnErr.message || "Failed to create faculty account";
+          let realStep = "";
+          try {
+            const ctx: any = (fnErr as any).context;
+            const bodyText = ctx?.body ? (typeof ctx.body === "string" ? ctx.body : await new Response(ctx.body).text()) : "";
+            if (bodyText) {
+              const parsed = JSON.parse(bodyText);
+              if (parsed?.error) realMsg = parsed.error;
+              if (parsed?.step) realStep = parsed.step;
+            }
+          } catch (e) { console.error("Parse edge error failed:", e); }
+          console.error("create-faculty-account error:", { step: realStep, message: realMsg, raw: fnErr });
+          throw new Error(realStep ? `[${realStep}] ${realMsg}` : realMsg);
+        }
+        if (resp && (resp as any).error) {
+          throw new Error((resp as any).error);
         }
         const r = resp as any;
         const credLine = isRtl

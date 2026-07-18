@@ -406,6 +406,17 @@ const LecturerProfile = () => {
             </div>
             <div className="flex flex-wrap gap-2.5">
               {isLinked && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => navigate(`/institution/faculty/${memberId}/edit`)}
+                  className="gap-1.5 font-bold shadow-md shadow-primary/30"
+                >
+                  <Pencil className="w-4 h-4" />
+                  {isRtl ? "تعديل العضو" : "Edit Member"}
+                </Button>
+              )}
+              {isLinked && (
                 <Button variant="outline" size="sm" onClick={() => setShowUnlink(true)} className="gap-1.5 border-2 font-bold">
                   <Unlink className="w-4 h-4" />
                   {isRtl ? "إلغاء الربط" : "Unlink Account"}

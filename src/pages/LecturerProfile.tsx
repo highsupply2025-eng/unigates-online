@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, Mail, Phone, Calendar, BookOpen, Users,
-  FileText, ClipboardList, Loader2, Unlink, Trash2, BadgeCheck,
+  FileText, ClipboardList, Loader2, Unlink, Trash2, BadgeCheck, Pencil,
   Building2, Layers, MapPin, GraduationCap, IdCard, UserRound,
   Briefcase, StickyNote, Sparkles, ShieldCheck
 } from "lucide-react";

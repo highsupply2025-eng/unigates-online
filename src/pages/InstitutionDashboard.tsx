@@ -348,9 +348,20 @@ const InstitutionDashboard = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/login"); return; }
 
+      // If a force-refresh signal is present (e.g. after adding a faculty
+      // member), skip cache hydration so stale numbers never flash.
+      let forceRefresh = false;
+      try {
+        if (sessionStorage.getItem(FORCE_REFRESH_KEY)) {
+          forceRefresh = true;
+          sessionStorage.removeItem(FORCE_REFRESH_KEY);
+          __dashboardCache = null;
+        }
+      } catch {}
+
       // Instant hydration from in-memory snapshot if it matches this user.
       // The full refresh still runs below in the background.
-      if (__dashboardCache && __dashboardCache.email === user.email) {
+      if (!forceRefresh && __dashboardCache && __dashboardCache.email === user.email) {
         const s = __dashboardCache;
         setInstitutionType(s.instType);
         setInstitutionName(s.instName);

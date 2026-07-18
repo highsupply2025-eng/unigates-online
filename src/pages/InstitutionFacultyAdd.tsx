@@ -80,6 +80,8 @@ const InstitutionFacultyAdd = () => {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [departments, setDepartments] = useState<any[]>([]);
+  const [currentDepartmentName, setCurrentDepartmentName] = useState<string>("");
+  const [contextError, setContextError] = useState<string>("");
 
   const [photoUrl, setPhotoUrl] = useState("");
   const [fullName, setFullName] = useState("");
@@ -137,18 +139,43 @@ const InstitutionFacultyAdd = () => {
         setInstitutionType(instType);
 
 
-        const { data: depts } = await supabase
-          .from("departments")
-          .select("id, department_name")
-          .eq("institution_id", instId)
-          .eq("institution_type", instType)
-          .order("created_at", { ascending: false });
-        setDepartments(depts || []);
-        const deptId = searchParams.get("dept");
-        if (deptId && depts?.find((d: any) => d.id === deptId)) {
-          setDepartmentId(deptId);
+        const deptIdParam = searchParams.get("dept");
+
+        if (!isStudent) {
+          // Faculty add: department MUST come from context (route param). No selector.
+          if (!deptIdParam) {
+            setContextError(
+              isRtl
+                ? "تعذّر تحديد القسم الحالي. يرجى العودة إلى صفحة القسم والمحاولة مرة أخرى."
+                : "Unable to determine the current department. Please return to the department page and try again."
+            );
+            return;
+          }
+          const { data: dept } = await supabase
+            .from("departments")
+            .select("id, department_name, institution_id, institution_type")
+            .eq("id", deptIdParam)
+            .maybeSingle();
+          if (!dept || dept.institution_id !== instId || dept.institution_type !== instType) {
+            setContextError(
+              isRtl
+                ? "تعذّر تحديد القسم الحالي. يرجى العودة إلى صفحة القسم والمحاولة مرة أخرى."
+                : "Unable to determine the current department. Please return to the department page and try again."
+            );
+            return;
+          }
+          setDepartmentId(dept.id);
+          setCurrentDepartmentName(dept.department_name);
+        } else {
+          // Student flow: keep existing behavior (list departments for reference / codes UI).
+          const { data: depts } = await supabase
+            .from("departments")
+            .select("id, department_name")
+            .eq("institution_id", instId)
+            .eq("institution_type", instType)
+            .order("created_at", { ascending: false });
+          setDepartments(depts || []);
         }
-        // Do NOT auto-select first department — user must pick explicitly.
       } finally {
         setLoadingDepts(false);
       }
@@ -351,6 +378,16 @@ const InstitutionFacultyAdd = () => {
       </header>
 
       <main className="container mx-auto px-4 py-3 sm:py-5">
+        {contextError ? (
+          <Card className="border-2 border-destructive/40 max-w-2xl mx-auto shadow-xl bg-destructive/5">
+            <CardContent className="p-6 space-y-4 text-center">
+              <p className="text-base font-bold text-destructive">{contextError}</p>
+              <Button type="button" variant="outline" onClick={() => navigate(-1)}>
+                {isRtl ? "رجوع" : "Go Back"}
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
         <form onSubmit={handleSubmit}>
           <Card className="border-2 border-primary/30 max-w-4xl mx-auto shadow-2xl shadow-primary/10 bg-gradient-to-br from-card via-card to-primary/5">
             <CardContent className="p-4 sm:p-6 space-y-5">
@@ -371,7 +408,22 @@ const InstitutionFacultyAdd = () => {
               </div>
 
 
-              {/* Role + Department (faculty only) */}
+              {/* Current Department banner (faculty only, read-only, derived from context) */}
+              {!isStudent && currentDepartmentName && (
+                <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-4 flex items-center gap-3">
+                  <Briefcase className={iconCls} strokeWidth={2.4} />
+                  <div className="min-w-0">
+                    <div className="text-xs font-semibold text-muted-foreground">
+                      {isRtl ? "إضافة عضو جديد إلى قسم:" : "Add New Member to:"}
+                    </div>
+                    <div className="text-lg font-extrabold text-foreground truncate">
+                      {currentDepartmentName}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Role (faculty only) — department is fixed from context and not editable */}
               {!isStudent && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-2.5">
@@ -381,19 +433,6 @@ const InstitutionFacultyAdd = () => {
                       <SelectContent>
                         {ROLE_OPTIONS.map(r => (
                           <SelectItem key={r.value} value={r.value} className="text-base">{isRtl ? r.ar : r.en}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2.5">
-                    <Label className={labelCls}><Briefcase className={iconCls} strokeWidth={2.4} />{isRtl ? "القسم" : "Department"} <span className="text-destructive text-lg">*</span></Label>
-                    <Select value={departmentId} onValueChange={setDepartmentId} disabled={loadingDepts || departments.length === 0}>
-                      <SelectTrigger className={triggerCls}>
-                        <SelectValue placeholder={loadingDepts ? (isRtl ? "جارٍ التحميل..." : "Loading...") : (departments.length === 0 ? (isRtl ? "لا توجد أقسام — أضف قسماً أولاً" : "No departments — add one first") : (isRtl ? "اختر القسم" : "Select department"))} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {departments.map((d: any) => (
-                          <SelectItem key={d.id} value={d.id} className="text-base">{d.department_name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -540,6 +579,7 @@ const InstitutionFacultyAdd = () => {
             </CardContent>
           </Card>
         </form>
+        )}
       </main>
     </div>
   );

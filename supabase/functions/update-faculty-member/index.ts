@@ -144,18 +144,34 @@ if (!institutionId || !institutionType) {
       return fail("caller_permission", "Forbidden — member does not belong to your institution", 403);
     }
 
-    // ---- Verify new department (if changed) belongs to same institution ----
-    let newDept: any = currentDept;
-    if (newDepartmentId !== currentDept.id) {
-      const { data: nd, error: ndErr } = await admin
-        .from("departments").select("id, institution_id, institution_type")
-        .eq("id", newDepartmentId).maybeSingle();
-      if (ndErr) return fail("validate_department", ndErr.message);
-      if (!nd) return fail("validate_department", "New department not found", 404);
-      if (nd.institution_id !== institutionId || nd.institution_type !== institutionType) {
-        return fail("validate_department", "New department not in your institution", 403);
-      }
-      newDept = nd;
+   let newDept: any = null;
+
+if (newDepartmentId) {
+  const { data: nd, error: ndErr } = await admin
+    .from("departments")
+    .select("id, institution_id, institution_type")
+    .eq("id", newDepartmentId)
+    .maybeSingle();
+
+  if (ndErr)
+    return fail("validate_department", ndErr.message);
+
+  if (!nd)
+    return fail("validate_department", "Department not found", 404);
+
+  if (
+    nd.institution_id !== institutionId ||
+    nd.institution_type !== institutionType
+  ) {
+    return fail(
+      "validate_department",
+      "Department does not belong to this institution",
+      403,
+    );
+  }
+
+  newDept = nd;
+}
     }
 
     // ---- Prevent role escalation via profiles check ----

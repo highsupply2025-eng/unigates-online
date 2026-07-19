@@ -193,7 +193,7 @@ if (newDepartmentId) {
       p_profile_role: profileRole,
       p_app_role: appRole,
      p_old_department_id: currentMember.department_id ?? null,
-p_new_department_id: newDept?.id ?? null,
+     p_new_department_id: newDept?.id ?? null,
       p_specific_role: role,
       p_institution_type: institutionType,
       p_institution_id: institutionId,
@@ -230,6 +230,7 @@ p_new_department_id: newDept?.id ?? null,
     .select("specific_role, department_id")
     .eq("id", memberId)
     .maybeSingle(),
+]);
 
     ]);
     const problems: string[] = [];

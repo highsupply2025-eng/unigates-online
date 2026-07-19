@@ -503,10 +503,62 @@ const InstitutionDashboard = () => {
         const nm = (m.full_name || "").trim();
         return nm !== "عضو جديد" && nm !== "New Member";
       });
-      setDeptMembers(visibleMembers);
+
+      // Merge institution-level faculty members (may be unassigned to any department).
+      const { data: ifm } = await supabase
+        .from("institution_faculty_members")
+        .select("*")
+        .eq("institution_id", instId)
+        .eq("institution_type", instType);
+      const existingUserIds = new Set(visibleMembers.filter((m: any) => m.user_id).map((m: any) => m.user_id));
+      const extras = (ifm || [])
+        .filter((f: any) => !existingUserIds.has(f.user_id))
+        .map((f: any) => ({
+          id: `ifm-${f.id}`,
+          department_id: f.department_id, // may be null → "غير مُعيّن لقسم"
+          user_id: f.user_id,
+          full_name: f.full_name,
+          role: f.specific_role,
+          email: f.email,
+          phone: f.phone,
+          photo_url: f.photo_url,
+          date_of_birth: f.date_of_birth,
+          national_id: f.national_id,
+          gender: f.gender,
+          address: f.address,
+          qualification: f.qualification,
+          specialization: f.specialization,
+          notes: f.notes,
+          __from_ifm: true,
+        }));
+      setDeptMembers([...visibleMembers, ...(extras as any)]);
     } else {
-      setDeptMembers([]);
+      // No departments: still show institution-level faculty (possibly unassigned).
+      const { data: ifm } = await supabase
+        .from("institution_faculty_members")
+        .select("*")
+        .eq("institution_id", instId)
+        .eq("institution_type", instType);
+      const extras: any[] = (ifm || []).map((f: any) => ({
+        id: `ifm-${f.id}`,
+        department_id: f.department_id,
+        user_id: f.user_id,
+        full_name: f.full_name,
+        role: f.specific_role,
+        email: f.email,
+        phone: f.phone,
+        photo_url: f.photo_url,
+        date_of_birth: null,
+        invitation_code: null,
+        created_at: f.created_at || new Date().toISOString(),
+        __from_ifm: true,
+      }));
+      setDeptMembers(extras as any);
+
     }
+
+
+
 
     // Load leadership members (college only) — links invitations to user_ids
     let leadershipMembersData: Array<{ invitation_id: string; user_id: string; role: string; joined_at: string }> = [];

@@ -985,6 +985,86 @@ export type Database = {
         }
         Relationships: []
       }
+      institution_faculty_members: {
+        Row: {
+          address: string | null
+          created_at: string
+          date_of_birth: string | null
+          department_id: string | null
+          email: string | null
+          full_name: string
+          gender: string | null
+          hire_date: string | null
+          id: string
+          institution_id: string
+          institution_type: string
+          national_id: string | null
+          notes: string | null
+          phone: string | null
+          photo_url: string | null
+          qualification: string | null
+          specialization: string | null
+          specific_role: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          department_id?: string | null
+          email?: string | null
+          full_name: string
+          gender?: string | null
+          hire_date?: string | null
+          id?: string
+          institution_id: string
+          institution_type: string
+          national_id?: string | null
+          notes?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          qualification?: string | null
+          specialization?: string | null
+          specific_role: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          department_id?: string | null
+          email?: string | null
+          full_name?: string
+          gender?: string | null
+          hire_date?: string | null
+          id?: string
+          institution_id?: string
+          institution_type?: string
+          national_id?: string | null
+          notes?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          qualification?: string | null
+          specialization?: string | null
+          specific_role?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institution_faculty_members_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       institution_quiz_questions: {
         Row: {
           correct_answer: string
@@ -2423,6 +2503,17 @@ export type Database = {
       }
     }
     Functions: {
+      assign_faculty_department: {
+        Args: {
+          p_email: string
+          p_full_name: string
+          p_new_department_id: string
+          p_phone: string
+          p_specific_role: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       calculate_weekly_top_courses: { Args: never; Returns: undefined }
       claim_department_codes: {
         Args: {
@@ -2546,6 +2637,14 @@ export type Database = {
         Returns: boolean
       }
       is_email_confirmed: { Args: { _user_id: string }; Returns: boolean }
+      is_institution_admin: {
+        Args: {
+          _institution_id: string
+          _institution_type: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_leadership: { Args: { _user_id: string }; Returns: boolean }
       leadership_institution_ids: {
         Args: { _user_id: string }
@@ -2582,6 +2681,21 @@ export type Database = {
           p_institution_id: string
           p_institution_type: string
           p_invitation_code: string
+          p_phone: string
+          p_profile_role: string
+          p_specific_role: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
+      save_faculty_member_v2: {
+        Args: {
+          p_app_role: Database["public"]["Enums"]["app_role"]
+          p_email: string
+          p_extra: Json
+          p_full_name: string
+          p_institution_id: string
+          p_institution_type: string
           p_phone: string
           p_profile_role: string
           p_specific_role: string

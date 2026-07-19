@@ -139,34 +139,7 @@ const InstitutionFacultyAdd = () => {
         setInstitutionType(instType);
 
 
-        const deptIdParam = searchParams.get("dept");
-
-        if (!isStudent) {
-          // Faculty add: department MUST come from context (route param). No selector.
-          if (!deptIdParam) {
-            setContextError(
-              isRtl
-                ? "تعذّر تحديد القسم الحالي. يرجى العودة إلى صفحة القسم والمحاولة مرة أخرى."
-                : "Unable to determine the current department. Please return to the department page and try again."
-            );
-            return;
-          }
-          const { data: dept } = await supabase
-            .from("departments")
-            .select("id, department_name, institution_id, institution_type")
-            .eq("id", deptIdParam)
-            .maybeSingle();
-          if (!dept || dept.institution_id !== instId || dept.institution_type !== instType) {
-            setContextError(
-              isRtl
-                ? "تعذّر تحديد القسم الحالي. يرجى العودة إلى صفحة القسم والمحاولة مرة أخرى."
-                : "Unable to determine the current department. Please return to the department page and try again."
-            );
-            return;
-          }
-          setDepartmentId(dept.id);
-          setCurrentDepartmentName(dept.department_name);
-        } else {
+        if (isStudent) {
           // Student flow: keep existing behavior (list departments for reference / codes UI).
           const { data: depts } = await supabase
             .from("departments")
@@ -176,13 +149,15 @@ const InstitutionFacultyAdd = () => {
             .order("created_at", { ascending: false });
           setDepartments(depts || []);
         }
+        // Faculty flow: no department context required. Members are created at
+        // the institution level and can be assigned to a department later.
       } finally {
         setLoadingDepts(false);
       }
     })();
-    // Clear temporary password when leaving the page.
     return () => { setTempPassword(""); };
   }, []);
+
 
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -213,19 +188,17 @@ const InstitutionFacultyAdd = () => {
     () =>
       !!fullName.trim() &&
       !!role &&
-      (isStudent ? !!deptCodesInput.trim() : !!departmentId) &&
-      (isStudent || isStrongPassword(tempPassword)),
-    [fullName, role, isStudent, deptCodesInput, departmentId, tempPassword]
+      (isStudent ? !!deptCodesInput.trim() : isStrongPassword(tempPassword)),
+    [fullName, role, isStudent, deptCodesInput, tempPassword]
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (saving) return; // idempotency guard
+    if (saving) return;
     if (!canSubmit) {
       const missing: string[] = [];
       if (!fullName.trim()) missing.push(isRtl ? "الاسم" : "Full name");
       if (!role) missing.push(isRtl ? "المسمى الوظيفي" : "Role");
-      if (!isStudent && !departmentId) missing.push(isRtl ? "القسم" : "Department");
       if (isStudent && !deptCodesInput.trim()) missing.push(isRtl ? "أكواد الأقسام" : "Department codes");
       if (!isStudent && !isStrongPassword(tempPassword)) missing.push(isRtl ? "كلمة مرور قوية" : "Strong password");
       toast({
@@ -236,6 +209,7 @@ const InstitutionFacultyAdd = () => {
       return;
     }
     setSaving(true);
+
 
     try {
       const baseRow: any = {
@@ -292,16 +266,11 @@ const InstitutionFacultyAdd = () => {
 
 
       } else {
-        // Department is required from the user — never auto-create "General/عام".
-        if (!departmentId) {
-          throw new Error(isRtl ? "اختر القسم" : "Select a department");
-        }
-
+        // Faculty flow: no department needed at creation time.
         const { data: resp, error: fnErr } = await supabase.functions.invoke("create-faculty-account", {
           body: {
             full_name: baseRow.full_name,
             role,
-            department_id: departmentId,
             email: baseRow.email,
             phone: baseRow.phone,
             temporary_password: tempPassword,
@@ -318,6 +287,7 @@ const InstitutionFacultyAdd = () => {
             },
           },
         });
+
         if (fnErr) {
           let realMsg = fnErr.message || "Failed to create faculty account";
           let realStep = "";
@@ -378,17 +348,8 @@ const InstitutionFacultyAdd = () => {
       </header>
 
       <main className="container mx-auto px-4 py-3 sm:py-5">
-        {contextError ? (
-          <Card className="border-2 border-destructive/40 max-w-2xl mx-auto shadow-xl bg-destructive/5">
-            <CardContent className="p-6 space-y-4 text-center">
-              <p className="text-base font-bold text-destructive">{contextError}</p>
-              <Button type="button" variant="outline" onClick={() => navigate(-1)}>
-                {isRtl ? "رجوع" : "Go Back"}
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
         <form onSubmit={handleSubmit}>
+
           <Card className="border-2 border-primary/30 max-w-4xl mx-auto shadow-2xl shadow-primary/10 bg-gradient-to-br from-card via-card to-primary/5">
             <CardContent className="p-4 sm:p-6 space-y-5">
               {/* Photo */}
@@ -408,20 +369,8 @@ const InstitutionFacultyAdd = () => {
               </div>
 
 
-              {/* Current Department banner (faculty only, read-only, derived from context) */}
-              {!isStudent && currentDepartmentName && (
-                <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-4 flex items-center gap-3">
-                  <Briefcase className={iconCls} strokeWidth={2.4} />
-                  <div className="min-w-0">
-                    <div className="text-xs font-semibold text-muted-foreground">
-                      {isRtl ? "إضافة عضو جديد إلى قسم:" : "Add New Member to:"}
-                    </div>
-                    <div className="text-lg font-extrabold text-foreground truncate">
-                      {currentDepartmentName}
-                    </div>
-                  </div>
-                </div>
-              )}
+
+
 
               {/* Role (faculty only) — department is fixed from context and not editable */}
               {!isStudent && (
@@ -579,7 +528,7 @@ const InstitutionFacultyAdd = () => {
             </CardContent>
           </Card>
         </form>
-        )}
+
       </main>
     </div>
   );

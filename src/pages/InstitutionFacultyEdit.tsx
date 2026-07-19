@@ -409,7 +409,7 @@ const InstitutionFacultyEdit = () => {
           user_id: userId,
           full_name: fullName.trim(),
           role,
-          department_id: departmentId,
+         department_id: departmentId || null,
           phone: phone.trim(),
           banned,
           extra: {

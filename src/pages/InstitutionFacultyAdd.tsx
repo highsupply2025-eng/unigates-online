@@ -188,19 +188,17 @@ const InstitutionFacultyAdd = () => {
     () =>
       !!fullName.trim() &&
       !!role &&
-      (isStudent ? !!deptCodesInput.trim() : !!departmentId) &&
-      (isStudent || isStrongPassword(tempPassword)),
-    [fullName, role, isStudent, deptCodesInput, departmentId, tempPassword]
+      (isStudent ? !!deptCodesInput.trim() : isStrongPassword(tempPassword)),
+    [fullName, role, isStudent, deptCodesInput, tempPassword]
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (saving) return; // idempotency guard
+    if (saving) return;
     if (!canSubmit) {
       const missing: string[] = [];
       if (!fullName.trim()) missing.push(isRtl ? "الاسم" : "Full name");
       if (!role) missing.push(isRtl ? "المسمى الوظيفي" : "Role");
-      if (!isStudent && !departmentId) missing.push(isRtl ? "القسم" : "Department");
       if (isStudent && !deptCodesInput.trim()) missing.push(isRtl ? "أكواد الأقسام" : "Department codes");
       if (!isStudent && !isStrongPassword(tempPassword)) missing.push(isRtl ? "كلمة مرور قوية" : "Strong password");
       toast({
@@ -211,6 +209,7 @@ const InstitutionFacultyAdd = () => {
       return;
     }
     setSaving(true);
+
 
     try {
       const baseRow: any = {

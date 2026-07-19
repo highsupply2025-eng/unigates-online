@@ -266,16 +266,11 @@ const InstitutionFacultyAdd = () => {
 
 
       } else {
-        // Department is required from the user — never auto-create "General/عام".
-        if (!departmentId) {
-          throw new Error(isRtl ? "اختر القسم" : "Select a department");
-        }
-
+        // Faculty flow: no department needed at creation time.
         const { data: resp, error: fnErr } = await supabase.functions.invoke("create-faculty-account", {
           body: {
             full_name: baseRow.full_name,
             role,
-            department_id: departmentId,
             email: baseRow.email,
             phone: baseRow.phone,
             temporary_password: tempPassword,
@@ -292,6 +287,7 @@ const InstitutionFacultyAdd = () => {
             },
           },
         });
+
         if (fnErr) {
           let realMsg = fnErr.message || "Failed to create faculty account";
           let realStep = "";

@@ -133,6 +133,28 @@ Deno.serve(async (req) => {
     }
     if (!EMAIL_RE.test(email)) return fail("validate", "Invalid email", 400);
 
+    // ---- Reject an existing faculty row in the same institution ----
+    // This protects against duplicate rows even if Auth lookup and DB writes race.
+    const { data: existingFacultyRows, error: existingFacultyError } = await admin
+      .from("institution_faculty_members")
+      .select("id, user_id, email")
+      .eq("institution_id", institutionId)
+      .eq("institution_type", institutionType)
+      .ilike("email", email)
+      .limit(2);
+
+    if (existingFacultyError) {
+      return fail("faculty_lookup", existingFacultyError.message);
+    }
+
+    if ((existingFacultyRows || []).length > 0) {
+      return fail(
+        "faculty_email_exists",
+        "A faculty member with this email already exists in this institution",
+        409,
+      );
+    }
+
     // ---- Reject existing auth email ----
     let existing: any = null;
     try { existing = await findAuthUserByEmail(admin, email); }

@@ -81,98 +81,269 @@ const InstitutionFacultyEdit = () => {
   const dirty = baseline !== "" && snapshot !== baseline;
 
   useEffect(() => {
-    (async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user?.email) { navigate("/login"); return; }
-        if (!memberId) { navigate(-1 as any); return; }
+  let isMounted = true;
 
-        // Load member + department
-        const { data: m } = await supabase
-          .from("department_members")
-          .select("*, departments(id, department_name, institution_id, institution_type)")
-          .eq("id", memberId)
+  const loadFacultyMember = async () => {
+    try {
+      setLoading(true);
+
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+
+      if (authError || !user?.email) {
+        navigate("/login", { replace: true });
+        return;
+      }
+
+      if (!memberId) {
+        toast({
+          title: isRtl ? "معرّف العضو غير موجود" : "Member ID is missing",
+          variant: "destructive",
+        });
+
+        navigate("/institution/dashboard?tab=faculty", {
+          replace: true,
+        });
+
+        return;
+      }
+
+      /*
+       * المصدر الأساسي للعضو:
+       * institution_faculty_members
+       *
+       * memberId يجب أن يكون:
+       * institution_faculty_members.id
+       */
+      const { data: member, error: memberError } = await supabase
+        .from("institution_faculty_members")
+        .select("*")
+        .eq("id", memberId)
+        .maybeSingle();
+
+      if (memberError) {
+        throw memberError;
+      }
+
+      if (!member) {
+        toast({
+          title: isRtl ? "العضو غير موجود" : "Member not found",
+          description: isRtl
+            ? "لم يتم العثور على عضو هيئة التدريس المطلوب."
+            : "The requested faculty member could not be found.",
+          variant: "destructive",
+        });
+
+        navigate("/institution/dashboard?tab=faculty", {
+          replace: true,
+        });
+
+        return;
+      }
+
+      const memberInstitutionId = member.institution_id;
+      const memberInstitutionType =
+        member.institution_type === "institute"
+          ? "institute"
+          : "college";
+
+      if (!memberInstitutionId) {
+        throw new Error(
+          isRtl
+            ? "سجل العضو غير مرتبط بكلية أو معهد"
+            : "The member is not linked to an institution",
+        );
+      }
+
+      setInstitutionType(memberInstitutionType);
+
+      /*
+       * التحقق أن المستخدم الحالي هو مسؤول المؤسسة
+       * المرتبط بها هذا العضو.
+       */
+      const institutionTable =
+        memberInstitutionType === "college"
+          ? "college_registrations"
+          : "institute_registrations";
+
+      const institutionNameColumn =
+        memberInstitutionType === "college"
+          ? "college_name"
+          : "institute_name";
+
+      const { data: institution, error: institutionError } =
+        await supabase
+          .from(institutionTable)
+          .select(`id, email, status, ${institutionNameColumn}`)
+          .eq("id", memberInstitutionId)
           .maybeSingle();
-        if (!m) { toast({ title: isRtl ? "العضو غير موجود" : "Member not found", variant: "destructive" }); navigate(-1 as any); return; }
-        if (!m.user_id) {
-          toast({ title: isRtl ? "لا يمكن تعديل عضو غير مرتبط بحساب" : "Member has no linked account", variant: "destructive" });
-          navigate(-1 as any); return;
-        }
 
-        const dept: any = (m as any).departments;
-        const instType = (dept?.institution_type as "college" | "institute") || "college";
-        const instId = dept?.institution_id;
-        setInstitutionType(instType);
+      if (institutionError) {
+        throw institutionError;
+      }
 
-        // Verify caller owns this institution
-        const table = instType === "college" ? "college_registrations" : "institute_registrations";
-        const nameCol = instType === "college" ? "college_name" : "institute_name";
-        const { data: inst } = await supabase
-          .from(table).select(`id, email, status, ${nameCol}`)
-          .eq("id", instId).maybeSingle();
-        if (!inst || (inst as any).email?.toLowerCase() !== user.email.toLowerCase() || (inst as any).status !== "approved") {
-          toast({ title: isRtl ? "غير مصرح" : "Not authorized to edit this member", variant: "destructive" });
-          navigate("/institution/dashboard");
-          return;
-        }
-        setInstitutionName((inst as any)[nameCol] || "");
+      const callerEmail = user.email.trim().toLowerCase();
+      const institutionEmail = String(
+        institution?.email || "",
+      ).trim().toLowerCase();
 
-        // Load departments + profile in parallel (independent queries).
-        const [{ data: depts }, { data: prof }] = await Promise.all([
+      if (
+        !institution ||
+        institution.status !== "approved" ||
+        institutionEmail !== callerEmail
+      ) {
+        toast({
+          title: isRtl
+            ? "غير مصرح لك بتعديل هذا العضو"
+            : "You are not authorized to edit this member",
+          variant: "destructive",
+        });
+
+        navigate("/institution/dashboard?tab=faculty", {
+          replace: true,
+        });
+
+        return;
+      }
+
+      /*
+       * تحميل الأقسام المتاحة وبيانات الملف الشخصي.
+       * عدم وجود قسم لا يمنع فتح الصفحة.
+       */
+      const [departmentsResult, profileResult] =
+        await Promise.all([
           supabase
             .from("departments")
             .select("id, department_name")
-            .eq("institution_id", instId)
-            .eq("institution_type", instType)
+            .eq("institution_id", memberInstitutionId)
+            .eq("institution_type", memberInstitutionType)
             .order("department_name"),
-          supabase
-            .from("profiles").select("full_name, phone, email")
-            .eq("user_id", m.user_id).maybeSingle(),
+
+          member.user_id
+            ? supabase
+                .from("profiles")
+                .select("full_name, phone, email")
+                .eq("user_id", member.user_id)
+                .maybeSingle()
+            : Promise.resolve({
+                data: null,
+                error: null,
+              }),
         ]);
-        setDepartments(depts || []);
 
+      if (departmentsResult.error) {
+        throw departmentsResult.error;
+      }
 
-        setUserId(m.user_id);
-        setPhotoUrl(m.photo_url || "");
-        setFullName(m.full_name || prof?.full_name || "");
-        setRole(m.role || "");
-        setDepartmentId(dept?.id || "");
-        setDateOfBirth(m.date_of_birth || "");
-        setGender(m.gender || "");
-        setEmail(prof?.email || m.email || "");
-        setPhone(m.phone || prof?.phone || "");
-        setNationalId(m.national_id || "");
-        setAddress(m.address || "");
-        setQualification(m.qualification || "");
-        setSpecialization(m.specialization || "");
-        setNotes(m.notes || "");
+      if (profileResult.error) {
+        throw profileResult.error;
+      }
 
-        // baseline captured after state hydrated
-        setTimeout(() => {
-          setBaseline(JSON.stringify({
-            photoUrl: m.photo_url || "",
-            fullName: m.full_name || prof?.full_name || "",
-            role: m.role || "",
-            departmentId: dept?.id || "",
-            dateOfBirth: m.date_of_birth || "",
-            gender: m.gender || "",
-            phone: m.phone || prof?.phone || "",
-            nationalId: m.national_id || "",
-            address: m.address || "",
-            qualification: m.qualification || "",
-            specialization: m.specialization || "",
-            notes: m.notes || "",
-            banned: false,
-          }));
-        }, 0);
-      } catch (err: any) {
-        toast({ title: isRtl ? "فشل التحميل" : "Load failed", description: err.message, variant: "destructive" });
-      } finally {
+      if (!isMounted) return;
+
+      const profile = profileResult.data;
+
+      setDepartments(departmentsResult.data || []);
+      setInstitutionName(
+        String(institution[institutionNameColumn] || ""),
+      );
+
+      setUserId(member.user_id || "");
+      setPhotoUrl(member.photo_url || "");
+      setFullName(
+        member.full_name ||
+          profile?.full_name ||
+          "",
+      );
+
+      /*
+       * institution_faculty_members يستخدم specific_role
+       * وليس role كمصدر أساسي للمسمى الوظيفي.
+       */
+      setRole(
+        member.specific_role ||
+          member.role ||
+          "",
+      );
+
+      /*
+       * القسم اختياري.
+       */
+      setDepartmentId(member.department_id || "");
+
+      setDateOfBirth(member.date_of_birth || "");
+      setGender(member.gender || "");
+      setEmail(
+        profile?.email ||
+          member.email ||
+          "",
+      );
+      setPhone(
+        member.phone ||
+          profile?.phone ||
+          "",
+      );
+      setNationalId(member.national_id || "");
+      setAddress(member.address || "");
+      setQualification(member.qualification || "");
+      setSpecialization(member.specialization || "");
+      setNotes(member.notes || "");
+
+      const initialSnapshot = JSON.stringify({
+        photoUrl: member.photo_url || "",
+        fullName:
+          member.full_name ||
+          profile?.full_name ||
+          "",
+        role:
+          member.specific_role ||
+          member.role ||
+          "",
+        departmentId: member.department_id || "",
+        dateOfBirth: member.date_of_birth || "",
+        gender: member.gender || "",
+        phone:
+          member.phone ||
+          profile?.phone ||
+          "",
+        nationalId: member.national_id || "",
+        address: member.address || "",
+        qualification: member.qualification || "",
+        specialization: member.specialization || "",
+        notes: member.notes || "",
+        banned: false,
+      });
+
+      setBaseline(initialSnapshot);
+    } catch (error: any) {
+      console.error("Failed to load faculty member:", error);
+
+      if (!isMounted) return;
+
+      toast({
+        title: isRtl ? "فشل تحميل بيانات العضو" : "Failed to load member",
+        description:
+          error?.message ||
+          (isRtl
+            ? "حدث خطأ غير متوقع"
+            : "An unexpected error occurred"),
+        variant: "destructive",
+      });
+    } finally {
+      if (isMounted) {
         setLoading(false);
       }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [memberId]);
+    }
+  };
+
+  loadFacultyMember();
+
+  return () => {
+    isMounted = false;
+  };
+}, [memberId, isRtl, navigate]);
 
   // beforeunload prompt for unsaved changes
   useEffect(() => {

@@ -1,3 +1,5 @@
+
+
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
@@ -514,7 +516,7 @@ const InstitutionDashboard = () => {
       const extras = (ifm || [])
         .filter((f: any) => !existingUserIds.has(f.user_id))
         .map((f: any) => ({
-          id: `ifm-${f.id}`,
+          id: f.id,
           department_id: f.department_id, // may be null → "غير مُعيّن لقسم"
           user_id: f.user_id,
           full_name: f.full_name,
@@ -540,7 +542,7 @@ const InstitutionDashboard = () => {
         .eq("institution_id", instId)
         .eq("institution_type", instType);
       const extras: any[] = (ifm || []).map((f: any) => ({
-        id: `ifm-${f.id}`,
+        id: f.id,
         department_id: f.department_id,
         user_id: f.user_id,
         full_name: f.full_name,
@@ -860,21 +862,51 @@ const InstitutionDashboard = () => {
     }
   };
 
-  const handleDeleteMember = async (memberId: string, memberName: string) => {
+  const handleDeleteMember = async (
+    memberId: string,
+    memberName: string,
+    isInstitutionFaculty = false,
+  ) => {
     try {
+      const cleanMemberId = memberId.replace(/^ifm-/, "");
+      const table = isInstitutionFaculty
+        ? "institution_faculty_members"
+        : "department_members";
+
       const { error } = await supabase
-        .from("department_members")
+        .from(table)
         .delete()
-        .eq("id", memberId);
+        .eq("id", cleanMemberId);
+
       if (error) throw error;
+
+      // Remove the deleted member immediately, then refresh from the database.
+      setDeptMembers((prev) =>
+        prev.filter((member: any) => {
+          const currentId = String(member.id || "").replace(/^ifm-/, "");
+          return !(
+            currentId === cleanMemberId &&
+            Boolean(member.__from_ifm) === isInstitutionFaculty
+          );
+        }),
+      );
 
       toast({
         title: isRtl ? "تم حذف العضو" : "Member Deleted",
         description: memberName,
       });
-      await loadInstitutionData(institutionId, institutionType || "college");
+
+      await loadInstitutionData(
+        institutionId,
+        institutionType || "college",
+        institutionName,
+      );
     } catch (error: any) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+      toast({
+        title: isRtl ? "فشل الحذف" : "Delete failed",
+        description: error?.message || String(error),
+        variant: "destructive",
+      });
     }
   };
 
@@ -1373,7 +1405,11 @@ ${rows.map((r: any, i: number) => `<tr>
                               </p>
                             </div>
                           </div>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); handleDeleteMember(member.id, member.full_name); }}>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); handleDeleteMember(
+                              member.id,
+                              member.full_name,
+                              Boolean((member as any).__from_ifm),
+                            ); }}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -1437,7 +1473,11 @@ ${rows.map((r: any, i: number) => `<tr>
                               </p>
                             </div>
                           </div>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); handleDeleteMember(member.id, member.full_name); }}>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); handleDeleteMember(
+                              member.id,
+                              member.full_name,
+                              Boolean((member as any).__from_ifm),
+                            ); }}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -1501,7 +1541,11 @@ ${rows.map((r: any, i: number) => `<tr>
                               </p>
                             </div>
                           </div>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); handleDeleteMember(member.id, member.full_name); }}>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); handleDeleteMember(
+                              member.id,
+                              member.full_name,
+                              Boolean((member as any).__from_ifm),
+                            ); }}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>

@@ -521,7 +521,10 @@ const InstitutionFacultyEdit = () => {
                   </Select>
                 </div>
                 <div className="space-y-2.5 md:col-span-2">
-                  <Label className={labelCls}><Briefcase className={iconCls} strokeWidth={2.4} />{isRtl ? "القسم" : "Department"} <span className="text-destructive text-lg">*</span></Label>
+                 <Label className={labelCls}>
+  <Briefcase className={iconCls} strokeWidth={2.4} />
+  {isRtl ? "القسم (اختياري)" : "Department (Optional)"}
+</Label>
                   <Select value={departmentId} onValueChange={setDepartmentId}>
                     <SelectTrigger className={triggerCls}><SelectValue placeholder={isRtl ? "اختر القسم" : "Select department"} /></SelectTrigger>
                     <SelectContent>

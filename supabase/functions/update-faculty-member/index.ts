@@ -109,11 +109,11 @@ Deno.serve(async (req) => {
     }
 
     // ---- Load current member row ----
-    const { data: currentMember, error: curErr } = await admin
-      .from("department_members")
-      .select("*, departments(id, institution_id, institution_type)")
-      .eq("id", memberId)
-      .maybeSingle();
+   const { data: currentMember, error: curErr } = await admin
+  .from("institution_faculty_members")
+  .select("*")
+  .eq("id", memberId)
+  .maybeSingle();
     if (curErr) return fail("load_member", curErr.message);
     if (!currentMember) return fail("load_member", "Member not found", 404);
 

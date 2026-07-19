@@ -84,6 +84,59 @@ const FACULTY_ROLES = new Set<string>([
 const isFacultyMember = (member: any) =>
   Boolean(member?.role && FACULTY_ROLES.has(String(member.role)));
 
+const normalizeMemberText = (value: unknown) =>
+  String(value || "").trim().toLowerCase();
+
+const memberIdentityKey = (member: any) => {
+  const userId = normalizeMemberText(member?.user_id);
+  if (userId) return `user:${userId}`;
+
+  const email = normalizeMemberText(member?.email);
+  if (email) return `email:${email}`;
+
+  return [
+    "fallback",
+    normalizeMemberText(member?.full_name),
+    normalizeMemberText(member?.role),
+    normalizeMemberText(member?.institution_id),
+  ].join(":");
+};
+
+const dedupeFacultyMembers = (members: any[]) => {
+  const byKey = new Map<string, any>();
+
+  for (const member of members) {
+    const key = memberIdentityKey(member);
+    const existing = byKey.get(key);
+
+    if (!existing) {
+      byKey.set(key, member);
+      continue;
+    }
+
+    // Prefer the canonical institution_faculty_members row, then the richer row.
+    const existingScore =
+      (existing.__from_ifm ? 100 : 0) +
+      (existing.photo_url ? 10 : 0) +
+      (existing.email ? 5 : 0) +
+      (existing.phone ? 2 : 0);
+
+    const currentScore =
+      (member.__from_ifm ? 100 : 0) +
+      (member.photo_url ? 10 : 0) +
+      (member.email ? 5 : 0) +
+      (member.phone ? 2 : 0);
+
+    if (currentScore > existingScore) {
+      byKey.set(key, { ...existing, ...member });
+    } else {
+      byKey.set(key, { ...member, ...existing });
+    }
+  }
+
+  return Array.from(byKey.values());
+};
+
 export const FORCE_REFRESH_KEY = "institution-dashboard-force-refresh";
 
 // Module-level snapshot cache: lets revisits to the dashboard render instantly
@@ -525,7 +578,7 @@ const InstitutionDashboard = () => {
       const normalizeText = (value: unknown) =>
         String(value || "").trim().toLowerCase();
 
-      const institutionFaculty = (ifm || []).map((f: any) => ({
+      const institutionFaculty = dedupeFacultyMembers((ifm || []).map((f: any) => ({
         id: f.id,
         department_id: f.department_id,
         user_id: f.user_id,
@@ -544,7 +597,7 @@ const InstitutionDashboard = () => {
         invitation_code: null,
         created_at: f.created_at || new Date().toISOString(),
         __from_ifm: true,
-      }));
+      })));
 
       // Faculty records are canonical in institution_faculty_members.
       // Keep legacy department_members only for non-faculty records.
@@ -552,10 +605,10 @@ const InstitutionDashboard = () => {
         (member: any) => !isFacultyMember(member),
       );
 
-      mergedFacultyMembers = [
+      mergedFacultyMembers = dedupeFacultyMembers([
         ...nonFacultyLegacyMembers,
         ...institutionFaculty,
-      ];
+      ]);
 
       setDeptMembers(mergedFacultyMembers as any);
     } else {
@@ -565,7 +618,7 @@ const InstitutionDashboard = () => {
         .select("*")
         .eq("institution_id", instId)
         .eq("institution_type", instType);
-      const extras: any[] = (ifm || []).map((f: any) => ({
+      const extras: any[] = dedupeFacultyMembers((ifm || []).map((f: any) => ({
         id: f.id,
         department_id: f.department_id,
         user_id: f.user_id,
@@ -578,7 +631,7 @@ const InstitutionDashboard = () => {
         invitation_code: null,
         created_at: f.created_at || new Date().toISOString(),
         __from_ifm: true,
-      }));
+      })));
       mergedFacultyMembers = extras;
       setDeptMembers(extras as any);
 
@@ -2029,9 +2082,10 @@ ${rows.map((r: any, i: number) => `<tr>
                 lecturer: { ar: "محاضر", en: "Lecturer" },
                 assistant_lecturer: { ar: "معيد", en: "Assistant Lecturer" },
               };
-              const faculty = (deptMembers as any[])
-                .filter((m) => m.role && m.role !== 'student' && !!m.full_name)
-                .sort((a, b) => (ROLE_ORDER[a.role] ?? 99) - (ROLE_ORDER[b.role] ?? 99));
+              const faculty = dedupeFacultyMembers(
+                (deptMembers as any[])
+                  .filter((m) => m.role && m.role !== "student" && !!m.full_name),
+              ).sort((a, b) => (ROLE_ORDER[a.role] ?? 99) - (ROLE_ORDER[b.role] ?? 99));
 
               return (
                 <>
@@ -2145,13 +2199,11 @@ ${rows.map((r: any, i: number) => `<tr>
                                     );
                                     if (!ok) return;
                                     try {
-                                      const { error } = await supabase
-                                        .from("department_members")
-                                        .delete()
-                                        .eq("id", m.id);
-                                      if (error) throw error;
-                                      setDeptMembers((prev: any[]) => prev.filter((x) => x.id !== m.id));
-                                      sonnerToast.success(isRtl ? "تم حذف العضو" : "Member deleted", { duration: 2000 });
+                                      await handleDeleteMember(
+                                        String(m.id),
+                                        String(m.full_name || ""),
+                                        Boolean((m as any).__from_ifm),
+                                      );
                                     } catch (err: any) {
                                       sonnerToast.error(isRtl ? "فشل الحذف" : "Delete failed", { description: err.message });
                                     }

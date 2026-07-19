@@ -271,7 +271,7 @@ const InstitutionFacultyAdd = () => {
           body: {
             full_name: baseRow.full_name,
             role,
-            email: baseRow.email,
+            email: baseRow.email ? String(baseRow.email).trim().toLowerCase() : null,
             phone: baseRow.phone,
             temporary_password: tempPassword,
             extra: {

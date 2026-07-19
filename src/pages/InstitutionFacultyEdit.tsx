@@ -384,7 +384,7 @@ const InstitutionFacultyEdit = () => {
   const validate = (): string | null => {
     if (!fullName.trim()) return isRtl ? "الاسم مطلوب" : "Full name is required";
     if (!role) return isRtl ? "المسمى الوظيفي مطلوب" : "Role is required";
-    if (!departmentId) return isRtl ? "القسم مطلوب" : "Department is required";
+   
     if (phone && !/^[+0-9\s\-()]{6,20}$/.test(phone.trim()))
       return isRtl ? "رقم هاتف غير صالح" : "Invalid phone";
     if (dateOfBirth) {

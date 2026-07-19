@@ -394,7 +394,12 @@ const InstitutionDashboard = () => {
         setInstitutionId(s.instId);
         setIsLeadershipRole(s.isLeadershipRole);
         setDepartments(s.departments);
-        setDeptMembers(s.deptMembers);
+        setDeptMembers(
+          s.deptMembers.filter(
+            (member: any) =>
+              !isFacultyMember(member) || Boolean(member.__from_ifm),
+          ),
+        );
         setProfilesMap(s.profilesMap);
         setLeadershipMembers(s.leadershipMembers);
         setLiveStreams(s.liveStreams);
@@ -541,40 +546,14 @@ const InstitutionDashboard = () => {
         __from_ifm: true,
       }));
 
-      const ifmUserIds = new Set(
-        institutionFaculty
-          .map((member: any) => member.user_id)
-          .filter(Boolean),
-      );
-      const ifmEmails = new Set(
-        institutionFaculty
-          .map((member: any) => normalizeText(member.email))
-          .filter(Boolean),
-      );
-      const ifmFallbackKeys = new Set(
-        institutionFaculty.map(
-          (member: any) =>
-            `${normalizeText(member.full_name)}|${normalizeText(member.role)}`,
-        ),
-      );
-
-      const legacyMembersWithoutFacultyDuplicates = visibleMembers.filter(
-        (member: any) => {
-          if (member.user_id && ifmUserIds.has(member.user_id)) return false;
-
-          const email = normalizeText(
-            member.email || profilesMap[member.user_id]?.email,
-          );
-          if (email && ifmEmails.has(email)) return false;
-
-          const fallbackKey =
-            `${normalizeText(member.full_name)}|${normalizeText(member.role)}`;
-          return !ifmFallbackKeys.has(fallbackKey);
-        },
+      // Faculty records are canonical in institution_faculty_members.
+      // Keep legacy department_members only for non-faculty records.
+      const nonFacultyLegacyMembers = visibleMembers.filter(
+        (member: any) => !isFacultyMember(member),
       );
 
       mergedFacultyMembers = [
-        ...legacyMembersWithoutFacultyDuplicates,
+        ...nonFacultyLegacyMembers,
         ...institutionFaculty,
       ];
 
@@ -2126,7 +2105,7 @@ ${rows.map((r: any, i: number) => `<tr>
                                   type="button"
                                   onClick={() => {
                                     if ((m as any).__from_ifm) {
-                                      navigate(`/institution/faculty/edit/${m.id}`);
+                                      navigate(`/institution/faculty/${m.id}/edit`);
                                       return;
                                     }
 

@@ -231,8 +231,6 @@ if (newDepartmentId) {
     .eq("id", memberId)
     .maybeSingle(),
 ]);
-
-    ]);
     const problems: string[] = [];
     if (!prof) problems.push("profiles missing");
     else if (prof.role !== profileRole) problems.push(`profiles.role=${prof.role}!=${profileRole}`);

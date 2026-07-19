@@ -348,17 +348,8 @@ const InstitutionFacultyAdd = () => {
       </header>
 
       <main className="container mx-auto px-4 py-3 sm:py-5">
-        {contextError ? (
-          <Card className="border-2 border-destructive/40 max-w-2xl mx-auto shadow-xl bg-destructive/5">
-            <CardContent className="p-6 space-y-4 text-center">
-              <p className="text-base font-bold text-destructive">{contextError}</p>
-              <Button type="button" variant="outline" onClick={() => navigate(-1)}>
-                {isRtl ? "رجوع" : "Go Back"}
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
         <form onSubmit={handleSubmit}>
+
           <Card className="border-2 border-primary/30 max-w-4xl mx-auto shadow-2xl shadow-primary/10 bg-gradient-to-br from-card via-card to-primary/5">
             <CardContent className="p-4 sm:p-6 space-y-5">
               {/* Photo */}

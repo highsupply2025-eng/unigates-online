@@ -11,9 +11,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-function genPassword() {
-  return `Ug${Math.random().toString(36).slice(2, 8)}!${Math.floor(Math.random() * 9000 + 1000)}`;
-}
+
 function json(b: unknown, s = 200) {
   return new Response(JSON.stringify(b), {
     status: s,
@@ -141,13 +139,70 @@ Deno.serve(async (req) => {
     catch (e: any) { return fail("auth_lookup", e?.message || "Auth lookup failed"); }
     if (existing) return fail("auth_email_exists", "An account with this email already exists", 409);
 
-    // ---- Create auth user ----
-    const providedPassword = typeof body.temporary_password === "string" ? body.temporary_password.trim() : "";
-    const passwordOk = providedPassword.length >= 8 && /[A-Z]/.test(providedPassword) && /[a-z]/.test(providedPassword) && /\d/.test(providedPassword) && !/\s/.test(providedPassword);
-    const password = passwordOk ? providedPassword : genPassword();
+   // ---- Validate temporary password ----
+const temporaryPassword =
+  typeof body.temporary_password === "string"
+    ? body.temporary_password
+    : "";
+
+if (!temporaryPassword) {
+  return fail(
+    "validate_password",
+    "Temporary password is required",
+    400,
+  );
+}
+
+if (temporaryPassword !== temporaryPassword.trim()) {
+  return fail(
+    "validate_password",
+    "Temporary password must not start or end with spaces",
+    400,
+  );
+}
+
+if (temporaryPassword.length < 8) {
+  return fail(
+    "validate_password",
+    "Temporary password must contain at least 8 characters",
+    400,
+  );
+}
+
+if (!/[A-Z]/.test(temporaryPassword)) {
+  return fail(
+    "validate_password",
+    "Temporary password must contain at least one uppercase letter",
+    400,
+  );
+}
+
+if (!/[a-z]/.test(temporaryPassword)) {
+  return fail(
+    "validate_password",
+    "Temporary password must contain at least one lowercase letter",
+    400,
+  );
+}
+
+if (!/\d/.test(temporaryPassword)) {
+  return fail(
+    "validate_password",
+    "Temporary password must contain at least one number",
+    400,
+  );
+}
+
+if (/\s/.test(temporaryPassword)) {
+  return fail(
+    "validate_password",
+    "Temporary password must not contain spaces",
+    400,
+  );
+}
     const { data: created, error: ce } = await admin.auth.admin.createUser({
       email,
-      password,
+     password: temporaryPassword,
       email_confirm: true,
       user_metadata: { full_name: fullName, seeded_via: "institution_admin" },
     });
@@ -208,7 +263,11 @@ Deno.serve(async (req) => {
       return fail("verification", `Post-save verification failed: ${problems.join("; ")}`, 500);
     }
 
-    return json({ success: true, email, password, user_id: uid });
+   return json({
+  success: true,
+  email,
+  user_id: uid,
+});
   } catch (e: any) {
     const message = e instanceof Error ? e.message : String(e);
     console.error("CREATE FACULTY ACCOUNT UNEXPECTED", { message, createdUid });

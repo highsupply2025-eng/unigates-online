@@ -201,11 +201,15 @@ if (/\s/.test(temporaryPassword)) {
   );
 }
     const { data: created, error: ce } = await admin.auth.admin.createUser({
-      email,
-     password: temporaryPassword,
-      email_confirm: true,
-      user_metadata: { full_name: fullName, seeded_via: "institution_admin" },
-    });
+  email,
+  password: temporaryPassword,
+  email_confirm: true,
+  user_metadata: {
+    full_name: fullName,
+    seeded_via: "institution_admin",
+    must_change_password: true,
+  },
+});
     if (ce || !created?.user) return fail("auth_create", ce?.message || "createUser failed");
     const uid = created.user.id;
     createdUid = uid;

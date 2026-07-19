@@ -539,7 +539,7 @@ const InstitutionDashboard = () => {
         .select("*")
         .eq("institution_id", instId)
         .eq("institution_type", instType);
-      const extras = (ifm || []).map((f: any) => ({
+      const extras: any[] = (ifm || []).map((f: any) => ({
         id: `ifm-${f.id}`,
         department_id: f.department_id,
         user_id: f.user_id,
@@ -548,9 +548,13 @@ const InstitutionDashboard = () => {
         email: f.email,
         phone: f.phone,
         photo_url: f.photo_url,
+        date_of_birth: null,
+        invitation_code: null,
+        created_at: f.created_at || new Date().toISOString(),
         __from_ifm: true,
       }));
-      setDeptMembers(extras);
+      setDeptMembers(extras as any);
+
     }
 
 

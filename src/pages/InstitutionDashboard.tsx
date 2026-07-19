@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
@@ -482,6 +480,7 @@ const InstitutionDashboard = () => {
     setDepartments(filteredDepts);
 
     let allMembers: any[] = [];
+    let mergedFacultyMembers: any[] = [];
     if (filteredDepts.length > 0) {
       const deptIds = filteredDepts.map(d => d.id);
       // Fetch all members in batches to avoid 1000-row limit
@@ -506,34 +505,80 @@ const InstitutionDashboard = () => {
         return nm !== "عضو جديد" && nm !== "New Member";
       });
 
-      // Merge institution-level faculty members (may be unassigned to any department).
-      const { data: ifm } = await supabase
+      // Merge institution-level faculty members and remove legacy duplicates.
+      // The institution_faculty_members row is the canonical faculty record.
+      const { data: ifm, error: ifmError } = await supabase
         .from("institution_faculty_members")
         .select("*")
         .eq("institution_id", instId)
         .eq("institution_type", instType);
-      const existingUserIds = new Set(visibleMembers.filter((m: any) => m.user_id).map((m: any) => m.user_id));
-      const extras = (ifm || [])
-        .filter((f: any) => !existingUserIds.has(f.user_id))
-        .map((f: any) => ({
-          id: f.id,
-          department_id: f.department_id, // may be null → "غير مُعيّن لقسم"
-          user_id: f.user_id,
-          full_name: f.full_name,
-          role: f.specific_role,
-          email: f.email,
-          phone: f.phone,
-          photo_url: f.photo_url,
-          date_of_birth: f.date_of_birth,
-          national_id: f.national_id,
-          gender: f.gender,
-          address: f.address,
-          qualification: f.qualification,
-          specialization: f.specialization,
-          notes: f.notes,
-          __from_ifm: true,
-        }));
-      setDeptMembers([...visibleMembers, ...(extras as any)]);
+
+      if (ifmError) {
+        console.error("Failed to load institution faculty members:", ifmError);
+      }
+
+      const normalizeText = (value: unknown) =>
+        String(value || "").trim().toLowerCase();
+
+      const institutionFaculty = (ifm || []).map((f: any) => ({
+        id: f.id,
+        department_id: f.department_id,
+        user_id: f.user_id,
+        full_name: f.full_name,
+        role: f.specific_role,
+        email: f.email,
+        phone: f.phone,
+        photo_url: f.photo_url,
+        date_of_birth: f.date_of_birth,
+        national_id: f.national_id,
+        gender: f.gender,
+        address: f.address,
+        qualification: f.qualification,
+        specialization: f.specialization,
+        notes: f.notes,
+        invitation_code: null,
+        created_at: f.created_at || new Date().toISOString(),
+        __from_ifm: true,
+      }));
+
+      const ifmUserIds = new Set(
+        institutionFaculty
+          .map((member: any) => member.user_id)
+          .filter(Boolean),
+      );
+      const ifmEmails = new Set(
+        institutionFaculty
+          .map((member: any) => normalizeText(member.email))
+          .filter(Boolean),
+      );
+      const ifmFallbackKeys = new Set(
+        institutionFaculty.map(
+          (member: any) =>
+            `${normalizeText(member.full_name)}|${normalizeText(member.role)}`,
+        ),
+      );
+
+      const legacyMembersWithoutFacultyDuplicates = visibleMembers.filter(
+        (member: any) => {
+          if (member.user_id && ifmUserIds.has(member.user_id)) return false;
+
+          const email = normalizeText(
+            member.email || profilesMap[member.user_id]?.email,
+          );
+          if (email && ifmEmails.has(email)) return false;
+
+          const fallbackKey =
+            `${normalizeText(member.full_name)}|${normalizeText(member.role)}`;
+          return !ifmFallbackKeys.has(fallbackKey);
+        },
+      );
+
+      mergedFacultyMembers = [
+        ...legacyMembersWithoutFacultyDuplicates,
+        ...institutionFaculty,
+      ];
+
+      setDeptMembers(mergedFacultyMembers as any);
     } else {
       // No departments: still show institution-level faculty (possibly unassigned).
       const { data: ifm } = await supabase
@@ -555,6 +600,7 @@ const InstitutionDashboard = () => {
         created_at: f.created_at || new Date().toISOString(),
         __from_ifm: true,
       }));
+      mergedFacultyMembers = extras;
       setDeptMembers(extras as any);
 
     }
@@ -683,7 +729,7 @@ const InstitutionDashboard = () => {
           instId,
           isLeadershipRole,
           departments: filteredDepts,
-          deptMembers: visibleMembersSnapshot,
+          deptMembers: mergedFacultyMembers,
           profilesMap: snapshotProfilesMap,
           leadershipMembers: leadershipMembersData,
           liveStreams: streamsRes.data || [],
@@ -2078,7 +2124,14 @@ ${rows.map((r: any, i: number) => `<tr>
                               >
                                 <button
                                   type="button"
-                                  onClick={() => navigate(`/institution/member/${m.id}`)}
+                                  onClick={() => {
+                                    if ((m as any).__from_ifm) {
+                                      navigate(`/institution/faculty/edit/${m.id}`);
+                                      return;
+                                    }
+
+                                    navigate(`/institution/member/${m.id}`);
+                                  }}
                                   className="text-start flex items-center gap-3 flex-1 min-w-0"
                                 >
                                   <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-bold flex items-center justify-center shrink-0 overflow-hidden">

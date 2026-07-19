@@ -235,19 +235,30 @@ p_new_department_id: newDept?.id ?? null,
     const problems: string[] = [];
     if (!prof) problems.push("profiles missing");
     else if (prof.role !== profileRole) problems.push(`profiles.role=${prof.role}!=${profileRole}`);
-    if (!member)
+  if (!member) {
   problems.push("institution_faculty_members missing");
-else if (member.specific_role !== role)
-  problems.push(
-    `specific_role=${member.specific_role}!=${role}`
-  );
+} else {
+  if (member.specific_role !== role) {
+    problems.push(
+      `specific_role=${member.specific_role}!=${role}`
+    );
+  }
+
+  const expectedDepartmentId = newDept?.id ?? null;
+
+  if ((member.department_id ?? null) !== expectedDepartmentId) {
+    problems.push(
+      `department_id=${member.department_id ?? null}!=${expectedDepartmentId}`
+    );
+  }
+}
     if (problems.length) return fail("verification", problems.join("; "), 500);
 
     // ---- Diff for audit log (skip large/binary and sensitive) ----
     const oldRow: Record<string, unknown> = {
       full_name: currentMember.full_name,
       phone: currentMember.phone,
-      role: currentMember.role,
+     role: currentMember.specific_role,
      department_id: currentMember.department_id,
       profile_role: currentProfile?.role,
       date_of_birth: currentMember.date_of_birth,

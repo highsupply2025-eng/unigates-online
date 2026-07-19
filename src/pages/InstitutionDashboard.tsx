@@ -532,6 +532,28 @@ const InstitutionDashboard = () => {
           __from_ifm: true,
         }));
       setDeptMembers([...visibleMembers, ...extras]);
+    } else {
+      // No departments: still show institution-level faculty (possibly unassigned).
+      const { data: ifm } = await supabase
+        .from("institution_faculty_members")
+        .select("*")
+        .eq("institution_id", instId)
+        .eq("institution_type", instType);
+      const extras = (ifm || []).map((f: any) => ({
+        id: `ifm-${f.id}`,
+        department_id: f.department_id,
+        user_id: f.user_id,
+        full_name: f.full_name,
+        role: f.specific_role,
+        email: f.email,
+        phone: f.phone,
+        photo_url: f.photo_url,
+        __from_ifm: true,
+      }));
+      setDeptMembers(extras);
+    }
+
+
 
 
     // Load leadership members (college only) — links invitations to user_ids

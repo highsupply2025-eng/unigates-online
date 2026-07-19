@@ -531,7 +531,7 @@ const InstitutionDashboard = () => {
           notes: f.notes,
           __from_ifm: true,
         }));
-      setDeptMembers([...visibleMembers, ...extras]);
+      setDeptMembers([...visibleMembers, ...(extras as any)]);
     } else {
       // No departments: still show institution-level faculty (possibly unassigned).
       const { data: ifm } = await supabase

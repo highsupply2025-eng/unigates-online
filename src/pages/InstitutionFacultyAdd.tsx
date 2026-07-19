@@ -369,20 +369,8 @@ const InstitutionFacultyAdd = () => {
               </div>
 
 
-              {/* Current Department banner (faculty only, read-only, derived from context) */}
-              {!isStudent && currentDepartmentName && (
-                <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-4 flex items-center gap-3">
-                  <Briefcase className={iconCls} strokeWidth={2.4} />
-                  <div className="min-w-0">
-                    <div className="text-xs font-semibold text-muted-foreground">
-                      {isRtl ? "إضافة عضو جديد إلى قسم:" : "Add New Member to:"}
-                    </div>
-                    <div className="text-lg font-extrabold text-foreground truncate">
-                      {currentDepartmentName}
-                    </div>
-                  </div>
-                </div>
-              )}
+
+
 
               {/* Role (faculty only) — department is fixed from context and not editable */}
               {!isStudent && (

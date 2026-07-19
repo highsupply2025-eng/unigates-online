@@ -230,13 +230,17 @@ p_new_department_id: newDept?.id ?? null,
     .select("specific_role, department_id")
     .eq("id", memberId)
     .maybeSingle(),
-]);
+
     ]);
     const problems: string[] = [];
     if (!prof) problems.push("profiles missing");
     else if (prof.role !== profileRole) problems.push(`profiles.role=${prof.role}!=${profileRole}`);
-    if (!dm) problems.push("department_members missing");
-    else if (dm.role !== role) problems.push(`department_members.role=${dm.role}!=${role}`);
+    if (!member)
+  problems.push("institution_faculty_members missing");
+else if (member.specific_role !== role)
+  problems.push(
+    `specific_role=${member.specific_role}!=${role}`
+  );
     if (problems.length) return fail("verification", problems.join("; "), 500);
 
     // ---- Diff for audit log (skip large/binary and sensitive) ----

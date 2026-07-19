@@ -171,7 +171,7 @@ if (newDepartmentId) {
   }
 
   newDept = nd;
-}
+
     }
 
     // ---- Prevent role escalation via profiles check ----

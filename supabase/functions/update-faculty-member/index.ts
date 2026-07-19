@@ -85,7 +85,7 @@ Deno.serve(async (req) => {
     if (!fullName) return fail("validate", "Missing full_name", 400);
     if (FORBIDDEN_ROLES.has(role)) return fail("validate", "Role not allowed", 403);
     if (!ALLOWED_ROLES.has(role)) return fail("validate", `Invalid role: ${role}`, 400);
-    if (!newDepartmentId) return fail("validate", "Missing department_id", 400);
+   
 
     // Sanitize/whitelist extra fields
     const ALLOWED_EXTRA = [

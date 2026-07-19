@@ -441,7 +441,7 @@ const InstitutionFacultyEdit = () => {
       toast({ title: isRtl ? "تم حفظ التعديلات" : "Changes saved", duration: 2000 });
       try { sessionStorage.setItem("institution-dashboard-force-refresh", Date.now().toString()); } catch {}
       setBaseline(snapshot);
-      navigate(`/institution/member/${memberId}`, { replace: true });
+      navigate("/institution/dashboard?tab=faculty", { replace: true });
     } catch (err: any) {
       toast({ title: isRtl ? "فشل الحفظ" : "Save failed", description: err.message, variant: "destructive" });
     } finally {
@@ -451,7 +451,7 @@ const InstitutionFacultyEdit = () => {
 
   const attemptCancel = () => {
     if (dirty) setShowLeaveConfirm(true);
-    else navigate(`/institution/member/${memberId}`);
+    else navigate("/institution/dashboard?tab=faculty");
   };
 
   const labelCls = "flex items-center gap-2 text-base sm:text-lg font-extrabold text-foreground";
@@ -663,7 +663,7 @@ const InstitutionFacultyEdit = () => {
           </AlertDialogHeader>
           <AlertDialogFooter className={`gap-2 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
             <AlertDialogCancel>{isRtl ? "البقاء" : "Stay"}</AlertDialogCancel>
-            <AlertDialogAction onClick={() => navigate(`/institution/member/${memberId}`)}
+            <AlertDialogAction onClick={() => navigate("/institution/dashboard?tab=faculty")}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               {isRtl ? "خروج" : "Leave"}
             </AlertDialogAction>

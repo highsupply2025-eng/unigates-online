@@ -11,3 +11,5 @@ project_id = "tgdkxzzkvfyazmnawkpw"
     verify_jwt = true
   [functions.process-email-queue]
     verify_jwt = true
+[functions.create-faculty-avatar-upload]
+verify_jwt = true

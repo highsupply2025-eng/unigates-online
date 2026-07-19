@@ -123,10 +123,18 @@ Deno.serve(async (req) => {
       return fail("load_member", "user_id/member_id mismatch", 400);
     }
 
-    const currentDept: any = (currentMember as any).departments;
-    const institutionId = currentDept?.institution_id as string;
-    const institutionType = currentDept?.institution_type as "college" | "institute";
-    if (!institutionId || !institutionType) return fail("load_member", "Department metadata missing");
+    const institutionId = currentMember.institution_id as string;
+const institutionType = currentMember.institution_type as
+  | "college"
+  | "institute";
+
+if (!institutionId || !institutionType) {
+  return fail(
+    "load_member",
+    "Institution metadata missing",
+    400,
+  );
+}
 
     // ---- Caller permission: must own the institution ----
     const table = institutionType === "college" ? "college_registrations" : "institute_registrations";

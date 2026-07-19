@@ -192,8 +192,8 @@ if (newDepartmentId) {
       p_phone: phone,
       p_profile_role: profileRole,
       p_app_role: appRole,
-      p_old_department_id: currentDept.id,
-      p_new_department_id: newDept.id,
+     p_old_department_id: currentMember.department_id ?? null,
+p_new_department_id: newDept?.id ?? null,
       p_specific_role: role,
       p_institution_type: institutionType,
       p_institution_id: institutionId,
@@ -218,10 +218,19 @@ if (newDepartmentId) {
     }
 
     // ---- Post-save verification ----
-    const [{ data: prof }, { data: dm }] = await Promise.all([
-      admin.from("profiles").select("role, full_name").eq("user_id", currentUserId).maybeSingle(),
-      admin.from("department_members").select("role, department_id")
-        .eq("department_id", newDept.id).eq("user_id", currentUserId).maybeSingle(),
+  const [{ data: prof }, { data: member }] = await Promise.all([
+  admin
+    .from("profiles")
+    .select("role, full_name")
+    .eq("user_id", currentUserId)
+    .maybeSingle(),
+
+  admin
+    .from("institution_faculty_members")
+    .select("specific_role, department_id")
+    .eq("id", memberId)
+    .maybeSingle(),
+]);
     ]);
     const problems: string[] = [];
     if (!prof) problems.push("profiles missing");

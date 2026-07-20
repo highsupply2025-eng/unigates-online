@@ -266,7 +266,7 @@ const InstitutionFacultyEdit = () => {
        */
       setRole(
         member.specific_role ||
-          member.role ||
+          (member as any).role ||
           "",
       );
 
@@ -301,7 +301,7 @@ const InstitutionFacultyEdit = () => {
           "",
         role:
           member.specific_role ||
-          member.role ||
+          (member as any).role ||
           "",
         departmentId: member.department_id || "",
         dateOfBirth: member.date_of_birth || "",

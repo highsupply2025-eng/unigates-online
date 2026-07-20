@@ -28,6 +28,9 @@ const InstitutionFacultyImport = () => {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [departments, setDepartments] = useState<{ id: string; name: string }[]>([]);
+  const [institutionId, setInstitutionId] = useState("");
+const [institutionType, setInstitutionType] =
+  useState<"college" | "institute" | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [result, setResult] = useState<{ success: number; failed: number; errors: string[] } | null>(null);
@@ -45,6 +48,8 @@ const InstitutionFacultyImport = () => {
           if (inst) { instId = inst.id; instType = "institute"; }
         }
         if (!instId || !instType) { navigate("/"); return; }
+        setInstitutionId(instId);
+setInstitutionType(instType);
         const { data: depts } = await supabase.from("departments").select("id, department_name").eq("institution_id", instId).eq("institution_type", instType);
         setDepartments((depts || []).map((d: any) => ({ id: d.id, name: d.department_name })));
       } finally {
@@ -87,7 +92,7 @@ const InstitutionFacultyImport = () => {
         });
       }
 
-      const defaultDeptId = departments[0]?.id;
+      
       let success = 0, failed = 0;
       const errors: string[] = [];
 
@@ -109,16 +114,39 @@ const InstitutionFacultyImport = () => {
             continue;
           }
         } else {
-          const deptName = norm(r["القسم"] || r["department"]);
-          const dId = (deptName && deptByName.get(deptName)) || defaultDeptId;
-          if (dId) targetDeptIds = [dId];
-        }
+  const deptName = norm(r["القسم"] || r["department"]);
+  const dId = deptName ? deptByName.get(deptName) : undefined;
 
-        if (!full_name || !role || targetDeptIds.length === 0) {
-          failed++;
-          errors.push(`${isRtl ? "صف" : "Row"} ${i + 3}: ${!full_name ? (isRtl ? "اسم مفقود" : "missing name") : !role ? (isRtl ? "وظيفة غير صحيحة" : "invalid role") : (isRtl ? "لا يوجد قسم" : "no department")}`);
-          continue;
-        }
+  if (dId) {
+    targetDeptIds = [dId];
+  }
+}
+
+       if (
+  !full_name ||
+  !role ||
+  (isStudent && targetDeptIds.length === 0)
+) {
+  failed++;
+
+  errors.push(
+    `${isRtl ? "صف" : "Row"} ${i + 3}: ${
+      !full_name
+        ? isRtl
+          ? "اسم مفقود"
+          : "missing name"
+        : !role
+          ? isRtl
+            ? "وظيفة غير صحيحة"
+            : "invalid role"
+          : isRtl
+            ? "لا يوجد قسم"
+            : "no department"
+    }`,
+  );
+
+  continue;
+}
 
         const baseRow = {
           full_name,
@@ -135,14 +163,68 @@ const InstitutionFacultyImport = () => {
           photo_url: norm(r["رابط الصورة (اختياري)"] || r["رابط الصورة"] || r["photo_url"]) || null,
         };
 
-        const rows = targetDeptIds.map(department_id => ({
-          ...baseRow,
-          department_id,
-          invitation_code: `${isStudent ? "STU" : "FAC"}-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
-        }));
-        const { error } = await supabase.from("department_members").insert(rows);
-        if (error) { failed++; errors.push(`${isRtl ? "صف" : "Row"} ${i + 3}: ${error.message}`); }
-        else success++;
+        let insertError: any = null;
+
+if (isStudent) {
+  const rows = targetDeptIds.map((department_id) => ({
+    ...baseRow,
+    department_id,
+    invitation_code:
+      `STU-${Date.now().toString(36).toUpperCase()}-${Math.random()
+        .toString(36)
+        .slice(2, 6)
+        .toUpperCase()}`,
+  }));
+
+  const { error } = await supabase
+    .from("department_members")
+    .insert(rows);
+
+  insertError = error;
+} else {
+  if (!institutionId || !institutionType) {
+    insertError = new Error(
+      isRtl
+        ? "تعذر تحديد الكلية أو المعهد"
+        : "Unable to determine institution",
+    );
+  } else {
+    const departmentId =
+      targetDeptIds.length > 0 ? targetDeptIds[0] : null;
+
+    const { error } = await supabase
+      .from("institution_faculty_members")
+      .insert({
+        institution_id: institutionId,
+        institution_type: institutionType,
+        department_id: departmentId,
+        full_name: baseRow.full_name,
+        specific_role: baseRow.role,
+        date_of_birth: baseRow.date_of_birth,
+        email: baseRow.email,
+        phone: baseRow.phone,
+        national_id: baseRow.national_id,
+        gender: baseRow.gender,
+        address: baseRow.address,
+        qualification: baseRow.qualification,
+        specialization: baseRow.specialization,
+        notes: baseRow.notes,
+        photo_url: baseRow.photo_url,
+      });
+
+    insertError = error;
+  }
+}
+
+if (insertError) {
+  failed++;
+
+  errors.push(
+    `${isRtl ? "صف" : "Row"} ${i + 3}: ${insertError.message}`,
+  );
+} else {
+  success++;
+}
       }
 
       setResult({ success, failed, errors: errors.slice(0, 10) });

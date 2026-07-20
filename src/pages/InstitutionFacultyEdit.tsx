@@ -367,12 +367,19 @@ const InstitutionFacultyEdit = () => {
     }
     try {
       setUploading(true);
-      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-      const path = `${userId}/faculty/${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
-      if (error) throw error;
-      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
-      setPhotoUrl(data.publicUrl);
+      const { data: signed, error: signErr } = await supabase.functions.invoke("create-faculty-avatar-upload", {
+        body: {
+          member_id: memberId,
+          content_type: file.type,
+          file_size: file.size,
+        },
+      });
+      if (signErr) throw signErr;
+      if (!signed?.success) throw new Error(signed?.error || "Unable to create upload URL");
+      const { bucket, path, token, public_url } = signed as { bucket: string; path: string; token: string; public_url: string };
+      const { error: uploadErr } = await supabase.storage.from(bucket).uploadToSignedUrl(path, token, file, { contentType: file.type });
+      if (uploadErr) throw uploadErr;
+      setPhotoUrl(public_url);
       toast({ title: isRtl ? "تم رفع الصورة" : "Photo uploaded" });
     } catch (err: any) {
       toast({ title: isRtl ? "فشل رفع الصورة" : "Upload failed", description: err.message, variant: "destructive" });

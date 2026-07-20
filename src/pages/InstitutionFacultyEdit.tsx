@@ -173,7 +173,7 @@ const InstitutionFacultyEdit = () => {
           ? "college_name"
           : "institute_name";
 
-      const { data: institution, error: institutionError } =
+      const { data: institutionData, error: institutionError } =
         await supabase
           .from(institutionTable)
           .select(`id, email, status, ${institutionNameColumn}`)
@@ -183,6 +183,8 @@ const InstitutionFacultyEdit = () => {
       if (institutionError) {
         throw institutionError;
       }
+
+      const institution = institutionData as any;
 
       const callerEmail = user.email.trim().toLowerCase();
       const institutionEmail = String(

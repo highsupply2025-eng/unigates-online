@@ -189,30 +189,48 @@ if (isStudent) {
         : "Unable to determine institution",
     );
   } else {
-    const departmentId =
-      targetDeptIds.length > 0 ? targetDeptIds[0] : null;
-
-    const { error } = await supabase
-      .from("institution_faculty_members")
-      .insert({
-        institution_id: institutionId,
-        institution_type: institutionType,
-        department_id: departmentId,
-        full_name: baseRow.full_name,
-        specific_role: baseRow.role,
-        date_of_birth: baseRow.date_of_birth,
-        email: baseRow.email,
-        phone: baseRow.phone,
-        national_id: baseRow.national_id,
-        gender: baseRow.gender,
-        address: baseRow.address,
-        qualification: baseRow.qualification,
-        specialization: baseRow.specialization,
-        notes: baseRow.notes,
-        photo_url: baseRow.photo_url,
+    // Faculty rows require an auth user (institution_faculty_members.user_id
+    // is NOT NULL). Route through the edge function so each row gets an
+    // auth account, profile, role, and institution membership atomically.
+    const tempPassword = `Tmp${Math.random().toString(36).slice(2, 6)}${Math.floor(Math.random() * 9000 + 1000)}A!`;
+    const { data: fnData, error: fnError } = await supabase.functions.invoke(
+      "create-faculty-account",
+      {
+        body: {
+          full_name: baseRow.full_name,
+          role: baseRow.role,
+          email: baseRow.email || undefined,
+          phone: baseRow.phone || undefined,
+          temporary_password: tempPassword,
+          extra: {
+            date_of_birth: baseRow.date_of_birth,
+            photo_url: baseRow.photo_url,
+            national_id: baseRow.national_id,
+            gender: baseRow.gender,
+            address: baseRow.address,
+            qualification: baseRow.qualification,
+            specialization: baseRow.specialization,
+            notes: baseRow.notes,
+          },
+        },
+      },
+    );
+    if (fnError) {
+      insertError = fnError;
+    } else if (fnData && (fnData as any).success === false) {
+      insertError = new Error((fnData as any).error || "create-faculty-account failed");
+    } else if (targetDeptIds.length > 0 && fnData && (fnData as any).user_id) {
+      // Optional department assignment
+      const { error: assignErr } = await supabase.rpc("assign_faculty_department", {
+        p_user_id: (fnData as any).user_id,
+        p_new_department_id: targetDeptIds[0],
+        p_specific_role: baseRow.role,
+        p_full_name: baseRow.full_name,
+        p_email: (fnData as any).email || baseRow.email || null,
+        p_phone: baseRow.phone,
       });
-
-    insertError = error;
+      if (assignErr) insertError = assignErr;
+    }
   }
 }
 

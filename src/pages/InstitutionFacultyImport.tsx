@@ -33,7 +33,7 @@ const [institutionType, setInstitutionType] =
   useState<"college" | "institute" | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [result, setResult] = useState<{ success: number; failed: number; errors: string[] } | null>(null);
+  const [result, setResult] = useState<{ success: number; skipped: number; failed: number; errors: string[] } | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -93,7 +93,7 @@ setInstitutionType(instType);
       }
 
       
-      let success = 0, failed = 0;
+      let success = 0, failed = 0, skipped = 0;
       const errors: string[] = [];
 
       for (let i = 0; i < data.length; i++) {
@@ -215,23 +215,35 @@ if (isStudent) {
         },
       },
     );
+    // Parse the real error body from a non-2xx response
+    let errBody: any = null;
     if (fnError) {
-      // Extract real error message from non-2xx response body
-      let realMsg = fnError.message;
       try {
         const ctx: any = (fnError as any).context;
-        if (ctx && typeof ctx.json === "function") {
-          const body = await ctx.json();
-          if (body?.error) realMsg = body.error;
-        }
+        if (ctx && typeof ctx.json === "function") errBody = await ctx.json();
       } catch {}
-      const translated =
-        /already exists/i.test(realMsg) && isRtl
-          ? `البريد الإلكتروني «${baseRow.email}» مستخدم بالفعل`
-          : realMsg;
-      insertError = new Error(translated);
     } else if (fnData && (fnData as any).success === false) {
-      insertError = new Error((fnData as any).error || "create-faculty-account failed");
+      errBody = fnData;
+    }
+
+    const errStep = errBody?.step as string | undefined;
+    const errMsg = errBody?.error || fnError?.message;
+
+    // Idempotency: an existing account/faculty row is not a failure — skip it.
+    if (errStep === "faculty_email_exists" || errStep === "auth_email_exists") {
+      skipped++;
+      errors.push(
+        `${isRtl ? "صف" : "Row"} ${i + 3}: ${
+          isRtl
+            ? `البريد «${baseRow.email}» مسجّل مسبقاً — تم التخطي`
+            : `Email "${baseRow.email}" already registered — skipped`
+        }`,
+      );
+      continue;
+    }
+
+    if (errBody || fnError) {
+      insertError = new Error(errMsg || "create-faculty-account failed");
     } else if (targetDeptIds.length > 0 && fnData && (fnData as any).user_id) {
       // Optional department assignment
       const { error: assignErr } = await supabase.rpc("assign_faculty_department", {
@@ -258,10 +270,13 @@ if (insertError) {
 }
       }
 
-      setResult({ success, failed, errors: errors.slice(0, 10) });
+      setResult({ success, skipped, failed, errors: errors.slice(0, 20) });
+      const descParts: string[] = [];
+      if (skipped > 0) descParts.push(isRtl ? `${skipped} تم التخطي (موجود مسبقاً)` : `${skipped} skipped (already exists)`);
+      if (failed > 0) descParts.push(isRtl ? `${failed} فشل` : `${failed} failed`);
       toast({
         title: isRtl ? `تمت إضافة ${success} عضو` : `Added ${success} members`,
-        description: failed > 0 ? (isRtl ? `${failed} صف فشل` : `${failed} rows failed`) : undefined,
+        description: descParts.join(" • ") || undefined,
         variant: failed > 0 && success === 0 ? "destructive" : "default",
       });
     } catch (err: any) {
@@ -325,12 +340,22 @@ if (insertError) {
                   <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                   <span className="font-bold">{isRtl ? `تم إضافة ${result.success} عضو بنجاح` : `${result.success} members added`}</span>
                 </div>
-                {result.failed > 0 && (
+                {result.skipped > 0 && (
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                    <AlertCircle className="w-5 h-5 text-amber-600" />
+                    <span className="font-bold">
+                      {isRtl ? `${result.skipped} تم التخطي (موجود مسبقاً)` : `${result.skipped} skipped (already exists)`}
+                    </span>
+                  </div>
+                )}
+                {(result.failed > 0 || result.errors.length > 0) && (
                   <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 space-y-1">
-                    <div className="flex items-center gap-2 font-bold text-destructive">
-                      <AlertCircle className="w-5 h-5" />
-                      {isRtl ? `${result.failed} صف فشل` : `${result.failed} rows failed`}
-                    </div>
+                    {result.failed > 0 && (
+                      <div className="flex items-center gap-2 font-bold text-destructive">
+                        <AlertCircle className="w-5 h-5" />
+                        {isRtl ? `${result.failed} صف فشل` : `${result.failed} rows failed`}
+                      </div>
+                    )}
                     <ul className="text-sm text-muted-foreground list-disc ps-5">
                       {result.errors.map((er, i) => <li key={i}>{er}</li>)}
                     </ul>

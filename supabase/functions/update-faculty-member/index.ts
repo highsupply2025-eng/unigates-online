@@ -9,7 +9,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 // Returned to the client so a stale deployed function can be detected.
-const FUNCTION_VERSION = "2026-07-21-nullable-department-v2";
+const FUNCTION_VERSION = "2026-07-21-nullable-department-v3";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",

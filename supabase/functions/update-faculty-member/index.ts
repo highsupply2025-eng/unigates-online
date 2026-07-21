@@ -10,7 +10,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 // Returned to the client so a stale deployed function can be detected.
 const FUNCTION_VERSION = "2026-07-21-nullable-department-v2";
-
+// Manual redeploy marker: 2026-07-21
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -25,24 +25,35 @@ function json(b: unknown, s = 200) {
 }
 function fail(step: string, message: string, status = 500, extra: Record<string, unknown> = {}) {
   console.error("UPDATE FACULTY MEMBER FAILED", { step, message, ...extra });
-  return json({
-    success: false,
-    function_version: FUNCTION_VERSION,
-    step,
-    error: message,
-    ...extra,
-  }, status);
+  return json(
+    {
+      success: false,
+      function_version: FUNCTION_VERSION,
+      step,
+      error: message,
+      ...extra,
+    },
+    status,
+  );
 }
 
 const ALLOWED_ROLES = new Set([
-  "dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community",
-  "department_head", "professor", "doctor", "lecturer", "assistant_lecturer",
+  "dean",
+  "vice_dean_postgrad",
+  "vice_dean_students",
+  "vice_dean_community",
+  "department_head",
+  "professor",
+  "doctor",
+  "lecturer",
+  "assistant_lecturer",
 ]);
 const FORBIDDEN_ROLES = new Set(["admin", "super_admin", "institution_admin"]);
 
 function mapGeneralRole(specific: string): { profileRole: string; appRole: string } {
   switch (specific) {
-    case "dean": return { profileRole: "dean", appRole: "dean" };
+    case "dean":
+      return { profileRole: "dean", appRole: "dean" };
     case "vice_dean_postgrad":
     case "vice_dean_students":
     case "vice_dean_community":
@@ -75,7 +86,9 @@ Deno.serve(async (req) => {
     const userClient = createClient(SUPABASE_URL, ANON_KEY, {
       global: { headers: { Authorization: authHeader } },
     });
-    const { data: { user } } = await userClient.auth.getUser();
+    const {
+      data: { user },
+    } = await userClient.auth.getUser();
     if (!user?.email) return fail("caller_auth", "Unauthorized", 401);
     const callerEmail = user.email.toLowerCase();
 
@@ -89,17 +102,10 @@ Deno.serve(async (req) => {
      * A faculty member belongs to the institution first. Missing, null, and
      * empty department_id values all mean "not assigned to a department".
      */
-    if (
-      body.department_id !== undefined &&
-      body.department_id !== null &&
-      typeof body.department_id !== "string"
-    ) {
+    if (body.department_id !== undefined && body.department_id !== null && typeof body.department_id !== "string") {
       return fail("validate", "Invalid department_id", 400);
     }
-    const newDepartmentId =
-      typeof body.department_id === "string"
-        ? body.department_id.trim() || null
-        : null;
+    const newDepartmentId = typeof body.department_id === "string" ? body.department_id.trim() || null : null;
     const phoneRaw = String(body.phone || "").trim();
     const phone = phoneRaw.length > 0 ? phoneRaw : null;
     const banned = body.banned === true;
@@ -108,14 +114,19 @@ Deno.serve(async (req) => {
     if (!fullName) return fail("validate", "Missing full_name", 400);
     if (FORBIDDEN_ROLES.has(role)) return fail("validate", "Role not allowed", 403);
     if (!ALLOWED_ROLES.has(role)) return fail("validate", `Invalid role: ${role}`, 400);
-   
 
     // Sanitize/whitelist extra fields
     const ALLOWED_EXTRA = [
-      "date_of_birth", "photo_url", "national_id", "gender",
-      "address", "qualification", "specialization", "notes",
+      "date_of_birth",
+      "photo_url",
+      "national_id",
+      "gender",
+      "address",
+      "qualification",
+      "specialization",
+      "notes",
     ] as const;
-    const rawExtra = (body.extra && typeof body.extra === "object") ? body.extra : {};
+    const rawExtra = body.extra && typeof body.extra === "object" ? body.extra : {};
     const extra: Record<string, unknown> = Object.fromEntries(
       Object.entries(rawExtra)
         .filter(([k]) => (ALLOWED_EXTRA as readonly string[]).includes(k))
@@ -133,11 +144,11 @@ Deno.serve(async (req) => {
     }
 
     // ---- Load current member row ----
-   const { data: currentMember, error: curErr } = await admin
-  .from("institution_faculty_members")
-  .select("*")
-  .eq("id", memberId)
-  .maybeSingle();
+    const { data: currentMember, error: curErr } = await admin
+      .from("institution_faculty_members")
+      .select("*")
+      .eq("id", memberId)
+      .maybeSingle();
     if (curErr) return fail("load_member", curErr.message);
     if (!currentMember) return fail("load_member", "Member not found", 404);
 
@@ -148,60 +159,45 @@ Deno.serve(async (req) => {
     }
 
     const institutionId = currentMember.institution_id as string;
-const institutionType = currentMember.institution_type as
-  | "college"
-  | "institute";
+    const institutionType = currentMember.institution_type as "college" | "institute";
 
-if (!institutionId || !institutionType) {
-  return fail(
-    "load_member",
-    "Institution metadata missing",
-    400,
-  );
-}
+    if (!institutionId || !institutionType) {
+      return fail("load_member", "Institution metadata missing", 400);
+    }
 
     // ---- Caller permission: must own the institution ----
     const table = institutionType === "college" ? "college_registrations" : "institute_registrations";
-    const { data: inst } = await admin
-      .from(table).select("id, email, status").eq("id", institutionId).maybeSingle();
+    const { data: inst } = await admin.from(table).select("id, email, status").eq("id", institutionId).maybeSingle();
     if (!inst || inst.email?.toLowerCase() !== callerEmail || inst.status !== "approved") {
       return fail("caller_permission", "Forbidden — member does not belong to your institution", 403);
     }
 
-   let newDept: any = null;
+    let newDept: any = null;
 
-if (newDepartmentId) {
-  const { data: nd, error: ndErr } = await admin
-    .from("departments")
-    .select("id, institution_id, institution_type")
-    .eq("id", newDepartmentId)
-    .maybeSingle();
+    if (newDepartmentId) {
+      const { data: nd, error: ndErr } = await admin
+        .from("departments")
+        .select("id, institution_id, institution_type")
+        .eq("id", newDepartmentId)
+        .maybeSingle();
 
-  if (ndErr)
-    return fail("validate_department", ndErr.message);
+      if (ndErr) return fail("validate_department", ndErr.message);
 
-  if (!nd)
-    return fail("validate_department", "Department not found", 404);
+      if (!nd) return fail("validate_department", "Department not found", 404);
 
-  if (
-    nd.institution_id !== institutionId ||
-    nd.institution_type !== institutionType
-  ) {
-    return fail(
-      "validate_department",
-      "Department does not belong to this institution",
-      403,
-    );
-  }
+      if (nd.institution_id !== institutionId || nd.institution_type !== institutionType) {
+        return fail("validate_department", "Department does not belong to this institution", 403);
+      }
 
-  newDept = nd;
-
+      newDept = nd;
     }
 
     // ---- Prevent role escalation via profiles check ----
     const { data: currentProfile } = await admin
-      .from("profiles").select("role, full_name, phone, email, avatar_url")
-      .eq("user_id", currentUserId).maybeSingle();
+      .from("profiles")
+      .select("role, full_name, phone, email, avatar_url")
+      .eq("user_id", currentUserId)
+      .maybeSingle();
     if (currentProfile?.role === "admin") {
       return fail("caller_permission", "Cannot modify an admin account", 403);
     }
@@ -216,8 +212,8 @@ if (newDepartmentId) {
       p_phone: phone,
       p_profile_role: profileRole,
       p_app_role: appRole,
-     p_old_department_id: currentMember.department_id ?? null,
-     p_new_department_id: newDept?.id ?? null,
+      p_old_department_id: currentMember.department_id ?? null,
+      p_new_department_id: newDept?.id ?? null,
       p_specific_role: role,
       p_institution_type: institutionType,
       p_institution_id: institutionId,
@@ -226,7 +222,8 @@ if (newDepartmentId) {
     });
     if (txErr) {
       return fail("database_transaction", txErr.message, 500, {
-        code: (txErr as any).code, details: (txErr as any).details,
+        code: (txErr as any).code,
+        details: (txErr as any).details,
       });
     }
 
@@ -242,47 +239,35 @@ if (newDepartmentId) {
     }
 
     // ---- Post-save verification ----
-  const [{ data: prof }, { data: member }] = await Promise.all([
-  admin
-    .from("profiles")
-    .select("role, full_name")
-    .eq("user_id", currentUserId)
-    .maybeSingle(),
+    const [{ data: prof }, { data: member }] = await Promise.all([
+      admin.from("profiles").select("role, full_name").eq("user_id", currentUserId).maybeSingle(),
 
-  admin
-    .from("institution_faculty_members")
-    .select("specific_role, department_id")
-    .eq("id", memberId)
-    .maybeSingle(),
-]);
+      admin.from("institution_faculty_members").select("specific_role, department_id").eq("id", memberId).maybeSingle(),
+    ]);
     const problems: string[] = [];
     if (!prof) problems.push("profiles missing");
     else if (prof.role !== profileRole) problems.push(`profiles.role=${prof.role}!=${profileRole}`);
-  if (!member) {
-  problems.push("institution_faculty_members missing");
-} else {
-  if (member.specific_role !== role) {
-    problems.push(
-      `specific_role=${member.specific_role}!=${role}`
-    );
-  }
+    if (!member) {
+      problems.push("institution_faculty_members missing");
+    } else {
+      if (member.specific_role !== role) {
+        problems.push(`specific_role=${member.specific_role}!=${role}`);
+      }
 
-  const expectedDepartmentId = newDept?.id ?? null;
+      const expectedDepartmentId = newDept?.id ?? null;
 
-  if ((member.department_id ?? null) !== expectedDepartmentId) {
-    problems.push(
-      `department_id=${member.department_id ?? null}!=${expectedDepartmentId}`
-    );
-  }
-}
+      if ((member.department_id ?? null) !== expectedDepartmentId) {
+        problems.push(`department_id=${member.department_id ?? null}!=${expectedDepartmentId}`);
+      }
+    }
     if (problems.length) return fail("verification", problems.join("; "), 500);
 
     // ---- Diff for audit log (skip large/binary and sensitive) ----
     const oldRow: Record<string, unknown> = {
       full_name: currentMember.full_name,
       phone: currentMember.phone,
-     role: currentMember.specific_role,
-     department_id: currentMember.department_id,
+      role: currentMember.specific_role,
+      department_id: currentMember.department_id,
       profile_role: currentProfile?.role,
       date_of_birth: currentMember.date_of_birth,
       gender: currentMember.gender,

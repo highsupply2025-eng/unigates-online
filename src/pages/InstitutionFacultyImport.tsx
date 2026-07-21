@@ -216,7 +216,20 @@ if (isStudent) {
       },
     );
     if (fnError) {
-      insertError = fnError;
+      // Extract real error message from non-2xx response body
+      let realMsg = fnError.message;
+      try {
+        const ctx: any = (fnError as any).context;
+        if (ctx && typeof ctx.json === "function") {
+          const body = await ctx.json();
+          if (body?.error) realMsg = body.error;
+        }
+      } catch {}
+      const translated =
+        /already exists/i.test(realMsg) && isRtl
+          ? `البريد الإلكتروني «${baseRow.email}» مستخدم بالفعل`
+          : realMsg;
+      insertError = new Error(translated);
     } else if (fnData && (fnData as any).success === false) {
       insertError = new Error((fnData as any).error || "create-faculty-account failed");
     } else if (targetDeptIds.length > 0 && fnData && (fnData as any).user_id) {

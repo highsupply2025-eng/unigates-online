@@ -37,6 +37,37 @@ const ROLE_OPTIONS = [
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
 const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
+type DepartmentOption = {
+  id: string;
+  department_name: string;
+};
+
+type InstitutionRecord = {
+  id: string;
+  email: string | null;
+  status: string | null;
+  college_name?: string | null;
+  institute_name?: string | null;
+};
+
+type FunctionErrorPayload = {
+  error?: unknown;
+};
+
+type UpdateFacultyResponse = FunctionErrorPayload & {
+  success?: boolean;
+  function_version?: string;
+};
+
+const errorMessage = (error: unknown, fallback: string) =>
+  error instanceof Error ? error.message : fallback;
+
+const payloadError = (value: unknown): string | null => {
+  if (!value || typeof value !== "object" || !("error" in value)) return null;
+  const error = (value as FunctionErrorPayload).error;
+  return error == null ? null : String(error);
+};
+
 const InstitutionFacultyEdit = () => {
   const { memberId } = useParams<{ memberId: string }>();
   const { language, dir } = useLanguage();
@@ -47,7 +78,7 @@ const InstitutionFacultyEdit = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [departments, setDepartments] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<DepartmentOption[]>([]);
   const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
   const [institutionName, setInstitutionName] = useState("");
 
@@ -184,7 +215,7 @@ const InstitutionFacultyEdit = () => {
         throw institutionError;
       }
 
-      const institution = institutionData as any;
+      const institution = institutionData as InstitutionRecord | null;
 
       const callerEmail = user.email.trim().toLowerCase();
       const institutionEmail = String(
@@ -265,9 +296,7 @@ const InstitutionFacultyEdit = () => {
        * وليس role كمصدر أساسي للمسمى الوظيفي.
        */
       setRole(
-        member.specific_role ||
-          (member as any).role ||
-          "",
+        member.specific_role || "",
       );
 
       /*
@@ -300,9 +329,7 @@ const InstitutionFacultyEdit = () => {
           profile?.full_name ||
           "",
         role:
-          member.specific_role ||
-          (member as any).role ||
-          "",
+          member.specific_role || "",
         departmentId: member.department_id || "",
         dateOfBirth: member.date_of_birth || "",
         gender: member.gender || "",
@@ -319,7 +346,7 @@ const InstitutionFacultyEdit = () => {
       });
 
       setBaseline(initialSnapshot);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to load faculty member:", error);
 
       if (!isMounted) return;
@@ -327,10 +354,10 @@ const InstitutionFacultyEdit = () => {
       toast({
         title: isRtl ? "فشل تحميل بيانات العضو" : "Failed to load member",
         description:
-          error?.message ||
-          (isRtl
-            ? "حدث خطأ غير متوقع"
-            : "An unexpected error occurred"),
+          errorMessage(
+            error,
+            isRtl ? "حدث خطأ غير متوقع" : "An unexpected error occurred",
+          ),
         variant: "destructive",
       });
     } finally {
@@ -383,8 +410,12 @@ const InstitutionFacultyEdit = () => {
       if (uploadErr) throw uploadErr;
       setPhotoUrl(public_url);
       toast({ title: isRtl ? "تم رفع الصورة" : "Photo uploaded" });
-    } catch (err: any) {
-      toast({ title: isRtl ? "فشل رفع الصورة" : "Upload failed", description: err.message, variant: "destructive" });
+    } catch (err: unknown) {
+      toast({
+        title: isRtl ? "فشل رفع الصورة" : "Upload failed",
+        description: errorMessage(err, isRtl ? "حدث خطأ غير متوقع" : "Unexpected error"),
+        variant: "destructive",
+      });
     } finally {
       setUploading(false);
     }
@@ -412,13 +443,17 @@ const InstitutionFacultyEdit = () => {
 
     setSaving(true);
     try {
+      // Empty is valid: this member can remain at institution level without a
+      // department assignment.
+      const selectedDepartmentId = departmentId.trim() || null;
+
       const { data: resp, error: fnErr } = await supabase.functions.invoke("update-faculty-member", {
         body: {
           member_id: memberId,
           user_id: userId,
           full_name: fullName.trim(),
           role,
-         department_id: departmentId || null,
+          department_id: selectedDepartmentId,
           phone: phone.trim(),
           banned,
           extra: {
@@ -436,23 +471,58 @@ const InstitutionFacultyEdit = () => {
       if (fnErr) {
         let msg = fnErr.message || "Update failed";
         try {
-          const ctx: any = (fnErr as any).context;
-          const bodyText = ctx?.body ? (typeof ctx.body === "string" ? ctx.body : await new Response(ctx.body).text()) : "";
-          if (bodyText) {
-            const parsed = JSON.parse(bodyText);
-            if (parsed?.error) msg = parsed.error;
+          const context: unknown = (fnErr as { context?: unknown }).context;
+
+          if (context instanceof Response) {
+            const parsed: unknown = await context.clone().json().catch(() => null);
+            msg = payloadError(parsed) || msg;
+          } else if (context && typeof context === "object") {
+            const contextBody = (context as { body?: unknown }).body;
+            const bodyText =
+              typeof contextBody === "string"
+                ? contextBody
+                : "";
+            if (bodyText) {
+              const parsed: unknown = JSON.parse(bodyText);
+              msg = payloadError(parsed) || msg;
+            }
           }
-        } catch {}
+        } catch {
+          // Keep the original functions client error when the response body is
+          // not readable JSON.
+        }
+
+        if (/missing department_id/i.test(msg)) {
+          msg = isRtl
+            ? "دالة الحفظ المنشورة قديمة وما زالت تشترط القسم. يجب نشر النسخة الجديدة من update-faculty-member."
+            : "The deployed save function is outdated and still requires a department. Deploy the new update-faculty-member function.";
+        }
+
         throw new Error(msg);
       }
-      if (resp && (resp as any).error) throw new Error((resp as any).error);
+      const updateResponse = resp as UpdateFacultyResponse | null;
+      if (!updateResponse || updateResponse.success !== true) {
+        throw new Error(
+          payloadError(updateResponse) ||
+            (isRtl ? "لم تؤكد دالة الحفظ نجاح العملية" : "The save function did not confirm success"),
+        );
+      }
 
       toast({ title: isRtl ? "تم حفظ التعديلات" : "Changes saved", duration: 2000 });
-      try { sessionStorage.setItem("institution-dashboard-force-refresh", Date.now().toString()); } catch {}
+      try {
+        sessionStorage.setItem("institution-dashboard-force-refresh", Date.now().toString());
+      } catch {
+        // Storage can be unavailable in private browsing; saving already
+        // succeeded, so navigation must continue.
+      }
       setBaseline(snapshot);
       navigate("/institution/dashboard?tab=faculty", { replace: true });
-    } catch (err: any) {
-      toast({ title: isRtl ? "فشل الحفظ" : "Save failed", description: err.message, variant: "destructive" });
+    } catch (err: unknown) {
+      toast({
+        title: isRtl ? "فشل الحفظ" : "Save failed",
+        description: errorMessage(err, isRtl ? "حدث خطأ غير متوقع" : "Unexpected error"),
+        variant: "destructive",
+      });
     } finally {
       setSaving(false);
     }

@@ -8,6 +8,9 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
+// Returned to the client so a stale deployed function can be detected.
+const FUNCTION_VERSION = "2026-07-21-nullable-department-v2";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -22,7 +25,13 @@ function json(b: unknown, s = 200) {
 }
 function fail(step: string, message: string, status = 500, extra: Record<string, unknown> = {}) {
   console.error("UPDATE FACULTY MEMBER FAILED", { step, message, ...extra });
-  return json({ success: false, step, error: message, ...extra }, status);
+  return json({
+    success: false,
+    function_version: FUNCTION_VERSION,
+    step,
+    error: message,
+    ...extra,
+  }, status);
 }
 
 const ALLOWED_ROLES = new Set([
@@ -76,7 +85,21 @@ Deno.serve(async (req) => {
     const targetUserId = String(body.user_id || "").trim();
     const fullName = String(body.full_name || "").trim();
     const role = String(body.role || "").trim();
-    const newDepartmentId = String(body.department_id || "").trim();
+    /*
+     * A faculty member belongs to the institution first. Missing, null, and
+     * empty department_id values all mean "not assigned to a department".
+     */
+    if (
+      body.department_id !== undefined &&
+      body.department_id !== null &&
+      typeof body.department_id !== "string"
+    ) {
+      return fail("validate", "Invalid department_id", 400);
+    }
+    const newDepartmentId =
+      typeof body.department_id === "string"
+        ? body.department_id.trim() || null
+        : null;
     const phoneRaw = String(body.phone || "").trim();
     const phone = phoneRaw.length > 0 ? phoneRaw : null;
     const banned = body.banned === true;
@@ -97,7 +120,8 @@ Deno.serve(async (req) => {
       Object.entries(rawExtra)
         .filter(([k]) => (ALLOWED_EXTRA as readonly string[]).includes(k))
         .map(([k, v]) => [k, typeof v === "string" ? v.trim() : v])
-        .filter(([, v]) => v !== "" && v !== undefined && v !== null),
+        // Preserve null so a user can intentionally clear an optional field.
+        .filter(([, v]) => v !== undefined),
     );
 
     // Validate DoB not in the future
@@ -306,7 +330,12 @@ if (newDepartmentId) {
       });
     }
 
-    return json({ success: true, changed: Object.keys(changes) });
+    return json({
+      success: true,
+      function_version: FUNCTION_VERSION,
+      department_id: newDept?.id ?? null,
+      changed: Object.keys(changes),
+    });
   } catch (e: any) {
     return fail("unexpected", e?.message || String(e), 500);
   }

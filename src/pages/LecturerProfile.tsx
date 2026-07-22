@@ -419,12 +419,6 @@ const LecturerProfile = () => {
                     if (error || !ifm?.id) {
                       sonnerToast.error(isRtl ? "تعذّر فتح شاشة التعديل" : "Cannot open edit screen", { description: isRtl ? "لا يوجد سجل عضو هيئة تدريس مرتبط بهذا الحساب." : "No faculty record is linked to this account." });
                       return;
-                      _={
-                        title: isRtl ? "تعذّر فتح شاشة التعديل" : "Cannot open edit screen",
-                        description: isRtl ? "لا يوجد سجل عضو هيئة تدريس مرتبط بهذا الحساب." : "No faculty record is linked to this account.",
-                        variant: "destructive",
-                      });
-                      return;
                     }
                     navigate(`/institution/faculty/${ifm.id}/edit`);
                   }}

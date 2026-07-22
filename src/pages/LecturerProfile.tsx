@@ -409,7 +409,23 @@ const LecturerProfile = () => {
                 <Button
                   variant="default"
                   size="sm"
-                  onClick={() => navigate(`/institution/faculty/${memberId}/edit`)}
+                  onClick={async () => {
+                    if (!member?.user_id) return;
+                    const { data: ifm, error } = await supabase
+                      .from("institution_faculty_members")
+                      .select("id")
+                      .eq("user_id", member.user_id)
+                      .maybeSingle();
+                    if (error || !ifm?.id) {
+                      toast({
+                        title: isRtl ? "تعذّر فتح شاشة التعديل" : "Cannot open edit screen",
+                        description: isRtl ? "لا يوجد سجل عضو هيئة تدريس مرتبط بهذا الحساب." : "No faculty record is linked to this account.",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    navigate(`/institution/faculty/${ifm.id}/edit`);
+                  }}
                   className="gap-1.5 font-bold shadow-md shadow-primary/30"
                 >
                   <Pencil className="w-4 h-4" />

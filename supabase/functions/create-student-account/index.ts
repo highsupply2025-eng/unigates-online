@@ -13,7 +13,17 @@ const corsHeaders = {
 };
 
 function genPassword() {
-  return `Tmp${Math.random().toString(36).slice(2, 8)}${Math.floor(Math.random() * 9000 + 1000)}`;
+  const alpha = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+  const digits = "23456789";
+  const all = alpha + digits + "!@#$%^&*";
+  const buf = new Uint32Array(16);
+  crypto.getRandomValues(buf);
+  let out = "";
+  for (let i = 0; i < 16; i++) out += all[buf[i] % all.length];
+  const d = new Uint32Array(2);
+  crypto.getRandomValues(d);
+  out = alpha[d[0] % alpha.length] + digits[d[1] % digits.length] + out.slice(2);
+  return out;
 }
 function genCode(suffix: string) {
   const r = Math.random().toString(36).slice(2, 8).toUpperCase();

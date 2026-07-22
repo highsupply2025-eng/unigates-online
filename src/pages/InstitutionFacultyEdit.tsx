@@ -215,7 +215,7 @@ const InstitutionFacultyEdit = () => {
         throw institutionError;
       }
 
-      const institution = institutionData as InstitutionRecord | null;
+      const institution = institutionData as unknown as InstitutionRecord | null;
 
       const callerEmail = user.email.trim().toLowerCase();
       const institutionEmail = String(

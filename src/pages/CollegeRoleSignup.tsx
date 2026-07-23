@@ -409,12 +409,12 @@ const CollegeRoleSignup = () => {
         <Card className="border-2 border-primary/30 max-w-4xl mx-auto shadow-2xl shadow-primary/10 bg-gradient-to-br from-card via-card to-primary/5">
           <CardContent className="p-4 sm:p-6 space-y-5">
             {!codeVerified ? (
-              <div className="space-y-6">
-                <div className="flex flex-col items-center gap-3 text-center">
-                  <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br ${config.gradient} shadow-xl ${config.shadow} flex items-center justify-center`}>
-                    <RoleIcon className="w-10 h-10 sm:w-12 sm:h-12 text-white" strokeWidth={2.4} />
+              <div className="space-y-5">
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br ${config.gradient} shadow-lg ${config.shadow} flex items-center justify-center`}>
+                    <RoleIcon className="w-7 h-7 sm:w-8 sm:h-8 text-white" strokeWidth={2.4} />
                   </div>
-                  <p className="text-sm sm:text-base text-muted-foreground max-w-md">
+                  <p className="text-sm text-muted-foreground max-w-md">
                     {isStudentRole
                       ? (isRtl ? "أدخل كود القسم للالتحاق به. يمكنك إدخال أكثر من كود مفصولة بفاصلة للالتحاق بأكثر من قسم." : "Enter your department code. You can enter multiple codes separated by commas to join several departments.")
                       : (isRtl ? "يتطلب التسجيل كود دعوة صالح من الكلية" : "Registration requires a valid invitation code from the college")}

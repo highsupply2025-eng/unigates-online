@@ -405,9 +405,9 @@ const CollegeRoleSignup = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 sm:py-8">
+      <main className="container mx-auto px-4 py-3 sm:py-5">
         <Card className="border-2 border-primary/30 max-w-4xl mx-auto shadow-2xl shadow-primary/10 bg-gradient-to-br from-card via-card to-primary/5">
-          <CardContent className="p-5 sm:p-10 space-y-8">
+          <CardContent className="p-4 sm:p-6 space-y-5">
             {!codeVerified ? (
               <div className="space-y-6">
                 <div className="flex flex-col items-center gap-3 text-center">

@@ -405,16 +405,16 @@ const CollegeRoleSignup = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 sm:py-8">
+      <main className="container mx-auto px-4 py-3 sm:py-5">
         <Card className="border-2 border-primary/30 max-w-4xl mx-auto shadow-2xl shadow-primary/10 bg-gradient-to-br from-card via-card to-primary/5">
-          <CardContent className="p-5 sm:p-10 space-y-8">
+          <CardContent className="p-4 sm:p-6 space-y-5">
             {!codeVerified ? (
-              <div className="space-y-6">
-                <div className="flex flex-col items-center gap-3 text-center">
-                  <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br ${config.gradient} shadow-xl ${config.shadow} flex items-center justify-center`}>
-                    <RoleIcon className="w-10 h-10 sm:w-12 sm:h-12 text-white" strokeWidth={2.4} />
+              <div className="space-y-5">
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br ${config.gradient} shadow-lg ${config.shadow} flex items-center justify-center`}>
+                    <RoleIcon className="w-7 h-7 sm:w-8 sm:h-8 text-white" strokeWidth={2.4} />
                   </div>
-                  <p className="text-sm sm:text-base text-muted-foreground max-w-md">
+                  <p className="text-sm text-muted-foreground max-w-md">
                     {isStudentRole
                       ? (isRtl ? "أدخل كود القسم للالتحاق به. يمكنك إدخال أكثر من كود مفصولة بفاصلة للالتحاق بأكثر من قسم." : "Enter your department code. You can enter multiple codes separated by commas to join several departments.")
                       : (isRtl ? "يتطلب التسجيل كود دعوة صالح من الكلية" : "Registration requires a valid invitation code from the college")}
@@ -483,17 +483,17 @@ const CollegeRoleSignup = () => {
                 </div>
 
                 {/* Photo */}
-                <div className="flex flex-col items-center gap-4">
-                  <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden border-[6px] border-primary/40 ring-4 ring-primary/15 bg-muted flex items-center justify-center shadow-xl shadow-primary/30">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-4 border-primary/40 ring-2 ring-primary/15 bg-muted flex items-center justify-center shadow-lg shadow-primary/30">
                     {photoUrl ? (
                       <img src={photoUrl} alt={fullName || "photo"} className="w-full h-full object-cover" />
                     ) : (
-                      <UserRound className="w-16 h-16 text-primary/60" strokeWidth={1.8} />
+                      <UserRound className="w-10 h-10 text-primary/60" strokeWidth={1.8} />
                     )}
                   </div>
                   <input ref={fileRef} type="file" accept="image/*" hidden onChange={handlePhotoChange} />
-                  <Button type="button" variant="default" size="lg" className="shadow-lg shadow-primary/30 font-bold text-base" onClick={() => fileRef.current?.click()} disabled={uploading}>
-                    {uploading ? <Loader2 className="w-5 h-5 animate-spin me-2" /> : <Upload className="w-5 h-5 me-2" />}
+                  <Button type="button" variant="default" size="sm" className="shadow-md shadow-primary/30 font-bold text-sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                    {uploading ? <Loader2 className="w-4 h-4 animate-spin me-2" /> : <Upload className="w-4 h-4 me-2" />}
                     {isRtl ? "رفع صورة شخصية" : "Upload Photo"}
                   </Button>
                 </div>

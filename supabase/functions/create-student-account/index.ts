@@ -33,6 +33,45 @@ function json(b: unknown, s = 200) {
   return new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 }
 
+function isEmailAlreadyExistsError(error: any) {
+  const code = String(error?.code || "").toLowerCase();
+  const message = String(error?.message || "").toLowerCase();
+  return code === "email_exists" || message.includes("already registered") || message.includes("already exists") || message.includes("user already") || message.includes("email is already") || message.includes("email already");
+}
+
+async function rollbackNewUser(admin: ReturnType<typeof createClient>, uid: string) {
+  const tables = ["department_members", "college_members", "user_roles", "profiles"] as const;
+
+  for (const table of tables) {
+    const { error } = await admin.from(table).delete().eq("user_id", uid);
+    if (error) {
+      console.error(`Rollback cleanup failed for ${table}:`, error?.message || error);
+    }
+  }
+
+  const { error: deleteUserErr } = await admin.auth.admin.deleteUser(uid);
+  if (deleteUserErr) {
+    console.error("Rollback deleteUser failed:", deleteUserErr?.message || deleteUserErr);
+  }
+}
+
+async function findExistingAuthUser(admin: ReturnType<typeof createClient>, email: string) {
+  let page = 1;
+  while (true) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
+    if (error) throw error;
+
+    const users = data?.users || [];
+    const existing = users.find((u: any) => (u.email || "").trim().toLowerCase() === email);
+    if (existing) return existing;
+
+    if (users.length < 1000) break;
+    page += 1;
+  }
+
+  return null;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
@@ -95,63 +134,50 @@ Deno.serve(async (req) => {
 
     const password = genPassword();
 
-    // Find or create user
     let uid: string | null = null;
-    const { data: list } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
-    const existing = (list?.users || []).find((u: any) => u.email?.toLowerCase() === email);
+    const existing = await findExistingAuthUser(admin, email);
     if (existing) {
-      uid = existing.id;
-      // reset password so admin can hand over fresh credentials
-      await admin.auth.admin.updateUserById(uid, { password, email_confirm: true });
-    } else {
+      return json({ error: "Account already exists", code: "ACCOUNT_ALREADY_EXISTS" }, 409);
+    }
+
+    try {
       const { data: created, error: ce } = await admin.auth.admin.createUser({
         email,
         password,
         email_confirm: true,
         user_metadata: { full_name: fullName, seeded_via: "college_admin" },
       });
-      if (ce || !created.user) return json({ error: ce?.message || "createUser failed" }, 500);
+      if (ce) {
+        if (isEmailAlreadyExistsError(ce)) {
+          return json({ error: "Account already exists", code: "ACCOUNT_ALREADY_EXISTS" }, 409);
+        }
+        throw ce;
+      }
+      if (!created.user) {
+        throw new Error("createUser failed");
+      }
       uid = created.user.id;
-    }
 
-    // Upsert profile
-    const { error: pe } = await admin.from("profiles").upsert(
-      {
+      const { error: pe } = await admin.from("profiles").insert({
         user_id: uid,
         email,
         full_name: fullName,
         phone: phone || "+200000000000",
         role: "student",
         platform: "courses",
-      },
-      { onConflict: "user_id" } as any,
-    );
-    if (pe) return json({ error: `profile: ${pe.message}` }, 500);
+      });
+      if (pe) throw new Error(`profile: ${pe.message}`);
 
-    // Approved role
-    await admin.from("user_roles").upsert(
-      { user_id: uid, role: "student" as any, approved: true },
-      { onConflict: "user_id,role" } as any,
-    );
+      const { error: roleErr } = await admin.from("user_roles").insert({
+        user_id: uid,
+        role: "student" as any,
+        approved: true,
+      });
+      if (roleErr) throw new Error(`user_roles: ${roleErr.message}`);
 
-    // Department members (one per dept code, pre-claimed with user_id)
-    let joined = 0;
-    for (const d of allowedDepts) {
-      const { data: existingMember } = await admin
-        .from("department_members")
-        .select("id")
-        .eq("department_id", d.id)
-        .eq("user_id", uid)
-        .maybeSingle();
-      if (existingMember) {
-        await admin.from("department_members").update({
-          full_name: fullName,
-          email,
-          phone: phone || null,
-          ...extra,
-        }).eq("id", existingMember.id);
-      } else {
-        await admin.from("department_members").insert({
+      let joined = 0;
+      for (const d of allowedDepts) {
+        const { error: memberErr } = await admin.from("department_members").insert({
           department_id: d.id,
           full_name: fullName,
           role: "student",
@@ -161,19 +187,27 @@ Deno.serve(async (req) => {
           phone: phone || null,
           ...extra,
         });
-      }
-      // College membership (mirrors bulk function)
-      if (d.institution_type === "college") {
-        await admin.from("college_members").upsert(
-          { user_id: uid, college_id: d.institution_id, role: "student" },
-          { onConflict: "user_id,college_id" } as any,
-        );
-      }
-      joined++;
-    }
+        if (memberErr) throw new Error(`department_members: ${memberErr.message}`);
 
-    const missing = codes.filter(c => !allowedDepts.some((d: any) => (d.department_code || "").toUpperCase() === c));
-    return json({ success: true, email, password, user_id: uid, joined, missing });
+        if (d.institution_type === "college") {
+          const { error: collegeMemberErr } = await admin.from("college_members").upsert(
+            { user_id: uid, college_id: d.institution_id, role: "student" },
+            { onConflict: "user_id,college_id" } as any,
+          );
+          if (collegeMemberErr) throw new Error(`college_members: ${collegeMemberErr.message}`);
+        }
+
+        joined++;
+      }
+
+      const missing = codes.filter(c => !allowedDepts.some((d: any) => (d.department_code || "").toUpperCase() === c));
+      return json({ success: true, email, password, user_id: uid, joined, missing });
+    } catch (e: any) {
+      if (uid) {
+        await rollbackNewUser(admin, uid);
+      }
+      return json({ error: e?.message || String(e) }, 500);
+    }
   } catch (e: any) {
     return json({ error: e?.message || String(e) }, 500);
   }

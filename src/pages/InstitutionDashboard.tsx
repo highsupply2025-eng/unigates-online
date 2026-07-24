@@ -3671,16 +3671,55 @@ ${rows.map((r: any, i: number) => `<tr>
                 setAddingExistingFaculty(true);
                 try {
                   const selected = (deptMembers as any[]).filter(m => selectFacultyMemberIds.includes(m.id));
-                  const rows = selected.map((m: any) => ({
-                    department_id: addMemberDeptId,
-                    user_id: m.user_id || null,
-                    full_name: m.full_name,
-                    role: m.role,
-                    photo_url: m.photo_url || null,
-                    phone: m.phone || null,
-                    email: m.email || null,
-                  }));
-                  const { error } = await supabase.from("department_members").insert(rows);
+
+                  // Fresh check: fetch current memberships for this department to avoid stale UI state.
+                  const { data: existing, error: existErr } = await supabase
+                    .from("department_members")
+                    .select("user_id, full_name")
+                    .eq("department_id", addMemberDeptId);
+                  if (existErr) throw existErr;
+                  const existingUids = new Set((existing || []).map((r: any) => r.user_id).filter(Boolean));
+                  const existingNames = new Set(
+                    (existing || [])
+                      .filter((r: any) => !r.user_id)
+                      .map((r: any) => (r.full_name || "").trim().toLowerCase())
+                      .filter(Boolean)
+                  );
+
+                  // Deduplicate selection by user_id (fall back to full_name for legacy rows without a user_id).
+                  const seenKey = new Set<string>();
+                  const rows = selected
+                    .filter((m: any) => {
+                      const key = m.user_id ? `u:${m.user_id}` : `n:${(m.full_name || "").trim().toLowerCase()}`;
+                      if (!key || key === "n:") return false;
+                      if (seenKey.has(key)) return false;
+                      seenKey.add(key);
+                      if (m.user_id && existingUids.has(m.user_id)) return false;
+                      if (!m.user_id && existingNames.has((m.full_name || "").trim().toLowerCase())) return false;
+                      return true;
+                    })
+                    .map((m: any) => ({
+                      department_id: addMemberDeptId,
+                      user_id: m.user_id || null,
+                      full_name: m.full_name,
+                      role: m.role,
+                      photo_url: m.photo_url || null,
+                      phone: m.phone || null,
+                      email: m.email || null,
+                    }));
+
+                  if (rows.length === 0) {
+                    sonnerToast.info(isRtl ? "العضو مضاف مسبقًا إلى هذا القسم" : "Member is already in this department", { duration: 2500 });
+                    setShowSelectFacultyDialog(false);
+                    setSelectFacultyMemberIds([]);
+                    await loadInstitutionData(institutionId, institutionType || "college");
+                    return;
+                  }
+
+                  // Conflict-safe insert on (department_id, user_id). Existing memberships are preserved untouched.
+                  const { error } = await supabase
+                    .from("department_members")
+                    .upsert(rows, { onConflict: "department_id,user_id", ignoreDuplicates: true });
                   if (error) throw error;
                   sonnerToast.success(isRtl ? "تمت إضافة الأعضاء للقسم" : "Members added to department", { duration: 2000 });
                   setShowSelectFacultyDialog(false);
@@ -3692,6 +3731,7 @@ ${rows.map((r: any, i: number) => `<tr>
                   setAddingExistingFaculty(false);
                 }
               }}
+
             >
               {addingExistingFaculty ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : null}
               {isRtl ? "إضافة للقسم" : "Add to Department"}

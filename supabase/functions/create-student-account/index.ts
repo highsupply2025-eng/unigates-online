@@ -33,6 +33,28 @@ function json(b: unknown, s = 200) {
   return new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 }
 
+function isEmailAlreadyExistsError(error: any) {
+  const code = String(error?.code || "").toLowerCase();
+  const message = String(error?.message || "").toLowerCase();
+  return code === "email_exists" || message.includes("already registered") || message.includes("already exists") || message.includes("user already") || message.includes("email is already") || message.includes("email already");
+}
+
+async function rollbackNewUser(admin: ReturnType<typeof createClient>, uid: string) {
+  const tables = ["department_members", "college_members", "user_roles", "profiles"] as const;
+
+  for (const table of tables) {
+    const { error } = await admin.from(table).delete().eq("user_id", uid);
+    if (error) {
+      console.error(`Rollback cleanup failed for ${table}:`, error?.message || error);
+    }
+  }
+
+  const { error: deleteUserErr } = await admin.auth.admin.deleteUser(uid);
+  if (deleteUserErr) {
+    console.error("Rollback deleteUser failed:", deleteUserErr?.message || deleteUserErr);
+  }
+}
+
 async function findExistingAuthUser(admin: ReturnType<typeof createClient>, email: string) {
   let page = 1;
   while (true) {
@@ -125,8 +147,14 @@ Deno.serve(async (req) => {
         email_confirm: true,
         user_metadata: { full_name: fullName, seeded_via: "college_admin" },
       });
-      if (ce || !created.user) {
-        throw ce || new Error("createUser failed");
+      if (ce) {
+        if (isEmailAlreadyExistsError(ce)) {
+          return json({ error: "Account already exists", code: "ACCOUNT_ALREADY_EXISTS" }, 409);
+        }
+        throw ce;
+      }
+      if (!created.user) {
+        throw new Error("createUser failed");
       }
       uid = created.user.id;
 
@@ -176,11 +204,7 @@ Deno.serve(async (req) => {
       return json({ success: true, email, password, user_id: uid, joined, missing });
     } catch (e: any) {
       if (uid) {
-        try {
-          await admin.auth.admin.deleteUser(uid);
-        } catch (rollbackErr: any) {
-          console.error("Rollback deleteUser failed:", rollbackErr?.message || rollbackErr);
-        }
+        await rollbackNewUser(admin, uid);
       }
       return json({ error: e?.message || String(e) }, 500);
     }

@@ -137,6 +137,39 @@ const dedupeFacultyMembers = (members: any[]) => {
   return Array.from(byKey.values());
 };
 
+const getFunctionErrorMessage = async (
+  error: unknown,
+  responseData: unknown,
+  fallback: string,
+) => {
+  if (responseData && typeof responseData === "object") {
+    const responseError = (responseData as { error?: unknown }).error;
+    if (typeof responseError === "string" && responseError.trim()) {
+      return responseError;
+    }
+  }
+
+  if (error && typeof error === "object") {
+    const context = (error as { context?: unknown }).context;
+    if (context instanceof Response) {
+      const payload = await context.clone().json().catch(() => null);
+      if (payload && typeof payload === "object") {
+        const contextError = (payload as { error?: unknown }).error;
+        if (typeof contextError === "string" && contextError.trim()) {
+          return contextError;
+        }
+      }
+    }
+
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === "string" && message.trim()) {
+      return message;
+    }
+  }
+
+  return fallback;
+};
+
 export const FORCE_REFRESH_KEY = "institution-dashboard-force-refresh";
 
 // Module-level snapshot cache: lets revisits to the dashboard render instantly
@@ -1941,7 +1974,7 @@ ${rows.map((r: any, i: number) => `<tr>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredDepts.map(dept => {
-                const students = getStudentsCount(dept.id);
+                const registeredMembersCount = getMembersForDept(dept.id).length;
                 return (
                   <Card key={dept.id} className="border-2 border-primary/15 hover:shadow-xl hover:border-primary/30 transition-all bg-gradient-to-br from-primary/3 to-transparent">
                     <CardContent className="p-5">
@@ -2002,7 +2035,7 @@ ${rows.map((r: any, i: number) => `<tr>
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,white,transparent_60%)] opacity-10 pointer-events-none" />
                         <div className="flex items-center justify-center gap-2 mb-1">
                           <GraduationCap className="w-5 h-5 text-white/95" />
-                          <p className="text-2xl font-extrabold text-white tracking-tight">{students}</p>
+                          <p className="text-2xl font-extrabold text-white tracking-tight">{registeredMembersCount}</p>
                           <Users className="w-5 h-5 text-white/95" />
                         </div>
                         <p className="text-sm text-white font-extrabold tracking-wide">
@@ -3606,10 +3639,11 @@ ${rows.map((r: any, i: number) => `<tr>
                 .map(m => (m.full_name || "").trim().toLowerCase())
                 .filter(Boolean)
             );
-            // Pool of registered faculty across institution
+            // Pool of registered faculty across the institution. Assignment
+            // requires the canonical institution-level record and a linked user.
             const seen = new Set<string>();
             const pool = (deptMembers as any[])
-              .filter(m => m.role && m.role !== "student" && !!m.full_name)
+              .filter(m => isFacultyMember(m) && m.__from_ifm && !!m.user_id && !!m.full_name)
               .filter(m => {
                 const key = m.user_id || m.id;
                 if (seen.has(key)) return false;
@@ -3670,18 +3704,61 @@ ${rows.map((r: any, i: number) => `<tr>
                 if (!addMemberDeptId || selectFacultyMemberIds.length === 0) return;
                 setAddingExistingFaculty(true);
                 try {
-                  const selected = (deptMembers as any[]).filter(m => selectFacultyMemberIds.includes(m.id));
-                  const rows = selected.map((m: any) => ({
-                    department_id: addMemberDeptId,
-                    user_id: m.user_id || null,
-                    full_name: m.full_name,
-                    role: m.role,
-                    photo_url: m.photo_url || null,
-                    phone: m.phone || null,
-                    email: m.email || null,
-                  }));
-                  const { error } = await supabase.from("department_members").insert(rows);
-                  if (error) throw error;
+                  const selected = dedupeFacultyMembers(
+                    (deptMembers as any[]).filter(
+                      m =>
+                        selectFacultyMemberIds.includes(m.id) &&
+                        m.__from_ifm &&
+                        m.user_id,
+                    ),
+                  );
+
+                  if (selected.length === 0) {
+                    throw new Error(
+                      isRtl
+                        ? "تعذر العثور على السجل الأساسي للعضو"
+                        : "The member's canonical record could not be found",
+                    );
+                  }
+
+                  // Reuse the secured update path. It changes the canonical
+                  // faculty record and synchronizes department_members in one
+                  // database transaction, including an existing mirror row.
+                  for (const member of selected as any[]) {
+                    const { data, error } = await supabase.functions.invoke(
+                      "update-faculty-member",
+                      {
+                        body: {
+                          member_id: member.id,
+                          user_id: member.user_id,
+                          full_name: member.full_name,
+                          role: member.role,
+                          department_id: addMemberDeptId,
+                          phone: member.phone || "",
+                          extra: {
+                            date_of_birth: member.date_of_birth || null,
+                            photo_url: member.photo_url || null,
+                            national_id: member.national_id || null,
+                            gender: member.gender || null,
+                            address: member.address || null,
+                            qualification: member.qualification || null,
+                            specialization: member.specialization || null,
+                            notes: member.notes || null,
+                          },
+                        },
+                      },
+                    );
+
+                    if (error || !data?.success) {
+                      const message = await getFunctionErrorMessage(
+                        error,
+                        data,
+                        isRtl ? "تعذر ربط العضو بالقسم" : "Unable to assign member to department",
+                      );
+                      throw new Error(message);
+                    }
+                  }
+
                   sonnerToast.success(isRtl ? "تمت إضافة الأعضاء للقسم" : "Members added to department", { duration: 2000 });
                   setShowSelectFacultyDialog(false);
                   setSelectFacultyMemberIds([]);
@@ -3692,6 +3769,7 @@ ${rows.map((r: any, i: number) => `<tr>
                   setAddingExistingFaculty(false);
                 }
               }}
+
             >
               {addingExistingFaculty ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : null}
               {isRtl ? "إضافة للقسم" : "Add to Department"}

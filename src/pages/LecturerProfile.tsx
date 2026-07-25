@@ -85,7 +85,7 @@ const LecturerProfile = () => {
   const [showDelete, setShowDelete] = useState(false);
   const [actioning, setActioning] = useState(false);
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [memberId]);
+  useEffect(() => { load(); }, [memberId]);
 
   const load = async () => {
     if (!memberId) return;

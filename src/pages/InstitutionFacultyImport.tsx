@@ -82,7 +82,7 @@ setInstitutionType(instType);
       const deptByName = new Map(departments.map(d => [d.name.trim(), d.id]));
 
       // For student import, also fetch all department codes for lookup
-      let deptByCode = new Map<string, string>();
+      const deptByCode = new Map<string, string>();
       if (isStudent) {
         const { data: allDepts } = await supabase
           .from("departments")
@@ -221,7 +221,7 @@ if (isStudent) {
       try {
         const ctx: any = (fnError as any).context;
         if (ctx && typeof ctx.json === "function") errBody = await ctx.json();
-      } catch {}
+      } catch { /* ignore */ }
     } else if (fnData && (fnData as any).success === false) {
       errBody = fnData;
     }

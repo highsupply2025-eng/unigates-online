@@ -410,13 +410,13 @@ const InstitutionDashboard = () => {
       const v = localStorage.getItem(`account_system_choice:${institutionId}`);
       if (v === "invitations" || v === "accounts") setAccountSystemChoice(v);
       else setAccountSystemChoice(null);
-    } catch {}
+    } catch { /* ignore */ }
   }, [institutionId]);
 
   const confirmSystemChoice = (choice: "invitations" | "accounts") => {
     try {
       localStorage.setItem(`account_system_choice:${institutionId}`, choice);
-    } catch {}
+    } catch { /* ignore */ }
     setAccountSystemChoice(choice);
     setPendingChoice(null);
     setAccountMgmtView(choice);
@@ -469,7 +469,7 @@ const InstitutionDashboard = () => {
           sessionStorage.removeItem(FORCE_REFRESH_KEY);
           __dashboardCache = null;
         }
-      } catch {}
+      } catch { /* ignore */ }
 
       // Instant hydration from in-memory snapshot if it matches this user.
       // The full refresh still runs below in the background.
@@ -810,7 +810,7 @@ const InstitutionDashboard = () => {
           leadershipInvitations: finalLeadershipInvitations,
         };
       }
-    } catch {}
+    } catch { /* ignore */ }
     setLastLoadedAt(Date.now());
   };
 
@@ -818,8 +818,8 @@ const InstitutionDashboard = () => {
 
   const handleAddDepartment = async () => {
     if (!newDeptName || !newDeptCode || addingDept) return;
-    let lecturerCount = parseInt(newDeptLecturerCount) || 0;
-    let headCount = parseInt(newDeptHeadCount) || 0;
+    const lecturerCount = parseInt(newDeptLecturerCount) || 0;
+    const headCount = parseInt(newDeptHeadCount) || 0;
 
     // Enforce caps (students: unlimited)
     if (lecturerCount > 10) {

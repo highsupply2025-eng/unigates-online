@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, Check, ChevronLeft, ChevronRight, Sparkles, Globe, Infinity, Crown } from "lucide-react";
+import { GraduationCap, Check, ChevronLeft, ChevronRight, Sparkles, Globe, Infinity as InfinityIcon, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -119,7 +119,7 @@ const ChoosePlan = () => {
 
                   <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${gradients[i]} mx-auto mb-2 flex items-center justify-center`}>
                     {level.isUnlimited
-                      ? <Infinity className="w-5 h-5 text-white" />
+                       ? <InfinityIcon className="w-5 h-5 text-white" />
                       : <span className="text-white font-black text-sm">{level.id}</span>
                     }
                   </div>

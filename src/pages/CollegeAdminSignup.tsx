@@ -74,7 +74,7 @@ const CollegeAdminSignup = () => {
     const hasUpperCase = /[A-Z]/.test(password);
     const hasLowerCase = /[a-z]/.test(password);
     const hasNumbers = /[0-9]/.test(password);
-    const hasSymbols = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+    const hasSymbols = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
     if (password.length < 8 || !hasUpperCase || !hasLowerCase || !hasNumbers || !hasSymbols) {
       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "الرقم السري يجب أن يحتوي على 8 أحرف على الأقل، حروف كبيرة وصغيرة إنجليزية، أرقام، ورموز" : "Password must be at least 8 characters with uppercase, lowercase, numbers, and symbols", variant: "destructive" });
       return;
@@ -292,7 +292,7 @@ const CollegeAdminSignup = () => {
                       <p className={/[A-Z]/.test(password) ? "text-green-600" : "text-destructive"}>{isRtl ? "✓ حرف كبير إنجليزي" : "✓ Uppercase letter"}</p>
                       <p className={/[a-z]/.test(password) ? "text-green-600" : "text-destructive"}>{isRtl ? "✓ حرف صغير إنجليزي" : "✓ Lowercase letter"}</p>
                       <p className={/[0-9]/.test(password) ? "text-green-600" : "text-destructive"}>{isRtl ? "✓ رقم" : "✓ Number"}</p>
-                      <p className={/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) ? "text-green-600" : "text-destructive"}>{isRtl ? "✓ رمز خاص" : "✓ Special symbol"}</p>
+                      <p className={/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password) ? "text-green-600" : "text-destructive"}>{isRtl ? "✓ رمز خاص" : "✓ Special symbol"}</p>
                       <p className={password.length >= 8 ? "text-green-600" : "text-destructive"}>{isRtl ? "✓ 8 أحرف على الأقل" : "✓ At least 8 characters"}</p>
                     </div>
                   )}

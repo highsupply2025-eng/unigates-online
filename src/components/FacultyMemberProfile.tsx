@@ -139,7 +139,7 @@ const FacultyMemberProfile = ({ header }: Props) => {
     }
   };
 
-  useEffect(() => { loadAll(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [navigate]);
+  useEffect(() => { loadAll(); }, [navigate]);
   useRealtimeRefresh(["department_members", "profiles", "departments"], loadAll, true);
 
   const savePassword = async () => {

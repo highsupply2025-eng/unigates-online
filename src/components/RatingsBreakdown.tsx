@@ -114,7 +114,7 @@ const RatingsBreakdown = ({ lecturerId }: Props) => {
       setQuizzes((qr.data as Row[]) || []);
 
       // streams — table doesn't have course_id; scope by stream lecturer if any
-      let streamQuery = supabase.from("live_stream_ratings").select("id,rating,comment,created_at,stream_id").order("created_at", { ascending: false }).limit(200);
+      const streamQuery = supabase.from("live_stream_ratings").select("id,rating,comment,created_at,stream_id").order("created_at", { ascending: false }).limit(200);
       const streamRes = await streamQuery;
       let rows = (streamRes.data as any[]) || [];
       if (lecturerId && rows.length) {

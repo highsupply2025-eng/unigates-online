@@ -22,7 +22,7 @@ const countryCodes = [
   { code: "+44", country: "🇬🇧" },
 ];
 
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
 
 const bookRoles = [
   { value: "personal" as const, labelAr: "حساب شخصي", labelEn: "Personal Account", descAr: "لشراء وقراءة الكتب", descEn: "To buy and read books", icon: User },

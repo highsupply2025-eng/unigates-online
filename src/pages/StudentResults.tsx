@@ -42,7 +42,7 @@ const StudentResults = () => {
         .order("submitted_at", { ascending: false });
 
       const quizIds = Array.from(new Set((subs || []).map(s => s.quiz_id)));
-      let quizzesById: Record<string, any> = {};
+      const quizzesById: Record<string, any> = {};
       if (quizIds.length > 0) {
         const { data: qz } = await supabase
           .from("quizzes")
@@ -51,7 +51,7 @@ const StudentResults = () => {
         (qz || []).forEach(q => { quizzesById[q.id] = q; });
       }
       const courseIds = Array.from(new Set(Object.values(quizzesById).map((q: any) => q.course_id)));
-      let coursesById: Record<string, any> = {};
+      const coursesById: Record<string, any> = {};
       if (courseIds.length > 0) {
         const { data: cs } = await supabase
           .from("courses")

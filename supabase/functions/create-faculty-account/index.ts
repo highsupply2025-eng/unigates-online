@@ -285,7 +285,7 @@ if (/\s/.test(temporaryPassword)) {
     }
 
     if (problems.length > 0) {
-      try { await admin.auth.admin.deleteUser(uid); } catch (_) {}
+      try { await admin.auth.admin.deleteUser(uid); } catch (_) { /* ignore */ }
       return fail("verification", `Post-save verification failed: ${problems.join("; ")}`, 500);
     }
 
@@ -298,7 +298,7 @@ if (/\s/.test(temporaryPassword)) {
     const message = e instanceof Error ? e.message : String(e);
     console.error("CREATE FACULTY ACCOUNT UNEXPECTED", { message, createdUid });
     if (createdUid) {
-      try { await admin.auth.admin.deleteUser(createdUid); } catch (_) {}
+      try { await admin.auth.admin.deleteUser(createdUid); } catch (_) { /* ignore */ }
     }
     return fail("rollback", message, 500);
   }

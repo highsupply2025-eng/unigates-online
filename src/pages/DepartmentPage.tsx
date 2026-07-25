@@ -532,7 +532,7 @@ const DepartmentPage = () => {
         </div>
 
         {/* Department Head Section */}
-        {deptHead && deptHead.user_id && (() => {
+        {deptHead && (() => {
           const headInviteLink = `${baseUrl}/signup/${instPath}/department_head?code=${deptHead.invitation_code}`;
           const headProfile = deptHead.user_id ? profilesMap[deptHead.user_id] : null;
           const headLinked = !!deptHead.user_id;

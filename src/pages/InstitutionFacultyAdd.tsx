@@ -316,7 +316,7 @@ const InstitutionFacultyAdd = () => {
         setTempPassword("");
       }
 
-      try { sessionStorage.setItem("institution-dashboard-force-refresh", Date.now().toString()); } catch {}
+      try { sessionStorage.setItem("institution-dashboard-force-refresh", Date.now().toString()); } catch { /* ignore */ }
       navigate(`/institution/dashboard?tab=${isStudent ? "students" : "faculty"}`, { replace: true });
     } catch (err: any) {
       console.error("Save failed:", err);
@@ -410,7 +410,7 @@ const InstitutionFacultyAdd = () => {
                     <Button type="button" variant="outline" size="icon" onClick={() => setShowPassword(v => !v)} aria-label={isRtl ? "إظهار/إخفاء" : "Show/Hide"}>
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
-                    <Button type="button" variant="outline" size="icon" onClick={async () => { try { await navigator.clipboard.writeText(tempPassword); toast({ title: isRtl ? "تم النسخ" : "Copied" }); } catch {} }} aria-label={isRtl ? "نسخ" : "Copy"}>
+                    <Button type="button" variant="outline" size="icon" onClick={async () => { try { await navigator.clipboard.writeText(tempPassword); toast({ title: isRtl ? "تم النسخ" : "Copied" }); } catch { /* ignore */ } }} aria-label={isRtl ? "نسخ" : "Copy"}>
                       <Copy className="h-4 w-4" />
                     </Button>
                     <Button type="button" variant="outline" size="icon" onClick={() => setTempPassword(generateStrongPassword())} aria-label={isRtl ? "توليد" : "Regenerate"}>

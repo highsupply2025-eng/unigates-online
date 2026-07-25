@@ -20,10 +20,10 @@ const LecturerCourseContent = () => {
   const smartBack = useSmartBack("/lecturer/dashboard?tab=courses");
   const handleBack = () => {
     // Free camera/mic resources immediately so navigation isn't blocked
-    try { streamRef.current?.getTracks().forEach(t => t.stop()); } catch {}
-    try { mediaRecorderRef.current?.state === "recording" && mediaRecorderRef.current.stop(); } catch {}
+    try { streamRef.current?.getTracks().forEach(t => t.stop()); } catch { /* ignore */ }
+    try { if (mediaRecorderRef.current?.state === "recording") mediaRecorderRef.current.stop(); } catch { /* ignore */ }
     if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
-    if (recordedUrl) { try { URL.revokeObjectURL(recordedUrl); } catch {} }
+    if (recordedUrl) { try { URL.revokeObjectURL(recordedUrl); } catch { /* ignore */ } }
     // Prefer history.back() (uses bfcache → instant) with safe fallback
     smartBack();
   };

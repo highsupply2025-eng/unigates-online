@@ -86,7 +86,7 @@ const StudentDashboard = () => {
     });
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [navigate]);
+  useEffect(() => { load(); }, [navigate]);
 
   useRealtimeRefresh(
     ["live_streams", "quizzes", "assignments", "lecture_schedules", "course_episodes", "user_subscriptions"],

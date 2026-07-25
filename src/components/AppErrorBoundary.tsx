@@ -32,14 +32,13 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, State> {
         return;
       }
     }
-    // eslint-disable-next-line no-console
     console.error("[AppErrorBoundary]", error);
   }
 
   handleReload = () => {
     try {
       sessionStorage.removeItem("__unigates_chunk_reload__");
-    } catch {}
+    } catch { /* ignore */ }
     window.location.reload();
   };
 

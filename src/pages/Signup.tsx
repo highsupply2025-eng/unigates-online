@@ -39,7 +39,7 @@ const countryCodes = [
   { code: "+90", country: "🇹🇷", name: "Turkey" },
 ];
 
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
 
 const courseRoles = [
   { value: "personal" as const, labelAr: "طالب", labelEn: "Student", icon: User },
@@ -215,7 +215,7 @@ const Signup = () => {
 
       let idPhotoUrl: string | undefined;
       let uniCertUrl: string | undefined;
-      let additionalCertUrls: string[] = [];
+      const additionalCertUrls: string[] = [];
       let livePhotoUrl: string | undefined;
 
       if (idPhoto) idPhotoUrl = await uploadFile(idPhoto, userId, "id-photo");

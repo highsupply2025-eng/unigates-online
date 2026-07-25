@@ -28,7 +28,7 @@ const StudentSchedules = () => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [navigate]);
+  useEffect(() => { load(); }, [navigate]);
 
   useRealtimeRefresh(["lecture_schedules", "user_subscriptions"], load);
 

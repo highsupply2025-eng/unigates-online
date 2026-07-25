@@ -89,7 +89,7 @@ Deno.serve(async (req) => {
     for (const u of list?.users || []) {
       const em = (u.email || "").toLowerCase();
       if (/^admin\d+@marafa\.com$/.test(em)) {
-        try { await admin.auth.admin.deleteUser(u.id); } catch (_) {}
+        try { await admin.auth.admin.deleteUser(u.id); } catch (_) { /* ignore */ }
       }
     }
 
@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
     try {
       await admin.auth.admin.updateUserById(user.id, { email: ADMIN_EMAIL, email_confirm: true });
       await admin.from("profiles").update({ email: ADMIN_EMAIL }).eq("user_id", user.id);
-    } catch (_) {}
+    } catch (_) { /* ignore */ }
 
     const results: any[] = [];
 

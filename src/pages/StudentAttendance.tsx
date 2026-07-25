@@ -26,7 +26,7 @@ const StudentAttendance = () => {
       .limit(100);
     const list = data || [];
     const streamIds = Array.from(new Set(list.map((r: any) => r.stream_id)));
-    let streamsById: Record<string, any> = {};
+    const streamsById: Record<string, any> = {};
     if (streamIds.length > 0) {
       const { data: ss } = await supabase.from("live_streams").select("id, title_ar, title_en").in("id", streamIds);
       (ss || []).forEach((s: any) => { streamsById[s.id] = s; });

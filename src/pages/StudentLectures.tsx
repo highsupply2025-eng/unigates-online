@@ -34,7 +34,7 @@ const StudentLectures = () => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [navigate]);
+  useEffect(() => { load(); }, [navigate]);
 
   useRealtimeRefresh(["courses", "course_episodes", "user_subscriptions"], load);
 

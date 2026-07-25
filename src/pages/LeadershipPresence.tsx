@@ -73,7 +73,7 @@ export default function LeadershipPresence() {
       if (error) throw error;
 
       const ids = Array.from(new Set((data || []).map((r) => r.user_id)));
-      let nameMap: Record<string, string> = {};
+      const nameMap: Record<string, string> = {};
       if (ids.length) {
         const { data: profs } = await supabase
           .from("profiles")

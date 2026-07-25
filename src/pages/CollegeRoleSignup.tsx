@@ -325,7 +325,7 @@ const CollegeRoleSignup = () => {
       }
 
       setGeneratedPassword(tempPassword);
-      try { await navigator.clipboard?.writeText(`${email}\n${tempPassword}`); } catch {}
+      try { await navigator.clipboard?.writeText(`${email}\n${tempPassword}`); } catch { /* ignore */ }
       setSubmitted(true);
     } catch (error: any) {
       toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });

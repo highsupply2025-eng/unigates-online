@@ -20,7 +20,7 @@ const countryCodes = [
   { code: "+1", country: "🇺🇸" }, { code: "+44", country: "🇬🇧" },
 ];
 
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
 
 type SchoolRole = "school_student" | "parent" | "school" | "teacher";
 

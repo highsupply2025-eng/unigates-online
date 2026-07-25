@@ -61,7 +61,7 @@ const StudentQuizzes = () => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [navigate]);
+  useEffect(() => { load(); }, [navigate]);
 
   useRealtimeRefresh(["quizzes", "courses", "user_subscriptions"], load);
 

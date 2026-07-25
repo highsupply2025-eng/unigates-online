@@ -25,7 +25,7 @@ const StudentLive = () => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [navigate]);
+  useEffect(() => { load(); }, [navigate]);
 
   useRealtimeRefresh(["live_streams"], load);
 

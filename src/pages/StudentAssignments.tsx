@@ -36,7 +36,7 @@ const StudentAssignments = () => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [navigate]);
+  useEffect(() => { load(); }, [navigate]);
 
   useRealtimeRefresh(["assignments", "user_subscriptions"], load);
 

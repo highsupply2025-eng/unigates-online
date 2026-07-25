@@ -113,7 +113,7 @@ const StudentQuizDetail = () => {
     setSubmitted(true);
   };
 
-  const persistSubmission = async (s: number) => {
+  const persistSubmission = async (_s: number) => {
     if (!quizId) return;
     try {
       const { data: auth } = await supabase.auth.getUser();
@@ -121,12 +121,13 @@ const StudentQuizDetail = () => {
       if (!uid) return;
       const ansMap: Record<string, string> = {};
       QUESTIONS.forEach(q => { if (answers[q.id]) ansMap[q.id] = answers[q.id]; });
+      // score/total_points are recomputed server-side by the
+      // enforce_quiz_submission_scoring BEFORE INSERT trigger; do not
+      // send client-supplied authoritative values.
       await supabase.from("quiz_submissions").insert({
         quiz_id: quizId,
         student_id: uid,
         answers: ansMap,
-        score: s,
-        total_points: QUESTIONS.length,
       });
     } catch (e) {
       console.warn("submission persist failed", e);

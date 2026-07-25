@@ -79,6 +79,15 @@ const DepartmentPage = () => {
       setLoading(false);
     }
     loadDepartmentData();
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible" && deptId) {
+        __deptCache.delete(deptId);
+        loadDepartmentData();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [deptId]);
 
   const loadDepartmentData = async () => {
@@ -187,6 +196,7 @@ const DepartmentPage = () => {
 
       setMembers(prev => prev.filter(m => m.id !== memberToDelete.id));
       sonnerToast.success(isRtl ? "تم حذف العضو بنجاح" : "Member deleted successfully", { duration: 1500 });
+      if (deptId) __deptCache.delete(deptId);
     } catch {
       sonnerToast.error(isRtl ? "فشل حذف العضو" : "Failed to delete member");
     } finally {
@@ -211,6 +221,7 @@ const DepartmentPage = () => {
       if (error) throw error;
       setMembers(prev => prev.map(m => m.id === memberToEdit.id ? { ...m, full_name: editName.trim() } : m));
       sonnerToast.success(isRtl ? "تم تعديل الاسم" : "Name updated", { duration: 1000 });
+      if (deptId) __deptCache.delete(deptId);
     } catch {
       sonnerToast.error(isRtl ? "فشل تعديل الاسم" : "Failed to update name");
     } finally {
@@ -241,13 +252,14 @@ const DepartmentPage = () => {
         if (error) throw error;
         added.push(...(data as DepartmentMember[]));
       }
-      setMembers(prev => [...prev, ...added]);
       sonnerToast.success(
         isRtl ? `تمت إضافة ${added.length} عضو بنجاح` : `${added.length} members added`,
         { duration: 1500 }
       );
       setNewMemberName("");
       setShowAddDialog(false);
+      if (deptId) __deptCache.delete(deptId);
+      await loadDepartmentData();
     } catch {
       sonnerToast.error(isRtl ? "فشل إضافة الأعضاء" : "Failed to add members");
     } finally {
@@ -256,10 +268,8 @@ const DepartmentPage = () => {
   };
 
   const filterMembers = (list: DepartmentMember[]) => {
-    // Only registered members (linked to a real user account) are listed.
     return list.filter(m => {
-      if (!m.user_id) return false;
-      const profile = profilesMap[m.user_id];
+      const profile = m.user_id ? profilesMap[m.user_id] : null;
       const name = profile?.full_name || m.full_name;
       const matchesSearch = !searchQuery ||
         name.toLowerCase().includes(searchQuery.toLowerCase()) ||

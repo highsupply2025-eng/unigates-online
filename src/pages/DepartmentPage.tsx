@@ -33,14 +33,20 @@ interface DepartmentMember {
 type StatusFilter = "all" | "linked" | "pending";
 
 // Module-level snapshot cache keyed by deptId, for instant revisit hydration.
+type MemberProfile = { email: string; phone: string; live_photo_url: string | null; full_name: string; must_change_password: boolean };
 type DeptSnapshot = {
   deptName: string;
   deptStatus: string;
   institutionType: "college" | "institute";
   members: DepartmentMember[];
-  profilesMap: Record<string, { email: string; phone: string; live_photo_url: string | null; full_name: string }>;
+  profilesMap: Record<string, MemberProfile>;
 };
 const __deptCache = new Map<string, DeptSnapshot>();
+
+// Any non-student, non-head role in a department is a faculty member.
+const STUDENT_ROLE = "student";
+const HEAD_ROLE = "department_head";
+
 
 const DepartmentPage = () => {
   const { deptId } = useParams<{ deptId: string }>();
@@ -53,7 +59,7 @@ const DepartmentPage = () => {
   const [deptStatus, setDeptStatus] = useState("");
   const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
   const [members, setMembers] = useState<DepartmentMember[]>([]);
-  const [profilesMap, setProfilesMap] = useState<Record<string, { email: string; phone: string; live_photo_url: string | null; full_name: string }>>({});
+  const [profilesMap, setProfilesMap] = useState<Record<string, MemberProfile>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [memberToDelete, setMemberToDelete] = useState<DepartmentMember | null>(null);
@@ -151,17 +157,23 @@ const DepartmentPage = () => {
 
       // Fetch profile data for linked members
       const linkedUserIds = allMembers.filter(m => m.user_id).map(m => m.user_id as string);
-      let snapshotMap: Record<string, { email: string; phone: string; live_photo_url: string | null; full_name: string }> = {};
+      let snapshotMap: Record<string, MemberProfile> = {};
       if (linkedUserIds.length > 0) {
         const [{ data: profilesData }, { data: docsData }] = await Promise.all([
-          supabase.from("profiles").select("user_id,email,phone,full_name").in("user_id", linkedUserIds),
+          supabase.from("profiles").select("user_id,email,phone,full_name,must_change_password").in("user_id", linkedUserIds),
           supabase.from("profile_documents").select("user_id,live_photo_url").in("user_id", linkedUserIds),
         ]);
         const docsById: Record<string, string | null> = {};
         (docsData || []).forEach((d: any) => { docsById[d.user_id] = d.live_photo_url ?? null; });
-        const map: Record<string, { email: string; phone: string; live_photo_url: string | null; full_name: string }> = {};
+        const map: Record<string, MemberProfile> = {};
         (profilesData || []).forEach((p: any) => {
-          map[p.user_id] = { email: p.email, phone: p.phone, live_photo_url: docsById[p.user_id] ?? null, full_name: p.full_name };
+          map[p.user_id] = {
+            email: p.email,
+            phone: p.phone,
+            live_photo_url: docsById[p.user_id] ?? null,
+            full_name: p.full_name,
+            must_change_password: p.must_change_password === true,
+          };
         });
         snapshotMap = map;
         setProfilesMap(map);
@@ -278,9 +290,10 @@ const DepartmentPage = () => {
     });
   };
 
-  const allLecturers = members.filter(m => m.role === "lecturer");
-  const allStudents = members.filter(m => m.role === "student");
-  const deptHead = members.find(m => m.role === "department_head") || null;
+  // Every faculty role (lecturer, professor, doctor, assistant_lecturer, dean, vice_dean...) shows under Members.
+  const allLecturers = members.filter(m => m.role !== STUDENT_ROLE && m.role !== HEAD_ROLE);
+  const allStudents = members.filter(m => m.role === STUDENT_ROLE);
+  const deptHead = members.find(m => m.role === HEAD_ROLE) || null;
   const lecturers = useMemo(() => filterMembers(allLecturers), [members, searchQuery, statusFilter]);
   const students = useMemo(() => filterMembers(allStudents), [members, searchQuery, statusFilter]);
 
@@ -345,6 +358,8 @@ const DepartmentPage = () => {
     const displayName = profile?.full_name || member.full_name;
     const avatar = profile?.live_photo_url || member.photo_url;
     const isLinked = !!member.user_id;
+    // Activated only after the member signs in with the temp password and sets a new one.
+    const isActivated = isLinked && !!profile && profile.must_change_password === false;
     const shareText = isRtl
       ? `مرحباً ${member.full_name}، يمكنك التسجيل في منصة إدراك عبر هذا الرابط:\n${inviteLink}\nكود الدعوة: ${member.invitation_code}`
       : `Hi ${member.full_name}, register on Edrak platform:\n${inviteLink}\nInvitation code: ${member.invitation_code}`;
@@ -383,10 +398,16 @@ const DepartmentPage = () => {
             </div>
           </button>
           {isLinked && (
-            <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 shrink-0">
-              <UserCheck className="w-3.5 h-3.5" />
-              {isRtl ? "مسجّل" : "Registered"}
-            </Badge>
+            isActivated ? (
+              <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 shrink-0">
+                <UserCheck className="w-3.5 h-3.5" />
+                {isRtl ? "مفعّل" : "Activated"}
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="border-amber-500 text-amber-700 bg-amber-100/60 gap-1 shrink-0">
+                {isRtl ? "غير مفعّل" : "Not activated"}
+              </Badge>
+            )
           )}
         </div>
 

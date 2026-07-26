@@ -23,7 +23,6 @@ export default function OAuthConsent() {
         window.location.href = "/login?next=" + encodeURIComponent(next);
         return;
       }
-      // @ts-expect-error - supabase.auth.oauth is beta in the client typings
       const { data, error } = await supabase.auth.oauth.getAuthorizationDetails(authorizationId);
       if (!active) return;
       if (error) return setError(error.message);
@@ -37,7 +36,6 @@ export default function OAuthConsent() {
 
   async function decide(approve: boolean) {
     setBusy(true);
-    // @ts-expect-error - oauth approval API is not yet typed in supabase-js
     const { data, error } = approve
       ? await supabase.auth.oauth.approveAuthorization(authorizationId)
       : await supabase.auth.oauth.denyAuthorization(authorizationId);

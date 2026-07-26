@@ -31,7 +31,6 @@ export function useRealtimeRefresh(
 
     for (const table of tables) {
       channel = channel.on(
-        // @ts-expect-error - postgres_changes event name
         "postgres_changes",
         { event: "*", schema: "public", table },
         trigger

@@ -33,14 +33,20 @@ interface DepartmentMember {
 type StatusFilter = "all" | "linked" | "pending";
 
 // Module-level snapshot cache keyed by deptId, for instant revisit hydration.
+type MemberProfile = { email: string; phone: string; live_photo_url: string | null; full_name: string; must_change_password: boolean };
 type DeptSnapshot = {
   deptName: string;
   deptStatus: string;
   institutionType: "college" | "institute";
   members: DepartmentMember[];
-  profilesMap: Record<string, { email: string; phone: string; live_photo_url: string | null; full_name: string }>;
+  profilesMap: Record<string, MemberProfile>;
 };
 const __deptCache = new Map<string, DeptSnapshot>();
+
+// Any non-student, non-head role in a department is a faculty member.
+const STUDENT_ROLE = "student";
+const HEAD_ROLE = "department_head";
+
 
 const DepartmentPage = () => {
   const { deptId } = useParams<{ deptId: string }>();

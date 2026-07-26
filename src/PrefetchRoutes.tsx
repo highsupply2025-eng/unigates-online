@@ -55,24 +55,14 @@ const ROUTE_LOADERS: Array<[RegExp, Loader]> = [
   [/^\/help-center$/, () => import("./pages/HelpCenter")],
 ];
 
-// Only the most commonly visited routes are prefetched eagerly.
+// Only the 5 most commonly visited routes are prefetched eagerly.
 // All routes are still available via intent-based (hover) prefetch.
 const TOP_ROUTE_LOADERS: Loader[] = [
   () => import("./pages/Login"),
   () => import("./pages/Signup"),
   () => import("./pages/UserProfile"),
-  () => import("./pages/StudentDashboard"),
-  () => import("./pages/LecturerDashboard"),
-  () => import("./pages/InstitutionDashboard"),
-  () => import("./pages/LeadershipDashboard"),
-  () => import("./pages/CoursesPlatform"),
-  () => import("./pages/SchoolDashboard"),
-  () => import("./pages/StudentLectures"),
-  () => import("./pages/StudentQuizzes"),
   () => import("./pages/ComingSoon"),
   () => import("./pages/NotFound"),
-  () => import("./pages/About"),
-  () => import("./pages/Contact"),
 ];
 
 

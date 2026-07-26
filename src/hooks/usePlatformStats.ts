@@ -47,9 +47,8 @@ export const usePlatformStats = () => {
         languageCenters: Number(stats.language_centers) || 0,
       };
     },
-    staleTime: 30_000,
-    refetchInterval: 30_000,
-    refetchOnWindowFocus: true,
-    refetchOnReconnect: true,
+    staleTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 };

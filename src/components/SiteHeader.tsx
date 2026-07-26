@@ -19,18 +19,23 @@ const SiteHeader = () => {
 
   useEffect(() => {
     let mounted = true;
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session?.user || !mounted) return;
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", session.user.id)
-        .eq("role", "admin")
-        .eq("approved", true)
-        .maybeSingle();
-      if (mounted) setIsAdmin(!!roleData);
-    });
-    return () => { mounted = false; };
+    // Defer admin role check until after first paint so it never blocks
+    // the header render. Only admins need the badge — public visitors
+    // don't need this query at all during initial load.
+    const timer = setTimeout(() => {
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
+        if (!session?.user || !mounted) return;
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", session.user.id)
+          .eq("role", "admin")
+          .eq("approved", true)
+          .maybeSingle();
+        if (mounted) setIsAdmin(!!roleData);
+      });
+    }, 800);
+    return () => { mounted = false; clearTimeout(timer); };
   }, []);
 
   const ar = (a: string, e: string) => (language === "ar" ? a : e);

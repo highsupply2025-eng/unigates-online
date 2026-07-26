@@ -77,7 +77,10 @@ export default function ForcePasswordChangeDialog() {
   };
 
   useEffect(() => {
-    check();
+    // Defer the initial password-check query until after first paint so it
+    // never blocks the homepage render. 3 sequential Supabase round-trips
+    // (getSession → getUser → profiles) run only after the UI is visible.
+    const timer = setTimeout(check, 600);
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       // Only re-check on meaningful events. TOKEN_REFRESHED fires frequently
       // and would trigger unnecessary profile queries on every token rotation.
@@ -85,7 +88,7 @@ export default function ForcePasswordChangeDialog() {
         setTimeout(check, 0);
       }
     });
-    return () => { sub.subscription.unsubscribe(); };
+    return () => { clearTimeout(timer); sub.subscription.unsubscribe(); };
   }, []);
 
 

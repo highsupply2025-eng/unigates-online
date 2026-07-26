@@ -113,9 +113,15 @@ export const useSingleSession = () => {
       }
     };
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user && !cancelled) start(session.user.id);
-    });
+    // Defer session check until after first paint so it never blocks
+    // the initial page render. This avoids 2-3 sequential Supabase
+    // round-trips (getSession → user_roles → active_sessions) on boot.
+    const bootTimer = setTimeout(() => {
+      if (cancelled) return;
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user && !cancelled) start(session.user.id);
+      });
+    }, 500);
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session?.user) {
@@ -138,6 +144,7 @@ export const useSingleSession = () => {
 
     return () => {
       cancelled = true;
+      clearTimeout(bootTimer);
       window.removeEventListener("beforeunload", onUnload);
       if (intervalRef.current) clearInterval(intervalRef.current);
       if (channelRef.current) supabase.removeChannel(channelRef.current);

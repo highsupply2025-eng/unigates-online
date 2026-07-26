@@ -4,7 +4,6 @@ import {
   Home, BookOpen, Radio, ClipboardList, User, LayoutDashboard,
   Users, Calendar, Award, GraduationCap, Landmark, Bell,
 } from "lucide-react";
-import { Capacitor } from "@capacitor/core";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
@@ -85,7 +84,9 @@ const BottomNav = () => {
   const [isNative, setIsNative] = useState(false);
 
   useEffect(() => {
-    try { setIsNative(Capacitor.isNativePlatform()); } catch { setIsNative(false); }
+    import("@capacitor/core").then(({ Capacitor }) => {
+      try { setIsNative(Capacitor.isNativePlatform()); } catch { setIsNative(false); }
+    }).catch(() => setIsNative(false));
   }, []);
 
   const items = useMemo(() => pickItems(pathname), [pathname]);

@@ -157,17 +157,23 @@ const DepartmentPage = () => {
 
       // Fetch profile data for linked members
       const linkedUserIds = allMembers.filter(m => m.user_id).map(m => m.user_id as string);
-      let snapshotMap: Record<string, { email: string; phone: string; live_photo_url: string | null; full_name: string }> = {};
+      let snapshotMap: Record<string, MemberProfile> = {};
       if (linkedUserIds.length > 0) {
         const [{ data: profilesData }, { data: docsData }] = await Promise.all([
-          supabase.from("profiles").select("user_id,email,phone,full_name").in("user_id", linkedUserIds),
+          supabase.from("profiles").select("user_id,email,phone,full_name,must_change_password").in("user_id", linkedUserIds),
           supabase.from("profile_documents").select("user_id,live_photo_url").in("user_id", linkedUserIds),
         ]);
         const docsById: Record<string, string | null> = {};
         (docsData || []).forEach((d: any) => { docsById[d.user_id] = d.live_photo_url ?? null; });
-        const map: Record<string, { email: string; phone: string; live_photo_url: string | null; full_name: string }> = {};
+        const map: Record<string, MemberProfile> = {};
         (profilesData || []).forEach((p: any) => {
-          map[p.user_id] = { email: p.email, phone: p.phone, live_photo_url: docsById[p.user_id] ?? null, full_name: p.full_name };
+          map[p.user_id] = {
+            email: p.email,
+            phone: p.phone,
+            live_photo_url: docsById[p.user_id] ?? null,
+            full_name: p.full_name,
+            must_change_password: p.must_change_password === true,
+          };
         });
         snapshotMap = map;
         setProfilesMap(map);

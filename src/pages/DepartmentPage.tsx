@@ -290,9 +290,10 @@ const DepartmentPage = () => {
     });
   };
 
-  const allLecturers = members.filter(m => m.role === "lecturer");
-  const allStudents = members.filter(m => m.role === "student");
-  const deptHead = members.find(m => m.role === "department_head") || null;
+  // Every faculty role (lecturer, professor, doctor, assistant_lecturer, dean, vice_dean...) shows under Members.
+  const allLecturers = members.filter(m => m.role !== STUDENT_ROLE && m.role !== HEAD_ROLE);
+  const allStudents = members.filter(m => m.role === STUDENT_ROLE);
+  const deptHead = members.find(m => m.role === HEAD_ROLE) || null;
   const lecturers = useMemo(() => filterMembers(allLecturers), [members, searchQuery, statusFilter]);
   const students = useMemo(() => filterMembers(allStudents), [members, searchQuery, statusFilter]);
 

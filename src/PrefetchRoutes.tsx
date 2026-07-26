@@ -1,22 +1,17 @@
 import { useEffect } from "react";
 
 /**
- * Aggressive route prefetching:
- *  1. Right after first paint, fire ALL lazy route imports in parallel so
- *     their JS chunks are warm in the HTTP cache before the user clicks.
- *  2. Add a delegated `pointerover` / `touchstart` / `focusin` listener that
- *     re-triggers the loader for the link's path the moment the user hints
- *     at navigation (hover on desktop, touch on mobile, keyboard focus).
- *
- * The chunks are tiny once gzipped, and the browser pipelines them over a
- * single H2/H3 connection, so parallel fetching is faster than the previous
- * 60ms staggered loop.
+ * Route prefetching:
+ *  1. After first paint, prefetch only the top ~15 most-visited routes.
+ *     Prefetching all 61+ routes floods the network and competes with
+ *     critical page resources.
+ *  2. Intent-based prefetch: on hover/touch/focus, warm the matching
+ *     chunk instantly so navigation feels instant.
  */
 
 type Loader = () => Promise<unknown>;
 
-// Route path -> loader. Patterns use `:param` style. Order matters: more
-// specific paths first so we match them before their parent prefix.
+// All route path -> loader mappings (used for intent-based prefetch).
 const ROUTE_LOADERS: Array<[RegExp, Loader]> = [
   [/^\/login$/, () => import("./pages/Login")],
   [/^\/signup(\/.*)?$/, () => import("./pages/Signup")],
@@ -60,10 +55,25 @@ const ROUTE_LOADERS: Array<[RegExp, Loader]> = [
   [/^\/help-center$/, () => import("./pages/HelpCenter")],
 ];
 
-const ALL_LOADERS: Loader[] = ROUTE_LOADERS.map(([, l]) => l).concat([
+// Only the most commonly visited routes are prefetched eagerly.
+// All routes are still available via intent-based (hover) prefetch.
+const TOP_ROUTE_LOADERS: Loader[] = [
+  () => import("./pages/Login"),
+  () => import("./pages/Signup"),
+  () => import("./pages/UserProfile"),
+  () => import("./pages/StudentDashboard"),
+  () => import("./pages/LecturerDashboard"),
+  () => import("./pages/InstitutionDashboard"),
+  () => import("./pages/LeadershipDashboard"),
+  () => import("./pages/CoursesPlatform"),
+  () => import("./pages/SchoolDashboard"),
+  () => import("./pages/StudentLectures"),
+  () => import("./pages/StudentQuizzes"),
   () => import("./pages/ComingSoon"),
-  () => import("./pages/DemoItemPage"),
-]);
+  () => import("./pages/NotFound"),
+  () => import("./pages/About"),
+  () => import("./pages/Contact"),
+];
 
 
 const warmed = new Set<Loader>();
@@ -84,30 +94,16 @@ const warmPath = (path: string) => {
 
 const PrefetchRoutes = () => {
   useEffect(() => {
-    // 1) Idle + connection-aware bulk warm.
-    //    Firing every route loader at first paint stole ~300ms of TBT and
-    //    pushed LCP back. We now wait until the browser is idle (or 2s after
-    //    paint) and skip entirely on Save-Data / 2g connections so the main
-    //    thread is free for the hero render.
+    // Idle + connection-aware prefetch of top routes only.
+    // Intent-based prefetch (hover/touch/focus) handles all other routes.
     const conn = (navigator as any).connection;
-    const slow = conn && (conn.saveData || /(^|-)2g$/.test(String(conn.effectiveType)));
+    const slow = conn && (conn.saveData || /(^|-)[23]g$/.test(String(conn.effectiveType)));
     const kick = () => {
       if (slow) return;
-      // Stagger the wave: 4 chunks per idle slice so we never hog the network
-      // or main thread for more than a frame at a time.
-      let i = 0;
-      const step = () => {
-        const slice = ALL_LOADERS.slice(i, i + 4);
-        i += 4;
-        slice.forEach(warm);
-        if (i < ALL_LOADERS.length) {
-          (window.requestIdleCallback || ((cb: any) => setTimeout(cb, 50)))(step, { timeout: 1000 });
-        }
-      };
-      step();
+      TOP_ROUTE_LOADERS.forEach(warm);
     };
-    const schedule = (window.requestIdleCallback || ((cb: any) => setTimeout(cb, 2000))) as any;
-    const handle = schedule(kick, { timeout: 3000 });
+    const schedule = (window.requestIdleCallback || ((cb: any) => setTimeout(cb, 3000))) as any;
+    const handle = schedule(kick, { timeout: 5000 });
 
 
     // 2) Intent-based prefetch: warm the matching chunk the instant the user

@@ -2,12 +2,12 @@ import { createRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import AppErrorBoundary from "./components/AppErrorBoundary";
-import { initNativeApp } from "./lib/native-app";
 import "./index.css";
 
 // Boot native (Capacitor) integrations if we're running inside the APK/IPA.
-// Safe no-op in normal browsers.
-initNativeApp();
+// Safe no-op in normal browsers. Dynamic import keeps @capacitor/core
+// out of the critical web bundle.
+import("./lib/native-app").then(({ initNativeApp }) => initNativeApp());
 
 // Global safety-net for lazy-chunk load failures triggered outside React render.
 const isChunkErr = (msg: string) =>
@@ -49,8 +49,11 @@ const BUILD_RELOAD_KEY = "__unigates_build_reload__";
  *   2. wipe Cache Storage
  *   3. persist the new build ID
  *   4. hard-reload the page ONCE per new build to fetch fresh JS/CSS.
- * If they match, we still opportunistically evict any leftover SW from an
- * older deploy that may still be intercepting module requests.
+ *
+ * NOTE: The index.html inline script already handles SW unregistration for
+ * stale deploys before React loads. We intentionally skip the "same build"
+ * eviction here to avoid destroying cached JS/CSS/images on every visit,
+ * which was causing the 8-second boot timeout.
  */
 (function enforceBuildFreshness() {
   try {
@@ -59,27 +62,24 @@ const BUILD_RELOAD_KEY = "__unigates_build_reload__";
     // Always record the current build ID so future loads can compare.
     localStorage.setItem(BUILD_ID_KEY, BUILD_ID);
 
-    const evictSWsAndCaches = async () => {
-      if ("serviceWorker" in navigator) {
-        const regs = await navigator.serviceWorker.getRegistrations();
-        await Promise.all(regs.map((r) => r.unregister().catch(() => false)));
-      }
-      if ("caches" in window) {
-        const keys = await caches.keys();
-        await Promise.all(keys.map((k) => caches.delete(k).catch(() => false)));
-      }
-    };
-
     if (changed) {
+      const evictAll = async () => {
+        if ("serviceWorker" in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map((r) => r.unregister().catch(() => false)));
+        }
+        if ("caches" in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map((k) => caches.delete(k).catch(() => false)));
+        }
+      };
+
       // New build detected — force a clean reload exactly once per new build.
       const reloadedFor = sessionStorage.getItem(BUILD_RELOAD_KEY);
       if (reloadedFor !== BUILD_ID) {
         sessionStorage.setItem(BUILD_RELOAD_KEY, BUILD_ID);
-        evictSWsAndCaches().finally(() => window.location.reload());
+        evictAll().finally(() => window.location.reload());
       }
-    } else {
-      // Same build: still evict any stale SW silently in the background.
-      evictSWsAndCaches().catch(() => {});
     }
   } catch {
     /* storage unavailable — skip silently */

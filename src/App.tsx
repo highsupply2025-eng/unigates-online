@@ -6,14 +6,15 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import Index from "./pages/Index";
-import AIChatWidget from "./components/AIChatWidget";
 import { useSingleSession } from "@/hooks/use-single-session";
 import ScrollToTop from "./components/ScrollToTop";
 import PageTransition from "./components/PageTransition";
 import RouteFallback from "./components/RouteFallback";
 import PrefetchRoutes from "./PrefetchRoutes";
 import BottomNav from "./components/BottomNav";
-import ForcePasswordChangeDialog from "./components/ForcePasswordChangeDialog";
+
+const AIChatWidget = lazy(() => import("./components/AIChatWidget"));
+const ForcePasswordChangeDialog = lazy(() => import("./components/ForcePasswordChangeDialog"));
 
 const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));
@@ -244,9 +245,13 @@ const App = () => (
             </Routes>
             </PageTransition>
           </Suspense>
-          <AIChatWidget />
+          <Suspense fallback={null}>
+            <AIChatWidget />
+          </Suspense>
           <BottomNav />
-          <ForcePasswordChangeDialog />
+          <Suspense fallback={null}>
+            <ForcePasswordChangeDialog />
+          </Suspense>
         </BrowserRouter>
       </LanguageProvider>
     </TooltipProvider>

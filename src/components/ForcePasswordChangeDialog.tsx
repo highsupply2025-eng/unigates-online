@@ -44,16 +44,16 @@ export default function ForcePasswordChangeDialog() {
   const savingRef = useRef(false);
   const checkSeqRef = useRef(0);
 
-  // Always re-fetch the freshest session + user profile from the backend
-  // before deciding whether to display the dialog. No cached values.
+  // Fetch the freshest user profile from the backend before deciding whether
+  // to display the dialog. getUser() validates the access token with the Auth
+  // server — no separate refreshSession() call needed on every auth event.
   const check = async () => {
     const seq = ++checkSeqRef.current;
     if (savingRef.current) return;
 
-    // 1) Refresh session so the client holds an up-to-date access token
-    await supabase.auth.refreshSession().catch(() => {});
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setOpen(false); return; }
 
-    // 2) Re-fetch the authoritative user from the Auth server
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setOpen(false); return; }
 
@@ -78,8 +78,12 @@ export default function ForcePasswordChangeDialog() {
 
   useEffect(() => {
     check();
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, _s) => {
-      setTimeout(check, 0);
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      // Only re-check on meaningful events. TOKEN_REFRESHED fires frequently
+      // and would trigger unnecessary profile queries on every token rotation.
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
+        setTimeout(check, 0);
+      }
     });
     return () => { sub.subscription.unsubscribe(); };
   }, []);

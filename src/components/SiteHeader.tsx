@@ -19,12 +19,12 @@ const SiteHeader = () => {
 
   useEffect(() => {
     let mounted = true;
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (!data.user || !mounted) return;
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session?.user || !mounted) return;
       const { data: roleData } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", data.user.id)
+        .eq("user_id", session.user.id)
         .eq("role", "admin")
         .eq("approved", true)
         .maybeSingle();

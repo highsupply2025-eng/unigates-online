@@ -16,6 +16,8 @@
     <link rel="dns-prefetch" href="https://tgdkxzzkvfyazmnawkpw.supabase.co" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" /></noscript>
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content="UNIGATES — Educational Platform" />
@@ -54,17 +56,16 @@
       // We do NOT reload here — reloading caused the home page to load twice
       // on returning visitors. The unregister takes effect on the next visit
       // naturally; module scripts on this load are served fresh from the network.
+      //
+      // IMPORTANT: We intentionally do NOT clear Cache Storage here. Wiping
+      // caches on every load forces re-downloading all JS/CSS/images and was
+      // the primary cause of the 8-second boot timeout.
       (function () {
         try {
           if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function (regs) {
               if (!regs || !regs.length) return;
               regs.forEach(function (r) { r.unregister().catch(function () {}); });
-              if ('caches' in window) {
-                caches.keys().then(function (keys) {
-                  keys.forEach(function (k) { caches.delete(k).catch(function () {}); });
-                }).catch(function () {});
-              }
             }).catch(function () {});
           }
         } catch (e) {}

@@ -358,6 +358,8 @@ const DepartmentPage = () => {
     const displayName = profile?.full_name || member.full_name;
     const avatar = profile?.live_photo_url || member.photo_url;
     const isLinked = !!member.user_id;
+    // Activated only after the member signs in with the temp password and sets a new one.
+    const isActivated = isLinked && !!profile && profile.must_change_password === false;
     const shareText = isRtl
       ? `مرحباً ${member.full_name}، يمكنك التسجيل في منصة إدراك عبر هذا الرابط:\n${inviteLink}\nكود الدعوة: ${member.invitation_code}`
       : `Hi ${member.full_name}, register on Edrak platform:\n${inviteLink}\nInvitation code: ${member.invitation_code}`;

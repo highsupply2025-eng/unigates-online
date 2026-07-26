@@ -396,10 +396,16 @@ const DepartmentPage = () => {
             </div>
           </button>
           {isLinked && (
-            <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 shrink-0">
-              <UserCheck className="w-3.5 h-3.5" />
-              {isRtl ? "مسجّل" : "Registered"}
-            </Badge>
+            isActivated ? (
+              <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 shrink-0">
+                <UserCheck className="w-3.5 h-3.5" />
+                {isRtl ? "مفعّل" : "Activated"}
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="border-amber-500 text-amber-700 bg-amber-100/60 gap-1 shrink-0">
+                {isRtl ? "غير مفعّل" : "Not activated"}
+              </Badge>
+            )
           )}
         </div>
 

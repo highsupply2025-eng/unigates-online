@@ -83,8 +83,9 @@ export const StudentPillActivityChart = ({
   // sits at the right (matching the icon grid below).
   const data = baseData;
 
-  // Percentage rule: every 100 occurrences = 1%
-  const maxPct = Math.max(1, ...data.map((d) => d.count / 100));
+  // Percentage: categoryCount / totalOfAllCategoryCounts * 100
+  const totalCount = data.reduce((sum, d) => sum + d.count, 0);
+  const maxCount = Math.max(1, ...data.map((d) => d.count));
 
   return (
     <Card className={`border-2 border-primary/20 shadow-lg ${className}`}>
@@ -109,8 +110,6 @@ export const StudentPillActivityChart = ({
           {data.map((d, i) => {
             const minH = 40;
             const maxH = 180;
-            const pct = d.count / 100;
-            const h = minH + (pct / maxPct) * (maxH - minH);
             const Icon = d.Icon;
             return (
               <div
@@ -126,13 +125,13 @@ export const StudentPillActivityChart = ({
                     background: `rgba(${d.palette.glow}, 0.12)`,
                   }}
                 >
-                  {Math.round(pct)}%
+                  {totalCount === 0 ? 0 : Math.round((d.count / totalCount) * 100)}%
                 </div>
                 {/* pill bar with icon at the bottom */}
                 <div
                   className="relative w-full max-w-[28px] sm:max-w-[44px] md:max-w-[52px] rounded-full transition-all duration-500 flex items-end justify-center"
                   style={{
-                    height: h,
+                    height: minH + (d.count / maxCount) * (maxH - minH),
                     background: `linear-gradient(180deg, ${d.palette.from} 0%, ${d.palette.to} 100%)`,
                     boxShadow: `0 10px 24px -4px rgba(${d.palette.glow}, 0.65), inset 0 -4px 8px rgba(0,0,0,0.15), inset 0 2px 4px rgba(255,255,255,0.4)`,
                   }}

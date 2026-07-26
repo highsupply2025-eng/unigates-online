@@ -1354,6 +1354,38 @@ ${rows.map((r: any, i: number) => `<tr>
     d.department_name.toLowerCase().includes(deptSearch.toLowerCase())
   );
 
+  const categoryStats = useMemo(() => {
+    const since = Date.now() - rangeDays * 24 * 60 * 60 * 1000;
+    const inRange = (ts: string | null | undefined) => {
+      if (!ts) return false;
+      const t = Date.parse(ts);
+      return !isNaN(t) && t >= since;
+    };
+
+    const facultyMembers = deptMembers.filter(isFacultyMember);
+    const studentMembers = deptMembers.filter((m: any) => m.role === "student");
+
+    const facultyCount = facultyMembers.filter((m: any) => inRange(m.created_at)).length;
+    const deptCount = departments.filter((d: any) => inRange(d.created_at)).length;
+    const studentCount = studentMembers.filter((m: any) => inRange(m.created_at)).length;
+    const scheduleCount = examSchedules.filter((s: any) => inRange(s.created_at)).length;
+    const resultCount = quizSubmissions.filter((s: any) => inRange(s.submitted_at || s.created_at)).length;
+    const accountCount = institutionId ? 1 : 0;
+
+    const total = facultyCount + deptCount + studentCount + scheduleCount + resultCount + accountCount;
+    const pct = (count: number) => total === 0 ? 0 : Math.round((count / total) * 100);
+
+    return {
+      faculty: { count: facultyCount, percentage: pct(facultyCount) },
+      departments: { count: deptCount, percentage: pct(deptCount) },
+      students: { count: studentCount, percentage: pct(studentCount) },
+      schedules: { count: scheduleCount, percentage: pct(scheduleCount) },
+      results: { count: resultCount, percentage: pct(resultCount) },
+      account: { count: accountCount, percentage: pct(accountCount) },
+      total,
+    };
+  }, [deptMembers, departments, examSchedules, quizSubmissions, rangeDays, institutionId]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -1940,19 +1972,19 @@ ${rows.map((r: any, i: number) => `<tr>
                 { label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, timestamps: deptMembers.filter((m: any) => m.role === 'student').map((m: any) => m.created_at) },
                 { label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, timestamps: examSchedules.map((s: any) => s.created_at) },
                 { label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
-                { label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, timestamps: [] },
+                { label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, timestamps: institutionId ? [new Date().toISOString()] : [] },
               ]}
             />
 
             <MenuItemsStatsGrid
               className="mb-6"
               items={[
-                { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, color: "from-indigo-500 to-indigo-600", count: deptMembers.filter(isFacultyMember).length },
-                { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, color: "from-purple-500 to-purple-600", count: departments.length },
-                { key: "students", label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, color: "from-orange-500 to-orange-600", count: deptMembers.filter((m: any) => m.role === 'student').length },
-                { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-emerald-500 to-emerald-600", count: examSchedules.length },
-                { key: "results", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, color: "from-sky-500 to-sky-600", count: quizSubmissions.length },
-                { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", count: 1 },
+                { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, color: "from-indigo-500 to-indigo-600", count: categoryStats.faculty.count },
+                { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, color: "from-purple-500 to-purple-600", count: categoryStats.departments.count },
+                { key: "students", label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, color: "from-orange-500 to-orange-600", count: categoryStats.students.count },
+                { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-emerald-500 to-emerald-600", count: categoryStats.schedules.count },
+                { key: "results", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, color: "from-sky-500 to-sky-600", count: categoryStats.results.count },
+                { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", count: categoryStats.account.count },
               ]}
             />
 

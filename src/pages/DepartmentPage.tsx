@@ -59,7 +59,7 @@ const DepartmentPage = () => {
   const [deptStatus, setDeptStatus] = useState("");
   const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
   const [members, setMembers] = useState<DepartmentMember[]>([]);
-  const [profilesMap, setProfilesMap] = useState<Record<string, { email: string; phone: string; live_photo_url: string | null; full_name: string }>>({});
+  const [profilesMap, setProfilesMap] = useState<Record<string, MemberProfile>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [memberToDelete, setMemberToDelete] = useState<DepartmentMember | null>(null);

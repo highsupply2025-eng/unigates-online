@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ChevronLeft, ChevronRight, Copy, UserCheck, GraduationCap,
-  Layers, LinkIcon, MessageCircle, Loader2, Search, Filter, Download, Trash2, Pencil, UserPlus, Crown, Mail
+  Layers, LinkIcon, MessageCircle, Loader2, Search, Download, Trash2, Pencil, Crown, Mail
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -291,9 +291,9 @@ const DepartmentPage = () => {
   };
 
   // Every faculty role (lecturer, professor, doctor, assistant_lecturer, dean, vice_dean...) shows under Members.
-  const allLecturers = members.filter(m => m.role !== STUDENT_ROLE && m.role !== HEAD_ROLE);
+  // Department head also shows under Members.
+  const allLecturers = members.filter(m => m.role !== STUDENT_ROLE);
   const allStudents = members.filter(m => m.role === STUDENT_ROLE);
-  const deptHead = members.find(m => m.role === HEAD_ROLE) || null;
   const lecturers = useMemo(() => filterMembers(allLecturers), [members, searchQuery, statusFilter]);
   const students = useMemo(() => filterMembers(allStudents), [members, searchQuery, statusFilter]);
 
@@ -308,11 +308,11 @@ const DepartmentPage = () => {
   const getExportData = () => {
     return [...lecturers, ...students].map(m => ({
       [isRtl ? "الاسم" : "Name"]: m.full_name,
-      [isRtl ? "الدور" : "Role"]: m.role === "lecturer" ? (isRtl ? "محاضر" : "Lecturer") : (isRtl ? "طالب" : "Student"),
+      [isRtl ? "الدور" : "Role"]: m.role === "department_head" ? (isRtl ? "رئيس قسم" : "Department Head") : m.role === "lecturer" ? (isRtl ? "محاضر" : "Lecturer") : (isRtl ? "طالب" : "Student"),
       [isRtl ? "الحالة" : "Status"]: m.user_id ? (isRtl ? "مسجّل" : "Linked") : (isRtl ? "بانتظار" : "Pending"),
       [isRtl ? "كود الدعوة" : "Invitation Code"]: m.invitation_code || "",
       [isRtl ? "رابط التسجيل" : "Signup Link"]: m.invitation_code
-        ? `${baseUrl}/signup/${instPath}/${m.role === "lecturer" ? "lecturer" : "student"}?code=${m.invitation_code}`
+        ? `${baseUrl}/signup/${instPath}/${m.role === "department_head" ? "department_head" : m.role === "lecturer" ? "lecturer" : "student"}?code=${m.invitation_code}`
         : "",
     }));
   };
@@ -384,7 +384,15 @@ const DepartmentPage = () => {
               ) : icon}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="font-bold text-foreground text-sm sm:text-base truncate">{displayName}</p>
+              <p className="font-bold text-foreground text-sm sm:text-base truncate flex items-center gap-1.5">
+                {displayName}
+                {member.role === "department_head" && (
+                  <Badge className="bg-amber-500 hover:bg-amber-600 text-white text-[10px] px-1.5 py-0 gap-0.5 shrink-0">
+                    <Crown className="w-3 h-3" />
+                    {isRtl ? "رئيس قسم" : "Head"}
+                  </Badge>
+                )}
+              </p>
               {isLinked && profile ? (
                 <>
                   <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
@@ -562,115 +570,6 @@ const DepartmentPage = () => {
           </div>
         </div>
 
-        {/* Department Head Section */}
-        {deptHead && (() => {
-          const headInviteLink = `${baseUrl}/signup/${instPath}/department_head?code=${deptHead.invitation_code}`;
-          const headProfile = deptHead.user_id ? profilesMap[deptHead.user_id] : null;
-          const headLinked = !!deptHead.user_id;
-          const headShareText = isRtl
-            ? `مرحباً، يمكنك التسجيل كرئيس قسم عبر هذا الرابط:\n${headInviteLink}\nكود الدعوة: ${deptHead.invitation_code}`
-            : `Hi, register as Department Head:\n${headInviteLink}\nCode: ${deptHead.invitation_code}`;
-          return (
-            <Card className="mb-8 border-2 border-amber-500/50 bg-gradient-to-br from-amber-50/60 to-amber-100/30 dark:from-amber-950/20 dark:to-amber-900/10 shadow-md overflow-hidden">
-              <div className="bg-gradient-to-r from-amber-500 to-amber-600 h-1.5" />
-              <CardHeader className="pb-3 pt-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center">
-                    <Crown className="w-5 h-5 text-amber-600" />
-                  </div>
-                  <span className="font-extrabold">{isRtl ? "رئيس القسم" : "Department Head"}</span>
-                  <Badge variant="outline" className="text-amber-700 border-amber-500 bg-amber-100/60 ms-2 font-bold">
-                    {headLinked ? (isRtl ? "1/1" : "1/1") : (isRtl ? "0/1" : "0/1")}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-xl border-2 bg-background">
-                  <button
-                    type="button"
-                    onClick={() => headLinked && navigate(`/institution/member/${deptHead.id}`)}
-                    className="flex items-center gap-3 min-w-0 text-start hover:opacity-80 transition-opacity flex-1"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0 overflow-hidden">
-                      {headProfile?.live_photo_url ? (
-                        <img
-                          src={headProfile.live_photo_url}
-                          alt={headProfile.full_name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => { e.currentTarget.style.display = "none"; }}
-                        />
-                      ) : <Crown className="w-5 h-5 text-amber-600" />}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-bold text-foreground text-sm sm:text-base truncate">
-                        {headProfile?.full_name || (isRtl ? "في انتظار التسجيل" : "Awaiting registration")}
-                      </p>
-                      {headLinked && headProfile ? (
-                        <>
-                          <p className="text-xs text-muted-foreground truncate">{headProfile.email}</p>
-                          <p className="text-xs text-muted-foreground truncate" dir="ltr">{headProfile.phone}</p>
-                        </>
-                      ) : (
-                        <p className="text-xs text-muted-foreground truncate">
-                          {isRtl ? "⏳ شارك رابط الدعوة لتسجيل رئيس القسم" : "⏳ Share invitation link to register"}
-                        </p>
-                      )}
-                    </div>
-                  </button>
-                  {headLinked ? (
-                    <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 shrink-0">
-                      <UserCheck className="w-3.5 h-3.5" />
-                      {isRtl ? "مسجّل" : "Registered"}
-                    </Badge>
-                  ) : (
-                    <div className="flex items-center gap-1.5 flex-wrap sm:justify-end">
-                      <Button size="sm" variant="outline" className="text-xs h-8 px-2" onClick={() => copyToClipboard(deptHead.invitation_code!)}>
-                        <Copy className="w-3.5 h-3.5 me-1" />
-                        {isRtl ? "نسخ الكود" : "Copy Code"}
-                      </Button>
-                      <Button size="sm" variant="outline" className="text-xs h-8 px-2" onClick={() => copyToClipboard(headInviteLink)}>
-                        <LinkIcon className="w-3.5 h-3.5 me-1" />
-                        {isRtl ? "نسخ الرابط" : "Copy Link"}
-                      </Button>
-                      <a
-                        href={`https://wa.me/?text=${encodeURIComponent(headShareText)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
-                          <MessageCircle className="w-3.5 h-3.5 me-1" />
-                          {isRtl ? "واتساب" : "WhatsApp"}
-                        </Button>
-                      </a>
-                      {(() => {
-                        const subject = isRtl ? "دعوة للتسجيل كرئيس قسم" : "Department Head Invitation";
-                        const gmailUrl = `https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(headShareText)}`;
-                        const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(headShareText)}`;
-                        return (
-                          <>
-                            <a href={gmailUrl} target="_blank" rel="noopener noreferrer">
-                              <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-red-600 border-red-300 hover:bg-red-50">
-                                <Mail className="w-3.5 h-3.5 me-1" />
-                                Gmail
-                              </Button>
-                            </a>
-                            <a href={mailtoUrl}>
-                              <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-blue-600 border-blue-300 hover:bg-blue-50">
-                                <Mail className="w-3.5 h-3.5 me-1" />
-                                {isRtl ? "إيميل" : "Email"}
-                              </Button>
-                            </a>
-                          </>
-                        );
-                      })()}
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })()}
-
         {/* Lecturers Section */}
         <Card className="mb-8 border-2 border-green-500/30 shadow-md overflow-hidden">
           <div className="bg-gradient-to-r from-green-500 to-emerald-600 h-1.5" />
@@ -696,7 +595,9 @@ const DepartmentPage = () => {
             ) : (
               <div className="space-y-3">
                 {lecturers.map(member =>
-                  renderMemberCard(member, "lecturer", "bg-green-500/10", <UserCheck className="w-5 h-5 text-green-600" />)
+                  member.role === "department_head"
+                    ? renderMemberCard(member, "department_head", "bg-amber-500/10", <Crown className="w-5 h-5 text-amber-600" />)
+                    : renderMemberCard(member, "lecturer", "bg-green-500/10", <UserCheck className="w-5 h-5 text-green-600" />)
                 )}
               </div>
             )}

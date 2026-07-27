@@ -2,17 +2,19 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ChevronLeft, ChevronRight, Copy, UserCheck, GraduationCap,
-  Layers, LinkIcon, MessageCircle, Loader2, Search, Download, Trash2, Pencil, Crown, Mail
+  Layers, LinkIcon, MessageCircle, Loader2, Search, Download, Trash2, Pencil, Crown, Mail, Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
 } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast as sonnerToast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -71,6 +73,14 @@ const DepartmentPage = () => {
   const [newMemberName, setNewMemberName] = useState("");
   const [newMemberRole, setNewMemberRole] = useState<"student" | "lecturer">("student");
   const [adding, setAdding] = useState(false);
+
+  // Activation state
+  const [activationResults, setActivationResults] = useState<Array<{ full_name: string; email: string; password: string }>>([]);
+  const [showActivationResults, setShowActivationResults] = useState(false);
+  const [memberToActivate, setMemberToActivate] = useState<DepartmentMember | null>(null);
+  const [activateEmail, setActivateEmail] = useState("");
+  const [activatePhone, setActivatePhone] = useState("");
+  const [activating, setActivating] = useState(false);
 
   useEffect(() => {
     if (!deptId) return;
@@ -264,10 +274,50 @@ const DepartmentPage = () => {
         if (error) throw error;
         added.push(...(data as DepartmentMember[]));
       }
-      sonnerToast.success(
-        isRtl ? `تمت إضافة ${added.length} عضو بنجاح` : `${added.length} members added`,
-        { duration: 1500 }
-      );
+
+      // Activate each new member immediately via edge function
+      const results: Array<{ full_name: string; email: string; password: string }> = [];
+      for (const member of added) {
+        try {
+          const { data: fnData, error: fnError } = await supabase.functions.invoke("activate-department-member", {
+            body: {
+              full_name: member.full_name,
+              department_id: deptId,
+              role: member.role,
+              existing_member_id: member.id,
+            },
+          });
+          if (!fnError && fnData?.success) {
+            results.push({
+              full_name: member.full_name,
+              email: fnData.email,
+              password: fnData.password,
+            });
+          } else {
+            // Still show the member even if activation failed (they remain pending)
+            console.error("Activation failed for", member.full_name, fnError || fnData);
+          }
+        } catch (actErr) {
+          console.error("Activation error for", member.full_name, actErr);
+        }
+      }
+
+      if (results.length > 0) {
+        setActivationResults(results);
+        setShowActivationResults(true);
+        sonnerToast.success(
+          isRtl
+            ? `تمت إضافة ${added.length} عضو وتفعيل ${results.length} حساب`
+            : `${added.length} members added, ${results.length} accounts activated`,
+          { duration: 3000 }
+        );
+      } else {
+        sonnerToast.success(
+          isRtl ? `تمت إضافة ${added.length} عضو بنجاح` : `${added.length} members added`,
+          { duration: 1500 }
+        );
+      }
+
       setNewMemberName("");
       setShowAddDialog(false);
       if (deptId) __deptCache.delete(deptId);
@@ -276,6 +326,49 @@ const DepartmentPage = () => {
       sonnerToast.error(isRtl ? "فشل إضافة الأعضاء" : "Failed to add members");
     } finally {
       setAdding(false);
+    }
+  };
+
+  const handleActivateExistingMember = async () => {
+    if (!memberToActivate || !deptId) return;
+    setActivating(true);
+    try {
+      const { data: fnData, error: fnError } = await supabase.functions.invoke("activate-department-member", {
+        body: {
+          full_name: memberToActivate.full_name,
+          email: activateEmail || undefined,
+          phone: activatePhone || undefined,
+          department_id: deptId,
+          role: memberToActivate.role,
+          existing_member_id: memberToActivate.id,
+        },
+      });
+      if (fnError) throw fnError;
+      if (!fnData?.success) throw new Error(fnData?.error || "Activation failed");
+
+      setActivationResults([{
+        full_name: memberToActivate.full_name,
+        email: fnData.email,
+        password: fnData.password,
+      }]);
+      setShowActivationResults(true);
+      sonnerToast.success(
+        isRtl ? "تم تفعيل الحساب بنجاح" : "Account activated successfully",
+        { duration: 2000 }
+      );
+      setMemberToActivate(null);
+      setActivateEmail("");
+      setActivatePhone("");
+      if (deptId) __deptCache.delete(deptId);
+      await loadDepartmentData();
+    } catch (err: any) {
+      const msg = err?.message || String(err);
+      sonnerToast.error(
+        isRtl ? "فشل تفعيل الحساب" : "Failed to activate account",
+        { description: msg, duration: 3000 }
+      );
+    } finally {
+      setActivating(false);
     }
   };
 
@@ -423,6 +516,20 @@ const DepartmentPage = () => {
         <div className="border-t bg-muted/30 px-3 py-2.5 sm:px-4 flex items-center gap-1.5 flex-wrap">
           {!isLinked && (
             <>
+              <Button
+                size="sm"
+                variant="default"
+                className="text-xs h-8 px-2 gap-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                onClick={() => {
+                  setMemberToActivate(member);
+                  setActivateEmail("");
+                  setActivatePhone("");
+                }}
+              >
+                <Zap className="w-3.5 h-3.5" />
+                {isRtl ? "تفعيل" : "Activate"}
+              </Button>
+              <span className="mx-1 h-5 w-px bg-border" aria-hidden />
               <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider me-1">
                 {isRtl ? "دعوة:" : "Invite:"}
               </span>
@@ -708,7 +815,7 @@ const DepartmentPage = () => {
               {isRtl ? "إضافة أعضاء جدد" : "Add New Members"}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {isRtl ? "أدخل اسم كل عضو في سطر منفصل، ثم اختر الدور" : "Enter each member's name on a separate line, then choose the role"}
+              {isRtl ? "أدخل اسم كل عضو في سطر منفصل، ثم اختر الدور. سيتم تفعيل الحسابات تلقائياً." : "Enter each member's name on a separate line, then choose the role. Accounts will be activated automatically."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="space-y-3 my-2">
@@ -721,8 +828,8 @@ const DepartmentPage = () => {
             {newMemberName.trim() && (
               <p className="text-xs text-muted-foreground">
                 {isRtl
-                  ? `${newMemberName.split("\n").filter(n => n.trim()).length} عضو سيتم إضافتهم`
-                  : `${newMemberName.split("\n").filter(n => n.trim()).length} members to add`}
+                  ? `${newMemberName.split("\n").filter(n => n.trim()).length} عضو سيتم إضافتهم وتفعيلهم`
+                  : `${newMemberName.split("\n").filter(n => n.trim()).length} members to add and activate`}
               </p>
             )}
             <div className="flex gap-2">
@@ -756,11 +863,127 @@ const DepartmentPage = () => {
             >
               {adding
                 ? <Loader2 className="w-4 h-4 animate-spin" />
-                : (isRtl ? "إضافة" : "Add")}
+                : (isRtl ? "إضافة وتفعيل" : "Add & Activate")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Activate Existing Member Dialog */}
+      <Dialog open={!!memberToActivate} onOpenChange={(open) => !open && setMemberToActivate(null)}>
+        <DialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-md w-full">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-emerald-600" />
+              {isRtl ? "تفعيل حساب العضو" : "Activate Member Account"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-muted-foreground">
+              {isRtl
+                ? `تفعيل حساب "${memberToActivate?.full_name}". يمكنك إدخال البريد الإلكتروني ورقم الهاتف (اختياري).`
+                : `Activate account for "${memberToActivate?.full_name}". Email and phone are optional.`}
+            </p>
+            <div>
+              <Label>{isRtl ? "البريد الإلكتروني (اختياري)" : "Email (optional)"}</Label>
+              <Input
+                type="email"
+                value={activateEmail}
+                onChange={(e) => setActivateEmail(e.target.value)}
+                placeholder={isRtl ? "سيتم توليد بريد تلقائي إذا لم يُدخل" : "Auto-generated if left empty"}
+                dir="ltr"
+              />
+            </div>
+            <div>
+              <Label>{isRtl ? "رقم الهاتف (اختياري)" : "Phone (optional)"}</Label>
+              <Input
+                type="tel"
+                value={activatePhone}
+                onChange={(e) => setActivatePhone(e.target.value)}
+                placeholder={isRtl ? "+201000000000" : "+201000000000"}
+                dir="ltr"
+              />
+            </div>
+          </div>
+          <DialogFooter className={`gap-2 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
+            <Button variant="outline" onClick={() => setMemberToActivate(null)} disabled={activating}>
+              {isRtl ? "إلغاء" : "Cancel"}
+            </Button>
+            <Button
+              onClick={handleActivateExistingMember}
+              disabled={activating}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
+              {activating
+                ? <Loader2 className="w-4 h-4 animate-spin me-1" />
+                : <Zap className="w-4 h-4 me-1" />}
+              {isRtl ? "تفعيل" : "Activate"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Activation Results Dialog */}
+      <Dialog open={showActivationResults} onOpenChange={setShowActivationResults}>
+        <DialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg w-full max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-emerald-600" />
+              {isRtl ? "تم تفعيل الحسابات" : "Accounts Activated"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <p className="text-sm text-muted-foreground">
+              {isRtl
+                ? "تم إنشاء حسابات للمستخدمين التالية. يُرجى مشاركة بيانات الدخول مع كل عضو."
+                : "Accounts created for the following users. Please share login credentials with each member."}
+            </p>
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {activationResults.map((r, i) => (
+                <div key={i} className="p-3 rounded-lg border bg-muted/30 space-y-1">
+                  <p className="font-bold text-sm">{r.full_name}</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">{isRtl ? "البريد:" : "Email:"}</span>
+                    <code className="text-xs font-mono bg-background px-1.5 py-0.5 rounded border flex-1 truncate" dir="ltr">{r.email}</code>
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 shrink-0" onClick={() => copyToClipboard(r.email)}>
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">{isRtl ? "كلمة المرور:" : "Password:"}</span>
+                    <code className="text-xs font-mono bg-background px-1.5 py-0.5 rounded border flex-1 truncate" dir="ltr">{r.password}</code>
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 shrink-0" onClick={() => copyToClipboard(r.password)}>
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-amber-600 font-semibold">
+              {isRtl
+                ? "يجب على كل عضو تغيير كلمة المرور عند أول دخول."
+                : "Each member must change their password on first login."}
+            </p>
+          </div>
+          <DialogFooter className={`gap-2 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                const allText = activationResults.map(r =>
+                  `${r.full_name}\n${isRtl ? "البريد" : "Email"}: ${r.email}\n${isRtl ? "كلمة المرور" : "Password"}: ${r.password}`
+                ).join("\n\n");
+                copyToClipboard(allText);
+              }}
+            >
+              <Copy className="w-4 h-4 me-1" />
+              {isRtl ? "نسخ الكل" : "Copy All"}
+            </Button>
+            <Button onClick={() => setShowActivationResults(false)}>
+              {isRtl ? "إغلاق" : "Close"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

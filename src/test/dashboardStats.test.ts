@@ -2,10 +2,10 @@ import { describe, it, expect } from "vitest";
 
 // Pure helper matching the percentage formula used in both
 // StudentPillActivityChart and InstitutionDashboard categoryStats.
-function safePercentage(count: number, total: number): number {
-  if (total === 0 || !Number.isFinite(total)) return 0;
+// Formula: Math.min(Math.max(count, 0), 100)
+function safePercentage(count: number): number {
   if (!Number.isFinite(count)) return 0;
-  return Math.round((count / total) * 100);
+  return Math.min(Math.max(Math.round(count), 0), 100);
 }
 
 // Mirrors the categoryStats computation from InstitutionDashboard.tsx.
@@ -32,57 +32,66 @@ function computeCategoryStats(opts: {
   const accountCount = opts.hasInstitution ? 1 : 0;
 
   const total = facultyCount + deptCount + studentCount + scheduleCount + resultCount + accountCount;
-  const pct = (count: number) => safePercentage(count, total);
 
   return {
-    faculty: { count: facultyCount, percentage: pct(facultyCount) },
-    departments: { count: deptCount, percentage: pct(deptCount) },
-    students: { count: studentCount, percentage: pct(studentCount) },
-    schedules: { count: scheduleCount, percentage: pct(scheduleCount) },
-    results: { count: resultCount, percentage: pct(resultCount) },
-    account: { count: accountCount, percentage: pct(accountCount) },
+    faculty: { count: facultyCount, percentage: safePercentage(facultyCount) },
+    departments: { count: deptCount, percentage: safePercentage(deptCount) },
+    students: { count: studentCount, percentage: safePercentage(studentCount) },
+    schedules: { count: scheduleCount, percentage: safePercentage(scheduleCount) },
+    results: { count: resultCount, percentage: safePercentage(resultCount) },
+    account: { count: accountCount, percentage: accountCount ? 100 : 0 },
     total,
   };
 }
 
 // Mirrors the pill chart percentage computation from StudentPillActivityChart.tsx.
-function computePillChartPercentages(counts: number[]) {
-  const totalCount = counts.reduce((sum, c) => sum + c, 0);
-  return counts.map((c) => (totalCount === 0 ? 0 : Math.round((c / totalCount) * 100)));
+function computePillChartPercentages(counts: number[], fixedPercentages?: (number | undefined)[]) {
+  return counts.map((c, i) => {
+    const fixed = fixedPercentages?.[i];
+    if (fixed != null) {
+      if (!Number.isFinite(fixed)) return 0;
+      return Math.min(Math.max(fixed, 0), 100);
+    }
+    if (!Number.isFinite(c)) return 0;
+    return Math.min(Math.max(Math.round(c), 0), 100);
+  });
 }
 
 describe("safePercentage", () => {
-  it("returns 0 when total is 0", () => {
-    expect(safePercentage(0, 0)).toBe(0);
-    expect(safePercentage(5, 0)).toBe(0);
+  it("returns 0 when count is 0", () => {
+    expect(safePercentage(0)).toBe(0);
   });
 
-  it("returns 0 when total is NaN", () => {
-    expect(safePercentage(1, NaN)).toBe(0);
+  it("returns count itself when count is between 1 and 100", () => {
+    expect(safePercentage(1)).toBe(1);
+    expect(safePercentage(50)).toBe(50);
+    expect(safePercentage(99)).toBe(99);
+  });
+
+  it("caps at 100 when count is above 100", () => {
+    expect(safePercentage(100)).toBe(100);
+    expect(safePercentage(150)).toBe(100);
+    expect(safePercentage(1000)).toBe(100);
+  });
+
+  it("clamps negative counts to 0", () => {
+    expect(safePercentage(-1)).toBe(0);
+    expect(safePercentage(-100)).toBe(0);
   });
 
   it("returns 0 when count is NaN", () => {
-    expect(safePercentage(NaN, 10)).toBe(0);
-  });
-
-  it("returns 0 when total is Infinity", () => {
-    expect(safePercentage(1, Infinity)).toBe(0);
+    expect(safePercentage(NaN)).toBe(0);
   });
 
   it("returns 0 when count is Infinity", () => {
-    expect(safePercentage(Infinity, 10)).toBe(0);
-  });
-
-  it("calculates basic percentages correctly", () => {
-    expect(safePercentage(1, 6)).toBe(17); // 1/6 = 16.67%
-    expect(safePercentage(3, 6)).toBe(50);
-    expect(safePercentage(6, 6)).toBe(100);
+    expect(safePercentage(Infinity)).toBe(0);
+    expect(safePercentage(-Infinity)).toBe(0);
   });
 
   it("rounds to whole numbers", () => {
-    expect(safePercentage(1, 3)).toBe(33);  // 33.33%
-    expect(safePercentage(2, 3)).toBe(67);  // 66.67%
-    expect(safePercentage(1, 7)).toBe(14);  // 14.29%
+    expect(safePercentage(1.4)).toBe(1);
+    expect(safePercentage(1.5)).toBe(2);
+    expect(safePercentage(2.5)).toBe(3);
   });
 });
 
@@ -113,7 +122,7 @@ describe("computeCategoryStats", () => {
     expect(stats.account.percentage).toBe(0);
   });
 
-  it("returns all percentages as 0% when all counts are 0 (division by zero safe)", () => {
+  it("returns all percentages as 0% when all counts are 0", () => {
     const stats = computeCategoryStats({
       since: now - 7 * 24 * 60 * 60 * 1000,
       facultyTimestamps: [null, undefined],
@@ -133,7 +142,26 @@ describe("computeCategoryStats", () => {
     expect(stats.account.percentage).toBe(0);
   });
 
-  it("departments = 1 and account data = 1 shows non-zero percentages", () => {
+  it("faculty=1 shows 1%, departments=1 shows 1%, account shows 100%", () => {
+    const stats = computeCategoryStats({
+      since: now - 7 * 24 * 60 * 60 * 1000,
+      facultyTimestamps: [recentISO],
+      deptTimestamps: [recentISO],
+      studentTimestamps: [],
+      scheduleTimestamps: [],
+      resultTimestamps: [],
+      hasInstitution: true,
+    });
+
+    expect(stats.faculty.count).toBe(1);
+    expect(stats.faculty.percentage).toBe(1);
+    expect(stats.departments.count).toBe(1);
+    expect(stats.departments.percentage).toBe(1);
+    expect(stats.account.count).toBe(1);
+    expect(stats.account.percentage).toBe(100);
+  });
+
+  it("departments=1 and account data shows 1% and 100% respectively (not 50%/50%)", () => {
     const stats = computeCategoryStats({
       since: now - 7 * 24 * 60 * 60 * 1000,
       facultyTimestamps: [],
@@ -145,10 +173,9 @@ describe("computeCategoryStats", () => {
     });
 
     expect(stats.departments.count).toBe(1);
+    expect(stats.departments.percentage).toBe(1);
     expect(stats.account.count).toBe(1);
-    expect(stats.total).toBe(2);
-    expect(stats.departments.percentage).toBe(50);
-    expect(stats.account.percentage).toBe(50);
+    expect(stats.account.percentage).toBe(100);
     expect(stats.faculty.percentage).toBe(0);
   });
 
@@ -179,11 +206,12 @@ describe("computeCategoryStats", () => {
     });
 
     expect(stats7.departments.count).toBe(0);
+    expect(stats7.departments.percentage).toBe(0);
     expect(stats7.total).toBe(1); // only account
 
     expect(stats30.departments.count).toBe(1);
+    expect(stats30.departments.percentage).toBe(1);
     expect(stats30.total).toBe(2); // dept + account
-    expect(stats30.departments.percentage).toBe(50);
   });
 
   it("includes faculty members without a department (timestamp still counted)", () => {
@@ -198,8 +226,8 @@ describe("computeCategoryStats", () => {
     });
 
     expect(stats.faculty.count).toBe(1);
+    expect(stats.faculty.percentage).toBe(1);
     expect(stats.total).toBe(2); // faculty + account
-    expect(stats.faculty.percentage).toBe(50);
   });
 
   it("handles NaN timestamps gracefully", () => {
@@ -220,28 +248,90 @@ describe("computeCategoryStats", () => {
     expect(stats.account.percentage).toBe(100);
   });
 
-  it("sum of all percentages equals 100% when total > 0", () => {
+  it("count=0 → 0%", () => {
+    expect(safePercentage(0)).toBe(0);
+  });
+
+  it("count=1 → 1% for every category", () => {
     const stats = computeCategoryStats({
-      since: now - 30 * 24 * 60 * 60 * 1000,
-      facultyTimestamps: [recentISO, recentISO],
+      since: now - 7 * 24 * 60 * 60 * 1000,
+      facultyTimestamps: [recentISO],
       deptTimestamps: [recentISO],
-      studentTimestamps: [recentISO, recentISO, recentISO],
+      studentTimestamps: [recentISO],
       scheduleTimestamps: [recentISO],
       resultTimestamps: [recentISO],
       hasInstitution: true,
     });
 
-    const sumPct =
-      stats.faculty.percentage +
-      stats.departments.percentage +
-      stats.students.percentage +
-      stats.schedules.percentage +
-      stats.results.percentage +
-      stats.account.percentage;
+    expect(stats.faculty.percentage).toBe(1);
+    expect(stats.departments.percentage).toBe(1);
+    expect(stats.students.percentage).toBe(1);
+    expect(stats.schedules.percentage).toBe(1);
+    expect(stats.results.percentage).toBe(1);
+    expect(stats.account.percentage).toBe(100);
+  });
 
-    // Sum of rounded percentages may not be exactly 100, but should be in [99, 101]
-    expect(sumPct).toBeGreaterThanOrEqual(99);
-    expect(sumPct).toBeLessThanOrEqual(101);
+  it("count=50 → 50%", () => {
+    const timestamps = Array.from({ length: 50 }, () => recentISO);
+    const stats = computeCategoryStats({
+      since: now - 7 * 24 * 60 * 60 * 1000,
+      facultyTimestamps: timestamps,
+      deptTimestamps: [],
+      studentTimestamps: [],
+      scheduleTimestamps: [],
+      resultTimestamps: [],
+      hasInstitution: false,
+    });
+
+    expect(stats.faculty.count).toBe(50);
+    expect(stats.faculty.percentage).toBe(50);
+  });
+
+  it("count=100 → 100%", () => {
+    const timestamps = Array.from({ length: 100 }, () => recentISO);
+    const stats = computeCategoryStats({
+      since: now - 7 * 24 * 60 * 60 * 1000,
+      facultyTimestamps: timestamps,
+      deptTimestamps: [],
+      studentTimestamps: [],
+      scheduleTimestamps: [],
+      resultTimestamps: [],
+      hasInstitution: false,
+    });
+
+    expect(stats.faculty.count).toBe(100);
+    expect(stats.faculty.percentage).toBe(100);
+  });
+
+  it("count=150 → capped at 100%", () => {
+    const timestamps = Array.from({ length: 150 }, () => recentISO);
+    const stats = computeCategoryStats({
+      since: now - 7 * 24 * 60 * 60 * 1000,
+      facultyTimestamps: timestamps,
+      deptTimestamps: [],
+      studentTimestamps: [],
+      scheduleTimestamps: [],
+      resultTimestamps: [],
+      hasInstitution: false,
+    });
+
+    expect(stats.faculty.count).toBe(150);
+    expect(stats.faculty.percentage).toBe(100);
+  });
+
+  it("account data always shows 100% when institution exists", () => {
+    const stats = computeCategoryStats({
+      since: now - 7 * 24 * 60 * 60 * 1000,
+      facultyTimestamps: [],
+      deptTimestamps: [],
+      studentTimestamps: [],
+      scheduleTimestamps: [],
+      resultTimestamps: [],
+      hasInstitution: true,
+    });
+
+    expect(stats.account.count).toBe(1);
+    expect(stats.account.percentage).toBe(100);
   });
 });
 
@@ -254,33 +344,38 @@ describe("computePillChartPercentages", () => {
     expect(computePillChartPercentages([])).toEqual([]);
   });
 
-  it("returns 100% for single non-zero item", () => {
-    expect(computePillChartPercentages([5])).toEqual([100]);
-    expect(computePillChartPercentages([1])).toEqual([100]);
-  });
-
-  it("distributes percentages proportionally", () => {
+  it("each count maps directly to its percentage, capped at 100", () => {
     const result = computePillChartPercentages([1, 1, 1, 1, 1, 1]);
-    // 6 equal items: each is 1/6 = 16.67% → rounds to 17%
-    expect(result).toEqual([17, 17, 17, 17, 17, 17]);
+    expect(result).toEqual([1, 1, 1, 1, 1, 1]);
   });
 
-  it("handles departments = 1 and account = 1 with other categories zero", () => {
-    // faculty=0, departments=1, students=0, schedules=0, results=0, account=1
-    const result = computePillChartPercentages([0, 1, 0, 0, 0, 1]);
-    // total=2, each = 1/2 = 50%
-    expect(result).toEqual([0, 50, 0, 0, 0, 50]);
+  it("uses fixedPercentage when provided", () => {
+    const result = computePillChartPercentages([1, 1], [undefined, 100]);
+    expect(result).toEqual([1, 100]);
   });
 
-  it("handles large disparity without NaN or Infinity", () => {
+  it("handles departments = 1 and account = 1 with fixed percentage for account", () => {
+    // faculty=0, departments=1, students=0, schedules=0, results=0, account=1 (fixed 100)
+    const result = computePillChartPercentages([0, 1, 0, 0, 0, 1], [undefined, undefined, undefined, undefined, undefined, 100]);
+    expect(result).toEqual([0, 1, 0, 0, 0, 100]);
+  });
+
+  it("caps large counts at 100", () => {
     const result = computePillChartPercentages([1000, 1, 0, 0, 0, 1]);
-    // total=1002
-    expect(result[0]).toBe(100); // 1000/1002 = 99.8% → 100%
-    expect(result[1]).toBe(0);   // 1/1002 = 0.0998% → 0%
-    expect(result[5]).toBe(0);   // 1/1002 = 0.0998% → 0%
-    // All should be finite numbers, no NaN/Infinity
+    expect(result[0]).toBe(100);
+    expect(result[1]).toBe(1);
+    expect(result[5]).toBe(1);
     result.forEach((r) => {
       expect(Number.isFinite(r)).toBe(true);
+    });
+  });
+
+  it("never returns NaN or Infinity", () => {
+    const result = computePillChartPercentages([NaN, Infinity, -5, 0, 101]);
+    result.forEach((r) => {
+      expect(Number.isFinite(r)).toBe(true);
+      expect(r).toBeGreaterThanOrEqual(0);
+      expect(r).toBeLessThanOrEqual(100);
     });
   });
 });

@@ -14,6 +14,8 @@ export interface SectionDatum {
   Icon?: LucideIcon;
   /** Optional explicit gradient palette for the pill chart. */
   palette?: { from: string; to: string; glow: string };
+  /** When set, override the calculated percentage (e.g. Account Data = 100). */
+  fixedPercentage?: number;
 }
 
 interface Props {

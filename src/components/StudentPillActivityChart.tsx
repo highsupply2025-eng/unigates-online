@@ -75,6 +75,7 @@ export const StudentPillActivityChart = ({
     return {
       name: s.label,
       count,
+      fixedPercentage: s.fixedPercentage,
       palette: s.palette ?? PALETTE[i % PALETTE.length],
       Icon: s.Icon ?? pickIcon(s.label),
     };
@@ -83,9 +84,9 @@ export const StudentPillActivityChart = ({
   // sits at the right (matching the icon grid below).
   const data = baseData;
 
-  // Percentage: categoryCount / totalOfAllCategoryCounts * 100
-  const totalCount = data.reduce((sum, d) => sum + d.count, 0);
-  const maxCount = Math.max(1, ...data.map((d) => d.count));
+  // Percentage: count capped 0-100, or fixedPercentage override
+  const pct = (count: number, fixed?: number) =>
+    fixed != null ? Math.min(Math.max(fixed, 0), 100) : Math.min(Math.max(Math.round(count), 0), 100);
 
   return (
     <Card className={`border-2 border-primary/20 shadow-lg ${className}`}>
@@ -125,13 +126,13 @@ export const StudentPillActivityChart = ({
                     background: `rgba(${d.palette.glow}, 0.12)`,
                   }}
                 >
-                  {totalCount === 0 ? 0 : Math.round((d.count / totalCount) * 100)}%
+                  {pct(d.count, d.fixedPercentage)}%
                 </div>
                 {/* pill bar with icon at the bottom */}
                 <div
                   className="relative w-full max-w-[28px] sm:max-w-[44px] md:max-w-[52px] rounded-full transition-all duration-500 flex items-end justify-center"
                   style={{
-                    height: minH + (d.count / maxCount) * (maxH - minH),
+                    height: minH + (pct(d.count, d.fixedPercentage) / 100) * (maxH - minH),
                     background: `linear-gradient(180deg, ${d.palette.from} 0%, ${d.palette.to} 100%)`,
                     boxShadow: `0 10px 24px -4px rgba(${d.palette.glow}, 0.65), inset 0 -4px 8px rgba(0,0,0,0.15), inset 0 2px 4px rgba(255,255,255,0.4)`,
                   }}

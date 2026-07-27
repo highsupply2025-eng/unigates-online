@@ -1373,7 +1373,7 @@ ${rows.map((r: any, i: number) => `<tr>
     const accountCount = institutionId ? 1 : 0;
 
     const total = facultyCount + deptCount + studentCount + scheduleCount + resultCount + accountCount;
-    const pct = (count: number) => total === 0 ? 0 : Math.round((count / total) * 100);
+    const pct = (count: number) => Math.min(Math.max(Math.round(count), 0), 100);
 
     return {
       faculty: { count: facultyCount, percentage: pct(facultyCount) },
@@ -1381,7 +1381,7 @@ ${rows.map((r: any, i: number) => `<tr>
       students: { count: studentCount, percentage: pct(studentCount) },
       schedules: { count: scheduleCount, percentage: pct(scheduleCount) },
       results: { count: resultCount, percentage: pct(resultCount) },
-      account: { count: accountCount, percentage: pct(accountCount) },
+      account: { count: accountCount, percentage: accountCount ? 100 : 0 },
       total,
     };
   }, [deptMembers, departments, examSchedules, quizSubmissions, rangeDays, institutionId]);
@@ -1972,7 +1972,7 @@ ${rows.map((r: any, i: number) => `<tr>
                 { label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, timestamps: deptMembers.filter((m: any) => m.role === 'student').map((m: any) => m.created_at) },
                 { label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, timestamps: examSchedules.map((s: any) => s.created_at) },
                 { label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
-                { label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, timestamps: institutionId ? [new Date().toISOString()] : [] },
+                { label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, timestamps: institutionId ? [new Date().toISOString()] : [], fixedPercentage: 100 },
               ]}
             />
 

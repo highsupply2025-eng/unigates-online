@@ -21,6 +21,7 @@ const ROUTE_LOADERS: Array<[RegExp, Loader]> = [
   [/^\/institution\/member\//, () => import("./pages/LecturerProfile")],
   [/^\/institution\/quiz-results\//, () => import("./pages/InstitutionQuizResultsByDate")],
   [/^\/institution\/dashboard$/, () => import("./pages/InstitutionDashboard")],
+  [/^\/institution\/faculty\/invite\//, () => import("./pages/FacultyInvitationRegistration")],
   [/^\/leadership\/dashboard$/, () => import("./pages/LeadershipDashboard")],
   [/^\/leadership\/streams\//, () => import("./pages/LeadershipStreamsByStatus")],
   [/^\/leadership\/approvals\//, () => import("./pages/LeadershipApprovals")],

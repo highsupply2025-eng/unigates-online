@@ -1,0 +1,277 @@
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import {
+  FacultyMemberForm,
+  type FacultyMemberFormData,
+} from "@/components/FacultyMemberForm";
+import { Loader2, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+
+type TokenStatus = "loading" | "valid" | "invalid" | "expired" | "used" | "error";
+
+interface InvitationData {
+  institutionId: string;
+  institutionType: "college" | "institute";
+  institutionName: string;
+  role: string;
+}
+
+const FacultyInvitationRegistration = () => {
+  const { token } = useParams<{ token: string }>();
+  const { language, dir } = useLanguage();
+  const isRtl = language === "ar";
+  const navigate = useNavigate();
+
+  const [status, setStatus] = useState<TokenStatus>("loading");
+  const [invitationData, setInvitationData] = useState<InvitationData | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successEmail, setSuccessEmail] = useState("");
+
+  useEffect(() => {
+    if (!token) {
+      setStatus("invalid");
+      setErrorMessage(isRtl ? "رابط الدعوة غير صالح" : "Invalid invitation link");
+      return;
+    }
+
+    (async () => {
+      try {
+        const { data, error } = await supabase.rpc(
+          "verify_institution_invitation" as any,
+          { _code: token }
+        );
+
+        if (error) {
+          console.error("Invitation verification failed:", error);
+          setStatus("error");
+          setErrorMessage(isRtl ? "فشل التحقق من الدعوة" : "Failed to verify invitation");
+          return;
+        }
+
+        const row = data?.[0];
+        if (!row || !row.is_valid) {
+          // Distinguish between expired, used, and truly invalid
+          // The RPC returns is_valid: false for all these cases
+          setStatus("invalid");
+          setErrorMessage(
+            isRtl
+              ? "رابط الدعوة غير صالح أو منتهي الصلاحية أو مستخدم بالفعل"
+              : "This invitation link is invalid, expired, or has already been used"
+          );
+          return;
+        }
+
+        setInvitationData({
+          institutionId: row.institution_id,
+          institutionType: row.kind === "college" ? "college" : "institute",
+          institutionName: row.institution_name || "",
+          role: row.role || "assistant_lecturer",
+        });
+        setStatus("valid");
+      } catch (err: any) {
+        console.error("Unexpected error:", err);
+        setStatus("error");
+        setErrorMessage(err.message || (isRtl ? "خطأ غير متوقع" : "Unexpected error"));
+      }
+    })();
+  }, [token]);
+
+  const handleSubmit = async (data: FacultyMemberFormData) => {
+    if (saving || !invitationData || !token) return;
+    setSaving(true);
+
+    try {
+      const baseRow: any = {
+        full_name: data.fullName,
+        role: invitationData.role,
+        date_of_birth: data.dateOfBirth || null,
+        photo_url: data.photoUrl || null,
+        email: data.email || null,
+        phone: data.phone || null,
+        national_id: data.nationalId || null,
+        gender: data.gender || null,
+        address: data.address || null,
+        qualification: data.qualification || null,
+        specialization: data.specialization || null,
+        hire_date: data.hireDate || null,
+        notes: data.notes || null,
+      };
+
+      const { data: resp, error: fnErr } = await supabase.functions.invoke(
+        "create-faculty-account",
+        {
+          body: {
+            full_name: baseRow.full_name,
+            role: invitationData.role,
+            email: baseRow.email
+              ? String(baseRow.email).trim().toLowerCase()
+              : null,
+            phone: baseRow.phone,
+            temporary_password: data.password,
+            invitation_code: token,
+            extra: {
+              date_of_birth: baseRow.date_of_birth,
+              photo_url: baseRow.photo_url,
+              national_id: baseRow.national_id,
+              gender: baseRow.gender,
+              address: baseRow.address,
+              qualification: baseRow.qualification,
+              specialization: baseRow.specialization,
+              hire_date: baseRow.hire_date,
+              notes: baseRow.notes,
+            },
+          },
+        }
+      );
+
+      if (fnErr) {
+        let realMsg = fnErr.message || (isRtl ? "فشل إنشاء الحساب" : "Failed to create account");
+        let realStep = "";
+        try {
+          const ctx: any = (fnErr as any).context;
+          const bodyText = ctx?.body
+            ? typeof ctx.body === "string"
+              ? ctx.body
+              : await new Response(ctx.body).text()
+            : "";
+          if (bodyText) {
+            const parsed = JSON.parse(bodyText);
+            if (parsed?.error) realMsg = parsed.error;
+            if (parsed?.step) realStep = parsed.step;
+          }
+        } catch {
+          /* ignore */
+        }
+        throw new Error(realStep ? `[${realStep}] ${realMsg}` : realMsg);
+      }
+
+      if (resp && (resp as any).error) {
+        throw new Error((resp as any).error);
+      }
+
+      const r = resp as any;
+      setSuccessEmail(r.email || data.email || "");
+      setStatus("used" as any); // reuse as "success" state
+      toast({
+        title: isRtl ? "تم إنشاء الحساب بنجاح" : "Account created successfully",
+        description: isRtl
+          ? "يمكنك الآن تسجيل الدخول باستخدام بياناتك"
+          : "You can now sign in with your credentials",
+        duration: 8000,
+      });
+    } catch (err: any) {
+      console.error("Account creation failed:", err);
+      toast({
+        title: isRtl ? "فشل إنشاء الحساب" : "Account creation failed",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /* ---- Loading state ---- */
+  if (status === "loading") {
+    return (
+      <div dir={dir} className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-primary/10 flex items-center justify-center">
+        <Card className="border-2 border-primary/30 max-w-md w-full mx-4 shadow-2xl shadow-primary/10">
+          <CardContent className="p-8 flex flex-col items-center gap-4">
+            <Loader2 className="w-10 h-10 animate-spin text-primary" />
+            <p className="text-lg font-bold text-foreground text-center">
+              {isRtl ? "جاري التحقق من الدعوة..." : "Verifying invitation..."}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  /* ---- Success state ---- */
+  if (status === ("used" as any) && successEmail) {
+    return (
+      <div dir={dir} className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-primary/10 flex items-center justify-center">
+        <Card className="border-2 border-emerald-500/30 max-w-md w-full mx-4 shadow-2xl shadow-emerald-500/10">
+          <CardContent className="p-8 flex flex-col items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg">
+              <CheckCircle2 className="w-8 h-8 text-white" strokeWidth={2.5} />
+            </div>
+            <h2 className="text-xl font-black text-foreground text-center">
+              {isRtl ? "تم إنشاء الحساب بنجاح" : "Account Created Successfully"}
+            </h2>
+            <p className="text-muted-foreground text-center text-sm">
+              {isRtl
+                ? `يمكنك تسجيل الدخول الآن باستخدام البريد: ${successEmail}`
+                : `You can now sign in using: ${successEmail}`}
+            </p>
+            <Button
+              size="lg"
+              className="mt-4 shadow-xl shadow-primary/40 font-bold"
+              onClick={() => navigate("/login")}
+            >
+              {isRtl ? "تسجيل الدخول" : "Sign In"}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  /* ---- Error / invalid states ---- */
+  if (status === "invalid" || status === "expired" || status === "error") {
+    return (
+      <div dir={dir} className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-primary/10 flex items-center justify-center">
+        <Card className="border-2 border-destructive/30 max-w-md w-full mx-4 shadow-2xl shadow-destructive/10">
+          <CardContent className="p-8 flex flex-col items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-destructive to-destructive/80 flex items-center justify-center shadow-lg">
+              <AlertTriangle className="w-8 h-8 text-white" strokeWidth={2.5} />
+            </div>
+            <h2 className="text-xl font-black text-foreground text-center">
+              {isRtl ? "الدعوة غير صالحة" : "Invalid Invitation"}
+            </h2>
+            <p className="text-muted-foreground text-center text-sm">
+              {errorMessage}
+            </p>
+            <Button
+              size="lg"
+              variant="outline"
+              className="mt-4 border-2 border-primary/30 font-bold"
+              onClick={() => navigate("/")}
+            >
+              {isRtl ? "العودة للرئيسية" : "Go to Homepage"}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  /* ---- Valid: show form ---- */
+  if (!invitationData) return null;
+
+  return (
+    <FacultyMemberForm
+      mode="invitation"
+      isRtl={isRtl}
+      dir={dir}
+      saving={saving}
+      onSubmit={handleSubmit}
+      onCancel={() => navigate("/")}
+      invitationRole={invitationData.role}
+      roleReadonly={true}
+      title={
+        isRtl
+          ? `حساب عضو هيئة التدريس - ${invitationData.institutionName}`
+          : `Faculty Account - ${invitationData.institutionName}`
+      }
+      submitLabel={isRtl ? "إنشاء الحساب" : "Create Account"}
+    />
+  );
+};
+
+export default FacultyInvitationRegistration;

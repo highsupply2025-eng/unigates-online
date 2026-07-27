@@ -81,32 +81,44 @@ Deno.serve(async (req) => {
   });
 
   try {
-    // ---- Caller auth ----
-    const authHeader = req.headers.get("Authorization") || "";
-    const userClient = createClient(SUPABASE_URL, ANON_KEY, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const { data: { user } } = await userClient.auth.getUser();
-    if (!user?.email) return fail("caller_auth", "Unauthorized", 401);
-    const callerEmail = user.email.toLowerCase();
-
-    // ---- Resolve institution from caller ----
-    const { data: college } = await admin.from("college_registrations")
-      .select("id, email, status").eq("email", callerEmail).eq("status", "approved").maybeSingle();
-    let institutionId: string | null = null;
-    let institutionType: "college" | "institute" | null = null;
-    if (college) { institutionId = college.id; institutionType = "college"; }
-    else {
-      const { data: inst } = await admin.from("institute_registrations")
-        .select("id, email, status").eq("email", callerEmail).eq("status", "approved").maybeSingle();
-      if (inst) { institutionId = inst.id; institutionType = "institute"; }
-    }
-    if (!institutionId || !institutionType) {
-      return fail("caller_permission", "Caller is not an approved institution admin", 403);
-    }
-
     // ---- Payload ----
     const body = await req.json().catch(() => ({}));
+
+    const invitationCode = String(body.invitation_code || "").trim();
+    let institutionId: string | null = null;
+    let institutionType: "college" | "institute" | null = null;
+
+    if (invitationCode) {
+      // ---- Invitation mode: resolve institution from invitation token ----
+      const { data: invRows } = await admin.rpc("verify_institution_invitation" as any, { _code: invitationCode });
+      const inv = invRows?.[0];
+      if (!inv || !inv.is_valid) {
+        return fail("invitation_invalid", "Invalid or expired invitation code", 403);
+      }
+      institutionId = inv.institution_id;
+      institutionType = inv.kind === "college" ? "college" : "institute";
+    } else {
+      // ---- Admin mode: caller auth required ----
+      const authHeader = req.headers.get("Authorization") || "";
+      const userClient = createClient(SUPABASE_URL, ANON_KEY, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: { user } } = await userClient.auth.getUser();
+      if (!user?.email) return fail("caller_auth", "Unauthorized", 401);
+      const callerEmail = user.email.toLowerCase();
+
+      const { data: college } = await admin.from("college_registrations")
+        .select("id, email, status").eq("email", callerEmail).eq("status", "approved").maybeSingle();
+      if (college) { institutionId = college.id; institutionType = "college"; }
+      else {
+        const { data: inst } = await admin.from("institute_registrations")
+          .select("id, email, status").eq("email", callerEmail).eq("status", "approved").maybeSingle();
+        if (inst) { institutionId = inst.id; institutionType = "institute"; }
+      }
+      if (!institutionId || !institutionType) {
+        return fail("caller_permission", "Caller is not an approved institution admin", 403);
+      }
+    }
     const fullName = String(body.full_name || "").trim();
     const role = String(body.role || "").trim();
     let email = String(body.email || "").trim().toLowerCase();
@@ -287,6 +299,22 @@ if (/\s/.test(temporaryPassword)) {
     if (problems.length > 0) {
       try { await admin.auth.admin.deleteUser(uid); } catch (_) { /* ignore */ }
       return fail("verification", `Post-save verification failed: ${problems.join("; ")}`, 500);
+    }
+
+    // ---- Mark invitation as used (if invitation mode) ----
+    if (invitationCode) {
+      const invTable = institutionType === "college" ? "college_invitations" : "institute_invitations";
+      const idCol = institutionType === "college" ? "college_id" : "institute_id";
+      const { data: invRow } = await admin.from(invTable)
+        .select("id, max_uses, used_count").eq("invitation_code", invitationCode).maybeSingle();
+      if (invRow) {
+        const newCount = (invRow.used_count || 0) + 1;
+        const deactivate = invRow.max_uses && newCount >= invRow.max_uses;
+        await admin.from(invTable).update({
+          used_count: newCount,
+          ...(deactivate ? { is_active: false } : {}),
+        }).eq("id", invRow.id);
+      }
     }
 
    return json({

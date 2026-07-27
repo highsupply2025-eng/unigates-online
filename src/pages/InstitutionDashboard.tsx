@@ -351,41 +351,60 @@ const InstitutionDashboard = () => {
   const generateInviteLinkNow = async (roleParam: "lecturer" | "student" | "department_head", deptId: string) => {
     setGeneratingInviteLink(true);
     try {
-      let effectiveDeptId = deptId;
-
-      // If no department is selected/available, auto-create a default one for this institution
-      if (!effectiveDeptId) {
-        if (!institutionId || !institutionType) {
-          throw new Error(isRtl ? "لم يتم التعرف على المؤسسة" : "Institution not identified");
-        }
-        const { data: newDept, error: deptErr } = await supabase
-          .from("departments")
-          .insert({
-            institution_id: institutionId,
-            institution_type: institutionType,
-            department_name: isRtl ? "عام" : "General",
-            department_code: `GEN-${Math.random().toString(36).slice(2, 7).toUpperCase()}`,
-          } as any)
-          .select("id")
-          .single();
-        if (deptErr) throw deptErr;
-        effectiveDeptId = (newDept as any).id;
-        setInviteLinkDeptId(effectiveDeptId);
+      if (!institutionId || !institutionType) {
+        throw new Error(isRtl ? "لم يتم التعرف على المؤسسة" : "Institution not identified");
       }
 
       const code = generateCode();
-      const instPath = institutionType === "college" ? "college" : "institute";
-      const link = `${window.location.origin}/signup/${instPath}/${roleParam}?code=${code}`;
-      const { error } = await supabase.from("department_members").insert({
-        department_id: effectiveDeptId,
-        role: roleParam,
-        invitation_code: code,
-        full_name: isRtl ? "عضو جديد" : "New Member",
-      });
-      if (error) throw error;
-      setGeneratedInviteLink(link);
-      setGeneratedInviteCode(code);
-      await loadInstitutionData(institutionId!, institutionType || "college");
+      const isFaculty = roleParam !== "student";
+
+      if (isFaculty) {
+        // Faculty invitation: store in college_invitations / institute_invitations
+        const tableName = institutionType === "college" ? "college_invitations" : "institute_invitations";
+        const idColumn = institutionType === "college" ? "college_id" : "institute_id";
+        const { error } = await supabase.from(tableName as any).insert({
+          [idColumn]: institutionId,
+          invitation_code: code,
+          role: roleParam === "department_head" ? "department_head" : "assistant_lecturer",
+          max_uses: 1,
+          is_active: true,
+        });
+        if (error) throw error;
+        const link = `${window.location.origin}/institution/faculty/invite/${code}`;
+        setGeneratedInviteLink(link);
+        setGeneratedInviteCode(code);
+      } else {
+        // Student invitation: existing department_members flow
+        let effectiveDeptId = deptId;
+        if (!effectiveDeptId) {
+          const { data: newDept, error: deptErr } = await supabase
+            .from("departments")
+            .insert({
+              institution_id: institutionId,
+              institution_type: institutionType,
+              department_name: isRtl ? "عام" : "General",
+              department_code: `GEN-${Math.random().toString(36).slice(2, 7).toUpperCase()}`,
+            } as any)
+            .select("id")
+            .single();
+          if (deptErr) throw deptErr;
+          effectiveDeptId = (newDept as any).id;
+          setInviteLinkDeptId(effectiveDeptId);
+        }
+        const instPath = institutionType === "college" ? "college" : "institute";
+        const link = `${window.location.origin}/signup/${instPath}/${roleParam}?code=${code}`;
+        const { error } = await supabase.from("department_members").insert({
+          department_id: effectiveDeptId,
+          role: roleParam,
+          invitation_code: code,
+          full_name: isRtl ? "طالب جديد" : "New Student",
+        });
+        if (error) throw error;
+        setGeneratedInviteLink(link);
+        setGeneratedInviteCode(code);
+      }
+
+      await loadInstitutionData(institutionId, institutionType || "college");
     } catch (err: any) {
       console.error("generateInviteLinkNow failed:", err);
       toast({ title: isRtl ? "فشل التوليد" : "Generation failed", description: err.message || String(err), variant: "destructive" });
@@ -3094,7 +3113,7 @@ ${rows.map((r: any, i: number) => `<tr>
                       return sorted.map((inv: any) => {
                         const label = roleLabels[inv.role] || { ar: inv.role, en: inv.role, icon: <User className="w-5 h-5" /> };
                         const instPath = institutionType === "college" ? "college" : "institute";
-                        const inviteLink = `${baseUrl}/signup/${instPath}/${inv.role}?code=${inv.invitation_code}`;
+                        const inviteLink = `${baseUrl}/institution/faculty/invite/${inv.invitation_code}`;
                         const claimed = (inv.used_count || 0) >= 1;
                         const linkedMember = leadershipMembers.find(lm => lm.invitation_id === inv.id);
                         const linkedProfile = linkedMember ? profilesMap[linkedMember.user_id] : null;

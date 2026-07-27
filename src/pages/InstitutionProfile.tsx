@@ -17,6 +17,7 @@ import { toast } from "@/hooks/use-toast";
 import { Landmark } from "lucide-react";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
+import { useInstitutionStats } from "@/hooks/useInstitutionStats";
 
 
 interface InstitutionData {
@@ -45,7 +46,12 @@ const InstitutionProfile = () => {
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<InstitutionData | null>(null);
-  const [departmentsCount, setDepartmentsCount] = useState(0);
+
+  // Live stats from authoritative tables (replaces stale registration-table student_count)
+  const { studentCount: liveStudentCount, departmentCount: liveDeptCount } = useInstitutionStats(
+    data?.id ?? null,
+    data?.kind ?? null,
+  );
 
   // editable
   const [leaderName, setLeaderName] = useState("");
@@ -148,13 +154,6 @@ const InstitutionProfile = () => {
         setPhone(row.phone || "");
         setCity(row.city || "");
         setAddress(row.address || "");
-
-        const { count } = await supabase
-          .from("departments")
-          .select("id", { count: "exact", head: true })
-          .eq("institution_id", row.id)
-          .eq("institution_type", kind);
-        setDepartmentsCount(count || 0);
       } catch (e) {
         console.error("institution profile load error", e);
       } finally {
@@ -366,7 +365,7 @@ const InstitutionProfile = () => {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">{isRtl ? "الأقسام" : "Departments"}</p>
-                <p className="font-extrabold text-lg">{departmentsCount}</p>
+                <p className="font-extrabold text-lg">{liveDeptCount}</p>
               </div>
             </CardContent>
           </Card>
@@ -377,7 +376,7 @@ const InstitutionProfile = () => {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">{isRtl ? "الطلاب" : "Students"}</p>
-                <p className="font-extrabold text-lg">{data.student_count || 0}</p>
+                <p className="font-extrabold text-lg">{liveStudentCount}</p>
               </div>
             </CardContent>
           </Card>

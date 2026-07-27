@@ -25,6 +25,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useToast } from "@/hooks/use-toast";
 import { toast as sonnerToast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useInstitutionStats } from "@/hooks/useInstitutionStats";
+import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 
 import BackButton from "@/components/BackButton";
 import { TrendIndicator } from "@/components/TrendIndicator";
@@ -276,6 +278,15 @@ const InstitutionDashboard = () => {
   const [institutionName, setInstitutionName] = useState("");
   const [institutionId, setInstitutionId] = useState("");
 
+  // Shared authoritative stats — provides Realtime auto-refresh + invalidation
+  const {
+    studentCount: liveStudentCount,
+    facultyCount: liveFacultyCount,
+    scheduleCount: liveScheduleCount,
+    resultCount: liveResultCount,
+    invalidate: invalidateStats,
+  } = useInstitutionStats(institutionId || null, institutionType);
+
   const [departments, setDepartments] = useState<Department[]>([]);
   const [deletedDeptIds, setDeletedDeptIds] = useState<Set<string>>(new Set());
   const deletedDeptIdsRef = useRef<Set<string>>(new Set());
@@ -453,6 +464,17 @@ const InstitutionDashboard = () => {
   useEffect(() => {
     checkInstitutionAccess();
   }, []);
+
+  // Realtime subscription — auto-refresh dashboard data when key tables change
+  useRealtimeRefresh(
+    ["department_members", "departments", "institution_faculty_members", "lecture_schedules", "student_results"],
+    () => {
+      if (institutionId && institutionType) {
+        loadInstitutionData(institutionId, institutionType);
+      }
+    },
+    Boolean(institutionId && institutionType),
+  );
 
   useEffect(() => {
     deletedDeptIdsRef.current = deletedDeptIds;
@@ -1408,13 +1430,12 @@ ${rows.map((r: any, i: number) => `<tr>
       return !isNaN(t) && t >= since;
     };
 
-    const facultyMembers = deptMembers.filter(isFacultyMember);
-    const studentMembers = deptMembers.filter((m: any) => m.role === "student");
-
-    const facultyCount = facultyMembers.filter((m: any) => inRange(m.created_at)).length;
+    // Use live counts from the shared hook (authoritative) instead of
+    // computing from locally-loaded deptMembers, which can be stale.
+    const facultyCount = liveFacultyCount;
     const deptCount = departments.filter((d: any) => inRange(d.created_at)).length;
-    const studentCount = studentMembers.filter((m: any) => inRange(m.created_at)).length;
-    const scheduleCount = examSchedules.filter((s: any) => inRange(s.created_at)).length;
+    const studentCount = liveStudentCount;
+    const scheduleCount = liveScheduleCount;
     const resultCount = quizSubmissions.filter((s: any) => inRange(s.submitted_at || s.created_at)).length;
     const accountCount = institutionId ? 1 : 0;
 
@@ -1430,7 +1451,7 @@ ${rows.map((r: any, i: number) => `<tr>
       account: { count: accountCount, percentage: accountCount ? 100 : 0 },
       total,
     };
-  }, [deptMembers, departments, examSchedules, quizSubmissions, rangeDays, institutionId]);
+  }, [liveStudentCount, liveFacultyCount, liveScheduleCount, departments, quizSubmissions, rangeDays, institutionId]);
 
   if (loading) {
     return (

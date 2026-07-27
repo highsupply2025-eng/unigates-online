@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { supabase } from "@/integrations/supabase/client";
 import { toast as sonnerToast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 import * as XLSX from "xlsx";
 
 interface DepartmentMember {
@@ -105,6 +106,18 @@ const DepartmentPage = () => {
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [deptId]);
+
+  // Realtime subscription — auto-refresh member list when department_members changes
+  useRealtimeRefresh(
+    ["department_members"],
+    () => {
+      if (deptId) {
+        __deptCache.delete(deptId);
+        loadDepartmentData();
+      }
+    },
+    Boolean(deptId),
+  );
 
   const loadDepartmentData = async () => {
     if (!deptId) return;

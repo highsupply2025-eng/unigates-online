@@ -22,7 +22,7 @@ const CoursesPlatform = () => {
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
-  const { data: stats } = usePlatformStats();
+  const { data: stats } = usePlatformStats("courses");
   const lecturers = useCountUp(stats?.lecturers ?? 0);
   const teachers = useCountUp(stats?.teachers ?? 0);
   const students = useCountUp((stats?.universityStudents ?? 0) + (stats?.schoolStudents ?? 0));

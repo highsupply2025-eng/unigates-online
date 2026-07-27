@@ -25,7 +25,7 @@ const UniversityPlatform = () => {
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
-  const { data: stats } = usePlatformStats();
+  const { data: stats } = usePlatformStats("university");
 
   const colleges = useCountUp(stats?.colleges ?? 0);
   const institutes = useCountUp(stats?.institutes ?? 0);

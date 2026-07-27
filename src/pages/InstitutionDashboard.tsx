@@ -358,51 +358,28 @@ const InstitutionDashboard = () => {
       const code = generateCode();
       const isFaculty = roleParam !== "student";
 
-      if (isFaculty) {
-        // Faculty invitation: store in college_invitations / institute_invitations
-        const tableName = institutionType === "college" ? "college_invitations" : "institute_invitations";
-        const idColumn = institutionType === "college" ? "college_id" : "institute_id";
-        const { error } = await supabase.from(tableName as any).insert({
-          [idColumn]: institutionId,
-          invitation_code: code,
-          role: roleParam === "department_head" ? "department_head" : "assistant_lecturer",
-          max_uses: 1,
-          is_active: true,
-        });
-        if (error) throw error;
-        const link = `${window.location.origin}/institution/faculty/invite/${code}`;
-        setGeneratedInviteLink(link);
-        setGeneratedInviteCode(code);
-      } else {
-        // Student invitation: existing department_members flow
-        let effectiveDeptId = deptId;
-        if (!effectiveDeptId) {
-          const { data: newDept, error: deptErr } = await supabase
-            .from("departments")
-            .insert({
-              institution_id: institutionId,
-              institution_type: institutionType,
-              department_name: isRtl ? "عام" : "General",
-              department_code: `GEN-${Math.random().toString(36).slice(2, 7).toUpperCase()}`,
-            } as any)
-            .select("id")
-            .single();
-          if (deptErr) throw deptErr;
-          effectiveDeptId = (newDept as any).id;
-          setInviteLinkDeptId(effectiveDeptId);
-        }
-        const instPath = institutionType === "college" ? "college" : "institute";
-        const link = `${window.location.origin}/signup/${instPath}/${roleParam}?code=${code}`;
-        const { error } = await supabase.from("department_members").insert({
-          department_id: effectiveDeptId,
-          role: roleParam,
-          invitation_code: code,
-          full_name: isRtl ? "طالب جديد" : "New Student",
-        });
-        if (error) throw error;
-        setGeneratedInviteLink(link);
-        setGeneratedInviteCode(code);
-      }
+      // Store invitation in college_invitations / institute_invitations for both faculty and students
+      const tableName = institutionType === "college" ? "college_invitations" : "institute_invitations";
+      const idColumn = institutionType === "college" ? "college_id" : "institute_id";
+      const invitationRole = roleParam === "student"
+        ? "student"
+        : roleParam === "department_head"
+          ? "department_head"
+          : "assistant_lecturer";
+      const { error } = await supabase.from(tableName as any).insert({
+        [idColumn]: institutionId,
+        invitation_code: code,
+        role: invitationRole,
+        max_uses: 1,
+        is_active: true,
+      });
+      if (error) throw error;
+
+      const link = isFaculty
+        ? `${window.location.origin}/institution/faculty/invite/${code}`
+        : `${window.location.origin}/institution/student/invite/${code}`;
+      setGeneratedInviteLink(link);
+      setGeneratedInviteCode(code);
 
       await loadInstitutionData(institutionId, institutionType || "college");
     } catch (err: any) {

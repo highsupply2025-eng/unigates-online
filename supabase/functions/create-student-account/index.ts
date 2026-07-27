@@ -1,8 +1,13 @@
-// Create a student account instantly from the college admin dashboard.
-// - Caller must be the institution admin (matching college/institute email).
-// - Creates auth user with a temporary password (if email missing one is synthesized).
-// - Creates profile + approved user_role + department_members rows for each given dept code.
-// Returns the generated credentials so the admin can hand them to the student.
+// Create a student account instantly from the college admin dashboard or via invitation link.
+//
+// Admin mode (no invitation_code): caller must be the institution admin.
+//   Creates auth user with an auto-generated temporary password.
+//
+// Invitation mode (invitation_code present): public endpoint, no auth required.
+//   Uses the user-provided password and resolves the institution from the token.
+//
+// In both modes, creates profile + approved user_role + department_members rows
+// for each matching department code, plus college_members if applicable.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -32,11 +37,26 @@ function genCode(suffix: string) {
 function json(b: unknown, s = 200) {
   return new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 }
+function fail(step: string, message: string, status = 500, extra: Record<string, unknown> = {}) {
+  console.error(`[create-student-account:${step}] ${message}`);
+  return json({ success: false, step, error: message, ...extra }, status);
+}
 
 function isEmailAlreadyExistsError(error: any) {
   const code = String(error?.code || "").toLowerCase();
   const message = String(error?.message || "").toLowerCase();
   return code === "email_exists" || message.includes("already registered") || message.includes("already exists") || message.includes("user already") || message.includes("email is already") || message.includes("email already");
+}
+
+function validatePassword(pw: string): { ok: boolean; reason?: string } {
+  if (!pw || typeof pw !== "string") return { ok: false, reason: "Password is required" };
+  if (pw !== pw.trim()) return { ok: false, reason: "Password must not have leading/trailing spaces" };
+  if (pw.length < 8) return { ok: false, reason: "Password must be at least 8 characters" };
+  if (!/[A-Z]/.test(pw)) return { ok: false, reason: "Password must contain an uppercase letter" };
+  if (!/[a-z]/.test(pw)) return { ok: false, reason: "Password must contain a lowercase letter" };
+  if (!/\d/.test(pw)) return { ok: false, reason: "Password must contain a digit" };
+  if (/\s/.test(pw)) return { ok: false, reason: "Password must not contain spaces" };
+  return { ok: true };
 }
 
 async function rollbackNewUser(admin: ReturnType<typeof createClient>, uid: string) {
@@ -79,20 +99,14 @@ Deno.serve(async (req) => {
     const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    const authHeader = req.headers.get("Authorization") || "";
-    const userClient = createClient(SUPABASE_URL, ANON_KEY, { global: { headers: { Authorization: authHeader } } });
-    const { data: { user } } = await userClient.auth.getUser();
-    if (!user?.email) return json({ error: "Unauthorized" }, 401);
-
     const body = await req.json().catch(() => ({}));
     const fullName = String(body.full_name || "").trim();
     let email = String(body.email || "").trim().toLowerCase();
     const phone = String(body.phone || "").trim();
     const codes: string[] = Array.from(new Set((body.department_codes || []).map((c: string) => String(c).trim().toUpperCase()).filter(Boolean)));
-    // Whitelist the only fields an institution admin is allowed to pass in
-    // `extra`. Spreading raw client input previously let a malicious admin
-    // override department_id/role/user_id and inject members into other
-    // institutions.
+    const invitationCode = String(body.invitation_code || "").trim();
+    const temporaryPassword = String(body.temporary_password || "").trim();
+
     const ALLOWED_EXTRA = [
       "date_of_birth", "photo_url", "national_id", "gender",
       "address", "qualification", "specialization", "hire_date", "notes",
@@ -107,24 +121,79 @@ Deno.serve(async (req) => {
 
     const admin = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
 
-    // Resolve departments by code and verify they belong to caller's institution
+    let institutionId: string;
+    let institutionType: "college" | "institute";
+
+    // ---- Two code paths ----
+    if (invitationCode) {
+      // Invitation mode: resolve institution from token (no caller auth required)
+      const { data: invRows, error: invErr } = await admin.rpc(
+        "verify_institution_invitation" as any,
+        { _code: invitationCode }
+      );
+      if (invErr) return fail("verify_invitation", invErr.message, 500);
+      const inv = invRows?.[0];
+      if (!inv || !inv.is_valid) {
+        return fail("verify_invitation", "Invalid, expired, or already used invitation", 400);
+      }
+
+      const role = (inv.role || "").toLowerCase();
+      if (role !== "student") {
+        return fail("verify_invitation", "This invitation is not for students", 400);
+      }
+
+      institutionId = inv.institution_id;
+      institutionType = inv.kind === "college" ? "college" : "institute";
+
+      // Use the user-provided password
+      const pwCheck = validatePassword(temporaryPassword);
+      if (!pwCheck.ok) {
+        return fail("password", pwCheck.reason || "Invalid password", 400);
+      }
+    } else {
+      // Admin mode: caller must be institution admin
+      const authHeader = req.headers.get("Authorization") || "";
+      const userClient = createClient(SUPABASE_URL, ANON_KEY, { global: { headers: { Authorization: authHeader } } });
+      const { data: { user } } = await userClient.auth.getUser();
+      if (!user?.email) return json({ error: "Unauthorized" }, 401);
+
+      const callerEmail = user.email.toLowerCase();
+      const { data: colleges } = await admin
+        .from("college_registrations")
+        .select("id, email, status")
+        .eq("email", callerEmail)
+        .eq("status", "approved");
+      const { data: institutes } = await admin
+        .from("institute_registrations")
+        .select("id, email, status")
+        .eq("email", callerEmail)
+        .eq("status", "approved");
+
+      const ownedColleges = (colleges || []).map((r: any) => ({ id: r.id, type: "college" as const }));
+      const ownedInstitutes = (institutes || []).map((r: any) => ({ id: r.id, type: "institute" as const }));
+      const owned = [...ownedColleges, ...ownedInstitutes];
+
+      if (owned.length === 0) {
+        return json({ error: "No approved institution found for this admin" }, 403);
+      }
+
+      // Use the first owned institution (student accounts are institution-scoped)
+      institutionId = owned[0].id;
+      institutionType = owned[0].type;
+    }
+
+    // Resolve departments by code and verify they belong to the institution
     const { data: depts, error: deptErr } = await admin
       .from("departments")
       .select("id, department_code, institution_id, institution_type")
       .in("department_code", codes);
-    if (deptErr) return json({ error: deptErr.message }, 500);
-    if (!depts || depts.length === 0) return json({ error: "No matching departments" }, 404);
+    if (deptErr) return fail("resolve_depts", deptErr.message, 500);
+    if (!depts || depts.length === 0) return fail("resolve_depts", "No matching departments found", 404);
 
-    // Verify caller owns at least one institution covering the requested departments
-    const callerEmail = user.email.toLowerCase();
-    const instIds = Array.from(new Set(depts.map((d: any) => d.institution_id)));
-    const { data: colleges } = await admin.from("college_registrations").select("id, email, status").in("id", instIds);
-    const { data: institutes } = await admin.from("institute_registrations").select("id, email, status").in("id", instIds);
-    const ownedIds = new Set<string>();
-    for (const r of (colleges || [])) if (r.email?.toLowerCase() === callerEmail && r.status === "approved") ownedIds.add(r.id);
-    for (const r of (institutes || [])) if (r.email?.toLowerCase() === callerEmail && r.status === "approved") ownedIds.add(r.id);
-    const allowedDepts = depts.filter((d: any) => ownedIds.has(d.institution_id));
-    if (allowedDepts.length === 0) return json({ error: "Forbidden — departments do not belong to your institution" }, 403);
+    const allowedDepts = depts.filter((d: any) => d.institution_id === institutionId);
+    if (allowedDepts.length === 0) {
+      return fail("resolve_depts", "Departments do not belong to the invited institution", 403);
+    }
 
     // Synthesize email if not provided
     if (!email) {
@@ -132,7 +201,7 @@ Deno.serve(async (req) => {
       email = `${slug}.${Date.now().toString(36)}@unigates.online`;
     }
 
-    const password = genPassword();
+    const password = invitationCode ? temporaryPassword : genPassword();
 
     let uid: string | null = null;
     const existing = await findExistingAuthUser(admin, email);
@@ -145,7 +214,11 @@ Deno.serve(async (req) => {
         email,
         password,
         email_confirm: true,
-        user_metadata: { full_name: fullName, seeded_via: "college_admin" },
+        user_metadata: {
+          full_name: fullName,
+          seeded_via: invitationCode ? "student_invitation" : "college_admin",
+          must_change_password: invitationCode ? false : true,
+        },
       });
       if (ce) {
         if (isEmailAlreadyExistsError(ce)) {
@@ -198,6 +271,31 @@ Deno.serve(async (req) => {
         }
 
         joined++;
+      }
+
+      // Mark invitation as used
+      if (invitationCode) {
+        const invTable = institutionType === "college" ? "college_invitations" : "institute_invitations";
+        const idColumn = institutionType === "college" ? "college_id" : "institute_id";
+
+        // Read current counts
+        const { data: invRow } = await admin
+          .from(invTable as any)
+          .select("id, used_count, max_uses")
+          .eq("invitation_code", invitationCode)
+          .single();
+
+        if (invRow) {
+          const newUsedCount = (invRow.used_count || 0) + 1;
+          const maxUses = invRow.max_uses || 0;
+          await admin
+            .from(invTable as any)
+            .update({
+              used_count: newUsedCount,
+              ...(maxUses > 0 && newUsedCount >= maxUses ? { is_active: false } : {}),
+            } as any)
+            .eq("id", invRow.id);
+        }
       }
 
       const missing = codes.filter(c => !allowedDepts.some((d: any) => (d.department_code || "").toUpperCase() === c));

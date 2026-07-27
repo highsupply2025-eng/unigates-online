@@ -3,12 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Sector scope for platform statistics.
- *  - "all"       → global totals (homepage)
+ *  - "all"        → global totals (homepage)
  *  - "university" → university-sector only
- *  - "school"    → school-sector only
- *  - "courses"   → courses platform only
+ *  - "school"     → school-sector only
+ *  - "courses"    → courses platform only
+ *  - "publishing" → bookstore / publishing only
  */
-export type PlatformScope = "all" | "university" | "school" | "courses";
+export type PlatformScope = "all" | "university" | "school" | "courses" | "publishing";
 
 export interface PlatformStats {
   colleges: number;
@@ -102,6 +103,14 @@ export const usePlatformStats = (scope: PlatformScope = "all") => {
           teachers: Number(s.teachers) || 0,
           trainingCenters: Number(s.training_centers) || 0,
           languageCenters: Number(s.language_centers) || 0,
+        };
+      }
+
+      // ── Publishing scope ──────────────────────────────────────
+      if (scope === "publishing") {
+        return {
+          ...EMPTY_STATS,
+          publishers: Number(s.publishers) || 0,
         };
       }
 

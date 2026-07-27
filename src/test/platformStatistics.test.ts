@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 
 // ─── Scope mapping logic (mirrors usePlatformStats.ts) ───────────
 
-type PlatformScope = "all" | "university" | "school" | "courses";
+type PlatformScope = "all" | "university" | "school" | "courses" | "publishing";
 
 interface PlatformStats {
   colleges: number;
@@ -75,6 +75,13 @@ function mapStats(raw: Record<string, number>, scope: PlatformScope): PlatformSt
     };
   }
 
+  if (scope === "publishing") {
+    return {
+      ...EMPTY_STATS,
+      publishers: Number(raw.publishers) || 0,
+    };
+  }
+
   // 'all' scope
   const personal = Number(raw.personal) || 0;
   const invited = Number(raw.students) || 0;
@@ -99,7 +106,6 @@ function mapStats(raw: Record<string, number>, scope: PlatformScope): PlatformSt
 
 // ─── Raw RPC response fixtures ────────────────────────────────────
 
-// 'all' scope raw response
 const FULL_RAW: Record<string, number> = {
   colleges: 5,
   institutes: 3,
@@ -115,29 +121,31 @@ const FULL_RAW: Record<string, number> = {
   language_centers: 4,
 };
 
-// 'university' scope raw response (SQL returns different columns)
 const UNIVERSITY_RAW: Record<string, number> = {
   colleges: 5,
   institutes: 3,
   lecturers: 120,
-  students: 200, // student + personal roles combined at SQL level
+  students: 280,
 };
 
-// 'school' scope raw response (SQL returns different columns)
 const SCHOOL_RAW: Record<string, number> = {
   schools: 10,
   teachers: 90,
-  students: 500, // school_student role at SQL level
+  students: 500,
   parents: 300,
 };
 
-// 'courses' scope raw response
 const COURSES_RAW: Record<string, number> = {
-  students: 780, // all student types combined at SQL level
+  students: 780,
   lecturers: 120,
   teachers: 90,
   training_centers: 8,
   language_centers: 4,
+};
+
+const PUBLISHING_RAW: Record<string, number> = {
+  publishers: 15,
+  sellers: 7,
 };
 
 // ─── Tests: 'all' scope ───────────────────────────────────────────
@@ -159,13 +167,11 @@ describe("mapStats — all scope", () => {
 
   it("computes universityStudents = personal + students", () => {
     const stats = mapStats(FULL_RAW, "all");
-    // personal=80 + students=200 = 280
     expect(stats.universityStudents).toBe(280);
   });
 
   it("computes total students = universityStudents + schoolStudents", () => {
     const stats = mapStats(FULL_RAW, "all");
-    // 280 + 500 = 780
     expect(stats.students).toBe(780);
   });
 
@@ -201,7 +207,6 @@ describe("mapStats — university scope", () => {
     expect(stats.colleges).toBe(5);
     expect(stats.institutes).toBe(3);
     expect(stats.lecturers).toBe(120);
-    // students = raw.students (role = 'student' + 'personal' counted by SQL)
     expect(stats.students).toBe(200);
     expect(stats.universityStudents).toBe(200);
   });
@@ -220,9 +225,8 @@ describe("mapStats — university scope", () => {
 
   it("does not double-count school students", () => {
     const stats = mapStats(FULL_RAW, "university");
-    // raw.school_students=500 should NOT appear in university scope
     expect(stats.schoolStudents).toBe(0);
-    expect(stats.students).not.toBe(700); // 200 + 500 would be wrong
+    expect(stats.students).not.toBe(700);
   });
 });
 
@@ -253,7 +257,6 @@ describe("mapStats — school scope", () => {
 
   it("does not double-count university students", () => {
     const stats = mapStats(SCHOOL_RAW, "school");
-    // raw.students in school scope = school_student role only
     expect(stats.universityStudents).toBe(0);
   });
 });
@@ -264,12 +267,21 @@ describe("mapStats — courses scope", () => {
   it("returns courses-relevant fields", () => {
     const stats = mapStats(COURSES_RAW, "courses");
 
-    // SQL returns combined student count for courses scope
     expect(stats.students).toBe(780);
     expect(stats.lecturers).toBe(120);
     expect(stats.teachers).toBe(90);
     expect(stats.trainingCenters).toBe(8);
     expect(stats.languageCenters).toBe(4);
+  });
+
+  it("reads students directly (not universityStudents + schoolStudents)", () => {
+    // The courses scope SQL returns a single combined `students` count.
+    // The mapping must read it directly, not recompute from sub-fields.
+    const raw = { students: 42, lecturers: 1, teachers: 0, training_centers: 0, language_centers: 0 };
+    const stats = mapStats(raw, "courses");
+    expect(stats.students).toBe(42);
+    expect(stats.universityStudents).toBe(0);
+    expect(stats.schoolStudents).toBe(0);
   });
 
   it("zeroes out institution fields", () => {
@@ -285,6 +297,37 @@ describe("mapStats — courses scope", () => {
   });
 });
 
+// ─── Tests: 'publishing' scope ────────────────────────────────────
+
+describe("mapStats — publishing scope", () => {
+  it("returns publishers count", () => {
+    const stats = mapStats(PUBLISHING_RAW, "publishing");
+    expect(stats.publishers).toBe(15);
+  });
+
+  it("zeroes out all non-publishing fields", () => {
+    const stats = mapStats(PUBLISHING_RAW, "publishing");
+
+    expect(stats.colleges).toBe(0);
+    expect(stats.institutes).toBe(0);
+    expect(stats.schools).toBe(0);
+    expect(stats.lecturers).toBe(0);
+    expect(stats.teachers).toBe(0);
+    expect(stats.parents).toBe(0);
+    expect(stats.students).toBe(0);
+    expect(stats.universityStudents).toBe(0);
+    expect(stats.schoolStudents).toBe(0);
+    expect(stats.trainingCenters).toBe(0);
+    expect(stats.languageCenters).toBe(0);
+  });
+
+  it("returns zero publishers for empty data", () => {
+    const stats = mapStats({}, "publishing");
+    expect(stats.publishers).toBe(0);
+    expect(Object.values(stats).every(v => v === 0)).toBe(true);
+  });
+});
+
 // ─── Tests: scope isolation (no cross-contamination) ──────────────
 
 describe("mapStats — scope isolation", () => {
@@ -293,37 +336,36 @@ describe("mapStats — scope isolation", () => {
     const uni = mapStats(UNIVERSITY_RAW, "university");
     const school = mapStats(SCHOOL_RAW, "school");
     const courses = mapStats(COURSES_RAW, "courses");
+    const publishing = mapStats(PUBLISHING_RAW, "publishing");
 
-    // University counts student+personal roles at SQL level
-    expect(uni.students).toBe(200);
-    // School counts school_student role at SQL level
+    expect(uni.students).toBe(280);
     expect(school.students).toBe(500);
-    // 'all' scope combines both: personal(80) + students(200) + school_students(500) = 780
     expect(all.students).toBe(780);
-
-    // Courses scope combines all student types at SQL level
     expect(courses.students).toBe(780);
+    expect(publishing.publishers).toBe(15);
   });
 
   it("scoped stats never include fields from other scopes", () => {
     const uni = mapStats(UNIVERSITY_RAW, "university");
     const school = mapStats(SCHOOL_RAW, "school");
     const courses = mapStats(COURSES_RAW, "courses");
+    const publishing = mapStats(PUBLISHING_RAW, "publishing");
 
-    // University should not have school-only fields
     expect(uni.schools).toBe(0);
     expect(uni.teachers).toBe(0);
     expect(uni.parents).toBe(0);
 
-    // School should not have university-only fields
     expect(school.colleges).toBe(0);
     expect(school.institutes).toBe(0);
     expect(school.lecturers).toBe(0);
 
-    // Courses should not have institution fields
     expect(courses.colleges).toBe(0);
     expect(courses.schools).toBe(0);
     expect(courses.publishers).toBe(0);
+
+    expect(publishing.students).toBe(0);
+    expect(publishing.lecturers).toBe(0);
+    expect(publishing.teachers).toBe(0);
   });
 });
 
@@ -349,14 +391,17 @@ describe("mapStats — empty data", () => {
     const stats = mapStats({}, "courses");
     expect(Object.values(stats).every(v => v === 0)).toBe(true);
   });
+
+  it("publishing scope returns all zeros for empty input", () => {
+    const stats = mapStats({}, "publishing");
+    expect(Object.values(stats).every(v => v === 0)).toBe(true);
+  });
 });
 
 // ─── Tests: account status rules ──────────────────────────────────
 
 describe("mapStats — account status rules", () => {
   it("counts only approved institutions", () => {
-    // The SQL function filters WHERE status = 'approved'
-    // This test verifies the mapping logic handles the approved counts correctly
     const raw = { colleges: 10, institutes: 5, schools: 3 };
     const stats = mapStats(raw, "all");
     expect(stats.colleges).toBe(10);
@@ -365,10 +410,7 @@ describe("mapStats — account status rules", () => {
   });
 
   it("pending/rejected institutions are NOT in the count (SQL filters them out)", () => {
-    // If the SQL returned pending=5, rejected=3, those wouldn't appear
-    // in the response because the SQL only counts status='approved'
-    // This test verifies the mapping doesn't accidentally include them
-    const raw = { colleges: 10 }; // only approved colleges
+    const raw = { colleges: 10 };
     const stats = mapStats(raw, "all");
     expect(stats.colleges).toBe(10);
   });
@@ -390,7 +432,6 @@ describe("mapStats — deduplication", () => {
       school_students: 500,
     };
     const stats = mapStats(raw, "all");
-    // uni = 80 + 200 = 280, school = 500, total = 780
     expect(stats.students).toBe(780);
     expect(stats.universityStudents + stats.schoolStudents).toBe(stats.students);
   });
@@ -398,9 +439,38 @@ describe("mapStats — deduplication", () => {
   it("scoped counts do not overlap between university and school", () => {
     const uni = mapStats(UNIVERSITY_RAW, "university");
     const school = mapStats(SCHOOL_RAW, "school");
-    // University counts student+personal roles; school counts school_student
-    // These are distinct roles in profiles.role, so no overlap
-    expect(uni.students).toBe(200);   // student role (SQL combines student+personal)
-    expect(school.students).toBe(500); // school_student role
+    expect(uni.students).toBe(280);
+    expect(school.students).toBe(500);
+  });
+});
+
+// ─── Tests: data-integrity guarantees (SQL-level, documented) ─────
+
+describe("mapStats — data-integrity guarantees", () => {
+  it("SQL JOINs ensure only valid auth.users profiles are counted", () => {
+    // Orphaned profiles (deleted from auth.users) are excluded at SQL level
+    // via INNER JOIN auth.users u ON u.id = p.user_id
+    // This test documents that the mapping logic handles the clean result
+    const raw = { personal: 50, students: 100, school_students: 200 };
+    const stats = mapStats(raw, "all");
+    expect(stats.students).toBe(350);
+  });
+
+  it("SQL JOINs ensure only approved user_roles are counted", () => {
+    // Pending invitations (approved = false) are excluded at SQL level
+    // via INNER JOIN user_roles ur WHERE ur.approved = true
+    // This test documents that the mapping logic handles the clean result
+    const raw = { lecturers: 10, teachers: 5 };
+    const stats = mapStats(raw, "all");
+    expect(stats.lecturers).toBe(10);
+    expect(stats.teachers).toBe(5);
+  });
+
+  it("SQL COUNT(DISTINCT) prevents double-counting from multi-role memberships", () => {
+    // A user with multiple approved roles appears only once per COUNT(DISTINCT)
+    // This test documents that the mapping logic handles the deduplicated result
+    const raw = { students: 100, school_students: 50 };
+    const stats = mapStats(raw, "all");
+    expect(stats.students).toBe(150);
   });
 });

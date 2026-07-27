@@ -25,7 +25,7 @@ const CoursesPlatform = () => {
   const { data: stats } = usePlatformStats("courses");
   const lecturers = useCountUp(stats?.lecturers ?? 0);
   const teachers = useCountUp(stats?.teachers ?? 0);
-  const students = useCountUp((stats?.universityStudents ?? 0) + (stats?.schoolStudents ?? 0));
+  const students = useCountUp(stats?.students ?? 0);
   const trainingCenters = useCountUp(stats?.trainingCenters ?? 0);
   const languageCenters = useCountUp(stats?.languageCenters ?? 0);
 

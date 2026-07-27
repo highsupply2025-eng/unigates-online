@@ -76,13 +76,27 @@ async function rollbackNewUser(admin: ReturnType<typeof createClient>, uid: stri
 }
 
 async function findExistingAuthUser(admin: ReturnType<typeof createClient>, email: string) {
+  const target = email.trim().toLowerCase();
+
+  try {
+    const { data } = await admin.auth.admin.listUsers({
+      page: 1,
+      perPage: 1,
+      filter: `email.eq.${target}`,
+    } as any);
+    const hit = (data?.users || []).find((u: any) => u.email?.toLowerCase() === target);
+    if (hit) return hit;
+  } catch (_) {
+    /* fallthrough to brute-force */
+  }
+
   let page = 1;
   while (true) {
     const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
     if (error) throw error;
 
     const users = data?.users || [];
-    const existing = users.find((u: any) => (u.email || "").trim().toLowerCase() === email);
+    const existing = users.find((u: any) => (u.email || "").trim().toLowerCase() === target);
     if (existing) return existing;
 
     if (users.length < 1000) break;
@@ -264,8 +278,8 @@ Deno.serve(async (req) => {
 
         if (d.institution_type === "college") {
           const { error: collegeMemberErr } = await admin.from("college_members").upsert(
-            { user_id: uid, college_id: d.institution_id, role: "student" },
-            { onConflict: "user_id,college_id" } as any,
+            { college_id: d.institution_id, user_id: uid, role: "student" },
+            { onConflict: "college_id,user_id" } as any,
           );
           if (collegeMemberErr) throw new Error(`college_members: ${collegeMemberErr.message}`);
         }

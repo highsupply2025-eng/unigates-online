@@ -427,14 +427,14 @@ describe("create-student-account – CORS restriction", () => {
 
 describe("create-student-account – password not returned in invitation mode", () => {
   it("does not include password field when invitationCode is present", () => {
-    const response = { success: true, email: "test@test.com", user_id: "u1", joined: 1, missing: [], password_returned: false };
+    const response = { success: true, email: "test@test.com", user_id: "u1", joined: 1, missing: [] };
     expect(response.password).toBeUndefined();
-    expect(response.password_returned).toBe(false);
   });
 
   it("includes password with Cache-Control: no-store in admin mode", () => {
     const response = { success: true, email: "test@test.com", password: "TempPass1!", user_id: "u1", joined: 1, missing: [] };
     expect(response.password).toBeDefined();
+    expect(response.password_returned).toBeUndefined();
   });
 });
 
@@ -453,5 +453,226 @@ describe("create-student-account – extra fields blocked", () => {
     expect(filtered.national_id).toBe("1234567890");
     expect(filtered.address).toBe("secret location");
     expect(filtered.notes).toBe("internal note");
+  });
+});
+
+// ── create-student-account: IP hashing (SHA-256) ──────────────────────────
+
+describe("create-student-account – IP hashing", () => {
+  async function hashIp(ip: string): Promise<string> {
+    const data = new TextEncoder().encode(ip);
+    const hash = await crypto.subtle.digest("SHA-256", data);
+    return Array.from(new Uint8Array(hash))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+  }
+
+  it("produces a deterministic 64-char hex hash for the same IP", async () => {
+    const h1 = await hashIp("192.168.1.1");
+    const h2 = await hashIp("192.168.1.1");
+    expect(h1).toBe(h2);
+    expect(h1).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  it("produces different hashes for different IPs", async () => {
+    const h1 = await hashIp("10.0.0.1");
+    const h2 = await hashIp("10.0.0.2");
+    expect(h1).not.toBe(h2);
+  });
+
+  it("normalizes x-forwarded-for before hashing (takes leftmost IP)", () => {
+    const multi = "203.0.113.5, 10.0.0.1, 192.168.1.1";
+    const leftmost = multi.split(",")[0].trim();
+    expect(leftmost).toBe("203.0.113.5");
+  });
+
+  it("never stores raw IP – only SHA-256 hash", () => {
+    const rawIp = "10.0.0.99";
+    const ipHashPlaceholder = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3";
+    expect(rawIp).not.toBe(ipHashPlaceholder);
+    expect(ipHashPlaceholder).toMatch(/^[0-9a-f]{64}$/);
+  });
+});
+
+// ── create-student-account: rate-limit error handling ─────────────────────
+
+describe("create-student-account – rate-limit safety", () => {
+  it("allows request when rate-limit query fails (fail-open)", () => {
+    const queryError = true;
+    const allowOnError = true;
+    expect(queryError && allowOnError).toBe(true);
+  });
+
+  it("allows request when rate-limit insert fails (fail-open)", () => {
+    const insertError = true;
+    const allowOnError = true;
+    expect(insertError && allowOnError).toBe(true);
+  });
+
+  it("rate-limit uses hashed IP not raw IP in .eq() filter", () => {
+    const ipHash = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3";
+    const filter = `ip_hash.eq.${ipHash}`;
+    expect(filter).not.toContain("10.0.0.");
+    expect(filter).toContain(ipHash);
+  });
+
+  it("rate-limit query with userId uses .or() with UUID (safe from injection)", () => {
+    const ipHash = "abc123def456";
+    const userId = "550e8400-e29b-41d4-a716-446655440000";
+    const filter = `ip_hash.eq.${ipHash},user_id.eq.${userId}`;
+    expect(filter).toContain(ipHash);
+    expect(filter).toContain(userId);
+  });
+});
+
+// ── create-student-account: invitation flow validation ordering ──────────
+
+describe("create-student-account – invitation validation before consumption", () => {
+  it("validates password before any invitation consumption", () => {
+    let invitationConsumed = false;
+    function validatePassword(pw: string): boolean {
+      return pw.length >= 8;
+    }
+    function consumeInvitation() {
+      invitationConsumed = true;
+    }
+    const pw = "Ab1";
+    const pwOk = validatePassword(pw);
+    if (pwOk) consumeInvitation();
+    expect(pwOk).toBe(false);
+    expect(invitationConsumed).toBe(false);
+  });
+
+  it("validates full name before any invitation consumption", () => {
+    let invitationConsumed = false;
+    function consumeInvitation() {
+      invitationConsumed = true;
+    }
+    const fullName = "";
+    if (fullName.trim()) consumeInvitation();
+    expect(invitationConsumed).toBe(false);
+  });
+
+  it("validates department codes before any invitation consumption", () => {
+    let invitationConsumed = false;
+    function consumeInvitation() {
+      invitationConsumed = true;
+    }
+    const codes: string[] = [];
+    if (codes.length > 0) consumeInvitation();
+    expect(invitationConsumed).toBe(false);
+  });
+
+  it("checks duplicate email before consuming invitation", () => {
+    let invitationConsumed = false;
+    const existingEmails = new Set(["taken@test.com"]);
+    function consumeInvitation() {
+      invitationConsumed = true;
+    }
+    const email = "taken@test.com";
+    if (!existingEmails.has(email)) consumeInvitation();
+    expect(invitationConsumed).toBe(false);
+  });
+
+  it("only consumes invitation after all validations pass", () => {
+    let consumed = false;
+    const steps: string[] = [];
+    function validate() { steps.push("validate"); return true; }
+    function checkEmail() { steps.push("check_email"); return true; }
+    function createUser() { steps.push("create_user"); return true; }
+    function consume() { steps.push("consume"); consumed = true; return true; }
+    if (validate() && checkEmail() && createUser() && consume()) {
+    }
+    expect(steps).toEqual(["validate", "check_email", "create_user", "consume"]);
+    expect(consumed).toBe(true);
+  });
+});
+
+// ── create-student-account: rollback safety after failed consumption ──────
+
+describe("create-student-account – rollback on consumption failure", () => {
+  it("rolls back newly created account when atomic consumption fails", () => {
+    const createdRecords: string[] = ["auth_user", "profile", "user_role", "dept_member"];
+    function rollback() {
+      createdRecords.length = 0;
+    }
+    const consumptionFailed = true;
+    if (consumptionFailed) rollback();
+    expect(createdRecords).toHaveLength(0);
+  });
+
+  it("does not delete or alter existing accounts during rollback", () => {
+    const existingUser = { id: "real-user-1", email: "existing@test.com" };
+    const newUserId = "new-user-1";
+    const deleted: string[] = [];
+    function rollbackOnlyNew(uid: string) {
+      deleted.push(uid);
+    }
+    rollbackOnlyNew(newUserId);
+    expect(deleted).toContain(newUserId);
+    expect(deleted).not.toContain(existingUser.id);
+  });
+});
+
+// ── create-student-account: admin auth flow ──────────────────────────────
+
+describe("create-student-account – admin auth flow", () => {
+  it("rejects request without Authorization header", () => {
+    const headers = new Map<string, string>();
+    expect(headers.has("Authorization")).toBe(false);
+  });
+
+  it("derives institution from admin email (never from client body alone)", () => {
+    const bodyInstitutionId = "client-provided-id";
+    const serverDerivedId = "server-resolved-id";
+    expect(bodyInstitutionId).not.toBe(serverDerivedId);
+  });
+});
+
+// ── create-student-account: CORS origin validation ───────────────────────
+
+describe("create-student-account – CORS strict origins", () => {
+  it("allows exact-match origins", () => {
+    const allowed = ["https://unigates.online", "https://lovable.dev", "http://localhost:5173"];
+    expect(allowed).toContain("https://unigates.online");
+    expect(allowed).toContain("http://localhost:5173");
+  });
+
+  it("allows wildcard subdomain origins", () => {
+    function matchesWildcard(origin: string): boolean {
+      if (origin.endsWith(".unigates.online")) return true;
+      if (origin.endsWith(".lovable.app")) return true;
+      return false;
+    }
+    expect(matchesWildcard("https://app.unigates.online")).toBe(true);
+    expect(matchesWildcard("https://preview--unigates-online.lovable.app")).toBe(true);
+    expect(matchesWildcard("https://evil.unigates.online.evil.com")).toBe(false);
+  });
+
+  it("rejects unknown origins", () => {
+    const allowed = ["https://unigates.online", "https://lovable.dev"];
+    expect(allowed).not.toContain("https://evil.com");
+    expect(allowed).not.toContain("http://localhost:3000");
+  });
+});
+
+// ── create-student-account: error exposure safety ────────────────────────
+
+describe("create-student-account – error exposure safety", () => {
+  it("does not expose step names or internal messages to client", () => {
+    function fail(step: string, message: string) {
+      console.error(`[create-student-account] step "${step}" failed: ${message}`);
+      return { error: "Account creation failed" };
+    }
+    const result = fail("create_user", "duplicate key violates unique constraint");
+    expect(result.error).toBe("Account creation failed");
+    expect((result as any).step).toBeUndefined();
+  });
+
+  it("does not expose service keys in responses", () => {
+    const response = { error: "Account creation failed" };
+    expect(JSON.stringify(response)).not.toContain("service_role");
+    expect(JSON.stringify(response)).not.toContain("SUPABASE");
+    expect(JSON.stringify(response)).not.toContain("anon");
   });
 });

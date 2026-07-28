@@ -46,25 +46,56 @@ function genPassword() {
   return out;
 }
 
+async function hashIp(ip: string): Promise<string> {
+  const data = new TextEncoder().encode(ip);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_ATTEMPTS = 5;
 
-async function checkRateLimit(admin: ReturnType<typeof createClient>, ip: string, userId?: string): Promise<boolean> {
-  const cutoff = new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString();
-  const { count } = await admin
-    .from("invitation_rate_limits")
-    .select("*", { count: "exact", head: true })
-    .or(`ip_hash.eq.${ip}${userId ? `,user_id.eq.${userId}` : ""}`)
-    .gte("attempted_at", cutoff);
-  return (count || 0) < RATE_LIMIT_MAX_ATTEMPTS;
+async function checkRateLimit(admin: ReturnType<typeof createClient>, ipHash: string, userId?: string): Promise<boolean> {
+  try {
+    const cutoff = new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString();
+    let query = admin
+      .from("invitation_rate_limits")
+      .select("*", { count: "exact", head: true })
+      .gte("attempted_at", cutoff);
+
+    if (userId) {
+      query = query.or(`ip_hash.eq.${ipHash},user_id.eq.${userId}`);
+    } else {
+      query = query.eq("ip_hash", ipHash);
+    }
+
+    const { count, error } = await query;
+    if (error) {
+      console.error("[create-student-account] checkRateLimit error:", error.message);
+      return true;
+    }
+    return (count || 0) < RATE_LIMIT_MAX_ATTEMPTS;
+  } catch (e) {
+    console.error("[create-student-account] checkRateLimit unexpected error:", String(e));
+    return true;
+  }
 }
 
-async function recordAttempt(admin: ReturnType<typeof createClient>, ip: string, userId?: string) {
-  await admin.from("invitation_rate_limits").insert({
-    ip_hash: ip,
-    user_id: userId || null,
-    action_type: "create_student_account",
-  });
+async function recordAttempt(admin: ReturnType<typeof createClient>, ipHash: string, userId?: string) {
+  try {
+    const { error } = await admin.from("invitation_rate_limits").insert({
+      ip_hash: ipHash,
+      user_id: userId || null,
+      action_type: "create_student_account",
+    });
+    if (error) {
+      console.error("[create-student-account] recordAttempt insert error:", error.message);
+    }
+  } catch (e) {
+    console.error("[create-student-account] recordAttempt unexpected error:", String(e));
+  }
 }
 
 function json(b: unknown, s = 200, extraHeaders: Record<string, string> = {}) {
@@ -74,9 +105,9 @@ function json(b: unknown, s = 200, extraHeaders: Record<string, string> = {}) {
   });
 }
 
-function fail(step: string, message: string, status = 500, extra: Record<string, unknown> = {}) {
-  console.error(`[create-student-account:${step}] failed`);
-  return json({ success: false, step, error: message, ...extra }, status);
+function fail(step: string, message: string, status = 500) {
+  console.error(`[create-student-account] step "${step}" failed: ${message}`);
+  return json({ error: "Account creation failed" }, status);
 }
 
 function isEmailAlreadyExistsError(error: any) {
@@ -87,7 +118,7 @@ function isEmailAlreadyExistsError(error: any) {
 
 function validatePassword(pw: string): { ok: boolean; reason?: string } {
   if (!pw || typeof pw !== "string") return { ok: false, reason: "Password is required" };
-  if (pw !== pw.trim()) return { ok: false, reason: "Password must not have leading/trailing spaces" };
+  if (pw !== pw.trim()) return { ok: false, reason: "Password must not have leading or trailing spaces" };
   if (pw.length < 8) return { ok: false, reason: "Password must be at least 8 characters" };
   if (!/[A-Z]/.test(pw)) return { ok: false, reason: "Password must contain an uppercase letter" };
   if (!/[a-z]/.test(pw)) return { ok: false, reason: "Password must contain a lowercase letter" };
@@ -99,9 +130,15 @@ function validatePassword(pw: string): { ok: boolean; reason?: string } {
 async function rollbackNewUser(admin: ReturnType<typeof createClient>, uid: string) {
   const tables = ["department_members", "college_members", "user_roles", "profiles"] as const;
   for (const table of tables) {
-    await admin.from(table).delete().eq("user_id", uid);
+    const { error } = await admin.from(table).delete().eq("user_id", uid);
+    if (error) {
+      console.error(`[create-student-account] rollback failed for ${table}: ${error.message}`);
+    }
   }
-  await admin.auth.admin.deleteUser(uid);
+  const { error } = await admin.auth.admin.deleteUser(uid);
+  if (error) {
+    console.error(`[create-student-account] rollback failed to delete auth user ${uid}: ${error.message}`);
+  }
 }
 
 Deno.serve(async (req) => {
@@ -117,54 +154,95 @@ Deno.serve(async (req) => {
     const fullName = String(body.full_name || "").trim();
     let email = String(body.email || "").trim().toLowerCase();
     const phone = String(body.phone || "").trim();
-    const codes: string[] = Array.from(new Set((body.department_codes || []).map((c: string) => String(c).trim().toUpperCase()).filter(Boolean)));
+    const codes: string[] = Array.from(new Set(
+      (body.department_codes || []).map((c: string) => String(c).trim().toUpperCase()).filter(Boolean)
+    ));
     const invitationCode = String(body.invitation_code || "").trim();
     const temporaryPassword = String(body.temporary_password || "").trim();
 
     if (!fullName) return json({ error: "Missing full_name" }, 400, headers);
     if (codes.length === 0) return json({ error: "Missing department codes" }, 400, headers);
 
-    const admin = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
+    const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
 
-    const clientIp = req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip") || "unknown";
+    const rawIp = (req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip") || "unknown")
+      .split(",")[0]
+      .trim();
+    const ipHash = await hashIp(rawIp);
 
     let institutionId: string;
     let institutionType: "college" | "institute";
+    let callerUserId: string | undefined;
 
+    // ── Invitation flow ──────────────────────────────────────────────
     if (invitationCode) {
-      if (!(await checkRateLimit(admin, clientIp))) {
+      if (!(await checkRateLimit(admin, ipHash))) {
         return json({ error: "Too many attempts. Please try again later." }, 429, headers);
       }
-      await recordAttempt(admin, clientIp);
-
-      const { data: consumeResult, error: consumeErr } = await admin.rpc(
-        "consume_institution_invitation" as any,
-        { _code: invitationCode },
-      );
-
-      if (consumeErr) return fail("consume_invitation", "Failed to process invitation", 500);
-
-      const inv = consumeResult?.[0];
-      if (!inv || !inv.is_valid) {
-        return json({ error: "Invalid, expired, or already used invitation" }, 400, headers);
-      }
-
-      if ((inv.role || "").toLowerCase() !== "student") {
-        return fail("consume_invitation", "This invitation is not for students", 400);
-      }
-
-      institutionId = inv.institution_id;
-      institutionType = inv.kind === "college" ? "college" : "institute";
 
       const pwCheck = validatePassword(temporaryPassword);
       if (!pwCheck.ok) {
-        return json({ error: pwCheck.reason || "Invalid password" }, 400, headers);
+        return json({ error: pwCheck.reason }, 400, headers);
       }
-    } else {
+
+      await recordAttempt(admin, ipHash);
+
+      const { data: collegeInv, error: collegeErr } = await admin
+        .from("college_invitations")
+        .select("role, college_id")
+        .eq("invitation_code", invitationCode)
+        .eq("is_active", true)
+        .or("expires_at.is.null,expires_at.gt.now()")
+        .maybeSingle();
+
+      if (collegeErr) return fail("invitation_lookup", "Failed to validate invitation", 500);
+
+      if (collegeInv) {
+        if ((collegeInv.role || "").toLowerCase() !== "student") {
+          return json({ error: "This invitation is not for students" }, 400, headers);
+        }
+        institutionId = collegeInv.college_id;
+        institutionType = "college";
+      } else {
+        const { data: instituteInv, error: instituteErr } = await admin
+          .from("institute_invitations")
+          .select("role, institute_id")
+          .eq("invitation_code", invitationCode)
+          .eq("is_active", true)
+          .or("expires_at.is.null,expires_at.gt.now()")
+          .maybeSingle();
+
+        if (instituteErr) return fail("invitation_lookup", "Failed to validate invitation", 500);
+
+        if (!instituteInv) {
+          return json({ error: "Invalid, expired, or already used invitation" }, 400, headers);
+        }
+
+        if ((instituteInv.role || "").toLowerCase() !== "student") {
+          return json({ error: "This invitation is not for students" }, 400, headers);
+        }
+        institutionId = instituteInv.institute_id;
+        institutionType = "institute";
+      }
+    }
+    // ── Admin flow (authenticated institution admin) ─────────────────
+    else {
       const authHeader = req.headers.get("Authorization") || "";
-      const userClient = createClient(SUPABASE_URL, ANON_KEY, { global: { headers: { Authorization: authHeader } } });
+      const userClient = createClient(SUPABASE_URL, ANON_KEY, {
+        global: { headers: { Authorization: authHeader } },
+      });
       const { data: { user } } = await userClient.auth.getUser();
       if (!user?.email) return json({ error: "Unauthorized" }, 401, headers);
+
+      callerUserId = user.id;
+
+      if (!(await checkRateLimit(admin, ipHash, callerUserId))) {
+        return json({ error: "Too many attempts. Please try again later." }, 429, headers);
+      }
+
+      await recordAttempt(admin, ipHash, callerUserId);
 
       const callerEmail = user.email.toLowerCase();
       const { data: colleges } = await admin
@@ -198,25 +276,25 @@ Deno.serve(async (req) => {
         institutionId = match.id;
         institutionType = match.type;
       }
-
-      if (!(await checkRateLimit(admin, clientIp, user.id))) {
-        return json({ error: "Too many attempts. Please try again later." }, 429, headers);
-      }
-      await recordAttempt(admin, clientIp, user.id);
     }
 
+    // ── Resolve departments ──────────────────────────────────────────
     const { data: depts, error: deptErr } = await admin
       .from("departments")
       .select("id, department_code, institution_id, institution_type")
       .in("department_code", codes);
+
     if (deptErr) return fail("resolve_depts", "Failed to resolve departments", 500);
-    if (!depts || depts.length === 0) return json({ error: "No matching departments found" }, 404, headers);
+    if (!depts || depts.length === 0) {
+      return json({ error: "No matching departments found" }, 404, headers);
+    }
 
     const allowedDepts = depts.filter((d: any) => d.institution_id === institutionId);
     if (allowedDepts.length === 0) {
-      return json({ error: "Departments do not belong to the invited institution" }, 403, headers);
+      return json({ error: "Departments do not belong to the specified institution" }, 403, headers);
     }
 
+    // ── Build email if not provided ──────────────────────────────────
     if (!email) {
       const slug = fullName.toLowerCase().replace(/\s+/g, ".").replace(/[^a-z0-9.]/g, "").slice(0, 20) || "student";
       email = `${slug}.${Date.now().toString(36)}@unigates.online`;
@@ -224,13 +302,16 @@ Deno.serve(async (req) => {
 
     const password = invitationCode ? temporaryPassword : genPassword();
 
+    // ── Create user account and all related records ──────────────────
     let uid: string | null = null;
 
     try {
-      const existing = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 } as any);
-      const existingUser = (existing.data?.users || []).find((u: any) => (u.email || "").trim().toLowerCase() === email);
+      const { data: users } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 } as any);
+      const existingUser = (users?.users || []).find(
+        (u: any) => (u.email || "").trim().toLowerCase() === email
+      );
       if (existingUser) {
-        return json({ error: "Account already exists", code: "ACCOUNT_ALREADY_EXISTS" }, 409, headers);
+        return json({ error: "An account with this email already exists" }, 409, headers);
       }
 
       const { data: created, error: ce } = await admin.auth.admin.createUser({
@@ -243,13 +324,15 @@ Deno.serve(async (req) => {
           must_change_password: invitationCode ? false : true,
         },
       });
+
       if (ce) {
         if (isEmailAlreadyExistsError(ce)) {
-          return json({ error: "Account already exists", code: "ACCOUNT_ALREADY_EXISTS" }, 409, headers);
+          return json({ error: "An account with this email already exists" }, 409, headers);
         }
         throw ce;
       }
-      if (!created.user) throw new Error("createUser failed");
+      if (!created.user) throw new Error("createUser returned no user");
+
       uid = created.user.id;
 
       const { error: pe } = await admin.from("profiles").insert({
@@ -260,14 +343,14 @@ Deno.serve(async (req) => {
         role: "student",
         platform: "courses",
       });
-      if (pe) throw new Error(`profile: ${pe.message}`);
+      if (pe) throw new Error(`profile insert: ${pe.message}`);
 
       const { error: roleErr } = await admin.from("user_roles").insert({
         user_id: uid,
         role: "student" as any,
         approved: true,
       });
-      if (roleErr) throw new Error(`user_roles: ${roleErr.message}`);
+      if (roleErr) throw new Error(`user_roles insert: ${roleErr.message}`);
 
       let joined = 0;
       for (const d of allowedDepts) {
@@ -280,27 +363,44 @@ Deno.serve(async (req) => {
           email,
           phone: phone || null,
         });
-        if (memberErr) throw new Error(`department_members: ${memberErr.message}`);
+        if (memberErr) throw new Error(`department_members insert: ${memberErr.message}`);
 
         if (d.institution_type === "college") {
-          const { error: collegeMemberErr } = await admin.from("college_members").upsert(
+          const { error: colMemberErr } = await admin.from("college_members").upsert(
             { college_id: d.institution_id, user_id: uid, role: "student" },
             { onConflict: "college_id,user_id" } as any,
           );
-          if (collegeMemberErr) throw new Error(`college_members: ${collegeMemberErr.message}`);
+          if (colMemberErr) throw new Error(`college_members upsert: ${colMemberErr.message}`);
         }
 
         joined++;
       }
 
-      const missing = codes.filter(c => !allowedDepts.some((d: any) => (d.department_code || "").toUpperCase() === c));
+      // ── Consume invitation AFTER successful account creation ───────
+      if (invitationCode) {
+        const { data: consumeResult, error: consumeErr } = await admin.rpc(
+          "consume_institution_invitation" as any,
+          { _code: invitationCode },
+        );
+
+        if (consumeErr) {
+          throw new Error(`invitation consumption rpc error: ${consumeErr.message}`);
+        }
+
+        const invResult = consumeResult?.[0];
+        if (!invResult || !invResult.is_valid) {
+          throw new Error("invitation already consumed or expired");
+        }
+      }
+
+      const missing = codes.filter(
+        (c) => !allowedDepts.some((d: any) => (d.department_code || "").toUpperCase() === c)
+      );
 
       const response: Record<string, any> = { success: true, email, user_id: uid, joined, missing };
       const extraHeaders: Record<string, string> = {};
 
-      if (invitationCode) {
-        response.password_returned = false;
-      } else {
+      if (!invitationCode) {
         response.password = password;
         extraHeaders["Cache-Control"] = "no-store, no-cache, must-revalidate, private";
       }

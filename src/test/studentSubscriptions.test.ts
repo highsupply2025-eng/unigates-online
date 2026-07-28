@@ -67,35 +67,35 @@ describe("StudentSubscriptions – filterAndSort", () => {
   });
 
   it("filters by name (Arabic)", () => {
-    const result = filterAndSort(students, "أحمد", "", "asc");
+    const result = filterAndSort(students, "أحمد", "full_name", "asc");
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe("1");
   });
 
   it("filters by email", () => {
-    const result = filterAndSort(students, "sara", "", "asc");
+    const result = filterAndSort(students, "sara", "full_name", "asc");
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe("2");
   });
 
   it("filters by department name", () => {
-    const result = filterAndSort(students, "计算机", "", "asc");
+    const result = filterAndSort(students, "计算机", "full_name", "asc");
     expect(result).toHaveLength(2);
   });
 
   it("returns empty when nothing matches", () => {
-    const result = filterAndSort(students, "xyz999", "", "asc");
+    const result = filterAndSort(students, "xyz999", "full_name", "asc");
     expect(result).toHaveLength(0);
   });
 
   it("search is case-insensitive", () => {
-    const result = filterAndSort(students, "SARA", "", "asc");
+    const result = filterAndSort(students, "SARA", "full_name", "asc");
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe("2");
   });
 
   it("trims whitespace in search", () => {
-    const result = filterAndSort(students, "  sara  ", "", "asc");
+    const result = filterAndSort(students, "  sara  ", "full_name", "asc");
     expect(result).toHaveLength(1);
   });
 

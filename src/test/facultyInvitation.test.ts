@@ -111,7 +111,7 @@ describe("Faculty invitation form behavior", () => {
   });
 
   it("invitation mode rejects mismatched passwords", () => {
-    const password = "StrongP4ss";
+    const password: string = "StrongP4ss";
     const confirmPassword = "Different1";
     const fullName = "Dr. Ahmed";
     const role = "professor";

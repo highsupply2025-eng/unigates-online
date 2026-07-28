@@ -2763,6 +2763,41 @@ export type Database = {
           role: string
         }[]
       }
+      get_institution_student_subscriptions: {
+        Args: {
+          p_page?: number
+          p_page_size?: number
+          p_search?: string
+          p_sort_by?: string
+          p_sort_dir?: string
+        }
+        Returns: {
+          error: string | null
+          data: {
+            id: string
+            full_name: string
+            email: string | null
+            phone: string | null
+            department_id: string
+            department_name: string
+            user_id: string | null
+            created_at: string
+            photo_url: string | null
+          }[]
+          total: number
+        }
+      }
+      consume_institution_invitation: {
+        Args: { _code: string }
+        Returns: {
+          is_valid: boolean
+          kind: string | null
+          role: string | null
+          institution_id: string | null
+          institution_name: string | null
+          error_message: string | null
+        }[]
+      }
     }
     Enums: {
       app_role:

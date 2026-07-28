@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  ArrowLeft, ArrowRight, Search, Loader2, Users, GraduationCap,
-  ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown,
+  Search, Loader2, Users, GraduationCap,
+  ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, AlertTriangle, RefreshCw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 import BackButton from "@/components/BackButton";
 
 interface StudentRecord {
@@ -26,9 +25,22 @@ interface StudentRecord {
   photo_url: string | null;
 }
 
+interface RpcResponse {
+  error: string | null;
+  data: StudentRecord[];
+  total: number;
+}
+
 type SortKey = "full_name" | "email" | "department_name" | "created_at";
 type SortDir = "asc" | "desc";
 const PAGE_SIZE = 20;
+
+const arCollator = typeof Intl !== "undefined" ? new Intl.Collator("ar") : undefined;
+
+function safeCompare(a: string, b: string, dir: SortDir): number {
+  const cmp = arCollator ? arCollator.compare(a, b) : a.localeCompare(b);
+  return dir === "asc" ? cmp : -cmp;
+}
 
 const StudentSubscriptions = () => {
   const { language } = useLanguage();
@@ -36,141 +48,77 @@ const StudentSubscriptions = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-  const [students, setStudents] = useState<StudentRecord[]>([]);
-  const [institutionId, setInstitutionId] = useState("");
-  const [institutionType, setInstitutionType] = useState<"college" | "institute" | null>(null);
-  const [institutionName, setInstitutionName] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<StudentRecord[]>([]);
+  const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("full_name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [page, setPage] = useState(1);
 
-  const loadStudents = useCallback(async (instId: string) => {
-    const { data: depts } = await supabase
-      .from("departments")
-      .select("id, department_name")
-      .eq("institution_id", instId);
+  const fetchStudents = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { navigate("/login"); return; }
 
-    if (!depts || depts.length === 0) {
-      setStudents([]);
-      return;
-    }
+      const { data: rpcData, error: rpcError } = await supabase.rpc(
+        "get_institution_student_subscriptions",
+        {
+          p_page: page,
+          p_page_size: PAGE_SIZE,
+          p_search: search.trim(),
+          p_sort_by: sortKey,
+          p_sort_dir: sortDir,
+        },
+      );
 
-    const deptMap = new Map(depts.map((d) => [d.id, d.department_name]));
-    const deptIds = depts.map((d) => d.id);
-
-    let allMembers: any[] = [];
-    const batchSize = 1000;
-    let from = 0;
-    let hasMore = true;
-    while (hasMore) {
-      const { data: batch } = await supabase
-        .from("department_members")
-        .select("*")
-        .eq("role", "student")
-        .not("user_id", "is", null)
-        .in("department_id", deptIds)
-        .range(from, from + batchSize - 1);
-      const rows = batch || [];
-      allMembers = allMembers.concat(rows);
-      hasMore = rows.length === batchSize;
-      from += batchSize;
-    }
-
-    const mapped: StudentRecord[] = allMembers.map((m: any) => ({
-      id: m.id,
-      full_name: m.full_name || "",
-      email: m.email || null,
-      phone: m.phone || null,
-      department_id: m.department_id,
-      department_name: deptMap.get(m.department_id) || m.department_id,
-      user_id: m.user_id,
-      created_at: m.created_at,
-      photo_url: m.photo_url || null,
-    }));
-
-    setStudents(mapped);
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user?.email) { navigate("/login"); return; }
-
-        let instId = "";
-        let instType: "college" | "institute" | null = null;
-        let instName = "";
-
-        const { data: college } = await supabase
-          .from("college_registrations")
-          .select("id, college_name")
-          .eq("email", user.email)
-          .eq("status", "approved")
-          .maybeSingle();
-        if (college) {
-          instId = college.id;
-          instType = "college";
-          instName = college.college_name;
-        } else {
-          const { data: inst } = await supabase
-            .from("institute_registrations")
-            .select("id, institute_name")
-            .eq("email", user.email)
-            .eq("status", "approved")
-            .maybeSingle();
-          if (inst) {
-            instId = inst.id;
-            instType = "institute";
-            instName = inst.institute_name;
-          }
-        }
-
-        if (!instId || !instType) {
+      if (rpcError) {
+        if (rpcError.code === "PGRST301" || rpcError.code === "42501") {
+          setError(isRtl ? "ليس لديك صلاحية الوصول إلى هذه الصفحة" : "You do not have permission to access this page");
+        } else if (rpcError.code === "401" || rpcError.message?.includes("JWT")) {
           navigate("/login");
           return;
+        } else {
+          setError(isRtl ? "حدث خطأ في تحميل البيانات" : "Failed to load data");
         }
-
-        setInstitutionId(instId);
-        setInstitutionType(instType);
-        setInstitutionName(instName);
-        await loadStudents(instId);
-      } catch (err) {
-        console.error("Failed to load student subscriptions:", err);
-      } finally {
-        setLoading(false);
+        return;
       }
-    })();
-  }, [navigate, loadStudents]);
 
-  useRealtimeRefresh(
-    ["department_members"],
-    () => { if (institutionId) loadStudents(institutionId); },
-    Boolean(institutionId),
-  );
+      const result = rpcData as unknown as RpcResponse;
+      if (result.error === "unauthorized") {
+        navigate("/login");
+        return;
+      }
+      if (result.error === "forbidden") {
+        setError(isRtl ? "ليس لديك صلاحية الوصول إلى هذه الصفحة" : "You do not have permission to access this page");
+        return;
+      }
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    let list = students;
-    if (q) {
-      list = list.filter(
-        (s) =>
-          s.full_name.toLowerCase().includes(q) ||
-          (s.email && s.email.toLowerCase().includes(q)) ||
-          s.department_name.toLowerCase().includes(q),
-      );
+      setData(result.data || []);
+      setTotal(result.total || 0);
+    } catch (err: any) {
+      setError(isRtl ? "حدث خطأ غير متوقع" : "An unexpected error occurred");
+    } finally {
+      setLoading(false);
     }
-    list = [...list].sort((a, b) => {
-      const av = (a[sortKey] ?? "").toString().toLowerCase();
-      const bv = (b[sortKey] ?? "").toString().toLowerCase();
-      return sortDir === "asc" ? av.localeCompare(bv) : bv.localeCompare(av);
-    });
-    return list;
-  }, [students, search, sortKey, sortDir]);
+  }, [page, search, sortKey, sortDir, navigate, isRtl]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  useEffect(() => {
+    fetchStudents();
+  }, [fetchStudents]);
+
+  const sorted = useMemo(() => {
+    return [...data].sort((a, b) => {
+      const av = (a[sortKey] ?? "").toString();
+      const bv = (b[sortKey] ?? "").toString();
+      return safeCompare(av, bv, sortDir);
+    });
+  }, [data, sortKey, sortDir]);
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const safePage = Math.max(1, Math.min(page, totalPages));
-  const paginated = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   useEffect(() => { setPage(1); }, [search]);
 
@@ -190,7 +138,7 @@ const StudentSubscriptions = () => {
       : <ArrowDown className="w-3.5 h-3.5 text-primary" />;
   };
 
-  if (loading) {
+  if (loading && data.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -207,11 +155,12 @@ const StudentSubscriptions = () => {
             <h1 className="font-extrabold text-lg sm:text-xl truncate">
               {isRtl ? "اشتراكات الطلاب" : "Student Subscriptions"}
             </h1>
-            <p className="text-xs text-muted-foreground truncate">{institutionName}</p>
           </div>
-          <Badge variant="secondary" className="shrink-0 text-sm">
-            {filtered.length} {isRtl ? "طالب" : "students"}
-          </Badge>
+          {!error && (
+            <Badge variant="secondary" className="shrink-0 text-sm">
+              {total} {isRtl ? "طالب" : "students"}
+            </Badge>
+          )}
         </div>
       </header>
 
@@ -219,14 +168,25 @@ const StudentSubscriptions = () => {
         <div className="relative">
           <Search className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground ${isRtl ? "right-3" : "left-3"}`} />
           <Input
-            placeholder={isRtl ? "بحث بالاسم أو القسم أو البريد..." : "Search by name, department or email..."}
+            placeholder={isRtl ? "بحث بالاسم أو البريد الإلكتروني..." : "Search by name or email..."}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className={isRtl ? "pe-9" : "ps-9"}
           />
         </div>
 
-        {students.length === 0 ? (
+        {error ? (
+          <Card>
+            <CardContent className="py-16 text-center space-y-3">
+              <AlertTriangle className="w-12 h-12 mx-auto text-destructive/60" />
+              <p className="text-muted-foreground font-medium">{error}</p>
+              <Button variant="outline" size="sm" onClick={fetchStudents}>
+                <RefreshCw className="w-4 h-4 ms-1" />
+                {isRtl ? "إعادة المحاولة" : "Retry"}
+              </Button>
+            </CardContent>
+          </Card>
+        ) : !loading && data.length === 0 && !search ? (
           <Card>
             <CardContent className="py-16 text-center space-y-3">
               <Users className="w-12 h-12 mx-auto text-muted-foreground/40" />
@@ -238,7 +198,7 @@ const StudentSubscriptions = () => {
               </Button>
             </CardContent>
           </Card>
-        ) : filtered.length === 0 ? (
+        ) : !loading && data.length === 0 && search ? (
           <Card>
             <CardContent className="py-16 text-center space-y-3">
               <Search className="w-12 h-12 mx-auto text-muted-foreground/40" />
@@ -266,18 +226,18 @@ const StudentSubscriptions = () => {
                             {isRtl ? "الاسم" : "Name"} <SortIcon col="full_name" />
                           </span>
                         </TableHead>
-                        <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("email")}>
+                        <TableHead className="cursor-pointer select-none hidden sm:table-cell" onClick={() => toggleSort("email")}>
                           <span className="inline-flex items-center gap-1">
                             {isRtl ? "البريد" : "Email"} <SortIcon col="email" />
                           </span>
                         </TableHead>
-                        <TableHead className="cursor-pointer select-none hidden sm:table-cell" onClick={() => toggleSort("department_name")}>
+                        <TableHead className="cursor-pointer select-none hidden md:table-cell" onClick={() => toggleSort("department_name")}>
                           <span className="inline-flex items-center gap-1">
                             {isRtl ? "القسم" : "Department"} <SortIcon col="department_name" />
                           </span>
                         </TableHead>
-                        <TableHead className="hidden md:table-cell">{isRtl ? "الهاتف" : "Phone"}</TableHead>
-                        <TableHead className="cursor-pointer select-none hidden lg:table-cell" onClick={() => toggleSort("created_at")}>
+                        <TableHead className="hidden lg:table-cell">{isRtl ? "الهاتف" : "Phone"}</TableHead>
+                        <TableHead className="cursor-pointer select-none hidden xl:table-cell" onClick={() => toggleSort("created_at")}>
                           <span className="inline-flex items-center gap-1">
                             {isRtl ? "تاريخ التسجيل" : "Registered"} <SortIcon col="created_at" />
                           </span>
@@ -286,24 +246,32 @@ const StudentSubscriptions = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {paginated.map((s) => (
-                        <TableRow key={s.id}>
-                          <TableCell className="font-medium">{s.full_name}</TableCell>
-                          <TableCell className="text-muted-foreground text-sm">{s.email || "—"}</TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            <Badge variant="outline" className="text-xs">{s.department_name}</Badge>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell text-muted-foreground text-sm">{s.phone || "—"}</TableCell>
-                          <TableCell className="hidden lg:table-cell text-muted-foreground text-sm">
-                            {new Date(s.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs">
-                              {isRtl ? "نشط" : "Active"}
-                            </Badge>
+                      {loading ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center py-8">
+                            <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" />
                           </TableCell>
                         </TableRow>
-                      ))}
+                      ) : (
+                        sorted.map((s) => (
+                          <TableRow key={s.id}>
+                            <TableCell className="font-medium">{s.full_name}</TableCell>
+                            <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">{s.email || "—"}</TableCell>
+                            <TableCell className="hidden md:table-cell">
+                              <Badge variant="outline" className="text-xs">{s.department_name}</Badge>
+                            </TableCell>
+                            <TableCell className="hidden lg:table-cell text-muted-foreground text-sm">{s.phone || "—"}</TableCell>
+                            <TableCell className="hidden xl:table-cell text-muted-foreground text-sm">
+                              {new Date(s.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs">
+                                {isRtl ? "نشط" : "Active"}
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
                     </TableBody>
                   </Table>
                 </div>
@@ -315,18 +283,18 @@ const StudentSubscriptions = () => {
                 <Button
                   variant="outline"
                   size="icon"
-                  disabled={safePage <= 1}
+                  disabled={safePage <= 1 || loading}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
                   {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
                 </Button>
                 <span className="text-sm text-muted-foreground min-w-[80px] text-center">
-                  {safePage} / {totalPages}
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : `${safePage} / ${totalPages}`}
                 </span>
                 <Button
                   variant="outline"
                   size="icon"
-                  disabled={safePage >= totalPages}
+                  disabled={safePage >= totalPages || loading}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 >
                   {isRtl ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}

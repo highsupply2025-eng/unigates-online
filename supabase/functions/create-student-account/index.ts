@@ -1,21 +1,36 @@
-// Create a student account instantly from the college admin dashboard or via invitation link.
-//
-// Admin mode (no invitation_code): caller must be the institution admin.
-//   Creates auth user with an auto-generated temporary password.
-//
-// Invitation mode (invitation_code present): public endpoint, no auth required.
-//   Uses the user-provided password and resolves the institution from the token.
-//
-// In both modes, creates profile + approved user_role + department_members rows
-// for each matching department code, plus college_members if applicable.
-
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+
+const ALLOWED_ORIGINS = [
+  "https://lovable.dev",
+  "https://*.lovable.app",
+  "https://unigates.online",
+  "https://*.unigates.online",
+  "https://preview--unigates-online.lovable.app",
+  "http://localhost:5173",
+];
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("origin") || "";
+  const allowed = ALLOWED_ORIGINS.some((p) => {
+    if (p.startsWith("https://*.")) {
+      return origin.endsWith(p.replace("https://*.", "."));
+    }
+    return origin === p;
+  });
+  if (allowed) {
+    return { ...corsHeaders, "Access-Control-Allow-Origin": origin };
+  }
+  return {
+    ...corsHeaders,
+    "Access-Control-Allow-Origin": "https://unigates.online",
+  };
+}
 
 function genPassword() {
   const alpha = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
@@ -30,15 +45,37 @@ function genPassword() {
   out = alpha[d[0] % alpha.length] + digits[d[1] % digits.length] + out.slice(2);
   return out;
 }
-function genCode(suffix: string) {
-  const r = Math.random().toString(36).slice(2, 8).toUpperCase();
-  return `STU-${Date.now().toString(36).toUpperCase()}-${r}-${suffix}`;
+
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_ATTEMPTS = 5;
+
+async function checkRateLimit(admin: ReturnType<typeof createClient>, ip: string, userId?: string): Promise<boolean> {
+  const cutoff = new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString();
+  const { count } = await admin
+    .from("invitation_rate_limits")
+    .select("*", { count: "exact", head: true })
+    .or(`ip_hash.eq.${ip}${userId ? `,user_id.eq.${userId}` : ""}`)
+    .gte("attempted_at", cutoff);
+  return (count || 0) < RATE_LIMIT_MAX_ATTEMPTS;
 }
-function json(b: unknown, s = 200) {
-  return new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
+async function recordAttempt(admin: ReturnType<typeof createClient>, ip: string, userId?: string) {
+  await admin.from("invitation_rate_limits").insert({
+    ip_hash: ip,
+    user_id: userId || null,
+    action_type: "create_student_account",
+  });
 }
+
+function json(b: unknown, s = 200, extraHeaders: Record<string, string> = {}) {
+  return new Response(JSON.stringify(b), {
+    status: s,
+    headers: { ...corsHeaders, "Content-Type": "application/json", ...extraHeaders },
+  });
+}
+
 function fail(step: string, message: string, status = 500, extra: Record<string, unknown> = {}) {
-  console.error(`[create-student-account:${step}] ${message}`);
+  console.error(`[create-student-account:${step}] failed`);
   return json({ success: false, step, error: message, ...extra }, status);
 }
 
@@ -61,53 +98,16 @@ function validatePassword(pw: string): { ok: boolean; reason?: string } {
 
 async function rollbackNewUser(admin: ReturnType<typeof createClient>, uid: string) {
   const tables = ["department_members", "college_members", "user_roles", "profiles"] as const;
-
   for (const table of tables) {
-    const { error } = await admin.from(table).delete().eq("user_id", uid);
-    if (error) {
-      console.error(`Rollback cleanup failed for ${table}:`, error?.message || error);
-    }
+    await admin.from(table).delete().eq("user_id", uid);
   }
-
-  const { error: deleteUserErr } = await admin.auth.admin.deleteUser(uid);
-  if (deleteUserErr) {
-    console.error("Rollback deleteUser failed:", deleteUserErr?.message || deleteUserErr);
-  }
-}
-
-async function findExistingAuthUser(admin: ReturnType<typeof createClient>, email: string) {
-  const target = email.trim().toLowerCase();
-
-  try {
-    const { data } = await admin.auth.admin.listUsers({
-      page: 1,
-      perPage: 1,
-      filter: `email.eq.${target}`,
-    } as any);
-    const hit = (data?.users || []).find((u: any) => u.email?.toLowerCase() === target);
-    if (hit) return hit;
-  } catch (_) {
-    /* fallthrough to brute-force */
-  }
-
-  let page = 1;
-  while (true) {
-    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
-    if (error) throw error;
-
-    const users = data?.users || [];
-    const existing = users.find((u: any) => (u.email || "").trim().toLowerCase() === target);
-    if (existing) return existing;
-
-    if (users.length < 1000) break;
-    page += 1;
-  }
-
-  return null;
+  await admin.auth.admin.deleteUser(uid);
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const headers = getCorsHeaders(req);
+  if (req.method === "OPTIONS") return new Response(null, { headers });
+
   try {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -121,55 +121,50 @@ Deno.serve(async (req) => {
     const invitationCode = String(body.invitation_code || "").trim();
     const temporaryPassword = String(body.temporary_password || "").trim();
 
-    const ALLOWED_EXTRA = [
-      "date_of_birth", "photo_url", "national_id", "gender",
-      "address", "qualification", "specialization", "hire_date", "notes",
-    ] as const;
-    const rawExtra = (body.extra && typeof body.extra === "object") ? body.extra : {};
-    const extra: Record<string, unknown> = Object.fromEntries(
-      Object.entries(rawExtra).filter(([k]) => (ALLOWED_EXTRA as readonly string[]).includes(k))
-    );
-
-    if (!fullName) return json({ error: "Missing full_name" }, 400);
-    if (codes.length === 0) return json({ error: "Missing department codes" }, 400);
+    if (!fullName) return json({ error: "Missing full_name" }, 400, headers);
+    if (codes.length === 0) return json({ error: "Missing department codes" }, 400, headers);
 
     const admin = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
+
+    const clientIp = req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip") || "unknown";
 
     let institutionId: string;
     let institutionType: "college" | "institute";
 
-    // ---- Two code paths ----
     if (invitationCode) {
-      // Invitation mode: resolve institution from token (no caller auth required)
-      const { data: invRows, error: invErr } = await admin.rpc(
-        "verify_institution_invitation" as any,
-        { _code: invitationCode }
+      if (!(await checkRateLimit(admin, clientIp))) {
+        return json({ error: "Too many attempts. Please try again later." }, 429, headers);
+      }
+      await recordAttempt(admin, clientIp);
+
+      const { data: consumeResult, error: consumeErr } = await admin.rpc(
+        "consume_institution_invitation" as any,
+        { _code: invitationCode },
       );
-      if (invErr) return fail("verify_invitation", invErr.message, 500);
-      const inv = invRows?.[0];
+
+      if (consumeErr) return fail("consume_invitation", "Failed to process invitation", 500);
+
+      const inv = consumeResult?.[0];
       if (!inv || !inv.is_valid) {
-        return fail("verify_invitation", "Invalid, expired, or already used invitation", 400);
+        return json({ error: "Invalid, expired, or already used invitation" }, 400, headers);
       }
 
-      const role = (inv.role || "").toLowerCase();
-      if (role !== "student") {
-        return fail("verify_invitation", "This invitation is not for students", 400);
+      if ((inv.role || "").toLowerCase() !== "student") {
+        return fail("consume_invitation", "This invitation is not for students", 400);
       }
 
       institutionId = inv.institution_id;
       institutionType = inv.kind === "college" ? "college" : "institute";
 
-      // Use the user-provided password
       const pwCheck = validatePassword(temporaryPassword);
       if (!pwCheck.ok) {
-        return fail("password", pwCheck.reason || "Invalid password", 400);
+        return json({ error: pwCheck.reason || "Invalid password" }, 400, headers);
       }
     } else {
-      // Admin mode: caller must be institution admin
       const authHeader = req.headers.get("Authorization") || "";
       const userClient = createClient(SUPABASE_URL, ANON_KEY, { global: { headers: { Authorization: authHeader } } });
       const { data: { user } } = await userClient.auth.getUser();
-      if (!user?.email) return json({ error: "Unauthorized" }, 401);
+      if (!user?.email) return json({ error: "Unauthorized" }, 401, headers);
 
       const callerEmail = user.email.toLowerCase();
       const { data: colleges } = await admin
@@ -188,28 +183,40 @@ Deno.serve(async (req) => {
       const owned = [...ownedColleges, ...ownedInstitutes];
 
       if (owned.length === 0) {
-        return json({ error: "No approved institution found for this admin" }, 403);
+        return json({ error: "No approved institution found for this admin" }, 403, headers);
       }
 
-      // Use the first owned institution (student accounts are institution-scoped)
-      institutionId = owned[0].id;
-      institutionType = owned[0].type;
+      if (owned.length === 1) {
+        institutionId = owned[0].id;
+        institutionType = owned[0].type;
+      } else {
+        const explicitId = String(body.institution_id || "").trim();
+        const match = owned.find((o) => o.id === explicitId);
+        if (!match) {
+          return json({ error: "Multiple institutions found; specify institution_id" }, 400, headers);
+        }
+        institutionId = match.id;
+        institutionType = match.type;
+      }
+
+      if (!(await checkRateLimit(admin, clientIp, user.id))) {
+        return json({ error: "Too many attempts. Please try again later." }, 429, headers);
+      }
+      await recordAttempt(admin, clientIp, user.id);
     }
 
-    // Resolve departments by code and verify they belong to the institution
     const { data: depts, error: deptErr } = await admin
       .from("departments")
       .select("id, department_code, institution_id, institution_type")
       .in("department_code", codes);
-    if (deptErr) return fail("resolve_depts", deptErr.message, 500);
-    if (!depts || depts.length === 0) return fail("resolve_depts", "No matching departments found", 404);
+    if (deptErr) return fail("resolve_depts", "Failed to resolve departments", 500);
+    if (!depts || depts.length === 0) return json({ error: "No matching departments found" }, 404, headers);
 
     const allowedDepts = depts.filter((d: any) => d.institution_id === institutionId);
     if (allowedDepts.length === 0) {
-      return fail("resolve_depts", "Departments do not belong to the invited institution", 403);
+      return json({ error: "Departments do not belong to the invited institution" }, 403, headers);
     }
 
-    // Synthesize email if not provided
     if (!email) {
       const slug = fullName.toLowerCase().replace(/\s+/g, ".").replace(/[^a-z0-9.]/g, "").slice(0, 20) || "student";
       email = `${slug}.${Date.now().toString(36)}@unigates.online`;
@@ -218,31 +225,31 @@ Deno.serve(async (req) => {
     const password = invitationCode ? temporaryPassword : genPassword();
 
     let uid: string | null = null;
-    const existing = await findExistingAuthUser(admin, email);
-    if (existing) {
-      return json({ error: "Account already exists", code: "ACCOUNT_ALREADY_EXISTS" }, 409);
-    }
 
     try {
+      const existing = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 } as any);
+      const existingUser = (existing.data?.users || []).find((u: any) => (u.email || "").trim().toLowerCase() === email);
+      if (existingUser) {
+        return json({ error: "Account already exists", code: "ACCOUNT_ALREADY_EXISTS" }, 409, headers);
+      }
+
       const { data: created, error: ce } = await admin.auth.admin.createUser({
         email,
         password,
         email_confirm: true,
         user_metadata: {
           full_name: fullName,
-          seeded_via: invitationCode ? "student_invitation" : "college_admin",
+          seeded_via: invitationCode ? "student_invitation" : "institution_admin",
           must_change_password: invitationCode ? false : true,
         },
       });
       if (ce) {
         if (isEmailAlreadyExistsError(ce)) {
-          return json({ error: "Account already exists", code: "ACCOUNT_ALREADY_EXISTS" }, 409);
+          return json({ error: "Account already exists", code: "ACCOUNT_ALREADY_EXISTS" }, 409, headers);
         }
         throw ce;
       }
-      if (!created.user) {
-        throw new Error("createUser failed");
-      }
+      if (!created.user) throw new Error("createUser failed");
       uid = created.user.id;
 
       const { error: pe } = await admin.from("profiles").insert({
@@ -268,11 +275,10 @@ Deno.serve(async (req) => {
           department_id: d.id,
           full_name: fullName,
           role: "student",
-          invitation_code: genCode(d.department_code),
+          invitation_code: invitationCode || null,
           user_id: uid,
           email,
           phone: phone || null,
-          ...extra,
         });
         if (memberErr) throw new Error(`department_members: ${memberErr.message}`);
 
@@ -287,40 +293,26 @@ Deno.serve(async (req) => {
         joined++;
       }
 
-      // Mark invitation as used
+      const missing = codes.filter(c => !allowedDepts.some((d: any) => (d.department_code || "").toUpperCase() === c));
+
+      const response: Record<string, any> = { success: true, email, user_id: uid, joined, missing };
+      const extraHeaders: Record<string, string> = {};
+
       if (invitationCode) {
-        const invTable = institutionType === "college" ? "college_invitations" : "institute_invitations";
-        const idColumn = institutionType === "college" ? "college_id" : "institute_id";
-
-        // Read current counts
-        const { data: invRow } = await admin
-          .from(invTable as any)
-          .select("id, used_count, max_uses")
-          .eq("invitation_code", invitationCode)
-          .single();
-
-        if (invRow) {
-          const newUsedCount = (invRow.used_count || 0) + 1;
-          const maxUses = invRow.max_uses || 0;
-          await admin
-            .from(invTable as any)
-            .update({
-              used_count: newUsedCount,
-              ...(maxUses > 0 && newUsedCount >= maxUses ? { is_active: false } : {}),
-            } as any)
-            .eq("id", invRow.id);
-        }
+        response.password_returned = false;
+      } else {
+        response.password = password;
+        extraHeaders["Cache-Control"] = "no-store, no-cache, must-revalidate, private";
       }
 
-      const missing = codes.filter(c => !allowedDepts.some((d: any) => (d.department_code || "").toUpperCase() === c));
-      return json({ success: true, email, password, user_id: uid, joined, missing });
+      return json(response, 200, { ...headers, ...extraHeaders });
     } catch (e: any) {
       if (uid) {
         await rollbackNewUser(admin, uid);
       }
-      return json({ error: e?.message || String(e) }, 500);
+      return json({ error: "Account creation failed" }, 500, headers);
     }
   } catch (e: any) {
-    return json({ error: e?.message || String(e) }, 500);
+    return json({ error: "Internal server error" }, 500, { ...getCorsHeaders(req) });
   }
 });

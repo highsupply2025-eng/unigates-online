@@ -202,7 +202,7 @@ const StudentSubscriptions = () => {
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 flex items-center gap-3">
-          <BackButton fallback="/institution/dashboard" />
+          <BackButton to="/institution/dashboard" />
           <div className="flex-1 min-w-0">
             <h1 className="font-extrabold text-lg sm:text-xl truncate">
               {isRtl ? "اشتراكات الطلاب" : "Student Subscriptions"}

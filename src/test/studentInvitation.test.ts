@@ -284,7 +284,7 @@ describe("Student invitation integration", () => {
   });
 
   it("admin-add request has no invitation_code", () => {
-    const body = {
+    const body: Record<string, unknown> = {
       full_name: "محمد أحمد",
       email: null,
       phone: "+966500000000",

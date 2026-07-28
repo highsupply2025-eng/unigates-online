@@ -51,14 +51,14 @@ AS $function$
                        FROM public.profiles p
                        INNER JOIN auth.users        u ON u.id = p.user_id
                        INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                        AND ur.role = p.role
+                                                        AND ur.role::text = p.role
                                                         AND ur.approved = true
                       WHERE p.role = 'lecturer'),
       'students',   (SELECT COUNT(DISTINCT p.user_id)
                        FROM public.profiles p
                        INNER JOIN auth.users        u ON u.id = p.user_id
                        INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                        AND ur.role = p.role
+                                                        AND ur.role::text = p.role
                                                         AND ur.approved = true
                       WHERE p.role IN ('student', 'personal'))
     )
@@ -70,21 +70,21 @@ AS $function$
                      FROM public.profiles p
                      INNER JOIN auth.users        u ON u.id = p.user_id
                      INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                      AND ur.role = p.role
+                                                      AND ur.role::text = p.role
                                                       AND ur.approved = true
                     WHERE p.role = 'teacher'),
       'students', (SELECT COUNT(DISTINCT p.user_id)
                      FROM public.profiles p
                      INNER JOIN auth.users        u ON u.id = p.user_id
                      INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                      AND ur.role = p.role
+                                                      AND ur.role::text = p.role
                                                       AND ur.approved = true
                     WHERE p.role = 'school_student'),
       'parents',  (SELECT COUNT(DISTINCT p.user_id)
                      FROM public.profiles p
                      INNER JOIN auth.users        u ON u.id = p.user_id
                      INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                      AND ur.role = p.role
+                                                      AND ur.role::text = p.role
                                                       AND ur.approved = true
                     WHERE p.role = 'parent')
     )
@@ -95,35 +95,35 @@ AS $function$
                                FROM public.profiles p
                                INNER JOIN auth.users        u ON u.id = p.user_id
                                INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                                AND ur.role = p.role
+                                                                AND ur.role::text = p.role
                                                                 AND ur.approved = true
                               WHERE p.role IN ('student', 'personal', 'school_student')),
       'lecturers',         (SELECT COUNT(DISTINCT p.user_id)
                                FROM public.profiles p
                                INNER JOIN auth.users        u ON u.id = p.user_id
                                INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                                AND ur.role = p.role
+                                                                AND ur.role::text = p.role
                                                                 AND ur.approved = true
                               WHERE p.role = 'lecturer'),
       'teachers',          (SELECT COUNT(DISTINCT p.user_id)
                                FROM public.profiles p
                                INNER JOIN auth.users        u ON u.id = p.user_id
                                INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                                AND ur.role = p.role
+                                                                AND ur.role::text = p.role
                                                                 AND ur.approved = true
                               WHERE p.role = 'teacher'),
       'training_centers',  (SELECT COUNT(DISTINCT p.user_id)
                                FROM public.profiles p
                                INNER JOIN auth.users        u ON u.id = p.user_id
                                INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                                AND ur.role = p.role
+                                                                AND ur.role::text = p.role
                                                                 AND ur.approved = true
                               WHERE p.role = 'training_center'),
       'language_centers',  (SELECT COUNT(DISTINCT p.user_id)
                                FROM public.profiles p
                                INNER JOIN auth.users        u ON u.id = p.user_id
                                INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                                AND ur.role = p.role
+                                                                AND ur.role::text = p.role
                                                                 AND ur.approved = true
                               WHERE p.role = 'language_center')
     )
@@ -134,14 +134,14 @@ AS $function$
                         FROM public.profiles p
                         INNER JOIN auth.users        u ON u.id = p.user_id
                         INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                         AND ur.role = p.role
+                                                         AND ur.role::text = p.role
                                                          AND ur.approved = true
                        WHERE p.role = 'publisher'),
       'sellers',     (SELECT COUNT(DISTINCT p.user_id)
                         FROM public.profiles p
                         INNER JOIN auth.users        u ON u.id = p.user_id
                         INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                         AND ur.role = p.role
+                                                         AND ur.role::text = p.role
                                                          AND ur.approved = true
                        WHERE p.role = 'seller')
     )
@@ -155,63 +155,63 @@ AS $function$
                                FROM public.profiles p
                                INNER JOIN auth.users        u ON u.id = p.user_id
                                INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                                AND ur.role = p.role
+                                                                AND ur.role::text = p.role
                                                                 AND ur.approved = true
                               WHERE p.role = 'lecturer'),
       'personal',          (SELECT COUNT(DISTINCT p.user_id)
                                FROM public.profiles p
                                INNER JOIN auth.users        u ON u.id = p.user_id
                                INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                                AND ur.role = p.role
+                                                                AND ur.role::text = p.role
                                                                 AND ur.approved = true
                               WHERE p.role = 'personal'),
       'students',          (SELECT COUNT(DISTINCT p.user_id)
                                FROM public.profiles p
                                INNER JOIN auth.users        u ON u.id = p.user_id
                                INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                                AND ur.role = p.role
+                                                                AND ur.role::text = p.role
                                                                 AND ur.approved = true
                               WHERE p.role = 'student'),
       'school_students',   (SELECT COUNT(DISTINCT p.user_id)
                                FROM public.profiles p
                                INNER JOIN auth.users        u ON u.id = p.user_id
                                INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                                AND ur.role = p.role
+                                                                AND ur.role::text = p.role
                                                                 AND ur.approved = true
                               WHERE p.role = 'school_student'),
       'publishers',        (SELECT COUNT(DISTINCT p.user_id)
                                FROM public.profiles p
                                INNER JOIN auth.users        u ON u.id = p.user_id
                                INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                                AND ur.role = p.role
+                                                                AND ur.role::text = p.role
                                                                 AND ur.approved = true
                               WHERE p.role = 'publisher'),
       'teachers',          (SELECT COUNT(DISTINCT p.user_id)
                                FROM public.profiles p
                                INNER JOIN auth.users        u ON u.id = p.user_id
                                INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                                AND ur.role = p.role
+                                                                AND ur.role::text = p.role
                                                                 AND ur.approved = true
                               WHERE p.role = 'teacher'),
       'parents',           (SELECT COUNT(DISTINCT p.user_id)
                                FROM public.profiles p
                                INNER JOIN auth.users        u ON u.id = p.user_id
                                INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                                AND ur.role = p.role
+                                                                AND ur.role::text = p.role
                                                                 AND ur.approved = true
                               WHERE p.role = 'parent'),
       'training_centers',  (SELECT COUNT(DISTINCT p.user_id)
                                FROM public.profiles p
                                INNER JOIN auth.users        u ON u.id = p.user_id
                                INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                                AND ur.role = p.role
+                                                                AND ur.role::text = p.role
                                                                 AND ur.approved = true
                               WHERE p.role = 'training_center'),
       'language_centers',  (SELECT COUNT(DISTINCT p.user_id)
                                FROM public.profiles p
                                INNER JOIN auth.users        u ON u.id = p.user_id
                                INNER JOIN public.user_roles  ur ON ur.user_id = p.user_id
-                                                                AND ur.role = p.role
+                                                                AND ur.role::text = p.role
                                                                 AND ur.approved = true
                               WHERE p.role = 'language_center')
     )

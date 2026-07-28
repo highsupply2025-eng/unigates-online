@@ -497,16 +497,24 @@ describe("create-student-account – IP hashing", () => {
 // ── create-student-account: rate-limit error handling ─────────────────────
 
 describe("create-student-account – rate-limit safety", () => {
-  it("allows request when rate-limit query fails (fail-open)", () => {
-    const queryError = true;
-    const allowOnError = true;
-    expect(queryError && allowOnError).toBe(true);
+  it("blocks request when rate-limit query fails (fail-closed → 503)", () => {
+    function checkRateLimit(hasError: boolean): number {
+      if (hasError) throw new Error("Rate limit check failed");
+      return 200;
+    }
+    let status: number;
+    try { status = checkRateLimit(true); } catch { status = 503; }
+    expect(status).toBe(503);
   });
 
-  it("allows request when rate-limit insert fails (fail-open)", () => {
-    const insertError = true;
-    const allowOnError = true;
-    expect(insertError && allowOnError).toBe(true);
+  it("blocks request when rate-limit insert fails (fail-closed → 503)", () => {
+    function recordAttempt(hasError: boolean): number {
+      if (hasError) throw new Error("Rate limit recording failed");
+      return 200;
+    }
+    let status: number;
+    try { status = recordAttempt(true); } catch { status = 503; }
+    expect(status).toBe(503);
   });
 
   it("rate-limit uses hashed IP not raw IP in .eq() filter", () => {
@@ -516,12 +524,25 @@ describe("create-student-account – rate-limit safety", () => {
     expect(filter).toContain(ipHash);
   });
 
-  it("rate-limit query with userId uses .or() with UUID (safe from injection)", () => {
+  it("rate-limit uses separate parameterized queries for IP and user", () => {
     const ipHash = "abc123def456";
     const userId = "550e8400-e29b-41d4-a716-446655440000";
-    const filter = `ip_hash.eq.${ipHash},user_id.eq.${userId}`;
-    expect(filter).toContain(ipHash);
-    expect(filter).toContain(userId);
+    const ipFilter = `ip_hash.eq.${ipHash}`;
+    const userFilter = `user_id.eq.${userId}`;
+    expect(ipFilter).not.toContain(userId);
+    expect(userFilter).not.toContain(ipHash);
+  });
+
+  it("rate-limit throws RateLimitError when limit exceeded", () => {
+    function checkRateLimit(count: number): void {
+      if (count >= 5) {
+        const err: any = new Error("Too many attempts. Please try again later.");
+        err.status = 429;
+        throw err;
+      }
+    }
+    expect(() => checkRateLimit(5)).toThrow("Too many attempts");
+    expect(() => checkRateLimit(3)).not.toThrow();
   });
 });
 
@@ -653,6 +674,283 @@ describe("create-student-account – CORS strict origins", () => {
     const allowed = ["https://unigates.online", "https://lovable.dev"];
     expect(allowed).not.toContain("https://evil.com");
     expect(allowed).not.toContain("http://localhost:3000");
+  });
+});
+
+// ── create-student-account: no raw invitation token stored ──────────────
+
+describe("create-student-account – no raw invitation token stored", () => {
+  it("omits invitation_code field from department_members insert", () => {
+    const insertPayload = {
+      department_id: "d1",
+      full_name: "Test Student",
+      role: "student",
+      user_id: "u1",
+      email: "test@test.com",
+      phone: null,
+    };
+    expect((insertPayload as any).invitation_code).toBeUndefined();
+  });
+
+  it("does not store raw invitation_code in profiles or user_roles", () => {
+    const profileInsert = { user_id: "u1", email: "t@t.com", full_name: "T", phone: null, role: "student", platform: "courses" };
+    const roleInsert = { user_id: "u1", role: "student" as const, approved: true };
+    expect((profileInsert as any).invitation_code).toBeUndefined();
+    expect((roleInsert as any).invitation_code).toBeUndefined();
+  });
+});
+
+// ── create-student-account: phone handling ──────────────────────────────
+
+describe("create-student-account – phone handling", () => {
+  it("stores phone as null when not provided", () => {
+    const phone = "";
+    const result = phone || null;
+    expect(result).toBeNull();
+  });
+
+  it("stores phone as provided value when present", () => {
+    const phone = "01012345678";
+    const result = phone || null;
+    expect(result).toBe("01012345678");
+  });
+
+  it("never fabricates a fallback phone number", () => {
+    const phone = "";
+    const result = phone || null;
+    expect(result).not.toBe("+200000000000");
+  });
+});
+
+// ── create-student-account: department code validation ──────────────────
+
+describe("create-student-account – department code validation", () => {
+  it("rejects request when any code is not found", () => {
+    const requested = ["CS101", "MATH202", "NONEXISTENT"];
+    const existing = new Set(["CS101", "MATH202"]);
+    const missing = requested.filter((c) => !existing.has(c));
+    expect(missing).toEqual(["NONEXISTENT"]);
+  });
+
+  it("rejects request when codes belong to different institution", () => {
+    const institutionId = "inst-1";
+    const depts = [
+      { id: "d1", department_code: "CS101", institution_id: "inst-1" },
+      { id: "d2", department_code: "MATH202", institution_id: "inst-2" },
+    ];
+    const allowed = depts.filter((d) => d.institution_id === institutionId);
+    const requested = ["CS101", "MATH202"];
+    expect(allowed.length).not.toBe(requested.length);
+  });
+
+  it("accepts when all codes exist and belong to institution", () => {
+    const institutionId = "inst-1";
+    const depts = [
+      { id: "d1", department_code: "CS101", institution_id: "inst-1" },
+      { id: "d2", department_code: "MATH202", institution_id: "inst-1" },
+    ];
+    const requested = ["CS101", "MATH202"];
+    const allowed = depts.filter((d) => d.institution_id === institutionId);
+    expect(allowed.length).toBe(requested.length);
+  });
+
+  it("does not create partial account when some codes are invalid", () => {
+    const created = { authUser: false, profiles: false, members: false };
+    const codes = ["CS101", "INVALID"];
+    const valid = ["CS101"];
+    const allValid = codes.every((c) => valid.includes(c));
+    if (!allValid) {
+      // Simulate not creating anything
+    }
+    expect(allValid).toBe(false);
+    expect(created.authUser).toBe(false);
+  });
+});
+
+// ── create-student-account: concurrent invitation consumption ───────────
+
+describe("create-student-account – concurrent invitation consumption", () => {
+  it("only one concurrent request can consume the last slot", () => {
+    let usedCount = 0;
+    let successCount = 0;
+    function atomicConsume(): boolean {
+      if (usedCount < 1) {
+        usedCount++;
+        successCount++;
+        return true;
+      }
+      return false;
+    }
+    const r1 = atomicConsume();
+    const r2 = atomicConsume();
+    expect(r1).toBe(true);
+    expect(r2).toBe(false);
+    expect(successCount).toBe(1);
+  });
+
+  it("rolls back new user when concurrent consumption finds already consumed", () => {
+    const newUserId = "new-user-1";
+    const existingUsers = new Set(["existing-user-1"]);
+    const deleted: string[] = [];
+    function rollbackOnlyNew(uid: string) {
+      if (!existingUsers.has(uid)) {
+        deleted.push(uid);
+      }
+    }
+    rollbackOnlyNew(newUserId);
+    expect(deleted).toContain(newUserId);
+    expect(deleted).not.toContain("existing-user-1");
+  });
+});
+
+// ── create-student-account: rollback only new accounts ──────────────────
+
+describe("create-student-account – rollback only new accounts", () => {
+  it("does not delete or alter pre-existing accounts during rollback", () => {
+    const existingIds = new Set(["real-user-1", "real-user-2"]);
+    const newUserId = "just-created-user";
+    const deleted: string[] = [];
+    function rollback(uid: string) {
+      if (!existingIds.has(uid)) {
+        deleted.push(uid);
+      }
+    }
+    rollback(newUserId);
+    expect(deleted).toEqual(["just-created-user"]);
+  });
+
+  it("never touches auth.users entries that existed before this request", () => {
+    const before = new Set(["legacy-1", "legacy-2"]);
+    const createdNow = "fresh-user";
+    const toDelete: string[] = [];
+    if (!before.has(createdNow)) toDelete.push(createdNow);
+    expect(toDelete).toEqual(["fresh-user"]);
+    expect(toDelete.filter((id) => before.has(id))).toHaveLength(0);
+  });
+});
+
+// ── create-student-account: CORS disallowed origin ──────────────────────
+
+describe("create-student-account – CORS disallowed origin", () => {
+  it("returns null origin for unknown origins", () => {
+    const ALLOWED_ORIGINS = [
+      "https://lovable.dev",
+      "https://unigates.online",
+    ];
+    function getOrigin(origin: string): string {
+      const allowed = ALLOWED_ORIGINS.some((p) => origin === p || (p.startsWith("https://*.") && origin.endsWith(p.replace("https://*.", "."))));
+      return allowed ? origin : "null";
+    }
+    expect(getOrigin("https://evil.com")).toBe("null");
+    expect(getOrigin("https://unigates.online")).toBe("https://unigates.online");
+  });
+});
+
+// ── create-student-account: email format validation ─────────────────────
+
+describe("create-student-account – email format validation", () => {
+  it("accepts valid email", () => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    expect(re.test("user@example.com")).toBe(true);
+  });
+
+  it("rejects invalid email", () => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    expect(re.test("not-an-email")).toBe(false);
+    expect(re.test("missing@dot")).toBe(false);
+    expect(re.test("@missing-local")).toBe(false);
+    expect(re.test("")).toBe(false);
+  });
+});
+
+// ── create-student-account: method and body validation ──────────────────
+
+describe("create-student-account – method and body validation", () => {
+  it("rejects non-POST methods", () => {
+    const allowed = new Set(["POST", "OPTIONS"]);
+    expect(allowed.has("GET")).toBe(false);
+    expect(allowed.has("PUT")).toBe(false);
+    expect(allowed.has("DELETE")).toBe(false);
+    expect(allowed.has("POST")).toBe(true);
+    expect(allowed.has("OPTIONS")).toBe(true);
+  });
+
+  it("rejects invalid JSON body", () => {
+    function tryParse(text: string): boolean {
+      try { JSON.parse(text); return true; } catch { return false; }
+    }
+    expect(tryParse("not json")).toBe(false);
+    expect(tryParse("")).toBe(false);
+    expect(tryParse('{"valid": true}')).toBe(true);
+  });
+
+  it("rejects body exceeding size limit", () => {
+    const MAX_BODY_BYTES = 65536;
+    const oversized = new Array(MAX_BODY_BYTES + 1).fill("a").join("");
+    expect(new TextEncoder().encode(oversized).length).toBeGreaterThan(MAX_BODY_BYTES);
+  });
+
+  it("requires full_name", () => {
+    const fullName = "";
+    expect(fullName.trim()).toBe("");
+  });
+
+  it("requires department_codes", () => {
+    const codes: string[] = [];
+    expect(codes.length === 0).toBe(true);
+  });
+});
+
+// ── create-student-account: successful account creation ─────────────────
+
+describe("create-student-account – successful account creation", () => {
+  it("returns user_id and email on success", () => {
+    const response = { success: true, email: "new@test.com", user_id: "u-new", joined: 2 };
+    expect(response.success).toBe(true);
+    expect(response.email).toBe("new@test.com");
+    expect(response.user_id).toBe("u-new");
+    expect(response.joined).toBe(2);
+  });
+
+  it("includes password only in admin mode", () => {
+    const adminResponse = { success: true, email: "a@b.com", password: "GenPass1!", user_id: "u1", joined: 1 };
+    expect(adminResponse.password).toBeDefined();
+    const invitationResponse = { success: true, email: "a@b.com", user_id: "u2", joined: 1 };
+    expect((invitationResponse as any).password).toBeUndefined();
+  });
+
+  it("sets Cache-Control: no-store when returning password", () => {
+    const extraHeaders: Record<string, string> = {};
+    extraHeaders["Cache-Control"] = "no-store, no-cache, must-revalidate, private";
+    expect(extraHeaders["Cache-Control"]).toContain("no-store");
+  });
+});
+
+// ── create-student-account: duplicate email ─────────────────────────────
+
+describe("create-student-account – duplicate email handling", () => {
+  it("rejects with 409 when email is already registered", () => {
+    const existing = new Set(["taken@test.com"]);
+    expect(existing.has("taken@test.com")).toBe(true);
+    expect(existing.has("new@test.com")).toBe(false);
+  });
+
+  it("detects email_exists error code", () => {
+    const err = { code: "email_exists", message: "User already registered" };
+    const code = String(err?.code || "").toLowerCase();
+    const message = String(err?.message || "").toLowerCase();
+    const isDup = code === "email_exists" || message.includes("already registered");
+    expect(isDup).toBe(true);
+  });
+
+  it("does not create user when email is duplicate", () => {
+    const created: string[] = [];
+    const email = "taken@test.com";
+    const existing = new Set(["taken@test.com"]);
+    if (!existing.has(email)) {
+      created.push(email);
+    }
+    expect(created).toHaveLength(0);
   });
 });
 

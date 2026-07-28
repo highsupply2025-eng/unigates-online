@@ -2591,6 +2591,7 @@ export type Database = {
         Args: { _submission_id: string }
         Returns: string
       }
+      get_platform_statistics: { Args: { p_scope?: string }; Returns: Json }
       get_platform_stats: { Args: never; Returns: Json }
       get_profile_count: { Args: never; Returns: number }
       get_profile_count_by_role: { Args: { _role: string }; Returns: number }

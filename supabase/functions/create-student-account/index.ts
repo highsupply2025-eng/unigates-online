@@ -113,7 +113,14 @@ function fail(step: string, message: string, status = 500) {
 function isEmailAlreadyExistsError(error: any) {
   const code = String(error?.code || "").toLowerCase();
   const message = String(error?.message || "").toLowerCase();
-  return code === "email_exists" || message.includes("already registered") || message.includes("already exists") || message.includes("user already") || message.includes("email is already") || message.includes("email already");
+  return (
+    code === "email_exists" ||
+    message.includes("already registered") ||
+    message.includes("already exists") ||
+    message.includes("user already") ||
+    message.includes("email is already") ||
+    message.includes("email already")
+  );
 }
 
 function validatePassword(pw: string): { ok: boolean; reason?: string } {
@@ -152,7 +159,9 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     const fullName = String(body.full_name || "").trim();
-    let email = String(body.email || "").trim().toLowerCase();
+    let email = String(body.email || "")
+      .trim()
+      .toLowerCase();
     const phone = String(body.phone || "").trim();
     const codes: string[] = Array.from(new Set(
       (body.department_codes || []).map((c: string) => String(c).trim().toUpperCase()).filter(Boolean)
@@ -181,6 +190,7 @@ Deno.serve(async (req) => {
       if (!(await checkRateLimit(admin, ipHash))) {
         return json({ error: "Too many attempts. Please try again later." }, 429, headers);
       }
+
 
       const pwCheck = validatePassword(temporaryPassword);
       if (!pwCheck.ok) {
@@ -296,7 +306,12 @@ Deno.serve(async (req) => {
 
     // ── Build email if not provided ──────────────────────────────────
     if (!email) {
-      const slug = fullName.toLowerCase().replace(/\s+/g, ".").replace(/[^a-z0-9.]/g, "").slice(0, 20) || "student";
+      const slug =
+        fullName
+          .toLowerCase()
+          .replace(/\s+/g, ".")
+          .replace(/[^a-z0-9.]/g, "")
+          .slice(0, 20) || "student";
       email = `${slug}.${Date.now().toString(36)}@unigates.online`;
     }
 
@@ -309,6 +324,7 @@ Deno.serve(async (req) => {
       const { data: users } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 } as any);
       const existingUser = (users?.users || []).find(
         (u: any) => (u.email || "").trim().toLowerCase() === email
+
       );
       if (existingUser) {
         return json({ error: "An account with this email already exists" }, 409, headers);
@@ -395,6 +411,7 @@ Deno.serve(async (req) => {
 
       const missing = codes.filter(
         (c) => !allowedDepts.some((d: any) => (d.department_code || "").toUpperCase() === c)
+
       );
 
       const response: Record<string, any> = { success: true, email, user_id: uid, joined, missing };

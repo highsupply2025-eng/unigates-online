@@ -82,7 +82,14 @@ function fail(step: string, message: string, status = 500, extra: Record<string,
 function isEmailAlreadyExistsError(error: any) {
   const code = String(error?.code || "").toLowerCase();
   const message = String(error?.message || "").toLowerCase();
-  return code === "email_exists" || message.includes("already registered") || message.includes("already exists") || message.includes("user already") || message.includes("email is already") || message.includes("email already");
+  return (
+    code === "email_exists" ||
+    message.includes("already registered") ||
+    message.includes("already exists") ||
+    message.includes("user already") ||
+    message.includes("email is already") ||
+    message.includes("email already")
+  );
 }
 
 function validatePassword(pw: string): { ok: boolean; reason?: string } {
@@ -115,9 +122,13 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     const fullName = String(body.full_name || "").trim();
-    let email = String(body.email || "").trim().toLowerCase();
+    let email = String(body.email || "")
+      .trim()
+      .toLowerCase();
     const phone = String(body.phone || "").trim();
-    const codes: string[] = Array.from(new Set((body.department_codes || []).map((c: string) => String(c).trim().toUpperCase()).filter(Boolean)));
+    const codes: string[] = Array.from(
+      new Set((body.department_codes || []).map((c: string) => String(c).trim().toUpperCase()).filter(Boolean)),
+    );
     const invitationCode = String(body.invitation_code || "").trim();
     const temporaryPassword = String(body.temporary_password || "").trim();
 
@@ -137,10 +148,9 @@ Deno.serve(async (req) => {
       }
       await recordAttempt(admin, clientIp);
 
-      const { data: consumeResult, error: consumeErr } = await admin.rpc(
-        "consume_institution_invitation" as any,
-        { _code: invitationCode },
-      );
+      const { data: consumeResult, error: consumeErr } = await admin.rpc("consume_institution_invitation" as any, {
+        _code: invitationCode,
+      });
 
       if (consumeErr) return fail("consume_invitation", "Failed to process invitation", 500);
 
@@ -163,7 +173,9 @@ Deno.serve(async (req) => {
     } else {
       const authHeader = req.headers.get("Authorization") || "";
       const userClient = createClient(SUPABASE_URL, ANON_KEY, { global: { headers: { Authorization: authHeader } } });
-      const { data: { user } } = await userClient.auth.getUser();
+      const {
+        data: { user },
+      } = await userClient.auth.getUser();
       if (!user?.email) return json({ error: "Unauthorized" }, 401, headers);
 
       const callerEmail = user.email.toLowerCase();
@@ -218,7 +230,12 @@ Deno.serve(async (req) => {
     }
 
     if (!email) {
-      const slug = fullName.toLowerCase().replace(/\s+/g, ".").replace(/[^a-z0-9.]/g, "").slice(0, 20) || "student";
+      const slug =
+        fullName
+          .toLowerCase()
+          .replace(/\s+/g, ".")
+          .replace(/[^a-z0-9.]/g, "")
+          .slice(0, 20) || "student";
       email = `${slug}.${Date.now().toString(36)}@unigates.online`;
     }
 
@@ -228,7 +245,9 @@ Deno.serve(async (req) => {
 
     try {
       const existing = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 } as any);
-      const existingUser = (existing.data?.users || []).find((u: any) => (u.email || "").trim().toLowerCase() === email);
+      const existingUser = (existing.data?.users || []).find(
+        (u: any) => (u.email || "").trim().toLowerCase() === email,
+      );
       if (existingUser) {
         return json({ error: "Account already exists", code: "ACCOUNT_ALREADY_EXISTS" }, 409, headers);
       }
@@ -283,17 +302,20 @@ Deno.serve(async (req) => {
         if (memberErr) throw new Error(`department_members: ${memberErr.message}`);
 
         if (d.institution_type === "college") {
-          const { error: collegeMemberErr } = await admin.from("college_members").upsert(
-            { college_id: d.institution_id, user_id: uid, role: "student" },
-            { onConflict: "college_id,user_id" } as any,
-          );
+          const { error: collegeMemberErr } = await admin
+            .from("college_members")
+            .upsert({ college_id: d.institution_id, user_id: uid, role: "student" }, {
+              onConflict: "college_id,user_id",
+            } as any);
           if (collegeMemberErr) throw new Error(`college_members: ${collegeMemberErr.message}`);
         }
 
         joined++;
       }
 
-      const missing = codes.filter(c => !allowedDepts.some((d: any) => (d.department_code || "").toUpperCase() === c));
+      const missing = codes.filter(
+        (c) => !allowedDepts.some((d: any) => (d.department_code || "").toUpperCase() === c),
+      );
 
       const response: Record<string, any> = { success: true, email, user_id: uid, joined, missing };
       const extraHeaders: Record<string, string> = {};

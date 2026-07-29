@@ -1,21 +1,14 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const ALLOWED_ORIGINS = [
-  "https://lovable.dev",
-  "https://*.lovable.app",
   "https://unigates.online",
-  "https://*.unigates.online",
+  "https://www.unigates.online",
   "https://preview--unigates-online.lovable.app",
   "http://localhost:5173",
 ];
 
 function isOriginAllowed(origin: string): boolean {
-  return ALLOWED_ORIGINS.some((p) => {
-    if (p.startsWith("https://*.")) {
-      return origin.endsWith(p.replace("https://*.", "."));
-    }
-    return origin === p;
-  });
+  return ALLOWED_ORIGINS.some((p) => origin === p);
 }
 
 function getCorsHeaders(req: Request): Record<string, string> {
@@ -68,7 +61,7 @@ async function checkRateLimit(admin: ReturnType<typeof createClient>, ipHash: st
 
   if (ipErr) {
     console.error("[create-student-account] checkRateLimit ip query error:", ipErr.message);
-    throw new RateLimitError("Rate limit check failed");
+    throw new ServerError("Rate limit check failed");
   }
 
   total += ipCount || 0;
@@ -82,7 +75,7 @@ async function checkRateLimit(admin: ReturnType<typeof createClient>, ipHash: st
 
     if (userErr) {
       console.error("[create-student-account] checkRateLimit user query error:", userErr.message);
-      throw new RateLimitError("Rate limit check failed");
+      throw new ServerError("Rate limit check failed");
     }
 
     total += userCount || 0;
@@ -181,34 +174,55 @@ Deno.serve(async (req) => {
     return json({ error: "Method not allowed" }, 405, headers);
   }
 
-  let body: Record<string, unknown>;
+  try {
+    let parsed: unknown;
   try {
     const text = await req.text();
     if (new TextEncoder().encode(text).length > MAX_BODY_BYTES) {
       return json({ error: "Request body too large" }, 413, headers);
     }
-    body = JSON.parse(text);
+    parsed = JSON.parse(text);
   } catch {
     return json({ error: "Invalid JSON" }, 400, headers);
   }
 
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    return json({ error: "Request body must be a JSON object" }, 400, headers);
+  }
+  const body = parsed as Record<string, unknown>;
+
   const fullName = String(body.full_name || "").trim();
+  if (!fullName) return json({ error: "Missing full_name" }, 400, headers);
+  if (fullName.length > 200) return json({ error: "full_name too long" }, 400, headers);
+
   let email = String(body.email || "")
     .trim()
     .toLowerCase();
-  const phone = String(body.phone || "").trim();
-  const codes: string[] = Array.from(new Set(
-    (body.department_codes || []).map((c: string) => String(c).trim().toUpperCase()).filter(Boolean)
-  ));
-  const invitationCode = String(body.invitation_code || "").trim();
-  const temporaryPassword = String(body.temporary_password || "").trim();
-
-  if (!fullName) return json({ error: "Missing full_name" }, 400, headers);
-  if (codes.length === 0) return json({ error: "Missing department codes" }, 400, headers);
-
+  if (email && email.length > 254) return json({ error: "email too long" }, 400, headers);
   if (email && !validateEmail(email)) {
     return json({ error: "Invalid email format" }, 400, headers);
   }
+
+  const phone = String(body.phone || "").trim();
+  if (phone.length > 30) return json({ error: "phone too long" }, 400, headers);
+
+  const rawCodes = body.department_codes;
+  if (!Array.isArray(rawCodes)) {
+    return json({ error: "department_codes must be an array" }, 400, headers);
+  }
+  if (rawCodes.length > 50) {
+    return json({ error: "Too many department codes" }, 400, headers);
+  }
+  const codes: string[] = Array.from(new Set(
+    rawCodes.map((c: string) => String(c).trim().toUpperCase()).filter(Boolean)
+  ));
+  if (codes.length === 0) return json({ error: "Missing department codes" }, 400, headers);
+
+  const invitationCode = String(body.invitation_code || "").trim();
+  if (invitationCode.length > 100) return json({ error: "invitation_code too long" }, 400, headers);
+
+  const temporaryPassword = String(body.temporary_password || "");
+  if (temporaryPassword.length > 128) return json({ error: "temporary_password too long" }, 400, headers);
 
   const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
     auth: { autoRefreshToken: false, persistSession: false },
@@ -304,16 +318,24 @@ Deno.serve(async (req) => {
     }
 
     const callerEmail = user.email.toLowerCase();
-    const { data: colleges } = await admin
+    const { data: colleges, error: collegeRegErr } = await admin
       .from("college_registrations")
       .select("id, email, status")
       .eq("email", callerEmail)
       .eq("status", "approved");
-    const { data: institutes } = await admin
+    if (collegeRegErr) {
+      console.error("[create-student-account] college_registrations query error:", collegeRegErr.message);
+      return json({ error: "Account creation failed" }, 503, headers);
+    }
+    const { data: institutes, error: instituteRegErr } = await admin
       .from("institute_registrations")
       .select("id, email, status")
       .eq("email", callerEmail)
       .eq("status", "approved");
+    if (instituteRegErr) {
+      console.error("[create-student-account] institute_registrations query error:", instituteRegErr.message);
+      return json({ error: "Account creation failed" }, 503, headers);
+    }
 
     const ownedColleges = (colleges || []).map((r: any) => ({ id: r.id, type: "college" as const }));
     const ownedInstitutes = (institutes || []).map((r: any) => ({ id: r.id, type: "institute" as const }));
@@ -337,7 +359,7 @@ Deno.serve(async (req) => {
     }
   }
 
-  // ── Resolve departments (all must match, all must belong to institution) ──
+  // ── Resolve departments (exact match required before Auth user creation) ──
   const { data: depts, error: deptErr } = await admin
     .from("departments")
     .select("id, department_code, institution_id, institution_type")
@@ -345,13 +367,25 @@ Deno.serve(async (req) => {
 
   if (deptErr) return fail("resolve_depts", "Failed to resolve departments", 500);
 
+  const seenCodes = new Map<string, number>();
+  for (const d of depts || []) {
+    const code = (d.department_code || "").toUpperCase();
+    seenCodes.set(code, (seenCodes.get(code) || 0) + 1);
+  }
+  const ambiguous = codes.filter((c) => (seenCodes.get(c) || 0) > 1);
+  if (ambiguous.length > 0) {
+    return json({ error: `Ambiguous department codes: ${ambiguous.join(", ")}` }, 400, headers);
+  }
+
   const matchedCodes = new Set((depts || []).map((d: any) => (d.department_code || "").toUpperCase()));
   const missing = codes.filter((c) => !matchedCodes.has(c));
   if (missing.length > 0) {
     return json({ error: `Department code(s) not found: ${missing.join(", ")}` }, 404, headers);
   }
 
-  const allowedDepts = (depts || []).filter((d: any) => d.institution_id === institutionId);
+  const allowedDepts = (depts || []).filter(
+    (d: any) => d.institution_id === institutionId && d.institution_type === institutionType
+  );
   if (allowedDepts.length !== codes.length) {
     return json({ error: "Some departments do not belong to the specified institution" }, 403, headers);
   }
@@ -472,6 +506,10 @@ Deno.serve(async (req) => {
     if (uid) {
       await rollbackNewUser(admin, uid);
     }
+    return json({ error: "Account creation failed" }, 500, headers);
+  }
+  } catch (e: unknown) {
+    console.error("[create-student-account] unhandled error:", String(e));
     return json({ error: "Account creation failed" }, 500, headers);
   }
 });

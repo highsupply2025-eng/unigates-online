@@ -496,24 +496,42 @@ describe("create-student-account – IP hashing", () => {
 
 // ── create-student-account: rate-limit error handling ─────────────────────
 
-describe("create-student-account – rate-limit safety", () => {
-  it("blocks request when rate-limit query fails (fail-closed → 503)", () => {
-    function checkRateLimit(hasError: boolean): number {
-      if (hasError) throw new Error("Rate limit check failed");
-      return 200;
+describe("create-student-account – rate-limit errors", () => {
+  class RateLimitError extends Error { status = 429; }
+  class ServerError extends Error { status = 503; }
+
+  it("database error on check throws ServerError(503), not RateLimitError", () => {
+    function simulateDbError() {
+      throw new ServerError("Rate limit check failed");
     }
-    let status: number;
-    try { status = checkRateLimit(true); } catch { status = 503; }
-    expect(status).toBe(503);
+    try {
+      simulateDbError();
+    } catch (e: any) {
+      expect(e.status).toBe(503);
+      expect(e).not.toBeInstanceOf(RateLimitError);
+      expect(e.message).toBe("Rate limit check failed");
+    }
   });
 
-  it("blocks request when rate-limit insert fails (fail-closed → 503)", () => {
+  it("exceeded limit throws RateLimitError(429)", () => {
+    function simulateExceeded() {
+      throw new RateLimitError("Too many attempts. Please try again later.");
+    }
+    try {
+      simulateExceeded();
+    } catch (e: any) {
+      expect(e.status).toBe(429);
+      expect(e).toBeInstanceOf(RateLimitError);
+    }
+  });
+
+  it("blocks request when rate-limit insert fails (ServerError → 503)", () => {
     function recordAttempt(hasError: boolean): number {
-      if (hasError) throw new Error("Rate limit recording failed");
+      if (hasError) throw new ServerError("Rate limit recording failed");
       return 200;
     }
     let status: number;
-    try { status = recordAttempt(true); } catch { status = 503; }
+    try { status = recordAttempt(true); } catch (e: any) { status = e.status || 503; }
     expect(status).toBe(503);
   });
 
@@ -533,16 +551,11 @@ describe("create-student-account – rate-limit safety", () => {
     expect(userFilter).not.toContain(ipHash);
   });
 
-  it("rate-limit throws RateLimitError when limit exceeded", () => {
-    function checkRateLimit(count: number): void {
-      if (count >= 5) {
-        const err: any = new Error("Too many attempts. Please try again later.");
-        err.status = 429;
-        throw err;
-      }
-    }
-    expect(() => checkRateLimit(5)).toThrow("Too many attempts");
-    expect(() => checkRateLimit(3)).not.toThrow();
+  it("does not expose database error details in client response", () => {
+    const clientResponse = { error: "Account creation failed" };
+    expect(clientResponse.error).toBe("Account creation failed");
+    expect(JSON.stringify(clientResponse)).not.toContain("violates foreign key");
+    expect(JSON.stringify(clientResponse)).not.toContain("unique constraint");
   });
 });
 

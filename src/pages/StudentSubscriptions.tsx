@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Search, Loader2, Users, GraduationCap,
-  ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, AlertTriangle, RefreshCw
+  ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, AlertTriangle, RefreshCw, Ticket,
+  Layers, BookOpen, CheckCircle, Calendar, User as UserIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import BackButton from "@/components/BackButton";
+import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 
 interface StudentRecord {
   id: string;
@@ -55,6 +56,8 @@ const StudentSubscriptions = () => {
   const [sortKey, setSortKey] = useState<SortKey>("full_name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [page, setPage] = useState(1);
+  const [institutionType, setInstitutionType] = useState<"college" | "institute" | null>(null);
+  const [institutionName, setInstitutionName] = useState("");
 
   const fetchStudents = useCallback(async () => {
     setLoading(true);
@@ -62,6 +65,28 @@ const StudentSubscriptions = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/login"); return; }
+
+      const { data: college } = await supabase
+        .from("college_registrations")
+        .select("college_name")
+        .eq("email", user.email)
+        .eq("status", "approved")
+        .maybeSingle();
+      if (college) {
+        setInstitutionType("college");
+        setInstitutionName(college.college_name);
+      } else {
+        const { data: institute } = await supabase
+          .from("institute_registrations")
+          .select("institute_name")
+          .eq("email", user.email)
+          .eq("status", "approved")
+          .maybeSingle();
+        if (institute) {
+          setInstitutionType("institute");
+          setInstitutionName(institute.institute_name);
+        }
+      }
 
       const { data: rpcData, error: rpcError } = await supabase.rpc(
         "get_institution_student_subscriptions",
@@ -147,20 +172,48 @@ const StudentSubscriptions = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 flex items-center gap-3">
-          <BackButton to="/institution/dashboard" />
-          <div className="flex-1 min-w-0">
-            <h1 className="font-extrabold text-lg sm:text-xl truncate">
-              {isRtl ? "اشتراكات الطلاب" : "Student Subscriptions"}
-            </h1>
+    <div className="min-h-screen bg-background flex flex-col" dir={isRtl ? "rtl" : "ltr"}>
+      <header className="border-b border-primary/20 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+            <div className="relative shrink-0">
+              <div className="absolute inset-0 rounded-2xl bg-primary/40 blur-md animate-pulse" />
+              <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary via-primary to-[hsl(200,75%,30%)] flex items-center justify-center shadow-xl shadow-primary/40 ring-2 ring-primary/30 hover:scale-105 transition-transform">
+                <Ticket className="w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow-md" strokeWidth={2.4} />
+              </div>
+            </div>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-base sm:text-xl font-black text-foreground truncate">
+                {isRtl ? "اشتراكات الطلاب" : "Student Subscriptions"}
+              </h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
+                {isRtl
+                  ? (institutionType === "college" ? "لوحة ادارة الكلية" : institutionType === "institute" ? "لوحة ادارة المعهد" : "لوحة ادارة الكلية")
+                  : (institutionType === "college" ? "College Administration" : institutionType === "institute" ? "Institute Administration" : "College Administration")}
+              </p>
+            </div>
           </div>
-          {!error && (
-            <Badge variant="secondary" className="shrink-0 text-sm">
-              {total} {isRtl ? "طالب" : "students"}
-            </Badge>
-          )}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {!error && (
+              <Badge variant="secondary" className="shrink-0 text-sm hidden sm:inline-flex">
+                {total} {isRtl ? "طالب" : "students"}
+              </Badge>
+            )}
+            <DashboardMenuDropdown
+              title={isRtl ? (institutionType === "college" ? "لوحة الكلية" : "لوحة المعهد") : (institutionType === "college" ? "College Panel" : "Institute Panel")}
+              onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
+              items={[
+                { key: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, onClick: () => navigate("/institution/dashboard") },
+                { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, onClick: () => navigate("/institution/dashboard?tab=faculty") },
+                { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, onClick: () => navigate("/institution/dashboard?tab=departments") },
+                { key: "students", label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: Users, onClick: () => navigate("/institution/dashboard?tab=students") },
+                { key: "subscriptions", label: isRtl ? "اشتراكات الطلاب" : "Student Subscriptions", Icon: Ticket, onClick: () => navigate("/institution/student-subscriptions"), active: true },
+                { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => navigate("/institution/dashboard?tab=schedules") },
+                { key: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, onClick: () => navigate("/institution/dashboard?tab=quizresults") },
+                { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: UserIcon, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/institution/profile") },
+              ]}
+            />
+          </div>
         </div>
       </header>
 

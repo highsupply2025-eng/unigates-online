@@ -178,15 +178,15 @@ const StudentSubscriptions = () => {
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
             <div className="relative shrink-0">
               <div className="absolute inset-0 rounded-2xl bg-primary/40 blur-md animate-pulse" />
-              <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary via-primary to-[hsl(200,75%,30%)] flex items-center justify-center shadow-xl shadow-primary/40 ring-2 ring-primary/30 hover:scale-105 transition-transform">
-                <Ticket className="w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow-md" strokeWidth={2.4} />
+              <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-teal-400 via-teal-500 to-emerald-600 flex items-center justify-center shadow-xl shadow-teal-500/40 ring-2 ring-teal-400/30 hover:scale-105 transition-transform">
+                <GraduationCap className="w-8 h-8 sm:w-9 sm:h-9 text-white drop-shadow-md" strokeWidth={2.2} />
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-base sm:text-xl font-black text-foreground truncate">
+              <h1 className="text-lg sm:text-2xl font-black text-foreground truncate tracking-tight">
                 {isRtl ? "اشتراكات الطلاب" : "Student Subscriptions"}
               </h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
+              <p className="text-xs sm:text-sm text-muted-foreground font-semibold truncate">
                 {isRtl
                   ? (institutionType === "college" ? "لوحة ادارة الكلية" : institutionType === "institute" ? "لوحة ادارة المعهد" : "لوحة ادارة الكلية")
                   : (institutionType === "college" ? "College Administration" : institutionType === "institute" ? "Institute Administration" : "College Administration")}

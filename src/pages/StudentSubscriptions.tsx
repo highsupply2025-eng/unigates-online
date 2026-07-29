@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Search, Loader2, Users, GraduationCap,
   ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, AlertTriangle, RefreshCw, Ticket,
-  Layers, BookOpen, CheckCircle, Calendar, User as UserIcon
+  Layers, BookOpen, CheckCircle, Calendar, User as UserIcon, CreditCard, Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 
 interface StudentRecord {
   id: string;
@@ -24,6 +26,8 @@ interface StudentRecord {
   user_id: string | null;
   created_at: string;
   photo_url: string | null;
+  subscription_expires_at: string | null;
+  subscription_active: boolean;
 }
 
 interface RpcResponse {
@@ -58,6 +62,11 @@ const StudentSubscriptions = () => {
   const [page, setPage] = useState(1);
   const [institutionType, setInstitutionType] = useState<"college" | "institute" | null>(null);
   const [institutionName, setInstitutionName] = useState("");
+  const [renewDialogOpen, setRenewDialogOpen] = useState(false);
+  const [renewTarget, setRenewTarget] = useState<StudentRecord | null>(null);
+  const [renewMonths, setRenewMonths] = useState(1);
+  const [renewing, setRenewing] = useState(false);
+  const { toast } = useToast();
 
   const fetchStudents = useCallback(async () => {
     setLoading(true);
@@ -133,6 +142,36 @@ const StudentSubscriptions = () => {
   useEffect(() => {
     fetchStudents();
   }, [fetchStudents]);
+
+  const handleRenew = async () => {
+    if (!renewTarget) return;
+    setRenewing(true);
+    try {
+      const { data, error } = await supabase.rpc("renew_student_subscription" as any, {
+        _department_member_id: renewTarget.id,
+        _months: renewMonths,
+      });
+      if (error) throw error;
+      const result = data as any;
+      if (result?.error) {
+        toast({ title: isRtl ? "خطأ" : "Error", description: result.error, variant: "destructive" });
+        return;
+      }
+      toast({
+        title: isRtl ? "تم تجديد الاشتراك" : "Subscription Renewed",
+        description: isRtl
+          ? `تم تجديد اشتراك ${renewTarget.full_name} لمدة ${renewMonths} شهر`
+          : `Renewed ${renewTarget.full_name}'s subscription for ${renewMonths} month(s)`,
+      });
+      setRenewDialogOpen(false);
+      setRenewTarget(null);
+      fetchStudents();
+    } catch (e: any) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: e?.message || "Failed", variant: "destructive" });
+    } finally {
+      setRenewing(false);
+    }
+  };
 
   const sorted = useMemo(() => {
     return [...data].sort((a, b) => {
@@ -296,12 +335,14 @@ const StudentSubscriptions = () => {
                           </span>
                         </TableHead>
                         <TableHead className="text-center">{isRtl ? "الحالة" : "Status"}</TableHead>
+                        <TableHead className="text-center">{isRtl ? "الاشتراك" : "Subscription"}</TableHead>
+                        <TableHead className="text-center">{isRtl ? "دفع" : "Pay"}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {loading ? (
                         <TableRow>
-                          <TableCell colSpan={6} className="text-center py-8">
+                          <TableCell colSpan={8} className="text-center py-8">
                             <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" />
                           </TableCell>
                         </TableRow>
@@ -321,6 +362,36 @@ const StudentSubscriptions = () => {
                               <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs">
                                 {isRtl ? "نشط" : "Active"}
                               </Badge>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {s.subscription_active ? (
+                                <div className="flex flex-col items-center gap-0.5">
+                                  <Badge variant="secondary" className="bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 text-xs">
+                                    <Clock className="w-3 h-3 me-1 inline" />
+                                    {isRtl ? "نشط" : "Active"}
+                                  </Badge>
+                                  {s.subscription_expires_at && (
+                                    <span className="text-[10px] text-muted-foreground">
+                                      {new Date(s.subscription_expires_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}
+                                    </span>
+                                  )}
+                                </div>
+                              ) : (
+                                <Badge variant="secondary" className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-xs">
+                                  {isRtl ? "منتهي" : "Expired"}
+                                </Badge>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <Button
+                                size="sm"
+                                variant={s.subscription_active ? "outline" : "default"}
+                                className={`text-xs gap-1 ${s.subscription_active ? "border-teal-300 text-teal-700 hover:bg-teal-50" : "bg-teal-500 hover:bg-teal-600 text-white"}`}
+                                onClick={() => { setRenewTarget(s); setRenewMonths(1); setRenewDialogOpen(true); }}
+                              >
+                                <CreditCard className="w-3.5 h-3.5" />
+                                {isRtl ? "دفع" : "Pay"}
+                              </Button>
                             </TableCell>
                           </TableRow>
                         ))
@@ -357,6 +428,51 @@ const StudentSubscriptions = () => {
           </>
         )}
       </main>
+
+      <Dialog open={renewDialogOpen} onOpenChange={setRenewDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-teal-600" />
+              {isRtl ? "تجديد الاشتراك" : "Renew Subscription"}
+            </DialogTitle>
+          </DialogHeader>
+          {renewTarget && (
+            <div className="space-y-4">
+              <div className="p-3 rounded-lg bg-muted/50">
+                <p className="font-medium">{renewTarget.full_name}</p>
+                <p className="text-sm text-muted-foreground">{renewTarget.email}</p>
+                <p className="text-sm text-muted-foreground">{renewTarget.department_name}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">{isRtl ? "مدة التجديد" : "Renewal Duration"}</label>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 6, 12].map((m) => (
+                    <Button
+                      key={m}
+                      variant={renewMonths === m ? "default" : "outline"}
+                      size="sm"
+                      className={renewMonths === m ? "bg-teal-500 hover:bg-teal-600" : ""}
+                      onClick={() => setRenewMonths(m)}
+                    >
+                      {m} {isRtl ? "شهر" : "mo"}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRenewDialogOpen(false)}>
+              {isRtl ? "إلغاء" : "Cancel"}
+            </Button>
+            <Button onClick={handleRenew} disabled={renewing} className="bg-teal-500 hover:bg-teal-600">
+              {renewing ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : <CreditCard className="w-4 h-4 me-1" />}
+              {isRtl ? `تجديد لمدة ${renewMonths} شهر` : `Renew for ${renewMonths} month(s)`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

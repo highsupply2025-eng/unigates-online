@@ -306,13 +306,14 @@ if (existingUser) {
  let joined = 0;
  for (const d of allowedDepts) {
  const { error: memberErr } = await admin.from("department_members").insert({
- department_id: d.id,
- full_name: fullName,
- role: "student",
- user_id: uid,
- email,
- phone: phone || null,
- });
+  department_id: d.id,
+  full_name: fullName,
+  role: "student",
+  user_id: uid,
+  email,
+  phone: phone || null,
+  subscription_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+  });
  if (memberErr) throw new Error(`department_members insert: ${memberErr.message}`);
  if (d.institution_type === "college") {
  const { error: colMemberErr } = await admin

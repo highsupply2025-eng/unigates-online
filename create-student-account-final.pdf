@@ -1,0 +1,4541 @@
+%PDF-1.3
+%ºß¬à
+3 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 4 0 R
+>>
+endobj
+4 0 obj
+<<
+/Length 10876
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F2 14 Tf
+16.0999999999999979 TL
+0 g
+195.9999999999999432 799.3703149606299121 Td
+(create-student-account-final.ts) Tj
+ET
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0 g
+174.3399999999999181 782.3624409448818824 Td
+(UNIGATES - Secure Student Account Creation Edge Function) Tj
+ET
+BT
+/F1 8 Tf
+9.1999999999999993 TL
+0 g
+256.3999999999999773 768.1892125984252289 Td
+(Generated: 2026-07-29) Tj
+ET
+0.71 G
+42.5196850393700814 754.0159842519684616 m
+552.7603149606298985 754.0159842519684616 l
+S
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 739.8427559055118081 Td
+(import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 730.7718897637795408 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 721.7010236220471597 Td
+(const ALLOWED_ORIGINS = [) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 712.6301574803148924 Td
+(  "https://unigates.online",) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 703.559291338582625 Td
+(  "https://www.unigates.online",) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 694.4884251968503577 Td
+(  "https://preview--unigates-online.lovable.app",) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 685.4175590551180903 Td
+(  "http://localhost:5173",) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 676.3466929133857093 Td
+(];) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 667.2758267716534419 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 658.2049606299211746 Td
+(function isOriginAllowed\(origin: string\): boolean {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 649.1340944881887935 Td
+(  return ALLOWED_ORIGINS.some\(\(p\) => origin === p\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 640.0632283464565262 Td
+(}) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 630.9923622047242588 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 621.9214960629919915 Td
+(function getCorsHeaders\(req: Request\): Record<string, string> {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 612.8506299212597241 Td
+(  const origin = req.headers.get\("origin"\) || "";) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 603.7797637795274568 Td
+(  const allowed = isOriginAllowed\(origin\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 594.7088976377950758 Td
+(  return {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 585.6380314960628084 Td
+(    "Access-Control-Allow-Origin": allowed ? origin : "null",) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 576.567165354330541 Td
+(    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 567.49629921259816 Td
+(    "Access-Control-Allow-Methods": "POST, OPTIONS",) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 558.4254330708658927 Td
+(  };) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 549.3545669291336253 Td
+(}) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 540.283700787401358 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 531.2128346456690906 Td
+(const corsHeaders = getCorsHeaders\(new Request\("http://localhost"\)\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 522.1419685039368233 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 513.0711023622045559 Td
+(function genPassword\(\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 504.0002362204721749 Td
+(  const alpha = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 494.9293700787399075 Td
+(  const digits = "23456789";) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 485.8585039370075833 Td
+(  const all = alpha + digits + "!@#$%^&*";) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 476.7876377952753728 Td
+(  const buf = new Uint32Array\(16\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 467.7167716535431055 Td
+(  crypto.getRandomValues\(buf\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 458.6459055118108381 Td
+(  let out = "";) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 449.5750393700785708 Td
+(  for \(let i = 0; i < 16; i++\) out += all[buf[i] % all.length];) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 440.5041732283463602 Td
+(  const d = new Uint32Array\(2\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 431.4333070866140929 Td
+(  crypto.getRandomValues\(d\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 422.3624409448818255 Td
+(  out = alpha[d[0] % alpha.length] + digits[d[1] % digits.length] + out.slice\(2\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 413.2915748031495582 Td
+(  return out;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 404.2207086614173477 Td
+(}) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 395.1498425196850803 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 386.078976377952813 Td
+(async function hashIp\(ip: string\): Promise<string> {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 377.0081102362205456 Td
+(  const data = new TextEncoder\(\).encode\(ip\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 367.9372440944883351 Td
+(  const hash = await crypto.subtle.digest\("SHA-256", data\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 358.8663779527560678 Td
+(  return Array.from\(new Uint8Array\(hash\)\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 349.7955118110238004 Td
+(    .map\(\(b\) => b.toString\(16\).padStart\(2, "0"\)\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 340.7246456692915899 Td
+(    .join\(""\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 331.6537795275593226 Td
+(}) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 322.5829133858270552 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 313.5120472440947879 Td
+(const RATE_LIMIT_WINDOW_MS = 60_000;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 304.4411811023625205 Td
+(const RATE_LIMIT_MAX_ATTEMPTS = 5;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 295.3703149606302532 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 286.2994488188980995 Td
+(async function checkRateLimit\(admin: ReturnType<typeof createClient>, ipHash: string, userId?: string\): Promise<void> {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 277.2285826771658321 Td
+(  const cutoff = new Date\(Date.now\(\) - RATE_LIMIT_WINDOW_MS\).toISOString\(\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 268.1577165354335648 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 259.0868503937012974 Td
+(  let total = 0;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 250.0159842519690301 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 240.9451181102367627 Td
+(  const { count: ipCount, error: ipErr } = await admin) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 231.8742519685044954 Td
+(    .from\("invitation_rate_limits"\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 222.803385826772228 Td
+(    .select\("*", { count: "exact", head: true }\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 213.7325196850400744 Td
+(    .eq\("ip_hash", ipHash\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 204.661653543307807 Td
+(    .gte\("attempted_at", cutoff\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 195.5907874015755397 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 186.5199212598432723 Td
+(  if \(ipErr\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 177.449055118111005 Td
+(    console.error\("[create-student-account] checkRateLimit ip query error:", ipErr.message\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 168.3781889763787376 Td
+(    throw new ServerError\("Rate limit check failed"\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 159.3073228346464703 Td
+(  }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 150.2364566929143166 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 141.1655905511820492 Td
+(  total += ipCount || 0;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 132.0947244094497819 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 123.0238582677175145 Td
+(  if \(userId\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 113.9529921259852472 Td
+(    const { count: userCount, error: userErr } = await admin) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 104.8821259842529798 Td
+(      .from\("invitation_rate_limits"\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 95.8112598425207125 Td
+(      .select\("*", { count: "exact", head: true }\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 86.7403937007885588 Td
+(      .eq\("user_id", userId\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 77.6695275590562915 Td
+(      .gte\("attempted_at", cutoff\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 68.5986614173240241 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 59.5277952755917568 Td
+(    if \(userErr\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 50.4569291338594894 Td
+(      console.error\("[create-student-account] checkRateLimit user query error:", userErr.message\);) Tj
+T* () Tj
+ET
+BT
+/F1 7 Tf
+8.0499999999999989 TL
+0 g
+530.7803149606297666 14.1732283464566535 Td
+(Page 1) Tj
+ET
+endstream
+endobj
+5 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 6 0 R
+>>
+endobj
+6 0 obj
+<<
+/Length 11556
+>>
+stream
+0.5670000000000001 w
+0.71 G
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 799.3703149606299121 Td
+(      throw new ServerError\("Rate limit check failed"\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 790.2994488188976447 Td
+(    }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 781.2285826771653774 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 772.15771653543311 Td
+(    total += userCount || 0;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 763.086850393700729 Td
+(  }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 754.0159842519684616 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 744.9451181102361943 Td
+(  if \(total >= RATE_LIMIT_MAX_ATTEMPTS\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 735.8742519685039269 Td
+(    throw new RateLimitError\("Too many attempts. Please try again later."\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 726.8033858267716596 Td
+(  }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 717.7325196850392786 Td
+(}) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 708.6616535433070112 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 699.5907874015747439 Td
+(class RateLimitError extends Error {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 690.5199212598424765 Td
+(  status = 429;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 681.4490551181102092 Td
+(}) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 672.3781889763778281 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 663.3073228346455608 Td
+(class ServerError extends Error {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 654.2364566929132934 Td
+(  status = 503;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 645.1655905511810261 Td
+(}) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 636.0947244094487587 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 627.0238582677163777 Td
+(async function recordAttempt\(admin: ReturnType<typeof createClient>, ipHash: string, userId?: string\): Promise<void> {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 617.9529921259841103 Td
+(  const { error } = await admin.from\("invitation_rate_limits"\).insert\({) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 608.882125984251843 Td
+(    ip_hash: ipHash,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 599.8112598425195756 Td
+(    user_id: userId || null,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 590.7403937007873083 Td
+(    action_type: "create_student_account",) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 581.6695275590550409 Td
+(  }\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 572.5986614173226599 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 563.5277952755903925 Td
+(  if \(error\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 554.4569291338580115 Td
+(    console.error\("[create-student-account] recordAttempt insert error:", error.message\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 545.3860629921257441 Td
+(    throw new ServerError\("Rate limit recording failed"\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 536.3151968503934768 Td
+(  }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 527.2443307086612094 Td
+(}) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 518.1734645669289421 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 509.1025984251966179 Td
+(const EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 500.0317322834643505 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 490.9608661417320263 Td
+(function validateEmail\(v: string\): boolean {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 481.889999999999759 Td
+(  return EMAIL_RE.test\(v\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 472.8191338582674348 Td
+(}) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 463.7482677165352243 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 454.6774015748029569 Td
+(function json\(b: unknown, s = 200, extraHeaders: Record<string, string> = {}\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 445.6065354330706896 Td
+(  return new Response\(JSON.stringify\(b\), {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 436.5356692913384222 Td
+(    status: s,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 427.4648031496062117 Td
+(    headers: { ...corsHeaders, "Content-Type": "application/json", ...extraHeaders },) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 418.3939370078739444 Td
+(  }\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 409.323070866141677 Td
+(}) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 400.2522047244094097 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 391.1813385826771992 Td
+(function fail\(step: string, message: string, status = 500\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 382.1104724409449318 Td
+(  console.error\(`[create-student-account] step "${step}" failed: ${message}`\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 373.0396062992126645 Td
+(  return json\({ error: "Account creation failed" }, status\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 363.9687401574804539 Td
+(}) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 354.8978740157481866 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 345.8270078740159192 Td
+(function isEmailAlreadyExistsError\(error: any\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 336.7561417322836519 Td
+(  const code = String\(error?.code || ""\).toLowerCase\(\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 327.6852755905514414 Td
+(  const message = String\(error?.message || ""\).toLowerCase\(\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 318.614409448819174 Td
+(  return \() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 309.5435433070869067 Td
+(    code === "email_exists" ||) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 300.4726771653546393 Td
+(    message.includes\("already registered"\) ||) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 291.401811023622372 Td
+(    message.includes\("already exists"\) ||) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 282.3309448818901046 Td
+(    message.includes\("user already"\) ||) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 273.260078740157951 Td
+(    message.includes\("email is already"\) ||) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 264.1892125984256836 Td
+(    message.includes\("email already"\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 255.1183464566934163 Td
+(  \);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 246.0474803149611489 Td
+(}) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 236.9766141732288816 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 227.9057480314966142 Td
+(function validatePassword\(pw: string\): { ok: boolean; reason?: string } {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 218.8348818897643469 Td
+(  if \(!pw || typeof pw !== "string"\) return { ok: false, reason: "Password is required" };) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 209.7640157480321932 Td
+(  if \(pw !== pw.trim\(\)\) return { ok: false, reason: "Password must not have leading or trailing spaces" };) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 200.6931496062999258 Td
+(  if \(pw.length < 8\) return { ok: false, reason: "Password must be at least 8 characters" };) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 191.6222834645676585 Td
+(  if \(!/[A-Z]/.test\(pw\)\) return { ok: false, reason: "Password must contain an uppercase letter" };) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 182.5514173228353911 Td
+(  if \(!/[a-z]/.test\(pw\)\) return { ok: false, reason: "Password must contain a lowercase letter" };) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 173.4805511811031238 Td
+(  if \(!/\\d/.test\(pw\)\) return { ok: false, reason: "Password must contain a digit" };) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 164.4096850393708564 Td
+(  if \(/\\s/.test\(pw\)\) return { ok: false, reason: "Password must not contain spaces" };) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 155.3388188976385891 Td
+(  return { ok: true };) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 146.2679527559063217 Td
+(}) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 137.1970866141741681 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 128.1262204724419007 Td
+(async function rollbackNewUser\(admin: ReturnType<typeof createClient>, uid: string\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 119.0553543307096334 Td
+(  const tables = ["department_members", "college_members", "user_roles", "profiles"] as const;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 109.9844881889772523 Td
+(  for \(const table of tables\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 100.913622047244985 Td
+(    const { error } = await admin.from\(table\).delete\(\).eq\("user_id", uid\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 91.8427559055128313 Td
+(    if \(error\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 82.771889763780564 Td
+(      console.error\(`[create-student-account] rollback failed for ${table}: ${error.message}`\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 73.7010236220482966 Td
+(    }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 64.6301574803160293 Td
+(  }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 55.5592913385837619 Td
+(  const { error } = await admin.auth.admin.deleteUser\(uid\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 46.4884251968514945 Td
+(  if \(error\) {) Tj
+T* () Tj
+ET
+BT
+/F1 7 Tf
+8.0499999999999989 TL
+0 g
+530.7803149606297666 14.1732283464566535 Td
+(Page 2) Tj
+ET
+endstream
+endobj
+7 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 8 0 R
+>>
+endobj
+8 0 obj
+<<
+/Length 11834
+>>
+stream
+0.5670000000000001 w
+0.71 G
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 799.3703149606299121 Td
+(    console.error\(`[create-student-account] rollback failed to delete auth user ${uid}: ${error.message}`\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 790.2994488188976447 Td
+(  }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 781.2285826771653774 Td
+(}) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 772.15771653543311 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 763.086850393700729 Td
+(const MAX_BODY_BYTES = 65536;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 754.0159842519684616 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 744.9451181102361943 Td
+(Deno.serve\(async \(req\) => {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 735.8742519685039269 Td
+(  const headers = getCorsHeaders\(req\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 726.8033858267716596 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 717.7325196850392786 Td
+(  if \(req.method === "OPTIONS"\) return new Response\(null, { headers }\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 708.6616535433070112 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 699.5907874015747439 Td
+(  if \(req.method !== "POST"\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 690.5199212598424765 Td
+(    return json\({ error: "Method not allowed" }, 405, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 681.4490551181102092 Td
+(  }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 672.3781889763778281 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 663.3073228346455608 Td
+(  try {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 654.2364566929132934 Td
+(    let parsed: unknown;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 645.1655905511810261 Td
+(    try {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 636.0947244094487587 Td
+(      const text = await req.text\(\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 627.0238582677163777 Td
+(      if \(new TextEncoder\(\).encode\(text\).length > MAX_BODY_BYTES\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 617.9529921259841103 Td
+(        return json\({ error: "Request body too large" }, 413, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 608.882125984251843 Td
+(      }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 599.8112598425195756 Td
+(      parsed = JSON.parse\(text\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 590.7403937007873083 Td
+(    } catch {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 581.6695275590550409 Td
+(      return json\({ error: "Invalid JSON" }, 400, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 572.5986614173226599 Td
+(    }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 563.5277952755903925 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 554.4569291338580115 Td
+(    if \(!parsed || typeof parsed !== "object" || Array.isArray\(parsed\)\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 545.3860629921257441 Td
+(      return json\({ error: "Request body must be a JSON object" }, 400, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 536.3151968503934768 Td
+(    }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 527.2443307086612094 Td
+(    const body = parsed as Record<string, unknown>;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 518.1734645669289421 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 509.1025984251966179 Td
+(    const fullName = String\(body.full_name || ""\).trim\(\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 500.0317322834643505 Td
+(    if \(!fullName\) return json\({ error: "Missing full_name" }, 400, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 490.9608661417320263 Td
+(    if \(fullName.length > 200\) return json\({ error: "full_name too long" }, 400, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 481.889999999999759 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 472.8191338582674348 Td
+(    let email = String\(body.email || ""\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 463.7482677165352243 Td
+(      .trim\(\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 454.6774015748029569 Td
+(      .toLowerCase\(\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 445.6065354330706896 Td
+(    if \(email && email.length > 254\) return json\({ error: "email too long" }, 400, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 436.5356692913384222 Td
+(    if \(email && !validateEmail\(email\)\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 427.4648031496062117 Td
+(      return json\({ error: "Invalid email format" }, 400, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 418.3939370078739444 Td
+(    }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 409.323070866141677 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 400.2522047244094097 Td
+(    const phone = String\(body.phone || ""\).trim\(\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 391.1813385826771992 Td
+(    if \(phone.length > 30\) return json\({ error: "phone too long" }, 400, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 382.1104724409449318 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 373.0396062992126645 Td
+(    const rawCodes = body.department_codes;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 363.9687401574804539 Td
+(    if \(!Array.isArray\(rawCodes\)\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 354.8978740157481866 Td
+(      return json\({ error: "department_codes must be an array" }, 400, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 345.8270078740159192 Td
+(    }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 336.7561417322836519 Td
+(    if \(rawCodes.length > 50\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 327.6852755905514414 Td
+(      return json\({ error: "Too many department codes" }, 400, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 318.614409448819174 Td
+(    }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 309.5435433070869067 Td
+(    const codes: string[] = Array.from\() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 300.4726771653546393 Td
+(      new Set\(rawCodes.map\(\(c: string\) => String\(c\).trim\(\).toUpperCase\(\)\).filter\(Boolean\)\),) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 291.401811023622372 Td
+(    \);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 282.3309448818901046 Td
+(    if \(codes.length === 0\) return json\({ error: "Missing department codes" }, 400, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 273.260078740157951 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 264.1892125984256836 Td
+(    const invitationCode = String\(body.invitation_code || ""\).trim\(\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 255.1183464566934163 Td
+(    if \(invitationCode.length > 100\) return json\({ error: "invitation_code too long" }, 400, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 246.0474803149611489 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 236.9766141732288816 Td
+(    const temporaryPassword = String\(body.temporary_password || ""\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 227.9057480314966142 Td
+(    if \(temporaryPassword.length > 128\) return json\({ error: "temporary_password too long" }, 400, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 218.8348818897643469 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 209.7640157480321932 Td
+(    const admin = createClient\(Deno.env.get\("SUPABASE_URL"\)!, Deno.env.get\("SUPABASE_SERVICE_ROLE_KEY"\)!, {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 200.6931496062999258 Td
+(      auth: { autoRefreshToken: false, persistSession: false },) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 191.6222834645676585 Td
+(    }\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 182.5514173228353911 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 173.4805511811031238 Td
+(    const rawIp = \(req.headers.get\("x-forwarded-for"\) || req.headers.get\("cf-connecting-ip"\) || "unknown"\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 164.4096850393708564 Td
+(      .split\(","\)[0]) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 155.3388188976385891 Td
+(      .trim\(\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 146.2679527559063217 Td
+(    const ipHash = await hashIp\(rawIp\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 137.1970866141741681 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 128.1262204724419007 Td
+(    let institutionId: string;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 119.0553543307096334 Td
+(    let institutionType: "college" | "institute";) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 109.9844881889772523 Td
+(    let callerUserId: string | undefined;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 100.913622047244985 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 91.8427559055128313 Td
+(         / /  % %    I n v i t a t i o n   f l o w  % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % ) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 82.771889763780564 Td
+(    if \(invitationCode\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 73.7010236220482966 Td
+(      try {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 64.6301574803160293 Td
+(        await checkRateLimit\(admin, ipHash\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 55.5592913385837619 Td
+(      } catch \(e: any\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 46.4884251968514945 Td
+(        return json\({ error: e.message }, e.status || 429, headers\);) Tj
+T* () Tj
+ET
+BT
+/F1 7 Tf
+8.0499999999999989 TL
+0 g
+530.7803149606297666 14.1732283464566535 Td
+(Page 3) Tj
+ET
+endstream
+endobj
+9 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 10 0 R
+>>
+endobj
+10 0 obj
+<<
+/Length 11719
+>>
+stream
+0.5670000000000001 w
+0.71 G
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 799.3703149606299121 Td
+(      }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 790.2994488188976447 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 781.2285826771653774 Td
+(      const pwCheck = validatePassword\(temporaryPassword\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 772.15771653543311 Td
+(      if \(!pwCheck.ok\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 763.086850393700729 Td
+(        return json\({ error: pwCheck.reason }, 400, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 754.0159842519684616 Td
+(      }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 744.9451181102361943 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 735.8742519685039269 Td
+(      try {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 726.8033858267716596 Td
+(        await recordAttempt\(admin, ipHash\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 717.7325196850392786 Td
+(      } catch {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 708.6616535433070112 Td
+(        return json\({ error: "Too many attempts. Please try again later." }, 503, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 699.5907874015747439 Td
+(      }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 690.5199212598424765 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 681.4490551181102092 Td
+(      const { data: collegeInv, error: collegeErr } = await admin) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 672.3781889763778281 Td
+(        .from\("college_invitations"\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 663.3073228346455608 Td
+(        .select\("role, college_id"\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 654.2364566929132934 Td
+(        .eq\("invitation_code", invitationCode\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 645.1655905511810261 Td
+(        .eq\("is_active", true\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 636.0947244094487587 Td
+(        .or\("expires_at.is.null,expires_at.gt.now\(\)"\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 627.0238582677163777 Td
+(        .maybeSingle\(\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 617.9529921259841103 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 608.882125984251843 Td
+(      if \(collegeErr\) return fail\("invitation_lookup", "Failed to validate invitation", 500\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 599.8112598425195756 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 590.7403937007873083 Td
+(      if \(collegeInv\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 581.6695275590550409 Td
+(        if \(\(collegeInv.role || ""\).toLowerCase\(\) !== "student"\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 572.5986614173226599 Td
+(          return json\({ error: "This invitation is not for students" }, 400, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 563.5277952755903925 Td
+(        }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 554.4569291338580115 Td
+(        institutionId = collegeInv.college_id;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 545.3860629921257441 Td
+(        institutionType = "college";) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 536.3151968503934768 Td
+(      } else {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 527.2443307086612094 Td
+(        const { data: instituteInv, error: instituteErr } = await admin) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 518.1734645669289421 Td
+(          .from\("institute_invitations"\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 509.1025984251966179 Td
+(          .select\("role, institute_id"\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 500.0317322834643505 Td
+(          .eq\("invitation_code", invitationCode\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 490.9608661417320263 Td
+(          .eq\("is_active", true\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 481.889999999999759 Td
+(          .or\("expires_at.is.null,expires_at.gt.now\(\)"\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 472.8191338582674348 Td
+(          .maybeSingle\(\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 463.7482677165352243 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 454.6774015748029569 Td
+(        if \(instituteErr\) return fail\("invitation_lookup", "Failed to validate invitation", 500\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 445.6065354330706896 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 436.5356692913384222 Td
+(        if \(!instituteInv\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 427.4648031496062117 Td
+(          return json\({ error: "Invalid, expired, or already used invitation" }, 400, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 418.3939370078739444 Td
+(        }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 409.323070866141677 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 400.2522047244094097 Td
+(        if \(\(instituteInv.role || ""\).toLowerCase\(\) !== "student"\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 391.1813385826771992 Td
+(          return json\({ error: "This invitation is not for students" }, 400, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 382.1104724409449318 Td
+(        }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 373.0396062992126645 Td
+(        institutionId = instituteInv.institute_id;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 363.9687401574804539 Td
+(        institutionType = "institute";) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 354.8978740157481866 Td
+(      }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 345.8270078740159192 Td
+(    }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 336.7561417322836519 Td
+(         / /  % %    A d m i n   f l o w   \( a u t h e n t i c a t e d   i n s t i t u t i o n   a d m i n \)  % % % % % % % % % % % % % % % % % ) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 327.6852755905514414 Td
+(    else {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 318.614409448819174 Td
+(      const authHeader = req.headers.get\("Authorization"\) || "";) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 309.5435433070869067 Td
+(      const userClient = createClient\(Deno.env.get\("SUPABASE_URL"\)!, Deno.env.get\("SUPABASE_ANON_KEY"\)!, {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 300.4726771653546393 Td
+(        global: { headers: { Authorization: authHeader } },) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 291.401811023622372 Td
+(      }\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 282.3309448818901046 Td
+(      const {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 273.260078740157951 Td
+(        data: { user },) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 264.1892125984256836 Td
+(      } = await userClient.auth.getUser\(\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 255.1183464566934163 Td
+(      if \(!user?.email\) return json\({ error: "Unauthorized" }, 401, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 246.0474803149611489 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 236.9766141732288816 Td
+(      callerUserId = user.id;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 227.9057480314966142 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 218.8348818897643469 Td
+(      try {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 209.7640157480321932 Td
+(        await checkRateLimit\(admin, ipHash, callerUserId\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 200.6931496062999258 Td
+(      } catch \(e: any\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 191.6222834645676585 Td
+(        return json\({ error: e.message }, e.status || 429, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 182.5514173228353911 Td
+(      }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 173.4805511811031238 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 164.4096850393708564 Td
+(      try {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 155.3388188976385891 Td
+(        await recordAttempt\(admin, ipHash, callerUserId\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 146.2679527559063217 Td
+(      } catch {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 137.1970866141741681 Td
+(        return json\({ error: "Too many attempts. Please try again later." }, 503, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 128.1262204724419007 Td
+(      }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 119.0553543307096334 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 109.9844881889772523 Td
+(      const callerEmail = user.email.toLowerCase\(\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 100.913622047244985 Td
+(      const { data: colleges, error: collegeRegErr } = await admin) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 91.8427559055128313 Td
+(        .from\("college_registrations"\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 82.771889763780564 Td
+(        .select\("id, email, status"\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 73.7010236220482966 Td
+(        .eq\("email", callerEmail\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 64.6301574803160293 Td
+(        .eq\("status", "approved"\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 55.5592913385837619 Td
+(      if \(collegeRegErr\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 46.4884251968514945 Td
+(        console.error\("[create-student-account] college_registrations query error:", collegeRegErr.message\);) Tj
+T* () Tj
+ET
+BT
+/F1 7 Tf
+8.0499999999999989 TL
+0 g
+530.7803149606297666 14.1732283464566535 Td
+(Page 4) Tj
+ET
+endstream
+endobj
+11 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 12 0 R
+>>
+endobj
+12 0 obj
+<<
+/Length 12350
+>>
+stream
+0.5670000000000001 w
+0.71 G
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 799.3703149606299121 Td
+(        return json\({ error: "Account creation failed" }, 503, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 790.2994488188976447 Td
+(      }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 781.2285826771653774 Td
+(      const { data: institutes, error: instituteRegErr } = await admin) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 772.15771653543311 Td
+(        .from\("institute_registrations"\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 763.086850393700729 Td
+(        .select\("id, email, status"\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 754.0159842519684616 Td
+(        .eq\("email", callerEmail\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 744.9451181102361943 Td
+(        .eq\("status", "approved"\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 735.8742519685039269 Td
+(      if \(instituteRegErr\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 726.8033858267716596 Td
+(        console.error\("[create-student-account] institute_registrations query error:", instituteRegErr.message\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 717.7325196850392786 Td
+(        return json\({ error: "Account creation failed" }, 503, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 708.6616535433070112 Td
+(      }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 699.5907874015747439 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 690.5199212598424765 Td
+(      const ownedColleges = \(colleges || []\).map\(\(r: any\) => \({ id: r.id, type: "college" as const }\)\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 681.4490551181102092 Td
+(      const ownedInstitutes = \(institutes || []\).map\(\(r: any\) => \({ id: r.id, type: "institute" as const }\)\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 672.3781889763778281 Td
+(      const owned = [...ownedColleges, ...ownedInstitutes];) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 663.3073228346455608 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 654.2364566929132934 Td
+(      if \(owned.length === 0\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 645.1655905511810261 Td
+(        return json\({ error: "No approved institution found for this admin" }, 403, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 636.0947244094487587 Td
+(      }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 627.0238582677163777 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 617.9529921259841103 Td
+(      if \(owned.length === 1\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 608.882125984251843 Td
+(        institutionId = owned[0].id;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 599.8112598425195756 Td
+(        institutionType = owned[0].type;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 590.7403937007873083 Td
+(      } else {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 581.6695275590550409 Td
+(        const explicitId = String\(body.institution_id || ""\).trim\(\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 572.5986614173226599 Td
+(        const match = owned.find\(\(o\) => o.id === explicitId\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 563.5277952755903925 Td
+(        if \(!match\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 554.4569291338580115 Td
+(          return json\({ error: "Multiple institutions found; specify institution_id" }, 400, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 545.3860629921257441 Td
+(        }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 536.3151968503934768 Td
+(        institutionId = match.id;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 527.2443307086612094 Td
+(        institutionType = match.type;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 518.1734645669289421 Td
+(      }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 509.1025984251966179 Td
+(    }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 500.0317322834643505 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 490.9608661417320263 Td
+(         / /  % %    R e s o l v e   d e p a r t m e n t s   \( e x a c t   m a t c h   r e q u i r e d   b e f o r e   A u t h   u s e r   c r e a t i o n \)  % % ) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 481.889999999999759 Td
+(    const { data: depts, error: deptErr } = await admin) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 472.8191338582674348 Td
+(      .from\("departments"\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 463.7482677165352243 Td
+(      .select\("id, department_code, institution_id, institution_type"\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 454.6774015748029569 Td
+(      .in\("department_code", codes\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 445.6065354330706896 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 436.5356692913384222 Td
+(    if \(deptErr\) return fail\("resolve_depts", "Failed to resolve departments", 500\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 427.4648031496062117 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 418.3939370078739444 Td
+(    const seenCodes = new Map<string, number>\(\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 409.323070866141677 Td
+(    for \(const d of depts || []\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 400.2522047244094097 Td
+(      const code = \(d.department_code || ""\).toUpperCase\(\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 391.1813385826771992 Td
+(      seenCodes.set\(code, \(seenCodes.get\(code\) || 0\) + 1\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 382.1104724409449318 Td
+(    }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 373.0396062992126645 Td
+(    const ambiguous = codes.filter\(\(c\) => \(seenCodes.get\(c\) || 0\) > 1\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 363.9687401574804539 Td
+(    if \(ambiguous.length > 0\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 354.8978740157481866 Td
+(      return json\({ error: `Ambiguous department codes: ${ambiguous.join\(", "\)}` }, 400, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 345.8270078740159192 Td
+(    }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 336.7561417322836519 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 327.6852755905514414 Td
+(    const matchedCodes = new Set\(\(depts || []\).map\(\(d: any\) => \(d.department_code || ""\).toUpperCase\(\)\)\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 318.614409448819174 Td
+(    const missing = codes.filter\(\(c\) => !matchedCodes.has\(c\)\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 309.5435433070869067 Td
+(    if \(missing.length > 0\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 300.4726771653546393 Td
+(      return json\({ error: `Department code\(s\) not found: ${missing.join\(", "\)}` }, 404, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 291.401811023622372 Td
+(    }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 282.3309448818901046 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 273.260078740157951 Td
+(    const allowedDepts = \(depts || []\).filter\() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 264.1892125984256836 Td
+(      \(d: any\) => d.institution_id === institutionId && d.institution_type === institutionType,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 255.1183464566934163 Td
+(    \);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 246.0474803149611489 Td
+(    if \(allowedDepts.length !== codes.length\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 236.9766141732288816 Td
+(      return json\({ error: "Some departments do not belong to the specified institution" }, 403, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 227.9057480314966142 Td
+(    }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 218.8348818897643469 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 209.7640157480321932 Td
+(         / /  % %    B u i l d   e m a i l   i f   n o t   p r o v i d e d  % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % ) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 200.6931496062999258 Td
+(    if \(!email\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 191.6222834645676585 Td
+(      const slug =) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 182.5514173228353911 Td
+(        fullName) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 173.4805511811031238 Td
+(          .toLowerCase\(\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 164.4096850393708564 Td
+(          .replace\(/ /g, "."\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 155.3388188976385891 Td
+(          .replace\(/[^a-z0-9.]/g, ""\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 146.2679527559063217 Td
+(          .slice\(0, 20\) || "student";) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 137.1970866141741681 Td
+(      email = `${slug}.${Date.now\(\).toString\(36\)}@unigates.online`;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 128.1262204724419007 Td
+(    }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 119.0553543307096334 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 109.9844881889772523 Td
+(    const password = invitationCode ? temporaryPassword : genPassword\(\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 100.913622047244985 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 91.8427559055128313 Td
+(         / /  % %    C r e a t e   u s e r   a c c o u n t   a n d   a l l   r e l a t e d   r e c o r d s  % % % % % % % % % % % % % % % % % % ) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 82.771889763780564 Td
+(    let uid: string | null = null;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 73.7010236220482966 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 64.6301574803160293 Td
+(    try {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 55.5592913385837619 Td
+(      const { data: users } = await admin.auth.admin.listUsers\({ page: 1, perPage: 1000 } as any\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 46.4884251968514945 Td
+(      const existingUser = \(users?.users || []\).find\(\(u: any\) => \(u.email || ""\).trim\(\).toLowerCase\(\) === email\);) Tj
+T* () Tj
+ET
+BT
+/F1 7 Tf
+8.0499999999999989 TL
+0 g
+530.7803149606297666 14.1732283464566535 Td
+(Page 5) Tj
+ET
+endstream
+endobj
+13 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 14 0 R
+>>
+endobj
+14 0 obj
+<<
+/Length 11436
+>>
+stream
+0.5670000000000001 w
+0.71 G
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 799.3703149606299121 Td
+(      if \(existingUser\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 790.2994488188976447 Td
+(        return json\({ error: "An account with this email already exists" }, 409, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 781.2285826771653774 Td
+(      }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 772.15771653543311 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 763.086850393700729 Td
+(      const { data: created, error: ce } = await admin.auth.admin.createUser\({) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 754.0159842519684616 Td
+(        email,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 744.9451181102361943 Td
+(        password,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 735.8742519685039269 Td
+(        email_confirm: true,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 726.8033858267716596 Td
+(        user_metadata: {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 717.7325196850392786 Td
+(          full_name: fullName,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 708.6616535433070112 Td
+(          seeded_via: invitationCode ? "student_invitation" : "institution_admin",) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 699.5907874015747439 Td
+(          must_change_password: invitationCode ? false : true,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 690.5199212598424765 Td
+(        },) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 681.4490551181102092 Td
+(      }\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 672.3781889763778281 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 663.3073228346455608 Td
+(      if \(ce\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 654.2364566929132934 Td
+(        if \(isEmailAlreadyExistsError\(ce\)\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 645.1655905511810261 Td
+(          return json\({ error: "An account with this email already exists" }, 409, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 636.0947244094487587 Td
+(        }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 627.0238582677163777 Td
+(        throw ce;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 617.9529921259841103 Td
+(      }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 608.882125984251843 Td
+(      if \(!created.user\) throw new Error\("createUser returned no user"\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 599.8112598425195756 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 590.7403937007873083 Td
+(      uid = created.user.id;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 581.6695275590550409 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 572.5986614173226599 Td
+(      const { error: pe } = await admin.from\("profiles"\).insert\({) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 563.5277952755903925 Td
+(        user_id: uid,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 554.4569291338580115 Td
+(        email,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 545.3860629921257441 Td
+(        full_name: fullName,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 536.3151968503934768 Td
+(        phone: phone || null,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 527.2443307086612094 Td
+(        role: "student",) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 518.1734645669289421 Td
+(        platform: "courses",) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 509.1025984251966179 Td
+(      }\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 500.0317322834643505 Td
+(      if \(pe\) throw new Error\(`profile insert: ${pe.message}`\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 490.9608661417320263 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 481.889999999999759 Td
+(      const { error: roleErr } = await admin.from\("user_roles"\).insert\({) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 472.8191338582674348 Td
+(        user_id: uid,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 463.7482677165352243 Td
+(        role: "student" as any,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 454.6774015748029569 Td
+(        approved: true,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 445.6065354330706896 Td
+(      }\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 436.5356692913384222 Td
+(      if \(roleErr\) throw new Error\(`user_roles insert: ${roleErr.message}`\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 427.4648031496062117 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 418.3939370078739444 Td
+(      let joined = 0;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 409.323070866141677 Td
+(      for \(const d of allowedDepts\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 400.2522047244094097 Td
+(        const { error: memberErr } = await admin.from\("department_members"\).insert\({) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 391.1813385826771992 Td
+(          department_id: d.id,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 382.1104724409449318 Td
+(          full_name: fullName,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 373.0396062992126645 Td
+(          role: "student",) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 363.9687401574804539 Td
+(          user_id: uid,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 354.8978740157481866 Td
+(          email,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 345.8270078740159192 Td
+(          phone: phone || null,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 336.7561417322836519 Td
+(        }\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 327.6852755905514414 Td
+(        if \(memberErr\) throw new Error\(`department_members insert: ${memberErr.message}`\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 318.614409448819174 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 309.5435433070869067 Td
+(        if \(d.institution_type === "college"\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 300.4726771653546393 Td
+(          const { error: colMemberErr } = await admin) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 291.401811023622372 Td
+(            .from\("college_members"\)) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 282.3309448818901046 Td
+(            .upsert\({ college_id: d.institution_id, user_id: uid, role: "student" }, {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 273.260078740157951 Td
+(              onConflict: "college_id,user_id",) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 264.1892125984256836 Td
+(            } as any\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 255.1183464566934163 Td
+(          if \(colMemberErr\) throw new Error\(`college_members upsert: ${colMemberErr.message}`\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 246.0474803149611489 Td
+(        }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 236.9766141732288816 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 227.9057480314966142 Td
+(        joined++;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 218.8348818897643469 Td
+(      }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 209.7640157480321932 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 200.6931496062999258 Td
+(             / /  % %    C o n s u m e   i n v i t a t i o n   A F T E R   s u c c e s s f u l   a c c o u n t   c r e a t i o n  % % % % % % % ) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 191.6222834645676585 Td
+(      if \(invitationCode\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 182.5514173228353911 Td
+(        const { data: consumeResult, error: consumeErr } = await admin.rpc\("consume_institution_invitation" as any, {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 173.4805511811031238 Td
+(          _code: invitationCode,) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 164.4096850393708564 Td
+(        }\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 155.3388188976385891 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 146.2679527559063217 Td
+(        if \(consumeErr\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 137.1970866141741681 Td
+(          throw new Error\(`invitation consumption rpc error: ${consumeErr.message}`\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 128.1262204724419007 Td
+(        }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 119.0553543307096334 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 109.9844881889772523 Td
+(        const invResult = consumeResult?.[0];) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 100.913622047244985 Td
+(        if \(!invResult || !invResult.is_valid\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 91.8427559055128313 Td
+(          throw new Error\("invitation already consumed or expired"\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 82.771889763780564 Td
+(        }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 73.7010236220482966 Td
+(      }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 64.6301574803160293 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 55.5592913385837619 Td
+(      const response: Record<string, any> = { success: true, email, user_id: uid, joined };) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 46.4884251968514945 Td
+(      const extraHeaders: Record<string, string> = {};) Tj
+T* () Tj
+ET
+BT
+/F1 7 Tf
+8.0499999999999989 TL
+0 g
+530.7803149606297666 14.1732283464566535 Td
+(Page 6) Tj
+ET
+endstream
+endobj
+15 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 16 0 R
+>>
+endobj
+16 0 obj
+<<
+/Length 2501
+>>
+stream
+0.5670000000000001 w
+0.71 G
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 799.3703149606299121 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 790.2994488188976447 Td
+(      if \(!invitationCode\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 781.2285826771653774 Td
+(        response.password = password;) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 772.15771653543311 Td
+(        extraHeaders["Cache-Control"] = "no-store, no-cache, must-revalidate, private";) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 763.086850393700729 Td
+(      }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 754.0159842519684616 Td
+() Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 744.9451181102361943 Td
+(      return json\(response, 200, { ...headers, ...extraHeaders }\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 735.8742519685039269 Td
+(    } catch \(e: any\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 726.8033858267716596 Td
+(      if \(uid\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 717.7325196850392786 Td
+(        await rollbackNewUser\(admin, uid\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 708.6616535433070112 Td
+(      }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 699.5907874015747439 Td
+(      return json\({ error: "Account creation failed" }, 500, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 690.5199212598424765 Td
+(    }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 681.4490551181102092 Td
+(  } catch \(e: unknown\) {) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 672.3781889763778281 Td
+(    console.error\("[create-student-account] unhandled error:", String\(e\)\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 663.3073228346455608 Td
+(    return json\({ error: "Account creation failed" }, 500, headers\);) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 654.2364566929132934 Td
+(  }) Tj
+T* () Tj
+ET
+BT
+/F5 7 Tf
+8.0499999999999989 TL
+0 g
+42.5196850393700814 645.1655905511810261 Td
+(}\);) Tj
+T* () Tj
+ET
+BT
+/F1 7 Tf
+8.0499999999999989 TL
+0 g
+530.7803149606297666 14.1732283464566535 Td
+(Page 7) Tj
+ET
+endstream
+endobj
+1 0 obj
+<</Type /Pages
+/Kids [3 0 R 5 0 R 7 0 R 9 0 R 11 0 R 13 0 R 15 0 R ]
+/Count 7
+>>
+endobj
+17 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+18 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+19 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+20 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+21 0 obj
+<<
+/Type /Font
+/BaseFont /Courier
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+22 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+23 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+24 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+25 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Roman
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+26 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+27 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Italic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+28 0 obj
+<<
+/Type /Font
+/BaseFont /Times-BoldItalic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+29 0 obj
+<<
+/Type /Font
+/BaseFont /ZapfDingbats
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+30 0 obj
+<<
+/Type /Font
+/BaseFont /Symbol
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+2 0 obj
+<<
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+/Font <<
+/F1 17 0 R
+/F2 18 0 R
+/F3 19 0 R
+/F4 20 0 R
+/F5 21 0 R
+/F6 22 0 R
+/F7 23 0 R
+/F8 24 0 R
+/F9 25 0 R
+/F10 26 0 R
+/F11 27 0 R
+/F12 28 0 R
+/F13 29 0 R
+/F14 30 0 R
+>>
+/XObject <<
+>>
+>>
+endobj
+31 0 obj
+<<
+/Producer (jsPDF 4.2.1)
+/CreationDate (D:20260729041824+03'00')
+>>
+endobj
+32 0 obj
+<<
+/Type /Catalog
+/Pages 1 0 R
+/OpenAction [3 0 R /FitH null]
+/PageLayout /OneColumn
+>>
+endobj
+xref
+0 33
+0000000000 65535 f 
+0000073627 00000 n 
+0000075488 00000 n 
+0000000015 00000 n 
+0000000152 00000 n 
+0000011081 00000 n 
+0000011218 00000 n 
+0000022827 00000 n 
+0000022964 00000 n 
+0000034851 00000 n 
+0000034989 00000 n 
+0000046762 00000 n 
+0000046901 00000 n 
+0000059305 00000 n 
+0000059444 00000 n 
+0000070934 00000 n 
+0000071073 00000 n 
+0000073723 00000 n 
+0000073849 00000 n 
+0000073980 00000 n 
+0000074114 00000 n 
+0000074252 00000 n 
+0000074376 00000 n 
+0000074505 00000 n 
+0000074637 00000 n 
+0000074773 00000 n 
+0000074901 00000 n 
+0000075028 00000 n 
+0000075157 00000 n 
+0000075290 00000 n 
+0000075392 00000 n 
+0000075741 00000 n 
+0000075827 00000 n 
+trailer
+<<
+/Size 33
+/Root 32 0 R
+/Info 31 0 R
+/ID [ <C4DC13320FB14CB3B830F89188E9DDF0> <C4DC13320FB14CB3B830F89188E9DDF0> ]
+>>
+startxref
+75931
+%%EOF

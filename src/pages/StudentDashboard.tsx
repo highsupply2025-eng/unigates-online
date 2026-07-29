@@ -26,6 +26,8 @@ const StudentDashboard = () => {
 
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [subActive, setSubActive] = useState(true);
+  const [subExpiresAt, setSubExpiresAt] = useState<string | null>(null);
   const [counts, setCounts] = useState({
     subscriptions: 0,
     liveNow: 0,
@@ -62,6 +64,13 @@ const StudentDashboard = () => {
     ]);
 
     setProfile(pRes.data);
+
+    // Check subscription status
+    const { data: subCheck } = await supabase.rpc("check_student_subscription" as any, { _user_id: user.id });
+    if (subCheck) {
+      setSubActive(subCheck.is_active !== false);
+      setSubExpiresAt(subCheck.expires_at || subCheck.expired_at || null);
+    }
 
     const subIds = (subs.data || []).map((s: any) => s.course_id);
     const availableQuizzes = (qz.data || []).filter((q: any) => subIds.includes(q.course_id));
@@ -145,6 +154,26 @@ const StudentDashboard = () => {
       </header>
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
+        {/* Subscription expired warning */}
+        {!subActive && (
+          <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30 border-2 border-red-200 dark:border-red-800">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-5 h-5 text-red-600 dark:text-red-400" />
+              </div>
+              <div>
+                <p className="font-bold text-red-700 dark:text-red-300">
+                  {isRtl ? "الاشتراك منتهي" : "Subscription Expired"}
+                </p>
+                <p className="text-sm text-red-600/80 dark:text-red-400/80">
+                  {isRtl
+                    ? "نرجو تجديد الاشتراك من قبل ادارة الكلية"
+                    : "Please renew your subscription through college administration"}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Per-menu-item counts shared by chart and grid */}
         {(() => {
           const visibleMenu = menuItems.filter((m) => m.to !== "/student/profile" && m.to !== "/student/my-academic");

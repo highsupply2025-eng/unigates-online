@@ -184,12 +184,12 @@ const StudentSubscriptions = () => {
             </div>
             <div className="min-w-0 flex-1">
               <h1 className="text-lg sm:text-2xl font-black text-foreground truncate tracking-tight">
-                {isRtl ? "اشتراكات الطلاب" : "Student Subscriptions"}
+                {isRtl
+                  ? (institutionType === "college" ? "لوحة ادارة الكلية" : "لوحة ادارة المعهد")
+                  : (institutionType === "college" ? "College Administration" : "Institute Administration")}
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground font-semibold truncate">
-                {isRtl
-                  ? (institutionType === "college" ? "لوحة ادارة الكلية" : institutionType === "institute" ? "لوحة ادارة المعهد" : "لوحة ادارة الكلية")
-                  : (institutionType === "college" ? "College Administration" : institutionType === "institute" ? "Institute Administration" : "College Administration")}
+                {isRtl ? "اشتراك الطلاب" : "Student Subscriptions"}
               </p>
             </div>
           </div>
@@ -207,7 +207,7 @@ const StudentSubscriptions = () => {
                 { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, onClick: () => navigate("/institution/dashboard?tab=faculty") },
                 { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, onClick: () => navigate("/institution/dashboard?tab=departments") },
                 { key: "students", label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: Users, onClick: () => navigate("/institution/dashboard?tab=students") },
-                { key: "subscriptions", label: isRtl ? "اشتراكات الطلاب" : "Student Subscriptions", Icon: Ticket, onClick: () => navigate("/institution/student-subscriptions"), active: true },
+                { key: "subscriptions", label: isRtl ? "اشتراك الطلاب" : "Student Subscriptions", Icon: GraduationCap, onClick: () => navigate("/institution/student-subscriptions"), active: true },
                 { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => navigate("/institution/dashboard?tab=schedules") },
                 { key: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, onClick: () => navigate("/institution/dashboard?tab=quizresults") },
                 { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: UserIcon, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/institution/profile") },

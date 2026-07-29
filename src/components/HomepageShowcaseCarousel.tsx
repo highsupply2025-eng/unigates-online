@@ -1,5 +1,4 @@
-import { useRef, useEffect, useState, memo } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useRef, useEffect, memo } from "react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 interface ShowcaseItem {
@@ -18,6 +17,14 @@ interface HomepageShowcaseCarouselProps {
   isRtl: boolean;
   autoScrollSpeed?: number;
 }
+
+const comingSoonGradients = [
+  "from-primary/15 to-primary/5",
+  "from-indigo-200/30 to-indigo-100/10",
+  "from-orange-200/30 to-orange-100/10",
+  "from-emerald-200/30 to-emerald-100/10",
+  "from-amber-200/30 to-amber-100/10",
+];
 
 const ShowcaseCard = memo(({ item }: { item: ShowcaseItem }) => (
   <div className="relative flex-shrink-0 w-[220px] md:w-[260px] group cursor-pointer">
@@ -54,6 +61,23 @@ const ShowcaseCard = memo(({ item }: { item: ShowcaseItem }) => (
 
 ShowcaseCard.displayName = "ShowcaseCard";
 
+const ComingSoonCard = memo(({ badge, badgeColor, gradientIndex }: { badge: string; badgeColor: string; gradientIndex: number }) => (
+  <div className="relative flex-shrink-0 w-[220px] md:w-[260px]">
+    <div className={`aspect-video rounded-xl overflow-hidden relative shadow-md bg-gradient-to-br ${comingSoonGradients[gradientIndex % comingSoonGradients.length]} border border-border/30`}>
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+        {badge && (
+          <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold text-white backdrop-blur-sm ${badgeColor}`}>
+            {badge}
+          </span>
+        )}
+        <span className="text-lg font-black text-muted-foreground/50">قريباً</span>
+      </div>
+    </div>
+  </div>
+));
+
+ComingSoonCard.displayName = "ComingSoonCard";
+
 const HomepageShowcaseCarousel = ({
   title,
   emoji,
@@ -65,14 +89,13 @@ const HomepageShowcaseCarousel = ({
   const isPausedRef = useRef(false);
   const { ref, isVisible } = useScrollAnimation();
 
-  // Use requestAnimationFrame instead of setInterval for smooth, efficient scrolling
+  // Auto-scroll with requestAnimationFrame
   useEffect(() => {
     const el = scrollRef.current;
-    if (!el || !isVisible) return;
+    if (!el || !isVisible || items.length === 0) return;
 
     let frameId: number;
     let lastTime = 0;
-    // Convert speed to pixels per second (lower autoScrollSpeed = faster interval = faster scroll)
     const pixelsPerSecond = 4000 / autoScrollSpeed;
 
     const tick = (now: number) => {
@@ -95,16 +118,10 @@ const HomepageShowcaseCarousel = ({
 
     frameId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frameId);
-  }, [isVisible, isRtl, autoScrollSpeed]);
+  }, [isVisible, isRtl, autoScrollSpeed, items.length]);
 
-  const scroll = (direction: "left" | "right") => {
-    if (!scrollRef.current) return;
-    const amount = 300;
-    const dir = isRtl
-      ? direction === "left" ? amount : -amount
-      : direction === "left" ? -amount : amount;
-    scrollRef.current.scrollBy({ left: dir, behavior: "smooth" });
-  };
+  const isEmpty = items.length === 0;
+  const soonLabel = isRtl ? "قريباً" : "Soon";
 
   return (
     <section
@@ -130,9 +147,19 @@ const HomepageShowcaseCarousel = ({
             className="flex gap-4 overflow-x-auto pb-4 px-2"
             style={{ scrollbarWidth: "none" }}
           >
-            {items.map((item) => (
-              <ShowcaseCard key={item.id} item={item} />
-            ))}
+            {isEmpty
+              ? Array.from({ length: 5 }, (_, i) => (
+                  <ComingSoonCard
+                    key={`soon-${i}`}
+                    badge={soonLabel}
+                    badgeColor="bg-muted/60"
+                    gradientIndex={i}
+                  />
+                ))
+              : items.map((item) => (
+                  <ShowcaseCard key={item.id} item={item} />
+                ))
+            }
           </div>
         </div>
       </div>

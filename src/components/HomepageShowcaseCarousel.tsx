@@ -1,7 +1,7 @@
 import { useRef, useEffect, memo } from "react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
-interface ShowcaseItem {
+export interface ShowcaseItem {
   id: string;
   title: string;
   subtitle?: string;

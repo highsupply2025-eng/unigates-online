@@ -10,6 +10,7 @@ import {
 
 import AdminPreviewLinks from "@/components/AdminPreviewLinks";
 import AllPagesDropdown from "@/components/AllPagesDropdown";
+import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import BackButton from "@/components/BackButton";
 import TestAccountsPanel from "@/components/TestAccountsPanel";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
@@ -689,21 +690,36 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-background" dir={dir}>
       {/* Header */}
-      <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 sticky top-0 bg-background/95 backdrop-blur z-50">
+      <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/10 to-primary/5">
         <div className="max-w-full mx-auto flex items-center justify-between gap-2">
-          <Link to="/" className="flex items-center gap-2 min-w-0">
-            <GraduationCap className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
-            <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight truncate">{t.brandName}</span>
-            <Badge className="bg-primary/10 text-primary border-primary/20 ms-1 hidden md:inline-flex"><Shield className="w-3 h-3 me-1" />{ar("لوحة التحكم","Control Panel")}</Badge>
-          </Link>
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 flex items-center justify-center shrink-0">
+              <Shield className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-base sm:text-xl font-black text-foreground truncate">{isRtl ? "لوحة التحكم" : "Control Panel"}</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">{isRtl ? "الادارة العامة" : "General Administration"}</p>
+            </div>
+          </div>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            <BackButton />
-            
-            <AllPagesDropdown />
-            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5 px-2 sm:px-3"><Globe className="w-4 h-4" /><span className="hidden sm:inline">{t.langSwitch}</span></Button>
-            <Button variant="default" size="sm" onClick={handleLogout} className="font-semibold gap-1.5 px-2 sm:px-3">
-              {language === "ar" ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}<span className="hidden sm:inline">{t.logout}</span>
-            </Button>
+            <DashboardMenuDropdown
+              onLanguageToggle={toggleLanguage}
+              onLogout={handleLogout}
+              items={[
+                { key: "overview", label: isRtl ? "نظرة عامة" : "Overview", Icon: BarChart3, color: "from-blue-500 to-blue-600", onClick: () => setActiveTab("overview") },
+                { key: "pending", label: isRtl ? "طلبات الانتظار" : "Pending", Icon: Clock, color: "from-amber-500 to-amber-600", onClick: () => setActiveTab("pending") },
+                { key: "colleges", label: isRtl ? "الكليات" : "Colleges", Icon: Landmark, color: "from-indigo-500 to-indigo-600", onClick: () => setActiveTab("colleges") },
+                { key: "institutes", label: isRtl ? "المعاهد" : "Institutes", Icon: Landmark, color: "from-violet-500 to-violet-600", onClick: () => setActiveTab("institutes") },
+                { key: "schools", label: isRtl ? "المدارس" : "Schools", Icon: School, color: "from-cyan-500 to-cyan-600", onClick: () => setActiveTab("schools") },
+                { key: "users", label: isRtl ? "المستخدمين" : "Users", Icon: Users, color: "from-emerald-500 to-emerald-600", onClick: () => setActiveTab("users") },
+                { key: "courses", label: isRtl ? "الدورات" : "Courses", Icon: BookOpen, color: "from-amber-500 to-amber-600", onClick: () => setActiveTab("courses") },
+                { key: "books", label: isRtl ? "الكتب" : "Books", Icon: BookMarked, color: "from-pink-500 to-pink-600", onClick: () => setActiveTab("books") },
+                { key: "orders", label: isRtl ? "الطلبات" : "Orders", Icon: ShoppingCart, color: "from-orange-500 to-orange-600", onClick: () => setActiveTab("orders") },
+                { key: "subscriptions", label: isRtl ? "الاشتراكات" : "Subscriptions", Icon: CreditCard, color: "from-teal-500 to-teal-600", onClick: () => setActiveTab("subscriptions") },
+                { key: "streams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-red-600", onClick: () => setActiveTab("streams") },
+                { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: Building2, color: "from-slate-500 to-slate-600", onClick: () => setActiveTab("departments_admin") },
+              ]}
+            />
           </div>
         </div>
       </header>
@@ -729,26 +745,48 @@ const AdminDashboard = () => {
           {/* ===== Overview ===== */}
           <TabsContent value="overview" dir={isRtl ? "rtl" : "ltr"}>
             <AdminPreviewLinks />
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+
+            {/* Primary Stats */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6">
               {[
-                { icon: Users, value: stats.totalUsers, label: ar("إجمالي المستخدمين","Total Users"), color: "text-primary" },
-                { icon: UserCheck, value: stats.totalLecturers, label: ar("محاضرون معتمدون","Approved Lecturers"), color: "text-green-600" },
-                { icon: Clock, value: stats.pendingCount, label: ar("بانتظار الموافقة","Pending Approval"), color: "text-amber-500" },
-                { icon: School, value: stats.pendingSchools, label: ar("طلبات مدارس","School Requests"), color: "text-blue-600" },
-                { icon: Landmark, value: stats.totalColleges, label: ar("الكليات","Colleges"), color: "text-indigo-600" },
-                { icon: Landmark, value: stats.totalInstitutes, label: ar("المعاهد","Institutes"), color: "text-violet-600" },
-                { icon: BookOpen, value: stats.totalCourses, label: ar("الدورات","Courses"), color: "text-primary" },
-                { icon: Eye, value: stats.totalViews, label: ar("المشاهدات","Views"), color: "text-primary" },
-                { icon: BookMarked, value: stats.totalBooks, label: ar("الكتب","Books"), color: "text-purple-600" },
-                { icon: ShoppingCart, value: stats.totalOrders, label: ar("طلبات الشراء","Orders"), color: "text-orange-600" },
-                { icon: CreditCard, value: stats.totalSubscriptions, label: ar("الاشتراكات","Subscriptions"), color: "text-teal-600" },
-                { icon: Radio, value: stats.totalStreams, label: ar("البث المباشر","Streams"), color: "text-red-600" },
+                { icon: Users, value: stats.totalUsers, label: ar("إجمالي المستخدمين","Total Users"), color: "from-blue-500 to-blue-600", bgLight: "bg-blue-50 dark:bg-blue-950/30" },
+                { icon: UserCheck, value: stats.totalLecturers, label: ar("محاضرون معتمدون","Approved Lecturers"), color: "from-green-500 to-green-600", bgLight: "bg-green-50 dark:bg-green-950/30" },
+                { icon: Clock, value: stats.pendingCount, label: ar("بانتظار الموافقة","Pending Approval"), color: "from-amber-500 to-amber-600", bgLight: "bg-amber-50 dark:bg-amber-950/30" },
+                { icon: Landmark, value: stats.totalColleges, label: ar("الكليات","Colleges"), color: "from-indigo-500 to-indigo-600", bgLight: "bg-indigo-50 dark:bg-indigo-950/30" },
+                { icon: Landmark, value: stats.totalInstitutes, label: ar("المعاهد","Institutes"), color: "from-violet-500 to-violet-600", bgLight: "bg-violet-50 dark:bg-violet-950/30" },
+                { icon: School, value: stats.pendingSchools, label: ar("طلبات مدارس","School Requests"), color: "from-cyan-500 to-cyan-600", bgLight: "bg-cyan-50 dark:bg-cyan-950/30" },
               ].map((s, i) => (
-                <Card key={i}><CardContent className="pt-6 text-center">
-                  <s.icon className={`w-7 h-7 ${s.color} mx-auto mb-1`} />
-                  <p className="text-2xl font-black text-foreground">{s.value}</p>
-                  <p className="text-xs text-muted-foreground">{s.label}</p>
-                </CardContent></Card>
+                <Card key={i} className={`overflow-hidden ${s.bgLight} border-0`}>
+                  <CardContent className="pt-5 pb-4 text-center">
+                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center mx-auto mb-2 shadow-lg`}>
+                      <s.icon className="w-5 h-5 text-white" />
+                    </div>
+                    <p className="text-2xl font-black text-foreground">{s.value}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">{s.label}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Secondary Stats */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6">
+              {[
+                { icon: BookOpen, value: stats.totalCourses, label: ar("الدورات","Courses"), color: "from-amber-500 to-amber-600", bgLight: "bg-amber-50 dark:bg-amber-950/30" },
+                { icon: Eye, value: stats.totalViews, label: ar("المشاهدات","Views"), color: "from-sky-500 to-sky-600", bgLight: "bg-sky-50 dark:bg-sky-950/30" },
+                { icon: BookMarked, value: stats.totalBooks, label: ar("الكتب","Books"), color: "from-pink-500 to-pink-600", bgLight: "bg-pink-50 dark:bg-pink-950/30" },
+                { icon: ShoppingCart, value: stats.totalOrders, label: ar("طلبات الشراء","Orders"), color: "from-orange-500 to-orange-600", bgLight: "bg-orange-50 dark:bg-orange-950/30" },
+                { icon: CreditCard, value: stats.totalSubscriptions, label: ar("الاشتراكات","Subscriptions"), color: "from-teal-500 to-teal-600", bgLight: "bg-teal-50 dark:bg-teal-950/30" },
+                { icon: Radio, value: stats.totalStreams, label: ar("البث المباشر","Streams"), color: "from-red-500 to-red-600", bgLight: "bg-red-50 dark:bg-red-950/30" },
+              ].map((s, i) => (
+                <Card key={i} className={`overflow-hidden ${s.bgLight} border-0`}>
+                  <CardContent className="pt-5 pb-4 text-center">
+                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center mx-auto mb-2 shadow-lg`}>
+                      <s.icon className="w-5 h-5 text-white" />
+                    </div>
+                    <p className="text-2xl font-black text-foreground">{s.value}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">{s.label}</p>
+                  </CardContent>
+                </Card>
               ))}
             </div>
 

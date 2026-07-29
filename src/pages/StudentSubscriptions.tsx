@@ -218,13 +218,13 @@ const StudentSubscriptions = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4">
-        <div className="relative">
-          <Search className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground ${isRtl ? "right-3" : "left-3"}`} />
+        <div className="relative group">
+          <Search className={`absolute top-1/2 -translate-y-1/2 w-5 h-5 text-teal-500 group-focus-within:text-teal-600 transition-colors ${isRtl ? "right-4" : "left-4"}`} />
           <Input
-            placeholder={isRtl ? "بحث بالاسم أو البريد الإلكتروني..." : "Search by name or email..."}
+            placeholder={isRtl ? "بحث بالاسم أو القسم أو البريد..." : "Search by name, department or email..."}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className={isRtl ? "pe-9" : "ps-9"}
+            className={`${isRtl ? "pe-12" : "ps-12"} h-12 rounded-xl border-2 border-teal-200 bg-white shadow-sm focus:border-teal-400 focus:ring-teal-400/20 focus:shadow-md transition-all text-sm font-medium placeholder:text-muted-foreground/60`}
           />
         </div>
 

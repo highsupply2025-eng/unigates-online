@@ -368,7 +368,7 @@ describe("create-student-account – password validation", () => {
 
 describe("create-student-account – atomic invitation consumption", () => {
   it("simulates atomic UPDATE blocking double-consume of last slot", () => {
-    const maxUses = 1;
+    const maxUses: number = 1;
     let usedCount = 0;
     let isActive = true;
 

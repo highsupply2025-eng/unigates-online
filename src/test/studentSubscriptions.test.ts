@@ -368,7 +368,7 @@ describe("create-student-account – password validation", () => {
 
 describe("create-student-account – atomic invitation consumption", () => {
   it("simulates atomic UPDATE blocking double-consume of last slot", () => {
-    const maxUses = 1;
+    const maxUses: number = 1;
     let usedCount = 0;
     let isActive = true;
 
@@ -427,12 +427,12 @@ describe("create-student-account – CORS restriction", () => {
 
 describe("create-student-account – password not returned in invitation mode", () => {
   it("does not include password field when invitationCode is present", () => {
-    const response = { success: true, email: "test@test.com", user_id: "u1", joined: 1, missing: [] };
+    const response: Record<string, unknown> = { success: true, email: "test@test.com", user_id: "u1", joined: 1, missing: [] };
     expect(response.password).toBeUndefined();
   });
 
   it("includes password with Cache-Control: no-store in admin mode", () => {
-    const response = { success: true, email: "test@test.com", password: "TempPass1!", user_id: "u1", joined: 1, missing: [] };
+    const response: Record<string, unknown> = { success: true, email: "test@test.com", password: "TempPass1!", user_id: "u1", joined: 1, missing: [] };
     expect(response.password).toBeDefined();
     expect(response.password_returned).toBeUndefined();
   });

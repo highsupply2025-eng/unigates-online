@@ -53,7 +53,7 @@ const HomepageSections = () => {
     staleTime: 60_000,
   });
 
-  const colleges: ShowcaseItem[] = rawColleges.length > 0
+  const colleges: ShowcaseItem[] = (rawColleges ?? []).length > 0
     ? rawColleges.map((c, i) => ({
         id: c.id,
         title: isRtl ? c.college_name : c.university_name || c.college_name,
@@ -78,7 +78,7 @@ const HomepageSections = () => {
     staleTime: 60_000,
   });
 
-  const institutes: ShowcaseItem[] = rawInstitutes.length > 0
+  const institutes: ShowcaseItem[] = (rawInstitutes ?? []).length > 0
     ? rawInstitutes.map((inst, i) => ({
         id: inst.id,
         title: isRtl ? inst.institute_name : inst.institute_name,
@@ -103,7 +103,7 @@ const HomepageSections = () => {
     staleTime: 60_000,
   });
 
-  const schools: ShowcaseItem[] = rawSchools.length > 0
+  const schools: ShowcaseItem[] = (rawSchools ?? []).length > 0
     ? rawSchools.map((s, i) => ({
         id: s.id,
         title: isRtl ? s.school_name : s.school_name,
@@ -128,7 +128,7 @@ const HomepageSections = () => {
     staleTime: 60_000,
   });
 
-  const courses: ShowcaseItem[] = rawCourses.length > 0
+  const courses: ShowcaseItem[] = (rawCourses ?? []).length > 0
     ? rawCourses.map((c, i) => ({
         id: c.id,
         title: isRtl ? c.title_ar : c.title_en,
@@ -154,7 +154,7 @@ const HomepageSections = () => {
     staleTime: 60_000,
   });
 
-  const books: ShowcaseItem[] = rawBooks.length > 0
+  const books: ShowcaseItem[] = (rawBooks ?? []).length > 0
     ? rawBooks.map((b, i) => ({
         id: b.id,
         title: isRtl ? b.title_ar : b.title_en,

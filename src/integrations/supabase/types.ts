@@ -2524,6 +2524,7 @@ export type Database = {
       }
     }
     Functions: {
+      _protected_owner_emails: { Args: never; Returns: string[] }
       assign_faculty_department: {
         Args: {
           p_email: string
@@ -2596,10 +2597,24 @@ export type Database = {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
       }
+      delete_test_accounts: { Args: never; Returns: undefined }
       email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      ensure_owner_role: { Args: never; Returns: undefined }
+      get_cleanup_candidates: {
+        Args: never
+        Returns: {
+          approved: boolean
+          auth_user_id: string
+          email: string
+          evidence: string
+          has_profile: boolean
+          has_role_row: boolean
+          role_name: string
+        }[]
       }
       get_institution_quiz_for_student: {
         Args: { _quiz_id: string }
@@ -2659,6 +2674,7 @@ export type Database = {
           question_type: string
         }[]
       }
+      get_test_registration_emails: { Args: never; Returns: string[] }
       get_user_email: { Args: { _user_id: string }; Returns: string }
       get_user_sub_role: { Args: { _user_id: string }; Returns: string }
       has_approved_role: {
@@ -2747,6 +2763,7 @@ export type Database = {
         Returns: undefined
       }
       schedule_fully_approved: { Args: { _id: string }; Returns: boolean }
+      snapshot_accounts_before_cleanup: { Args: never; Returns: undefined }
       submit_quiz: {
         Args: { _answers: Json; _quiz_id: string; _whatsapp?: string }
         Returns: Json
@@ -2805,6 +2822,7 @@ export type Database = {
           role: string
         }[]
       }
+      verify_no_protected_owner_in_candidates: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role:

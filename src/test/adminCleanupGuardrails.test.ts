@@ -2,14 +2,14 @@ import { describe, it, expect } from "vitest";
 import fs from "fs";
 
 // ── Constants ────────────────────────────────────────────────────────────────
-const PROTECTED_EMAIL = "darobaid@unigates.online";
+const PROTECTED_EMAIL: string = "darobaid@unigates.online";
 const PROTECTED_EMAIL_LOWER = PROTECTED_EMAIL.toLowerCase();
 
 // Evidence-based test account patterns (from seed-test-accounts/index.ts)
 const SEED_TEST_EMAIL_REGEX = /^darobaid\d+@unigates\.online$/;
 const EXAMPLE_COM_REGEX = /@example\.com$/;
-const TEST_ADMIN_EMAIL = "test_admin@unigates.online";
-const TEST_EMAIL = "test@unigates.online";
+const TEST_ADMIN_EMAIL: string = "test_admin@unigates.online";
+const TEST_EMAIL: string = "test@unigates.online";
 
 // All documented test account emails from seed-test-accounts
 const SEED_TEST_ACCOUNTS = [

@@ -48,7 +48,7 @@ function safeCompare(a: string, b: string, dir: SortDir): number {
 }
 
 const StudentSubscriptions = () => {
-  const { language } = useLanguage();
+  const { language, toggleLanguage } = useLanguage();
   const isRtl = language === "ar";
   const navigate = useNavigate();
 
@@ -240,6 +240,7 @@ const StudentSubscriptions = () => {
             )}
             <DashboardMenuDropdown
               title={isRtl ? (institutionType === "college" ? "لوحة الكلية" : "لوحة المعهد") : (institutionType === "college" ? "College Panel" : "Institute Panel")}
+              onLanguageToggle={toggleLanguage}
               onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
               items={[
                 { key: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, onClick: () => navigate("/institution/dashboard") },

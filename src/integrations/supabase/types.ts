@@ -1181,6 +1181,27 @@ export type Database = {
         }
         Relationships: []
       }
+      invitation_rate_limits: {
+        Row: {
+          action_type: string
+          attempted_at: string
+          ip_hash: string
+          user_id: string | null
+        }
+        Insert: {
+          action_type?: string
+          attempted_at?: string
+          ip_hash?: string
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          attempted_at?: string
+          ip_hash?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       lecture_ratings: {
         Row: {
           comment: string | null
@@ -2560,6 +2581,17 @@ export type Database = {
         Args: { _email: string }
         Returns: undefined
       }
+      consume_institution_invitation: {
+        Args: { _code: string }
+        Returns: {
+          error_message: string
+          institution_id: string
+          institution_name: string
+          is_valid: boolean
+          kind: string
+          role: string
+        }[]
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -2586,6 +2618,16 @@ export type Database = {
           question_en: string
           question_order: number
         }[]
+      }
+      get_institution_student_subscriptions: {
+        Args: {
+          p_page?: number
+          p_page_size?: number
+          p_search?: string
+          p_sort_by?: string
+          p_sort_dir?: string
+        }
+        Returns: Json
       }
       get_my_submission_whatsapp: {
         Args: { _submission_id: string }
@@ -2761,41 +2803,6 @@ export type Database = {
           is_valid: boolean
           kind: string
           role: string
-        }[]
-      }
-      get_institution_student_subscriptions: {
-        Args: {
-          p_page?: number
-          p_page_size?: number
-          p_search?: string
-          p_sort_by?: string
-          p_sort_dir?: string
-        }
-        Returns: {
-          error: string | null
-          data: {
-            id: string
-            full_name: string
-            email: string | null
-            phone: string | null
-            department_id: string
-            department_name: string
-            user_id: string | null
-            created_at: string
-            photo_url: string | null
-          }[]
-          total: number
-        }
-      }
-      consume_institution_invitation: {
-        Args: { _code: string }
-        Returns: {
-          is_valid: boolean
-          kind: string | null
-          role: string | null
-          institution_id: string | null
-          institution_name: string | null
-          error_message: string | null
         }[]
       }
     }

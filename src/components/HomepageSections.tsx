@@ -121,7 +121,7 @@ const HomepageSections = () => {
       const { data } = await supabase
         .from("courses")
         .select("id, title_ar, title_en, instructor_ar, instructor_en, thumbnail_url, category_ar, category_en")
-        .order("created_at", { ascending: false })
+        .order("created_at", { ascending: true })
         .limit(20);
       return data || [];
     },
@@ -147,7 +147,7 @@ const HomepageSections = () => {
         .from("books")
         .select("id, title_ar, title_en, author_ar, author_en, cover_url, category, price, is_bestseller, rating")
         .eq("is_active", true)
-        .order("created_at", { ascending: false })
+        .order("created_at", { ascending: true })
         .limit(20);
       return data || [];
     },
@@ -198,6 +198,8 @@ const HomepageSections = () => {
         items={courses}
         isRtl={isRtl}
         autoScrollSpeed={85}
+        maxSlots={5}
+        showEmptySlots={true}
       />
       <HomepageShowcaseCarousel
         title={isRtl ? "الكتب" : "Books"}
@@ -205,6 +207,8 @@ const HomepageSections = () => {
         items={books}
         isRtl={isRtl}
         autoScrollSpeed={75}
+        maxSlots={5}
+        showEmptySlots={true}
       />
     </div>
   );

@@ -19,6 +19,8 @@ interface HomepageShowcaseCarouselProps {
   items: ShowcaseItem[];
   isRtl: boolean;
   autoScrollSpeed?: number;
+  maxSlots?: number;
+  showEmptySlots?: boolean;
 }
 
 const comingSoonGradients = [
@@ -29,9 +31,12 @@ const comingSoonGradients = [
   "from-amber-200/30 to-amber-100/10",
 ];
 
-const ShowcaseCard = memo(({ item }: { item: ShowcaseItem }) => {
+const ShowcaseCard = memo(({ item, index }: { item: ShowcaseItem; index: number }) => {
   const card = (
-    <div className="aspect-video rounded-xl overflow-hidden relative shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-[1.03]">
+    <div
+      className="aspect-video rounded-xl overflow-hidden relative shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-[1.03] cascade-card"
+      style={{ animationDelay: `${index * 120}ms` }}
+    >
       <img
         src={item.image}
         alt={item.title}
@@ -77,9 +82,12 @@ const ShowcaseCard = memo(({ item }: { item: ShowcaseItem }) => {
 
 ShowcaseCard.displayName = "ShowcaseCard";
 
-const ComingSoonCard = memo(({ badge, badgeColor, gradientIndex }: { badge: string; badgeColor: string; gradientIndex: number }) => (
+const ComingSoonCard = memo(({ badge, badgeColor, gradientIndex, index }: { badge: string; badgeColor: string; gradientIndex: number; index: number }) => (
   <div className="relative flex-shrink-0 w-[220px] md:w-[260px]">
-    <div className={`aspect-video rounded-xl overflow-hidden relative shadow-md bg-gradient-to-br ${comingSoonGradients[gradientIndex % comingSoonGradients.length]} border border-border/30`}>
+    <div
+      className={`aspect-video rounded-xl overflow-hidden relative shadow-md bg-gradient-to-br ${comingSoonGradients[gradientIndex % comingSoonGradients.length]} border border-border/30 cascade-card`}
+      style={{ animationDelay: `${index * 120}ms` }}
+    >
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
         {badge && (
           <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold text-white backdrop-blur-sm ${badgeColor}`}>
@@ -100,6 +108,8 @@ const HomepageShowcaseCarousel = ({
   items,
   isRtl,
   autoScrollSpeed = 65,
+  maxSlots = 5,
+  showEmptySlots = false,
 }: HomepageShowcaseCarouselProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const isPausedRef = useRef(false);
@@ -139,6 +149,10 @@ const HomepageShowcaseCarousel = ({
   const isEmpty = items.length === 0;
   const soonLabel = isRtl ? "قريباً" : "Soon";
 
+  const totalSlots = showEmptySlots ? maxSlots : items.length;
+  const displayItems = items.slice(0, totalSlots);
+  const emptySlots = showEmptySlots ? totalSlots - displayItems.length : 0;
+
   return (
     <section
       ref={ref}
@@ -163,18 +177,34 @@ const HomepageShowcaseCarousel = ({
             className="flex gap-4 overflow-x-auto pb-4 px-4"
             style={{ scrollbarWidth: "none" }}
           >
-            {isEmpty
-              ? Array.from({ length: 5 }, (_, i) => (
-                  <ComingSoonCard
-                    key={`soon-${i}`}
-                    badge={soonLabel}
-                    badgeColor="bg-muted/60"
-                    gradientIndex={i}
-                  />
-                ))
-              : items.map((item) => (
-                  <ShowcaseCard key={item.id} item={item} />
-                ))
+            {showEmptySlots
+              ? <>
+                  {displayItems.map((item, i) => (
+                    <ShowcaseCard key={item.id} item={item} index={i} />
+                  ))}
+                  {Array.from({ length: emptySlots }, (_, i) => (
+                    <ComingSoonCard
+                      key={`soon-${i}`}
+                      badge={soonLabel}
+                      badgeColor="bg-muted/60"
+                      gradientIndex={i}
+                      index={displayItems.length + i}
+                    />
+                  ))}
+                </>
+              : isEmpty
+                ? Array.from({ length: 5 }, (_, i) => (
+                    <ComingSoonCard
+                      key={`soon-${i}`}
+                      badge={soonLabel}
+                      badgeColor="bg-muted/60"
+                      gradientIndex={i}
+                      index={i}
+                    />
+                  ))
+                : items.map((item, i) => (
+                    <ShowcaseCard key={item.id} item={item} index={i} />
+                  ))
             }
           </div>
         </div>

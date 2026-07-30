@@ -159,6 +159,23 @@ button[aria-haspopup="menu"]:focus-visible,
 }
 
 /* ============================================================
+   Cascade stagger animation for homepage carousel cards
+   ============================================================ */
+@keyframes cascade-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.cascade-card {
+  animation: cascade-in 0.45s ease-out both;
+}
+
+/* ============================================================
    College / Institute Administration — enhanced visual weight
    Highlights primary color depth, icon stroke and typography
    on every page wrapped in .institution-admin-scope

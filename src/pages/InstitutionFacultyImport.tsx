@@ -170,7 +170,8 @@ if (isStudent) {
     ...baseRow,
     department_id,
     invitation_code:
-      `STU-${Date.now().toString(36).toUpperCase()}-${Math.random()
+      `STU-${Date.now().toString(36).toUpperCase()}-${crypto
+        .getRandomValues(new Uint32Array(1))[0]
         .toString(36)
         .slice(2, 6)
         .toUpperCase()}`,
@@ -192,7 +193,8 @@ if (isStudent) {
     // Faculty rows require an auth user (institution_faculty_members.user_id
     // is NOT NULL). Route through the edge function so each row gets an
     // auth account, profile, role, and institution membership atomically.
-    const tempPassword = `Tmp${Math.random().toString(36).slice(2, 6)}${Math.floor(Math.random() * 9000 + 1000)}A!`;
+    const { generateStrongPassword } = await import("@/utils/crypto");
+    const tempPassword = `Tmp${generateStrongPassword()}!`;
     const { data: fnData, error: fnError } = await supabase.functions.invoke(
       "create-faculty-account",
       {

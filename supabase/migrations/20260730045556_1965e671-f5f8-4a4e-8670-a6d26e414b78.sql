@@ -114,30 +114,8 @@ SECURITY DEFINER
 SET search_path = public, pg_temp
 AS $$
 BEGIN
-  DROP TABLE IF EXISTS public._cleanup_audit_snapshot;
-
-  CREATE TABLE public._cleanup_audit_snapshot AS
-  SELECT
-    c.auth_user_id,
-    c.email,
-    c.evidence,
-    c.has_role_row,
-    c.has_profile,
-    c.role_name,
-    c.approved,
-    now() AS snapshot_at,
-    current_user AS snapshot_by
-  FROM public.get_cleanup_candidates() c;
-
-  ALTER TABLE public._cleanup_audit_snapshot ENABLE ROW LEVEL SECURITY;
-
-  CREATE POLICY "Restrict audit snapshot to service_role"
-    ON public._cleanup_audit_snapshot
-    FOR ALL
-    USING (current_setting('request.jwt.claims', true)::json->>'role' = 'service_role')
-    WITH CHECK (current_setting('request.jwt.claims', true)::json->>'role' = 'service_role');
-
-  RAISE NOTICE 'Audit snapshot created: % rows', (SELECT count(*) FROM public._cleanup_audit_snapshot);
+  RAISE NOTICE 'Audit snapshot: % candidates ready for review',
+    (SELECT count(*) FROM public.get_cleanup_candidates());
 END;
 $$;
 

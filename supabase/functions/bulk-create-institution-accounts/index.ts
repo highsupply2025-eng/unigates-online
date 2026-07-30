@@ -40,8 +40,10 @@ function normRole(v: any): string | null {
 
 function genCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const buf = new Uint32Array(8);
+  crypto.getRandomValues(buf);
   let c = "";
-  for (let i = 0; i < 8; i++) c += chars[Math.floor(Math.random() * chars.length)];
+  for (let i = 0; i < 8; i++) c += chars[buf[i] % chars.length];
   return c;
 }
 

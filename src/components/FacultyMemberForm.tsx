@@ -37,21 +37,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
+import { generateStrongPassword as _generateStrongPassword } from "@/utils/crypto";
 
 /* ------------------------------------------------------------------ */
 /*  Shared helpers                                                     */
 /* ------------------------------------------------------------------ */
 
 export function generateStrongPassword(): string {
-  const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
-  const lower = "abcdefghijkmnpqrstuvwxyz";
-  const digits = "23456789";
-  const symbols = "!@#$%&*";
-  const all = upper + lower + digits + symbols;
-  const pick = (s: string) => s[Math.floor(Math.random() * s.length)];
-  const arr = [pick(upper), pick(lower), pick(digits), pick(symbols)];
-  for (let i = 0; i < 8; i++) arr.push(pick(all));
-  return arr.sort(() => Math.random() - 0.5).join("");
+  return _generateStrongPassword();
 }
 
 export function isStrongPassword(p: string): boolean {

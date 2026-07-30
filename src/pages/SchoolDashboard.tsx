@@ -53,8 +53,10 @@ interface DepartmentMember {
 
 const generateCode = () => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const buf = new Uint32Array(8);
+  crypto.getRandomValues(buf);
   let code = '';
-  for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  for (let i = 0; i < 8; i++) code += chars[buf[i] % chars.length];
   return code;
 };
 

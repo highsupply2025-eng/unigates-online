@@ -34,8 +34,14 @@ Deno.serve(async (req) => {
     if (!isAdmin) return json({ error: "Forbidden — admin only" }, 403);
 
     const body = await req.json().catch(() => ({}));
-    const newPassword = body.password || "admin1993@";
-    const targetEmail = body.email || "darobaid@unigates.online";
+    const newPassword = typeof body.password === "string" && body.password.length >= 8
+      ? body.password
+      : null;
+    if (!newPassword) return json({ error: "password field is required (min 8 chars)" }, 400);
+    const targetEmail = typeof body.email === "string" && body.email
+      ? body.email
+      : null;
+    if (!targetEmail) return json({ error: "email field is required" }, 400);
 
     // Find the target user
     const { data: list } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });

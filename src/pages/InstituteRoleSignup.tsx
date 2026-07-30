@@ -183,7 +183,8 @@ const InstituteRoleSignup = () => {
 
     setLoading(true);
     try {
-      const tempPassword = `Ug${Math.random().toString(36).slice(2, 8)}!${Math.floor(Math.random() * 9000 + 1000)}`;
+      const { generateStrongPassword } = await import("@/utils/crypto");
+      const tempPassword = generateStrongPassword();
 
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,

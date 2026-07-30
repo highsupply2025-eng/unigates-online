@@ -24,16 +24,11 @@ import courseBg2 from "@/assets/course-bg-2.jpg";
 import courseBg3 from "@/assets/course-bg-3.jpg";
 import courseBg4 from "@/assets/course-bg-4.jpg";
 
-import bookBg1 from "@/assets/book-bg-1.jpg";
-import bookBg2 from "@/assets/book-bg-2.jpg";
-import bookBg3 from "@/assets/book-bg-3.jpg";
-import bookBg4 from "@/assets/book-bg-4.jpg";
 
 const collegeBgs = [collegeBg1, collegeBg2, collegeBg3, collegeBg4];
 const instituteBgs = [instituteBg1, instituteBg2, instituteBg3, instituteBg4];
 const schoolBgs = [schoolBg1, schoolBg2, schoolBg3, schoolBg4];
 const courseBgs = [courseBg1, courseBg2, courseBg3, courseBg4];
-const bookBgs = [bookBg1, bookBg2, bookBg3, bookBg4];
 
 const HomepageSections = () => {
   const { language } = useLanguage();
@@ -139,36 +134,6 @@ const HomepageSections = () => {
       }))
     : [];
 
-  // ── Books ──────────────────────────────────────────────────
-  const { data: rawBooks } = useQuery({
-    queryKey: ["home-books"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("books")
-        .select("id, title_ar, title_en, author_ar, author_en, cover_url, category, price, is_bestseller, rating")
-        .eq("is_active", true)
-        .order("created_at", { ascending: true })
-        .limit(20);
-      return data || [];
-    },
-    staleTime: 60_000,
-  });
-
-  const safeBooks = Array.isArray(rawBooks) ? rawBooks : [];
-
-  const books: ShowcaseItem[] = safeBooks.length > 0
-    ? safeBooks.map((b, i) => ({
-        id: b.id,
-        title: isRtl ? b.title_ar : b.title_en,
-        subtitle: isRtl ? b.author_ar : b.author_en,
-        image: b.cover_url || bookBgs[i % bookBgs.length],
-        badge: b.category || (isRtl ? "كتاب" : "Book"),
-        badgeColor: "bg-amber-600/90",
-        href: "/book-store",
-        extra: isRtl ? `${b.price} ر.س` : `${b.price} SAR`,
-      }))
-    : [];
-
   return (
     <div className="divide-y divide-border/40">
       <HomepageShowcaseCarousel
@@ -204,7 +169,7 @@ const HomepageSections = () => {
       <HomepageShowcaseCarousel
         title={isRtl ? "الكتب" : "Books"}
         emoji="📖"
-        items={books}
+        items={[]}
         isRtl={isRtl}
         autoScrollSpeed={75}
         maxSlots={5}

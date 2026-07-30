@@ -1,4 +1,5 @@
 import { useRef, useEffect, memo } from "react";
+import { Link } from "react-router-dom";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 interface ShowcaseItem {
@@ -8,6 +9,8 @@ interface ShowcaseItem {
   image: string;
   badge?: string;
   badgeColor?: string;
+  href?: string;
+  extra?: string;
 }
 
 interface HomepageShowcaseCarouselProps {
@@ -26,8 +29,8 @@ const comingSoonGradients = [
   "from-amber-200/30 to-amber-100/10",
 ];
 
-const ShowcaseCard = memo(({ item }: { item: ShowcaseItem }) => (
-  <div className="relative flex-shrink-0 w-[220px] md:w-[260px] group cursor-pointer">
+const ShowcaseCard = memo(({ item }: { item: ShowcaseItem }) => {
+  const card = (
     <div className="aspect-video rounded-xl overflow-hidden relative shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-[1.03]">
       <img
         src={item.image}
@@ -48,16 +51,29 @@ const ShowcaseCard = memo(({ item }: { item: ShowcaseItem }) => (
         </div>
       )}
       <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
-        <p className="text-sm font-bold text-white leading-snug mb-1 line-clamp-2">
+        <p className="text-sm font-bold text-white leading-snug mb-0.5 line-clamp-2">
           {item.title}
         </p>
         {item.subtitle && (
-          <p className="text-xs text-white/80">{item.subtitle}</p>
+          <p className="text-xs text-white/80 leading-tight mb-0.5 line-clamp-1">{item.subtitle}</p>
+        )}
+        {item.extra && (
+          <p className="text-xs font-semibold text-amber-300">{item.extra}</p>
         )}
       </div>
     </div>
-  </div>
-));
+  );
+
+  if (item.href) {
+    return (
+      <Link to={item.href} className="relative flex-shrink-0 w-[220px] md:w-[260px] group">
+        {card}
+      </Link>
+    );
+  }
+
+  return <div className="relative flex-shrink-0 w-[220px] md:w-[260px] group cursor-pointer">{card}</div>;
+});
 
 ShowcaseCard.displayName = "ShowcaseCard";
 
@@ -144,7 +160,7 @@ const HomepageShowcaseCarousel = ({
         >
           <div
             ref={scrollRef}
-            className="flex gap-4 overflow-x-auto pb-4 px-2"
+            className="flex gap-4 overflow-x-auto pb-4 px-4"
             style={{ scrollbarWidth: "none" }}
           >
             {isEmpty

@@ -145,7 +145,7 @@ const HomepageSections = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("books")
-        .select("id, title_ar, title_en, author_ar, author_en, cover_url, category")
+        .select("id, title_ar, title_en, author_ar, author_en, cover_url, category, price, is_bestseller, rating")
         .eq("is_active", true)
         .order("created_at", { ascending: false })
         .limit(20);
@@ -154,14 +154,18 @@ const HomepageSections = () => {
     staleTime: 60_000,
   });
 
-  const books: ShowcaseItem[] = rawBooks.length > 0
-    ? rawBooks.map((b, i) => ({
+  const safeBooks = Array.isArray(rawBooks) ? rawBooks : [];
+
+  const books: ShowcaseItem[] = safeBooks.length > 0
+    ? safeBooks.map((b, i) => ({
         id: b.id,
         title: isRtl ? b.title_ar : b.title_en,
         subtitle: isRtl ? b.author_ar : b.author_en,
         image: b.cover_url || bookBgs[i % bookBgs.length],
-        badge: isRtl ? "كتاب" : "Book",
+        badge: b.category || (isRtl ? "كتاب" : "Book"),
         badgeColor: "bg-amber-600/90",
+        href: "/book-store",
+        extra: isRtl ? `${b.price} ر.س` : `${b.price} SAR`,
       }))
     : [];
 

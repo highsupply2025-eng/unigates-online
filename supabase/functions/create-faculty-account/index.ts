@@ -301,19 +301,41 @@ if (/\s/.test(temporaryPassword)) {
       return fail("verification", `Post-save verification failed: ${problems.join("; ")}`, 500);
     }
 
-    // ---- Mark invitation as used (if invitation mode) ----
+    // ---- Atomically consume invitation (if invitation mode) ----
+    // Uses the same atomic RPC as the student flow to prevent TOCTOU races.
     if (invitationCode) {
-      const invTable = institutionType === "college" ? "college_invitations" : "institute_invitations";
-      const idCol = institutionType === "college" ? "college_id" : "institute_id";
-      const { data: invRow } = await admin.from(invTable)
-        .select("id, max_uses, used_count").eq("invitation_code", invitationCode).maybeSingle();
-      if (invRow) {
-        const newCount = (invRow.used_count || 0) + 1;
-        const deactivate = invRow.max_uses && newCount >= invRow.max_uses;
-        await admin.from(invTable).update({
-          used_count: newCount,
-          ...(deactivate ? { is_active: false } : {}),
-        }).eq("id", invRow.id);
+      const { data: consumeRows, error: consumeErr } = await admin.rpc(
+        "consume_institution_invitation" as any,
+        { _code: invitationCode },
+      );
+      if (consumeErr) {
+        console.error("faculty invitation consume rpc error", { message: consumeErr.message });
+        try { await admin.auth.admin.deleteUser(uid); } catch (_) { /* ignore */ }
+        return fail("invitation_consume", "Failed to process invitation", 500);
+      }
+      const inv = consumeRows?.[0];
+      if (!inv || !inv.is_valid) {
+        try { await admin.auth.admin.deleteUser(uid); } catch (_) { /* ignore */ }
+        return fail(
+          "invitation_invalid",
+          inv?.error_message || "Invalid, expired, or already used invitation",
+          403,
+        );
+      }
+      // Verify institution matches
+      if (inv.institution_id !== institutionId) {
+        try { await admin.auth.admin.deleteUser(uid); } catch (_) { /* ignore */ }
+        return fail("invitation_institution_mismatch", "Invitation does not match this institution", 403);
+      }
+      // Verify invitation role is a valid faculty role (not student)
+      const invRole = (inv.role || "").toLowerCase();
+      if (!ALLOWED_ROLES.has(invRole)) {
+        try { await admin.auth.admin.deleteUser(uid); } catch (_) { /* ignore */ }
+        return fail(
+          "invitation_role_invalid",
+          "This invitation is not for faculty members",
+          403,
+        );
       }
     }
 

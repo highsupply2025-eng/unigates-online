@@ -164,6 +164,14 @@ BEGIN
     current_user AS snapshot_by
   FROM public.get_cleanup_candidates() c;
 
+  ALTER TABLE public._cleanup_audit_snapshot ENABLE ROW LEVEL SECURITY;
+
+  CREATE POLICY "Restrict audit snapshot to service_role"
+    ON public._cleanup_audit_snapshot
+    FOR ALL
+    USING (current_setting('request.jwt.claims', true)::json->>'role' = 'service_role')
+    WITH CHECK (current_setting('request.jwt.claims', true)::json->>'role' = 'service_role');
+
   RAISE NOTICE 'Audit snapshot created: % rows', (SELECT count(*) FROM public._cleanup_audit_snapshot);
 END;
 $$;

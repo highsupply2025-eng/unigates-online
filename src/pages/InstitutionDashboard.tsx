@@ -1454,7 +1454,7 @@ ${rows.map((r: any, i: number) => `<tr>
       account: { count: accountCount, percentage: accountCount ? 100 : 0 },
       total,
     };
-  }, [liveStudentCount, liveFacultyCount, liveScheduleCount, departments, quizSubmissions, rangeDays, institutionId]);
+  }, [deptMembers, examSchedules, departments, quizSubmissions, rangeDays, institutionId]);
 
   if (loading) {
     return (

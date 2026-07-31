@@ -337,7 +337,17 @@ if (/\s/.test(temporaryPassword)) {
           403,
         );
       }
+
+      // The invitee chose their own password, so no forced reset on first sign-in.
+      const { error: mcpErr } = await admin
+        .from("profiles")
+        .update({ must_change_password: false })
+        .eq("user_id", uid);
+      if (mcpErr) {
+        console.error("failed to clear must_change_password", { message: mcpErr.message });
+      }
     }
+
 
    return json({
   success: true,

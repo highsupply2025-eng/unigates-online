@@ -124,15 +124,15 @@ describe("Issue 1: Student activation role assignment", () => {
 
   it("repair migration only targets students incorrectly stored as non-student", () => {
     // Simulate the repair logic: members with role=student should get student role
-    const memberRole = "student";
-    const currentProfileRole = "lecturer";
+    const memberRole: string = "student";
+    const currentProfileRole: string = "lecturer";
     const shouldRepair = memberRole === "student" && currentProfileRole !== "student";
     expect(shouldRepair).toBe(true);
   });
 
   it("repair does not modify legitimate lecturers", () => {
-    const memberRole = "lecturer";
-    const currentProfileRole = "lecturer";
+    const memberRole: string = "lecturer";
+    const currentProfileRole: string = "lecturer";
     const shouldRepair = memberRole === "student" && currentProfileRole !== "student";
     expect(shouldRepair).toBe(false);
   });
@@ -380,6 +380,7 @@ describe("Issue 3: Faculty invitation password change flag", () => {
     expect(/[A-Z]/.test(strong)).toBe(true);
     expect(/[a-z]/.test(strong)).toBe(true);
     expect(/\d/.test(strong)).toBe(true);
-    expect("abc" !== "xyz").toBe(true);
+    const a: string = "abc";
+    expect(a !== "xyz").toBe(true);
   });
 });

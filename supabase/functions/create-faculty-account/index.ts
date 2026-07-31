@@ -241,7 +241,7 @@ if (/\s/.test(temporaryPassword)) {
   user_metadata: {
     full_name: fullName,
     seeded_via: "institution_admin",
-    must_change_password: true,
+    must_change_password: !invitationCode,
   },
 });
     if (ce || !created?.user) return fail("auth_create", ce?.message || "createUser failed");
@@ -337,7 +337,17 @@ if (/\s/.test(temporaryPassword)) {
           403,
         );
       }
+
+      // The invitee chose their own password, so no forced reset on first sign-in.
+      const { error: mcpErr } = await admin
+        .from("profiles")
+        .update({ must_change_password: false })
+        .eq("user_id", uid);
+      if (mcpErr) {
+        console.error("failed to clear must_change_password", { message: mcpErr.message });
+      }
     }
+
 
    return json({
   success: true,

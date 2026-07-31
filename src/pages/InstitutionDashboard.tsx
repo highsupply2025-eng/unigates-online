@@ -1432,13 +1432,12 @@ ${rows.map((r: any, i: number) => `<tr>
       return !isNaN(t) && t >= since;
     };
 
-    // Use live counts from the shared hook (authoritative) instead of
-    // computing from locally-loaded deptMembers, which can be stale.
-    const facultyCount = liveFacultyCount;
+    // Time-windowed counts so every tile respects the selected range.
+    const facultyCount = deptMembers.filter((m: any) => isFacultyMember(m) && inRange(m.created_at)).length;
     const deptCount = departments.filter((d: any) => inRange(d.created_at)).length;
-    const studentCount = liveStudentCount;
-    const subscriptionCount = liveStudentCount;
-    const scheduleCount = liveScheduleCount;
+    const studentCount = deptMembers.filter((m: any) => m.role === "student" && inRange(m.created_at)).length;
+    const subscriptionCount = deptMembers.filter((m: any) => m.role === "student" && m.user_id && inRange(m.created_at)).length;
+    const scheduleCount = examSchedules.filter((s: any) => inRange(s.created_at)).length;
     const resultCount = quizSubmissions.filter((s: any) => inRange(s.submitted_at || s.created_at)).length;
     const accountCount = institutionId ? 1 : 0;
 
@@ -1455,7 +1454,7 @@ ${rows.map((r: any, i: number) => `<tr>
       account: { count: accountCount, percentage: accountCount ? 100 : 0 },
       total,
     };
-  }, [liveStudentCount, liveFacultyCount, liveScheduleCount, departments, quizSubmissions, rangeDays, institutionId]);
+  }, [deptMembers, examSchedules, departments, quizSubmissions, rangeDays, institutionId]);
 
   if (loading) {
     return (

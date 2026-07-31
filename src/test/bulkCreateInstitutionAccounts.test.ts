@@ -9,31 +9,16 @@ import fs from "fs";
 // existing account into their own institution and downgrade or overwrite its
 // identity.
 //
-// The fix: existing accounts are never mutated. The caller is verified
-// server-side from the JWT via is_institution_admin, departments are resolved
-// only within the caller's institution, and every existing email is either
-// reported as an idempotent same-institution re-upload or rejected with a safe
-// message through the invitation flow.
+// The fix: existing accounts are never looked up or reused. The caller is
+// verified server-side from the JWT via is_institution_admin, departments are
+// resolved only within the caller's institution, and createUser is the sole
+// account entry point. Supabase rejects an existing email before the function
+// writes any profile, role, or department membership.
 //
 // These tests pin the source to the secure behavior.
 
 const FN_SOURCE = fs.readFileSync(
   "supabase/functions/bulk-create-institution-accounts/index.ts",
-  "utf-8",
-);
-
-const IFM_MIGRATION = fs.readFileSync(
-  "supabase/migrations/20260719000211_485c155a-0609-42fd-9374-6893069b953a.sql",
-  "utf-8",
-);
-
-const FACULTY_EDIT_MIGRATION = fs.readFileSync(
-  "supabase/migrations/20260721010000_fix_faculty_edit_without_department.sql",
-  "utf-8",
-);
-
-const COLLEGE_MEMBERS_MIGRATION = fs.readFileSync(
-  "supabase/migrations/20260322220918_3a46ca24-6b91-4614-b2f2-90dfa42464d9.sql",
   "utf-8",
 );
 
@@ -44,19 +29,6 @@ const DASHBOARD_SOURCE = fs.readFileSync(
 
 const SAFE_ERROR =
   "البريد الإلكتروني مستخدم في حساب قائم ولا يمكن إضافته تلقائيًا. استخدم مسار الدعوة أو تواصل مع الدعم.";
-
-// The existing-account classification section starts at this marker; no data
-// mutation may appear after it.
-const EXISTING_MARKER = "Existing account: classify";
-const existingBranch = FN_SOURCE.slice(FN_SOURCE.indexOf(EXISTING_MARKER));
-
-function indexBetween(needle: string, from: string, to: string): number {
-  const idx = FN_SOURCE.indexOf(needle);
-  expect(idx).toBeGreaterThan(-1);
-  expect(idx).toBeGreaterThan(FN_SOURCE.indexOf(from));
-  expect(idx).toBeLessThan(FN_SOURCE.indexOf(to));
-  return idx;
-}
 
 describe("caller authorization is enforced server-side", () => {
   it("resolves the caller from the JWT via getUser()", () => {
@@ -105,12 +77,6 @@ describe("emails are normalized before any lookup or write", () => {
       'const email = String(r.email || "").trim().toLowerCase();',
     );
   });
-
-  it("normalizes the email again when collecting existing ids", () => {
-    expect(FN_SOURCE).toContain(
-      'const e = String(r?.email || "").trim().toLowerCase();',
-    );
-  });
 });
 
 describe("new accounts are created safely", () => {
@@ -141,88 +107,66 @@ describe("new accounts are created safely", () => {
   });
 });
 
-describe("existing accounts are NEVER mutated (hijacking fix)", () => {
-  it("does not reset or update passwords of existing users", () => {
+describe("existing accounts are never looked up or reused (hijacking fix)", () => {
+  it("does not enumerate auth users or fetch account affiliations", () => {
+    expect(FN_SOURCE).not.toContain("listUsers");
+    expect(FN_SOURCE).not.toContain('from("institution_faculty_members")');
+    expect(FN_SOURCE).not.toContain('from("college_members")');
+    expect(FN_SOURCE).not.toContain('.in("user_id"');
+  });
+
+  it("does not update any existing auth user", () => {
     expect(FN_SOURCE).not.toContain("updateUserById");
   });
 
-  it("the only data writes live in the new-account branch, before the existing-account section", () => {
-    // The pre-fetch section above the loop is read-only. Every write helper
-    // (createUser, upsert, insert) must appear inside the `if (!uid) {` block
-    // that runs only for brand-new auth users.
-    indexBetween("createUser", "if (!uid) {", EXISTING_MARKER);
-    indexBetween(".upsert(", "if (!uid) {", EXISTING_MARKER);
-    indexBetween(".insert(", "if (!uid) {", EXISTING_MARKER);
+  it("uses createUser as the only source of an imported user id", () => {
+    expect(FN_SOURCE).toContain("admin.auth.admin.createUser");
+    expect(FN_SOURCE).toContain("newUid = createdUser.user.id;");
+    expect(FN_SOURCE).not.toMatch(/const\s+uid\s*=/);
+    expect(FN_SOURCE).not.toMatch(/user_id:\s*uid\b/);
   });
 
-  it("the existing-account section performs zero writes", () => {
-    expect(existingBranch).not.toMatch(/\.insert\(/);
-    expect(existingBranch).not.toMatch(/\.upsert\(/);
-    expect(existingBranch).not.toMatch(/\.update\(/);
-    expect(existingBranch).not.toMatch(/\.delete\(/);
-    expect(existingBranch).not.toContain("createUser");
-    expect(existingBranch).not.toContain("updateUserById");
-  });
-
-  it("rejects an account that belongs to another institution", () => {
-    expect(FN_SOURCE).toContain("EMAIL_BELONGS_TO_ANOTHER_INSTITUTION");
-    expect(existingBranch).toContain("belongsToAnother");
-  });
-
-  it("rejects protected/global accounts", () => {
-    expect(FN_SOURCE).toContain("PROTECTED_ACCOUNT");
-    expect(FN_SOURCE).toContain("PROTECTED_ROLES");
-  });
-
-  it("rejects unrelated existing accounts in favor of the invitation flow", () => {
+  it("rejects every existing email through the invitation flow", () => {
     expect(FN_SOURCE).toContain("EXISTING_ACCOUNT_REQUIRES_INVITATION");
+    expect(FN_SOURCE).toContain("if (isEmailAlreadyExistsError(ce))");
+    expect(FN_SOURCE).toContain("code: REJECTION.requiresInvitation");
   });
 
-  it("returns an idempotent ALREADY_MEMBER result for same-institution re-uploads", () => {
-    expect(FN_SOURCE).toContain("ALREADY_MEMBER");
-    expect(existingBranch).toContain("isSameInstitution");
-    // No password is returned for an existing member.
-    expect(existingBranch).not.toMatch(/password\s*:/);
-    expect(existingBranch).not.toMatch(/\.password/);
-  });
-
-  it("uses one generic, safe Arabic message for every existing-account rejection", () => {
-    // The message is defined exactly once as a constant so every rejection
-    // branch shares the same safe text...
+  it("uses one generic message that does not disclose account ownership", () => {
     expect(FN_SOURCE.split(SAFE_ERROR).length - 1).toBe(1);
-    // ...and that constant is referenced by the constant definition plus each
-    // rejection branch (createUser race, another institution, protected
-    // account, requires invitation).
-    expect(FN_SOURCE.split("EXISTING_ACCOUNT_SAFE_ERROR").length - 1).toBeGreaterThanOrEqual(5);
-    expect(existingBranch.split("EXISTING_ACCOUNT_SAFE_ERROR").length - 1).toBeGreaterThanOrEqual(3);
+    expect(FN_SOURCE.split("EXISTING_ACCOUNT_SAFE_ERROR").length - 1).toBe(2);
   });
 
-  it("never places a password on rejected rows", () => {
-    // Rejected results carry `code`/`error` only; the only `password:` payload
-    // in the whole function is on newly-created rows inside the new-account
-    // branch, which is never reached for existing accounts.
-    expect(existingBranch).not.toMatch(/password\s*:/);
-    expect(existingBranch).not.toMatch(/\.password/);
-    expect(existingBranch).not.toContain("genPassword");
+  it("rejects duplicate emails before profile, role, and membership writes", () => {
+    const duplicateCheck = FN_SOURCE.indexOf("if (isEmailAlreadyExistsError(ce))");
+    const duplicateExit = FN_SOURCE.indexOf("continue;", duplicateCheck);
+    const profileWrite = FN_SOURCE.indexOf('from("profiles").upsert', duplicateCheck);
+    expect(duplicateCheck).toBeGreaterThan(-1);
+    expect(duplicateExit).toBeGreaterThan(duplicateCheck);
+    expect(profileWrite).toBeGreaterThan(duplicateExit);
+  });
+
+  it("rolls back only the user id returned by a successful createUser call", () => {
+    const assignedUid = FN_SOURCE.indexOf("newUid = createdUser.user.id;");
+    const rollbackCall = FN_SOURCE.indexOf("rollbackNewUser(admin, newUid)");
+    expect(assignedUid).toBeGreaterThan(-1);
+    expect(rollbackCall).toBeGreaterThan(assignedUid);
+    expect(FN_SOURCE).toContain("if (newUid) await rollbackNewUser(admin, newUid);");
+  });
+
+  it("cleans partial application records before deleting a failed new auth user", () => {
+    const rollbackStart = FN_SOURCE.indexOf("async function rollbackNewUser");
+    const rollbackEnd = FN_SOURCE.indexOf("Deno.serve", rollbackStart);
+    const rollbackSource = FN_SOURCE.slice(rollbackStart, rollbackEnd);
+    expect(rollbackSource).toContain('"department_members", "user_roles", "profiles"');
+    expect(rollbackSource).toContain('.delete().eq("user_id", uid)');
+    expect(rollbackSource).toContain("admin.auth.admin.deleteUser(uid)");
   });
 });
 
-describe("idempotency and duplicate-membership protection", () => {
+describe("duplicate-membership protection", () => {
   it("inserts department membership with ignoreDuplicates", () => {
     expect(FN_SOURCE).toContain('{ onConflict: "department_id,user_id", ignoreDuplicates: true }');
-  });
-
-  it("department_members has a unique (department_id, user_id) index in the schema", () => {
-    expect(FACULTY_EDIT_MIGRATION).toMatch(/department_members_department_user_unique/);
-    expect(FACULTY_EDIT_MIGRATION).toMatch(/UNIQUE[^)]*department_id, user_id/);
-  });
-
-  it("institution_faculty_members.user_id is globally unique (one faculty row per user)", () => {
-    expect(IFM_MIGRATION).toMatch(/user_id UUID NOT NULL UNIQUE REFERENCES auth\.users/);
-  });
-
-  it("college_members has a unique (college_id, user_id) constraint", () => {
-    expect(COLLEGE_MEMBERS_MIGRATION).toMatch(/UNIQUE\(college_id, user_id\)/);
   });
 });
 

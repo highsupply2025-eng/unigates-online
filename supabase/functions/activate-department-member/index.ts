@@ -69,6 +69,8 @@ function mapGeneralRole(
   specific: string,
 ): { profileRole: string; appRole: string } {
   switch (specific) {
+    case "student":
+      return { profileRole: "student", appRole: "student" };
     case "dean":
       return { profileRole: "dean", appRole: "dean" };
     case "vice_dean_postgrad":

@@ -82,7 +82,7 @@ const ShowcaseCard = memo(({ item, index }: { item: ShowcaseItem; index: number 
 
 ShowcaseCard.displayName = "ShowcaseCard";
 
-const ComingSoonCard = memo(({ badge, badgeColor, gradientIndex, index }: { badge: string; badgeColor: string; gradientIndex: number; index: number }) => (
+const ComingSoonCard = memo(({ badge, badgeColor, gradientIndex, index, label }: { badge: string; badgeColor: string; gradientIndex: number; index: number; label: string }) => (
   <div className="relative flex-shrink-0 w-[220px] md:w-[260px]">
     <div
       className={`aspect-video rounded-xl overflow-hidden relative shadow-md bg-gradient-to-br ${comingSoonGradients[gradientIndex % comingSoonGradients.length]} border border-border/30 cascade-card`}
@@ -94,7 +94,7 @@ const ComingSoonCard = memo(({ badge, badgeColor, gradientIndex, index }: { badg
             {badge}
           </span>
         )}
-        <span className="text-lg font-black text-muted-foreground/50">قريباً</span>
+        <span className="text-lg font-black text-muted-foreground/50">{label}</span>
       </div>
     </div>
   </div>

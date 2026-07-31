@@ -34,7 +34,7 @@ const HomepageSections = () => {
   const { language } = useLanguage();
   const isRtl = language === "ar";
 
-  // ── Colleges ───────────────────────────────────────────────
+  // ── Colleges & Institutes (combined) ────────────────────────
   const { data: rawColleges } = useQuery({
     queryKey: ["home-colleges"],
     queryFn: async () => {
@@ -48,17 +48,6 @@ const HomepageSections = () => {
     staleTime: 60_000,
   });
 
-  const colleges: ShowcaseItem[] = (rawColleges ?? []).map((c, i) => ({
-    id: c.id,
-    title: isRtl ? c.college_name : c.university_name || c.college_name,
-    subtitle: c.city,
-    image: c.logo_url || collegeBgs[i % collegeBgs.length],
-    badge: isRtl ? "كلية" : "College",
-    badgeColor: "bg-primary/90",
-    href: "/university-platform",
-  }));
-
-  // ── Institutes ─────────────────────────────────────────────
   const { data: rawInstitutes } = useQuery({
     queryKey: ["home-institutes"],
     queryFn: async () => {
@@ -72,15 +61,26 @@ const HomepageSections = () => {
     staleTime: 60_000,
   });
 
-  const institutes: ShowcaseItem[] = (rawInstitutes ?? []).map((inst, i) => ({
-    id: inst.id,
-    title: inst.institute_name,
-    subtitle: inst.city,
-    image: inst.logo_url || instituteBgs[i % instituteBgs.length],
-    badge: isRtl ? "معهد" : "Institute",
-    badgeColor: "bg-indigo-600/90",
-    href: "/university-platform",
-  }));
+  const collegesAndInstitutes: ShowcaseItem[] = [
+    ...(rawColleges ?? []).map((c, i) => ({
+      id: c.id,
+      title: isRtl ? c.college_name : c.university_name || c.college_name,
+      subtitle: c.city,
+      image: c.logo_url || collegeBgs[i % collegeBgs.length],
+      badge: isRtl ? "كلية" : "College",
+      badgeColor: "bg-primary/90",
+      href: "/university-platform",
+    })),
+    ...(rawInstitutes ?? []).map((inst, i) => ({
+      id: inst.id,
+      title: inst.institute_name,
+      subtitle: inst.city,
+      image: inst.logo_url || instituteBgs[i % instituteBgs.length],
+      badge: isRtl ? "معهد" : "Institute",
+      badgeColor: "bg-indigo-600/90",
+      href: "/university-platform",
+    })),
+  ];
 
   // ── Schools ────────────────────────────────────────────────
   const { data: rawSchools } = useQuery({
@@ -160,18 +160,11 @@ const HomepageSections = () => {
   return (
     <div className="divide-y divide-border/40">
       <HomepageShowcaseCarousel
-        title={isRtl ? "الكليات" : "Colleges"}
+        title={isRtl ? "الكليات والمعاهد" : "Colleges & Institutes"}
         emoji="🏛️"
-        items={colleges}
+        items={collegesAndInstitutes}
         isRtl={isRtl}
         autoScrollSpeed={70}
-      />
-      <HomepageShowcaseCarousel
-        title={isRtl ? "المعاهد" : "Institutes"}
-        emoji="🏛️"
-        items={institutes}
-        isRtl={isRtl}
-        autoScrollSpeed={80}
       />
       <HomepageShowcaseCarousel
         title={isRtl ? "المدارس" : "Schools"}

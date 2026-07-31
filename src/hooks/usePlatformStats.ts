@@ -1,5 +1,6 @@
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useQuery, keepPreviousData, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeRefresh } from "./use-realtime-refresh";
 
 /**
  * Sector scope for platform statistics.
@@ -55,8 +56,39 @@ const QUERY_KEY = "platform-stats";
  *  - refetchInterval (60 s) as fallback for passive visitors
  *  - staleTime 30 s avoids excessive requests
  */
+/**
+ * Tables whose changes should trigger an immediate stats refetch,
+ * scoped per platform sector to avoid subscribing to unrelated tables.
+ */
+const REALTIME_TABLES: Record<PlatformScope, string[]> = {
+  university: [
+    "college_registrations",
+    "institute_registrations",
+    "institution_faculty_members",
+    "department_members",
+    "departments",
+  ],
+  school: ["school_registrations", "profiles", "user_roles"],
+  courses: ["profiles", "user_roles"],
+  publishing: ["profiles", "user_roles"],
+  all: [
+    "college_registrations",
+    "institute_registrations",
+    "school_registrations",
+    "institution_faculty_members",
+    "department_members",
+    "departments",
+    "profiles",
+    "user_roles",
+  ],
+};
+
 export const usePlatformStats = (scope: PlatformScope = "all") => {
-  return useQuery<PlatformStats>({
+  const queryClient = useQueryClient();
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: [QUERY_KEY, scope] });
+
+  const query = useQuery<PlatformStats>({
     queryKey: [QUERY_KEY, scope],
     queryFn: async (): Promise<PlatformStats> => {
       const { data, error } = await supabase.rpc("get_platform_statistics", {
@@ -141,4 +173,9 @@ export const usePlatformStats = (scope: PlatformScope = "all") => {
     refetchInterval: 60_000,
     placeholderData: keepPreviousData,
   });
+
+  // ── Realtime: invalidate query cache on any row change ────────
+  useRealtimeRefresh(REALTIME_TABLES[scope], invalidate, query.isSuccess || query.isError);
+
+  return query;
 };

@@ -241,7 +241,7 @@ if (/\s/.test(temporaryPassword)) {
   user_metadata: {
     full_name: fullName,
     seeded_via: "institution_admin",
-    must_change_password: true,
+    must_change_password: !invitationCode,
   },
 });
     if (ce || !created?.user) return fail("auth_create", ce?.message || "createUser failed");

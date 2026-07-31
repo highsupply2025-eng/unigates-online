@@ -26,6 +26,9 @@ export default function TestAccountsPanel({ ar }: Props) {
   const [loading, setLoading] = useState(false);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [password, setPassword] = useState<string>("");
+  const didAutoRun = useRef(false);
+
+  const isDev = import.meta.env.DEV;
 
   const run = async (silent = false) => {
     setLoading(true);
@@ -56,12 +59,14 @@ export default function TestAccountsPanel({ ar }: Props) {
 
   // Auto-seed once when the panel first mounts so review accounts
   // are always available without needing to click the button.
-  const didAutoRun = useRef(false);
   useEffect(() => {
+    if (!isDev) return;
     if (didAutoRun.current) return;
     didAutoRun.current = true;
     run(true);
-  }, []);
+  }, [isDev]);
+
+  if (!isDev) return null;
 
   const copy = (text: string) => {
     navigator.clipboard.writeText(text);

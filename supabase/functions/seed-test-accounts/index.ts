@@ -57,6 +57,17 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    // ── Production guard: refuse to seed test accounts in production ──
+    // DENO_DEPLOYMENT_ID is set by Supabase Edge Functions in production;
+    // it is absent in local `supabase functions serve`.
+    const isProduction = !!Deno.env.get("DENO_DEPLOYMENT_ID");
+    if (isProduction) {
+      return json(
+        { error: "Test account seeding is disabled in production. Use reset-admin-password instead." },
+        403,
+      );
+    }
+
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;

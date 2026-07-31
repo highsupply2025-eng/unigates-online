@@ -875,8 +875,8 @@ const AdminDashboard = () => {
               </div>
             )}
 
-            {/* Review Test Accounts */}
-            <TestAccountsPanel ar={ar} />
+            {/* Review Test Accounts — dev only */}
+            {import.meta.env.DEV && <TestAccountsPanel ar={ar} />}
           </TabsContent>
 
           {/* ===== Pending ===== */}

@@ -48,16 +48,15 @@ const HomepageSections = () => {
     staleTime: 60_000,
   });
 
-  const colleges: ShowcaseItem[] = (rawColleges ?? []).length > 0
-    ? (rawColleges ?? []).map((c, i) => ({
-        id: c.id,
-        title: isRtl ? c.college_name : c.university_name || c.college_name,
-        subtitle: isRtl ? c.city : c.city,
-        image: c.logo_url || collegeBgs[i % collegeBgs.length],
-        badge: isRtl ? "كلية" : "College",
-        badgeColor: "bg-primary/90",
-      }))
-    : [];
+  const colleges: ShowcaseItem[] = (rawColleges ?? []).map((c, i) => ({
+    id: c.id,
+    title: isRtl ? c.college_name : c.university_name || c.college_name,
+    subtitle: c.city,
+    image: c.logo_url || collegeBgs[i % collegeBgs.length],
+    badge: isRtl ? "كلية" : "College",
+    badgeColor: "bg-primary/90",
+    href: "/university-platform",
+  }));
 
   // ── Institutes ─────────────────────────────────────────────
   const { data: rawInstitutes } = useQuery({
@@ -73,16 +72,15 @@ const HomepageSections = () => {
     staleTime: 60_000,
   });
 
-  const institutes: ShowcaseItem[] = (rawInstitutes ?? []).length > 0
-    ? (rawInstitutes ?? []).map((inst, i) => ({
-        id: inst.id,
-        title: isRtl ? inst.institute_name : inst.institute_name,
-        subtitle: isRtl ? inst.city : inst.city,
-        image: inst.logo_url || instituteBgs[i % instituteBgs.length],
-        badge: isRtl ? "معهد" : "Institute",
-        badgeColor: "bg-indigo-600/90",
-      }))
-    : [];
+  const institutes: ShowcaseItem[] = (rawInstitutes ?? []).map((inst, i) => ({
+    id: inst.id,
+    title: inst.institute_name,
+    subtitle: inst.city,
+    image: inst.logo_url || instituteBgs[i % instituteBgs.length],
+    badge: isRtl ? "معهد" : "Institute",
+    badgeColor: "bg-indigo-600/90",
+    href: "/university-platform",
+  }));
 
   // ── Schools ────────────────────────────────────────────────
   const { data: rawSchools } = useQuery({
@@ -98,16 +96,15 @@ const HomepageSections = () => {
     staleTime: 60_000,
   });
 
-  const schools: ShowcaseItem[] = (rawSchools ?? []).length > 0
-    ? (rawSchools ?? []).map((s, i) => ({
-        id: s.id,
-        title: isRtl ? s.school_name : s.school_name,
-        subtitle: isRtl ? s.city : s.city,
-        image: schoolBgs[i % schoolBgs.length],
-        badge: isRtl ? "مدرسة" : "School",
-        badgeColor: "bg-orange-600/90",
-      }))
-    : [];
+  const schools: ShowcaseItem[] = (rawSchools ?? []).map((s, i) => ({
+    id: s.id,
+    title: s.school_name,
+    subtitle: s.city,
+    image: schoolBgs[i % schoolBgs.length],
+    badge: isRtl ? "مدرسة" : "School",
+    badgeColor: "bg-orange-600/90",
+    href: "/school-platform",
+  }));
 
   // ── Courses ────────────────────────────────────────────────
   const { data: rawCourses } = useQuery({
@@ -116,23 +113,49 @@ const HomepageSections = () => {
       const { data } = await supabase
         .from("courses")
         .select("id, title_ar, title_en, instructor_ar, instructor_en, thumbnail_url, category_ar, category_en")
-        .order("created_at", { ascending: true })
+        .order("created_at", { ascending: false })
         .limit(20);
       return data || [];
     },
     staleTime: 60_000,
   });
 
-  const courses: ShowcaseItem[] = (rawCourses ?? []).length > 0
-    ? (rawCourses ?? []).map((c, i) => ({
-        id: c.id,
-        title: isRtl ? c.title_ar : c.title_en,
-        subtitle: isRtl ? c.instructor_ar : c.instructor_en,
-        image: c.thumbnail_url || courseBgs[i % courseBgs.length],
-        badge: isRtl ? "دورة" : "Course",
-        badgeColor: "bg-emerald-600/90",
-      }))
-    : [];
+  const courses: ShowcaseItem[] = (rawCourses ?? []).map((c, i) => ({
+    id: c.id,
+    title: isRtl ? c.title_ar : c.title_en,
+    subtitle: isRtl ? c.instructor_ar : c.instructor_en,
+    image: c.thumbnail_url || courseBgs[i % courseBgs.length],
+    badge: isRtl ? "دورة" : "Course",
+    badgeColor: "bg-emerald-600/90",
+    href: "/courses",
+  }));
+
+  // ── Books ─────────────────────────────────────────────────
+  const { data: rawBooks } = useQuery({
+    queryKey: ["home-books"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("books")
+        .select("id, title_ar, title_en, author_ar, author_en, cover_url, rating, reviews_count, price")
+        .eq("is_active", true)
+        .order("rating", { ascending: false })
+        .order("reviews_count", { ascending: false })
+        .limit(20);
+      return data || [];
+    },
+    staleTime: 60_000,
+  });
+
+  const books: ShowcaseItem[] = (rawBooks ?? []).map((b, i) => ({
+    id: b.id,
+    title: isRtl ? b.title_ar : b.title_en,
+    subtitle: isRtl ? b.author_ar : b.author_en,
+    image: b.cover_url || courseBgs[i % courseBgs.length],
+    badge: isRtl ? "كتاب" : "Book",
+    badgeColor: "bg-rose-600/90",
+    href: "/book-store",
+    extra: b.rating > 0 ? `★ ${b.rating.toFixed(1)}${b.reviews_count ? ` (${b.reviews_count})` : ""}` : undefined,
+  }));
 
   return (
     <div className="divide-y divide-border/40">
@@ -169,7 +192,7 @@ const HomepageSections = () => {
       <HomepageShowcaseCarousel
         title={isRtl ? "الكتب" : "Books"}
         emoji="📖"
-        items={[]}
+        items={books}
         isRtl={isRtl}
         autoScrollSpeed={75}
         maxSlots={5}

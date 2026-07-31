@@ -482,3 +482,55 @@ describe("Migration 3 — owner repair (function-only, no auth.users writes)", (
     );
   });
 });
+
+// ── Migration 4 — audit snapshot drop + function fix ─────────────────────────
+
+describe("Migration 4 — drop _cleanup_audit_snapshot and fix function", () => {
+  const dropAuditSource = fs.readFileSync(
+    "supabase/migrations/20260731000001_drop_audit_snapshot_and_fix_function.sql",
+    "utf-8",
+  );
+
+  it("drops _cleanup_audit_snapshot table", () => {
+    expect(dropAuditSource).toContain("DROP TABLE IF EXISTS public._cleanup_audit_snapshot");
+  });
+
+  it("replaces snapshot_accounts_before_cleanup function", () => {
+    expect(dropAuditSource).toContain(
+      "CREATE OR REPLACE FUNCTION public.snapshot_accounts_before_cleanup()",
+    );
+  });
+
+  it("function does NOT create any table", () => {
+    const createTableRegex = /CREATE\s+TABLE\s+(?!IF NOT EXISTS public\._cleanup_audit_snapshot)/i;
+    expect(dropAuditSource).not.toMatch(createTableRegex);
+  });
+
+  it("has SECURITY DEFINER", () => {
+    expect(dropAuditSource).toContain("SECURITY DEFINER");
+  });
+
+  it("sets search_path = public, pg_temp", () => {
+    expect(dropAuditSource).toContain("SET search_path = public, pg_temp");
+  });
+
+  it("has REVOKE ALL FROM PUBLIC", () => {
+    expect(dropAuditSource).toContain("REVOKE ALL ON FUNCTION");
+    expect(dropAuditSource).toContain("FROM PUBLIC");
+  });
+
+  it("has REVOKE EXECUTE FROM anon and authenticated", () => {
+    expect(dropAuditSource).toContain(
+      "REVOKE EXECUTE ON FUNCTION public.snapshot_accounts_before_cleanup() FROM anon",
+    );
+    expect(dropAuditSource).toContain(
+      "REVOKE EXECUTE ON FUNCTION public.snapshot_accounts_before_cleanup() FROM authenticated",
+    );
+  });
+
+  it("has GRANT EXECUTE TO service_role", () => {
+    expect(dropAuditSource).toContain(
+      "GRANT EXECUTE ON FUNCTION public.snapshot_accounts_before_cleanup() TO service_role",
+    );
+  });
+});

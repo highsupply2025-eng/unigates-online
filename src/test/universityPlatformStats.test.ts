@@ -9,10 +9,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 //   {
 //     colleges:   COUNT(*) FROM college_registrations WHERE status = 'approved'
 //     institutes: COUNT(*) FROM institute_registrations WHERE status = 'approved'
-//     lecturers:  COUNT(DISTINCT ifm.user_id) FROM institution_faculty_members
-//                 WHERE ifm.status = 'active' AND linked to approved institution
-//     students:   COUNT(DISTINCT user_id) FROM department_members (role IN student,personal)
-//                 UNION college_members (role IN student,personal)
+//     lecturers:  COUNT(*) FROM institution_faculty_members linked to an
+//                 approved institution (all faculty roles)
+//     students:   COUNT unique identity keys FROM department_members
+//                 (including pending rows) UNION college_members
 //                 WHERE linked to approved institution
 //   }
 
@@ -424,24 +424,22 @@ describe("University statistics — excluded roles", () => {
 // ═══════════════════════════════════════════════════════════════════
 
 describe("University statistics — deduplication", () => {
-  it("COUNT(DISTINCT) in SQL prevents double-counting (documented)", () => {
-    // The RPC uses COUNT(DISTINCT ifm.user_id) for lecturers
-    // and COUNT(DISTINCT dm.user_id) for students.
-    // Even if a user appears in multiple departments or roles,
-    // they count as one. The mapping logic just reads the pre-deduplicated number.
+  it("canonical rows and identity keys prevent double-counting (documented)", () => {
+    // Faculty user IDs are unique in institution_faculty_members. Student rows
+    // use user/email/member identity keys and UNION the college membership source.
     const stats = mapStats({ lecturers: 5, students: 10 }, "university");
     expect(stats.lecturers).toBe(5);
     expect(stats.students).toBe(10);
   });
 
   it("a user with role in two departments counts once (SQL-level)", () => {
-    // RPC returns COUNT(DISTINCT dm.user_id) = 3 even if user A is in dept 1 and dept 2
+    // The RPC returns three identity keys even if user A is in two departments.
     const stats = mapStats({ students: 3 }, "university");
     expect(stats.students).toBe(3);
   });
 
   it("a faculty member in two institutions counts once (SQL-level)", () => {
-    // RPC returns COUNT(DISTINCT ifm.user_id) = 1 even if user is in college AND institute
+    // The canonical faculty table enforces one row per user.
     const stats = mapStats({ lecturers: 1 }, "university");
     expect(stats.lecturers).toBe(1);
   });
@@ -675,16 +673,12 @@ describe("University statistics — eligibility rules", () => {
     expect(stats.institutes).toBe(8);
   });
 
-  it("lecturers: only 'active' status in approved institutions counted", () => {
-    // Documented: institution_faculty_members WHERE status = 'active'
-    // AND linked to approved college or institute
+  it("lecturers: faculty rows linked to approved institutions are counted", () => {
     const stats = mapStats({ lecturers: 5 }, "university");
     expect(stats.lecturers).toBe(5);
   });
 
-  it("students: only role='student' in approved institutions counted", () => {
-    // Documented: department_members WHERE role = 'student'
-    // AND linked to approved college or institute via departments table
+  it("students: pending and active student rows in approved institutions are counted", () => {
     const stats = mapStats({ students: 3 }, "university");
     expect(stats.students).toBe(3);
   });
@@ -775,11 +769,11 @@ describe("University statistics — institution counting", () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════
-// 22. Active faculty linked to approved institutions are counted
+// 22. Faculty linked to approved institutions are counted
 // ═══════════════════════════════════════════════════════════════════
 
 describe("University statistics — faculty counting", () => {
-  it("only active faculty in approved institutions counted", () => {
+  it("all canonical faculty members in approved institutions are counted", () => {
     const stats = mapStats({ colleges: 1, institutes: 1, lecturers: 4, students: 0 }, "university");
     expect(stats.lecturers).toBe(4);
   });
@@ -803,7 +797,7 @@ describe("University statistics — student sources", () => {
   });
 
   it("students from college_members in approved colleges are counted", () => {
-    // The RPC UNIONs department_members and college_members, then COUNT(DISTINCT)
+    // The RPC UNIONs identity keys from department_members and college_members.
     const stats = mapStats({ colleges: 1, institutes: 0, lecturers: 0, students: 8 }, "university");
     expect(stats.students).toBe(8);
   });

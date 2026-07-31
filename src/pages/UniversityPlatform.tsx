@@ -35,7 +35,7 @@ const UniversityPlatform = () => {
   const statItems = [
     { icon: Landmark, counter: colleges, label: isRtl ? "كلية" : "College", color: "from-amber-500 to-orange-400" },
     { icon: Landmark, counter: institutes, label: isRtl ? "معهد" : "Institute", color: "from-emerald-500 to-teal-400" },
-    { icon: GraduationCap, counter: lecturers, label: isRtl ? "محاضر" : "Lecturer", color: "from-violet-500 to-purple-400" },
+    { icon: GraduationCap, counter: lecturers, label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", color: "from-violet-500 to-purple-400" },
     { icon: Users, counter: uniStudents, label: isRtl ? "طالب" : "Student", color: "from-indigo-500 to-blue-400" },
   ];
 

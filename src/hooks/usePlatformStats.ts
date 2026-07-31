@@ -47,13 +47,14 @@ const QUERY_KEY = "platform-stats";
 /**
  * Shared hook for all public statistics components.
  *
- * Calls the secure backend RPC `get_platform_statistics(scope)` which
- * returns aggregate counts only — no private account data is exposed.
+ * Calls secure aggregate RPCs that return counts only. University statistics
+ * use a dedicated RPC tied directly to institution dashboard tables.
  *
  * Realtime strategy:
  *  - keepPreviousData prevents flashing zeros during refetch
  *  - refetchOnWindowFocus + refetchOnReconnect for instant sync
- *  - refetchInterval (60 s) as fallback for passive visitors
+ *  - university polling (15 s) backs up Realtime for cross-tab admin changes
+ *  - refetchInterval (60 s) remains the fallback for other scopes
  *  - staleTime 30 s avoids excessive requests
  */
 /**
@@ -93,9 +94,9 @@ export const usePlatformStats = (scope: PlatformScope = "all") => {
   const query = useQuery<PlatformStats>({
     queryKey: [QUERY_KEY, scope],
     queryFn: async (): Promise<PlatformStats> => {
-      const { data, error } = await supabase.rpc("get_platform_statistics", {
-        p_scope: scope,
-      });
+      const { data, error } = scope === "university"
+        ? await supabase.rpc("get_university_platform_statistics")
+        : await supabase.rpc("get_platform_statistics", { p_scope: scope });
 
       if (error) throw error;
 
@@ -170,9 +171,10 @@ export const usePlatformStats = (scope: PlatformScope = "all") => {
       };
     },
     staleTime: 30_000,
+    refetchOnMount: scope === "university" ? "always" : true,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
-    refetchInterval: 60_000,
+    refetchInterval: scope === "university" ? 15_000 : 60_000,
     placeholderData: keepPreviousData,
   });
 

@@ -7,9 +7,8 @@ import { useRealtimeRefresh } from "./use-realtime-refresh";
  * Used by: InstitutionDashboard, InstitutionProfile, DepartmentPage.
  *
  * Queries the same authoritative tables:
- *   - department_members → studentCount (unique user_id WHERE role='student')
+ *   - get_institution_people_statistics → studentCount + facultyCount
  *   - departments → departmentCount
- *   - institution_faculty_members → facultyCount
  *   - lecture_schedules → scheduleCount (via dept IDs)
  *   - student_results → resultCount
  *
@@ -64,13 +63,7 @@ export function useInstitutionStats(
       const deptIds = (depts || []).map((d) => d.id);
 
       // 2. Parallel fetch all counts from authoritative tables
-      const [
-        deptCountRes,
-        membersRes,
-        facultyRes,
-        schedulesRes,
-        resultsRes,
-      ] = await Promise.all([
+      const [deptCountRes, peopleRes, schedulesRes, resultsRes] = await Promise.all([
         // A. Department count
         supabase
           .from("departments")
@@ -78,22 +71,13 @@ export function useInstitutionStats(
           .eq("institution_id", institutionId)
           .eq("institution_type", institutionType),
 
-        // B. Department members (for unique student count)
-        deptIds.length > 0
-          ? supabase
-              .from("department_members")
-              .select("user_id, role")
-              .in("department_id", deptIds)
-          : Promise.resolve({ data: [] as Array<{ user_id: string | null; role: string }> }),
+        // B. Server-side people totals avoid row limits and share public rules.
+        supabase.rpc("get_institution_people_statistics", {
+          p_institution_id: institutionId,
+          p_institution_type: institutionType,
+        }),
 
-        // C. Institution faculty members
-        supabase
-          .from("institution_faculty_members")
-          .select("user_id", { count: "exact", head: true })
-          .eq("institution_id", institutionId)
-          .eq("institution_type", institutionType),
-
-        // D. Lecture schedules (via department IDs)
+        // C. Lecture schedules (via department IDs)
         deptIds.length > 0
           ? supabase
               .from("lecture_schedules")
@@ -101,25 +85,19 @@ export function useInstitutionStats(
               .in("department_id", deptIds)
           : Promise.resolve({ count: 0, data: null, error: null }),
 
-        // E. Student results
+        // D. Student results
         supabase
           .from("student_results")
           .select("id", { count: "exact", head: true })
           .eq("institution_id", institutionId),
       ]);
 
-      // 3. Unique student count: user_id IS NOT NULL AND role = 'student'
-      const members = membersRes.data || [];
-      const uniqueStudentIds = new Set(
-        members
-          .filter((m) => m.role === "student" && m.user_id)
-          .map((m) => m.user_id)
-      );
+      const people = (peopleRes.data || {}) as { students?: number; faculty?: number };
 
       setStats({
-        studentCount: uniqueStudentIds.size,
+        studentCount: Number(people.students) || 0,
         departmentCount: deptCountRes.count || 0,
-        facultyCount: facultyRes.count || 0,
+        facultyCount: Number(people.faculty) || 0,
         scheduleCount: schedulesRes.count || 0,
         resultCount: resultsRes.count || 0,
         isLoading: false,
@@ -141,6 +119,7 @@ export function useInstitutionStats(
       "department_members",
       "departments",
       "institution_faculty_members",
+      "college_members",
       "lecture_schedules",
       "student_results",
     ],

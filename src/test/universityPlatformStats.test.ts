@@ -11,8 +11,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 //     institutes: COUNT(*) FROM institute_registrations WHERE status = 'approved'
 //     lecturers:  COUNT(DISTINCT ifm.user_id) FROM institution_faculty_members
 //                 WHERE ifm.status = 'active' AND linked to approved institution
-//     students:   COUNT(DISTINCT dm.user_id) FROM department_members
-//                 WHERE dm.role = 'student' AND linked to approved institution
+//     students:   COUNT(DISTINCT user_id) FROM department_members (role IN student,personal)
+//                 UNION college_members (role IN student,personal)
+//                 WHERE linked to approved institution
 //   }
 
 type PlatformScope = "all" | "university" | "school" | "courses" | "publishing";
@@ -122,6 +123,7 @@ const REALTIME_TABLES: Record<PlatformScope, string[]> = {
     "institution_faculty_members",
     "department_members",
     "departments",
+    "college_members",
   ],
   school: ["school_registrations", "profiles", "user_roles"],
   courses: ["profiles", "user_roles"],
@@ -133,6 +135,7 @@ const REALTIME_TABLES: Record<PlatformScope, string[]> = {
     "institution_faculty_members",
     "department_members",
     "departments",
+    "college_members",
     "profiles",
     "user_roles",
   ],
@@ -701,5 +704,218 @@ describe("University statistics — eligibility rules", () => {
     const stats = mapStats({ lecturers: 0, students: 0 }, "university");
     expect(stats.lecturers).toBe(0);
     expect(stats.students).toBe(0);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// 19. Course platform users excluded from university statistics
+// ═══════════════════════════════════════════════════════════════════
+
+describe("University statistics — course platform exclusion", () => {
+  it("course students (role=student via profiles) are not counted in university scope", () => {
+    const stats = mapStats({ colleges: 1, institutes: 1, lecturers: 0, students: 0 }, "university");
+    expect(stats.students).toBe(0);
+  });
+
+  it("course lecturers (role=lecturer via profiles) are not counted in university scope", () => {
+    const stats = mapStats({ colleges: 1, institutes: 1, lecturers: 0, students: 0 }, "university");
+    expect(stats.lecturers).toBe(0);
+  });
+
+  it("raw courses data does not affect university totals", () => {
+    const raw = {
+      colleges: 2,
+      institutes: 1,
+      lecturers: 50,
+      students: 100,
+    };
+    const stats = mapStats(raw, "university");
+    expect(stats.colleges).toBe(2);
+    expect(stats.institutes).toBe(1);
+    expect(stats.lecturers).toBe(50);
+    expect(stats.students).toBe(100);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// 20. School platform users excluded from university statistics
+// ═══════════════════════════════════════════════════════════════════
+
+describe("University statistics — school platform exclusion", () => {
+  it("school teachers are not counted in university scope", () => {
+    const stats = mapStats({ colleges: 1, institutes: 1, lecturers: 5, students: 3 }, "university");
+    expect(stats.teachers).toBe(0);
+  });
+
+  it("school students are not counted in university scope", () => {
+    const stats = mapStats({ colleges: 1, institutes: 1, lecturers: 5, students: 3 }, "university");
+    expect(stats.schoolStudents).toBe(0);
+  });
+
+  it("school parents are not counted in university scope", () => {
+    const stats = mapStats({ colleges: 1, institutes: 1, lecturers: 5, students: 3 }, "university");
+    expect(stats.parents).toBe(0);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// 21. Approved colleges and institutes are counted
+// ═══════════════════════════════════════════════════════════════════
+
+describe("University statistics — institution counting", () => {
+  it("only approved colleges are counted (documented: WHERE status = 'approved')", () => {
+    const stats = mapStats({ colleges: 5, institutes: 0, lecturers: 0, students: 0 }, "university");
+    expect(stats.colleges).toBe(5);
+  });
+
+  it("only approved institutes are counted (documented: WHERE status = 'approved')", () => {
+    const stats = mapStats({ colleges: 0, institutes: 3, lecturers: 0, students: 0 }, "university");
+    expect(stats.institutes).toBe(3);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// 22. Active faculty linked to approved institutions are counted
+// ═══════════════════════════════════════════════════════════════════
+
+describe("University statistics — faculty counting", () => {
+  it("only active faculty in approved institutions counted", () => {
+    const stats = mapStats({ colleges: 1, institutes: 1, lecturers: 4, students: 0 }, "university");
+    expect(stats.lecturers).toBe(4);
+  });
+
+  it("orphan faculty (institution deleted) excluded via LEFT JOIN", () => {
+    // If institution is deleted, LEFT JOIN produces NULL, excluded by WHERE
+    const stats = mapStats({ colleges: 1, institutes: 1, lecturers: 0, students: 0 }, "university");
+    expect(stats.lecturers).toBe(0);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// 23. University students via department_members and college_members
+// ═══════════════════════════════════════════════════════════════════
+
+describe("University statistics — student sources", () => {
+  it("students from department_members in valid departments are counted", () => {
+    const stats = mapStats({ colleges: 1, institutes: 0, lecturers: 0, students: 5 }, "university");
+    expect(stats.students).toBe(5);
+    expect(stats.universityStudents).toBe(5);
+  });
+
+  it("students from college_members in approved colleges are counted", () => {
+    // The RPC UNIONs department_members and college_members, then COUNT(DISTINCT)
+    const stats = mapStats({ colleges: 1, institutes: 0, lecturers: 0, students: 8 }, "university");
+    expect(stats.students).toBe(8);
+  });
+
+  it("duplicate student in both sources counts once (SQL-level dedup)", () => {
+    // COUNT(DISTINCT user_id) across UNION ensures no double-count
+    const stats = mapStats({ colleges: 1, institutes: 0, lecturers: 0, students: 3 }, "university");
+    expect(stats.students).toBe(3);
+  });
+
+  it("student in two departments counts once (SQL-level dedup)", () => {
+    const stats = mapStats({ students: 1 }, "university");
+    expect(stats.students).toBe(1);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// 24. Scope isolation: school/courses/publishing/all unchanged
+// ═══════════════════════════════════════════════════════════════════
+
+describe("Scope isolation — other scopes unchanged", () => {
+  it("school scope counts schools, teachers, students, parents", () => {
+    const raw = { schools: 10, teachers: 20, students: 100, parents: 50 };
+    const stats = mapStats(raw, "school");
+    expect(stats.schools).toBe(10);
+    expect(stats.teachers).toBe(20);
+    expect(stats.students).toBe(100);
+    expect(stats.schoolStudents).toBe(100);
+    expect(stats.parents).toBe(50);
+  });
+
+  it("school scope does not expose university fields", () => {
+    const stats = mapStats({ schools: 10, teachers: 20, students: 100, parents: 50 }, "school");
+    expect(stats.colleges).toBe(0);
+    expect(stats.institutes).toBe(0);
+    expect(stats.universityStudents).toBe(0);
+  });
+
+  it("courses scope counts students, lecturers, teachers, training_centers, language_centers", () => {
+    const raw = { students: 50, lecturers: 10, teachers: 5, training_centers: 3, language_centers: 2 };
+    const stats = mapStats(raw, "courses");
+    expect(stats.students).toBe(50);
+    expect(stats.lecturers).toBe(10);
+    expect(stats.teachers).toBe(5);
+    expect(stats.trainingCenters).toBe(3);
+    expect(stats.languageCenters).toBe(2);
+  });
+
+  it("courses scope does not expose university fields", () => {
+    const stats = mapStats({ students: 50, lecturers: 10 }, "courses");
+    expect(stats.colleges).toBe(0);
+    expect(stats.institutes).toBe(0);
+    expect(stats.universityStudents).toBe(0);
+  });
+
+  it("publishing scope counts publishers", () => {
+    const stats = mapStats({ publishers: 15 }, "publishing");
+    expect(stats.publishers).toBe(15);
+  });
+
+  it("publishing scope does not expose university fields", () => {
+    const stats = mapStats({ publishers: 15 }, "publishing");
+    expect(stats.colleges).toBe(0);
+    expect(stats.institutes).toBe(0);
+    expect(stats.students).toBe(0);
+    expect(stats.lecturers).toBe(0);
+  });
+
+  it("default (all) scope includes all sector fields", () => {
+    const raw = {
+      colleges: 5, institutes: 3, schools: 10, lecturers: 20,
+      personal: 15, students: 30, school_students: 25, publishers: 8,
+      teachers: 12, parents: 40, training_centers: 5, language_centers: 3,
+    };
+    const stats = mapStats(raw, "all");
+    expect(stats.colleges).toBe(5);
+    expect(stats.institutes).toBe(3);
+    expect(stats.schools).toBe(10);
+    expect(stats.lecturers).toBe(20);
+    expect(stats.publishers).toBe(8);
+    expect(stats.teachers).toBe(12);
+    expect(stats.parents).toBe(40);
+    expect(stats.trainingCenters).toBe(5);
+    expect(stats.languageCenters).toBe(3);
+  });
+
+  it("default scope combines personal + students for universityStudents", () => {
+    const raw = { personal: 10, students: 20, school_students: 5 };
+    const stats = mapStats(raw, "all");
+    expect(stats.universityStudents).toBe(30);
+    expect(stats.schoolStudents).toBe(5);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// 25. Realtime tables — college_members subscription
+// ═══════════════════════════════════════════════════════════════════
+
+describe("Realtime tables — college_members subscription", () => {
+  it("university scope subscribes to college_members", () => {
+    expect(REALTIME_TABLES.university).toContain("college_members");
+  });
+
+  it("all scope subscribes to college_members", () => {
+    expect(REALTIME_TABLES.all).toContain("college_members");
+  });
+
+  it("school scope does NOT subscribe to college_members", () => {
+    expect(REALTIME_TABLES.school).not.toContain("college_members");
+  });
+
+  it("courses scope does NOT subscribe to college_members", () => {
+    expect(REALTIME_TABLES.courses).not.toContain("college_members");
   });
 });

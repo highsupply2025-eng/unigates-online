@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
     const isProduction = !!Deno.env.get("DENO_DEPLOYMENT_ID");
     if (isProduction) {
       return json(
-        { error: "Test account seeding is disabled in production. Use reset-admin-password instead." },
+        { error: "Test account seeding is disabled in production. Use the standard password-recovery flow to reset your password." },
         403,
       );
     }

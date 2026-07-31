@@ -189,6 +189,7 @@ const HomepageShowcaseCarousel = ({
                       badgeColor="bg-muted/60"
                       gradientIndex={i}
                       index={displayItems.length + i}
+                      label={soonLabel}
                     />
                   ))}
                 </>
@@ -200,6 +201,7 @@ const HomepageShowcaseCarousel = ({
                       badgeColor="bg-muted/60"
                       gradientIndex={i}
                       index={i}
+                      label={soonLabel}
                     />
                   ))
                 : items.map((item, i) => (

@@ -701,6 +701,16 @@ const AdminDashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5"
+              onClick={() => navigate("/admin/security-center")}
+            >
+              <Shield className="w-4 h-4" />
+              <span className="hidden sm:inline">{isRtl ? "مركز الأمان" : "Security Center"}</span>
+            </Button>
+
             <DashboardMenuDropdown
               onLanguageToggle={toggleLanguage}
               onLogout={handleLogout}

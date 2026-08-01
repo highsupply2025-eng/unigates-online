@@ -33,7 +33,7 @@ export function serviceClient(): SupabaseClient {
 /**
  * Verifies the caller is an authenticated, approved super admin.
  * Roles are read from the database with a security-definer check —
- * never from the request body and never from editable user_metadata.
+ * never from the request body and never from editable auth metadata.
  */
 export async function requireSuperAdmin(
   req: Request,

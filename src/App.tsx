@@ -32,6 +32,7 @@ const LiveStreams = lazy(() => import("./pages/LiveStreams"));
 const LecturerDashboard = lazy(() => import("./pages/LecturerDashboard"));
 const LecturerCourseContent = lazy(() => import("./pages/LecturerCourseContent"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AdminOverview = lazy(() => import("./pages/AdminOverview"));
 const WatchStream = lazy(() => import("./pages/WatchStream"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
@@ -158,6 +159,8 @@ const App = () => (
               <Route path="/lecturer/dashboard" element={<LecturerDashboard />} />
               <Route path="/lecturer/course/:courseId" element={<LecturerCourseContent />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin" element={<AdminOverview />} />
+              <Route path="/admin/overview" element={<AdminOverview />} />
               <Route path="/stream/:streamId" element={<WatchStream />} />
               <Route path="/live" element={<LiveStreams />} />
               {/* Book Store + separate auth */}

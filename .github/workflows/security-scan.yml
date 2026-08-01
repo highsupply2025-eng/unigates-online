@@ -1,0 +1,79 @@
+# Defensive, read-only dependency audit.
+# Normalises `npm audit` output and posts it to the signed Security Center
+# ingestion endpoint. Never runs repository scanners in the browser and never
+# modifies production data.
+
+name: Security scan (read-only)
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+# Prevents overlapping scheduled runs creating duplicate scans.
+concurrency:
+  group: security-scan
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  security-events: read
+
+jobs:
+  dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run npm audit (read-only)
+        id: audit
+        run: npm audit --json > audit.json || true
+
+      - name: Normalise findings
+        run: |
+          node -e '
+            const fs = require("fs");
+            const raw = JSON.parse(fs.readFileSync("audit.json", "utf8") || "{}");
+            const vulns = raw.vulnerabilities || {};
+            const map = { critical: "critical", high: "high", moderate: "medium", low: "low", info: "informational" };
+            const findings = Object.values(vulns).map((v) => ({
+              rule_id: "npm-audit:" + v.name,
+              title: "Vulnerable dependency: " + v.name,
+              title_ar: "حزمة تحتوي ثغرة معروفة: " + v.name,
+              severity: map[v.severity] || "medium",
+              category: "dependency",
+              component: v.name + "@" + (v.range || "*"),
+              evidence: (v.via || []).map((x) => (typeof x === "string" ? x : x.title)).filter(Boolean).join("; ").slice(0, 400),
+              owasp_category: "A06:2021 Vulnerable and Outdated Components",
+              impact: "A known vulnerability is reachable through this dependency.",
+              remediation: v.fixAvailable ? "Upgrade the package to a fixed version." : "No fix available yet; evaluate replacing or pinning the package.",
+              confidence: "high"
+            }));
+            fs.writeFileSync("payload.json", JSON.stringify({ run_id: process.env.GITHUB_RUN_ID, findings }));
+            console.log("normalised", findings.length, "findings");
+          '
+
+      - name: Submit to Security Center
+        env:
+          INGEST_URL: ${{ secrets.SECURITY_INGEST_URL }}
+          INGEST_SECRET: ${{ secrets.SECURITY_INGEST_SECRET }}
+        run: |
+          if [ -z "$INGEST_URL" ] || [ -z "$INGEST_SECRET" ]; then
+            echo "Ingestion not configured; skipping submission."
+            exit 0
+          fi
+          TS=$(( $(date +%s) * 1000 ))
+          NONCE=$(openssl rand -hex 16)
+          BODY=$(cat payload.json)
+          SIG=$(printf '%s.%s.%s' "$TS" "$NONCE" "$BODY" | openssl dgst -sha256 -hmac "$INGEST_SECRET" -hex | awk '{print $NF}')
+          curl --fail-with-body -sS -X POST "$INGEST_URL" \
+            -H "Content-Type: application/json" \
+            -H "x-source: npm_audit" \
+            -H "x-timestamp: $TS" \
+            -H "x-nonce: $NONCE" \
+            -H "x-signature: $SIG" \
+            --data "$BODY"

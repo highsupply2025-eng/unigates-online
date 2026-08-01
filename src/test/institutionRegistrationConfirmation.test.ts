@@ -10,6 +10,12 @@ const syncMigration = fs.readFileSync(
   "supabase/migrations/20260801040000_sync_institution_registration_email_confirmation.sql",
   "utf-8",
 );
+const approvalMigration = fs.readFileSync(
+  "supabase/migrations/20260801060000_secure_college_approval_flow.sql",
+  "utf-8",
+);
+const login = fs.readFileSync("src/pages/Login.tsx", "utf-8");
+const adminOverview = fs.readFileSync("src/pages/AdminOverview.tsx", "utf-8");
 
 describe("institution registration confirmation flow", () => {
   for (const [kind, source] of [["college", collegeSignup], ["institute", instituteSignup]] as const) {
@@ -52,6 +58,7 @@ describe("institution registration confirmation flow", () => {
     expect(callback).toContain('setStatus("success")');
     expect(callback).not.toContain("Timeout fallback");
     expect(callback).not.toContain('setTimeout(() => {\n            setStatus("success")');
+    expect(callback).toContain("تم تأكيد البريد الإلكتروني، وحسابك بانتظار موافقة الإدارة.");
   });
 
   it("syncs confirmed Auth users to both registration tables and backfills old requests", () => {
@@ -71,7 +78,7 @@ describe("institution registration confirmation flow", () => {
     expect(adminDashboard).toContain("disabled={!inst.email_confirmed}");
   });
 
-  it("shows all institution requests to admins regardless of confirmation state", () => {
+  it("shows college requests to admins after email confirmation", () => {
     const loadColleges = adminDashboard.slice(
       adminDashboard.indexOf("const loadColleges"),
       adminDashboard.indexOf("const loadCollegeInvitations"),
@@ -80,8 +87,38 @@ describe("institution registration confirmation flow", () => {
       adminDashboard.indexOf("const loadInstitutes"),
       adminDashboard.indexOf("const loadDepartments"),
     );
-    expect(loadColleges).not.toContain('.eq("email_confirmed", true)');
+    expect(loadColleges).toContain('.eq("email_confirmed", true)');
     expect(loadInstitutes).not.toContain('.eq("email_confirmed", true)');
     expect(adminDashboard).toContain('ar("البريد غير مؤكد","Email unconfirmed")');
+  });
+
+  it("enforces college review and activation on the backend", () => {
+    expect(approvalMigration).toContain("CREATE OR REPLACE FUNCTION public.review_college_registration");
+    expect(approvalMigration).toContain("FROM auth.users account");
+    expect(approvalMigration).toContain("account.email_confirmed_at IS NOT NULL");
+    expect(approvalMigration).toContain('DROP POLICY IF EXISTS "Admins can update college registrations"');
+    expect(approvalMigration).toContain("prevent_inactive_college_profile_trg");
+    expect(approvalMigration).toContain("prevent_inactive_college_role_trg");
+    expect(approvalMigration).toContain("College account is pending platform admin approval");
+    expect(approvalMigration).toContain("registration.email_confirmed = true");
+    expect(approvalMigration).toContain("raw_user_meta_data ->> 'institution_name'");
+    expect(approvalMigration).toContain("CREATE OR REPLACE FUNCTION public.has_role");
+    expect(approvalMigration).toContain("CREATE OR REPLACE FUNCTION public.has_approved_role");
+    expect(approvalMigration).toContain("IN ('none', 'approved')");
+  });
+
+  it("uses the secure review RPC in every admin college approval surface", () => {
+    expect(adminDashboard.match(/review_college_registration/g)?.length).toBe(2);
+    expect(adminOverview).toContain('supabase.rpc("review_college_registration"');
+    expect(adminDashboard).not.toContain('from("college_registrations").update({ status: "approved" })');
+  });
+
+  it("blocks pending college login before role routing", () => {
+    const statusCheck = login.indexOf('supabase.rpc(\n        "get_college_account_status"');
+    const roleLookup = login.indexOf('.from("user_roles")');
+    expect(statusCheck).toBeGreaterThan(-1);
+    expect(statusCheck).toBeLessThan(roleLookup);
+    expect(login).toContain("تم تأكيد البريد الإلكتروني، وحسابك بانتظار موافقة الإدارة.");
+    expect(login).not.toContain('institutionType === "college"');
   });
 });

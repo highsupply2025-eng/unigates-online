@@ -45,6 +45,36 @@ const Login = () => {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
+      const { data: collegeStatusData, error: collegeStatusError } = await supabase.rpc(
+        "get_college_account_status" as any,
+      );
+      if (collegeStatusError) throw collegeStatusError;
+      const collegeStatus = collegeStatusData as string;
+
+      if (["email_unconfirmed", "pending", "rejected"].includes(collegeStatus)) {
+        const isEmailUnconfirmed = collegeStatus === "email_unconfirmed";
+        const isPending = collegeStatus === "pending";
+        toast({
+          title: language === "ar"
+            ? (isEmailUnconfirmed ? "البريد غير مؤكد" : isPending ? "بانتظار موافقة الإدارة" : "تم رفض الحساب")
+            : (isEmailUnconfirmed ? "Email Not Confirmed" : isPending ? "Pending Admin Approval" : "Account Rejected"),
+          description: language === "ar"
+            ? (isEmailUnconfirmed
+                ? "يرجى تأكيد بريدك الإلكتروني أولًا عبر الرابط المرسل إليك."
+                : isPending
+                ? "تم تأكيد البريد الإلكتروني، وحسابك بانتظار موافقة الإدارة."
+                : "تم رفض طلب تسجيل الكلية. يرجى التواصل مع إدارة المنصة.")
+            : (isEmailUnconfirmed
+                ? "Please confirm your email using the link sent to you."
+                : isPending
+                ? "Your email is confirmed and your account is pending admin approval."
+                : "Your college registration was rejected. Please contact platform administration."),
+          variant: isPending ? "default" : "destructive",
+        });
+        await supabase.auth.signOut();
+        return;
+      }
+
       const [{ data: roles }, { data: profile }] = await Promise.all([
         supabase
           .from("user_roles")
@@ -59,7 +89,6 @@ const Login = () => {
 
       const profileRole = profile?.role;
       const userEmail = data.user.email?.trim();
-      const institutionType = data.user.user_metadata?.institution_type;
 
       const adminRole = roles?.find((r) => r.role === "admin");
       const lecturerRole = roles?.find((r) => r.role === "lecturer");
@@ -121,31 +150,23 @@ const Login = () => {
       }
 
       if (userEmail) {
-        const [collegeResult, instituteResult] = await Promise.all([
-          supabase
-            .from("college_registrations")
-            .select("id, status")
-            .eq("email", userEmail)
-            .limit(1)
-            .maybeSingle(),
-          supabase
-            .from("institute_registrations")
-            .select("id, status")
-            .eq("email", userEmail)
-            .limit(1)
-            .maybeSingle(),
-        ]);
+        const instituteResult = await supabase
+          .from("institute_registrations")
+          .select("id, status")
+          .eq("email", userEmail)
+          .limit(1)
+          .maybeSingle();
+        if (instituteResult.error) throw instituteResult.error;
 
-        const collegeReg = collegeResult.data;
         const instituteReg = instituteResult.data;
 
-        if (collegeReg?.status === "approved" || instituteReg?.status === "approved") {
+        if (collegeStatus === "approved" || instituteReg?.status === "approved") {
           goNext("/institution/dashboard");
           return;
         }
 
-        if (collegeReg || instituteReg) {
-          const isPending = collegeReg?.status === "pending" || instituteReg?.status === "pending";
+        if (instituteReg) {
+          const isPending = instituteReg.status === "pending";
           toast({
             title: language === "ar" ? "الحساب قيد المراجعة" : "Account Under Review",
             description:
@@ -163,11 +184,6 @@ const Login = () => {
         }
       }
 
-      if (institutionType === "college" || institutionType === "institute") {
-        goNext("/institution/dashboard");
-        return;
-      }
-
       toast({
         title: language === "ar" ? "تعذر تحديد نوع الحساب" : "Unable to determine account type",
         description:
@@ -179,6 +195,7 @@ const Login = () => {
       await supabase.auth.signOut();
     } catch (error: any) {
       console.error('Login failed:', error);
+      await supabase.auth.signOut();
       const errMsg = error?.message || "";
       if (errMsg.includes("Email not confirmed")) {
         toast({ 

@@ -173,10 +173,15 @@ export default function AdminOverview() {
           ? await (supabase.from("departments" as any) as any).update({ payment_status: "paid", status: "active" }).eq("id", row.id)
           : await (supabase.from("departments" as any) as any).update({ status: "rejected" }).eq("id", row.id);
         error = res.error;
+      } else if (row.kind === "college") {
+        const res = await supabase.rpc("review_college_registration" as any, {
+          _registration_id: row.id,
+          _decision: approve ? "approved" : "rejected",
+        });
+        error = res.error;
       } else {
         const table =
-          row.kind === "college" ? "college_registrations"
-          : row.kind === "institute" ? "institute_registrations"
+          row.kind === "institute" ? "institute_registrations"
           : "school_registrations";
         const res = await (supabase.from(table as any) as any)
           .update({ status: approve ? "approved" : "rejected" }).eq("id", row.id);

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 const AuthCallback = () => {
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState("");
+  const [collegePendingApproval, setCollegePendingApproval] = useState(false);
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -20,13 +21,14 @@ const AuthCallback = () => {
           throw new Error(callbackErrorCode === "otp_expired" ? "expired" : "callback_error");
         }
 
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError) throw sessionError;
-
-        let session = sessionData.session;
         const code = queryParams.get("code");
-        if (!session && code) {
+        let session;
+        if (code) {
           const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) throw error;
+          session = data.session;
+        } else {
+          const { data, error } = await supabase.auth.getSession();
           if (error) throw error;
           session = data.session;
         }
@@ -40,6 +42,15 @@ const AuthCallback = () => {
         });
         if (confirmationError) throw confirmationError;
 
+        const { data: collegeStatus, error: collegeStatusError } = await supabase.rpc(
+          "get_college_account_status" as any,
+        );
+        if (collegeStatusError) throw collegeStatusError;
+
+        setCollegePendingApproval(collegeStatus === "pending");
+        if (collegeStatus === "pending" || collegeStatus === "rejected") {
+          await supabase.auth.signOut();
+        }
         window.history.replaceState({}, document.title, window.location.pathname);
         setStatus("success");
       } catch (error) {
@@ -81,7 +92,12 @@ const AuthCallback = () => {
             <div className="w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-12 h-12 text-green-500" />
             </div>
-            <h1 className="text-2xl font-black text-[#0a1628] mb-4">تم تأكيد حسابك بنجاح!</h1>
+            <h1 className="text-2xl font-black text-[#0a1628] mb-4">تم تأكيد البريد الإلكتروني بنجاح!</h1>
+            {collegePendingApproval && (
+              <p className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 font-bold text-amber-900">
+                تم تأكيد البريد الإلكتروني، وحسابك بانتظار موافقة الإدارة.
+              </p>
+            )}
             
             <div className="my-8 space-y-2">
               <p className="text-[#c9a14a] text-xl font-bold">أول مجتمع تفاعلي عربي</p>

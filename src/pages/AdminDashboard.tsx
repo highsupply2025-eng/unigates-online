@@ -39,7 +39,7 @@ interface Book { id: string; title_ar: string; title_en: string; author_ar: stri
 interface BookOrder { id: string; user_id: string; book_id: string; amount: number; status: string; created_at: string; book?: Book; profile?: Profile; }
 interface Subscription { id: string; user_id: string; course_id: string; level_number: number; plan_type: string; amount_paid: number; status: string; starts_at: string; expires_at: string | null; created_at: string; course?: Course; profile?: Profile; }
 interface LiveStream { id: string; title_ar: string; title_en: string; creator_id: string; course_id: string | null; status: string; scheduled_at: string | null; created_at: string; profile?: Profile; }
-interface CollegeRegistration { id: string; college_name: string; dean_name: string; city: string; phone: string; email: string; student_count: number | null; address: string | null; message: string | null; status: string; created_at: string; }
+interface CollegeRegistration { id: string; college_name: string; dean_name: string; city: string; phone: string; email: string; student_count: number | null; address: string | null; message: string | null; status: string; email_confirmed: boolean; logo_url: string | null; created_at: string; }
 interface CollegeInvitation { id: string; college_id: string; invitation_code: string; role: string; max_uses: number; used_count: number; is_active: boolean; created_at: string; college?: CollegeRegistration; }
 interface CollegeMember { id: string; college_id: string; user_id: string; role: string; joined_at: string; college?: CollegeRegistration; profile?: Profile; }
 interface InstituteRegistration { id: string; institute_name: string; director_name: string; city: string; phone: string; email: string; student_count: number | null; specialization: string | null; address: string | null; message: string | null; status: string; created_at: string; }
@@ -209,7 +209,7 @@ const AdminDashboard = () => {
 
 
   const loadColleges = async () => {
-    const { data } = await supabase.from("college_registrations").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase.from("college_registrations").select("*").eq("email_confirmed", true).order("created_at", { ascending: false });
     setColleges(data || []);
   };
 
@@ -260,8 +260,8 @@ const AdminDashboard = () => {
       supabase.from("book_orders").select("*", { count: "exact", head: true }),
       supabase.from("user_subscriptions").select("*", { count: "exact", head: true }),
       supabase.from("live_streams").select("*", { count: "exact", head: true }),
-      supabase.from("college_registrations").select("*", { count: "exact", head: true }),
-      supabase.from("college_registrations").select("*", { count: "exact", head: true }).eq("status", "pending"),
+      supabase.from("college_registrations").select("*", { count: "exact", head: true }).eq("email_confirmed", true),
+      supabase.from("college_registrations").select("*", { count: "exact", head: true }).eq("status", "pending").eq("email_confirmed", true),
       supabase.from("institute_registrations" as any).select("*", { count: "exact", head: true }),
       supabase.from("institute_registrations" as any).select("*", { count: "exact", head: true }).eq("status", "pending"),
       supabase.from("departments" as any).select("*", { count: "exact", head: true }),
@@ -331,7 +331,10 @@ const AdminDashboard = () => {
       showError(language === "ar" ? "يجب تأكيد بريد الكلية قبل الموافقة" : "The college email must be confirmed before approval");
       return;
     }
-    const { error } = await supabase.from("college_registrations").update({ status: "approved" }).eq("id", id);
+    const { error } = await supabase.rpc("review_college_registration" as any, {
+      _registration_id: id,
+      _decision: "approved",
+    });
     if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     await upsertAdminNotes("college", id, collegeAdminNotes);
     showSuccess(language === "ar" ? "تم قبول الكلية" : "College approved");
@@ -340,7 +343,10 @@ const AdminDashboard = () => {
   };
 
   const handleCollegeReject = async (id: string) => {
-    const { error } = await supabase.from("college_registrations").update({ status: "rejected" }).eq("id", id);
+    const { error } = await supabase.rpc("review_college_registration" as any, {
+      _registration_id: id,
+      _decision: "rejected",
+    });
     if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     await upsertAdminNotes("college", id, collegeAdminNotes);
     showSuccess(language === "ar" ? "تم رفض الكلية" : "College rejected");
@@ -626,6 +632,10 @@ const AdminDashboard = () => {
     const info = map[status] || { ar: status, en: status, cls: "" };
     return <Badge className={info.cls}>{language === "ar" ? info.ar : info.en}</Badge>;
   };
+
+  const collegeStatusBadge = (status: string) => status === "pending"
+    ? <Badge className="bg-amber-100 text-amber-700 border-amber-300">{ar("بانتظار موافقة الإدارة", "Pending Admin Approval")}</Badge>
+    : statusBadge(status);
 
   const fmtDate = (d: string) => new Date(d).toLocaleDateString(language === "ar" ? "ar-EG" : "en-US");
   const ar = (a: string, e: string) => language === "ar" ? a : e;
@@ -988,7 +998,7 @@ const AdminDashboard = () => {
                             </div>
                           </div>
                           <div className="flex items-center gap-3">
-                            {statusBadge(college.status)}
+                            {collegeStatusBadge(college.status)}
                             {!college.email_confirmed && <Badge variant="outline" className="text-amber-700 border-amber-400">{ar("البريد غير مؤكد","Email unconfirmed")}</Badge>}
                             <p className="text-xs text-muted-foreground hidden sm:block">{fmtDate(college.created_at)}</p>
                             {college.status === "pending" && (
@@ -1685,7 +1695,7 @@ const AdminDashboard = () => {
                 ) : (
                   <div className="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center shrink-0"><Landmark className="w-8 h-8 text-indigo-600" /></div>
                 )}
-                <div><p className="text-lg font-bold text-foreground">{selectedCollege.college_name}</p>{statusBadge(selectedCollege.status)}</div>
+                <div><p className="text-lg font-bold text-foreground">{selectedCollege.college_name}</p>{collegeStatusBadge(selectedCollege.status)}</div>
               </div>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div className="flex items-center gap-2"><Users className="w-4 h-4 text-muted-foreground" /><div><p className="text-muted-foreground">{ar("العميد","Dean")}</p><p className="font-medium text-foreground">{selectedCollege.dean_name}</p></div></div>

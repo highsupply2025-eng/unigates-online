@@ -32,6 +32,7 @@ const LiveStreams = lazy(() => import("./pages/LiveStreams"));
 const LecturerDashboard = lazy(() => import("./pages/LecturerDashboard"));
 const LecturerCourseContent = lazy(() => import("./pages/LecturerCourseContent"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AdminOverview = lazy(() => import("./pages/AdminOverview"));
 const WatchStream = lazy(() => import("./pages/WatchStream"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));

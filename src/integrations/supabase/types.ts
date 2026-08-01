@@ -1971,6 +1971,343 @@ export type Database = {
         }
         Relationships: []
       }
+      security_events: {
+        Row: {
+          actor_user_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          institution_id: string | null
+          ip_hash: string | null
+          metadata: Json
+          severity: string
+          target_user_id: string | null
+        }
+        Insert: {
+          actor_user_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          institution_id?: string | null
+          ip_hash?: string | null
+          metadata?: Json
+          severity?: string
+          target_user_id?: string | null
+        }
+        Update: {
+          actor_user_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          institution_id?: string | null
+          ip_hash?: string | null
+          metadata?: Json
+          severity?: string
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
+      security_findings: {
+        Row: {
+          ai_analysis: Json | null
+          ai_is_recommendation: boolean
+          category: string
+          component: string | null
+          confidence: string
+          created_at: string
+          evidence: string | null
+          fingerprint: string
+          first_detected_at: string
+          id: string
+          impact_ar: string | null
+          impact_en: string | null
+          last_detected_at: string
+          owasp_category: string | null
+          remediation_ar: string | null
+          remediation_en: string | null
+          scan_id: string | null
+          scanner: string
+          severity: string
+          status: string
+          title_ar: string
+          title_en: string
+          updated_at: string
+        }
+        Insert: {
+          ai_analysis?: Json | null
+          ai_is_recommendation?: boolean
+          category?: string
+          component?: string | null
+          confidence?: string
+          created_at?: string
+          evidence?: string | null
+          fingerprint: string
+          first_detected_at?: string
+          id?: string
+          impact_ar?: string | null
+          impact_en?: string | null
+          last_detected_at?: string
+          owasp_category?: string | null
+          remediation_ar?: string | null
+          remediation_en?: string | null
+          scan_id?: string | null
+          scanner?: string
+          severity?: string
+          status?: string
+          title_ar: string
+          title_en: string
+          updated_at?: string
+        }
+        Update: {
+          ai_analysis?: Json | null
+          ai_is_recommendation?: boolean
+          category?: string
+          component?: string | null
+          confidence?: string
+          created_at?: string
+          evidence?: string | null
+          fingerprint?: string
+          first_detected_at?: string
+          id?: string
+          impact_ar?: string | null
+          impact_en?: string | null
+          last_detected_at?: string
+          owasp_category?: string | null
+          remediation_ar?: string | null
+          remediation_en?: string | null
+          scan_id?: string | null
+          scanner?: string
+          severity?: string
+          status?: string
+          title_ar?: string
+          title_en?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "security_findings_scan_id_fkey"
+            columns: ["scan_id"]
+            isOneToOne: false
+            referencedRelation: "security_scans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      security_ingest_nonces: {
+        Row: {
+          created_at: string
+          nonce: string
+          source: string
+        }
+        Insert: {
+          created_at?: string
+          nonce: string
+          source: string
+        }
+        Update: {
+          created_at?: string
+          nonce?: string
+          source?: string
+        }
+        Relationships: []
+      }
+      security_notifications: {
+        Row: {
+          channel: string
+          created_at: string
+          error: string | null
+          finding_id: string | null
+          id: string
+          payload: Json
+          recipient: string
+          scan_id: string | null
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          error?: string | null
+          finding_id?: string | null
+          id?: string
+          payload?: Json
+          recipient: string
+          scan_id?: string | null
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          error?: string | null
+          finding_id?: string | null
+          id?: string
+          payload?: Json
+          recipient?: string
+          scan_id?: string | null
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "security_notifications_finding_id_fkey"
+            columns: ["finding_id"]
+            isOneToOne: false
+            referencedRelation: "security_findings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "security_notifications_scan_id_fkey"
+            columns: ["scan_id"]
+            isOneToOne: false
+            referencedRelation: "security_scans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      security_rate_limits: {
+        Row: {
+          attempted_at: string
+          bucket: string
+          id: string
+          principal: string
+        }
+        Insert: {
+          attempted_at?: string
+          bucket: string
+          id?: string
+          principal: string
+        }
+        Update: {
+          attempted_at?: string
+          bucket?: string
+          id?: string
+          principal?: string
+        }
+        Relationships: []
+      }
+      security_remediation_reviews: {
+        Row: {
+          created_at: string
+          decision: string
+          finding_id: string
+          id: string
+          notes: string | null
+          reviewer_id: string
+        }
+        Insert: {
+          created_at?: string
+          decision: string
+          finding_id: string
+          id?: string
+          notes?: string | null
+          reviewer_id: string
+        }
+        Update: {
+          created_at?: string
+          decision?: string
+          finding_id?: string
+          id?: string
+          notes?: string | null
+          reviewer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "security_remediation_reviews_finding_id_fkey"
+            columns: ["finding_id"]
+            isOneToOne: false
+            referencedRelation: "security_findings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      security_scans: {
+        Row: {
+          counts: Json
+          created_at: string
+          error: string | null
+          finished_at: string | null
+          id: string
+          idempotency_key: string | null
+          read_only: boolean
+          scan_type: string
+          score: number | null
+          source: string
+          started_at: string
+          status: string
+          summary: string | null
+          triggered_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          counts?: Json
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          idempotency_key?: string | null
+          read_only?: boolean
+          scan_type?: string
+          score?: number | null
+          source?: string
+          started_at?: string
+          status?: string
+          summary?: string | null
+          triggered_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          counts?: Json
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          idempotency_key?: string | null
+          read_only?: boolean
+          scan_type?: string
+          score?: number | null
+          source?: string
+          started_at?: string
+          status?: string
+          summary?: string | null
+          triggered_by?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      security_settings: {
+        Row: {
+          ai_analysis_enabled: boolean
+          id: number
+          notification_emails: string[]
+          retention_days: number
+          scan_cron: string
+          scheduled_scans_enabled: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          ai_analysis_enabled?: boolean
+          id?: number
+          notification_emails?: string[]
+          retention_days?: number
+          scan_cron?: string
+          scheduled_scans_enabled?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          ai_analysis_enabled?: boolean
+          id?: number
+          notification_emails?: string[]
+          retention_days?: number
+          scan_cron?: string
+          scheduled_scans_enabled?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       stream_attendance: {
         Row: {
           duration_minutes: number | null
@@ -2709,6 +3046,7 @@ export type Database = {
         Returns: boolean
       }
       is_leadership: { Args: { _user_id: string }; Returns: boolean }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       leadership_institution_ids: {
         Args: { _user_id: string }
         Returns: {
@@ -2767,6 +3105,11 @@ export type Database = {
         Returns: undefined
       }
       schedule_fully_approved: { Args: { _id: string }; Returns: boolean }
+      security_audit_snapshot: { Args: never; Returns: Json }
+      security_record_findings: {
+        Args: { _findings: Json; _scan_id: string }
+        Returns: number
+      }
       snapshot_accounts_before_cleanup: { Args: never; Returns: undefined }
       submit_quiz: {
         Args: { _answers: Json; _quiz_id: string; _whatsapp?: string }

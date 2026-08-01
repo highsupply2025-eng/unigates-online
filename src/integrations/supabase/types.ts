@@ -2093,6 +2093,24 @@ export type Database = {
           },
         ]
       }
+      security_ingest_nonces: {
+        Row: {
+          created_at: string
+          nonce: string
+          source: string
+        }
+        Insert: {
+          created_at?: string
+          nonce: string
+          source: string
+        }
+        Update: {
+          created_at?: string
+          nonce?: string
+          source?: string
+        }
+        Relationships: []
+      }
       security_notifications: {
         Row: {
           channel: string
@@ -2146,6 +2164,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      security_rate_limits: {
+        Row: {
+          attempted_at: string
+          bucket: string
+          id: string
+          principal: string
+        }
+        Insert: {
+          attempted_at?: string
+          bucket: string
+          id?: string
+          principal: string
+        }
+        Update: {
+          attempted_at?: string
+          bucket?: string
+          id?: string
+          principal?: string
+        }
+        Relationships: []
       }
       security_remediation_reviews: {
         Row: {
@@ -3066,6 +3105,11 @@ export type Database = {
         Returns: undefined
       }
       schedule_fully_approved: { Args: { _id: string }; Returns: boolean }
+      security_audit_snapshot: { Args: never; Returns: Json }
+      security_record_findings: {
+        Args: { _findings: Json; _scan_id: string }
+        Returns: number
+      }
       snapshot_accounts_before_cleanup: { Args: never; Returns: undefined }
       submit_quiz: {
         Args: { _answers: Json; _quiz_id: string; _whatsapp?: string }

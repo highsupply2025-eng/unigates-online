@@ -972,7 +972,16 @@ const AdminDashboard = () => {
                       <CardContent className="p-5">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center"><Landmark className="w-6 h-6 text-indigo-600" /></div>
+                            {college.logo_url ? (
+                              <img
+                                src={college.logo_url}
+                                alt={college.college_name}
+                                className="w-12 h-12 rounded-full object-cover border border-indigo-200 bg-white shrink-0"
+                                onError={(event) => { event.currentTarget.src = "/placeholder.svg"; }}
+                              />
+                            ) : (
+                              <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center shrink-0"><Landmark className="w-6 h-6 text-indigo-600" /></div>
+                            )}
                             <div>
                               <p className="font-bold text-foreground">{college.college_name}</p>
                               <p className="text-sm text-muted-foreground">{college.dean_name} — {college.city}</p>
@@ -1666,7 +1675,16 @@ const AdminDashboard = () => {
           {selectedCollege && (
             <div className="space-y-4">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center"><Landmark className="w-8 h-8 text-indigo-600" /></div>
+                {selectedCollege.logo_url ? (
+                  <img
+                    src={selectedCollege.logo_url}
+                    alt={selectedCollege.college_name}
+                    className="w-16 h-16 rounded-full object-cover border-2 border-indigo-200 bg-white shrink-0"
+                    onError={(event) => { event.currentTarget.src = "/placeholder.svg"; }}
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center shrink-0"><Landmark className="w-8 h-8 text-indigo-600" /></div>
+                )}
                 <div><p className="text-lg font-bold text-foreground">{selectedCollege.college_name}</p>{statusBadge(selectedCollege.status)}</div>
               </div>
               <div className="grid grid-cols-2 gap-3 text-sm">

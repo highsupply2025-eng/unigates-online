@@ -50,6 +50,8 @@ const CollegeAdminSignup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [emailConfirmationPending, setEmailConfirmationPending] = useState(false);
+  const [resending, setResending] = useState(false);
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -82,8 +84,14 @@ const CollegeAdminSignup = () => {
 
     setLoading(true);
     try {
+      const normalizedEmail = email.trim().toLowerCase();
+      let logoUrl: string | null = null;
+      if (logoFile) {
+        logoUrl = await uploadSignupLogo("college", logoFile);
+      }
+
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
+        email: normalizedEmail,
         password,
         options: {
           emailRedirectTo: getAuthCallbackUrl(),
@@ -92,11 +100,6 @@ const CollegeAdminSignup = () => {
       });
       if (authError) throw authError;
 
-      let logoUrl: string | null = null;
-      if (logoFile) {
-        logoUrl = await uploadSignupLogo("college", logoFile);
-      }
-
       const { error } = await supabase.from("college_registrations").insert({
         college_name: collegeName,
         university_name: universityName,
@@ -104,13 +107,19 @@ const CollegeAdminSignup = () => {
         address: address || null,
         dean_name: deanName,
         logo_url: logoUrl,
-        email,
+        email: normalizedEmail,
         phone: `${countryCode}${phone}`,
         student_count: studentCount ? parseInt(studentCount) : 0,
         message: departmentCount ? `${isRtl ? "عدد الأقسام" : "Departments"}: ${departmentCount}. ${message}` : message || null,
         type: "college",
       });
       if (error) throw error;
+      let confirmationPending = !authData.session && !authData.user?.email_confirmed_at;
+      if (authData.session) {
+        const { error: confirmationError } = await supabase.rpc("confirm_registration_email", { _email: normalizedEmail });
+        confirmationPending = Boolean(confirmationError);
+      }
+      setEmailConfirmationPending(confirmationPending);
       setSubmitted(true);
     } catch (error: any) {
       const msg: string = error?.message || "";
@@ -133,6 +142,23 @@ const CollegeAdminSignup = () => {
       toast({ title: isRtl ? "خطأ" : "Error", description: friendly, variant: "destructive" });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    setResending(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: email.trim().toLowerCase(),
+        options: { emailRedirectTo: getAuthCallbackUrl() },
+      });
+      if (error) throw error;
+      toast({ title: isRtl ? "تم إعادة الإرسال" : "Email resent", description: isRtl ? "تحقق من صندوق الوارد والبريد غير المرغوب فيه." : "Check your inbox and spam folder." });
+    } catch (error: any) {
+      toast({ title: isRtl ? "تعذر إعادة الإرسال" : "Resend failed", description: error?.message || String(error), variant: "destructive" });
+    } finally {
+      setResending(false);
     }
   };
 
@@ -364,10 +390,20 @@ const CollegeAdminSignup = () => {
               {isRtl ? "تم إرسال الطلب بنجاح!" : "Request Submitted Successfully!"}
             </h2>
             <p className="text-muted-foreground leading-relaxed">
-              {isRtl
-                ? "شكراً لتسجيل كليتكم. سيتم مراجعة طلبكم والتواصل معكم قريباً. يرجى تأكيد البريد الإلكتروني الذي أرسلناه لكم."
-                : "Thank you for registering your college. Your request will be reviewed and we will contact you soon. Please confirm the email we sent you."}
+              {emailConfirmationPending
+                ? (isRtl
+                    ? "شكراً لتسجيل كليتكم. ظهر طلبكم لدى الإدارة، ويرجى تأكيد البريد الإلكتروني الذي أرسلناه لكم."
+                    : "Your request is visible to the administration. Please confirm the email we sent you.")
+                : (isRtl
+                    ? "شكراً لتسجيل كليتكم. بريدكم مؤكد وسيتم مراجعة الطلب من الإدارة."
+                    : "Your email is confirmed and the administration will review your request.")}
             </p>
+            {emailConfirmationPending && (
+              <Button type="button" variant="outline" className="font-bold gap-2" onClick={handleResendConfirmation} disabled={resending}>
+                {resending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                {isRtl ? "إعادة إرسال رسالة التأكيد" : "Resend confirmation email"}
+              </Button>
+            )}
             <Link to="/">
               <Button size="lg" className="mt-4 font-bold">{isRtl ? "العودة للرئيسية" : "Back to Home"}</Button>
             </Link>

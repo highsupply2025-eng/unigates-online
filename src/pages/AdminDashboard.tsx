@@ -209,7 +209,7 @@ const AdminDashboard = () => {
 
 
   const loadColleges = async () => {
-    const { data } = await supabase.from("college_registrations").select("*").eq("email_confirmed", true).order("created_at", { ascending: false });
+    const { data } = await supabase.from("college_registrations").select("*").order("created_at", { ascending: false });
     setColleges(data || []);
   };
 
@@ -234,7 +234,7 @@ const AdminDashboard = () => {
   };
 
   const loadInstitutes = async () => {
-    const { data } = await supabase.from("institute_registrations" as any).select("*").eq("email_confirmed", true).order("created_at", { ascending: false });
+    const { data } = await supabase.from("institute_registrations" as any).select("*").order("created_at", { ascending: false });
     setInstitutes((data as any[]) || []);
   };
 
@@ -260,10 +260,10 @@ const AdminDashboard = () => {
       supabase.from("book_orders").select("*", { count: "exact", head: true }),
       supabase.from("user_subscriptions").select("*", { count: "exact", head: true }),
       supabase.from("live_streams").select("*", { count: "exact", head: true }),
-      supabase.from("college_registrations").select("*", { count: "exact", head: true }).eq("email_confirmed", true),
-      supabase.from("college_registrations").select("*", { count: "exact", head: true }).eq("status", "pending").eq("email_confirmed", true),
-      supabase.from("institute_registrations" as any).select("*", { count: "exact", head: true }).eq("email_confirmed", true),
-      supabase.from("institute_registrations" as any).select("*", { count: "exact", head: true }).eq("status", "pending").eq("email_confirmed", true),
+      supabase.from("college_registrations").select("*", { count: "exact", head: true }),
+      supabase.from("college_registrations").select("*", { count: "exact", head: true }).eq("status", "pending"),
+      supabase.from("institute_registrations" as any).select("*", { count: "exact", head: true }),
+      supabase.from("institute_registrations" as any).select("*", { count: "exact", head: true }).eq("status", "pending"),
       supabase.from("departments" as any).select("*", { count: "exact", head: true }),
       supabase.from("departments" as any).select("*", { count: "exact", head: true }).eq("payment_status", "unpaid"),
     ]);
@@ -327,6 +327,10 @@ const AdminDashboard = () => {
 
   // College handlers
   const handleCollegeApprove = async (id: string) => {
+    if (!colleges.find((college) => college.id === id)?.email_confirmed) {
+      showError(language === "ar" ? "يجب تأكيد بريد الكلية قبل الموافقة" : "The college email must be confirmed before approval");
+      return;
+    }
     const { error } = await supabase.from("college_registrations").update({ status: "approved" }).eq("id", id);
     if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     await upsertAdminNotes("college", id, collegeAdminNotes);
@@ -346,6 +350,10 @@ const AdminDashboard = () => {
 
   // Institute handlers
   const handleInstituteApprove = async (id: string) => {
+    if (!institutes.find((institute) => institute.id === id)?.email_confirmed) {
+      showError(language === "ar" ? "يجب تأكيد بريد المعهد قبل الموافقة" : "The institute email must be confirmed before approval");
+      return;
+    }
     const { error } = await supabase.from("institute_registrations" as any).update({ status: "approved" }).eq("id", id);
     if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); return; }
     await upsertAdminNotes("institute", id, instituteAdminNotes);
@@ -970,10 +978,11 @@ const AdminDashboard = () => {
                           </div>
                           <div className="flex items-center gap-3">
                             {statusBadge(college.status)}
+                            {!college.email_confirmed && <Badge variant="outline" className="text-amber-700 border-amber-400">{ar("البريد غير مؤكد","Email unconfirmed")}</Badge>}
                             <p className="text-xs text-muted-foreground hidden sm:block">{fmtDate(college.created_at)}</p>
                             {college.status === "pending" && (
                               <div className="flex gap-2">
-                                <Button size="sm" className="gap-1" onClick={e => { e.stopPropagation(); handleCollegeApprove(college.id); }}><CheckCircle className="w-4 h-4" />{ar("قبول","Approve")}</Button>
+                                <Button size="sm" className="gap-1" disabled={!college.email_confirmed} onClick={e => { e.stopPropagation(); handleCollegeApprove(college.id); }}><CheckCircle className="w-4 h-4" />{ar("قبول","Approve")}</Button>
                                 <Button size="sm" variant="destructive" className="gap-1" onClick={e => { e.stopPropagation(); handleCollegeReject(college.id); }}><XCircle className="w-4 h-4" />{ar("رفض","Reject")}</Button>
                               </div>
                             )}
@@ -1087,10 +1096,11 @@ const AdminDashboard = () => {
                           </div>
                           <div className="flex items-center gap-3">
                             {statusBadge(inst.status)}
+                            {!inst.email_confirmed && <Badge variant="outline" className="text-amber-700 border-amber-400">{ar("البريد غير مؤكد","Email unconfirmed")}</Badge>}
                             <p className="text-xs text-muted-foreground hidden sm:block">{fmtDate(inst.created_at)}</p>
                             {inst.status === "pending" && (
                               <div className="flex gap-2">
-                                <Button size="sm" className="gap-1" onClick={e => { e.stopPropagation(); handleInstituteApprove(inst.id); }}><CheckCircle className="w-4 h-4" />{ar("قبول","Approve")}</Button>
+                                <Button size="sm" className="gap-1" disabled={!inst.email_confirmed} onClick={e => { e.stopPropagation(); handleInstituteApprove(inst.id); }}><CheckCircle className="w-4 h-4" />{ar("قبول","Approve")}</Button>
                                 <Button size="sm" variant="destructive" className="gap-1" onClick={e => { e.stopPropagation(); handleInstituteReject(inst.id); }}><XCircle className="w-4 h-4" />{ar("رفض","Reject")}</Button>
                               </div>
                             )}
@@ -1675,7 +1685,7 @@ const AdminDashboard = () => {
               </div>
               {selectedCollege.status === "pending" && (
                 <div className="flex gap-3 pt-2">
-                  <Button className="flex-1 gap-1.5" onClick={() => handleCollegeApprove(selectedCollege.id)}><CheckCircle className="w-4 h-4" />{ar("قبول","Approve")}</Button>
+                  <Button className="flex-1 gap-1.5" disabled={!selectedCollege.email_confirmed} onClick={() => handleCollegeApprove(selectedCollege.id)}><CheckCircle className="w-4 h-4" />{ar("قبول","Approve")}</Button>
                   <Button variant="destructive" className="flex-1 gap-1.5" onClick={() => handleCollegeReject(selectedCollege.id)}><XCircle className="w-4 h-4" />{ar("رفض","Reject")}</Button>
                 </div>
               )}
@@ -1807,7 +1817,7 @@ const AdminDashboard = () => {
               </div>
               {selectedInstitute.status === "pending" && (
                 <div className="flex gap-3 pt-2">
-                  <Button className="flex-1 gap-1.5" onClick={() => handleInstituteApprove(selectedInstitute.id)}><CheckCircle className="w-4 h-4" />{ar("قبول","Approve")}</Button>
+                  <Button className="flex-1 gap-1.5" disabled={!selectedInstitute.email_confirmed} onClick={() => handleInstituteApprove(selectedInstitute.id)}><CheckCircle className="w-4 h-4" />{ar("قبول","Approve")}</Button>
                   <Button variant="destructive" className="flex-1 gap-1.5" onClick={() => handleInstituteReject(selectedInstitute.id)}><XCircle className="w-4 h-4" />{ar("رفض","Reject")}</Button>
                 </div>
               )}

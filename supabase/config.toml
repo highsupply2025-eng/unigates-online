@@ -1,5 +1,8 @@
 project_id = "tgdkxzzkvfyazmnawkpw"
 
+[auth.email]
+enable_confirmations = true
+
 [functions]
   [functions.auth-email-hook]
     verify_jwt = false

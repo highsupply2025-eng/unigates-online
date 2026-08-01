@@ -73,9 +73,9 @@ const AuthCallback = () => {
         {/* Logo */}
         <div className="flex items-center justify-center mb-8">
           <img 
-            src="/images/unigates-logo-white.png" 
+            src="/ug-logo.png"
             alt="UNIGATES" 
-            className="w-44 h-44 object-contain"
+            className="w-32 h-32 object-contain sm:w-44 sm:h-44"
           />
         </div>
 

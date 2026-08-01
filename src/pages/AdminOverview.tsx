@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Users, GraduationCap, School, Building2, BookOpen, PlayCircle,
   ShoppingCart, CreditCard, Radio, Eye, Layers, RefreshCw, LayoutDashboard,
-  Check, X, ClipboardList, ArrowRight,
+  Check, X, ClipboardList, ArrowRight, ShieldCheck,
 } from "lucide-react";
 
 type PendingKind = "lecturer" | "college" | "institute" | "school" | "department";
@@ -283,11 +283,16 @@ export default function AdminOverview() {
               <RefreshCw className={`h-4 w-4 me-1 ${refreshing ? "animate-spin" : ""}`} />
               {ar("تحديث", "Refresh")}
             </Button>
+            <Button size="sm" variant="outline" onClick={() => navigate("/admin/security-center")}>
+              <ShieldCheck className="h-4 w-4 me-1" />
+              {ar("مركز الأمان الدفاعي", "Security Center")}
+            </Button>
             <Button size="sm" onClick={() => navigate("/admin/dashboard")}>
               <LayoutDashboard className="h-4 w-4 me-1" />
               {ar("اللوحة التفصيلية", "Full dashboard")}
               <ArrowRight className="h-4 w-4 ms-1 rtl:rotate-180" />
             </Button>
+
           </div>
         </header>
 

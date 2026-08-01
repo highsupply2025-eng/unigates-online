@@ -159,6 +159,8 @@ const App = () => (
               <Route path="/lecturer/dashboard" element={<LecturerDashboard />} />
               <Route path="/lecturer/course/:courseId" element={<LecturerCourseContent />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin" element={<AdminOverview />} />
+              <Route path="/admin/overview" element={<AdminOverview />} />
               <Route path="/stream/:streamId" element={<WatchStream />} />
               <Route path="/live" element={<LiveStreams />} />
               {/* Book Store + separate auth */}

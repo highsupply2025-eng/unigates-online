@@ -23,28 +23,21 @@ const RegisteredUniversitiesSection = () => {
   const { data: colleges } = useQuery({
     queryKey: ["approved-colleges-home"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("approved_colleges_public")
-        .select("id, college_name, university_name, dean_name, city, student_count, logo_url")
-        .order("id", { ascending: false })
-        .limit(10);
+      const { data, error } = await supabase.rpc("get_public_approved_colleges");
       if (error) throw error;
-      return data;
+      return (data || []).slice(0, 10);
     },
   });
 
   const { data: institutes } = useQuery({
     queryKey: ["approved-institutes-home"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("approved_institutes_public")
-        .select("id, institute_name, director_name, city, student_count, logo_url")
-        .order("id", { ascending: false })
-        .limit(10);
+      const { data, error } = await supabase.rpc("get_public_approved_institutes");
       if (error) throw error;
-      return data;
+      return (data || []).slice(0, 10);
     },
   });
+
 
   const hasColleges = colleges && colleges.length > 0;
   const hasInstitutes = institutes && institutes.length > 0;

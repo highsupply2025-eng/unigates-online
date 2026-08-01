@@ -482,6 +482,7 @@ const AdminDashboard = () => {
     else if (type === "order") ({ error } = await supabase.from("book_orders").delete().eq("id", id));
     else if (type === "subscription") ({ error } = await supabase.from("user_subscriptions").delete().eq("id", id));
     else if (type === "stream") ({ error } = await supabase.from("live_streams").delete().eq("id", id));
+    else if (type === "school") ({ error } = await supabase.from("school_registrations").delete().eq("id", id));
     else if (type === "college") ({ error } = await supabase.from("college_registrations").delete().eq("id", id));
     else if (type === "invitation") ({ error } = await supabase.from("college_invitations").delete().eq("id", id));
     else if (type === "member") ({ error } = await supabase.from("college_members").delete().eq("id", id));
@@ -936,6 +937,7 @@ const AdminDashboard = () => {
                             <Button size="sm" variant="destructive" className="gap-1" onClick={e => { e.stopPropagation(); handleSchoolReject(school.id); }}><XCircle className="w-4 h-4" />{ar("رفض","Reject")}</Button>
                           </div>
                         )}
+                        <ActionButtons onDelete={() => setDeleteTarget({ type: "school", id: school.id, name: school.school_name })} />
                       </div>
                     </CardContent>
                   </Card>

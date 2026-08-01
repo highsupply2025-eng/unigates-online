@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GraduationCap, Loader2, Eye, EyeOff, CheckCircle, Globe, ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,8 +17,16 @@ const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [done, setDone] = useState(false);
-  const { toast } = useToast();
+  const mismatchToastId = useRef<string>();
+  const { toast, dismiss } = useToast();
   const { t, dir, language, toggleLanguage } = useLanguage();
+
+  const clearMismatchErrorIfMatching = (nextPassword: string, nextConfirmPassword: string) => {
+    if (nextPassword === nextConfirmPassword && mismatchToastId.current) {
+      dismiss(mismatchToastId.current);
+      mismatchToastId.current = undefined;
+    }
+  };
 
   useEffect(() => {
     // Check for recovery event
@@ -33,10 +41,10 @@ const ResetPassword = () => {
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      toast({
+      mismatchToastId.current = toast({
         title: language === "ar" ? "كلمات المرور غير متطابقة" : "Passwords don't match",
         variant: "destructive",
-      });
+      }).id;
       return;
     }
     if (password.length < 6) {
@@ -133,8 +141,14 @@ const ResetPassword = () => {
               type={showPassword ? "text" : "password"}
               placeholder={language === "ar" ? "كلمة المرور الجديدة" : "New password"}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="h-14 text-base bg-card border-2 border-primary/20 text-center shadow-md hover:shadow-lg hover:border-primary/40 focus:border-primary transition-all pe-12"
+              onChange={(e) => {
+                const nextPassword = e.currentTarget.value;
+                setPassword(nextPassword);
+                clearMismatchErrorIfMatching(nextPassword, confirmPassword);
+              }}
+              className="h-14 text-base bg-card border-2 border-primary/20 shadow-md hover:shadow-lg hover:border-primary/40 focus:border-primary transition-all pe-12"
+              dir="ltr"
+              style={{ textAlign: "left", unicodeBidi: "plaintext" }}
               required
               minLength={6}
             />
@@ -147,8 +161,14 @@ const ResetPassword = () => {
             type={showPassword ? "text" : "password"}
             placeholder={language === "ar" ? "تأكيد كلمة المرور" : "Confirm password"}
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="h-14 text-base bg-card border-2 border-primary/20 text-center shadow-md hover:shadow-lg hover:border-primary/40 focus:border-primary transition-all"
+            onChange={(e) => {
+              const nextConfirmPassword = e.currentTarget.value;
+              setConfirmPassword(nextConfirmPassword);
+              clearMismatchErrorIfMatching(password, nextConfirmPassword);
+            }}
+            className="h-14 text-base bg-card border-2 border-primary/20 shadow-md hover:shadow-lg hover:border-primary/40 focus:border-primary transition-all"
+            dir="ltr"
+            style={{ textAlign: "left", unicodeBidi: "plaintext" }}
             required
             minLength={6}
           />

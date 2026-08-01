@@ -1929,6 +1929,7 @@ export type Database = {
       school_registrations: {
         Row: {
           address: string | null
+          auth_user_id: string | null
           city: string
           created_at: string
           email: string
@@ -1943,6 +1944,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          auth_user_id?: string | null
           city: string
           created_at?: string
           email: string
@@ -1957,6 +1959,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          auth_user_id?: string | null
           city?: string
           created_at?: string
           email?: string
@@ -2862,6 +2865,13 @@ export type Database = {
     }
     Functions: {
       _protected_owner_emails: { Args: never; Returns: string[] }
+      archive_school_registration: {
+        Args: { _school_id: string }
+        Returns: {
+          id: string
+          status: string
+        }[]
+      }
       assign_faculty_department: {
         Args: {
           p_email: string
@@ -2874,6 +2884,18 @@ export type Database = {
         Returns: undefined
       }
       calculate_weekly_top_courses: { Args: never; Returns: undefined }
+      can_access_school_department: {
+        Args: { _department_id: string; _user_id: string }
+        Returns: boolean
+      }
+      can_access_school_institution: {
+        Args: {
+          _institution_id: string
+          _institution_type: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
       claim_department_codes: {
         Args: {
           _codes: string[]
@@ -3037,6 +3059,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_current_school_account_archived: { Args: never; Returns: boolean }
       is_department_member: {
         Args: { _department_id: string; _user_id: string }
         Returns: boolean
@@ -3118,6 +3141,10 @@ export type Database = {
         Returns: undefined
       }
       schedule_fully_approved: { Args: { _id: string }; Returns: boolean }
+      school_account_is_archived: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
       security_audit_snapshot: { Args: never; Returns: Json }
       security_record_findings: {
         Args: { _findings: Json; _scan_id: string }

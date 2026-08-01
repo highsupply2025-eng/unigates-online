@@ -2888,6 +2888,10 @@ export type Database = {
         Args: { _code: string; _user_id: string }
         Returns: Json
       }
+      college_account_status_for_user: {
+        Args: { _user_id: string }
+        Returns: string
+      }
       complete_password_change_profile_update: {
         Args: { p_user_id?: string }
         Returns: {
@@ -2953,6 +2957,7 @@ export type Database = {
           role_name: string
         }[]
       }
+      get_college_account_status: { Args: never; Returns: string }
       get_institution_quiz_for_student: {
         Args: { _quiz_id: string }
         Returns: {
@@ -3070,6 +3075,14 @@ export type Database = {
           message: Json
           msg_id: number
           read_ct: number
+        }[]
+      }
+      review_college_registration: {
+        Args: { _decision: string; _registration_id: string }
+        Returns: {
+          email_confirmed: boolean
+          id: string
+          status: string
         }[]
       }
       save_faculty_member_tx: {

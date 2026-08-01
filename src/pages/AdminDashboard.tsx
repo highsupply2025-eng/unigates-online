@@ -518,7 +518,13 @@ const AdminDashboard = () => {
       void loadStats();
     } catch (error) {
       console.error("Permanent school deletion failed:", error);
-      showError(language === "ar" ? "تعذر حذف المدرسة نهائياً. يرجى المحاولة مرة أخرى." : "Could not permanently delete the school. Please try again.");
+      const detail = (error as { message?: string } | null)?.message;
+      showError(
+        language === "ar"
+          ? `تعذر حذف المدرسة نهائياً${detail ? `: ${detail}` : ". يرجى المحاولة مرة أخرى."}`
+          : `Could not permanently delete the school${detail ? `: ${detail}` : ". Please try again."}`,
+      );
+
     } finally {
       setDeletingSchool(false);
     }

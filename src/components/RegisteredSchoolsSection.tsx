@@ -19,15 +19,17 @@ const RegisteredSchoolsSection = () => {
   const { data: schools, isLoading } = useQuery({
     queryKey: ["approved-schools-home"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("approved_schools_public" as any)
-        .select("id, school_name, city, student_count")
-        .order("id", { ascending: false })
-        .limit(10);
+      const { data, error } = await supabase.rpc("get_public_approved_schools");
       if (error) throw error;
-      return data as unknown as { id: string; school_name: string; city: string; student_count: number | null }[];
+      return (data || []).slice(0, 10).map((s) => ({
+        id: s.id,
+        school_name: s.school_name,
+        city: s.city,
+        student_count: null as number | null,
+      }));
     },
   });
+
 
   const hasData = schools && schools.length > 0;
   const { ref, isVisible } = useScrollAnimation();

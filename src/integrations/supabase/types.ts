@@ -3020,6 +3020,38 @@ export type Database = {
       get_platform_stats: { Args: never; Returns: Json }
       get_profile_count: { Args: never; Returns: number }
       get_profile_count_by_role: { Args: { _role: string }; Returns: number }
+      get_public_approved_colleges: {
+        Args: never
+        Returns: {
+          city: string
+          college_name: string
+          dean_name: string
+          id: string
+          logo_url: string
+          student_count: number
+          type: string
+          university_name: string
+        }[]
+      }
+      get_public_approved_institutes: {
+        Args: never
+        Returns: {
+          city: string
+          director_name: string
+          id: string
+          institute_name: string
+          logo_url: string
+          student_count: number
+        }[]
+      }
+      get_public_approved_schools: {
+        Args: never
+        Returns: {
+          city: string
+          id: string
+          school_name: string
+        }[]
+      }
       get_quiz_review: {
         Args: { _quiz_id: string }
         Returns: {

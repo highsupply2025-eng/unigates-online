@@ -15,7 +15,6 @@ import BackButton from "@/components/BackButton";
 import TestAccountsPanel from "@/components/TestAccountsPanel";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
 import { TimeRangeToggle } from "@/components/TimeRangeToggle";
-import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -809,21 +808,8 @@ const AdminDashboard = () => {
               ]}
             />
 
-            <MenuItemsStatsGrid
-              className="mb-6"
-              items={[
-                { key: "users", label: "Users", Icon: Users, color: "from-blue-500 to-blue-600", count: allUsers.length },
-                { key: "lecturers", label: "Lecturers", Icon: UserCheck, color: "from-green-500 to-green-600", count: allUsers.filter((u: any) => u.role === "lecturer").length },
-                { key: "schools", label: "Schools", Icon: School, color: "from-cyan-500 to-cyan-600", count: schoolRegistrations.length },
-                { key: "colleges", label: "Colleges", Icon: Landmark, color: "from-indigo-500 to-indigo-600", count: colleges.length },
-                { key: "institutes", label: "Institutes", Icon: Landmark, color: "from-purple-500 to-purple-600", count: institutes.length },
-                { key: "courses", label: "Courses", Icon: BookOpen, color: "from-amber-500 to-amber-600", count: courses.length },
-                { key: "books", label: "Books", Icon: BookMarked, color: "from-pink-500 to-pink-600", count: books.length },
-                { key: "orders", label: "Orders", Icon: ShoppingCart, color: "from-orange-500 to-orange-600", count: bookOrders.length },
-                { key: "subscriptions", label: "Subscriptions", Icon: CreditCard, color: "from-teal-500 to-teal-600", count: subscriptions.length },
-                { key: "streams", label: "Streams", Icon: Radio, color: "from-red-500 to-rose-600", count: liveStreams.length },
-              ]}
-            />
+
+
 
 
             {(stats.pendingCount > 0 || stats.pendingSchools > 0 || stats.pendingColleges > 0 || stats.pendingInstitutes > 0) && (

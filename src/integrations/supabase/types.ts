@@ -14,42 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      _cleanup_audit_snapshot: {
-        Row: {
-          approved: boolean | null
-          auth_user_id: string | null
-          email: string | null
-          evidence: string | null
-          has_profile: boolean | null
-          has_role_row: boolean | null
-          role_name: string | null
-          snapshot_at: string | null
-          snapshot_by: unknown
-        }
-        Insert: {
-          approved?: boolean | null
-          auth_user_id?: string | null
-          email?: string | null
-          evidence?: string | null
-          has_profile?: boolean | null
-          has_role_row?: boolean | null
-          role_name?: string | null
-          snapshot_at?: string | null
-          snapshot_by?: unknown
-        }
-        Update: {
-          approved?: boolean | null
-          auth_user_id?: string | null
-          email?: string | null
-          evidence?: string | null
-          has_profile?: boolean | null
-          has_role_row?: boolean | null
-          role_name?: string | null
-          snapshot_at?: string | null
-          snapshot_by?: unknown
-        }
-        Relationships: []
-      }
       active_sessions: {
         Row: {
           created_at: string
@@ -2680,10 +2644,6 @@ export type Database = {
         }
         Returns: Json
       }
-      get_institution_people_statistics: {
-        Args: { p_institution_id: string; p_institution_type: string }
-        Returns: Json
-      }
       get_my_submission_whatsapp: {
         Args: { _submission_id: string }
         Returns: string
@@ -2694,7 +2654,6 @@ export type Database = {
         Returns: Json
       }
       get_platform_stats: { Args: never; Returns: Json }
-      get_university_platform_statistics: { Args: never; Returns: Json }
       get_profile_count: { Args: never; Returns: number }
       get_profile_count_by_role: { Args: { _role: string }; Returns: number }
       get_quiz_review: {

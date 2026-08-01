@@ -3091,6 +3091,10 @@ export type Database = {
         }
         Returns: number
       }
+      permanently_delete_school: {
+        Args: { _school_id: string; _school_name: string }
+        Returns: string
+      }
       quiz_results_approved: { Args: { _quiz_id: string }; Returns: boolean }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }

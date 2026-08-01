@@ -38,11 +38,8 @@ const HomepageSections = () => {
   const { data: rawColleges } = useQuery({
     queryKey: ["home-colleges"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("approved_colleges_public")
-        .select("id, college_name, university_name, dean_name, city, logo_url")
-        .order("id", { ascending: false })
-        .limit(20);
+      const { data, error } = await supabase.rpc("get_public_approved_colleges");
+      if (error) throw error;
       return data || [];
     },
     staleTime: 60_000,
@@ -62,11 +59,8 @@ const HomepageSections = () => {
   const { data: rawInstitutes } = useQuery({
     queryKey: ["home-institutes"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("approved_institutes_public")
-        .select("id, institute_name, director_name, city, logo_url")
-        .order("id", { ascending: false })
-        .limit(20);
+      const { data, error } = await supabase.rpc("get_public_approved_institutes");
+      if (error) throw error;
       return data || [];
     },
     staleTime: 60_000,
@@ -86,15 +80,13 @@ const HomepageSections = () => {
   const { data: rawSchools } = useQuery({
     queryKey: ["home-schools"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("approved_schools_public")
-        .select("id, school_name, city")
-        .order("id", { ascending: false })
-        .limit(20);
+      const { data, error } = await supabase.rpc("get_public_approved_schools");
+      if (error) throw error;
       return data || [];
     },
     staleTime: 60_000,
   });
+
 
   const schools: ShowcaseItem[] = (rawSchools ?? []).map((s, i) => ({
     id: s.id,

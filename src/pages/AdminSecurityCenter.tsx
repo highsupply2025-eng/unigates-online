@@ -171,7 +171,7 @@ export default function AdminSecurityCenter() {
       if (reviewErr) throw reviewErr;
       const { error: statusErr } = await supabase
         .from("security_findings")
-        .update({ status: reviewDecision === "reopened" ? "open" : reviewDecision })
+        .update({ status: reviewDecision })
         .eq("id", selected.id);
       if (statusErr) throw statusErr;
       notify(ar("تم تسجيل المراجعة", "Review recorded"));

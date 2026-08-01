@@ -34,8 +34,22 @@ const SchoolLogin = () => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      const { data: archived, error: statusError } = await supabase.rpc(
+        "is_current_school_account_archived" as any,
+      );
+      if (statusError) throw statusError;
+      if (archived) {
+        await supabase.auth.signOut();
+        toast({
+          title: isRtl ? "الحساب غير نشط" : "Account Inactive",
+          description: isRtl ? "تمت أرشفة حساب المدرسة. يرجى التواصل مع إدارة المنصة." : "This school account has been archived. Please contact platform administration.",
+          variant: "destructive",
+        });
+        return;
+      }
       navigate("/school-platform");
     } catch (error: any) {
+      await supabase.auth.signOut();
       toast({ title: t.loginPage.error, description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);

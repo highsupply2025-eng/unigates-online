@@ -141,6 +141,7 @@ const AdminDashboard = () => {
 
   // Edit/Delete states
   const [deleteTarget, setDeleteTarget] = useState<{ type: string; id: string; name: string } | null>(null);
+  const [archivingSchool, setArchivingSchool] = useState(false);
   const [editCourse, setEditCourse] = useState<Course | null>(null);
   const [editBook, setEditBook] = useState<Book | null>(null);
   const [editOrder, setEditOrder] = useState<BookOrder | null>(null);
@@ -176,7 +177,7 @@ const AdminDashboard = () => {
     setAllUsers(roles.map(r => ({ ...r, profile: (profiles || []).find(p => p.user_id === r.user_id) })));
   };
 
-  const loadSchoolRegistrations = async () => { const { data } = await supabase.from("school_registrations").select("*").order("created_at", { ascending: false }); setSchoolRegistrations(data || []); };
+  const loadSchoolRegistrations = async () => { const { data } = await supabase.from("school_registrations").select("*").neq("status", "archived").order("created_at", { ascending: false }); setSchoolRegistrations(data || []); };
   const loadCourses = async () => { const { data } = await supabase.from("courses").select("*").order("created_at", { ascending: false }); setCourses(data || []); };
   const loadBooks = async () => { const { data } = await supabase.from("books").select("*").order("created_at", { ascending: false }); setBooks(data || []); };
 
@@ -476,6 +477,36 @@ const AdminDashboard = () => {
     const link = `${window.location.origin}/signup?invite=${code}`;
     navigator.clipboard.writeText(link);
     showSuccess(language === "ar" ? "تم نسخ الرابط" : "Link copied");
+  };
+
+  const handleArchiveSchool = async () => {
+    if (!deleteTarget || deleteTarget.type !== "school") return;
+
+    const archivedSchool = schoolRegistrations.find((school) => school.id === deleteTarget.id);
+    setArchivingSchool(true);
+    try {
+      const { error } = await supabase.rpc("archive_school_registration" as any, {
+        _school_id: deleteTarget.id,
+      });
+      if (error) throw error;
+
+      setSchoolRegistrations((current) => current.filter((school) => school.id !== deleteTarget.id));
+      if (archivedSchool?.status === "pending") {
+        setStats((current) => ({ ...current, pendingSchools: Math.max(0, current.pendingSchools - 1) }));
+      }
+      if (selectedSchool?.id === deleteTarget.id) {
+        setSelectedSchool(null);
+        setShowSchoolDialog(false);
+      }
+      setDeleteTarget(null);
+      showSuccess(language === "ar" ? "تمت أرشفة المدرسة وتعطيل حسابها بنجاح" : "School archived and account deactivated");
+      await Promise.all([loadSchoolRegistrations(), loadStats()]);
+    } catch (error) {
+      console.error("School archive failed:", error);
+      showError(language === "ar" ? "تعذر أرشفة المدرسة. يرجى المحاولة مرة أخرى." : "Could not archive the school. Please try again.");
+    } finally {
+      setArchivingSchool(false);
+    }
   };
 
   // Generic delete
@@ -1512,14 +1543,35 @@ const AdminDashboard = () => {
       <AlertDialog open={!!deleteTarget} onOpenChange={open => !open && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{ar("تأكيد الحذف","Confirm Delete")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {deleteTarget?.type === "school" ? ar("تأكيد أرشفة المدرسة", "Confirm School Archive") : ar("تأكيد الحذف","Confirm Delete")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              {ar("هل أنت متأكد من حذف","Are you sure you want to delete")} <strong>{deleteTarget?.name}</strong>؟ {ar("لا يمكن التراجع عن هذا الإجراء.","This action cannot be undone.")}
+              {deleteTarget?.type === "school" ? (
+                <>
+                  {ar("هل أنت متأكد من أرشفة مدرسة", "Are you sure you want to archive")} <strong>{deleteTarget.name}</strong>؟ {ar("سيتم تعطيل حساب المدرسة مع الاحتفاظ بجميع بياناتها وسجلاتها.", "The school account will be deactivated while all data and records are preserved.")}
+                </>
+              ) : (
+                <>
+                  {ar("هل أنت متأكد من حذف","Are you sure you want to delete")} <strong>{deleteTarget?.name}</strong>؟ {ar("لا يمكن التراجع عن هذا الإجراء.","This action cannot be undone.")}
+                </>
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{ar("إلغاء","Cancel")}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">{ar("حذف","Delete")}</AlertDialogAction>
+            {deleteTarget?.type === "school" ? (
+              <Button
+                onClick={handleArchiveSchool}
+                disabled={archivingSchool}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {archivingSchool && <Loader2 className="w-4 h-4 animate-spin" />}
+                {ar("أرشفة", "Archive")}
+              </Button>
+            ) : (
+              <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">{ar("حذف","Delete")}</AlertDialogAction>
+            )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

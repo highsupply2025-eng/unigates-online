@@ -34,11 +34,11 @@ interface UserRole { id: string; user_id: string; role: string; approved: boolea
 interface SchoolRegistration { id: string; school_name: string; principal_name: string; city: string; phone: string; email: string; student_count: number | null; address: string | null; message: string | null; status: string; created_at: string; }
 interface ProfileDocuments { id_photo_url: string | null; university_cert_url: string | null; additional_certs_urls: string[] | null; live_photo_url: string | null; }
 interface Profile { id: string; user_id: string; full_name: string; email: string; phone: string; role: string; platform: string; created_at: string; documents?: ProfileDocuments | null; }
-interface Course { id: string; title_ar: string; title_en: string; instructor_ar: string; instructor_en: string; category_ar: string; category_en: string; episode_count: number; is_free: boolean; thumbnail_url: string | null; created_at: string; }
+interface Course { id: string; title_ar: string; title_en: string; instructor_ar: string; instructor_en: string; category_ar: string; category_en: string; episode_count: number; is_free: boolean; thumbnail_url: string | null; department_id?: string | null; created_at: string; }
 interface Book { id: string; title_ar: string; title_en: string; author_ar: string; author_en: string; category: string; price: number; original_price: number | null; is_bestseller: boolean | null; is_new: boolean | null; is_active: boolean | null; rating: number | null; reviews_count: number | null; cover_url: string | null; created_at: string; }
 interface BookOrder { id: string; user_id: string; book_id: string; amount: number; status: string; created_at: string; book?: Book; profile?: Profile; }
 interface Subscription { id: string; user_id: string; course_id: string; level_number: number; plan_type: string; amount_paid: number; status: string; starts_at: string; expires_at: string | null; created_at: string; course?: Course; profile?: Profile; }
-interface LiveStream { id: string; title_ar: string; title_en: string; creator_id: string; course_id: string | null; status: string; scheduled_at: string | null; created_at: string; profile?: Profile; }
+interface LiveStream { id: string; title_ar: string; title_en: string; creator_id: string; course_id: string | null; department_id?: string | null; status: string; scheduled_at: string | null; created_at: string; profile?: Profile; }
 interface CollegeRegistration { id: string; college_name: string; dean_name: string; city: string; phone: string; email: string; student_count: number | null; address: string | null; message: string | null; status: string; email_confirmed: boolean; logo_url: string | null; created_at: string; }
 interface CollegeInvitation { id: string; college_id: string; invitation_code: string; role: string; max_uses: number; used_count: number; is_active: boolean; created_at: string; college?: CollegeRegistration; }
 interface CollegeMember { id: string; college_id: string; user_id: string; role: string; joined_at: string; college?: CollegeRegistration; profile?: Profile; }
@@ -141,7 +141,7 @@ const AdminDashboard = () => {
 
   // Edit/Delete states
   const [deleteTarget, setDeleteTarget] = useState<{ type: string; id: string; name: string } | null>(null);
-  const [archivingSchool, setArchivingSchool] = useState(false);
+  const [deletingSchool, setDeletingSchool] = useState(false);
   const [editCourse, setEditCourse] = useState<Course | null>(null);
   const [editBook, setEditBook] = useState<Book | null>(null);
   const [editOrder, setEditOrder] = useState<BookOrder | null>(null);
@@ -479,33 +479,48 @@ const AdminDashboard = () => {
     showSuccess(language === "ar" ? "تم نسخ الرابط" : "Link copied");
   };
 
-  const handleArchiveSchool = async () => {
+  const handlePermanentDeleteSchool = async () => {
     if (!deleteTarget || deleteTarget.type !== "school") return;
 
-    const archivedSchool = schoolRegistrations.find((school) => school.id === deleteTarget.id);
-    setArchivingSchool(true);
+    const target = deleteTarget;
+    const school = schoolRegistrations.find((item) => item.id === target.id);
+    const schoolDepartmentIds = new Set(
+      departments
+        .filter((department) => department.institution_id === target.id && department.institution_type === "school")
+        .map((department) => department.id),
+    );
+    const schoolCourseIds = new Set(
+      courses.filter((course) => course.department_id && schoolDepartmentIds.has(course.department_id)).map((course) => course.id),
+    );
+    setDeletingSchool(true);
     try {
-      const { error } = await supabase.rpc("archive_school_registration" as any, {
-        _school_id: deleteTarget.id,
+      const { error } = await supabase.rpc("permanently_delete_school" as any, {
+        _school_id: target.id,
+        _school_name: target.name,
       });
       if (error) throw error;
 
-      setSchoolRegistrations((current) => current.filter((school) => school.id !== deleteTarget.id));
-      if (archivedSchool?.status === "pending") {
+      setSchoolRegistrations((current) => current.filter((item) => item.id !== target.id));
+      setDepartments((current) => current.filter((department) => !schoolDepartmentIds.has(department.id)));
+      setDepartmentMembers((current) => current.filter((member) => !schoolDepartmentIds.has(member.department_id)));
+      setCourses((current) => current.filter((course) => !course.department_id || !schoolDepartmentIds.has(course.department_id)));
+      setSubscriptions((current) => current.filter((subscription) => !schoolCourseIds.has(subscription.course_id)));
+      setLiveStreams((current) => current.filter((stream) => !stream.department_id || !schoolDepartmentIds.has(stream.department_id)));
+      if (school?.status === "pending") {
         setStats((current) => ({ ...current, pendingSchools: Math.max(0, current.pendingSchools - 1) }));
       }
-      if (selectedSchool?.id === deleteTarget.id) {
+      if (selectedSchool?.id === target.id) {
         setSelectedSchool(null);
         setShowSchoolDialog(false);
       }
       setDeleteTarget(null);
-      showSuccess(language === "ar" ? "تمت أرشفة المدرسة وتعطيل حسابها بنجاح" : "School archived and account deactivated");
-      await Promise.all([loadSchoolRegistrations(), loadStats()]);
+      showSuccess(language === "ar" ? "تم حذف المدرسة نهائياً" : "School permanently deleted");
+      void loadStats();
     } catch (error) {
-      console.error("School archive failed:", error);
-      showError(language === "ar" ? "تعذر أرشفة المدرسة. يرجى المحاولة مرة أخرى." : "Could not archive the school. Please try again.");
+      console.error("Permanent school deletion failed:", error);
+      showError(language === "ar" ? "تعذر حذف المدرسة نهائياً. يرجى المحاولة مرة أخرى." : "Could not permanently delete the school. Please try again.");
     } finally {
-      setArchivingSchool(false);
+      setDeletingSchool(false);
     }
   };
 
@@ -519,7 +534,6 @@ const AdminDashboard = () => {
     else if (type === "order") ({ error } = await supabase.from("book_orders").delete().eq("id", id));
     else if (type === "subscription") ({ error } = await supabase.from("user_subscriptions").delete().eq("id", id));
     else if (type === "stream") ({ error } = await supabase.from("live_streams").delete().eq("id", id));
-    else if (type === "school") ({ error } = await supabase.from("school_registrations").delete().eq("id", id));
     else if (type === "college") ({ error } = await supabase.from("college_registrations").delete().eq("id", id));
     else if (type === "invitation") ({ error } = await supabase.from("college_invitations").delete().eq("id", id));
     else if (type === "member") ({ error } = await supabase.from("college_members").delete().eq("id", id));
@@ -1540,16 +1554,16 @@ const AdminDashboard = () => {
       </main>
 
       {/* ===== Delete Confirmation ===== */}
-      <AlertDialog open={!!deleteTarget} onOpenChange={open => !open && setDeleteTarget(null)}>
+      <AlertDialog open={!!deleteTarget} onOpenChange={open => !open && !deletingSchool && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {deleteTarget?.type === "school" ? ar("تأكيد أرشفة المدرسة", "Confirm School Archive") : ar("تأكيد الحذف","Confirm Delete")}
+              {deleteTarget?.type === "school" ? ar("حذف المدرسة نهائياً", "Permanently Delete School") : ar("تأكيد الحذف","Confirm Delete")}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {deleteTarget?.type === "school" ? (
                 <>
-                  {ar("هل أنت متأكد من أرشفة مدرسة", "Are you sure you want to archive")} <strong>{deleteTarget.name}</strong>؟ {ar("سيتم تعطيل حساب المدرسة مع الاحتفاظ بجميع بياناتها وسجلاتها.", "The school account will be deactivated while all data and records are preserved.")}
+                  {ar("هل أنت متأكد من حذف مدرسة", "Are you sure you want to permanently delete")} <strong>{deleteTarget.name}</strong>؟ {ar("سيتم حذف المدرسة وجميع سجلاتها المرتبطة نهائياً. لا يمكن التراجع عن هذا الإجراء.", "The school and all of its related records will be permanently deleted. This action cannot be undone.")}
                 </>
               ) : (
                 <>
@@ -1559,15 +1573,15 @@ const AdminDashboard = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{ar("إلغاء","Cancel")}</AlertDialogCancel>
+            <AlertDialogCancel disabled={deletingSchool}>{ar("إلغاء","Cancel")}</AlertDialogCancel>
             {deleteTarget?.type === "school" ? (
               <Button
-                onClick={handleArchiveSchool}
-                disabled={archivingSchool}
+                onClick={handlePermanentDeleteSchool}
+                disabled={deletingSchool}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
-                {archivingSchool && <Loader2 className="w-4 h-4 animate-spin" />}
-                {ar("أرشفة", "Archive")}
+                {deletingSchool && <Loader2 className="w-4 h-4 animate-spin" />}
+                {ar("حذف نهائياً", "Permanently Delete")}
               </Button>
             ) : (
               <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">{ar("حذف","Delete")}</AlertDialogAction>

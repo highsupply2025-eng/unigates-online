@@ -40,16 +40,10 @@ describe("school archive flow", () => {
     expect(migration).toContain("WHERE school.id = _school_id");
   });
 
-  it("shows an Arabic school-specific confirmation and refreshes active data", () => {
-    expect(adminDashboard).toContain("تأكيد أرشفة المدرسة");
-    expect(adminDashboard).toContain("هل أنت متأكد من أرشفة مدرسة");
-    expect(adminDashboard).toContain("deleteTarget.name");
-    expect(adminDashboard).toContain('supabase.rpc("archive_school_registration"');
-    expect(adminDashboard).toContain('current.filter((school) => school.id !== deleteTarget.id)');
-    expect(adminDashboard).toContain("Promise.all([loadSchoolRegistrations(), loadStats()])");
-    expect(adminDashboard).toContain('.neq("status", "archived")');
-    expect(adminDashboard).toContain("تمت أرشفة المدرسة وتعطيل حسابها بنجاح");
-    expect(adminDashboard).toContain("تعذر أرشفة المدرسة. يرجى المحاولة مرة أخرى.");
+  it("is no longer exposed as the Schools tab trash action", () => {
+    expect(adminDashboard).not.toContain('supabase.rpc("archive_school_registration"');
+    expect(adminDashboard).not.toContain("تأكيد أرشفة المدرسة");
+    expect(adminDashboard).not.toContain("هل أنت متأكد من أرشفة مدرسة");
   });
 
   it("blocks archived accounts only in the school login entry point", () => {

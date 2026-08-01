@@ -12,7 +12,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
-import { getAuthCallbackUrl } from "@/lib/auth-redirect";
 import { uploadSignupLogo } from "@/lib/signup-logo-upload";
 
 const countryCodes = [
@@ -94,7 +93,7 @@ const CollegeAdminSignup = () => {
         email: normalizedEmail,
         password,
         options: {
-          emailRedirectTo: getAuthCallbackUrl(),
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: { institution_type: 'college', institution_name: collegeName },
         },
       });
@@ -124,7 +123,9 @@ const CollegeAdminSignup = () => {
     } catch (error: any) {
       const msg: string = error?.message || "";
       const secMatch = msg.match(/after (\d+) seconds/i);
-      let friendly = msg;
+      let friendly = isRtl
+        ? "تعذر إرسال طلب التسجيل. يرجى التحقق من البيانات والمحاولة مرة أخرى."
+        : msg || "Registration could not be submitted. Please check your details and try again.";
       if (secMatch) {
         const s = secMatch[1];
         friendly = isRtl
@@ -151,12 +152,18 @@ const CollegeAdminSignup = () => {
       const { error } = await supabase.auth.resend({
         type: "signup",
         email: email.trim().toLowerCase(),
-        options: { emailRedirectTo: getAuthCallbackUrl() },
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
       });
       if (error) throw error;
       toast({ title: isRtl ? "تم إعادة الإرسال" : "Email resent", description: isRtl ? "تحقق من صندوق الوارد والبريد غير المرغوب فيه." : "Check your inbox and spam folder." });
     } catch (error: any) {
-      toast({ title: isRtl ? "تعذر إعادة الإرسال" : "Resend failed", description: error?.message || String(error), variant: "destructive" });
+      toast({
+        title: isRtl ? "تعذر إعادة الإرسال" : "Resend failed",
+        description: isRtl
+          ? "تعذر إرسال رسالة التأكيد الآن. يرجى الانتظار قليلًا ثم المحاولة مرة أخرى."
+          : error?.message || String(error),
+        variant: "destructive",
+      });
     } finally {
       setResending(false);
     }

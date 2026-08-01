@@ -1,55 +1,60 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle, Loader2, LogIn } from "lucide-react";
+import { AlertCircle, CheckCircle, Loader2, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const AuthCallback = () => {
-  const navigate = useNavigate();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    const markConfirmed = async (email?: string | null) => {
-      if (!email) return;
-      try {
-        await supabase.rpc("confirm_registration_email" as any, { _email: email });
-      } catch {
-        // best-effort; ignore
-      }
-    };
-
     const handleCallback = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const queryParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+        const callbackError = queryParams.get("error") || hashParams.get("error");
+        const callbackErrorCode = queryParams.get("error_code") || hashParams.get("error_code");
 
-        if (error) throw error;
-
-        if (session) {
-          await markConfirmed(session.user?.email);
-          setStatus("success");
-        } else {
-          const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            if (event === "SIGNED_IN" && session) {
-              markConfirmed(session.user?.email);
-              setStatus("success");
-              subscription.unsubscribe();
-            }
-          });
-
-          // Timeout fallback - still show success (email was confirmed via link)
-          setTimeout(() => {
-            setStatus("success");
-            subscription.unsubscribe();
-          }, 3000);
+        if (callbackError) {
+          throw new Error(callbackErrorCode === "otp_expired" ? "expired" : "callback_error");
         }
-      } catch {
+
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
+
+        let session = sessionData.session;
+        const code = queryParams.get("code");
+        if (!session && code) {
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) throw error;
+          session = data.session;
+        }
+
+        if (!session?.user?.email || (!session.user.email_confirmed_at && !session.user.confirmed_at)) {
+          throw new Error("missing_confirmed_session");
+        }
+
+        const { error: confirmationError } = await supabase.rpc("confirm_registration_email" as any, {
+          _email: session.user.email,
+        });
+        if (confirmationError) throw confirmationError;
+
+        window.history.replaceState({}, document.title, window.location.pathname);
+        setStatus("success");
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "";
+        setErrorMessage(
+          message === "expired"
+            ? "انتهت صلاحية رابط التأكيد. يرجى طلب رسالة تأكيد جديدة من صفحة التسجيل."
+            : "تعذر تأكيد البريد الإلكتروني. يرجى فتح أحدث رابط تأكيد أو طلب رسالة جديدة.",
+        );
         setStatus("error");
-        setTimeout(() => navigate("/login"), 3000);
       }
     };
 
-    handleCallback();
-  }, [navigate]);
+    void handleCallback();
+  }, []);
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center" dir="rtl">
@@ -76,7 +81,7 @@ const AuthCallback = () => {
             <div className="w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-12 h-12 text-green-500" />
             </div>
-            <h1 className="text-2xl font-black text-[#0a1628] mb-4">تم تأكيد حسابك بنجاح! 🎉</h1>
+            <h1 className="text-2xl font-black text-[#0a1628] mb-4">تم تأكيد حسابك بنجاح!</h1>
             
             <div className="my-8 space-y-2">
               <p className="text-[#c9a14a] text-xl font-bold">أول مجتمع تفاعلي عربي</p>
@@ -97,8 +102,17 @@ const AuthCallback = () => {
 
         {status === "error" && (
           <>
-            <h1 className="text-2xl font-black text-[#0a1628] mb-3">حدث خطأ</h1>
-            <p className="text-[#0a1628]/60 mb-6">سيتم تحويلك لصفحة تسجيل الدخول...</p>
+            <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-6">
+              <AlertCircle className="w-12 h-12 text-red-500" />
+            </div>
+            <h1 className="text-2xl font-black text-[#0a1628] mb-3">لم يتم تأكيد البريد الإلكتروني</h1>
+            <p className="text-[#0a1628]/60 mb-6">{errorMessage}</p>
+            <Link to="/login">
+              <Button size="lg" className="h-12 px-8 font-bold gap-2">
+                <LogIn className="w-5 h-5" />
+                الانتقال إلى تسجيل الدخول
+              </Button>
+            </Link>
           </>
         )}
       </div>

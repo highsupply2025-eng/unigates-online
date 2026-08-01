@@ -22,7 +22,11 @@ describe("institution registration confirmation flow", () => {
 
     it(`${kind} supports confirmation resend and uploads logos before Auth signup`, () => {
       expect(source).toContain("supabase.auth.resend({");
-      expect(source).toContain("emailRedirectTo: getAuthCallbackUrl()");
+      if (kind === "college") {
+        expect(source).toContain('emailRedirectTo: `${window.location.origin}/auth/callback`');
+      } else {
+        expect(source).toContain("emailRedirectTo: getAuthCallbackUrl()");
+      }
       expect(source).toContain("handleResendConfirmation");
       expect(source.indexOf("await uploadSignupLogo")).toBeLessThan(source.indexOf("supabase.auth.signUp"));
     });
@@ -38,6 +42,16 @@ describe("institution registration confirmation flow", () => {
   it("requires email confirmation in Supabase Auth configuration", () => {
     expect(authConfig).toContain("[auth.email]");
     expect(authConfig).toContain("enable_confirmations = true");
+  });
+
+  it("only shows callback success after Supabase returns a confirmed session", () => {
+    const callback = fs.readFileSync("src/pages/AuthCallback.tsx", "utf-8");
+    expect(callback).toContain("supabase.auth.getSession()");
+    expect(callback).toContain("supabase.auth.exchangeCodeForSession(code)");
+    expect(callback).toContain("session.user.email_confirmed_at");
+    expect(callback).toContain('setStatus("success")');
+    expect(callback).not.toContain("Timeout fallback");
+    expect(callback).not.toContain('setTimeout(() => {\n            setStatus("success")');
   });
 
   it("syncs confirmed Auth users to both registration tables and backfills old requests", () => {

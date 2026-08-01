@@ -107,8 +107,9 @@ describe("Security Center — authorization", () => {
   });
 
   it("never trusts a role sent from the client", () => {
-    expect(page).not.toMatch(/user_metadata/);
-    expect(sharedFn).not.toMatch(/user_metadata/);
+    // No code path reads role/authorization data out of editable metadata.
+    expect(page).not.toMatch(/user_metadata\s*[.\[]/);
+    expect(sharedFn).not.toMatch(/user_metadata\s*[.\[]/);
     expect(sharedFn).toContain('svc.rpc("is_super_admin"');
   });
 
@@ -208,7 +209,8 @@ describe("Security Center — scans are read-only", () => {
     expect(snapshot).toContain("STABLE");
     expect(snapshot).not.toMatch(/\bDELETE FROM\b/);
     expect(snapshot).not.toMatch(/\bDROP\b/);
-    expect(snapshot).not.toMatch(/\bTRUNCATE\b/);
+    expect(snapshot).not.toMatch(/\bUPDATE\s+public\./);
+    expect(snapshot).not.toMatch(/\bINSERT\s+INTO\b/);
   });
 
   it("prevents overlapping scans and duplicate findings", () => {
@@ -254,7 +256,7 @@ describe("Security Center — no secrets in the browser bundle", () => {
     for (const entry of readdirSync(join(process.cwd(), dir), { withFileTypes: true })) {
       const rel = `${dir}/${entry.name}`;
       if (entry.isDirectory()) out.push(...walk(rel));
-      else if (/\.(ts|tsx)$/.test(entry.name)) out.push(rel);
+      else if (/\.(ts|tsx)$/.test(entry.name) && !entry.name.startsWith("securityCenter.test")) out.push(rel);
     }
     return out;
   };

@@ -51,6 +51,33 @@ describe("ResetPassword password inputs", () => {
     }
   });
 
+  it("places a centered visibility button on the far right of both padded fields", () => {
+    render(<ResetPassword />, { wrapper: MemoryRouter });
+
+    const inputs = screen.getAllByDisplayValue("");
+    const passwordButton = screen.getByRole("button", { name: "إظهار كلمة المرور" });
+    const confirmationButton = screen.getByRole("button", { name: "إظهار تأكيد كلمة المرور" });
+
+    for (const input of inputs) {
+      expect(input).toHaveClass("pr-14");
+      expect(input.parentElement).toHaveClass("relative");
+    }
+    for (const button of [passwordButton, confirmationButton]) {
+      expect(button).toHaveClass("absolute", "right-2", "top-1/2", "-translate-y-1/2");
+    }
+  });
+
+  it("toggles both password fields from either visibility button", () => {
+    render(<ResetPassword />, { wrapper: MemoryRouter });
+    const inputs = screen.getAllByDisplayValue("");
+
+    expect(inputs.every((input) => input.getAttribute("type") === "password")).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "إظهار كلمة المرور" }));
+    expect(inputs.every((input) => input.getAttribute("type") === "text")).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "إخفاء تأكيد كلمة المرور" }));
+    expect(inputs.every((input) => input.getAttribute("type") === "password")).toBe(true);
+  });
+
   it("submits matching raw values without altering mixed-direction symbols", async () => {
     render(<ResetPassword />, { wrapper: MemoryRouter });
     const [password, confirmation] = screen.getAllByDisplayValue("");

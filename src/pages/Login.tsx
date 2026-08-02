@@ -298,11 +298,19 @@ const Login = () => {
               placeholder={t.loginPage.passwordPlaceholder}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="h-12 md:h-14 text-sm md:text-base bg-card border-2 border-primary/20 text-center shadow-md hover:shadow-lg hover:border-primary/40 focus:border-primary transition-all pe-12"
+              className="h-12 pr-14 text-sm md:h-14 md:text-base bg-card border-2 border-primary/20 shadow-md hover:shadow-lg hover:border-primary/40 focus:border-primary transition-all"
+              dir="ltr"
+              style={{ textAlign: "left", unicodeBidi: "plaintext" }}
               required
             />
-            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute end-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors">
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            <button
+              type="button"
+              aria-label={showPassword ? (language === "ar" ? "إخفاء كلمة المرور" : "Hide password") : (language === "ar" ? "إظهار كلمة المرور" : "Show password")}
+              aria-pressed={showPassword}
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </button>
           </div>
 

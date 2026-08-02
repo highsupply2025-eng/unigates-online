@@ -40,7 +40,7 @@ vi.mock("@/integrations/supabase/client", () => ({
 }));
 
 describe("Login password input", () => {
-  it("moves only the centered placeholder 38px right while keeping typing left-aligned", () => {
+  it("keeps the same 38px offset for the placeholder and typed password", () => {
     render(<Login />, { wrapper: MemoryRouter });
 
     const input = screen.getByPlaceholderText("كلمة المرور");
@@ -53,7 +53,8 @@ describe("Login password input", () => {
     expect(button).toHaveClass("absolute", "right-2", "top-1/2", "-translate-y-1/2");
 
     fireEvent.change(input, { target: { value: "Aa$#@159753" } });
-    expect(input).toHaveStyle({ textAlign: "left", textIndent: "0", unicodeBidi: "plaintext" });
+    expect(input).toHaveValue("Aa$#@159753");
+    expect(input).toHaveStyle({ textAlign: "left", textIndent: "38px", unicodeBidi: "plaintext" });
   });
 
   it("preserves password visibility toggling", () => {

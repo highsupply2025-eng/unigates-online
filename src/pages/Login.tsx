@@ -300,7 +300,7 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               className="h-12 pr-14 text-sm md:h-14 md:text-base bg-card border-2 border-primary/20 shadow-md hover:shadow-lg hover:border-primary/40 focus:border-primary transition-all [&::placeholder]:text-center"
               dir="ltr"
-              style={{ textAlign: "left", unicodeBidi: "plaintext" }}
+              style={{ textAlign: "left", textIndent: password ? 0 : "38px", unicodeBidi: "plaintext" }}
               required
             />
             <button

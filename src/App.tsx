@@ -12,6 +12,7 @@ import PageTransition from "./components/PageTransition";
 import RouteFallback from "./components/RouteFallback";
 import PrefetchRoutes from "./PrefetchRoutes";
 import BottomNav from "./components/BottomNav";
+import StudentAccessGuard from "./components/StudentAccessGuard";
 
 const AIChatWidget = lazy(() => import("./components/AIChatWidget"));
 const ForcePasswordChangeDialog = lazy(() => import("./components/ForcePasswordChangeDialog"));
@@ -222,24 +223,24 @@ const App = () => (
               <Route path="/institution/profile" element={<InstitutionProfile />} />
               <Route path="/institution/student-subscriptions" element={<StudentSubscriptions />} />
               
-              <Route path="/student/dashboard" element={<StudentDashboard />} />
-              <Route path="/student/lectures" element={<StudentLectures />} />
-              <Route path="/student/lectures/:lectureId" element={<StudentLectureDetail />} />
-              <Route path="/student/live" element={<StudentLive />} />
-              <Route path="/student/live/:streamId" element={<StudentLiveDetail />} />
-              <Route path="/student/quizzes" element={<StudentQuizzes />} />
-              <Route path="/student/quizzes/:quizId" element={<StudentQuizDetail />} />
-              <Route path="/student/results" element={<StudentResults />} />
-              <Route path="/student/assignments" element={<StudentAssignments />} />
-              <Route path="/student/assignments/:assignmentId" element={<StudentAssignmentDetail />} />
-              <Route path="/student/schedules" element={<StudentSchedules />} />
-              <Route path="/student/schedules/:scheduleId" element={<StudentScheduleDetail />} />
-              
-              <Route path="/student/ratings" element={<StudentRatings />} />
-              
-              <Route path="/student/assignment-results" element={<StudentAssignmentResults />} />
-              <Route path="/student/my-academic" element={<StudentMyAcademic />} />
-              <Route path="/student/presence-checkin" element={<StudentPresenceCheckin />} />
+              <Route element={<StudentAccessGuard />}>
+                <Route path="/student/dashboard" element={<StudentDashboard />} />
+                <Route path="/student/lectures" element={<StudentLectures />} />
+                <Route path="/student/lectures/:lectureId" element={<StudentLectureDetail />} />
+                <Route path="/student/live" element={<StudentLive />} />
+                <Route path="/student/live/:streamId" element={<StudentLiveDetail />} />
+                <Route path="/student/quizzes" element={<StudentQuizzes />} />
+                <Route path="/student/quizzes/:quizId" element={<StudentQuizDetail />} />
+                <Route path="/student/results" element={<StudentResults />} />
+                <Route path="/student/assignments" element={<StudentAssignments />} />
+                <Route path="/student/assignments/:assignmentId" element={<StudentAssignmentDetail />} />
+                <Route path="/student/schedules" element={<StudentSchedules />} />
+                <Route path="/student/schedules/:scheduleId" element={<StudentScheduleDetail />} />
+                <Route path="/student/ratings" element={<StudentRatings />} />
+                <Route path="/student/assignment-results" element={<StudentAssignmentResults />} />
+                <Route path="/student/my-academic" element={<StudentMyAcademic />} />
+                <Route path="/student/presence-checkin" element={<StudentPresenceCheckin />} />
+              </Route>
               
               <Route path="/about" element={<About />} />
               <Route path="/help-center" element={<HelpCenter />} />

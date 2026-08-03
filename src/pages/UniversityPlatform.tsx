@@ -107,13 +107,15 @@ const UniversityPlatform = () => {
 
   const plans = [
     {
+      id: "free" as const,
       name: isRtl ? "الباقة المجانية" : "Free Plan",
       price: isRtl ? "مجاناً" : "Free",
-      period: isRtl ? "لمدة 15 يوم" : "for 15 days",
+      period: isRtl ? "لمدة 30 يوم" : "for 30 days",
       features: isRtl
-        ? ["حتى 200 طالب لكل قسم", "3 أعضاء هيئة تدريس لكل قسم", "تقارير أساسية", "دعم فني"]
-        : ["Up to 200 students per dept", "3 faculty per dept", "Basic reports", "Technical support"],
+        ? ["حتى 100 طالب لكل قسم", "3 أعضاء هيئة تدريس لكل قسم", "تقارير أساسية", "دعم فني"]
+        : ["Up to 100 students per dept", "3 faculty per dept", "Basic reports", "Technical support"],
       highlighted: false,
+      comingSoon: false,
       icon: BookOpen,
       iconBg: "bg-gradient-to-br from-[hsl(174,72%,46%)] to-[hsl(174,72%,36%)]",
       borderColor: "border-[hsl(174,72%,46%)]/30",
@@ -121,13 +123,15 @@ const UniversityPlatform = () => {
       checkColor: "text-[hsl(174,72%,46%)]",
     },
     {
+      id: "monthly" as const,
       name: isRtl ? "الباقة الشهرية" : "Monthly Plan",
-      price: isRtl ? "299 ج.م" : "299 EGP",
-      period: isRtl ? "/ شهرياً" : "/month",
+      price: isRtl ? "السعر: تواصل مع إدارة المنصة" : "Price: Contact platform administration",
+      period: "",
       features: isRtl
         ? ["حتى 2000 طالب لكل قسم", "10 أعضاء هيئة تدريس لكل قسم", "تحليلات متقدمة", "دعم أولوية"]
         : ["Up to 2000 students per dept", "10 faculty per dept", "Advanced analytics", "Priority support"],
       highlighted: true,
+      comingSoon: false,
       icon: Trophy,
       iconBg: "bg-gradient-to-br from-primary to-[hsl(200,75%,30%)]",
       borderColor: "border-primary",
@@ -135,6 +139,7 @@ const UniversityPlatform = () => {
       checkColor: "text-primary",
     },
     {
+      id: "annual" as const,
       name: isRtl ? "الباقة السنوية" : "Yearly Plan",
       price: isRtl ? "قريباً" : "Coming Soon",
       period: isRtl ? "خصم 10%" : "10% discount",
@@ -356,7 +361,7 @@ const UniversityPlatform = () => {
                 className={`relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 ${
                   plan.highlighted 
                     ? "border-primary border-2 shadow-xl shadow-primary/15 scale-[1.03]" 
-                    : `border-2 ${(plan as any).borderColor} shadow-md`
+                    : `border-2 ${plan.borderColor} shadow-md`
                 }`}
               >
                 {plan.highlighted && (
@@ -367,32 +372,32 @@ const UniversityPlatform = () => {
                 )}
                 <CardContent className="p-7">
                   <div className="flex items-center gap-3 mb-5">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${(plan as any).iconBg} shadow-lg`}>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${plan.iconBg} shadow-lg`}>
                       <plan.icon className="w-6 h-6 text-white" />
                     </div>
                     <h3 className="font-black text-xl text-foreground">{plan.name}</h3>
                   </div>
                   <div className="mb-6">
-                    <span className={`text-4xl font-black ${(plan as any).priceColor}`}>{plan.price}</span>
+                    <span className={`text-4xl font-black ${plan.priceColor}`}>{plan.price}</span>
                     {plan.period && <span className="text-muted-foreground text-sm ms-1 font-medium">{plan.period}</span>}
                   </div>
                   <ul className="space-y-3.5 mb-7">
                     {plan.features.map((f, j) => (
                       <li key={j} className="flex items-center gap-2.5 text-sm text-foreground/80 font-medium">
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center ${(plan as any).iconBg}`}>
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center ${plan.iconBg}`}>
                           <Check className="w-3 h-3 text-white" />
                         </div>
                         {f}
                       </li>
                     ))}
                   </ul>
-                  {(plan as any).comingSoon ? (
+                  {plan.comingSoon ? (
                     <Button className="w-full font-bold h-12 text-base opacity-60" variant="outline" disabled>
                       {isRtl ? "قريباً" : "Coming Soon"}
                     </Button>
                   ) : (
                     <Button 
-                      onClick={() => { setSelectedPlan(i === 0 ? "free" : "monthly"); setShowTypeDialog(true); }}
+                       onClick={() => { setSelectedPlan(plan.id); setShowTypeDialog(true); }}
                       className={`w-full font-bold h-12 text-base ${plan.highlighted ? 'shadow-lg shadow-primary/25' : ''}`} 
                       variant={plan.highlighted ? "default" : "outline"}
                     >

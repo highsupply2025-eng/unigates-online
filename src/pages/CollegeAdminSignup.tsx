@@ -27,7 +27,7 @@ const CollegeAdminSignup = () => {
   const goBack = useSmartBack();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
-  const plan = searchParams.get("plan") || "monthly";
+  const plan = searchParams.get("plan") === "free" ? "free" : "monthly";
 
   const [collegeName, setCollegeName] = useState("");
   const [universityName, setUniversityName] = useState("");
@@ -94,7 +94,7 @@ const CollegeAdminSignup = () => {
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
-          data: { institution_type: 'college', institution_name: collegeName },
+          data: { institution_type: 'college', institution_name: collegeName, subscription_plan: plan },
         },
       });
       if (authError) throw authError;
@@ -111,6 +111,7 @@ const CollegeAdminSignup = () => {
         student_count: studentCount ? parseInt(studentCount) : 0,
         message: departmentCount ? `${isRtl ? "عدد الأقسام" : "Departments"}: ${departmentCount}. ${message}` : message || null,
         type: "college",
+        subscription_plan: plan,
       });
       if (error) throw error;
       let confirmationPending = !authData.session && !authData.user?.email_confirmed_at;

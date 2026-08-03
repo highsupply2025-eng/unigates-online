@@ -28,7 +28,7 @@ const InstituteAdminSignup = () => {
   const goBack = useSmartBack();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
-  const plan = searchParams.get("plan") || "monthly";
+  const plan = searchParams.get("plan") === "free" ? "free" : "monthly";
 
   const [instituteName, setInstituteName] = useState("");
   const [directorName, setDirectorName] = useState("");
@@ -95,7 +95,7 @@ const InstituteAdminSignup = () => {
         password,
         options: {
           emailRedirectTo: getAuthCallbackUrl(),
-          data: { institution_type: 'institute', institution_name: instituteName },
+          data: { institution_type: 'institute', institution_name: instituteName, subscription_plan: plan },
         },
       });
       if (authError) throw authError;
@@ -111,6 +111,7 @@ const InstituteAdminSignup = () => {
         specialization: null,
         student_count: actualStudentCount ? parseInt(actualStudentCount) : 0,
         message: studentCount ? `${isRtl ? "عدد الأقسام" : "Departments"}: ${studentCount}. ${message || ''}`.trim() : message || null,
+        subscription_plan: plan,
       });
       if (error) throw error;
       let confirmationPending = !authData.session && !authData.user?.email_confirmed_at;

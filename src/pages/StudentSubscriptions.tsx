@@ -28,12 +28,16 @@ interface StudentRecord {
   photo_url: string | null;
   subscription_expires_at: string | null;
   subscription_active: boolean;
+  payment_required: boolean;
 }
 
 interface RpcResponse {
   error: string | null;
   data: StudentRecord[];
   total: number;
+  institution_type?: "college" | "institute";
+  institution_name?: string;
+  subscription_plan?: "free" | "monthly";
 }
 
 type SortKey = "full_name" | "email" | "department_name" | "created_at";
@@ -75,28 +79,6 @@ const StudentSubscriptions = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/login"); return; }
 
-      const { data: college } = await supabase
-        .from("college_registrations")
-        .select("college_name")
-        .eq("email", user.email)
-        .eq("status", "approved")
-        .maybeSingle();
-      if (college) {
-        setInstitutionType("college");
-        setInstitutionName(college.college_name);
-      } else {
-        const { data: institute } = await supabase
-          .from("institute_registrations")
-          .select("institute_name")
-          .eq("email", user.email)
-          .eq("status", "approved")
-          .maybeSingle();
-        if (institute) {
-          setInstitutionType("institute");
-          setInstitutionName(institute.institute_name);
-        }
-      }
-
       const { data: rpcData, error: rpcError } = await supabase.rpc(
         "get_institution_student_subscriptions",
         {
@@ -132,7 +114,9 @@ const StudentSubscriptions = () => {
 
       setData(result.data || []);
       setTotal(result.total || 0);
-    } catch (err: any) {
+      setInstitutionType(result.institution_type || null);
+      setInstitutionName(result.institution_name || "");
+    } catch {
       setError(isRtl ? "حدث خطأ غير متوقع" : "An unexpected error occurred");
     } finally {
       setLoading(false);
@@ -147,12 +131,12 @@ const StudentSubscriptions = () => {
     if (!renewTarget) return;
     setRenewing(true);
     try {
-      const { data, error } = await supabase.rpc("renew_student_subscription" as any, {
+      const { data, error } = await supabase.rpc("renew_student_subscription", {
         _department_member_id: renewTarget.id,
         _months: renewMonths,
       });
       if (error) throw error;
-      const result = data as any;
+      const result = data as unknown as { error?: string } | null;
       if (result?.error) {
         toast({ title: isRtl ? "خطأ" : "Error", description: result.error, variant: "destructive" });
         return;
@@ -166,8 +150,8 @@ const StudentSubscriptions = () => {
       setRenewDialogOpen(false);
       setRenewTarget(null);
       fetchStudents();
-    } catch (e: any) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: e?.message || "Failed", variant: "destructive" });
+    } catch (e: unknown) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: e instanceof Error ? e.message : "Failed", variant: "destructive" });
     } finally {
       setRenewing(false);
     }
@@ -228,7 +212,7 @@ const StudentSubscriptions = () => {
                   : (institutionType === "college" ? "College Administration" : "Institute Administration")}
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground font-semibold truncate">
-                {isRtl ? "اشتراك الطلاب" : "Student Subscriptions"}
+                {isRtl ? "اشتراك الطلاب" : "Student Subscriptions"}{institutionName ? ` - ${institutionName}` : ""}
               </p>
             </div>
           </div>
@@ -360,8 +344,8 @@ const StudentSubscriptions = () => {
                               {new Date(s.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}
                             </TableCell>
                             <TableCell className="text-center">
-                              <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs">
-                                {isRtl ? "نشط" : "Active"}
+                              <Badge variant="secondary" className={`text-xs ${s.subscription_active ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"}`}>
+                                {s.subscription_active ? (isRtl ? "نشط" : "Active") : (isRtl ? "غير نشط" : "Inactive")}
                               </Badge>
                             </TableCell>
                             <TableCell className="text-center">
@@ -378,9 +362,16 @@ const StudentSubscriptions = () => {
                                   )}
                                 </div>
                               ) : (
-                                <Badge variant="secondary" className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-xs">
-                                  {isRtl ? "منتهي" : "Expired"}
-                                </Badge>
+                                <div className="flex flex-col items-center gap-0.5">
+                                  <Badge variant="secondary" className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-xs">
+                                    {isRtl ? "مطلوب الدفع" : "Payment Required"}
+                                  </Badge>
+                                  {s.subscription_expires_at && (
+                                    <span className="text-[10px] text-muted-foreground">
+                                      {new Date(s.subscription_expires_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}
+                                    </span>
+                                  )}
+                                </div>
                               )}
                             </TableCell>
                             <TableCell className="text-center">
@@ -391,7 +382,7 @@ const StudentSubscriptions = () => {
                                 onClick={() => { setRenewTarget(s); setRenewMonths(1); setRenewDialogOpen(true); }}
                               >
                                 <CreditCard className="w-3.5 h-3.5" />
-                                {isRtl ? "دفع" : "Pay"}
+                                {s.subscription_active ? (isRtl ? "تجديد" : "Renew") : (isRtl ? "دفع" : "Pay")}
                               </Button>
                             </TableCell>
                           </TableRow>

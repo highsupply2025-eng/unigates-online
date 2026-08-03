@@ -150,7 +150,13 @@ function validatePassword(pw: string): { ok: boolean; reason?: string } {
 }
 
 async function rollbackNewUser(admin: ReturnType<typeof createClient>, uid: string) {
-  const tables = ["department_members", "college_members", "user_roles", "profiles"] as const;
+  const tables = [
+    "department_members",
+    "institution_student_subscriptions",
+    "college_members",
+    "user_roles",
+    "profiles",
+  ] as const;
   for (const table of tables) {
     const { error } = await admin.from(table).delete().eq("user_id", uid);
     if (error) {

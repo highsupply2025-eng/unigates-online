@@ -298,9 +298,9 @@ const Login = () => {
               placeholder={t.loginPage.passwordPlaceholder}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="h-12 pr-14 text-sm md:h-14 md:text-base bg-card border-2 border-primary/20 shadow-md hover:shadow-lg hover:border-primary/40 focus:border-primary transition-all [&::placeholder]:text-center"
+              className="h-12 px-14 text-center text-sm md:h-14 md:text-base bg-card border-2 border-primary/20 shadow-md hover:shadow-lg hover:border-primary/40 focus:border-primary transition-all"
               dir="ltr"
-              style={{ textAlign: "left", textIndent: "38px", unicodeBidi: "plaintext" }}
+              style={{ unicodeBidi: "plaintext" }}
               required
             />
             <button

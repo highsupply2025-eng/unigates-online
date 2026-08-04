@@ -72,7 +72,7 @@ export async function extractEmbeddedFacultyPhotos(
 ): Promise<Map<number, EmbeddedFacultyPhoto>> {
   const ExcelJS = await import("exceljs");
   const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.load(workbookBuffer as unknown as Buffer);
+  await workbook.xlsx.load(workbookBuffer as never);
 
   const worksheet = workbook.worksheets[0];
   if (!worksheet) return new Map();

@@ -40,7 +40,7 @@ async function workbookWithImages(imageCount = 1): Promise<ArrayBuffer> {
 describe("faculty Excel embedded photos", () => {
   it("ships the requested optional 4x6 photo column in the faculty template", async () => {
     const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(fs.readFileSync("public/templates/faculty_members_template.xlsx"));
+    await workbook.xlsx.load(fs.readFileSync("public/templates/faculty_members_template.xlsx") as never);
     const worksheet = workbook.worksheets[0];
     const headers: string[] = [];
     worksheet.getRow(1).eachCell((cell) => headers.push(String(cell.value ?? "").trim()));

@@ -364,9 +364,9 @@ export type Database = {
           id: string
           logo_url: string | null
           message: string | null
+          phone: string
           plan_expires_at: string | null
           plan_started_at: string | null
-          phone: string
           status: string
           student_count: number | null
           subscription_plan: string | null
@@ -385,9 +385,9 @@ export type Database = {
           id?: string
           logo_url?: string | null
           message?: string | null
+          phone: string
           plan_expires_at?: string | null
           plan_started_at?: string | null
-          phone: string
           status?: string
           student_count?: number | null
           subscription_plan?: string | null
@@ -406,9 +406,9 @@ export type Database = {
           id?: string
           logo_url?: string | null
           message?: string | null
+          phone?: string
           plan_expires_at?: string | null
           plan_started_at?: string | null
-          phone?: string
           status?: string
           student_count?: number | null
           subscription_plan?: string | null
@@ -669,7 +669,6 @@ export type Database = {
           qualification: string | null
           role: string
           specialization: string | null
-          subscription_expires_at: string | null
           user_id: string | null
         }
         Insert: {
@@ -690,7 +689,6 @@ export type Database = {
           qualification?: string | null
           role?: string
           specialization?: string | null
-          subscription_expires_at?: string | null
           user_id?: string | null
         }
         Update: {
@@ -711,7 +709,6 @@ export type Database = {
           qualification?: string | null
           role?: string
           specialization?: string | null
-          subscription_expires_at?: string | null
           user_id?: string | null
         }
         Relationships: [
@@ -955,9 +952,9 @@ export type Database = {
           institute_name: string
           logo_url: string | null
           message: string | null
+          phone: string
           plan_expires_at: string | null
           plan_started_at: string | null
-          phone: string
           specialization: string | null
           status: string
           student_count: number | null
@@ -975,9 +972,9 @@ export type Database = {
           institute_name: string
           logo_url?: string | null
           message?: string | null
+          phone: string
           plan_expires_at?: string | null
           plan_started_at?: string | null
-          phone: string
           specialization?: string | null
           status?: string
           student_count?: number | null
@@ -995,9 +992,9 @@ export type Database = {
           institute_name?: string
           logo_url?: string | null
           message?: string | null
+          phone?: string
           plan_expires_at?: string | null
           plan_started_at?: string | null
-          phone?: string
           specialization?: string | null
           status?: string
           student_count?: number | null
@@ -1085,33 +1082,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      institution_student_subscriptions: {
-        Row: {
-          expires_at: string
-          institution_id: string
-          institution_type: string
-          started_at: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          expires_at: string
-          institution_id: string
-          institution_type: string
-          started_at: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          expires_at?: string
-          institution_id?: string
-          institution_type?: string
-          started_at?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
       }
       institution_quiz_questions: {
         Row: {
@@ -1226,6 +1196,33 @@ export type Database = {
           title_ar?: string
           title_en?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      institution_student_subscriptions: {
+        Row: {
+          expires_at: string
+          institution_id: string
+          institution_type: string
+          started_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          expires_at: string
+          institution_id: string
+          institution_type: string
+          started_at: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          expires_at?: string
+          institution_id?: string
+          institution_type?: string
+          started_at?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -2944,6 +2941,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      check_student_subscription: { Args: { _user_id: string }; Returns: Json }
       claim_department_codes: {
         Args: {
           _codes: string[]
@@ -3028,6 +3026,16 @@ export type Database = {
         }[]
       }
       get_college_account_status: { Args: never; Returns: string }
+      get_institution_plan_limits: {
+        Args: { _institution_id: string; _institution_type: string }
+        Returns: {
+          max_faculty: number
+          max_students: number
+          plan_active: boolean
+          plan_expires_at: string
+          plan_type: string
+        }[]
+      }
       get_institution_quiz_for_student: {
         Args: { _quiz_id: string }
         Returns: {
@@ -3053,18 +3061,7 @@ export type Database = {
           p_search?: string
           p_sort_by?: string
           p_sort_dir?: string
-          p_institution_id?: string
-          p_institution_type?: string
         }
-        Returns: Json
-      }
-      get_student_access_status: { Args: never; Returns: Json }
-      check_student_subscription: {
-        Args: { _user_id: string }
-        Returns: Json
-      }
-      renew_student_subscription: {
-        Args: { _department_member_id: string; _months?: number }
         Returns: Json
       }
       get_my_submission_whatsapp: {
@@ -3133,6 +3130,7 @@ export type Database = {
           question_type: string
         }[]
       }
+      get_student_access_status: { Args: never; Returns: Json }
       get_test_registration_emails: { Args: never; Returns: string[] }
       get_user_email: { Args: { _user_id: string }; Returns: string }
       get_user_sub_role: { Args: { _user_id: string }; Returns: string }
@@ -3150,6 +3148,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      institution_plan_is_active: {
+        Args: { _institution_id: string; _institution_type: string }
+        Returns: boolean
+      }
       is_current_school_account_archived: { Args: never; Returns: boolean }
       is_department_member: {
         Args: { _department_id: string; _user_id: string }
@@ -3162,19 +3164,6 @@ export type Database = {
           _institution_type: string
           _user_id: string
         }
-        Returns: boolean
-      }
-      set_institution_subscription_plan: {
-        Args: {
-          _institution_id: string
-          _institution_type: string
-          _subscription_plan: string
-        }
-        Returns: Json
-      }
-      student_account_has_access: { Args: never; Returns: boolean }
-      student_has_institution_access: {
-        Args: { _institution_id: string; _institution_type: string }
         Returns: boolean
       }
       is_leadership: { Args: { _user_id: string }; Returns: boolean }
@@ -3207,6 +3196,10 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      renew_student_subscription: {
+        Args: { _department_member_id: string; _months?: number }
+        Returns: Json
       }
       review_college_registration: {
         Args: { _decision: string; _registration_id: string }
@@ -3257,6 +3250,14 @@ export type Database = {
       security_record_findings: {
         Args: { _findings: Json; _scan_id: string }
         Returns: number
+      }
+      set_institution_subscription_plan: {
+        Args: {
+          _institution_id: string
+          _institution_type: string
+          _subscription_plan: string
+        }
+        Returns: Json
       }
       snapshot_accounts_before_cleanup: { Args: never; Returns: undefined }
       submit_quiz: {

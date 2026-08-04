@@ -72,7 +72,7 @@ export async function extractEmbeddedFacultyPhotos(
 ): Promise<Map<number, EmbeddedFacultyPhoto>> {
   const ExcelJS = await import("exceljs");
   const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.load(workbookBuffer as unknown as Buffer);
+  await workbook.xlsx.load(workbookBuffer as never);
 
   const worksheet = workbook.worksheets[0];
   if (!worksheet) return new Map();
@@ -142,7 +142,7 @@ function canvasToBlob(canvas: HTMLCanvasElement, contentType: FacultyPhotoConten
 export async function resizeFacultyPhoto(
   photo: EmbeddedFacultyPhoto,
 ): Promise<FacultyPhotoPayload> {
-  const source = new Blob([photo.bytes], { type: photo.contentType });
+  const source = new Blob([photo.bytes as BlobPart], { type: photo.contentType });
   const objectUrl = URL.createObjectURL(source);
   const image = new Image();
 

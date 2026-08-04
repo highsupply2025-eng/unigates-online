@@ -142,7 +142,7 @@ function canvasToBlob(canvas: HTMLCanvasElement, contentType: FacultyPhotoConten
 export async function resizeFacultyPhoto(
   photo: EmbeddedFacultyPhoto,
 ): Promise<FacultyPhotoPayload> {
-  const source = new Blob([photo.bytes], { type: photo.contentType });
+  const source = new Blob([photo.bytes as BlobPart], { type: photo.contentType });
   const objectUrl = URL.createObjectURL(source);
   const image = new Image();
 

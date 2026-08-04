@@ -47,6 +47,88 @@ function mapGeneralRole(specific: string): { profileRole: string; appRole: strin
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_IMPORTED_PHOTO_BYTES = 1_500_000;
+const IMPORTED_PHOTO_TYPES = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+} as const;
+
+function readImportedPhotoDimensions(
+  bytes: Uint8Array,
+  contentType: keyof typeof IMPORTED_PHOTO_TYPES,
+): { width: number; height: number } | null {
+  if (contentType === "image/png") {
+    if (bytes.length < 24) return null;
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    return { width: view.getUint32(16), height: view.getUint32(20) };
+  }
+
+  let offset = 2;
+  while (offset + 8 < bytes.length) {
+    if (bytes[offset] !== 0xff) {
+      offset++;
+      continue;
+    }
+    const marker = bytes[offset + 1];
+    const segmentLength = (bytes[offset + 2] << 8) | bytes[offset + 3];
+    if (segmentLength < 2 || offset + segmentLength + 2 > bytes.length) return null;
+    if (
+      marker === 0xc0 || marker === 0xc1 || marker === 0xc2 || marker === 0xc3
+      || marker === 0xc5 || marker === 0xc6 || marker === 0xc7
+      || marker === 0xc9 || marker === 0xca || marker === 0xcb
+      || marker === 0xcd || marker === 0xce || marker === 0xcf
+    ) {
+      return {
+        height: (bytes[offset + 5] << 8) | bytes[offset + 6],
+        width: (bytes[offset + 7] << 8) | bytes[offset + 8],
+      };
+    }
+    offset += segmentLength + 2;
+  }
+  return null;
+}
+
+function decodeImportedPhoto(value: unknown): {
+  bytes: Uint8Array;
+  contentType: keyof typeof IMPORTED_PHOTO_TYPES;
+  extension: string;
+} | null {
+  if (value == null) return null;
+  if (!value || typeof value !== "object") throw new Error("Invalid faculty photo payload");
+
+  const payload = value as Record<string, unknown>;
+  const contentType = String(payload.content_type || "") as keyof typeof IMPORTED_PHOTO_TYPES;
+  const encoded = String(payload.data_base64 || "");
+  const extension = IMPORTED_PHOTO_TYPES[contentType];
+  if (!extension || !encoded || encoded.length > MAX_IMPORTED_PHOTO_BYTES * 2) {
+    throw new Error("Faculty photo must be a JPG or PNG no larger than 1.5MB");
+  }
+
+  let bytes: Uint8Array;
+  try {
+    const decoded = atob(encoded);
+    bytes = Uint8Array.from(decoded, (character) => character.charCodeAt(0));
+  } catch {
+    throw new Error("Invalid faculty photo encoding");
+  }
+  if (!bytes.length || bytes.length > MAX_IMPORTED_PHOTO_BYTES) {
+    throw new Error("Faculty photo must be a JPG or PNG no larger than 1.5MB");
+  }
+
+  const isJpeg = bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  const isPng = bytes.length >= 8
+    && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47
+    && bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a;
+  if ((contentType === "image/jpeg" && !isJpeg) || (contentType === "image/png" && !isPng)) {
+    throw new Error("Faculty photo content does not match its file type");
+  }
+  const dimensions = readImportedPhotoDimensions(bytes, contentType);
+  if (!dimensions || dimensions.width !== 400 || dimensions.height !== 600) {
+    throw new Error("Faculty photo must be resized to 400x600 pixels");
+  }
+
+  return { bytes, contentType, extension };
+}
 
 async function findAuthUserByEmail(admin: any, email: string): Promise<any | null> {
   const target = email.trim().toLowerCase();
@@ -76,9 +158,27 @@ Deno.serve(async (req) => {
   const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 
   let createdUid: string | null = null;
+  let uploadedPhotoPath: string | null = null;
   const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
+
+  const rollbackCreatedUser = async (uid: string) => {
+    if (uploadedPhotoPath) {
+      const { error } = await admin.storage.from("avatars").remove([uploadedPhotoPath]);
+      if (error) {
+        console.error("rollback: failed to remove faculty photo", { message: error.message });
+      } else {
+        uploadedPhotoPath = null;
+      }
+    }
+    try {
+      const { error } = await admin.auth.admin.deleteUser(uid);
+      if (error) console.error("rollback: failed to delete auth user", { message: error.message });
+    } catch (error) {
+      console.error("rollback: failed to delete auth user", error);
+    }
+  };
 
   try {
     // ---- Payload ----
@@ -135,6 +235,12 @@ Deno.serve(async (req) => {
         .filter(([k]) => (ALLOWED_EXTRA as readonly string[]).includes(k))
         .filter(([, v]) => v !== "" && v !== undefined && v !== null),
     );
+    let importedPhoto: ReturnType<typeof decodeImportedPhoto>;
+    try {
+      importedPhoto = decodeImportedPhoto(body.photo);
+    } catch (error) {
+      return fail("validate_photo", error instanceof Error ? error.message : "Invalid faculty photo", 400);
+    }
 
     if (!fullName) return fail("validate", "Missing full_name", 400);
     if (!ALLOWED_ROLES.has(role)) return fail("validate", `Invalid role: ${role}`, 400);
@@ -248,6 +354,21 @@ if (/\s/.test(temporaryPassword)) {
     const uid = created.user.id;
     createdUid = uid;
 
+    if (importedPhoto) {
+      uploadedPhotoPath = `${uid}/faculty/${crypto.randomUUID()}.${importedPhoto.extension}`;
+      const { error: photoError } = await admin.storage.from("avatars").upload(
+        uploadedPhotoPath,
+        importedPhoto.bytes,
+        { contentType: importedPhoto.contentType, upsert: false, cacheControl: "31536000" },
+      );
+      if (photoError) {
+        await rollbackCreatedUser(uid);
+        return fail("photo_upload", photoError.message, 500);
+      }
+      const { data: photoUrl } = admin.storage.from("avatars").getPublicUrl(uploadedPhotoPath);
+      extra.photo_url = photoUrl.publicUrl;
+    }
+
     const { profileRole, appRole } = mapGeneralRole(role);
 
     // ---- Transactional save (no department at creation) ----
@@ -264,9 +385,7 @@ if (/\s/.test(temporaryPassword)) {
       p_extra: extra,
     });
     if (txErr) {
-      try { await admin.auth.admin.deleteUser(uid); } catch (delErr) {
-        console.error("rollback: failed to delete auth user", delErr);
-      }
+      await rollbackCreatedUser(uid);
       return fail("database_transaction", txErr.message, 500, {
         code: (txErr as any).code, details: (txErr as any).details,
       });
@@ -297,7 +416,7 @@ if (/\s/.test(temporaryPassword)) {
     }
 
     if (problems.length > 0) {
-      try { await admin.auth.admin.deleteUser(uid); } catch (_) { /* ignore */ }
+      await rollbackCreatedUser(uid);
       return fail("verification", `Post-save verification failed: ${problems.join("; ")}`, 500);
     }
 
@@ -310,12 +429,12 @@ if (/\s/.test(temporaryPassword)) {
       );
       if (consumeErr) {
         console.error("faculty invitation consume rpc error", { message: consumeErr.message });
-        try { await admin.auth.admin.deleteUser(uid); } catch (_) { /* ignore */ }
+        await rollbackCreatedUser(uid);
         return fail("invitation_consume", "Failed to process invitation", 500);
       }
       const inv = consumeRows?.[0];
       if (!inv || !inv.is_valid) {
-        try { await admin.auth.admin.deleteUser(uid); } catch (_) { /* ignore */ }
+        await rollbackCreatedUser(uid);
         return fail(
           "invitation_invalid",
           inv?.error_message || "Invalid, expired, or already used invitation",
@@ -324,13 +443,13 @@ if (/\s/.test(temporaryPassword)) {
       }
       // Verify institution matches
       if (inv.institution_id !== institutionId) {
-        try { await admin.auth.admin.deleteUser(uid); } catch (_) { /* ignore */ }
+        await rollbackCreatedUser(uid);
         return fail("invitation_institution_mismatch", "Invitation does not match this institution", 403);
       }
       // Verify invitation role is a valid faculty role (not student)
       const invRole = (inv.role || "").toLowerCase();
       if (!ALLOWED_ROLES.has(invRole)) {
-        try { await admin.auth.admin.deleteUser(uid); } catch (_) { /* ignore */ }
+        await rollbackCreatedUser(uid);
         return fail(
           "invitation_role_invalid",
           "This invitation is not for faculty members",
@@ -358,7 +477,7 @@ if (/\s/.test(temporaryPassword)) {
     const message = e instanceof Error ? e.message : String(e);
     console.error("CREATE FACULTY ACCOUNT UNEXPECTED", { message, createdUid });
     if (createdUid) {
-      try { await admin.auth.admin.deleteUser(createdUid); } catch (_) { /* ignore */ }
+      await rollbackCreatedUser(createdUid);
     }
     return fail("rollback", message, 500);
   }

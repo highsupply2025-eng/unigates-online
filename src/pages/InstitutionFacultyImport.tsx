@@ -7,6 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import {
+  extractEmbeddedFacultyPhotos,
+  MAX_FACULTY_WORKBOOK_BYTES,
+  resizeFacultyPhoto,
+  type EmbeddedFacultyPhoto,
+  type FacultyPhotoPayload,
+} from "@/lib/faculty-import-photo";
 
 const ROLE_MAP: Record<string, string> = {
   "عميد الكلية": "dean", "dean": "dean",
@@ -66,10 +73,16 @@ setInstitutionType(instType);
     setUploading(true);
     setResult(null);
     try {
+      if (!isStudent && file.size > MAX_FACULTY_WORKBOOK_BYTES) {
+        throw new Error(isRtl ? "حجم ملف Excel أكبر من 20MB" : "Excel file exceeds 20MB");
+      }
       const buf = await file.arrayBuffer();
       const wb = XLSX.read(buf, { type: "array" });
       const sheet = wb.Sheets[wb.SheetNames[0]];
       const rows: any[] = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+      const embeddedPhotos = !isStudent && file.name.toLowerCase().endsWith(".xlsx")
+        ? await extractEmbeddedFacultyPhotos(buf)
+        : new Map<number, EmbeddedFacultyPhoto>();
 
       // Drop the "key" row (row 2 in template that contains english keys like full_name)
       const data = rows.filter(r => {
@@ -98,6 +111,7 @@ setInstitutionType(instType);
 
       for (let i = 0; i < data.length; i++) {
         const r = data[i];
+        const sourceRow = typeof r.__rowNum__ === "number" ? r.__rowNum__ + 1 : i + 3;
         const full_name = norm(r["الاسم الكامل"] || r["full_name"]);
         const roleRaw = norm(r["الوظيفة"] || r["role"]);
         const role = isStudent ? "student" : (ROLE_MAP[roleRaw] || ROLE_MAP[roleRaw.toLowerCase()]);
@@ -147,6 +161,26 @@ setInstitutionType(instType);
 
   continue;
 }
+
+        let photoPayload: FacultyPhotoPayload | undefined;
+        const embeddedPhoto = embeddedPhotos.get(sourceRow);
+        if (embeddedPhoto) {
+          try {
+            photoPayload = await resizeFacultyPhoto(embeddedPhoto);
+          } catch (photoError) {
+            failed++;
+            errors.push(
+              `${isRtl ? "صف" : "Row"} ${sourceRow}: ${
+                photoError instanceof Error
+                  ? photoError.message
+                  : isRtl
+                    ? "تعذر معالجة الصورة الشخصية"
+                    : "Unable to process faculty photo"
+              }`,
+            );
+            continue;
+          }
+        }
 
         const baseRow = {
           full_name,
@@ -204,6 +238,7 @@ if (isStudent) {
           email: baseRow.email || undefined,
           phone: baseRow.phone || undefined,
           temporary_password: tempPassword,
+          photo: photoPayload,
           extra: {
             date_of_birth: baseRow.date_of_birth,
             photo_url: baseRow.photo_url,
@@ -272,6 +307,11 @@ if (insertError) {
 }
       }
 
+      if (success > 0) {
+        try {
+          sessionStorage.setItem("institution-dashboard-force-refresh", Date.now().toString());
+        } catch { /* ignore */ }
+      }
       setResult({ success, skipped, failed, errors: errors.slice(0, 20) });
       const descParts: string[] = [];
       if (skipped > 0) descParts.push(isRtl ? `${skipped} تم التخطي (موجود مسبقاً)` : `${skipped} skipped (already exists)`);
@@ -372,6 +412,8 @@ if (insertError) {
               </h3>
               <ul className="text-muted-foreground list-disc ps-5 space-y-1">
                 {!isStudent && <li>{isRtl ? "الوظيفة يجب أن تكون من القائمة المنسدلة في القالب." : "Role must be from the template dropdown."}</li>}
+                {!isStudent && <li>{isRtl ? "الصورة الشخصية اختيارية. أدرج صورة JPG أو PNG واحدة داخل خلية «صورة شخصية 4×6» في صف العضو." : "Photo is optional. Insert one JPG or PNG into the 'صورة شخصية 4×6' cell for that member."}</li>}
+                {!isStudent && <li>{isRtl ? "استخدم صيغة XLSX عند إدراج الصور؛ ملفات XLS القديمة ستستورد البيانات النصية فقط." : "Use XLSX for embedded photos; legacy XLS files import text data only."}</li>}
                 {isStudent ? (
                   <>
                     <li>{isRtl ? "أضف عمود «كود القسم» في الملف بكود القسم الموجود في لوحة الإدارة." : "Add a 'department_code' column with the code shown in the dashboard."}</li>

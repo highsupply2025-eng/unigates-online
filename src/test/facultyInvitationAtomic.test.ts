@@ -68,12 +68,14 @@ describe("Faculty invitation atomic consumption", () => {
       expect(facultySource).toContain("Invalid, expired, or already used invitation");
     });
 
-    it("rolls back auth user on invitation failure", () => {
+    it("rolls back the auth user and uploaded photo on invitation failure", () => {
       const consumeBlock = facultySource.slice(
         facultySource.indexOf("Atomically consume invitation"),
         facultySource.indexOf("return json({\n  success: true,"),
       );
-      expect(consumeBlock).toContain("deleteUser(uid)");
+      expect(consumeBlock).toContain("rollbackCreatedUser(uid)");
+      expect(facultySource).toContain('admin.storage.from("avatars").remove');
+      expect(facultySource).toContain("deleteUser(uid)");
     });
   });
 

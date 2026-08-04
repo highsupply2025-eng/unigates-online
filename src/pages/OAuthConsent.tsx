@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 // Managed OAuth 2.1 consent page. Supabase Auth redirects the user here
@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 // (e.g. ChatGPT/Claude) requesting access to their account, then bounce
 // back to the URL the authorization server returns.
 export default function OAuthConsent() {
+  const navigate = useNavigate();
   const [params] = useSearchParams();
   const authorizationId = params.get("authorization_id") ?? "";
   const [details, setDetails] = useState<any>(null);
@@ -20,7 +21,7 @@ export default function OAuthConsent() {
       const { data: sess } = await supabase.auth.getSession();
       if (!sess.session) {
         const next = window.location.pathname + window.location.search;
-        window.location.href = "/login?next=" + encodeURIComponent(next);
+        navigate("/login?next=" + encodeURIComponent(next), { replace: true });
         return;
       }
       const { data, error } = await supabase.auth.oauth.getAuthorizationDetails(authorizationId);
@@ -32,7 +33,7 @@ export default function OAuthConsent() {
       setDetails(d);
     })();
     return () => { active = false; };
-  }, [authorizationId]);
+  }, [authorizationId, navigate]);
 
   async function decide(approve: boolean) {
     setBusy(true);

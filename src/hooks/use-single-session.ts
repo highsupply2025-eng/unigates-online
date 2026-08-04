@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 const DEVICE_KEY = "unigates_device_id";
@@ -27,6 +28,7 @@ const getDeviceId = (): string => {
  * Heartbeat every 60s; sessions older than 2 min are considered stale.
  */
 export const useSingleSession = () => {
+  const navigate = useNavigate();
   const intervalRef = useRef<number | null>(null);
   const channelRef = useRef<any>(null);
 
@@ -61,7 +63,7 @@ export const useSingleSession = () => {
           `لقد بلغت الحد الأقصى للأجهزة النشطة (${limit}). الرجاء تسجيل الخروج من جهاز آخر أولاً.\n\nYou reached the maximum active devices (${limit}). Please sign out from another device first.`
         );
         await supabase.auth.signOut();
-        window.location.href = "/login";
+        navigate("/login", { replace: true });
         return false;
       }
 
@@ -150,5 +152,5 @@ export const useSingleSession = () => {
       if (channelRef.current) supabase.removeChannel(channelRef.current);
       sub.subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 };

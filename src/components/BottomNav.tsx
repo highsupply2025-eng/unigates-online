@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   Home, BookOpen, Radio, ClipboardList, User, LayoutDashboard,
   Users, Calendar, Award, GraduationCap, Landmark, Bell,
@@ -78,7 +78,6 @@ const HIDDEN_PREFIXES = [
 
 const BottomNav = () => {
   const { pathname } = useLocation();
-  const navigate = useNavigate();
   const { language } = useLanguage();
   const isRtl = language === "ar";
   const [isNative, setIsNative] = useState(false);
@@ -112,8 +111,8 @@ const BottomNav = () => {
             const Icon = it.Icon;
             return (
               <li key={it.to} className="flex-1">
-                <button
-                  onClick={() => navigate(it.to)}
+                <Link
+                  to={it.to}
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "relative flex flex-col items-center justify-center gap-0.5 w-full h-full text-[10px] font-bold transition-colors touch-manipulation active:scale-95",
@@ -136,7 +135,7 @@ const BottomNav = () => {
                   <span className="leading-none truncate max-w-[64px]">
                     {isRtl ? it.labelAr : it.labelEn}
                   </span>
-                </button>
+                </Link>
               </li>
             );
           })}

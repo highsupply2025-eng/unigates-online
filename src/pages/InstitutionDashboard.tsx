@@ -183,6 +183,7 @@ type DashboardSnapshot = {
   instType: "college" | "institute";
   instName: string;
   instId: string;
+  subscriptionPlan: string | null;
   isLeadershipRole: boolean;
   departments: Department[];
   deptMembers: DepartmentMember[];
@@ -279,6 +280,7 @@ const InstitutionDashboard = () => {
   const [institutionType, setInstitutionType] = useState<"college" | "institute" | null>(null);
   const [institutionName, setInstitutionName] = useState("");
   const [institutionId, setInstitutionId] = useState("");
+  const [subscriptionPlan, setSubscriptionPlan] = useState<string | null>(null);
 
   // Shared authoritative stats — provides Realtime auto-refresh + invalidation
   const {
@@ -506,6 +508,7 @@ const InstitutionDashboard = () => {
         setInstitutionType(s.instType);
         setInstitutionName(s.instName);
         setInstitutionId(s.instId);
+        setSubscriptionPlan(s.subscriptionPlan || "free");
         setIsLeadershipRole(s.isLeadershipRole);
         setDepartments(s.departments);
         setDeptMembers(
@@ -551,6 +554,7 @@ const InstitutionDashboard = () => {
         setInstitutionType("college");
         setInstitutionName(college.college_name);
         setInstitutionId(college.id);
+        setSubscriptionPlan(college.subscription_plan || "free");
         await loadInstitutionData(college.id, "college", college.college_name);
         setLoading(false);
         return;
@@ -567,6 +571,7 @@ const InstitutionDashboard = () => {
         setInstitutionType("institute");
         setInstitutionName(institute.institute_name);
         setInstitutionId(institute.id);
+        setSubscriptionPlan(institute.subscription_plan || "free");
         await loadInstitutionData(institute.id, "institute", institute.institute_name);
         setLoading(false);
         return;
@@ -820,6 +825,7 @@ const InstitutionDashboard = () => {
           instType: instType as "college" | "institute",
           instName: instName || institutionName,
           instId,
+          subscriptionPlan,
           isLeadershipRole,
           departments: filteredDepts,
           deptMembers: mergedFacultyMembers,
@@ -1477,13 +1483,22 @@ ${rows.map((r: any, i: number) => `<tr>
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-base sm:text-xl font-black text-foreground truncate">
-                {pageView === "members" && selectedDept
-                  ? selectedDept.department_name
-                  : (isRtl
-                      ? (institutionType === "college" ? "لوحة ادارة الكلية" : "لوحة ادارة المعهد")
-                      : (institutionType === "college" ? "College Administration" : "Institute Administration"))}
-              </h1>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-base sm:text-xl font-black text-foreground truncate">
+                  {pageView === "members" && selectedDept
+                    ? selectedDept.department_name
+                    : (isRtl
+                        ? (institutionType === "college" ? "لوحة ادارة الكلية" : "لوحة ادارة المعهد")
+                        : (institutionType === "college" ? "College Administration" : "Institute Administration"))}
+                </h1>
+                {subscriptionPlan && !(pageView === "members" && selectedDept) && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+                    {isRtl
+                      ? (subscriptionPlan === "free" ? "المجانية" : subscriptionPlan === "monthly" ? "الشهرية" : "السنوية")
+                      : (subscriptionPlan === "free" ? "Free" : subscriptionPlan === "monthly" ? "Monthly" : "Annual")}
+                  </span>
+                )}
+              </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
                 {pageView === "members" && selectedDept
                   ? (isRtl ? "الأعضاء" : "Members")

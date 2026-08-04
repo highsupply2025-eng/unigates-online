@@ -35,6 +35,7 @@ interface InstitutionData {
   university_name?: string | null;
   specialization?: string | null;
   created_at: string;
+  subscription_plan?: string | null;
 }
 
 const InstitutionProfile = () => {
@@ -88,7 +89,7 @@ const InstitutionProfile = () => {
         let kind: "college" | "institute" = "college";
         const { data: college } = await supabase
           .from("college_registrations")
-          .select("id, college_name, dean_name, email, phone, city, address, logo_url, status, student_count, university_name, created_at")
+          .select("id, college_name, dean_name, email, phone, city, address, logo_url, status, student_count, university_name, created_at, subscription_plan")
           .ilike("email", email)
           .eq("status", "approved")
           .maybeSingle();
@@ -110,12 +111,13 @@ const InstitutionProfile = () => {
             student_count: college.student_count,
             university_name: college.university_name,
             created_at: college.created_at,
+            subscription_plan: college.subscription_plan,
           };
         } else {
           kind = "institute";
           const { data: inst } = await supabase
             .from("institute_registrations")
-            .select("id, institute_name, director_name, email, phone, city, address, logo_url, status, student_count, specialization, created_at")
+            .select("id, institute_name, director_name, email, phone, city, address, logo_url, status, student_count, specialization, created_at, subscription_plan")
             .ilike("email", email)
             .eq("status", "approved")
             .maybeSingle();
@@ -134,6 +136,7 @@ const InstitutionProfile = () => {
               student_count: inst.student_count,
               specialization: inst.specialization,
               created_at: inst.created_at,
+              subscription_plan: inst.subscription_plan,
             };
           }
         }
@@ -259,11 +262,20 @@ const InstitutionProfile = () => {
             </div>
           </div>
           <div className="min-w-0 flex-1">
-            <h1 className="text-base sm:text-xl font-black text-foreground truncate">
-              {isRtl
-                ? (institutionType === "college" ? "لوحة ادارة الكلية" : "لوحة ادارة المعهد")
-                : (institutionType === "college" ? "College Administration" : "Institute Administration")}
-            </h1>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-base sm:text-xl font-black text-foreground truncate">
+                {isRtl
+                  ? (institutionType === "college" ? "لوحة ادارة الكلية" : "لوحة ادارة المعهد")
+                  : (institutionType === "college" ? "College Administration" : "Institute Administration")}
+              </h1>
+              {data?.subscription_plan && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+                  {isRtl
+                    ? (data.subscription_plan === "free" ? "المجانية" : data.subscription_plan === "monthly" ? "الشهرية" : "السنوية")
+                    : (data.subscription_plan === "free" ? "Free" : data.subscription_plan === "monthly" ? "Monthly" : "Annual")}
+                </span>
+              )}
+            </div>
             <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
               {isRtl ? "بيانات الحساب" : "Account Details"}
             </p>
@@ -392,6 +404,38 @@ const InstitutionProfile = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Subscription Plan */}
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">{isRtl ? "الباقة الحالية" : "Current Plan"}</p>
+                <p className="font-extrabold text-lg text-primary">
+                  {isRtl
+                    ? (data.subscription_plan === "free" ? "المجانية" : data.subscription_plan === "monthly" ? "الشهرية" : "السنوية")
+                    : (data.subscription_plan === "free" ? "Free Plan" : data.subscription_plan === "monthly" ? "Monthly Plan" : "Annual Plan")}
+                </p>
+              </div>
+            </div>
+            <div className="text-start text-xs text-muted-foreground space-y-0.5">
+              {data.subscription_plan === "free" ? (
+                <>
+                  <p>{isRtl ? "حتى 100 طالب لكل قسم" : "Up to 100 students per dept"}</p>
+                  <p>{isRtl ? "3 أعضاء هيئة تدريس لكل قسم" : "3 faculty per dept"}</p>
+                </>
+              ) : (
+                <>
+                  <p>{isRtl ? "حتى 2000 طالب لكل قسم" : "Up to 2000 students per dept"}</p>
+                  <p>{isRtl ? "10 أعضاء هيئة تدريس لكل قسم" : "10 faculty per dept"}</p>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Editable info */}
         <Card>

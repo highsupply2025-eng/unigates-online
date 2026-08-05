@@ -107,7 +107,7 @@ const FacultyInvitationRegistration = () => {
         {
           body: {
             full_name: baseRow.full_name,
-            role: invitationData.role,
+        role: data.role,
             email: baseRow.email
               ? String(baseRow.email).trim().toLowerCase()
               : null,
@@ -263,7 +263,7 @@ const FacultyInvitationRegistration = () => {
       onSubmit={handleSubmit}
       onCancel={() => navigate("/")}
       invitationRole={invitationData.role}
-      roleReadonly={true}
+      roleReadonly={false}
       title={
         isRtl
           ? `حساب عضو هيئة التدريس - ${invitationData.institutionName}`

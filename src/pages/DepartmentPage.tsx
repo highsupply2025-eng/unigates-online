@@ -155,24 +155,6 @@ const DepartmentPage = () => {
         return true;
       });
 
-      const hasHead = allMembers.some(m => m.role === "department_head");
-      if (!hasHead) {
-        const headInsert = {
-          department_id: deptId,
-          full_name: isRtl ? "رئيس القسم" : "Department Head",
-          role: "department_head",
-          invitation_code: crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase(),
-        };
-        const { data: newHead } = await supabase
-          .from("department_members")
-          .insert(headInsert)
-          .select()
-          .maybeSingle();
-        if (newHead && !seenIds.has(newHead.id)) {
-          allMembers = [...allMembers, newHead as DepartmentMember];
-        }
-      }
-
       const visibleMembers = allMembers.filter(m => {
         if (m.user_id) return true;
         const nm = (m.full_name || "").trim();
@@ -232,16 +214,22 @@ const DepartmentPage = () => {
         .delete()
         .eq("id", memberToDelete.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Delete failed:", error.message, error.details, error.hint);
+        throw error;
+      }
 
       setMembers(prev => prev.filter(m => m.id !== memberToDelete.id));
       sonnerToast.success(isRtl ? "تم حذف العضو بنجاح" : "Member deleted successfully", { duration: 1500 });
       if (deptId) {
         __deptCache.delete(deptId);
-        loadDepartmentData();
       }
-    } catch {
-      sonnerToast.error(isRtl ? "فشل حذف العضو" : "Failed to delete member");
+    } catch (err: any) {
+      console.error("Delete member error:", err);
+      sonnerToast.error(
+        isRtl ? "فشل حذف العضو" : "Failed to delete member",
+        { description: err?.message || String(err), duration: 3000 }
+      );
     } finally {
       setDeleting(false);
       setMemberToDelete(null);

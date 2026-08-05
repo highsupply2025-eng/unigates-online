@@ -16,6 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
+import { getInstitutionMenuItems } from "@/components/institutionMenuItems";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -1573,17 +1574,12 @@ ${rows.map((r: any, i: number) => `<tr>
                 onLanguageToggle={toggleLanguage}
                 showNotifications={false}
                 onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
-                items={[
-                  { key: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, onClick: () => handleTabChange("general"), active: activeTab === "general" },
-
-                  { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, onClick: () => handleTabChange("faculty"), active: activeTab === "faculty" },
-                  { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, onClick: () => handleTabChange("departments"), active: activeTab === "departments" },
-                  { key: "students", label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, onClick: () => handleTabChange("students"), active: activeTab === "students" },
-                  { key: "subscriptions", label: isRtl ? "اشتراك الطلاب" : "Student Subscriptions", Icon: Ticket, onClick: () => navigate("/institution/student-subscriptions") },
-                  { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => handleTabChange("schedules"), active: activeTab === "schedules" },
-                  { key: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, onClick: () => handleTabChange("quizresults"), active: activeTab === "quizresults" },
-                  { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/institution/profile") },
-                ]}
+                items={getInstitutionMenuItems({
+                  isRtl,
+                  activeKey: activeTab,
+                  onTabChange: (tab) => handleTabChange(tab),
+                  onNavigate: (path) => navigate(path),
+                })}
               />
             )}
           </div>

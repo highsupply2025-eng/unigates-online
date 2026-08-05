@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
+import { getInstitutionMenuItems } from "@/components/institutionMenuItems";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 
@@ -283,16 +284,12 @@ const StudentSubscriptions = () => {
               title={isRtl ? (institutionType === "college" ? "لوحة الكلية" : "لوحة المعهد") : (institutionType === "college" ? "College Panel" : "Institute Panel")}
               onLanguageToggle={toggleLanguage}
               onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
-              items={[
-                { key: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, onClick: () => navigate("/institution/dashboard") },
-                { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, onClick: () => navigate("/institution/dashboard?tab=faculty") },
-                { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, onClick: () => navigate("/institution/dashboard?tab=departments") },
-                { key: "students", label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: Users, onClick: () => navigate("/institution/dashboard?tab=students") },
-                { key: "subscriptions", label: isRtl ? "اشتراك الطلاب" : "Student Subscriptions", Icon: GraduationCap, onClick: () => navigate("/institution/student-subscriptions"), active: true },
-                { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => navigate("/institution/dashboard?tab=schedules") },
-                { key: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, onClick: () => navigate("/institution/dashboard?tab=quizresults") },
-                { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: UserIcon, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/institution/profile") },
-              ]}
+              items={getInstitutionMenuItems({
+                isRtl,
+                activeKey: "subscriptions",
+                onTabChange: (tab) => navigate(`/institution/dashboard?tab=${tab}`),
+                onNavigate: (path) => navigate(path),
+              })}
             />
           </div>
         </div>

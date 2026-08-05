@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Building2, Mail, Phone, MapPin, Camera, Lock, Save, Loader2,
-  Eye, EyeOff, Users, ShieldCheck, Calendar, GraduationCap,
-  Layers, BookOpen, CheckCircle, User,
+  Eye, EyeOff, ShieldCheck,
 } from "lucide-react";
+import { getInstitutionMenuItems } from "@/components/institutionMenuItems";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -250,8 +250,6 @@ const InstitutionProfile = () => {
     ? (isRtl ? "اسم العميد" : "Dean Name")
     : (isRtl ? "اسم المدير" : "Director Name");
 
-  const goDash = (tab: string) => navigate(`/institution/dashboard?tab=${tab}`);
-
   const headerNode = (
     <header className="border-b border-primary/20 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent sticky top-0 z-30 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
@@ -288,15 +286,12 @@ const InstitutionProfile = () => {
             onLanguageToggle={toggleLanguage}
             showNotifications={false}
             onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
-            items={[
-              { key: "general", label: isRtl ? "الرئيسية" : "Home", Icon: Layers, onClick: () => goDash("general") },
-              { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, onClick: () => goDash("faculty") },
-              { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, onClick: () => goDash("departments") },
-              { key: "students", label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: Users, onClick: () => goDash("students") },
-              { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, onClick: () => goDash("schedules") },
-              { key: "quizresults", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, onClick: () => goDash("quizresults") },
-              { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", active: true, onClick: () => navigate("/institution/profile") },
-            ]}
+            items={getInstitutionMenuItems({
+              isRtl,
+              activeKey: "profile",
+              onTabChange: (tab) => navigate(`/institution/dashboard?tab=${tab}`),
+              onNavigate: (path) => navigate(path),
+            })}
           />
         </div>
       </div>

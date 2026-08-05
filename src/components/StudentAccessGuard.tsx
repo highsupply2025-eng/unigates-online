@@ -17,9 +17,11 @@ const StudentAccessGuard = () => {
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(true);
   const [access, setAccess] = useState<AccessStatus | null>(null);
+  const [checkFailed, setCheckFailed] = useState(false);
 
   const checkAccess = useCallback(async () => {
     setLoading(true);
+    setCheckFailed(false);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       setAuthenticated(false);
@@ -27,8 +29,22 @@ const StudentAccessGuard = () => {
       return;
     }
 
-    const { data, error } = await supabase.rpc("get_student_access_status");
-    setAccess(error ? { is_active: false } : data as unknown as AccessStatus);
+    // Retry transient failures before assuming the subscription is inactive.
+    let lastError: unknown = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const { data, error } = await supabase.rpc("get_student_access_status");
+      if (!error) {
+        setAccess(data as unknown as AccessStatus);
+        setLoading(false);
+        return;
+      }
+      lastError = error;
+      await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
+    }
+
+    console.error("get_student_access_status failed", lastError);
+    setCheckFailed(true);
+    setAccess(null);
     setLoading(false);
   }, []);
 
@@ -44,11 +60,36 @@ const StudentAccessGuard = () => {
       </div>
     );
   }
+
+  if (checkFailed) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background px-4" dir={dir}>
+        <div className="w-full max-w-md rounded-2xl border-2 border-border bg-card p-8 text-center shadow-xl">
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+            <ShieldAlert className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <h1 className="mb-2 text-2xl font-black text-foreground">
+            {isRtl ? "تعذّر التحقق من الحساب" : "Could not verify your account"}
+          </h1>
+          <p className="mb-6 font-semibold text-muted-foreground">
+            {isRtl
+              ? "حدثت مشكلة مؤقتة في الاتصال. حاول مرة أخرى."
+              : "A temporary connection problem occurred. Please try again."}
+          </p>
+          <Button className="w-full" onClick={() => checkAccess()}>
+            {isRtl ? "إعادة المحاولة" : "Retry"}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (access?.is_active) return <Outlet />;
 
   const contactMessage = access?.institution_type === "institute"
     ? (isRtl ? "راجع إدارة المعهد" : "Contact your institute administration")
     : (isRtl ? "راجع إدارة الكلية" : "Contact your college administration");
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4" dir={dir}>

@@ -125,7 +125,7 @@ const UniversityPlatform = () => {
     {
       id: "monthly" as const,
       name: isRtl ? "الباقة الشهرية" : "Monthly Plan",
-      price: isRtl ? "السعر: تواصل مع إدارة المنصة" : "Price: Contact platform administration",
+      price: isRtl ? "اشتراك لمدة 30 يوماً" : "30-Day Subscription",
       period: "",
       features: isRtl
         ? ["حتى 2000 طالب لكل قسم", "10 أعضاء هيئة تدريس لكل قسم", "تحليلات متقدمة", "دعم أولوية"]

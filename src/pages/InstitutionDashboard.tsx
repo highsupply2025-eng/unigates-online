@@ -3982,60 +3982,123 @@ ${rows.map((r: any, i: number) => `<tr>
 
       {/* Invitation Link Dialog */}
       <Dialog open={showInviteLinkDialog} onOpenChange={setShowInviteLinkDialog}>
-        <DialogContent dir={dir} className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <LinkIcon className="w-5 h-5 text-amber-600" />
+        <DialogContent dir={dir} className="max-w-md p-0 overflow-hidden">
+          {/* Header */}
+          <div className="px-6 pt-6 pb-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center shadow-md shadow-teal-500/20">
+              <LinkIcon className="w-5 h-5 text-white" />
+            </div>
+            <DialogTitle className="text-lg font-bold">
               {isRtl ? "رابط دعوة التسجيل" : "Registration Invitation Link"}
             </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
+          </div>
 
+          <div className="px-6 pb-6 space-y-4">
+            {/* Success banner */}
             {generatedInviteLink && (
-              <div className="space-y-3 p-3 rounded-xl bg-amber-50/50 dark:bg-amber-950/10 border-2 border-amber-500/20">
-                <p className="text-sm font-bold text-amber-700 dark:text-amber-400">
-                  {isRtl ? "تم توليد الرابط بنجاح!" : "Link generated successfully!"}
+              <div className="flex items-center gap-2.5 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800">
+                <CheckCircle className="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+                  {isRtl ? "تم توليد الرابط بنجاح" : "Link generated successfully"}
                 </p>
-                <div className="flex items-center gap-2">
-                  <code className="text-xs font-mono bg-background px-2 py-1.5 rounded border flex-1 break-all">{generatedInviteLink}</code>
-                  <Button variant="outline" size="sm" className="h-8 px-2 shrink-0" onClick={() => copyToClipboard(generatedInviteLink)}>
-                    <Copy className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">{isRtl ? "كود الدعوة:" : "Invitation code:"}</span>
-                  <code className="text-xs font-mono bg-background px-2 py-1 rounded border flex-1">{generatedInviteCode}</code>
-                  <Button variant="outline" size="sm" className="h-8 px-2 shrink-0" onClick={() => copyToClipboard(generatedInviteCode)}>
-                    <Copy className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
-                <div className="flex gap-2">
-                  <a
-                    href={`https://wa.me/?text=${encodeURIComponent(isRtl ? `مرحباً! يمكنك التسجيل عبر هذا الرابط:\n${generatedInviteLink}\nكود الدعوة: ${generatedInviteCode}` : `Hello! You can register via this link:\n${generatedInviteLink}\nInvitation code: ${generatedInviteCode}`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1"
-                  >
-                    <Button variant="outline" className="w-full text-xs h-9 text-green-600 border-green-300 hover:bg-green-50">
-                      <MessageCircle className="w-3.5 h-3.5 me-1" />
-                      WhatsApp
+              </div>
+            )}
+
+            {/* Link & code card */}
+            {generatedInviteLink && (
+              <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+                {/* Invite link */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">
+                    {isRtl ? "رابط الدعوة" : "Invitation Link"}
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-muted/50 border border-border">
+                      <code className="text-xs font-mono text-foreground break-all leading-relaxed" dir="ltr">
+                        {generatedInviteLink}
+                      </code>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-9 w-9 p-0 shrink-0 rounded-lg hover:bg-teal-50 hover:text-teal-600 dark:hover:bg-teal-950/30"
+                      onClick={() => copyToClipboard(generatedInviteLink)}
+                    >
+                      <Copy className="w-4 h-4" />
                     </Button>
-                  </a>
-                  <a
-                    href={`mailto:?subject=${encodeURIComponent(isRtl ? "دعوة للتسجيل" : "Registration Invitation")}&body=${encodeURIComponent(isRtl ? `مرحباً! يمكنك التسجيل عبر هذا الرابط:\n${generatedInviteLink}\nكود الدعوة: ${generatedInviteCode}` : `Hello! You can register via this link:\n${generatedInviteLink}\nInvitation code: ${generatedInviteCode}`)}`}
-                    className="flex-1"
-                  >
-                    <Button variant="outline" className="w-full text-xs h-9">
-                      <Mail className="w-3.5 h-3.5 me-1" />
-                      {isRtl ? "بريد" : "Email"}
+                  </div>
+                </div>
+
+                {/* Invite code */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">
+                    {isRtl ? "كود الدعوة" : "Invitation Code"}
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-muted/50 border border-border">
+                      <code className="text-sm font-mono font-semibold text-foreground" dir="ltr">
+                        {generatedInviteCode}
+                      </code>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-9 w-9 p-0 shrink-0 rounded-lg hover:bg-teal-50 hover:text-teal-600 dark:hover:bg-teal-950/30"
+                      onClick={() => copyToClipboard(generatedInviteCode)}
+                    >
+                      <Copy className="w-4 h-4" />
                     </Button>
-                  </a>
+                  </div>
                 </div>
               </div>
             )}
+
+            {/* Share buttons */}
+            {generatedInviteLink && (
+              <div className="grid grid-cols-2 gap-2">
+                <a
+                  href={`mailto:?subject=${encodeURIComponent(isRtl ? "دعوة للتسجيل" : "Registration Invitation")}&body=${encodeURIComponent(isRtl ? `مرحباً! يمكنك التسجيل عبر هذا الرابط:\n${generatedInviteLink}\nكود الدعوة: ${generatedInviteCode}` : `Hello! You can register via this link:\n${generatedInviteLink}\nInvitation code: ${generatedInviteCode}`)}`}
+                  className="flex-1"
+                >
+                  <Button variant="outline" className="w-full h-10 gap-2 rounded-xl border-border">
+                    <Mail className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">{isRtl ? "بريد" : "Email"}</span>
+                  </Button>
+                </a>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(isRtl ? `مرحباً! يمكنك التسجيل عبر هذا الرابط:\n${generatedInviteLink}\nكود الدعوة: ${generatedInviteCode}` : `Hello! You can register via this link:\n${generatedInviteLink}\nInvitation code: ${generatedInviteCode}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1"
+                >
+                  <Button variant="outline" className="w-full h-10 gap-2 rounded-xl border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 hover:border-emerald-300 dark:hover:bg-emerald-950/30">
+                    <MessageCircle className="w-4 h-4" />
+                    <span className="text-sm font-medium">WhatsApp</span>
+                  </Button>
+                </a>
+              </div>
+            )}
+
+            {/* Empty state */}
+            {!generatedInviteLink && (
+              <div className="text-center py-6">
+                <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-muted/60 flex items-center justify-center">
+                  <LinkIcon className="w-7 h-7 text-muted-foreground/50" />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {isRtl ? "اضغط على الزر أدناه لتوليد رابط دعوة جديد" : "Click the button below to generate a new invitation link"}
+                </p>
+              </div>
+            )}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowInviteLinkDialog(false)}>
+
+          {/* Footer */}
+          <div className="px-6 py-4 border-t border-border bg-muted/30 flex items-center justify-end gap-2">
+            <Button
+              variant="ghost"
+              onClick={() => setShowInviteLinkDialog(false)}
+              className="text-muted-foreground hover:text-foreground"
+            >
               {isRtl ? "إغلاق" : "Close"}
             </Button>
             <Button
@@ -4045,12 +4108,12 @@ ${rows.map((r: any, i: number) => `<tr>
                 await generateInviteLinkNow(inviteLinkRole, inviteLinkDeptId);
               }}
               disabled={generatingInviteLink}
-
+              className="gap-2 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white shadow-md shadow-teal-500/20"
             >
-              {generatingInviteLink ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : <LinkIcon className="w-4 h-4 me-1" />}
+              {generatingInviteLink ? <Loader2 className="w-4 h-4 animate-spin" /> : <LinkIcon className="w-4 h-4" />}
               {isRtl ? (generatedInviteLink ? "توليد رابط جديد" : "توليد الرابط") : (generatedInviteLink ? "Generate New Link" : "Generate Link")}
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 

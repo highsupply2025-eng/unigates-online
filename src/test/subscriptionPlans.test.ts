@@ -26,8 +26,8 @@ describe("institution subscription plan UI and registration", () => {
     expect(universityPlatform).toContain('"قريباً"');
   });
 
-  it("navigates directly to signup with the selected plan", () => {
-    expect(universityPlatform).toContain("/signup/college?plan=${plan.id}");
+  it("navigates directly to the signup page", () => {
+    expect(universityPlatform).toContain('navigate("/signup")');
   });
 
   for (const [kind, source] of [["college", collegeSignup], ["institute", instituteSignup]] as const) {

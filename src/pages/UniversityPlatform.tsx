@@ -399,7 +399,7 @@ const UniversityPlatform = () => {
                     </Button>
                   ) : (
                     <Button 
-                       onClick={() => navigate(`/signup/college?plan=${plan.id}`)}
+                       onClick={() => navigate("/signup")}
                       className={`w-full font-bold h-12 text-base ${plan.highlighted ? 'shadow-lg shadow-primary/25' : ''}`} 
                       variant={plan.highlighted ? "default" : "outline"}
                     >

@@ -205,7 +205,7 @@ const UniversityPlatform = () => {
           {/* Mobile hamburger */}
           <Button
             size="sm"
-            className="md:hidden bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10 h-10 w-10 p-0"
+            className="md:hidden bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10 h-11 w-11 p-0"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -258,7 +258,7 @@ const UniversityPlatform = () => {
           </p>
 
           {/* Stats with colored icon backgrounds */}
-          <div className="max-w-3xl mx-auto grid grid-cols-4 gap-2 md:gap-3 text-center">
+          <div className="max-w-3xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-3 text-center">
             {statItems.map((item, i) => (
               <div
                 key={i}
@@ -294,7 +294,7 @@ const UniversityPlatform = () => {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {features.map((f, i) => (
               <Card key={i} className={`group hover:shadow-xl transition-all duration-300 border-2 border-border/60 ${f.borderAccent} hover:-translate-y-1`}>
-                <CardContent className="p-6">
+                <CardContent className="p-5 md:p-6">
                   <div className={`w-14 h-14 rounded-2xl ${f.iconBg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
                     <f.icon className="w-7 h-7 text-white" />
                   </div>
@@ -367,7 +367,7 @@ const UniversityPlatform = () => {
                     {isRtl ? "الأكثر شعبية" : "Most Popular"}
                   </div>
                 )}
-                <CardContent className="p-7">
+                <CardContent className="p-5 md:p-7">
                   <div className="flex items-center gap-3 mb-5">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${plan.iconBg} shadow-lg`}>
                       <plan.icon className="w-6 h-6 text-white" />
@@ -380,7 +380,7 @@ const UniversityPlatform = () => {
                         <Check className="w-3 h-3 text-white" />
                       </div>
                     )}
-                    <span className={`text-4xl font-black ${plan.priceColor}`}>{plan.price}</span>
+                    <span className={`text-3xl sm:text-4xl font-black ${plan.priceColor}`}>{plan.price}</span>
                     {plan.period && <span className="text-muted-foreground text-sm ms-1 font-medium">{plan.period}</span>}
                   </div>
                   <ul className="space-y-3.5 mb-7">
@@ -415,7 +415,7 @@ const UniversityPlatform = () => {
       </section>
 
       {/* CTA */}
-      <section className="py-16 px-6 md:px-12 relative overflow-hidden">
+      <section className="py-12 sm:py-16 px-4 sm:px-6 md:px-12 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(220,80%,20%)] via-[hsl(200,75%,30%)] to-[hsl(174,72%,36%)]" />
         <div className="absolute inset-0">
           <div className="absolute top-0 end-0 w-72 h-72 bg-[hsl(174,72%,46%)] rounded-full blur-[100px] opacity-25" />

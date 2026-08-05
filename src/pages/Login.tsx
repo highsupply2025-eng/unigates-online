@@ -237,7 +237,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <header className="border-b-2 border-primary/30 px-6 py-4 bg-card shadow-md">
+      <header className="border-b-2 border-primary/30 px-4 sm:px-6 py-4 bg-card shadow-md">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <Link to="/university-platform" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -262,7 +262,7 @@ const Login = () => {
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="p-2 rounded-lg bg-primary/20 text-primary">
+                <button className="p-2.5 rounded-lg bg-primary/20 text-primary">
                   <Menu className="w-5 h-5" />
                 </button>
               </DropdownMenuTrigger>
@@ -312,7 +312,7 @@ const Login = () => {
               placeholder={t.loginPage.passwordPlaceholder}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="h-12 px-14 text-center text-sm md:h-14 md:text-base bg-card border-2 border-primary/20 shadow-md hover:shadow-lg hover:border-primary/40 focus:border-primary transition-all"
+              className="h-12 px-12 md:px-14 text-center text-sm md:h-14 md:text-base bg-card border-2 border-primary/20 shadow-md hover:shadow-lg hover:border-primary/40 focus:border-primary transition-all"
               dir="ltr"
               style={{ unicodeBidi: "plaintext" }}
               required

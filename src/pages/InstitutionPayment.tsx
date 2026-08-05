@@ -112,39 +112,39 @@ const InstitutionPayment = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <header className="border-b border-primary/20 px-6 py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent">
+      <header className="border-b border-primary/20 px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate(-1)}
-              className="rounded-full"
+              className="rounded-full shrink-0 h-11 w-11"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center shadow-lg">
-                <GraduationCap className="w-6 h-6 text-white" />
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center shadow-lg shrink-0">
+                <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <div>
-                <h1 className="text-lg font-black text-foreground">
+              <div className="min-w-0">
+                <h1 className="text-sm sm:text-lg font-black text-foreground truncate">
                   {isRtl ? "دفع اشتراك الطالب" : "Student Subscription Payment"}
                 </h1>
-                <p className="text-xs text-muted-foreground font-semibold">
+                <p className="text-[10px] sm:text-xs text-muted-foreground font-semibold truncate">
                   {isRtl ? "اختر طريقة الدفع" : "Choose payment method"}
                 </p>
               </div>
             </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={toggleLanguage} className="gap-1.5">
+          <Button variant="ghost" size="sm" onClick={toggleLanguage} className="gap-1.5 shrink-0">
             <Globe className="w-4 h-4" />
-            {isRtl ? "EN" : "عربي"}
+            <span className="hidden sm:inline">{isRtl ? "EN" : "عربي"}</span>
           </Button>
         </div>
       </header>
 
-      <main className="flex-1 flex items-center justify-center px-4 py-8">
+      <main className="flex-1 flex items-center justify-center px-4 py-6 sm:py-8">
         <div className="max-w-lg w-full space-y-6">
           {/* Plan info */}
           <Card>
@@ -163,7 +163,7 @@ const InstitutionPayment = () => {
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">{isRtl ? "مدة الاشتراك" : "Subscription Duration"}</label>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {[1, 2, 3, 6, 12].map((m) => (
                     <Button
                       key={m}

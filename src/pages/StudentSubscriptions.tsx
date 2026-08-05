@@ -358,7 +358,7 @@ const StudentSubscriptions = () => {
                         <TableHead className="w-10">
                           <input
                             type="checkbox"
-                            className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                            className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
                             checked={sorted.length > 0 && selectedIds.size === sorted.length}
                             onChange={toggleSelectAll}
                           />
@@ -402,7 +402,7 @@ const StudentSubscriptions = () => {
                             <TableCell>
                               <input
                                 type="checkbox"
-                                className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
                                 checked={selectedIds.has(s.id)}
                                 onChange={() => toggleSelect(s.id)}
                               />
@@ -492,7 +492,7 @@ const StudentSubscriptions = () => {
             )}
 
             {selectedIds.size > 0 && (
-              <div className={`flex items-center gap-3 pt-3 border-t ${isRtl ? "flex-row-reverse" : ""}`}>
+              <div className={`flex flex-wrap items-center gap-3 pt-3 border-t ${isRtl ? "flex-row-reverse" : ""}`}>
                 <span className="text-sm text-muted-foreground font-medium">
                   {isRtl ? `تم تحديد ${selectedIds.size} طالب` : `${selectedIds.size} student(s) selected`}
                 </span>
@@ -518,7 +518,7 @@ const StudentSubscriptions = () => {
       </main>
 
       <Dialog open={renewDialogOpen} onOpenChange={setRenewDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md w-[calc(100vw-2rem)]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CreditCard className="w-5 h-5 text-teal-600" />
@@ -570,7 +570,7 @@ const StudentSubscriptions = () => {
       </Dialog>
 
       <Dialog open={bulkPayDialogOpen} onOpenChange={setBulkPayDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md w-[calc(100vw-2rem)]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CreditCard className="w-5 h-5 text-teal-600" />

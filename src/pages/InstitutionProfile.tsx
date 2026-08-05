@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Building2, Mail, Phone, MapPin, Camera, Lock, Save, Loader2,
-  Eye, EyeOff, ShieldCheck,
+  Eye, EyeOff, ShieldCheck, Calendar,
 } from "lucide-react";
 import { getInstitutionMenuItems } from "@/components/institutionMenuItems";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

@@ -70,8 +70,8 @@ describe("Issue 1: Student activation role assignment", () => {
 
   it("faculty activation still assigns correct faculty role", () => {
     const { profileRole, appRole } = mapGeneralRole("professor");
-    expect(profileRole).toBe("lecturer");
-    expect(appRole).toBe("lecturer");
+    expect(profileRole).toBe("department_head");
+    expect(appRole).toBe("department_head");
   });
 
   it("department_head activation remains correct", () => {

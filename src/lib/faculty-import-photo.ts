@@ -97,13 +97,24 @@ export async function extractEmbeddedFacultyPhotos(
     const columnNumber = Math.floor(drawing.range.tl.nativeCol) + 1;
     if (columnNumber !== photoColumn || rowNumber < 3) continue;
     if (photos.has(rowNumber)) {
-      throw new Error(`Only one faculty photo is allowed in row ${rowNumber}`);
+      // Duplicate photo in the same row — skip the extra one rather than
+      // aborting the entire workbook import.
+      continue;
     }
 
-    const image = workbook.getImage(Number(drawing.imageId));
+    let image: any;
+    try {
+      image = workbook.getImage(Number(drawing.imageId));
+    } catch {
+      // Unable to read image metadata — skip this drawing.
+      continue;
+    }
+
     const contentType = facultyPhotoTypeFromExtension(String(image.extension));
     if (!contentType) {
-      throw new Error(`Faculty photo in row ${rowNumber} must be JPG or PNG`);
+      // Unsupported format (e.g. BMP, GIF) — skip this individual photo
+      // instead of failing the whole import.
+      continue;
     }
 
     const bytes = image.buffer
@@ -111,9 +122,10 @@ export async function extractEmbeddedFacultyPhotos(
       : image.base64
         ? base64ToBytes(image.base64)
         : null;
-    if (!bytes?.length) throw new Error(`Unable to read faculty photo in row ${rowNumber}`);
+    if (!bytes?.length) continue;
     if (bytes.length > MAX_FACULTY_PHOTO_BYTES) {
-      throw new Error(`Faculty photo in row ${rowNumber} exceeds 8MB`);
+      // Photo too large — skip this individual photo.
+      continue;
     }
     totalPhotoBytes += bytes.length;
     if (totalPhotoBytes > MAX_TOTAL_FACULTY_PHOTO_BYTES) {

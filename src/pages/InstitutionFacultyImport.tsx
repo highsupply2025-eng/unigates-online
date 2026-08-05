@@ -168,17 +168,17 @@ setInstitutionType(instType);
           try {
             photoPayload = await resizeFacultyPhoto(embeddedPhoto);
           } catch (photoError) {
-            failed++;
+            // Log the photo error but do NOT skip the row — import the
+            // member without a photo so the rest of the data is preserved.
             errors.push(
               `${isRtl ? "صف" : "Row"} ${sourceRow}: ${
                 photoError instanceof Error
                   ? photoError.message
                   : isRtl
-                    ? "تعذر معالجة الصورة الشخصية"
-                    : "Unable to process faculty photo"
+                    ? "تعذر معالجة الصورة الشخصية — تم استبعادها"
+                    : "Unable to process faculty photo — skipped"
               }`,
             );
-            continue;
           }
         }
 

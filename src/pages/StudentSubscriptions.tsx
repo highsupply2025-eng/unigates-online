@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Search, Loader2, Users, GraduationCap,
   ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, AlertTriangle, RefreshCw, Ticket,
-  Layers, BookOpen, CheckCircle, Calendar, User as UserIcon, CreditCard, Clock, Checkbox
+  Layers, BookOpen, CheckCircle, Calendar, User as UserIcon, CreditCard, Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

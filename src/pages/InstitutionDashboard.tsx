@@ -865,13 +865,18 @@ const InstitutionDashboard = () => {
       return;
     }
 
+    if (!institutionType) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "تعذر تحديد نوع المؤسسة" : "Unable to determine institution type", variant: "destructive" });
+      return;
+    }
+
     setAddingDept(true);
     const savedName = newDeptName;
 
     try {
       const { data: newDept, error } = await supabase.from("departments").insert({
         institution_id: institutionId,
-        institution_type: institutionType || "college",
+        institution_type: institutionType,
         department_name: savedName,
         department_code: newDeptCode,
         student_count: 0,

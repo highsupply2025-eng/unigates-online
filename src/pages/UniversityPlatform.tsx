@@ -11,15 +11,12 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useState } from "react";
 
 const UniversityPlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [showTypeDialog, setShowTypeDialog] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState("monthly");
   const navigate = useNavigate();
   const { t, dir, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
@@ -402,7 +399,7 @@ const UniversityPlatform = () => {
                     </Button>
                   ) : (
                     <Button 
-                       onClick={() => { setSelectedPlan(plan.id); setShowTypeDialog(true); }}
+                       onClick={() => navigate(`/signup/college?plan=${plan.id}`)}
                       className={`w-full font-bold h-12 text-base ${plan.highlighted ? 'shadow-lg shadow-primary/25' : ''}`} 
                       variant={plan.highlighted ? "default" : "outline"}
                     >
@@ -435,36 +432,6 @@ const UniversityPlatform = () => {
         </div>
       </section>
 
-      {/* Type Selection Dialog */}
-      <Dialog open={showTypeDialog} onOpenChange={setShowTypeDialog}>
-        <DialogContent className="sm:max-w-md" dir={dir}>
-          <DialogHeader>
-            <DialogTitle className="text-center text-xl font-black">
-              {isRtl ? "إنشاء حساب" : "Create Account"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="grid grid-cols-2 gap-4 py-4">
-            <button
-              onClick={() => { setShowTypeDialog(false); navigate(`/signup/college?plan=${selectedPlan}`); }}
-              className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all duration-200 group"
-            >
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <Landmark className="w-8 h-8 text-white" />
-              </div>
-              <span className="font-bold text-foreground text-lg">{isRtl ? "كلية" : "College"}</span>
-            </button>
-            <button
-              onClick={() => { setShowTypeDialog(false); navigate(`/signup/institute?plan=${selectedPlan}`); }}
-              className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all duration-200 group"
-            >
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <Landmark className="w-8 h-8 text-white" />
-              </div>
-              <span className="font-bold text-foreground text-lg">{isRtl ? "معهد" : "Institute"}</span>
-            </button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       <SiteFooter />
     </div>

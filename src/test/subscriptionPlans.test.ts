@@ -26,10 +26,8 @@ describe("institution subscription plan UI and registration", () => {
     expect(universityPlatform).toContain('"قريباً"');
   });
 
-  it("opens the institution-type choice and carries the selected plan", () => {
-    expect(universityPlatform).toContain("setShowTypeDialog(true)");
-    expect(universityPlatform).toContain("/signup/college?plan=${selectedPlan}");
-    expect(universityPlatform).toContain("/signup/institute?plan=${selectedPlan}");
+  it("navigates directly to signup with the selected plan", () => {
+    expect(universityPlatform).toContain("/signup/college?plan=${plan.id}");
   });
 
   for (const [kind, source] of [["college", collegeSignup], ["institute", instituteSignup]] as const) {

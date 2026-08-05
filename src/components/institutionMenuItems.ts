@@ -48,18 +48,18 @@ export function getInstitutionMenuItems({
       active: activeKey === "faculty",
     },
     {
-      key: "students",
-      label: isRtl ? "تسجيل الطلاب" : "Student Registration",
-      Icon: UserPlus,
-      onClick: () => onTabChange("students"),
-      active: activeKey === "students",
-    },
-    {
       key: "departments",
       label: isRtl ? "الأقسام" : "Departments",
       Icon: BookOpen,
       onClick: () => onTabChange("departments"),
       active: activeKey === "departments",
+    },
+    {
+      key: "students",
+      label: isRtl ? "تسجيل الطلاب" : "Student Registration",
+      Icon: UserPlus,
+      onClick: () => onTabChange("students"),
+      active: activeKey === "students",
     },
     {
       key: "subscriptions",

@@ -135,6 +135,20 @@ const Login = () => {
       }
 
       if (personalRole || ["personal", "student", "parent"].includes(profileRole || "")) {
+        // Check student subscription access before allowing login
+        const { data: accessStatus } = await supabase.rpc("get_student_access_status");
+        if (accessStatus && !(accessStatus as any).is_active) {
+          const isInstitute = (accessStatus as any).institution_type === "institute";
+          toast({
+            title: language === "ar" ? "الاشتراك غير نشط" : "Subscription Inactive",
+            description: language === "ar"
+              ? (isInstitute ? "راجع إدارة المعهد" : "راجع إدارة الكلية")
+              : (isInstitute ? "Contact your institute administration" : "Contact your college administration"),
+            variant: "destructive",
+          });
+          await supabase.auth.signOut();
+          return;
+        }
         goNext("/student/dashboard");
         return;
       }

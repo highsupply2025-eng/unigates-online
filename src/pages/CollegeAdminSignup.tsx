@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Landmark, Loader2, Globe, ArrowLeft, ArrowRight, CheckCircle, Send, GraduationCap, Menu, ImagePlus, X } from "lucide-react";
+import { Landmark, Loader2, Globe, ArrowLeft, ArrowRight, CheckCircle, Send, GraduationCap, Menu, ImagePlus, X, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +27,10 @@ const CollegeAdminSignup = () => {
   const goBack = useSmartBack();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
-  const plan = searchParams.get("plan") === "free" ? "free" : "monthly";
+  const planParam = searchParams.get("plan");
+  const [subscriptionPlan, setSubscriptionPlan] = useState(
+    ["free", "monthly", "annual"].includes(planParam || "") ? planParam! : "monthly"
+  );
 
   const [collegeName, setCollegeName] = useState("");
   const [universityName, setUniversityName] = useState("");
@@ -94,7 +97,7 @@ const CollegeAdminSignup = () => {
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
-          data: { institution_type: 'college', institution_name: collegeName, subscription_plan: plan },
+          data: { institution_type: 'college', institution_name: collegeName, subscription_plan: subscriptionPlan },
         },
       });
       if (authError) throw authError;
@@ -111,7 +114,7 @@ const CollegeAdminSignup = () => {
         student_count: studentCount ? parseInt(studentCount) : 0,
         message: departmentCount ? `${isRtl ? "عدد الأقسام" : "Departments"}: ${departmentCount}. ${message}` : message || null,
         type: "college",
-        subscription_plan: plan,
+        subscription_plan: subscriptionPlan,
       });
       if (error) throw error;
       let confirmationPending = !authData.session && !authData.user?.email_confirmed_at;
@@ -306,6 +309,25 @@ const CollegeAdminSignup = () => {
 
               <Separator />
 
+              <div>
+                <Label className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
+                  {isRtl ? "نوع الاشتراك" : "Subscription Plan"} <span className="text-destructive">*</span>
+                </Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  {isRtl ? "اختر باقة الاشتراك المناسبة لكلية" : "Select the subscription plan for the college"}
+                </p>
+                <Select value={subscriptionPlan} onValueChange={setSubscriptionPlan}>
+                  <SelectTrigger className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card">
+                    <SelectValue placeholder={isRtl ? "اختر الباقة" : "Choose plan"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="free">{isRtl ? "مجاني (30 يوم)" : "Free (30 days)"}</SelectItem>
+                    <SelectItem value="monthly">{isRtl ? "شهري" : "Monthly"}</SelectItem>
+                    <SelectItem value="annual">{isRtl ? "سنوي" : "Annual"}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="college_email" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
@@ -320,7 +342,17 @@ const CollegeAdminSignup = () => {
                   <Label htmlFor="college_password" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
                     {isRtl ? "الرقم السري" : "Password"} <span className="text-destructive">*</span>
                   </Label>
-                  <Input id="college_password" name="password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12" dir="ltr" />
+                  <div className="relative" dir="ltr">
+                    <Input id="college_password" name="password" type={showPassword ? "text" : "password"} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pe-10" />
+                    <button
+                      type="button"
+                      aria-label={showPassword ? (isRtl ? "إخفاء كلمة المرور" : "Hide password") : (isRtl ? "إظهار كلمة المرور" : "Show password")}
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                   {password && (
                     <div className="mt-2 space-y-1 text-xs">
                       <p className={/[A-Z]/.test(password) ? "text-green-600" : "text-destructive"}>{isRtl ? "✓ حرف كبير إنجليزي" : "✓ Uppercase letter"}</p>
@@ -336,7 +368,17 @@ const CollegeAdminSignup = () => {
                   <Label htmlFor="college_confirm_password" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
                     {isRtl ? "إعادة كتابة الرقم السري" : "Confirm Password"} <span className="text-destructive">*</span>
                   </Label>
-                  <Input id="college_confirm_password" name="confirm_password" type="password" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12" dir="ltr" />
+                  <div className="relative" dir="ltr">
+                    <Input id="college_confirm_password" name="confirm_password" type={showConfirmPassword ? "text" : "password"} autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12 pe-10" />
+                    <button
+                      type="button"
+                      aria-label={showConfirmPassword ? (isRtl ? "إخفاء كلمة المرور" : "Hide password") : (isRtl ? "إظهار كلمة المرور" : "Show password")}
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                   {password && confirmPassword && password !== confirmPassword && (
                     <p className="text-sm text-destructive mt-1">{isRtl ? "الرقم السري غير متطابق" : "Passwords do not match"}</p>
                   )}

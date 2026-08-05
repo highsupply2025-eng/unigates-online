@@ -32,8 +32,8 @@ describe("institution subscription plan UI and registration", () => {
 
   for (const [kind, source] of [["college", collegeSignup], ["institute", instituteSignup]] as const) {
     it(`validates and persists the selected plan for ${kind} registration`, () => {
-      expect(source).toContain('searchParams.get("plan") === "free" ? "free" : "monthly"');
-      expect(source).toContain("subscription_plan: plan");
+      expect(source).toContain('["free", "monthly", "annual"].includes(planParam');
+      expect(source).toContain("subscription_plan: subscriptionPlan");
     });
   }
 });

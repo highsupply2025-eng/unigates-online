@@ -502,6 +502,27 @@ Deno.serve(async (req) => {
       const response: Record<string, any> = { success: true, email, user_id: uid, joined };
       const extraHeaders: Record<string, string> = {};
 
+      // Look up the institution's subscription plan
+      let subscriptionPlan = "monthly";
+      if (institutionType === "college") {
+        const { data: reg } = await admin
+          .from("college_registrations")
+          .select("subscription_plan")
+          .eq("id", institutionId)
+          .maybeSingle();
+        subscriptionPlan = reg?.subscription_plan || "monthly";
+      } else {
+        const { data: reg } = await admin
+          .from("institute_registrations")
+          .select("subscription_plan")
+          .eq("id", institutionId)
+          .maybeSingle();
+        subscriptionPlan = reg?.subscription_plan || "monthly";
+      }
+
+      response.subscription_plan = subscriptionPlan;
+      response.payment_required = subscriptionPlan === "monthly";
+
       if (!invitationCode) {
         response.password = password;
         extraHeaders["Cache-Control"] = "no-store, no-cache, must-revalidate, private";

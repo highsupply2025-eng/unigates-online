@@ -426,7 +426,7 @@ const StudentSubscriptions = () => {
                                 <div className="flex flex-col items-center gap-0.5">
                                   <Badge variant="secondary" className="bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 text-xs">
                                     <Clock className="w-3 h-3 me-1 inline" />
-                                    {isRtl ? "نشط" : "Active"}
+                                    {subscriptionPlan === "free" ? (isRtl ? "مدفوع" : "Paid") : (isRtl ? "نشط" : "Active")}
                                   </Badge>
                                   {s.subscription_expires_at && (
                                     <span className="text-[10px] text-muted-foreground">
@@ -448,15 +448,21 @@ const StudentSubscriptions = () => {
                               )}
                             </TableCell>
                             <TableCell className="text-center hidden sm:table-cell">
-                              <Button
-                                size="sm"
-                                variant={s.subscription_active ? "outline" : "default"}
-                                className={`text-xs gap-1 ${s.subscription_active ? "border-teal-300 text-teal-700 hover:bg-teal-50" : "bg-teal-500 hover:bg-teal-600 text-white"}`}
-                                onClick={() => { setRenewTarget(s); setRenewMonths(1); setRenewDialogOpen(true); }}
-                              >
-                                <CreditCard className="w-3.5 h-3.5" />
-                                {s.subscription_active ? (isRtl ? "تجديد" : "Renew") : (isRtl ? "دفع" : "Pay")}
-                              </Button>
+                              {subscriptionPlan === "free" && s.subscription_active ? (
+                                <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs">
+                                  {isRtl ? "مجاناً" : "Free"}
+                                </Badge>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  variant={s.subscription_active ? "outline" : "default"}
+                                  className={`text-xs gap-1 ${s.subscription_active ? "border-teal-300 text-teal-700 hover:bg-teal-50" : "bg-teal-500 hover:bg-teal-600 text-white"}`}
+                                  onClick={() => { setRenewTarget(s); setRenewMonths(1); setRenewDialogOpen(true); }}
+                                >
+                                  <CreditCard className="w-3.5 h-3.5" />
+                                  {s.subscription_active ? (isRtl ? "تجديد" : "Renew") : (isRtl ? "دفع" : "Pay")}
+                                </Button>
+                              )}
                             </TableCell>
                           </TableRow>
                         ))
@@ -491,7 +497,7 @@ const StudentSubscriptions = () => {
               </div>
             )}
 
-            {selectedIds.size > 0 && (
+            {selectedIds.size > 0 && subscriptionPlan !== "free" && (
               <div className={`flex flex-wrap items-center gap-3 pt-3 border-t ${isRtl ? "flex-row-reverse" : ""}`}>
                 <span className="text-sm text-muted-foreground font-medium">
                   {isRtl ? `تم تحديد ${selectedIds.size} طالب` : `${selectedIds.size} student(s) selected`}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Layers, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
@@ -211,8 +211,10 @@ const InstitutionDashboard = () => {
   const navigate = useNavigate();
 
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "general");
+  const [addDeptIdFromNav, setAddDeptIdFromNav] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [rangeDays, setRangeDays] = useState<7 | 30>(7);
   const [refreshing, setRefreshing] = useState(false);
@@ -269,6 +271,13 @@ const InstitutionDashboard = () => {
 
   useEffect(() => {
     const tab = searchParams.get("tab") || "general";
+    const addDept = searchParams.get("addDeptId");
+    if (addDept) {
+      setAddDeptIdFromNav(addDept);
+      if (tab !== "faculty") setActiveTab("faculty");
+    } else {
+      setAddDeptIdFromNav(null);
+    }
     if (tab === "accounts") {
       if (activeTab !== "invitations") setActiveTab("invitations");
       setAccountMgmtView("accounts");
@@ -2194,12 +2203,11 @@ ${rows.map((r: any, i: number) => `<tr>
                           size="sm"
                           className="gap-1"
                           onClick={() => {
-                            setAddMemberDeptId(dept.id);
-                            setShowAddMemberDialog(true);
+                            navigate(`/institution/dashboard?tab=faculty&addDeptId=${dept.id}`);
                           }}
                         >
                           <Plus className="w-4 h-4" />
-                          {isRtl ? "اضافه عضو أو طالب" : "Add Member or Student"}
+                          {isRtl ? "اضافة عضو" : "Add Member"}
                         </Button>
                         <Button
                           variant="outline"
@@ -2262,9 +2270,126 @@ ${rows.map((r: any, i: number) => `<tr>
                   .filter((m) => m.role && m.role !== "student" && !!m.full_name),
               ).sort((a, b) => (ROLE_ORDER[a.role] ?? 99) - (ROLE_ORDER[b.role] ?? 99));
 
+              const isAddingMode = Boolean(addDeptIdFromNav);
+              const targetDept = departments.find(d => d.id === addDeptIdFromNav);
+
               return (
                 <>
+                  {isAddingMode && targetDept && (
+                    <div className="mb-5 p-4 rounded-xl border-2 border-primary/30 bg-primary/5">
+                      <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
+                            <Layers className="w-4 h-4 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-foreground">
+                              {isRtl ? `إضافة أعضاء إلى قسم: ${targetDept.department_name}` : `Adding members to: ${targetDept.department_name}`}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {selectFacultyMemberIds.length > 0
+                                ? isRtl
+                                  ? `تم تحديد ${selectFacultyMemberIds.length} عضو`
+                                  : `${selectFacultyMemberIds.length} member(s) selected`
+                                : isRtl
+                                  ? "اختر الأعضاء المراد إضافتهم للقسم"
+                                  : "Select members to add to this department"}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setAddDeptIdFromNav(null);
+                              setSearchParams({ tab: "faculty" }, { replace: true });
+                            }}
+                          >
+                            {isRtl ? "إلغاء" : "Cancel"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            disabled={selectFacultyMemberIds.length === 0 || addingExistingFaculty}
+                            onClick={async () => {
+                              if (!addDeptIdFromNav || selectFacultyMemberIds.length === 0) return;
+                              setAddingExistingFaculty(true);
+                              try {
+                                const selected = dedupeFacultyMembers(
+                                  (deptMembers as any[]).filter(
+                                    m =>
+                                      selectFacultyMemberIds.includes(m.id) &&
+                                      m.__from_ifm &&
+                                      m.user_id,
+                                  ),
+                                );
+
+                                if (selected.length === 0) {
+                                  throw new Error(
+                                    isRtl
+                                      ? "تعذر العثور على السجل الأساسي للعضو"
+                                      : "The member's canonical record could not be found",
+                                  );
+                                }
+
+                                for (const member of selected as any[]) {
+                                  const { data, error } = await supabase.functions.invoke(
+                                    "update-faculty-member",
+                                    {
+                                      body: {
+                                        member_id: member.id,
+                                        user_id: member.user_id,
+                                        full_name: member.full_name,
+                                        role: member.role,
+                                        department_id: addDeptIdFromNav,
+                                        phone: member.phone || "",
+                                        extra: {
+                                          date_of_birth: member.date_of_birth || null,
+                                          photo_url: member.photo_url || null,
+                                          national_id: member.national_id || null,
+                                          gender: member.gender || null,
+                                          address: member.address || null,
+                                          qualification: member.qualification || null,
+                                          specialization: member.specialization || null,
+                                          notes: member.notes || null,
+                                        },
+                                      },
+                                    },
+                                  );
+
+                                  if (error || !data?.success) {
+                                    const message = await getFunctionErrorMessage(
+                                      error,
+                                      data,
+                                      isRtl ? "تعذر ربط العضو بالقسم" : "Unable to assign member to department",
+                                    );
+                                    throw new Error(message);
+                                  }
+                                }
+
+                                sonnerToast.success(isRtl ? "تمت إضافة الأعضاء للقسم" : "Members added to department", { duration: 2000 });
+                                const targetId = addDeptIdFromNav;
+                                setSelectFacultyMemberIds([]);
+                                setAddDeptIdFromNav(null);
+                                await loadInstitutionData(institutionId, institutionType || "college");
+                                navigate(`/institution/department/${targetId}`);
+                              } catch (err: any) {
+                                sonnerToast.error(isRtl ? "فشل الإضافة" : "Add failed", { description: err.message });
+                              } finally {
+                                setAddingExistingFaculty(false);
+                              }
+                            }}
+                          >
+                            {addingExistingFaculty ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : null}
+                            {isRtl ? "إضافة الأعضاء" : "Add Members"}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Quick actions */}
+                  {!isAddingMode && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-5">
                     <button
                       onClick={() => navigate("/institution/faculty/add")}
@@ -2309,6 +2434,7 @@ ${rows.map((r: any, i: number) => `<tr>
                       </div>
                     </button>
                   </div>
+                  )}
 
                   {faculty.length > 0 && (
                     <Card className="border-2 border-primary/15 bg-gradient-to-br from-primary/3 to-transparent">
@@ -2325,11 +2451,36 @@ ${rows.map((r: any, i: number) => `<tr>
                             const linked = !!m.user_id;
                             const initials = (m.full_name || "").split(" ").map((n: string) => n[0]).slice(0, 2).join("").toUpperCase();
                             const roleLabel = ROLE_LABELS[m.role] || { ar: m.role, en: m.role };
+                            const isSelected = selectFacultyMemberIds.includes(m.id);
                             return (
                               <div
                                 key={m.id}
-                                className="flex items-center gap-2 p-3 rounded-xl border-2 border-border hover:border-primary/40 hover:bg-primary/5 transition-all"
+                                className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-all ${
+                                  isAddingMode
+                                    ? isSelected
+                                      ? "border-primary bg-primary/10"
+                                      : "border-border hover:border-primary/40 hover:bg-primary/5 cursor-pointer"
+                                    : "border-border hover:border-primary/40 hover:bg-primary/5"
+                                }`}
+                                onClick={isAddingMode ? () => {
+                                  setSelectFacultyMemberIds(prev =>
+                                    isSelected ? prev.filter(id => id !== m.id) : [...prev, m.id]
+                                  );
+                                } : undefined}
                               >
+                                {isAddingMode && (
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={(e) => {
+                                      e.stopPropagation();
+                                      setSelectFacultyMemberIds(prev =>
+                                        e.target.checked ? [...prev, m.id] : prev.filter(id => id !== m.id)
+                                      );
+                                    }}
+                                    className="w-4 h-4 accent-primary shrink-0"
+                                  />
+                                )}
                                 <button
                                   type="button"
                                   onClick={() => {
@@ -2362,6 +2513,7 @@ ${rows.map((r: any, i: number) => `<tr>
                                     </div>
                                   </div>
                                 </button>
+                                {!isAddingMode && (
                                 <button
                                   type="button"
                                   aria-label={isRtl ? "حذف العضو" : "Delete member"}
@@ -2387,6 +2539,7 @@ ${rows.map((r: any, i: number) => `<tr>
                                 >
                                   <Trash2 className="w-4 h-4" strokeWidth={2.4} />
                                 </button>
+                                )}
                               </div>
                             );
                           })}

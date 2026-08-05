@@ -2,14 +2,13 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ChevronLeft, ChevronRight, Copy, UserCheck, GraduationCap,
-  Layers, LinkIcon, MessageCircle, Loader2, Search, Download, Trash2, Pencil, Crown, Mail, Zap
+  Layers, LinkIcon, MessageCircle, Loader2, Search, Download, Trash2, Pencil, Crown, Mail, Zap, Plus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
@@ -68,10 +67,6 @@ const DepartmentPage = () => {
   const [memberToEdit, setMemberToEdit] = useState<DepartmentMember | null>(null);
   const [editName, setEditName] = useState("");
   const [saving, setSaving] = useState(false);
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [newMemberName, setNewMemberName] = useState("");
-  const [newMemberRole, setNewMemberRole] = useState<"student" | "lecturer">("student");
-  const [adding, setAdding] = useState(false);
 
   const [activationResults, setActivationResults] = useState<Array<{ full_name: string; email: string; password: string }>>([]);
   const [showActivationResults, setShowActivationResults] = useState(false);
@@ -275,81 +270,6 @@ const DepartmentPage = () => {
     } finally {
       setSaving(false);
       setMemberToEdit(null);
-    }
-  };
-
-  const handleAddMembers = async () => {
-    if (!deptId || !newMemberName.trim()) return;
-    const names = newMemberName.split("\n").map(n => n.trim()).filter(Boolean);
-    if (names.length === 0) return;
-    setAdding(true);
-    try {
-      const inserts = names.map(name => ({
-        department_id: deptId,
-        full_name: name,
-        role: newMemberRole,
-        invitation_code: crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase(),
-      }));
-      const BATCH = 500;
-      const added: DepartmentMember[] = [];
-      for (let i = 0; i < inserts.length; i += BATCH) {
-        const { data, error } = await supabase
-          .from("department_members")
-          .insert(inserts.slice(i, i + BATCH))
-          .select();
-        if (error) throw error;
-        added.push(...(data as DepartmentMember[]));
-      }
-
-      const results: Array<{ full_name: string; email: string; password: string }> = [];
-      for (const member of added) {
-        try {
-          const { data: fnData, error: fnError } = await supabase.functions.invoke("activate-department-member", {
-            body: {
-              full_name: member.full_name,
-              department_id: deptId,
-              role: member.role,
-              existing_member_id: member.id,
-            },
-          });
-          if (!fnError && fnData?.success) {
-            results.push({
-              full_name: member.full_name,
-              email: fnData.email,
-              password: fnData.password,
-            });
-          } else {
-            console.error("Activation failed for", member.full_name, fnError || fnData);
-          }
-        } catch (actErr) {
-          console.error("Activation error for", member.full_name, actErr);
-        }
-      }
-
-      if (results.length > 0) {
-        setActivationResults(results);
-        setShowActivationResults(true);
-        sonnerToast.success(
-          isRtl
-            ? `تمت إضافة ${added.length} عضو وتفعيل ${results.length} حساب`
-            : `${added.length} members added, ${results.length} accounts activated`,
-          { duration: 3000 }
-        );
-      } else {
-        sonnerToast.success(
-          isRtl ? `تمت إضافة ${added.length} عضو بنجاح` : `${added.length} members added`,
-          { duration: 1500 }
-        );
-      }
-
-      setNewMemberName("");
-      setShowAddDialog(false);
-      if (deptId) __deptCache.delete(deptId);
-      await loadDepartmentData();
-    } catch {
-      sonnerToast.error(isRtl ? "فشل إضافة الأعضاء" : "Failed to add members");
-    } finally {
-      setAdding(false);
     }
   };
 
@@ -680,6 +600,15 @@ const DepartmentPage = () => {
             />
           </div>
           <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="default"
+              className="gap-1.5 bg-primary hover:bg-primary/90"
+              onClick={() => navigate(`/institution/dashboard?tab=faculty&addDeptId=${deptId}`)}
+            >
+              <Plus className="w-4 h-4" />
+              {isRtl ? "اضافة عضو" : "Add Member"}
+            </Button>
             <Button size="sm" variant="outline" onClick={exportExcel} className="gap-1.5">
               <Download className="w-4 h-4" />
               Excel
@@ -809,67 +738,6 @@ const DepartmentPage = () => {
               {saving
                 ? <Loader2 className="w-4 h-4 animate-spin" />
                 : (isRtl ? "حفظ" : "Save")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <AlertDialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg w-full max-h-[90vh] overflow-y-auto">
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {isRtl ? "إضافة أعضاء جدد" : "Add New Members"}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {isRtl ? "أدخل اسم كل عضو في سطر منفصل، ثم اختر الدور. سيتم تفعيل الحسابات تلقائياً." : "Enter each member's name on a separate line, then choose the role. Accounts will be activated automatically."}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="space-y-3 my-2">
-            <Textarea
-              value={newMemberName}
-              onChange={(e) => setNewMemberName(e.target.value)}
-              placeholder={isRtl ? "أحمد محمد\nسارة علي\nخالد حسن" : "Ahmed Mohamed\nSara Ali\nKhaled Hassan"}
-              rows={5}
-            />
-            {newMemberName.trim() && (
-              <p className="text-xs text-muted-foreground">
-                {isRtl
-                  ? `${newMemberName.split("\n").filter(n => n.trim()).length} عضو سيتم إضافتهم وتفعيلهم`
-                  : `${newMemberName.split("\n").filter(n => n.trim()).length} members to add and activate`}
-              </p>
-            )}
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant={newMemberRole === "student" ? "default" : "outline"}
-                onClick={() => setNewMemberRole("student")}
-                className="flex-1 gap-1.5"
-              >
-                <GraduationCap className="w-4 h-4" />
-                {isRtl ? "طالب" : "Student"}
-              </Button>
-              <Button
-                size="sm"
-                variant={newMemberRole === "lecturer" ? "default" : "outline"}
-                onClick={() => setNewMemberRole("lecturer")}
-                className="flex-1 gap-1.5"
-              >
-                <UserCheck className="w-4 h-4" />
-                {isRtl ? "محاضر" : "Lecturer"}
-              </Button>
-            </div>
-          </div>
-          <AlertDialogFooter className={`gap-2 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
-            <AlertDialogCancel disabled={adding}>
-              {isRtl ? "إلغاء" : "Cancel"}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleAddMembers}
-              disabled={adding || !newMemberName.trim()}
-            >
-              {adding
-                ? <Loader2 className="w-4 h-4 animate-spin" />
-                : (isRtl ? "إضافة وتفعيل" : "Add & Activate")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

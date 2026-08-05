@@ -314,7 +314,7 @@ const CollegeAdminSignup = () => {
                   {isRtl ? "نوع الاشتراك" : "Subscription Plan"} <span className="text-destructive">*</span>
                 </Label>
                 <p className="text-xs text-muted-foreground mb-2">
-                  {isRtl ? "اختر باقة الاشتراك المناسبة لكلية" : "Select the subscription plan for the college"}
+                  {isRtl ? "اختر باقة الاشتراك المناسبة للكلية" : "Select the subscription plan for the college"}
                 </p>
                 <Select value={subscriptionPlan} onValueChange={setSubscriptionPlan}>
                   <SelectTrigger className="h-12 text-base border-2 border-primary/40 focus:border-primary bg-card">

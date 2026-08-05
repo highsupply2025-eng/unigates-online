@@ -33,11 +33,10 @@ function mapGeneralRole(
     case "vice_dean_community":
       return { profileRole: "vice_dean", appRole: "vice_dean" };
     case "department_head":
-      return { profileRole: "department_head", appRole: "department_head" };
     case "professor":
     case "doctor":
     case "assistant_lecturer":
-      return { profileRole: "lecturer", appRole: "lecturer" };
+      return { profileRole: "department_head", appRole: "department_head" };
     default:
       return { profileRole: "lecturer", appRole: "lecturer" };
   }

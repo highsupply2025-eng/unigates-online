@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { CreditCard, Loader2 } from "lucide-react";
 import {
   FacultyMemberForm,
   isStrongPassword,
@@ -22,6 +24,9 @@ const InstitutionFacultyAdd = () => {
   const [institutionType, setInstitutionType] = useState<
     "college" | "institute" | ""
   >("");
+  const [subscriptionPlan, setSubscriptionPlan] = useState<string>("monthly");
+  const [createdStudentId, setCreatedStudentId] = useState<string | null>(null);
+  const [createdStudentEmail, setCreatedStudentEmail] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -46,16 +51,23 @@ const InstitutionFacultyAdd = () => {
         if (college) {
           instId = college.id;
           instType = "college";
+          const { data: reg } = await supabase
+            .from("college_registrations")
+            .select("subscription_plan")
+            .eq("id", college.id)
+            .maybeSingle();
+          setSubscriptionPlan(reg?.subscription_plan || "monthly");
         } else {
           const { data: inst } = await supabase
             .from("institute_registrations")
-            .select("id")
+            .select("id, subscription_plan")
             .eq("email", user.email)
             .eq("status", "approved")
             .maybeSingle();
           if (inst) {
             instId = inst.id;
             instType = "institute";
+            setSubscriptionPlan(inst.subscription_plan || "monthly");
           }
         }
 
@@ -167,6 +179,17 @@ const InstitutionFacultyAdd = () => {
               : ""),
           duration: 8000,
         });
+        setCreatedStudentId(r.user_id || null);
+        setCreatedStudentEmail(r.email || null);
+        if (subscriptionPlan === "free") {
+          try {
+            sessionStorage.setItem(
+              "institution-dashboard-force-refresh",
+              Date.now().toString()
+            );
+          } catch { /* ignore */ }
+          navigate(`/institution/dashboard?tab=students`, { replace: true });
+        }
       } else {
         const { data: resp, error: fnErr } = await supabase.functions.invoke(
           "create-faculty-account",
@@ -264,6 +287,19 @@ const InstitutionFacultyAdd = () => {
       onSubmit={handleSubmit}
       onCancel={() => navigate(-1)}
       isStudent={isStudent}
+      paymentButton={
+        isStudent && createdStudentId && subscriptionPlan !== "free" ? (
+          <Button
+            type="button"
+            size="lg"
+            className="bg-teal-500 hover:bg-teal-600 text-white font-extrabold text-base gap-2 shadow-xl shadow-teal-500/40"
+            onClick={() => navigate(`/institution/payment?student=${createdStudentId}&plan=${subscriptionPlan}`)}
+          >
+            <CreditCard className="w-5 h-5 shrink-0" />
+            <span>{isRtl ? "دفع الاشتراك" : "Pay Subscription"}</span>
+          </Button>
+        ) : undefined
+      }
     />
   );
 };

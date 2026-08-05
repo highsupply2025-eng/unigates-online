@@ -117,6 +117,8 @@ interface FacultyMemberFormProps {
   roleReadonly?: boolean;
   /** For admin-add mode: student flow */
   isStudent?: boolean;
+  /** Optional payment button for student subscription */
+  paymentButton?: React.ReactNode;
 }
 
 /* ------------------------------------------------------------------ */
@@ -136,6 +138,7 @@ export const FacultyMemberForm = ({
   invitationEmail,
   roleReadonly = false,
   isStudent = false,
+  paymentButton,
 }: FacultyMemberFormProps) => {
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -792,6 +795,7 @@ export const FacultyMemberForm = ({
                   )}
                   <span>{buttonLabel}</span>
                 </Button>
+                {paymentButton}
               </div>
             </CardContent>
           </Card>

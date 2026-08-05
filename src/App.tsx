@@ -77,6 +77,7 @@ const SchoolStudentAccount = lazy(() => import("./pages/SchoolStudentAccount"));
 const DemoItemPage = lazy(() => import("./pages/DemoItemPage"));
 const InstitutionQuizResultsByDate = lazy(() => import("./pages/InstitutionQuizResultsByDate"));
 const StudentSubscriptions = lazy(() => import("./pages/StudentSubscriptions"));
+const InstitutionPayment = lazy(() => import("./pages/InstitutionPayment"));
 const About = lazy(() => import("./pages/About"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const Terms = lazy(() => import("./pages/Terms"));
@@ -224,6 +225,7 @@ const App = () => (
               <Route path="/book-store/profile" element={<UserProfile />} />
               <Route path="/institution/profile" element={<InstitutionProfile />} />
               <Route path="/institution/student-subscriptions" element={<StudentSubscriptions />} />
+              <Route path="/institution/payment" element={<InstitutionPayment />} />
               
               <Route element={<StudentAccessGuard />}>
                 <Route path="/student/dashboard" element={<StudentDashboard />} />

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Search, Loader2, Users, GraduationCap,
   ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, AlertTriangle, RefreshCw, Ticket,
-  Layers, BookOpen, CheckCircle, Calendar, User as UserIcon, CreditCard, Clock
+  Layers, BookOpen, CheckCircle, Calendar, User as UserIcon, CreditCard, Clock, Checkbox
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,6 +70,10 @@ const StudentSubscriptions = () => {
   const [renewTarget, setRenewTarget] = useState<StudentRecord | null>(null);
   const [renewMonths, setRenewMonths] = useState(1);
   const [renewing, setRenewing] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [subscriptionPlan, setSubscriptionPlan] = useState<string>("monthly");
+  const [bulkPayDialogOpen, setBulkPayDialogOpen] = useState(false);
+  const [bulkPaying, setBulkPaying] = useState(false);
   const { toast } = useToast();
 
   const fetchStudents = useCallback(async () => {
@@ -116,6 +120,7 @@ const StudentSubscriptions = () => {
       setTotal(result.total || 0);
       setInstitutionType(result.institution_type || null);
       setInstitutionName(result.institution_name || "");
+      setSubscriptionPlan(result.subscription_plan || "monthly");
     } catch {
       setError(isRtl ? "حدث خطأ غير متوقع" : "An unexpected error occurred");
     } finally {
@@ -155,6 +160,58 @@ const StudentSubscriptions = () => {
     } finally {
       setRenewing(false);
     }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === sorted.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(sorted.map((s) => s.id)));
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleBulkPay = async () => {
+    const inactiveStudents = sorted.filter((s) => selectedIds.has(s.id) && !s.subscription_active);
+    if (inactiveStudents.length === 0) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى تحديد طلاب غير نشطين" : "Please select inactive students", variant: "destructive" });
+      return;
+    }
+    setBulkPaying(true);
+    try {
+      for (const student of inactiveStudents) {
+        await supabase.rpc("renew_student_subscription", {
+          _department_member_id: student.id,
+          _months: 1,
+        });
+      }
+      toast({
+        title: isRtl ? "تم الدفع بنجاح" : "Payment Successful",
+        description: isRtl
+          ? `تم تفعيل اشتراك ${inactiveStudents.length} طالب`
+          : `Activated subscription for ${inactiveStudents.length} student(s)`,
+      });
+      setSelectedIds(new Set());
+      setBulkPayDialogOpen(false);
+      fetchStudents();
+    } catch (e: unknown) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: e instanceof Error ? e.message : "Payment failed", variant: "destructive" });
+    } finally {
+      setBulkPaying(false);
+    }
+  };
+
+  const getDiscountedAmount = (baseAmount: number) => {
+    if (subscriptionPlan === "annual") return Math.round(baseAmount * 0.9);
+    return baseAmount;
   };
 
   const sorted = useMemo(() => {
@@ -298,6 +355,14 @@ const StudentSubscriptions = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-10">
+                          <input
+                            type="checkbox"
+                            className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                            checked={sorted.length > 0 && selectedIds.size === sorted.length}
+                            onChange={toggleSelectAll}
+                          />
+                        </TableHead>
                         <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("full_name")}>
                           <span className="inline-flex items-center gap-1">
                             {isRtl ? "الاسم" : "Name"} <SortIcon col="full_name" />
@@ -321,7 +386,7 @@ const StudentSubscriptions = () => {
                         </TableHead>
                         <TableHead className="text-center">{isRtl ? "الحالة" : "Status"}</TableHead>
                         <TableHead className="text-center">{isRtl ? "الاشتراك" : "Subscription"}</TableHead>
-                        <TableHead className="text-center">{isRtl ? "دفع" : "Pay"}</TableHead>
+                        <TableHead className="text-center">{isRtl ? "دفع الاشتراك" : "Pay Subscription"}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -334,6 +399,14 @@ const StudentSubscriptions = () => {
                       ) : (
                         sorted.map((s) => (
                           <TableRow key={s.id}>
+                            <TableCell>
+                              <input
+                                type="checkbox"
+                                className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                checked={selectedIds.has(s.id)}
+                                onChange={() => toggleSelect(s.id)}
+                              />
+                            </TableCell>
                             <TableCell className="font-medium">{s.full_name}</TableCell>
                             <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">{s.email || "—"}</TableCell>
                             <TableCell className="hidden md:table-cell">
@@ -345,7 +418,7 @@ const StudentSubscriptions = () => {
                             </TableCell>
                             <TableCell className="text-center">
                               <Badge variant="secondary" className={`text-xs ${s.subscription_active ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"}`}>
-                                {s.subscription_active ? (isRtl ? "نشط" : "Active") : (isRtl ? "غير نشط" : "Inactive")}
+                                {s.subscription_active ? (isRtl ? "نشط" : "Active") : (isRtl ? "غير نشيط" : "Inactive")}
                               </Badge>
                             </TableCell>
                             <TableCell className="text-center">
@@ -382,7 +455,7 @@ const StudentSubscriptions = () => {
                                 onClick={() => { setRenewTarget(s); setRenewMonths(1); setRenewDialogOpen(true); }}
                               >
                                 <CreditCard className="w-3.5 h-3.5" />
-                                {s.subscription_active ? (isRtl ? "تجديد" : "Renew") : (isRtl ? "دفع" : "Pay")}
+                                {s.subscription_active ? (isRtl ? "تجديد" : "Renew") : (isRtl ? "دفع الاشتراك" : "Pay Subscription")}
                               </Button>
                             </TableCell>
                           </TableRow>
@@ -417,6 +490,29 @@ const StudentSubscriptions = () => {
                 </Button>
               </div>
             )}
+
+            {selectedIds.size > 0 && (
+              <div className={`flex items-center gap-3 pt-3 border-t ${isRtl ? "flex-row-reverse" : ""}`}>
+                <span className="text-sm text-muted-foreground font-medium">
+                  {isRtl ? `تم تحديد ${selectedIds.size} طالب` : `${selectedIds.size} student(s) selected`}
+                </span>
+                <Button
+                  size="sm"
+                  className="bg-teal-500 hover:bg-teal-600 text-white gap-1.5"
+                  onClick={() => setBulkPayDialogOpen(true)}
+                >
+                  <CreditCard className="w-4 h-4" />
+                  {isRtl ? "دفع الاشتراك" : "Pay Subscription"}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setSelectedIds(new Set())}
+                >
+                  {isRtl ? "إلغاء التحديد" : "Clear Selection"}
+                </Button>
+              </div>
+            )}
           </>
         )}
       </main>
@@ -426,7 +522,7 @@ const StudentSubscriptions = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CreditCard className="w-5 h-5 text-teal-600" />
-              {isRtl ? "تجديد الاشتراك" : "Renew Subscription"}
+              {isRtl ? "دفع الاشتراك" : "Pay Subscription"}
             </DialogTitle>
           </DialogHeader>
           {renewTarget && (
@@ -437,7 +533,7 @@ const StudentSubscriptions = () => {
                 <p className="text-sm text-muted-foreground">{renewTarget.department_name}</p>
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">{isRtl ? "مدة التجديد" : "Renewal Duration"}</label>
+                <label className="text-sm font-medium mb-2 block">{isRtl ? "مدة الاشتراك" : "Subscription Duration"}</label>
                 <div className="flex gap-2">
                   {[1, 2, 3, 6, 12].map((m) => (
                     <Button
@@ -452,6 +548,13 @@ const StudentSubscriptions = () => {
                   ))}
                 </div>
               </div>
+              {subscriptionPlan === "annual" && (
+                <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                  <p className="text-sm text-green-700 dark:text-green-400 font-medium">
+                    {isRtl ? "خصم 10% على البقة السنوية" : "10% discount on Annual plan"}
+                  </p>
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>
@@ -460,7 +563,41 @@ const StudentSubscriptions = () => {
             </Button>
             <Button onClick={handleRenew} disabled={renewing} className="bg-teal-500 hover:bg-teal-600">
               {renewing ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : <CreditCard className="w-4 h-4 me-1" />}
-              {isRtl ? `تجديد لمدة ${renewMonths} شهر` : `Renew for ${renewMonths} month(s)`}
+              {isRtl ? `دفع الاشتراك لمدة ${renewMonths} شهر` : `Pay for ${renewMonths} month(s)`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={bulkPayDialogOpen} onOpenChange={setBulkPayDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-teal-600" />
+              {isRtl ? "دفع الاشتراك لعدة طلاب" : "Bulk Pay Subscriptions"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              {isRtl
+                ? `سيتم تفعيل اشتراك ${selectedIds.size} طالب لمدة شهر واحد`
+                : `Activate 1-month subscription for ${selectedIds.size} student(s)`}
+            </p>
+            {subscriptionPlan === "annual" && (
+              <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                <p className="text-sm text-green-700 dark:text-green-400 font-medium">
+                  {isRtl ? "خصم 10% على البقة السنوية" : "10% discount on Annual plan"}
+                </p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkPayDialogOpen(false)}>
+              {isRtl ? "إلغاء" : "Cancel"}
+            </Button>
+            <Button onClick={handleBulkPay} disabled={bulkPaying} className="bg-teal-500 hover:bg-teal-600">
+              {bulkPaying ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : <CreditCard className="w-4 h-4 me-1" />}
+              {isRtl ? "دفع الاشتراك" : "Pay Subscription"}
             </Button>
           </DialogFooter>
         </DialogContent>

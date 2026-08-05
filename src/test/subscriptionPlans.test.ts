@@ -19,7 +19,7 @@ describe("institution subscription plan UI and registration", () => {
     expect(universityPlatform).toContain('"حتى 100 طالب لكل قسم"');
     expect(universityPlatform).toContain('"3 أعضاء هيئة تدريس لكل قسم"');
     expect(universityPlatform).toContain('id: "monthly" as const');
-    expect(universityPlatform).toContain('"اشتراك لمدة 30 يوماً"');
+    expect(universityPlatform).toContain('"اشتراك مدفوع"');
     expect(universityPlatform).toContain('"حتى 2000 طالب لكل قسم"');
     expect(universityPlatform).toContain('"10 أعضاء هيئة تدريس لكل قسم"');
     expect(universityPlatform).toContain('id: "annual" as const');

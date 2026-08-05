@@ -109,8 +109,8 @@ const UniversityPlatform = () => {
     {
       id: "free" as const,
       name: isRtl ? "الباقة المجانية" : "Free Plan",
-      price: isRtl ? "مجاناً" : "Free",
-      period: isRtl ? "لمدة 30 يوم" : "for 30 days",
+      price: isRtl ? "لمدة 30 يوم" : "For 30 days",
+      period: "",
       features: isRtl
         ? ["حتى 100 طالب لكل قسم", "3 أعضاء هيئة تدريس لكل قسم", "تقارير أساسية", "دعم فني"]
         : ["Up to 100 students per dept", "3 faculty per dept", "Basic reports", "Technical support"],
@@ -125,7 +125,7 @@ const UniversityPlatform = () => {
     {
       id: "monthly" as const,
       name: isRtl ? "الباقة الشهرية" : "Monthly Plan",
-      price: isRtl ? "اشتراك لمدة 30 يوماً" : "30-Day Subscription",
+      price: isRtl ? "اشتراك مدفوع" : "Paid Subscription",
       period: "",
       features: isRtl
         ? ["حتى 2000 طالب لكل قسم", "10 أعضاء هيئة تدريس لكل قسم", "تحليلات متقدمة", "دعم أولوية"]
@@ -377,8 +377,13 @@ const UniversityPlatform = () => {
                     </div>
                     <h3 className="font-black text-xl text-foreground">{plan.name}</h3>
                   </div>
-                  <div className="mb-6">
+                  <div className="mb-6 flex items-center gap-2.5">
                     <span className={`text-4xl font-black ${plan.priceColor}`}>{plan.price}</span>
+                    {(plan.id === "free" || plan.id === "monthly") && (
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center ${plan.iconBg}`}>
+                        <Check className="w-3 h-3 text-white" />
+                      </div>
+                    )}
                     {plan.period && <span className="text-muted-foreground text-sm ms-1 font-medium">{plan.period}</span>}
                   </div>
                   <ul className="space-y-3.5 mb-7">

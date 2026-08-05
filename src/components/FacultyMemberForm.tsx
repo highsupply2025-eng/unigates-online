@@ -332,9 +332,9 @@ export const FacultyMemberForm = ({
         : "Save Member");
 
   return (
-    <div dir={dir} className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-primary/10">
+    <div dir={dir} className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-primary/10 overflow-x-hidden">
       <header className="border-b-2 border-primary/30 bg-gradient-to-l from-primary/25 via-primary/10 to-card shadow-lg sticky top-0 z-10 backdrop-blur">
-        <div className="container mx-auto px-4 py-5 flex items-center justify-between gap-3">
+        <div className="container mx-auto px-4 py-3 sm:py-5 flex items-center justify-between gap-3">
           <h1 className="text-2xl sm:text-3xl font-black text-foreground flex items-center gap-3 min-w-0">
             <span className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-xl shadow-primary/40 shrink-0">
               {mode === "invitation" ? (
@@ -391,8 +391,8 @@ export const FacultyMemberForm = ({
                 <Button
                   type="button"
                   variant="default"
-                  size="sm"
-                  className="shadow-md shadow-primary/30 font-bold text-sm"
+                  size="default"
+                  className="shadow-md shadow-primary/30 font-bold text-sm h-11 px-4"
                   onClick={() => fileRef.current?.click()}
                   disabled={uploading}
                 >
@@ -407,7 +407,7 @@ export const FacultyMemberForm = ({
 
               {/* ---- Role (faculty only) ---- */}
               {!isStudent && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
                   <div className="space-y-2.5">
                     <Label className={labelCls}>
                       <Users2 className={iconCls} strokeWidth={2.4} />
@@ -450,7 +450,7 @@ export const FacultyMemberForm = ({
 
               {/* ---- Password section ---- */}
               {mode === "admin-add" && !isStudent && (
-                <div className="space-y-2.5 rounded-lg border border-primary/30 bg-primary/5 p-4">
+                <div className="space-y-2.5 rounded-lg border border-primary/30 bg-primary/5 p-3 sm:p-4">
                   <Label className={labelCls}>
                     <KeyRound className={iconCls} strokeWidth={2.4} />
                     {isRtl
@@ -460,7 +460,7 @@ export const FacultyMemberForm = ({
                   </Label>
                   <div className="flex gap-2">
                     <Input
-                      className={`${inputCls} font-mono tracking-wider`}
+                      className={`${inputCls} font-mono tracking-wider min-w-0 flex-1`}
                       type={showPassword ? "text" : "password"}
                       value={tempPassword}
                       onChange={(e) => setTempPassword(e.target.value)}
@@ -468,12 +468,14 @@ export const FacultyMemberForm = ({
                       autoComplete="new-password"
                       spellCheck={false}
                     />
+                    <div className="flex gap-1.5 shrink-0">
                     <Button
                       type="button"
                       variant="outline"
                       size="icon"
                       onClick={() => setShowPassword((v) => !v)}
                       aria-label={isRtl ? "إظهار/إخفاء" : "Show/Hide"}
+                      className="h-11 w-11"
                     >
                       {showPassword ? (
                         <EyeOff className="h-4 w-4" />
@@ -496,6 +498,7 @@ export const FacultyMemberForm = ({
                         }
                       }}
                       aria-label={isRtl ? "نسخ" : "Copy"}
+                      className="h-11 w-11"
                     >
                       <Copy className="h-4 w-4" />
                     </Button>
@@ -505,9 +508,11 @@ export const FacultyMemberForm = ({
                       size="icon"
                       onClick={() => setTempPassword(generateStrongPassword())}
                       aria-label={isRtl ? "توليد" : "Regenerate"}
+                      className="h-11 w-11"
                     >
                       <RefreshCw className="h-4 w-4" />
                     </Button>
+                    </div>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {isRtl
@@ -525,7 +530,7 @@ export const FacultyMemberForm = ({
               )}
 
               {mode === "invitation" && (
-                <div className="space-y-2.5 rounded-lg border border-primary/30 bg-primary/5 p-4">
+                <div className="space-y-2.5 rounded-lg border border-primary/30 bg-primary/5 p-3 sm:p-4">
                   <Label className={labelCls}>
                     <KeyRound className={iconCls} strokeWidth={2.4} />
                     {isRtl ? "كلمة المرور" : "Password"}
@@ -533,7 +538,7 @@ export const FacultyMemberForm = ({
                   </Label>
                   <div className="flex gap-2">
                     <Input
-                      className={`${inputCls} font-mono tracking-wider`}
+                      className={`${inputCls} font-mono tracking-wider min-w-0`}
                       type={showInvitationPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}

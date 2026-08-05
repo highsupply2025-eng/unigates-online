@@ -166,14 +166,14 @@ const InstituteAdminSignup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <header className="border-b-2 border-primary/30 px-6 py-4 bg-card shadow-md">
+    <div className="min-h-screen bg-background flex flex-col overflow-x-hidden" dir={dir}>
+      <header className="border-b-2 border-primary/30 px-4 sm:px-6 py-4 bg-card shadow-md">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center group-hover:scale-105 transition-transform">
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
+            <span className="text-xl sm:text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
           </Link>
           {/* Desktop */}
           <div className="hidden md:flex items-center gap-3">
@@ -194,7 +194,7 @@ const InstituteAdminSignup = () => {
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="icon" aria-label={isRtl ? "فتح القائمة" : "Open menu"} className="rounded-xl w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 text-white">
+                <Button size="icon" aria-label={isRtl ? "فتح القائمة" : "Open menu"} className="rounded-xl w-11 h-11 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 text-white">
                   <Menu className="w-5 h-5" />
                 </Button>
               </DropdownMenuTrigger>
@@ -218,13 +218,13 @@ const InstituteAdminSignup = () => {
       <main className="flex-1 flex items-center justify-center px-4 py-10">
         {!submitted ? (
           <div className="max-w-2xl w-full">
-            <div className="text-center mb-10">
+            <div className="text-center mb-6 md:mb-10">
               <div className="flex justify-center mb-5">
-                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,90%,22%)] shadow-2xl shadow-primary/40 flex items-center justify-center ring-4 ring-primary/20">
-                  <Landmark className="w-14 h-14 text-white drop-shadow-lg" strokeWidth={2.5} />
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,90%,22%)] shadow-2xl shadow-primary/40 flex items-center justify-center ring-4 ring-primary/20">
+                  <Landmark className="w-10 h-10 md:w-14 md:h-14 text-white drop-shadow-lg" strokeWidth={2.5} />
                 </div>
               </div>
-              <h1 className="text-3xl md:text-5xl font-black text-[hsl(195,95%,22%)] mb-3 tracking-tight drop-shadow-sm">
+              <h1 className="text-2xl md:text-5xl font-black text-[hsl(195,95%,22%)] mb-3 tracking-tight drop-shadow-sm break-words">
                 {isRtl ? "تسجيل معهد جديد" : "Register a New Institute"}
               </h1>
               <p className="text-base md:text-lg text-foreground/80 font-semibold">
@@ -276,10 +276,10 @@ const InstituteAdminSignup = () => {
                     <button
                       type="button"
                       onClick={() => { setLogoFile(null); setLogoPreview(null); }}
-                      className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow"
+                      className="absolute -top-2 -right-2 w-11 h-11 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow"
                       aria-label={isRtl ? "حذف صورة المعهد" : "Remove institute image"}
                     >
-                      <X className="w-3.5 h-3.5" />
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
@@ -328,15 +328,15 @@ const InstituteAdminSignup = () => {
                   <Label htmlFor="institute_password" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
                     {isRtl ? "الرقم السري" : "Password"} <span className="text-destructive">*</span>
                   </Label>
-                  <div className="relative">
+                  <div className="relative" dir="ltr">
                     <Input id="institute_password" name="password" type={showPassword ? "text" : "password"} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pe-10" dir="ltr" />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                      className="absolute end-1 top-1/2 -translate-y-1/2 h-11 w-11 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors"
                       aria-label={showPassword ? (isRtl ? "إخفاء كلمة المرور" : "Hide password") : (isRtl ? "إظهار كلمة المرور" : "Show password")}
                     >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
                   {password && (
@@ -354,15 +354,15 @@ const InstituteAdminSignup = () => {
                     {isRtl ? "إعادة كتابة الرقم السري" : "Confirm Password"} <span className="text-destructive">*</span>
                   </Label>
                   
-                  <div className="relative">
+                  <div className="relative" dir="ltr">
                     <Input id="institute_confirm_password" name="confirm_password" type={showConfirmPassword ? "text" : "password"} autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12 pe-10" dir="ltr" />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                      className="absolute end-1 top-1/2 -translate-y-1/2 h-11 w-11 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors"
                       aria-label={showConfirmPassword ? (isRtl ? "إخفاء تأكيد كلمة المرور" : "Hide password confirmation") : (isRtl ? "إظهار تأكيد كلمة المرور" : "Show password confirmation")}
                     >
-                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
                   {password && confirmPassword && password !== confirmPassword && (
@@ -376,9 +376,9 @@ const InstituteAdminSignup = () => {
                   <Label htmlFor="institute_phone" className="mb-2 block text-base font-extrabold text-[hsl(195,95%,22%)]">
                     {isRtl ? "رقم الهاتف" : "Phone Number"} <span className="text-destructive">*</span>
                   </Label>
-                  <div className="flex gap-2" dir="ltr">
+                  <div className="flex gap-2 min-w-0" dir="ltr">
                     <Select value={countryCode} onValueChange={setCountryCode}>
-                      <SelectTrigger className="h-12 w-[110px] shrink-0"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="h-12 w-[90px] sm:w-[110px] shrink-0 text-sm"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {countryCodes.map((c) => (
                           <SelectItem key={c.code} value={c.code}>{c.country} {c.code}</SelectItem>
@@ -422,7 +422,7 @@ const InstituteAdminSignup = () => {
                 <CheckCircle className="w-10 h-10 text-white" />
               </div>
             </div>
-            <h2 className="text-2xl font-black text-primary">
+            <h2 className="text-xl sm:text-2xl font-black text-primary break-words">
               {isRtl ? "تم إرسال الطلب بنجاح!" : "Request Submitted Successfully!"}
             </h2>
             <p className="text-muted-foreground leading-relaxed">

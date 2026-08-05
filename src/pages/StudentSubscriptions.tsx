@@ -386,7 +386,7 @@ const StudentSubscriptions = () => {
                         </TableHead>
                         <TableHead className="text-center">{isRtl ? "الحالة" : "Status"}</TableHead>
                         <TableHead className="text-center">{isRtl ? "الاشتراك" : "Subscription"}</TableHead>
-                        <TableHead className="text-center">{isRtl ? "دفع الاشتراك" : "Pay Subscription"}</TableHead>
+                        <TableHead className="text-center hidden sm:table-cell">{isRtl ? "دفع الاشتراك" : "Pay Subscription"}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -447,7 +447,7 @@ const StudentSubscriptions = () => {
                                 </div>
                               )}
                             </TableCell>
-                            <TableCell className="text-center">
+                            <TableCell className="text-center hidden sm:table-cell">
                               <Button
                                 size="sm"
                                 variant={s.subscription_active ? "outline" : "default"}
@@ -455,7 +455,7 @@ const StudentSubscriptions = () => {
                                 onClick={() => { setRenewTarget(s); setRenewMonths(1); setRenewDialogOpen(true); }}
                               >
                                 <CreditCard className="w-3.5 h-3.5" />
-                                {s.subscription_active ? (isRtl ? "تجديد" : "Renew") : (isRtl ? "دفع الاشتراك" : "Pay Subscription")}
+                                {s.subscription_active ? (isRtl ? "تجديد" : "Renew") : (isRtl ? "دفع" : "Pay")}
                               </Button>
                             </TableCell>
                           </TableRow>
@@ -534,7 +534,7 @@ const StudentSubscriptions = () => {
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">{isRtl ? "مدة الاشتراك" : "Subscription Duration"}</label>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {[1, 2, 3, 6, 12].map((m) => (
                     <Button
                       key={m}

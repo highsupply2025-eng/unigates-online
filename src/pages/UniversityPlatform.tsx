@@ -170,11 +170,11 @@ const UniversityPlatform = () => {
         }} />
 
         <header className="relative z-50 flex items-center justify-between px-6 md:px-12 py-5">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover:bg-white/20 transition-all duration-300 shadow-lg shadow-black/10">
+          <Link to="/" className="flex items-center gap-3 group min-w-0">
+            <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover:bg-white/20 transition-all duration-300 shadow-lg shadow-black/10 shrink-0">
               <GraduationCap className="w-7 h-7 text-white" />
             </div>
-            <span className="text-2xl md:text-3xl font-black text-white tracking-tight drop-shadow-lg">
+            <span className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight drop-shadow-lg truncate">
               {t.brandName}
             </span>
           </Link>
@@ -269,7 +269,7 @@ const UniversityPlatform = () => {
                   <item.icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
                 </div>
                 <span className="text-lg md:text-3xl font-black text-white drop-shadow-md">{item.counter.count}</span>
-                <span className="text-[9px] md:text-xs font-bold text-white/80 leading-tight">{item.label}</span>
+                <span className="text-[10px] sm:text-xs font-bold text-white/80 leading-tight">{item.label}</span>
               </div>
             ))}
           </div>
@@ -277,9 +277,9 @@ const UniversityPlatform = () => {
       </div>
 
       {/* Features - 6 cards with colored gradients */}
-      <section className="py-16 px-6 md:px-12">
+      <section className="py-10 md:py-16 px-4 sm:px-6 md:px-12">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 md:mb-12">
             <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-bold mb-4">
               <Sparkles className="w-4 h-4" />
               {isRtl ? "المميزات" : "Features"}
@@ -298,7 +298,7 @@ const UniversityPlatform = () => {
                   <div className={`w-14 h-14 rounded-2xl ${f.iconBg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
                     <f.icon className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="font-bold text-foreground mb-2 text-lg">{f.title}</h3>
+                   <h3 className="font-bold text-foreground mb-2 text-base md:text-lg">{f.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
                 </CardContent>
               </Card>
@@ -308,16 +308,16 @@ const UniversityPlatform = () => {
       </section>
 
       {/* How it works */}
-      <section className="py-16 px-6 md:px-12 bg-muted/50">
+      <section className="py-10 md:py-16 px-4 sm:px-6 md:px-12 bg-muted/50">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-bold mb-4">
             <Zap className="w-4 h-4" />
             {isRtl ? "خطوات البداية" : "Getting Started"}
           </div>
-          <h2 className="text-2xl md:text-3xl font-black text-foreground mb-10">
+          <h2 className="text-2xl md:text-3xl font-black text-foreground mb-6 md:mb-10">
             {isRtl ? "كيف تبدأ؟" : "How to Get Started?"}
           </h2>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
             {steps.map((item, i) => (
               <div key={i} className="flex flex-col items-center group">
                 <div className="relative mb-5">
@@ -328,7 +328,7 @@ const UniversityPlatform = () => {
                     {item.step}
                   </div>
                 </div>
-                <h3 className="font-bold text-foreground mb-2 text-lg">{item.title}</h3>
+                <h3 className="font-bold text-foreground mb-2 text-base md:text-lg">{item.title}</h3>
                 <p className="text-sm text-muted-foreground">{item.desc}</p>
               </div>
             ))}
@@ -337,9 +337,9 @@ const UniversityPlatform = () => {
       </section>
 
       {/* Pricing */}
-      <section className="py-16 px-6 md:px-12">
+      <section className="py-10 md:py-16 px-4 sm:px-6 md:px-12">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 md:mb-12">
             <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-bold mb-4">
               <Trophy className="w-4 h-4" />
               {isRtl ? "الاشتراك" : "Subscription"}
@@ -357,7 +357,7 @@ const UniversityPlatform = () => {
                 key={i}
                 className={`relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 ${
                   plan.highlighted 
-                    ? "border-primary border-2 shadow-xl shadow-primary/15 scale-[1.03]" 
+                    ? "border-primary border-2 shadow-xl shadow-primary/15 md:scale-[1.03]" 
                     : `border-2 ${plan.borderColor} shadow-md`
                 }`}
               >
@@ -372,7 +372,7 @@ const UniversityPlatform = () => {
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${plan.iconBg} shadow-lg`}>
                       <plan.icon className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="font-black text-xl text-foreground">{plan.name}</h3>
+                    <h3 className="font-black text-lg md:text-xl text-foreground">{plan.name}</h3>
                   </div>
                   <div className="mb-6 flex items-center gap-2.5">
                     {(plan.id === "free" || plan.id === "monthly" || plan.id === "annual") && (

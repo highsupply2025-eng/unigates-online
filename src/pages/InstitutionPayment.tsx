@@ -82,7 +82,7 @@ const InstitutionPayment = () => {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4" dir={dir}>
         <Card className="max-w-md w-full">
-          <CardContent className="py-12 text-center space-y-6">
+          <CardContent className="py-8 sm:py-12 text-center space-y-6">
             <div className="flex justify-center">
               <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
                 <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-400" />

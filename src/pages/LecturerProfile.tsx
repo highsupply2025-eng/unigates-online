@@ -90,7 +90,8 @@ const LecturerProfile = () => {
   const load = async () => {
     if (!memberId) return;
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
       if (!user) { navigate("/login"); return; }
 
       const { data: m } = await supabase

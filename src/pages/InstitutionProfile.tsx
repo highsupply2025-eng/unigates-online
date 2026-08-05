@@ -80,7 +80,8 @@ const InstitutionProfile = () => {
   useEffect(() => {
     (async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { session } } = await supabase.auth.getSession();
+        const user = session?.user;
         if (!user) { navigate("/login"); return; }
 
         const email = (user.email || "").toLowerCase();
@@ -147,7 +148,7 @@ const InstitutionProfile = () => {
             description: isRtl ? "هذه الصفحة لإدارة المؤسسة فقط" : "Institution admin only",
             variant: "destructive",
           });
-          navigate("/profile");
+          // Stay on this dashboard's account page instead of jumping to another dashboard.
           return;
         }
 

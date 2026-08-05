@@ -71,11 +71,61 @@ const AccountPageBody = ({
   const [savingPass, setSavingPass] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+
+    const loadAcademic = async (uid: string) => {
+      try {
+        const { data: membership } = await supabase
+          .from("department_members")
+          .select("department_id")
+          .eq("user_id", uid)
+          .maybeSingle();
+        if (cancelled || !membership?.department_id) return;
+        const { data: dept } = await supabase
+          .from("departments")
+          .select("department_name, institution_id, institution_type")
+          .eq("id", membership.department_id)
+          .maybeSingle();
+        if (cancelled || !dept) return;
+        const instType = (dept.institution_type as "college" | "institute") || "college";
+        let name: string | null = null;
+        if (instType === "college") {
+          const { data: c } = await supabase.from("college_registrations").select("college_name").eq("id", dept.institution_id).maybeSingle();
+          name = c?.college_name ?? null;
+        } else {
+          const { data: c } = await supabase.from("institute_registrations").select("institute_name").eq("id", dept.institution_id).maybeSingle();
+          name = c?.institute_name ?? null;
+        }
+        if (!cancelled) setAcademic({ collegeName: name, departmentName: dept.department_name, institutionType: instType });
+      } catch (e) { console.error(e); }
+    };
+
     (async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        // Session comes from local storage (no network round-trip) => much faster first paint
+        const { data: { session } } = await supabase.auth.getSession();
+        const user = session?.user;
         if (!user) { navigate("/login"); return; }
+        if (cancelled) return;
         setUserId(user.id);
+
+        // Show the page immediately with auth metadata, then refine from the DB
+        const meta = (user.user_metadata as any) || {};
+        setProfile({
+          full_name: meta.full_name || user.email?.split("@")[0] || "",
+          email: user.email || "",
+          phone: meta.phone || "",
+          role: meta.role || "personal",
+          platform: meta.platform || "courses",
+          created_at: user.created_at || new Date().toISOString(),
+          avatar_url: null,
+        });
+        setFullName(meta.full_name || "");
+        setPhone(meta.phone || "");
+        setLoading(false);
+
+        // Academic info loads in parallel, it never blocks the page
+        void loadAcademic(user.id);
 
         const { data } = await supabase
           .from("profiles")
@@ -83,59 +133,26 @@ const AccountPageBody = ({
           .eq("user_id", user.id)
           .maybeSingle();
 
-        if (data) {
-          if (allowedRoles && !allowedRoles.includes(data.role)) {
-            navigate("/profile");
-            return;
-          }
-          setProfile(data);
-          setFullName(data.full_name || "");
-          setPhone(data.phone || "");
-        } else {
-          const meta = (user.user_metadata as any) || {};
-          setProfile({
-            full_name: meta.full_name || user.email?.split("@")[0] || "",
-            email: user.email || "",
-            phone: meta.phone || "",
-            role: meta.role || "personal",
-            platform: meta.platform || "courses",
-            created_at: user.created_at || new Date().toISOString(),
-            avatar_url: null,
-          });
-          setFullName(meta.full_name || "");
+        if (cancelled || !data) return;
+        // Stay on this dashboard's account page even if the role doesn't match:
+        // never bounce the user into another dashboard.
+        if (allowedRoles && !allowedRoles.includes(data.role)) {
+          console.warn("[account] role not in allowedRoles, staying on current dashboard page", data.role);
         }
-
-        try {
-          const { data: membership } = await supabase
-            .from("department_members")
-            .select("department_id")
-            .eq("user_id", user.id)
-            .maybeSingle();
-          if (membership?.department_id) {
-            const { data: dept } = await supabase
-              .from("departments")
-              .select("department_name, institution_id, institution_type")
-              .eq("id", membership.department_id)
-              .maybeSingle();
-            if (dept) {
-              const instType = (dept.institution_type as "college" | "institute") || "college";
-              let name: string | null = null;
-              if (instType === "college") {
-                const { data: c } = await supabase.from("college_registrations").select("college_name").eq("id", dept.institution_id).maybeSingle();
-                name = c?.college_name ?? null;
-              } else {
-                const { data: c } = await supabase.from("institute_registrations").select("institute_name").eq("id", dept.institution_id).maybeSingle();
-                name = c?.institute_name ?? null;
-              }
-              setAcademic({ collegeName: name, departmentName: dept.department_name, institutionType: instType });
-            }
-          }
-        } catch (e) { console.error(e); }
+        setProfile(data);
+        setFullName(data.full_name || "");
+        setPhone(data.phone || "");
+      } catch (e) {
+        console.error("[account] load error", e);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
+
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
+
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

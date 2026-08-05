@@ -21,7 +21,8 @@ const LeadershipProfile = () => {
   useEffect(() => {
     (async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { session } } = await supabase.auth.getSession();
+        const user = session?.user;
         if (!user) { navigate("/login"); return; }
 
         const { data: prof } = await supabase
@@ -30,11 +31,11 @@ const LeadershipProfile = () => {
           .eq("user_id", user.id)
           .maybeSingle();
 
+        // Stay inside this dashboard's account page; never redirect to another dashboard.
         if (!prof || !["department_head", "vice_dean", "dean"].includes(prof.role)) {
-          navigate("/profile");
-          return;
+          console.warn("[leadership/profile] unexpected role", prof?.role);
         }
-        setRole(prof.role);
+        setRole(prof?.role || "");
 
         const { data: mem } = await supabase
           .from("department_members")

@@ -52,59 +52,60 @@ const UserProfile = () => {
 
   const loadAll = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      // getSession reads the local session (no network) => faster first paint
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
       if (!user) { navigate("/login"); return; }
 
-      const { data: prof } = await supabase
-        .from("profiles")
-        .select("full_name, email, phone, role, platform, created_at, avatar_url")
-        .eq("user_id", user.id)
-        .maybeSingle();
+      // Paint immediately from auth metadata
+      const meta = (user.user_metadata as any) || {};
+      setProfile((prev) => prev ?? {
+        full_name: meta.full_name || user.email?.split("@")[0] || "",
+        email: user.email || "",
+        phone: meta.phone || "",
+        role: meta.role || "personal",
+        platform: meta.platform || "courses",
+        created_at: user.created_at || new Date().toISOString(),
+        avatar_url: null,
+      });
+      setLoading(false);
 
-      if (prof) {
-        setProfile(prof);
-      } else {
-        const meta = (user.user_metadata as any) || {};
-        setProfile({
-          full_name: meta.full_name || user.email?.split("@")[0] || "",
-          email: user.email || "",
-          phone: meta.phone || "",
-          role: meta.role || "personal",
-          platform: meta.platform || "courses",
-          created_at: user.created_at || new Date().toISOString(),
-          avatar_url: null,
-        });
-      }
-
-      try {
-        const { data: members } = await supabase
+      // Profile + department record load in parallel
+      const [profRes, membersRes] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("full_name, email, phone, role, platform, created_at, avatar_url")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+        supabase
           .from("department_members")
           .select("department_id, date_of_birth, national_id, gender, address, qualification, photo_url")
-          .eq("user_id", user.id);
+          .eq("user_id", user.id),
+      ]);
 
-        if (members && members.length > 0) {
-          const ids = members.map(m => m.department_id).filter(Boolean);
-          let codes: string[] = [];
-          if (ids.length) {
-            const { data: depts } = await supabase
-              .from("departments")
-              .select("id, department_code")
-              .in("id", ids);
-            codes = Array.from(new Set((depts || []).map((d: any) => d.department_code).filter(Boolean)));
-          }
-          const first: any = members[0];
-          setRecord({
-            date_of_birth: first.date_of_birth ?? null,
-            national_id: first.national_id ?? null,
-            gender: first.gender ?? null,
-            address: first.address ?? null,
-            qualification: first.qualification ?? null,
-            photo_url: first.photo_url ?? null,
-            department_codes: codes,
-          });
+      if (profRes.data) setProfile(profRes.data);
+
+      const members = membersRes.data;
+      if (members && members.length > 0) {
+        const ids = members.map(m => m.department_id).filter(Boolean);
+        let codes: string[] = [];
+        if (ids.length) {
+          const { data: depts } = await supabase
+            .from("departments")
+            .select("id, department_code")
+            .in("id", ids);
+          codes = Array.from(new Set((depts || []).map((d: any) => d.department_code).filter(Boolean)));
         }
-      } catch (e) {
-        console.error("student record load error", e);
+        const first: any = members[0];
+        setRecord({
+          date_of_birth: first.date_of_birth ?? null,
+          national_id: first.national_id ?? null,
+          gender: first.gender ?? null,
+          address: first.address ?? null,
+          qualification: first.qualification ?? null,
+          photo_url: first.photo_url ?? null,
+          department_codes: codes,
+        });
       }
     } catch (e) {
       console.error("profile page load error", e);
@@ -112,6 +113,7 @@ const UserProfile = () => {
       setLoading(false);
     }
   };
+
 
   useEffect(() => { loadAll(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [navigate]);
 

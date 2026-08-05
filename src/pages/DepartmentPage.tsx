@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ChevronLeft, ChevronRight, Copy, UserCheck, GraduationCap,
@@ -35,7 +35,6 @@ interface DepartmentMember {
 
 type StatusFilter = "all" | "linked" | "pending";
 
-// Module-level snapshot cache keyed by deptId, for instant revisit hydration.
 type MemberProfile = { email: string; phone: string; live_photo_url: string | null; full_name: string; must_change_password: boolean };
 type DeptSnapshot = {
   deptName: string;
@@ -46,7 +45,6 @@ type DeptSnapshot = {
 };
 const __deptCache = new Map<string, DeptSnapshot>();
 
-// Any non-student, non-head role in a department is a faculty member.
 const STUDENT_ROLE = "student";
 const HEAD_ROLE = "department_head";
 
@@ -75,7 +73,6 @@ const DepartmentPage = () => {
   const [newMemberRole, setNewMemberRole] = useState<"student" | "lecturer">("student");
   const [adding, setAdding] = useState(false);
 
-  // Activation state
   const [activationResults, setActivationResults] = useState<Array<{ full_name: string; email: string; password: string }>>([]);
   const [showActivationResults, setShowActivationResults] = useState(false);
   const [memberToActivate, setMemberToActivate] = useState<DepartmentMember | null>(null);
@@ -83,9 +80,10 @@ const DepartmentPage = () => {
   const [activatePhone, setActivatePhone] = useState("");
   const [activating, setActivating] = useState(false);
 
+  const loadRequestIdRef = useRef(0);
+
   useEffect(() => {
     if (!deptId) return;
-    // Instant hydration from cached snapshot, then refresh in background.
     const cached = __deptCache.get(deptId);
     if (cached) {
       setDeptName(cached.deptName);
@@ -107,7 +105,6 @@ const DepartmentPage = () => {
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [deptId]);
 
-  // Realtime subscription — auto-refresh member list when department_members changes
   useRealtimeRefresh(
     ["department_members"],
     () => {
@@ -121,6 +118,7 @@ const DepartmentPage = () => {
 
   const loadDepartmentData = async () => {
     if (!deptId) return;
+    const requestId = ++loadRequestIdRef.current;
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/login"); return; }
@@ -133,7 +131,7 @@ const DepartmentPage = () => {
 
       if (!dept) { navigate("/institution/dashboard"); return; }
 
-
+      if (requestId !== loadRequestIdRef.current) return;
 
       setDeptName(dept.department_name);
       setDeptStatus(dept.status);
@@ -153,7 +151,15 @@ const DepartmentPage = () => {
         from += 1000;
       }
 
-      // Auto-ensure a department_head invitation slot exists (only one allowed per department)
+      if (requestId !== loadRequestIdRef.current) return;
+
+      const seenIds = new Set<string>();
+      allMembers = allMembers.filter(m => {
+        if (seenIds.has(m.id)) return false;
+        seenIds.add(m.id);
+        return true;
+      });
+
       const hasHead = allMembers.some(m => m.role === "department_head");
       if (!hasHead) {
         const headInsert = {
@@ -167,18 +173,21 @@ const DepartmentPage = () => {
           .insert(headInsert)
           .select()
           .maybeSingle();
-        if (newHead) allMembers = [...allMembers, newHead as DepartmentMember];
+        if (newHead && !seenIds.has(newHead.id)) {
+          allMembers = [...allMembers, newHead as DepartmentMember];
+        }
       }
 
-      // Hide invite-link placeholders (pending signups)
       const visibleMembers = allMembers.filter(m => {
         if (m.user_id) return true;
         const nm = (m.full_name || "").trim();
         return nm !== "عضو جديد" && nm !== "New Member";
       });
+
+      if (requestId !== loadRequestIdRef.current) return;
+
       setMembers(visibleMembers);
 
-      // Fetch profile data for linked members
       const linkedUserIds = allMembers.filter(m => m.user_id).map(m => m.user_id as string);
       let snapshotMap: Record<string, MemberProfile> = {};
       if (linkedUserIds.length > 0) {
@@ -199,10 +208,10 @@ const DepartmentPage = () => {
           };
         });
         snapshotMap = map;
+        if (requestId !== loadRequestIdRef.current) return;
         setProfilesMap(map);
       }
 
-      // Save snapshot for instant revisit hydration
       __deptCache.set(deptId, {
         deptName: dept.department_name,
         deptStatus: dept.status,
@@ -213,9 +222,10 @@ const DepartmentPage = () => {
     } catch {
       navigate("/institution/dashboard");
     } finally {
-      setLoading(false);
+      if (requestId === loadRequestIdRef.current) {
+        setLoading(false);
+      }
     }
-
   };
 
   const handleDeleteMember = async () => {
@@ -231,7 +241,10 @@ const DepartmentPage = () => {
 
       setMembers(prev => prev.filter(m => m.id !== memberToDelete.id));
       sonnerToast.success(isRtl ? "تم حذف العضو بنجاح" : "Member deleted successfully", { duration: 1500 });
-      if (deptId) __deptCache.delete(deptId);
+      if (deptId) {
+        __deptCache.delete(deptId);
+        loadDepartmentData();
+      }
     } catch {
       sonnerToast.error(isRtl ? "فشل حذف العضو" : "Failed to delete member");
     } finally {
@@ -288,7 +301,6 @@ const DepartmentPage = () => {
         added.push(...(data as DepartmentMember[]));
       }
 
-      // Activate each new member immediately via edge function
       const results: Array<{ full_name: string; email: string; password: string }> = [];
       for (const member of added) {
         try {
@@ -307,7 +319,6 @@ const DepartmentPage = () => {
               password: fnData.password,
             });
           } else {
-            // Still show the member even if activation failed (they remain pending)
             console.error("Activation failed for", member.full_name, fnError || fnData);
           }
         } catch (actErr) {
@@ -396,12 +407,10 @@ const DepartmentPage = () => {
     });
   };
 
-  // Every faculty role (lecturer, professor, doctor, assistant_lecturer, dean, vice_dean...) shows under Members.
-  // Department head also shows under Members.
   const allLecturers = members.filter(m => m.role !== STUDENT_ROLE);
   const allStudents = members.filter(m => m.role === STUDENT_ROLE);
-  const lecturers = useMemo(() => filterMembers(allLecturers), [members, searchQuery, statusFilter]);
-  const students = useMemo(() => filterMembers(allStudents), [members, searchQuery, statusFilter]);
+  const lecturers = useMemo(() => filterMembers(allLecturers), [members, searchQuery, statusFilter, profilesMap]);
+  const students = useMemo(() => filterMembers(allStudents), [members, searchQuery, statusFilter, profilesMap]);
 
   const baseUrl = window.location.origin;
   const instPath = institutionType === "college" ? "college" : "institute";
@@ -452,87 +461,108 @@ const DepartmentPage = () => {
     sonnerToast.success(isRtl ? "تم تصدير Excel" : "Excel exported!", { duration: 1000 });
   };
 
-  const statusButtons: { value: StatusFilter; labelAr: string; labelEn: string }[] = [
-    { value: "all", labelAr: "الكل", labelEn: "All" },
-    { value: "linked", labelAr: "مسجّل ✅", labelEn: "Linked ✅" },
-    { value: "pending", labelAr: "بانتظار ⏳", labelEn: "Pending ⏳" },
-  ];
-
   const renderMemberCard = (member: DepartmentMember, roleParam: string, colorClass: string, icon: React.ReactNode) => {
     const inviteLink = `${baseUrl}/signup/${instPath}/${roleParam}?code=${member.invitation_code}`;
     const profile = member.user_id ? profilesMap[member.user_id] : null;
     const displayName = profile?.full_name || member.full_name;
     const avatar = profile?.live_photo_url || member.photo_url;
     const isLinked = !!member.user_id;
-    // Activated only after the member signs in with the temp password and sets a new one.
     const isActivated = isLinked && !!profile && profile.must_change_password === false;
     const shareText = isRtl
       ? `مرحباً ${member.full_name}، يمكنك التسجيل في منصة إدراك عبر هذا الرابط:\n${inviteLink}\nكود الدعوة: ${member.invitation_code}`
       : `Hi ${member.full_name}, register on Edrak platform:\n${inviteLink}\nInvitation code: ${member.invitation_code}`;
 
     return (
-      <div key={member.id} className="rounded-2xl border-2 bg-card shadow-sm hover:shadow-md hover:border-primary/40 transition-all overflow-hidden">
-        {/* Identity row */}
-        <div className="flex items-center gap-3 p-3 sm:p-4">
-          <button
-            type="button"
-            onClick={() => navigate(`/institution/member/${member.id}`)}
-            className="flex items-center gap-3 min-w-0 text-start hover:opacity-80 transition-opacity flex-1"
-          >
-            <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full ${colorClass} flex items-center justify-center shrink-0 overflow-hidden ring-2 ring-background shadow-sm`}>
-              {avatar ? (
-                <img
-                  src={avatar}
-                  alt={displayName}
-                  className="w-full h-full object-cover"
-                  onError={(e) => { e.currentTarget.style.display = "none"; }}
-                />
-              ) : icon}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="font-bold text-foreground text-sm sm:text-base truncate flex items-center gap-1.5">
-                {displayName}
+      <div key={member.id} className="rounded-xl border bg-card shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group">
+        <div className="p-4">
+          <div className="flex items-start gap-3">
+            <button
+              type="button"
+              onClick={() => navigate(`/institution/member/${member.id}`)}
+              className="shrink-0"
+            >
+              <div className={`w-11 h-11 rounded-full ${colorClass} flex items-center justify-center overflow-hidden ring-2 ring-background shadow-sm group-hover:ring-primary/30 transition-all`}>
+                {avatar ? (
+                  <img
+                    src={avatar}
+                    alt={displayName}
+                    className="w-full h-full object-cover"
+                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                  />
+                ) : icon}
+              </div>
+            </button>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => navigate(`/institution/member/${member.id}`)}
+                  className="font-bold text-foreground text-sm hover:text-primary transition-colors truncate"
+                >
+                  {displayName}
+                </button>
                 {member.role === "department_head" && (
                   <Badge className="bg-amber-500 hover:bg-amber-600 text-white text-[10px] px-1.5 py-0 gap-0.5 shrink-0">
                     <Crown className="w-3 h-3" />
                     {isRtl ? "رئيس قسم" : "Head"}
                   </Badge>
                 )}
-              </p>
+              </div>
               {isLinked && profile ? (
-                <>
-                  <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
-                  <p className="text-xs text-muted-foreground truncate" dir="ltr">{profile.phone}</p>
-                </>
+                <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                  {profile.email && <span className="truncate max-w-[180px]">{profile.email}</span>}
+                  {profile.phone && <span dir="ltr" className="truncate">{profile.phone}</span>}
+                </div>
               ) : (
-                <p className="text-xs text-muted-foreground truncate">
-                  {isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending"}
+                <p className="text-xs text-muted-foreground mt-1">
+                  {isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending registration"}
                 </p>
               )}
             </div>
-          </button>
-          {isLinked && (
-            isActivated ? (
-              <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 shrink-0">
-                <UserCheck className="w-3.5 h-3.5" />
-                {isRtl ? "مفعّل" : "Activated"}
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="border-amber-500 text-amber-700 bg-amber-100/60 gap-1 shrink-0">
-                {isRtl ? "غير مفعّل" : "Not activated"}
-              </Badge>
-            )
-          )}
+
+            <div className="shrink-0 flex items-center gap-2">
+              {isLinked && (
+                isActivated ? (
+                  <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1">
+                    <UserCheck className="w-3.5 h-3.5" />
+                    {isRtl ? "مفعّل" : "Active"}
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="border-amber-500 text-amber-700 bg-amber-100/60">
+                    {isRtl ? "غير مفعّل" : "Inactive"}
+                  </Badge>
+                )
+              )}
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10"
+                onClick={() => setMemberToDelete(member)}
+                title={isRtl ? "حذف" : "Delete"}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-8 w-8 p-0"
+                onClick={() => openEditDialog(member)}
+                title={isRtl ? "تعديل" : "Edit"}
+              >
+                <Pencil className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
         </div>
 
-        {/* Actions row (separated) */}
-        <div className="border-t bg-muted/30 px-3 py-2.5 sm:px-4 flex items-center gap-1.5 flex-wrap">
-          {!isLinked && (
-            <>
+        {!isLinked && (
+          <div className="border-t bg-muted/30 px-4 py-3">
+            <div className="flex items-center gap-2 flex-wrap">
               <Button
                 size="sm"
                 variant="default"
-                className="text-xs h-8 px-2 gap-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="text-xs h-8 px-3 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
                 onClick={() => {
                   setMemberToActivate(member);
                   setActivateEmail("");
@@ -542,26 +572,25 @@ const DepartmentPage = () => {
                 <Zap className="w-3.5 h-3.5" />
                 {isRtl ? "تفعيل" : "Activate"}
               </Button>
-              <span className="mx-1 h-5 w-px bg-border" aria-hidden />
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider me-1">
-                {isRtl ? "دعوة:" : "Invite:"}
-              </span>
-              <Button size="sm" variant="outline" className="text-xs h-8 px-2" onClick={() => copyToClipboard(member.invitation_code!)}>
-                <Copy className="w-3.5 h-3.5 me-1" />
-                {isRtl ? "نسخ الكود" : "Copy Code"}
+
+              <span className="h-5 w-px bg-border" aria-hidden />
+
+              <Button size="sm" variant="outline" className="text-xs h-8 px-2.5 gap-1" onClick={() => copyToClipboard(member.invitation_code!)}>
+                <Copy className="w-3.5 h-3.5" />
+                {isRtl ? "الكود" : "Code"}
               </Button>
-              <Button size="sm" variant="outline" className="text-xs h-8 px-2" onClick={() => copyToClipboard(inviteLink)}>
-                <LinkIcon className="w-3.5 h-3.5 me-1" />
-                {isRtl ? "نسخ الرابط" : "Copy Link"}
+              <Button size="sm" variant="outline" className="text-xs h-8 px-2.5 gap-1" onClick={() => copyToClipboard(inviteLink)}>
+                <LinkIcon className="w-3.5 h-3.5" />
+                {isRtl ? "الرابط" : "Link"}
               </Button>
               <a
                 href={`https://wa.me/?text=${encodeURIComponent(shareText)}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-green-600 border-green-300 hover:bg-green-50">
-                  <MessageCircle className="w-3.5 h-3.5 me-1" />
-                  {isRtl ? "واتساب" : "WhatsApp"}
+                <Button size="sm" variant="outline" className="text-xs h-8 px-2.5 gap-1 text-green-600 border-green-300 hover:bg-green-50">
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  WhatsApp
                 </Button>
               </a>
               {(() => {
@@ -571,42 +600,23 @@ const DepartmentPage = () => {
                 return (
                   <>
                     <a href={gmailUrl} target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-red-600 border-red-300 hover:bg-red-50">
-                        <Mail className="w-3.5 h-3.5 me-1" />
+                      <Button size="sm" variant="outline" className="text-xs h-8 px-2.5 gap-1 text-red-600 border-red-300 hover:bg-red-50">
+                        <Mail className="w-3.5 h-3.5" />
                         Gmail
                       </Button>
                     </a>
                     <a href={mailtoUrl}>
-                      <Button size="sm" variant="outline" className="text-xs h-8 px-2 text-blue-600 border-blue-300 hover:bg-blue-50">
-                        <Mail className="w-3.5 h-3.5 me-1" />
+                      <Button size="sm" variant="outline" className="text-xs h-8 px-2.5 gap-1 text-blue-600 border-blue-300 hover:bg-blue-50">
+                        <Mail className="w-3.5 h-3.5" />
                         {isRtl ? "إيميل" : "Email"}
                       </Button>
                     </a>
                   </>
                 );
               })()}
-              <span className="mx-1 h-5 w-px bg-border" aria-hidden />
-            </>
-          )}
-          <Button
-            size="sm"
-            variant="outline"
-            className="h-8 w-8 p-0"
-            onClick={() => openEditDialog(member)}
-            title={isRtl ? "تعديل" : "Edit"}
-          >
-            <Pencil className="w-3.5 h-3.5" />
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="h-8 w-8 p-0 text-destructive border-destructive/30 hover:bg-destructive/10"
-            onClick={() => setMemberToDelete(member)}
-            title={isRtl ? "حذف" : "Delete"}
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </Button>
-        </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -621,9 +631,8 @@ const DepartmentPage = () => {
 
   return (
     <div className="min-h-screen bg-background institution-admin-scope" dir={dir}>
-      {/* Sticky Top Header */}
       <header className="sticky top-0 z-30 border-b bg-gradient-to-l from-primary/10 via-card to-card shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/80">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between gap-3">
+        <div className="max-w-5xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between gap-3">
           <h1 className="text-base sm:text-xl font-extrabold text-foreground flex items-center gap-2 min-w-0">
             <span className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-md shrink-0">
               <Layers className="w-5 h-5" />
@@ -642,76 +651,65 @@ const DepartmentPage = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        {/* Department Title */}
-        <div className="flex items-center gap-3 sm:gap-4 mb-6">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-            <Layers className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
+      <main className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-6">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shrink-0 shadow-md">
+            <Layers className="w-6 h-6 sm:w-7 sm:h-7 text-primary-foreground" />
           </div>
           <div className="min-w-0 flex-1">
             <h2 className="text-lg sm:text-2xl font-black text-foreground truncate">{deptName}</h2>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
               <Badge variant={deptStatus === "active" ? "default" : "secondary"} className="text-xs">
-                {deptStatus === "active" ? (isRtl ? "مفعّل ✅" : "Active ✅") : (isRtl ? "بانتظار الموافقة" : "Pending")}
+                {deptStatus === "active" ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "بانتظار الموافقة" : "Pending")}
               </Badge>
-              <span className="text-xs sm:text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {allLecturers.length} {isRtl ? "عضو" : "members"} · {allStudents.length} {isRtl ? "طالب" : "students"}
               </span>
             </div>
           </div>
         </div>
 
-
-        {/* Search, Filter & Export Bar */}
-        <div className="flex flex-col gap-3 mb-6">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder={isRtl ? "ابحث بالاسم أو البريد..." : "Search by name or email..."}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="ps-9"
-              />
-            </div>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder={isRtl ? "ابحث بالاسم أو البريد..." : "Search by name or email..."}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="ps-9"
+            />
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2">
             <Button size="sm" variant="outline" onClick={exportExcel} className="gap-1.5">
               <Download className="w-4 h-4" />
-              {isRtl ? "تصدير Excel" : "Export Excel"}
+              Excel
             </Button>
             <Button size="sm" variant="outline" onClick={exportCSV} className="gap-1.5">
               <Download className="w-4 h-4" />
-              {isRtl ? "تصدير CSV" : "Export CSV"}
+              CSV
             </Button>
-            <span className="text-xs text-muted-foreground ms-2">
-              {isRtl ? `${lecturers.length + students.length} عضو` : `${lecturers.length + students.length} members`}
-            </span>
           </div>
         </div>
 
-        {/* Lecturers Section */}
-        <Card className="mb-8 border-2 border-green-500/30 shadow-md overflow-hidden">
-          <div className="bg-gradient-to-r from-green-500 to-emerald-600 h-1.5" />
-          <CardHeader className="pb-3 pt-4 bg-green-50/40 dark:bg-green-950/10">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <div className="w-9 h-9 rounded-lg bg-green-500/15 flex items-center justify-center">
-                <UserCheck className="w-5 h-5 text-green-600" />
+        <Card className="border shadow-sm overflow-hidden">
+          <CardHeader className="pb-3 pt-4 bg-green-50/40 dark:bg-green-950/10 border-b">
+            <CardTitle className="flex items-center gap-2.5 text-base">
+              <div className="w-8 h-8 rounded-lg bg-green-500/15 flex items-center justify-center">
+                <UserCheck className="w-4.5 h-4.5 text-green-600" />
               </div>
               <span className="font-extrabold">{isRtl ? "الأعضاء" : "Members"}</span>
-              <Badge variant="outline" className="text-green-700 border-green-500 bg-green-100/60 ms-2 font-bold">
+              <Badge variant="outline" className="text-green-700 border-green-300 bg-green-100/60 font-bold text-xs">
                 {lecturers.length}/{allLecturers.length}
               </Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4">
             {lecturers.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">
+              <p className="text-sm text-muted-foreground text-center py-8">
                 {searchQuery
                   ? (isRtl ? "لا توجد نتائج مطابقة" : "No matching results")
                   : (isRtl ? "لا يوجد أعضاء مسجّلون بعد" : "No registered members yet")}
               </p>
-
             ) : (
               <div className="space-y-3">
                 {lecturers.map(member =>
@@ -724,23 +722,21 @@ const DepartmentPage = () => {
           </CardContent>
         </Card>
 
-        {/* Students Section */}
-        <Card className="border-2 border-blue-500/30 shadow-md overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 h-1.5" />
-          <CardHeader className="pb-3 pt-4 bg-blue-50/40 dark:bg-blue-950/10">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <div className="w-9 h-9 rounded-lg bg-blue-500/15 flex items-center justify-center">
-                <GraduationCap className="w-5 h-5 text-blue-600" />
+        <Card className="border shadow-sm overflow-hidden">
+          <CardHeader className="pb-3 pt-4 bg-blue-50/40 dark:bg-blue-950/10 border-b">
+            <CardTitle className="flex items-center gap-2.5 text-base">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/15 flex items-center justify-center">
+                <GraduationCap className="w-4.5 h-4.5 text-blue-600" />
               </div>
               <span className="font-extrabold">{isRtl ? "الطلاب" : "Students"}</span>
-              <Badge variant="outline" className="text-blue-700 border-blue-500 bg-blue-100/60 ms-2 font-bold">
+              <Badge variant="outline" className="text-blue-700 border-blue-300 bg-blue-100/60 font-bold text-xs">
                 {students.length}/{allStudents.length}
               </Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4">
             {students.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">
+              <p className="text-sm text-muted-foreground text-center py-8">
                 {searchQuery
                   ? (isRtl ? "لا توجد نتائج مطابقة" : "No matching results")
                   : (isRtl ? "لا يوجد طلاب مسجّلون بعد" : "No registered students yet")}
@@ -756,7 +752,6 @@ const DepartmentPage = () => {
         </Card>
       </main>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!memberToDelete} onOpenChange={(open) => !open && setMemberToDelete(null)}>
         <AlertDialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg w-full">
           <AlertDialogHeader>
@@ -786,7 +781,6 @@ const DepartmentPage = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Edit Name Dialog */}
       <AlertDialog open={!!memberToEdit} onOpenChange={(open) => !open && setMemberToEdit(null)}>
         <AlertDialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg w-full">
           <AlertDialogHeader>
@@ -820,7 +814,6 @@ const DepartmentPage = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Add Member Dialog */}
       <AlertDialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <AlertDialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg w-full max-h-[90vh] overflow-y-auto">
           <AlertDialogHeader>
@@ -882,7 +875,6 @@ const DepartmentPage = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Activate Existing Member Dialog */}
       <Dialog open={!!memberToActivate} onOpenChange={(open) => !open && setMemberToActivate(null)}>
         <DialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-md w-full">
           <DialogHeader>
@@ -936,7 +928,6 @@ const DepartmentPage = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Activation Results Dialog */}
       <Dialog open={showActivationResults} onOpenChange={setShowActivationResults}>
         <DialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg w-full max-h-[90vh] overflow-y-auto">
           <DialogHeader>

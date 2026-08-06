@@ -6,6 +6,7 @@ import { toast } from "@/hooks/use-toast";
 import {
   FacultyMemberForm,
   type FacultyMemberFormData,
+  type DepartmentOption,
 } from "@/components/FacultyMemberForm";
 import { Loader2, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,6 +31,7 @@ const StudentInvitationRegistration = () => {
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successEmail, setSuccessEmail] = useState("");
+  const [departments, setDepartments] = useState<DepartmentOption[]>([]);
 
   useEffect(() => {
     if (!token) {
@@ -80,6 +82,23 @@ const StudentInvitationRegistration = () => {
           institutionName: row.institution_name || "",
         });
         setStatus("valid");
+
+        // Fetch departments for this institution
+        const { data: depts } = await supabase
+          .from("departments")
+          .select("id, department_name, department_code")
+          .eq("institution_id", row.institution_id)
+          .eq("institution_type", row.kind === "college" ? "college" : "institute")
+          .eq("status", "active");
+        if (depts) {
+          setDepartments(
+            depts.map((d: any) => ({
+              id: d.id,
+              department_name: d.department_name,
+              department_code: d.department_code || "",
+            }))
+          );
+        }
       } catch (err: any) {
         console.error("Unexpected error:", err);
         setStatus("error");
@@ -93,18 +112,15 @@ const StudentInvitationRegistration = () => {
     setSaving(true);
 
     try {
-      const codes = Array.from(
-        new Set(
-          (data.deptCodesInput || "")
-            .split(/[\s,،]+/)
-            .map((c) => c.trim().toUpperCase())
-            .filter(Boolean)
-        )
-      );
+      const selectedIds = data.selectedDeptIds || [];
+      const codes = departments
+        .filter((d) => selectedIds.includes(d.id))
+        .map((d) => d.department_code)
+        .filter(Boolean);
 
       if (codes.length === 0) {
         throw new Error(
-          isRtl ? "أدخل كود قسم واحد على الأقل" : "Enter at least one department code"
+          isRtl ? "اختر قسمًا واحدًا على الأقل" : "Select at least one department"
         );
       }
 
@@ -266,6 +282,7 @@ const StudentInvitationRegistration = () => {
       saving={saving}
       onSubmit={handleSubmit}
       onCancel={() => navigate("/")}
+      departments={departments}
       title={
         isRtl
           ? `تسجيل طالب - ${invitationData.institutionName}`

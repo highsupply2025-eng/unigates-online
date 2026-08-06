@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Building2, Mail, Phone, MapPin, Camera, Lock, Save, Loader2,
   Eye, EyeOff, ShieldCheck, Calendar, GraduationCap, Users,
+  CreditCard, Sparkles, Landmark, User,
 } from "lucide-react";
 import { getInstitutionMenuItems } from "@/components/institutionMenuItems";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +15,6 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
-import { Landmark } from "lucide-react";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 import { useInstitutionStats } from "@/hooks/useInstitutionStats";
@@ -24,7 +24,7 @@ interface InstitutionData {
   id: string;
   kind: "college" | "institute";
   name: string;
-  leaderName: string;       // dean or director
+  leaderName: string;
   email: string;
   phone: string;
   city: string;
@@ -38,6 +38,18 @@ interface InstitutionData {
   subscription_plan?: string | null;
 }
 
+const PLAN_LABELS: Record<string, { ar: string; en: string }> = {
+  free: { ar: "المجانية", en: "Free" },
+  monthly: { ar: "الشهرية", en: "Monthly" },
+  annual: { ar: "السنوية", en: "Annual" },
+};
+
+function getPlanLabel(plan: string | null | undefined, isRtl: boolean) {
+  if (!plan) return isRtl ? "المجانية" : "Free";
+  const label = PLAN_LABELS[plan];
+  return label ? (isRtl ? label.ar : label.en) : isRtl ? "المجانية" : "Free";
+}
+
 const InstitutionProfile = () => {
   const { dir, language, toggleLanguage } = useLanguage();
   const isRtl = language === "ar";
@@ -48,13 +60,11 @@ const InstitutionProfile = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<InstitutionData | null>(null);
 
-  // Live stats from authoritative tables (replaces stale registration-table student_count)
-  const { studentCount: liveStudentCount, departmentCount: liveDeptCount } = useInstitutionStats(
+  const { studentCount: liveStudentCount, departmentCount: liveDeptCount, facultyCount: liveFacultyCount } = useInstitutionStats(
     data?.id ?? null,
     data?.kind ?? null,
   );
 
-  // editable
   const [leaderName, setLeaderName] = useState("");
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("");
@@ -62,20 +72,16 @@ const InstitutionProfile = () => {
   const [savingInfo, setSavingInfo] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
 
-  // password
   const [newPass, setNewPass] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [savingPass, setSavingPass] = useState(false);
   const [refreshTick, setRefreshTick] = useState(0);
 
-  // Auto-refresh institution profile (college & institute) on any change
   useRealtimeRefresh(
     ["college_registrations", "institute_registrations", "departments"],
     () => setRefreshTick((n) => n + 1)
   );
-
-
 
   useEffect(() => {
     (async () => {
@@ -86,7 +92,6 @@ const InstitutionProfile = () => {
 
         const email = (user.email || "").toLowerCase();
 
-        // try college first
         let kind: "college" | "institute" = "college";
         const { data: college } = await supabase
           .from("college_registrations")
@@ -148,7 +153,6 @@ const InstitutionProfile = () => {
             description: isRtl ? "هذه الصفحة لإدارة المؤسسة فقط" : "Institution admin only",
             variant: "destructive",
           });
-          // Stay on this dashboard's account page instead of jumping to another dashboard.
           return;
         }
 
@@ -269,9 +273,7 @@ const InstitutionProfile = () => {
               </h1>
               {data?.subscription_plan && (
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-                  {isRtl
-                    ? (data.subscription_plan === "free" ? "المجانية" : data.subscription_plan === "monthly" ? "الشهرية" : "السنوية")
-                    : (data.subscription_plan === "free" ? "Free" : data.subscription_plan === "monthly" ? "Monthly" : "Annual")}
+                  {getPlanLabel(data.subscription_plan, isRtl)}
                 </span>
               )}
             </div>
@@ -308,20 +310,26 @@ const InstitutionProfile = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background institution-admin-scope" dir={dir}>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 institution-admin-scope" dir={dir}>
       {headerNode}
 
+      <main className="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-8 space-y-6">
 
+        {/* ── Cover + Profile Hero ── */}
+        <Card className="overflow-hidden border-0 shadow-xl shadow-primary/10">
+          {/* Cover banner */}
+          <div className="relative h-40 sm:h-52 bg-gradient-to-br from-primary via-primary/80 to-[hsl(160,60%,35%)] overflow-hidden">
+            <div className="absolute inset-0 opacity-20">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-1/3 -translate-x-1/4 blur-2xl" />
+            </div>
+          </div>
 
-
-      <main className="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-8 space-y-5">
-        {/* Hero */}
-        <Card className="overflow-hidden border-s-4 border-s-primary shadow-md">
-          <div className="h-24 bg-gradient-to-r from-primary/80 via-primary to-primary/70" />
-          <CardContent className="p-5 sm:p-6 -mt-12">
-            <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 sm:gap-5">
-              <div className="relative shrink-0">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-br from-primary to-primary/60 ring-4 ring-background shadow-xl overflow-hidden flex items-center justify-center">
+          <CardContent className="relative px-5 sm:px-8 pb-6">
+            {/* Logo — overlaps the cover */}
+            <div className="relative -mt-16 sm:-mt-20 flex flex-col sm:flex-row items-center sm:items-end gap-4 sm:gap-6">
+              <div className="relative shrink-0 group">
+                <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-gradient-to-br from-primary to-primary/60 ring-4 ring-background shadow-2xl overflow-hidden flex items-center justify-center border-4 border-primary/20">
                   {data.logo_url ? (
                     <img
                       src={data.logo_url}
@@ -333,24 +341,26 @@ const InstitutionProfile = () => {
                       }}
                     />
                   ) : (
-                    <span className="text-3xl font-black text-primary-foreground">{initials}</span>
+                    <span className="text-4xl sm:text-5xl font-black text-primary-foreground drop-shadow-lg">{initials}</span>
                   )}
                 </div>
                 <button
                   type="button"
                   onClick={() => fileRef.current?.click()}
                   disabled={uploadingLogo}
-                  className="absolute -bottom-1 -end-1 w-9 h-9 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-110 transition-transform disabled:opacity-60"
+                  className="absolute bottom-1 end-1 w-10 h-10 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-110 transition-transform disabled:opacity-60 ring-2 ring-background"
                   aria-label={isRtl ? "تغيير الشعار" : "Change logo"}
                 >
                   {uploadingLogo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
                 </button>
                 <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
               </div>
-              <div className="flex-1 text-center sm:text-start pt-2 sm:pt-0 sm:pb-2">
-                <h2 className="text-2xl font-extrabold text-foreground tracking-tight">{data.name}</h2>
-                <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-2">
-                  <Badge className="bg-gradient-to-r from-primary to-primary/70 text-primary-foreground gap-1">
+
+              {/* Name + badges */}
+              <div className="flex-1 text-center sm:text-start sm:pb-2">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">{data.name}</h2>
+                <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-2.5">
+                  <Badge className="bg-gradient-to-r from-primary to-primary/70 text-primary-foreground gap-1 shadow-sm">
                     <ShieldCheck className="w-3 h-3" />
                     {data.kind === "college" ? (isRtl ? "إدارة كلية" : "College Admin") : (isRtl ? "إدارة معهد" : "Institute Admin")}
                   </Badge>
@@ -364,135 +374,152 @@ const InstitutionProfile = () => {
           </CardContent>
         </Card>
 
-        {/* Quick stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <Card>
+        {/* ── Quick Stats ── */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <Card className="border-primary/15 hover:border-primary/30 transition-colors">
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <GraduationCap className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">{isRtl ? "الأقسام" : "Departments"}</p>
-                <p className="font-extrabold text-lg">{liveDeptCount}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-600/5 text-blue-600 flex items-center justify-center shrink-0">
                 <Users className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">{isRtl ? "الطلاب" : "Students"}</p>
-                <p className="font-extrabold text-lg">{liveStudentCount}</p>
+                <p className="text-[11px] text-muted-foreground font-medium">{isRtl ? "الطلاب" : "Students"}</p>
+                <p className="font-extrabold text-xl text-foreground">{liveStudentCount}</p>
               </div>
             </CardContent>
           </Card>
-          <Card className="col-span-2 sm:col-span-1">
+          <Card className="border-primary/15 hover:border-primary/30 transition-colors">
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 text-emerald-600 flex items-center justify-center shrink-0">
+                <GraduationCap className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-[11px] text-muted-foreground font-medium">{isRtl ? "الأقسام" : "Departments"}</p>
+                <p className="font-extrabold text-xl text-foreground">{liveDeptCount}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-primary/15 hover:border-primary/30 transition-colors">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500/10 to-violet-600/5 text-violet-600 flex items-center justify-center shrink-0">
+                <User className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-[11px] text-muted-foreground font-medium">{isRtl ? "هيئة التدريس" : "Faculty"}</p>
+                <p className="font-extrabold text-xl text-foreground">{liveFacultyCount}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-primary/15 hover:border-primary/30 transition-colors">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500/10 to-amber-600/5 text-amber-600 flex items-center justify-center shrink-0">
                 <MapPin className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">{isRtl ? "المدينة" : "City"}</p>
+                <p className="text-[11px] text-muted-foreground font-medium">{isRtl ? "المدينة" : "City"}</p>
                 <p className="font-extrabold truncate">{data.city || "—"}</p>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Subscription Plan */}
-        <Card className="border-primary/20 bg-primary/5">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <ShieldCheck className="w-5 h-5" />
+        {/* ── Subscription Plan ── */}
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-primary/[0.02] to-transparent">
+          <CardContent className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/20 shrink-0">
+                <CreditCard className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">{isRtl ? "الباقة الحالية" : "Current Plan"}</p>
-                <p className="font-extrabold text-lg text-primary">
-                  {isRtl
-                    ? (data.subscription_plan === "free" ? "المجانية" : data.subscription_plan === "monthly" ? "الشهرية" : "السنوية")
-                    : (data.subscription_plan === "free" ? "Free Plan" : data.subscription_plan === "monthly" ? "Monthly Plan" : "Annual Plan")}
+                <p className="text-xs text-muted-foreground font-medium">{isRtl ? "الباقة الحالية" : "Current Plan"}</p>
+                <p className="font-extrabold text-xl text-primary">
+                  {getPlanLabel(data.subscription_plan, isRtl)}
                 </p>
               </div>
             </div>
-            <div className="text-start text-xs text-muted-foreground space-y-0.5">
+            <div className="text-start text-sm text-muted-foreground space-y-1 bg-background/60 rounded-xl px-4 py-3 border border-primary/10">
               {data.subscription_plan === "free" ? (
                 <>
-                  <p>{isRtl ? "حتى 100 طالب لكل قسم" : "Up to 100 students per dept"}</p>
-                  <p>{isRtl ? "3 أعضاء هيئة تدريس لكل قسم" : "3 faculty per dept"}</p>
+                  <p className="flex items-center gap-2"><Sparkles className="w-3.5 h-3.5 text-primary/60" /> {isRtl ? "حتى 100 طالب لكل قسم" : "Up to 100 students per dept"}</p>
+                  <p className="flex items-center gap-2"><Sparkles className="w-3.5 h-3.5 text-primary/60" /> {isRtl ? "3 أعضاء هيئة تدريس لكل قسم" : "3 faculty per dept"}</p>
                 </>
               ) : (
                 <>
-                  <p>{isRtl ? "حتى 2000 طالب لكل قسم" : "Up to 2000 students per dept"}</p>
-                  <p>{isRtl ? "10 أعضاء هيئة تدريس لكل قسم" : "10 faculty per dept"}</p>
+                  <p className="flex items-center gap-2"><Sparkles className="w-3.5 h-3.5 text-primary/60" /> {isRtl ? "حتى 2000 طالب لكل قسم" : "Up to 2000 students per dept"}</p>
+                  <p className="flex items-center gap-2"><Sparkles className="w-3.5 h-3.5 text-primary/60" /> {isRtl ? "10 أعضاء هيئة تدريس لكل قسم" : "10 faculty per dept"}</p>
                 </>
               )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Editable info */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-primary" />
+        {/* ── College Info Form ── */}
+        <Card className="border-primary/15">
+          <CardHeader className="pb-3 border-b border-primary/10">
+            <CardTitle className="text-base flex items-center gap-2.5">
+              <span className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <Building2 className="w-5 h-5" />
+              </span>
               {isRtl
                 ? (data.kind === "college" ? "بيانات الكلية" : "بيانات المعهد")
                 : (data.kind === "college" ? "College Information" : "Institute Information")}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="p-5 space-y-5">
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label htmlFor="instName">{isRtl
+                <Label htmlFor="instName" className="text-sm font-semibold">{isRtl
                   ? (data.kind === "college" ? "اسم الكلية" : "اسم المعهد")
                   : (data.kind === "college" ? "College Name" : "Institute Name")}</Label>
-                <Input id="instName" value={data.name} disabled />
+                <Input id="instName" value={data.name} disabled className="bg-muted/50" />
                 <p className="text-[11px] text-muted-foreground">{isRtl ? "للتغيير راسل الدعم" : "Contact support to change"}</p>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="leader">{leaderLabel}</Label>
-                <Input id="leader" value={leaderName} onChange={(e) => setLeaderName(e.target.value)} />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="email">{isRtl ? "البريد الإلكتروني" : "Email"}</Label>
+                <Label htmlFor="leader" className="text-sm font-semibold">{leaderLabel}</Label>
                 <div className="relative">
-                  <Mail className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input id="email" value={data.email} disabled className="ps-9" dir="ltr" />
+                  <User className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input id="leader" value={leaderName} onChange={(e) => setLeaderName(e.target.value)} className="ps-9" />
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="phone">{isRtl ? "رقم الهاتف" : "Phone"}</Label>
+                <Label htmlFor="email" className="text-sm font-semibold">{isRtl ? "البريد الإلكتروني" : "Email"}</Label>
+                <div className="relative">
+                  <Mail className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input id="email" value={data.email} disabled className="ps-9 bg-muted/50" dir="ltr" />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="phone" className="text-sm font-semibold">{isRtl ? "رقم الهاتف" : "Phone"}</Label>
                 <div className="relative">
                   <Phone className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} className="ps-9" dir="ltr" />
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="city">{isRtl ? "المدينة" : "City"}</Label>
-                <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} />
+                <Label htmlFor="city" className="text-sm font-semibold">{isRtl ? "المدينة" : "City"}</Label>
+                <div className="relative">
+                  <MapPin className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} className="ps-9" />
+                </div>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="address">{isRtl ? "العنوان" : "Address"}</Label>
+                <Label htmlFor="address" className="text-sm font-semibold">{isRtl ? "العنوان" : "Address"}</Label>
                 <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} />
               </div>
               {data.kind === "college" && data.university_name && (
                 <div className="space-y-1.5 sm:col-span-2">
-                  <Label>{isRtl ? "الجامعة التابعة" : "Parent University"}</Label>
-                  <Input value={data.university_name} disabled />
+                  <Label className="text-sm font-semibold">{isRtl ? "الجامعة التابعة" : "Parent University"}</Label>
+                  <Input value={data.university_name} disabled className="bg-muted/50" />
                 </div>
               )}
               {data.kind === "institute" && data.specialization && (
                 <div className="space-y-1.5 sm:col-span-2">
-                  <Label>{isRtl ? "التخصص" : "Specialization"}</Label>
-                  <Input value={data.specialization} disabled />
+                  <Label className="text-sm font-semibold">{isRtl ? "التخصص" : "Specialization"}</Label>
+                  <Input value={data.specialization} disabled className="bg-muted/50" />
                 </div>
               )}
             </div>
-            <div className="flex justify-end">
-              <Button onClick={saveInfo} disabled={savingInfo} className="gap-2">
+            <div className="flex justify-end pt-2">
+              <Button onClick={saveInfo} disabled={savingInfo} className="gap-2 shadow-lg shadow-primary/20">
                 {savingInfo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 {isRtl ? "حفظ التغييرات" : "Save Changes"}
               </Button>
@@ -500,18 +527,20 @@ const InstitutionProfile = () => {
           </CardContent>
         </Card>
 
-        {/* Password */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Lock className="w-5 h-5 text-primary" />
+        {/* ── Change Password ── */}
+        <Card className="border-primary/15">
+          <CardHeader className="pb-3 border-b border-primary/10">
+            <CardTitle className="text-base flex items-center gap-2.5">
+              <span className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <Lock className="w-5 h-5" />
+              </span>
               {isRtl ? "تغيير كلمة المرور" : "Change Password"}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="p-5 space-y-5">
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label htmlFor="newPass">{isRtl ? "كلمة المرور الجديدة" : "New Password"}</Label>
+                <Label htmlFor="newPass" className="text-sm font-semibold">{isRtl ? "كلمة المرور الجديدة" : "New Password"}</Label>
                 <div className="relative">
                   <Input id="newPass" type={showPass ? "text" : "password"} value={newPass} onChange={(e) => setNewPass(e.target.value)} dir="ltr" className="pe-10" />
                   <button type="button" onClick={() => setShowPass(!showPass)} className="absolute end-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" aria-label="toggle">
@@ -520,14 +549,14 @@ const InstitutionProfile = () => {
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="confirmPass">{isRtl ? "تأكيد كلمة المرور" : "Confirm Password"}</Label>
+                <Label htmlFor="confirmPass" className="text-sm font-semibold">{isRtl ? "تأكيد كلمة المرور" : "Confirm Password"}</Label>
                 <Input id="confirmPass" type={showPass ? "text" : "password"} value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} dir="ltr" />
               </div>
             </div>
-            <p className="text-[11px] text-muted-foreground">{isRtl ? "8 أحرف على الأقل" : "At least 8 characters"}</p>
+            <p className="text-[11px] text-muted-foreground">{isRtl ? "8 أحرف على الأقل تحتوي حرف كبير وصغير ورقم" : "At least 8 characters with upper, lower and a digit"}</p>
             <Separator />
             <div className="flex justify-end">
-              <Button onClick={savePassword} disabled={savingPass} variant="default" className="gap-2">
+              <Button onClick={savePassword} disabled={savingPass} variant="default" className="gap-2 shadow-lg shadow-primary/20">
                 {savingPass ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
                 {isRtl ? "تحديث كلمة المرور" : "Update Password"}
               </Button>

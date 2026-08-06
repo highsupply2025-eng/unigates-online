@@ -38,7 +38,7 @@ interface RpcResponse {
   total: number;
   institution_type?: "college" | "institute";
   institution_name?: string;
-  subscription_plan?: "free" | "monthly";
+  subscription_plan?: "free" | "monthly" | "annual";
 }
 
 type SortKey = "full_name" | "email" | "department_name" | "created_at";
@@ -137,9 +137,12 @@ const StudentSubscriptions = () => {
     if (!renewTarget) return;
     setRenewing(true);
     try {
+      // For annual plan, convert months to months (the RPC handles 365-day calculation)
+      // For monthly/free plan, pass months directly (30 days each)
+      const monthsToSend = subscriptionPlan === "annual" ? renewMonths : renewMonths;
       const { data, error } = await supabase.rpc("renew_student_subscription", {
         _department_member_id: renewTarget.id,
-        _months: renewMonths,
+        _months: monthsToSend,
       });
       if (error) throw error;
       const result = data as unknown as { error?: string } | null;
@@ -188,10 +191,13 @@ const StudentSubscriptions = () => {
     }
     setBulkPaying(true);
     try {
+      // For annual plan, activate for 12 months (365 days)
+      // For monthly/free plan, activate for 1 month (30 days)
+      const monthsToSend = subscriptionPlan === "annual" ? 12 : 1;
       for (const student of inactiveStudents) {
         await supabase.rpc("renew_student_subscription", {
           _department_member_id: student.id,
-          _months: 1,
+          _months: monthsToSend,
         });
       }
       toast({
@@ -415,7 +421,7 @@ const StudentSubscriptions = () => {
                             </TableCell>
                             <TableCell className="text-center">
                               <Badge variant="secondary" className={`text-xs ${s.subscription_active ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"}`}>
-                                {s.subscription_active ? (isRtl ? "نشط" : "Active") : (isRtl ? "غير نشيط" : "Inactive")}
+                                {s.subscription_active ? (isRtl ? "نشيط" : "Active") : (isRtl ? "غير نشيط" : "Inactive")}
                               </Badge>
                             </TableCell>
                             <TableCell className="text-center">
@@ -423,7 +429,7 @@ const StudentSubscriptions = () => {
                                 <div className="flex flex-col items-center gap-0.5">
                                   <Badge variant="secondary" className="bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 text-xs">
                                     <Clock className="w-3 h-3 me-1 inline" />
-                                    {subscriptionPlan === "free" ? (isRtl ? "مدفوع" : "Paid") : (isRtl ? "نشط" : "Active")}
+                                    {isRtl ? "مدفوع" : "Paid"}
                                   </Badge>
                                   {s.subscription_expires_at && (
                                     <span className="text-[10px] text-muted-foreground">
@@ -449,12 +455,17 @@ const StudentSubscriptions = () => {
                                 <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs">
                                   {isRtl ? "مجاناً" : "Free"}
                                 </Badge>
+                              ) : subscriptionPlan === "annual" && s.subscription_active ? (
+                                <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-xs">
+                                  <CreditCard className="w-3 h-3 me-1 inline" />
+                                  {isRtl ? "سنوي" : "Annual"}
+                                </Badge>
                               ) : (
                                 <Button
                                   size="sm"
                                   variant={s.subscription_active ? "outline" : "default"}
                                   className={`text-xs gap-1 ${s.subscription_active ? "border-teal-300 text-teal-700 hover:bg-teal-50" : "bg-teal-500 hover:bg-teal-600 text-white"}`}
-                                  onClick={() => { setRenewTarget(s); setRenewMonths(1); setRenewDialogOpen(true); }}
+                                  onClick={() => { setRenewTarget(s); setRenewMonths(subscriptionPlan === "annual" ? 12 : 1); setRenewDialogOpen(true); }}
                                 >
                                   <CreditCard className="w-3.5 h-3.5" />
                                   {s.subscription_active ? (isRtl ? "تجديد" : "Renew") : (isRtl ? "دفع" : "Pay")}
@@ -538,7 +549,10 @@ const StudentSubscriptions = () => {
               <div>
                 <label className="text-sm font-medium mb-2 block">{isRtl ? "مدة الاشتراك" : "Subscription Duration"}</label>
                 <div className="flex flex-wrap gap-2">
-                  {[1, 2, 3, 6, 12].map((m) => (
+                  {(subscriptionPlan === "annual"
+                    ? [1, 3, 6, 12]
+                    : [1, 2, 3, 6, 12]
+                  ).map((m) => (
                     <Button
                       key={m}
                       variant={renewMonths === m ? "default" : "outline"}
@@ -550,6 +564,11 @@ const StudentSubscriptions = () => {
                     </Button>
                   ))}
                 </div>
+                {subscriptionPlan === "annual" && (
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    {isRtl ? "كل شهر = 30 يوم (12 شهر = 365 يوم)" : "Each month = 30 days (12 months = 365 days)"}
+                  </p>
+                )}
               </div>
               {subscriptionPlan === "annual" && (
                 <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
@@ -583,8 +602,12 @@ const StudentSubscriptions = () => {
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
               {isRtl
-                ? `سيتم تفعيل اشتراك ${selectedIds.size} طالب لمدة شهر واحد`
-                : `Activate 1-month subscription for ${selectedIds.size} student(s)`}
+                ? subscriptionPlan === "annual"
+                  ? `سيتم تفعيل اشتراك ${selectedIds.size} طالب لمدة 12 شهر (365 يوم)`
+                  : `سيتم تفعيل اشتراك ${selectedIds.size} طالب لمدة شهر واحد`
+                : subscriptionPlan === "annual"
+                  ? `Activate 12-month subscription (365 days) for ${selectedIds.size} student(s)`
+                  : `Activate 1-month subscription for ${selectedIds.size} student(s)`}
             </p>
             {subscriptionPlan === "annual" && (
               <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">

@@ -1,4 +1,5 @@
 export const FACULTY_PHOTO_HEADER = "صورة شخصية 4×6";
+export const STUDENT_PHOTO_HEADER = "صورة شخصية";
 export const FACULTY_PHOTO_WIDTH = 400;
 export const FACULTY_PHOTO_HEIGHT = 600;
 export const MAX_FACULTY_PHOTO_BYTES = 8 * 1024 * 1024;
@@ -69,6 +70,7 @@ export function facultyPhotoTypeFromExtension(
 
 export async function extractEmbeddedFacultyPhotos(
   workbookBuffer: ArrayBuffer,
+  photoHeader: string = FACULTY_PHOTO_HEADER,
 ): Promise<Map<number, EmbeddedFacultyPhoto>> {
   const ExcelJS = await import("exceljs");
   const workbook = new ExcelJS.Workbook();
@@ -79,7 +81,7 @@ export async function extractEmbeddedFacultyPhotos(
 
   let photoColumn = 0;
   worksheet.getRow(1).eachCell((cell, columnNumber) => {
-    if (String(cell.value ?? "").trim() === FACULTY_PHOTO_HEADER) {
+    if (String(cell.value ?? "").trim() === photoHeader) {
       photoColumn = columnNumber;
     }
   });

@@ -11,6 +11,7 @@ import {
   extractEmbeddedFacultyPhotos,
   MAX_FACULTY_WORKBOOK_BYTES,
   resizeFacultyPhoto,
+  STUDENT_PHOTO_HEADER,
   type EmbeddedFacultyPhoto,
   type FacultyPhotoPayload,
 } from "@/lib/faculty-import-photo";
@@ -80,8 +81,8 @@ setInstitutionType(instType);
       const wb = XLSX.read(buf, { type: "array" });
       const sheet = wb.Sheets[wb.SheetNames[0]];
       const rows: any[] = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-      const embeddedPhotos = !isStudent && file.name.toLowerCase().endsWith(".xlsx")
-        ? await extractEmbeddedFacultyPhotos(buf)
+      const embeddedPhotos = file.name.toLowerCase().endsWith(".xlsx")
+        ? await extractEmbeddedFacultyPhotos(buf, isStudent ? STUDENT_PHOTO_HEADER : undefined)
         : new Map<number, EmbeddedFacultyPhoto>();
 
       // Drop the "key" row (row 2 in template that contains english keys like full_name)
@@ -121,7 +122,7 @@ setInstitutionType(instType);
         let targetDeptIds: string[] = [];
         let unmatchedDeptNames: string[] = [];
         if (isStudent) {
-          const deptRaw = norm(r["القسم"] || r["department"] || r["كود القسم"] || r["أكواد الأقسام"] || r["department_code"] || r["dept_code"]);
+          const deptRaw = norm(r["الأقسام"] || r["القسم"] || r["department"] || r["departments"] || r["كود القسم"] || r["أكواد الأقسام"] || r["department_code"] || r["dept_code"]);
           const parts = deptRaw.split(/[\s,،]+/).map(c => c.trim()).filter(Boolean);
           for (const part of parts) {
             const upper = part.toUpperCase();
@@ -137,6 +138,15 @@ setInstitutionType(instType);
             }
           }
           targetDeptIds = [...new Set(targetDeptIds)];
+          if (unmatchedDeptNames.length > 0) {
+            errors.push(
+              `${isRtl ? "صف" : "Row"} ${i + 3}: ${
+                isRtl
+                  ? `أقسام غير معروفة: ${unmatchedDeptNames.join(", ")}`
+                  : `Unknown departments: ${unmatchedDeptNames.join(", ")}`
+              }`,
+            );
+          }
           if (targetDeptIds.length === 0) {
             failed++;
             errors.push(`${isRtl ? "صف" : "Row"} ${i + 3}: ${isRtl ? "القسم مفقود أو غير صالح" : "missing or invalid department"}`);
@@ -402,10 +412,10 @@ if (insertError) {
             </p>
 
             <div className="grid sm:grid-cols-2 gap-3 max-w-xl mx-auto">
-              <a href="/templates/faculty_members_template.xlsx" download>
+              <a href={isStudent ? "/templates/students_template.xlsx" : "/templates/faculty_members_template.xlsx"} download>
                 <Button size="lg" className="w-full gap-2 bg-gradient-to-l from-emerald-500 to-emerald-600 text-white shadow-md">
                   <Download className="w-5 h-5" />
-                  {isRtl ? "تحميل قالب Excel" : "Download Template"}
+                  {isRtl ? (isStudent ? "تحميل قالب الطلاب" : "تحميل قالب Excel") : (isStudent ? "Download Student Template" : "Download Template")}
                 </Button>
               </a>
               <Button

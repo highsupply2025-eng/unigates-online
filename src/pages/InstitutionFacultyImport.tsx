@@ -92,16 +92,17 @@ setInstitutionType(instType);
 
       if (data.length === 0) throw new Error(isRtl ? "الملف فارغ" : "Empty file");
 
-      const deptByName = new Map(departments.map(d => [d.name.trim(), d.id]));
+      const deptByName = new Map(departments.map(d => [d.name.trim().toLowerCase(), d.id]));
 
       // For student import, also fetch all department codes for lookup
       const deptByCode = new Map<string, string>();
       if (isStudent) {
         const { data: allDepts } = await supabase
           .from("departments")
-          .select("id, department_code");
+          .select("id, department_code, department_name");
         (allDepts || []).forEach((d: any) => {
           if (d.department_code) deptByCode.set(String(d.department_code).toUpperCase(), d.id);
+          if (d.department_name) deptByName.set(String(d.department_name).trim().toLowerCase(), d.id);
         });
       }
 
@@ -116,15 +117,29 @@ setInstitutionType(instType);
         const roleRaw = norm(r["الوظيفة"] || r["role"]);
         const role = isStudent ? "student" : (ROLE_MAP[roleRaw] || ROLE_MAP[roleRaw.toLowerCase()]);
 
-        // For students: resolve target departments by code(s) — may be multiple, comma-separated
+        // For students: resolve target departments by name or code(s) — may be multiple, comma-separated
         let targetDeptIds: string[] = [];
+        let unmatchedDeptNames: string[] = [];
         if (isStudent) {
-          const codesRaw = norm(r["كود القسم"] || r["أكواد الأقسام"] || r["department_code"] || r["dept_code"]);
-          const codes = codesRaw.split(/[\s,،]+/).map(c => c.trim().toUpperCase()).filter(Boolean);
-          targetDeptIds = codes.map(c => deptByCode.get(c)).filter(Boolean) as string[];
+          const deptRaw = norm(r["القسم"] || r["department"] || r["كود القسم"] || r["أكواد الأقسام"] || r["department_code"] || r["dept_code"]);
+          const parts = deptRaw.split(/[\s,،]+/).map(c => c.trim()).filter(Boolean);
+          for (const part of parts) {
+            const upper = part.toUpperCase();
+            const lower = part.toLowerCase();
+            const byCode = deptByCode.get(upper);
+            const byName = deptByName.get(lower);
+            if (byCode) {
+              targetDeptIds.push(byCode);
+            } else if (byName) {
+              targetDeptIds.push(byName);
+            } else {
+              unmatchedDeptNames.push(part);
+            }
+          }
+          targetDeptIds = [...new Set(targetDeptIds)];
           if (targetDeptIds.length === 0) {
             failed++;
-            errors.push(`${isRtl ? "صف" : "Row"} ${i + 3}: ${isRtl ? "كود القسم مفقود أو غير صالح" : "missing or invalid department code"}`);
+            errors.push(`${isRtl ? "صف" : "Row"} ${i + 3}: ${isRtl ? "القسم مفقود أو غير صالح" : "missing or invalid department"}`);
             continue;
           }
         } else {
@@ -163,13 +178,14 @@ setInstitutionType(instType);
 }
 
         let photoPayload: FacultyPhotoPayload | undefined;
+        let resolvedPhotoUrl: string | null = null;
+
+        // 1. Try embedded image from Excel cell
         const embeddedPhoto = embeddedPhotos.get(sourceRow);
         if (embeddedPhoto) {
           try {
             photoPayload = await resizeFacultyPhoto(embeddedPhoto);
           } catch (photoError) {
-            // Log the photo error but do NOT skip the row — import the
-            // member without a photo so the rest of the data is preserved.
             errors.push(
               `${isRtl ? "صف" : "Row"} ${sourceRow}: ${
                 photoError instanceof Error
@@ -177,6 +193,35 @@ setInstitutionType(instType);
                   : isRtl
                     ? "تعذر معالجة الصورة الشخصية — تم استبعادها"
                     : "Unable to process faculty photo — skipped"
+              }`,
+            );
+          }
+        }
+
+        // 2. Try photo_url from Excel — download and upload to storage
+        const rawPhotoUrl = norm(r["رابط الصورة (اختياري)"] || r["رابط الصورة"] || r["photo_url"]);
+        if (!photoPayload && rawPhotoUrl && /^https?:\/\//i.test(rawPhotoUrl)) {
+          try {
+            const resp = await fetch(rawPhotoUrl);
+            if (resp.ok) {
+              const blob = await resp.blob();
+              const ext = rawPhotoUrl.split(/[?#]/)[0].split(".").pop()?.toLowerCase() || "jpg";
+              const contentType = ext === "png" ? "image/png" : "image/jpeg";
+              const path = `faculty-photos/${crypto.randomUUID()}.${ext}`;
+              const { error: uploadErr } = await supabase.storage
+                .from("avatars")
+                .upload(path, blob, { contentType, upsert: false });
+              if (!uploadErr) {
+                const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+                resolvedPhotoUrl = urlData.publicUrl;
+              }
+            }
+          } catch (urlPhotoErr) {
+            errors.push(
+              `${isRtl ? "صف" : "Row"} ${sourceRow}: ${
+                isRtl
+                  ? "تعذر تحميل الصورة من الرابط — تم تخطيها"
+                  : "Unable to load photo from URL — skipped"
               }`,
             );
           }
@@ -194,7 +239,7 @@ setInstitutionType(instType);
           qualification: norm(r["المؤهل الدراسي"] || r["المؤهل العلمي"] || r["qualification"]) || null,
           specialization: isStudent ? null : (norm(r["التخصص"] || r["specialization"]) || null),
           notes: norm(r["ملاحظات"] || r["notes"]) || null,
-          photo_url: norm(r["رابط الصورة (اختياري)"] || r["رابط الصورة"] || r["photo_url"]) || null,
+          photo_url: resolvedPhotoUrl || rawPhotoUrl || null,
         };
 
         let insertError: any = null;
@@ -416,9 +461,10 @@ if (insertError) {
                 {!isStudent && <li>{isRtl ? "استخدم صيغة XLSX عند إدراج الصور؛ ملفات XLS القديمة ستستورد البيانات النصية فقط." : "Use XLSX for embedded photos; legacy XLS files import text data only."}</li>}
                 {isStudent ? (
                   <>
-                    <li>{isRtl ? "أضف عمود «كود القسم» في الملف بكود القسم الموجود في لوحة الإدارة." : "Add a 'department_code' column with the code shown in the dashboard."}</li>
-                    <li>{isRtl ? "لإضافة الطالب لأكثر من قسم، افصل الأكواد بفاصلة في نفس الخلية. مثال: ABC123, XYZ789" : "To enroll a student in multiple departments, separate codes with commas in the same cell. e.g. ABC123, XYZ789"}</li>
-                    <li>{isRtl ? "الحقول المطلوبة: الاسم وكود القسم." : "Required: name and department code."}</li>
+                    <li>{isRtl ? "أضف عمود «القسم» في الملف باسم القسم الموجود في لوحة الإدارة (مطابقة غير حساسة لحالة الأحرف)." : "Add a 'القسم' column with the department name from the dashboard (case-insensitive matching)."}</li>
+                    <li>{isRtl ? "لإضافة الطالب لأكثر من قسم، افصل الأسماء بفاصلة في نفس الخلية. مثال: هندسة الحاسب, علوم الحاسب" : "To enroll a student in multiple departments, separate names with commas in the same cell. e.g. Computer Engineering, Computer Science"}</li>
+                    <li>{isRtl ? "يمكنك أيضًا استخدام أكواد الأقسام بدل الأسماء." : "You can also use department codes instead of names."}</li>
+                    <li>{isRtl ? "الحقول المطلوبة: الاسم والقسم." : "Required: name and department."}</li>
                   </>
                 ) : (
                   <li>{isRtl ? "الحقول المطلوبة: الاسم والوظيفة فقط." : "Required: name and role only."}</li>

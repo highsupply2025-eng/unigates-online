@@ -109,6 +109,8 @@ export interface FacultyMemberFormData {
   password?: string;
   /** invitation only: confirmation */
   confirmPassword?: string;
+  /** admin-add student only: comma-separated department codes */
+  deptCodesInput?: string;
   /** admin-add student only: selected department IDs */
   selectedDeptIds?: string[];
 }

@@ -4,6 +4,39 @@ import App from "./App.tsx";
 import AppErrorBoundary from "./components/AppErrorBoundary";
 import "./index.css";
 
+/**
+ * Catch Vite preload errors (stale build chunks after a new deploy).
+ * This fires at the module-loading level BEFORE React renders, so it
+ * must be registered before createRoot(). Without this, a 404 on a
+ * dynamically imported chunk shows the React error boundary instead of
+ * silently reloading to fetch the latest assets.
+ */
+const CHUNK_RELOAD_KEY = "__unigates_chunk_reload__";
+window.addEventListener("vite:preloadError", (event) => {
+  // Prevent the default Vite error overlay
+  event.preventDefault();
+  if (!sessionStorage.getItem(CHUNK_RELOAD_KEY)) {
+    sessionStorage.setItem(CHUNK_RELOAD_KEY, "1");
+    window.location.reload();
+  }
+});
+
+/**
+ * Also catch generic unhandled rejections from failed dynamic imports
+ * (e.g. network errors that don't fire vite:preloadError in all browsers).
+ */
+window.addEventListener("unhandledrejection", (event) => {
+  const reason = event.reason;
+  const msg = reason instanceof Error ? `${reason.name} ${reason.message}` : String(reason);
+  if (/Failed to fetch dynamically imported module|Loading chunk|Loading CSS chunk|Importing a module script failed/i.test(msg)) {
+    event.preventDefault();
+    if (!sessionStorage.getItem(CHUNK_RELOAD_KEY)) {
+      sessionStorage.setItem(CHUNK_RELOAD_KEY, "1");
+      window.location.reload();
+    }
+  }
+});
+
 // Boot native (Capacitor) integrations if we're running inside the APK/IPA.
 // Safe no-op in normal browsers. Dynamic import keeps @capacitor/core
 // out of the critical web bundle.

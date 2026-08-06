@@ -23,6 +23,9 @@ import {
   Copy,
   RefreshCw,
   ShieldCheck,
+  Check,
+  ChevronsUpDown,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -36,6 +39,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
 import { toast } from "@/hooks/use-toast";
 import { generateStrongPassword as _generateStrongPassword } from "@/utils/crypto";
 
@@ -94,9 +109,11 @@ export interface FacultyMemberFormData {
   password?: string;
   /** invitation only: confirmation */
   confirmPassword?: string;
-  /** admin-add student only */
-  deptCodesInput?: string;
+  /** admin-add student only: selected department IDs */
+  selectedDeptIds?: string[];
 }
+
+export type DepartmentOption = { id: string; department_name: string; department_code: string };
 
 interface FacultyMemberFormProps {
   mode: FacultyFormMode;
@@ -117,6 +134,8 @@ interface FacultyMemberFormProps {
   roleReadonly?: boolean;
   /** For admin-add mode: student flow */
   isStudent?: boolean;
+  /** Department options for student multi-select */
+  departments?: DepartmentOption[];
   /** Optional payment button for student subscription */
   paymentButton?: React.ReactNode;
 }
@@ -138,6 +157,7 @@ export const FacultyMemberForm = ({
   invitationEmail,
   roleReadonly = false,
   isStudent = false,
+  departments = [],
   paymentButton,
 }: FacultyMemberFormProps) => {
   const fileRef = useRef<HTMLInputElement>(null);
@@ -148,7 +168,8 @@ export const FacultyMemberForm = ({
   const [role, setRole] = useState(
     isStudent ? "student" : invitationRole || ""
   );
-  const [deptCodesInput, setDeptCodesInput] = useState("");
+  const [selectedDeptIds, setSelectedDeptIds] = useState<string[]>([]);
+  const [deptPopoverOpen, setDeptPopoverOpen] = useState(false);
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");
   const [email, setEmail] = useState(invitationEmail || "");
@@ -231,7 +252,7 @@ export const FacultyMemberForm = ({
       );
     }
 
-    if (isStudent) return !!deptCodesInput.trim();
+    if (isStudent) return selectedDeptIds.length > 0;
     return isStrongPassword(tempPassword);
   }, [
     fullName,
@@ -240,7 +261,7 @@ export const FacultyMemberForm = ({
     password,
     confirmPassword,
     isStudent,
-    deptCodesInput,
+    selectedDeptIds,
     tempPassword,
   ]);
 
@@ -260,8 +281,8 @@ export const FacultyMemberForm = ({
         if (password !== confirmPassword)
           missing.push(isRtl ? "تأكيد كلمة المرور" : "Password confirmation");
       } else {
-        if (isStudent && !deptCodesInput.trim())
-          missing.push(isRtl ? "أكواد الأقسام" : "Department codes");
+        if (isStudent && selectedDeptIds.length === 0)
+          missing.push(isRtl ? "الأقسام" : "Departments");
         if (!isStudent && !isStrongPassword(tempPassword))
           missing.push(isRtl ? "كلمة مرور قوية" : "Strong password");
       }
@@ -290,7 +311,13 @@ export const FacultyMemberForm = ({
       tempPassword: mode === "admin-add" ? tempPassword : undefined,
       password: mode === "invitation" ? password : undefined,
       confirmPassword: mode === "invitation" ? confirmPassword : undefined,
-      deptCodesInput: isStudent ? deptCodesInput : undefined,
+      deptCodesInput: isStudent
+        ? departments
+            .filter((d) => selectedDeptIds.includes(d.id))
+            .map((d) => d.department_code)
+            .join(", ")
+        : undefined,
+      selectedDeptIds: isStudent ? selectedDeptIds : undefined,
     };
 
     await onSubmit(data);
@@ -592,27 +619,99 @@ export const FacultyMemberForm = ({
                 </div>
               )}
 
-              {/* ---- Department codes (student only) ---- */}
+              {/* ---- Department selector (student only) ---- */}
               {isStudent && (
                 <div className="space-y-2.5">
                   <Label className={labelCls}>
                     <Briefcase className={iconCls} strokeWidth={2.4} />
-                    {isRtl ? "أكواد الأقسام" : "Department Codes"}
+                    {isRtl ? "الأقسام" : "Departments"}
                     <span className="text-destructive text-lg">*</span>
                   </Label>
-                  <Input
-                    className={`${inputCls} font-mono tracking-widest`}
-                    value={deptCodesInput}
-                    onChange={(e) => setDeptCodesInput(e.target.value)}
-                    placeholder={
-                      isRtl ? "مثال: ABC123, XYZ789" : "e.g. ABC123, XYZ789"
-                    }
-                    dir="ltr"
-                  />
+                  <Popover open={deptPopoverOpen} onOpenChange={setDeptPopoverOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={deptPopoverOpen}
+                        className={`${inputCls} justify-between font-normal ${
+                          selectedDeptIds.length === 0 ? "text-muted-foreground" : ""
+                        }`}
+                      >
+                        {selectedDeptIds.length > 0
+                          ? `${selectedDeptIds.length} ${isRtl ? "قسم محدد" : "department(s) selected"}`
+                          : isRtl
+                            ? "اختر الأقسام..."
+                            : "Select departments..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0" dir={dir}>
+                      <Command>
+                        <CommandInput placeholder={isRtl ? "ابحث عن قسم..." : "Search department..."} />
+                        <CommandEmpty>{isRtl ? "لا توجد أقسام" : "No departments found"}</CommandEmpty>
+                        <CommandGroup className="max-h-64 overflow-y-auto">
+                          {departments.map((dept) => {
+                            const isSelected = selectedDeptIds.includes(dept.id);
+                            return (
+                              <CommandItem
+                                key={dept.id}
+                                value={dept.department_name}
+                                onSelect={() => {
+                                  setSelectedDeptIds((prev) =>
+                                    isSelected
+                                      ? prev.filter((id) => id !== dept.id)
+                                      : [...prev, dept.id]
+                                  );
+                                }}
+                              >
+                                <Check
+                                  className={`mr-2 h-4 w-4 ${
+                                    isSelected ? "opacity-100" : "opacity-0"
+                                  }`}
+                                />
+                                <span className="flex-1">{dept.department_name}</span>
+                                {dept.department_code && (
+                                  <span className="text-xs text-muted-foreground ms-2 font-mono">
+                                    {dept.department_code}
+                                  </span>
+                                )}
+                              </CommandItem>
+                            );
+                          })}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  {selectedDeptIds.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {departments
+                        .filter((d) => selectedDeptIds.includes(d.id))
+                        .map((d) => (
+                          <span
+                            key={d.id}
+                            className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary text-xs px-2.5 py-1 font-semibold"
+                          >
+                            {d.department_name}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setSelectedDeptIds((prev) =>
+                                  prev.filter((id) => id !== d.id)
+                                )
+                              }
+                              className="rounded-full hover:bg-primary/20 p-0.5"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </span>
+                        ))}
+                    </div>
+                  )}
                   <p className="text-xs text-muted-foreground">
                     {isRtl
-                      ? "أدخل كود قسم واحد أو أكثر مفصولة بفاصلة — سيُضاف الطالب لكل قسم تلقائياً."
-                      : "Enter one or more codes separated by commas — the student is added to each department automatically."}
+                      ? "اختر قسمًا واحدًا أو أكثر — سيُضاف الطالب لكل قسم تلقائياً."
+                      : "Select one or more departments — the student is added to each department automatically."}
                   </p>
                 </div>
               )}

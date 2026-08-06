@@ -9,6 +9,7 @@ import {
   FacultyMemberForm,
   isStrongPassword,
   type FacultyMemberFormData,
+  type DepartmentOption,
 } from "@/components/FacultyMemberForm";
 
 const InstitutionFacultyAdd = () => {
@@ -27,6 +28,7 @@ const InstitutionFacultyAdd = () => {
   const [subscriptionPlan, setSubscriptionPlan] = useState<string>("monthly");
   const [createdStudentId, setCreatedStudentId] = useState<string | null>(null);
   const [createdStudentEmail, setCreatedStudentEmail] = useState<string | null>(null);
+  const [departments, setDepartments] = useState<DepartmentOption[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -81,6 +83,21 @@ const InstitutionFacultyAdd = () => {
         }
         setInstitutionId(instId);
         setInstitutionType(instType);
+
+        const { data: depts } = await supabase
+          .from("departments")
+          .select("id, department_name, department_code")
+          .eq("institution_id", instId)
+          .eq("status", "active");
+        if (depts) {
+          setDepartments(
+            depts.map((d: any) => ({
+              id: d.id,
+              department_name: d.department_name,
+              department_code: d.department_code || "",
+            }))
+          );
+        }
       } catch {
         navigate("/login");
       }
@@ -109,14 +126,11 @@ const InstitutionFacultyAdd = () => {
       };
 
       if (isStudent) {
-        const codes = Array.from(
-          new Set(
-            (data.deptCodesInput || "")
-              .split(/[\s,،]+/)
-              .map((c) => c.trim().toUpperCase())
-              .filter(Boolean)
-          )
-        );
+        const selectedIds = data.selectedDeptIds || [];
+        const codes = departments
+          .filter((d) => selectedIds.includes(d.id))
+          .map((d) => d.department_code)
+          .filter(Boolean);
         const { data: resp, error: fnErr } = await supabase.functions.invoke(
           "create-student-account",
           {
@@ -287,6 +301,7 @@ const InstitutionFacultyAdd = () => {
       onSubmit={handleSubmit}
       onCancel={() => navigate(-1)}
       isStudent={isStudent}
+      departments={departments}
       paymentButton={
         isStudent && createdStudentId && subscriptionPlan !== "free" ? (
           <Button

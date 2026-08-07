@@ -230,10 +230,10 @@ const App = () => (
               <Route path="/institution/profile" element={<InstitutionProfile />} />
               <Route path="/institution/student-subscriptions" element={<StudentSubscriptions />} />
               <Route path="/institution/payment" element={<InstitutionPayment />} />
-              <Route path="/institution/payment-details" element={<InstitutionPaymentDetails />} />
-              <Route path="/institution/payment-details/cash" element={<InstitutionPaymentCash />} />
-              <Route path="/institution/payment-details/bank-transfer" element={<InstitutionPaymentBankTransfer />} />
-              <Route path="/institution/payment-details/online" element={<InstitutionPaymentOnline />} />
+              <Route path="/institution/payment/details" element={<InstitutionPaymentDetails />} />
+              <Route path="/institution/payment/cash" element={<InstitutionPaymentCash />} />
+              <Route path="/institution/payment/bank-transfer" element={<InstitutionPaymentBankTransfer />} />
+              <Route path="/institution/payment/online" element={<InstitutionPaymentOnline />} />
               
               <Route element={<StudentAccessGuard />}>
                 <Route path="/student/dashboard" element={<StudentDashboard />} />

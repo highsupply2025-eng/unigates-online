@@ -2,8 +2,8 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Search, Loader2, Users, GraduationCap,
-  ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, AlertTriangle, RefreshCw, Ticket,
-  Layers, BookOpen, CheckCircle, Calendar, User as UserIcon, CreditCard, Clock
+  ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, AlertTriangle, RefreshCw,
+  CreditCard, Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -471,12 +471,12 @@ const StudentSubscriptions = () => {
                   size="sm"
                   className="bg-teal-500 hover:bg-teal-600 text-white gap-1.5"
                   onClick={() => {
-                    const inactiveStudents = sorted.filter((s) => selectedIds.has(s.id) && !s.subscription_active);
-                    if (inactiveStudents.length === 0) {
+                    const inactiveIds = sorted.filter((s) => selectedIds.has(s.id) && !s.subscription_active).map((s) => s.id);
+                    if (inactiveIds.length === 0) {
                       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى تحديد طلاب غير نشطين" : "Please select inactive students", variant: "destructive" });
                       return;
                     }
-                    navigateToPayment(inactiveStudents.map((s) => s.id));
+                    navigateToPayment(inactiveIds);
                   }}
                 >
                   <CreditCard className="w-4 h-4" />

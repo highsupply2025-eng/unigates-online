@@ -164,7 +164,7 @@ const InstitutionPaymentBankTransfer = () => {
             "get_institution_student_subscriptions",
             { p_page: 1, p_page_size: 100, p_search: "", p_sort_by: "full_name", p_sort_dir: "asc" },
           ),
-          supabase.rpc("get_bank_details"),
+          (supabase as any).rpc("get_bank_details"),
         ]);
         if (rpcRes.error) throw rpcRes.error;
         const result = rpcRes.data as unknown as { data?: StudentRecord[] };
@@ -196,7 +196,7 @@ const InstitutionPaymentBankTransfer = () => {
     if (!identity) return;
     setConfirming(true);
     try {
-      const { data, error } = await supabase.rpc("create_payment_request", {
+      const { data, error } = await (supabase as any).rpc("create_payment_request", {
         _institution_type: identity.institutionType,
         _institution_id: identity.institutionId,
         _institution_name: identity.institutionName,

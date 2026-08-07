@@ -72,7 +72,7 @@ const InstitutionPaymentCash = () => {
     if (!identity) return;
     setConfirming(true);
     try {
-      const { data, error } = await supabase.rpc("create_payment_request", {
+      const { data, error } = await (supabase as any).rpc("create_payment_request", {
         _institution_type: identity.institutionType,
         _institution_id: identity.institutionId,
         _institution_name: identity.institutionName,

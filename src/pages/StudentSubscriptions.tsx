@@ -240,7 +240,7 @@ const StudentSubscriptions = () => {
                 )}
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground font-semibold truncate">
-                {isRtl ? "اشتراك الطلاب" : "Student Subscriptions"}{institutionName ? ` - ${institutionName}` : ""}
+                {isRtl ? "اشتراك الطلاب" : "Student Subscriptions"}
               </p>
             </div>
           </div>

@@ -57,7 +57,7 @@ export const RecoveryEmail = ({
           ولن يتم تغيير كلمة المرور الخاصة بك.
         </Text>
         <Text style={footerBrand}>
-          © {new Date().getFullYear()} {siteName} — دار عبيد التعليمية
+          © {new Date().getFullYear()} {siteName} — دار عبيد للنشر والتوزيع والطباعة
         </Text>
       </Container>
     </Body>

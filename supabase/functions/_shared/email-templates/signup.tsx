@@ -67,7 +67,7 @@ export const SignupEmail = ({
           إذا لم تقم بإنشاء حساب على {siteName}، يمكنك تجاهل هذه الرسالة بأمان.
         </Text>
         <Text style={footerBrand}>
-          © {new Date().getFullYear()} {siteName} — دار عبيد التعليمية
+          © {new Date().getFullYear()} {siteName} — دار عبيد للنشر والتوزيع والطباعة
         </Text>
       </Container>
     </Body>

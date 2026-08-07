@@ -1503,7 +1503,7 @@ ${rows.map((r: any, i: number) => `<tr>
                   {pageView === "members" && selectedDept
                     ? selectedDept.department_name
                     : (isRtl
-                        ? (institutionType === "college" ? "لوحة ادارة الكلية" : "لوحة ادارة المعهد")
+                        ? "لوحة إدارة الكلية"
                         : (institutionType === "college" ? "College Administration" : "Institute Administration"))}
                 </h1>
                 {subscriptionPlan && !(pageView === "members" && selectedDept) && (
@@ -1579,7 +1579,7 @@ ${rows.map((r: any, i: number) => `<tr>
               </Button>
             ) : (
               <DashboardMenuDropdown
-                title={isRtl ? (institutionType === "college" ? "لوحة الكلية" : "لوحة المعهد") : (institutionType === "college" ? "College Panel" : "Institute Panel")}
+                title={isRtl ? "لوحة الكلية" : (institutionType === "college" ? "College Panel" : "Institute Panel")}
                 onLanguageToggle={toggleLanguage}
                 showNotifications={false}
                 onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}

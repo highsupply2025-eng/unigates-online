@@ -1,114 +1,71 @@
-import { useState, useEffect } from "react";
+﻿import { useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { GraduationCap, CreditCard, Smartphone, Gift, Lock, Loader2, Globe, CheckCircle, ArrowLeft } from "lucide-react";
+import {
+  GraduationCap, CreditCard, Globe, ArrowLeft,
+  Banknote, Building2, Globe as GlobeIcon, Users, Calendar
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useToast } from "@/hooks/use-toast";
-
-type PaymentMethod = "card" | "mobile" | "gift";
 
 const InstitutionPayment = () => {
   const { language, dir, toggleLanguage } = useLanguage();
   const isRtl = language === "ar";
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { toast } = useToast();
 
-  const studentId = searchParams.get("student");
+  const studentIdsRaw = searchParams.get("studentIds") || "";
+  const studentNamesRaw = searchParams.get("studentNames") || "";
   const planType = searchParams.get("plan") || "monthly";
+  const months = parseInt(searchParams.get("months") || "1", 10);
+  const count = parseInt(searchParams.get("count") || "1", 10);
 
-  const [method, setMethod] = useState<PaymentMethod | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [months, setMonths] = useState(1);
+  const studentIds = useMemo(() => studentIdsRaw.split(",").filter(Boolean), [studentIdsRaw]);
+  const studentNames = useMemo(() => studentNamesRaw.split(",").filter(Boolean), [studentNamesRaw]);
 
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [cardName, setCardName] = useState("");
-  const [giftCode, setGiftCode] = useState("");
-  const [mobileNumber, setMobileNumber] = useState("");
-
-  const baseAmount = months * 50;
+  const baseAmount = count * months * 50;
   const discount = planType === "annual" ? 0.1 : 0;
   const totalAmount = Math.round(baseAmount * (1 - discount));
 
   useEffect(() => {
-    if (!studentId) {
+    if (studentIds.length === 0) {
       navigate("/institution/student-subscriptions");
     }
-  }, [studentId, navigate]);
+  }, [studentIds.length, navigate]);
 
-  const handleSubmit = async () => {
-    setLoading(true);
-    try {
-      // Simulate payment processing
-      await new Promise((r) => setTimeout(r, 2000));
-
-      // In a real implementation, this would call a payment gateway
-      // and then call renew_student_subscription RPC
-      if (studentId) {
-        const { error } = await supabase.rpc("renew_student_subscription", {
-          _department_member_id: studentId,
-          _months: months,
-        });
-        if (error) throw error;
-      }
-
-      setSuccess(true);
-      toast({
-        title: isRtl ? "تم الدفع بنجاح" : "Payment Successful",
-        description: isRtl
-          ? `تم تفعيل الاشتراك لمدة ${months} شهر`
-          : `Subscription activated for ${months} month(s)`,
-      });
-    } catch (e: unknown) {
-      toast({
-        title: isRtl ? "فشل الدفع" : "Payment Failed",
-        description: e instanceof Error ? e.message : (isRtl ? "حدث خطأ أثناء الدفع" : "An error occurred during payment"),
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+  const buildMethodUrl = (method: string) => {
+    const params = new URLSearchParams();
+    params.set("studentIds", studentIdsRaw);
+    params.set("studentNames", studentNamesRaw);
+    params.set("plan", planType);
+    params.set("months", String(months));
+    params.set("count", String(count));
+    params.set("total", String(totalAmount));
+    return `/institution/payment/${method}?${params.toString()}`;
   };
 
-  if (success) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4" dir={dir}>
-        <Card className="max-w-md w-full">
-          <CardContent className="py-8 sm:py-12 text-center space-y-6">
-            <div className="flex justify-center">
-              <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-400" />
-              </div>
-            </div>
-            <div>
-              <h2 className="text-2xl font-black text-foreground mb-2">
-                {isRtl ? "تم الدفع بنجاح" : "Payment Successful"}
-              </h2>
-              <p className="text-muted-foreground">
-                {isRtl
-                  ? `تم تفعيل اشتراك الطالب لمدة ${months} شهر`
-                  : `Student subscription activated for ${months} month(s)`}
-              </p>
-            </div>
-            <Button
-              className="w-full bg-teal-500 hover:bg-teal-600"
-              onClick={() => navigate("/institution/student-subscriptions")}
-            >
-              {isRtl ? "العودة لإدارة الطلاب" : "Return to Student Management"}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  const methods = [
+    {
+      id: "cash",
+      label: isRtl ? "الدفع نقدًا" : "Cash Payment",
+      desc: isRtl ? "تأكيد يدوي عبر الإدارة" : "Manual confirmation by admin",
+      icon: <Banknote className="w-7 h-7" />,
+    },
+    {
+      id: "bank-transfer",
+      label: isRtl ? "التحويل البنكي" : "Bank Transfer",
+      desc: isRtl ? "تحويل إلى حساب البنك" : "Transfer to bank account",
+      icon: <Building2 className="w-7 h-7" />,
+    },
+    {
+      id: "online",
+      label: isRtl ? "الدفع أونلاين" : "Online Payment",
+      desc: isRtl ? "ادفع الآن عبر الإنترنت" : "Pay now online",
+      icon: <GlobeIcon className="w-7 h-7" />,
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
@@ -129,10 +86,10 @@ const InstitutionPayment = () => {
               </div>
               <div className="min-w-0">
                 <h1 className="text-sm sm:text-lg font-black text-foreground truncate">
-                  {isRtl ? "دفع اشتراك الطالب" : "Student Subscription Payment"}
+                  {isRtl ? "تفاصيل الدفع" : "Payment Details"}
                 </h1>
                 <p className="text-[10px] sm:text-xs text-muted-foreground font-semibold truncate">
-                  {isRtl ? "اختر طريقة الدفع" : "Choose payment method"}
+                  {isRtl ? "لوحة ادارة الكلية" : "College Administration"}
                 </p>
               </div>
             </div>
@@ -144,38 +101,57 @@ const InstitutionPayment = () => {
         </div>
       </header>
 
-      <main className="flex-1 flex items-center justify-center px-4 py-6 sm:py-8">
-        <div className="max-w-lg w-full space-y-6">
-          {/* Plan info */}
+      <main className="flex-1 px-4 py-6 sm:py-8">
+        <div className="max-w-2xl mx-auto space-y-6">
+          {/* Selected Students */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
-                <CreditCard className="w-5 h-5 text-teal-600" />
-                {isRtl ? "تفاصيل الاشتراك" : "Subscription Details"}
+                <Users className="w-5 h-5 text-teal-600" />
+                {isRtl ? `الطلاب المحددون (${studentIds.length})` : `Selected Students (${studentIds.length})`}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {studentNames.map((name, i) => (
+                  <div key={studentIds[i] || i} className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
+                    <div className="w-8 h-8 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center text-sm font-bold text-teal-700 dark:text-teal-400 shrink-0">
+                      {(i + 1)}
+                    </div>
+                    <span className="text-sm font-medium truncate">{name}</span>
+                  </div>
+                ))}
+                {studentNames.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    {isRtl ? "لم يتم تحديد أي طالب" : "No students selected"}
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Subscription Summary */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Calendar className="w-5 h-5 text-teal-600" />
+                {isRtl ? "ملخص الاشتراك" : "Subscription Summary"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">{isRtl ? "نوع البقة" : "Plan Type"}</span>
                 <Badge variant="secondary" className={planType === "annual" ? "bg-purple-100 text-purple-700" : "bg-teal-100 text-teal-700"}>
                   {planType === "annual" ? (isRtl ? "سنوي" : "Annual") : (isRtl ? "شهري" : "Monthly")}
                 </Badge>
               </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">{isRtl ? "مدة الاشتراك" : "Subscription Duration"}</label>
-                <div className="flex flex-wrap gap-2">
-                  {[1, 2, 3, 6, 12].map((m) => (
-                    <Button
-                      key={m}
-                      variant={months === m ? "default" : "outline"}
-                      size="sm"
-                      className={months === m ? "bg-teal-500 hover:bg-teal-600" : ""}
-                      onClick={() => setMonths(m)}
-                    >
-                      {m} {isRtl ? "شهر" : "mo"}
-                    </Button>
-                  ))}
-                </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">{isRtl ? "عدد الطلاب" : "Number of Students"}</span>
+                <span className="font-medium">{count}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">{isRtl ? "مدة الاشتراك" : "Subscription Duration"}</span>
+                <span className="font-medium">{months} {isRtl ? "شهر" : "month(s)"}</span>
               </div>
               <Separator />
               <div className="flex items-center justify-between">
@@ -196,106 +172,32 @@ const InstitutionPayment = () => {
             </CardContent>
           </Card>
 
-          {/* Payment methods */}
+          {/* Payment Method Selection */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
-                <Lock className="w-5 h-5 text-teal-600" />
-                {isRtl ? "طريقة الدفع" : "Payment Method"}
+                <CreditCard className="w-5 h-5 text-teal-600" />
+                {isRtl ? "اختر طريقة الدفع" : "Choose Payment Method"}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-3">
-                {[
-                  { id: "card" as const, label: isRtl ? "بطاقة" : "Card", icon: <CreditCard className="w-5 h-5" /> },
-                  { id: "mobile" as const, label: isRtl ? "موبايل" : "Mobile", icon: <Smartphone className="w-5 h-5" /> },
-                  { id: "gift" as const, label: isRtl ? "كود هدية" : "Gift Code", icon: <Gift className="w-5 h-5" /> },
-                ].map((m) => (
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {methods.map((m) => (
                   <button
                     key={m.id}
-                    onClick={() => setMethod(m.id)}
-                    className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
-                      method === m.id
-                        ? "border-teal-500 bg-teal-50 dark:bg-teal-900/20 shadow-md"
-                        : "border-border hover:border-teal-300 hover:bg-muted/50"
-                    }`}
+                    onClick={() => navigate(buildMethodUrl(m.id))}
+                    className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-all group cursor-pointer"
                   >
-                    <div className={`${method === m.id ? "text-teal-600" : "text-muted-foreground"}`}>{m.icon}</div>
-                    <span className={`text-sm font-medium ${method === m.id ? "text-teal-700" : "text-foreground"}`}>{m.label}</span>
+                    <div className="w-14 h-14 rounded-2xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center text-teal-600 dark:text-teal-400 group-hover:bg-teal-200 dark:group-hover:bg-teal-800/40 transition-colors">
+                      {m.icon}
+                    </div>
+                    <div className="text-center">
+                      <span className="text-sm font-bold text-foreground block">{m.label}</span>
+                      <span className="text-xs text-muted-foreground block mt-1">{m.desc}</span>
+                    </div>
                   </button>
                 ))}
               </div>
-
-              {method === "card" && (
-                <div className="space-y-3 pt-2">
-                  <Input
-                    placeholder={isRtl ? "رقم البطاقة" : "Card Number"}
-                    value={cardNumber}
-                    onChange={(e) => setCardNumber(e.target.value)}
-                    className="h-12 text-base"
-                    dir="ltr"
-                  />
-                  <div className="grid grid-cols-2 gap-3">
-                    <Input
-                      placeholder={isRtl ? "تاريخ الانتهاء" : "MM/YY"}
-                      value={expiry}
-                      onChange={(e) => setExpiry(e.target.value)}
-                      className="h-12 text-base"
-                      dir="ltr"
-                    />
-                    <Input
-                      placeholder="CVV"
-                      value={cvv}
-                      onChange={(e) => setCvv(e.target.value)}
-                      className="h-12 text-base"
-                      dir="ltr"
-                    />
-                  </div>
-                  <Input
-                    placeholder={isRtl ? "اسم صاحب البطاقة" : "Cardholder Name"}
-                    value={cardName}
-                    onChange={(e) => setCardName(e.target.value)}
-                    className="h-12 text-base"
-                  />
-                </div>
-              )}
-
-              {method === "mobile" && (
-                <div className="space-y-3 pt-2">
-                  <Input
-                    placeholder={isRtl ? "رقم الموبايل" : "Mobile Number"}
-                    value={mobileNumber}
-                    onChange={(e) => setMobileNumber(e.target.value)}
-                    className="h-12 text-base"
-                    dir="ltr"
-                  />
-                </div>
-              )}
-
-              {method === "gift" && (
-                <div className="space-y-3 pt-2">
-                  <Input
-                    placeholder={isRtl ? "أدخل كود الهدية" : "Enter gift code"}
-                    value={giftCode}
-                    onChange={(e) => setGiftCode(e.target.value)}
-                    className="h-12 text-base"
-                    dir="ltr"
-                  />
-                </div>
-              )}
-
-              <Button
-                className="w-full h-12 text-base font-bold bg-teal-500 hover:bg-teal-600 gap-2"
-                disabled={!method || loading}
-                onClick={handleSubmit}
-              >
-                {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <CreditCard className="w-5 h-5" />
-                )}
-                {isRtl ? `ادفع ${totalAmount} ج.م` : `Pay ${totalAmount} EGP`}
-              </Button>
             </CardContent>
           </Card>
         </div>

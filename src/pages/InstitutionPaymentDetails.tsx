@@ -88,7 +88,7 @@ const InstitutionPaymentDetails = () => {
       plan: planType,
       method: selectedMethod,
     });
-    navigate(`/institution/payment/${selectedMethod}?${params.toString()}`);
+    navigate(`/institution/payment-details/${selectedMethod.replace("_", "-")}?${params.toString()}`);
   };
 
   const methods: { id: PaymentMethod; label: string; desc: string; icon: React.ReactNode; color: string }[] = [

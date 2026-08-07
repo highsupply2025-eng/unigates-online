@@ -175,11 +175,6 @@ const StudentSubscriptions = () => {
     });
   };
 
-  const navigateToPayment = (ids: string[]) => {
-    const studentIds = ids.join(",");
-    navigate(`/institution/payment/details?students=${studentIds}&plan=${subscriptionPlan}`);
-  };
-
   const sorted = useMemo(() => {
     return [...data].sort((a, b) => {
       const av = (a[sortKey] ?? "").toString();

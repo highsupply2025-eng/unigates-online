@@ -38,7 +38,6 @@ const ROUTE_LOADERS: Array<[RegExp, Loader]> = [
   [/^\/institution\/quiz-results\//, () => import("./pages/InstitutionQuizResultsByDate")],
   [/^\/institution\/student-subscriptions$/, () => import("./pages/StudentSubscriptions")],
   [/^\/institution\/payment$/, () => import("./pages/InstitutionPayment")],
-  [/^\/institution\/payment\/details$/, () => import("./pages/InstitutionPaymentDetails")],
   [/^\/institution\/payment\/cash$/, () => import("./pages/InstitutionPaymentCash")],
   [/^\/institution\/payment\/bank-transfer$/, () => import("./pages/InstitutionPaymentBankTransfer")],
   [/^\/institution\/payment\/online$/, () => import("./pages/InstitutionPaymentOnline")],

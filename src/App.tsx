@@ -78,6 +78,10 @@ const DemoItemPage = lazy(() => import("./pages/DemoItemPage"));
 const InstitutionQuizResultsByDate = lazy(() => import("./pages/InstitutionQuizResultsByDate"));
 const StudentSubscriptions = lazy(() => import("./pages/StudentSubscriptions"));
 const InstitutionPayment = lazy(() => import("./pages/InstitutionPayment"));
+const InstitutionPaymentDetails = lazy(() => import("./pages/InstitutionPaymentDetails"));
+const InstitutionPaymentCash = lazy(() => import("./pages/InstitutionPaymentCash"));
+const InstitutionPaymentBankTransfer = lazy(() => import("./pages/InstitutionPaymentBankTransfer"));
+const InstitutionPaymentOnline = lazy(() => import("./pages/InstitutionPaymentOnline"));
 const About = lazy(() => import("./pages/About"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const Terms = lazy(() => import("./pages/Terms"));
@@ -226,6 +230,10 @@ const App = () => (
               <Route path="/institution/profile" element={<InstitutionProfile />} />
               <Route path="/institution/student-subscriptions" element={<StudentSubscriptions />} />
               <Route path="/institution/payment" element={<InstitutionPayment />} />
+              <Route path="/institution/payment/details" element={<InstitutionPaymentDetails />} />
+              <Route path="/institution/payment/cash" element={<InstitutionPaymentCash />} />
+              <Route path="/institution/payment/bank-transfer" element={<InstitutionPaymentBankTransfer />} />
+              <Route path="/institution/payment/online" element={<InstitutionPaymentOnline />} />
               
               <Route element={<StudentAccessGuard />}>
                 <Route path="/student/dashboard" element={<StudentDashboard />} />

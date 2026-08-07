@@ -14,7 +14,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { getInstitutionMenuItems } from "@/components/institutionMenuItems";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 
 interface StudentRecord {
@@ -67,14 +66,8 @@ const StudentSubscriptions = () => {
   const [page, setPage] = useState(1);
   const [institutionType, setInstitutionType] = useState<"college" | "institute" | null>(null);
   const [institutionName, setInstitutionName] = useState("");
-  const [renewDialogOpen, setRenewDialogOpen] = useState(false);
-  const [renewTarget, setRenewTarget] = useState<StudentRecord | null>(null);
-  const [renewMonths, setRenewMonths] = useState(1);
-  const [renewing, setRenewing] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [subscriptionPlan, setSubscriptionPlan] = useState<string>("monthly");
-  const [bulkPayDialogOpen, setBulkPayDialogOpen] = useState(false);
-  const [bulkPaying, setBulkPaying] = useState(false);
   const { toast } = useToast();
 
   const fetchStudents = useCallback(async () => {
@@ -83,6 +76,39 @@ const StudentSubscriptions = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/login"); return; }
+
+      // Determine institution type from registration tables (authoritative source)
+      const email = (user.email || "").toLowerCase();
+      let resolvedType: "college" | "institute" = "college";
+      let resolvedName = "";
+
+      const { data: college } = await supabase
+        .from("college_registrations")
+        .select("id, college_name, subscription_plan")
+        .ilike("email", email)
+        .eq("status", "approved")
+        .maybeSingle();
+
+      if (college) {
+        resolvedType = "college";
+        resolvedName = college.college_name || "";
+        setSubscriptionPlan(college.subscription_plan || "monthly");
+      } else {
+        const { data: institute } = await supabase
+          .from("institute_registrations")
+          .select("id, institute_name, subscription_plan")
+          .ilike("email", email)
+          .eq("status", "approved")
+          .maybeSingle();
+        if (institute) {
+          resolvedType = "institute";
+          resolvedName = institute.institute_name || "";
+          setSubscriptionPlan(institute.subscription_plan || "monthly");
+        }
+      }
+
+      setInstitutionType(resolvedType);
+      setInstitutionName(resolvedName);
 
       const { data: rpcData, error: rpcError } = await supabase.rpc(
         "get_institution_student_subscriptions",
@@ -119,9 +145,8 @@ const StudentSubscriptions = () => {
 
       setData(result.data || []);
       setTotal(result.total || 0);
-      setInstitutionType(result.institution_type || null);
-      setInstitutionName(result.institution_name || "");
-      setSubscriptionPlan(result.subscription_plan || "monthly");
+      // Use the resolved institution type/name from registration tables, not from RPC
+      if (result.subscription_plan) setSubscriptionPlan(result.subscription_plan);
     } catch {
       setError(isRtl ? "حدث خطأ غير متوقع" : "An unexpected error occurred");
     } finally {
@@ -132,39 +157,6 @@ const StudentSubscriptions = () => {
   useEffect(() => {
     fetchStudents();
   }, [fetchStudents]);
-
-  const handleRenew = async () => {
-    if (!renewTarget) return;
-    setRenewing(true);
-    try {
-      // For annual plan, convert months to months (the RPC handles 365-day calculation)
-      // For monthly/free plan, pass months directly (30 days each)
-      const monthsToSend = subscriptionPlan === "annual" ? renewMonths : renewMonths;
-      const { data, error } = await supabase.rpc("renew_student_subscription", {
-        _department_member_id: renewTarget.id,
-        _months: monthsToSend,
-      });
-      if (error) throw error;
-      const result = data as unknown as { error?: string } | null;
-      if (result?.error) {
-        toast({ title: isRtl ? "خطأ" : "Error", description: result.error, variant: "destructive" });
-        return;
-      }
-      toast({
-        title: isRtl ? "تم تجديد الاشتراك" : "Subscription Renewed",
-        description: isRtl
-          ? `تم تجديد اشتراك ${renewTarget.full_name} لمدة ${renewMonths} شهر`
-          : `Renewed ${renewTarget.full_name}'s subscription for ${renewMonths} month(s)`,
-      });
-      setRenewDialogOpen(false);
-      setRenewTarget(null);
-      fetchStudents();
-    } catch (e: unknown) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: e instanceof Error ? e.message : "Failed", variant: "destructive" });
-    } finally {
-      setRenewing(false);
-    }
-  };
 
   const toggleSelectAll = () => {
     if (selectedIds.size === sorted.length) {
@@ -183,42 +175,9 @@ const StudentSubscriptions = () => {
     });
   };
 
-  const handleBulkPay = async () => {
-    const inactiveStudents = sorted.filter((s) => selectedIds.has(s.id) && !s.subscription_active);
-    if (inactiveStudents.length === 0) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى تحديد طلاب غير نشطين" : "Please select inactive students", variant: "destructive" });
-      return;
-    }
-    setBulkPaying(true);
-    try {
-      // For annual plan, activate for 12 months (365 days)
-      // For monthly/free plan, activate for 1 month (30 days)
-      const monthsToSend = subscriptionPlan === "annual" ? 12 : 1;
-      for (const student of inactiveStudents) {
-        await supabase.rpc("renew_student_subscription", {
-          _department_member_id: student.id,
-          _months: monthsToSend,
-        });
-      }
-      toast({
-        title: isRtl ? "تم الدفع بنجاح" : "Payment Successful",
-        description: isRtl
-          ? `تم تفعيل اشتراك ${inactiveStudents.length} طالب`
-          : `Activated subscription for ${inactiveStudents.length} student(s)`,
-      });
-      setSelectedIds(new Set());
-      setBulkPayDialogOpen(false);
-      fetchStudents();
-    } catch (e: unknown) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: e instanceof Error ? e.message : "Payment failed", variant: "destructive" });
-    } finally {
-      setBulkPaying(false);
-    }
-  };
-
-  const getDiscountedAmount = (baseAmount: number) => {
-    if (subscriptionPlan === "annual") return Math.round(baseAmount * 0.9);
-    return baseAmount;
+  const navigateToPayment = (ids: string[]) => {
+    const studentIds = ids.join(",");
+    navigate(`/institution/payment/details?students=${studentIds}&plan=${subscriptionPlan}`);
   };
 
   const sorted = useMemo(() => {
@@ -271,9 +230,7 @@ const StudentSubscriptions = () => {
             </div>
             <div className="min-w-0 flex-1">
               <h1 className="text-lg sm:text-2xl font-black text-foreground truncate tracking-tight">
-                {isRtl
-                  ? (institutionType === "college" ? "لوحة ادارة الكلية" : "لوحة ادارة المعهد")
-                  : (institutionType === "college" ? "College Administration" : "Institute Administration")}
+                {isRtl ? "لوحة إدارة الكلية" : "College Administration"}
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground font-semibold truncate">
                 {isRtl ? "اشتراك الطلاب" : "Student Subscriptions"}{institutionName ? ` - ${institutionName}` : ""}
@@ -287,7 +244,7 @@ const StudentSubscriptions = () => {
               </Badge>
             )}
             <DashboardMenuDropdown
-              title={isRtl ? (institutionType === "college" ? "لوحة الكلية" : "لوحة المعهد") : (institutionType === "college" ? "College Panel" : "Institute Panel")}
+              title={isRtl ? "لوحة الكلية" : "College Panel"}
               onLanguageToggle={toggleLanguage}
               onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
               items={getInstitutionMenuItems({
@@ -465,7 +422,7 @@ const StudentSubscriptions = () => {
                                   size="sm"
                                   variant={s.subscription_active ? "outline" : "default"}
                                   className={`text-xs gap-1 ${s.subscription_active ? "border-teal-300 text-teal-700 hover:bg-teal-50" : "bg-teal-500 hover:bg-teal-600 text-white"}`}
-                                  onClick={() => { setRenewTarget(s); setRenewMonths(subscriptionPlan === "annual" ? 12 : 1); setRenewDialogOpen(true); }}
+                                  onClick={() => navigateToPayment([s.id])}
                                 >
                                   <CreditCard className="w-3.5 h-3.5" />
                                   {s.subscription_active ? (isRtl ? "تجديد" : "Renew") : (isRtl ? "دفع" : "Pay")}
@@ -505,7 +462,7 @@ const StudentSubscriptions = () => {
               </div>
             )}
 
-            {selectedIds.size > 0 && subscriptionPlan !== "free" && (
+            {selectedIds.size > 0 && (
               <div className={`flex flex-wrap items-center gap-3 pt-3 border-t ${isRtl ? "flex-row-reverse" : ""}`}>
                 <span className="text-sm text-muted-foreground font-medium">
                   {isRtl ? `تم تحديد ${selectedIds.size} طالب` : `${selectedIds.size} student(s) selected`}
@@ -513,7 +470,14 @@ const StudentSubscriptions = () => {
                 <Button
                   size="sm"
                   className="bg-teal-500 hover:bg-teal-600 text-white gap-1.5"
-                  onClick={() => setBulkPayDialogOpen(true)}
+                  onClick={() => {
+                    const inactiveStudents = sorted.filter((s) => selectedIds.has(s.id) && !s.subscription_active);
+                    if (inactiveStudents.length === 0) {
+                      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى تحديد طلاب غير نشطين" : "Please select inactive students", variant: "destructive" });
+                      return;
+                    }
+                    navigateToPayment(inactiveStudents.map((s) => s.id));
+                  }}
                 >
                   <CreditCard className="w-4 h-4" />
                   {isRtl ? "دفع الاشتراك" : "Pay Subscription"}
@@ -531,103 +495,6 @@ const StudentSubscriptions = () => {
         )}
       </main>
 
-      <Dialog open={renewDialogOpen} onOpenChange={setRenewDialogOpen}>
-        <DialogContent className="sm:max-w-md w-[calc(100vw-2rem)]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-teal-600" />
-              {isRtl ? "دفع الاشتراك" : "Pay Subscription"}
-            </DialogTitle>
-          </DialogHeader>
-          {renewTarget && (
-            <div className="space-y-4">
-              <div className="p-3 rounded-lg bg-muted/50">
-                <p className="font-medium">{renewTarget.full_name}</p>
-                <p className="text-sm text-muted-foreground">{renewTarget.email}</p>
-                <p className="text-sm text-muted-foreground">{renewTarget.department_name}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">{isRtl ? "مدة الاشتراك" : "Subscription Duration"}</label>
-                <div className="flex flex-wrap gap-2">
-                  {(subscriptionPlan === "annual"
-                    ? [1, 3, 6, 12]
-                    : [1, 2, 3, 6, 12]
-                  ).map((m) => (
-                    <Button
-                      key={m}
-                      variant={renewMonths === m ? "default" : "outline"}
-                      size="sm"
-                      className={renewMonths === m ? "bg-teal-500 hover:bg-teal-600" : ""}
-                      onClick={() => setRenewMonths(m)}
-                    >
-                      {m} {isRtl ? "شهر" : "mo"}
-                    </Button>
-                  ))}
-                </div>
-                {subscriptionPlan === "annual" && (
-                  <p className="text-xs text-muted-foreground mt-1.5">
-                    {isRtl ? "كل شهر = 30 يوم (12 شهر = 365 يوم)" : "Each month = 30 days (12 months = 365 days)"}
-                  </p>
-                )}
-              </div>
-              {subscriptionPlan === "annual" && (
-                <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-                  <p className="text-sm text-green-700 dark:text-green-400 font-medium">
-                    {isRtl ? "خصم 10% على البقة السنوية" : "10% discount on Annual plan"}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setRenewDialogOpen(false)}>
-              {isRtl ? "إلغاء" : "Cancel"}
-            </Button>
-            <Button onClick={handleRenew} disabled={renewing} className="bg-teal-500 hover:bg-teal-600">
-              {renewing ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : <CreditCard className="w-4 h-4 me-1" />}
-              {isRtl ? `دفع الاشتراك لمدة ${renewMonths} شهر` : `Pay for ${renewMonths} month(s)`}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={bulkPayDialogOpen} onOpenChange={setBulkPayDialogOpen}>
-        <DialogContent className="sm:max-w-md w-[calc(100vw-2rem)]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-teal-600" />
-              {isRtl ? "دفع الاشتراك لعدة طلاب" : "Bulk Pay Subscriptions"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              {isRtl
-                ? subscriptionPlan === "annual"
-                  ? `سيتم تفعيل اشتراك ${selectedIds.size} طالب لمدة 12 شهر (365 يوم)`
-                  : `سيتم تفعيل اشتراك ${selectedIds.size} طالب لمدة شهر واحد`
-                : subscriptionPlan === "annual"
-                  ? `Activate 12-month subscription (365 days) for ${selectedIds.size} student(s)`
-                  : `Activate 1-month subscription for ${selectedIds.size} student(s)`}
-            </p>
-            {subscriptionPlan === "annual" && (
-              <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-                <p className="text-sm text-green-700 dark:text-green-400 font-medium">
-                  {isRtl ? "خصم 10% على البقة السنوية" : "10% discount on Annual plan"}
-                </p>
-              </div>
-            )}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setBulkPayDialogOpen(false)}>
-              {isRtl ? "إلغاء" : "Cancel"}
-            </Button>
-            <Button onClick={handleBulkPay} disabled={bulkPaying} className="bg-teal-500 hover:bg-teal-600">
-              {bulkPaying ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : <CreditCard className="w-4 h-4 me-1" />}
-              {isRtl ? "دفع الاشتراك" : "Pay Subscription"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

@@ -1,15 +1,16 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Search, Loader2, Users, GraduationCap,
+  Search, Users, GraduationCap,
   ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, AlertTriangle, RefreshCw,
-  CreditCard, Clock
+  CreditCard, Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
@@ -60,38 +61,40 @@ const StudentSubscriptions = () => {
   const { language, toggleLanguage } = useLanguage();
   const isRtl = language === "ar";
   const navigate = useNavigate();
-  const { identity, loading: identityLoading } = useInstitutionIdentity();
+  const { identity } = useInstitutionIdentity();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<StudentRecord[]>([]);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("full_name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const { toast } = useToast();
+  const abortRef = useRef(0);
 
   const subscriptionPlan = identity?.subscriptionPlan ?? "free";
-  const institutionType = identity?.institutionType ?? null;
-  const institutionName = identity?.institutionName ?? "";
 
   const fetchStudents = useCallback(async () => {
-    if (!identity) return;
     setLoading(true);
     setError(null);
+    const fetchId = ++abortRef.current;
     try {
       const { data: rpcData, error: rpcError } = await supabase.rpc(
         "get_institution_student_subscriptions",
         {
           p_page: page,
           p_page_size: PAGE_SIZE,
-          p_search: search.trim(),
+          p_search: debouncedSearch.trim(),
           p_sort_by: sortKey,
           p_sort_dir: sortDir,
         },
       );
+
+      if (fetchId !== abortRef.current) return;
 
       if (rpcError) {
         if (rpcError.code === "PGRST301" || rpcError.code === "42501") {
@@ -118,15 +121,25 @@ const StudentSubscriptions = () => {
       setData(result.data || []);
       setTotal(result.total || 0);
     } catch {
+      if (fetchId !== abortRef.current) return;
       setError(isRtl ? "حدث خطأ غير متوقع" : "An unexpected error occurred");
     } finally {
-      setLoading(false);
+      if (fetchId === abortRef.current) setLoading(false);
     }
-  }, [page, search, sortKey, sortDir, navigate, isRtl, identity]);
+  }, [page, debouncedSearch, sortKey, sortDir, navigate, isRtl]);
 
   useEffect(() => {
     fetchStudents();
   }, [fetchStudents]);
+
+  // Debounce search input
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  // Reset page on search change
+  useEffect(() => { setPage(1); }, [debouncedSearch]);
 
   const toggleSelectAll = () => {
     if (selectedIds.size === sorted.length) {
@@ -156,8 +169,6 @@ const StudentSubscriptions = () => {
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const safePage = Math.max(1, Math.min(page, totalPages));
 
-  useEffect(() => { setPage(1); }, [search]);
-
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -176,14 +187,6 @@ const StudentSubscriptions = () => {
 
   const isActive = (s: StudentRecord) =>
     subscriptionPlan === "free" ? isFreePlanTrialActive(s) : s.subscription_active;
-
-  if ((loading && data.length === 0) || identityLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={isRtl ? "rtl" : "ltr"}>
@@ -213,7 +216,7 @@ const StudentSubscriptions = () => {
             </div>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
-            {!error && (
+            {!error && !loading && (
               <Badge variant="secondary" className="shrink-0 text-sm hidden sm:inline-flex">
                 {total} {isRtl ? "طالب" : "students"}
               </Badge>
@@ -233,7 +236,7 @@ const StudentSubscriptions = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 w-full">
         <div className="relative group">
           <Search className={`absolute top-1/2 -translate-y-1/2 w-5 h-5 text-teal-500 group-focus-within:text-teal-600 transition-colors ${isRtl ? "right-4" : "left-4"}`} />
           <Input
@@ -255,7 +258,7 @@ const StudentSubscriptions = () => {
               </Button>
             </CardContent>
           </Card>
-        ) : !loading && data.length === 0 && !search ? (
+        ) : !loading && data.length === 0 && !debouncedSearch ? (
           <Card>
             <CardContent className="py-16 text-center space-y-3">
               <Users className="w-12 h-12 mx-auto text-muted-foreground/40" />
@@ -267,7 +270,7 @@ const StudentSubscriptions = () => {
               </Button>
             </CardContent>
           </Card>
-        ) : !loading && data.length === 0 && search ? (
+        ) : !loading && data.length === 0 && debouncedSearch ? (
           <Card>
             <CardContent className="py-16 text-center space-y-3">
               <Search className="w-12 h-12 mx-auto text-muted-foreground/40" />
@@ -325,12 +328,51 @@ const StudentSubscriptions = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {loading ? (
-                        <TableRow>
-                          <TableCell colSpan={8} className="text-center py-8">
-                            <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" />
-                          </TableCell>
-                        </TableRow>
+                      {loading && data.length === 0 ? (
+                        Array.from({ length: 8 }).map((_, i) => (
+                          <TableRow key={`skel-${i}`}>
+                            <TableCell><Skeleton className="h-5 w-5 rounded" /></TableCell>
+                            <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                            <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-36" /></TableCell>
+                            <TableCell className="hidden md:table-cell"><Skeleton className="h-5 w-20 rounded-full" /></TableCell>
+                            <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
+                            <TableCell className="hidden xl:table-cell"><Skeleton className="h-4 w-20" /></TableCell>
+                            <TableCell className="text-center"><Skeleton className="h-5 w-16 rounded-full mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Skeleton className="h-5 w-16 rounded-full mx-auto" /></TableCell>
+                            <TableCell className="text-center hidden sm:table-cell"><Skeleton className="h-7 w-16 rounded-md mx-auto" /></TableCell>
+                          </TableRow>
+                        ))
+                      ) : loading && data.length > 0 ? (
+                        sorted.map((s) => (
+                          <TableRow key={s.id} className="opacity-60">
+                            <TableCell><input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary" checked={selectedIds.has(s.id)} onChange={() => toggleSelect(s.id)} /></TableCell>
+                            <TableCell className="font-medium">{s.full_name}</TableCell>
+                            <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">{s.email || "—"}</TableCell>
+                            <TableCell className="hidden md:table-cell"><Badge variant="outline" className="text-xs">{s.department_name}</Badge></TableCell>
+                            <TableCell className="hidden lg:table-cell text-muted-foreground text-sm">{s.phone || "—"}</TableCell>
+                            <TableCell className="hidden xl:table-cell text-muted-foreground text-sm">{new Date(s.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</TableCell>
+                            <TableCell className="text-center">
+                              <Badge variant="secondary" className={`text-xs ${isActive(s) ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"}`}>
+                                {isActive(s) ? (isRtl ? "نشيط" : "Active") : (isRtl ? "غير نشيط" : "Inactive")}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {isActive(s) ? (
+                                <Badge variant="secondary" className="bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 text-xs">
+                                  <Clock className="w-3 h-3 me-1 inline" />
+                                  {isRtl ? "مدفوع" : "Paid"}
+                                </Badge>
+                              ) : (
+                                <Badge variant="secondary" className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-xs">
+                                  {isRtl ? "مطلوب الدفع" : "Payment Required"}
+                                </Badge>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-center hidden sm:table-cell">
+                              <Skeleton className="h-7 w-16 rounded-md mx-auto" />
+                            </TableCell>
+                          </TableRow>
+                        ))
                       ) : (
                         sorted.map((s) => (
                           <TableRow key={s.id}>
@@ -434,7 +476,7 @@ const StudentSubscriptions = () => {
                   {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
                 </Button>
                 <span className="text-sm text-muted-foreground min-w-[80px] text-center">
-                  {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : `${safePage} / ${totalPages}`}
+                  {loading ? <span className="inline-block w-4 h-4" /> : `${safePage} / ${totalPages}`}
                 </span>
                 <Button
                   variant="outline"
@@ -487,7 +529,6 @@ const StudentSubscriptions = () => {
           </>
         )}
       </main>
-
     </div>
   );
 };

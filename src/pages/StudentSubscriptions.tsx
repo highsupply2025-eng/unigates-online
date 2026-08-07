@@ -71,7 +71,7 @@ const StudentSubscriptions = () => {
   const [institutionType, setInstitutionType] = useState<"college" | "institute" | null>(null);
   const [institutionName, setInstitutionName] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [subscriptionPlan, setSubscriptionPlan] = useState<string>("monthly");
+  const [subscriptionPlan, setSubscriptionPlan] = useState<string>("free");
   const { toast } = useToast();
 
   const fetchStudents = useCallback(async () => {
@@ -96,7 +96,7 @@ const StudentSubscriptions = () => {
       if (college) {
         resolvedType = "college";
         resolvedName = college.college_name || "";
-        setSubscriptionPlan(college.subscription_plan || "monthly");
+        setSubscriptionPlan(college.subscription_plan || "free");
       } else {
         const { data: institute } = await supabase
           .from("institute_registrations")
@@ -107,7 +107,7 @@ const StudentSubscriptions = () => {
         if (institute) {
           resolvedType = "institute";
           resolvedName = institute.institute_name || "";
-          setSubscriptionPlan(institute.subscription_plan || "monthly");
+          setSubscriptionPlan(institute.subscription_plan || "free");
         }
       }
 
@@ -149,8 +149,6 @@ const StudentSubscriptions = () => {
 
       setData(result.data || []);
       setTotal(result.total || 0);
-      // Use the resolved institution type/name from registration tables, not from RPC
-      if (result.subscription_plan) setSubscriptionPlan(result.subscription_plan);
     } catch {
       setError(isRtl ? "حدث خطأ غير متوقع" : "An unexpected error occurred");
     } finally {
@@ -233,6 +231,13 @@ const StudentSubscriptions = () => {
             <div className="min-w-0 flex-1">
               <h1 className="text-lg sm:text-2xl font-black text-foreground truncate tracking-tight">
                 {isRtl ? "لوحة إدارة الكلية" : "College Administration"}
+                {subscriptionPlan && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary/10 text-primary border border-primary/20 ms-2 align-middle">
+                    {isRtl
+                      ? (subscriptionPlan === "free" ? "المجانية" : subscriptionPlan === "monthly" ? "الشهرية" : "السنوية")
+                      : (subscriptionPlan === "free" ? "Free" : subscriptionPlan === "monthly" ? "Monthly" : "Annual")}
+                  </span>
+                )}
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground font-semibold truncate">
                 {isRtl ? "اشتراك الطلاب" : "Student Subscriptions"}{institutionName ? ` - ${institutionName}` : ""}

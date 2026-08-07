@@ -1,16 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   GraduationCap, Building2, Mail, MessageCircle, Phone,
-  Loader2, ArrowLeft, Globe, CheckCircle, Copy, CreditCard,
+  Loader2, ArrowLeft, Globe, CheckCircle, Copy, CreditCard, Download, Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
+import { useInstitutionIdentity } from "@/hooks/useInstitutionIdentity";
+import jsPDF from "jspdf";
 
 interface StudentRecord {
   id: string;
@@ -28,6 +29,7 @@ const InstitutionPaymentBankTransfer = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { identity, loading: identityLoading } = useInstitutionIdentity();
 
   const studentIds = searchParams.get("students")?.split(",").filter(Boolean) || [];
   const planType = (searchParams.get("plan") || "monthly") as "monthly" | "annual";
@@ -41,6 +43,106 @@ const InstitutionPaymentBankTransfer = () => {
   const baseAmount = students.length * months * MONTHLY_PRICE;
   const discount = planType === "annual" ? ANNUAL_DISCOUNT : 0;
   const totalAmount = Math.round(baseAmount * (1 - discount));
+
+  const generateBankDetailsPDF = useCallback(() => {
+    const doc = new jsPDF();
+    const isRtlDoc = isRtl;
+
+    // Title
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    if (isRtlDoc) {
+      doc.text("UNIGATES - Bank Transfer Details", 105, 25, { align: "center" });
+    } else {
+      doc.text("UNIGATES - Bank Transfer Details", 105, 25, { align: "center" });
+    }
+
+    // Subtitle
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text("Please transfer the amount to the following bank account:", 105, 35, { align: "center" });
+
+    // Divider
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, 40, 190, 40);
+
+    // Bank details
+    const startY = 52;
+    const labelX = 25;
+    const valueX = 100;
+
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Bank Name:", labelX, startY);
+    doc.setFont("helvetica", "normal");
+    doc.text("CIB Bank", valueX, startY);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Account Name:", labelX, startY + 10);
+    doc.setFont("helvetica", "normal");
+    doc.text("UNIGATES Ltd", valueX, startY + 10);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Account Number:", labelX, startY + 20);
+    doc.setFont("helvetica", "normal");
+    doc.text("1234 5678 9012 3456", valueX, startY + 20);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("IBAN:", labelX, startY + 30);
+    doc.setFont("helvetica", "normal");
+    doc.text("EG12 3456 7890 1234 5678 9012 3456", valueX, startY + 30);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Currency:", labelX, startY + 40);
+    doc.setFont("helvetica", "normal");
+    doc.text("Egyptian Pound (EGP)", valueX, startY + 40);
+
+    // Amount box
+    doc.setFillColor(240, 248, 255);
+    doc.roundedRect(20, startY + 50, 170, 20, 3, 3, "F");
+    doc.setDrawColor(59, 130, 246);
+    doc.roundedRect(20, startY + 50, 170, 20, 3, 3, "S");
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(59, 130, 246);
+    doc.text(`Amount to transfer: ${totalAmount} EGP`, 105, startY + 63, { align: "center" });
+    doc.setTextColor(0, 0, 0);
+
+    // Order info
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, startY + 80, 190, startY + 80);
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text("Order Information:", labelX, startY + 90);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Students: ${students.length}`, labelX, startY + 98);
+    doc.text(`Plan: ${planType === "annual" ? "Annual" : "Monthly"}`, labelX, startY + 106);
+    doc.text(`Duration: ${months} month(s)`, labelX, startY + 114);
+    doc.text(`Date: ${new Date().toLocaleDateString("en-US")}`, labelX, startY + 122);
+
+    // Student names
+    if (students.length > 0) {
+      doc.setFont("helvetica", "bold");
+      doc.text("Students:", labelX, startY + 134);
+      doc.setFont("helvetica", "normal");
+      students.slice(0, 10).forEach((s, i) => {
+        doc.text(`${i + 1}. ${s.full_name}`, labelX + 5, startY + 142 + i * 8);
+      });
+      if (students.length > 10) {
+        doc.text(`... and ${students.length - 10} more`, labelX + 5, startY + 142 + 10 * 8);
+      }
+    }
+
+    // Footer
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(128, 128, 128);
+    doc.text("Please send this receipt along with proof of transfer to admin@unigates.online", 105, 280, { align: "center" });
+
+    // Save
+    doc.save(`UNIGATES_Bank_Transfer_${totalAmount}EGP.pdf`);
+  }, [isRtl, students, planType, months, totalAmount]);
 
   useEffect(() => {
     if (studentIds.length === 0) {
@@ -67,20 +169,37 @@ const InstitutionPaymentBankTransfer = () => {
     fetchStudents();
   }, [studentIds.join(","), navigate, isRtl, toast]);
 
+  // Auto-download PDF when page loads and students are ready
+  useEffect(() => {
+    if (!loading && students.length > 0 && !success) {
+      const timer = setTimeout(() => {
+        generateBankDetailsPDF();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, students.length, success, generateBankDetailsPDF]);
+
   const handleConfirm = async () => {
+    if (!identity) return;
     setConfirming(true);
     try {
-      for (const student of students) {
-        const { error } = await supabase.rpc("renew_student_subscription", {
-          _department_member_id: student.id,
-          _months: months,
-        });
-        if (error) throw error;
-      }
+      const { data, error } = await supabase.rpc("create_payment_request", {
+        _institution_type: identity.institutionType,
+        _institution_id: identity.institutionId,
+        _institution_name: identity.institutionName,
+        _student_member_ids: studentIds,
+        _student_names: students.map((s) => s.full_name),
+        _plan_type: planType,
+        _months: months,
+        _total_amount: totalAmount,
+      });
+      if (error) throw error;
+      const result = data as unknown as { success?: boolean; error?: string };
+      if (result.error) throw new Error(result.error);
       setSuccess(true);
       toast({
-        title: isRtl ? "تم تأكيد الدفع" : "Payment Confirmed",
-        description: isRtl ? "تم تفعيل اشتراك الطلاب بنجاح" : "Student subscriptions activated successfully",
+        title: isRtl ? "تم إرسال الطلب" : "Request Submitted",
+        description: isRtl ? "تم إرسال طلب الدفع بنجاح" : "Payment request submitted successfully",
       });
     } catch (e: unknown) {
       toast({ title: isRtl ? "خطأ" : "Error", description: e instanceof Error ? e.message : "Failed", variant: "destructive" });
@@ -94,28 +213,33 @@ const InstitutionPaymentBankTransfer = () => {
     toast({ title: isRtl ? "تم النسخ" : "Copied", description: isRtl ? "تم نسخ النص" : "Text copied to clipboard" });
   };
 
-  if (loading) {
+  if (loading || identityLoading) {
     return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
 
   if (success) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4" dir={isRtl ? "rtl" : "ltr"}>
-        <Card className="max-w-md w-full">
+        <Card className="max-w-md w-full border-0 shadow-lg shadow-black/5">
           <CardContent className="py-8 sm:py-12 text-center space-y-6">
             <div className="flex justify-center">
-              <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-400" />
+              <div className="w-20 h-20 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                <Clock className="w-10 h-10 text-amber-600 dark:text-amber-400" />
               </div>
             </div>
             <div>
               <h2 className="text-2xl font-black text-foreground mb-2">
-                {isRtl ? "تم تأكيد الدفع" : "Payment Confirmed"}
+                {isRtl ? "تم إرسال طلب الدفع" : "Payment Request Submitted"}
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground leading-relaxed">
                 {isRtl
-                  ? `تم تفعيل اشتراك ${students.length} طالب لمدة ${months} شهر`
-                  : `Activated subscription for ${students.length} student(s) for ${months} month(s)`}
+                  ? `تم إرسال طلب تحويل بنكي لاشتراك ${students.length} طالب بمبلغ ${totalAmount} ج.م. سيتم مراجعة الطلب من قبل إدارة المنصة وتفعيل اشتراك الطلاب فور الموافقة.`
+                  : `Bank transfer request submitted for ${students.length} student(s) totaling ${totalAmount} EGP. The request will be reviewed by the platform admin and subscriptions will be activated upon approval.`}
+              </p>
+            </div>
+            <div className="rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4">
+              <p className="text-sm text-amber-700 dark:text-amber-400 font-medium">
+                {isRtl ? "بانتظار موافقة الإدارة" : "Awaiting Admin Approval"}
               </p>
             </div>
             <Button className="w-full bg-teal-500 hover:bg-teal-600" onClick={() => navigate("/institution/student-subscriptions")}>
@@ -159,7 +283,7 @@ const InstitutionPaymentBankTransfer = () => {
       <main className="flex-1 px-3 sm:px-4 py-4 sm:py-6">
         <div className="max-w-lg mx-auto space-y-5">
           {/* Payment summary */}
-          <Card>
+          <Card className="border-0 shadow-lg shadow-black/5">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
                 <CreditCard className="w-5 h-5 text-teal-600" />
@@ -195,7 +319,7 @@ const InstitutionPaymentBankTransfer = () => {
           </Card>
 
           {/* Bank account details */}
-          <Card>
+          <Card className="border-0 shadow-lg shadow-black/5">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Building2 className="w-5 h-5 text-blue-600" />
@@ -261,11 +385,20 @@ const InstitutionPaymentBankTransfer = () => {
                   </p>
                 </div>
               </div>
+
+              <Button
+                variant="outline"
+                className="w-full gap-2 mt-2"
+                onClick={generateBankDetailsPDF}
+              >
+                <Download className="w-4 h-4" />
+                {isRtl ? "تحميل بيانات الحساب كـ PDF" : "Download Bank Details as PDF"}
+              </Button>
             </CardContent>
           </Card>
 
           {/* Contact details */}
-          <Card>
+          <Card className="border-0 shadow-lg shadow-black/5">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Phone className="w-5 h-5 text-teal-600" />
@@ -324,17 +457,17 @@ const InstitutionPaymentBankTransfer = () => {
 
           <Button
             className="w-full h-12 text-base font-bold bg-teal-500 hover:bg-teal-600 gap-2"
-            disabled={confirming}
+            disabled={confirming || !identity}
             onClick={handleConfirm}
           >
             {confirming ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
-            {isRtl ? "تأكيد الدفع" : "Confirm Payment"}
+            {isRtl ? "إرسال طلب الدفع" : "Submit Payment Request"}
           </Button>
 
           <p className="text-xs text-muted-foreground text-center">
             {isRtl
-              ? "بعد التحويل وإرسال الإثبات، اضغط على زر التأكيد لتفعيل اشتراك الطلاب"
-              : "After transferring and sending proof, click the confirm button to activate student subscriptions"}
+              ? "سيتم مراجعة طلب الدفع من قبل إدارة المنصة وتفعيل اشتراك الطلاب فور الموافقة"
+              : "The payment request will be reviewed by the platform admin and subscriptions will be activated upon approval"}
           </p>
         </div>
       </main>

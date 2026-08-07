@@ -219,10 +219,14 @@ const InstitutionProfile = () => {
     if (data.kind === "college") payload.dean_name = leaderName.trim();
     else payload.director_name = leaderName.trim();
 
-    const { error } = await supabase.from(table).update(payload).eq("id", data.id);
+    const { data: updated, error } = await supabase.from(table).update(payload).eq("id", data.id).select("id");
     setSavingInfo(false);
     if (error) {
       toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    if (!updated || updated.length === 0) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "لم يتم حفظ البيانات — تحقق من صلاحياتك" : "Save failed — check your permissions", variant: "destructive" });
       return;
     }
     setData((d) => d ? { ...d, leaderName: leaderName.trim(), phone: phone.trim(), city: city.trim(), address: address.trim() || null } : d);

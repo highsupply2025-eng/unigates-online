@@ -435,7 +435,7 @@ const InstitutionProfile = () => {
               </div>
             </div>
             <div className="text-start text-sm text-muted-foreground space-y-1 bg-background/60 rounded-xl px-4 py-3 border border-primary/10">
-              {data.subscription_plan === "free" ? (
+              {(data.subscription_plan === "free" || !data.subscription_plan) ? (
                 <>
                   <p className="flex items-center gap-2"><Sparkles className="w-3.5 h-3.5 text-primary/60" /> {isRtl ? "حتى 100 طالب لكل قسم" : "Up to 100 students per dept"}</p>
                   <p className="flex items-center gap-2"><Sparkles className="w-3.5 h-3.5 text-primary/60" /> {isRtl ? "3 أعضاء هيئة تدريس لكل قسم" : "3 faculty per dept"}</p>

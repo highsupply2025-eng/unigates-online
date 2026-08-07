@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useInstitutionIdentity } from "@/hooks/useInstitutionIdentity";
 import {
   extractEmbeddedFacultyPhotos,
   MAX_FACULTY_WORKBOOK_BYTES,
@@ -34,37 +35,27 @@ const InstitutionFacultyImport = () => {
   const [searchParams] = useSearchParams();
   const isStudent = searchParams.get("role") === "student";
   const fileRef = useRef<HTMLInputElement>(null);
+  const { identity, loading: identityLoading } = useInstitutionIdentity();
 
   const [departments, setDepartments] = useState<{ id: string; name: string }[]>([]);
-  const [institutionId, setInstitutionId] = useState("");
-const [institutionType, setInstitutionType] =
-  useState<"college" | "institute" | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [result, setResult] = useState<{ success: number; skipped: number; failed: number; errors: string[] } | null>(null);
 
+  const institutionId = identity?.institutionId ?? "";
+  const institutionType = identity?.institutionType ?? null;
+
   useEffect(() => {
+    if (!identity) return;
     (async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user?.email) { navigate("/login"); return; }
-        let instId = "", instType: "college" | "institute" | null = null;
-        const { data: college } = await supabase.from("college_registrations").select("id").eq("email", user.email).eq("status", "approved").maybeSingle();
-        if (college) { instId = college.id; instType = "college"; }
-        else {
-          const { data: inst } = await supabase.from("institute_registrations").select("id").eq("email", user.email).eq("status", "approved").maybeSingle();
-          if (inst) { instId = inst.id; instType = "institute"; }
-        }
-        if (!instId || !instType) { navigate("/"); return; }
-        setInstitutionId(instId);
-setInstitutionType(instType);
-        const { data: depts } = await supabase.from("departments").select("id, department_name").eq("institution_id", instId).eq("institution_type", instType);
+        const { data: depts } = await supabase.from("departments").select("id, department_name").eq("institution_id", identity.institutionId).eq("institution_type", identity.institutionType);
         setDepartments((depts || []).map((d: any) => ({ id: d.id, name: d.department_name })));
       } finally {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [identity]);
 
   const norm = (v: any) => (v == null ? "" : String(v).trim());
 

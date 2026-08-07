@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useInstitutionIdentity } from "@/hooks/useInstitutionIdentity";
 
 interface ResultRow {
   id: string;
@@ -39,40 +40,16 @@ const InstitutionQuizResultsByDate = () => {
   const navigate = useNavigate();
   const { language, dir } = useLanguage();
   const isRtl = language === "ar";
+  const { identity, loading: identityLoading } = useInstitutionIdentity();
 
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<ResultRow[]>([]);
-  const [institutionName, setInstitutionName] = useState("");
 
   useEffect(() => {
+    if (!identity || !date) return;
     (async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user || !date) { navigate("/login"); return; }
-
-        // Find institution by email (college or institute)
-        const email = user.email || "";
-        let instId = "";
-        let instName = "";
-        const { data: col } = await supabase
-          .from("college_registrations")
-          .select("id, college_name")
-          .eq("email", email)
-          .eq("status", "approved")
-          .maybeSingle();
-        if (col) { instId = col.id; instName = col.college_name; }
-        else {
-          const { data: inst } = await supabase
-            .from("institute_registrations")
-            .select("id, institute_name")
-            .eq("email", email)
-            .eq("status", "approved")
-            .maybeSingle();
-          if (inst) { instId = inst.id; instName = inst.institute_name; }
-        }
-        setInstitutionName(instName);
-
-        if (!instId) { setLoading(false); return; }
+        const instId = identity.institutionId;
 
         // Day window [date, date+1)
         const dayStart = new Date(`${date}T00:00:00`);
@@ -93,7 +70,7 @@ const InstitutionQuizResultsByDate = () => {
         setLoading(false);
       }
     })();
-  }, [date, navigate]);
+  }, [date, navigate, identity]);
 
   const stats = useMemo(() => ({
     total: rows.length,
@@ -133,7 +110,7 @@ const InstitutionQuizResultsByDate = () => {
   .b{font-weight:700}
 </style></head><body>
 <h1>${esc(isRtl ? titleAr : titleEn)}</h1>
-<div class="sub">${esc(institutionName || "")}</div>
+<div class="sub">${esc(identity?.institutionName || "")}</div>
 <div class="stats">
   <div class="stat"><b>${stats.total}</b>${isRtl ? "إجمالي" : "Total"}</div>
   <div class="stat" style="color:#059669"><b>${stats.top}</b>${isRtl ? "متفوق" : "Top"}</div>
@@ -167,7 +144,7 @@ const InstitutionQuizResultsByDate = () => {
     w.document.close();
   };
 
-  if (loading) {
+  if (loading || identityLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -185,7 +162,7 @@ const InstitutionQuizResultsByDate = () => {
             </Button>
             <div className="min-w-0">
               <h1 className="text-base sm:text-xl font-extrabold truncate">{isRtl ? titleAr : titleEn}</h1>
-              <p className="text-xs text-white/80 truncate">{institutionName}</p>
+              <p className="text-xs text-white/80 truncate">{identity?.institutionName}</p>
             </div>
           </div>
           <div className="flex gap-2 shrink-0">

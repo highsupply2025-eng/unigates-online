@@ -103,7 +103,7 @@ const ROUTE_LOADERS: Array<[RegExp, Loader]> = [
   [/^\/(?:courses\/browse|book-store(?:\/(?:login|signup))?|school-platform(?:\/(?:register|login|signup))?|careers|partnerships|certificates)$/, () => import("./pages/ComingSoon")],
 ];
 
-// Only the 5 most commonly visited routes are prefetched eagerly.
+// Only the most commonly visited routes are prefetched eagerly.
 // All routes are still available via intent-based (hover) prefetch.
 const TOP_ROUTE_LOADERS: Loader[] = [
   () => import("./pages/Login"),
@@ -111,6 +111,10 @@ const TOP_ROUTE_LOADERS: Loader[] = [
   () => import("./pages/UserProfile"),
   () => import("./pages/ComingSoon"),
   () => import("./pages/NotFound"),
+  // Institution pages — most visited by college/institute admins
+  () => import("./pages/InstitutionDashboard"),
+  () => import("./pages/StudentSubscriptions"),
+  () => import("./pages/InstitutionProfile"),
 ];
 
 

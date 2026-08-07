@@ -15,6 +15,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { getInstitutionMenuItems } from "@/components/institutionMenuItems";
 import { useToast } from "@/hooks/use-toast";
+import { useInstitutionIdentity } from "@/hooks/useInstitutionIdentity";
 
 interface StudentRecord {
   id: string;
@@ -59,6 +60,7 @@ const StudentSubscriptions = () => {
   const { language, toggleLanguage } = useLanguage();
   const isRtl = language === "ar";
   const navigate = useNavigate();
+  const { identity, loading: identityLoading } = useInstitutionIdentity();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -68,52 +70,18 @@ const StudentSubscriptions = () => {
   const [sortKey, setSortKey] = useState<SortKey>("full_name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [page, setPage] = useState(1);
-  const [institutionType, setInstitutionType] = useState<"college" | "institute" | null>(null);
-  const [institutionName, setInstitutionName] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [subscriptionPlan, setSubscriptionPlan] = useState<string>("free");
   const { toast } = useToast();
 
+  const subscriptionPlan = identity?.subscriptionPlan ?? "free";
+  const institutionType = identity?.institutionType ?? null;
+  const institutionName = identity?.institutionName ?? "";
+
   const fetchStudents = useCallback(async () => {
+    if (!identity) return;
     setLoading(true);
     setError(null);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { navigate("/login"); return; }
-
-      // Determine institution type from registration tables (authoritative source)
-      const email = (user.email || "").toLowerCase();
-      let resolvedType: "college" | "institute" = "college";
-      let resolvedName = "";
-
-      const { data: college } = await supabase
-        .from("college_registrations")
-        .select("id, college_name, subscription_plan")
-        .ilike("email", email)
-        .eq("status", "approved")
-        .maybeSingle();
-
-      if (college) {
-        resolvedType = "college";
-        resolvedName = college.college_name || "";
-        setSubscriptionPlan(college.subscription_plan || "free");
-      } else {
-        const { data: institute } = await supabase
-          .from("institute_registrations")
-          .select("id, institute_name, subscription_plan")
-          .ilike("email", email)
-          .eq("status", "approved")
-          .maybeSingle();
-        if (institute) {
-          resolvedType = "institute";
-          resolvedName = institute.institute_name || "";
-          setSubscriptionPlan(institute.subscription_plan || "free");
-        }
-      }
-
-      setInstitutionType(resolvedType);
-      setInstitutionName(resolvedName);
-
       const { data: rpcData, error: rpcError } = await supabase.rpc(
         "get_institution_student_subscriptions",
         {
@@ -154,7 +122,7 @@ const StudentSubscriptions = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, search, sortKey, sortDir, navigate, isRtl]);
+  }, [page, search, sortKey, sortDir, navigate, isRtl, identity]);
 
   useEffect(() => {
     fetchStudents();
@@ -209,7 +177,7 @@ const StudentSubscriptions = () => {
   const isActive = (s: StudentRecord) =>
     subscriptionPlan === "free" ? isFreePlanTrialActive(s) : s.subscription_active;
 
-  if (loading && data.length === 0) {
+  if ((loading && data.length === 0) || identityLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />

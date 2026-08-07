@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useInstitutionIdentity } from "@/hooks/useInstitutionIdentity";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Loader2 } from "lucide-react";
 import {
@@ -19,75 +20,25 @@ const InstitutionFacultyAdd = () => {
   const [searchParams] = useSearchParams();
   const forcedRole = searchParams.get("role");
   const isStudent = forcedRole === "student";
+  const { identity, loading: identityLoading } = useInstitutionIdentity();
 
   const [saving, setSaving] = useState(false);
-  const [institutionId, setInstitutionId] = useState<string>("");
-  const [institutionType, setInstitutionType] = useState<
-    "college" | "institute" | ""
-  >("");
-  const [subscriptionPlan, setSubscriptionPlan] = useState<string>("monthly");
   const [createdStudentId, setCreatedStudentId] = useState<string | null>(null);
   const [createdStudentEmail, setCreatedStudentEmail] = useState<string | null>(null);
   const [departments, setDepartments] = useState<DepartmentOption[]>([]);
 
+  const institutionId = identity?.institutionId ?? "";
+  const institutionType = identity?.institutionType ?? "";
+  const subscriptionPlan = identity?.subscriptionPlan ?? "free";
+
   useEffect(() => {
+    if (!identity) return;
     (async () => {
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if (!user?.email) {
-          navigate("/login");
-          return;
-        }
-
-        let instId = "";
-        let instType: "college" | "institute" | null = null;
-
-        const { data: college } = await supabase
-          .from("college_registrations")
-          .select("id")
-          .eq("email", user.email)
-          .eq("status", "approved")
-          .maybeSingle();
-        if (college) {
-          instId = college.id;
-          instType = "college";
-          const { data: reg } = await supabase
-            .from("college_registrations")
-            .select("subscription_plan")
-            .eq("id", college.id)
-            .maybeSingle();
-          setSubscriptionPlan(reg?.subscription_plan || "monthly");
-        } else {
-          const { data: inst } = await supabase
-            .from("institute_registrations")
-            .select("id, subscription_plan")
-            .eq("email", user.email)
-            .eq("status", "approved")
-            .maybeSingle();
-          if (inst) {
-            instId = inst.id;
-            instType = "institute";
-            setSubscriptionPlan(inst.subscription_plan || "monthly");
-          }
-        }
-
-        if (!instId || !instType) {
-          toast({
-            title: isRtl ? "غير مصرح" : "Unauthorized",
-            variant: "destructive",
-          });
-          navigate("/");
-          return;
-        }
-        setInstitutionId(instId);
-        setInstitutionType(instType);
-
         const { data: depts } = await supabase
           .from("departments")
           .select("id, department_name, department_code")
-          .eq("institution_id", instId)
+          .eq("institution_id", identity.institutionId)
           .eq("status", "active");
         if (depts) {
           setDepartments(
@@ -102,7 +53,7 @@ const InstitutionFacultyAdd = () => {
         navigate("/login");
       }
     })();
-  }, []);
+  }, [identity, navigate]);
 
   const handleSubmit = async (data: FacultyMemberFormData) => {
     if (saving) return;

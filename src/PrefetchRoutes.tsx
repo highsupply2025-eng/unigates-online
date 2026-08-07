@@ -86,6 +86,7 @@ const ROUTE_LOADERS: Array<[RegExp, Loader]> = [
   [/^\/admin\/dashboard$/, () => import("./pages/AdminDashboard")],
   [/^\/admin(?:\/overview)?$/, () => import("./pages/AdminOverview")],
   [/^\/admin\/security-center$/, () => import("./pages/AdminSecurityCenter")],
+  [/^\/admin\/payment-settings$/, () => import("./pages/AdminPaymentSettings")],
   [/^\/school\/student\/dashboard$/, () => import("./pages/SchoolStudentDashboard")],
   [/^\/school\/teacher\/dashboard$/, () => import("./pages/SchoolTeacherDashboard")],
   [/^\/school\/dashboard$/, () => import("./pages/SchoolDashboard")],

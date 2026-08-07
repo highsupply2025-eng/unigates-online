@@ -20,6 +20,16 @@ interface StudentRecord {
   subscription_active: boolean;
 }
 
+interface BankDetails {
+  bank_name: string;
+  account_name: string;
+  account_number: string;
+  iban: string;
+  currency: string;
+  swift_code: string;
+  bank_address: string;
+}
+
 const MONTHLY_PRICE = 50;
 const ANNUAL_DISCOUNT = 0.1;
 
@@ -39,6 +49,7 @@ const InstitutionPaymentBankTransfer = () => {
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [bankDetails, setBankDetails] = useState<BankDetails | null>(null);
 
   const baseAmount = students.length * months * MONTHLY_PRICE;
   const discount = planType === "annual" ? ANNUAL_DISCOUNT : 0;
@@ -46,16 +57,12 @@ const InstitutionPaymentBankTransfer = () => {
 
   const generateBankDetailsPDF = useCallback(() => {
     const doc = new jsPDF();
-    const isRtlDoc = isRtl;
+    const bd = bankDetails;
 
     // Title
     doc.setFontSize(20);
     doc.setFont("helvetica", "bold");
-    if (isRtlDoc) {
-      doc.text("UNIGATES - Bank Transfer Details", 105, 25, { align: "center" });
-    } else {
-      doc.text("UNIGATES - Bank Transfer Details", 105, 25, { align: "center" });
-    }
+    doc.text("UNIGATES - Bank Transfer Details", 105, 25, { align: "center" });
 
     // Subtitle
     doc.setFontSize(12);
@@ -75,27 +82,27 @@ const InstitutionPaymentBankTransfer = () => {
     doc.setFont("helvetica", "bold");
     doc.text("Bank Name:", labelX, startY);
     doc.setFont("helvetica", "normal");
-    doc.text("CIB Bank", valueX, startY);
+    doc.text(bd?.bank_name || "Not configured", valueX, startY);
 
     doc.setFont("helvetica", "bold");
     doc.text("Account Name:", labelX, startY + 10);
     doc.setFont("helvetica", "normal");
-    doc.text("UNIGATES Ltd", valueX, startY + 10);
+    doc.text(bd?.account_name || "Not configured", valueX, startY + 10);
 
     doc.setFont("helvetica", "bold");
     doc.text("Account Number:", labelX, startY + 20);
     doc.setFont("helvetica", "normal");
-    doc.text("1234 5678 9012 3456", valueX, startY + 20);
+    doc.text(bd?.account_number || "Not configured", valueX, startY + 20);
 
     doc.setFont("helvetica", "bold");
     doc.text("IBAN:", labelX, startY + 30);
     doc.setFont("helvetica", "normal");
-    doc.text("EG12 3456 7890 1234 5678 9012 3456", valueX, startY + 30);
+    doc.text(bd?.iban || "Not configured", valueX, startY + 30);
 
     doc.setFont("helvetica", "bold");
     doc.text("Currency:", labelX, startY + 40);
     doc.setFont("helvetica", "normal");
-    doc.text("Egyptian Pound (EGP)", valueX, startY + 40);
+    doc.text(bd?.currency || "EGP", valueX, startY + 40);
 
     // Amount box
     doc.setFillColor(240, 248, 255);
@@ -142,7 +149,7 @@ const InstitutionPaymentBankTransfer = () => {
 
     // Save
     doc.save(`UNIGATES_Bank_Transfer_${totalAmount}EGP.pdf`);
-  }, [isRtl, students, planType, months, totalAmount]);
+  }, [students, planType, months, totalAmount, bankDetails]);
 
   useEffect(() => {
     if (studentIds.length === 0) {
@@ -152,14 +159,20 @@ const InstitutionPaymentBankTransfer = () => {
     const fetchStudents = async () => {
       setLoading(true);
       try {
-        const { data: rpcData, error } = await supabase.rpc(
-          "get_institution_student_subscriptions",
-          { p_page: 1, p_page_size: 100, p_search: "", p_sort_by: "full_name", p_sort_dir: "asc" },
-        );
-        if (error) throw error;
-        const result = rpcData as unknown as { data?: StudentRecord[] };
+        const [rpcRes, bankRes] = await Promise.all([
+          supabase.rpc(
+            "get_institution_student_subscriptions",
+            { p_page: 1, p_page_size: 100, p_search: "", p_sort_by: "full_name", p_sort_dir: "asc" },
+          ),
+          supabase.rpc("get_bank_details"),
+        ]);
+        if (rpcRes.error) throw rpcRes.error;
+        const result = rpcRes.data as unknown as { data?: StudentRecord[] };
         const allStudents = result.data || [];
         setStudents(allStudents.filter((s) => studentIds.includes(s.id)));
+        if (!bankRes.error) {
+          setBankDetails(bankRes.data as unknown as BankDetails);
+        }
       } catch {
         toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "حدث خطأ" : "An error occurred", variant: "destructive" });
       } finally {
@@ -334,56 +347,45 @@ const InstitutionPaymentBankTransfer = () => {
               </p>
 
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
-                  <span className="text-sm text-muted-foreground">{isRtl ? "اسم البنك" : "Bank Name"}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold">CIB Bank</span>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => copyToClipboard("CIB Bank")}>
-                      <Copy className="w-3.5 h-3.5" />
-                    </Button>
+                {[
+                  { label: isRtl ? "اسم البنك" : "Bank Name", value: bankDetails?.bank_name, copyValue: bankDetails?.bank_name },
+                  { label: isRtl ? "اسم الحساب" : "Account Name", value: bankDetails?.account_name, copyValue: bankDetails?.account_name },
+                  { label: isRtl ? "رقم الحساب" : "Account Number", value: bankDetails?.account_number, copyValue: bankDetails?.account_number, dir: "ltr" as const },
+                  { label: "IBAN", value: bankDetails?.iban, copyValue: bankDetails?.iban, dir: "ltr" as const },
+                  { label: isRtl ? "العملة" : "Currency", value: bankDetails?.currency ? `${bankDetails.currency === "EGP" ? (isRtl ? "جنيه مصري (ج.م)" : "Egyptian Pound (EGP)") : bankDetails.currency}` : undefined },
+                ].map((field) => (
+                  <div key={field.label} className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
+                    <span className="text-sm text-muted-foreground">{field.label}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold" dir={field.dir || undefined}>
+                        {field.value || (
+                          <span className="text-orange-500 text-xs">{isRtl ? "غير مُعد" : "Not configured"}</span>
+                        )}
+                      </span>
+                      {field.copyValue && (
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => copyToClipboard(field.copyValue!)}>
+                          <Copy className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
-
-                <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
-                  <span className="text-sm text-muted-foreground">{isRtl ? "اسم الحساب" : "Account Name"}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold">UNIGATES Ltd</span>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => copyToClipboard("UNIGATES Ltd")}>
-                      <Copy className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
-                  <span className="text-sm text-muted-foreground">{isRtl ? "رقم الحساب" : "Account Number"}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold" dir="ltr">1234 5678 9012 3456</span>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => copyToClipboard("1234567890123456")}>
-                      <Copy className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
-                  <span className="text-sm text-muted-foreground">IBAN</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold" dir="ltr">EG12 3456 7890 1234 5678 9012 3456</span>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => copyToClipboard("EG12345678901234567890123456")}>
-                      <Copy className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
-                  <span className="text-sm text-muted-foreground">{isRtl ? "العملة" : "Currency"}</span>
-                  <span className="text-sm font-semibold">{isRtl ? "جنيه مصري (ج.م)" : "Egyptian Pound (EGP)"}</span>
-                </div>
+                ))}
 
                 <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
                   <p className="text-sm text-blue-700 dark:text-blue-400 font-medium">
                     {isRtl ? `المبلغ المطلوب: ${totalAmount} ج.م` : `Amount to transfer: ${totalAmount} EGP`}
                   </p>
                 </div>
+
+                {(!bankDetails?.bank_name || !bankDetails?.account_number) && (
+                  <div className="p-3 rounded-xl bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800">
+                    <p className="text-sm text-orange-700 dark:text-orange-400 font-medium">
+                      {isRtl
+                        ? " بيانات الحساب البنكي غير مُعدة بعد. يرجى التواصل مع الإدارة."
+                        : "Bank account details not yet configured. Please contact the platform admin."}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <Button

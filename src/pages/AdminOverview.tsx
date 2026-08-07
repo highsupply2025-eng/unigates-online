@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Users, GraduationCap, School, Building2, BookOpen, PlayCircle,
   ShoppingCart, CreditCard, Radio, Eye, Layers, RefreshCw, LayoutDashboard,
-  Check, X, ClipboardList, ArrowRight, ShieldCheck,
+  Check, X, ClipboardList, ArrowRight, ShieldCheck, Landmark,
 } from "lucide-react";
 
 type PendingKind = "lecturer" | "college" | "institute" | "school" | "department" | "payment_request";
@@ -316,6 +316,10 @@ export default function AdminOverview() {
             <Button size="sm" variant="outline" onClick={() => navigate("/admin/security-center")}>
               <ShieldCheck className="h-4 w-4 me-1" />
               {ar("مركز الأمان الدفاعي", "Security Center")}
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => navigate("/admin/payment-settings")}>
+              <Landmark className="h-4 w-4 me-1" />
+              {ar("بيانات الدفع", "Payment Settings")}
             </Button>
             <Button size="sm" onClick={() => navigate("/admin/dashboard")}>
               <LayoutDashboard className="h-4 w-4 me-1" />

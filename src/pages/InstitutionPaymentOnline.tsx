@@ -2,15 +2,16 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   GraduationCap, Globe, CreditCard, Smartphone, Wallet,
-  Loader2, ArrowLeft, CheckCircle, Lock, Shield,
+  Loader2, ArrowLeft, CheckCircle, Lock, Shield, ExternalLink,
+  Building2, Zap, CircleDollarSign,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
+import { useInstitutionIdentity } from "@/hooks/useInstitutionIdentity";
 
 interface StudentRecord {
   id: string;
@@ -22,7 +23,88 @@ interface StudentRecord {
 const MONTHLY_PRICE = 50;
 const ANNUAL_DISCOUNT = 0.1;
 
-type OnlineMethod = "stripe" | "fawry" | "valu";
+type ProviderId = "stripe" | "fawry" | "paymob" | "valu" | "tap" | "paytab";
+
+interface Provider {
+  id: ProviderId;
+  label: string;
+  labelAr: string;
+  desc: string;
+  descAr: string;
+  icon: React.ReactNode;
+  gradient: string;
+  available: boolean;
+  comingSoon: boolean;
+}
+
+const providers: Provider[] = [
+  {
+    id: "stripe",
+    label: "Stripe",
+    labelAr: "Stripe",
+    desc: "Accept payments worldwide with credit/debit cards",
+    descAr: "استقبال المدفوعات من جميع أنحاء العالم بالبطاقات الائتمانية",
+    icon: <CreditCard className="w-6 h-6" />,
+    gradient: "from-indigo-500 to-purple-600",
+    available: true,
+    comingSoon: false,
+  },
+  {
+    id: "paymob",
+    label: "Paymob",
+    labelAr: "Paymob",
+    desc: "Egypt's leading payment gateway",
+    descAr: "بوابة الدفع الأولى في مصر",
+    icon: <CircleDollarSign className="w-6 h-6" />,
+    gradient: "from-blue-500 to-cyan-600",
+    available: false,
+    comingSoon: true,
+  },
+  {
+    id: "fawry",
+    label: "Fawry",
+    labelAr: "فوري",
+    desc: "Pay at any Fawry outlet across Egypt",
+    descAr: "ادفع من أي نقطة فوري في مصر",
+    icon: <Smartphone className="w-6 h-6" />,
+    gradient: "from-orange-500 to-red-600",
+    available: false,
+    comingSoon: true,
+  },
+  {
+    id: "valu",
+    label: "valU",
+    labelAr: "valU",
+    desc: "Buy now, pay later in installments",
+    descAr: "اشتر الآن وادفع على أقساط",
+    icon: <Wallet className="w-6 h-6" />,
+    gradient: "from-teal-500 to-emerald-600",
+    available: false,
+    comingSoon: true,
+  },
+  {
+    id: "tap",
+    label: "Tap Payments",
+    labelAr: "Tap Payments",
+    desc: "Regional payment processing for MENA",
+    descAr: "معالجة المدفوعات الإقليمية للشرق الأوسط",
+    icon: <Zap className="w-6 h-6" />,
+    gradient: "from-yellow-500 to-amber-600",
+    available: false,
+    comingSoon: true,
+  },
+  {
+    id: "paytab",
+    label: "PayTabs",
+    labelAr: "PayTabs",
+    desc: "300+ payment methods across MENA",
+    descAr: "أكثر من 300 طريقة دفع في المنطقة العربية",
+    icon: <Building2 className="w-6 h-6" />,
+    gradient: "from-pink-500 to-rose-600",
+    available: false,
+    comingSoon: true,
+  },
+];
 
 const InstitutionPaymentOnline = () => {
   const { language, toggleLanguage } = useLanguage();
@@ -30,6 +112,7 @@ const InstitutionPaymentOnline = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { identity, loading: identityLoading } = useInstitutionIdentity();
 
   const studentIds = searchParams.get("students")?.split(",").filter(Boolean) || [];
   const planType = (searchParams.get("plan") || "monthly") as "monthly" | "annual";
@@ -39,7 +122,7 @@ const InstitutionPaymentOnline = () => {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [selectedOnlineMethod, setSelectedOnlineMethod] = useState<OnlineMethod | null>(null);
+  const [selectedProvider, setSelectedProvider] = useState<ProviderId | null>(null);
 
   const baseAmount = students.length * months * MONTHLY_PRICE;
   const discount = planType === "annual" ? ANNUAL_DISCOUNT : 0;
@@ -71,26 +154,32 @@ const InstitutionPaymentOnline = () => {
   }, [studentIds.join(","), navigate, isRtl, toast]);
 
   const handlePay = async () => {
-    if (!selectedOnlineMethod) return;
+    if (!selectedProvider || !identity) return;
     setProcessing(true);
     try {
-      // TODO: Integrate with actual payment provider (Stripe, Fawry, etc.)
+      // TODO: Integrate with actual payment provider APIs
       // For now, simulate payment processing
       await new Promise((r) => setTimeout(r, 2000));
 
-      // After successful payment, activate subscriptions
-      for (const student of students) {
-        const { error } = await supabase.rpc("renew_student_subscription", {
-          _department_member_id: student.id,
-          _months: months,
-        });
-        if (error) throw error;
-      }
+      // After successful payment, create a pending payment request
+      const { data, error } = await supabase.rpc("create_payment_request", {
+        _institution_type: identity.institutionType,
+        _institution_id: identity.institutionId,
+        _institution_name: identity.institutionName,
+        _student_member_ids: studentIds,
+        _student_names: students.map((s) => s.full_name),
+        _plan_type: planType,
+        _months: months,
+        _total_amount: totalAmount,
+      });
+      if (error) throw error;
+      const result = data as unknown as { success?: boolean; error?: string };
+      if (result.error) throw new Error(result.error);
 
       setSuccess(true);
       toast({
         title: isRtl ? "تم الدفع بنجاح" : "Payment Successful",
-        description: isRtl ? "تم تفعيل اشتراك الطلاب بنجاح" : "Student subscriptions activated successfully",
+        description: isRtl ? "تم إرسال طلب الدفع بنجاح" : "Payment request submitted successfully",
       });
     } catch (e: unknown) {
       toast({ title: isRtl ? "فشل الدفع" : "Payment Failed", description: e instanceof Error ? e.message : "Failed", variant: "destructive" });
@@ -99,28 +188,33 @@ const InstitutionPaymentOnline = () => {
     }
   };
 
-  if (loading) {
+  if (loading || identityLoading) {
     return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
 
   if (success) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4" dir={isRtl ? "rtl" : "ltr"}>
-        <Card className="max-w-md w-full">
+        <Card className="max-w-md w-full border-0 shadow-lg shadow-black/5">
           <CardContent className="py-8 sm:py-12 text-center space-y-6">
             <div className="flex justify-center">
-              <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-400" />
+              <div className="w-20 h-20 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                <CheckCircle className="w-10 h-10 text-amber-600 dark:text-amber-400" />
               </div>
             </div>
             <div>
               <h2 className="text-2xl font-black text-foreground mb-2">
-                {isRtl ? "تم الدفع بنجاح" : "Payment Successful"}
+                {isRtl ? "تم إرسال طلب الدفع" : "Payment Request Submitted"}
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground leading-relaxed">
                 {isRtl
-                  ? `تم تفعيل اشتراك ${students.length} طالب لمدة ${months} شهر`
-                  : `Activated subscription for ${students.length} student(s) for ${months} month(s)`}
+                  ? `تم إرسال طلب دفع إلكتروني لاشتراك ${students.length} طالب بمبلغ ${totalAmount} ج.م. سيتم مراجعة الطلب من قبل إدارة المنصة وتفعيل اشتراك الطلاب فور الموافقة.`
+                  : `Online payment request submitted for ${students.length} student(s) totaling ${totalAmount} EGP. The request will be reviewed by the platform admin and subscriptions will be activated upon approval.`}
+              </p>
+            </div>
+            <div className="rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4">
+              <p className="text-sm text-amber-700 dark:text-amber-400 font-medium">
+                {isRtl ? "بانتظار موافقة الإدارة" : "Awaiting Admin Approval"}
               </p>
             </div>
             <Button className="w-full bg-teal-500 hover:bg-teal-600" onClick={() => navigate("/institution/student-subscriptions")}>
@@ -132,32 +226,7 @@ const InstitutionPaymentOnline = () => {
     );
   }
 
-  const onlineMethods: { id: OnlineMethod; label: string; desc: string; icon: React.ReactNode; color: string; available: boolean }[] = [
-    {
-      id: "stripe",
-      label: "Stripe",
-      desc: isRtl ? "الدفع بالبطاقة البنكية عبر Stripe" : "Pay with card via Stripe",
-      icon: <CreditCard className="w-6 h-6" />,
-      color: "from-indigo-500 to-purple-600",
-      available: true,
-    },
-    {
-      id: "fawry",
-      label: "Fawry",
-      desc: isRtl ? "الدفع عبر فوري" : "Pay via Fawry",
-      icon: <Smartphone className="w-6 h-6" />,
-      color: "from-orange-500 to-red-600",
-      available: false,
-    },
-    {
-      id: "valu",
-      label: "valU",
-      desc: isRtl ? "الدفع بالتقسيط عبر valU" : "Pay in installments via valU",
-      icon: <Wallet className="w-6 h-6" />,
-      color: "from-teal-500 to-emerald-600",
-      available: false,
-    },
-  ];
+  const selectedProviderData = providers.find((p) => p.id === selectedProvider);
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={isRtl ? "rtl" : "ltr"}>
@@ -176,7 +245,7 @@ const InstitutionPaymentOnline = () => {
                   {isRtl ? "الدفع أونلاين" : "Online Payment"}
                 </h1>
                 <p className="text-[10px] sm:text-xs text-muted-foreground font-semibold truncate">
-                  {isRtl ? "اختر طريقة الدفع الإلكترونية" : "Choose electronic payment method"}
+                  {isRtl ? "اختر بوابة الدفع الإلكترونية" : "Choose electronic payment gateway"}
                 </p>
               </div>
             </div>
@@ -191,7 +260,7 @@ const InstitutionPaymentOnline = () => {
       <main className="flex-1 px-3 sm:px-4 py-4 sm:py-6">
         <div className="max-w-lg mx-auto space-y-5">
           {/* Payment summary */}
-          <Card>
+          <Card className="border-0 shadow-lg shadow-black/5">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
                 <CreditCard className="w-5 h-5 text-teal-600" />
@@ -220,100 +289,98 @@ const InstitutionPaymentOnline = () => {
             </CardContent>
           </Card>
 
-          {/* Online payment methods */}
-          <Card>
+          {/* Provider listing */}
+          <Card className="border-0 shadow-lg shadow-black/5">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Lock className="w-5 h-5 text-teal-600" />
-                {isRtl ? "اختر طريقة الدفع" : "Choose Payment Method"}
+                {isRtl ? "بوابات الدفع المتاحة" : "Available Payment Gateways"}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {onlineMethods.map((m) => (
+              {providers.map((p) => (
                 <button
-                  key={m.id}
-                  onClick={() => m.available && setSelectedOnlineMethod(m.id)}
-                  disabled={!m.available}
+                  key={p.id}
+                  onClick={() => p.available && setSelectedProvider(p.id)}
+                  disabled={!p.available}
                   className={`w-full flex items-center gap-4 rounded-xl border-2 p-4 text-right transition-all ${
-                    !m.available
-                      ? "opacity-50 cursor-not-allowed border-border bg-muted/30"
-                      : selectedOnlineMethod === m.id
+                    !p.available
+                      ? "opacity-60 cursor-not-allowed border-border bg-muted/20"
+                      : selectedProvider === p.id
                         ? "border-teal-500 bg-teal-50 dark:bg-teal-900/20 shadow-md"
-                        : "border-border hover:border-teal-300 hover:bg-muted/50"
+                        : "border-border hover:border-teal-300 hover:bg-muted/50 cursor-pointer"
                   }`}
                 >
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${m.color} flex items-center justify-center shadow-md shrink-0`}>
-                    <div className="text-white">{m.icon}</div>
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${p.gradient} flex items-center justify-center shadow-md shrink-0`}>
+                    <div className="text-white">{p.icon}</div>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className={`font-bold text-sm ${selectedOnlineMethod === m.id ? "text-teal-700" : "text-foreground"}`}>{m.label}</p>
-                      {!m.available && (
+                      <p className={`font-bold text-sm ${selectedProvider === p.id ? "text-teal-700" : "text-foreground"}`}>
+                        {isRtl ? p.labelAr : p.label}
+                      </p>
+                      {p.comingSoon && (
                         <Badge variant="secondary" className="text-[10px] bg-orange-100 text-orange-700">
-                          {isRtl ? "قريباً" : "Coming Soon"}
+                          {isRtl ? "قريبًا" : "Coming Soon"}
+                        </Badge>
+                      )}
+                      {p.available && (
+                        <Badge variant="secondary" className="text-[10px] bg-green-100 text-green-700">
+                          {isRtl ? "متاح" : "Available"}
                         </Badge>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground">{m.desc}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{isRtl ? p.descAr : p.desc}</p>
                   </div>
-                  {m.available && (
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${selectedOnlineMethod === m.id ? "border-teal-500" : "border-muted-foreground/40"}`}>
-                      {selectedOnlineMethod === m.id && <div className="w-2.5 h-2.5 rounded-full bg-teal-500" />}
+                  {p.available && (
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${selectedProvider === p.id ? "border-teal-500" : "border-muted-foreground/40"}`}>
+                      {selectedProvider === p.id && <div className="w-2.5 h-2.5 rounded-full bg-teal-500" />}
                     </div>
+                  )}
+                  {!p.available && (
+                    <ExternalLink className="w-4 h-4 text-muted-foreground shrink-0" />
                   )}
                 </button>
               ))}
             </CardContent>
           </Card>
 
-          {/* Stripe form placeholder */}
-          {selectedOnlineMethod === "stripe" && (
-            <Card>
+          {/* Selected provider info */}
+          {selectedProviderData && selectedProviderData.available && (
+            <Card className="border-0 shadow-lg shadow-black/5">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-base">
-                  <CreditCard className="w-5 h-5 text-indigo-600" />
-                  {isRtl ? "بيانات البطاقة" : "Card Details"}
+                  <Shield className="w-5 h-5 text-green-600" />
+                  {isRtl ? "تفاصيل الدفع" : "Payment Details"}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                  <Shield className="w-3.5 h-3.5 text-green-600" />
-                  {isRtl ? "تتم المعاملة بشكل آمن عبر Stripe" : "Transaction processed securely via Stripe"}
-                </p>
-                <Input
-                  placeholder={isRtl ? "رقم البطاقة" : "Card Number"}
-                  className="h-12 text-base"
-                  dir="ltr"
-                />
-                <div className="grid grid-cols-2 gap-3">
-                  <Input
-                    placeholder={isRtl ? "تاريخ الانتهاء" : "MM/YY"}
-                    className="h-12 text-base"
-                    dir="ltr"
-                  />
-                  <Input
-                    placeholder="CVV"
-                    className="h-12 text-base"
-                    dir="ltr"
-                    type="password"
-                  />
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${selectedProviderData.gradient} flex items-center justify-center shadow-md shrink-0`}>
+                    <div className="text-white">{selectedProviderData.icon}</div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-green-700 dark:text-green-400">
+                      {isRtl ? selectedProviderData.labelAr : selectedProviderData.label}
+                    </p>
+                    <p className="text-xs text-green-600 dark:text-green-500">
+                      {isRtl ? "بوابة الدفع جاهزة للاستخدام" : "Payment gateway ready to use"}
+                    </p>
+                  </div>
                 </div>
-                <Input
-                  placeholder={isRtl ? "اسم صاحب البطاقة" : "Cardholder Name"}
-                  className="h-12 text-base"
-                />
+
                 <div className="p-2 rounded-lg bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800">
                   <p className="text-xs text-orange-700 dark:text-orange-400 font-medium">
                     {isRtl
-                      ? "ملاحظة: دمج بوابة الدفع (Stripe) قيد التطوير. سيتم تفعيل الدفع المباشر قريباً."
-                      : "Note: Payment gateway integration (Stripe) is under development. Direct payment will be available soon."}
+                      ? "ملاحظة: يتم حالياً اختبار تكامل بوابة الدفع. سيتم تفعيل الدفع المباشر قريباً."
+                      : "Note: Payment gateway integration is currently being tested. Direct payment will be activated soon."}
                   </p>
                 </div>
               </CardContent>
             </Card>
           )}
 
-          {selectedOnlineMethod && (
+          {selectedProvider && (
             <Button
               className="w-full h-12 text-base font-bold bg-teal-500 hover:bg-teal-600 gap-2"
               disabled={processing}

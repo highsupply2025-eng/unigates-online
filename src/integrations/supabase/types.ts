@@ -2961,6 +2961,30 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_settings: {
+        Row: {
+          created_at: string
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Record<string, unknown>
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Record<string, unknown>
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Record<string, unknown>
+        }
+        Relationships: []
+      }
     }
     Functions: {
       _protected_owner_emails: { Args: never; Returns: string[] }
@@ -3274,6 +3298,18 @@ export type Database = {
       }
       reject_payment_request: {
         Args: { _request_id: string }
+        Returns: Json
+      }
+      get_bank_details: {
+        Args: never
+        Returns: Json
+      }
+      get_platform_setting: {
+        Args: { _key: string }
+        Returns: Json
+      }
+      set_platform_setting: {
+        Args: { _key: string; _value: Record<string, unknown> }
         Returns: Json
       }
       review_college_registration: {

@@ -51,6 +51,10 @@ function safeCompare(a: string, b: string, dir: SortDir): number {
   return dir === "asc" ? cmp : -cmp;
 }
 
+function isFreePlanTrialActive(s: StudentRecord): boolean {
+  return new Date(s.created_at).getTime() + 30 * 86_400_000 > Date.now();
+}
+
 const StudentSubscriptions = () => {
   const { language, toggleLanguage } = useLanguage();
   const isRtl = language === "ar";
@@ -203,6 +207,9 @@ const StudentSubscriptions = () => {
       ? <ArrowUp className="w-3.5 h-3.5 text-primary" />
       : <ArrowDown className="w-3.5 h-3.5 text-primary" />;
   };
+
+  const isActive = (s: StudentRecord) =>
+    subscriptionPlan === "free" ? isFreePlanTrialActive(s) : s.subscription_active;
 
   if (loading && data.length === 0) {
     return (
@@ -372,12 +379,12 @@ const StudentSubscriptions = () => {
                               {new Date(s.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}
                             </TableCell>
                             <TableCell className="text-center">
-                              <Badge variant="secondary" className={`text-xs ${s.subscription_active ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"}`}>
-                                {s.subscription_active ? (isRtl ? "نشيط" : "Active") : (isRtl ? "غير نشيط" : "Inactive")}
+                              <Badge variant="secondary" className={`text-xs ${isActive(s) ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"}`}>
+                                {isActive(s) ? (isRtl ? "نشيط" : "Active") : (isRtl ? "غير نشيط" : "Inactive")}
                               </Badge>
                             </TableCell>
                             <TableCell className="text-center">
-                              {s.subscription_active ? (
+                              {isActive(s) ? (
                                 <div className="flex flex-col items-center gap-0.5">
                                   <Badge variant="secondary" className="bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 text-xs">
                                     <Clock className="w-3 h-3 me-1 inline" />
@@ -403,11 +410,11 @@ const StudentSubscriptions = () => {
                               )}
                             </TableCell>
                             <TableCell className="text-center hidden sm:table-cell">
-                              {subscriptionPlan === "free" && s.subscription_active ? (
+                              {subscriptionPlan === "free" && isActive(s) ? (
                                 <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs">
                                   {isRtl ? "مجاناً" : "Free"}
                                 </Badge>
-                              ) : subscriptionPlan === "annual" && s.subscription_active ? (
+                              ) : subscriptionPlan === "annual" && isActive(s) ? (
                                 <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-xs">
                                   <CreditCard className="w-3 h-3 me-1 inline" />
                                   {isRtl ? "سنوي" : "Annual"}
@@ -415,8 +422,8 @@ const StudentSubscriptions = () => {
                               ) : (
                                 <Button
                                   size="sm"
-                                  variant={s.subscription_active ? "outline" : "default"}
-                                  className={`text-xs gap-1 ${s.subscription_active ? "border-teal-300 text-teal-700 hover:bg-teal-50" : "bg-teal-500 hover:bg-teal-600 text-white"}`}
+                                  variant={isActive(s) ? "outline" : "default"}
+                                  className={`text-xs gap-1 ${isActive(s) ? "border-teal-300 text-teal-700 hover:bg-teal-50" : "bg-teal-500 hover:bg-teal-600 text-white"}`}
                                   onClick={() => {
                                     const months = subscriptionPlan === "annual" ? 12 : 1;
                                     const params = new URLSearchParams({
@@ -430,7 +437,7 @@ const StudentSubscriptions = () => {
                                   }}
                                 >
                                   <CreditCard className="w-3.5 h-3.5" />
-                                  {s.subscription_active ? (isRtl ? "تجديد" : "Renew") : (isRtl ? "دفع" : "Pay")}
+                                  {isActive(s) ? (isRtl ? "تجديد" : "Renew") : (isRtl ? "دفع" : "Pay")}
                                 </Button>
                               )}
                             </TableCell>
@@ -476,7 +483,7 @@ const StudentSubscriptions = () => {
                   size="sm"
                   className="bg-teal-500 hover:bg-teal-600 text-white gap-1.5"
                   onClick={() => {
-                    const inactiveStudents = sorted.filter((s) => selectedIds.has(s.id) && !s.subscription_active);
+                    const inactiveStudents = sorted.filter((s) => selectedIds.has(s.id) && !isActive(s));
                     if (inactiveStudents.length === 0) {
                       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى تحديد طلاب غير نشطين" : "Please select inactive students", variant: "destructive" });
                       return;

@@ -73,15 +73,18 @@ function mapGeneralRole(
       return { profileRole: "student", appRole: "student" };
     case "dean":
       return { profileRole: "dean", appRole: "dean" };
+    case "vice_dean":
     case "vice_dean_postgrad":
     case "vice_dean_students":
     case "vice_dean_community":
+    case "vice_dean_environment":
       return { profileRole: "vice_dean", appRole: "vice_dean" };
     case "department_head":
-    case "professor":
-    case "doctor":
-    case "assistant_lecturer":
       return { profileRole: "department_head", appRole: "department_head" };
+    default:
+      // professor, doctor, lecturer, assistant_lecturer and any future
+      // teaching role activate as a regular teaching account.
+      return { profileRole: "lecturer", appRole: "lecturer" };
   }
 }
 

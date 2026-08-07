@@ -541,6 +541,7 @@ const InstitutionDashboard = () => {
         setInstitutionQuizzes(s.institutionQuizzes);
         setLeadershipInvitations(s.leadershipInvitations);
         setLoading(false);
+        return;
       }
 
       // Check if the user has a leadership role

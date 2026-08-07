@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
@@ -18,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast as sonnerToast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
+import { useInstitutionIdentity } from "@/hooks/useInstitutionIdentity";
 import * as XLSX from "xlsx";
 
 interface DepartmentMember {
@@ -53,6 +55,7 @@ const DepartmentPage = () => {
   const navigate = useNavigate();
   const { dir, language } = useLanguage();
   const isRtl = dir === "rtl";
+  const { identity, loading: identityLoading } = useInstitutionIdentity();
 
   const [loading, setLoading] = useState(true);
   const [deptName, setDeptName] = useState("");
@@ -78,7 +81,7 @@ const DepartmentPage = () => {
   const loadRequestIdRef = useRef(0);
 
   useEffect(() => {
-    if (!deptId) return;
+    if (!deptId || !identity) return;
     const cached = __deptCache.get(deptId);
     if (cached) {
       setDeptName(cached.deptName);
@@ -98,7 +101,7 @@ const DepartmentPage = () => {
     };
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
-  }, [deptId]);
+  }, [deptId, identity]);
 
   useRealtimeRefresh(
     ["department_members"],
@@ -115,41 +118,39 @@ const DepartmentPage = () => {
     if (!deptId) return;
     const requestId = ++loadRequestIdRef.current;
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { navigate("/login"); return; }
+      if (!identity) return;
 
-      const { data: dept } = await supabase
-        .from("departments")
-        .select("*")
-        .eq("id", deptId)
-        .maybeSingle();
-
-      if (!dept) { navigate("/institution/dashboard"); return; }
+      const [deptResult, membersResult] = await Promise.all([
+        supabase.from("departments").select("*").eq("id", deptId).maybeSingle(),
+        (async () => {
+          let all: DepartmentMember[] = [];
+          let from = 0;
+          let hasMore = true;
+          while (hasMore) {
+            const { data: batch } = await supabase
+              .from("department_members")
+              .select("*")
+              .eq("department_id", deptId)
+              .range(from, from + 999);
+            all = [...all, ...(batch || [])];
+            hasMore = (batch?.length || 0) === 1000;
+            from += 1000;
+          }
+          return all;
+        })(),
+      ]);
 
       if (requestId !== loadRequestIdRef.current) return;
+
+      const dept = deptResult.data;
+      if (!dept) { navigate("/institution/dashboard"); return; }
 
       setDeptName(dept.department_name);
       setDeptStatus(dept.status);
       setInstitutionType(dept.institution_type as "college" | "institute");
 
-      let allMembers: DepartmentMember[] = [];
-      let from = 0;
-      let hasMore = true;
-      while (hasMore) {
-        const { data: batch } = await supabase
-          .from("department_members")
-          .select("*")
-          .eq("department_id", deptId)
-          .range(from, from + 999);
-        allMembers = [...allMembers, ...(batch || [])];
-        hasMore = (batch?.length || 0) === 1000;
-        from += 1000;
-      }
-
-      if (requestId !== loadRequestIdRef.current) return;
-
       const seenIds = new Set<string>();
-      allMembers = allMembers.filter(m => {
+      let allMembers = (membersResult || []).filter(m => {
         if (seenIds.has(m.id)) return false;
         seenIds.add(m.id);
         return true;
@@ -529,10 +530,53 @@ const DepartmentPage = () => {
     );
   };
 
-  if (loading) {
+  if (identityLoading || (loading && members.length === 0)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-background institution-admin-scope" dir={dir}>
+        <header className="sticky top-0 z-30 border-b bg-gradient-to-l from-primary/10 via-card to-card shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/80">
+          <div className="max-w-5xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between gap-3">
+            <h1 className="text-base sm:text-xl font-extrabold text-foreground flex items-center gap-2 min-w-0">
+              <span className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-md shrink-0">
+                <Layers className="w-5 h-5" />
+              </span>
+              <Skeleton className="h-5 w-32" />
+            </h1>
+            <Skeleton className="h-9 w-9 rounded-md shrink-0" />
+          </div>
+        </header>
+        <main className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-6">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <Skeleton className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl shrink-0" />
+            <div className="min-w-0 flex-1 space-y-2">
+              <Skeleton className="h-7 w-48" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          </div>
+          <Skeleton className="h-10 w-full rounded-md" />
+          {[1, 2].map((i) => (
+            <Card key={`skel-card-${i}`} className="border shadow-sm overflow-hidden">
+              <CardHeader className="pb-3 pt-4 border-b">
+                <CardTitle className="flex items-center gap-2.5 text-base">
+                  <Skeleton className="w-8 h-8 rounded-lg" />
+                  <Skeleton className="h-5 w-24" />
+                  <Skeleton className="h-5 w-12 rounded-full" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                {Array.from({ length: 2 }).map((_, j) => (
+                  <div key={`skel-row-${i}-${j}`} className="flex items-center gap-3 p-3 rounded-xl border">
+                    <Skeleton className="w-11 h-11 rounded-full shrink-0" />
+                    <div className="flex-1 space-y-1.5">
+                      <Skeleton className="h-4 w-28" />
+                      <Skeleton className="h-3 w-36" />
+                    </div>
+                    <Skeleton className="h-6 w-16 rounded-full shrink-0" />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          ))}
+        </main>
       </div>
     );
   }

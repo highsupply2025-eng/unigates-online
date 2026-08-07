@@ -2178,6 +2178,7 @@ ${rows.map((r: any, i: number) => `<tr>
                       <button
                         type="button"
                         onClick={() => navigate(`/institution/department/${dept.id}`)}
+                        onPointerEnter={() => import("./DepartmentPage")}
                         className="w-full text-center p-4 mb-4 rounded-xl bg-gradient-to-br from-indigo-500 via-blue-600 to-cyan-500 shadow-lg shadow-blue-900/20 hover:shadow-xl hover:scale-[1.02] active:scale-[0.99] transition-all duration-200 group relative overflow-hidden"
                         aria-label={isRtl ? "فتح أعضاء وطلاب القسم" : "Open department members & students"}
                       >

@@ -14,7 +14,7 @@ import {
   Check, X, ClipboardList, ArrowRight, ShieldCheck,
 } from "lucide-react";
 
-type PendingKind = "lecturer" | "college" | "institute" | "school" | "department";
+type PendingKind = "lecturer" | "college" | "institute" | "school" | "department" | "payment_request";
 
 interface PendingRow {
   kind: PendingKind;
@@ -24,12 +24,25 @@ interface PendingRow {
   createdAt?: string;
 }
 
+interface PaymentRequestRow {
+  id: string;
+  institution_type: string;
+  institution_name: string;
+  student_names: string[];
+  plan_type: string;
+  months: number;
+  total_amount: number;
+  status: string;
+  created_at: string;
+}
+
 const kindMeta: Record<PendingKind, { ar: string; en: string; icon: typeof Users }> = {
   lecturer: { ar: "أعضاء هيئة تدريس", en: "Faculty", icon: GraduationCap },
   college: { ar: "كليات", en: "Colleges", icon: Building2 },
   institute: { ar: "معاهد", en: "Institutes", icon: School },
   school: { ar: "مدارس", en: "Schools", icon: School },
   department: { ar: "أقسام", en: "Departments", icon: Layers },
+  payment_request: { ar: "طلبات الدفع", en: "Payment Requests", icon: CreditCard },
 };
 
 export default function AdminOverview() {
@@ -94,12 +107,13 @@ export default function AdminOverview() {
   };
 
   const loadPending = async () => {
-    const [roles, colleges, institutes, schools, departments] = await Promise.all([
+    const [roles, colleges, institutes, schools, departments, paymentReqs] = await Promise.all([
       supabase.from("user_roles").select("id,user_id,created_at").eq("role", "lecturer").eq("approved", false),
       supabase.from("college_registrations").select("id,college_name,city,created_at").eq("status", "pending").eq("email_confirmed", true),
       supabase.from("institute_registrations" as any).select("id,institute_name,city,created_at").eq("status", "pending").eq("email_confirmed", true),
       supabase.from("school_registrations").select("id,school_name,city,created_at").eq("status", "pending"),
       supabase.from("departments" as any).select("id,department_name,student_count,created_at").eq("payment_status", "unpaid"),
+      supabase.from("payment_requests" as any).select("id,institution_type,institution_name,student_names,plan_type,months,total_amount,status,created_at").eq("status", "pending").order("created_at", { ascending: false }),
     ]);
 
     const rows: PendingRow[] = [];
@@ -126,6 +140,13 @@ export default function AdminOverview() {
       rows.push({
         kind: "department", id: d.id, title: d.department_name,
         subtitle: `${d.student_count ?? 0} ${ar("طالب", "students")}`, createdAt: d.created_at,
+      }));
+    (paymentReqs.data as any[] || []).forEach((pr: any) =>
+      rows.push({
+        kind: "payment_request", id: pr.id,
+        title: `${pr.institution_name} — ${pr.total_amount} ${ar("ج.م", "EGP")}`,
+        subtitle: `${pr.student_names?.length ?? 0} ${ar("طالب", "students")} · ${pr.plan_type === "annual" ? ar("سنوي", "Annual") : ar("شهري", "Monthly")} · ${pr.months} ${ar("شهر", "mo")}`,
+        createdAt: pr.created_at,
       }));
 
     rows.sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
@@ -168,6 +189,10 @@ export default function AdminOverview() {
           ? await supabase.from("user_roles").update({ approved: true }).eq("id", row.id)
           : await supabase.from("user_roles").delete().eq("id", row.id);
         error = res.error;
+      } else if (row.kind === "payment_request") {
+        const rpcName = approve ? "approve_payment_request" : "reject_payment_request";
+        const res = await supabase.rpc(rpcName as any, { _request_id: row.id });
+        error = res.error;
       } else if (row.kind === "department") {
         const res = approve
           ? await (supabase.from("departments" as any) as any).update({ payment_status: "paid", status: "active" }).eq("id", row.id)
@@ -199,7 +224,7 @@ export default function AdminOverview() {
   };
 
   const groups = useMemo(() => {
-    const map: Record<PendingKind, PendingRow[]> = { lecturer: [], college: [], institute: [], school: [], department: [] };
+    const map: Record<PendingKind, PendingRow[]> = { lecturer: [], college: [], institute: [], school: [], department: [], payment_request: [] };
     pending.forEach((r) => map[r.kind].push(r));
     return map;
   }, [pending]);

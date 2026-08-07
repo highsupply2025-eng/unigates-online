@@ -2907,6 +2907,60 @@ export type Database = {
           },
         ]
       }
+      payment_requests: {
+        Row: {
+          created_at: string
+          id: string
+          institution_id: string
+          institution_name: string
+          institution_type: string
+          months: number
+          plan_type: string
+          requester_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          student_member_ids: string[]
+          student_names: string[]
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          institution_id: string
+          institution_name?: string
+          institution_type: string
+          months?: number
+          plan_type?: string
+          requester_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          student_member_ids?: string[]
+          student_names?: string[]
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          institution_id?: string
+          institution_name?: string
+          institution_type?: string
+          months?: number
+          plan_type?: string
+          requester_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          student_member_ids?: string[]
+          student_names?: string[]
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Functions: {
       _protected_owner_emails: { Args: never; Returns: string[] }
@@ -3199,6 +3253,27 @@ export type Database = {
       }
       renew_student_subscription: {
         Args: { _department_member_id: string; _months?: number }
+        Returns: Json
+      }
+      create_payment_request: {
+        Args: {
+          _institution_type: string
+          _institution_id: string
+          _institution_name: string
+          _student_member_ids: string[]
+          _student_names: string[]
+          _plan_type: string
+          _months: number
+          _total_amount: number
+        }
+        Returns: Json
+      }
+      approve_payment_request: {
+        Args: { _request_id: string }
+        Returns: Json
+      }
+      reject_payment_request: {
+        Args: { _request_id: string }
         Returns: Json
       }
       review_college_registration: {

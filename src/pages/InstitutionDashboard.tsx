@@ -4,7 +4,7 @@ import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Layers, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
-  User, Ticket, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell, PlusCircle, Pencil, Download, ShieldAlert, AlertTriangle, UserPlus, FileSpreadsheet, RefreshCw, Zap
+  User, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell, PlusCircle, Pencil, Download, ShieldAlert, AlertTriangle, UserPlus, FileSpreadsheet, RefreshCw, Zap
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
@@ -2086,7 +2086,7 @@ ${rows.map((r: any, i: number) => `<tr>
                 { label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, timestamps: deptMembers.filter(isFacultyMember).map((m: any) => m.created_at) },
                 { label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, timestamps: departments.map((d: any) => d.created_at) },
                 { label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, timestamps: deptMembers.filter((m: any) => m.role === 'student').map((m: any) => m.created_at) },
-                { label: isRtl ? "اشتراك الطلاب" : "Student Subscriptions", Icon: Ticket, timestamps: deptMembers.filter((m: any) => m.role === 'student' && m.user_id).map((m: any) => m.created_at) },
+                { label: isRtl ? "اشتراك الطلاب" : "Student Subscriptions", Icon: CreditCard, timestamps: deptMembers.filter((m: any) => m.role === 'student' && m.user_id).map((m: any) => m.created_at) },
                 { label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, timestamps: examSchedules.map((s: any) => s.created_at) },
                 { label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
                 { label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, timestamps: institutionId ? [new Date().toISOString()] : [], fixedPercentage: 100 },
@@ -2099,7 +2099,7 @@ ${rows.map((r: any, i: number) => `<tr>
                 { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, color: "from-indigo-500 to-indigo-600", count: categoryStats.faculty.count },
                 { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, color: "from-purple-500 to-purple-600", count: categoryStats.departments.count },
                 { key: "students", label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, color: "from-orange-500 to-orange-600", count: categoryStats.students.count },
-                { key: "subscriptions", label: isRtl ? "اشتراك الطلاب" : "Student Subscriptions", Icon: Ticket, color: "from-teal-500 to-teal-600", count: categoryStats.subscriptions.count },
+                { key: "subscriptions", label: isRtl ? "اشتراك الطلاب" : "Student Subscriptions", Icon: CreditCard, color: "from-teal-500 to-teal-600", count: categoryStats.subscriptions.count },
                 { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-emerald-500 to-emerald-600", count: categoryStats.schedules.count },
                 { key: "results", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, color: "from-sky-500 to-sky-600", count: categoryStats.results.count },
                 { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", count: categoryStats.account.count },

@@ -3,7 +3,7 @@ import {
   GraduationCap,
   BookOpen,
   UserPlus,
-  Ticket,
+  CreditCard,
   Calendar,
   CheckCircle,
   User,
@@ -65,7 +65,7 @@ export function getInstitutionMenuItems({
     {
       key: "subscriptions",
       label: isRtl ? "اشتراك الطلاب" : "Student Subscriptions",
-      Icon: Ticket,
+      Icon: CreditCard,
       path: "/institution/student-subscriptions",
       onClick: () => onNavigate("/institution/student-subscriptions"),
       active: activeKey === "subscriptions",

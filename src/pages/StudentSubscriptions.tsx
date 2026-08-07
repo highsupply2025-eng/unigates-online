@@ -57,6 +57,9 @@ function isFreePlanTrialActive(s: StudentRecord): boolean {
   return new Date(s.created_at).getTime() + 30 * 86_400_000 > Date.now();
 }
 
+interface SubsSnapshot { data: StudentRecord[]; total: number; fetchedAt: number; }
+let __subsCache: SubsSnapshot | null = null;
+
 const StudentSubscriptions = () => {
   const { language, toggleLanguage } = useLanguage();
   const isRtl = language === "ar";
@@ -120,6 +123,7 @@ const StudentSubscriptions = () => {
 
       setData(result.data || []);
       setTotal(result.total || 0);
+      __subsCache = { data: result.data || [], total: result.total || 0, fetchedAt: Date.now() };
     } catch {
       if (fetchId !== abortRef.current) return;
       setError(isRtl ? "حدث خطأ غير متوقع" : "An unexpected error occurred");
@@ -128,9 +132,20 @@ const StudentSubscriptions = () => {
     }
   }, [page, debouncedSearch, sortKey, sortDir, navigate, isRtl]);
 
+  // Hydrate from cache instantly on mount
   useEffect(() => {
+    if (__subsCache && __subsCache.data.length > 0) {
+      setData(__subsCache.data);
+      setTotal(__subsCache.total);
+      setLoading(false);
+    }
+  }, []);
+
+  // Fetch only after identity is loaded
+  useEffect(() => {
+    if (!identity) return;
     fetchStudents();
-  }, [fetchStudents]);
+  }, [fetchStudents, identity]);
 
   // Debounce search input
   useEffect(() => {

@@ -418,7 +418,15 @@ const StudentSubscriptions = () => {
                                   variant={s.subscription_active ? "outline" : "default"}
                                   className={`text-xs gap-1 ${s.subscription_active ? "border-teal-300 text-teal-700 hover:bg-teal-50" : "bg-teal-500 hover:bg-teal-600 text-white"}`}
                                   onClick={() => {
-                                    navigate(`/institution/payment-details?students=${s.id}&plan=${subscriptionPlan}`);
+                                    const months = subscriptionPlan === "annual" ? 12 : 1;
+                                    const params = new URLSearchParams({
+                                      studentIds: s.id,
+                                      studentNames: s.full_name,
+                                      plan: subscriptionPlan,
+                                      months: String(months),
+                                      count: "1",
+                                    });
+                                    navigate(`/institution/payment?${params.toString()}`);
                                   }}
                                 >
                                   <CreditCard className="w-3.5 h-3.5" />
@@ -473,8 +481,15 @@ const StudentSubscriptions = () => {
                       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى تحديد طلاب غير نشطين" : "Please select inactive students", variant: "destructive" });
                       return;
                     }
-                    const studentIds = inactiveStudents.map((s) => s.id).join(",");
-                    navigate(`/institution/payment-details?students=${studentIds}&plan=${subscriptionPlan}`);
+                    const months = subscriptionPlan === "annual" ? 12 : 1;
+                    const params = new URLSearchParams({
+                      studentIds: inactiveStudents.map((s) => s.id).join(","),
+                      studentNames: inactiveStudents.map((s) => s.full_name).join(","),
+                      plan: subscriptionPlan,
+                      months: String(months),
+                      count: String(inactiveStudents.length),
+                    });
+                    navigate(`/institution/payment?${params.toString()}`);
                   }}
                 >
                   <CreditCard className="w-4 h-4" />

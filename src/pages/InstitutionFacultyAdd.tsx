@@ -309,7 +309,15 @@ const InstitutionFacultyAdd = () => {
             size="lg"
             className="bg-teal-500 hover:bg-teal-600 text-white font-extrabold text-base gap-2 shadow-xl shadow-teal-500/40"
             onClick={() => {
-              navigate(`/institution/payment-details?students=${createdStudentId}&plan=${subscriptionPlan}`);
+              const months = subscriptionPlan === "annual" ? 12 : 1;
+              const params = new URLSearchParams({
+                studentIds: createdStudentId,
+                studentNames: "",
+                plan: subscriptionPlan,
+                months: String(months),
+                count: "1",
+              });
+              navigate(`/institution/payment?${params.toString()}`);
             }}
           >
             <CreditCard className="w-5 h-5 shrink-0" />

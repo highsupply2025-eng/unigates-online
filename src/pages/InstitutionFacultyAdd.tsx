@@ -308,7 +308,9 @@ const InstitutionFacultyAdd = () => {
             type="button"
             size="lg"
             className="bg-teal-500 hover:bg-teal-600 text-white font-extrabold text-base gap-2 shadow-xl shadow-teal-500/40"
-            onClick={() => navigate(`/institution/payment?student=${createdStudentId}&plan=${subscriptionPlan}`)}
+            onClick={() => {
+              navigate(`/institution/payment-details?students=${createdStudentId}&plan=${subscriptionPlan}`);
+            }}
           >
             <CreditCard className="w-5 h-5 shrink-0" />
             <span>{isRtl ? "دفع الاشتراك" : "Pay Subscription"}</span>

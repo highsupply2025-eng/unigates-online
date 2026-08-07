@@ -417,7 +417,9 @@ const StudentSubscriptions = () => {
                                   size="sm"
                                   variant={s.subscription_active ? "outline" : "default"}
                                   className={`text-xs gap-1 ${s.subscription_active ? "border-teal-300 text-teal-700 hover:bg-teal-50" : "bg-teal-500 hover:bg-teal-600 text-white"}`}
-                                  onClick={() => navigateToPayment([s.id])}
+                                  onClick={() => {
+                                    navigate(`/institution/payment-details?students=${s.id}&plan=${subscriptionPlan}`);
+                                  }}
                                 >
                                   <CreditCard className="w-3.5 h-3.5" />
                                   {s.subscription_active ? (isRtl ? "تجديد" : "Renew") : (isRtl ? "دفع" : "Pay")}
@@ -466,12 +468,13 @@ const StudentSubscriptions = () => {
                   size="sm"
                   className="bg-teal-500 hover:bg-teal-600 text-white gap-1.5"
                   onClick={() => {
-                    const inactiveIds = sorted.filter((s) => selectedIds.has(s.id) && !s.subscription_active).map((s) => s.id);
-                    if (inactiveIds.length === 0) {
+                    const inactiveStudents = sorted.filter((s) => selectedIds.has(s.id) && !s.subscription_active);
+                    if (inactiveStudents.length === 0) {
                       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى تحديد طلاب غير نشطين" : "Please select inactive students", variant: "destructive" });
                       return;
                     }
-                    navigateToPayment(inactiveIds);
+                    const studentIds = inactiveStudents.map((s) => s.id).join(",");
+                    navigate(`/institution/payment-details?students=${studentIds}&plan=${subscriptionPlan}`);
                   }}
                 >
                   <CreditCard className="w-4 h-4" />

@@ -1502,9 +1502,7 @@ ${rows.map((r: any, i: number) => `<tr>
                 <h1 className="text-base sm:text-xl font-black text-foreground truncate">
                   {pageView === "members" && selectedDept
                     ? selectedDept.department_name
-                    : (isRtl
-                        ? "لوحة إدارة الكلية"
-                        : (institutionType === "college" ? "College Administration" : "Institute Administration"))}
+                    : (isRtl ? "لوحة إدارة الكلية" : "College Administration")}
                 </h1>
                 {subscriptionPlan && !(pageView === "members" && selectedDept) && (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary/10 text-primary border border-primary/20">
@@ -1579,7 +1577,7 @@ ${rows.map((r: any, i: number) => `<tr>
               </Button>
             ) : (
               <DashboardMenuDropdown
-                title={isRtl ? "لوحة الكلية" : (institutionType === "college" ? "College Panel" : "Institute Panel")}
+                title={isRtl ? "لوحة الكلية" : "College Panel"}
                 onLanguageToggle={toggleLanguage}
                 showNotifications={false}
                 onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}

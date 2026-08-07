@@ -57,7 +57,7 @@ const AdminPaymentSettings = () => {
       setAuthorized(true);
 
       try {
-        const { data, error } = await supabase.rpc("get_bank_details");
+        const { data, error } = await (supabase as any).rpc("get_bank_details");
         if (error) throw error;
         const result = data as unknown as BankDetails;
         setForm({
@@ -80,7 +80,7 @@ const AdminPaymentSettings = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const { data, error } = await supabase.rpc("set_platform_setting", {
+      const { data, error } = await (supabase as any).rpc("set_platform_setting", {
         _key: "bank_details",
         _value: form as unknown as Record<string, unknown>,
       });

@@ -2,13 +2,55 @@ import { createClient } from "@supabase/supabase-js";
 import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
 
-function sb() {
-  return createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_ANON_KEY!,
-    { auth: { persistSession: false, autoRefreshToken: false } },
-  );
+type RuntimeGlobals = typeof globalThis & {
+  Deno?: { env?: { get?: (name: string) => string | undefined } };
+  process?: { env?: Record<string, string | undefined> };
+};
+
+function runtimeEnv(name: string): string | undefined {
+  const runtime = globalThis as RuntimeGlobals;
+  return runtime.Deno?.env?.get?.(name) ?? runtime.process?.env?.[name];
 }
+
+function firstEnv(names: readonly string[]): string | undefined {
+  for (const name of names) {
+    const value = runtimeEnv(name)?.trim();
+    if (value) return value;
+  }
+  return undefined;
+}
+
+function publishableKey(): string {
+  const direct = firstEnv(["SUPABASE_PUBLISHABLE_KEY", "VITE_SUPABASE_PUBLISHABLE_KEY"]);
+  if (direct) return direct;
+  const keyset = runtimeEnv("SUPABASE_PUBLISHABLE_KEYS");
+  if (keyset) {
+    try {
+      const parsed: unknown = JSON.parse(keyset);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        const keys = parsed as Record<string, unknown>;
+        const key = [keys.default, ...Object.values(keys)]
+          .find((v): v is string => typeof v === "string" && v.trim().startsWith("sb_publishable_"))
+          ?.trim();
+        if (key) return key;
+      }
+    } catch {
+      // fall through to legacy names
+    }
+  }
+  const legacy = firstEnv(["SUPABASE_ANON_KEY", "VITE_SUPABASE_ANON_KEY"]);
+  if (legacy) return legacy;
+  throw new Error("Supabase publishable key is not configured");
+}
+
+function sb() {
+  const url = firstEnv(["SUPABASE_URL", "VITE_SUPABASE_URL"]);
+  if (!url) throw new Error("SUPABASE_URL is not configured");
+  return createClient(url, publishableKey(), {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
 
 export default defineTool({
   name: "list_courses",

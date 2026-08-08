@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import Index from "./pages/Index";
 import { useSingleSession } from "@/hooks/use-single-session";
+import { useAutoLogout } from "@/hooks/use-auto-logout";
 import ScrollToTop from "./components/ScrollToTop";
 import PageTransition from "./components/PageTransition";
 import RouteFallback from "./components/RouteFallback";
@@ -137,6 +138,11 @@ const SessionGuard = () => {
   return null;
 };
 
+const AutoLogoutGuard = () => {
+  useAutoLogout();
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -145,6 +151,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <SessionGuard />
+          <AutoLogoutGuard />
           <ScrollToTop />
           <PrefetchRoutes />
           <NavigationProgress />

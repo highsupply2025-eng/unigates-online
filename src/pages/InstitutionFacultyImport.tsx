@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { FileSpreadsheet, ArrowLeft, ArrowRight, Download, Upload, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -58,6 +59,178 @@ const InstitutionFacultyImport = () => {
   }, [identity]);
 
   const norm = (v: any) => (v == null ? "" : String(v).trim());
+
+  const generateStudentTemplate = useCallback(async () => {
+    const wb = new ExcelJS.Workbook();
+    wb.creator = "UNIGATES";
+    wb.created = new Date();
+
+    // --- Sheet 1: Data (RTL) ---
+    const ws = wb.addWorksheet("البيانات", {
+      properties: { defaultColWidth: 18 },
+      pageSetup: { orientation: "landscape" },
+    });
+    (ws as any).model.rightToLeft = true;
+
+    const headers = [
+      "الأقسام",
+      "الاسم الكامل",
+      "تاريخ الميلاد (YYYY-MM-DD)",
+      "النوع",
+      "الرقم القومي",
+      "رقم الهاتف",
+      "البريد الإلكتروني",
+      "العنوان",
+      "المؤهل الدراسي",
+      "ملاحظات",
+      "رابط الصورة (اختياري)",
+      "صورة شخصية",
+    ];
+    const keys = [
+      "departments",
+      "full_name",
+      "date_of_birth",
+      "gender",
+      "national_id",
+      "phone",
+      "email",
+      "address",
+      "qualification",
+      "notes",
+      "photo_url",
+      "photo_image",
+    ];
+    const exampleRow = [
+      "هندسة الحاسب",
+      "أحمد محمد علي",
+      "2002-05-15",
+      "ذكر",
+      "29805151234567",
+      "+201001234567",
+      "ahmed@example.com",
+      "القاهرة، مصر",
+      "الفرقة الثانية",
+      "",
+      "",
+      "",
+    ];
+
+    ws.addRow(headers);
+    ws.addRow(keys);
+    ws.addRow(exampleRow);
+
+    const headerRow = ws.getRow(1);
+    headerRow.font = { bold: true, size: 11 };
+    headerRow.eachCell((cell) => {
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF16A34A" },
+      };
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 11 };
+      cell.alignment = { horizontal: "center", vertical: "middle" };
+      cell.border = {
+        bottom: { style: "thin", color: { argb: "FF15803D" } },
+      };
+    });
+
+    const keyRow = ws.getRow(2);
+    keyRow.font = { italic: true, size: 10, color: { argb: "FF6B7280" } };
+    keyRow.eachCell((cell) => {
+      cell.alignment = { horizontal: "center" };
+    });
+
+    ws.getColumn(1).width = 28;  // الأقسام
+    ws.getColumn(2).width = 24;  // الاسم الكامل
+    ws.getColumn(3).width = 24;  // تاريخ الميلاد
+    ws.getColumn(4).width = 10;  // النوع
+    ws.getColumn(5).width = 18;  // الرقم القومي
+    ws.getColumn(6).width = 18;  // رقم الهاتف
+    ws.getColumn(7).width = 28;  // البريد الإلكتروني
+    ws.getColumn(8).width = 22;  // العنوان
+    ws.getColumn(9).width = 18;  // المؤهل الدراسي
+    ws.getColumn(10).width = 20; // ملاحظات
+    ws.getColumn(11).width = 32; // رابط الصورة
+    ws.getColumn(12).width = 18; // صورة شخصية
+
+    // --- Sheet 2: Instructions (RTL) ---
+    const is = wb.addWorksheet("تعليمات تعبئة ملف الطلاب", {
+      properties: { defaultColWidth: 20 },
+    });
+    (is as any).model.rightToLeft = true;
+
+    is.mergeCells("A1:F1");
+    const titleCell = is.getCell("A1");
+    titleCell.value = "تعليمات تعبئة ملف تسجيل الطلاب";
+    titleCell.font = { bold: true, size: 16, color: { argb: "FF16A34A" } };
+    titleCell.alignment = { horizontal: "center", vertical: "middle" };
+    titleCell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFF0FDF4" },
+    };
+    is.getRow(1).height = 36;
+
+    is.addRow([]);
+
+    const instructions = [
+      "1. يجب إدخال اسم القسم كما هو مسجل في لوحة الإدارة (مطابقة غير حساسة لحالة الأحرف).",
+      "2. لتسجيل الطالب لأكثر من قسم، افصل الأسماء بفاصلة في نفس الخلية. مثال: هندسة الحاسب, علوم الحاسب",
+      "3. يمكنك أيضًا استخدام أكواد الأقسام بدل الأسماء.",
+      "4. الاسم الكامل والقسم فقط هما الحقول المطلوبة.",
+      "5. تاريخ الميلاد بصيغة YYYY-MM-DD (مثال: 2002-05-15).",
+      "6. النوع: ذكر أو أنثى.",
+      "7. الصورة الشخصية اختيارية — أدرج صورة JPG أو PNG داخل خلية «صورة شخصية» في صف الطالب.",
+      "8. يمكنك أيضًا إدخال رابط صورة خارجي في عمود «رابط الصورة (اختياري)».",
+      "9. استخدم صيغة XLSX عند إدراج الصور؛ ملفات XLS القديمة تستورد البيانات النصية فقط.",
+    ];
+    instructions.forEach((line) => is.addRow([line]));
+
+    is.addRow([]);
+    is.addRow(["الأعمدة المطلوبة:"]);
+    is.getRow(is.rowCount).font = { bold: true, size: 12 };
+
+    const colHeaders = [
+      ["الأقسام", "اسم القسم أو أكواد الأقسام (مطلوب)"],
+      ["الاسم الكامل", "الاسم الرباعي للطالب (مطلوب)"],
+      ["تاريخ الميلاد", "بصيغة YYYY-MM-DD"],
+      ["النوع", "ذكر أو أنثى"],
+      ["الرقم القومي", "رقم الهوية الوطنية"],
+      ["رقم الهاتف", "رقم الهاتف مع رمز الدولة"],
+      ["البريد الإلكتروني", "البريد الإلكتروني الشخصي"],
+      ["العنوان", "العنوان التفصيلي"],
+      ["المؤهل الدراسي", "مثال: الفرقة الثانية"],
+      ["ملاحظات", "أي ملاحظات إضافية"],
+      ["رابط الصورة", "رابط صورة شخصية على الإنترنت (اختياري)"],
+      ["صورة شخصية", "صورة مُضمنة داخل خلية Excel (اختياري)"],
+    ];
+    colHeaders.forEach((row) => is.addRow(row));
+
+    // Style instruction header column
+    const instructionColA = is.getColumn(1);
+    instructionColA.width = 26;
+    const instructionColB = is.getColumn(2);
+    instructionColB.width = 55;
+
+    is.addRow([]);
+    is.addRow(["مثال:"]);
+    is.getRow(is.rowCount).font = { bold: true, size: 12 };
+    is.addRow(["الأقسام", "هندسة الحاسب"]);
+    is.addRow(["الاسم الكامل", "أحمد محمد علي"]);
+    is.addRow(["تاريخ الميلاد", "2002-05-15"]);
+    is.addRow(["النوع", "ذكر"]);
+
+    const buf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "students_template.xlsx";
+    a.click();
+    URL.revokeObjectURL(url);
+  }, []);
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -403,12 +576,23 @@ if (insertError) {
             </p>
 
             <div className="grid sm:grid-cols-2 gap-3 max-w-xl mx-auto">
-              <a href={isStudent ? "/templates/students_template.xlsx" : "/templates/faculty_members_template.xlsx"} download>
-                <Button size="lg" className="w-full gap-2 bg-gradient-to-l from-emerald-500 to-emerald-600 text-white shadow-md">
+              {isStudent ? (
+                <Button
+                  size="lg"
+                  className="w-full gap-2 bg-gradient-to-l from-emerald-500 to-emerald-600 text-white shadow-md"
+                  onClick={generateStudentTemplate}
+                >
                   <Download className="w-5 h-5" />
-                  {isRtl ? (isStudent ? "تحميل قالب الطلاب" : "تحميل قالب Excel") : (isStudent ? "Download Student Template" : "Download Template")}
+                  {isRtl ? "تحميل قالب الطلاب" : "Download Student Template"}
                 </Button>
-              </a>
+              ) : (
+                <a href="/templates/faculty_members_template.xlsx" download>
+                  <Button size="lg" className="w-full gap-2 bg-gradient-to-l from-emerald-500 to-emerald-600 text-white shadow-md">
+                    <Download className="w-5 h-5" />
+                    {isRtl ? "تحميل قالب Excel" : "Download Template"}
+                  </Button>
+                </a>
+              )}
               <Button
                 size="lg"
                 variant="outline"

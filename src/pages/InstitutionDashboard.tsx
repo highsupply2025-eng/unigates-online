@@ -1464,7 +1464,8 @@ ${rows.map((r: any, i: number) => `<tr>
     const accountCount = institutionId ? 1 : 0;
 
     const total = facultyCount + deptCount + studentCount + subscriptionCount + scheduleCount + resultCount + accountCount;
-    const pct = (count: number) => Math.min(Math.max(Math.round(count), 0), 100);
+    // 1% per 100 records; 100 records = 100%
+    const pct = (count: number) => Math.min(Math.max(Math.round((count / 100) * 100), 0), 100);
 
     return {
       faculty: { count: facultyCount, percentage: pct(facultyCount) },
@@ -1473,7 +1474,7 @@ ${rows.map((r: any, i: number) => `<tr>
       subscriptions: { count: subscriptionCount, percentage: pct(subscriptionCount) },
       schedules: { count: scheduleCount, percentage: pct(scheduleCount) },
       results: { count: resultCount, percentage: pct(resultCount) },
-      account: { count: accountCount, percentage: accountCount ? 100 : 0 },
+      account: { count: accountCount, percentage: pct(accountCount) },
       total,
     };
   }, [deptMembers, examSchedules, departments, quizSubmissions, rangeDays, institutionId]);

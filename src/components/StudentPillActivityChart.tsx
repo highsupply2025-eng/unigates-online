@@ -84,9 +84,9 @@ export const StudentPillActivityChart = ({
   // sits at the right (matching the icon grid below).
   const data = baseData;
 
-  // Percentage: count capped 0-100, or fixedPercentage override
+  // 1% per 100 records; 100 records = 100%
   const pct = (count: number, fixed?: number) =>
-    fixed != null ? Math.min(Math.max(fixed, 0), 100) : Math.min(Math.max(Math.round(count), 0), 100);
+    fixed != null ? Math.min(Math.max(fixed, 0), 100) : Math.min(Math.max(Math.round((count / 100) * 100), 0), 100);
 
   return (
     <Card className={`border-2 border-primary/20 shadow-lg ${className}`}>

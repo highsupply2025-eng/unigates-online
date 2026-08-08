@@ -170,7 +170,7 @@ const DepartmentPage = () => {
       let snapshotMap: Record<string, MemberProfile> = {};
       if (linkedUserIds.length > 0) {
         const [{ data: profilesData }, { data: docsData }] = await Promise.all([
-          supabase.from("profiles").select("user_id,email,phone,full_name,must_change_password,photo_url").in("user_id", linkedUserIds),
+          supabase.from("profiles").select("user_id,email,phone,full_name,must_change_password,avatar_url").in("user_id", linkedUserIds),
           supabase.from("profile_documents").select("user_id,live_photo_url").in("user_id", linkedUserIds),
         ]);
         const docsById: Record<string, string | null> = {};
@@ -181,7 +181,7 @@ const DepartmentPage = () => {
             email: p.email,
             phone: p.phone,
             live_photo_url: docsById[p.user_id] ?? null,
-            photo_url: p.photo_url ?? null,
+            photo_url: p.avatar_url ?? null,
             full_name: p.full_name,
             must_change_password: p.must_change_password === true,
           };

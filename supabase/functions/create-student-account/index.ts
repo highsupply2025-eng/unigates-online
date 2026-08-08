@@ -411,6 +411,9 @@ Deno.serve(async (req) => {
 
     const password = invitationCode ? temporaryPassword : genPassword();
 
+    const extra = (body.extra && typeof body.extra === "object" && !Array.isArray(body.extra)) ? body.extra as Record<string, unknown> : {};
+    const photoUrl = typeof extra.photo_url === "string" && extra.photo_url.trim() ? extra.photo_url.trim() : null;
+
     // ── Create user account and all related records ──────────────────
     let uid: string | null = null;
 
@@ -468,6 +471,7 @@ Deno.serve(async (req) => {
           user_id: uid,
           email,
           phone: phone || null,
+          ...(photoUrl ? { photo_url: photoUrl } : {}),
         });
         if (memberErr) throw new Error(`department_members insert: ${memberErr.message}`);
 

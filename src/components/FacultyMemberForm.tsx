@@ -347,8 +347,8 @@ export const FacultyMemberForm = ({
           ? "إنشاء حساب العضو"
           : "Create Member Account"
         : isRtl
-          ? "إضافة عضو يدويًا"
-          : "Add Member Manually");
+          ? "إضافة عضو"
+          : "Add Member");
 
   const buttonLabel =
     submitLabel ||

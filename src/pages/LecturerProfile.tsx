@@ -42,6 +42,7 @@ interface ProfileRow {
   full_name: string;
   email: string;
   phone: string;
+  avatar_url: string | null;
   id_photo_url: string | null;
   live_photo_url: string | null;
   university_cert_url: string | null;
@@ -83,6 +84,11 @@ const LecturerProfile = () => {
   const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
   const [showUnlink, setShowUnlink] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
+  const [showEditStudent, setShowEditStudent] = useState(false);
+  const [editFullName, setEditFullName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editSaving, setEditSaving] = useState(false);
   const [actioning, setActioning] = useState(false);
 
   useEffect(() => { load(); }, [memberId]);
@@ -125,7 +131,7 @@ const LecturerProfile = () => {
         const [{ data: p }, { data: docs }] = await Promise.all([
           supabase
             .from("profiles")
-            .select("full_name,email,phone,created_at")
+            .select("full_name,email,phone,created_at,avatar_url")
             .eq("user_id", m.user_id).maybeSingle(),
           supabase
             .from("profile_documents")
@@ -134,6 +140,7 @@ const LecturerProfile = () => {
         ]);
         setProfile(p ? ({
           ...(p as any),
+          avatar_url: (p as any).avatar_url ?? null,
           id_photo_url: docs?.id_photo_url ?? null,
           live_photo_url: docs?.live_photo_url ?? null,
           university_cert_url: docs?.university_cert_url ?? null,
@@ -196,6 +203,35 @@ const LecturerProfile = () => {
     } finally { setActioning(false); setShowDelete(false); }
   };
 
+  const openStudentEdit = () => {
+    if (!member) return;
+    setEditFullName(member.full_name || "");
+    setEditPhone(member.phone || "");
+    setEditEmail(member.email || "");
+    setShowEditStudent(true);
+  };
+
+  const handleSaveStudentEdit = async () => {
+    if (!member || !editFullName.trim()) return;
+    setEditSaving(true);
+    try {
+      const { error } = await supabase
+        .from("department_members")
+        .update({
+          full_name: editFullName.trim(),
+          phone: editPhone.trim() || null,
+          email: editEmail.trim() || null,
+        })
+        .eq("id", member.id);
+      if (error) throw error;
+      setMember({ ...member, full_name: editFullName.trim(), phone: editPhone.trim() || null, email: editEmail.trim() || null });
+      sonnerToast.success(isRtl ? "تم حفظ التعديلات" : "Changes saved", { duration: 1200 });
+      setShowEditStudent(false);
+    } catch {
+      sonnerToast.error(isRtl ? "فشل حفظ التعديلات" : "Failed to save changes");
+    } finally { setEditSaving(false); }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-primary/10">
@@ -208,7 +244,7 @@ const LecturerProfile = () => {
 
   const isLecturer = member.role === "lecturer";
   const displayName = profile?.full_name || member.full_name;
-  const avatar = profile?.live_photo_url || member.photo_url;
+  const avatar = profile?.live_photo_url || profile?.avatar_url || member.photo_url;
   const initials = displayName.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
   const isLinked = !!member.user_id;
   const roleLabel = ROLE_LABELS[member.role] || { ar: member.role, en: member.role };
@@ -406,7 +442,18 @@ const LecturerProfile = () => {
               <h3 className="text-base sm:text-lg font-black text-foreground">{isRtl ? "إجراءات إدارية" : "Admin Actions"}</h3>
             </div>
             <div className="flex flex-wrap gap-2.5">
-              {isLinked && (
+              {isLinked && member.role === "student" && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={openStudentEdit}
+                  className="gap-1.5 font-bold shadow-md shadow-primary/30"
+                >
+                  <Pencil className="w-4 h-4" />
+                  {isRtl ? "تعديل العضو" : "Edit Member"}
+                </Button>
+              )}
+              {isLinked && member.role !== "student" && (
                 <Button
                   variant="default"
                   size="sm"
@@ -486,6 +533,55 @@ const LecturerProfile = () => {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {actioning ? <Loader2 className="w-4 h-4 animate-spin" /> : (isRtl ? "حذف" : "Delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showEditStudent} onOpenChange={setShowEditStudent}>
+        <AlertDialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg w-full">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{isRtl ? "تعديل بيانات العضو" : "Edit Member"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {isRtl ? "تعديل البيانات الأساسية للعضو" : "Edit the member's basic information"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-3 my-2">
+            <div>
+              <label className="text-xs font-bold text-muted-foreground">{isRtl ? "الاسم الكامل" : "Full Name"}</label>
+              <input
+                type="text"
+                value={editFullName}
+                onChange={(e) => setEditFullName(e.target.value)}
+                className="w-full mt-1 px-3 py-2 rounded-lg border bg-background text-sm font-bold"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-muted-foreground">{isRtl ? "البريد الإلكتروني" : "Email"}</label>
+              <input
+                type="email"
+                value={editEmail}
+                onChange={(e) => setEditEmail(e.target.value)}
+                className="w-full mt-1 px-3 py-2 rounded-lg border bg-background text-sm font-bold"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-muted-foreground">{isRtl ? "رقم الهاتف" : "Phone"}</label>
+              <input
+                type="tel"
+                value={editPhone}
+                onChange={(e) => setEditPhone(e.target.value)}
+                className="w-full mt-1 px-3 py-2 rounded-lg border bg-background text-sm font-bold"
+              />
+            </div>
+          </div>
+          <AlertDialogFooter className={`gap-2 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
+            <AlertDialogCancel disabled={editSaving}>{isRtl ? "إلغاء" : "Cancel"}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleSaveStudentEdit}
+              disabled={editSaving || !editFullName.trim()}
+            >
+              {editSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : (isRtl ? "حفظ" : "Save")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

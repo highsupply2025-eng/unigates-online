@@ -1246,7 +1246,52 @@ ${rows.map((r: any, i: number) => `<tr>
     w.document.close();
   };
 
+  const exportSchedulesToPDF = () => {
+    const exams = examSchedules.filter(s => s.schedule_type === 'exam');
+    if (exams.length === 0) {
+      sonnerToast.error(isRtl ? "لا توجد اختبارات مجدولة للتصدير" : "No exam schedules to export");
+      return;
+    }
+    const w = window.open("", "_blank");
+    if (!w) return;
+    const esc = (s: any) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+    const title = isRtl ? `جداول الاختبارات — ${institutionName || ""}` : `Exam Schedules — ${institutionName || ""}`;
+    const html = `<!doctype html><html lang="${isRtl ? "ar" : "en"}" dir="${isRtl ? "rtl" : "ltr"}"><head><meta charset="utf-8"/>
+<title>${esc(title)}</title>
+<style>
+*{box-sizing:border-box} body{font-family:'Cairo','Segoe UI',sans-serif;margin:24px;color:#0f172a}
+h1{margin:0 0 6px;font-size:22px} .sub{color:#64748b;font-size:13px;margin-bottom:18px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:linear-gradient(135deg,#ef4444,#e11d48);color:#fff;padding:10px;text-align:${isRtl ? "right" : "left"}}
+td{padding:8px 10px;border-bottom:1px solid #e2e8f0}
+tr:nth-child(even) td{background:#f8fafc}
+.b{font-weight:700}
+</style></head><body>
+<h1>${esc(title)}</h1>
+<div class="sub">${esc(new Date().toLocaleDateString(isRtl ? "ar-EG" : "en-US"))} — ${exams.length} ${isRtl ? "اختبار" : "exams"}</div>
+<table><thead><tr>
+<th>#</th>
+<th>${isRtl ? "العنوان" : "Title"}</th>
+<th>${isRtl ? "التاريخ" : "Date"}</th>
+<th>${isRtl ? "من" : "Start"}</th>
+<th>${isRtl ? "إلى" : "End"}</th>
+<th>${isRtl ? "المكان" : "Location"}</th>
+</tr></thead><tbody>
+${exams.map((s: any, i: number) => `<tr>
+<td>${i + 1}</td>
+<td class="b">${esc(isRtl ? s.title_ar : s.title_en)}</td>
+<td>${esc(new Date(s.scheduled_date).toLocaleDateString(isRtl ? "ar-EG" : "en-US"))}</td>
+<td>${esc(s.start_time || "—")}</td>
+<td>${esc(s.end_time || "—")}</td>
+<td>${esc(isRtl ? (s.location_ar || "—") : (s.location_en || "—"))}</td>
+</tr>`).join("")}
+</tbody></table>
+<script>setTimeout(()=>window.print(),300)</script>
+</body></html>`;
 
+    w.document.write(html);
+    w.document.close();
+  };
 
   const handleDeleteDepartment = async (deptId: string, deptName: string) => {
     try {
@@ -2405,7 +2450,7 @@ ${rows.map((r: any, i: number) => `<tr>
                       </div>
                       <div className="min-w-0">
                         <p className="font-extrabold text-foreground text-sm sm:text-base">{isRtl ? "تسجيل البيانات" : "Register Data"}</p>
-                        <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "إضافة عضو يدويًا" : "Add member manually"}</p>
+                        <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "إضافة عضو" : "Add member"}</p>
                       </div>
                     </button>
                     <button
@@ -2569,7 +2614,7 @@ ${rows.map((r: any, i: number) => `<tr>
                 </div>
                 <div className="min-w-0">
                   <p className="font-extrabold text-foreground text-sm sm:text-base">{isRtl ? "تسجيل البيانات" : "Register Data"}</p>
-                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "إضافة طالب يدويًا" : "Add student manually"}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "إضافة طالب" : "Add student"}</p>
                 </div>
               </button>
               <button
@@ -2864,6 +2909,16 @@ ${rows.map((r: any, i: number) => `<tr>
                         <ClipboardList className="w-4 h-4 text-red-500" />
                         {isRtl ? "جداول الاختبارات" : "Exam Schedules"}
                         <Badge variant="destructive" className="text-[10px]">{exams.length}</Badge>
+                        {exams.length > 0 && (
+                          <Button
+                            size="sm"
+                            className="ms-auto gap-1 h-7 text-[11px] bg-red-600 hover:bg-red-700 text-white"
+                            onClick={exportSchedulesToPDF}
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">{isRtl ? "تصدير PDF" : "Export PDF"}</span>
+                          </Button>
+                        )}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -2919,13 +2974,13 @@ ${rows.map((r: any, i: number) => `<tr>
                 return (
                   <>
                     <Card className="mb-4">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm flex items-center gap-2">
-                          <Star className="w-4 h-4 text-amber-500" />
-                          {isRtl ? "تقييمات المحاضرين" : "Lecturer Ratings"}
-                          <Badge variant="outline">{lecturerRatings.length}</Badge>
-                        </CardTitle>
-                      </CardHeader>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <Star className="w-4 h-4 text-amber-500" />
+                        {isRtl ? "تقييمات المحاضرين" : "Lecturer Ratings"}
+                        <Badge variant="outline">{lecturerRatings.length}</Badge>
+                      </CardTitle>
+                    </CardHeader>
                       <CardContent>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                           <Card className="border">
@@ -3228,7 +3283,7 @@ ${rows.map((r: any, i: number) => `<tr>
                         </h3>
                         <p className="text-sm text-muted-foreground max-w-md mx-auto">
                           {isRtl
-                            ? "هذه الصفحة مخصصة لتفعيل حسابات الطلاب فقط. الأعمدة المطلوبة: الاسم الكامل، البريد الإلكتروني، رقم الهاتف، اسم القسم. عند الرفع يتم إنشاء الحسابات وتفعيلها تلقائياً بكلمة مرور مؤقتة. لإضافة أعضاء هيئة التدريس استخدم صفحة إضافة عضو هيئة التدريس (يدوياً أو برفع ملف)."
+                            ? "هذه الصفحة مخصصة لتفعيل حسابات الطلاب فقط. الأعمدة المطلوبة: الاسم الكامل، البريد الإلكتروني، رقم الهاتف، اسم القسم. عند الرفع يتم إنشاء الحسابات وتفعيلها تلقائياً بكلمة مرور مؤقتة. لإضافة أعضاء هيئة التدريس استخدم صفحة إضافة عضو هيئة التدريس."
                             : "This page is for student accounts only. Required columns: full_name, email, phone, department_name. Accounts are created with a temporary password. To add faculty members use the Faculty page (manual or file upload)."}
                         </p>
                         <div>

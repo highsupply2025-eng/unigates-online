@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   GraduationCap, Globe, Users, UserCheck, Shield,
   BookOpen, Eye, Search, CheckCircle, XCircle, Clock, ArrowLeft, ArrowRight,
@@ -58,6 +59,7 @@ const AdminDashboard = () => {
   const isRtl = language === "ar";
   const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -554,6 +556,7 @@ const AdminDashboard = () => {
     if (error) { console.error("Operation failed:", error); showError(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"); setDeleteTarget(null); return; }
     showSuccess(language === "ar" ? "تم الحذف بنجاح" : "Deleted successfully");
     setDeleteTarget(null);
+    queryClient.invalidateQueries({ queryKey: ["platform-stats"] });
     await loadAll();
   };
 

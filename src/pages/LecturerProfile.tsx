@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft, ArrowRight, Mail, Phone, Calendar, BookOpen, Users,
   FileText, ClipboardList, Loader2, Unlink, Trash2, BadgeCheck, Pencil,
@@ -72,6 +73,7 @@ const ROLE_LABELS: Record<string, { ar: string; en: string }> = {
 const LecturerProfile = () => {
   const { memberId } = useParams<{ memberId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { dir } = useLanguage();
   const isRtl = dir === "rtl";
 
@@ -196,6 +198,7 @@ const LecturerProfile = () => {
     try {
       const { error } = await supabase.from("department_members").delete().eq("id", member.id);
       if (error) throw error;
+      queryClient.invalidateQueries({ queryKey: ["platform-stats"] });
       sonnerToast.success(isRtl ? "تم الحذف" : "Deleted", { duration: 1200 });
       navigate(`/institution/department/${member.department_id}`);
     } catch {

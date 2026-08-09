@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ChevronLeft, ChevronRight, Copy, UserCheck, GraduationCap,
   Layers, LinkIcon, MessageCircle, Loader2, Search, Download, Trash2, Crown, Mail, Zap, Plus
@@ -53,6 +54,7 @@ const HEAD_ROLE = "department_head";
 const DepartmentPage = () => {
   const { deptId } = useParams<{ deptId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { dir, language } = useLanguage();
   const isRtl = dir === "rtl";
   const { identity, loading: identityLoading } = useInstitutionIdentity();
@@ -75,6 +77,7 @@ const DepartmentPage = () => {
   const [activatePhone, setActivatePhone] = useState("");
   const [activating, setActivating] = useState(false);
 
+  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
   const loadRequestIdRef = useRef(0);
 
   useEffect(() => {
@@ -223,6 +226,7 @@ const DepartmentPage = () => {
       if (deptId) {
         __deptCache.delete(deptId);
       }
+      queryClient.invalidateQueries({ queryKey: ["platform-stats"] });
     } catch (err: any) {
       console.error("Delete member error:", err);
       sonnerToast.error(
@@ -364,12 +368,12 @@ const DepartmentPage = () => {
               className="shrink-0"
             >
               <div className={`w-11 h-11 rounded-full ${colorClass} flex items-center justify-center overflow-hidden ring-2 ring-background shadow-sm group-hover:ring-primary/30 transition-all`}>
-                {avatar ? (
+                {avatar && !imgErrors[member.id] ? (
                   <img
                     src={avatar}
                     alt={displayName}
                     className="w-full h-full object-cover"
-                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                    onError={() => setImgErrors(prev => ({ ...prev, [member.id]: true }))}
                   />
                 ) : icon}
               </div>

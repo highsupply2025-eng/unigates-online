@@ -4,6 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 const TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 const EVENTS = ["mousemove", "mousedown", "keydown", "touchstart", "scroll"] as const;
+// Media playback (recorded lectures, live classes) counts as activity even when
+// the user never touches the device. These fire on <video>/<audio> elements and
+// are captured at the document level.
+const MEDIA_EVENTS = ["play", "playing", "timeupdate"] as const;
 
 /**
  * Automatically logs out the user after 30 minutes of inactivity.
@@ -45,6 +49,9 @@ export const useAutoLogout = () => {
         for (const event of EVENTS) {
           window.addEventListener(event, resetTimer, { passive: true });
         }
+        for (const event of MEDIA_EVENTS) {
+          document.addEventListener(event, resetTimer, { capture: true, passive: true });
+        }
       }
     };
 
@@ -58,6 +65,9 @@ export const useAutoLogout = () => {
         for (const event of EVENTS) {
           window.addEventListener(event, resetTimer, { passive: true });
         }
+        for (const mediaEvent of MEDIA_EVENTS) {
+          document.addEventListener(mediaEvent, resetTimer, { capture: true, passive: true });
+        }
       } else if (event === "SIGNED_OUT") {
         activeRef.current = false;
         if (timerRef.current) {
@@ -67,6 +77,9 @@ export const useAutoLogout = () => {
         for (const event of EVENTS) {
           window.removeEventListener(event, resetTimer);
         }
+        for (const mediaEvent of MEDIA_EVENTS) {
+          document.removeEventListener(mediaEvent, resetTimer, { capture: true });
+        }
       }
     });
 
@@ -75,6 +88,9 @@ export const useAutoLogout = () => {
       if (timerRef.current) clearTimeout(timerRef.current);
       for (const event of EVENTS) {
         window.removeEventListener(event, resetTimer);
+      }
+      for (const event of MEDIA_EVENTS) {
+        document.removeEventListener(event, resetTimer, { capture: true });
       }
       sub.subscription.unsubscribe();
     };

@@ -3822,49 +3822,72 @@ ${exams.map((s: any, i: number) => `<tr>
         }}
       >
         <DialogContent dir={dir} className="sm:max-w-lg p-0 gap-0 overflow-hidden">
-          <div className="px-6 pt-6 pb-4 border-b border-border/60">
+          {/* Header */}
+          <div className="relative px-6 pt-6 pb-4 bg-gradient-to-r from-teal-500/10 via-emerald-500/5 to-transparent border-b border-border/60">
             <DialogHeader className="text-start">
-              <DialogTitle className="text-xl font-bold">{isRtl ? "\u0625\u0636\u0627\u0641\u0629 \u0642\u0633\u0645 \u062c\u062f\u064a\u062f" : "Add New Department"}</DialogTitle>
+              <DialogTitle className="text-xl font-bold flex items-center gap-2.5">
+                <span className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 text-white shadow-md shadow-teal-500/20">
+                  <Plus className="w-5 h-5" />
+                </span>
+                {isRtl ? "إضافة قسم جديد" : "Add New Department"}
+              </DialogTitle>
             </DialogHeader>
           </div>
-          <div className="px-6 py-5 space-y-5 max-h-[60vh] overflow-y-auto">
-            <div className="space-y-1.5">
-              <Label className="text-sm font-semibold text-foreground">{isRtl ? "\u0627\u0633\u0645 \u0627\u0644\u0642\u0633\u0645" : "Department Name"}</Label>
+
+          <div className="px-6 py-5 space-y-6 max-h-[60vh] overflow-y-auto">
+            {/* Department Name */}
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                {isRtl ? "اسم القسم" : "Department Name"}
+              </Label>
               <Input
                 value={newDeptName}
                 onChange={e => setNewDeptName(e.target.value)}
-                placeholder={isRtl ? "\u0645\u062b\u0627\u0644: \u0642\u0633\u0645 \u0627\u0644\u0645\u062d\u0627\u0633\u0628\u0629" : "e.g. Accounting Dept"}
-                className="h-11 border-border/80 focus-visible:ring-primary/30 focus-visible:border-primary/50 transition-colors"
+                placeholder={isRtl ? "مثال: قسم المحاسبة" : "e.g. Accounting Dept"}
+                className="h-11 border-2 border-border/60 focus-visible:ring-2 focus-visible:ring-teal-500/30 focus-visible:border-teal-500 bg-card transition-colors"
               />
             </div>
 
-            <div className="space-y-1.5">
+            {/* Department Code */}
+            <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Label className="text-sm font-semibold text-foreground">{isRtl ? "\u0643\u0648\u062f \u0627\u0644\u0642\u0633\u0645" : "Department Code"}</Label>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">{isRtl ? "\u062a\u0644\u0642\u0627\u0626\u064a" : "Auto"}</span>
+                <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <span className="inline-flex items-center justify-center w-4 h-4">
+                    <Globe className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                  </span>
+                  {isRtl ? "كود القسم" : "Department Code"}
+                </Label>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold tracking-wide">{isRtl ? "تلقائي" : "AUTO"}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Input
                   value={newDeptCode}
                   readOnly
                   dir="ltr"
-                  className="h-11 font-mono text-lg text-center tracking-[0.2em] bg-muted/40 border-border/80 focus-visible:ring-primary/30 flex-1"
+                  className="h-11 font-mono text-base sm:text-lg text-center tracking-[0.25em] bg-muted/30 border-2 border-border/60 focus-visible:ring-2 focus-visible:ring-teal-500/30 focus-visible:border-teal-500 flex-1 transition-colors"
                 />
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   size="icon"
                   onClick={() => setNewDeptCode(generateCode())}
-                  title={isRtl ? "\u062a\u0648\u0644\u064a\u062f \u0643\u0648\u062f \u062c\u062f\u064a\u062f" : "Generate new code"}
-                  className="h-11 w-11 shrink-0 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                  title={isRtl ? "توليد كود جديد" : "Generate new code"}
+                  className="h-11 w-11 shrink-0 rounded-xl border-2 border-teal-500/30 text-teal-600 dark:text-teal-400 hover:bg-teal-500/10 hover:border-teal-500/50 hover:text-teal-600 dark:hover:text-teal-300 transition-all duration-200"
                 >
-                  <RefreshCw className="w-4.5 h-4.5" />
+                  <RefreshCw className="w-4 h-4" />
                 </Button>
               </div>
             </div>
 
-            <div className="border-t border-border/60" />
+            {/* Divider */}
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1 bg-border/60" />
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{isRtl ? "تعيين الأعضاء" : "ASSIGN MEMBERS"}</span>
+              <div className="h-px flex-1 bg-border/60" />
+            </div>
 
+            {/* Faculty member selection */}
             {(() => {
               const allFaculty = (deptMembers as any[]).filter(m => !!m.full_name);
               const seen = new Set<string>();
@@ -3879,50 +3902,61 @@ ${exams.map((s: any, i: number) => `<tr>
               return (
                 <div className="space-y-3">
                   {dean && (
-                    <div className="p-3.5 rounded-xl bg-gradient-to-br from-primary/5 to-primary/[0.02] border border-primary/20">
+                    <div className="p-3.5 rounded-xl bg-gradient-to-br from-teal-500/5 to-emerald-500/[0.03] border border-teal-500/20">
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1.5">
                         <GraduationCap className="w-3.5 h-3.5" />
-                        <span className="font-medium">{isRtl ? "\u0627\u0644\u0639\u0645\u064a\u062f (\u062a\u0644\u0642\u0627\u0626\u064a)" : "Dean (auto-assigned)"}</span>
+                        <span className="font-medium">{isRtl ? "العميد (تلقائي)" : "Dean (auto-assigned)"}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold flex-1 text-foreground">{dean.full_name}</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold">
-                          {isRtl ? "\u0639\u0645\u064a\u062f" : "Dean"}
+                        <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold">
+                          {isRtl ? "عميد" : "Dean"}
                         </span>
                       </div>
                     </div>
                   )}
                   {selectable.length === 0 ? (
-                    <div className="p-4 rounded-xl bg-muted/30 border border-dashed border-border text-center">
-                      <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                        <GraduationCap className="w-4 h-4" />
-                        <span className="text-sm">{isRtl ? "\u0644\u0627 \u064a\u0648\u062c\u062f \u0623\u0639\u0636\u0627\u0621 \u0647\u064a\u0626\u0629 \u062a\u062f\u0631\u064a\u0633 \u0628\u0639\u062f \u2014 \u0623\u0636\u0641\u0647\u0645 \u0645\u0646 \u0635\u0641\u062d\u0629 \u0623\u0639\u0636\u0627\u0621 \u0647\u064a\u0626\u0629 \u0627\u0644\u062a\u062f\u0631\u064a\u0633" : "No faculty members yet \u2014 add them from the Faculty page first"}</span>
+                    <div className="p-5 rounded-xl bg-muted/20 border-2 border-dashed border-border/60 text-center">
+                      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                        <div className="w-10 h-10 rounded-full bg-muted/60 flex items-center justify-center">
+                          <GraduationCap className="w-5 h-5 text-muted-foreground/60" />
+                        </div>
+                        <span className="text-sm font-medium">{isRtl ? "لا يوجد أعضاء هيئة تدريس بعد — أضفهم من صفحة أعضاء هيئة التدريس" : "No faculty members yet — add them from the Faculty page first"}</span>
                       </div>
                     </div>
                   ) : (
                     <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <GraduationCap className="w-4 h-4 text-muted-foreground" />
+                      <div className="flex items-center gap-2 mb-2.5">
+                        <GraduationCap className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                         <Label className="text-sm font-semibold text-foreground">
-                          {isRtl ? "\u0627\u062e\u062a\u0631 \u0623\u0639\u0636\u0627\u0621 \u0647\u064a\u0626\u0629 \u0627\u0644\u062a\u062f\u0631\u064a\u0633 \u0644\u0647\u0630\u0627 \u0627\u0644\u0642\u0633\u0645" : "Assign Faculty Members"}
+                          {isRtl ? "اختر أعضاء هيئة التدريس لهذا القسم" : "Assign Faculty Members"}
                         </Label>
                         {newDeptSelectedLecturerIds.length > 0 && (
-                          <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                          <span className="text-[11px] font-bold text-white bg-teal-500 px-2 py-0.5 rounded-full min-w-[20px] text-center">
                             {newDeptSelectedLecturerIds.length}
                           </span>
                         )}
                       </div>
-                      <div className="border border-border/60 rounded-xl max-h-52 overflow-y-auto bg-background divide-y divide-border/40">
+                      <div className="border-2 border-border/50 rounded-xl max-h-52 overflow-y-auto bg-card shadow-inner">
                         {selectable.map((lec: any) => {
                           const checked = newDeptSelectedLecturerIds.includes(lec.id);
                           return (
                             <label
                               key={lec.id}
-                              className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-all duration-150 ${checked ? "bg-primary/[0.06]" : "hover:bg-muted/50"}`}
+                              className={`group flex items-center gap-3 px-3.5 py-3 cursor-pointer transition-all duration-150 border-b border-border/30 last:border-b-0 ${
+                                checked
+                                  ? "bg-teal-500/[0.06]"
+                                  : "hover:bg-muted/40"
+                              }`}
                             >
-                              <span className={`flex items-center justify-center w-5 h-5 rounded-md border-2 transition-all duration-150 shrink-0 ${checked ? "bg-primary border-primary text-white" : "border-border/80 bg-background"}`}>
+                              {/* Custom Checkbox */}
+                              <span className={`flex items-center justify-center w-5 h-5 rounded-lg border-2 transition-all duration-200 shrink-0 ${
+                                checked
+                                  ? "bg-gradient-to-br from-teal-500 to-emerald-500 border-transparent shadow-sm shadow-teal-500/25"
+                                  : "border-border/70 bg-background group-hover:border-teal-500/40"
+                              }`}>
                                 {checked && (
-                                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                   </svg>
                                 )}
@@ -3937,10 +3971,24 @@ ${exams.map((s: any, i: number) => `<tr>
                                 }}
                                 className="sr-only"
                               />
-                              <span className={`text-sm truncate flex-1 transition-colors ${checked ? "font-semibold text-foreground" : "font-medium text-foreground/90"}`}>{lec.full_name}</span>
+                              <span className={`text-sm truncate flex-1 transition-colors ${checked ? "font-semibold text-foreground" : "font-medium text-foreground/85 group-hover:text-foreground"}`}>{lec.full_name}</span>
                               {lec.role && (
-                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold shrink-0 ${lec.role === "student" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" : "bg-primary/10 text-primary"}`}>
-                                  {lec.role}
+                                <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold shrink-0 transition-colors ${
+                                  lec.role === "student"
+                                    ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                                    : lec.role === "dean"
+                                      ? "bg-teal-500/10 text-teal-600 dark:text-teal-400"
+                                      : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                                }`}>
+                                  {isRtl
+                                    ? lec.role === "student" ? "طالب"
+                                      : lec.role === "dean" ? "عميد"
+                                      : lec.role === "professor" ? "أستاذ"
+                                      : lec.role === "doctor" ? "دكتور"
+                                      : lec.role === "assistant_lecturer" ? "معيد"
+                                      : lec.role === "department_head" ? "رئيس قسم"
+                                      : lec.role
+                                    : lec.role.replace(/_/g, " ")}
                                 </span>
                               )}
                             </label>
@@ -3953,21 +4001,25 @@ ${exams.map((s: any, i: number) => `<tr>
               );
             })()}
           </div>
-          <div className="px-6 py-4 border-t border-border/60 bg-muted/20 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+
+          {/* Footer */}
+          <div className="px-6 py-4 border-t border-border/60 bg-muted/20 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
             <Button
-              variant="outline"
+              variant="ghost"
+              size="lg"
               onClick={() => { setShowAddDeptDialog(false); setNewDeptSelectedLecturerIds([]); setNewDeptCode(""); }}
-              className="h-10 px-5 font-semibold border-border/80 hover:bg-muted/60 transition-colors"
+              className="px-6 font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
             >
-              {isRtl ? "\u0625\u0644\u063a\u0627\u0621" : "Cancel"}
+              {isRtl ? "إلغاء" : "Cancel"}
             </Button>
             <Button
               onClick={handleAddDepartment}
               disabled={!newDeptName || !newDeptCode || addingDept}
-              className="h-10 px-6 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm shadow-primary/20 transition-all"
+              size="lg"
+              className="px-7 font-bold bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white shadow-md shadow-teal-500/20 transition-all duration-200"
             >
               {addingDept ? <Loader2 className="w-4 h-4 animate-spin me-1.5" /> : null}
-              {isRtl ? "\u0625\u0636\u0627\u0641\u0629" : "Add"}
+              {isRtl ? "إضافة" : "Add"}
             </Button>
           </div>
         </DialogContent>

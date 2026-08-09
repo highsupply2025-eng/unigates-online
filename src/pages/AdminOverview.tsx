@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
@@ -48,6 +49,7 @@ const kindMeta: Record<PendingKind, { ar: string; en: string; icon: typeof Users
 export default function AdminOverview() {
   const { language, dir } = useLanguage();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const ar = (a: string, e: string) => (language === "ar" ? a : e);
 
   const [loading, setLoading] = useState(true);
@@ -215,6 +217,7 @@ export default function AdminOverview() {
       if (error) throw error;
       notify(approve ? ar("تمت الموافقة", "Approved") : ar("تم الرفض", "Rejected"));
       await refresh();
+      queryClient.invalidateQueries({ queryKey: ["platform-stats"] });
     } catch (e) {
       console.error("Decision failed:", e);
       notify(ar("تعذر تنفيذ العملية", "Action failed"), true);

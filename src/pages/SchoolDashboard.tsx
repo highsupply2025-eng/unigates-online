@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   School, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Building2, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
@@ -65,6 +66,7 @@ const SchoolDashboard = () => {
   const isRtl = dir === "rtl";
   const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
@@ -210,6 +212,7 @@ const SchoolDashboard = () => {
     await supabase.from("department_members").delete().eq("department_id", deptId);
     await supabase.from("departments").delete().eq("id", deptId);
     await loadSchoolData(schoolId);
+    queryClient.invalidateQueries({ queryKey: ["platform-stats"] });
   };
 
   const handleCopyCode = (code: string) => {

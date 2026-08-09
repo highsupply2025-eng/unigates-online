@@ -518,6 +518,7 @@ const AdminDashboard = () => {
       setDeleteTarget(null);
       showSuccess(language === "ar" ? "تم حذف المدرسة نهائياً" : "School permanently deleted");
       void loadStats();
+      queryClient.invalidateQueries({ queryKey: ["platform-stats"] });
     } catch (error) {
       console.error("Permanent school deletion failed:", error);
       const detail = (error as { message?: string } | null)?.message;
@@ -1541,6 +1542,7 @@ const AdminDashboard = () => {
                                     await supabase.from("departments").delete().eq("id", dept.id);
                                     showSuccess(ar("تم حذف القسم", "Department deleted"));
                                     await Promise.all([loadDepartments(), loadDepartmentMembers(), loadStats()]);
+                                    queryClient.invalidateQueries({ queryKey: ["platform-stats"] });
                                   } catch (e: any) {
                                     showError(e.message);
                                   }

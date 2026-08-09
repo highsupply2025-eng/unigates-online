@@ -9,12 +9,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useInstitutionIdentity } from "@/hooks/useInstitutionIdentity";
 
 const InstitutionPayment = () => {
   const { language, dir, toggleLanguage } = useLanguage();
   const isRtl = language === "ar";
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { identity } = useInstitutionIdentity();
 
   const studentIdsRaw = searchParams.get("studentIds") || "";
   const studentNamesRaw = searchParams.get("studentNames") || "";
@@ -102,7 +104,7 @@ const InstitutionPayment = () => {
                   {isRtl ? "تفاصيل الدفع" : "Payment Details"}
                 </h1>
                 <p className="text-[10px] sm:text-xs text-muted-foreground font-semibold truncate">
-                  {isRtl ? "لوحة إدارة الكلية" : "College Administration"}
+                  {identity?.institutionType === "institute" ? (isRtl ? "لوحة إدارة المعهد" : "Institute Administration") : (isRtl ? "لوحة إدارة الكلية" : "College Administration")}
                 </p>
               </div>
             </div>

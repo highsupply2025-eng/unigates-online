@@ -30,9 +30,9 @@ const InstitutionPaymentCash = () => {
   const { toast } = useToast();
   const { identity, loading: identityLoading } = useInstitutionIdentity();
 
-  const studentIds = searchParams.get("students")?.split(",").filter(Boolean) || [];
+  const studentIds = (searchParams.get("students") ?? searchParams.get("studentIds") ?? "").split(",").filter(Boolean);
   const planType = (searchParams.get("plan") || "monthly") as "monthly" | "annual";
-  const months = planType === "annual" ? 12 : 1;
+  const months = Math.max(1, parseInt(searchParams.get("months") || (planType === "annual" ? "12" : "1"), 10) || 1);
 
   const [students, setStudents] = useState<StudentRecord[]>([]);
   const [loading, setLoading] = useState(true);

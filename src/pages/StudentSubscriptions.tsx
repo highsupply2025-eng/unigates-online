@@ -216,7 +216,7 @@ const StudentSubscriptions = () => {
             </div>
             <div className="min-w-0 flex-1">
               <h1 className="text-lg sm:text-2xl font-black text-foreground truncate tracking-tight">
-                {isRtl ? "لوحة إدارة الكلية" : "College Administration"}
+                {identity?.institutionType === "institute" ? (isRtl ? "لوحة إدارة المعهد" : "Institute Administration") : (isRtl ? "لوحة إدارة الكلية" : "College Administration")}
                 {subscriptionPlan && (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary/10 text-primary border border-primary/20 ms-2 align-middle">
                     {isRtl
@@ -237,7 +237,7 @@ const StudentSubscriptions = () => {
               </Badge>
             )}
             <DashboardMenuDropdown
-              title={isRtl ? "لوحة الكلية" : "College Panel"}
+              title={identity?.institutionType === "institute" ? (isRtl ? "لوحة المعهد" : "Institute Panel") : (isRtl ? "لوحة الكلية" : "College Panel")}
               onLanguageToggle={toggleLanguage}
               onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
               items={getInstitutionMenuItems({

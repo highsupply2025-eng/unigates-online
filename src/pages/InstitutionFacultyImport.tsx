@@ -232,6 +232,194 @@ const InstitutionFacultyImport = () => {
     URL.revokeObjectURL(url);
   }, []);
 
+  const generateFacultyTemplate = useCallback(async () => {
+    const wb = new ExcelJS.Workbook();
+    wb.creator = "UNIGATES";
+    wb.created = new Date();
+
+    const ws = wb.addWorksheet("Members", {
+      properties: { defaultColWidth: 18 },
+      pageSetup: { orientation: "landscape" },
+    });
+    (ws as any).model.rightToLeft = true;
+
+    const headers = [
+      "الاسم الكامل",
+      "الوظيفة",
+      "القسم",
+      "تاريخ الميلاد (YYYY-MM-DD)",
+      "النوع",
+      "الرقم القومي",
+      "البريد الإلكتروني",
+      "رقم الهاتف",
+      "العنوان",
+      "المؤهل العلمي",
+      "التخصص",
+      "تاريخ التعيين (YYYY-MM-DD)",
+      "ملاحظات",
+      "رابط الصورة (اختياري)",
+      "صورة شخصية 4×6",
+    ];
+    const keys = [
+      "full_name",
+      "role",
+      "department",
+      "date_of_birth",
+      "gender",
+      "national_id",
+      "email",
+      "phone",
+      "address",
+      "qualification",
+      "specialization",
+      "hire_date",
+      "notes",
+      "photo_url",
+      "photo_image",
+    ];
+    const exampleRow = [
+      "أحمد محمد علي",
+      "دكتور",
+      "قسم علوم الحاسب",
+      "1985-05-12",
+      "male",
+      "29001011234567",
+      "ahmed@example.com",
+      "01000000000",
+      "القاهرة",
+      "دكتوراه",
+      "ذكاء اصطناعي",
+      "2020-09-01",
+      "",
+      "https://example.com/photo.jpg",
+      "",
+    ];
+
+    ws.addRow(headers);
+    ws.addRow(keys);
+    ws.addRow(exampleRow);
+
+    const headerRow = ws.getRow(1);
+    headerRow.eachCell((cell) => {
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF16A34A" },
+      };
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 11 };
+      cell.alignment = { horizontal: "center", vertical: "middle" };
+      cell.border = {
+        bottom: { style: "thin", color: { argb: "FF15803D" } },
+      };
+    });
+
+    const keyRow = ws.getRow(2);
+    keyRow.font = { italic: true, size: 10, color: { argb: "FF6B7280" } };
+    keyRow.eachCell((cell) => {
+      cell.alignment = { horizontal: "center" };
+    });
+
+    ws.getColumn(1).width = 24;  // الاسم الكامل
+    ws.getColumn(2).width = 22;  // الوظيفة
+    ws.getColumn(3).width = 24;  // القسم
+    ws.getColumn(4).width = 24;  // تاريخ الميلاد
+    ws.getColumn(5).width = 10;  // النوع
+    ws.getColumn(6).width = 18;  // الرقم القومي
+    ws.getColumn(7).width = 28;  // البريد الإلكتروني
+    ws.getColumn(8).width = 18;  // رقم الهاتف
+    ws.getColumn(9).width = 22;  // العنوان
+    ws.getColumn(10).width = 18; // المؤهل العلمي
+    ws.getColumn(11).width = 18; // التخصص
+    ws.getColumn(12).width = 24; // تاريخ التعيين
+    ws.getColumn(13).width = 20; // ملاحظات
+    ws.getColumn(14).width = 32; // رابط الصورة
+    ws.getColumn(15).width = 18; // صورة شخصية
+
+    // --- Sheet 2: Instructions (RTL) ---
+    const is = wb.addWorksheet("تعليمات", {
+      properties: { defaultColWidth: 20 },
+    });
+    (is as any).model.rightToLeft = true;
+
+    is.mergeCells("A1:F1");
+    const titleCell = is.getCell("A1");
+    titleCell.value = "تعليمات تعبئة ملف إضافة الأعضاء";
+    titleCell.font = { bold: true, size: 16, color: { argb: "FF16A34A" } };
+    titleCell.alignment = { horizontal: "center", vertical: "middle" };
+    titleCell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFF0FDF4" },
+    };
+    is.getRow(1).height = 36;
+
+    is.addRow([]);
+
+    const instructions = [
+      "1. لا تُغيّر صفوف العناوين (صف 1 و 2).",
+      "2. ابدأ إدخال البيانات من الصف 3.",
+      "3. الحقول المطلوبة: الاسم الكامل (الاسم الكامل)، الوظيفة (الوظيفة)، القسم (القسم).",
+      "4. يجب أن تكون الوظيفة من القائمة المنسدلة في القالب.",
+      "5. النوع: male أو female.",
+      "6. التواريخ بصيغة YYYY-MM-DD.",
+      "7. الرقم القومي والبريد الإلكتروني ورقم الهاتف اختيارية لكن مفضّلة.",
+      "8. تاريخ التعيين اختياري — بصيغة YYYY-MM-DD.",
+      "9. رابط الصورة اختياري.",
+      "10. صورة شخصية اختيارية — أدرج صورة JPG أو PNG داخل خلية «صورة شخصية 4×6».",
+      "11. استخدم صيغة XLSX عند إدراج الصور؛ ملفات XLS القديمة تستورد البيانات النصية فقط.",
+    ];
+    instructions.forEach((line) => is.addRow([line]));
+
+    is.addRow([]);
+    is.addRow(["الأعمدة المطلوبة:"]);
+    is.getRow(is.rowCount).font = { bold: true, size: 12 };
+
+    const colHeaders = [
+      ["الاسم الكامل", "الاسم الرباعي (مطلوب)"],
+      ["الوظيفة", "المسمى الوظيفي (مطلوب) — مثال: أستاذ دكتور"],
+      ["القسم", "اسم القسم الموجود في لوحة الإدارة"],
+      ["تاريخ الميلاد", "بصيغة YYYY-MM-DD"],
+      ["النوع", "male أو female"],
+      ["الرقم القومي", "رقم الهوية الوطنية"],
+      ["البريد الإلكتروني", "البريد الإلكتروني الشخصي"],
+      ["رقم الهاتف", "رقم الهاتف مع رمز الدولة"],
+      ["العنوان", "العنوان التفصيلي"],
+      ["المؤهل العلمي", "مثال: دكتوراه"],
+      ["التخصص", "مثال: ذكاء اصطناعي"],
+      ["تاريخ التعيين", "بصيغة YYYY-MM-DD — اختياري"],
+      ["ملاحظات", "أي ملاحظات إضافية"],
+      ["رابط الصورة", "رابط صورة شخصية على الإنترنت (اختياري)"],
+      ["صورة شخصية 4×6", "صورة مُضمنة داخل خلية Excel (اختياري)"],
+    ];
+    colHeaders.forEach((row) => is.addRow(row));
+
+    const instructionColA = is.getColumn(1);
+    instructionColA.width = 26;
+    const instructionColB = is.getColumn(2);
+    instructionColB.width = 55;
+
+    is.addRow([]);
+    is.addRow(["مثال:"]);
+    is.getRow(is.rowCount).font = { bold: true, size: 12 };
+    is.addRow(["الاسم الكامل", "أحمد محمد علي"]);
+    is.addRow(["الوظيفة", "دكتور"]);
+    is.addRow(["القسم", "قسم علوم الحاسب"]);
+    is.addRow(["تاريخ الميلاد", "1985-05-12"]);
+    is.addRow(["النوع", "male"]);
+    is.addRow(["تاريخ التعيين", "2020-09-01"]);
+
+    const buf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "faculty_members_template.xlsx";
+    a.click();
+    URL.revokeObjectURL(url);
+  }, []);
+
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -412,6 +600,7 @@ const InstitutionFacultyImport = () => {
           address: norm(r["العنوان"] || r["address"]) || null,
           qualification: norm(r["المؤهل الدراسي"] || r["المؤهل العلمي"] || r["qualification"]) || null,
           specialization: isStudent ? null : (norm(r["التخصص"] || r["specialization"]) || null),
+          hire_date: isStudent ? null : (norm(r["تاريخ التعيين (YYYY-MM-DD)"] || r["تاريخ التعيين"] || r["hire_date"]) || null),
           notes: norm(r["ملاحظات"] || r["notes"]) || null,
           photo_url: resolvedPhotoUrl || rawPhotoUrl || null,
         };
@@ -466,6 +655,7 @@ if (isStudent) {
             address: baseRow.address,
             qualification: baseRow.qualification,
             specialization: baseRow.specialization,
+            hire_date: baseRow.hire_date,
             notes: baseRow.notes,
           },
         },
@@ -586,12 +776,14 @@ if (insertError) {
                   {isRtl ? "تحميل قالب الطلاب" : "Download Student Template"}
                 </Button>
               ) : (
-                <a href="/templates/faculty_members_template.xlsx" download>
-                  <Button size="lg" className="w-full gap-2 bg-gradient-to-l from-emerald-500 to-emerald-600 text-white shadow-md">
-                    <Download className="w-5 h-5" />
-                    {isRtl ? "تحميل قالب Excel" : "Download Template"}
-                  </Button>
-                </a>
+                <Button
+                  size="lg"
+                  className="w-full gap-2 bg-gradient-to-l from-emerald-500 to-emerald-600 text-white shadow-md"
+                  onClick={generateFacultyTemplate}
+                >
+                  <Download className="w-5 h-5" />
+                  {isRtl ? "تحميل قالب Excel" : "Download Template"}
+                </Button>
               )}
               <Button
                 size="lg"

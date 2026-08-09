@@ -169,27 +169,31 @@ const DepartmentPage = () => {
       const linkedUserIds = allMembers.filter(m => m.user_id).map(m => m.user_id as string);
       let snapshotMap: Record<string, MemberProfile> = {};
       if (linkedUserIds.length > 0) {
-        const [{ data: profilesData }, { data: docsData }] = await Promise.all([
+        const [{ data: profilesData }] = await Promise.all([
           supabase.from("profiles").select("user_id,email,phone,full_name,must_change_password,avatar_url").in("user_id", linkedUserIds),
-          supabase.from("profile_documents").select("user_id,live_photo_url").in("user_id", linkedUserIds),
         ]);
-        const docsById: Record<string, string | null> = {};
-        (docsData || []).forEach((d: any) => { docsById[d.user_id] = d.live_photo_url ?? null; });
         const map: Record<string, MemberProfile> = {};
         (profilesData || []).forEach((p: any) => {
           map[p.user_id] = {
             email: p.email,
             phone: p.phone,
-            live_photo_url: docsById[p.user_id] ?? null,
+            live_photo_url: null,
             photo_url: p.avatar_url ?? null,
             full_name: p.full_name,
             must_change_password: p.must_change_password === true,
           };
         });
+        allMembers.forEach(m => {
+          if (m.user_id && map[m.user_id] && !map[m.user_id].photo_url && m.photo_url) {
+            map[m.user_id].photo_url = m.photo_url;
+          }
+        });
         snapshotMap = map;
         if (requestId !== loadRequestIdRef.current) return;
         setProfilesMap(map);
       }
+
+      setImgErrors({});
 
       __deptCache.set(deptId, {
         deptName: dept.department_name,

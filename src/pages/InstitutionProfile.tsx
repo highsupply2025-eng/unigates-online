@@ -271,7 +271,7 @@ const InstitutionProfile = () => {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-base sm:text-xl font-black text-foreground truncate">
-                {isRtl ? "لوحة إدارة الكلية" : "College Administration"}
+                {institutionType === "institute" ? (isRtl ? "لوحة إدارة المعهد" : "Institute Administration") : (isRtl ? "لوحة إدارة الكلية" : "College Administration")}
               </h1>
               {data?.subscription_plan && (
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary/10 text-primary border border-primary/20">
@@ -286,7 +286,7 @@ const InstitutionProfile = () => {
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           <DashboardMenuDropdown
-            title={isRtl ? "لوحة الكلية" : "College Panel"}
+            title={institutionType === "institute" ? (isRtl ? "لوحة المعهد" : "Institute Panel") : (isRtl ? "لوحة الكلية" : "College Panel")}
             onLanguageToggle={toggleLanguage}
             showNotifications={false}
             onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}

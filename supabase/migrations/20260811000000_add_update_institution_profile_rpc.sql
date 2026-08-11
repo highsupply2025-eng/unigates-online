@@ -11,7 +11,7 @@ CREATE OR REPLACE FUNCTION public.update_institution_profile(
 )
 RETURNS jsonb
 LANGUAGE plpgsql
-STABLE
+VOLATILE
 SECURITY DEFINER
 SET search_path TO 'public'
 AS $function$

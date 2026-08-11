@@ -210,22 +210,20 @@ const InstitutionProfile = () => {
       return;
     }
     setSavingInfo(true);
-    const table = data.kind === "college" ? "college_registrations" : "institute_registrations";
-    const payload: any = {
-      phone: phone.trim(),
-      city: city.trim(),
-      address: address.trim() || null,
-    };
-    if (data.kind === "college") payload.dean_name = leaderName.trim();
-    else payload.director_name = leaderName.trim();
-
-    const { data: updated, error } = await supabase.from(table).update(payload).eq("id", data.id).select("id");
+    const { data: updated, error } = await supabase.rpc("update_institution_profile" as any, {
+      _institution_id: data.id,
+      _institution_type: data.kind,
+      _phone: phone.trim(),
+      _city: city.trim(),
+      _address: address.trim() || null,
+      _leader_name: leaderName.trim(),
+    });
     setSavingInfo(false);
     if (error) {
       toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
       return;
     }
-    if (!updated || updated.length === 0) {
+    if (!updated || (Array.isArray(updated) && updated.length === 0)) {
       toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "لم يتم حفظ البيانات — تحقق من صلاحياتك" : "Save failed — check your permissions", variant: "destructive" });
       return;
     }

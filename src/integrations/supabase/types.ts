@@ -3281,17 +3281,6 @@ export type Database = {
         }
         Returns: undefined
       }
-      update_institution_profile: {
-        Args: {
-          _institution_id: string
-          _institution_type: string
-          _phone: string
-          _city: string
-          _address: string
-          _leader_name: string
-        }
-        Returns: Json
-      }
       user_in_department: {
         Args: { _dept: string; _user: string }
         Returns: boolean

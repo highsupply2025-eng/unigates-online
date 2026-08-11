@@ -226,11 +226,23 @@ const InstitutionProfile = () => {
       .select("id");
     setSavingInfo(false);
     if (error) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+      console.error("[saveInfo] Supabase error:", JSON.stringify(error, null, 2));
+      toast({
+        title: isRtl ? "خطأ في الحفظ" : "Save Error",
+        description: `${error.message} (code: ${error.code || "N/A"})`,
+        variant: "destructive",
+      });
       return;
     }
     if (!updated || updated.length === 0) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "لم يتم حفظ البيانات — تحقق من صلاحياتك" : "Save failed — check your permissions", variant: "destructive" });
+      console.error("[saveInfo] Empty result — RLS likely blocking UPDATE. Table:", table, "ID:", data.id);
+      toast({
+        title: isRtl ? "خطأ: RLS يمنع الحفظ" : "Error: RLS blocks save",
+        description: isRtl
+          ? "التحديث فارغ — قد تكون سياسة RLS UPDATE غير موجودة. شغّل SQL في Supabase SQL Editor."
+          : "Empty update result — RLS UPDATE policy missing. Run the SQL fix in Supabase SQL Editor.",
+        variant: "destructive",
+      });
       return;
     }
     setData((d) => d ? { ...d, leaderName: leaderName.trim(), phone: phone.trim(), city: city.trim(), address: address.trim() || null } : d);

@@ -37,6 +37,14 @@ import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import RatingsBreakdown from "@/components/RatingsBreakdown";
 import { useSmartBack } from "@/hooks/use-smart-back";
 
+const ROLE_LABELS: Record<string, { ar: string; en: string }> = {
+  department_head: { ar: "رئيس القسم", en: "Department Head" },
+  professor: { ar: "أستاذ دكتور", en: "Professor" },
+  doctor: { ar: "دكتور", en: "Doctor" },
+  lecturer: { ar: "محاضر", en: "Lecturer" },
+  assistant_lecturer: { ar: "معيد", en: "Assistant Lecturer" },
+};
+
 const LecturerDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
   const { toast } = useToast();
@@ -50,6 +58,7 @@ const LecturerDashboard = () => {
 
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
+  const [jobRole, setJobRole] = useState<string | null>(null);
   const [rangeDays, setRangeDays] = useState<7 | 30>(7);
   const [approved, setApproved] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
@@ -182,6 +191,16 @@ const LecturerDashboard = () => {
     setUser(user);
     const { data: prof } = await supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
     setProfile(prof);
+    // The job title (المسمى الوظيفي) is the specific_role set when adding a faculty member,
+    // with a legacy fallback to department_members.role.
+    let roleKey: string | null = null;
+    const { data: ifm } = await supabase.from("institution_faculty_members").select("specific_role").eq("user_id", user.id).maybeSingle();
+    roleKey = ifm?.specific_role || null;
+    if (!roleKey) {
+      const { data: dm } = await supabase.from("department_members").select("role").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle();
+      roleKey = dm?.role || null;
+    }
+    setJobRole(roleKey);
     const { data: roles } = await supabase.from("user_roles").select("*").eq("user_id", user.id).eq("role", "lecturer");
     if (!roles || roles.length === 0) { setApproved(false); setLoading(false); return; }
     setApproved(roles[0].approved);
@@ -726,6 +745,11 @@ const LecturerDashboard = () => {
             <div className="min-w-0 flex-1">
               <h1 className="text-lg sm:text-2xl font-black truncate tracking-tight bg-gradient-to-r from-cyan-700 via-teal-700 to-emerald-700 dark:from-cyan-300 dark:via-teal-300 dark:to-emerald-300 bg-clip-text text-transparent">
                 {isRtl ? "لوحة المحاضر" : "Lecturer Dashboard"}
+                {(() => {
+                  const label = jobRole ? (ROLE_LABELS[jobRole] || { ar: jobRole, en: jobRole }) : null;
+                  if (!label) return null;
+                  return <span className="font-extrabold">{isRtl ? ` (${label.ar})` : ` (${label.en})`}</span>;
+                })()}
               </h1>
               <p className="text-xs sm:text-base font-bold truncate mt-0.5">
 

@@ -143,7 +143,16 @@ export default function ForcePasswordChangeDialog() {
       toast({ title: isRtl ? "تم تغيير كلمة السر بنجاح" : "Password changed successfully" });
 
     } catch (e: unknown) {
-      toast({ title: isRtl ? "فشل تغيير كلمة السر" : "Change failed", description: await errorMessage(e), variant: "destructive" });
+      const raw = await errorMessage(e);
+      const isWeak = /weak|known to be weak|easy to guess|compromised|breached|pwned/i.test(raw);
+      const desc = isRtl
+        ? isWeak
+          ? "كلمة المرور هذه ضعيفة أو مسربة. اختر كلمة مرور أقوى (أحرف وأرقام ورموز مختلطة)."
+          : raw
+        : isWeak
+          ? "This password is weak or has appeared in a data breach. Choose a stronger one with mixed letters, numbers, and symbols."
+          : raw;
+      toast({ title: isRtl ? "فشل تغيير كلمة السر" : "Change failed", description: desc, variant: "destructive" });
     } finally {
       savingRef.current = false;
       setSaving(false);
@@ -172,6 +181,11 @@ export default function ForcePasswordChangeDialog() {
           <div className="space-y-1.5">
             <Label>{isRtl ? "كلمة السر الجديدة" : "New password"}</Label>
             <Input type="password" value={next} onChange={(e) => setNext(e.target.value)} autoComplete="new-password" />
+            <p className="text-xs text-muted-foreground">
+              {isRtl
+                ? "8 أحرف على الأقل — استخدم مزيجًا من الأحرف الكبيرة والصغيرة والأرقام والرموز."
+                : "At least 8 chars — use a mix of upper/lowercase letters, numbers, and symbols."}
+            </p>
           </div>
           <div className="space-y-1.5">
             <Label>{isRtl ? "تأكيد كلمة السر الجديدة" : "Confirm new password"}</Label>

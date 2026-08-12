@@ -729,6 +729,11 @@ const LecturerDashboard = () => {
 
   const totalViews = Object.values(courseViews).reduce((a, b) => a + b, 0);
 
+  // Job title (المسمى الوظيفي) of the logged-in faculty member, shown next to the page title.
+  const jobRoleLabel = jobRole
+    ? (ROLE_LABELS[jobRole] || { ar: jobRole, en: jobRole })
+    : null;
+
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
 
   return (
@@ -743,14 +748,16 @@ const LecturerDashboard = () => {
               <span className="absolute -top-0.5 -end-0.5 w-2.5 h-2.5 rounded-full bg-amber-400 ring-2 ring-white dark:ring-background animate-pulse" />
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-lg sm:text-2xl font-black truncate tracking-tight bg-gradient-to-r from-cyan-700 via-teal-700 to-emerald-700 dark:from-cyan-300 dark:via-teal-300 dark:to-emerald-300 bg-clip-text text-transparent">
-                {isRtl ? "لوحة المحاضر" : "Lecturer Dashboard"}
-                {(() => {
-                  const label = jobRole ? (ROLE_LABELS[jobRole] || { ar: jobRole, en: jobRole }) : null;
-                  if (!label) return null;
-                  return <span className="font-extrabold">{isRtl ? ` (${label.ar})` : ` (${label.en})`}</span>;
-                })()}
-              </h1>
+              <div className="flex items-center gap-2 flex-wrap min-w-0">
+                <h1 className="text-lg sm:text-2xl font-black truncate tracking-tight bg-gradient-to-r from-cyan-700 via-teal-700 to-emerald-700 dark:from-cyan-300 dark:via-teal-300 dark:to-emerald-300 bg-clip-text text-transparent">
+                  {isRtl ? "لوحة المحاضر" : "Lecturer Dashboard"}
+                </h1>
+                {jobRoleLabel && (
+                  <span className="inline-flex items-center shrink-0 px-2.5 py-0.5 rounded-full text-xs sm:text-sm font-extrabold tracking-tight bg-teal-500/10 border border-teal-500/40 text-teal-700 dark:bg-teal-400/10 dark:border-teal-300/40 dark:text-teal-300 shadow-sm shadow-teal-500/10 whitespace-nowrap">
+                    {isRtl ? jobRoleLabel.ar : jobRoleLabel.en}
+                  </span>
+                )}
+              </div>
               <p className="text-xs sm:text-base font-bold truncate mt-0.5">
 
                 <span className="bg-gradient-to-r from-cyan-600 to-emerald-600 dark:from-cyan-300 dark:to-emerald-300 bg-clip-text text-transparent">

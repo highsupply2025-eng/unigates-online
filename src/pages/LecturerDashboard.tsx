@@ -67,7 +67,7 @@ const LecturerDashboard = () => {
   const [viewsTimes, setViewsTimes] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState(initialTab);
   // Departments the lecturer is a member of (used to scope every created item to a department)
-  const [myDepartments, setMyDepartments] = useState<Array<{ id: string; name_ar: string; name_en: string }>>([]);
+  const [myDepartments, setMyDepartments] = useState<Array<{ id: string; department_name: string }>>([]);
 
   // Sync tab from URL (back/forward navigation)
   useEffect(() => {
@@ -220,11 +220,11 @@ const LecturerDashboard = () => {
   const loadMyDepartments = async (userId: string) => {
     const { data } = await supabase
       .from("department_members")
-      .select("department_id, departments(id, name_ar, name_en)")
+      .select("department_id, departments(id, department_name)")
       .eq("user_id", userId);
     const deps = (data || [])
       .map((r: any) => r.departments)
-      .filter(Boolean) as Array<{ id: string; name_ar: string; name_en: string }>;
+      .filter(Boolean) as Array<{ id: string; department_name: string }>;
     // de-dupe by id
     const seen = new Set<string>();
     const unique = deps.filter(d => (seen.has(d.id) ? false : (seen.add(d.id), true)));
@@ -1276,7 +1276,7 @@ const LecturerDashboard = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {myDepartments.map(d => (
-                    <SelectItem key={d.id} value={d.id}>{isRtl ? d.name_ar : d.name_en}</SelectItem>
+                    <SelectItem key={d.id} value={d.id}>{d.department_name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -1382,7 +1382,7 @@ const LecturerDashboard = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {myDepartments.map(d => (
-                    <SelectItem key={d.id} value={d.id}>{isRtl ? d.name_ar : d.name_en}</SelectItem>
+                    <SelectItem key={d.id} value={d.id}>{d.department_name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

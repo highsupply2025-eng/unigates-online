@@ -221,26 +221,28 @@ const InstitutionProfile = () => {
 
     const { data: updated, error } = await supabase
       .from(table)
-      .update(payload)
+      .update(payload as never)
       .eq("id", data.id)
       .select("id");
     setSavingInfo(false);
     if (error) {
-      console.error("[saveInfo] Supabase error:", JSON.stringify(error, null, 2));
+      console.error("[saveInfo] save error:", error);
       toast({
         title: isRtl ? "خطأ في الحفظ" : "Save Error",
-        description: `${error.message} (code: ${error.code || "N/A"})`,
+        description: isRtl
+          ? "لم يتم حفظ البيانات، يرجى المحاولة مرة أخرى."
+          : "We couldn't save your changes. Please try again.",
         variant: "destructive",
       });
       return;
     }
     if (!updated || updated.length === 0) {
-      console.error("[saveInfo] Empty result — RLS likely blocking UPDATE. Table:", table, "ID:", data.id);
+      console.error("[saveInfo] Empty update result. Table:", table, "ID:", data.id);
       toast({
-        title: isRtl ? "خطأ: RLS يمنع الحفظ" : "Error: RLS blocks save",
+        title: isRtl ? "لم يتم الحفظ" : "Save failed",
         description: isRtl
-          ? "التحديث فارغ — قد تكون سياسة RLS UPDATE غير موجودة. شغّل SQL في Supabase SQL Editor."
-          : "Empty update result — RLS UPDATE policy missing. Run the SQL fix in Supabase SQL Editor.",
+          ? "لم يتم حفظ البيانات — تحقق من صلاحياتك أو تواصل مع الدعم."
+          : "Save failed — check your permissions or contact support.",
         variant: "destructive",
       });
       return;

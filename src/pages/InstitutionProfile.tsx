@@ -221,7 +221,7 @@ const InstitutionProfile = () => {
 
     const { data: updated, error } = await supabase
       .from(table)
-      .update(payload)
+      .update(payload as never)
       .eq("id", data.id)
       .select("id");
     setSavingInfo(false);

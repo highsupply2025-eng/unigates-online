@@ -19,15 +19,28 @@ import {
 } from "@/lib/faculty-import-photo";
 
 const ROLE_MAP: Record<string, string> = {
-  "عميد الكلية": "dean", "dean": "dean",
-  "وكيل الكلية للدراسات العليا": "vice_dean_postgrad", "vice_dean_postgrad": "vice_dean_postgrad",
-  "وكيل الكلية لشئون الطلاب": "vice_dean_students", "vice_dean_students": "vice_dean_students",
-  "وكيل الكلية لشئون البيئة وخدمة المجتمع": "vice_dean_community", "vice_dean_community": "vice_dean_community",
-  "رئيس القسم": "department_head", "department_head": "department_head",
-  "أستاذ دكتور": "professor", "professor": "professor",
-  "دكتور": "doctor", "doctor": "doctor",
-  "معيد": "assistant_lecturer", "assistant_lecturer": "assistant_lecturer",
+  "عميد الكلية": "dean", "dean": "dean", "Dean": "dean",
+  "وكيل الكلية للدراسات العليا": "vice_dean_postgrad", "vice_dean_postgrad": "vice_dean_postgrad", "Vice Dean - Postgraduate Studies": "vice_dean_postgrad",
+  "وكيل الكلية لشئون الطلاب": "vice_dean_students", "vice_dean_students": "vice_dean_students", "Vice Dean - Student Affairs": "vice_dean_students",
+  "وكيل الكلية لشئون البيئة وخدمة المجتمع": "vice_dean_community", "vice_dean_community": "vice_dean_community", "Vice Dean - Environment & Community Service": "vice_dean_community",
+  "رئيس القسم": "department_head", "department_head": "department_head", "Department Head": "department_head",
+  "أستاذ دكتور": "professor", "professor": "professor", "Professor": "professor",
+  "دكتور": "doctor", "doctor": "doctor", "Doctor": "doctor",
+  "محاضر": "lecturer", "lecturer": "lecturer", "Lecturer": "lecturer",
+  "معيد": "assistant_lecturer", "assistant_lecturer": "assistant_lecturer", "Assistant Lecturer": "assistant_lecturer",
 };
+
+const FACULTY_ROLE_OPTIONS = [
+  { value: "dean", ar: "عميد الكلية", en: "Dean" },
+  { value: "vice_dean_postgrad", ar: "وكيل الكلية للدراسات العليا", en: "Vice Dean - Postgraduate Studies" },
+  { value: "vice_dean_students", ar: "وكيل الكلية لشئون الطلاب", en: "Vice Dean - Student Affairs" },
+  { value: "vice_dean_community", ar: "وكيل الكلية لشئون البيئة وخدمة المجتمع", en: "Vice Dean - Environment & Community Service" },
+  { value: "department_head", ar: "رئيس القسم", en: "Department Head" },
+  { value: "professor", ar: "أستاذ دكتور", en: "Professor" },
+  { value: "doctor", ar: "دكتور", en: "Doctor" },
+  { value: "lecturer", ar: "محاضر", en: "Lecturer" },
+  { value: "assistant_lecturer", ar: "معيد", en: "Assistant Lecturer" },
+];
 
 const InstitutionFacultyImport = () => {
   const { language, dir } = useLanguage();
@@ -233,33 +246,53 @@ const InstitutionFacultyImport = () => {
   }, []);
 
   const generateFacultyTemplate = useCallback(async () => {
+    const isEn = language === "en";
+
     const wb = new ExcelJS.Workbook();
     wb.creator = "UNIGATES";
     wb.created = new Date();
 
-    const ws = wb.addWorksheet("Members", {
+    const ws = wb.addWorksheet(isEn ? "Members" : "الأعضاء", {
       properties: { defaultColWidth: 18 },
       pageSetup: { orientation: "landscape" },
     });
     (ws as any).model.rightToLeft = true;
 
-    const headers = [
-      "الاسم الكامل",
-      "الوظيفة",
-      "القسم",
-      "تاريخ الميلاد (YYYY-MM-DD)",
-      "النوع",
-      "الرقم القومي",
-      "البريد الإلكتروني",
-      "رقم الهاتف",
-      "العنوان",
-      "المؤهل العلمي",
-      "التخصص",
-      "تاريخ التعيين (YYYY-MM-DD)",
-      "ملاحظات",
-      "رابط الصورة (اختياري)",
-      "صورة شخصية 4×6",
-    ];
+    const headers = isEn
+      ? [
+          "Full Name",
+          "Role",
+          "Department",
+          "Date of Birth (YYYY-MM-DD)",
+          "Gender",
+          "National ID",
+          "Email",
+          "Phone",
+          "Address",
+          "Qualification",
+          "Specialization",
+          "Hire Date (YYYY-MM-DD)",
+          "Notes",
+          "Photo URL (optional)",
+          "Photo Image 4×6",
+        ]
+      : [
+          "الاسم الكامل",
+          "الوظيفة",
+          "القسم",
+          "تاريخ الميلاد (YYYY-MM-DD)",
+          "النوع",
+          "الرقم القومي",
+          "البريد الإلكتروني",
+          "رقم الهاتف",
+          "العنوان",
+          "المؤهل العلمي",
+          "التخصص",
+          "تاريخ التعيين (YYYY-MM-DD)",
+          "ملاحظات",
+          "رابط الصورة (اختياري)",
+          "صورة شخصية 4×6",
+        ];
     const keys = [
       "full_name",
       "role",
@@ -277,23 +310,41 @@ const InstitutionFacultyImport = () => {
       "photo_url",
       "photo_image",
     ];
-    const exampleRow = [
-      "أحمد محمد علي",
-      "دكتور",
-      "قسم علوم الحاسب",
-      "1985-05-12",
-      "male",
-      "29001011234567",
-      "ahmed@example.com",
-      "01000000000",
-      "القاهرة",
-      "دكتوراه",
-      "ذكاء اصطناعي",
-      "2020-09-01",
-      "",
-      "https://example.com/photo.jpg",
-      "",
-    ];
+    const exampleRow = isEn
+      ? [
+          "Ahmed Mohamed Ali",
+          "Doctor",
+          "Computer Science Department",
+          "1985-05-12",
+          "male",
+          "29001011234567",
+          "ahmed@example.com",
+          "01000000000",
+          "Cairo",
+          "PhD",
+          "Artificial Intelligence",
+          "2020-09-01",
+          "",
+          "https://example.com/photo.jpg",
+          "",
+        ]
+      : [
+          "أحمد محمد علي",
+          "دكتور",
+          "قسم علوم الحاسب",
+          "1985-05-12",
+          "male",
+          "29001011234567",
+          "ahmed@example.com",
+          "01000000000",
+          "القاهرة",
+          "دكتوراه",
+          "ذكاء اصطناعي",
+          "2020-09-01",
+          "",
+          "https://example.com/photo.jpg",
+          "",
+        ];
 
     ws.addRow(headers);
     ws.addRow(keys);
@@ -319,31 +370,49 @@ const InstitutionFacultyImport = () => {
       cell.alignment = { horizontal: "center" };
     });
 
-    ws.getColumn(1).width = 24;  // الاسم الكامل
-    ws.getColumn(2).width = 22;  // الوظيفة
-    ws.getColumn(3).width = 24;  // القسم
-    ws.getColumn(4).width = 24;  // تاريخ الميلاد
-    ws.getColumn(5).width = 10;  // النوع
-    ws.getColumn(6).width = 18;  // الرقم القومي
-    ws.getColumn(7).width = 28;  // البريد الإلكتروني
-    ws.getColumn(8).width = 18;  // رقم الهاتف
-    ws.getColumn(9).width = 22;  // العنوان
-    ws.getColumn(10).width = 18; // المؤهل العلمي
-    ws.getColumn(11).width = 18; // التخصص
-    ws.getColumn(12).width = 24; // تاريخ التعيين
-    ws.getColumn(13).width = 20; // ملاحظات
-    ws.getColumn(14).width = 32; // رابط الصورة
-    ws.getColumn(15).width = 18; // صورة شخصية
+    ws.getColumn(1).width = 24;  // Full Name
+    ws.getColumn(2).width = 30;  // Role (wider for dropdown)
+    ws.getColumn(3).width = 24;  // Department
+    ws.getColumn(4).width = 24;  // Date of Birth
+    ws.getColumn(5).width = 10;  // Gender
+    ws.getColumn(6).width = 18;  // National ID
+    ws.getColumn(7).width = 28;  // Email
+    ws.getColumn(8).width = 18;  // Phone
+    ws.getColumn(9).width = 22;  // Address
+    ws.getColumn(10).width = 18; // Qualification
+    ws.getColumn(11).width = 18; // Specialization
+    ws.getColumn(12).width = 24; // Hire Date
+    ws.getColumn(13).width = 20; // Notes
+    ws.getColumn(14).width = 32; // Photo URL
+    ws.getColumn(15).width = 18; // Photo Image
 
-    // --- Sheet 2: Instructions (RTL) ---
-    const is = wb.addWorksheet("تعليمات", {
+    // --- Data Validation: Role dropdown (column 2, rows 3–1000) ---
+    const roleList = FACULTY_ROLE_OPTIONS.map((r) => r[isEn ? "en" : "ar"]).join(",");
+    for (let row = 3; row <= 1000; row++) {
+      ws.getCell(row, 2).dataValidation = {
+        type: "list",
+        allowBlank: true,
+        formulae: [`"${roleList}"`],
+        showErrorMessage: true,
+        errorTitle: isEn ? "Invalid Role" : "وظيفة غير صحيحة",
+        error: isEn
+          ? "Please select a role from the dropdown list."
+          : "يرجى اختيار مسمى وظيفي من القائمة المنسدلة.",
+      };
+    }
+
+    // --- Sheet 2: Instructions ---
+    const instrSheetName = isEn ? "Instructions" : "تعليمات";
+    const isSheet = wb.addWorksheet(instrSheetName, {
       properties: { defaultColWidth: 20 },
     });
-    (is as any).model.rightToLeft = true;
+    (isSheet as any).model.rightToLeft = true;
 
-    is.mergeCells("A1:F1");
-    const titleCell = is.getCell("A1");
-    titleCell.value = "تعليمات تعبئة ملف إضافة الأعضاء";
+    isSheet.mergeCells("A1:F1");
+    const titleCell = isSheet.getCell("A1");
+    titleCell.value = isEn
+      ? "Instructions for Faculty Import Template"
+      : "تعليمات تعبئة ملف إضافة الأعضاء";
     titleCell.font = { bold: true, size: 16, color: { argb: "FF16A34A" } };
     titleCell.alignment = { horizontal: "center", vertical: "middle" };
     titleCell.fill = {
@@ -351,62 +420,102 @@ const InstitutionFacultyImport = () => {
       pattern: "solid",
       fgColor: { argb: "FFF0FDF4" },
     };
-    is.getRow(1).height = 36;
+    isSheet.getRow(1).height = 36;
 
-    is.addRow([]);
+    isSheet.addRow([]);
 
-    const instructions = [
-      "1. لا تُغيّر صفوف العناوين (صف 1 و 2).",
-      "2. ابدأ إدخال البيانات من الصف 3.",
-      "3. الحقول المطلوبة: الاسم الكامل (الاسم الكامل)، الوظيفة (الوظيفة)، القسم (القسم).",
-      "4. يجب أن تكون الوظيفة من القائمة المنسدلة في القالب.",
-      "5. النوع: male أو female.",
-      "6. التواريخ بصيغة YYYY-MM-DD.",
-      "7. الرقم القومي والبريد الإلكتروني ورقم الهاتف اختيارية لكن مفضّلة.",
-      "8. تاريخ التعيين اختياري — بصيغة YYYY-MM-DD.",
-      "9. رابط الصورة اختياري.",
-      "10. صورة شخصية اختيارية — أدرج صورة JPG أو PNG داخل خلية «صورة شخصية 4×6».",
-      "11. استخدم صيغة XLSX عند إدراج الصور؛ ملفات XLS القديمة تستورد البيانات النصية فقط.",
-    ];
-    instructions.forEach((line) => is.addRow([line]));
+    const instructions = isEn
+      ? [
+          "1. Do not modify the header rows (row 1 and 2).",
+          "2. Start entering data from row 3.",
+          "3. Required fields: Full Name, Role. Department is optional.",
+          "4. Role must be selected from the dropdown list in the template.",
+          "5. Gender: male or female.",
+          "6. Dates must be in YYYY-MM-DD format.",
+          "7. National ID, Email, and Phone are optional but recommended.",
+          "8. Hire Date is optional — use YYYY-MM-DD format.",
+          "9. Photo URL is optional.",
+          "10. Photo Image is optional — insert a JPG or PNG into the 'Photo Image 4×6' cell.",
+          "11. Use XLSX format for embedded photos; legacy XLS files import text data only.",
+        ]
+      : [
+          "1. لا تُغيّر صفوف العناوين (صف 1 و 2).",
+          "2. ابدأ إدخال البيانات من الصف 3.",
+          "3. الحقول المطلوبة: الاسم الكامل، الوظيفة. القسم اختياري.",
+          "4. يجب أن تكون الوظيفة من القائمة المنسدلة في القالب.",
+          "5. النوع: male أو female.",
+          "6. التواريخ بصيغة YYYY-MM-DD.",
+          "7. الرقم القومي والبريد الإلكتروني ورقم الهاتف اختيارية لكن مفضّلة.",
+          "8. تاريخ التعيين اختياري — بصيغة YYYY-MM-DD.",
+          "9. رابط الصورة اختياري.",
+          "10. صورة شخصية اختيارية — أدرج صورة JPG أو PNG داخل خلية «صورة شخصية 4×6».",
+          "11. استخدم صيغة XLSX عند إدراج الصور؛ ملفات XLS القديمة تستورد البيانات النصية فقط.",
+        ];
+    instructions.forEach((line) => isSheet.addRow([line]));
 
-    is.addRow([]);
-    is.addRow(["الأعمدة المطلوبة:"]);
-    is.getRow(is.rowCount).font = { bold: true, size: 12 };
+    isSheet.addRow([]);
+    isSheet.addRow([isEn ? "Required Columns:" : "الأعمدة المطلوبة:"]);
+    isSheet.getRow(isSheet.rowCount).font = { bold: true, size: 12 };
 
-    const colHeaders = [
-      ["الاسم الكامل", "الاسم الرباعي (مطلوب)"],
-      ["الوظيفة", "المسمى الوظيفي (مطلوب) — مثال: أستاذ دكتور"],
-      ["القسم", "اسم القسم الموجود في لوحة الإدارة"],
-      ["تاريخ الميلاد", "بصيغة YYYY-MM-DD"],
-      ["النوع", "male أو female"],
-      ["الرقم القومي", "رقم الهوية الوطنية"],
-      ["البريد الإلكتروني", "البريد الإلكتروني الشخصي"],
-      ["رقم الهاتف", "رقم الهاتف مع رمز الدولة"],
-      ["العنوان", "العنوان التفصيلي"],
-      ["المؤهل العلمي", "مثال: دكتوراه"],
-      ["التخصص", "مثال: ذكاء اصطناعي"],
-      ["تاريخ التعيين", "بصيغة YYYY-MM-DD — اختياري"],
-      ["ملاحظات", "أي ملاحظات إضافية"],
-      ["رابط الصورة", "رابط صورة شخصية على الإنترنت (اختياري)"],
-      ["صورة شخصية 4×6", "صورة مُضمنة داخل خلية Excel (اختياري)"],
-    ];
-    colHeaders.forEach((row) => is.addRow(row));
+    const colHeaders = isEn
+      ? [
+          ["Full Name", "Full name (required)"],
+          ["Role", "Job title (required) — e.g. Professor"],
+          ["Department", "Department name from the dashboard"],
+          ["Date of Birth", "YYYY-MM-DD format"],
+          ["Gender", "male or female"],
+          ["National ID", "National identity number"],
+          ["Email", "Personal email address"],
+          ["Phone", "Phone number with country code"],
+          ["Address", "Full address"],
+          ["Qualification", "e.g. PhD"],
+          ["Specialization", "e.g. Artificial Intelligence"],
+          ["Hire Date", "YYYY-MM-DD format — optional"],
+          ["Notes", "Any additional notes"],
+          ["Photo URL", "URL to a photo online (optional)"],
+          ["Photo Image 4×6", "Image embedded in Excel cell (optional)"],
+        ]
+      : [
+          ["الاسم الكامل", "الاسم الرباعي (مطلوب)"],
+          ["الوظيفة", "المسمى الوظيفي (مطلوب) — مثال: أستاذ دكتور"],
+          ["القسم", "اسم القسم الموجود في لوحة الإدارة"],
+          ["تاريخ الميلاد", "بصيغة YYYY-MM-DD"],
+          ["النوع", "male أو female"],
+          ["الرقم القومي", "رقم الهوية الوطنية"],
+          ["البريد الإلكتروني", "البريد الإلكتروني الشخصي"],
+          ["رقم الهاتف", "رقم الهاتف مع رمز الدولة"],
+          ["العنوان", "العنوان التفصيلي"],
+          ["المؤهل العلمي", "مثال: دكتوراه"],
+          ["التخصص", "مثال: ذكاء اصطناعي"],
+          ["تاريخ التعيين", "بصيغة YYYY-MM-DD — اختياري"],
+          ["ملاحظات", "أي ملاحظات إضافية"],
+          ["رابط الصورة", "رابط صورة شخصية على الإنترنت (اختياري)"],
+          ["صورة شخصية 4×6", "صورة مُضمنة داخل خلية Excel (اختياري)"],
+        ];
+    colHeaders.forEach((row) => isSheet.addRow(row));
 
-    const instructionColA = is.getColumn(1);
+    const instructionColA = isSheet.getColumn(1);
     instructionColA.width = 26;
-    const instructionColB = is.getColumn(2);
+    const instructionColB = isSheet.getColumn(2);
     instructionColB.width = 55;
 
-    is.addRow([]);
-    is.addRow(["مثال:"]);
-    is.getRow(is.rowCount).font = { bold: true, size: 12 };
-    is.addRow(["الاسم الكامل", "أحمد محمد علي"]);
-    is.addRow(["الوظيفة", "دكتور"]);
-    is.addRow(["القسم", "قسم علوم الحاسب"]);
-    is.addRow(["تاريخ الميلاد", "1985-05-12"]);
-    is.addRow(["النوع", "male"]);
-    is.addRow(["تاريخ التعيين", "2020-09-01"]);
+    isSheet.addRow([]);
+    isSheet.addRow([isEn ? "Example:" : "مثال:"]);
+    isSheet.getRow(isSheet.rowCount).font = { bold: true, size: 12 };
+    isSheet.addRow([isEn ? "Full Name" : "الاسم الكامل", isEn ? "Ahmed Mohamed Ali" : "أحمد محمد علي"]);
+    isSheet.addRow([isEn ? "Role" : "الوظيفة", isEn ? "Doctor" : "دكتور"]);
+    isSheet.addRow([isEn ? "Department" : "القسم", isEn ? "Computer Science Department" : "قسم علوم الحاسب"]);
+    isSheet.addRow([isEn ? "Date of Birth" : "تاريخ الميلاد", "1985-05-12"]);
+    isSheet.addRow([isEn ? "Gender" : "النوع", "male"]);
+    isSheet.addRow([isEn ? "Hire Date" : "تاريخ التعيين", "2020-09-01"]);
+
+    // --- Role values list sheet (hidden, for Data Validation source) ---
+    const roleSheet = wb.addWorksheet("_roles");
+    (roleSheet as any).model.rightToLeft = true;
+    FACULTY_ROLE_OPTIONS.forEach((r, idx) => {
+      roleSheet.getCell(idx + 1, 1).value = r[isEn ? "en" : "ar"];
+    });
+    roleSheet.state = "hidden";
 
     const buf = await wb.xlsx.writeBuffer();
     const blob = new Blob([buf], {
@@ -415,10 +524,10 @@ const InstitutionFacultyImport = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "faculty_members_template.xlsx";
+    a.download = isEn ? "faculty_members_template_en.xlsx" : "faculty_members_template.xlsx";
     a.click();
     URL.revokeObjectURL(url);
-  }, []);
+  }, [language]);
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

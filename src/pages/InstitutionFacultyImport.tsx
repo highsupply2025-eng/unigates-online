@@ -74,18 +74,33 @@ const InstitutionFacultyImport = () => {
   const norm = (v: any) => (v == null ? "" : String(v).trim());
 
   const generateStudentTemplate = useCallback(async () => {
+    const isEn = language === "en";
     const wb = new ExcelJS.Workbook();
     wb.creator = "UNIGATES";
     wb.created = new Date();
 
-    // --- Sheet 1: Data (RTL) ---
-    const ws = wb.addWorksheet("البيانات", {
+    const ws = wb.addWorksheet(isEn ? "Data" : "البيانات", {
       properties: { defaultColWidth: 18 },
       pageSetup: { orientation: "landscape" },
     });
-    (ws as any).model.rightToLeft = true;
+    ws.views = [{ rightToLeft: !isEn }];
 
-    const headers = [
+    const headers = isEn
+      ? [
+          "Departments",
+          "Full Name",
+          "Date of Birth (YYYY-MM-DD)",
+          "Gender",
+          "National ID",
+          "Phone",
+          "Email",
+          "Address",
+          "Qualification",
+          "Notes",
+          "Photo URL (optional)",
+          "Photo Image",
+        ]
+      : [
       "الأقسام",
       "الاسم الكامل",
       "تاريخ الميلاد (YYYY-MM-DD)",
@@ -113,20 +128,35 @@ const InstitutionFacultyImport = () => {
       "photo_url",
       "photo_image",
     ];
-    const exampleRow = [
-      "هندسة الحاسب",
-      "أحمد محمد علي",
-      "2002-05-15",
-      "ذكر",
-      "29805151234567",
-      "+201001234567",
-      "ahmed@example.com",
-      "القاهرة، مصر",
-      "الفرقة الثانية",
-      "",
-      "",
-      "",
-    ];
+    const exampleRow = isEn
+      ? [
+          "Computer Engineering",
+          "Ahmed Mohamed Ali",
+          "2002-05-15",
+          "male",
+          "29805151234567",
+          "+201001234567",
+          "ahmed@example.com",
+          "Cairo, Egypt",
+          "Second Year",
+          "",
+          "",
+          "",
+        ]
+      : [
+          "هندسة الحاسب",
+          "أحمد محمد علي",
+          "2002-05-15",
+          "ذكر",
+          "29805151234567",
+          "+201001234567",
+          "ahmed@example.com",
+          "القاهرة، مصر",
+          "الفرقة الثانية",
+          "",
+          "",
+          "",
+        ];
 
     ws.addRow(headers);
     ws.addRow(keys);
@@ -166,15 +196,16 @@ const InstitutionFacultyImport = () => {
     ws.getColumn(11).width = 32; // رابط الصورة
     ws.getColumn(12).width = 18; // صورة شخصية
 
-    // --- Sheet 2: Instructions (RTL) ---
-    const is = wb.addWorksheet("تعليمات تعبئة ملف الطلاب", {
+    // --- Sheet 2: Instructions ---
+    const stdInstrName = isEn ? "Instructions" : "تعليمات تعبئة ملف الطلاب";
+    const is = wb.addWorksheet(stdInstrName, {
       properties: { defaultColWidth: 20 },
     });
-    (is as any).model.rightToLeft = true;
+    is.views = [{ rightToLeft: !isEn }];
 
     is.mergeCells("A1:F1");
     const titleCell = is.getCell("A1");
-    titleCell.value = "تعليمات تعبئة ملف تسجيل الطلاب";
+    titleCell.value = isEn ? "Student Registration Template Instructions" : "تعليمات تعبئة ملف تسجيل الطلاب";
     titleCell.font = { bold: true, size: 16, color: { argb: "FF16A34A" } };
     titleCell.alignment = { horizontal: "center", vertical: "middle" };
     titleCell.fill = {
@@ -186,37 +217,64 @@ const InstitutionFacultyImport = () => {
 
     is.addRow([]);
 
-    const instructions = [
-      "1. يجب إدخال اسم القسم كما هو مسجل في لوحة الإدارة (مطابقة غير حساسة لحالة الأحرف).",
-      "2. لتسجيل الطالب لأكثر من قسم، افصل الأسماء بفاصلة في نفس الخلية. مثال: هندسة الحاسب, علوم الحاسب",
-      "3. يمكنك أيضًا استخدام أكواد الأقسام بدل الأسماء.",
-      "4. الاسم الكامل والقسم فقط هما الحقول المطلوبة.",
-      "5. تاريخ الميلاد بصيغة YYYY-MM-DD (مثال: 2002-05-15).",
-      "6. النوع: ذكر أو أنثى.",
-      "7. الصورة الشخصية اختيارية — أدرج صورة JPG أو PNG داخل خلية «صورة شخصية» في صف الطالب.",
-      "8. يمكنك أيضًا إدخال رابط صورة خارجي في عمود «رابط الصورة (اختياري)».",
-      "9. استخدم صيغة XLSX عند إدراج الصور؛ ملفات XLS القديمة تستورد البيانات النصية فقط.",
-    ];
+    const instructions = isEn
+      ? [
+          "1. Enter the department name as registered in the dashboard (case-insensitive).",
+          "2. To register a student in multiple departments, separate names with commas in the same cell. e.g. Computer Engineering, Computer Science",
+          "3. You can also use department codes instead of names.",
+          "4. Only Full Name and Department are required fields.",
+          "5. Date of birth in YYYY-MM-DD format (e.g. 2002-05-15).",
+          "6. Gender: male or female.",
+          "7. Photo is optional — insert a JPG or PNG into the 'Photo Image' cell for that student.",
+          "8. You can also enter an external photo URL in the 'Photo URL (optional)' column.",
+          "9. Use XLSX format for embedded photos; legacy XLS files import text data only.",
+        ]
+      : [
+          "1. يجب إدخال اسم القسم كما هو مسجل في لوحة الإدارة (مطابقة غير حساسة لحالة الأحرف).",
+          "2. لتسجيل الطالب لأكثر من قسم، افصل الأسماء بفاصلة في نفس الخلية. مثال: هندسة الحاسب, علوم الحاسب",
+          "3. يمكنك أيضًا استخدام أكواد الأقسام بدل الأسماء.",
+          "4. الاسم الكامل والقسم فقط هما الحقول المطلوبة.",
+          "5. تاريخ الميلاد بصيغة YYYY-MM-DD (مثال: 2002-05-15).",
+          "6. النوع: ذكر أو أنثى.",
+          "7. الصورة الشخصية اختيارية — أدرج صورة JPG أو PNG داخل خلية «صورة شخصية» في صف الطالب.",
+          "8. يمكنك أيضًا إدخال رابط صورة خارجي في عمود «رابط الصورة (اختياري)».",
+          "9. استخدم صيغة XLSX عند إدراج الصور؛ ملفات XLS القديمة تستورد البيانات النصية فقط.",
+        ];
     instructions.forEach((line) => is.addRow([line]));
 
     is.addRow([]);
-    is.addRow(["الأعمدة المطلوبة:"]);
+    is.addRow([isEn ? "Required Columns:" : "الأعمدة المطلوبة:"]);
     is.getRow(is.rowCount).font = { bold: true, size: 12 };
 
-    const colHeaders = [
-      ["الأقسام", "اسم القسم أو أكواد الأقسام (مطلوب)"],
-      ["الاسم الكامل", "الاسم الرباعي للطالب (مطلوب)"],
-      ["تاريخ الميلاد", "بصيغة YYYY-MM-DD"],
-      ["النوع", "ذكر أو أنثى"],
-      ["الرقم القومي", "رقم الهوية الوطنية"],
-      ["رقم الهاتف", "رقم الهاتف مع رمز الدولة"],
-      ["البريد الإلكتروني", "البريد الإلكتروني الشخصي"],
-      ["العنوان", "العنوان التفصيلي"],
-      ["المؤهل الدراسي", "مثال: الفرقة الثانية"],
-      ["ملاحظات", "أي ملاحظات إضافية"],
-      ["رابط الصورة", "رابط صورة شخصية على الإنترنت (اختياري)"],
-      ["صورة شخصية", "صورة مُضمنة داخل خلية Excel (اختياري)"],
-    ];
+    const colHeaders = isEn
+      ? [
+          ["Departments", "Department name or codes (required)"],
+          ["Full Name", "Full name of the student (required)"],
+          ["Date of Birth", "YYYY-MM-DD format"],
+          ["Gender", "male or female"],
+          ["National ID", "National identity number"],
+          ["Phone", "Phone number with country code"],
+          ["Email", "Personal email address"],
+          ["Address", "Full address"],
+          ["Qualification", "e.g. Second Year"],
+          ["Notes", "Any additional notes"],
+          ["Photo URL", "URL to a photo online (optional)"],
+          ["Photo Image", "Image embedded in Excel cell (optional)"],
+        ]
+      : [
+          ["الأقسام", "اسم القسم أو أكواد الأقسام (مطلوب)"],
+          ["الاسم الكامل", "الاسم الرباعي للطالب (مطلوب)"],
+          ["تاريخ الميلاد", "بصيغة YYYY-MM-DD"],
+          ["النوع", "ذكر أو أنثى"],
+          ["الرقم القومي", "رقم الهوية الوطنية"],
+          ["رقم الهاتف", "رقم الهاتف مع رمز الدولة"],
+          ["البريد الإلكتروني", "البريد الإلكتروني الشخصي"],
+          ["العنوان", "العنوان التفصيلي"],
+          ["المؤهل الدراسي", "مثال: الفرقة الثانية"],
+          ["ملاحظات", "أي ملاحظات إضافية"],
+          ["رابط الصورة", "رابط صورة شخصية على الإنترنت (اختياري)"],
+          ["صورة شخصية", "صورة مُضمنة داخل خلية Excel (اختياري)"],
+        ];
     colHeaders.forEach((row) => is.addRow(row));
 
     // Style instruction header column
@@ -226,12 +284,12 @@ const InstitutionFacultyImport = () => {
     instructionColB.width = 55;
 
     is.addRow([]);
-    is.addRow(["مثال:"]);
+    is.addRow([isEn ? "Example:" : "مثال:"]);
     is.getRow(is.rowCount).font = { bold: true, size: 12 };
-    is.addRow(["الأقسام", "هندسة الحاسب"]);
-    is.addRow(["الاسم الكامل", "أحمد محمد علي"]);
-    is.addRow(["تاريخ الميلاد", "2002-05-15"]);
-    is.addRow(["النوع", "ذكر"]);
+    is.addRow([isEn ? "Departments" : "الأقسام", isEn ? "Computer Engineering" : "هندسة الحاسب"]);
+    is.addRow([isEn ? "Full Name" : "الاسم الكامل", isEn ? "Ahmed Mohamed Ali" : "أحمد محمد علي"]);
+    is.addRow([isEn ? "Date of Birth" : "تاريخ الميلاد", "2002-05-15"]);
+    is.addRow([isEn ? "Gender" : "النوع", isEn ? "male" : "ذكر"]);
 
     const buf = await wb.xlsx.writeBuffer();
     const blob = new Blob([buf], {
@@ -240,10 +298,10 @@ const InstitutionFacultyImport = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "students_template.xlsx";
+    a.download = isEn ? "students_template_en.xlsx" : "students_template.xlsx";
     a.click();
     URL.revokeObjectURL(url);
-  }, []);
+  }, [language]);
 
   const generateFacultyTemplate = useCallback(async () => {
     const isEn = language === "en";
@@ -256,7 +314,7 @@ const InstitutionFacultyImport = () => {
       properties: { defaultColWidth: 18 },
       pageSetup: { orientation: "landscape" },
     });
-    (ws as any).model.rightToLeft = true;
+    ws.views = [{ rightToLeft: !isEn }];
 
     const headers = isEn
       ? [
@@ -406,7 +464,7 @@ const InstitutionFacultyImport = () => {
     const isSheet = wb.addWorksheet(instrSheetName, {
       properties: { defaultColWidth: 20 },
     });
-    (isSheet as any).model.rightToLeft = true;
+    isSheet.views = [{ rightToLeft: !isEn }];
 
     isSheet.mergeCells("A1:F1");
     const titleCell = isSheet.getCell("A1");
@@ -511,7 +569,7 @@ const InstitutionFacultyImport = () => {
 
     // --- Role values list sheet (hidden, for Data Validation source) ---
     const roleSheet = wb.addWorksheet("_roles");
-    (roleSheet as any).model.rightToLeft = true;
+    roleSheet.views = [{ rightToLeft: !isEn }];
     FACULTY_ROLE_OPTIONS.forEach((r, idx) => {
       roleSheet.getCell(idx + 1, 1).value = r[isEn ? "en" : "ar"];
     });

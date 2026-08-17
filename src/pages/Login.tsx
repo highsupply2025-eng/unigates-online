@@ -92,7 +92,7 @@ const Login = () => {
 
       const adminRole = roles?.find((r) => r.role === "admin");
       const lecturerRole = roles?.find((r) => r.role === "lecturer");
-      const leadershipRole = roles?.find((r) => ["department_head", "vice_dean", "dean"].includes(r.role));
+      const leadershipRole = roles?.find((r) => ["department_head", "teaching_assistant", "vice_dean", "dean"].includes(r.role));
       const personalRole = roles?.find((r) => ["personal", "student", "parent"].includes(r.role));
       const schoolTeacherRole = roles?.find((r) => r.role === "teacher");
       const schoolStudentRole = roles?.find((r) => r.role === "school_student");
@@ -102,7 +102,7 @@ const Login = () => {
         return;
       }
 
-      if (leadershipRole || ["department_head", "vice_dean", "dean"].includes(profileRole || "")) {
+      if (leadershipRole || ["department_head", "teaching_assistant", "vice_dean", "dean"].includes(profileRole || "")) {
         if (leadershipRole ? leadershipRole.approved : true) {
           goNext("/leadership/dashboard");
         } else {

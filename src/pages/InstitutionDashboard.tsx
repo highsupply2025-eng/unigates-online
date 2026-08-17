@@ -81,6 +81,7 @@ const FACULTY_ROLES = new Set<string>([
   "vice_dean_community",
   "vice_dean_environment",
   "department_head",
+  "teaching_assistant",
   "professor",
   "doctor",
   "lecturer",
@@ -3987,6 +3988,7 @@ ${exams.map((s: any, i: number) => `<tr>
                                       : lec.role === "professor" ? "أستاذ"
                                       : lec.role === "doctor" ? "دكتور"
                                       : lec.role === "assistant_lecturer" ? "معيد"
+                                      : lec.role === "teaching_assistant" ? "مدرس مساعد"
                                       : lec.role === "department_head" ? "رئيس قسم"
                                       : lec.role
                                     : lec.role.replace(/_/g, " ")}

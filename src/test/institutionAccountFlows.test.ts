@@ -13,6 +13,7 @@ const FACULTY_ROLES = new Set([
   "vice_dean_community",
   "vice_dean_environment",
   "department_head",
+  "teaching_assistant",
   "professor",
   "doctor",
   "lecturer",
@@ -32,6 +33,8 @@ function mapGeneralRole(
     case "vice_dean_students":
     case "vice_dean_community":
       return { profileRole: "vice_dean", appRole: "vice_dean" };
+    case "teaching_assistant":
+      return { profileRole: "teaching_assistant", appRole: "teaching_assistant" };
     case "department_head":
     case "professor":
     case "doctor":

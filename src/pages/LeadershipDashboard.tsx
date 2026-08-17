@@ -146,7 +146,7 @@ const LeadershipDashboard = () => {
         .maybeSingle();
       setProfile(profile);
 
-      if (!profile || !["department_head", "vice_dean", "dean"].includes(profile.role)) {
+      if (!profile || !["department_head", "teaching_assistant", "vice_dean", "dean"].includes(profile.role)) {
         toast({ title: isRtl ? "غير مصرح" : "Unauthorized", variant: "destructive" });
         navigate("/");
         return;

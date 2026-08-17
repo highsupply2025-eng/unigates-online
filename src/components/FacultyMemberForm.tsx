@@ -74,6 +74,7 @@ export function isStrongPassword(p: string): boolean {
 
 const _ROLE_OPTIONS_BASE: { value: string; ar: string; en: string }[] = [
   { value: "department_head", ar: "رئيس القسم", en: "Department Head" },
+  { value: "teaching_assistant", ar: "مدرس مساعد", en: "Teaching Assistant" },
   { value: "professor", ar: "أستاذ دكتور", en: "Professor" },
   { value: "doctor", ar: "دكتور", en: "Doctor" },
   { value: "assistant_lecturer", ar: "معيد", en: "Assistant Lecturer" },

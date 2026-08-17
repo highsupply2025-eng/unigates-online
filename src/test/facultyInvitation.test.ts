@@ -70,8 +70,8 @@ describe("FacultyMemberForm helpers", () => {
   });
 
   describe("ROLE_OPTIONS", () => {
-    it("contains 8 role options", () => {
-      expect(ROLE_OPTIONS.length).toBe(8);
+    it("contains 9 role options", () => {
+      expect(ROLE_OPTIONS.length).toBe(9);
     });
 
     it("each option has value, ar, and en", () => {
@@ -87,6 +87,7 @@ describe("FacultyMemberForm helpers", () => {
       expect(values).toContain("professor");
       expect(values).toContain("doctor");
       expect(values).toContain("assistant_lecturer");
+      expect(values).toContain("teaching_assistant");
       expect(values).toContain("department_head");
       expect(values).toContain("dean");
     });

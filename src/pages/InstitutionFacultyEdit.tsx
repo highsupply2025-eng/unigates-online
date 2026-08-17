@@ -77,6 +77,7 @@ const InstitutionFacultyEdit = () => {
     { value: "vice_dean_students", ar: isCollege ? "وكيل الكلية لشئون الطلاب" : "وكيل المعهد لشئون الطلاب", en: "Vice Dean - Student Affairs" },
     { value: "vice_dean_community", ar: isCollege ? "وكيل الكلية لخدمة المجتمع" : "وكيل المعهد لخدمة المجتمع", en: "Vice Dean - Community" },
     { value: "department_head", ar: "رئيس القسم", en: "Department Head" },
+    { value: "teaching_assistant", ar: isCollege ? "مدرس مساعد" : "مدرس مساعد", en: "Teaching Assistant" },
     { value: "professor", ar: "أستاذ دكتور", en: "Professor" },
     { value: "doctor", ar: "دكتور", en: "Doctor" },
     { value: "assistant_lecturer", ar: "معيد", en: "Assistant Lecturer" },

@@ -32,7 +32,7 @@ const LeadershipProfile = () => {
           .maybeSingle();
 
         // Stay inside this dashboard's account page; never redirect to another dashboard.
-        if (!prof || !["department_head", "vice_dean", "dean"].includes(prof.role)) {
+        if (!prof || !["department_head", "teaching_assistant", "vice_dean", "dean"].includes(prof.role)) {
           console.warn("[leadership/profile] unexpected role", prof?.role);
         }
         setRole(prof?.role || "");

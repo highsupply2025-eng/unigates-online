@@ -118,7 +118,7 @@ describe("Faculty invitation atomic consumption", () => {
     it("ALLOWED_ROLES set includes expected faculty roles", () => {
       const allowedRoles = [
         "dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community",
-        "department_head", "professor", "doctor", "assistant_lecturer",
+        "department_head", "teaching_assistant", "professor", "doctor", "assistant_lecturer",
       ];
       for (const role of allowedRoles) {
         expect(facultySource).toContain(`"${role}"`);

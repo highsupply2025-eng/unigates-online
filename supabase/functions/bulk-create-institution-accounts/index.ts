@@ -48,6 +48,9 @@ const ROLE_MAP: Record<string, string> = {
   head: "department_head",
   "رئيس قسم": "department_head",
   "رئيس القسم": "department_head",
+  teaching_assistant: "teaching_assistant",
+  "مدرس مساعد": "teaching_assistant",
+  "Teaching Assistant": "teaching_assistant",
 };
 
 // Generic message that does not reveal details about an existing account.

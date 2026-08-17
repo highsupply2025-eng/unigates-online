@@ -313,7 +313,7 @@ const DepartmentPage = () => {
   const getExportData = () => {
     return [...lecturers, ...students].map(m => ({
       [isRtl ? "الاسم" : "Name"]: m.full_name,
-      [isRtl ? "الدور" : "Role"]: m.role === "department_head" ? (isRtl ? "رئيس قسم" : "Department Head") : m.role === "lecturer" ? (isRtl ? "محاضر" : "Lecturer") : (isRtl ? "طالب" : "Student"),
+      [isRtl ? "الدور" : "Role"]: m.role === "department_head" ? (isRtl ? "رئيس قسم" : "Department Head") : m.role === "teaching_assistant" ? (isRtl ? "مدرس مساعد" : "Teaching Assistant") : m.role === "lecturer" ? (isRtl ? "محاضر" : "Lecturer") : (isRtl ? "طالب" : "Student"),
       [isRtl ? "الحالة" : "Status"]: m.user_id ? (isRtl ? "مسجّل" : "Linked") : (isRtl ? "بانتظار" : "Pending"),
       [isRtl ? "كود الدعوة" : "Invitation Code"]: m.invitation_code || "",
       [isRtl ? "رابط التسجيل" : "Signup Link"]: m.invitation_code

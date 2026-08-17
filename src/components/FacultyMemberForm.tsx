@@ -80,7 +80,6 @@ export const ROLE_OPTIONS: { value: string; ar: string; en: string }[] = [
   { value: "department_head", ar: "رئيس القسم", en: "Department Head" },
   { value: "professor", ar: "أستاذ دكتور", en: "Professor" },
   { value: "doctor", ar: "دكتور", en: "Doctor" },
-  { value: "lecturer", ar: "محاضر", en: "Lecturer" },
   { value: "assistant_lecturer", ar: "معيد", en: "Assistant Lecturer" },
 ];
 

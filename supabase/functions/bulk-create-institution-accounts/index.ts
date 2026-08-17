@@ -44,7 +44,6 @@ const ROLE_MAP: Record<string, string> = {
   student: "student",
   طالب: "student",
   lecturer: "lecturer",
-  محاضر: "lecturer",
   department_head: "department_head",
   head: "department_head",
   "رئيس قسم": "department_head",

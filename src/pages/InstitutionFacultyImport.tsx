@@ -26,7 +26,6 @@ const ROLE_MAP: Record<string, string> = {
   "رئيس القسم": "department_head", "department_head": "department_head", "Department Head": "department_head",
   "أستاذ دكتور": "professor", "professor": "professor", "Professor": "professor",
   "دكتور": "doctor", "doctor": "doctor", "Doctor": "doctor",
-  "محاضر": "lecturer", "lecturer": "lecturer", "Lecturer": "lecturer",
   "معيد": "assistant_lecturer", "assistant_lecturer": "assistant_lecturer", "Assistant Lecturer": "assistant_lecturer",
 };
 
@@ -38,7 +37,6 @@ const FACULTY_ROLE_OPTIONS = [
   { value: "department_head", ar: "رئيس القسم", en: "Department Head" },
   { value: "professor", ar: "أستاذ دكتور", en: "Professor" },
   { value: "doctor", ar: "دكتور", en: "Doctor" },
-  { value: "lecturer", ar: "محاضر", en: "Lecturer" },
   { value: "assistant_lecturer", ar: "معيد", en: "Assistant Lecturer" },
 ];
 

@@ -6,7 +6,7 @@ import QuizResultsAllContent from "@/components/QuizResultsAllContent";
 import {
   GraduationCap, Plus, Eye, BookOpen, FileText, Video, Trash2, Globe, LogOut,
   Upload, X, Radio, Calendar, ExternalLink, ClipboardList, Star, Send, ArrowLeft, ArrowRight, MonitorPlay, Link2, Copy, Check,
-  Download, Users, Clock, BarChart3, CheckCircle, HelpCircle, MoreVertical, Menu, Award, Home
+  Download, Users, Clock, BarChart3, CheckCircle, HelpCircle, MoreVertical, Menu, Award, Home, Loader2, RefreshCw
 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
@@ -60,6 +60,23 @@ const LecturerDashboard = () => {
   const [profile, setProfile] = useState<any>(null);
   const [jobRole, setJobRole] = useState<string | null>(null);
   const [rangeDays, setRangeDays] = useState<7 | 30>(7);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastLoadedAt, setLastLoadedAt] = useState<number | null>(null);
+  const [nowTick, setNowTick] = useState(0);
+  useEffect(() => {
+    const t = window.setInterval(() => setNowTick(v => v + 1), 30000);
+    return () => window.clearInterval(t);
+  }, []);
+  const formatLastUpdated = (ts: number | null) => {
+    if (!ts) return isRtl ? "—" : "—";
+    const diff = Math.max(0, Date.now() - ts);
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return isRtl ? "الآن" : "just now";
+    if (mins === 1) return isRtl ? "منذ دقيقة" : "1 min ago";
+    if (mins < 60) return isRtl ? `منذ ${mins} دقيقة` : `${mins} min ago`;
+    const hrs = Math.floor(mins / 60);
+    return isRtl ? `منذ ${hrs} ساعة` : `${hrs} h ago`;
+  };
   const [approved, setApproved] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<any[]>([]);
@@ -183,6 +200,30 @@ const LecturerDashboard = () => {
   const [testAttendance, setTestAttendance] = useState<any[]>([]);
   const [profilesMap, setProfilesMap] = useState<Record<string, { full_name: string }>>({});
 
+  const loadData = async () => {
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    if (!currentUser) return;
+    await Promise.all([
+      loadCourses(currentUser.id),
+      loadStreams(currentUser.id),
+      loadLecturerRatings(currentUser.id),
+      loadSchedules(currentUser.id),
+      loadAttendance(currentUser.id),
+      loadMyDepartments(currentUser.id),
+    ]);
+    setLastLoadedAt(Date.now());
+  };
+
+  const handleManualRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      await loadData();
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   useEffect(() => { checkAuth(); }, []);
 
   const checkAuth = async () => {
@@ -205,14 +246,7 @@ const LecturerDashboard = () => {
     if (!roles || roles.length === 0) { setApproved(false); setLoading(false); return; }
     setApproved(roles[0].approved);
     if (roles[0].approved) {
-      await Promise.all([
-        loadCourses(user.id),
-        loadStreams(user.id),
-        loadLecturerRatings(user.id),
-        loadSchedules(user.id),
-        loadAttendance(user.id),
-        loadMyDepartments(user.id),
-      ]);
+      await loadData();
     }
     setLoading(false);
   };
@@ -857,7 +891,25 @@ const LecturerDashboard = () => {
 
 
                 {/* Sections Overview Chart - mirrors dropdown menu items */}
-                <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
+                <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                  <TimeRangeToggle value={rangeDays} onChange={setRangeDays} />
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground" aria-live="polite" data-tick={nowTick}>
+                      {isRtl ? "آخر تحديث: " : "Updated: "}{formatLastUpdated(lastLoadedAt)}
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleManualRefresh}
+                      disabled={refreshing}
+                      className="gap-1.5"
+                      aria-label={isRtl ? "تحديث" : "Refresh"}
+                    >
+                      {refreshing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                      <span className="hidden sm:inline">{isRtl ? "تحديث" : "Refresh"}</span>
+                    </Button>
+                  </div>
+                </div>
                 <SectionsActivityChart
                   className="mb-6"
                   days={rangeDays}

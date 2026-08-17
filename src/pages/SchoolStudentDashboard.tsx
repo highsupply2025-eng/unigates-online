@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   School, Globe, BookOpen, Play, CheckCircle, Clock, Home, User,
-  ArrowLeft, ArrowRight, Crown, BarChart3, Award, Radio, Star
+  ArrowLeft, ArrowRight, Crown, BarChart3, Award, Radio, Star, RefreshCw, Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,6 +30,23 @@ const SchoolStudentDashboard = () => {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [rangeDays, setRangeDays] = useState<7 | 30>(7);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastLoadedAt, setLastLoadedAt] = useState<number | null>(null);
+  const [nowTick, setNowTick] = useState(0);
+  useEffect(() => {
+    const t = window.setInterval(() => setNowTick(v => v + 1), 30000);
+    return () => window.clearInterval(t);
+  }, []);
+  const formatLastUpdated = (ts: number | null) => {
+    if (!ts) return isRtl ? "—" : "—";
+    const diff = Math.max(0, Date.now() - ts);
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return isRtl ? "الآن" : "just now";
+    if (mins === 1) return isRtl ? "منذ دقيقة" : "1 min ago";
+    if (mins < 60) return isRtl ? `منذ ${mins} دقيقة` : `${mins} min ago`;
+    const hrs = Math.floor(mins / 60);
+    return isRtl ? `منذ ${hrs} ساعة` : `${hrs} h ago`;
+  };
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("courses");
 
@@ -59,7 +76,25 @@ const SchoolStudentDashboard = () => {
       loadSubmissions(user.id),
       loadRatings(user.id),
     ]);
+    setLastLoadedAt(Date.now());
     setLoading(false);
+  };
+
+  const handleManualRefresh = async () => {
+    if (refreshing || !user) return;
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        loadSubscriptions(user.id),
+        loadProgress(user.id),
+        loadLiveStreams(),
+        loadSubmissions(user.id),
+        loadRatings(user.id),
+      ]);
+    } finally {
+      setRefreshing(false);
+      setLastLoadedAt(Date.now());
+    }
   };
 
   const loadRatings = async (userId: string) => {
@@ -228,16 +263,34 @@ const SchoolStudentDashboard = () => {
 
 
         {/* Sections Overview Chart - mirrors tab navigation items */}
-        <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
+        <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+          <TimeRangeToggle value={rangeDays} onChange={setRangeDays} />
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground" aria-live="polite" data-tick={nowTick}>
+              {isRtl ? "آخر تحديث: " : "Updated: "}{formatLastUpdated(lastLoadedAt)}
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleManualRefresh}
+              disabled={refreshing}
+              className="gap-1.5"
+              aria-label={isRtl ? "تحديث" : "Refresh"}
+            >
+              {refreshing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+              <span className="hidden sm:inline">{isRtl ? "تحديث" : "Refresh"}</span>
+            </Button>
+          </div>
+        </div>
         <SectionsActivityChart
           className="mb-8"
           days={rangeDays}
           sections={[
-            { label: isRtl ? "الدروس" : "Lessons", Icon: BookOpen, timestamps: subscriptions.map((s: any) => s.created_at) },
-            { label: isRtl ? "تصفّح المواد" : "Browse", Icon: BarChart3, timestamps: courses.map((c: any) => c.created_at) },
-            { label: isRtl ? "بث مباشر" : "Live", Icon: Radio, timestamps: liveStreams.map((s: any) => s.scheduled_at || s.created_at) },
-            { label: isRtl ? "الواجبات" : "Homework", Icon: Award, timestamps: submissions.map((s: any) => s.submitted_at || s.created_at) },
-            { label: isRtl ? "التقييم" : "Rating", Icon: Star, timestamps: ratings.map((r: any) => r.created_at) },
+            { label: isRtl ? "الدروس" : "Lessons", Icon: BookOpen, palette: { from: "#6366f1", to: "#4f46e5", glow: "99,102,241" }, timestamps: subscriptions.map((s: any) => s.created_at) },
+            { label: isRtl ? "تصفّح المواد" : "Browse", Icon: BarChart3, palette: { from: "#06b6d4", to: "#0891b2", glow: "6,182,212" }, timestamps: courses.map((c: any) => c.created_at) },
+            { label: isRtl ? "بث مباشر" : "Live", Icon: Radio, palette: { from: "#ef4444", to: "#e11d48", glow: "239,68,68" }, timestamps: liveStreams.map((s: any) => s.scheduled_at || s.created_at) },
+            { label: isRtl ? "الواجبات" : "Homework", Icon: Award, palette: { from: "#3b82f6", to: "#2563eb", glow: "59,130,246" }, timestamps: submissions.map((s: any) => s.submitted_at || s.created_at) },
+            { label: isRtl ? "التقييم" : "Rating", Icon: Star, palette: { from: "#eab308", to: "#d97706", glow: "234,179,8" }, timestamps: ratings.map((r: any) => r.created_at) },
           ]}
         />
 

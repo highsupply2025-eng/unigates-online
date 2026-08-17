@@ -6,7 +6,7 @@ import {
   BookOpen, Eye, Search, CheckCircle, XCircle, Clock, ArrowLeft, ArrowRight,
   School, MapPin, Phone, Mail, MessageSquare, FileText, CreditCard,
   BarChart3, ShoppingCart, BookMarked, Radio, Bell, Send,
-  Calendar, PlayCircle, Download, Trash2, Pencil, Landmark, LinkIcon, Copy, Building2, Loader2
+  Calendar, PlayCircle, Download, Trash2, Pencil, Landmark, LinkIcon, Copy, Building2, Loader2, RefreshCw
 } from "lucide-react";
 
 import AdminPreviewLinks from "@/components/AdminPreviewLinks";
@@ -65,6 +65,23 @@ const AdminDashboard = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [rangeDays, setRangeDays] = useState<7 | 30>(7);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastLoadedAt, setLastLoadedAt] = useState<number | null>(null);
+  const [nowTick, setNowTick] = useState(0);
+  useEffect(() => {
+    const t = window.setInterval(() => setNowTick(v => v + 1), 30000);
+    return () => window.clearInterval(t);
+  }, []);
+  const formatLastUpdated = (ts: number | null) => {
+    if (!ts) return isRtl ? "—" : "—";
+    const diff = Math.max(0, Date.now() - ts);
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return isRtl ? "الآن" : "just now";
+    if (mins === 1) return isRtl ? "منذ دقيقة" : "1 min ago";
+    if (mins < 60) return isRtl ? `منذ ${mins} دقيقة` : `${mins} min ago`;
+    const hrs = Math.floor(mins / 60);
+    return isRtl ? `منذ ${hrs} ساعة` : `${hrs} h ago`;
+  };
 
   const [pendingLecturers, setPendingLecturers] = useState<(UserRole & { profile?: Profile })[]>([]);
   const [allUsers, setAllUsers] = useState<(UserRole & { profile?: Profile })[]>([]);
@@ -160,7 +177,19 @@ const AdminDashboard = () => {
     if (!roles || roles.length === 0) { navigate("/"); return; }
     setIsAdmin(true);
     await loadAll();
+    setLastLoadedAt(Date.now());
     setLoading(false);
+  };
+
+  const handleManualRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      await loadAll();
+    } finally {
+      setRefreshing(false);
+      setLastLoadedAt(Date.now());
+    }
   };
 
   const loadAll = () => Promise.all([loadPending(), loadAllUsers(), loadStats(), loadSchoolRegistrations(), loadCourses(), loadBooks(), loadOrders(), loadSubscriptions(), loadStreams(), loadColleges(), loadCollegeInvitations(), loadCollegeMembers(), loadInstitutes(), loadDepartments(), loadDepartmentMembers()]);
@@ -874,7 +903,25 @@ const AdminDashboard = () => {
             </div>
 
             {/* Sections Overview Chart - activity per section in last 7 days */}
-            <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
+            <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+              <TimeRangeToggle value={rangeDays} onChange={setRangeDays} />
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground" aria-live="polite" data-tick={nowTick}>
+                  {isRtl ? "آخر تحديث: " : "Updated: "}{formatLastUpdated(lastLoadedAt)}
+                </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleManualRefresh}
+                  disabled={refreshing}
+                  className="gap-1.5"
+                  aria-label={isRtl ? "تحديث" : "Refresh"}
+                >
+                  {refreshing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                  <span className="hidden sm:inline">{isRtl ? "تحديث" : "Refresh"}</span>
+                </Button>
+              </div>
+            </div>
             <SectionsActivityChart
               className="mb-6"
               days={rangeDays}

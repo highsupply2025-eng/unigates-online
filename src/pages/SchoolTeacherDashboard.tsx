@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   School, Plus, Eye, BookOpen, FileText, Video, Trash2, Globe, Home, User,
-  Upload, X, Radio, Calendar, ClipboardList, Star, Send, ArrowLeft, ArrowRight, MonitorPlay
+  Upload, X, Radio, Calendar, ClipboardList, Star, Send, ArrowLeft, ArrowRight, MonitorPlay, RefreshCw, Loader2
 } from "lucide-react";
 import LiveStreamRoom from "@/components/LiveStreamRoom";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,23 @@ const SchoolTeacherDashboard = () => {
   const [user, setUser] = useState<any>(null);
   const [approved, setApproved] = useState<boolean | null>(null);
   const [rangeDays, setRangeDays] = useState<7 | 30>(7);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastLoadedAt, setLastLoadedAt] = useState<number | null>(null);
+  const [nowTick, setNowTick] = useState(0);
+  useEffect(() => {
+    const t = window.setInterval(() => setNowTick(v => v + 1), 30000);
+    return () => window.clearInterval(t);
+  }, []);
+  const formatLastUpdated = (ts: number | null) => {
+    if (!ts) return isRtl ? "—" : "—";
+    const diff = Math.max(0, Date.now() - ts);
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return isRtl ? "الآن" : "just now";
+    if (mins === 1) return isRtl ? "منذ دقيقة" : "1 min ago";
+    if (mins < 60) return isRtl ? `منذ ${mins} دقيقة` : `${mins} min ago`;
+    const hrs = Math.floor(mins / 60);
+    return isRtl ? `منذ ${hrs} ساعة` : `${hrs} h ago`;
+  };
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<any[]>([]);
   const [courseViews, setCourseViews] = useState<Record<string, number>>({});
@@ -90,7 +107,19 @@ const SchoolTeacherDashboard = () => {
     if (roles[0].approved) {
       await Promise.all([loadCourses(user.id), loadStreams(user.id), loadTeacherRatings(user.id)]);
     }
+    setLastLoadedAt(Date.now());
     setLoading(false);
+  };
+
+  const handleManualRefresh = async () => {
+    if (refreshing || !user) return;
+    setRefreshing(true);
+    try {
+      await Promise.all([loadCourses(user.id), loadStreams(user.id), loadTeacherRatings(user.id)]);
+    } finally {
+      setRefreshing(false);
+      setLastLoadedAt(Date.now());
+    }
   };
 
   const loadTeacherRatings = async (userId: string) => {
@@ -403,15 +432,33 @@ const SchoolTeacherDashboard = () => {
 
 
             {/* Sections Overview Chart - mirrors tab navigation items */}
-            <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
+            <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+              <TimeRangeToggle value={rangeDays} onChange={setRangeDays} />
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground" aria-live="polite" data-tick={nowTick}>
+                  {isRtl ? "آخر تحديث: " : "Updated: "}{formatLastUpdated(lastLoadedAt)}
+                </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleManualRefresh}
+                  disabled={refreshing}
+                  className="gap-1.5"
+                  aria-label={isRtl ? "تحديث" : "Refresh"}
+                >
+                  {refreshing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                  <span className="hidden sm:inline">{isRtl ? "تحديث" : "Refresh"}</span>
+                </Button>
+              </div>
+            </div>
             <SectionsActivityChart
               className="mb-8"
               days={rangeDays}
               sections={[
-                { label: isRtl ? "الدروس" : "Lessons", Icon: Video, timestamps: episodes.map((e: any) => e.created_at) },
-                { label: isRtl ? "حصص مباشرة" : "Live", Icon: Radio, timestamps: streams.map((s: any) => s.created_at || s.scheduled_at) },
-                { label: isRtl ? "الواجبات" : "Homework", Icon: ClipboardList, timestamps: assignments.map((a: any) => a.created_at) },
-                { label: isRtl ? "التقييمات" : "Ratings", Icon: Star, timestamps: teacherRatings.map((r: any) => r.created_at) },
+                { label: isRtl ? "الدروس" : "Lessons", Icon: Video, palette: { from: "#06b6d4", to: "#0d9488", glow: "6,182,212" }, timestamps: episodes.map((e: any) => e.created_at) },
+                { label: isRtl ? "حصص مباشرة" : "Live", Icon: Radio, palette: { from: "#ef4444", to: "#e11d48", glow: "239,68,68" }, timestamps: streams.map((s: any) => s.created_at || s.scheduled_at) },
+                { label: isRtl ? "الواجبات" : "Homework", Icon: ClipboardList, palette: { from: "#3b82f6", to: "#2563eb", glow: "59,130,246" }, timestamps: assignments.map((a: any) => a.created_at) },
+                { label: isRtl ? "التقييمات" : "Ratings", Icon: Star, palette: { from: "#eab308", to: "#d97706", glow: "234,179,8" }, timestamps: teacherRatings.map((r: any) => r.created_at) },
               ]}
             />
 

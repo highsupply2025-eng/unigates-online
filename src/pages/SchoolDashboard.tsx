@@ -5,7 +5,7 @@ import {
   School, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Building2, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, CreditCard, Trash2, Share2,
-  User, Ticket, Menu, LogOut, Home
+  User, Ticket, Menu, LogOut, Home, RefreshCw
 } from "lucide-react";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { Button } from "@/components/ui/button";
@@ -71,6 +71,23 @@ const SchoolDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
   const [rangeDays, setRangeDays] = useState<7 | 30>(7);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastLoadedAt, setLastLoadedAt] = useState<number | null>(null);
+  const [nowTick, setNowTick] = useState(0);
+  useEffect(() => {
+    const t = window.setInterval(() => setNowTick(v => v + 1), 30000);
+    return () => window.clearInterval(t);
+  }, []);
+  const formatLastUpdated = (ts: number | null) => {
+    if (!ts) return isRtl ? "—" : "—";
+    const diff = Math.max(0, Date.now() - ts);
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return isRtl ? "الآن" : "just now";
+    if (mins === 1) return isRtl ? "منذ دقيقة" : "1 min ago";
+    if (mins < 60) return isRtl ? `منذ ${mins} دقيقة` : `${mins} min ago`;
+    const hrs = Math.floor(mins / 60);
+    return isRtl ? `منذ ${hrs} ساعة` : `${hrs} h ago`;
+  };
   const [schoolName, setSchoolName] = useState("");
   const [schoolId, setSchoolId] = useState("");
 
@@ -141,6 +158,17 @@ const SchoolDashboard = () => {
       setDeptMembers(members || []);
     } else {
       setDeptMembers([]);
+    }
+    setLastLoadedAt(Date.now());
+  };
+
+  const handleManualRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      await loadSchoolData(schoolId);
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -385,15 +413,33 @@ const SchoolDashboard = () => {
 
 
         {/* Sections Overview Chart - activity per section in last 7 days */}
-        <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
+        <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+          <TimeRangeToggle value={rangeDays} onChange={setRangeDays} />
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground" aria-live="polite" data-tick={nowTick}>
+              {isRtl ? "آخر تحديث: " : "Updated: "}{formatLastUpdated(lastLoadedAt)}
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleManualRefresh}
+              disabled={refreshing}
+              className="gap-1.5"
+              aria-label={isRtl ? "تحديث" : "Refresh"}
+            >
+              {refreshing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+              <span className="hidden sm:inline">{isRtl ? "تحديث" : "Refresh"}</span>
+            </Button>
+          </div>
+        </div>
         <SectionsActivityChart
           className="mb-8"
           days={rangeDays}
           sections={[
-            { label: isRtl ? "الفصول" : "Classes", Icon: Building2, color: "#3b82f6", timestamps: departments.map((d: any) => d.created_at) },
-            { label: isRtl ? "الطلاب" : "Students", Icon: GraduationCap, color: "#22c55e", timestamps: deptMembers.filter((m: any) => m.role === "student").map((m: any) => m.created_at) },
-            { label: isRtl ? "المعلمون" : "Teachers", Icon: UserCheck, color: "#f59e0b", timestamps: deptMembers.filter((m: any) => m.role === "lecturer" || m.role === "teacher").map((m: any) => m.created_at) },
-            { label: isRtl ? "المُفعّلون" : "Active", Icon: CheckCircle, color: "#8b5cf6", timestamps: deptMembers.filter((m: any) => m.user_id).map((m: any) => m.created_at) },
+            { label: isRtl ? "الفصول" : "Classes", Icon: Building2, palette: { from: "#3b82f6", to: "#2563eb", glow: "59,130,246" }, timestamps: departments.map((d: any) => d.created_at) },
+            { label: isRtl ? "الطلاب" : "Students", Icon: GraduationCap, palette: { from: "#22c55e", to: "#16a34a", glow: "34,197,94" }, timestamps: deptMembers.filter((m: any) => m.role === "student").map((m: any) => m.created_at) },
+            { label: isRtl ? "المعلمون" : "Teachers", Icon: UserCheck, palette: { from: "#f59e0b", to: "#d97706", glow: "245,158,11" }, timestamps: deptMembers.filter((m: any) => m.role === "lecturer" || m.role === "teacher").map((m: any) => m.created_at) },
+            { label: isRtl ? "المُفعّلون" : "Active", Icon: CheckCircle, palette: { from: "#a855f7", to: "#9333ea", glow: "168,85,247" }, timestamps: deptMembers.filter((m: any) => m.user_id).map((m: any) => m.created_at) },
           ]}
         />
 

@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Globe, ArrowLeft, ArrowRight, Loader2, Users, BookOpen, Calendar,
   Video, FileText, Download, BarChart3, Clock, CheckCircle, AlertCircle,
-  GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, Menu, Home, XCircle, Award, ShieldCheck, User
+  GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, Menu, Home, XCircle, Award, ShieldCheck, User, RefreshCw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -54,6 +54,23 @@ const LeadershipDashboard = () => {
     if (t && t !== activeTab) setActiveTabState(t);
   }, [searchParams]);
   const [rangeDays, setRangeDays] = useState<7 | 30>(7);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastLoadedAt, setLastLoadedAt] = useState<number | null>(null);
+  const [nowTick, setNowTick] = useState(0);
+  useEffect(() => {
+    const t = window.setInterval(() => setNowTick(v => v + 1), 30000);
+    return () => window.clearInterval(t);
+  }, []);
+  const formatLastUpdated = (ts: number | null) => {
+    if (!ts) return isRtl ? "—" : "—";
+    const diff = Math.max(0, Date.now() - ts);
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return isRtl ? "الآن" : "just now";
+    if (mins === 1) return isRtl ? "منذ دقيقة" : "1 min ago";
+    if (mins < 60) return isRtl ? `منذ ${mins} دقيقة` : `${mins} min ago`;
+    const hrs = Math.floor(mins / 60);
+    return isRtl ? `منذ ${hrs} ساعة` : `${hrs} h ago`;
+  };
   const [quizApprovedOpen, setQuizApprovedOpen] = useState(false);
   const [schedApprovedOpen, setSchedApprovedOpen] = useState(false);
 
@@ -168,6 +185,18 @@ const LeadershipDashboard = () => {
     const countMap: Record<string, number> = {};
     Object.entries(counts).forEach(([sid, set]) => { countMap[sid] = set.size; });
     setStreamAttendance(countMap);
+    setLastLoadedAt(Date.now());
+  };
+
+  const handleManualRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      await loadData();
+    } finally {
+      setRefreshing(false);
+      setLastLoadedAt(Date.now());
+    }
   };
 
   const getRoleLabel = () => {
@@ -402,7 +431,25 @@ const LeadershipDashboard = () => {
 
 
                   {/* Sections Overview Chart - mirrors dropdown menu items (percentages) */}
-                  <TimeRangeToggle value={rangeDays} onChange={setRangeDays} className="mb-3" />
+                  <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                    <TimeRangeToggle value={rangeDays} onChange={setRangeDays} />
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground" aria-live="polite" data-tick={nowTick}>
+                        {isRtl ? "آخر تحديث: " : "Updated: "}{formatLastUpdated(lastLoadedAt)}
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleManualRefresh}
+                        disabled={refreshing}
+                        className="gap-1.5"
+                        aria-label={isRtl ? "تحديث" : "Refresh"}
+                      >
+                        {refreshing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                        <span className="hidden sm:inline">{isRtl ? "تحديث" : "Refresh"}</span>
+                      </Button>
+                    </div>
+                  </div>
                   <SectionsActivityChart
                     className="mb-4 sm:mb-6"
                     days={rangeDays}

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   GraduationCap, Globe, BookOpen, Award, Radio, User, Star, FileText,
-  ClipboardList, Calendar, TrendingUp, Menu, LogOut, Home, Eye, Users, ShieldCheck
+  ClipboardList, Calendar, TrendingUp, Menu, LogOut, Home, Eye, Users, ShieldCheck, RefreshCw, Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,7 @@ import { MiniBars } from "@/components/MiniBars";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
 import { StudentPillActivityChart } from "@/components/StudentPillActivityChart";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
+import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 
 const StudentDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -44,6 +45,23 @@ const StudentDashboard = () => {
     ratings: [] as string[],
   });
   const [rangeDays, setRangeDays] = useState<7 | 30>(7);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastLoadedAt, setLastLoadedAt] = useState<number | null>(null);
+  const [nowTick, setNowTick] = useState(0);
+  useEffect(() => {
+    const t = window.setInterval(() => setNowTick(v => v + 1), 30000);
+    return () => window.clearInterval(t);
+  }, []);
+  const formatLastUpdated = (ts: number | null) => {
+    if (!ts) return isRtl ? "—" : "—";
+    const diff = Math.max(0, Date.now() - ts);
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return isRtl ? "الآن" : "just now";
+    if (mins === 1) return isRtl ? "منذ دقيقة" : "1 min ago";
+    if (mins < 60) return isRtl ? `منذ ${mins} دقيقة` : `${mins} min ago`;
+    const hrs = Math.floor(mins / 60);
+    return isRtl ? `منذ ${hrs} ساعة` : `${hrs} h ago`;
+  };
 
   const load = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -93,6 +111,17 @@ const StudentDashboard = () => {
       submissions: (asg.data || []).map((x: any) => x.submitted_at).filter(Boolean),
       ratings: (ratings.data || []).map((x: any) => x.created_at).filter(Boolean),
     });
+    setLastLoadedAt(Date.now());
+  };
+
+  const handleManualRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      await load();
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   useEffect(() => { load(); }, [navigate]);
@@ -107,18 +136,18 @@ const StudentDashboard = () => {
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
 
   const menuItems = [
-    { to: "/student/lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-indigo-500 to-indigo-600" },
-    { to: "/student/live", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600" },
-    { to: "/student/quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: ClipboardList, color: "from-purple-500 to-purple-600" },
-    { to: "/student/assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: FileText, color: "from-amber-500 to-amber-600" },
-    { to: "/student/schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-pink-500 to-pink-600" },
-    { to: "/student/presence-checkin", label: isRtl ? "إثبات الحضور" : "Verify Presence", Icon: ShieldCheck, color: "from-emerald-500 to-teal-600" },
+    { to: "/student/lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-indigo-500 to-indigo-600", palette: { from: "#6366f1", to: "#4f46e5", glow: "99,102,241" } },
+    { to: "/student/live", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", palette: { from: "#ef4444", to: "#e11d48", glow: "239,68,68" } },
+    { to: "/student/quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: ClipboardList, color: "from-purple-500 to-purple-600", palette: { from: "#a855f7", to: "#9333ea", glow: "168,85,247" } },
+    { to: "/student/assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: FileText, color: "from-amber-500 to-amber-600", palette: { from: "#f59e0b", to: "#d97706", glow: "245,158,11" } },
+    { to: "/student/schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-pink-500 to-pink-600", palette: { from: "#ec4899", to: "#db2777", glow: "236,72,153" } },
+    { to: "/student/presence-checkin", label: isRtl ? "إثبات الحضور" : "Verify Presence", Icon: ShieldCheck, color: "from-emerald-500 to-teal-600", palette: { from: "#10b981", to: "#0d9488", glow: "16,185,129" } },
     
-    { to: "/student/ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600" },
-    { to: "/student/results", label: isRtl ? "نتائج الاختبارات" : "Exam Results", Icon: Award, color: "from-teal-500 to-teal-600" },
-    { to: "/student/assignment-results", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, color: "from-cyan-500 to-cyan-600" },
+    { to: "/student/ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", palette: { from: "#eab308", to: "#d97706", glow: "234,179,8" } },
+    { to: "/student/results", label: isRtl ? "نتائج الاختبارات" : "Exam Results", Icon: Award, color: "from-teal-500 to-teal-600", palette: { from: "#14b8a6", to: "#0d9488", glow: "20,184,166" } },
+    { to: "/student/assignment-results", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, color: "from-cyan-500 to-cyan-600", palette: { from: "#06b6d4", to: "#0891b2", glow: "6,182,212" } },
     
-    { to: "/profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, color: "from-cyan-500 to-cyan-600" },
+    { to: "/profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, color: "from-cyan-500 to-cyan-600", palette: { from: "#06b6d4", to: "#0891b2", glow: "6,182,212" } },
   ];
 
   return (
@@ -206,21 +235,23 @@ const StudentDashboard = () => {
           };
           return (
             <>
-              <div className="mb-3 flex items-center justify-end gap-2">
-                <span className="text-xs font-bold text-muted-foreground">{isRtl ? "النطاق الزمني:" : "Time range:"}</span>
-                <div className="inline-flex rounded-lg border border-border bg-card p-0.5 shadow-sm">
-                  <button
-                    onClick={() => setRangeDays(7)}
-                    className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${rangeDays === 7 ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
+              <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                <TimeRangeToggle value={rangeDays} onChange={setRangeDays} />
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground" aria-live="polite" data-tick={nowTick}>
+                    {isRtl ? "آخر تحديث: " : "Updated: "}{formatLastUpdated(lastLoadedAt)}
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleManualRefresh}
+                    disabled={refreshing}
+                    className="gap-1.5"
+                    aria-label={isRtl ? "تحديث" : "Refresh"}
                   >
-                    {isRtl ? "آخر 7 أيام" : "Last 7 days"}
-                  </button>
-                  <button
-                    onClick={() => setRangeDays(30)}
-                    className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${rangeDays === 30 ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
-                  >
-                    {isRtl ? "آخر 30 يوم" : "Last 30 days"}
-                  </button>
+                    {refreshing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                    <span className="hidden sm:inline">{isRtl ? "تحديث" : "Refresh"}</span>
+                  </Button>
                 </div>
               </div>
               <StudentPillActivityChart
@@ -229,6 +260,7 @@ const StudentDashboard = () => {
                 sections={visibleMenu.map((m) => ({
                   label: m.label,
                   Icon: m.Icon,
+                  palette: m.palette,
                   timestamps: tsFor(m.to),
                 }))}
               />

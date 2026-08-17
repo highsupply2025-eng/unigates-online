@@ -3,8 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Globe, ArrowLeft, ArrowRight, Loader2, Users, BookOpen, Calendar,
   Video, FileText, Download, BarChart3, Clock, CheckCircle, AlertCircle,
-  GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, Menu, Home, XCircle, Award, ShieldCheck,
-  Tv, CalendarCheck, BadgeCheck, ThumbsUp, NotebookPen, Trophy, User
+  GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, Menu, Home, XCircle, Award, ShieldCheck, User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,6 +41,7 @@ const LeadershipDashboard = () => {
   const [userId, setUserId] = useState<string>("");
   const [userRole, setUserRole] = useState("");
   const [subRole, setSubRole] = useState<string>("");
+  const [specificRole, setSpecificRole] = useState<string>("");
   const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
   const [institutionName, setInstitutionName] = useState("");
   const [activeTab, setActiveTabState] = useState(searchParams.get("tab") || "overview");
@@ -110,6 +110,9 @@ const LeadershipDashboard = () => {
         const { data: sr } = await (supabase.rpc as any)("get_user_sub_role", { _user_id: user.id });
         setSubRole((sr as any) || "");
       } catch { /* noop */ }
+      // Specific job title (المسمى الوظيفي) — the same field set when adding a faculty member.
+      const { data: ifm } = await supabase.from("institution_faculty_members").select("specific_role").eq("user_id", user.id).maybeSingle();
+      setSpecificRole(ifm?.specific_role || "");
 
       // Determine institution from college_members
       const { data: membership } = await supabase
@@ -168,6 +171,18 @@ const LeadershipDashboard = () => {
   };
 
   const getRoleLabel = () => {
+    // Prefer the exact job title (المسمى الوظيفي) stored for this user.
+    if (specificRole) {
+      const specificLabels: Record<string, { ar: string; en: string }> = {
+        dean: { ar: institutionType === "institute" ? "مدير المعهد" : "عميد الكلية", en: institutionType === "institute" ? "Director" : "Dean" },
+        vice_dean_postgrad: { ar: "وكيل الكلية للدراسات العليا", en: "Vice Dean - Postgraduate Studies" },
+        vice_dean_students: { ar: "وكيل الكلية لشئون الطلاب", en: "Vice Dean - Student Affairs" },
+        vice_dean_community: { ar: "وكيل الكلية لشئون البيئة وخدمة المجتمع", en: "Vice Dean - Community Service" },
+        department_head: { ar: "رئيس القسم", en: "Department Head" },
+      };
+      const sp = specificLabels[specificRole];
+      if (sp) return sp;
+    }
     const labels: Record<string, { ar: string; en: string }> = {
       department_head: { ar: "رئيس القسم", en: "Department Head" },
       vice_dean: { ar: institutionType === "institute" ? "وكيل المعهد" : "وكيل الكلية", en: institutionType === "institute" ? "Vice Director" : "Vice Dean" },
@@ -392,13 +407,13 @@ const LeadershipDashboard = () => {
                     className="mb-4 sm:mb-6"
                     days={rangeDays}
                     sections={[
-                      { label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, timestamps: episodes.map((e: any) => e.created_at) },
-                      { label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, timestamps: liveStreams.map((s: any) => s.created_at || s.scheduled_at) },
-                      { label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: ShieldCheck, timestamps: quizzes.map((q: any) => q.created_at) },
-                      { label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, timestamps: lectureSchedules.map((s: any) => s.created_at) },
-                      { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
-                      ...(userRole === "department_head" ? [{ label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, timestamps: assignmentSubmissions.map((s: any) => s.submitted_at || s.created_at) }] : []),
-                      ...(userRole === "dean" ? [{ label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, timestamps: ratings.map((r: any) => r.created_at) }] : []),
+                      { label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, palette: { from: "#3b82f6", to: "#4f46e5", glow: "59,130,246" }, timestamps: episodes.map((e: any) => e.created_at) },
+                      { label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, palette: { from: "#ef4444", to: "#e11d48", glow: "239,68,68" }, timestamps: liveStreams.map((s: any) => s.created_at || s.scheduled_at) },
+                      { label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: ShieldCheck, palette: { from: "#10b981", to: "#0d9488", glow: "16,185,129" }, timestamps: quizzes.map((q: any) => q.created_at) },
+                      { label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, palette: { from: "#a855f7", to: "#c026d3", glow: "168,85,247" }, timestamps: lectureSchedules.map((s: any) => s.created_at) },
+                      { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, palette: { from: "#6366f1", to: "#9333ea", glow: "99,102,241" }, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
+                      ...(userRole === "department_head" ? [{ label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, palette: { from: "#f97316", to: "#ea580c", glow: "249,115,22" }, timestamps: assignmentSubmissions.map((s: any) => s.submitted_at || s.created_at) }] : []),
+                      ...(userRole === "dean" ? [{ label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, palette: { from: "#eab308", to: "#d97706", glow: "234,179,8" }, timestamps: ratings.map((r: any) => r.created_at) }] : []),
                     ]}
                   />
 
@@ -406,13 +421,13 @@ const LeadershipDashboard = () => {
                   {/* Section Cards - mirrors dropdown menu, distinct icons from the chart above */}
                   <MenuItemsStatsGrid
                     items={[
-                      { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video, color: "from-blue-500 to-indigo-600", count: episodes.length },
-                      { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Tv, color: "from-red-500 to-rose-600", count: liveStreams.length },
-                      { key: "quizzesonline", label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: BadgeCheck, color: "from-emerald-500 to-teal-600", count: quizzes.length },
-                      { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: CalendarCheck, color: "from-purple-500 to-fuchsia-600", count: lectureSchedules.length },
-                      { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Trophy, color: "from-indigo-500 to-purple-600", count: quizSubmissions.length },
-                      ...(userRole === "department_head" ? [{ key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: NotebookPen, color: "from-orange-500 to-orange-600", count: assignments.length }] : []),
-                      ...(userRole === "dean" ? [{ key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: ThumbsUp, color: "from-yellow-500 to-amber-600", count: ratings.length }] : []),
+                      { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-cyan-500 to-blue-600", count: episodes.length },
+                      { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", count: liveStreams.length },
+                      { key: "quizzesonline", label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: ShieldCheck, color: "from-emerald-500 to-teal-600", count: quizzes.length },
+                      { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, color: "from-purple-500 to-fuchsia-600", count: lectureSchedules.length },
+                      { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", count: quizSubmissions.length },
+                      ...(userRole === "department_head" ? [{ key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, color: "from-blue-500 to-indigo-600", count: assignments.length }] : []),
+                      ...(userRole === "dean" ? [{ key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", count: ratings.length }] : []),
                     ]}
                   />
 

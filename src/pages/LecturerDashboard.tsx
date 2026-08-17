@@ -753,7 +753,7 @@ const LecturerDashboard = () => {
                   {isRtl ? "لوحة المحاضر" : "Lecturer Dashboard"}
                 </h1>
                 {jobRoleLabel && (
-                  <span className="inline-flex items-center shrink-0 px-2.5 py-0.5 rounded-full text-xs sm:text-sm font-extrabold tracking-tight bg-teal-500/10 border border-teal-500/40 text-teal-700 dark:bg-teal-400/10 dark:border-teal-300/40 dark:text-teal-300 shadow-sm shadow-teal-500/10 whitespace-nowrap">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary/10 text-primary border border-primary/20 whitespace-nowrap">
                     {isRtl ? jobRoleLabel.ar : jobRoleLabel.en}
                   </span>
                 )}
@@ -880,13 +880,13 @@ const LecturerDashboard = () => {
                   naturalRtl
                   items={[
                     { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video, color: "from-cyan-500 to-teal-600", count: courses.length },
-                    { key: "live", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", count: streams.length },
+                    { key: "live", label: isRtl ? "البث المباشر" : "Live Stream", Icon: Radio, color: "from-red-500 to-rose-600", count: streams.length },
                     { key: "quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: HelpCircle, color: "from-amber-500 to-amber-600", count: quizzes.length },
-                    { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-blue-500 to-blue-600", count: assignments.length },
+                    { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-blue-500 to-indigo-600", count: assignments.length },
                     { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-purple-500 to-purple-600", count: schedules.length },
-                    { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-teal-500 to-teal-600", count: attendance.length },
-                    { key: "results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-indigo-600", count: quizSubmissions.length },
-                    { key: "reports", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, color: "from-green-500 to-green-600", count: attachments.length },
+                    { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-teal-500 to-emerald-600", count: attendance.length },
+                    { key: "results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", count: quizSubmissions.length },
+                    { key: "reports", label: isRtl ? "تحميل التقارير" : "Reports", Icon: Download, color: "from-green-500 to-green-600", count: attachments.length },
                   ]}
                 />
               </TabsContent>

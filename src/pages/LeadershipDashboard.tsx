@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Globe, ArrowLeft, ArrowRight, Loader2, Users, BookOpen, Calendar,
   Video, FileText, Download, BarChart3, Clock, CheckCircle, AlertCircle,
-  GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, Menu, Home, XCircle, Award, ShieldCheck, User, RefreshCw
+  GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, Menu, Home, XCircle, Award, ShieldCheck, User, RefreshCw,
+  Plus, Upload
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +14,11 @@ import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
@@ -39,6 +45,7 @@ const LeadershipDashboard = () => {
 
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string>("");
+  const [profile, setProfile] = useState<any>(null);
   const [userRole, setUserRole] = useState("");
   const [subRole, setSubRole] = useState<string>("");
   const [specificRole, setSpecificRole] = useState<string>("");
@@ -87,6 +94,29 @@ const LeadershipDashboard = () => {
   
   const [lectureSchedules, setLectureSchedules] = useState<any[]>([]);
 
+  // Course creation
+  const [showNewCourse, setShowNewCourse] = useState(false);
+  const [newCourse, setNewCourse] = useState({
+    title_ar: "", title_en: "", category_ar: "", category_en: "",
+    instructor_ar: "", instructor_en: "", is_free: false, price: 0,
+    created_at: new Date().toISOString().slice(0, 10), expires_at: "", department_id: "",
+  });
+  const [thumbnail, setThumbnail] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [savingCourse, setSavingCourse] = useState(false);
+  const [myDepartments, setMyDepartments] = useState<Array<{ id: string; department_name: string }>>([]);
+
+  // Episode management
+  const [showEpisodeDialog, setShowEpisodeDialog] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+  const [courseEpisodes, setCourseEpisodes] = useState<any[]>([]);
+  const [courseAttachments, setCourseAttachments] = useState<any[]>([]);
+  const [newEpisode, setNewEpisode] = useState({ title_ar: "", title_en: "", video_url: "", duration_minutes: 0, is_preview: false });
+  const [savingEpisode, setSavingEpisode] = useState(false);
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
+  const [attachmentName, setAttachmentName] = useState("");
+  const [savingAttachment, setSavingAttachment] = useState(false);
+
   useEffect(() => {
     checkAccess();
   }, []);
@@ -114,6 +144,7 @@ const LeadershipDashboard = () => {
         .select("*")
         .eq("user_id", user.id)
         .maybeSingle();
+      setProfile(profile);
 
       if (!profile || !["department_head", "vice_dean", "dean"].includes(profile.role)) {
         toast({ title: isRtl ? "غير مصرح" : "Unauthorized", variant: "destructive" });
@@ -123,6 +154,7 @@ const LeadershipDashboard = () => {
 
       setUserRole(profile.role);
       setUserId(user.id);
+      await loadMyDepartments(user.id);
       try {
         const { data: sr } = await (supabase.rpc as any)("get_user_sub_role", { _user_id: user.id });
         setSubRole((sr as any) || "");
@@ -186,6 +218,113 @@ const LeadershipDashboard = () => {
     Object.entries(counts).forEach(([sid, set]) => { countMap[sid] = set.size; });
     setStreamAttendance(countMap);
     setLastLoadedAt(Date.now());
+  };
+
+  const loadMyDepartments = async (userId: string) => {
+    const { data } = await supabase
+      .from("department_members")
+      .select("department_id, departments(id, department_name)")
+      .eq("user_id", userId);
+    const deps = (data || [])
+      .map((r: any) => r.departments)
+      .filter(Boolean) as Array<{ id: string; department_name: string }>;
+    const seen = new Set<string>();
+    const unique = deps.filter(d => (seen.has(d.id) ? false : (seen.add(d.id), true)));
+    setMyDepartments(unique);
+  };
+
+  const handleCreateCourse = async () => {
+    if (!newCourse.title_ar || !newCourse.title_en) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى إدخال اسم المحاضرة" : "Please enter the lecture name", variant: "destructive" });
+      return;
+    }
+    if (!newCourse.department_id) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: isRtl ? "يرجى اختيار القسم" : "Please select a department", variant: "destructive" });
+      return;
+    }
+    setSavingCourse(true);
+    try {
+      let thumbnailUrl: string | null = null;
+      if (thumbnail && userId) {
+        const ext = thumbnail.name.split(".").pop();
+        const path = `${userId}/${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("course-thumbnails").upload(path, thumbnail);
+        if (upErr) throw upErr;
+        const { data: urlData } = supabase.storage.from("course-thumbnails").getPublicUrl(path);
+        thumbnailUrl = urlData.publicUrl;
+      }
+      const lecturerName = profile?.full_name || "";
+      const { error } = await supabase.from("courses").insert({
+        title_ar: newCourse.title_ar, title_en: newCourse.title_en,
+        category_ar: newCourse.category_ar || (isRtl ? "عام" : "General"),
+        category_en: newCourse.category_en || "General",
+        instructor_ar: lecturerName, instructor_en: lecturerName,
+        is_free: newCourse.is_free, creator_id: userId, thumbnail_url: thumbnailUrl,
+        department_id: newCourse.department_id,
+        expires_at: newCourse.expires_at || null,
+        created_at: newCourse.created_at ? new Date(newCourse.created_at).toISOString() : new Date().toISOString(),
+      } as any);
+      if (error) throw error;
+      toast({ title: isRtl ? "تم" : "Done", description: isRtl ? "تم إنشاء الدورة بنجاح" : "Course created successfully" });
+      setShowNewCourse(false);
+      setNewCourse({ title_ar: "", title_en: "", category_ar: "", category_en: "", instructor_ar: "", instructor_en: "", is_free: false, price: 0, created_at: new Date().toISOString().slice(0, 10), expires_at: "", department_id: "" });
+      setThumbnail(null); setThumbnailPreview(null);
+      await loadData();
+    } catch (err: any) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
+    } finally { setSavingCourse(false); }
+  };
+
+  const openEpisodes = async (courseId: string) => {
+    setSelectedCourseId(courseId);
+    setShowEpisodeDialog(true);
+    const { data } = await supabase.from("course_episodes").select("*").eq("course_id", courseId).order("episode_number");
+    setCourseEpisodes(data || []);
+    const { data: att } = await supabase.from("course_attachments").select("*").eq("course_id", courseId);
+    setCourseAttachments(att || []);
+  };
+
+  const handleAddEpisode = async () => {
+    if (!selectedCourseId || !newEpisode.title_ar || !newEpisode.title_en) return;
+    setSavingEpisode(true);
+    try {
+      const nextNum = courseEpisodes.length + 1;
+      const isFirstEpisode = nextNum === 1;
+      const { error } = await supabase.from("course_episodes").insert({
+        course_id: selectedCourseId, title_ar: newEpisode.title_ar, title_en: newEpisode.title_en,
+        video_url: newEpisode.video_url || null, duration_minutes: newEpisode.duration_minutes || 0,
+        is_preview: isFirstEpisode ? true : newEpisode.is_preview, episode_number: nextNum,
+      });
+      if (error) throw error;
+      await supabase.from("courses").update({ episode_count: nextNum }).eq("id", selectedCourseId);
+      setNewEpisode({ title_ar: "", title_en: "", video_url: "", duration_minutes: 0, is_preview: false });
+      const { data } = await supabase.from("course_episodes").select("*").eq("course_id", selectedCourseId).order("episode_number");
+      setCourseEpisodes(data || []);
+      await loadData();
+    } catch (err: any) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
+    } finally { setSavingEpisode(false); }
+  };
+
+  const handleAddAttachment = async () => {
+    if (!selectedCourseId || !attachmentFile || !attachmentName) return;
+    setSavingAttachment(true);
+    try {
+      const ext = attachmentFile.name.split(".").pop();
+      const path = `${userId}/${selectedCourseId}/${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("course-content").upload(path, attachmentFile);
+      if (upErr) throw upErr;
+      const { data: urlData } = supabase.storage.from("course-content").getPublicUrl(path);
+      const { error } = await supabase.from("course_attachments").insert({
+        course_id: selectedCourseId, name: attachmentName, file_url: urlData.publicUrl, file_type: ext || null,
+      });
+      if (error) throw error;
+      setAttachmentFile(null); setAttachmentName("");
+      const { data: att } = await supabase.from("course_attachments").select("*").eq("course_id", selectedCourseId);
+      setCourseAttachments(att || []);
+    } catch (err: any) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
+    } finally { setSavingAttachment(false); }
   };
 
   const handleManualRefresh = async () => {
@@ -630,66 +769,74 @@ const LeadershipDashboard = () => {
 
           {/* Lectures */}
           <TabsContent value="lectures" id="section-lectures" dir={isRtl ? "rtl" : "ltr"}>
+            <div className="flex items-center justify-start gap-2 mb-6">
+              <Button
+                onClick={() => setShowNewCourse(true)}
+                className="gap-2 font-bold bg-gradient-to-l from-primary to-primary/80 hover:scale-[1.02] shadow-md hover:shadow-lg transition-all border-2 border-primary/20"
+              >
+                <Plus className="w-4 h-4" strokeWidth={3} />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}
+              </Button>
+            </div>
 
-            {courses.filter(c => episodes.some(e => e.course_id === c.id)).length === 0 ? (
+            {courses.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center text-muted-foreground">
-                  {isRtl ? "لا توجد محاضرات منشورة بعد" : "No published lectures yet"}
+                  {isRtl ? "لا توجد محاضرات بعد. ابدأ بإنشاء أول محاضرة!" : "No lectures yet. Create your first one!"}
                 </CardContent>
               </Card>
             ) : (
               <div className="space-y-4">
-                {courses
-                  .filter(c => episodes.some(e => e.course_id === c.id))
-                  .map(course => {
-                    const courseEpisodes = episodes
-                      .filter(e => e.course_id === course.id)
-                      .sort((a, b) => (a.level_number - b.level_number) || (a.episode_number - b.episode_number));
-                    return (
-                      <Card key={course.id} className="overflow-hidden border-2 hover:border-primary/40 transition-colors">
-                        <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent pb-3">
-                          <div className="flex items-start justify-between gap-3 flex-wrap">
-                            <div className="min-w-0">
-                              <CardTitle className="text-base font-black text-foreground truncate">
-                                {isRtl ? course.title_ar : course.title_en}
-                              </CardTitle>
-                              <p className="text-xs text-muted-foreground font-bold mt-1 flex items-center gap-1.5">
-                                <GraduationCap className="w-3.5 h-3.5" />
-                                {isRtl ? course.instructor_ar : course.instructor_en}
-                              </p>
-                            </div>
-                            <Badge variant="outline" className="font-bold shrink-0">
-                              {courseEpisodes.length} {isRtl ? "محاضرة" : "lectures"}
-                            </Badge>
+                {courses.map(course => {
+                  const courseEps = episodes
+                    .filter(e => e.course_id === course.id)
+                    .sort((a, b) => (a.level_number - b.level_number) || (a.episode_number - b.episode_number));
+                  return (
+                    <Card key={course.id} className="overflow-hidden border-2 hover:border-primary/40 transition-colors">
+                      <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent pb-3">
+                        <div className="flex items-start justify-between gap-3 flex-wrap">
+                          <div className="min-w-0">
+                            <CardTitle className="text-base font-black text-foreground truncate">
+                              {isRtl ? course.title_ar : course.title_en}
+                            </CardTitle>
+                            <p className="text-xs text-muted-foreground font-bold mt-1 flex items-center gap-1.5">
+                              <GraduationCap className="w-3.5 h-3.5" />
+                              {isRtl ? course.instructor_ar : course.instructor_en}
+                            </p>
                           </div>
-                        </CardHeader>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="font-bold shrink-0">
+                              {courseEps.length} {isRtl ? "محاضرة" : "lectures"}
+                            </Badge>
+                            <Button
+                              size="sm"
+                              variant="default"
+                              onClick={() => openEpisodes(course.id)}
+                              className="gap-1 font-bold h-8 px-2"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              <span className="hidden sm:inline">{isRtl ? "إضافة" : "Add"}</span>
+                            </Button>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      {courseEps.length > 0 && (
                         <CardContent className="p-0 overflow-x-auto">
                           <Table>
                             <TableHeader>
                               <TableRow>
                                 <TableHead>{isRtl ? "المحاضرة" : "Lecture"}</TableHead>
-                                <TableHead className="hidden sm:table-cell">{isRtl ? "المستوى" : "Level"}</TableHead>
                                 <TableHead className="hidden sm:table-cell">{isRtl ? "الحلقة" : "Episode"}</TableHead>
                                 <TableHead className="hidden sm:table-cell">{isRtl ? "المدة" : "Duration"}</TableHead>
-                                <TableHead className="text-end">{isRtl ? "إجراء" : "Action"}</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
-                              {courseEpisodes.map(ep => (
+                              {courseEps.map(ep => (
                                 <TableRow key={ep.id}>
-                                  <TableCell className="font-medium max-w-[180px] sm:max-w-none">
+                                  <TableCell className="font-medium">
                                     <div className="flex items-center gap-2">
                                       <Video className="w-4 h-4 text-primary shrink-0" />
                                       <span className="truncate">{isRtl ? ep.title_ar : ep.title_en}</span>
-                                      {ep.is_preview && (
-                                        <Badge variant="secondary" className="text-[10px] shrink-0 hidden sm:inline-flex">
-                                          {isRtl ? "تجريبي" : "Preview"}
-                                        </Badge>
-                                      )}
                                     </div>
-                                  </TableCell>
-                                  <TableCell className="hidden sm:table-cell">
-                                    <Badge variant="outline">{ep.level_number}</Badge>
                                   </TableCell>
                                   <TableCell className="hidden sm:table-cell">{ep.episode_number}</TableCell>
                                   <TableCell className="hidden sm:table-cell">
@@ -698,25 +845,15 @@ const LeadershipDashboard = () => {
                                       {ep.duration_minutes || 0} {isRtl ? "د" : "min"}
                                     </span>
                                   </TableCell>
-                                  <TableCell className="text-end">
-                                    <Button
-                                      size="sm"
-                                      variant="default"
-                                      onClick={() => navigate(`/lecturer/course/${course.id}`)}
-                                      className="gap-1 font-bold h-8 px-2 sm:h-9 sm:px-3"
-                                    >
-                                      <Eye className="w-3.5 h-3.5" />
-                                      <span className="hidden sm:inline">{isRtl ? "عرض" : "View"}</span>
-                                    </Button>
-                                  </TableCell>
                                 </TableRow>
                               ))}
                             </TableBody>
                           </Table>
                         </CardContent>
-                      </Card>
-                    );
-                  })}
+                      )}
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </TabsContent>
@@ -1260,6 +1397,99 @@ const LeadershipDashboard = () => {
 
         </Tabs>
       </main>
+
+      {/* New Course Dialog */}
+      <Dialog open={showNewCourse} onOpenChange={setShowNewCourse}>
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>{isRtl ? "إنشاء محاضرة جديدة" : "Create New Lecture"}</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المحاضر" : "Lecturer Name"}</Label>
+              <Input value={profile?.full_name || ""} disabled readOnly className="bg-muted/50" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المادة (عربي)" : "Subject (Arabic)"}</Label>
+                <Input value={newCourse.category_ar} onChange={e => setNewCourse(p => ({ ...p, category_ar: e.target.value }))} placeholder={isRtl ? "مثال: هندسة" : "e.g. Engineering"} />
+              </div>
+              <div>
+                <Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المادة (إنجليزي)" : "Subject (English)"}</Label>
+                <Input value={newCourse.category_en} onChange={e => setNewCourse(p => ({ ...p, category_en: e.target.value }))} placeholder="e.g. Engineering" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "عنوان المحاضرة (عربي)" : "Lecture Title (Arabic)"} *</Label><Input value={newCourse.title_ar} onChange={e => setNewCourse(p => ({ ...p, title_ar: e.target.value }))} /></div>
+              <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "عنوان المحاضرة (إنجليزي)" : "Lecture Title (English)"} *</Label><Input value={newCourse.title_en} onChange={e => setNewCourse(p => ({ ...p, title_en: e.target.value }))} /></div>
+            </div>
+            <div>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "القسم" : "Department"} *</Label>
+              <Select value={newCourse.department_id} onValueChange={v => setNewCourse(p => ({ ...p, department_id: v }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder={myDepartments.length === 0 ? (isRtl ? "لست عضواً في أي قسم" : "Not a member of any department") : (isRtl ? "اختر القسم" : "Select department")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {myDepartments.map(d => (
+                    <SelectItem key={d.id} value={d.id}>{d.department_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "تاريخ انتهاء المحاضرة" : "Lecture Expiry Date"}</Label>
+              <Input type="date" value={newCourse.expires_at} onChange={e => setNewCourse(p => ({ ...p, expires_at: e.target.value }))} />
+            </div>
+            <Button onClick={handleCreateCourse} disabled={savingCourse} className="w-full gap-2">
+              {savingCourse ? <Loader2 className="w-4 h-4 animate-spin" /> : (<><Plus className="w-4 h-4" />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</>)}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Episodes & Attachments Dialog */}
+      <Dialog open={showEpisodeDialog} onOpenChange={setShowEpisodeDialog}>
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>{isRtl ? "المحاضرات والمرفقات" : "Lectures & Attachments"}</DialogTitle></DialogHeader>
+          <div>
+            <h3 className="font-bold text-foreground mb-3 flex items-center gap-2"><Video className="w-4 h-4" /> {isRtl ? "المحاضرات" : "Lectures"}</h3>
+            {courseEpisodes.length > 0 && <div className="space-y-2 mb-4">{courseEpisodes.map(ep => (
+              <div key={ep.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
+                <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">{ep.episode_number}</span>
+                <div className="flex-1"><p className="font-semibold text-sm">{isRtl ? ep.title_ar : ep.title_en}</p>{ep.duration_minutes > 0 && <p className="text-xs text-muted-foreground">{ep.duration_minutes} {isRtl ? "دقيقة" : "min"}</p>}</div>
+                {ep.is_preview && <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{isRtl ? "معاينة" : "Preview"}</span>}
+              </div>
+            ))}</div>}
+            <div className="space-y-3 p-4 rounded-lg border border-dashed">
+              <p className="text-sm font-semibold text-muted-foreground">{isRtl ? "إضافة محاضرة جديدة" : "Add New Lecture"}</p>
+              <div className="grid grid-cols-2 gap-3">
+                <Input placeholder={isRtl ? "عنوان (عربي)" : "Title (Arabic)"} value={newEpisode.title_ar} onChange={e => setNewEpisode(p => ({ ...p, title_ar: e.target.value }))} />
+                <Input placeholder={isRtl ? "عنوان (إنجليزي)" : "Title (English)"} value={newEpisode.title_en} onChange={e => setNewEpisode(p => ({ ...p, title_en: e.target.value }))} />
+              </div>
+              <Input placeholder={isRtl ? "رابط الفيديو" : "Video URL"} value={newEpisode.video_url} onChange={e => setNewEpisode(p => ({ ...p, video_url: e.target.value }))} />
+              <div className="flex items-center gap-4">
+                <Input type="number" placeholder={isRtl ? "المدة (دقائق)" : "Duration (min)"} value={newEpisode.duration_minutes || ""} onChange={e => setNewEpisode(p => ({ ...p, duration_minutes: parseInt(e.target.value) || 0 }))} className="flex-1" />
+                <div className="flex items-center gap-2"><Switch checked={newEpisode.is_preview} onCheckedChange={v => setNewEpisode(p => ({ ...p, is_preview: v }))} /><Label className="text-sm">{isRtl ? "معاينة" : "Preview"}</Label></div>
+              </div>
+              <Button size="sm" onClick={handleAddEpisode} disabled={savingEpisode}><Plus className="w-3.5 h-3.5 me-1" /> {isRtl ? "إضافة" : "Add"}</Button>
+            </div>
+          </div>
+          <Separator className="my-4" />
+          <div>
+            <h3 className="font-bold text-foreground mb-3 flex items-center gap-2"><FileText className="w-4 h-4" /> {isRtl ? "المرفقات" : "Attachments"}</h3>
+            {courseAttachments.length > 0 && <div className="space-y-2 mb-4">{courseAttachments.map(att => (
+              <div key={att.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
+                <FileText className="w-4 h-4 text-muted-foreground" /><span className="flex-1 text-sm font-semibold">{att.name}</span>
+                <a href={att.file_url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline">{isRtl ? "تحميل" : "Download"}</a>
+              </div>
+            ))}</div>}
+            <div className="space-y-3 p-4 rounded-lg border border-dashed">
+              <Input placeholder={isRtl ? "اسم الملف" : "File name"} value={attachmentName} onChange={e => setAttachmentName(e.target.value)} />
+              <Input type="file" onChange={e => setAttachmentFile(e.target.files?.[0] || null)} />
+              <Button size="sm" onClick={handleAddAttachment} disabled={savingAttachment || !attachmentFile || !attachmentName}><Upload className="w-3.5 h-3.5 me-1" /> {isRtl ? "رفع" : "Upload"}</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 };

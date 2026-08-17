@@ -28,7 +28,8 @@ const InstitutionFacultyAdd = () => {
   const [departments, setDepartments] = useState<DepartmentOption[]>([]);
 
   const institutionId = identity?.institutionId ?? "";
-  const institutionType = identity?.institutionType ?? "";
+  const institutionType: "college" | "institute" =
+    identity?.institutionType === "institute" ? "institute" : "college";
   const subscriptionPlan = identity?.subscriptionPlan ?? "free";
 
   useEffect(() => {

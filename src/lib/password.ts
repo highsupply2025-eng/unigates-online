@@ -3,29 +3,32 @@ type PasswordError = {
   code?: string;
 };
 
-/** Returns a friendly localized message for known password-policy failures. */
-export function getPasswordErrorMessage(error: unknown, isRtl: boolean): string | null {
-  const value = error as PasswordError | null;
-  const message = value?.message ?? "";
-  const code = value?.code ?? "";
+export const getPasswordErrorMessage = (
+  error: PasswordError | null | undefined,
+  isRtl: boolean,
+): string | null => {
+  if (!error) return null;
 
-  if (/same_password|different from the old|new password should be different/i.test(`${code} ${message}`)) {
+  const message = (error.message || "").toLowerCase();
+  const code = (error.code || "").toLowerCase();
+
+  if (message.includes("same password") || message.includes("different from the old") || code.includes("same_password")) {
     return isRtl
-      ? "يجب أن تكون كلمة المرور الجديدة مختلفة عن الحالية."
+      ? "يجب أن تكون كلمة المرور الجديدة مختلفة عن كلمة المرور الحالية."
       : "The new password must be different from your current password.";
   }
 
-  if (/weak|known to be weak|easy to guess|compromised|breached|pwned/i.test(`${code} ${message}`)) {
+  if (message.includes("weak") || message.includes("breached") || code.includes("weak_password")) {
     return isRtl
-      ? "كلمة المرور ضعيفة أو ظهرت في تسريب سابق. اختر كلمة أقوى تحتوي على أحرف كبيرة وصغيرة وأرقام ورموز."
-      : "This password is weak or has appeared in a data breach. Choose a stronger password with upper and lowercase letters, numbers, and symbols.";
+      ? "كلمة المرور ضعيفة أو ظهرت في تسريب سابق. اختر كلمة مرور أقوى."
+      : "This password is weak or has appeared in a previous data breach. Choose a stronger password.";
   }
 
-  if (/password.*(short|length)|at least.*characters/i.test(message)) {
+  if (message.includes("least") || message.includes("short") || code.includes("password_length")) {
     return isRtl
       ? "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل."
-      : "Password must be at least 8 characters.";
+      : "Password must be at least 8 characters long.";
   }
 
   return null;
-}
+};

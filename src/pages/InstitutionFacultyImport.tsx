@@ -114,20 +114,6 @@ const InstitutionFacultyImport = () => {
       "رابط الصورة (اختياري)",
       "صورة شخصية",
     ];
-    const keys = [
-      "departments",
-      "full_name",
-      "date_of_birth",
-      "gender",
-      "national_id",
-      "phone",
-      "email",
-      "address",
-      "qualification",
-      "notes",
-      "photo_url",
-      "photo_image",
-    ];
     const exampleRow = isEn
       ? [
           "Computer Engineering",
@@ -159,7 +145,6 @@ const InstitutionFacultyImport = () => {
         ];
 
     ws.addRow(headers);
-    ws.addRow(keys);
     ws.addRow(exampleRow);
 
     const headerRow = ws.getRow(1);
@@ -175,12 +160,6 @@ const InstitutionFacultyImport = () => {
       cell.border = {
         bottom: { style: "thin", color: { argb: "FF15803D" } },
       };
-    });
-
-    const keyRow = ws.getRow(2);
-    keyRow.font = { italic: true, size: 10, color: { argb: "FF6B7280" } };
-    keyRow.eachCell((cell) => {
-      cell.alignment = { horizontal: "center" };
     });
 
     ws.getColumn(1).width = 28;  // الأقسام
@@ -351,23 +330,6 @@ const InstitutionFacultyImport = () => {
           "رابط الصورة (اختياري)",
           "صورة شخصية 4×6",
         ];
-    const keys = [
-      "full_name",
-      "role",
-      "department",
-      "date_of_birth",
-      "gender",
-      "national_id",
-      "email",
-      "phone",
-      "address",
-      "qualification",
-      "specialization",
-      "hire_date",
-      "notes",
-      "photo_url",
-      "photo_image",
-    ];
     const exampleRow = isEn
       ? [
           "Ahmed Mohamed Ali",
@@ -405,7 +367,6 @@ const InstitutionFacultyImport = () => {
         ];
 
     ws.addRow(headers);
-    ws.addRow(keys);
     ws.addRow(exampleRow);
 
     const headerRow = ws.getRow(1);
@@ -420,12 +381,6 @@ const InstitutionFacultyImport = () => {
       cell.border = {
         bottom: { style: "thin", color: { argb: "FF15803D" } },
       };
-    });
-
-    const keyRow = ws.getRow(2);
-    keyRow.font = { italic: true, size: 10, color: { argb: "FF6B7280" } };
-    keyRow.eachCell((cell) => {
-      cell.alignment = { horizontal: "center" };
     });
 
     ws.getColumn(1).width = 24;  // Full Name
@@ -444,9 +399,9 @@ const InstitutionFacultyImport = () => {
     ws.getColumn(14).width = 32; // Photo URL
     ws.getColumn(15).width = 18; // Photo Image
 
-    // --- Data Validation: Role dropdown (column 2, rows 3–1000) ---
+    // --- Data Validation: Role dropdown (column 2, rows 2–1000) ---
     const roleList = FACULTY_ROLE_OPTIONS.map((r) => r[isEn ? "en" : "ar"]).join(",");
-    for (let row = 3; row <= 1000; row++) {
+    for (let row = 2; row <= 1000; row++) {
       ws.getCell(row, 2).dataValidation = {
         type: "list",
         allowBlank: true,
@@ -484,8 +439,8 @@ const InstitutionFacultyImport = () => {
 
     const instructions = isEn
       ? [
-          "1. Do not modify the header rows (row 1 and 2).",
-          "2. Start entering data from row 3.",
+          "1. Do not modify the header row (row 1).",
+          "2. Start entering data from row 2.",
           "3. Required fields: Full Name, Role. Department is optional.",
           "4. Role must be selected from the dropdown list in the template.",
           "5. Gender: male or female.",
@@ -497,8 +452,8 @@ const InstitutionFacultyImport = () => {
           "11. Use XLSX format for embedded photos; legacy XLS files import text data only.",
         ]
       : [
-          "1. لا تُغيّر صفوف العناوين (صف 1 و 2).",
-          "2. ابدأ إدخال البيانات من الصف 3.",
+          "1. لا تُغيّر صف العناوين (صف 1).",
+          "2. ابدأ إدخال البيانات من الصف 2.",
           "3. الحقول المطلوبة: الاسم الكامل، الوظيفة. القسم اختياري.",
           "4. يجب أن تكون الوظيفة من القائمة المنسدلة في القالب.",
           "5. النوع: male أو female.",
@@ -604,10 +559,10 @@ const InstitutionFacultyImport = () => {
         ? await extractEmbeddedFacultyPhotos(buf, isStudent ? STUDENT_PHOTO_HEADER : undefined)
         : new Map<number, EmbeddedFacultyPhoto>();
 
-      // Drop the "key" row (row 2 in template that contains english keys like full_name)
+      // Data rows start at row 2 (row 1 is the header)
       const data = rows.filter(r => {
         const fn = norm(r["الاسم الكامل"] || r["full_name"]);
-        return fn && fn !== "full_name";
+        return fn;
       });
 
       if (data.length === 0) throw new Error(isRtl ? "الملف فارغ" : "Empty file");
@@ -632,7 +587,7 @@ const InstitutionFacultyImport = () => {
 
       for (let i = 0; i < data.length; i++) {
         const r = data[i];
-        const sourceRow = typeof r.__rowNum__ === "number" ? r.__rowNum__ + 1 : i + 3;
+        const sourceRow = typeof r.__rowNum__ === "number" ? r.__rowNum__ + 1 : i + 2;
         const full_name = norm(r["الاسم الكامل"] || r["full_name"]);
         const roleRaw = norm(r["الوظيفة"] || r["role"]);
         const role = isStudent ? "student" : (ROLE_MAP[roleRaw] || ROLE_MAP[roleRaw.toLowerCase()]);
@@ -659,7 +614,7 @@ const InstitutionFacultyImport = () => {
           targetDeptIds = [...new Set(targetDeptIds)];
           if (unmatchedDeptNames.length > 0) {
             errors.push(
-              `${isRtl ? "صف" : "Row"} ${i + 3}: ${
+              `${isRtl ? "صف" : "Row"} ${i + 2}: ${
                 isRtl
                   ? `أقسام غير معروفة: ${unmatchedDeptNames.join(", ")}`
                   : `Unknown departments: ${unmatchedDeptNames.join(", ")}`
@@ -668,7 +623,7 @@ const InstitutionFacultyImport = () => {
           }
           if (targetDeptIds.length === 0) {
             failed++;
-            errors.push(`${isRtl ? "صف" : "Row"} ${i + 3}: ${isRtl ? "القسم مفقود أو غير صالح" : "missing or invalid department"}`);
+            errors.push(`${isRtl ? "صف" : "Row"} ${i + 2}: ${isRtl ? "القسم مفقود أو غير صالح" : "missing or invalid department"}`);
             continue;
           }
         } else {
@@ -688,7 +643,7 @@ const InstitutionFacultyImport = () => {
   failed++;
 
   errors.push(
-    `${isRtl ? "صف" : "Row"} ${i + 3}: ${
+    `${isRtl ? "صف" : "Row"} ${i + 2}: ${
       !full_name
         ? isRtl
           ? "اسم مفقود"
@@ -846,7 +801,7 @@ if (isStudent) {
     if (errStep === "faculty_email_exists" || errStep === "auth_email_exists") {
       skipped++;
       errors.push(
-        `${isRtl ? "صف" : "Row"} ${i + 3}: ${
+        `${isRtl ? "صف" : "Row"} ${i + 2}: ${
           isRtl
             ? `البريد «${baseRow.email}» مسجّل مسبقاً — تم التخطي`
             : `Email "${baseRow.email}" already registered — skipped`
@@ -876,7 +831,7 @@ if (insertError) {
   failed++;
 
   errors.push(
-    `${isRtl ? "صف" : "Row"} ${i + 3}: ${insertError.message}`,
+    `${isRtl ? "صف" : "Row"} ${i + 2}: ${insertError.message}`,
   );
 } else {
   success++;

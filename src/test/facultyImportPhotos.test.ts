@@ -22,13 +22,12 @@ async function workbookWithImages(imageCount = 1): Promise<ArrayBuffer> {
   const worksheet = workbook.addWorksheet("Members");
   const headers = Array.from({ length: 14 }, (_, index) => index === 13 ? FACULTY_PHOTO_HEADER : `field_${index}`);
   worksheet.addRow(headers);
-  worksheet.addRow(headers.map((_, index) => index === 13 ? "photo_image" : `key_${index}`));
   worksheet.addRow(["Faculty Member"]);
 
   for (let i = 0; i < imageCount; i++) {
     const imageId = workbook.addImage({ base64: tinyPng, extension: "png" });
     worksheet.addImage(imageId, {
-      tl: { col: 13, row: 2 },
+      tl: { col: 13, row: 1 },
       ext: { width: 40, height: 60 },
     });
   }
@@ -46,22 +45,19 @@ describe("faculty Excel embedded photos", () => {
     worksheet.getRow(1).eachCell((cell) => headers.push(String(cell.value ?? "").trim()));
 
     expect(headers).toContain(FACULTY_PHOTO_HEADER);
-    const photoColumn = headers.indexOf(FACULTY_PHOTO_HEADER) + 1;
-    expect(worksheet.getCell(2, photoColumn).value).toBe("photo_image");
   });
 
   it("extracts a JPG or PNG anchored in the photo cell for its source row", async () => {
     const photos = await extractEmbeddedFacultyPhotos(await workbookWithImages());
 
-    expect([...photos.keys()]).toEqual([3]);
-    expect(photos.get(3)?.contentType).toBe("image/png");
-    expect(photos.get(3)?.bytes.slice(0, 4)).toEqual(new Uint8Array([0x89, 0x50, 0x4e, 0x47]));
+    expect([...photos.keys()]).toEqual([2]);
+    expect(photos.get(2)?.contentType).toBe("image/png");
+    expect(photos.get(2)?.bytes.slice(0, 4)).toEqual(new Uint8Array([0x89, 0x50, 0x4e, 0x47]));
   });
 
-  it("rejects multiple embedded photos in one member row", async () => {
-    await expect(extractEmbeddedFacultyPhotos(await workbookWithImages(2))).rejects.toThrow(
-      "Only one faculty photo is allowed in row 3",
-    );
+  it("skips duplicate embedded photos in one member row", async () => {
+    const photos = await extractEmbeddedFacultyPhotos(await workbookWithImages(2));
+    expect(photos.size).toBe(1);
   });
 
   it("center-crops landscape and tall images to a 2:3 portrait ratio", () => {
@@ -77,7 +73,7 @@ describe("faculty Excel embedded photos", () => {
   });
 
   it("passes resized photos to the secure account function and refreshes the faculty list", () => {
-    expect(importPage).toContain("extractEmbeddedFacultyPhotos(buf)");
+    expect(importPage).toContain("extractEmbeddedFacultyPhotos(buf, isStudent ? STUDENT_PHOTO_HEADER : undefined)");
     expect(importPage).toContain("photo: photoPayload");
     expect(importPage).toContain('supabase.rpc("assign_faculty_department"');
     expect(importPage).toContain('sessionStorage.setItem("institution-dashboard-force-refresh"');

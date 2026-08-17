@@ -97,7 +97,7 @@ export async function extractEmbeddedFacultyPhotos(
   for (const drawing of drawings) {
     const rowNumber = Math.floor(drawing.range.tl.nativeRow) + 1;
     const columnNumber = Math.floor(drawing.range.tl.nativeCol) + 1;
-    if (columnNumber !== photoColumn || rowNumber < 3) continue;
+    if (columnNumber !== photoColumn || rowNumber < 2) continue;
     if (photos.has(rowNumber)) {
       // Duplicate photo in the same row — skip the extra one rather than
       // aborting the entire workbook import.

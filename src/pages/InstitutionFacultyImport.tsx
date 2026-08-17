@@ -198,26 +198,30 @@ const InstitutionFacultyImport = () => {
 
     const instructions = isEn
       ? [
-          "1. Enter the department name as registered in the dashboard (case-insensitive).",
-          "2. To register a student in multiple departments, separate names with commas in the same cell. e.g. Computer Engineering, Computer Science",
-          "3. You can also use department codes instead of names.",
-          "4. Only Full Name and Department are required fields.",
-          "5. Date of birth in YYYY-MM-DD format (e.g. 2002-05-15).",
-          "6. Gender: male or female.",
-          "7. Photo is optional — insert a JPG or PNG into the 'Photo Image' cell for that student.",
-          "8. You can also enter an external photo URL in the 'Photo URL (optional)' column.",
-          "9. Use XLSX format for embedded photos; legacy XLS files import text data only.",
+          "1. Do not modify the header row (row 1).",
+          "2. Start entering data from row 2.",
+          "3. Enter the department name as registered in the dashboard (case-insensitive).",
+          "4. To register a student in multiple departments, separate names with commas in the same cell. e.g. Computer Engineering, Computer Science",
+          "5. You can also use department codes instead of names.",
+          "6. Only Full Name and Department are required fields.",
+          "7. Date of birth in YYYY-MM-DD format (e.g. 2002-05-15).",
+          "8. Gender: male or female.",
+          "9. Photo is optional — insert a JPG or PNG into the 'Photo Image' cell for that student.",
+          "10. You can also enter an external photo URL in the 'Photo URL (optional)' column.",
+          "11. Use XLSX format for embedded photos; legacy XLS files import text data only.",
         ]
       : [
-          "1. يجب إدخال اسم القسم كما هو مسجل في لوحة الإدارة (مطابقة غير حساسة لحالة الأحرف).",
-          "2. لتسجيل الطالب لأكثر من قسم، افصل الأسماء بفاصلة في نفس الخلية. مثال: هندسة الحاسب, علوم الحاسب",
-          "3. يمكنك أيضًا استخدام أكواد الأقسام بدل الأسماء.",
-          "4. الاسم الكامل والقسم فقط هما الحقول المطلوبة.",
-          "5. تاريخ الميلاد بصيغة YYYY-MM-DD (مثال: 2002-05-15).",
-          "6. النوع: ذكر أو أنثى.",
-          "7. الصورة الشخصية اختيارية — أدرج صورة JPG أو PNG داخل خلية «صورة شخصية» في صف الطالب.",
-          "8. يمكنك أيضًا إدخال رابط صورة خارجي في عمود «رابط الصورة (اختياري)».",
-          "9. استخدم صيغة XLSX عند إدراج الصور؛ ملفات XLS القديمة تستورد البيانات النصية فقط.",
+          "1. لا تُغيّر صف العناوين (صف 1).",
+          "2. ابدأ إدخال البيانات من الصف 2.",
+          "3. يجب إدخال اسم القسم كما هو مسجل في لوحة الإدارة (مطابقة غير حساسة لحالة الأحرف).",
+          "4. لتسجيل الطالب لأكثر من قسم، افصل الأسماء بفاصلة في نفس الخلية. مثال: هندسة الحاسب, علوم الحاسب",
+          "5. يمكنك أيضًا استخدام أكواد الأقسام بدل الأسماء.",
+          "6. الاسم الكامل والقسم فقط هما الحقول المطلوبة.",
+          "7. تاريخ الميلاد بصيغة YYYY-MM-DD (مثال: 2002-05-15).",
+          "8. النوع: ذكر أو أنثى.",
+          "9. الصورة الشخصية اختيارية — أدرج صورة JPG أو PNG داخل خلية «صورة شخصية» في صف الطالب.",
+          "10. يمكنك أيضًا إدخال رابط صورة خارجي في عمود «رابط الصورة (اختياري)».",
+          "11. استخدم صيغة XLSX عند إدراج الصور؛ ملفات XLS القديمة تستورد البيانات النصية فقط.",
         ];
     instructions.forEach((line) => is.addRow([line]));
 

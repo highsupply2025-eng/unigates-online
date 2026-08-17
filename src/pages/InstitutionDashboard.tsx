@@ -288,6 +288,7 @@ const InstitutionDashboard = () => {
   }, [searchParams]);
 
   const [institutionType, setInstitutionType] = useState<"college" | "institute" | null>(null);
+  const isCollege = institutionType === "college";
   const [institutionName, setInstitutionName] = useState("");
   const [institutionId, setInstitutionId] = useState("");
   const [subscriptionPlan, setSubscriptionPlan] = useState<string | null>(null);
@@ -1944,11 +1945,11 @@ ${exams.map((s: any, i: number) => `<tr>
                       lecturer: { ar: "محاضر", en: "Lecturer" },
                       student: { ar: "طالب", en: "Student" },
                       department_head: { ar: "رئيس قسم", en: "Department Head" },
-                      dean: { ar: "عميد الكلية", en: "Dean" },
-                      vice_dean_students: { ar: "وكيل الكلية لشئون الطلاب", en: "Vice Dean - Student Affairs" },
-                      vice_dean_postgrad: { ar: "وكيل الكلية للدراسات العليا", en: "Vice Dean - Postgraduate Studies" },
-                      vice_dean_environment: { ar: "وكيل الكلية لشئون البيئة", en: "Vice Dean - Environment Affairs" },
-                      vice_dean: { ar: "وكيل الكلية", en: "Vice Dean" },
+                      dean: { ar: isCollege ? "عميد الكلية" : "مدير المعهد", en: isCollege ? "Dean" : "Director" },
+                      vice_dean_students: { ar: isCollege ? "وكيل الكلية لشئون الطلاب" : "وكيل المعهد لشئون الطلاب", en: "Vice Dean - Student Affairs" },
+                      vice_dean_postgrad: { ar: isCollege ? "وكيل الكلية للدراسات العليا" : "وكيل المعهد للدراسات العليا", en: "Vice Dean - Postgraduate Studies" },
+                      vice_dean_environment: { ar: isCollege ? "وكيل الكلية لشئون البيئة" : "وكيل المعهد لشئون البيئة", en: "Vice Dean - Environment Affairs" },
+                      vice_dean: { ar: isCollege ? "وكيل الكلية" : "وكيل المعهد", en: isCollege ? "Vice Dean" : "Vice Director" },
                     };
                     const roleLabel = roleLabelMap[selectedMember.role] || { ar: selectedMember.role, en: selectedMember.role };
                     const joinedDate = linkedProfile?.created_at || selectedMember.created_at;
@@ -2133,13 +2134,13 @@ ${exams.map((s: any, i: number) => `<tr>
               className="mb-6"
               days={rangeDays}
               sections={[
-                { label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, timestamps: deptMembers.filter(isFacultyMember).map((m: any) => m.created_at) },
-                { label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, timestamps: departments.map((d: any) => d.created_at) },
-                { label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, timestamps: deptMembers.filter((m: any) => m.role === 'student').map((m: any) => m.created_at) },
-                { label: isRtl ? "اشتراك الطلاب" : "Student Subscriptions", Icon: CreditCard, timestamps: deptMembers.filter((m: any) => m.role === 'student' && m.user_id).map((m: any) => m.created_at) },
-                { label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, timestamps: examSchedules.map((s: any) => s.created_at) },
-                { label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
-                { label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, timestamps: institutionId ? [new Date().toISOString()] : [], fixedPercentage: 100 },
+                { label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, palette: { from: "#6366f1", to: "#4f46e5", glow: "99,102,241" }, timestamps: deptMembers.filter(isFacultyMember).map((m: any) => m.created_at) },
+                { label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, palette: { from: "#a855f7", to: "#9333ea", glow: "168,85,247" }, timestamps: departments.map((d: any) => d.created_at) },
+                { label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, palette: { from: "#f97316", to: "#ea580c", glow: "249,115,22" }, timestamps: deptMembers.filter((m: any) => m.role === 'student').map((m: any) => m.created_at) },
+                { label: isRtl ? "اشتراك الطلاب" : "Student Subscriptions", Icon: CreditCard, palette: { from: "#14b8a6", to: "#0d9488", glow: "20,184,166" }, timestamps: deptMembers.filter((m: any) => m.role === 'student' && m.user_id).map((m: any) => m.created_at) },
+                { label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, palette: { from: "#10b981", to: "#059669", glow: "16,185,129" }, timestamps: examSchedules.map((s: any) => s.created_at) },
+                { label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, palette: { from: "#0ea5e9", to: "#0284c7", glow: "14,165,233" }, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
+                { label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, palette: { from: "#06b6d4", to: "#0891b2", glow: "6,182,212" }, timestamps: institutionId ? [new Date().toISOString()] : [], fixedPercentage: 100 },
               ]}
             />
 
@@ -2305,10 +2306,10 @@ ${exams.map((s: any, i: number) => `<tr>
                 assistant_lecturer: 9,
               };
               const ROLE_LABELS: Record<string, { ar: string; en: string }> = {
-                dean: { ar: "عميد الكلية", en: "Dean" },
-                vice_dean_postgrad: { ar: "وكيل الكلية للدراسات العليا", en: "Vice Dean - Postgraduate" },
-                vice_dean_students: { ar: "وكيل الكلية لشئون الطلاب", en: "Vice Dean - Student Affairs" },
-                vice_dean_community: { ar: "وكيل الكلية لخدمة المجتمع", en: "Vice Dean - Community Service" },
+                dean: { ar: isCollege ? "عميد الكلية" : "مدير المعهد", en: isCollege ? "Dean" : "Director" },
+                vice_dean_postgrad: { ar: isCollege ? "وكيل الكلية للدراسات العليا" : "وكيل المعهد للدراسات العليا", en: "Vice Dean - Postgraduate" },
+                vice_dean_students: { ar: isCollege ? "وكيل الكلية لشئون الطلاب" : "وكيل المعهد لشئون الطلاب", en: "Vice Dean - Student Affairs" },
+                vice_dean_community: { ar: isCollege ? "وكيل الكلية لخدمة المجتمع" : "وكيل المعهد لخدمة المجتمع", en: "Vice Dean - Community Service" },
                 department_head: { ar: "رئيس القسم", en: "Department Head" },
                 professor: { ar: "أستاذ دكتور", en: "Professor" },
                 doctor: { ar: "دكتور", en: "Doctor" },

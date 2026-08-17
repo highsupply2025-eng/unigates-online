@@ -4,10 +4,13 @@ import { Badge } from "@/components/ui/badge";
 import StudentPageHeader from "@/components/StudentPageHeader";
 import StudentHero from "@/components/StudentHero";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useInstitutionIdentity } from "@/hooks/useInstitutionIdentity";
 
 const StudentMyAcademic = () => {
   const { language, dir } = useLanguage();
   const isRtl = language === "ar";
+  const { identity } = useInstitutionIdentity();
+  const isCollege = identity?.institutionType === "college";
 
   const collegeInfo = {
     nameAr: "كلية الهندسة - جامعة تجريبية",
@@ -25,10 +28,10 @@ const StudentMyAcademic = () => {
   ];
 
   const leadership = [
-    { roleAr: "عميد الكلية", roleEn: "Dean", nameAr: "أ.د. عمر سليم", nameEn: "Prof. Omar Salim", email: "dean@demo.edu" },
-    { roleAr: "وكيل الكلية لشؤون التعليم والطلاب", roleEn: "Vice Dean for Education & Student Affairs", nameAr: "أ.د. هدى ناصر", nameEn: "Prof. Hoda Nasser", email: "vd.edu@demo.edu" },
-    { roleAr: "وكيل الكلية للدراسات العليا والبحوث", roleEn: "Vice Dean for Postgraduate Studies & Research", nameAr: "أ.د. طارق فؤاد", nameEn: "Prof. Tarek Fouad", email: "vd.research@demo.edu" },
-    { roleAr: "وكيل الكلية لشؤون خدمة المجتمع وتنمية البيئة", roleEn: "Vice Dean for Community Service & Environmental Development", nameAr: "أ.د. منى عبد الرحمن", nameEn: "Prof. Mona Abdelrahman", email: "vd.community@demo.edu" },
+    { roleAr: isCollege ? "عميد الكلية" : "مدير المعهد", roleEn: isCollege ? "Dean" : "Director", nameAr: "أ.د. عمر سليم", nameEn: "Prof. Omar Salim", email: "dean@demo.edu" },
+    { roleAr: isCollege ? "وكيل الكلية لشؤون التعليم والطلاب" : "وكيل المعهد لشؤون التعليم والطلاب", roleEn: isCollege ? "Vice Dean for Education & Student Affairs" : "Vice Director for Education & Student Affairs", nameAr: "أ.د. هدى ناصر", nameEn: "Prof. Hoda Nasser", email: "vd.edu@demo.edu" },
+    { roleAr: isCollege ? "وكيل الكلية للدراسات العليا والبحوث" : "وكيل المعهد للدراسات العليا والبحوث", roleEn: isCollege ? "Vice Dean for Postgraduate Studies & Research" : "Vice Director for Postgraduate Studies & Research", nameAr: "أ.د. طارق فؤاد", nameEn: "Prof. Tarek Fouad", email: "vd.research@demo.edu" },
+    { roleAr: isCollege ? "وكيل الكلية لشؤون خدمة المجتمع وتنمية البيئة" : "وكيل المعهد لشؤون خدمة المجتمع وتنمية البيئة", roleEn: isCollege ? "Vice Dean for Community Service & Environmental Development" : "Vice Director for Community Service & Environmental Development", nameAr: "أ.د. منى عبد الرحمن", nameEn: "Prof. Mona Abdelrahman", email: "vd.community@demo.edu" },
   ];
 
   const departmentHead = { roleAr: "رئيس القسم", roleEn: "Department Head", nameAr: "د. خالد عبدالله", nameEn: "Dr. Khaled Abdullah", email: "head@demo.edu" };
@@ -73,7 +76,7 @@ const StudentMyAcademic = () => {
         <section>
           <div className="flex items-center gap-2 mb-3">
             <Crown className="w-5 h-5 text-amber-600" />
-            <h2 className="text-lg font-black">{isRtl ? "قيادة الكلية" : "College Leadership"}</h2>
+            <h2 className="text-lg font-black">{isRtl ? (isCollege ? "قيادة الكلية" : "قيادة المعهد") : (isCollege ? "College Leadership" : "Institute Leadership")}</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {leadership.map((p, i) => (

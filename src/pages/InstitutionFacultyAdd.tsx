@@ -253,6 +253,7 @@ const InstitutionFacultyAdd = () => {
       onCancel={() => navigate(-1)}
       isStudent={isStudent}
       departments={departments}
+      institutionType={institutionType}
       paymentButton={
         isStudent && createdStudentId && subscriptionPlan !== "free" ? (
           <Button

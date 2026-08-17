@@ -72,16 +72,23 @@ export function isStrongPassword(p: string): boolean {
   );
 }
 
-export const ROLE_OPTIONS: { value: string; ar: string; en: string }[] = [
-  { value: "dean", ar: "عميد الكلية", en: "Dean" },
-  { value: "vice_dean_postgrad", ar: "وكيل الكلية للدراسات العليا", en: "Vice Dean - Postgraduate Studies" },
-  { value: "vice_dean_students", ar: "وكيل الكلية لشئون الطلاب", en: "Vice Dean - Student Affairs" },
-  { value: "vice_dean_community", ar: "وكيل الكلية لشئون البيئة وخدمة المجتمع", en: "Vice Dean - Environment & Community Service" },
+const _ROLE_OPTIONS_BASE: { value: string; ar: string; en: string }[] = [
   { value: "department_head", ar: "رئيس القسم", en: "Department Head" },
   { value: "professor", ar: "أستاذ دكتور", en: "Professor" },
   { value: "doctor", ar: "دكتور", en: "Doctor" },
   { value: "assistant_lecturer", ar: "معيد", en: "Assistant Lecturer" },
 ];
+
+export const buildRoleOptions = (isCollege: boolean) => [
+  { value: "dean", ar: isCollege ? "عميد الكلية" : "مدير المعهد", en: isCollege ? "Dean" : "Director" },
+  { value: "vice_dean_postgrad", ar: isCollege ? "وكيل الكلية للدراسات العليا" : "وكيل المعهد للدراسات العليا", en: isCollege ? "Vice Dean - Postgraduate Studies" : "Vice Director - Postgraduate Studies" },
+  { value: "vice_dean_students", ar: isCollege ? "وكيل الكلية لشئون الطلاب" : "وكيل المعهد لشئون الطلاب", en: isCollege ? "Vice Dean - Student Affairs" : "Vice Director - Student Affairs" },
+  { value: "vice_dean_community", ar: isCollege ? "وكيل الكلية لشئون البيئة وخدمة المجتمع" : "وكيل المعهد لشئون البيئة وخدمة المجتمع", en: isCollege ? "Vice Dean - Environment & Community Service" : "Vice Director - Environment & Community Service" },
+  ..._ROLE_OPTIONS_BASE,
+];
+
+/** @deprecated Use buildRoleOptions(isCollege) instead. Kept for backward-compat with tests. */
+export const ROLE_OPTIONS = buildRoleOptions(true);
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -140,6 +147,8 @@ interface FacultyMemberFormProps {
   departments?: DepartmentOption[];
   /** Optional payment button for student subscription */
   paymentButton?: React.ReactNode;
+  /** Institution type for conditional role labels */
+  institutionType?: "college" | "institute";
 }
 
 /* ------------------------------------------------------------------ */
@@ -161,8 +170,10 @@ export const FacultyMemberForm = ({
   isStudent = false,
   departments = [],
   paymentButton,
+  institutionType = "college",
 }: FacultyMemberFormProps) => {
   const fileRef = useRef<HTMLInputElement>(null);
+  const roleOptions = useMemo(() => buildRoleOptions(institutionType === "college"), [institutionType]);
 
   const [uploading, setUploading] = useState(false);
   const [photoUrl, setPhotoUrl] = useState("");
@@ -446,10 +457,10 @@ export const FacultyMemberForm = ({
                     {roleReadonly ? (
                       <div className={`${inputCls} flex items-center px-3 bg-muted/50`}>
                         <span className="text-base font-semibold">
-                          {ROLE_OPTIONS.find((r) => r.value === role)
+                          {roleOptions.find((r) => r.value === role)
                             ? isRtl
-                              ? ROLE_OPTIONS.find((r) => r.value === role)!.ar
-                              : ROLE_OPTIONS.find((r) => r.value === role)!.en
+                              ? roleOptions.find((r) => r.value === role)!.ar
+                              : roleOptions.find((r) => r.value === role)!.en
                             : role}
                         </span>
                       </div>
@@ -461,7 +472,7 @@ export const FacultyMemberForm = ({
                           />
                         </SelectTrigger>
                         <SelectContent>
-                          {ROLE_OPTIONS.map((r) => (
+                          {roleOptions.map((r) => (
                             <SelectItem
                               key={r.value}
                               value={r.value}

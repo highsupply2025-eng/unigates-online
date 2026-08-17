@@ -57,19 +57,6 @@ interface Stats {
   quizzes: number;
 }
 
-const ROLE_LABELS: Record<string, { ar: string; en: string }> = {
-  dean: { ar: "عميد الكلية", en: "Dean" },
-  vice_dean_postgrad: { ar: "وكيل الكلية للدراسات العليا", en: "Vice Dean - Postgraduate" },
-  vice_dean_students: { ar: "وكيل الكلية لشئون الطلاب", en: "Vice Dean - Student Affairs" },
-  vice_dean_community: { ar: "وكيل الكلية لخدمة المجتمع", en: "Vice Dean - Community Service" },
-  department_head: { ar: "رئيس القسم", en: "Department Head" },
-  professor: { ar: "أستاذ دكتور", en: "Professor" },
-  doctor: { ar: "دكتور", en: "Doctor" },
-  lecturer: { ar: "محاضر", en: "Lecturer" },
-  assistant_lecturer: { ar: "معيد", en: "Assistant Lecturer" },
-  student: { ar: "طالب", en: "Student" },
-};
-
 const LecturerProfile = () => {
   const { memberId } = useParams<{ memberId: string }>();
   const navigate = useNavigate();
@@ -92,6 +79,29 @@ const LecturerProfile = () => {
   const [editEmail, setEditEmail] = useState("");
   const [editSaving, setEditSaving] = useState(false);
   const [actioning, setActioning] = useState(false);
+
+  const [showEditNonFaculty, setShowEditNonFaculty] = useState(false);
+  const [nfFullName, setNfFullName] = useState("");
+  const [nfEmail, setNfEmail] = useState("");
+  const [nfPhone, setNfPhone] = useState("");
+  const [nfRole, setNfRole] = useState("");
+  const [nfQualification, setNfQualification] = useState("");
+  const [nfSpecialization, setNfSpecialization] = useState("");
+  const [nfNotes, setNfNotes] = useState("");
+  const [nfSaving, setNfSaving] = useState(false);
+
+  const ROLE_LABELS: Record<string, { ar: string; en: string }> = {
+    dean: { ar: institutionType === "institute" ? "مدير المعهد" : "عميد الكلية", en: institutionType === "institute" ? "Director" : "Dean" },
+    vice_dean_postgrad: { ar: institutionType === "institute" ? "وكيل المعهد للدراسات العليا" : "وكيل الكلية للدراسات العليا", en: institutionType === "institute" ? "Vice Director - Postgraduate" : "Vice Dean - Postgraduate" },
+    vice_dean_students: { ar: institutionType === "institute" ? "وكيل المعهد لشئون الطلاب" : "وكيل الكلية لشئون الطلاب", en: institutionType === "institute" ? "Vice Director - Student Affairs" : "Vice Dean - Student Affairs" },
+    vice_dean_community: { ar: institutionType === "institute" ? "وكيل المعهد لخدمة المجتمع" : "وكيل الكلية لخدمة المجتمع", en: institutionType === "institute" ? "Vice Director - Community Service" : "Vice Dean - Community Service" },
+    department_head: { ar: "رئيس القسم", en: "Department Head" },
+    professor: { ar: "أستاذ دكتور", en: "Professor" },
+    doctor: { ar: "دكتور", en: "Doctor" },
+    lecturer: { ar: "محاضر", en: "Lecturer" },
+    assistant_lecturer: { ar: "معيد", en: "Assistant Lecturer" },
+    student: { ar: "طالب", en: "Student" },
+  };
 
   useEffect(() => { load(); }, [memberId]);
 
@@ -233,6 +243,52 @@ const LecturerProfile = () => {
     } catch {
       sonnerToast.error(isRtl ? "فشل حفظ التعديلات" : "Failed to save changes");
     } finally { setEditSaving(false); }
+  };
+
+  const openNonFacultyEdit = () => {
+    if (!member) return;
+    setNfFullName(member.full_name || "");
+    setNfEmail(member.email || "");
+    setNfPhone(member.phone || "");
+    setNfRole(member.role || "");
+    setNfQualification(member.qualification || "");
+    setNfSpecialization(member.specialization || "");
+    setNfNotes(member.notes || "");
+    setShowEditNonFaculty(true);
+  };
+
+  const handleSaveNonFacultyEdit = async () => {
+    if (!member || !nfFullName.trim()) return;
+    setNfSaving(true);
+    try {
+      const { error } = await supabase
+        .from("department_members")
+        .update({
+          full_name: nfFullName.trim(),
+          email: nfEmail.trim() || null,
+          phone: nfPhone.trim() || null,
+          role: nfRole || member.role,
+          qualification: nfQualification.trim() || null,
+          specialization: nfSpecialization.trim() || null,
+          notes: nfNotes.trim() || null,
+        })
+        .eq("id", member.id);
+      if (error) throw error;
+      setMember({
+        ...member,
+        full_name: nfFullName.trim(),
+        email: nfEmail.trim() || null,
+        phone: nfPhone.trim() || null,
+        role: nfRole || member.role,
+        qualification: nfQualification.trim() || null,
+        specialization: nfSpecialization.trim() || null,
+        notes: nfNotes.trim() || null,
+      });
+      sonnerToast.success(isRtl ? "تم حفظ التعديلات" : "Changes saved", { duration: 1200 });
+      setShowEditNonFaculty(false);
+    } catch {
+      sonnerToast.error(isRtl ? "فشل حفظ التعديلات" : "Failed to save changes");
+    } finally { setNfSaving(false); }
   };
 
   if (loading) {
@@ -461,14 +517,14 @@ const LecturerProfile = () => {
                   variant="default"
                   size="sm"
                   onClick={async () => {
-                    if (!member?.user_id) return;
+                    if (!member?.user_id) { openNonFacultyEdit(); return; }
                     const { data: ifm, error } = await supabase
                       .from("institution_faculty_members")
                       .select("id")
                       .eq("user_id", member.user_id)
                       .maybeSingle();
                     if (error || !ifm?.id) {
-                      sonnerToast.error(isRtl ? "تعذّر فتح شاشة التعديل" : "Cannot open edit screen", { description: isRtl ? "لا يوجد سجل عضو هيئة تدريس مرتبط بهذا الحساب." : "No faculty record is linked to this account." });
+                      openNonFacultyEdit();
                       return;
                     }
                     navigate(`/institution/faculty/${ifm.id}/edit`);
@@ -585,6 +641,68 @@ const LecturerProfile = () => {
               disabled={editSaving || !editFullName.trim()}
             >
               {editSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : (isRtl ? "حفظ" : "Save")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showEditNonFaculty} onOpenChange={setShowEditNonFaculty}>
+        <AlertDialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg w-full max-h-[85vh] overflow-y-auto">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{isRtl ? "تعديل بيانات العضو" : "Edit Member"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {isRtl ? "تعديل بيانات العضو في القسم" : "Edit the member's department record"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-3 my-2">
+            <div>
+              <label className="text-xs font-bold text-muted-foreground">{isRtl ? "الاسم الكامل" : "Full Name"}</label>
+              <input type="text" value={nfFullName} onChange={(e) => setNfFullName(e.target.value)}
+                className="w-full mt-1 px-3 py-2 rounded-lg border bg-background text-sm font-bold" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-bold text-muted-foreground">{isRtl ? "البريد الإلكتروني" : "Email"}</label>
+                <input type="email" value={nfEmail} onChange={(e) => setNfEmail(e.target.value)}
+                  className="w-full mt-1 px-3 py-2 rounded-lg border bg-background text-sm font-bold" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-muted-foreground">{isRtl ? "رقم الهاتف" : "Phone"}</label>
+                <input type="tel" value={nfPhone} onChange={(e) => setNfPhone(e.target.value)}
+                  className="w-full mt-1 px-3 py-2 rounded-lg border bg-background text-sm font-bold" />
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-bold text-muted-foreground">{isRtl ? "الدور" : "Role"}</label>
+              <select value={nfRole} onChange={(e) => setNfRole(e.target.value)}
+                className="w-full mt-1 px-3 py-2 rounded-lg border bg-background text-sm font-bold">
+                {Object.entries(ROLE_LABELS).map(([k, v]) => (
+                  <option key={k} value={k}>{isRtl ? v.ar : v.en}</option>
+                ))}
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-bold text-muted-foreground">{isRtl ? "المؤهل العلمي" : "Qualification"}</label>
+                <input type="text" value={nfQualification} onChange={(e) => setNfQualification(e.target.value)}
+                  className="w-full mt-1 px-3 py-2 rounded-lg border bg-background text-sm font-bold" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-muted-foreground">{isRtl ? "التخصص" : "Specialization"}</label>
+                <input type="text" value={nfSpecialization} onChange={(e) => setNfSpecialization(e.target.value)}
+                  className="w-full mt-1 px-3 py-2 rounded-lg border bg-background text-sm font-bold" />
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-bold text-muted-foreground">{isRtl ? "ملاحظات" : "Notes"}</label>
+              <textarea value={nfNotes} onChange={(e) => setNfNotes(e.target.value)} rows={2}
+                className="w-full mt-1 px-3 py-2 rounded-lg border bg-background text-sm font-bold resize-none" />
+            </div>
+          </div>
+          <AlertDialogFooter className={`gap-2 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
+            <AlertDialogCancel disabled={nfSaving}>{isRtl ? "إلغاء" : "Cancel"}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSaveNonFacultyEdit} disabled={nfSaving || !nfFullName.trim()}>
+              {nfSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : (isRtl ? "حفظ" : "Save")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

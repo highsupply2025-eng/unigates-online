@@ -8,10 +8,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useInstitutionIdentity } from "@/hooks/useInstitutionIdentity";
 import StudentPageHeader from "@/components/StudentPageHeader";
 
 const StudentResults = () => {
   const { dir } = useLanguage();
+  const { identity } = useInstitutionIdentity();
+  const isCollege = identity?.institutionType === "college";
   const navigate = useNavigate();
   const isRtl = dir === "rtl";
   const [loading, setLoading] = useState(true);
@@ -93,7 +96,9 @@ const StudentResults = () => {
               </h1>
               <p className="text-[11px] sm:text-sm text-white/90 mt-1 font-medium">
                 {isRtl
-                  ? "تظهر النتائج بعد اعتماد رئيس القسم ووكيل الكلية والعميد"
+                  ? isCollege
+                    ? "تظهر النتائج بعد اعتماد رئيس القسم ووكيل الكلية والعميد"
+                    : "تظهر النتائج بعد اعتماد رئيس القسم ووكيل المعهد ومدير المعهد"
                   : "Results appear after approval by department head, vice dean, and dean"}
               </p>
             </div>

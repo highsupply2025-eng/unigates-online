@@ -8,9 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useInstitutionIdentity } from "@/hooks/useInstitutionIdentity";
 import { toast } from "@/hooks/use-toast";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
+import { getPasswordErrorMessage } from "@/lib/password";
+import PasswordRequirementsHint from "@/components/PasswordRequirementsHint";
 
 interface ProfileData {
   full_name: string;
@@ -34,6 +37,8 @@ interface StudentRecord {
 
 const UserProfile = () => {
   const { dir, language, toggleLanguage } = useLanguage();
+  const { identity } = useInstitutionIdentity();
+  const isCollege = identity?.institutionType === "college";
   const isRtl = language === "ar";
   const navigate = useNavigate();
   const handleLogout = async () => { await supabase.auth.signOut(); navigate("/"); };
@@ -133,7 +138,8 @@ const UserProfile = () => {
     const { error } = await supabase.auth.updateUser({ password: newPass });
     setSavingPass(false);
     if (error) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+      const translated = getPasswordErrorMessage(error, isRtl);
+      toast({ title: isRtl ? "كلمة المرور مرفوضة" : "Password rejected", description: translated ?? error.message, variant: "destructive" });
       return;
     }
     setNewPass(""); setConfirmPass("");
@@ -166,7 +172,11 @@ const UserProfile = () => {
                 {isRtl ? "البيانات الشخصية" : "Personal Information"}
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground font-bold truncate mt-0.5">
-                {isRtl ? "بياناتك مسجلة من قِبَل إدارة الكلية" : "Registered by your college administration"}
+                {isRtl
+                  ? isCollege
+                    ? "بياناتك مسجلة من قِبَل إدارة الكلية"
+                    : "بياناتك مسجلة من قِبَل إدارة المعهد"
+                  : "Registered by your college administration"}
               </p>
             </div>
           </div>
@@ -287,7 +297,7 @@ const UserProfile = () => {
                   <Input className={inputCls} type={showPass ? "text" : "password"} value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} dir="ltr" />
                 </div>
               </div>
-              <p className="text-xs sm:text-sm text-muted-foreground font-semibold">{isRtl ? "8 أحرف على الأقل" : "At least 8 characters"}</p>
+              <PasswordRequirementsHint />
               <div className="flex justify-end">
                 <Button onClick={savePassword} disabled={savingPass} size="lg" variant="default" className="gap-2 shadow-lg shadow-primary/30 font-bold text-base">
                   {savingPass ? <Loader2 className="w-5 h-5 animate-spin" /> : <Lock className="w-5 h-5" />}

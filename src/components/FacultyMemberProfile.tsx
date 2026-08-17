@@ -15,6 +15,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
+import { getPasswordErrorMessage } from "@/lib/password";
+import PasswordRequirementsHint from "@/components/PasswordRequirementsHint";
 
 /**
  * Locked, read-only profile for faculty members (dean → assistant lecturer).
@@ -52,18 +54,18 @@ interface Academic {
   institutionType: "college" | "institute";
 }
 
-const ROLE_LABEL: Record<string, { ar: string; en: string }> = {
-  dean: { ar: "عميد الكلية", en: "Dean" },
-  vice_dean: { ar: "وكيل الكلية", en: "Vice Dean" },
-  vice_dean_postgrad: { ar: "وكيل الكلية للدراسات العليا", en: "Vice Dean - Postgraduate Studies" },
-  vice_dean_students: { ar: "وكيل الكلية لشئون الطلاب", en: "Vice Dean - Student Affairs" },
-  vice_dean_community: { ar: "وكيل الكلية لشئون البيئة وخدمة المجتمع", en: "Vice Dean - Community Service" },
+const buildRoleLabel = (institutionType: "college" | "institute"): Record<string, { ar: string; en: string }> => ({
+  dean: { ar: institutionType === "institute" ? "مدير المعهد" : "عميد الكلية", en: institutionType === "institute" ? "Director" : "Dean" },
+  vice_dean: { ar: institutionType === "institute" ? "وكيل المعهد" : "وكيل الكلية", en: institutionType === "institute" ? "Vice Director" : "Vice Dean" },
+  vice_dean_postgrad: { ar: institutionType === "institute" ? "وكيل المعهد للدراسات العليا" : "وكيل الكلية للدراسات العليا", en: institutionType === "institute" ? "Vice Director - Postgraduate Studies" : "Vice Dean - Postgraduate Studies" },
+  vice_dean_students: { ar: institutionType === "institute" ? "وكيل المعهد لشئون الطلاب" : "وكيل الكلية لشئون الطلاب", en: institutionType === "institute" ? "Vice Director - Student Affairs" : "Vice Dean - Student Affairs" },
+  vice_dean_community: { ar: institutionType === "institute" ? "وكيل المعهد لشئون البيئة وخدمة المجتمع" : "وكيل الكلية لشئون البيئة وخدمة المجتمع", en: institutionType === "institute" ? "Vice Director - Community Service" : "Vice Dean - Community Service" },
   department_head: { ar: "رئيس القسم", en: "Department Head" },
   professor: { ar: "أستاذ دكتور", en: "Professor" },
   doctor: { ar: "دكتور", en: "Doctor" },
   lecturer: { ar: "محاضر", en: "Lecturer" },
   assistant_lecturer: { ar: "معيد", en: "Assistant Lecturer" },
-};
+});
 
 interface Props {
   /** Header element rendered above the form (with dashboard menu, branding). */
@@ -155,7 +157,8 @@ const FacultyMemberProfile = ({ header }: Props) => {
     const { error } = await supabase.auth.updateUser({ password: newPass });
     setSavingPass(false);
     if (error) {
-      toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+      const translated = getPasswordErrorMessage(error, isRtl);
+      toast({ title: isRtl ? "كلمة المرور مرفوضة" : "Password rejected", description: translated ?? error.message, variant: "destructive" });
       return;
     }
     setNewPass(""); setConfirmPass("");
@@ -184,7 +187,7 @@ const FacultyMemberProfile = ({ header }: Props) => {
   const email = m.email || profile.email || "";
   const phone = m.phone || profile.phone || "";
   const roleKey = m.role || profile.role;
-  const roleLabel = ROLE_LABEL[roleKey || ""] || { ar: roleKey || "", en: roleKey || "" };
+  const roleLabel = buildRoleLabel(academic.institutionType)[roleKey || ""] || { ar: roleKey || "", en: roleKey || "" };
   const genderLabel = m.gender === "male" ? (isRtl ? "ذكر" : "Male") : m.gender === "female" ? (isRtl ? "أنثى" : "Female") : "";
 
   return (
@@ -318,7 +321,7 @@ const FacultyMemberProfile = ({ header }: Props) => {
                   <Input className={inputCls} type={showPass ? "text" : "password"} value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} dir="ltr" />
                 </div>
               </div>
-              <p className="text-xs sm:text-sm text-muted-foreground font-semibold">{isRtl ? "8 أحرف على الأقل" : "At least 8 characters"}</p>
+              <PasswordRequirementsHint />
               <div className="flex justify-end">
                 <Button onClick={savePassword} disabled={savingPass} size="lg" variant="default" className="gap-2 shadow-lg shadow-primary/30 font-bold text-base">
                   {savingPass ? <Loader2 className="w-5 h-5 animate-spin" /> : <Lock className="w-5 h-5" />}

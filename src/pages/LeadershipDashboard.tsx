@@ -204,9 +204,9 @@ const LeadershipDashboard = () => {
     if (specificRole) {
       const specificLabels: Record<string, { ar: string; en: string }> = {
         dean: { ar: institutionType === "institute" ? "مدير المعهد" : "عميد الكلية", en: institutionType === "institute" ? "Director" : "Dean" },
-        vice_dean_postgrad: { ar: "وكيل الكلية للدراسات العليا", en: "Vice Dean - Postgraduate Studies" },
-        vice_dean_students: { ar: "وكيل الكلية لشئون الطلاب", en: "Vice Dean - Student Affairs" },
-        vice_dean_community: { ar: "وكيل الكلية لشئون البيئة وخدمة المجتمع", en: "Vice Dean - Community Service" },
+        vice_dean_postgrad: { ar: institutionType === "institute" ? "وكيل المعهد للدراسات العليا" : "وكيل الكلية للدراسات العليا", en: institutionType === "institute" ? "Vice Director - Postgraduate Studies" : "Vice Dean - Postgraduate Studies" },
+        vice_dean_students: { ar: institutionType === "institute" ? "وكيل المعهد لشئون الطلاب" : "وكيل الكلية لشئون الطلاب", en: institutionType === "institute" ? "Vice Director - Student Affairs" : "Vice Dean - Student Affairs" },
+        vice_dean_community: { ar: institutionType === "institute" ? "وكيل المعهد لشئون البيئة وخدمة المجتمع" : "وكيل الكلية لشئون البيئة وخدمة المجتمع", en: institutionType === "institute" ? "Vice Director - Community Service" : "Vice Dean - Community Service" },
         department_head: { ar: "رئيس القسم", en: "Department Head" },
       };
       const sp = specificLabels[specificRole];
@@ -735,7 +735,7 @@ const LeadershipDashboard = () => {
                 if (!q.approved_by_lecturer) return { key: "lecturer", labelAr: "بانتظار المحاضر", labelEn: "Awaiting Lecturer", color: "from-slate-400 to-slate-500" };
                 if (!q.approved_by_head) return { key: "head", labelAr: "بانتظار رئيس القسم", labelEn: "Awaiting Department Head", color: "from-amber-500 to-orange-600" };
                 const vdAll = q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad && q.approved_by_vice_dean_environment;
-                if (!vdAll) return { key: "vd", labelAr: "بانتظار وكلاء الكلية", labelEn: "Awaiting Vice Deans", color: "from-blue-500 to-indigo-600" };
+                if (!vdAll) return { key: "vd", labelAr: institutionType === "institute" ? "بانتظار وكلاء المعهد" : "بانتظار وكلاء الكلية", labelEn: institutionType === "institute" ? "Awaiting Vice Directors" : "Awaiting Vice Deans", color: "from-blue-500 to-indigo-600" };
                 if (!q.approved_by_dean) return { key: "dean", labelAr: "بانتظار العميد", labelEn: "Awaiting Dean", color: "from-violet-500 to-purple-600" };
                 return { key: "done", labelAr: "معتمد بالكامل", labelEn: "Fully Approved", color: "from-emerald-500 to-green-600" };
               };

@@ -9,11 +9,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useInstitutionIdentity } from "@/hooks/useInstitutionIdentity";
 
 const QuizResultsAllContent = () => {
   const { dir } = useLanguage();
   const navigate = useNavigate();
   const isRtl = dir === "rtl";
+  const { identity } = useInstitutionIdentity();
+  const institutionType = identity?.institutionType ?? "college";
   const ChevronIcon = isRtl ? ChevronLeft : ChevronRight;
 
   const [loading, setLoading] = useState(true);
@@ -90,8 +93,8 @@ const QuizResultsAllContent = () => {
     if (fully) return { label: isRtl ? "منشورة" : "Published", variant: "default" as const };
     if (!q.approved_by_lecturer) return { label: isRtl ? "بانتظار المحاضر" : "Awaiting Lecturer", variant: "outline" as const };
     if (!q.approved_by_head) return { label: isRtl ? "بانتظار رئيس القسم" : "Awaiting Head", variant: "outline" as const };
-    if (!vdAll) return { label: isRtl ? "بانتظار وكلاء الكلية" : "Awaiting Vice Deans", variant: "outline" as const };
-    if (!q.approved_by_dean) return { label: isRtl ? "بانتظار العميد" : "Awaiting Dean", variant: "outline" as const };
+    if (!vdAll) return { label: isRtl ? (institutionType === "institute" ? "بانتظار وكلاء المعهد" : "بانتظار وكلاء الكلية") : (institutionType === "institute" ? "Awaiting Vice Directors" : "Awaiting Vice Deans"), variant: "outline" as const };
+    if (!q.approved_by_dean) return { label: isRtl ? (institutionType === "institute" ? "بانتظار مدير المعهد" : "بانتظار العميد") : (institutionType === "institute" ? "Awaiting Director" : "Awaiting Dean"), variant: "outline" as const };
     return { label: "—", variant: "outline" as const };
   };
 

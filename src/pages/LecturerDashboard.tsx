@@ -84,7 +84,8 @@ const LecturerDashboard = () => {
   const [viewsTimes, setViewsTimes] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState(initialTab);
   // Departments the lecturer is a member of (used to scope every created item to a department)
-  const [myDepartments, setMyDepartments] = useState<Array<{ id: string; department_name: string }>>([]);
+  const [myDepartments, setMyDepartments] = useState<Array<{ id: string; department_name: string; institution_type?: string }>>([]);
+  const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
 
   // Sync tab from URL (back/forward navigation)
   useEffect(() => {
@@ -254,15 +255,18 @@ const LecturerDashboard = () => {
   const loadMyDepartments = async (userId: string) => {
     const { data } = await supabase
       .from("department_members")
-      .select("department_id, departments(id, department_name)")
+      .select("department_id, departments(id, department_name, institution_type)")
       .eq("user_id", userId);
     const deps = (data || [])
       .map((r: any) => r.departments)
-      .filter(Boolean) as Array<{ id: string; department_name: string }>;
+      .filter(Boolean) as Array<{ id: string; department_name: string; institution_type?: string }>;
     // de-dupe by id
     const seen = new Set<string>();
     const unique = deps.filter(d => (seen.has(d.id) ? false : (seen.add(d.id), true)));
     setMyDepartments(unique);
+    if (unique.length > 0 && unique[0].institution_type) {
+      setInstitutionType(unique[0].institution_type as "college" | "institute");
+    }
   };
 
   const loadLecturerRatings = async (userId: string) => {
@@ -1668,12 +1672,12 @@ const LecturerDashboard = () => {
               </Select>
             </div>
             <div>
-              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "وكلاء الكلية المختصون بالاعتماد (يمكن اختيار أكثر من وكيل)" : "Responsible Vice Deans (multi-select)"} *</Label>
+              <Label className="mb-1 block text-sm font-semibold">{isRtl ? (institutionType === "institute" ? "وكلاء المعهد المختصون بالاعتماد (يمكن اختيار أكثر من وكيل)" : "وكلاء الكلية المختصون بالاعتماد (يمكن اختيار أكثر من وكيل)") : (institutionType === "institute" ? "Responsible Vice Directors (multi-select)" : "Responsible Vice Deans (multi-select)")} *</Label>
               <div className="grid grid-cols-1 gap-2">
                 {[
-                  { v: "students", ar: "وكيل الكلية لشئون الطلاب", en: "Vice Dean for Student Affairs" },
-                  { v: "postgrad", ar: "وكيل الكلية للدراسات العليا", en: "Vice Dean for Postgraduate Studies" },
-                  { v: "environment", ar: "وكيل الكلية للبيئة وخدمة المجتمع", en: "Vice Dean for Environment & Community Service" },
+                  { v: "students", ar: institutionType === "institute" ? "وكيل المعهد لشئون الطلاب" : "وكيل الكلية لشئون الطلاب", en: institutionType === "institute" ? "Vice Director for Student Affairs" : "Vice Dean for Student Affairs" },
+                  { v: "postgrad", ar: institutionType === "institute" ? "وكيل المعهد للدراسات العليا" : "وكيل الكلية للدراسات العليا", en: institutionType === "institute" ? "Vice Director for Postgraduate Studies" : "Vice Dean for Postgraduate Studies" },
+                  { v: "environment", ar: institutionType === "institute" ? "وكيل المعهد للبيئة وخدمة المجتمع" : "وكيل الكلية للبيئة وخدمة المجتمع", en: institutionType === "institute" ? "Vice Director for Environment & Community Service" : "Vice Dean for Environment & Community Service" },
                 ].map(opt => {
                   const checked = newSchedule.vice_dean_types.includes(opt.v);
                   return (

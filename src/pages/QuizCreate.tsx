@@ -47,6 +47,7 @@ const QuizCreate = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [course, setCourse] = useState<any>(null);
+  const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
 
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("list");
@@ -88,6 +89,10 @@ const QuizCreate = () => {
       if (courseId) {
         const { data: c } = await supabase.from("courses").select("*").eq("id", courseId).single();
         setCourse(c);
+        if (c?.department_id) {
+          const { data: dept } = await supabase.from("departments").select("institution_type").eq("id", c.department_id).maybeSingle();
+          if (dept?.institution_type) setInstitutionType(dept.institution_type as "college" | "institute");
+        }
         await loadQuizzes(courseId);
       }
       setLoading(false);
@@ -749,12 +754,12 @@ const QuizCreate = () => {
 
                 <Separator className="bg-amber-500/30" />
                 <div>
-                  <Label className="mb-2 block font-extrabold text-sm flex items-center gap-1.5"><GraduationCap className="w-4 h-4 text-amber-600" />{isRtl ? "وكلاء الكلية المختصون بالاعتماد (يمكن اختيار أكثر من وكيل)" : "Responsible Vice Deans (multi-select)"} *</Label>
+                  <Label className="mb-2 block font-extrabold text-sm flex items-center gap-1.5"><GraduationCap className="w-4 h-4 text-amber-600" />{isRtl ? (institutionType === "institute" ? "وكلاء المعهد المختصون بالاعتماد (يمكن اختيار أكثر من وكيل)" : "وكلاء الكلية المختصون بالاعتماد (يمكن اختيار أكثر من وكيل)") : (institutionType === "institute" ? "Responsible Vice Directors (multi-select)" : "Responsible Vice Deans (multi-select)")} *</Label>
                   <div className="grid grid-cols-1 gap-2">
                     {[
-                      { v: "students", ar: "وكيل الكلية لشئون الطلاب", en: "Vice Dean for Student Affairs" },
-                      { v: "postgrad", ar: "وكيل الكلية للدراسات العليا", en: "Vice Dean for Postgraduate Studies" },
-                      { v: "environment", ar: "وكيل الكلية للبيئة وخدمة المجتمع", en: "Vice Dean for Environment & Community Service" },
+                      { v: "students", ar: institutionType === "institute" ? "وكيل المعهد لشئون الطلاب" : "وكيل الكلية لشئون الطلاب", en: institutionType === "institute" ? "Vice Director for Student Affairs" : "Vice Dean for Student Affairs" },
+                      { v: "postgrad", ar: institutionType === "institute" ? "وكيل المعهد للدراسات العليا" : "وكيل الكلية للدراسات العليا", en: institutionType === "institute" ? "Vice Director for Postgraduate Studies" : "Vice Dean for Postgraduate Studies" },
+                      { v: "environment", ar: institutionType === "institute" ? "وكيل المعهد للبيئة وخدمة المجتمع" : "وكيل الكلية للبيئة وخدمة المجتمع", en: institutionType === "institute" ? "Vice Director for Environment & Community Service" : "Vice Dean for Environment & Community Service" },
                     ].map(opt => {
                       const checked = newQuiz.vice_dean_types.includes(opt.v);
                       return (

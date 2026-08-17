@@ -10,6 +10,7 @@ import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { supabase } from "@/integrations/supabase/client";
 import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useInstitutionIdentity } from "@/hooks/useInstitutionIdentity";
 
 import BackButton from "@/components/BackButton";
 import { Sparkline, bucketByDay } from "@/components/Sparkline";
@@ -22,6 +23,8 @@ import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 
 const StudentDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
+  const { identity } = useInstitutionIdentity();
+  const isCollege = identity?.institutionType === "college";
   const navigate = useNavigate();
   const isRtl = language === "ar";
 
@@ -196,7 +199,9 @@ const StudentDashboard = () => {
                 </p>
                 <p className="text-sm text-red-600/80 dark:text-red-400/80">
                   {isRtl
-                    ? "نرجو تجديد الاشتراك من قبل ادارة الكلية"
+                    ? isCollege
+                      ? "نرجو تجديد الاشتراك من قبل ادارة الكلية"
+                      : "نرجو تجديد الاشتراك من قبل ادارة المعهد"
                     : "Please renew your subscription through college administration"}
                 </p>
               </div>

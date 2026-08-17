@@ -22,17 +22,6 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
-const ROLE_OPTIONS = [
-  { value: "dean", ar: "عميد الكلية", en: "Dean" },
-  { value: "vice_dean_postgrad", ar: "وكيل الكلية للدراسات العليا", en: "Vice Dean - Postgraduate" },
-  { value: "vice_dean_students", ar: "وكيل الكلية لشئون الطلاب", en: "Vice Dean - Student Affairs" },
-  { value: "vice_dean_community", ar: "وكيل الكلية لخدمة المجتمع", en: "Vice Dean - Community" },
-  { value: "department_head", ar: "رئيس القسم", en: "Department Head" },
-  { value: "professor", ar: "أستاذ دكتور", en: "Professor" },
-  { value: "doctor", ar: "دكتور", en: "Doctor" },
-  { value: "assistant_lecturer", ar: "معيد", en: "Assistant Lecturer" },
-];
-
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
 const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
@@ -80,6 +69,18 @@ const InstitutionFacultyEdit = () => {
   const [departments, setDepartments] = useState<DepartmentOption[]>([]);
   const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
   const [institutionName, setInstitutionName] = useState("");
+
+  const isCollege = institutionType === "college";
+  const ROLE_OPTIONS = useMemo(() => [
+    { value: "dean", ar: isCollege ? "عميد الكلية" : "مدير المعهد", en: "Dean" },
+    { value: "vice_dean_postgrad", ar: isCollege ? "وكيل الكلية للدراسات العليا" : "وكيل المعهد للدراسات العليا", en: "Vice Dean - Postgraduate" },
+    { value: "vice_dean_students", ar: isCollege ? "وكيل الكلية لشئون الطلاب" : "وكيل المعهد لشئون الطلاب", en: "Vice Dean - Student Affairs" },
+    { value: "vice_dean_community", ar: isCollege ? "وكيل الكلية لخدمة المجتمع" : "وكيل المعهد لخدمة المجتمع", en: "Vice Dean - Community" },
+    { value: "department_head", ar: "رئيس القسم", en: "Department Head" },
+    { value: "professor", ar: "أستاذ دكتور", en: "Professor" },
+    { value: "doctor", ar: "دكتور", en: "Doctor" },
+    { value: "assistant_lecturer", ar: "معيد", en: "Assistant Lecturer" },
+  ], [isCollege]);
 
   // form
   const [photoUrl, setPhotoUrl] = useState("");

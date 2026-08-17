@@ -19,10 +19,10 @@ import {
 } from "@/lib/faculty-import-photo";
 
 const ROLE_MAP: Record<string, string> = {
-  "عميد الكلية": "dean", "dean": "dean", "Dean": "dean",
-  "وكيل الكلية للدراسات العليا": "vice_dean_postgrad", "vice_dean_postgrad": "vice_dean_postgrad", "Vice Dean - Postgraduate Studies": "vice_dean_postgrad",
-  "وكيل الكلية لشئون الطلاب": "vice_dean_students", "vice_dean_students": "vice_dean_students", "Vice Dean - Student Affairs": "vice_dean_students",
-  "وكيل الكلية لشئون البيئة وخدمة المجتمع": "vice_dean_community", "vice_dean_community": "vice_dean_community", "Vice Dean - Environment & Community Service": "vice_dean_community",
+  "عميد الكلية": "dean", "مدير المعهد": "dean", "dean": "dean", "Dean": "dean",
+  "وكيل الكلية للدراسات العليا": "vice_dean_postgrad", "وكيل المعهد للدراسات العليا": "vice_dean_postgrad", "vice_dean_postgrad": "vice_dean_postgrad", "Vice Dean - Postgraduate Studies": "vice_dean_postgrad",
+  "وكيل الكلية لشئون الطلاب": "vice_dean_students", "وكيل المعهد لشئون الطلاب": "vice_dean_students", "vice_dean_students": "vice_dean_students", "Vice Dean - Student Affairs": "vice_dean_students",
+  "وكيل الكلية لشئون البيئة وخدمة المجتمع": "vice_dean_community", "وكيل المعهد لشئون البيئة وخدمة المجتمع": "vice_dean_community", "vice_dean_community": "vice_dean_community", "Vice Dean - Environment & Community Service": "vice_dean_community",
   "رئيس القسم": "department_head", "department_head": "department_head", "Department Head": "department_head",
   "أستاذ دكتور": "professor", "professor": "professor", "Professor": "professor",
   "دكتور": "doctor", "doctor": "doctor", "Doctor": "doctor",

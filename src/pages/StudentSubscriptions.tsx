@@ -64,7 +64,7 @@ const StudentSubscriptions = () => {
   const { language, toggleLanguage } = useLanguage();
   const isRtl = language === "ar";
   const navigate = useNavigate();
-  const { identity } = useInstitutionIdentity();
+  const { identity } = useInstitutionIdentity({ redirectOnMissing: false });
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

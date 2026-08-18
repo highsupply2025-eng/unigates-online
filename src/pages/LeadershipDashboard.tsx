@@ -221,16 +221,37 @@ const LeadershipDashboard = () => {
   };
 
   const loadMyDepartments = async (userId: string) => {
+    // Primary: query department_members with nested departments
     const { data } = await supabase
       .from("department_members")
       .select("department_id, departments(id, department_name)")
       .eq("user_id", userId);
-    const deps = (data || [])
+    let deps = (data || [])
       .map((r: any) => r.departments)
       .filter(Boolean) as Array<{ id: string; department_name: string }>;
+
+    // Fallback: if empty, check institution_faculty_members for department_id
+    if (deps.length === 0) {
+      const { data: ifmRows } = await supabase
+        .from("institution_faculty_members")
+        .select("department_id")
+        .eq("user_id", userId)
+        .not("department_id", "is", null);
+      const deptIds = [...new Set((ifmRows || []).map((r: any) => r.department_id).filter(Boolean))];
+      if (deptIds.length > 0) {
+        const { data: deptRows } = await supabase
+          .from("departments")
+          .select("id, department_name")
+          .in("id", deptIds);
+        deps = (deptRows || []) as Array<{ id: string; department_name: string }>;
+      }
+    }
     const seen = new Set<string>();
     const unique = deps.filter(d => (seen.has(d.id) ? false : (seen.add(d.id), true)));
     setMyDepartments(unique);
+    if (unique.length === 1) {
+      setNewCourse(p => ({ ...p, department_id: unique[0].id }));
+    }
   };
 
   const handleCreateCourse = async () => {
@@ -1400,31 +1421,45 @@ const LeadershipDashboard = () => {
 
       {/* New Course Dialog */}
       <Dialog open={showNewCourse} onOpenChange={setShowNewCourse}>
-        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{isRtl ? "إنشاء محاضرة جديدة" : "Create New Lecture"}</DialogTitle></DialogHeader>
-          <div className="space-y-4">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto border border-primary/20 shadow-lg shadow-primary/5">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold bg-gradient-to-l from-primary to-teal-500 bg-clip-text text-transparent flex items-center gap-2">
+              <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10"><BookOpen className="w-4 h-4 text-primary" /></span>
+              {isRtl ? "إنشاء محاضرة جديدة" : "Create New Lecture"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-5 mt-2">
             <div>
-              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المحاضر" : "Lecturer Name"}</Label>
-              <Input value={profile?.full_name || ""} disabled readOnly className="bg-muted/50" />
+              <Label className="mb-1.5 block text-sm font-semibold text-muted-foreground">{isRtl ? "اسم المحاضر" : "Lecturer Name"}</Label>
+              <Input value={profile?.full_name || ""} disabled readOnly className="bg-muted/50 border-border/60" />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المادة (عربي)" : "Subject (Arabic)"}</Label>
-                <Input value={newCourse.category_ar} onChange={e => setNewCourse(p => ({ ...p, category_ar: e.target.value }))} placeholder={isRtl ? "مثال: هندسة" : "e.g. Engineering"} />
+                <Label className="mb-1.5 block text-sm font-semibold text-muted-foreground">{isRtl ? "اسم المادة (عربي)" : "Subject (Arabic)"}</Label>
+                <Input value={newCourse.category_ar} onChange={e => setNewCourse(p => ({ ...p, category_ar: e.target.value }))} placeholder={isRtl ? "مثال: هندسة" : "e.g. Engineering"} className="border-border/60 focus:border-primary focus:ring-primary/20" dir="rtl" />
               </div>
               <div>
-                <Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المادة (إنجليزي)" : "Subject (English)"}</Label>
-                <Input value={newCourse.category_en} onChange={e => setNewCourse(p => ({ ...p, category_en: e.target.value }))} placeholder="e.g. Engineering" />
+                <Label className="mb-1.5 block text-sm font-semibold text-muted-foreground">{isRtl ? "اسم المادة (إنجليزي)" : "Subject (English)"}</Label>
+                <Input value={newCourse.category_en} onChange={e => setNewCourse(p => ({ ...p, category_en: e.target.value }))} placeholder="e.g. Engineering" className="border-border/60 focus:border-primary focus:ring-primary/20" dir="ltr" />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "عنوان المحاضرة (عربي)" : "Lecture Title (Arabic)"} *</Label><Input value={newCourse.title_ar} onChange={e => setNewCourse(p => ({ ...p, title_ar: e.target.value }))} /></div>
-              <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "عنوان المحاضرة (إنجليزي)" : "Lecture Title (English)"} *</Label><Input value={newCourse.title_en} onChange={e => setNewCourse(p => ({ ...p, title_en: e.target.value }))} /></div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="mb-1.5 block text-sm font-semibold">{isRtl ? "عنوان المحاضرة (عربي)" : "Lecture Title (Arabic)"} <span className="text-destructive">*</span></Label>
+                <Input value={newCourse.title_ar} onChange={e => setNewCourse(p => ({ ...p, title_ar: e.target.value }))} className="border-destructive/30 focus:border-primary focus:ring-primary/20" dir="rtl" />
+              </div>
+              <div>
+                <Label className="mb-1.5 block text-sm font-semibold">{isRtl ? "عنوان المحاضرة (إنجليزي)" : "Lecture Title (English)"} <span className="text-destructive">*</span></Label>
+                <Input value={newCourse.title_en} onChange={e => setNewCourse(p => ({ ...p, title_en: e.target.value }))} className="border-destructive/30 focus:border-primary focus:ring-primary/20" dir="ltr" />
+              </div>
             </div>
+
             <div>
-              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "القسم" : "Department"} *</Label>
+              <Label className="mb-1.5 block text-sm font-semibold">{isRtl ? "القسم" : "Department"} <span className="text-destructive">*</span></Label>
               <Select value={newCourse.department_id} onValueChange={v => setNewCourse(p => ({ ...p, department_id: v }))}>
-                <SelectTrigger>
+                <SelectTrigger className={`border-border/60 focus:border-primary focus:ring-primary/20 ${myDepartments.length === 0 ? "border-destructive/40 bg-destructive/5" : ""}`}>
                   <SelectValue placeholder={myDepartments.length === 0 ? (isRtl ? "لست عضواً في أي قسم" : "Not a member of any department") : (isRtl ? "اختر القسم" : "Select department")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -1433,13 +1468,25 @@ const LeadershipDashboard = () => {
                   ))}
                 </SelectContent>
               </Select>
+              {myDepartments.length === 0 && (
+                <p className="mt-1.5 text-xs text-destructive flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  {isRtl ? "لم يتم العثور على أقسام مرتبطة بحسابك" : "No departments found linked to your account"}
+                </p>
+              )}
             </div>
+
             <div>
-              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "تاريخ انتهاء المحاضرة" : "Lecture Expiry Date"}</Label>
-              <Input type="date" value={newCourse.expires_at} onChange={e => setNewCourse(p => ({ ...p, expires_at: e.target.value }))} />
+              <Label className="mb-1.5 block text-sm font-semibold text-muted-foreground">{isRtl ? "تاريخ انتهاء المحاضرة" : "Lecture Expiry Date"}</Label>
+              <Input type="date" value={newCourse.expires_at} onChange={e => setNewCourse(p => ({ ...p, expires_at: e.target.value }))} className="border-border/60 focus:border-primary focus:ring-primary/20" />
             </div>
-            <Button onClick={handleCreateCourse} disabled={savingCourse} className="w-full gap-2">
-              {savingCourse ? <Loader2 className="w-4 h-4 animate-spin" /> : (<><Plus className="w-4 h-4" />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</>)}
+
+            <Button
+              onClick={handleCreateCourse}
+              disabled={savingCourse || myDepartments.length === 0}
+              className="w-full gap-2 font-bold bg-gradient-to-l from-primary to-teal-600 hover:from-primary/90 hover:to-teal-600/90 hover:scale-[1.01] shadow-md hover:shadow-lg transition-all border border-primary/20 h-11"
+            >
+              {savingCourse ? <Loader2 className="w-4 h-4 animate-spin" /> : (<><Plus className="w-4 h-4" strokeWidth={3} />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</>)}
             </Button>
           </div>
         </DialogContent>

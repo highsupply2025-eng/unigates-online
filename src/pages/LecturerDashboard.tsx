@@ -257,9 +257,27 @@ const LecturerDashboard = () => {
       .from("department_members")
       .select("department_id, departments(id, department_name, institution_type)")
       .eq("user_id", userId);
-    const deps = (data || [])
+    let deps = (data || [])
       .map((r: any) => r.departments)
       .filter(Boolean) as Array<{ id: string; department_name: string; institution_type?: string }>;
+
+    // Fallback: if empty, check institution_faculty_members for department_id
+    if (deps.length === 0) {
+      const { data: ifmRows } = await supabase
+        .from("institution_faculty_members")
+        .select("department_id")
+        .eq("user_id", userId)
+        .not("department_id", "is", null);
+      const deptIds = [...new Set((ifmRows || []).map((r: any) => r.department_id).filter(Boolean))];
+      if (deptIds.length > 0) {
+        const { data: deptRows } = await supabase
+          .from("departments")
+          .select("id, department_name, institution_type")
+          .in("id", deptIds);
+        deps = (deptRows || []) as Array<{ id: string; department_name: string; institution_type?: string }>;
+      }
+    }
+
     // de-dupe by id
     const seen = new Set<string>();
     const unique = deps.filter(d => (seen.has(d.id) ? false : (seen.add(d.id), true)));

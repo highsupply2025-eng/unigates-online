@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Globe, Eye, EyeOff, LogIn, UserPlus, ChevronDown, Menu, Home } from "lucide-react";
+import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Globe, Eye, EyeOff, LogIn, UserPlus, ChevronDown, Menu, Home, Mail, Lock } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -236,8 +236,13 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col overflow-x-hidden" dir={dir}>
-      <header className="border-b-2 border-primary/30 px-4 sm:px-6 py-4 bg-card shadow-md">
+    <div className="min-h-screen flex flex-col overflow-x-hidden relative" dir={dir}>
+      {/* Gradient background */}
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[hsl(174,72%,96%)] via-background to-[hsl(190,60%,95%)]" />
+      {/* Subtle decorative pattern overlay */}
+      <div className="fixed inset-0 -z-10 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, hsl(174,72%,46%) 1px, transparent 0)", backgroundSize: "32px 32px" }} />
+
+      <header className="border-b-2 border-primary/30 px-4 sm:px-6 py-4 bg-card/80 backdrop-blur-sm shadow-md">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <Link to="/university-platform" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -287,76 +292,83 @@ const Login = () => {
 
       <Separator />
 
-      <main className="flex-1 flex items-center justify-center px-4 py-4 md:py-8">
-        <form onSubmit={handleLogin} className="max-w-md w-full text-center space-y-3 md:space-y-4">
-          <div className="flex justify-center mb-1">
-            <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center">
-              <GraduationCap className="w-6 h-6 md:w-7 md:h-7 text-white" />
+      <main className="flex-1 flex items-center justify-center px-5 py-8 sm:py-12 md:py-16">
+        <div className="max-w-md w-full bg-card rounded-2xl shadow-xl shadow-primary/5 border border-border/60 px-6 py-8 sm:px-8 sm:py-10 md:px-10 md:py-12">
+          <form onSubmit={handleLogin} className="text-center space-y-4 md:space-y-5">
+            <div className="flex justify-center mb-1">
+              <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center">
+                <GraduationCap className="w-7 h-7 md:w-8 md:h-8 text-white" />
+              </div>
             </div>
-          </div>
-          <h1 className="text-lg md:text-2xl font-black text-foreground">{t.loginPage.title}</h1>
-          <p className="text-xs md:text-sm text-muted-foreground mb-2">{t.loginPage.subtitle}</p>
+            <h1 className="text-xl md:text-2xl font-black text-foreground">{t.loginPage.title}</h1>
+            <p className="text-sm md:text-base text-muted-foreground">{t.loginPage.subtitle}</p>
 
+            {/* Email input with icon */}
+            <div className="relative">
+              <Mail className={`${dir === 'rtl' ? 'right-3' : 'left-3'} absolute top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none`} />
+              <Input
+                type="email"
+                placeholder={t.loginPage.emailPlaceholder}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={`${dir === 'rtl' ? 'pr-10' : 'pl-10'} h-12 md:h-14 text-sm md:text-base bg-background border-2 border-primary/20 text-center shadow-sm hover:shadow-md hover:border-primary/40 focus:border-primary focus:shadow-md transition-all rounded-xl`}
+                required
+              />
+            </div>
 
-          <Input
-            type="email"
-            placeholder={t.loginPage.emailPlaceholder}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="h-12 md:h-14 text-sm md:text-base bg-card border-2 border-primary/20 text-center shadow-md hover:shadow-lg hover:border-primary/40 focus:border-primary transition-all"
-            required
-          />
-          <div className="relative">
-            <Input
-              type={showPassword ? "text" : "password"}
-              placeholder={t.loginPage.passwordPlaceholder}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="h-12 px-4 pe-12 md:pe-14 md:px-6 text-center text-sm md:h-14 md:text-base bg-card border-2 border-primary/20 shadow-md hover:shadow-lg hover:border-primary/40 focus:border-primary transition-all"
-              dir="ltr"
-              style={{ unicodeBidi: "plaintext" }}
-              required
-            />
-            <button
-              type="button"
-              aria-label={showPassword ? (language === "ar" ? "إخفاء كلمة المرور" : "Hide password") : (language === "ar" ? "إظهار كلمة المرور" : "Show password")}
-              aria-pressed={showPassword}
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-            </button>
-          </div>
+            {/* Password input with icon */}
+            <div className="relative">
+              <Lock className={`${dir === 'rtl' ? 'right-3' : 'left-3'} absolute top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none`} />
+              <Input
+                type={showPassword ? "text" : "password"}
+                placeholder={t.loginPage.passwordPlaceholder}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={`${dir === 'rtl' ? 'pr-10 pl-12' : 'pl-10 pr-12'} h-12 md:h-14 text-center text-sm md:text-base bg-background border-2 border-primary/20 shadow-sm hover:shadow-md hover:border-primary/40 focus:border-primary focus:shadow-md transition-all rounded-xl`}
+                dir="ltr"
+                style={{ unicodeBidi: "plaintext" }}
+                required
+              />
+              <button
+                type="button"
+                aria-label={showPassword ? (language === "ar" ? "إخفاء كلمة المرور" : "Hide password") : (language === "ar" ? "إظهار كلمة المرور" : "Show password")}
+                aria-pressed={showPassword}
+                onClick={() => setShowPassword(!showPassword)}
+                className={`${dir === 'rtl' ? 'left-2' : 'right-2'} absolute top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
 
-          <div className="flex flex-col sm:flex-row gap-2 md:gap-3">
+            {/* Login button */}
             <Button
               type="submit"
               size="lg"
-              className="w-full sm:flex-1 h-12 md:h-14 text-base md:text-lg font-bold gap-2 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] hover:from-primary/90 hover:to-[hsl(200,75%,25%)] shadow-lg shadow-primary/25"
+              className="w-full h-12 md:h-14 text-base md:text-lg font-bold gap-2 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] hover:from-[hsl(174,72%,42%)] hover:to-[hsl(200,75%,26%)] shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 rounded-xl"
               disabled={loading}
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowIcon className="w-5 h-5" />}
               {t.login}
             </Button>
-            <Link to="/forgot-password" className="w-full sm:flex-1">
-              <Button
-                type="button"
-                size="lg"
-                className="w-full h-12 md:h-14 text-sm md:text-lg font-bold border-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5"
-                variant="outline"
-              >
-                {t.loginPage.forgotPassword}
-              </Button>
-            </Link>
-          </div>
 
-          <p className="text-sm text-foreground/70 font-medium">
-            {t.loginPage.noAccount}{" "}
-            <Link to="/signup" className="text-primary font-bold hover:underline">
-              {t.loginPage.createAccount}
+            {/* Forgot password link */}
+            <Link
+              to="/forgot-password"
+              className="inline-block text-sm md:text-base font-semibold text-primary/80 hover:text-primary hover:underline underline-offset-4 transition-colors"
+            >
+              {t.loginPage.forgotPassword}
             </Link>
-          </p>
-        </form>
+
+            <div className="pt-2">
+              <p className="text-sm text-foreground/70 font-medium">
+                {t.loginPage.noAccount}{" "}
+                <Link to="/signup" className="text-primary font-bold hover:underline underline-offset-4">
+                  {t.loginPage.createAccount}
+                </Link>
+              </p>
+            </div>
+          </form>
+        </div>
       </main>
     </div>
   );

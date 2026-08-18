@@ -37,7 +37,7 @@ interface StudentRecord {
 
 const UserProfile = () => {
   const { dir, language, toggleLanguage } = useLanguage();
-  const { identity } = useInstitutionIdentity();
+  const { identity } = useInstitutionIdentity({ redirectOnMissing: false });
   const isCollege = identity?.institutionType === "college";
   const isRtl = language === "ar";
   const navigate = useNavigate();

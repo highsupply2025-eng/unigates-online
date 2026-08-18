@@ -18,7 +18,13 @@ interface CacheEntry {
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 let cached: CacheEntry | null = null;
 
-export function useInstitutionIdentity() {
+export interface UseInstitutionIdentityOptions {
+  /** When false, the hook stays silent (no redirect) if the user isn't an institution admin. */
+  redirectOnMissing?: boolean;
+}
+
+export function useInstitutionIdentity(options?: UseInstitutionIdentityOptions) {
+  const redirectOnMissing = options?.redirectOnMissing !== false;
   const navigate = useNavigate();
   const [identity, setIdentity] = useState<InstitutionIdentity | null>(() =>
     cached?.identity ?? null
@@ -32,7 +38,10 @@ export function useInstitutionIdentity() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user || cancelled) {
-          if (!cancelled) navigate("/login");
+          if (!cancelled) {
+            if (redirectOnMissing) navigate("/login");
+            else setLoading(false);
+          }
           return;
         }
 
@@ -93,15 +102,19 @@ export function useInstitutionIdentity() {
           return;
         }
 
-        navigate("/login");
+        setLoading(false);
+        if (redirectOnMissing) navigate("/login");
       } catch {
-        if (!cancelled) navigate("/login");
+        if (!cancelled) {
+          setLoading(false);
+          if (redirectOnMissing) navigate("/login");
+        }
       }
     };
 
     run();
     return () => { cancelled = true; };
-  }, [navigate]);
+  }, [navigate, redirectOnMissing]);
 
   return { identity, loading };
 }

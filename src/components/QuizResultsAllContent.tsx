@@ -15,7 +15,7 @@ const QuizResultsAllContent = () => {
   const { dir } = useLanguage();
   const navigate = useNavigate();
   const isRtl = dir === "rtl";
-  const { identity } = useInstitutionIdentity();
+  const { identity } = useInstitutionIdentity({ redirectOnMissing: false });
   const institutionType = identity?.institutionType ?? "college";
   const ChevronIcon = isRtl ? ChevronLeft : ChevronRight;
 

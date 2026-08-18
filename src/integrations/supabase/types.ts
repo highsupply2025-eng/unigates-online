@@ -3333,7 +3333,6 @@ export type Database = {
         | "school"
         | "teacher"
         | "department_head"
-        | "teaching_assistant"
         | "vice_dean"
         | "dean"
         | "training_center"

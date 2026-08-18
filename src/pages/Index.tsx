@@ -3,9 +3,9 @@ import HeroSection from "@/components/HeroSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import SiteFooter from "@/components/SiteFooter";
 import StatsSection from "@/components/StatsSection";
-import ServicesSection from "@/components/ServicesSection";
 import HomepageSections from "@/components/HomepageSections";
 import SEO from "@/components/SEO";
+
 
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -23,11 +23,12 @@ const Index = () => {
       />
       <SiteHeader />
       <main>
-        <HeroSection />
-
-        <StatsSection />
-
-        <ServicesSection />
+        <div className="relative">
+          <HeroSection />
+          <div className="absolute bottom-4 sm:bottom-8 left-0 right-0 z-20">
+            <StatsSection />
+          </div>
+        </div>
 
         <HomepageSections />
 

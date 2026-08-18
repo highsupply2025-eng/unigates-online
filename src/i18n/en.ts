@@ -43,18 +43,6 @@ export const en = {
     viewAll: "View All",
   },
 
-  // Services section
-  services: {
-    title: "Our Core Services",
-    subtitle: "Integrated educational solutions for every stage",
-    items: [
-      { title: "University Platform", description: "Comprehensive management for colleges and universities with a smart student system and live lecture streaming" },
-      { title: "School Platform", description: "An interactive environment connecting teachers, parents, and students in one place" },
-      { title: "Educational Courses", description: "A huge library of professional courses with certified certificates and progress tracking" },
-      { title: "Book Store", description: "Shop scientific and literary books with fast shipping and e-reading options" },
-    ],
-  },
-
   // Hero
   hero: {
     badge: "500+ Educational Courses",

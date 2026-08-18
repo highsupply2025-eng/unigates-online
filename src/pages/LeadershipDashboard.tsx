@@ -4,7 +4,7 @@ import {
   Globe, ArrowLeft, ArrowRight, Loader2, Users, BookOpen, Calendar,
   Video, FileText, Download, BarChart3, Clock, CheckCircle, AlertCircle,
   GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, Menu, Home, XCircle, Award, ShieldCheck, User, RefreshCw,
-  Plus, Upload
+  Plus, Upload, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -554,9 +554,8 @@ const LeadershipDashboard = () => {
                 { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, color: "from-purple-500 to-fuchsia-600", onClick: () => setActiveTab("schedulesapproval"), active: activeTab === "schedulesapproval" },
                 { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", onClick: () => setActiveTab("quizresults"), active: activeTab === "quizresults" },
                 ...(userRole === "department_head" ? [{ key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, color: "from-blue-500 to-indigo-600", onClick: () => setActiveTab("assignments"), active: activeTab === "assignments" }] : []),
-                ...(userRole === "dean" ? [{ key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => setActiveTab("ratings"), active: activeTab === "ratings" }] : []),
-                { key: "presence", label: isRtl ? "إثبات الحضور في القاعة" : "In-Hall Presence", Icon: ShieldCheck, color: "from-emerald-500 to-teal-600", onClick: () => navigate("/leadership/presence") },
-                { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/leadership/profile") },
+                { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => setActiveTab("ratings"), active: activeTab === "ratings" },
+                { key: "profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/leadership/profile") },
               ]}
             />
           </div>
@@ -620,7 +619,7 @@ const LeadershipDashboard = () => {
                       { label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, palette: { from: "#a855f7", to: "#c026d3", glow: "168,85,247" }, timestamps: lectureSchedules.map((s: any) => s.created_at) },
                       { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, palette: { from: "#6366f1", to: "#9333ea", glow: "99,102,241" }, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
                       ...(userRole === "department_head" ? [{ label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, palette: { from: "#f97316", to: "#ea580c", glow: "249,115,22" }, timestamps: assignmentSubmissions.map((s: any) => s.submitted_at || s.created_at) }] : []),
-                      ...(userRole === "dean" ? [{ label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, palette: { from: "#eab308", to: "#d97706", glow: "234,179,8" }, timestamps: ratings.map((r: any) => r.created_at) }] : []),
+                      { label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, palette: { from: "#eab308", to: "#d97706", glow: "234,179,8" }, timestamps: ratings.map((r: any) => r.created_at) },
                     ]}
                   />
 
@@ -634,7 +633,7 @@ const LeadershipDashboard = () => {
                       { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, color: "from-purple-500 to-fuchsia-600", count: lectureSchedules.length },
                       { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", count: quizSubmissions.length },
                       ...(userRole === "department_head" ? [{ key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, color: "from-blue-500 to-indigo-600", count: assignments.length }] : []),
-                      ...(userRole === "dean" ? [{ key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", count: ratings.length }] : []),
+                      { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", count: ratings.length },
                     ]}
                   />
 
@@ -1421,70 +1420,104 @@ const LeadershipDashboard = () => {
 
       {/* New Course Dialog */}
       <Dialog open={showNewCourse} onOpenChange={setShowNewCourse}>
-        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto border border-primary/20 shadow-lg shadow-primary/5">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-bold bg-gradient-to-l from-primary to-teal-500 bg-clip-text text-transparent flex items-center gap-2">
-              <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10"><BookOpen className="w-4 h-4 text-primary" /></span>
-              {isRtl ? "إنشاء محاضرة جديدة" : "Create New Lecture"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-5 mt-2">
-            <div>
-              <Label className="mb-1.5 block text-sm font-semibold text-muted-foreground">{isRtl ? "اسم المحاضر" : "Lecturer Name"}</Label>
-              <Input value={profile?.full_name || ""} disabled readOnly className="bg-muted/50 border-border/60" />
-            </div>
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto border border-primary/15 shadow-xl shadow-primary/5 p-0">
+          <div className="p-5 pb-0">
+            <DialogHeader className="text-center sm:text-center">
+              <div className="mx-auto mb-3 inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/15 to-teal-500/10 ring-1 ring-primary/10">
+                <BookOpen className="w-5 h-5 text-primary" />
+              </div>
+              <DialogTitle className="text-xl font-bold bg-gradient-to-l from-primary to-teal-600 bg-clip-text text-transparent">
+                {isRtl ? "إنشاء محاضرة جديدة" : "Create New Lecture"}
+              </DialogTitle>
+              <p className="text-sm text-muted-foreground mt-1">{isRtl ? "أضف محاضرة جديدة للنظام" : "Add a new lecture to the system"}</p>
+            </DialogHeader>
+          </div>
 
-            <div className="grid grid-cols-2 gap-4">
+          <div className="px-5 pb-5 space-y-4">
+            {/* Lecturer Info */}
+            <div className="rounded-xl bg-muted/40 border border-border/40 p-3.5">
+              <Label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase tracking-wide">{isRtl ? "المعلومات الأساسية" : "Basic Info"}</Label>
               <div>
-                <Label className="mb-1.5 block text-sm font-semibold text-muted-foreground">{isRtl ? "اسم المادة (عربي)" : "Subject (Arabic)"}</Label>
-                <Input value={newCourse.category_ar} onChange={e => setNewCourse(p => ({ ...p, category_ar: e.target.value }))} placeholder={isRtl ? "مثال: هندسة" : "e.g. Engineering"} className="border-border/60 focus:border-primary focus:ring-primary/20" dir="rtl" />
-              </div>
-              <div>
-                <Label className="mb-1.5 block text-sm font-semibold text-muted-foreground">{isRtl ? "اسم المادة (إنجليزي)" : "Subject (English)"}</Label>
-                <Input value={newCourse.category_en} onChange={e => setNewCourse(p => ({ ...p, category_en: e.target.value }))} placeholder="e.g. Engineering" className="border-border/60 focus:border-primary focus:ring-primary/20" dir="ltr" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="mb-1.5 block text-sm font-semibold">{isRtl ? "عنوان المحاضرة (عربي)" : "Lecture Title (Arabic)"} <span className="text-destructive">*</span></Label>
-                <Input value={newCourse.title_ar} onChange={e => setNewCourse(p => ({ ...p, title_ar: e.target.value }))} className="border-destructive/30 focus:border-primary focus:ring-primary/20" dir="rtl" />
-              </div>
-              <div>
-                <Label className="mb-1.5 block text-sm font-semibold">{isRtl ? "عنوان المحاضرة (إنجليزي)" : "Lecture Title (English)"} <span className="text-destructive">*</span></Label>
-                <Input value={newCourse.title_en} onChange={e => setNewCourse(p => ({ ...p, title_en: e.target.value }))} className="border-destructive/30 focus:border-primary focus:ring-primary/20" dir="ltr" />
+                <Label className="mb-1.5 block text-sm font-medium">{isRtl ? "اسم المحاضر" : "Lecturer Name"}</Label>
+                <Input value={profile?.full_name || ""} disabled readOnly className="bg-background/60 border-border/50 h-10" />
               </div>
             </div>
 
-            <div>
-              <Label className="mb-1.5 block text-sm font-semibold">{isRtl ? "القسم" : "Department"} <span className="text-destructive">*</span></Label>
-              <Select value={newCourse.department_id} onValueChange={v => setNewCourse(p => ({ ...p, department_id: v }))}>
-                <SelectTrigger className={`border-border/60 focus:border-primary focus:ring-primary/20 ${myDepartments.length === 0 ? "border-destructive/40 bg-destructive/5" : ""}`}>
-                  <SelectValue placeholder={myDepartments.length === 0 ? (isRtl ? "لست عضواً في أي قسم" : "Not a member of any department") : (isRtl ? "اختر القسم" : "Select department")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {myDepartments.map(d => (
-                    <SelectItem key={d.id} value={d.id}>{d.department_name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {myDepartments.length === 0 && (
-                <p className="mt-1.5 text-xs text-destructive flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" />
-                  {isRtl ? "لم يتم العثور على أقسام مرتبطة بحسابك" : "No departments found linked to your account"}
-                </p>
+            {/* Subject & Title */}
+            <div className="rounded-xl bg-muted/40 border border-border/40 p-3.5 space-y-3.5">
+              <Label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide">{isRtl ? "تفاصيل المادة والمحاضرة" : "Subject & Lecture Details"}</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="mb-1.5 block text-sm font-medium text-muted-foreground">{isRtl ? "اسم المادة (عربي)" : "Subject (Arabic)"}</Label>
+                  <Input value={newCourse.category_ar} onChange={e => setNewCourse(p => ({ ...p, category_ar: e.target.value }))} placeholder={isRtl ? "مثال: هندسة" : "e.g. Engineering"} className="h-10 border-border/50 focus:border-primary focus:ring-primary/20" dir="rtl" />
+                </div>
+                <div>
+                  <Label className="mb-1.5 block text-sm font-medium text-muted-foreground">{isRtl ? "اسم المادة (إنجليزي)" : "Subject (English)"}</Label>
+                  <Input value={newCourse.category_en} onChange={e => setNewCourse(p => ({ ...p, category_en: e.target.value }))} placeholder="e.g. Engineering" className="h-10 border-border/50 focus:border-primary focus:ring-primary/20" dir="ltr" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="mb-1.5 block text-sm font-medium">{isRtl ? "عنوان المحاضرة (عربي)" : "Lecture Title (Arabic)"} <span className="text-destructive text-xs">●</span></Label>
+                  <Input value={newCourse.title_ar} onChange={e => setNewCourse(p => ({ ...p, title_ar: e.target.value }))} placeholder={isRtl ? "أدخل عنوان المحاضرة" : "Enter lecture title"} className="h-10 border-border/50 focus:border-primary focus:ring-primary/20" dir="rtl" />
+                </div>
+                <div>
+                  <Label className="mb-1.5 block text-sm font-medium">{isRtl ? "عنوان المحاضرة (إنجليزي)" : "Lecture Title (English)"} <span className="text-destructive text-xs">●</span></Label>
+                  <Input value={newCourse.title_en} onChange={e => setNewCourse(p => ({ ...p, title_en: e.target.value }))} placeholder={isRtl ? "أدخل عنوان المحاضرة" : "Enter lecture title"} className="h-10 border-border/50 focus:border-primary focus:ring-primary/20" dir="ltr" />
+                </div>
+              </div>
+            </div>
+
+            {/* Department & Date */}
+            <div className="rounded-xl bg-muted/40 border border-border/40 p-3.5 space-y-3.5">
+              <Label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide">{isRtl ? "القسم والتواريخ" : "Department & Dates"}</Label>
+              <div>
+                <Label className="mb-1.5 block text-sm font-medium">{isRtl ? "القسم" : "Department"} <span className="text-destructive text-xs">●</span></Label>
+                <Select value={newCourse.department_id} onValueChange={v => setNewCourse(p => ({ ...p, department_id: v }))}>
+                  <SelectTrigger className={`h-10 border-border/50 focus:border-primary focus:ring-primary/20 ${myDepartments.length === 0 ? "border-destructive/40 bg-destructive/5" : ""}`}>
+                    <SelectValue placeholder={myDepartments.length === 0 ? (isRtl ? "لست عضواً في أي قسم" : "Not a member of any department") : (isRtl ? "اختر القسم" : "Select department")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {myDepartments.map(d => (
+                      <SelectItem key={d.id} value={d.id}>{d.department_name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {myDepartments.length === 0 && (
+                  <p className="mt-1.5 text-xs text-destructive flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" />
+                    {isRtl ? "لم يتم العثور على أقسام مرتبطة بحسابك" : "No departments found linked to your account"}
+                  </p>
+                )}
+              </div>
+              <div>
+                <Label className="mb-1.5 block text-sm font-medium text-muted-foreground">{isRtl ? "تاريخ انتهاء المحاضرة" : "Lecture Expiry Date"}</Label>
+                <Input type="date" value={newCourse.expires_at} onChange={e => setNewCourse(p => ({ ...p, expires_at: e.target.value }))} className="h-10 border-border/50 focus:border-primary focus:ring-primary/20" />
+              </div>
+            </div>
+
+            {/* Thumbnail Upload */}
+            <div className="rounded-xl bg-muted/40 border border-border/40 p-3.5">
+              <Label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase tracking-wide">{isRtl ? "الصورة المصغرة" : "Thumbnail"}</Label>
+              {thumbnailPreview ? (
+                <div className="relative w-full h-28 rounded-lg overflow-hidden border border-border/50">
+                  <img src={thumbnailPreview} alt="" className="w-full h-full object-cover" />
+                  <button type="button" onClick={() => { setThumbnail(null); setThumbnailPreview(null); }} className="absolute top-2 right-2 w-6 h-6 bg-destructive/90 text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive transition-colors"><X className="w-3 h-3" /></button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center h-24 rounded-lg border-2 border-dashed border-border/60 bg-background/50 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all">
+                  <Upload className="w-5 h-5 text-muted-foreground mb-1" />
+                  <span className="text-xs text-muted-foreground">{isRtl ? "اضغط لرفع صورة" : "Click to upload"}</span>
+                  <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) { setThumbnail(f); setThumbnailPreview(URL.createObjectURL(f)); } }} />
+                </label>
               )}
             </div>
 
-            <div>
-              <Label className="mb-1.5 block text-sm font-semibold text-muted-foreground">{isRtl ? "تاريخ انتهاء المحاضرة" : "Lecture Expiry Date"}</Label>
-              <Input type="date" value={newCourse.expires_at} onChange={e => setNewCourse(p => ({ ...p, expires_at: e.target.value }))} className="border-border/60 focus:border-primary focus:ring-primary/20" />
-            </div>
-
+            {/* Submit */}
             <Button
               onClick={handleCreateCourse}
               disabled={savingCourse || myDepartments.length === 0}
-              className="w-full gap-2 font-bold bg-gradient-to-l from-primary to-teal-600 hover:from-primary/90 hover:to-teal-600/90 hover:scale-[1.01] shadow-md hover:shadow-lg transition-all border border-primary/20 h-11"
+              className="w-full gap-2 font-bold bg-gradient-to-l from-primary to-teal-600 hover:from-primary/90 hover:to-teal-600/90 hover:scale-[1.01] shadow-md hover:shadow-lg transition-all h-11 rounded-xl text-base"
             >
               {savingCourse ? <Loader2 className="w-4 h-4 animate-spin" /> : (<><Plus className="w-4 h-4" strokeWidth={3} />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</>)}
             </Button>

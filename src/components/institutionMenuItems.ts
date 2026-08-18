@@ -86,7 +86,7 @@ export function getInstitutionMenuItems({
     },
     {
       key: "profile",
-      label: isRtl ? "بيانات الحساب" : "Account Details",
+      label: isRtl ? "البيانات الشخصية" : "Personal Information",
       Icon: User,
       color: "from-cyan-500 to-cyan-600",
       path: "/institution/profile",

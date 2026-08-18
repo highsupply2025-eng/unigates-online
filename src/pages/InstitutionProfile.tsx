@@ -298,7 +298,7 @@ const InstitutionProfile = () => {
               )}
             </div>
             <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
-              {isRtl ? "بيانات الحساب" : "Account Details"}
+              {isRtl ? "البيانات الشخصية" : "Personal Information"}
             </p>
           </div>
         </div>

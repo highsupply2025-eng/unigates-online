@@ -23,7 +23,7 @@ import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 
 const StudentDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
-  const { identity } = useInstitutionIdentity();
+  const { identity } = useInstitutionIdentity({ redirectOnMissing: false });
   const isCollege = identity?.institutionType === "college";
   const navigate = useNavigate();
   const isRtl = language === "ar";

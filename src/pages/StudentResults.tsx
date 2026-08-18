@@ -13,7 +13,7 @@ import StudentPageHeader from "@/components/StudentPageHeader";
 
 const StudentResults = () => {
   const { dir } = useLanguage();
-  const { identity } = useInstitutionIdentity();
+  const { identity } = useInstitutionIdentity({ redirectOnMissing: false });
   const isCollege = identity?.institutionType === "college";
   const navigate = useNavigate();
   const isRtl = dir === "rtl";

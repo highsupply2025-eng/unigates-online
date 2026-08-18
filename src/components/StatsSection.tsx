@@ -1,4 +1,4 @@
-import { Users, GraduationCap, Landmark, School, BookCopy, UserCheck, Presentation } from "lucide-react";
+import { Users, GraduationCap, Landmark, School, BookCopy, UserCheck } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
 import { useCountUp } from "@/hooks/useCountUp";
@@ -16,7 +16,6 @@ const StatsSection = () => {
   const parents = useCountUp(stats?.parents ?? 0);
   const students = useCountUp(stats?.students ?? 0);
 
-  // Order: كلية - معهد - مدرسة - ناشر - محاضر - معلم - ولى أمر - طالب
   const items = [
     { icon: Landmark, counter: colleges, label: language === "ar" ? "كلية" : "College" },
     { icon: Landmark, counter: institutes, label: language === "ar" ? "معهد" : "Institute" },
@@ -29,19 +28,23 @@ const StatsSection = () => {
   ];
 
   return (
-    <section className="px-3 sm:px-4 md:px-12">
-      <div className="max-w-6xl mx-auto grid grid-cols-4 md:grid-cols-8 gap-1.5 sm:gap-2 md:gap-3">
-        {items.map((item, i) => (
-          <div
-            key={i}
-            ref={item.counter.ref}
-            className="flex flex-col items-center gap-1 sm:gap-1.5 text-white px-1 py-2 sm:py-3 animate-fade-in"
-          >
-            <item.icon className="w-5 h-5 sm:w-7 sm:h-7 md:w-9 md:h-9 text-white drop-shadow-md" />
-            <span className="text-base sm:text-lg md:text-2xl font-black drop-shadow">{item.counter.count}</span>
-            <span className="text-[9px] sm:text-[10px] md:text-xs font-semibold opacity-95 text-center leading-tight drop-shadow">{item.label}</span>
-          </div>
-        ))}
+    <section className="px-4 sm:px-6 md:px-12">
+      <div className="max-w-5xl mx-auto bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl shadow-black/10 px-4 sm:px-6 py-5 sm:py-6">
+        <div className="grid grid-cols-4 md:grid-cols-8 gap-3 sm:gap-4">
+          {items.map((item, i) => (
+            <div
+              key={i}
+              ref={item.counter.ref}
+              className="flex flex-col items-center gap-1.5 text-white animate-fade-in"
+            >
+              <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-xl bg-white/15 flex items-center justify-center">
+                <item.icon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+              </div>
+              <span className="text-lg sm:text-xl md:text-2xl font-black">{item.counter.count}</span>
+              <span className="text-[10px] sm:text-xs font-semibold opacity-90 text-center leading-tight">{item.label}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

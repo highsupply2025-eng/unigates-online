@@ -25,7 +25,7 @@ const StudentAccount = () => {
             </h1>
             <p className="text-xs sm:text-base font-bold truncate mt-0.5">
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-300 dark:to-purple-300 bg-clip-text text-transparent">
-                {isRtl ? "بيانات الحساب" : "Account Details"}
+                {isRtl ? "البيانات الشخصية" : "Personal Information"}
               </span>
             </p>
           </div>

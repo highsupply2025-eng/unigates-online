@@ -2141,7 +2141,7 @@ ${exams.map((s: any, i: number) => `<tr>
                 { label: isRtl ? "اشتراك الطلاب" : "Student Subscriptions", Icon: CreditCard, palette: { from: "#14b8a6", to: "#0d9488", glow: "20,184,166" }, timestamps: deptMembers.filter((m: any) => m.role === 'student' && m.user_id).map((m: any) => m.created_at) },
                 { label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, palette: { from: "#10b981", to: "#059669", glow: "16,185,129" }, timestamps: examSchedules.map((s: any) => s.created_at) },
                 { label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, palette: { from: "#0ea5e9", to: "#0284c7", glow: "14,165,233" }, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
-                { label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, palette: { from: "#06b6d4", to: "#0891b2", glow: "6,182,212" }, timestamps: institutionId ? [new Date().toISOString()] : [], fixedPercentage: 100 },
+                { label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, palette: { from: "#06b6d4", to: "#0891b2", glow: "6,182,212" }, timestamps: institutionId ? [new Date().toISOString()] : [], fixedPercentage: 100 },
               ]}
             />
 
@@ -2154,7 +2154,7 @@ ${exams.map((s: any, i: number) => `<tr>
                 { key: "subscriptions", label: isRtl ? "اشتراك الطلاب" : "Student Subscriptions", Icon: CreditCard, color: "from-teal-500 to-teal-600", count: categoryStats.subscriptions.count },
                 { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-emerald-500 to-emerald-600", count: categoryStats.schedules.count },
                 { key: "results", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, color: "from-sky-500 to-sky-600", count: categoryStats.results.count },
-                { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-cyan-500 to-cyan-600", count: categoryStats.account.count },
+                { key: "profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, color: "from-cyan-500 to-cyan-600", count: categoryStats.account.count },
               ]}
             />
 

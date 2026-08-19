@@ -25,7 +25,7 @@ const SchoolAdminAccount = () => {
             </h1>
             <p className="text-xs sm:text-base font-bold truncate mt-0.5">
               <span className="bg-gradient-to-r from-emerald-600 to-green-600 dark:from-emerald-300 dark:to-green-300 bg-clip-text text-transparent">
-                {isRtl ? "بيانات الحساب" : "Account Details"}
+                {isRtl ? "البيانات الشخصية" : "Personal Information"}
               </span>
             </p>
           </div>
@@ -36,7 +36,7 @@ const SchoolAdminAccount = () => {
             onLogout={handleLogout}
             items={[
               { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: () => navigate("/school/dashboard") },
-              { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: User, color: "from-purple-500 to-purple-600", onClick: () => {}, active: true },
+              { key: "profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, color: "from-purple-500 to-purple-600", onClick: () => {}, active: true },
             ]}
           />
         </div>

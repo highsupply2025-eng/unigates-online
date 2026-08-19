@@ -141,6 +141,13 @@ const LecturerDashboard = () => {
   const [attachmentName, setAttachmentName] = useState("");
   const [savingAttachment, setSavingAttachment] = useState(false);
 
+  // Upload files for students dialog
+  const [showUploadFiles, setShowUploadFiles] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadFileName, setUploadFileName] = useState("");
+  const [uploadCourseId, setUploadCourseId] = useState("");
+  const [savingUpload, setSavingUpload] = useState(false);
+
   // Live streams
   const [streams, setStreams] = useState<any[]>([]);
   const [showStreamDialog, setShowStreamDialog] = useState(false);
@@ -253,29 +260,29 @@ const LecturerDashboard = () => {
   };
 
   const loadMyDepartments = async (userId: string) => {
-    const { data } = await supabase
-      .from("department_members")
-      .select("department_id, departments(id, department_name, institution_type)")
-      .eq("user_id", userId);
-    let deps = (data || [])
-      .map((r: any) => r.departments)
-      .filter(Boolean) as Array<{ id: string; department_name: string; institution_type?: string }>;
+    const deptIdSet = new Set<string>();
 
-    // Fallback: if empty, check institution_faculty_members for department_id
-    if (deps.length === 0) {
-      const { data: ifmRows } = await supabase
-        .from("institution_faculty_members")
-        .select("department_id")
-        .eq("user_id", userId)
-        .not("department_id", "is", null);
-      const deptIds = [...new Set((ifmRows || []).map((r: any) => r.department_id).filter(Boolean))];
-      if (deptIds.length > 0) {
-        const { data: deptRows } = await supabase
-          .from("departments")
-          .select("id, department_name, institution_type")
-          .in("id", deptIds);
-        deps = (deptRows || []) as Array<{ id: string; department_name: string; institution_type?: string }>;
-      }
+    const { data: dmRows } = await supabase
+      .from("department_members")
+      .select("department_id")
+      .eq("user_id", userId);
+    (dmRows || []).forEach((r: any) => { if (r.department_id) deptIdSet.add(r.department_id); });
+
+    const { data: ifmRows } = await supabase
+      .from("institution_faculty_members")
+      .select("department_id")
+      .eq("user_id", userId)
+      .not("department_id", "is", null);
+    (ifmRows || []).forEach((r: any) => { if (r.department_id) deptIdSet.add(r.department_id); });
+
+    const deptIds = [...deptIdSet];
+    let deps: Array<{ id: string; department_name: string; institution_type?: string }> = [];
+    if (deptIds.length > 0) {
+      const { data: deptRows } = await supabase
+        .from("departments")
+        .select("id, department_name, institution_type")
+        .in("id", deptIds);
+      deps = (deptRows || []) as Array<{ id: string; department_name: string; institution_type?: string }>;
     }
 
     // de-dupe by id
@@ -850,7 +857,7 @@ const LecturerDashboard = () => {
                 { key: "quiz-results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", onClick: () => handleTabChange("quiz-results"), active: activeTab === "quiz-results" },
                 { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-teal-500 to-emerald-600", onClick: () => handleTabChange("attendance"), active: activeTab === "attendance" },
                 { key: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, color: "from-green-500 to-emerald-600", onClick: () => handleTabChange("analytics"), active: activeTab === "analytics" },
-                { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Details", Icon: Users, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/lecturer/profile") },
+                { key: "profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: Users, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/lecturer/profile") },
               ]}
             />
           </div>
@@ -968,21 +975,41 @@ const LecturerDashboard = () => {
 
               {/* ===== COURSES TAB ===== */}
               <TabsContent value="courses" dir={isRtl ? "rtl" : "ltr"}>
-                <div className="flex items-center justify-start gap-2 mb-6">
-                  <Button
-                    onClick={() => setShowNewCourse(true)}
-                    className="gap-2 font-bold bg-gradient-to-l from-primary to-primary/80 hover:scale-[1.02] shadow-md hover:shadow-lg transition-all border-2 border-primary/20"
-                  >
-                    <Plus className="w-4 h-4" strokeWidth={3} />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => document.getElementById("lecturer-courses-grid")?.scrollIntoView({ behavior: "smooth", block: "start" })}
-                    className="gap-2 font-bold border-2 border-primary/30 hover:border-primary/60 hover:bg-primary/5 shadow-sm"
-                  >
-                    <Video className="w-4 h-4 text-primary" strokeWidth={2.5} />{isRtl ? "المحاضرات" : "Lectures"}
-                    {courses.length > 0 && <span className="text-xs font-bold bg-primary text-primary-foreground px-2 py-0.5 rounded-full shadow-sm">{courses.length}</span>}
-                  </Button>
+                {/* 3 Action Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
+                  <button onClick={() => setShowNewCourse(true)} className={isRtl ? "text-right" : "text-left"}>
+                    <Card className="relative overflow-hidden bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600 border-2 border-cyan-400/60 shadow-xl shadow-cyan-500/30 hover:shadow-2xl hover:shadow-cyan-500/50 hover:-translate-y-1 transition-all h-full">
+                      <CardContent className="p-4 sm:p-5 text-center relative">
+                        <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
+                          <Plus className="w-7 h-7 text-white" strokeWidth={2.8} />
+                        </div>
+                        <p className="text-base sm:text-lg font-black text-white drop-shadow-md">{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</p>
+                        <p className="text-[10px] sm:text-xs font-bold text-white/85 tracking-wide mt-1">{isRtl ? "تسجيل حلقة ورفع ملف" : "Record episode & upload file"}</p>
+                      </CardContent>
+                    </Card>
+                  </button>
+                  <button onClick={() => navigate("/student/lectures")} className={isRtl ? "text-right" : "text-left"}>
+                    <Card className="relative overflow-hidden bg-gradient-to-br from-emerald-500 via-teal-500 to-green-600 border-2 border-emerald-400/60 shadow-xl shadow-emerald-500/30 hover:shadow-2xl hover:shadow-emerald-500/50 hover:-translate-y-1 transition-all h-full">
+                      <CardContent className="p-4 sm:p-5 text-center relative">
+                        <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
+                          <Eye className="w-7 h-7 text-white" strokeWidth={2.8} />
+                        </div>
+                        <p className="text-base sm:text-lg font-black text-white drop-shadow-md">{isRtl ? "مشاهدة المحاضرات" : "Watch Lectures"}</p>
+                        <p className="text-[10px] sm:text-xs font-bold text-white/85 tracking-wide mt-1">{isRtl ? "من اللوحات الأخرى" : "From other boards"}</p>
+                      </CardContent>
+                    </Card>
+                  </button>
+                  <button onClick={() => setShowUploadFiles(true)} className={isRtl ? "text-right" : "text-left"}>
+                    <Card className="relative overflow-hidden bg-gradient-to-br from-purple-500 via-violet-500 to-fuchsia-600 border-2 border-purple-400/60 shadow-xl shadow-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/50 hover:-translate-y-1 transition-all h-full">
+                      <CardContent className="p-4 sm:p-5 text-center relative">
+                        <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
+                          <Upload className="w-7 h-7 text-white" strokeWidth={2.8} />
+                        </div>
+                        <p className="text-base sm:text-lg font-black text-white drop-shadow-md">{isRtl ? "رفع ملف للطلبة" : "Upload Files"}</p>
+                        <p className="text-[10px] sm:text-xs font-bold text-white/85 tracking-wide mt-1">{isRtl ? "مشاركة الملفات مع الطلاب" : "Share materials with students"}</p>
+                      </CardContent>
+                    </Card>
+                  </button>
                 </div>
                 <div className="bg-gradient-to-l from-primary/10 via-card to-card border-2 border-primary/20 rounded-xl p-4 mb-6 shadow-sm">
                   <p className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -1728,6 +1755,87 @@ const LecturerDashboard = () => {
             </div>
             <Button onClick={handleCreateSchedule} disabled={savingSchedule} className="w-full">
               {savingSchedule ? <div className="animate-spin w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full" /> : (isRtl ? "إضافة الجدول" : "Add Schedule")}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Upload Files for Students Dialog */}
+      <Dialog open={showUploadFiles} onOpenChange={setShowUploadFiles}>
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Upload className="w-5 h-5 text-purple-600" />
+              {isRtl ? "رفع ملف للطلبة" : "Upload Files for Students"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="mb-1.5 block text-sm font-medium">{isRtl ? "اسم الملف" : "File Name"} <span className="text-destructive text-xs">●</span></Label>
+              <Input
+                value={uploadFileName}
+                onChange={e => setUploadFileName(e.target.value)}
+                placeholder={isRtl ? "أدخل اسم الملف" : "Enter file name"}
+                className="h-10"
+              />
+            </div>
+            <div>
+              <Label className="mb-1.5 block text-sm font-medium">{isRtl ? "المحاضرة (اختياري)" : "Lecture (optional)"}</Label>
+              <Select value={uploadCourseId} onValueChange={setUploadCourseId}>
+                <SelectTrigger className="h-10">
+                  <SelectValue placeholder={isRtl ? "اختر محاضرة" : "Select lecture"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {courses.map(c => (
+                    <SelectItem key={c.id} value={c.id}>{isRtl ? c.title_ar : c.title_en}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="mb-1.5 block text-sm font-medium">{isRtl ? "الملف" : "File"} <span className="text-destructive text-xs">●</span></Label>
+              <Input
+                type="file"
+                onChange={e => setUploadFile(e.target.files?.[0] || null)}
+                className="flex-1"
+              />
+              {uploadFile && (
+                <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1">
+                  <FileText className="w-3 h-3" />
+                  {uploadFile.name} ({(uploadFile.size / 1024 / 1024).toFixed(2)} MB)
+                </p>
+              )}
+            </div>
+            <Button
+              onClick={async () => {
+                if (!uploadFile || !uploadFileName || !user) return;
+                setSavingUpload(true);
+                try {
+                  const ext = uploadFile.name.split(".").pop();
+                  const path = `${user.id}/student-files/${Date.now()}.${ext}`;
+                  const { error: upErr } = await supabase.storage.from("course-content").upload(path, uploadFile);
+                  if (upErr) throw upErr;
+                  const { data: urlData } = supabase.storage.from("course-content").getPublicUrl(path);
+                  if (uploadCourseId) {
+                    const { error } = await supabase.from("course_attachments").insert({
+                      course_id: uploadCourseId, name: uploadFileName, file_url: urlData.publicUrl, file_type: ext || null,
+                    });
+                    if (error) throw error;
+                  }
+                  toast({ title: isRtl ? "تم الرفع" : "Uploaded", description: isRtl ? "تم رفع الملف بنجاح" : "File uploaded successfully" });
+                  setShowUploadFiles(false);
+                  setUploadFile(null);
+                  setUploadFileName("");
+                  setUploadCourseId("");
+                } catch (err: any) {
+                  toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
+                } finally { setSavingUpload(false); }
+              }}
+              disabled={savingUpload || !uploadFile || !uploadFileName}
+              className="w-full gap-2 font-bold"
+            >
+              {savingUpload ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              {savingUpload ? (isRtl ? "جارٍ الرفع..." : "Uploading...") : (isRtl ? "رفع الملف" : "Upload File")}
             </Button>
           </div>
         </DialogContent>

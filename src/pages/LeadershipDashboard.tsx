@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Globe, ArrowLeft, ArrowRight, Loader2, Users, BookOpen, Calendar,
   Video, FileText, Download, BarChart3, Clock, CheckCircle, AlertCircle,
   GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, Menu, Home, XCircle, Award, ShieldCheck, User, RefreshCw,
-  Plus, Upload, X
+  Plus, Upload, X, Circle, Square, RotateCcw, Play, Film
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -117,6 +117,29 @@ const LeadershipDashboard = () => {
   const [attachmentName, setAttachmentName] = useState("");
   const [savingAttachment, setSavingAttachment] = useState(false);
 
+  // Recording state
+  const videoPreviewRef = useRef<HTMLVideoElement | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordedChunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
+  const timerRef = useRef<number | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const [recordedUrl, setRecordedUrl] = useState<string | null>(null);
+  const [recordSeconds, setRecordSeconds] = useState(0);
+  const [uploadingRecording, setUploadingRecording] = useState(false);
+
+  // Watch lectures dialog
+  const [showWatchLectures, setShowWatchLectures] = useState(false);
+
+  // Upload files for students dialog
+  const [showUploadFiles, setShowUploadFiles] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadFileName, setUploadFileName] = useState("");
+  const [uploadCourseId, setUploadCourseId] = useState("");
+  const [savingUpload, setSavingUpload] = useState(false);
+
   useEffect(() => {
     checkAccess();
   }, []);
@@ -221,36 +244,84 @@ const LeadershipDashboard = () => {
   };
 
   const loadMyDepartments = async (userId: string) => {
-    // Primary: query department_members with nested departments
-    const { data } = await supabase
-      .from("department_members")
-      .select("department_id, departments(id, department_name)")
-      .eq("user_id", userId);
-    let deps = (data || [])
-      .map((r: any) => r.departments)
-      .filter(Boolean) as Array<{ id: string; department_name: string }>;
+    // For deans/vice_deans, load ALL departments from their institution
+    // since they oversee the entire institution, not just one department.
+    const isOversightRole = ["dean", "vice_dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community"].includes(specificRole) || userRole === "dean" || userRole === "vice_dean";
 
-    // Fallback: if empty, check institution_faculty_members for department_id
-    if (deps.length === 0) {
-      const { data: ifmRows } = await supabase
+    if (isOversightRole) {
+      // Determine institution from college_members or institution_faculty_members
+      let instId: string | null = null;
+      let instType: string | null = null;
+
+      const { data: ifmRow } = await supabase
         .from("institution_faculty_members")
-        .select("department_id")
+        .select("institution_id, institution_type")
         .eq("user_id", userId)
-        .not("department_id", "is", null);
-      const deptIds = [...new Set((ifmRows || []).map((r: any) => r.department_id).filter(Boolean))];
-      if (deptIds.length > 0) {
-        const { data: deptRows } = await supabase
+        .maybeSingle();
+      if (ifmRow) {
+        instId = ifmRow.institution_id;
+        instType = ifmRow.institution_type;
+      } else {
+        const { data: cmRow } = await supabase
+          .from("college_members")
+          .select("college_id")
+          .eq("user_id", userId)
+          .maybeSingle();
+        if (cmRow) {
+          instId = cmRow.college_id;
+          instType = "college";
+        }
+      }
+
+      if (instId && instType) {
+        // Use the admin's institution lookup via RPC or direct query
+        const { data: allDepts } = await supabase
           .from("departments")
           .select("id, department_name")
-          .in("id", deptIds);
-        deps = (deptRows || []) as Array<{ id: string; department_name: string }>;
+          .eq("institution_id", instId)
+          .eq("institution_type", instType)
+          .eq("status", "active");
+        if (allDepts && allDepts.length > 0) {
+          setMyDepartments(allDepts as Array<{ id: string; department_name: string }>);
+          if (allDepts.length === 1) {
+            setNewCourse(p => ({ ...p, department_id: allDepts[0].id }));
+          }
+          return;
+        }
       }
     }
-    const seen = new Set<string>();
-    const unique = deps.filter(d => (seen.has(d.id) ? false : (seen.add(d.id), true)));
-    setMyDepartments(unique);
-    if (unique.length === 1) {
-      setNewCourse(p => ({ ...p, department_id: unique[0].id }));
+
+    // Fallback: collect department IDs from multiple sources, then query departments separately
+    const deptIdSet = new Set<string>();
+
+    // Source 1: department_members (user_id match)
+    const { data: dmRows } = await supabase
+      .from("department_members")
+      .select("department_id")
+      .eq("user_id", userId);
+    (dmRows || []).forEach((r: any) => { if (r.department_id) deptIdSet.add(r.department_id); });
+
+    // Source 2: institution_faculty_members (user_id match, department_id not null)
+    const { data: ifmRows } = await supabase
+      .from("institution_faculty_members")
+      .select("department_id")
+      .eq("user_id", userId)
+      .not("department_id", "is", null);
+    (ifmRows || []).forEach((r: any) => { if (r.department_id) deptIdSet.add(r.department_id); });
+
+    const deptIds = [...deptIdSet];
+    if (deptIds.length > 0) {
+      const { data: deptRows } = await supabase
+        .from("departments")
+        .select("id, department_name")
+        .in("id", deptIds);
+      const deps = (deptRows || []) as Array<{ id: string; department_name: string }>;
+      const seen = new Set<string>();
+      const unique = deps.filter(d => (seen.has(d.id) ? false : (seen.add(d.id), true)));
+      setMyDepartments(unique);
+      if (unique.length === 1) {
+        setNewCourse(p => ({ ...p, department_id: unique[0].id }));
+      }
     }
   };
 
@@ -299,6 +370,7 @@ const LeadershipDashboard = () => {
   const openEpisodes = async (courseId: string) => {
     setSelectedCourseId(courseId);
     setShowEpisodeDialog(true);
+    resetRecording();
     const { data } = await supabase.from("course_episodes").select("*").eq("course_id", courseId).order("episode_number");
     setCourseEpisodes(data || []);
     const { data: att } = await supabase.from("course_attachments").select("*").eq("course_id", courseId);
@@ -311,14 +383,19 @@ const LeadershipDashboard = () => {
     try {
       const nextNum = courseEpisodes.length + 1;
       const isFirstEpisode = nextNum === 1;
+      let videoUrl: string | null = newEpisode.video_url || null;
+      if (recordedBlob) {
+        videoUrl = await uploadRecordedVideo();
+      }
       const { error } = await supabase.from("course_episodes").insert({
         course_id: selectedCourseId, title_ar: newEpisode.title_ar, title_en: newEpisode.title_en,
-        video_url: newEpisode.video_url || null, duration_minutes: newEpisode.duration_minutes || 0,
+        video_url: videoUrl, duration_minutes: newEpisode.duration_minutes || 0,
         is_preview: isFirstEpisode ? true : newEpisode.is_preview, episode_number: nextNum,
       });
       if (error) throw error;
       await supabase.from("courses").update({ episode_count: nextNum }).eq("id", selectedCourseId);
       setNewEpisode({ title_ar: "", title_en: "", video_url: "", duration_minutes: 0, is_preview: false });
+      resetRecording();
       const { data } = await supabase.from("course_episodes").select("*").eq("course_id", selectedCourseId).order("episode_number");
       setCourseEpisodes(data || []);
       await loadData();
@@ -347,6 +424,99 @@ const LeadershipDashboard = () => {
       toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
     } finally { setSavingAttachment(false); }
   };
+
+  // Recording functions
+  const fmtTime = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+
+  const stopStream = () => {
+    streamRef.current?.getTracks().forEach(t => t.stop());
+    streamRef.current = null;
+    if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
+  };
+
+  const startRecording = async () => {
+    try {
+      setRecordedBlob(null);
+      setIsPaused(false);
+      if (recordedUrl) { URL.revokeObjectURL(recordedUrl); setRecordedUrl(null); }
+      recordedChunksRef.current = [];
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: true });
+      streamRef.current = stream;
+      if (videoPreviewRef.current) {
+        videoPreviewRef.current.srcObject = stream;
+        videoPreviewRef.current.muted = true;
+        await videoPreviewRef.current.play().catch(() => {});
+      }
+      const mime = MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus")
+        ? "video/webm;codecs=vp9,opus"
+        : MediaRecorder.isTypeSupported("video/webm;codecs=vp8,opus")
+        ? "video/webm;codecs=vp8,opus"
+        : "video/webm";
+      const mr = new MediaRecorder(stream, { mimeType: mime });
+      mr.ondataavailable = e => { if (e.data.size > 0) recordedChunksRef.current.push(e.data); };
+      mr.onstop = () => {
+        const blob = new Blob(recordedChunksRef.current, { type: mime });
+        setRecordedBlob(blob);
+        const url = URL.createObjectURL(blob);
+        setRecordedUrl(url);
+        setNewEpisode(p => ({ ...p, duration_minutes: Math.max(1, Math.round(recordSeconds / 60)) }));
+        stopStream();
+        if (videoPreviewRef.current) {
+          videoPreviewRef.current.srcObject = null;
+          videoPreviewRef.current.src = url;
+          videoPreviewRef.current.muted = false;
+        }
+      };
+      mediaRecorderRef.current = mr;
+      mr.start(1000);
+      setIsRecording(true);
+      setRecordSeconds(0);
+      timerRef.current = window.setInterval(() => setRecordSeconds(s => s + 1), 1000);
+    } catch (err: any) {
+      toast({ title: isRtl ? "تعذر الوصول للكاميرا" : "Camera error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const stopRecording = () => {
+    mediaRecorderRef.current?.stop();
+    setIsRecording(false);
+    setIsPaused(false);
+    if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
+  };
+
+  const pauseRecording = () => {
+    mediaRecorderRef.current?.pause();
+    setIsPaused(true);
+    if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
+  };
+
+  const resumeRecording = () => {
+    mediaRecorderRef.current?.resume();
+    setIsPaused(false);
+    timerRef.current = window.setInterval(() => setRecordSeconds(s => s + 1), 1000);
+  };
+
+  const resetRecording = () => {
+    if (recordedUrl) URL.revokeObjectURL(recordedUrl);
+    setRecordedUrl(null);
+    setRecordedBlob(null);
+    setRecordSeconds(0);
+    if (videoPreviewRef.current) { videoPreviewRef.current.src = ""; videoPreviewRef.current.srcObject = null; }
+  };
+
+  const uploadRecordedVideo = async (): Promise<string | null> => {
+    if (!recordedBlob || !userId || !selectedCourseId) return null;
+    setUploadingRecording(true);
+    try {
+      const path = `${userId}/${selectedCourseId}/episodes/${Date.now()}.webm`;
+      const { error: upErr } = await supabase.storage.from("course-content").upload(path, recordedBlob, { contentType: recordedBlob.type });
+      if (upErr) throw upErr;
+      const { data: urlData } = supabase.storage.from("course-content").getPublicUrl(path);
+      return urlData.publicUrl;
+    } finally { setUploadingRecording(false); }
+  };
+
+  useEffect(() => () => { stopStream(); if (recordedUrl) URL.revokeObjectURL(recordedUrl); }, []);
 
   const handleManualRefresh = async () => {
     if (refreshing) return;
@@ -789,13 +959,41 @@ const LeadershipDashboard = () => {
 
           {/* Lectures */}
           <TabsContent value="lectures" id="section-lectures" dir={isRtl ? "rtl" : "ltr"}>
-            <div className="flex items-center justify-start gap-2 mb-6">
-              <Button
-                onClick={() => setShowNewCourse(true)}
-                className="gap-2 font-bold bg-gradient-to-l from-primary to-primary/80 hover:scale-[1.02] shadow-md hover:shadow-lg transition-all border-2 border-primary/20"
-              >
-                <Plus className="w-4 h-4" strokeWidth={3} />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}
-              </Button>
+            {/* 3 Action Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
+              <button onClick={() => setShowNewCourse(true)} className={isRtl ? "text-right" : "text-left"}>
+                <Card className="relative overflow-hidden bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600 border-2 border-cyan-400/60 shadow-xl shadow-cyan-500/30 hover:shadow-2xl hover:shadow-cyan-500/50 hover:-translate-y-1 transition-all h-full">
+                  <CardContent className="p-4 sm:p-5 text-center relative">
+                    <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
+                      <Plus className="w-7 h-7 text-white" strokeWidth={2.8} />
+                    </div>
+                    <p className="text-base sm:text-lg font-black text-white drop-shadow-md">{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</p>
+                    <p className="text-[10px] sm:text-xs font-bold text-white/85 tracking-wide mt-1">{isRtl ? "تسجيل حلقة ورفع ملف" : "Record episode & upload file"}</p>
+                  </CardContent>
+                </Card>
+              </button>
+              <button onClick={() => setShowWatchLectures(true)} className={isRtl ? "text-right" : "text-left"}>
+                <Card className="relative overflow-hidden bg-gradient-to-br from-emerald-500 via-teal-500 to-green-600 border-2 border-emerald-400/60 shadow-xl shadow-emerald-500/30 hover:shadow-2xl hover:shadow-emerald-500/50 hover:-translate-y-1 transition-all h-full">
+                  <CardContent className="p-4 sm:p-5 text-center relative">
+                    <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
+                      <Eye className="w-7 h-7 text-white" strokeWidth={2.8} />
+                    </div>
+                    <p className="text-base sm:text-lg font-black text-white drop-shadow-md">{isRtl ? "مشاهدة المحاضرات" : "Watch Lectures"}</p>
+                    <p className="text-[10px] sm:text-xs font-bold text-white/85 tracking-wide mt-1">{isRtl ? "من اللوحات الأخرى" : "From other boards"}</p>
+                  </CardContent>
+                </Card>
+              </button>
+              <button onClick={() => setShowUploadFiles(true)} className={isRtl ? "text-right" : "text-left"}>
+                <Card className="relative overflow-hidden bg-gradient-to-br from-purple-500 via-violet-500 to-fuchsia-600 border-2 border-purple-400/60 shadow-xl shadow-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/50 hover:-translate-y-1 transition-all h-full">
+                  <CardContent className="p-4 sm:p-5 text-center relative">
+                    <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
+                      <Upload className="w-7 h-7 text-white" strokeWidth={2.8} />
+                    </div>
+                    <p className="text-base sm:text-lg font-black text-white drop-shadow-md">{isRtl ? "رفع ملف للطلبة" : "Upload Files"}</p>
+                    <p className="text-[10px] sm:text-xs font-bold text-white/85 tracking-wide mt-1">{isRtl ? "مشاركة الملفات مع الطلاب" : "Share materials with students"}</p>
+                  </CardContent>
+                </Card>
+              </button>
             </div>
 
             {courses.length === 0 ? (
@@ -1544,12 +1742,70 @@ const LeadershipDashboard = () => {
                 <Input placeholder={isRtl ? "عنوان (عربي)" : "Title (Arabic)"} value={newEpisode.title_ar} onChange={e => setNewEpisode(p => ({ ...p, title_ar: e.target.value }))} />
                 <Input placeholder={isRtl ? "عنوان (إنجليزي)" : "Title (English)"} value={newEpisode.title_en} onChange={e => setNewEpisode(p => ({ ...p, title_en: e.target.value }))} />
               </div>
-              <Input placeholder={isRtl ? "رابط الفيديو" : "Video URL"} value={newEpisode.video_url} onChange={e => setNewEpisode(p => ({ ...p, video_url: e.target.value }))} />
+              {/* Recording Section */}
+              <div className="space-y-2 p-3 rounded-lg border bg-muted/30">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <p className="text-sm font-semibold flex items-center gap-2">
+                    <Video className="w-4 h-4" /> {isRtl ? "تسجيل الحلقة" : "Record Episode"}
+                    {isRecording && !isPaused && <span className="text-xs text-destructive font-mono animate-pulse">● {fmtTime(recordSeconds)}</span>}
+                    {isRecording && isPaused && <span className="text-xs text-amber-500 font-mono">⏸ {fmtTime(recordSeconds)}</span>}
+                    {!isRecording && recordedBlob && <span className="text-xs text-muted-foreground font-mono">{fmtTime(recordSeconds)}</span>}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    {!isRecording && !recordedBlob && (
+                      <Button type="button" size="sm" variant="default" onClick={startRecording}>
+                        <Circle className="w-3.5 h-3.5 me-1 fill-current" /> {isRtl ? "بدء التسجيل" : "Start"}
+                      </Button>
+                    )}
+                    {isRecording && !isPaused && (
+                      <>
+                        <Button type="button" size="sm" variant="outline" onClick={pauseRecording}>
+                          ⏸ {isRtl ? "إيقاف مؤقت" : "Pause"}
+                        </Button>
+                        <Button type="button" size="sm" variant="destructive" onClick={stopRecording}>
+                          <Square className="w-3.5 h-3.5 me-1 fill-current" /> {isRtl ? "إيقاف" : "Stop"}
+                        </Button>
+                      </>
+                    )}
+                    {isRecording && isPaused && (
+                      <>
+                        <Button type="button" size="sm" variant="default" onClick={resumeRecording}>
+                          ▶ {isRtl ? "استئناف" : "Resume"}
+                        </Button>
+                        <Button type="button" size="sm" variant="destructive" onClick={stopRecording}>
+                          <Square className="w-3.5 h-3.5 me-1 fill-current" /> {isRtl ? "إيقاف" : "Stop"}
+                        </Button>
+                      </>
+                    )}
+                    {!isRecording && recordedBlob && (
+                      <Button type="button" size="sm" variant="outline" onClick={resetRecording}>
+                        <RotateCcw className="w-3.5 h-3.5 me-1" /> {isRtl ? "إعادة" : "Retake"}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                <video
+                  ref={videoPreviewRef}
+                  playsInline
+                  controls={!isRecording && !!recordedBlob}
+                  className={`w-full rounded-md bg-black aspect-video ${!isRecording && !recordedBlob ? "hidden" : ""}`}
+                />
+                {!isRecording && !recordedBlob && (
+                  <p className="text-xs text-muted-foreground">
+                    {isRtl ? "اضغط بدء التسجيل لتسجيل الحلقة من خلال الكاميرا والميكروفون. يمكنك الإيقاف المؤقت والاستئناف أثناء التسجيل." : "Click Start to record using your camera and microphone. You can pause and resume during recording."}
+                  </p>
+                )}
+              </div>
+              {/* Or enter video URL */}
+              <Input placeholder={isRtl ? "أو أدخل رابط الفيديو" : "Or enter video URL"} value={newEpisode.video_url} onChange={e => setNewEpisode(p => ({ ...p, video_url: e.target.value }))} disabled={!!recordedBlob} />
               <div className="flex items-center gap-4">
                 <Input type="number" placeholder={isRtl ? "المدة (دقائق)" : "Duration (min)"} value={newEpisode.duration_minutes || ""} onChange={e => setNewEpisode(p => ({ ...p, duration_minutes: parseInt(e.target.value) || 0 }))} className="flex-1" />
                 <div className="flex items-center gap-2"><Switch checked={newEpisode.is_preview} onCheckedChange={v => setNewEpisode(p => ({ ...p, is_preview: v }))} /><Label className="text-sm">{isRtl ? "معاينة" : "Preview"}</Label></div>
               </div>
-              <Button size="sm" onClick={handleAddEpisode} disabled={savingEpisode}><Plus className="w-3.5 h-3.5 me-1" /> {isRtl ? "إضافة" : "Add"}</Button>
+              <Button size="sm" onClick={handleAddEpisode} disabled={savingEpisode || uploadingRecording || isRecording}>
+                <Plus className="w-3.5 h-3.5 me-1" />
+                {uploadingRecording ? (isRtl ? "جارٍ الرفع..." : "Uploading...") : (isRtl ? "إضافة" : "Add")}
+              </Button>
             </div>
           </div>
           <Separator className="my-4" />
@@ -1566,6 +1822,153 @@ const LeadershipDashboard = () => {
               <Input type="file" onChange={e => setAttachmentFile(e.target.files?.[0] || null)} />
               <Button size="sm" onClick={handleAddAttachment} disabled={savingAttachment || !attachmentFile || !attachmentName}><Upload className="w-3.5 h-3.5 me-1" /> {isRtl ? "رفع" : "Upload"}</Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Watch Lectures Dialog */}
+      <Dialog open={showWatchLectures} onOpenChange={setShowWatchLectures}>
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="w-5 h-5 text-emerald-600" />
+              {isRtl ? "مشاهدة المحاضرات من اللوحات الأخرى" : "Watch Lectures from Other Boards"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {courses.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">{isRtl ? "لا توجد محاضرات بعد" : "No lectures yet"}</p>
+            ) : (
+              courses.map(course => {
+                const courseEps = episodes
+                  .filter(e => e.course_id === course.id)
+                  .sort((a, b) => (a.level_number - b.level_number) || (a.episode_number - b.episode_number));
+                const courseAttachments = [] as any[];
+                return (
+                  <Card key={course.id} className="overflow-hidden border border-border/50 hover:border-primary/30 transition-colors">
+                    <CardHeader className="bg-gradient-to-r from-muted/50 to-transparent pb-2">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <CardTitle className="text-sm font-bold text-foreground truncate">
+                            {isRtl ? course.title_ar : course.title_en}
+                          </CardTitle>
+                          <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
+                            <GraduationCap className="w-3 h-3" />
+                            {isRtl ? course.instructor_ar : course.instructor_en}
+                          </p>
+                        </div>
+                        <Badge variant="outline" className="text-xs font-bold shrink-0">
+                          {courseEps.length} {isRtl ? "حلقة" : "episodes"}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    {courseEps.length > 0 && (
+                      <CardContent className="p-0">
+                        <div className="divide-y">
+                          {courseEps.map(ep => (
+                            <div key={ep.id} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors">
+                              <span className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">{ep.episode_number}</span>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-foreground truncate">{isRtl ? ep.title_ar : ep.title_en}</p>
+                                {ep.duration_minutes > 0 && <p className="text-xs text-muted-foreground">{ep.duration_minutes} {isRtl ? "دقيقة" : "min"}</p>}
+                              </div>
+                              {ep.video_url && (
+                                <Button size="sm" variant="ghost" className="gap-1 text-xs font-bold text-primary" onClick={() => window.open(ep.video_url, '_blank')}>
+                                  <Play className="w-3.5 h-3.5" /> {isRtl ? "مشاهدة" : "Watch"}
+                                </Button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    )}
+                  </Card>
+                );
+              })
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Upload Files for Students Dialog */}
+      <Dialog open={showUploadFiles} onOpenChange={setShowUploadFiles}>
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Upload className="w-5 h-5 text-purple-600" />
+              {isRtl ? "رفع ملف للطلبة" : "Upload Files for Students"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="mb-1.5 block text-sm font-medium">{isRtl ? "اسم الملف" : "File Name"} <span className="text-destructive text-xs">●</span></Label>
+              <Input
+                value={uploadFileName}
+                onChange={e => setUploadFileName(e.target.value)}
+                placeholder={isRtl ? "أدخل اسم الملف" : "Enter file name"}
+                className="h-10"
+              />
+            </div>
+            <div>
+              <Label className="mb-1.5 block text-sm font-medium">{isRtl ? "المحاضرة (اختياري)" : "Lecture (optional)"}</Label>
+              <Select value={uploadCourseId} onValueChange={setUploadCourseId}>
+                <SelectTrigger className="h-10">
+                  <SelectValue placeholder={isRtl ? "اختر محاضرة" : "Select lecture"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {courses.map(c => (
+                    <SelectItem key={c.id} value={c.id}>{isRtl ? c.title_ar : c.title_en}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="mb-1.5 block text-sm font-medium">{isRtl ? "الملف" : "File"} <span className="text-destructive text-xs">●</span></Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="file"
+                  onChange={e => setUploadFile(e.target.files?.[0] || null)}
+                  className="flex-1"
+                />
+              </div>
+              {uploadFile && (
+                <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1">
+                  <FileText className="w-3 h-3" />
+                  {uploadFile.name} ({(uploadFile.size / 1024 / 1024).toFixed(2)} MB)
+                </p>
+              )}
+            </div>
+            <Button
+              onClick={async () => {
+                if (!uploadFile || !uploadFileName || !userId) return;
+                setSavingUpload(true);
+                try {
+                  const ext = uploadFile.name.split(".").pop();
+                  const path = `${userId}/student-files/${Date.now()}.${ext}`;
+                  const { error: upErr } = await supabase.storage.from("course-content").upload(path, uploadFile);
+                  if (upErr) throw upErr;
+                  const { data: urlData } = supabase.storage.from("course-content").getPublicUrl(path);
+                  if (uploadCourseId) {
+                    const { error } = await supabase.from("course_attachments").insert({
+                      course_id: uploadCourseId, name: uploadFileName, file_url: urlData.publicUrl, file_type: ext || null,
+                    });
+                    if (error) throw error;
+                  }
+                  toast({ title: isRtl ? "تم الرفع" : "Uploaded", description: isRtl ? "تم رفع الملف بنجاح" : "File uploaded successfully" });
+                  setShowUploadFiles(false);
+                  setUploadFile(null);
+                  setUploadFileName("");
+                  setUploadCourseId("");
+                } catch (err: any) {
+                  toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
+                } finally { setSavingUpload(false); }
+              }}
+              disabled={savingUpload || !uploadFile || !uploadFileName}
+              className="w-full gap-2 font-bold"
+            >
+              {savingUpload ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              {savingUpload ? (isRtl ? "جارٍ الرفع..." : "Uploading...") : (isRtl ? "رفع الملف" : "Upload File")}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

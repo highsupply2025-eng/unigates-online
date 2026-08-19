@@ -24,6 +24,7 @@ import { StudentPillActivityChart as SectionsActivityChart } from "@/components/
 import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { bucketByDay } from "@/components/Sparkline";
+import UploadFilesDialog from "@/components/UploadFilesDialog";
 
 const SchoolTeacherDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -94,6 +95,8 @@ const SchoolTeacherDashboard = () => {
   const [gradeValue, setGradeValue] = useState("");
   const [feedbackValue, setFeedbackValue] = useState("");
   const [teacherRatings, setTeacherRatings] = useState<any[]>([]);
+
+  const [showUploadFiles, setShowUploadFiles] = useState(false);
 
   useEffect(() => { checkAuth(); }, []);
 
@@ -818,6 +821,13 @@ const SchoolTeacherDashboard = () => {
         <LiveStreamRoom streamId={activeStreamId} streamTitle={activeStreamTitle} isHost={true} participantName={user.email?.split("@")[0] || "teacher"}
           onClose={async () => { setActiveStreamId(null); if (user) await loadStreams(user.id); }} />
       )}
+
+      <UploadFilesDialog
+        open={showUploadFiles}
+        onOpenChange={setShowUploadFiles}
+        courses={courses}
+        userId={user?.id || ""}
+      />
     </div>
   );
 };

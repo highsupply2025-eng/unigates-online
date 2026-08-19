@@ -35,6 +35,8 @@ import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 
 import RatingsBreakdown from "@/components/RatingsBreakdown";
 import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
+import UploadFilesDialog from "@/components/UploadFilesDialog";
+import WatchLecturesDialog from "@/components/WatchLecturesDialog";
 
 const LeadershipDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -135,10 +137,6 @@ const LeadershipDashboard = () => {
 
   // Upload files for students dialog
   const [showUploadFiles, setShowUploadFiles] = useState(false);
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [uploadFileName, setUploadFileName] = useState("");
-  const [uploadCourseId, setUploadCourseId] = useState("");
-  const [savingUpload, setSavingUpload] = useState(false);
 
   useEffect(() => {
     checkAccess();
@@ -151,7 +149,7 @@ const LeadershipDashboard = () => {
       "stream_attendance","quizzes","quiz_submissions","lecture_schedules",
       "assignment_submissions","college_members","department_members","departments"
     ],
-    () => { loadData(); },
+    () => { loadData(); if (userId) loadMyDepartments(userId); },
     !loading
   );
 
@@ -177,14 +175,16 @@ const LeadershipDashboard = () => {
 
       setUserRole(profile.role);
       setUserId(user.id);
-      await loadMyDepartments(user.id);
+
+      // Fetch specificRole BEFORE loadMyDepartments so oversight detection works
+      let resolvedSpecificRole = "";
       try {
-        const { data: sr } = await (supabase.rpc as any)("get_user_sub_role", { _user_id: user.id });
-        setSubRole((sr as any) || "");
+        const { data: ifm } = await supabase.from("institution_faculty_members").select("specific_role").eq("user_id", user.id).maybeSingle();
+        resolvedSpecificRole = ifm?.specific_role || "";
+        setSpecificRole(resolvedSpecificRole);
       } catch { /* noop */ }
-      // Specific job title (المسمى الوظيفي) — the same field set when adding a faculty member.
-      const { data: ifm } = await supabase.from("institution_faculty_members").select("specific_role").eq("user_id", user.id).maybeSingle();
-      setSpecificRole(ifm?.specific_role || "");
+
+      await loadMyDepartments(user.id, profile.role, resolvedSpecificRole);
 
       // Determine institution from college_members
       const { data: membership } = await supabase
@@ -243,10 +243,12 @@ const LeadershipDashboard = () => {
     setLastLoadedAt(Date.now());
   };
 
-  const loadMyDepartments = async (userId: string) => {
+  const loadMyDepartments = async (userId: string, resolvedRole?: string, resolvedSpecificRole?: string) => {
+    const role = resolvedRole || userRole;
+    const specific = resolvedSpecificRole ?? specificRole;
     // For deans/vice_deans, load ALL departments from their institution
     // since they oversee the entire institution, not just one department.
-    const isOversightRole = ["dean", "vice_dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community"].includes(specificRole) || userRole === "dean" || userRole === "vice_dean";
+    const isOversightRole = ["dean", "vice_dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community"].includes(specific) || role === "dean" || role === "vice_dean";
 
     if (isOversightRole) {
       // Determine institution from college_members or institution_faculty_members
@@ -274,7 +276,6 @@ const LeadershipDashboard = () => {
       }
 
       if (instId && instType) {
-        // Use the admin's institution lookup via RPC or direct query
         const { data: allDepts } = await supabase
           .from("departments")
           .select("id, department_name")
@@ -1826,152 +1827,19 @@ const LeadershipDashboard = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Watch Lectures Dialog */}
-      <Dialog open={showWatchLectures} onOpenChange={setShowWatchLectures}>
-        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Eye className="w-5 h-5 text-emerald-600" />
-              {isRtl ? "مشاهدة المحاضرات من اللوحات الأخرى" : "Watch Lectures from Other Boards"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            {courses.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">{isRtl ? "لا توجد محاضرات بعد" : "No lectures yet"}</p>
-            ) : (
-              courses.map(course => {
-                const courseEps = episodes
-                  .filter(e => e.course_id === course.id)
-                  .sort((a, b) => (a.level_number - b.level_number) || (a.episode_number - b.episode_number));
-                const courseAttachments = [] as any[];
-                return (
-                  <Card key={course.id} className="overflow-hidden border border-border/50 hover:border-primary/30 transition-colors">
-                    <CardHeader className="bg-gradient-to-r from-muted/50 to-transparent pb-2">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <CardTitle className="text-sm font-bold text-foreground truncate">
-                            {isRtl ? course.title_ar : course.title_en}
-                          </CardTitle>
-                          <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
-                            <GraduationCap className="w-3 h-3" />
-                            {isRtl ? course.instructor_ar : course.instructor_en}
-                          </p>
-                        </div>
-                        <Badge variant="outline" className="text-xs font-bold shrink-0">
-                          {courseEps.length} {isRtl ? "حلقة" : "episodes"}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    {courseEps.length > 0 && (
-                      <CardContent className="p-0">
-                        <div className="divide-y">
-                          {courseEps.map(ep => (
-                            <div key={ep.id} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors">
-                              <span className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">{ep.episode_number}</span>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-foreground truncate">{isRtl ? ep.title_ar : ep.title_en}</p>
-                                {ep.duration_minutes > 0 && <p className="text-xs text-muted-foreground">{ep.duration_minutes} {isRtl ? "دقيقة" : "min"}</p>}
-                              </div>
-                              {ep.video_url && (
-                                <Button size="sm" variant="ghost" className="gap-1 text-xs font-bold text-primary" onClick={() => window.open(ep.video_url, '_blank')}>
-                                  <Play className="w-3.5 h-3.5" /> {isRtl ? "مشاهدة" : "Watch"}
-                                </Button>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    )}
-                  </Card>
-                );
-              })
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <WatchLecturesDialog
+        open={showWatchLectures}
+        onOpenChange={setShowWatchLectures}
+        courses={courses}
+        episodes={episodes}
+      />
 
-      {/* Upload Files for Students Dialog */}
-      <Dialog open={showUploadFiles} onOpenChange={setShowUploadFiles}>
-        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Upload className="w-5 h-5 text-purple-600" />
-              {isRtl ? "رفع ملف للطلبة" : "Upload Files for Students"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label className="mb-1.5 block text-sm font-medium">{isRtl ? "اسم الملف" : "File Name"} <span className="text-destructive text-xs">●</span></Label>
-              <Input
-                value={uploadFileName}
-                onChange={e => setUploadFileName(e.target.value)}
-                placeholder={isRtl ? "أدخل اسم الملف" : "Enter file name"}
-                className="h-10"
-              />
-            </div>
-            <div>
-              <Label className="mb-1.5 block text-sm font-medium">{isRtl ? "المحاضرة (اختياري)" : "Lecture (optional)"}</Label>
-              <Select value={uploadCourseId} onValueChange={setUploadCourseId}>
-                <SelectTrigger className="h-10">
-                  <SelectValue placeholder={isRtl ? "اختر محاضرة" : "Select lecture"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {courses.map(c => (
-                    <SelectItem key={c.id} value={c.id}>{isRtl ? c.title_ar : c.title_en}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="mb-1.5 block text-sm font-medium">{isRtl ? "الملف" : "File"} <span className="text-destructive text-xs">●</span></Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="file"
-                  onChange={e => setUploadFile(e.target.files?.[0] || null)}
-                  className="flex-1"
-                />
-              </div>
-              {uploadFile && (
-                <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1">
-                  <FileText className="w-3 h-3" />
-                  {uploadFile.name} ({(uploadFile.size / 1024 / 1024).toFixed(2)} MB)
-                </p>
-              )}
-            </div>
-            <Button
-              onClick={async () => {
-                if (!uploadFile || !uploadFileName || !userId) return;
-                setSavingUpload(true);
-                try {
-                  const ext = uploadFile.name.split(".").pop();
-                  const path = `${userId}/student-files/${Date.now()}.${ext}`;
-                  const { error: upErr } = await supabase.storage.from("course-content").upload(path, uploadFile);
-                  if (upErr) throw upErr;
-                  const { data: urlData } = supabase.storage.from("course-content").getPublicUrl(path);
-                  if (uploadCourseId) {
-                    const { error } = await supabase.from("course_attachments").insert({
-                      course_id: uploadCourseId, name: uploadFileName, file_url: urlData.publicUrl, file_type: ext || null,
-                    });
-                    if (error) throw error;
-                  }
-                  toast({ title: isRtl ? "تم الرفع" : "Uploaded", description: isRtl ? "تم رفع الملف بنجاح" : "File uploaded successfully" });
-                  setShowUploadFiles(false);
-                  setUploadFile(null);
-                  setUploadFileName("");
-                  setUploadCourseId("");
-                } catch (err: any) {
-                  toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
-                } finally { setSavingUpload(false); }
-              }}
-              disabled={savingUpload || !uploadFile || !uploadFileName}
-              className="w-full gap-2 font-bold"
-            >
-              {savingUpload ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-              {savingUpload ? (isRtl ? "جارٍ الرفع..." : "Uploading...") : (isRtl ? "رفع الملف" : "Upload File")}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <UploadFilesDialog
+        open={showUploadFiles}
+        onOpenChange={setShowUploadFiles}
+        courses={courses}
+        userId={userId}
+      />
 
     </div>
   );

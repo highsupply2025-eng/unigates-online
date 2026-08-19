@@ -1527,6 +1527,30 @@ export type Database = {
           },
         ]
       }
+      platform_settings: {
+        Row: {
+          created_at: string
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       profile_documents: {
         Row: {
           additional_certs_urls: string[] | null
@@ -3013,6 +3037,7 @@ export type Database = {
         Returns: number
       }
       ensure_owner_role: { Args: never; Returns: undefined }
+      get_bank_details: { Args: never; Returns: Json }
       get_cleanup_candidates: {
         Args: never
         Returns: {
@@ -3068,6 +3093,7 @@ export type Database = {
         Args: { _submission_id: string }
         Returns: string
       }
+      get_platform_setting: { Args: { _key: string }; Returns: Json }
       get_platform_statistics: { Args: { p_scope?: string }; Returns: Json }
       get_platform_statistics_legacy: {
         Args: { p_scope?: string }
@@ -3152,6 +3178,7 @@ export type Database = {
         Args: { _institution_id: string; _institution_type: string }
         Returns: boolean
       }
+      is_any_institution_owner: { Args: { _user_id: string }; Returns: boolean }
       is_current_school_account_archived: { Args: never; Returns: boolean }
       is_department_member: {
         Args: { _department_id: string; _user_id: string }

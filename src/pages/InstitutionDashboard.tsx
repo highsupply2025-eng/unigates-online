@@ -4,7 +4,7 @@ import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Layers, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
-  User, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell, PlusCircle, Pencil, Download, ShieldAlert, AlertTriangle, UserPlus, FileSpreadsheet, RefreshCw, Zap
+  User, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell, PlusCircle, Pencil, Download, ShieldAlert, AlertTriangle, UserPlus, FileSpreadsheet, RefreshCw, Zap, Shield
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
@@ -201,6 +201,8 @@ type DashboardSnapshot = {
   assignmentSubmissions: any[];
   studentResults: any[];
   institutionQuizzes: any[];
+  courses: any[];
+  episodes: any[];
   leadershipInvitations: any[];
 };
 let __dashboardCache: DashboardSnapshot | null = null;
@@ -320,6 +322,8 @@ const InstitutionDashboard = () => {
   const [assignmentSubmissions, setAssignmentSubmissions] = useState<any[]>([]);
   const [studentResults, setStudentResults] = useState<any[]>([]);
   const [institutionQuizzes, setInstitutionQuizzes] = useState<any[]>([]);
+  const [courses, setCourses] = useState<any[]>([]);
+  const [episodes, setEpisodes] = useState<any[]>([]);
   const [showResultDialog, setShowResultDialog] = useState(false);
   const [editingResult, setEditingResult] = useState<any>(null);
   const [resultForm, setResultForm] = useState({ student_name: "", department_name: "", academic_degree: "", grade: "", rating: "", notes: "" });
@@ -541,6 +545,8 @@ const InstitutionDashboard = () => {
         setAssignmentSubmissions(s.assignmentSubmissions);
         setStudentResults(s.studentResults);
         setInstitutionQuizzes(s.institutionQuizzes);
+        setCourses(s.courses);
+        setEpisodes(s.episodes);
         setLeadershipInvitations(s.leadershipInvitations);
         setLoading(false);
         return;
@@ -751,8 +757,8 @@ const InstitutionDashboard = () => {
     }
 
 
-    // Load live streams, attendance, quizzes, quiz submissions, assignments, and schedules
-    const [streamsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, ratingsRes, assignmentsRes, assignSubsRes, resultsRes, instQuizzesRes] = await Promise.all([
+    // Load live streams, attendance, quizzes, quiz submissions, assignments, schedules, courses, and episodes
+    const [streamsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, ratingsRes, assignmentsRes, assignSubsRes, resultsRes, instQuizzesRes, coursesRes, episodesRes] = await Promise.all([
       supabase.from("live_streams").select("*").order("scheduled_at", { ascending: false }).limit(50),
       supabase.from("stream_attendance").select("stream_id, user_id"),
       supabase.from("quizzes").select("*").order("created_at", { ascending: false }).limit(50),
@@ -763,6 +769,8 @@ const InstitutionDashboard = () => {
       supabase.from("assignment_submissions").select("*").order("submitted_at", { ascending: false }).limit(200),
       supabase.from("student_results").select("*").eq("institution_id", instId).order("created_at", { ascending: false }),
       supabase.from("institution_quizzes").select("*").eq("institution_id", instId).order("created_at", { ascending: false }),
+      supabase.from("courses").select("*").order("created_at", { ascending: false }),
+      supabase.from("episodes").select("*").order("created_at", { ascending: false }),
     ]);
     setLiveStreams(streamsRes.data || []);
     setQuizzes(quizzesRes.data || []);
@@ -771,6 +779,8 @@ const InstitutionDashboard = () => {
     setLecturerRatings(ratingsRes.data || []);
     setAssignments(assignmentsRes.data || []);
     setAssignmentSubmissions(assignSubsRes.data || []);
+    setCourses(coursesRes.data || []);
+    setEpisodes(episodesRes.data || []);
     setStudentResults(resultsRes.data || []);
     setInstitutionQuizzes(instQuizzesRes.data || []);
 
@@ -854,6 +864,8 @@ const InstitutionDashboard = () => {
           assignmentSubmissions: assignSubsRes.data || [],
           studentResults: resultsRes.data || [],
           institutionQuizzes: instQuizzesRes.data || [],
+          courses: coursesRes.data || [],
+          episodes: episodesRes.data || [],
           leadershipInvitations: finalLeadershipInvitations,
         };
       }
@@ -2158,6 +2170,138 @@ ${exams.map((s: any, i: number) => `<tr>
               ]}
             />
 
+            {/* ═══════════════════════════════════════════════════════════════
+                Approval Overview – aggregated stats across all departments
+                ═══════════════════════════════════════════════════════════════ */}
+            {(() => {
+              const STALE_DAYS = 7;
+              const staleThreshold = Date.now() - STALE_DAYS * 24 * 60 * 60 * 1000;
+              const isStale = (ts: string | null | undefined) => {
+                if (!ts) return false;
+                const t = Date.parse(ts);
+                return !isNaN(t) && t < staleThreshold;
+              };
+
+              // ── Schedule approval breakdown ──
+              const schedRejected = examSchedules.filter((s: any) => s.rejected_by);
+              const schedAwaitHead = examSchedules.filter((s: any) => !s.rejected_by && !s.approved_by_head);
+              const schedAwaitDean = examSchedules.filter((s: any) => !s.rejected_by && s.approved_by_head && !s.approved_by_dean);
+              const schedApproved = examSchedules.filter((s: any) => s.approved_by_head && s.approved_by_vice_dean && s.approved_by_dean);
+
+              // ── Quiz approval breakdown ──
+              const quizRejected = quizzes.filter((q: any) => q.rejected_by);
+              const quizAwaitLecturer = quizzes.filter((q: any) => !q.rejected_by && !q.approved_by_lecturer);
+              const quizAwaitHead = quizzes.filter((q: any) => !q.rejected_by && q.approved_by_lecturer && !q.approved_by_head);
+              const quizAwaitVDs = quizzes.filter((q: any) => !q.rejected_by && q.approved_by_head && !(q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad && q.approved_by_vice_dean_environment));
+              const quizAwaitDean = quizzes.filter((q: any) => !q.rejected_by && q.approved_by_head && q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad && q.approved_by_vice_dean_environment && !q.approved_by_dean);
+              const quizApproved = quizzes.filter((q: any) => q.approved_by_lecturer && q.approved_by_head && q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad && q.approved_by_vice_dean_environment && q.approved_by_dean);
+
+              // ── Stale items (>7 days without approval at ANY stage) ──
+              const staleSchedules = examSchedules.filter((s: any) => {
+                if (s.rejected_by || (s.approved_by_head && s.approved_by_vice_dean && s.approved_by_dean)) return false;
+                const ref = s.approved_by_dean_at || s.approved_by_vice_dean_at || s.approved_by_head_at || s.created_at;
+                return isStale(ref);
+              });
+              const staleQuizzes = quizzes.filter((q: any) => {
+                if (q.rejected_by || (q.approved_by_lecturer && q.approved_by_head && q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad && q.approved_by_vice_dean_environment && q.approved_by_dean)) return false;
+                const ref = q.approved_by_dean_at || q.approved_by_head_at || q.approved_by_lecturer_at || q.created_at;
+                return isStale(ref);
+              });
+              const totalStale = staleSchedules.length + staleQuizzes.length;
+
+              const schedCards = [
+                { label: isRtl ? "بانتظار رئيس القسم" : "Awaiting Head", count: schedAwaitHead.length, color: "from-amber-500 to-orange-600", icon: Clock },
+                { label: isRtl ? "بانتظار العميد" : "Awaiting Dean", count: schedAwaitDean.length, color: "from-blue-500 to-indigo-600", icon: Shield },
+                { label: isRtl ? "معتمد" : "Approved", count: schedApproved.length, color: "from-emerald-500 to-green-600", icon: CheckCircle },
+              ];
+              const quizCards = [
+                { label: isRtl ? "بانتظار المحاضر" : "Awaiting Lecturer", count: quizAwaitLecturer.length, color: "from-slate-400 to-slate-500", icon: Clock },
+                { label: isRtl ? "بانتظار رئيس القسم" : "Awaiting Head", count: quizAwaitHead.length, color: "from-amber-500 to-orange-600", icon: Clock },
+                { label: isRtl ? "بانتظار الوكلاء" : "Awaiting VDs", count: quizAwaitVDs.length, color: "from-blue-500 to-indigo-600", icon: Shield },
+                { label: isRtl ? "بانتظار العميد" : "Awaiting Dean", count: quizAwaitDean.length, color: "from-violet-500 to-purple-600", icon: Shield },
+                { label: isRtl ? "معتمد" : "Approved", count: quizApproved.length, color: "from-emerald-500 to-green-600", icon: CheckCircle },
+              ];
+
+              if (examSchedules.length === 0 && quizzes.length === 0) return null;
+
+              return (
+                <div className="mb-6 space-y-4">
+                  {/* Stale approval alert banner */}
+                  {totalStale > 0 && (
+                    <div className="flex items-center gap-3 p-3 sm:p-4 rounded-xl border-2 border-amber-400/60 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 shadow-md">
+                      <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center shrink-0 shadow-lg">
+                        <AlertTriangle className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-extrabold text-amber-800 dark:text-amber-200">
+                          {isRtl ? `${totalStale} عنصر متأخر في الاعتماد` : `${totalStale} item(s) stuck in approval`}
+                        </p>
+                        <p className="text-[11px] text-amber-700/80 dark:text-amber-300/70">
+                          {isRtl
+                            ? `مر أكثر من ${STALE_DAYS} أيام دون اعتماد`
+                            : `Over ${STALE_DAYS} days without approval`}
+                        </p>
+                      </div>
+                      <Badge className="bg-amber-500 text-white gap-1 shrink-0 shadow">
+                        <AlertTriangle className="w-3 h-3" />
+                        {staleSchedules.length > 0 && `${staleSchedules.length} ${isRtl ? "جداول" : "schedules"}`}
+                        {staleSchedules.length > 0 && staleQuizzes.length > 0 && " + "}
+                        {staleQuizzes.length > 0 && `${staleQuizzes.length} ${isRtl ? "اختبارات" : "quizzes"}`}
+                      </Badge>
+                    </div>
+                  )}
+
+                  {/* Schedule Approval Overview */}
+                  {examSchedules.length > 0 && (
+                    <Card className="border-2 border-primary/15 bg-gradient-to-br from-primary/3 to-transparent">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-emerald-600" />
+                          <span className="font-extrabold">{isRtl ? "نظرة عامة على اعتماد الجداول" : "Schedule Approval Overview"}</span>
+                          <Badge variant="secondary" className="text-[10px]">{examSchedules.length}</Badge>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                          {schedCards.map((card, i) => (
+                            <div key={i} className={`text-center p-2 sm:p-3 rounded-xl bg-gradient-to-br ${card.color} shadow-md shadow-black/10`}>
+                              <card.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white/90 mx-auto mb-1" />
+                              <p className="text-xl sm:text-2xl font-extrabold text-white">{card.count}</p>
+                              <p className="text-[9px] sm:text-[10px] font-bold text-white/85">{card.label}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Quiz Approval Overview */}
+                  {quizzes.length > 0 && (
+                    <Card className="border-2 border-primary/15 bg-gradient-to-br from-primary/3 to-transparent">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+                          <Shield className="w-4 h-4 text-blue-600" />
+                          <span className="font-extrabold">{isRtl ? "نظرة عامة على اعتماد الاختبارات" : "Quiz Approval Overview"}</span>
+                          <Badge variant="secondary" className="text-[10px]">{quizzes.length}</Badge>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
+                          {quizCards.map((card, i) => (
+                            <div key={i} className={`text-center p-2 sm:p-3 rounded-xl bg-gradient-to-br ${card.color} shadow-md shadow-black/10`}>
+                              <card.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white/90 mx-auto mb-1" />
+                              <p className="text-xl sm:text-2xl font-extrabold text-white">{card.count}</p>
+                              <p className="text-[9px] sm:text-[10px] font-bold text-white/85">{card.label}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              );
+            })()}
+
 
 
           </TabsContent>
@@ -2177,6 +2321,32 @@ ${exams.map((s: any, i: number) => `<tr>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredDepts.map(dept => {
                 const registeredMembersCount = getMembersForDept(dept.id).length;
+                const deptHeads = getDeptBucket(dept.id).head;
+                const deptHead = deptHeads.length > 0 ? deptHeads[0] : null;
+                const headUserId = deptHead?.user_id;
+                const headProfile = headUserId ? profilesMap[headUserId] : null;
+                const headLastLogin = headProfile?.created_at;
+                const headActive = headUserId && headLastLogin
+                  ? (Date.now() - Date.parse(headLastLogin)) < 30 * 24 * 60 * 60 * 1000
+                  : false;
+
+                // Dept courses & episodes
+                const deptCourseIds = courses.filter((c: any) => c.department_id === dept.id).map((c: any) => c.id);
+                const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+                const lecturesThisWeek = episodes.filter((e: any) => {
+                  if (!deptCourseIds.includes(e.course_id)) return false;
+                  const t = Date.parse(e.created_at);
+                  return !isNaN(t) && t >= weekAgo;
+                }).length;
+
+                // Approved quizzes for this dept
+                const deptApprovedQuizzes = quizzes.filter((q: any) =>
+                  q.department_id === dept.id &&
+                  q.approved_by_lecturer && q.approved_by_head &&
+                  q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad &&
+                  q.approved_by_vice_dean_environment && q.approved_by_dean
+                ).length;
+
                 return (
                   <Card key={dept.id} className="border-2 border-primary/15 hover:shadow-xl hover:border-primary/30 transition-all bg-gradient-to-br from-primary/3 to-transparent">
                     <CardContent className="p-5">
@@ -2203,6 +2373,24 @@ ${exams.map((s: any, i: number) => `<tr>
                           <CheckCircle className="w-3 h-3" />
                           {isRtl ? "مفعّل" : "Active"}
                         </Badge>
+                      </div>
+
+                      {/* Department activity indicators */}
+                      <div className="grid grid-cols-3 gap-2 mb-4">
+                        <div className="text-center p-2 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-md shadow-black/10">
+                          <p className="text-lg font-extrabold text-white">{lecturesThisWeek}</p>
+                          <p className="text-[9px] font-bold text-white/85">{isRtl ? "محاضرات أسبوع" : "Lectures/wk"}</p>
+                        </div>
+                        <div className="text-center p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-md shadow-black/10">
+                          <p className="text-lg font-extrabold text-white">{deptApprovedQuizzes}</p>
+                          <p className="text-[9px] font-bold text-white/85">{isRtl ? "اختبارات معتمدة" : "Approved"}</p>
+                        </div>
+                        <div className={`text-center p-2 rounded-lg shadow-md shadow-black/10 ${headActive ? "bg-gradient-to-br from-green-500 to-green-600" : "bg-gradient-to-br from-gray-400 to-gray-500"}`}>
+                          <p className="text-[9px] font-bold text-white/85">{isRtl ? "رئيس القسم" : "Head"}</p>
+                          <p className={`text-[10px] font-extrabold ${headActive ? "text-white" : "text-white/70"}`}>
+                            {deptHead ? (headActive ? (isRtl ? "نشط" : "Active") : (isRtl ? "غير نشط" : "Inactive")) : (isRtl ? "غير معيّن" : "None")}
+                          </p>
+                        </div>
                       </div>
 
                       {/* Department code (copyable, fixed) */}

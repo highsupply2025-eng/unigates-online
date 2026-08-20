@@ -1113,7 +1113,7 @@ const LecturerDashboard = () => {
                       </CardContent>
                     </Card>
                   </button>
-                  <button onClick={() => setShowWatchLectures(true)} className={isRtl ? "text-right" : "text-left"}>
+                  <button onClick={openWatchLectures} className={isRtl ? "text-right" : "text-left"}>
                     <Card className="relative overflow-hidden bg-gradient-to-br from-emerald-500 via-teal-500 to-green-600 border-2 border-emerald-400/60 shadow-xl shadow-emerald-500/30 hover:shadow-2xl hover:shadow-emerald-500/50 hover:-translate-y-1 transition-all h-full">
                       <CardContent className="p-4 sm:p-5 text-center relative">
                         <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
@@ -1947,7 +1947,7 @@ const LecturerDashboard = () => {
         open={showWatchLectures}
         onOpenChange={setShowWatchLectures}
         courses={courses}
-        episodes={episodes}
+        episodes={allEpisodes}
       />
 
       <UploadFilesDialog

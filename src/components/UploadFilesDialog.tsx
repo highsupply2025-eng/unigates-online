@@ -80,13 +80,11 @@ const UploadFilesDialog = ({ open, onOpenChange, courses, userId, onUploaded }: 
       const { error: upErr } = await supabase.storage.from("course-content").upload(path, uploadFile);
       if (upErr) throw upErr;
       const { data: urlData } = supabase.storage.from("course-content").getPublicUrl(path);
-      if (uploadCourseId) {
-        const { error } = await supabase.from("course_attachments").insert({
-          course_id: uploadCourseId, name: uploadFileName, file_url: urlData.publicUrl, file_type: ext || null,
-        });
-        if (error) throw error;
-      }
-      toast({ title: isRtl ? "تم الرفع بنجاح" : "Uploaded Successfully", description: isRtl ? "تم رفع الملف وسيظهر للطلاب很快" : "File uploaded and will be visible to students" });
+      const { error } = await supabase.from("course_attachments").insert({
+        course_id: uploadCourseId, name: uploadFileName, file_url: urlData.publicUrl, file_type: ext || null,
+      });
+      if (error) throw error;
+      toast({ title: isRtl ? "تم الرفع بنجاح" : "Uploaded Successfully", description: isRtl ? "تم رفع الملف وسيظهر للطلاب" : "File uploaded and will be visible to students" });
       onOpenChange(false);
       setUploadFile(null);
       setUploadFileName("");
@@ -136,7 +134,7 @@ const UploadFilesDialog = ({ open, onOpenChange, courses, userId, onUploaded }: 
           {/* Course Select */}
           <div>
             <Label className="mb-2 block text-sm font-bold text-foreground">
-              {isRtl ? "المحاضرة (اختياري)" : "Lecture (optional)"}
+              {isRtl ? "المحاضرة" : "Lecture"} <span className="text-destructive">*</span>
             </Label>
             <Select value={uploadCourseId} onValueChange={setUploadCourseId}>
               <SelectTrigger className="h-11 border-border/60 focus:border-purple-500 focus:ring-purple-500/20">
@@ -210,7 +208,7 @@ const UploadFilesDialog = ({ open, onOpenChange, courses, userId, onUploaded }: 
           {/* Upload Button */}
           <Button
             onClick={handleUpload}
-            disabled={savingUpload || !uploadFile || !uploadFileName}
+            disabled={savingUpload || !uploadFile || !uploadFileName || !uploadCourseId}
             className="w-full h-12 gap-2 font-bold text-base rounded-xl bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700 shadow-lg shadow-purple-500/25 transition-all duration-200 hover:shadow-xl hover:shadow-purple-500/30 disabled:opacity-50 disabled:shadow-none"
           >
             {savingUpload ? (

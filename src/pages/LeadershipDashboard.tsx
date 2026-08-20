@@ -109,6 +109,7 @@ const LeadershipDashboard = () => {
   const [myDepartments, setMyDepartments] = useState<Array<{ id: string; department_name: string }>>([]);
   const [deptMembers, setDeptMembers] = useState<any[]>([]);
   const [isApprovalRole, setIsApprovalRole] = useState(false);
+  const [selectedDeptId, setSelectedDeptId] = useState<string>("all");
 
   // Episode management
   const [showEpisodeDialog, setShowEpisodeDialog] = useState(false);
@@ -143,6 +144,15 @@ const LeadershipDashboard = () => {
   useEffect(() => {
     checkAccess();
   }, []);
+
+  // Reload data when department filter changes
+  useEffect(() => {
+    if (!loading && myDepartments.length > 0) {
+      const deptIds = selectedDeptId === "all" ? myDepartments.map(d => d.id) : [selectedDeptId];
+      loadData(deptIds);
+      loadDeptMembers(userId, deptIds);
+    }
+  }, [selectedDeptId]);
 
   // Live updates: mirror any change from the backend into college & institute dashboards without refresh
   useRealtimeRefresh(
@@ -217,8 +227,9 @@ const LeadershipDashboard = () => {
   };
 
   const loadData = async (overrideDeptIds?: string[]) => {
-    // Get the department IDs this user belongs to
-    const deptIds = overrideDeptIds || myDepartments.map(d => d.id);
+    // Get the department IDs this user belongs to, applying the department filter
+    const allDeptIds = overrideDeptIds || myDepartments.map(d => d.id);
+    const deptIds = selectedDeptId === "all" ? allDeptIds : (allDeptIds.includes(selectedDeptId) ? [selectedDeptId] : allDeptIds);
     const hasDeptFilter = deptIds.length > 0;
 
     // First get courses belonging to the user's departments (needed for episode/quiz/assignment filtering)
@@ -883,6 +894,65 @@ const LeadershipDashboard = () => {
           {/* Overview - Lecturer-style design */}
           <TabsContent value="overview" dir={isRtl ? "rtl" : "ltr"}>
 
+            {/* Department Filter Dropdown - only for oversight roles with multiple departments */}
+            {myDepartments.length > 1 && (
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-xs font-bold text-muted-foreground whitespace-nowrap">
+                  {isRtl ? "عرض بيانات:" : "Show data:"}
+                </span>
+                <Select value={selectedDeptId} onValueChange={setSelectedDeptId}>
+                  <SelectTrigger className="w-[200px] sm:w-[260px] h-9 text-sm font-bold border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{isRtl ? "كل الأقسام" : "All Departments"}</SelectItem>
+                    {myDepartments.map(d => (
+                      <SelectItem key={d.id} value={d.id}>{d.department_name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Quick Action Links for Dean & Vice Deans */}
+            {(specificRole === "dean" || specificRole === "director" || ["vice_dean_students", "vice_dean_postgrad", "vice_dean_environment", "vice_dean_community"].includes(specificRole)) && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 mb-4">
+                <button onClick={() => navigate("/institution/faculty")} className="text-start">
+                  <Card className="relative overflow-hidden bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600 border-2 border-cyan-400/60 shadow-lg shadow-cyan-500/20 hover:shadow-xl hover:shadow-cyan-500/40 hover:-translate-y-0.5 transition-all h-full">
+                    <CardContent className="p-3 sm:p-4 text-center relative">
+                      <div className="w-10 h-10 mx-auto mb-1.5 rounded-xl bg-white/25 backdrop-blur flex items-center justify-center ring-1 ring-white/30">
+                        <Users className="w-5 h-5 text-white" strokeWidth={2.6} />
+                      </div>
+                      <p className="text-xs sm:text-sm font-black text-white drop-shadow-md">{isRtl ? "هيئة التدريس" : "Faculty"}</p>
+                      <p className="text-[9px] sm:text-[10px] font-bold text-white/80 mt-0.5">{isRtl ? "عرض الأعضاء" : "View Members"}</p>
+                    </CardContent>
+                  </Card>
+                </button>
+                <button onClick={() => navigate("/institution/student-subscriptions")} className="text-start">
+                  <Card className="relative overflow-hidden bg-gradient-to-br from-emerald-500 via-teal-500 to-green-600 border-2 border-emerald-400/60 shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/40 hover:-translate-y-0.5 transition-all h-full">
+                    <CardContent className="p-3 sm:p-4 text-center relative">
+                      <div className="w-10 h-10 mx-auto mb-1.5 rounded-xl bg-white/25 backdrop-blur flex items-center justify-center ring-1 ring-white/30">
+                        <GraduationCap className="w-5 h-5 text-white" strokeWidth={2.6} />
+                      </div>
+                      <p className="text-xs sm:text-sm font-black text-white drop-shadow-md">{isRtl ? "الطلاب" : "Students"}</p>
+                      <p className="text-[9px] sm:text-[10px] font-bold text-white/80 mt-0.5">{isRtl ? "الاشتراكات" : "Subscriptions"}</p>
+                    </CardContent>
+                  </Card>
+                </button>
+                <button onClick={() => navigate("/institution/departments")} className="text-start">
+                  <Card className="relative overflow-hidden bg-gradient-to-br from-purple-500 via-violet-500 to-fuchsia-600 border-2 border-purple-400/60 shadow-lg shadow-purple-500/20 hover:shadow-xl hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all h-full">
+                    <CardContent className="p-3 sm:p-4 text-center relative">
+                      <div className="w-10 h-10 mx-auto mb-1.5 rounded-xl bg-white/25 backdrop-blur flex items-center justify-center ring-1 ring-white/30">
+                        <Landmark className="w-5 h-5 text-white" strokeWidth={2.6} />
+                      </div>
+                      <p className="text-xs sm:text-sm font-black text-white drop-shadow-md">{isRtl ? "الأقسام" : "Departments"}</p>
+                      <p className="text-[9px] sm:text-[10px] font-bold text-white/80 mt-0.5">{isRtl ? "إدارة" : "Manage"}</p>
+                    </CardContent>
+                  </Card>
+                </button>
+              </div>
+            )}
+
             {(() => {
               const totalActivity = courses.length + liveStreams.length + assignments.length + quizzes.length + episodes.length + ratings.length;
               
@@ -1305,11 +1375,32 @@ const LeadershipDashboard = () => {
 
               const StageBadge = ({ q }: { q: any }) => {
                 const s = stageOf(q);
+                // Build a detailed chain indicator showing each step
+                const steps = [
+                  { label: isRtl ? "المحاضر" : "Lecturer", done: q.approved_by_lecturer },
+                  { label: isRtl ? "رئيس القسم" : "Head", done: q.approved_by_head },
+                  { label: isRtl ? "شؤون الطلاب" : "Students VD", done: q.approved_by_vice_dean_students },
+                  { label: isRtl ? "الدراسات العليا" : "Postgrad VD", done: q.approved_by_vice_dean_postgrad },
+                  { label: isRtl ? "البيئة" : "Environment VD", done: q.approved_by_vice_dean_environment },
+                  { label: isRtl ? "العميد" : "Dean", done: q.approved_by_dean },
+                ];
                 return (
-                  <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-extrabold text-white bg-gradient-to-r ${s.color} shadow-sm`}>
-                    <ShieldCheck className="w-3 h-3" />
-                    {isRtl ? s.labelAr : s.labelEn}
-                  </span>
+                  <div className="flex flex-col gap-1">
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-extrabold text-white bg-gradient-to-r ${s.color} shadow-sm`}>
+                      <ShieldCheck className="w-3 h-3" />
+                      {isRtl ? s.labelAr : s.labelEn}
+                    </span>
+                    <div className="flex items-center gap-0.5 flex-wrap">
+                      {steps.map((step, i) => (
+                        <span key={i} className="flex items-center">
+                          <span className={`inline-flex items-center px-1 py-0.5 rounded text-[8px] sm:text-[9px] font-bold ${step.done ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
+                            {step.done ? "✓" : "○"} {step.label}
+                          </span>
+                          {i < steps.length - 1 && <span className="text-[8px] text-muted-foreground mx-0.5">→</span>}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 );
               };
 
@@ -1428,11 +1519,28 @@ const LeadershipDashboard = () => {
 
               const StageBadge = ({ s }: { s: any }) => {
                 const st = stageOf(s);
+                const schedSteps = [
+                  { label: isRtl ? "رئيس القسم" : "Head", done: s.approved_by_head },
+                  { label: isRtl ? "الوكلاء" : "Vice Deans", done: s.approved_by_vice_dean },
+                  { label: isRtl ? "العميد" : "Dean", done: s.approved_by_dean },
+                ];
                 return (
-                  <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-extrabold text-white bg-gradient-to-r ${st.color} shadow-sm`}>
-                    <Calendar className="w-3 h-3" />
-                    {isRtl ? st.labelAr : st.labelEn}
-                  </span>
+                  <div className="flex flex-col gap-1">
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-extrabold text-white bg-gradient-to-r ${st.color} shadow-sm`}>
+                      <Calendar className="w-3 h-3" />
+                      {isRtl ? st.labelAr : st.labelEn}
+                    </span>
+                    <div className="flex items-center gap-0.5 flex-wrap">
+                      {schedSteps.map((step, i) => (
+                        <span key={i} className="flex items-center">
+                          <span className={`inline-flex items-center px-1 py-0.5 rounded text-[8px] sm:text-[9px] font-bold ${step.done ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
+                            {step.done ? "✓" : "○"} {step.label}
+                          </span>
+                          {i < schedSteps.length - 1 && <span className="text-[8px] text-muted-foreground mx-0.5">→</span>}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 );
               };
 

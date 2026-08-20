@@ -97,6 +97,19 @@ const Login = () => {
       const schoolTeacherRole = roles?.find((r) => r.role === "teacher");
       const schoolStudentRole = roles?.find((r) => r.role === "school_student");
 
+      // Check if a lecturer has a faculty-specific role (professor, doctor, teaching_assistant, lecturer)
+      // that should route to the leadership dashboard instead of the lecturer dashboard.
+      let facultySpecificRole: string | null = null;
+      if (lecturerRole && !leadershipRole) {
+        const { data: ifmRow } = await supabase
+          .from("institution_faculty_members")
+          .select("specific_role")
+          .eq("user_id", data.user.id)
+          .maybeSingle();
+        facultySpecificRole = ifmRow?.specific_role || null;
+      }
+      const isFacultyWithLeadershipAccess = !!facultySpecificRole && ["professor", "doctor", "teaching_assistant", "lecturer"].includes(facultySpecificRole);
+
       if (adminRole) {
         goNext("/admin/dashboard");
         return;
@@ -120,7 +133,12 @@ const Login = () => {
 
       if (lecturerRole || profileRole === "lecturer") {
         if (lecturerRole?.approved) {
-          goNext("/lecturer/dashboard");
+          // Faculty members with specific roles (professor, doctor, etc.) go to leadership dashboard
+          if (isFacultyWithLeadershipAccess) {
+            goNext("/leadership/dashboard");
+          } else {
+            goNext("/lecturer/dashboard");
+          }
         } else {
           toast({
             title: language === "ar" ? "الحساب قيد المراجعة" : "Account Under Review",

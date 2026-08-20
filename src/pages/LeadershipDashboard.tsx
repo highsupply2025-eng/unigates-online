@@ -107,6 +107,8 @@ const LeadershipDashboard = () => {
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [savingCourse, setSavingCourse] = useState(false);
   const [myDepartments, setMyDepartments] = useState<Array<{ id: string; department_name: string }>>([]);
+  const [deptMembers, setDeptMembers] = useState<any[]>([]);
+  const [isApprovalRole, setIsApprovalRole] = useState(false);
 
   // Episode management
   const [showEpisodeDialog, setShowEpisodeDialog] = useState(false);
@@ -149,7 +151,7 @@ const LeadershipDashboard = () => {
       "stream_attendance","quizzes","quiz_submissions","lecture_schedules",
       "assignment_submissions","college_members","department_members","departments"
     ],
-    () => { loadData(); if (userId) loadMyDepartments(userId); },
+    () => { loadData(); if (userId) { loadMyDepartments(userId).then(ids => loadData(ids)); loadDeptMembers(userId); } },
     !loading
   );
 
@@ -167,7 +169,7 @@ const LeadershipDashboard = () => {
         .maybeSingle();
       setProfile(profile);
 
-      if (!profile || !["department_head", "teaching_assistant", "vice_dean", "dean"].includes(profile.role)) {
+      if (!profile || !["department_head", "teaching_assistant", "vice_dean", "dean", "lecturer"].includes(profile.role)) {
         toast({ title: isRtl ? "غير مصرح" : "Unauthorized", variant: "destructive" });
         navigate("/");
         return;
@@ -184,7 +186,13 @@ const LeadershipDashboard = () => {
         setSpecificRole(resolvedSpecificRole);
       } catch { /* noop */ }
 
-      await loadMyDepartments(user.id, profile.role, resolvedSpecificRole);
+      // Determine if this user has approval permissions
+      const approvalRoles = ["department_head", "vice_dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community", "vice_dean_environment", "dean", "director"];
+      const hasApprovalPower = ["department_head", "vice_dean", "dean"].includes(profile.role) || approvalRoles.includes(resolvedSpecificRole);
+      setIsApprovalRole(hasApprovalPower);
+
+      const resolvedDeptIds = await loadMyDepartments(user.id, profile.role, resolvedSpecificRole);
+      await loadDeptMembers(user.id, resolvedDeptIds);
 
       // Determine institution from college_members
       const { data: membership } = await supabase
@@ -199,8 +207,8 @@ const LeadershipDashboard = () => {
         setInstitutionName(reg.college_name || reg.institute_name || "");
       }
 
-      // Load data
-      await loadData();
+      // Load data with the resolved department IDs
+      await loadData(resolvedDeptIds);
     } catch {
       navigate("/login");
     } finally {
@@ -208,18 +216,71 @@ const LeadershipDashboard = () => {
     }
   };
 
-  const loadData = async () => {
+  const loadData = async (overrideDeptIds?: string[]) => {
+    // Get the department IDs this user belongs to
+    const deptIds = overrideDeptIds || myDepartments.map(d => d.id);
+    const hasDeptFilter = deptIds.length > 0;
+
+    // First get courses belonging to the user's departments (needed for episode/quiz/assignment filtering)
+    let deptCourseIds: string[] = [];
+    let deptQuizIds: string[] = [];
+    let deptAssignmentIds: string[] = [];
+    let deptStreamIds: string[] = [];
+
+    if (hasDeptFilter) {
+      const [courseRes, quizRes, assignRes, streamRes] = await Promise.all([
+        supabase.from("courses").select("id").in("department_id", deptIds),
+        supabase.from("quizzes").select("id").in("department_id", deptIds),
+        supabase.from("assignments").select("id").in("department_id", deptIds),
+        supabase.from("live_streams").select("id").in("department_id", deptIds),
+      ]);
+      deptCourseIds = (courseRes.data || []).map((c: any) => c.id);
+      deptQuizIds = (quizRes.data || []).map((q: any) => q.id);
+      deptAssignmentIds = (assignRes.data || []).map((a: any) => a.id);
+      deptStreamIds = (streamRes.data || []).map((s: any) => s.id);
+    }
+
     const [coursesRes, streamsRes, assignmentsRes, episodesRes, ratingsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, assignSubsRes] = await Promise.all([
-      supabase.from("courses").select("*").order("created_at", { ascending: false }).limit(50),
-      supabase.from("live_streams").select("*").order("scheduled_at", { ascending: false }).limit(50),
-      supabase.from("assignments").select("*").order("created_at", { ascending: false }).limit(50),
-      supabase.from("course_episodes").select("*").order("created_at", { ascending: false }).limit(100),
-      supabase.from("lecturer_ratings").select("*").limit(100),
-      supabase.from("stream_attendance").select("stream_id, user_id"),
-      supabase.from("quizzes").select("*").order("created_at", { ascending: false }).limit(50),
-      supabase.from("quiz_submissions").select("*").order("submitted_at", { ascending: false }).limit(200),
-      supabase.from("lecture_schedules").select("*").order("created_at", { ascending: false }).limit(100),
-      supabase.from("assignment_submissions").select("*").order("submitted_at", { ascending: false }).limit(500),
+      hasDeptFilter
+        ? supabase.from("courses").select("*").in("department_id", deptIds).order("created_at", { ascending: false }).limit(50)
+        : supabase.from("courses").select("*").order("created_at", { ascending: false }).limit(50),
+      hasDeptFilter
+        ? supabase.from("live_streams").select("*").in("department_id", deptIds).order("scheduled_at", { ascending: false }).limit(50)
+        : supabase.from("live_streams").select("*").order("scheduled_at", { ascending: false }).limit(50),
+      hasDeptFilter
+        ? supabase.from("assignments").select("*").in("department_id", deptIds).order("created_at", { ascending: false }).limit(50)
+        : supabase.from("assignments").select("*").order("created_at", { ascending: false }).limit(50),
+      hasDeptFilter && deptCourseIds.length > 0
+        ? supabase.from("course_episodes").select("*").in("course_id", deptCourseIds).order("created_at", { ascending: false }).limit(100)
+        : hasDeptFilter
+          ? supabase.from("course_episodes").select("*").eq("course_id", "__none__").limit(0)
+          : supabase.from("course_episodes").select("*").order("created_at", { ascending: false }).limit(100),
+      hasDeptFilter && deptCourseIds.length > 0
+        ? supabase.from("lecturer_ratings").select("*").in("course_id", deptCourseIds).limit(100)
+        : hasDeptFilter
+          ? supabase.from("lecturer_ratings").select("*").eq("course_id", "__none__").limit(0)
+          : supabase.from("lecturer_ratings").select("*").limit(100),
+      hasDeptFilter && deptStreamIds.length > 0
+        ? supabase.from("stream_attendance").select("stream_id, user_id").in("stream_id", deptStreamIds)
+        : hasDeptFilter
+          ? supabase.from("stream_attendance").select("stream_id, user_id").eq("stream_id", "__none__")
+          : supabase.from("stream_attendance").select("stream_id, user_id"),
+      hasDeptFilter
+        ? supabase.from("quizzes").select("*").in("department_id", deptIds).order("created_at", { ascending: false }).limit(50)
+        : supabase.from("quizzes").select("*").order("created_at", { ascending: false }).limit(50),
+      hasDeptFilter && deptQuizIds.length > 0
+        ? supabase.from("quiz_submissions").select("*").in("quiz_id", deptQuizIds).order("submitted_at", { ascending: false }).limit(200)
+        : hasDeptFilter
+          ? supabase.from("quiz_submissions").select("*").eq("quiz_id", "__none__").order("submitted_at", { ascending: false }).limit(0)
+          : supabase.from("quiz_submissions").select("*").order("submitted_at", { ascending: false }).limit(200),
+      hasDeptFilter
+        ? supabase.from("lecture_schedules").select("*").in("department_id", deptIds).order("created_at", { ascending: false }).limit(100)
+        : supabase.from("lecture_schedules").select("*").order("created_at", { ascending: false }).limit(100),
+      hasDeptFilter && deptAssignmentIds.length > 0
+        ? supabase.from("assignment_submissions").select("*").in("assignment_id", deptAssignmentIds).order("submitted_at", { ascending: false }).limit(500)
+        : hasDeptFilter
+          ? supabase.from("assignment_submissions").select("*").eq("assignment_id", "__none__").order("submitted_at", { ascending: false }).limit(0)
+          : supabase.from("assignment_submissions").select("*").order("submitted_at", { ascending: false }).limit(500),
     ]);
     setCourses(coursesRes.data || []);
     setLiveStreams(streamsRes.data || []);
@@ -243,7 +304,7 @@ const LeadershipDashboard = () => {
     setLastLoadedAt(Date.now());
   };
 
-  const loadMyDepartments = async (userId: string, resolvedRole?: string, resolvedSpecificRole?: string) => {
+  const loadMyDepartments = async (userId: string, resolvedRole?: string, resolvedSpecificRole?: string): Promise<string[]> => {
     const role = resolvedRole || userRole;
     const specific = resolvedSpecificRole ?? specificRole;
     // For deans/vice_deans, load ALL departments from their institution
@@ -287,7 +348,7 @@ const LeadershipDashboard = () => {
           if (allDepts.length === 1) {
             setNewCourse(p => ({ ...p, department_id: allDepts[0].id }));
           }
-          return;
+          return allDepts.map((d: any) => d.id);
         }
       }
     }
@@ -323,7 +384,74 @@ const LeadershipDashboard = () => {
       if (unique.length === 1) {
         setNewCourse(p => ({ ...p, department_id: unique[0].id }));
       }
+      return unique.map(d => d.id);
     }
+    return [];
+  };
+
+  const loadDeptMembers = async (userId: string, overrideDeptIds?: string[]) => {
+    const deptIds = overrideDeptIds || myDepartments.map(d => d.id);
+    if (deptIds.length === 0) return;
+
+    // Get all faculty members from the user's departments
+    const { data: members } = await supabase
+      .from("institution_faculty_members")
+      .select("id, user_id, full_name, specific_role, department_id, qualification, specialization, photo_url")
+      .in("department_id", deptIds);
+
+    if (!members || members.length === 0) {
+      // Fallback: check department_members table
+      const { data: dmMembers } = await supabase
+        .from("department_members")
+        .select("id, user_id, full_name, role, department_id, photo_url, qualification, specialization")
+        .in("department_id", deptIds);
+      if (dmMembers && dmMembers.length > 0) {
+        const memberUserIds = dmMembers.map((m: any) => m.user_id).filter(Boolean);
+        const profilesMap: Record<string, any> = {};
+        if (memberUserIds.length > 0) {
+          const { data: profs } = await supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", memberUserIds);
+          (profs || []).forEach((p: any) => { profilesMap[p.user_id] = p; });
+        }
+        const enriched = dmMembers.map((m: any) => ({
+          ...m,
+          display_name: profilesMap[m.user_id]?.full_name || m.full_name,
+          avatar_url: profilesMap[m.user_id]?.avatar_url || m.photo_url,
+          resolved_role: m.role,
+        }));
+        setDeptMembers(enriched);
+      }
+      return;
+    }
+
+    // Enrich with profile data and count lectures/assignments
+    const memberUserIds = members.map((m: any) => m.user_id).filter(Boolean);
+    const profilesMap: Record<string, any> = {};
+    if (memberUserIds.length > 0) {
+      const { data: profs } = await supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", memberUserIds);
+      (profs || []).forEach((p: any) => { profilesMap[p.user_id] = p; });
+    }
+
+    // Count courses and assignments per member
+    const courseCounts: Record<string, number> = {};
+    const assignmentCounts: Record<string, number> = {};
+    if (memberUserIds.length > 0) {
+      const [{ data: coursesData }, { data: assignmentsData }] = await Promise.all([
+        supabase.from("courses").select("creator_id").in("creator_id", memberUserIds).in("department_id", deptIds),
+        supabase.from("assignments").select("creator_id").in("creator_id", memberUserIds).in("department_id", deptIds),
+      ]);
+      (coursesData || []).forEach((c: any) => { courseCounts[c.creator_id] = (courseCounts[c.creator_id] || 0) + 1; });
+      (assignmentsData || []).forEach((a: any) => { assignmentCounts[a.creator_id] = (assignmentCounts[a.creator_id] || 0) + 1; });
+    }
+
+    const enriched = members.map((m: any) => ({
+      ...m,
+      display_name: profilesMap[m.user_id]?.full_name || m.full_name,
+      avatar_url: profilesMap[m.user_id]?.avatar_url || m.photo_url,
+      resolved_role: m.specific_role,
+      course_count: courseCounts[m.user_id] || 0,
+      assignment_count: assignmentCounts[m.user_id] || 0,
+    }));
+    setDeptMembers(enriched);
   };
 
   const handleCreateCourse = async () => {
@@ -704,6 +832,7 @@ const LeadershipDashboard = () => {
                      schedulesapproval: { ar: "اعتماد الجداول", en: "Schedules Approval" },
                      ratings: { ar: "التقييمات", en: "Ratings" },
                      assignments: { ar: "نتائج التكليفات", en: "Assignment Results" },
+                     members: { ar: "أعضاء القسم", en: "Department Members" },
                    };
                    const cur = map[activeTab] ?? map.overview;
                    return isRtl ? cur.ar : cur.en;
@@ -721,10 +850,12 @@ const LeadershipDashboard = () => {
                 { key: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-indigo-500 to-violet-600", onClick: () => setActiveTab("overview"), active: activeTab === "overview" },
                 { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-cyan-500 to-blue-600", onClick: () => setActiveTab("lectures"), active: activeTab === "lectures" },
                 { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", onClick: () => setActiveTab("livestreams"), active: activeTab === "livestreams" },
-                { key: "quizzesonline", label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: ShieldCheck, color: "from-emerald-500 to-teal-600", onClick: () => setActiveTab("quizzesonline"), active: activeTab === "quizzesonline" },
-                { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, color: "from-purple-500 to-fuchsia-600", onClick: () => setActiveTab("schedulesapproval"), active: activeTab === "schedulesapproval" },
+                ...(isApprovalRole ? [
+                  { key: "quizzesonline", label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: ShieldCheck, color: "from-emerald-500 to-teal-600", onClick: () => setActiveTab("quizzesonline"), active: activeTab === "quizzesonline" },
+                  { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, color: "from-purple-500 to-fuchsia-600", onClick: () => setActiveTab("schedulesapproval"), active: activeTab === "schedulesapproval" },
+                ] : []),
                 { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", onClick: () => setActiveTab("quizresults"), active: activeTab === "quizresults" },
-                ...(userRole === "department_head" ? [{ key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, color: "from-blue-500 to-indigo-600", onClick: () => setActiveTab("assignments"), active: activeTab === "assignments" }] : []),
+                { key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, color: "from-blue-500 to-indigo-600", onClick: () => setActiveTab("assignments"), active: activeTab === "assignments" },
                 { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => setActiveTab("ratings"), active: activeTab === "ratings" },
                 { key: "profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/leadership/profile") },
               ]}
@@ -786,10 +917,12 @@ const LeadershipDashboard = () => {
                     sections={[
                       { label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, palette: { from: "#3b82f6", to: "#4f46e5", glow: "59,130,246" }, timestamps: episodes.map((e: any) => e.created_at) },
                       { label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, palette: { from: "#ef4444", to: "#e11d48", glow: "239,68,68" }, timestamps: liveStreams.map((s: any) => s.created_at || s.scheduled_at) },
-                      { label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: ShieldCheck, palette: { from: "#10b981", to: "#0d9488", glow: "16,185,129" }, timestamps: quizzes.map((q: any) => q.created_at) },
-                      { label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, palette: { from: "#a855f7", to: "#c026d3", glow: "168,85,247" }, timestamps: lectureSchedules.map((s: any) => s.created_at) },
+                      ...(isApprovalRole ? [
+                        { label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: ShieldCheck, palette: { from: "#10b981", to: "#0d9488", glow: "16,185,129" }, timestamps: quizzes.map((q: any) => q.created_at) },
+                        { label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, palette: { from: "#a855f7", to: "#c026d3", glow: "168,85,247" }, timestamps: lectureSchedules.map((s: any) => s.created_at) },
+                      ] : []),
                       { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, palette: { from: "#6366f1", to: "#9333ea", glow: "99,102,241" }, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
-                      ...(userRole === "department_head" ? [{ label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, palette: { from: "#f97316", to: "#ea580c", glow: "249,115,22" }, timestamps: assignmentSubmissions.map((s: any) => s.submitted_at || s.created_at) }] : []),
+                      { label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, palette: { from: "#f97316", to: "#ea580c", glow: "249,115,22" }, timestamps: assignmentSubmissions.map((s: any) => s.submitted_at || s.created_at) },
                       { label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, palette: { from: "#eab308", to: "#d97706", glow: "234,179,8" }, timestamps: ratings.map((r: any) => r.created_at) },
                     ]}
                   />
@@ -800,13 +933,68 @@ const LeadershipDashboard = () => {
                     items={[
                       { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-cyan-500 to-blue-600", count: episodes.length },
                       { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", count: liveStreams.length },
-                      { key: "quizzesonline", label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: ShieldCheck, color: "from-emerald-500 to-teal-600", count: quizzes.length },
-                      { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, color: "from-purple-500 to-fuchsia-600", count: lectureSchedules.length },
+                      ...(isApprovalRole ? [
+                        { key: "quizzesonline", label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: ShieldCheck, color: "from-emerald-500 to-teal-600", count: quizzes.length },
+                        { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, color: "from-purple-500 to-fuchsia-600", count: lectureSchedules.length },
+                      ] : []),
                       { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", count: quizSubmissions.length },
-                      ...(userRole === "department_head" ? [{ key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, color: "from-blue-500 to-indigo-600", count: assignments.length }] : []),
+                      { key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, color: "from-blue-500 to-indigo-600", count: assignments.length },
                       { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", count: ratings.length },
                     ]}
                   />
+
+                  {/* Department Members Section */}
+                  {deptMembers.length > 0 && (
+                    <Card className="mt-4 sm:mt-6 overflow-hidden border-2 border-primary/15 shadow-lg">
+                      <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent pb-3">
+                        <CardTitle className="text-sm flex items-center gap-2 font-black">
+                          <Users className="w-4 h-4 text-primary" />
+                          {isRtl ? "أعضاء القسم" : "Department Members"}
+                          <Badge variant="secondary" className="ms-auto text-xs font-bold">{deptMembers.length}</Badge>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-0">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 divide-y sm:divide-y-0 sm:divide-x divide-border/50">
+                          {deptMembers.map((member: any) => {
+                            const roleLabel = (() => {
+                              const roleMap: Record<string, { ar: string; en: string }> = {
+                                professor: { ar: "أستاذ دكتور", en: "Professor" },
+                                doctor: { ar: "دكتور", en: "Doctor" },
+                                teaching_assistant: { ar: "مدرس مساعد", en: "Teaching Asst." },
+                                assistant_lecturer: { ar: "معيد", en: "Lecturer" },
+                                lecturer: { ar: "محاضر", en: "Lecturer" },
+                                department_head: { ar: "رئيس قسم", en: "Dept. Head" },
+                              };
+                              return roleMap[member.resolved_role] || { ar: member.resolved_role || "-", en: member.resolved_role || "-" };
+                            })();
+                            return (
+                              <div key={member.id} className="p-3 sm:p-4 hover:bg-muted/30 transition-colors">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center shrink-0 text-xs font-black text-primary">
+                                    {member.avatar_url ? (
+                                      <img src={member.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                                    ) : (
+                                      (member.display_name || "?").charAt(0)
+                                    )}
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-sm font-bold text-foreground truncate">{member.display_name}</p>
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary border border-primary/15">
+                                      {isRtl ? roleLabel.ar : roleLabel.en}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2 shrink-0 text-[11px] text-muted-foreground font-semibold">
+                                    <span className="flex items-center gap-0.5"><BookOpen className="w-3 h-3" />{member.course_count || 0}</span>
+                                    <span className="flex items-center gap-0.5"><ClipboardList className="w-3 h-3" />{member.assignment_count || 0}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
 
 
                 </>

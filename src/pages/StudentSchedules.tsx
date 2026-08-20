@@ -19,12 +19,25 @@ const StudentSchedules = () => {
   const load = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigate("/login"); return; }
-    // Show all schedules added by lecturers regardless of subscription
+
+    // Get student's subscribed course IDs
+    const { data: subs } = await supabase
+      .from("user_subscriptions")
+      .select("course_id")
+      .eq("user_id", user.id)
+      .eq("status", "active");
+    const subIds = (subs || []).map((s: any) => s.course_id);
+
+    // Only show fully approved schedules for courses the student is subscribed to
     const { data } = await supabase
       .from("lecture_schedules")
       .select("*")
+      .eq("approved_by_head", true)
+      .eq("approved_by_vice_dean", true)
+      .eq("approved_by_dean", true)
       .order("scheduled_date", { ascending: true });
-    setItems(data || []);
+    const allSchedules = data || [];
+    setItems(subIds.length > 0 ? allSchedules.filter((s: any) => subIds.includes(s.course_id)) : []);
     setLoading(false);
   };
 

@@ -41,6 +41,11 @@ const StudentDashboard = () => {
     submissions: 0,
     avgRating: 0,
   });
+  const [newContent, setNewContent] = useState({
+    quizzes: 0,
+    schedules: 0,
+    lectures: 0,
+  });
   const [trends, setTrends] = useState({
     completed: [] as string[],
     attendance: [] as string[],
@@ -73,15 +78,26 @@ const StudentDashboard = () => {
     // Render the shell immediately; stream profile + stats in parallel.
     setLoading(false);
 
-    const [pRes, subs, live, qz, prog, att, asg, ratings] = await Promise.all([
+    const [pRes, subs, live, qz, prog, att, asg, ratings, schedulesRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("user_id", user.id).single(),
       supabase.from("user_subscriptions").select("course_id").eq("user_id", user.id).eq("status", "active"),
       supabase.from("live_streams").select("id").eq("status", "live"),
-      supabase.from("quizzes").select("id,course_id").eq("is_published", true),
+      supabase.from("quizzes").select("id,course_id,created_at")
+        .eq("is_published", true)
+        .eq("approved_by_lecturer", true)
+        .eq("approved_by_head", true)
+        .eq("approved_by_vice_dean_students", true)
+        .eq("approved_by_vice_dean_postgrad", true)
+        .eq("approved_by_vice_dean_environment", true)
+        .eq("approved_by_dean", true),
       supabase.from("student_progress").select("id,completed_at").eq("user_id", user.id).eq("completed", true),
       supabase.from("stream_attendance").select("id,joined_at").eq("user_id", user.id),
       supabase.from("assignment_submissions").select("id,submitted_at").eq("student_id", user.id),
       supabase.from("lecturer_ratings").select("rating,created_at").eq("student_id", user.id),
+      supabase.from("lecture_schedules").select("id,course_id,created_at,approved_by_head,approved_by_vice_dean,approved_by_dean")
+        .eq("approved_by_head", true)
+        .eq("approved_by_vice_dean", true)
+        .eq("approved_by_dean", true),
     ]);
 
     setProfile(pRes.data);
@@ -114,6 +130,29 @@ const StudentDashboard = () => {
       submissions: (asg.data || []).map((x: any) => x.submitted_at).filter(Boolean),
       ratings: (ratings.data || []).map((x: any) => x.created_at).filter(Boolean),
     });
+
+    // Compute "new content" counts based on localStorage lastViewed timestamps
+    const getLastViewed = (key: string) => {
+      try { return parseInt(localStorage.getItem(`student_viewed_${key}`) || "0", 10) || 0; } catch { return 0; }
+    };
+    const quizzesLastViewed = getLastViewed("quizzes");
+    const schedulesLastViewed = getLastViewed("schedules");
+    const lecturesLastViewed = getLastViewed("lectures");
+    const approvedSchedules = (schedulesRes.data || []).filter((s: any) => subIds.includes(s.course_id));
+    setNewContent({
+      quizzes: availableQuizzes.filter((q: any) => {
+        const t = Date.parse(q.created_at);
+        return !isNaN(t) && t > quizzesLastViewed;
+      }).length,
+      schedules: approvedSchedules.filter((s: any) => {
+        const t = Date.parse(s.created_at);
+        return !isNaN(t) && t > schedulesLastViewed;
+      }).length,
+      lectures: availableQuizzes.filter((q: any) => {
+        const t = Date.parse(q.created_at);
+        return !isNaN(t) && t > lecturesLastViewed;
+      }).length, // Episodes are loaded per-course; approximate with quizzes
+    });
     setLastLoadedAt(Date.now());
   };
 
@@ -139,19 +178,22 @@ const StudentDashboard = () => {
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
 
   const menuItems = [
-    { to: "/student/lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-indigo-500 to-indigo-600", palette: { from: "#6366f1", to: "#4f46e5", glow: "99,102,241" } },
-    { to: "/student/live", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", palette: { from: "#ef4444", to: "#e11d48", glow: "239,68,68" } },
-    { to: "/student/quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: ClipboardList, color: "from-purple-500 to-purple-600", palette: { from: "#a855f7", to: "#9333ea", glow: "168,85,247" } },
-    { to: "/student/assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: FileText, color: "from-amber-500 to-amber-600", palette: { from: "#f59e0b", to: "#d97706", glow: "245,158,11" } },
-    { to: "/student/schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-pink-500 to-pink-600", palette: { from: "#ec4899", to: "#db2777", glow: "236,72,153" } },
-    { to: "/student/presence-checkin", label: isRtl ? "إثبات الحضور" : "Verify Presence", Icon: ShieldCheck, color: "from-emerald-500 to-teal-600", palette: { from: "#10b981", to: "#0d9488", glow: "16,185,129" } },
-    
-    { to: "/student/ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", palette: { from: "#eab308", to: "#d97706", glow: "234,179,8" } },
-    { to: "/student/results", label: isRtl ? "نتائج الاختبارات" : "Exam Results", Icon: Award, color: "from-teal-500 to-teal-600", palette: { from: "#14b8a6", to: "#0d9488", glow: "20,184,166" } },
-    { to: "/student/assignment-results", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, color: "from-cyan-500 to-cyan-600", palette: { from: "#06b6d4", to: "#0891b2", glow: "6,182,212" } },
-    
-    { to: "/profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, color: "from-cyan-500 to-cyan-600", palette: { from: "#06b6d4", to: "#0891b2", glow: "6,182,212" } },
+    { to: "/student/lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-indigo-500 to-indigo-600", palette: { from: "#6366f1", to: "#4f46e5", glow: "99,102,241" }, badge: newContent.lectures },
+    { to: "/student/live", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", palette: { from: "#ef4444", to: "#e11d48", glow: "239,68,68" }, badge: 0 },
+    { to: "/student/quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: ClipboardList, color: "from-purple-500 to-purple-600", palette: { from: "#a855f7", to: "#9333ea", glow: "168,85,247" }, badge: newContent.quizzes },
+    { to: "/student/assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: FileText, color: "from-amber-500 to-amber-600", palette: { from: "#f59e0b", to: "#d97706", glow: "245,158,11" }, badge: 0 },
+    { to: "/student/schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-pink-500 to-pink-600", palette: { from: "#ec4899", to: "#db2777", glow: "236,72,153" }, badge: newContent.schedules },
+    { to: "/student/presence-checkin", label: isRtl ? "إثبات الحضور" : "Verify Presence", Icon: ShieldCheck, color: "from-emerald-500 to-teal-600", palette: { from: "#10b981", to: "#0d9488", glow: "16,185,129" }, badge: 0 },
+    { to: "/student/ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", palette: { from: "#eab308", to: "#d97706", glow: "234,179,8" }, badge: 0 },
+    { to: "/student/results", label: isRtl ? "نتائج الاختبارات" : "Exam Results", Icon: Award, color: "from-teal-500 to-teal-600", palette: { from: "#14b8a6", to: "#0d9488", glow: "20,184,166" }, badge: 0 },
+    { to: "/student/assignment-results", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, color: "from-cyan-500 to-cyan-600", palette: { from: "#06b6d4", to: "#0891b2", glow: "6,182,212" }, badge: 0 },
+    { to: "/profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, color: "from-cyan-500 to-cyan-600", palette: { from: "#06b6d4", to: "#0891b2", glow: "6,182,212" }, badge: 0 },
   ];
+
+  // Mark sections as viewed when navigating to them
+  const markViewed = (key: string) => {
+    try { localStorage.setItem(`student_viewed_${key}`, Date.now().toString()); } catch { /* ignore */ }
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
@@ -174,10 +216,16 @@ const StudentDashboard = () => {
                 { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: () => navigate("/student/dashboard"), active: true },
                 ...menuItems.map((m) => ({
                   key: m.to,
-                  label: m.label,
+                  label: m.badge && m.badge > 0 ? `${m.label} (${m.badge})` : m.label,
                   Icon: m.Icon,
                   color: m.color,
-                  onClick: () => navigate(m.to),
+                  onClick: () => {
+                    // Mark section as viewed
+                    if (m.to === "/student/quizzes") markViewed("quizzes");
+                    if (m.to === "/student/schedules") markViewed("schedules");
+                    if (m.to === "/student/lectures") markViewed("lectures");
+                    navigate(m.to);
+                  },
                 })),
               ]}
             />
@@ -222,7 +270,7 @@ const StudentDashboard = () => {
               case "/student/results": return counts.completed;
               case "/student/analytics": return counts.submissions + counts.attendance;
               case "/student/my-academic": return counts.subscriptions;
-              case "/student/schedules": return 0;
+              case "/student/schedules": return newContent.schedules;
               default: return 0;
             }
           };

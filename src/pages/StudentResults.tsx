@@ -49,7 +49,7 @@ const StudentResults = () => {
       if (quizIds.length > 0) {
         const { data: qz } = await supabase
           .from("quizzes")
-          .select("id, title_ar, title_en, course_id")
+          .select("id, title_ar, title_en, course_id, creator_id")
           .in("id", quizIds);
         (qz || []).forEach(q => { quizzesById[q.id] = q; });
       }
@@ -62,11 +62,22 @@ const StudentResults = () => {
           .in("id", courseIds);
         (cs || []).forEach(c => { coursesById[c.id] = c; });
       }
+      // Fetch creator (faculty member) profiles
+      const creatorIds = Array.from(new Set(Object.values(quizzesById).map((q: any) => q.creator_id).filter(Boolean)));
+      const creatorsById: Record<string, any> = {};
+      if (creatorIds.length > 0) {
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, role")
+          .in("user_id", creatorIds);
+        (profs || []).forEach((p: any) => { creatorsById[p.user_id] = p; });
+      }
 
       setRows((subs || []).map(s => {
         const q = quizzesById[s.quiz_id];
         const c = q ? coursesById[q.course_id] : null;
-        return { ...s, quiz: q, course: c };
+        const creator = q?.creator_id ? creatorsById[q.creator_id] : null;
+        return { ...s, quiz: q, course: c, creator };
       }));
       setLoading(false);
     })();
@@ -206,6 +217,11 @@ const StudentResults = () => {
                             <div className="flex-1 min-w-0">
                               <h3 className="font-black text-sm truncate">{isRtl ? r.quiz?.title_ar : r.quiz?.title_en}</h3>
                               <p className="text-[11px] text-muted-foreground truncate font-medium">{isRtl ? r.course?.title_ar : r.course?.title_en}</p>
+                              {r.creator && (
+                                <p className="text-[10px] text-primary font-semibold truncate">
+                                  {isRtl ? "صحّح: " : "Graded by: "}{r.creator.full_name}
+                                </p>
+                              )}
                               <div className="flex items-center gap-2 mt-1.5">
                                 <Badge className={`text-[10px] font-black border-0 text-white ${ok ? "bg-gradient-to-r from-emerald-500 to-green-600" : "bg-gradient-to-r from-rose-500 to-red-600"}`}>{pct}%</Badge>
                                 <span className="text-[11px] font-black tabular-nums">{r.score}/{r.total_points}</span>
@@ -226,6 +242,7 @@ const StudentResults = () => {
                           <TableRow className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/40 dark:via-purple-950/40 dark:to-pink-950/40 hover:bg-transparent">
                             <TableHead className="text-xs sm:text-sm font-black text-foreground">{isRtl ? "الاختبار" : "Quiz"}</TableHead>
                             <TableHead className="text-xs sm:text-sm font-black text-foreground">{isRtl ? "الكورس" : "Course"}</TableHead>
+                            <TableHead className="text-xs sm:text-sm font-black text-foreground">{isRtl ? "صحّح by" : "Graded by"}</TableHead>
                             <TableHead className="text-xs sm:text-sm font-black text-foreground">{isRtl ? "الدرجة" : "Score"}</TableHead>
                             <TableHead className="text-xs sm:text-sm font-black text-foreground">{isRtl ? "النسبة" : "%"}</TableHead>
                             <TableHead className="text-xs sm:text-sm font-black text-foreground">{isRtl ? "التاريخ" : "Date"}</TableHead>
@@ -245,6 +262,13 @@ const StudentResults = () => {
                                   </div>
                                 </TableCell>
                                 <TableCell className="text-xs sm:text-sm text-muted-foreground font-medium">{isRtl ? r.course?.title_ar : r.course?.title_en}</TableCell>
+                                <TableCell className="text-xs sm:text-sm font-medium">
+                                  {r.creator ? (
+                                    <span className="text-primary font-semibold">{r.creator.full_name}</span>
+                                  ) : (
+                                    <span className="text-muted-foreground">—</span>
+                                  )}
+                                </TableCell>
                                 <TableCell className="text-xs sm:text-sm font-black tabular-nums">{r.score}/{r.total_points}</TableCell>
                                 <TableCell>
                                   <Badge className={`text-[10px] sm:text-xs font-black border-0 text-white shadow-sm ${ok ? "bg-gradient-to-r from-emerald-500 to-green-600 shadow-emerald-500/30" : "bg-gradient-to-r from-rose-500 to-red-600 shadow-rose-500/30"}`}>{pct}%</Badge>
@@ -293,6 +317,12 @@ const StudentResults = () => {
                   <Badge variant={(detail.score/detail.total_points) >= 0.5 ? "default" : "destructive"}>
                     {detail.total_points > 0 ? Math.round((detail.score/detail.total_points)*100) : 0}%
                   </Badge>
+                  {detail.creator && (
+                    <div className="text-end">
+                      <p className="text-[10px] text-muted-foreground">{isRtl ? "صحّح by" : "Graded by"}</p>
+                      <p className="text-xs font-bold text-primary">{detail.creator.full_name}</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

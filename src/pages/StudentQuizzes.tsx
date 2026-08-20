@@ -50,12 +50,22 @@ const StudentQuizzes = () => {
     setUser(user);
     const [{ data: subs }, { data: qz }, { data: qs }, { data: c }] = await Promise.all([
       supabase.from("user_subscriptions").select("course_id").eq("user_id", user.id).eq("status", "active"),
-      supabase.from("quizzes").select("*").eq("is_published", true).order("created_at", { ascending: false }),
+      supabase.from("quizzes").select("*")
+        .eq("is_published", true)
+        .eq("approved_by_lecturer", true)
+        .eq("approved_by_head", true)
+        .eq("approved_by_vice_dean_students", true)
+        .eq("approved_by_vice_dean_postgrad", true)
+        .eq("approved_by_vice_dean_environment", true)
+        .eq("approved_by_dean", true)
+        .order("created_at", { ascending: false }),
       supabase.from("quiz_submissions").select("*").eq("student_id", user.id),
       supabase.from("courses").select("id,title_ar,title_en"),
     ]);
-    setSubscribedIds((subs || []).map((s: any) => s.course_id));
-    setQuizzes(qz || []);
+    const subIds = (subs || []).map((s: any) => s.course_id);
+    setSubscribedIds(subIds);
+    // Only show quizzes for courses the student is subscribed to
+    setQuizzes(subIds.length > 0 ? (qz || []).filter((q: any) => subIds.includes(q.course_id)) : []);
     setSubmissions(qs || []);
     setCourses(c || []);
     setLoading(false);

@@ -770,7 +770,7 @@ const InstitutionDashboard = () => {
       supabase.from("student_results").select("*").eq("institution_id", instId).order("created_at", { ascending: false }),
       supabase.from("institution_quizzes").select("*").eq("institution_id", instId).order("created_at", { ascending: false }),
       supabase.from("courses").select("*").order("created_at", { ascending: false }),
-      supabase.from("episodes").select("*").order("created_at", { ascending: false }),
+      supabase.from("course_episodes").select("*").order("created_at", { ascending: false }),
     ]);
     setLiveStreams(streamsRes.data || []);
     setQuizzes(quizzesRes.data || []);

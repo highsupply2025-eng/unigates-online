@@ -147,6 +147,19 @@ const LecturerDashboard = () => {
   // Upload files for students dialog
   const [showUploadFiles, setShowUploadFiles] = useState(false);
   const [showWatchLectures, setShowWatchLectures] = useState(false);
+  const [allEpisodes, setAllEpisodes] = useState<any[]>([]);
+
+  const openWatchLectures = async () => {
+    setShowWatchLectures(true);
+    const ids = (courses || []).map((c: any) => c.id);
+    if (ids.length === 0) { setAllEpisodes([]); return; }
+    const { data } = await supabase
+      .from("course_episodes")
+      .select("*")
+      .in("course_id", ids)
+      .order("episode_number");
+    setAllEpisodes(data || []);
+  };
 
   // Recording state
   const videoPreviewRef = useRef<HTMLVideoElement | null>(null);

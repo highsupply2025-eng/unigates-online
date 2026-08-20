@@ -1930,6 +1930,13 @@ const LecturerDashboard = () => {
         </DialogContent>
       </Dialog>
 
+      <WatchLecturesDialog
+        open={showWatchLectures}
+        onOpenChange={setShowWatchLectures}
+        courses={courses}
+        episodes={episodes}
+      />
+
       <UploadFilesDialog
         open={showUploadFiles}
         onOpenChange={setShowUploadFiles}

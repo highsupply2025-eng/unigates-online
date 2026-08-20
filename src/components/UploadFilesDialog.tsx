@@ -63,6 +63,16 @@ const UploadFilesDialog = ({ open, onOpenChange, courses, userId, onUploaded }: 
 
   const handleUpload = async () => {
     if (!uploadFile || !uploadFileName || !userId) return;
+    if (!uploadCourseId) {
+      toast({
+        title: isRtl ? "اختر المحاضرة" : "Select a lecture",
+        description: isRtl
+          ? "يجب ربط الملف بمحاضرة حتى يظهر للطلاب."
+          : "The file must be linked to a lecture so students can see it.",
+        variant: "destructive",
+      });
+      return;
+    }
     setSavingUpload(true);
     try {
       const ext = uploadFile.name.split(".").pop();

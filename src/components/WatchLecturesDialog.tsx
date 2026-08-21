@@ -1,8 +1,8 @@
-import { Eye, Play, GraduationCap, Clock, Film, Inbox } from "lucide-react";
+import { Eye, Play, GraduationCap, Clock, Film, Inbox, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface WatchLecturesDialogProps {
@@ -31,6 +31,10 @@ const WatchLecturesDialog = ({ open, onOpenChange, courses, episodes }: WatchLec
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-3xl max-h-[90vh] overflow-y-auto p-0 gap-0">
         <div className="relative bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600 px-6 pt-8 pb-10 text-center">
+          <DialogClose className="absolute left-3 top-3 z-10 w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 shadow-md flex items-center justify-center text-white hover:bg-white/30 hover:scale-110 transition-all duration-200">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </DialogClose>
           <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/30">
             <Eye className="w-8 h-8 text-white" strokeWidth={2} />
           </div>

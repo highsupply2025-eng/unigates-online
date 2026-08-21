@@ -322,22 +322,22 @@ const InstituteRoleSignup = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <header className="border-b-2 border-primary/30 px-4 sm:px-6 py-4 bg-card shadow-md">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex flex-col" dir={dir}>
+      <header className="border-b border-primary/10 px-4 sm:px-6 py-3 bg-white/80 backdrop-blur-xl shadow-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-primary via-primary to-[hsl(180,60%,35%)] shadow-lg shadow-primary/20 flex items-center justify-center group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-primary/30 transition-all duration-300">
               <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
-            <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
+            <span className="text-lg sm:text-2xl font-black bg-gradient-to-l from-foreground to-primary bg-clip-text text-transparent tracking-tight">{t.brandName}</span>
           </Link>
           {/* Desktop */}
-          <div className="hidden md:flex items-center gap-3">
-            <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white">
+          <div className="hidden md:flex items-center gap-2.5">
+            <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 bg-gradient-to-r from-primary to-[hsl(180,60%,35%)] shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 hover:scale-105 transition-all duration-300 text-white rounded-xl px-5">
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
-            <Button size="icon" className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white" onClick={goBack}>
+            <Button size="icon" className="rounded-2xl w-10 h-10 bg-gradient-to-br from-primary to-[hsl(180,60%,35%)] shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 hover:scale-110 transition-all duration-300 text-white" onClick={goBack}>
               {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
             </Button>
           </div>
@@ -345,16 +345,16 @@ const InstituteRoleSignup = () => {
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="icon" className="rounded-xl w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 text-white">
+                <button aria-label={isRtl ? "فتح القائمة" : "Open menu"} className="p-2.5 rounded-2xl bg-gradient-to-br from-primary to-[hsl(180,60%,35%)] text-white hover:shadow-lg hover:shadow-primary/30 hover:scale-105 transition-all duration-300 shadow-md">
                   <Menu className="w-5 h-5" />
-                </Button>
+                </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-48">
-                <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
+              <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-52 rounded-2xl border-primary/10 shadow-xl">
+                <DropdownMenuItem onClick={toggleLanguage} className="gap-3 cursor-pointer rounded-xl mx-1 my-1 py-2.5">
                   <Globe className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold">{language === "ar" ? "English" : "العربية"}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={goBack} className="gap-2 cursor-pointer">
+                <DropdownMenuItem onClick={goBack} className="gap-3 cursor-pointer rounded-xl mx-1 my-1 py-2.5">
                   {isRtl ? <ArrowLeft className="w-4 h-4 text-primary" /> : <ArrowRight className="w-4 h-4 text-primary" />}
                   <span className="text-sm font-semibold">{isRtl ? "الرجوع" : "Back"}</span>
                 </DropdownMenuItem>
@@ -364,18 +364,18 @@ const InstituteRoleSignup = () => {
         </div>
       </header>
 
-      <main className="flex-1 flex items-center justify-center px-4 py-6 sm:py-10">
+      <main className="flex-1 flex items-center justify-center px-4 py-6 sm:py-8 md:py-10">
         <div className="max-w-lg w-full">
           <div className="text-center mb-6 sm:mb-8">
             <div className="flex justify-center mb-3 sm:mb-4">
-              <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br ${config.gradient} shadow-xl ${config.shadow} flex items-center justify-center`}>
+              <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-br ${config.gradient} shadow-xl ${config.shadow} flex items-center justify-center animate-bounce-subtle`}>
                 <RoleIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
               </div>
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-primary mb-1">
+            <h1 className="text-xl sm:text-2xl font-black bg-gradient-to-l from-foreground to-primary bg-clip-text text-transparent mb-1">
               {isRtl ? `تسجيل حساب ${config.labelAr}` : `Register as ${config.labelEn}`}
             </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground font-medium">
               {isRtl ? "يتطلب التسجيل كود دعوة صالح من المعهد" : "Registration requires a valid invitation code from the institute"}
             </p>
           </div>

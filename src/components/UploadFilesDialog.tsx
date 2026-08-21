@@ -3,7 +3,7 @@ import { Upload, FileText, Loader2, CloudUpload, X, CheckCircle2 } from "lucide-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -106,6 +106,10 @@ const UploadFilesDialog = ({ open, onOpenChange, courses, userId, onUploaded }: 
       <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto p-0 gap-0">
         {/* Gradient Header */}
         <div className="relative bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 px-6 pt-8 pb-10 text-center">
+          <DialogClose className="absolute left-3 top-3 z-10 w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 shadow-md flex items-center justify-center text-white hover:bg-white/30 hover:scale-110 transition-all duration-200">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </DialogClose>
           <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/30">
             <CloudUpload className="w-8 h-8 text-white" strokeWidth={2} />
           </div>

@@ -1,19 +1,26 @@
-import { ShieldCheck } from "lucide-react";
+import { CheckCircle2, ShieldCheck } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PASSWORD_RULES } from "@/lib/password";
 
 const PasswordRequirementsHint = () => {
   const { language } = useLanguage();
   const isRtl = language === "ar";
 
   return (
-    <p className="flex items-start gap-2 text-sm font-semibold text-muted-foreground">
-      <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-      <span>
-        {isRtl
-          ? "استخدم 8 أحرف على الأقل، ويُفضّل الجمع بين الحروف والأرقام والرموز."
-          : "Use at least 8 characters, preferably with letters, numbers, and symbols."}
-      </span>
-    </p>
+    <div className="rounded-lg border border-primary/15 bg-primary/5 p-3 space-y-1.5 text-start">
+      <p className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+        <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
+        {isRtl ? "شروط كلمة مرور قوية" : "Strong password requirements"}
+      </p>
+      <ul className="space-y-1">
+        {PASSWORD_RULES.map((rule) => (
+          <li key={rule.key} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <CheckCircle2 className="w-3.5 h-3.5 text-primary/60 shrink-0" />
+            {isRtl ? rule.ar : rule.en}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 };
 

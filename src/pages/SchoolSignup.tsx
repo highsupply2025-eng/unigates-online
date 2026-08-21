@@ -98,30 +98,32 @@ const SchoolSignup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <header className="border-b border-border px-6 py-4 bg-primary/5">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex flex-col" dir={dir}>
+      <header className="border-b border-primary/10 px-4 sm:px-6 py-3 bg-white/80 backdrop-blur-xl shadow-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/school-platform" className="flex items-center gap-2">
-            <School className="w-8 h-8 text-primary" />
-            <span className="text-2xl font-black text-foreground tracking-tight">
+          <Link to="/school-platform" className="flex items-center gap-2 sm:gap-3 group">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-primary via-primary to-[hsl(180,60%,35%)] shadow-lg shadow-primary/20 flex items-center justify-center group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-primary/30 transition-all duration-300">
+              <School className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            </div>
+            <span className="text-lg sm:text-2xl font-black bg-gradient-to-l from-foreground to-primary bg-clip-text text-transparent tracking-tight">
               {isRtl ? "المنصة المدرسية" : "School Platform"}
             </span>
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <Link to="/school-platform/login">
-              <Button variant="default" size="sm" className="font-semibold">{t.login}</Button>
+              <Button size="sm" className="font-bold bg-white border-2 border-primary/20 text-primary hover:bg-primary hover:text-white shadow-sm hover:shadow-md hover:shadow-primary/20 transition-all duration-300 rounded-xl px-5">{t.login}</Button>
             </Link>
-            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
+            <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 bg-gradient-to-r from-primary to-[hsl(180,60%,35%)] shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 hover:scale-105 transition-all duration-300 text-white rounded-xl px-5">
               <Globe className="w-4 h-4" />{t.langSwitch}
             </Button>
-            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={goBack}>
+            <Button size="icon" className="rounded-2xl w-10 h-10 bg-gradient-to-br from-primary to-[hsl(180,60%,35%)] shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 hover:scale-110 transition-all duration-300 text-white" onClick={goBack}>
               {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
             </Button>
           </div>
         </div>
       </header>
-      <Separator />
-      <main className="flex-1 flex items-center justify-center px-4 py-10">
+      <Separator className="bg-primary/10" />
+      <main className="flex-1 flex items-center justify-center px-4 py-6 sm:py-8 md:py-10">
         {!selectedRole ? (
           /* Step 1: Role Selection Cards */
           <div className="max-w-2xl w-full text-center">

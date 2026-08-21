@@ -176,6 +176,21 @@ button[aria-haspopup="menu"]:focus-visible,
 }
 
 /* ============================================================
+   Subtle bounce animation for icons
+   ============================================================ */
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+.animate-bounce-subtle {
+  animation: bounce-subtle 2s ease-in-out infinite;
+}
+
+/* ============================================================
    College / Institute Administration — enhanced visual weight
    Highlights primary color depth, icon stroke and typography
    on every page wrapped in .institution-admin-scope

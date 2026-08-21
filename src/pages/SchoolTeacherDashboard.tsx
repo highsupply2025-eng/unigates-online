@@ -642,9 +642,10 @@ const SchoolTeacherDashboard = () => {
             <div>
               <Label className="mb-1 block text-sm font-semibold">{isRtl ? "الصورة المصغرة" : "Thumbnail"}</Label>
               {thumbnailPreview ? (
-                <div className="relative w-full h-32 rounded-lg overflow-hidden border border-border">
-                  <img src={thumbnailPreview} alt="" className="w-full h-full object-cover" />
-                  <button type="button" onClick={() => { setThumbnail(null); setThumbnailPreview(null); }} className="absolute top-2 right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center"><X className="w-3 h-3" /></button>
+                <div className="relative w-full h-32 rounded-xl overflow-hidden border border-border/50 shadow-md group">
+                  <img src={thumbnailPreview} alt="" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <button type="button" onClick={() => { setThumbnail(null); setThumbnailPreview(null); }} className="absolute top-2 right-2 w-7 h-7 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive/80 hover:scale-110 transition-all duration-200 shadow-lg z-10"><X className="w-4 h-4" /></button>
                 </div>
               ) : (
                 <label className="flex flex-col items-center justify-center h-24 rounded-lg border-2 border-dashed border-border bg-muted/50 cursor-pointer hover:border-primary/50 transition-colors">

@@ -163,11 +163,12 @@ const InstitutionFacultyAdd = () => {
             body: {
               full_name: baseRow.full_name,
               role: data.role,
-              email: baseRow.email
-                ? String(baseRow.email).trim().toLowerCase()
+              email: data.email
+                ? String(data.email).trim().toLowerCase()
                 : null,
-              phone: baseRow.phone,
+              phone: data.phone,
               temporary_password: data.tempPassword,
+              department_id: data.selectedDepartmentId || null,
               extra: {
                 date_of_birth: baseRow.date_of_birth,
                 photo_url: baseRow.photo_url,

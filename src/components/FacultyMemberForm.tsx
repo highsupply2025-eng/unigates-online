@@ -121,6 +121,8 @@ export interface FacultyMemberFormData {
   deptCodesInput?: string;
   /** admin-add student only: selected department IDs */
   selectedDeptIds?: string[];
+  /** admin-add faculty only: selected department ID */
+  selectedDepartmentId?: string;
 }
 
 export type DepartmentOption = { id: string; department_name: string; department_code: string };
@@ -183,6 +185,7 @@ export const FacultyMemberForm = ({
     isStudent ? "student" : invitationRole || ""
   );
   const [selectedDeptIds, setSelectedDeptIds] = useState<string[]>([]);
+  const [selectedFacultyDeptId, setSelectedFacultyDeptId] = useState("");
   const [deptPopoverOpen, setDeptPopoverOpen] = useState(false);
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");
@@ -332,6 +335,7 @@ export const FacultyMemberForm = ({
             .join(", ")
         : undefined,
       selectedDeptIds: isStudent ? selectedDeptIds : undefined,
+      selectedDepartmentId: !isStudent && selectedFacultyDeptId ? selectedFacultyDeptId : undefined,
     };
 
     await onSubmit(data);
@@ -486,6 +490,30 @@ export const FacultyMemberForm = ({
                       </Select>
                     )}
                   </div>
+
+                  {/* Department selector for faculty */}
+                  {mode === "admin-add" && departments.length > 0 && (
+                    <div className="space-y-2.5">
+                      <Label className={labelCls}>
+                        <Briefcase className={iconCls} strokeWidth={2.4} />
+                        {isRtl ? "القسم" : "Department"}
+                      </Label>
+                      <Select value={selectedFacultyDeptId} onValueChange={setSelectedFacultyDeptId}>
+                        <SelectTrigger className={triggerCls}>
+                          <SelectValue
+                            placeholder={isRtl ? "اختر القسم (اختياري)" : "Select department (optional)"}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {departments.map((dept) => (
+                            <SelectItem key={dept.id} value={dept.id} className="text-base">
+                              {dept.department_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                 </div>
               )}
 

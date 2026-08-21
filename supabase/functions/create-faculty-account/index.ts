@@ -227,6 +227,7 @@ Deno.serve(async (req) => {
     let email = String(body.email || "").trim().toLowerCase();
     const phoneRaw = String(body.phone || "").trim();
     const phone = phoneRaw.length > 0 ? phoneRaw : null;
+    const requestedDeptId = typeof body.department_id === "string" ? body.department_id.trim() || null : null;
 
     const ALLOWED_EXTRA = [
       "date_of_birth", "photo_url", "national_id", "gender",
@@ -421,6 +422,31 @@ if (/\s/.test(temporaryPassword)) {
     if (problems.length > 0) {
       await rollbackCreatedUser(uid);
       return fail("verification", `Post-save verification failed: ${problems.join("; ")}`, 500);
+    }
+
+    // ---- Assign department if requested ----
+    if (requestedDeptId) {
+      // Verify the department belongs to this institution
+      const { data: deptCheck } = await admin
+        .from("departments")
+        .select("id")
+        .eq("id", requestedDeptId)
+        .eq("institution_id", institutionId!)
+        .eq("institution_type", institutionType!)
+        .maybeSingle();
+      if (deptCheck) {
+        const { error: deptErr } = await admin.rpc("assign_faculty_department" as any, {
+          p_user_id: uid,
+          p_new_department_id: requestedDeptId,
+          p_specific_role: role,
+          p_full_name: fullName,
+          p_email: email,
+          p_phone: phone,
+        });
+        if (deptErr) {
+          console.error("department assignment failed (non-fatal)", { message: deptErr.message });
+        }
+      }
     }
 
     // ---- Atomically consume invitation (if invitation mode) ----

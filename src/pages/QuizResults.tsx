@@ -56,7 +56,18 @@ const QuizResults = () => {
 
     const r = (profileRes.data?.role as Role) || "other";
     setRole(r);
-    setSubRole((subRoleRes as any)?.data || "");
+    let sr = (subRoleRes as any)?.data || "";
+    // Faculty-flow vice deans carry the specific role in institution_faculty_members;
+    // prefer it when the RPC returns a generic/empty value.
+    if (!["vice_dean_students", "vice_dean_postgrad", "vice_dean_environment", "vice_dean_community"].includes(sr)) {
+      try {
+        const { data: ifm } = await supabase.from("institution_faculty_members").select("specific_role").eq("user_id", user.id).maybeSingle();
+        if (ifm?.specific_role && ["vice_dean_students", "vice_dean_postgrad", "vice_dean_environment", "vice_dean_community"].includes(ifm.specific_role)) {
+          sr = ifm.specific_role;
+        }
+      } catch { /* noop */ }
+    }
+    setSubRole(sr);
 
     const q = quizRes.data;
     if (quizRes.error || !q) {
@@ -95,7 +106,7 @@ const QuizResults = () => {
   const vdColumn =
     subRole === "vice_dean_students" ? "students"
     : subRole === "vice_dean_postgrad" ? "postgrad"
-    : subRole === "vice_dean_environment" ? "environment"
+    : subRole === "vice_dean_environment" || subRole === "vice_dean_community" ? "environment"
     : "";
 
   const canAct = (() => {

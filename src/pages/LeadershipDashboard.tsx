@@ -196,6 +196,19 @@ const LeadershipDashboard = () => {
         setSpecificRole(resolvedSpecificRole);
       } catch { /* noop */ }
 
+      // Resolve the vice-dean sub-role so the dashboard knows which approval column this user owns
+      const vdVariants = ["vice_dean_students", "vice_dean_postgrad", "vice_dean_environment", "vice_dean_community"];
+      let resolvedSubRole = "";
+      if (vdVariants.includes(resolvedSpecificRole)) {
+        resolvedSubRole = resolvedSpecificRole;
+      } else if (profile.role === "vice_dean") {
+        try {
+          const { data: sr } = await supabase.rpc("get_user_sub_role", { _user_id: user.id } as any);
+          resolvedSubRole = sr || "";
+        } catch { /* noop */ }
+      }
+      setSubRole(resolvedSubRole);
+
       // Determine if this user has approval permissions
       const approvalRoles = ["department_head", "vice_dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community", "vice_dean_environment", "dean", "director"];
       const hasApprovalPower = ["department_head", "vice_dean", "dean"].includes(profile.role) || approvalRoles.includes(resolvedSpecificRole);
@@ -320,7 +333,7 @@ const LeadershipDashboard = () => {
     const specific = resolvedSpecificRole ?? specificRole;
     // For deans/vice_deans, load ALL departments from their institution
     // since they oversee the entire institution, not just one department.
-    const isOversightRole = ["dean", "vice_dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community"].includes(specific) || role === "dean" || role === "vice_dean";
+    const isOversightRole = ["dean", "vice_dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community", "vice_dean_environment"].includes(specific) || role === "dean" || role === "vice_dean";
 
     if (isOversightRole) {
       // Determine institution from college_members or institution_faculty_members
@@ -914,45 +927,6 @@ const LeadershipDashboard = () => {
               </div>
             )}
 
-            {/* Quick Action Links for Dean & Vice Deans */}
-            {(specificRole === "dean" || specificRole === "director" || ["vice_dean_students", "vice_dean_postgrad", "vice_dean_environment", "vice_dean_community"].includes(specificRole)) && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 mb-4">
-                <button onClick={() => navigate("/institution/faculty")} className="text-start">
-                  <Card className="relative overflow-hidden bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600 border-2 border-cyan-400/60 shadow-lg shadow-cyan-500/20 hover:shadow-xl hover:shadow-cyan-500/40 hover:-translate-y-0.5 transition-all h-full">
-                    <CardContent className="p-3 sm:p-4 text-center relative">
-                      <div className="w-10 h-10 mx-auto mb-1.5 rounded-xl bg-white/25 backdrop-blur flex items-center justify-center ring-1 ring-white/30">
-                        <Users className="w-5 h-5 text-white" strokeWidth={2.6} />
-                      </div>
-                      <p className="text-xs sm:text-sm font-black text-white drop-shadow-md">{isRtl ? "هيئة التدريس" : "Faculty"}</p>
-                      <p className="text-[9px] sm:text-[10px] font-bold text-white/80 mt-0.5">{isRtl ? "عرض الأعضاء" : "View Members"}</p>
-                    </CardContent>
-                  </Card>
-                </button>
-                <button onClick={() => navigate("/institution/student-subscriptions")} className="text-start">
-                  <Card className="relative overflow-hidden bg-gradient-to-br from-emerald-500 via-teal-500 to-green-600 border-2 border-emerald-400/60 shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/40 hover:-translate-y-0.5 transition-all h-full">
-                    <CardContent className="p-3 sm:p-4 text-center relative">
-                      <div className="w-10 h-10 mx-auto mb-1.5 rounded-xl bg-white/25 backdrop-blur flex items-center justify-center ring-1 ring-white/30">
-                        <GraduationCap className="w-5 h-5 text-white" strokeWidth={2.6} />
-                      </div>
-                      <p className="text-xs sm:text-sm font-black text-white drop-shadow-md">{isRtl ? "الطلاب" : "Students"}</p>
-                      <p className="text-[9px] sm:text-[10px] font-bold text-white/80 mt-0.5">{isRtl ? "الاشتراكات" : "Subscriptions"}</p>
-                    </CardContent>
-                  </Card>
-                </button>
-                <button onClick={() => navigate("/institution/departments")} className="text-start">
-                  <Card className="relative overflow-hidden bg-gradient-to-br from-purple-500 via-violet-500 to-fuchsia-600 border-2 border-purple-400/60 shadow-lg shadow-purple-500/20 hover:shadow-xl hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all h-full">
-                    <CardContent className="p-3 sm:p-4 text-center relative">
-                      <div className="w-10 h-10 mx-auto mb-1.5 rounded-xl bg-white/25 backdrop-blur flex items-center justify-center ring-1 ring-white/30">
-                        <Landmark className="w-5 h-5 text-white" strokeWidth={2.6} />
-                      </div>
-                      <p className="text-xs sm:text-sm font-black text-white drop-shadow-md">{isRtl ? "الأقسام" : "Departments"}</p>
-                      <p className="text-[9px] sm:text-[10px] font-bold text-white/80 mt-0.5">{isRtl ? "إدارة" : "Manage"}</p>
-                    </CardContent>
-                  </Card>
-                </button>
-              </div>
-            )}
-
             {(() => {
               const totalActivity = courses.length + liveStreams.length + assignments.length + quizzes.length + episodes.length + ratings.length;
               
@@ -1341,7 +1315,7 @@ const LeadershipDashboard = () => {
               const vdColumn =
                 subRole === "vice_dean_students" ? "students"
                 : subRole === "vice_dean_postgrad" ? "postgrad"
-                : subRole === "vice_dean_environment" ? "environment"
+                : subRole === "vice_dean_environment" || subRole === "vice_dean_community" ? "environment"
                 : "";
 
               const stageOf = (q: any) => {

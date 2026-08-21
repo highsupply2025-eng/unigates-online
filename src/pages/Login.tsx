@@ -108,7 +108,7 @@ const Login = () => {
           .maybeSingle();
         facultySpecificRole = ifmRow?.specific_role || null;
       }
-      const isFacultyWithLeadershipAccess = !!facultySpecificRole && ["professor", "doctor", "teaching_assistant", "lecturer"].includes(facultySpecificRole);
+      const isFacultyWithLeadershipAccess = !!facultySpecificRole && ["professor", "doctor", "assistant_lecturer", "teaching_assistant", "lecturer"].includes(facultySpecificRole);
 
       if (adminRole) {
         goNext("/admin/dashboard");

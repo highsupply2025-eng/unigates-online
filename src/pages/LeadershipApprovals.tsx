@@ -51,7 +51,17 @@ const LeadershipApprovals = () => {
       const role = roleRow?.role || "";
 
       const { data: sub } = await supabase.rpc("get_user_sub_role", { _user_id: user.id });
-      const sr = (sub as any) || "";
+      let sr = (sub as any) || "";
+      // Faculty-flow vice deans carry the specific role in institution_faculty_members;
+      // prefer it when the RPC returns a generic/empty value.
+      if (!["vice_dean_students", "vice_dean_postgrad", "vice_dean_environment", "vice_dean_community"].includes(sr)) {
+        try {
+          const { data: ifm } = await supabase.from("institution_faculty_members").select("specific_role").eq("user_id", user.id).maybeSingle();
+          if (ifm?.specific_role && ["vice_dean_students", "vice_dean_postgrad", "vice_dean_environment", "vice_dean_community"].includes(ifm.specific_role)) {
+            sr = ifm.specific_role;
+          }
+        } catch { /* noop */ }
+      }
 
       const [coursesRes, listRes] = await Promise.all([
         supabase.from("courses").select("*").limit(200),
@@ -73,7 +83,7 @@ const LeadershipApprovals = () => {
   const vdColumn =
     subRole === "vice_dean_students" ? "students"
     : subRole === "vice_dean_postgrad" ? "postgrad"
-    : subRole === "vice_dean_environment" ? "environment"
+    : subRole === "vice_dean_environment" || subRole === "vice_dean_community" ? "environment"
     : "";
 
   const quizFullyApproved = (q: any) =>

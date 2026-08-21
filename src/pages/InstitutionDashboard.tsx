@@ -2176,16 +2176,13 @@ ${exams.map((s: any, i: number) => `<tr>
             {(() => {
               const STALE_DAYS = 7;
               const staleThreshold = Date.now() - STALE_DAYS * 24 * 60 * 60 * 1000;
-              const isStale = (ts: string | null | undefined) => {
-                if (!ts) return false;
-                const t = Date.parse(ts);
-                return !isNaN(t) && t < staleThreshold;
-              };
+              const isStaleTs = (n: number) => n > 0 && n < staleThreshold;
 
               // ── Schedule approval breakdown ──
               const schedRejected = examSchedules.filter((s: any) => s.rejected_by);
               const schedAwaitHead = examSchedules.filter((s: any) => !s.rejected_by && !s.approved_by_head);
-              const schedAwaitDean = examSchedules.filter((s: any) => !s.rejected_by && s.approved_by_head && !s.approved_by_dean);
+              const schedAwaitVD = examSchedules.filter((s: any) => !s.rejected_by && s.approved_by_head && !s.approved_by_vice_dean);
+              const schedAwaitDean = examSchedules.filter((s: any) => !s.rejected_by && s.approved_by_head && s.approved_by_vice_dean && !s.approved_by_dean);
               const schedApproved = examSchedules.filter((s: any) => s.approved_by_head && s.approved_by_vice_dean && s.approved_by_dean);
 
               // ── Quiz approval breakdown ──
@@ -2197,21 +2194,25 @@ ${exams.map((s: any, i: number) => `<tr>
               const quizApproved = quizzes.filter((q: any) => q.approved_by_lecturer && q.approved_by_head && q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad && q.approved_by_vice_dean_environment && q.approved_by_dean);
 
               // ── Stale items (>7 days without approval at ANY stage) ──
+              const latestTs = (...ts: (string | null | undefined)[]) =>
+                ts.filter(Boolean)
+                  .map(t => Date.parse(t as string))
+                  .filter(n => !isNaN(n))
+                  .reduce((a, b) => Math.max(a, b), 0);
               const staleSchedules = examSchedules.filter((s: any) => {
                 if (s.rejected_by || (s.approved_by_head && s.approved_by_vice_dean && s.approved_by_dean)) return false;
-                const ref = s.approved_by_dean_at || s.approved_by_vice_dean_at || s.approved_by_head_at || s.created_at;
-                return isStale(ref);
+                return isStaleTs(latestTs(s.created_at, s.approved_by_head_at, s.approved_by_vice_dean_at, s.approved_by_dean_at));
               });
               const staleQuizzes = quizzes.filter((q: any) => {
                 if (q.rejected_by || (q.approved_by_lecturer && q.approved_by_head && q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad && q.approved_by_vice_dean_environment && q.approved_by_dean)) return false;
-                const ref = q.approved_by_dean_at || q.approved_by_head_at || q.approved_by_lecturer_at || q.created_at;
-                return isStale(ref);
+                return isStaleTs(latestTs(q.created_at, q.approved_by_lecturer_at, q.approved_by_head_at, q.approved_by_vice_dean_students_at, q.approved_by_vice_dean_postgrad_at, q.approved_by_vice_dean_environment_at, q.approved_by_dean_at));
               });
               const totalStale = staleSchedules.length + staleQuizzes.length;
 
               const schedCards = [
                 { label: isRtl ? "بانتظار رئيس القسم" : "Awaiting Head", count: schedAwaitHead.length, color: "from-amber-500 to-orange-600", icon: Clock },
-                { label: isRtl ? "بانتظار العميد" : "Awaiting Dean", count: schedAwaitDean.length, color: "from-blue-500 to-indigo-600", icon: Shield },
+                { label: isRtl ? "بانتظار الوكلاء" : "Awaiting VDs", count: schedAwaitVD.length, color: "from-blue-500 to-indigo-600", icon: Shield },
+                { label: isRtl ? "بانتظار العميد" : "Awaiting Dean", count: schedAwaitDean.length, color: "from-violet-500 to-purple-600", icon: Shield },
                 { label: isRtl ? "معتمد" : "Approved", count: schedApproved.length, color: "from-emerald-500 to-green-600", icon: CheckCircle },
               ];
               const quizCards = [
@@ -2262,7 +2263,7 @@ ${exams.map((s: any, i: number) => `<tr>
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                           {schedCards.map((card, i) => (
                             <div key={i} className={`text-center p-2 sm:p-3 rounded-xl bg-gradient-to-br ${card.color} shadow-md shadow-black/10`}>
                               <card.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white/90 mx-auto mb-1" />

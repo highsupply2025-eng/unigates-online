@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Loader2, Eye, EyeOff, ShieldCheck, CheckCircle2, Circle, ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
+import { Loader2, Eye, EyeOff, ShieldCheck, CheckCircle2, Circle, ArrowLeft, ArrowRight, Sparkles, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { PASSWORD_RULES, getMissingPasswordRules } from "@/lib/password";
 
 type ForcePasswordProfile = {
@@ -135,6 +136,7 @@ function StepIndicator({ step, isRtl }: { step: 1 | 2; isRtl: boolean }) {
 export default function ForcePasswordChangeDialog() {
   const { language, dir } = useLanguage();
   const isRtl = language === "ar";
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState<string>("");
   const [current, setCurrent] = useState("");
@@ -154,6 +156,12 @@ export default function ForcePasswordChangeDialog() {
   const missingRules = useMemo(() => (next.length > 0 ? getMissingPasswordRules(next) : []), [next]);
   const allRulesPass = next.length > 0 && missingRules.length === 0;
   const canSubmit = saving || !current || !next || !confirm || !allRulesPass || !passwordsMatch;
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setOpen(false);
+    navigate("/login", { replace: true });
+  };
 
   const strength = useMemo(() => getPasswordStrength(next), [next]);
 
@@ -441,6 +449,18 @@ export default function ForcePasswordChangeDialog() {
               {saving ? <Loader2 className="w-4 h-4 animate-spin me-2" /> : null}
               {isRtl ? "حفظ كلمة السر الجديدة" : "Save new password"}
             </Button>
+
+            {/* Logout escape hatch */}
+            <div className="pt-2 border-t border-border/30 mt-3">
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center gap-2 h-10 text-xs font-medium text-muted-foreground hover:text-destructive transition-colors rounded-lg hover:bg-destructive/5"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                {isRtl ? "تسجيل الخروج" : "Sign out"}
+              </button>
+            </div>
           </div>
         </div>
       </DialogContent>

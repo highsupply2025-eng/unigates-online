@@ -268,7 +268,7 @@ export default function ForcePasswordChangeDialog() {
     <Dialog open={open} onOpenChange={() => { /* non-dismissible */ }}>
       <DialogContent
         dir={dir}
-        className="max-w-md rounded-2xl !shadow-2xl border-0 p-0 overflow-hidden [&>button]:!start-4 [&>button]:!end-auto [&>button]:!top-4 [&>button]:z-20"
+        className="max-w-md rounded-2xl !shadow-2xl border-0 p-0 overflow-hidden [&>button]:!hidden"
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
@@ -282,9 +282,12 @@ export default function ForcePasswordChangeDialog() {
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto">
             {isRtl
-              ? "تم إنشاء حسابك بكلمة مرور مؤقتة. اختر كلمة سر قوية للمتابعة."
-              : "Your account was created with a temporary password. Choose a strong one to continue."}
+              ? "تم إنشاء حسابك بكلمة مرور مؤقتة. هذا الإجراء إلزامي ولا يمكن المتابعة إلى الموقع قبل اختيار كلمة سر جديدة."
+              : "Your account was created with a temporary password. This step is mandatory — you cannot continue until you set a new one."}
           </p>
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-destructive/10 px-3 py-1 mt-3 text-[11px] font-semibold text-destructive">
+            {isRtl ? "إلزامي — لا يمكن إغلاق هذه النافذة" : "Mandatory — this dialog cannot be dismissed"}
+          </div>
         </div>
 
         <div className="px-6 pb-6">

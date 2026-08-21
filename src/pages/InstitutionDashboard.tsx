@@ -28,6 +28,7 @@ import { toast as sonnerToast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useInstitutionStats } from "@/hooks/useInstitutionStats";
 import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
+import { useQueryClient } from "@tanstack/react-query";
 
 import BackButton from "@/components/BackButton";
 import { TrendIndicator } from "@/components/TrendIndicator";
@@ -304,6 +305,7 @@ const InstitutionDashboard = () => {
     resultCount: liveResultCount,
     invalidate: invalidateStats,
   } = useInstitutionStats(institutionId || null, institutionType);
+  const queryClient = useQueryClient();
 
   const [departments, setDepartments] = useState<Department[]>([]);
   const [deletedDeptIds, setDeletedDeptIds] = useState<Set<string>>(new Set());
@@ -979,6 +981,8 @@ const InstitutionDashboard = () => {
 
       // Refresh full data in background after member slots are created
       await loadInstitutionData(institutionId, institutionType || "college");
+      invalidateStats();
+      queryClient.invalidateQueries({ queryKey: ["platform-stats"] });
     } catch (error: any) {
       sonnerToast.error(isRtl ? "خطأ" : "Error", { description: error.message, duration: 3000 });
       setAddingDept(false);
@@ -1032,6 +1036,8 @@ const InstitutionDashboard = () => {
       setNewMemberCount("");
       setNewMemberRole("student");
       await loadInstitutionData(institutionId, institutionType || "college");
+      invalidateStats();
+      queryClient.invalidateQueries({ queryKey: ["platform-stats"] });
     } catch (error: any) {
       toast({ title: isRtl ? "خطأ" : "Error", description: error.message, variant: "destructive" });
     }
@@ -1068,6 +1074,8 @@ const InstitutionDashboard = () => {
       setActivateEmail("");
       setActivatePhone("");
       await loadInstitutionData(institutionId, institutionType || "college");
+      invalidateStats();
+      queryClient.invalidateQueries({ queryKey: ["platform-stats"] });
     } catch (err: any) {
       const msg = err?.message || String(err);
       sonnerToast.error(
@@ -1119,6 +1127,8 @@ const InstitutionDashboard = () => {
         institutionName,
       );
       invalidateStats();
+      // Immediate global sync: university 4 + homepage 8 must reflect deletion without waiting for Realtime polling
+      queryClient.invalidateQueries({ queryKey: ["platform-stats"] });
     } catch (error: any) {
       toast({
         title: isRtl ? "فشل الحذف" : "Delete failed",
@@ -1337,6 +1347,7 @@ ${exams.map((s: any, i: number) => `<tr>
       setDeptMembers(prev => prev.filter(m => m.department_id !== deptId));
       await loadInstitutionData(institutionId, institutionType || "college");
       invalidateStats();
+      queryClient.invalidateQueries({ queryKey: ["platform-stats"] });
       sonnerToast.success(isRtl ? "تم حذف القسم" : "Department Deleted", { description: deptName, duration: 2000 });
     } catch (error: any) {
       sonnerToast.error(isRtl ? "تعذر حذف القسم" : "Delete Error", {
@@ -1345,6 +1356,7 @@ ${exams.map((s: any, i: number) => `<tr>
       });
       await loadInstitutionData(institutionId, institutionType || "college");
       invalidateStats();
+      queryClient.invalidateQueries({ queryKey: ["platform-stats"] });
     }
   };
 

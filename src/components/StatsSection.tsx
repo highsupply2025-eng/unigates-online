@@ -6,19 +6,20 @@ import { useCountUp } from "@/hooks/useCountUp";
 const StatsSection = () => {
   const { language } = useLanguage();
   const { data: stats } = usePlatformStats();
-  // Global 8 stats are the single source of truth for the homepage — they already
-  // aggregate university (college/institute/faculty via institution tables) + school
-  // + courses + publishing. University 4 cards use the dedicated university RPC;
-  // after the pending-inclusive DB fix both sources stay linked, so no fallback
-  // mixing is needed here.
-  const colleges = useCountUp(stats?.colleges ?? 0);
-  const institutes = useCountUp(stats?.institutes ?? 0);
+  const { data: uniStats } = usePlatformStats("university");
+  // Homepage 8 must stay linked to university 4: college/institute/faculty/student
+  // are authoritative from the university RPC (institution tables). Using uniStats
+  // directly ensures "محاضر" = "أعضاء هيئة التدريس" (1 ↔ 1) instead of global
+  // lecturers (university 1 + courses 6 = 7). Schools/publishers/teachers/parents
+  // remain from global scope.
+  const colleges = useCountUp(uniStats?.colleges ?? stats?.colleges ?? 0);
+  const institutes = useCountUp(uniStats?.institutes ?? stats?.institutes ?? 0);
   const schools = useCountUp(stats?.schools ?? 0);
   const publishers = useCountUp(stats?.publishers ?? 0);
-  const lecturers = useCountUp(stats?.lecturers ?? 0);
+  const lecturers = useCountUp(uniStats?.lecturers ?? stats?.lecturers ?? 0);
   const teachers = useCountUp(stats?.teachers ?? 0);
   const parents = useCountUp(stats?.parents ?? 0);
-  const students = useCountUp(stats?.students ?? 0);
+  const students = useCountUp(uniStats?.students ?? uniStats?.universityStudents ?? stats?.students ?? 0);
 
   // Order: كلية - معهد - مدرسة - ناشر - محاضر - معلم - ولى أمر - طالب
   const items = [

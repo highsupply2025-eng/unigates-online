@@ -176,11 +176,11 @@ export const usePlatformStats = (scope: PlatformScope = "all") => {
         languageCenters: Number(s.language_centers) || 0,
       };
     },
-    staleTime: 30_000,
-    refetchOnMount: scope === "university" ? "always" : true,
+    staleTime: 10_000,
+    refetchOnMount: "always",
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
-    refetchInterval: scope === "university" ? 15_000 : 60_000,
+    refetchInterval: 10_000,
     placeholderData: keepPreviousData,
   });
 

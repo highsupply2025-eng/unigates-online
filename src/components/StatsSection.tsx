@@ -6,15 +6,16 @@ import { useCountUp } from "@/hooks/useCountUp";
 const StatsSection = () => {
   const { language } = useLanguage();
   const { data: stats } = usePlatformStats();
+  const { data: uniStats } = usePlatformStats("university");
 
-  const colleges = useCountUp(stats?.colleges ?? 0);
-  const institutes = useCountUp(stats?.institutes ?? 0);
+  const colleges = useCountUp(uniStats?.colleges ?? stats?.colleges ?? 0);
+  const institutes = useCountUp(uniStats?.institutes ?? stats?.institutes ?? 0);
   const schools = useCountUp(stats?.schools ?? 0);
   const publishers = useCountUp(stats?.publishers ?? 0);
-  const lecturers = useCountUp(stats?.lecturers ?? 0);
+  const lecturers = useCountUp(uniStats?.lecturers ?? stats?.lecturers ?? 0);
   const teachers = useCountUp(stats?.teachers ?? 0);
   const parents = useCountUp(stats?.parents ?? 0);
-  const students = useCountUp(stats?.students ?? 0);
+  const students = useCountUp(uniStats?.students ?? stats?.students ?? 0);
 
   // Order: كلية - معهد - مدرسة - ناشر - محاضر - معلم - ولى أمر - طالب
   const items = [

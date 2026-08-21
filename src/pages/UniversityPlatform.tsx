@@ -106,18 +106,23 @@ const UniversityPlatform = () => {
     {
       id: "free" as const,
       name: isRtl ? "الباقة المجانية" : "Free Plan",
-      price: isRtl ? "لمدة 30 يوم" : "For 30 days",
-      period: "",
+      price: isRtl ? "مجاناً" : "Free",
+      period: isRtl ? "لمدة 30 يوم" : "For 30 days",
       features: isRtl
         ? ["حتى 100 طالب لكل قسم", "3 أعضاء هيئة تدريس لكل قسم", "تقارير أساسية", "دعم فني"]
         : ["Up to 100 students per dept", "3 faculty per dept", "Basic reports", "Technical support"],
       highlighted: false,
       comingSoon: false,
       icon: BookOpen,
+      gradient: "from-[hsl(174,72%,46%)] to-[hsl(190,80%,40%)]",
       iconBg: "bg-gradient-to-br from-[hsl(174,72%,46%)] to-[hsl(174,72%,36%)]",
-      borderColor: "border-[hsl(174,72%,46%)]/30",
+      badgeBg: "bg-[hsl(174,72%,46%)]/10",
+      badgeText: "text-[hsl(174,72%,40%)]",
       priceColor: "text-[hsl(174,72%,36%)]",
-      checkColor: "text-[hsl(174,72%,46%)]",
+      checkBg: "bg-[hsl(174,72%,46%)]",
+      topBorder: "border-t-[hsl(174,72%,46%)]",
+      buttonVariant: "outline" as const,
+      savingsBadge: null,
     },
     {
       id: "monthly" as const,
@@ -125,15 +130,20 @@ const UniversityPlatform = () => {
       price: isRtl ? "اشتراك مدفوع" : "Paid Subscription",
       period: "",
       features: isRtl
-        ? ["حتى 2000 طالب لكل قسم", "10 أعضاء هيئة تدريس لكل قسم", "تحليلات متقدمة", "دعم أولوية"]
-        : ["Up to 2000 students per dept", "10 faculty per dept", "Advanced analytics", "Priority support"],
+        ? ["حتى 2000 طالب لكل قسم", "10 أعضاء هيئة تدريس لكل قسم", "تحليلات متقدمة", "دعم أولوية", "تقارير متقدمة"]
+        : ["Up to 2000 students per dept", "10 faculty per dept", "Advanced analytics", "Priority support", "Advanced reports"],
       highlighted: true,
       comingSoon: false,
       icon: Trophy,
-      iconBg: "bg-gradient-to-br from-primary to-[hsl(200,75%,30%)]",
-      borderColor: "border-primary",
+      gradient: "from-primary to-[hsl(200,80%,35%)]",
+      iconBg: "bg-gradient-to-br from-primary to-[hsl(174,72%,36%)]",
+      badgeBg: "bg-primary/10",
+      badgeText: "text-primary",
       priceColor: "text-primary",
-      checkColor: "text-primary",
+      checkBg: "bg-primary",
+      topBorder: "border-t-primary",
+      buttonVariant: "default" as const,
+      savingsBadge: null,
     },
     {
       id: "annual" as const,
@@ -146,10 +156,15 @@ const UniversityPlatform = () => {
       highlighted: false,
       icon: Sparkles,
       comingSoon: true,
+      gradient: "from-[hsl(260,70%,50%)] to-[hsl(280,60%,45%)]",
       iconBg: "bg-gradient-to-br from-[hsl(260,70%,50%)] to-[hsl(280,60%,45%)]",
-      borderColor: "border-[hsl(260,70%,50%)]/30",
+      badgeBg: "bg-[hsl(260,70%,50%)]/10",
+      badgeText: "text-[hsl(260,70%,50%)]",
       priceColor: "text-[hsl(260,70%,50%)]",
-      checkColor: "text-[hsl(260,70%,50%)]",
+      checkBg: "bg-[hsl(260,70%,50%)]",
+      topBorder: "border-t-[hsl(260,70%,50%)]",
+      buttonVariant: "outline" as const,
+      savingsBadge: isRtl ? "خصم 10%" : "10% Off",
     },
   ];
 
@@ -337,78 +352,116 @@ const UniversityPlatform = () => {
       </section>
 
       {/* Pricing */}
-      <section className="py-10 md:py-16 px-4 sm:px-6 md:px-12">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-8 md:mb-12">
-            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-bold mb-4">
+      <section className="py-12 md:py-20 px-4 sm:px-6 md:px-12 bg-gradient-to-b from-background via-muted/30 to-background">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-10 md:mb-14">
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-5 py-2 rounded-full text-sm font-bold mb-5 border border-primary/15">
               <Trophy className="w-4 h-4" />
               {isRtl ? "الاشتراك" : "Subscription"}
             </div>
-            <h2 className="text-2xl md:text-3xl font-black text-foreground mb-3">
+            <h2 className="text-3xl md:text-4xl font-black text-foreground mb-3 leading-tight">
               {isRtl ? "اختر الباقة المناسبة" : "Choose the Right Plan"}
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-base md:text-lg max-w-lg mx-auto">
               {isRtl ? "باقات مرنة كلية / معهد" : "Flexible College / Institute Plans"}
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
             {plans.map((plan, i) => (
-              <Card
+              <div
                 key={i}
-                className={`relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 ${
-                  plan.highlighted 
-                    ? "border-primary border-2 shadow-xl shadow-primary/15 md:scale-[1.03]" 
-                    : `border-2 ${plan.borderColor} shadow-md`
+                className={`relative flex flex-col rounded-2xl transition-all duration-500 group ${
+                  plan.highlighted
+                    ? "md:-mt-4 md:mb-[-1rem] z-10"
+                    : "hover:-translate-y-2"
                 }`}
               >
-                {plan.highlighted && (
-                  <div className="bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] text-primary-foreground text-xs font-bold text-center py-2.5">
-                    <Sparkles className="w-3.5 h-3.5 inline-block me-1" />
-                    {isRtl ? "الأكثر شعبية" : "Most Popular"}
+                {/* Savings badge for yearly */}
+                {plan.savingsBadge && (
+                  <div className="absolute -top-3 end-6 z-20">
+                    <div className={`px-3 py-1 rounded-full text-[11px] font-bold text-white bg-gradient-to-r ${plan.gradient} shadow-lg`}>
+                      {plan.savingsBadge}
+                    </div>
                   </div>
                 )}
-                <CardContent className="p-5 md:p-7">
-                  <div className="flex items-center gap-3 mb-5">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${plan.iconBg} shadow-lg`}>
-                      <plan.icon className="w-6 h-6 text-white" />
+
+                <div className={`relative flex flex-col h-full rounded-2xl bg-card border-2 overflow-hidden transition-all duration-500 ${
+                  plan.highlighted
+                    ? "border-primary shadow-2xl shadow-primary/20"
+                    : "border-border/60 shadow-lg hover:shadow-xl hover:border-primary/30"
+                }`}>
+                  {/* Top gradient accent bar */}
+                  <div className={`h-1.5 bg-gradient-to-r ${plan.gradient}`} />
+
+                  {/* Popular badge */}
+                  {plan.highlighted && (
+                    <div className={`bg-gradient-to-r ${plan.gradient} text-white text-xs font-bold text-center py-2.5 tracking-wide`}>
+                      <Sparkles className="w-3.5 h-3.5 inline-block me-1.5 animate-pulse" />
+                      {isRtl ? "الأكثر شعبية" : "Most Popular"}
                     </div>
-                    <h3 className="font-black text-lg md:text-xl text-foreground">{plan.name}</h3>
-                  </div>
-                  <div className="mb-6 flex items-center gap-2.5">
-                    {(plan.id === "free" || plan.id === "monthly" || plan.id === "annual") && (
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center ${plan.iconBg}`}>
-                        <Check className="w-3 h-3 text-white" />
-                      </div>
-                    )}
-                    <span className={`text-3xl sm:text-4xl font-black ${plan.priceColor}`}>{plan.price}</span>
-                    {plan.period && <span className="text-muted-foreground text-sm ms-1 font-medium">{plan.period}</span>}
-                  </div>
-                  <ul className="space-y-3.5 mb-7">
-                    {plan.features.map((f, j) => (
-                      <li key={j} className="flex items-center gap-2.5 text-sm text-foreground/80 font-medium">
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center ${plan.iconBg}`}>
-                          <Check className="w-3 h-3 text-white" />
-                        </div>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  {plan.comingSoon ? (
-                    <Button className="w-full font-bold h-12 text-base opacity-60" variant="outline" disabled>
-                      {isRtl ? "قريباً" : "Coming Soon"}
-                    </Button>
-                  ) : (
-                    <Button 
-                       onClick={() => navigate("/signup")}
-                      className={`w-full font-bold h-12 text-base ${plan.highlighted ? 'shadow-lg shadow-primary/25' : ''}`} 
-                      variant={plan.highlighted ? "default" : "outline"}
-                    >
-                      {isRtl ? "ابدأ الآن" : "Get Started"}
-                      <ArrowIcon className="w-4 h-4" />
-                    </Button>
                   )}
-                </CardContent>
-              </Card>
+
+                  <div className="flex flex-col flex-1 p-6 md:p-7">
+                    {/* Header */}
+                    <div className="flex items-center gap-3.5 mb-6">
+                      <div className={`w-13 h-13 rounded-2xl flex items-center justify-center ${plan.iconBg} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                        <plan.icon className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-extrabold text-lg md:text-xl text-foreground leading-tight">{plan.name}</h3>
+                      </div>
+                    </div>
+
+                    {/* Price */}
+                    <div className="mb-6 pb-6 border-b border-border/50">
+                      <div className="flex items-baseline gap-2 flex-wrap">
+                        <span className={`text-4xl sm:text-5xl font-black ${plan.priceColor} leading-none tracking-tight`}>
+                          {plan.price}
+                        </span>
+                      </div>
+                      {plan.period && (
+                        <span className="text-muted-foreground text-sm font-semibold mt-1.5 block">{plan.period}</span>
+                      )}
+                    </div>
+
+                    {/* Features */}
+                    <ul className="space-y-3.5 mb-8 flex-1">
+                      {plan.features.map((f, j) => (
+                        <li key={j} className="flex items-center gap-3 text-sm text-foreground/80 font-medium">
+                          <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${plan.checkBg}`}>
+                            <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                          </div>
+                          <span className="leading-relaxed">{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* CTA Button */}
+                    {plan.comingSoon ? (
+                      <Button
+                        className="w-full font-bold h-13 text-base rounded-xl opacity-60 border-2 border-dashed border-border"
+                        variant="outline"
+                        disabled
+                      >
+                        {isRtl ? "قريباً" : "Coming Soon"}
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => navigate("/signup")}
+                        className={`w-full font-bold h-13 text-base rounded-xl transition-all duration-300 ${
+                          plan.highlighted
+                            ? 'shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40'
+                            : 'border-2 hover:shadow-lg'
+                        }`}
+                        variant={plan.highlighted ? "default" : "outline"}
+                      >
+                        {isRtl ? "ابدأ الآن" : "Get Started"}
+                        <ArrowIcon className="w-4 h-4 me-1" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>

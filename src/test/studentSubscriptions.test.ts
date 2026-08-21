@@ -616,6 +616,7 @@ describe("create-student-account – invitation validation before consumption", 
     function createUser() { steps.push("create_user"); return true; }
     function consume() { steps.push("consume"); consumed = true; return true; }
     if (validate() && checkEmail() && createUser() && consume()) {
+      // all steps succeeded — nothing else to do
     }
     expect(steps).toEqual(["validate", "check_email", "create_user", "consume"]);
     expect(consumed).toBe(true);

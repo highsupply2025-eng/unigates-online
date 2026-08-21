@@ -49,13 +49,15 @@ describe("Login password input", () => {
     expect(input).toHaveAttribute("dir", "ltr");
     expect(input).toHaveStyle({ unicodeBidi: "plaintext" });
     expect(input).not.toHaveStyle({ textAlign: "left", textIndent: "38px" });
-    expect(input).toHaveClass("h-12", "md:h-14", "px-14", "text-center");
+    // RTL-aware padding: extra start-side padding keeps typed text centered
+    // and clear of the eye button (rendered here with dir="rtl").
+    expect(input).toHaveClass("h-12", "md:h-14", "text-center", "pr-10", "pl-12");
     expect(input.parentElement).toHaveClass("relative");
-    expect(button).toHaveClass("absolute", "right-2", "top-1/2", "-translate-y-1/2");
+    expect(button).toHaveClass("absolute", "left-2", "top-1/2", "-translate-y-1/2");
 
     fireEvent.change(input, { target: { value: "Aa$#@159753" } });
     expect(input).toHaveValue("Aa$#@159753");
-    expect(input).toHaveClass("px-14", "text-center");
+    expect(input).toHaveClass("pl-12", "pr-10", "text-center");
   });
 
   it("preserves password visibility toggling", () => {

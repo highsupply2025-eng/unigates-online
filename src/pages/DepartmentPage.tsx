@@ -150,7 +150,7 @@ const DepartmentPage = () => {
       setInstitutionType(dept.institution_type as "college" | "institute");
 
       const seenIds = new Set<string>();
-      let allMembers = (membersResult || []).filter(m => {
+      const allMembers = (membersResult || []).filter(m => {
         if (seenIds.has(m.id)) return false;
         seenIds.add(m.id);
         return true;

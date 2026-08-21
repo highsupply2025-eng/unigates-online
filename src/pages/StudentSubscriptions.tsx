@@ -368,7 +368,7 @@ const StudentSubscriptions = () => {
                             <TableCell className="hidden xl:table-cell text-muted-foreground text-sm">{new Date(s.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</TableCell>
                             <TableCell className="text-center">
                               <Badge variant="secondary" className={`text-xs ${isActive(s) ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"}`}>
-                                {isActive(s) ? (isRtl ? "نشيط" : "Active") : (isRtl ? "غير نشيط" : "Inactive")}
+                                {isActive(s) ? (isRtl ? "نشط" : "Active") : (isRtl ? "غير نشط" : "Inactive")}
                               </Badge>
                             </TableCell>
                             <TableCell className="text-center">
@@ -410,7 +410,7 @@ const StudentSubscriptions = () => {
                             </TableCell>
                             <TableCell className="text-center">
                               <Badge variant="secondary" className={`text-xs ${isActive(s) ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"}`}>
-                                {isActive(s) ? (isRtl ? "نشيط" : "Active") : (isRtl ? "غير نشيط" : "Inactive")}
+                                {isActive(s) ? (isRtl ? "نشط" : "Active") : (isRtl ? "غير نشط" : "Inactive")}
                               </Badge>
                             </TableCell>
                             <TableCell className="text-center">

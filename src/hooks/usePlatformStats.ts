@@ -94,9 +94,15 @@ export const usePlatformStats = (scope: PlatformScope = "all") => {
   const query = useQuery<PlatformStats>({
     queryKey: [QUERY_KEY, scope],
     queryFn: async (): Promise<PlatformStats> => {
-      const { data, error } = await supabase.rpc("get_platform_statistics", {
-        p_scope: scope,
-      });
+      // University scope uses its dedicated aggregate so the public page
+      // shares the exact same counting rules as institution dashboards
+      // (pending members included, deduplicated, approved-only).
+      const { data, error } =
+        scope === "university"
+          ? await supabase.rpc("get_university_platform_statistics")
+          : await supabase.rpc("get_platform_statistics", {
+              p_scope: scope,
+            });
 
       if (error) throw error;
 

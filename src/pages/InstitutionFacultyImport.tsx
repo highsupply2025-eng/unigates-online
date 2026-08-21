@@ -600,7 +600,7 @@ const InstitutionFacultyImport = () => {
 
         // For students: resolve target departments by name or code(s) — may be multiple, comma-separated
         let targetDeptIds: string[] = [];
-        let unmatchedDeptNames: string[] = [];
+        const unmatchedDeptNames: string[] = [];
         if (isStudent) {
           const deptRaw = norm(r["الأقسام"] || r["القسم"] || r["department"] || r["departments"] || r["كود القسم"] || r["أكواد الأقسام"] || r["department_code"] || r["dept_code"]);
           const parts = deptRaw.split(/[\s,،]+/).map(c => c.trim()).filter(Boolean);

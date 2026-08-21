@@ -762,7 +762,7 @@ const LeadershipDashboard = () => {
             <tr><th>${isRtl ? "العنوان" : "Title"}</th><th>${isRtl ? "الحالة" : "Status"}</th><th>${isRtl ? "الموعد" : "Scheduled"}</th></tr>
             ${liveStreams.map(s => `<tr><td>${escHtml(isRtl ? s.title_ar : s.title_en)}</td><td><span class="badge ${s.status === 'live' ? 'badge-green' : s.status === 'scheduled' ? 'badge-yellow' : 'badge-red'}">${escHtml(s.status)}</span></td><td>${s.scheduled_at ? new Date(s.scheduled_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US') : '-'}</td></tr>`).join('')}
           </table>`;
-      case "ratings":
+      case "ratings": {
         const avgRating = ratings.length > 0 ? (ratings.reduce((a, r) => a + r.rating, 0) / ratings.length).toFixed(1) : "0";
         return `
           <h2>${isRtl ? "تقرير تقييمات المحاضرين" : "Lecturer Ratings Report"}</h2>
@@ -774,6 +774,7 @@ const LeadershipDashboard = () => {
             <tr><th>${isRtl ? "التقييم" : "Rating"}</th><th>${isRtl ? "التعليق" : "Comment"}</th><th>${isRtl ? "التاريخ" : "Date"}</th></tr>
             ${ratings.slice(0, 50).map(r => `<tr><td>${'⭐'.repeat(r.rating)}</td><td>${escHtml(r.comment || '-')}</td><td>${new Date(r.created_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}</td></tr>`).join('')}
           </table>`;
+      }
       case "assignments":
         return `
           <h2>${isRtl ? "تقرير التكليفات والاختبارات" : "Assignments & Tests Report"}</h2>
@@ -784,7 +785,7 @@ const LeadershipDashboard = () => {
             <tr><th>${isRtl ? "العنوان" : "Title"}</th><th>${isRtl ? "الموعد النهائي" : "Due Date"}</th></tr>
             ${assignments.map(a => `<tr><td>${escHtml(isRtl ? a.title_ar : a.title_en)}</td><td>${a.due_date ? new Date(a.due_date).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US') : '-'}</td></tr>`).join('')}
           </table>`;
-      case "quizresults":
+      case "quizresults": {
         const avgScorePdf = quizSubmissions.length > 0
           ? Math.round(quizSubmissions.reduce((a, s) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / quizSubmissions.length)
           : 0;
@@ -803,6 +804,7 @@ const LeadershipDashboard = () => {
               return `<tr><td>${quiz ? escHtml(isRtl ? quiz.title_ar : quiz.title_en) : '-'}</td><td>${s.score || 0}/${s.total_points || 0}</td><td><span class="badge ${pct >= 50 ? 'badge-green' : 'badge-red'}">${pct}%</span></td><td>${new Date(s.submitted_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}</td></tr>`;
             }).join('')}
           </table>`;
+      }
       case "schedule":
         return `
           <h2>${isRtl ? "جدول المحاضرات" : "Lecture Schedule"}</h2>

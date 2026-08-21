@@ -108,8 +108,8 @@ describe("Security Center — authorization", () => {
 
   it("never trusts a role sent from the client", () => {
     // No code path reads role/authorization data out of editable metadata.
-    expect(page).not.toMatch(/user_metadata\s*[.\[]/);
-    expect(sharedFn).not.toMatch(/user_metadata\s*[.\[]/);
+    expect(page).not.toMatch(/user_metadata\s*[.[]/);
+    expect(sharedFn).not.toMatch(/user_metadata\s*[.[]/);
     expect(sharedFn).toContain('svc.rpc("is_super_admin"');
   });
 

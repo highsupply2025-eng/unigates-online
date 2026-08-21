@@ -162,6 +162,44 @@ const LiveStreamRoom = ({ streamId, streamTitle, isHost, participantName, onClos
   }, [streamId, onClose, toast, language]);
 
 
+  // High-quality streaming configuration
+  // (must run before any early return to keep hook order stable)
+  const roomOptions: RoomOptions = useMemo(() => ({
+    adaptiveStream: true,
+    dynacast: true,
+    publishDefaults: {
+      simulcast: true,
+      videoSimulcastLayers: [VideoPresets.h360, VideoPresets.h720],
+      videoCodec: "vp9",
+      videoEncoding: {
+        maxBitrate: 4_500_000, // 4.5 Mbps for 1080p HQ
+        maxFramerate: 30,
+        priority: "high",
+      },
+      screenShareEncoding: {
+        maxBitrate: 6_000_000,
+        maxFramerate: 30,
+      },
+      audioPreset: {
+        maxBitrate: 64_000,
+      },
+      red: true,
+      dtx: true,
+    },
+    videoCaptureDefaults: {
+      resolution: VideoPresets.h1080.resolution,
+      facingMode: "user",
+    },
+    screenShareCaptureDefaults: {
+      resolution: ScreenSharePresets.h1080fps30.resolution,
+    },
+    audioCaptureDefaults: {
+      autoGainControl: true,
+      echoCancellation: true,
+      noiseSuppression: true,
+    },
+  }), []);
+
   if (loading) {
     return (
       <div className="fixed inset-0 z-50 bg-background flex items-center justify-center">
@@ -200,44 +238,6 @@ const LiveStreamRoom = ({ streamId, streamTitle, isHost, participantName, onClos
   }
 
   if (!token || !serverUrl) return null;
-
-  // High-quality streaming configuration
-  const roomOptions: RoomOptions = useMemo(() => ({
-    adaptiveStream: true,
-    dynacast: true,
-    publishDefaults: {
-      simulcast: true,
-      videoSimulcastLayers: [VideoPresets.h360, VideoPresets.h720],
-      videoCodec: "vp9",
-      videoEncoding: {
-        maxBitrate: 4_500_000, // 4.5 Mbps for 1080p HQ
-        maxFramerate: 30,
-        priority: "high",
-      },
-      screenShareEncoding: {
-        maxBitrate: 6_000_000,
-        maxFramerate: 30,
-        priority: "high",
-      },
-      audioPreset: {
-        maxBitrate: 64_000,
-      },
-      red: true,
-      dtx: true,
-    },
-    videoCaptureDefaults: {
-      resolution: VideoPresets.h1080.resolution,
-      facingMode: "user",
-    },
-    screenShareCaptureDefaults: {
-      resolution: ScreenSharePresets.h1080fps30.resolution,
-    },
-    audioCaptureDefaults: {
-      autoGainControl: true,
-      echoCancellation: true,
-      noiseSuppression: true,
-    },
-  }), []);
 
   return (
     <div className="fixed inset-0 z-50 bg-background">

@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
-const TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+const TIMEOUT_MS = 60 * 60 * 1000; // 60 minutes
 const EVENTS = ["mousemove", "mousedown", "keydown", "touchstart", "scroll"] as const;
 // Media playback (recorded lectures, live classes) counts as activity even when
 // the user never touches the device. These fire on <video>/<audio> elements and
@@ -10,7 +10,7 @@ const EVENTS = ["mousemove", "mousedown", "keydown", "touchstart", "scroll"] as 
 const MEDIA_EVENTS = ["play", "playing", "timeupdate"] as const;
 
 /**
- * Automatically logs out the user after 30 minutes of inactivity.
+ * Automatically logs out the user after 60 minutes of inactivity.
  * Resets the timer on any mouse, keyboard, touch, or scroll interaction.
  * Only active when a Supabase session exists.
  */

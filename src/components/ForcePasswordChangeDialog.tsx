@@ -184,7 +184,12 @@ export default function ForcePasswordChangeDialog() {
       .eq("user_id", user.id)
       .maybeSingle();
 
-    if (error) { setOpen(false); return; }
+    if (error) {
+      // transient read error — retry shortly instead of unblocking the user
+      if (seq !== checkSeqRef.current || savingRef.current) return;
+      setTimeout(check, 1500);
+      return;
+    }
     if (seq !== checkSeqRef.current || savingRef.current) return;
 
     const profile = prof as ForcePasswordProfile | null;
@@ -197,13 +202,33 @@ export default function ForcePasswordChangeDialog() {
   };
 
   useEffect(() => {
-    const timer = setTimeout(check, 600);
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
-        setTimeout(check, 0);
-      }
+    // initial checks (covers race where auth storage is still hydrating)
+    const t1 = setTimeout(check, 400);
+    const t2 = setTimeout(check, 1500);
+
+    // any auth state change must re-evaluate — including INITIAL_SESSION on reload
+    const { data: sub } = supabase.auth.onAuthStateChange(() => {
+      setTimeout(check, 0);
     });
-    return () => { clearTimeout(timer); sub.subscription.unsubscribe(); };
+
+    // persistent guard: re-check periodically while mounted so the dialog
+    // cannot be bypassed by a one-off race / dismissed state
+    const interval = window.setInterval(check, 3000);
+
+    const onFocusOrVisible = () => {
+      if (document.visibilityState === "visible") check();
+    };
+    window.addEventListener("focus", onFocusOrVisible);
+    document.addEventListener("visibilitychange", onFocusOrVisible);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearInterval(interval);
+      window.removeEventListener("focus", onFocusOrVisible);
+      document.removeEventListener("visibilitychange", onFocusOrVisible);
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   const submit = async () => {

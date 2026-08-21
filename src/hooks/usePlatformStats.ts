@@ -99,7 +99,7 @@ export const usePlatformStats = (scope: PlatformScope = "all") => {
       // (pending members included, deduplicated, approved-only).
       const { data, error } =
         scope === "university"
-          ? await supabase.rpc("get_university_platform_statistics")
+          ? await supabase.rpc("get_university_platform_statistics" as any)
           : await supabase.rpc("get_platform_statistics", {
               p_scope: scope,
             });

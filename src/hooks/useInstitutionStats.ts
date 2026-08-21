@@ -76,7 +76,7 @@ export function useInstitutionStats(
           .eq("institution_type", institutionType),
 
         // B. Server-side people totals share the public stats rules.
-        supabase.rpc("get_institution_people_statistics", {
+        supabase.rpc("get_institution_people_statistics" as any, {
           p_institution_id: institutionId,
           p_institution_type: institutionType,
         }),

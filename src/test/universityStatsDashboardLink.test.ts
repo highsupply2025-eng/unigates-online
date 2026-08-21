@@ -45,7 +45,7 @@ describe("university platform statistics follow institution dashboard data", () 
   });
 
   it("fetches the dedicated university aggregate whenever the page mounts", () => {
-    expect(platformHook).toContain('supabase.rpc("get_university_platform_statistics")');
+    expect(platformHook).toContain('supabase.rpc("get_university_platform_statistics"');
     expect(platformHook).toContain('refetchOnMount: scope === "university" ? "always" : true');
     expect(platformHook).toContain('refetchInterval: scope === "university" ? 15_000 : 60_000');
   });

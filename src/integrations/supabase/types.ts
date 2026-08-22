@@ -1083,6 +1083,36 @@ export type Database = {
           },
         ]
       }
+      institution_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          institution_id: string
+          institution_type: string
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          institution_id: string
+          institution_type: string
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          institution_id?: string
+          institution_type?: string
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
       institution_quiz_questions: {
         Row: {
           correct_answer: string
@@ -3191,6 +3221,14 @@ export type Database = {
       }
       is_email_confirmed: { Args: { _user_id: string }; Returns: boolean }
       is_institution_admin: {
+        Args: {
+          _institution_id: string
+          _institution_type: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_institution_member: {
         Args: {
           _institution_id: string
           _institution_type: string

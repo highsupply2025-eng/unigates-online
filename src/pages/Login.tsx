@@ -96,8 +96,8 @@ const Login = () => {
       const personalRole = roles?.find((r) => ["personal", "student", "parent"].includes(r.role));
       const schoolTeacherRole = roles?.find((r) => r.role === "teacher");
       const schoolStudentRole = roles?.find((r) => r.role === "school_student");
-      const secretaryRole = roles?.find((r) => r.role === "college_secretary");
-      const libraryRole = roles?.find((r) => r.role === "library_manager");
+      const secretaryRole = roles?.find((r) => String(r.role) === "college_secretary");
+      const libraryRole = roles?.find((r) => String(r.role) === "library_manager");
 
       // Check if a lecturer has a faculty-specific role (professor, doctor, teaching_assistant, lecturer)
       // that should route to the leadership dashboard instead of the lecturer dashboard.

@@ -3051,6 +3051,10 @@ export type Database = {
         }[]
       }
       get_college_account_status: { Args: never; Returns: string }
+      get_institution_people_statistics: {
+        Args: { p_institution_id: string; p_institution_type: string }
+        Returns: Json
+      }
       get_institution_plan_limits: {
         Args: { _institution_id: string; _institution_type: string }
         Returns: {
@@ -3158,6 +3162,7 @@ export type Database = {
       }
       get_student_access_status: { Args: never; Returns: Json }
       get_test_registration_emails: { Args: never; Returns: string[] }
+      get_university_platform_statistics: { Args: never; Returns: Json }
       get_user_email: { Args: { _user_id: string }; Returns: string }
       get_user_sub_role: { Args: { _user_id: string }; Returns: string }
       has_approved_role: {

@@ -48,7 +48,7 @@ async function hashIp(ip: string): Promise<string> {
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_ATTEMPTS = 5;
 
-async function checkRateLimit(admin: ReturnType<typeof createClient>, ipHash: string, userId?: string): Promise<void> {
+async function checkRateLimit(admin: any, ipHash: string, userId?: string): Promise<void> {
   const cutoff = new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString();
 
   let total = 0;
@@ -94,7 +94,7 @@ class ServerError extends Error {
   status = 503;
 }
 
-async function recordAttempt(admin: ReturnType<typeof createClient>, ipHash: string, userId?: string): Promise<void> {
+async function recordAttempt(admin: any, ipHash: string, userId?: string): Promise<void> {
   const { error } = await admin.from("invitation_rate_limits").insert({
     ip_hash: ipHash,
     user_id: userId || null,
@@ -149,7 +149,7 @@ function validatePassword(pw: string): { ok: boolean; reason?: string } {
   return { ok: true };
 }
 
-async function rollbackNewUser(admin: ReturnType<typeof createClient>, uid: string) {
+async function rollbackNewUser(admin: any, uid: string) {
   const tables = [
     "department_members",
     "institution_student_subscriptions",

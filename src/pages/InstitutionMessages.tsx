@@ -9,6 +9,9 @@ import { Loader2, Send, MessageSquare, Users, ShieldCheck, ArrowLeft, ArrowRight
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 
+// The messaging migration is newer than the generated database type snapshot.
+const messagingDb = supabase as any;
+
 interface Contact {
   user_id: string;
   full_name: string;
@@ -153,7 +156,7 @@ export default function InstitutionMessages() {
     if (!selected || !currentUserId || !institutionId) return;
     let cancelled = false;
     const fetchMsgs = async () => {
-      const { data } = await supabase
+      const { data } = await messagingDb
         .from("institution_messages")
         .select("id, sender_id, receiver_id, content, created_at")
         .eq("institution_id", institutionId)
@@ -182,7 +185,7 @@ export default function InstitutionMessages() {
     if (!input.trim() || !selected || !currentUserId || !institutionId) return;
     setSending(true);
     try {
-      const { error } = await supabase.from("institution_messages").insert({
+      const { error } = await messagingDb.from("institution_messages").insert({
         institution_id: institutionId,
         institution_type: institutionType,
         sender_id: currentUserId,

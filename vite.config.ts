@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => ({
       process.env.LOVABLE_BUILD_ID || `${Date.now()}-${mode}`,
     ),
   },
-  plugins: [react(), mode === "development" && componentTagger(), mcpPlugin()].filter(Boolean),
+  plugins: [react(), mode === "development" && componentTagger(), mode === "development" && mcpPlugin()].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

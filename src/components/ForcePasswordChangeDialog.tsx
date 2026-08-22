@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Loader2, Eye, EyeOff, ShieldCheck, CheckCircle2, Circle, ArrowLeft, ArrowRight, Sparkles, LogOut } from "lucide-react";
+import { Loader2, Eye, EyeOff, ShieldCheck, CheckCircle2, Circle, ArrowLeft, ArrowRight, Sparkles, LogOut, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PASSWORD_RULES, getMissingPasswordRules } from "@/lib/password";
 
@@ -128,10 +128,12 @@ function StepIndicator({ step, isRtl }: { step: 1 | 2; isRtl: boolean }) {
 }
 
 /**
- * Global dialog: forces users flagged with profiles.must_change_password=true
- * to set a new password before continuing. Non-dismissible — the close (X)
- * button is hidden and dismissal paths are blocked until the password is
- * actually changed (or the user signs out).
+ * Global dialog: prompts users flagged with profiles.must_change_password=true
+ * to set a new password. Dismissible via (X) — user may close if they wish
+ * to continue without changing immediately. Dismiss is kept for current tab
+ * session (sessionStorage) and clears automatically on browser/tab close.
+ * Reappears on next login if flag still true — so closing browser hides popup
+ * but user still cannot complete registration until password is changed.
  */
 export default function ForcePasswordChangeDialog() {
   const { language, dir } = useLanguage();
@@ -150,12 +152,21 @@ export default function ForcePasswordChangeDialog() {
   const [showNext, setShowNext] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmTouched, setConfirmTouched] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+  const dismissedRef = useRef(false);
 
   const nextMeetsMin = next.length >= 8;
   const passwordsMatch = next === confirm && confirm.length > 0;
   const missingRules = useMemo(() => (next.length > 0 ? getMissingPasswordRules(next) : []), [next]);
   const allRulesPass = next.length > 0 && missingRules.length === 0;
   const canSubmit = saving || !current || !next || !confirm || !allRulesPass || !passwordsMatch;
+
+  const handleClose = () => {
+    dismissedRef.current = true;
+    setDismissed(true);
+    try { sessionStorage.setItem("forcePwdDismissed", "1"); } catch {}
+    setOpen(false);
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -185,7 +196,6 @@ export default function ForcePasswordChangeDialog() {
       .maybeSingle();
 
     if (error) {
-      // transient read error — retry shortly instead of unblocking the user
       if (seq !== checkSeqRef.current || savingRef.current) return;
       setTimeout(check, 1500);
       return;
@@ -195,24 +205,31 @@ export default function ForcePasswordChangeDialog() {
     const profile = prof as ForcePasswordProfile | null;
     if (profile?.must_change_password === true) {
       setEmail(profile.email || user.email || "");
-      setOpen(true);
+      if (!dismissedRef.current) {
+        setOpen(true);
+      }
     } else {
+      dismissedRef.current = false;
+      setDismissed(false);
+      try { sessionStorage.removeItem("forcePwdDismissed"); } catch {}
       setOpen(false);
     }
   };
 
   useEffect(() => {
-    // initial checks (covers race where auth storage is still hydrating)
+    try {
+      if (sessionStorage.getItem("forcePwdDismissed") === "1") {
+        dismissedRef.current = true;
+        setDismissed(true);
+      }
+    } catch {}
     const t1 = setTimeout(check, 400);
     const t2 = setTimeout(check, 1500);
 
-    // any auth state change must re-evaluate — including INITIAL_SESSION on reload
     const { data: sub } = supabase.auth.onAuthStateChange(() => {
       setTimeout(check, 0);
     });
 
-    // persistent guard: re-check periodically while mounted so the dialog
-    // cannot be bypassed by a one-off race / dismissed state
     const interval = window.setInterval(check, 3000);
 
     const onFocusOrVisible = () => {
@@ -273,6 +290,9 @@ export default function ForcePasswordChangeDialog() {
         throw new Error(isRtl ? "ما زال الحساب يتطلب تغيير كلمة السر" : "Password-change flag is still enabled");
       }
 
+      try { sessionStorage.removeItem("forcePwdDismissed"); } catch {}
+      dismissedRef.current = false;
+      setDismissed(false);
       setOpen(false);
       setCurrent(""); setNext(""); setConfirm("");
       setShowCurrent(false); setShowNext(false); setShowConfirm(false);
@@ -298,32 +318,42 @@ export default function ForcePasswordChangeDialog() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={() => { /* non-dismissible */ }}>
+    <Dialog open={open} onOpenChange={(nextOpen) => { if (!nextOpen) handleClose(); }}>
       <DialogContent
         dir={dir}
-        className="max-w-md rounded-2xl !shadow-2xl border-0 p-0 overflow-hidden [&>button]:!hidden"
+        className="max-w-md w-[calc(100vw-1.25rem)] sm:w-full rounded-2xl !shadow-2xl border-0 p-0 gap-0 overflow-hidden [&>button]:hidden flex flex-col max-h-[calc(100dvh-1rem)] sm:max-h-[min(90vh,720px)]"
         onInteractOutside={(e) => e.preventDefault()}
-        onEscapeKeyDown={(e) => e.preventDefault()}
+        onEscapeKeyDown={() => handleClose()}
       >
-        {/* Header */}
-        <div className="relative bg-gradient-to-br from-primary/10 via-primary/5 to-transparent px-6 pt-8 pb-5 text-center">
-          <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/25 mb-4">
-            <ShieldCheck className="w-7 h-7 text-primary-foreground" />
+        {/* Header - fixed, does not scroll - professional compact design */}
+        <div className="relative shrink-0 bg-gradient-to-br from-primary/[0.08] via-primary/[0.04] to-transparent px-5 sm:px-6 pt-5 sm:pt-6 pb-4 sm:pb-5 text-center border-b border-border/10">
+          <button
+            type="button"
+            onClick={handleClose}
+            aria-label={isRtl ? "إغلاق" : "Close"}
+            className={`absolute top-3 w-8 h-8 rounded-full bg-background/90 backdrop-blur-sm border border-border/50 shadow-sm flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-ring ${isRtl ? "left-3" : "right-3"}`}
+          >
+            <X className="h-4 w-4" />
+          </button>
+          <div className="mx-auto w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-primary to-teal-600 flex items-center justify-center shadow-lg shadow-primary/20 mb-3 sm:mb-3.5 ring-1 ring-primary/10">
+            <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </div>
-          <h2 className="text-lg font-bold text-foreground mb-1">
+          <h2 className="text-[16px] sm:text-[18px] font-extrabold tracking-tight text-foreground mb-1.5">
             {isRtl ? "يجب تغيير كلمة السر" : "You must change your password"}
           </h2>
-          <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto">
+          <p className="text-xs sm:text-[13px] text-muted-foreground leading-relaxed max-w-[300px] mx-auto">
             {isRtl
-              ? "تم إنشاء حسابك بكلمة مرور مؤقتة. هذا الإجراء إلزامي ولا يمكن المتابعة إلى الموقع قبل اختيار كلمة سر جديدة."
-              : "Your account was created with a temporary password. This step is mandatory — you cannot continue until you set a new one."}
+              ? "تم إنشاء حسابك بكلمة مرور مؤقتة. يمكنك المتابعة لاحقًا أو اختيار كلمة سر جديدة الآن."
+              : "Your account was created with a temporary password. You may continue later or set a new password now."}
           </p>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-destructive/10 px-3 py-1 mt-3 text-[11px] font-semibold text-destructive">
-            {isRtl ? "إلزامي — لا يمكن إغلاق هذه النافذة" : "Mandatory — this dialog cannot be dismissed"}
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 mt-3 text-[11px] font-semibold text-amber-700 dark:text-amber-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+            {isRtl ? "يمكنك الإغلاق عبر (×) والمتابعة لاحقًا" : "You can close via (×) and continue later"}
           </div>
         </div>
 
-        <div className="px-6 pb-6">
+        {/* Scrollable body - fits any screen height / 80% zoom */}
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-5 sm:px-6 py-4 sm:py-5 overscroll-contain [scrollbar-width:thin] [scrollbar-color:hsl(var(--border))_transparent]">
           {/* Step indicator */}
           <StepIndicator step={step} isRtl={isRtl} />
 

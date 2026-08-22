@@ -65,6 +65,10 @@ const StudentInvitationRegistration = lazy(() => import("./pages/StudentInvitati
 const InstitutionFacultyImport = lazy(() => import("./pages/InstitutionFacultyImport"));
 const InstitutionFacultyEdit = lazy(() => import("./pages/InstitutionFacultyEdit"));
 const DepartmentPage = lazy(() => import("./pages/DepartmentPage"));
+const TeacherDashboard = lazy(() => import("./pages/TeacherDashboard"));
+const SecretaryDashboard = lazy(() => import("./pages/SecretaryDashboard"));
+const LibraryDashboard = lazy(() => import("./pages/LibraryDashboard"));
+const InstitutionMessages = lazy(() => import("./pages/InstitutionMessages"));
 const LecturerProfile = lazy(() => import("./pages/LecturerProfile"));
 const LeadershipDashboard = lazy(() => import("./pages/LeadershipDashboard"));
 const LeadershipStreamsByStatus = lazy(() => import("./pages/LeadershipStreamsByStatus"));
@@ -211,6 +215,10 @@ const App = () => (
               <Route path="/institution/faculty/:memberId/edit" element={<InstitutionFacultyEdit />} />
               <Route path="/institution/department/:deptId" element={<DepartmentPage />} />
               <Route path="/institution/member/:memberId" element={<LecturerProfile />} />
+              <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+              <Route path="/secretary/dashboard" element={<SecretaryDashboard />} />
+              <Route path="/library/dashboard" element={<LibraryDashboard />} />
+              <Route path="/institution/messages" element={<InstitutionMessages />} />
               <Route path="/leadership/dashboard" element={<LeadershipDashboard />} />
               <Route path="/leadership/streams/:status" element={<LeadershipStreamsByStatus />} />
               <Route path="/leadership/approvals/:type/:status" element={<LeadershipApprovals />} />

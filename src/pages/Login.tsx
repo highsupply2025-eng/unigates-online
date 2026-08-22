@@ -96,6 +96,8 @@ const Login = () => {
       const personalRole = roles?.find((r) => ["personal", "student", "parent"].includes(r.role));
       const schoolTeacherRole = roles?.find((r) => r.role === "teacher");
       const schoolStudentRole = roles?.find((r) => r.role === "school_student");
+      const secretaryRole = roles?.find((r) => r.role === "college_secretary");
+      const libraryRole = roles?.find((r) => r.role === "library_manager");
 
       // Check if a lecturer has a faculty-specific role (professor, doctor, teaching_assistant, lecturer)
       // that should route to the leadership dashboard instead of the lecturer dashboard.
@@ -131,10 +133,20 @@ const Login = () => {
         return;
       }
 
+      if (secretaryRole) {
+        goNext("/secretary/dashboard");
+        return;
+      }
+      if (libraryRole) {
+        goNext("/library/dashboard");
+        return;
+      }
+
       if (lecturerRole || profileRole === "lecturer") {
         if (lecturerRole?.approved) {
-          // Faculty members with specific roles (professor, doctor, etc.) go to leadership dashboard
-          if (isFacultyWithLeadershipAccess) {
+          if (facultySpecificRole === "teacher") {
+            goNext("/teacher/dashboard");
+          } else if (isFacultyWithLeadershipAccess) {
             goNext("/leadership/dashboard");
           } else {
             goNext("/lecturer/dashboard");

@@ -7,6 +7,7 @@ import {
   Calendar,
   CheckCircle,
   User,
+  MessageSquare,
 } from "lucide-react";
 import type { DashboardMenuItem } from "@/components/DashboardMenuDropdown";
 
@@ -61,6 +62,14 @@ export function getInstitutionMenuItems({
       Icon: UserPlus,
       onClick: () => onTabChange("students"),
       active: activeKey === "students",
+    },
+    {
+      key: "messages",
+      label: isRtl ? "التواصل" : "Messages",
+      Icon: MessageSquare,
+      path: "/institution/messages",
+      onClick: () => onNavigate("/institution/messages"),
+      active: activeKey === "messages",
     },
     {
       key: "subscriptions",

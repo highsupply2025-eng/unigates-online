@@ -25,7 +25,8 @@ function fail(step: string, message: string, status = 500, extra: Record<string,
 
 const ALLOWED_ROLES = new Set([
   "dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community",
-  "department_head", "teaching_assistant", "professor", "doctor", "lecturer", "assistant_lecturer",
+  "department_head", "teacher", "teaching_assistant", "professor", "doctor", "lecturer", "assistant_lecturer",
+  "college_secretary", "library_manager",
 ]);
 
 function mapGeneralRole(specific: string): { profileRole: string; appRole: string } {
@@ -40,6 +41,12 @@ function mapGeneralRole(specific: string): { profileRole: string; appRole: strin
       return { profileRole: "teaching_assistant", appRole: "teaching_assistant" };
     case "department_head":
       return { profileRole: "department_head", appRole: "department_head" };
+    case "teacher":
+      return { profileRole: "lecturer", appRole: "lecturer" };
+    case "college_secretary":
+      return { profileRole: "college_secretary", appRole: "college_secretary" };
+    case "library_manager":
+      return { profileRole: "library_manager", appRole: "library_manager" };
     case "professor":
     case "doctor":
     case "lecturer":

@@ -74,10 +74,12 @@ export function isStrongPassword(p: string): boolean {
 
 const _ROLE_OPTIONS_BASE: { value: string; ar: string; en: string }[] = [
   { value: "department_head", ar: "رئيس القسم", en: "Department Head" },
+  { value: "teacher", ar: "مدرس", en: "Teacher" },
   { value: "teaching_assistant", ar: "مدرس مساعد", en: "Teaching Assistant" },
   { value: "professor", ar: "أستاذ دكتور", en: "Professor" },
   { value: "doctor", ar: "دكتور", en: "Doctor" },
   { value: "assistant_lecturer", ar: "معيد", en: "Assistant Lecturer" },
+  { value: "library_manager", ar: "مدير المكتبة", en: "Library Manager" },
 ];
 
 export const buildRoleOptions = (isCollege: boolean) => [
@@ -85,6 +87,7 @@ export const buildRoleOptions = (isCollege: boolean) => [
   { value: "vice_dean_postgrad", ar: isCollege ? "وكيل الكلية للدراسات العليا" : "وكيل المعهد للدراسات العليا", en: isCollege ? "Vice Dean - Postgraduate Studies" : "Vice Director - Postgraduate Studies" },
   { value: "vice_dean_students", ar: isCollege ? "وكيل الكلية لشئون الطلاب" : "وكيل المعهد لشئون الطلاب", en: isCollege ? "Vice Dean - Student Affairs" : "Vice Director - Student Affairs" },
   { value: "vice_dean_community", ar: isCollege ? "وكيل الكلية لشئون البيئة وخدمة المجتمع" : "وكيل المعهد لشئون البيئة وخدمة المجتمع", en: isCollege ? "Vice Dean - Environment & Community Service" : "Vice Director - Environment & Community Service" },
+  { value: "college_secretary", ar: isCollege ? "أمين الكلية" : "أمين المعهد", en: isCollege ? "College Secretary" : "Institute Secretary" },
   ..._ROLE_OPTIONS_BASE,
 ];
 

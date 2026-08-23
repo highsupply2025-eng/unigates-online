@@ -80,3 +80,10 @@ $$;
 
 REVOKE ALL ON FUNCTION public.is_department_member(uuid, uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.is_department_member(uuid, uuid) TO authenticated, service_role;
+
+-- Allow authenticated users to self-heal their department membership mirror.
+-- Previously assign_faculty_department was service_role-only, so the
+-- LeadershipDashboard fallback that calls it from the browser was denied.
+-- The function is SECURITY DEFINER and validates the department belongs to
+-- the caller's institution, so it is safe to expose to authenticated.
+GRANT EXECUTE ON FUNCTION public.assign_faculty_department(uuid,uuid,text,text,text,text) TO authenticated, service_role;

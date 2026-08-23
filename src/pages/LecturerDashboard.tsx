@@ -320,6 +320,48 @@ const LecturerDashboard = () => {
     }
   };
 
+  // Refresh departments immediately when the create dialogs are opened and keep them in sync
+  // via window focus / visibility and Supabase Realtime. This eliminates the delay where a
+  // faculty member is assigned to a department by the institution admin but the lecturer
+  // still sees "Not a member of any department" when creating a lecture or live stream.
+  useEffect(() => {
+    if (!user?.id) return;
+    const ch = supabase
+      .channel(`lecturer-depts-${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "institution_faculty_members", filter: `user_id=eq.${user.id}` }, () => { loadMyDepartments(user.id); })
+      .on("postgres_changes", { event: "*", schema: "public", table: "department_members", filter: `user_id=eq.${user.id}` }, () => { loadMyDepartments(user.id); })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const refetch = () => loadMyDepartments(user.id);
+    const onFocus = () => refetch();
+    const onVisibility = () => { if (document.visibilityState === "visible") refetch(); };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if ((showNewCourse || showStreamDialog) && user?.id) {
+      loadMyDepartments(user.id);
+    }
+  }, [showNewCourse, showStreamDialog, user?.id]);
+
+  const handleOpenNewCourse = async () => {
+    if (user?.id) await loadMyDepartments(user.id);
+    setShowNewCourse(true);
+  };
+  const handleOpenNewStream = async () => {
+    if (user?.id) await loadMyDepartments(user.id);
+    setShowStreamDialog(true);
+  };
+
   const loadLecturerRatings = async (userId: string) => {
     const { data } = await supabase.from("lecturer_ratings").select("*").eq("lecturer_id", userId).order("created_at", { ascending: false });
     setLecturerRatings(data || []);
@@ -1102,7 +1144,7 @@ const LecturerDashboard = () => {
               <TabsContent value="courses" dir={isRtl ? "rtl" : "ltr"}>
                 {/* 3 Action Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
-                  <button onClick={() => setShowNewCourse(true)} className={isRtl ? "text-right" : "text-left"}>
+                  <button onClick={handleOpenNewCourse} className={isRtl ? "text-right" : "text-left"}>
                     <Card className="relative overflow-hidden bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600 border-2 border-cyan-400/60 shadow-xl shadow-cyan-500/30 hover:shadow-2xl hover:shadow-cyan-500/50 hover:-translate-y-1 transition-all h-full">
                       <CardContent className="p-4 sm:p-5 text-center relative">
                         <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
@@ -1208,7 +1250,7 @@ const LecturerDashboard = () => {
               <TabsContent value="live" dir={isRtl ? "rtl" : "ltr"}>
                 <div className="flex items-center justify-start gap-2 mb-6 flex-wrap" dir={isRtl ? "rtl" : "ltr"}>
                   <Button
-                    onClick={() => setShowStreamDialog(true)}
+                    onClick={handleOpenNewStream}
                     className="gap-2 font-bold bg-gradient-to-l from-primary to-primary/80 hover:scale-[1.02] shadow-md hover:shadow-lg transition-all border-2 border-primary/20"
                   >
                     <Plus className="w-4 h-4" strokeWidth={3} />{isRtl ? "بث جديد" : "New Stream"}

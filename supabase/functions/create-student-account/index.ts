@@ -21,8 +21,6 @@ function getCorsHeaders(req: Request): Record<string, string> {
   };
 }
 
-const corsHeaders = getCorsHeaders(new Request("http://localhost"));
-
 function genPassword() {
   const alpha = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
   const digits = "23456789";
@@ -114,9 +112,12 @@ function validateEmail(v: string): boolean {
 }
 
 function json(b: unknown, s = 200, extraHeaders: Record<string, string> = {}) {
+  // If caller already passed CORS headers, use them; otherwise default to permissive
+  const hasCors = Object.keys(extraHeaders).some((k) => k.toLowerCase().startsWith("access-control"));
+  const baseCors = hasCors ? {} : { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type", "Access-Control-Allow-Methods": "POST, OPTIONS" };
   return new Response(JSON.stringify(b), {
     status: s,
-    headers: { ...corsHeaders, "Content-Type": "application/json", ...extraHeaders },
+    headers: { ...baseCors, "Content-Type": "application/json", ...extraHeaders },
   });
 }
 

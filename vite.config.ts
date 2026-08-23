@@ -78,6 +78,8 @@ export default defineConfig(({ mode }) => ({
   },
   esbuild: {
     legalComments: "none",
-    drop: mode === "production" ? ["console", "debugger"] : [],
+    // Keep console.error/warn in production for error reporting; only drop console.log and debugger
+    drop: mode === "production" ? ["debugger"] : [],
+    pure: mode === "production" ? ["console.log", "console.info", "console.debug"] : [],
   },
 }));

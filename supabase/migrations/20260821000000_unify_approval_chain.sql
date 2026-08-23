@@ -116,9 +116,14 @@ USING (
   )
   OR EXISTS (SELECT 1 FROM public.quizzes q WHERE q.id = quiz_questions.quiz_id AND q.creator_id = auth.uid())
   OR public.has_role(auth.uid(), 'admin'::app_role)
-  OR public.has_approved_role(auth.uid(), 'department_head'::app_role)
-  OR public.has_approved_role(auth.uid(), 'vice_dean'::app_role)
-  OR public.has_approved_role(auth.uid(), 'dean'::app_role)
+  OR (
+    (
+      public.has_approved_role(auth.uid(), 'department_head'::app_role)
+      OR public.has_approved_role(auth.uid(), 'vice_dean'::app_role)
+      OR public.has_approved_role(auth.uid(), 'dean'::app_role)
+    )
+    AND EXISTS (SELECT 1 FROM public.quizzes q WHERE q.id = quiz_questions.quiz_id AND public.user_in_my_leadership_institution(q.creator_id))
+  )
 );
 
 -- ── 3c) quiz_submissions INSERT: parent quiz must be fully approved ──

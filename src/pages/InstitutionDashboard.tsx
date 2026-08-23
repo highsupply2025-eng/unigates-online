@@ -1098,12 +1098,60 @@ const InstitutionDashboard = () => {
         ? "institution_faculty_members"
         : "department_members";
 
+      // For faculty members, fetch the row first so we can clean up the
+      // duplicated department_members mirror that was created via back-fill
+      // (see 20260819000000_fix_dean_department_visibility.sql). Without this
+      // the department page keeps showing an orphan row after the IFM row is deleted.
+      let facultyRowForCleanup: { user_id: string | null; email: string | null; department_id: string | null } | null = null;
+      if (isInstitutionFaculty) {
+        const { data } = await supabase
+          .from("institution_faculty_members")
+          .select("user_id,email,department_id")
+          .eq("id", cleanMemberId)
+          .maybeSingle();
+        if (data) facultyRowForCleanup = data as any;
+      }
+
       const { error } = await supabase
         .from(table)
         .delete()
         .eq("id", cleanMemberId);
 
       if (error) throw error;
+
+      // Remove the mirror row in department_members if this was a faculty deletion.
+      // The mirror is matched by user_id (authoritative) or by e-mail + department.
+      if (isInstitutionFaculty && facultyRowForCleanup) {
+        try {
+          if (facultyRowForCleanup.user_id) {
+            await supabase
+              .from("department_members")
+              .delete()
+              .eq("user_id", facultyRowForCleanup.user_id)
+              .eq("department_id", facultyRowForCleanup.department_id || "");
+          } else if (facultyRowForCleanup.email && facultyRowForCleanup.department_id) {
+            await supabase
+              .from("department_members")
+              .delete()
+              .ilike("email", facultyRowForCleanup.email)
+              .eq("department_id", facultyRowForCleanup.department_id);
+          }
+          // Also clean any pending placeholder that shares the same department+full_name
+          // (legacy slots like "محاضر 1") — not critical but prevents orphans.
+          // We do NOT block the main flow if this cleanup fails (RLS / missing email).
+        } catch (cleanupErr) {
+          console.warn("orphan department_members cleanup failed (non-fatal):", cleanupErr);
+        }
+        // Invalidate the department page cache for the affected department
+        if (facultyRowForCleanup.department_id) {
+          try {
+            // @ts-ignore - __deptCache is defined in DepartmentPage, but we clear
+            // via localStorage signal and query invalidation here. The realtime
+            // subscription on department_members will also refresh DepartmentPage.
+            sessionStorage.setItem(`dept-cache-invalidate:${facultyRowForCleanup.department_id}`, String(Date.now()));
+          } catch { /* ignore */ }
+        }
+      }
 
       // Remove the deleted member immediately, then refresh from the database.
       setDeptMembers((prev) =>

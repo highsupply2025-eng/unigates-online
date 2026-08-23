@@ -36,9 +36,9 @@ AS $$
     SELECT 1 FROM auth.users u
     WHERE u.id = _user_id
       AND (
-        EXISTS (SELECT 1 FROM public.college_registrations cr WHERE lower(cr.email) = lower(u.email))
-        OR EXISTS (SELECT 1 FROM public.institute_registrations ir WHERE lower(ir.email) = lower(u.email))
-        OR EXISTS (SELECT 1 FROM public.school_registrations sr WHERE lower(sr.email) = lower(u.email))
+        EXISTS (SELECT 1 FROM public.college_registrations cr WHERE lower(cr.email) = lower(u.email) AND cr.status = 'approved')
+        OR EXISTS (SELECT 1 FROM public.institute_registrations ir WHERE lower(ir.email) = lower(u.email) AND ir.status = 'approved')
+        OR EXISTS (SELECT 1 FROM public.school_registrations sr WHERE lower(sr.email) = lower(u.email) AND sr.status = 'approved')
       )
   )
 $$;

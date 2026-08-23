@@ -50,6 +50,23 @@ const __deptCache = new Map<string, DeptSnapshot>();
 const STUDENT_ROLE = "student";
 const HEAD_ROLE = "department_head";
 
+// Canonical faculty roles — must stay in sync with InstitutionDashboard FACULTY_ROLES
+const FACULTY_ROLES = new Set<string>([
+  "dean",
+  "vice_dean",
+  "vice_dean_postgrad",
+  "vice_dean_students",
+  "vice_dean_community",
+  "vice_dean_environment",
+  "department_head",
+  "teaching_assistant",
+  "professor",
+  "doctor",
+  "lecturer",
+  "assistant_lecturer",
+]);
+const isFacultyRole = (role: string) => FACULTY_ROLES.has(String(role || ""));
+
 
 const DepartmentPage = () => {
   const { deptId } = useParams<{ deptId: string }>();
@@ -104,7 +121,7 @@ const DepartmentPage = () => {
   }, [deptId, identity]);
 
   useRealtimeRefresh(
-    ["department_members"],
+    ["department_members", "institution_faculty_members"],
     () => {
       if (deptId) {
         __deptCache.delete(deptId);
@@ -156,17 +173,59 @@ const DepartmentPage = () => {
         return true;
       });
 
-      const visibleMembers = allMembers.filter(m => {
+      let visibleMembers = allMembers.filter(m => {
         if (m.user_id) return true;
         const nm = (m.full_name || "").trim();
         return nm !== "عضو جديد" && nm !== "New Member";
       });
 
+      // ── Faculty authority filter ──────────────────────────────────────
+      // institution_faculty_members is the canonical store for faculty.
+      // After a faculty member is deleted from there, its mirror row in
+      // department_members becomes an orphan and must NOT appear on the
+      // department page. We hide any faculty-typed department_members row
+      // that has no matching IFM row (by user_id or by e-mail).
+      const hasFaculty = visibleMembers.some(m => isFacultyRole(m.role));
+      if (hasFaculty && dept) {
+        try {
+          const { data: ifmRows } = await supabase
+            .from("institution_faculty_members")
+            .select("user_id,email")
+            .eq("institution_id", (dept as any).institution_id)
+            .eq("institution_type", (dept as any).institution_type)
+            .eq("department_id", deptId);
+          const validUserIds = new Set(
+            (ifmRows || [])
+              .map((r: any) => String(r.user_id || "").toLowerCase())
+              .filter(Boolean),
+          );
+          const validEmails = new Set(
+            (ifmRows || [])
+              .map((r: any) => String(r.email || "").toLowerCase())
+              .filter(Boolean),
+          );
+          // If the department has at least one IFM faculty, enforce the filter.
+          // If IFM is empty (department without faculty), hide all faculty rows
+          // — they are orphans from a previous deletion.
+          visibleMembers = visibleMembers.filter(m => {
+            if (!isFacultyRole(m.role)) return true;
+            if (m.user_id && validUserIds.has(String(m.user_id).toLowerCase())) return true;
+            const email = (m as any).email ? String((m as any).email).toLowerCase() : "";
+            if (email && validEmails.has(email)) return true;
+            // Also check the e-mail from the linked profile if available later;
+            // for now, if no IFM match, treat as orphan → hide.
+            return false;
+          });
+        } catch (e) {
+          console.warn("faculty authority filter failed (non-fatal):", e);
+        }
+      }
+
       if (requestId !== loadRequestIdRef.current) return;
 
       setMembers(visibleMembers);
 
-      const linkedUserIds = allMembers.filter(m => m.user_id).map(m => m.user_id as string);
+      const linkedUserIds = visibleMembers.filter(m => m.user_id).map(m => m.user_id as string);
       let snapshotMap: Record<string, MemberProfile> = {};
       if (linkedUserIds.length > 0) {
         const [{ data: profilesData }] = await Promise.all([

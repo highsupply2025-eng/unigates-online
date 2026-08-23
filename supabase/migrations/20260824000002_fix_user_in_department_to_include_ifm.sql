@@ -6,6 +6,8 @@
 -- lectures (RLS: Dept scope: courses insert / lecture_schedules insert etc.)
 -- and from the LeadershipDashboard UI (myDepartments empty).
 
+-- NOTE: Lovable Cloud DB does not have dm.subscription_expires_at, so we
+-- avoid referencing it. We keep the check simple: membership + plan active.
 CREATE OR REPLACE FUNCTION public.user_in_department(_user uuid, _dept uuid)
 RETURNS boolean
 LANGUAGE sql
@@ -22,17 +24,9 @@ AS $$
       SELECT 1
       FROM public.department_members dm
       JOIN public.departments d ON d.id = dm.department_id
-      LEFT JOIN public.institution_student_subscriptions ss
-        ON ss.institution_type = d.institution_type
-        AND ss.institution_id = d.institution_id
-        AND ss.user_id = dm.user_id
       WHERE dm.user_id = _user
         AND dm.department_id = _dept
         AND public.institution_plan_is_active(d.institution_type, d.institution_id)
-        AND (
-          COALESCE(ss.expires_at, dm.subscription_expires_at) IS NULL
-          OR COALESCE(ss.expires_at, dm.subscription_expires_at) > clock_timestamp()
-        )
     )
     OR
     -- 2) Canonical faculty row in institution_faculty_members

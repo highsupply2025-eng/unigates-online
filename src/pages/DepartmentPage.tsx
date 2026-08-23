@@ -194,28 +194,53 @@ const DepartmentPage = () => {
             .eq("institution_id", (dept as any).institution_id)
             .eq("institution_type", (dept as any).institution_type)
             .eq("department_id", deptId);
-          const validUserIds = new Set(
-            (ifmRows || [])
-              .map((r: any) => String(r.user_id || "").toLowerCase())
-              .filter(Boolean),
-          );
-          const validEmails = new Set(
-            (ifmRows || [])
-              .map((r: any) => String(r.email || "").toLowerCase())
-              .filter(Boolean),
-          );
-          // If the department has at least one IFM faculty, enforce the filter.
-          // If IFM is empty (department without faculty), hide all faculty rows
-          // — they are orphans from a previous deletion.
-          visibleMembers = visibleMembers.filter(m => {
-            if (!isFacultyRole(m.role)) return true;
-            if (m.user_id && validUserIds.has(String(m.user_id).toLowerCase())) return true;
-            const email = (m as any).email ? String((m as any).email).toLowerCase() : "";
-            if (email && validEmails.has(email)) return true;
-            // Also check the e-mail from the linked profile if available later;
-            // for now, if no IFM match, treat as orphan → hide.
-            return false;
-          });
+          // Only enforce the orphan filter when IFM actually returns data.
+          // If RLS blocks the query or IFM is empty, don't hide legacy DM faculty
+          // (otherwise a valid department_head whose IFM query failed would appear deleted).
+          if (ifmRows && ifmRows.length > 0) {
+            const validUserIds = new Set(
+              ifmRows.map((r: any) => String(r.user_id || "").toLowerCase()).filter(Boolean),
+            );
+            const validEmails = new Set(
+              ifmRows.map((r: any) => String(r.email || "").toLowerCase()).filter(Boolean),
+            );
+            visibleMembers = visibleMembers.filter(m => {
+              if (!isFacultyRole(m.role)) return true;
+              if (m.user_id && validUserIds.has(String(m.user_id).toLowerCase())) return true;
+              const email = (m as any).email ? String((m as any).email).toLowerCase() : "";
+              if (email && validEmails.has(email)) return true;
+              return false;
+            });
+          } else if (ifmRows && ifmRows.length === 0) {
+            // IFM explicitly empty for this department → any faculty DM row is orphan
+            // (the valid member was already removed from IFM in previous bug). Hide them.
+            // But keep at least one fallback: if we have exactly 1 faculty DM with user_id,
+            // assume RLS blocked IFM and keep it to avoid false-empty.
+            const hasAnyFacultyDMWithUser = visibleMembers.some(m => isFacultyRole(m.role) && !!m.user_id);
+            if (!hasAnyFacultyDMWithUser) {
+              visibleMembers = visibleMembers.filter(m => !isFacultyRole(m.role));
+            } else {
+              // Check if we can find IFM via a broader institution query as fallback
+              try {
+                const { data: fallbackIfm } = await supabase
+                  .from("institution_faculty_members")
+                  .select("user_id,email")
+                  .eq("institution_id", (dept as any).institution_id)
+                  .eq("institution_type", (dept as any).institution_type);
+                if (fallbackIfm && fallbackIfm.length > 0) {
+                  const fUserIds = new Set(fallbackIfm.map((r: any) => String(r.user_id || "").toLowerCase()).filter(Boolean));
+                  const fEmails = new Set(fallbackIfm.map((r: any) => String(r.email || "").toLowerCase()).filter(Boolean));
+                  visibleMembers = visibleMembers.filter(m => {
+                    if (!isFacultyRole(m.role)) return true;
+                    if (m.user_id && fUserIds.has(String(m.user_id).toLowerCase())) return true;
+                    const email = (m as any).email ? String((m as any).email).toLowerCase() : "";
+                    if (email && fEmails.has(email)) return true;
+                    return false;
+                  });
+                }
+              } catch { /* keep original if fallback fails */ }
+            }
+          }
         } catch (e) {
           console.warn("faculty authority filter failed (non-fatal):", e);
         }

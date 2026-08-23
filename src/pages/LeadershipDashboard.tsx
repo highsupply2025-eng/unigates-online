@@ -381,35 +381,98 @@ const LeadershipDashboard = () => {
     const deptIdSet = new Set<string>();
 
     // Source 1: department_members (user_id match)
-    const { data: dmRows } = await supabase
-      .from("department_members")
-      .select("department_id")
-      .eq("user_id", userId);
-    (dmRows || []).forEach((r: any) => { if (r.department_id) deptIdSet.add(r.department_id); });
+    try {
+      const { data: dmRows } = await supabase
+        .from("department_members")
+        .select("department_id")
+        .eq("user_id", userId);
+      (dmRows || []).forEach((r: any) => { if (r.department_id) deptIdSet.add(r.department_id); });
+    } catch { /* ignore */ }
 
     // Source 2: institution_faculty_members (user_id match, department_id not null)
-    const { data: ifmRows } = await supabase
-      .from("institution_faculty_members")
-      .select("department_id")
-      .eq("user_id", userId)
-      .not("department_id", "is", null);
-    (ifmRows || []).forEach((r: any) => { if (r.department_id) deptIdSet.add(r.department_id); });
+    try {
+      const { data: ifmRows } = await supabase
+        .from("institution_faculty_members")
+        .select("department_id")
+        .eq("user_id", userId)
+        .not("department_id", "is", null);
+      (ifmRows || []).forEach((r: any) => { if (r.department_id) deptIdSet.add(r.department_id); });
+    } catch { /* ignore */ }
 
-    const deptIds = [...deptIdSet];
+    let deptIds = [...deptIdSet];
     if (deptIds.length > 0) {
-      const { data: deptRows } = await supabase
-        .from("departments")
-        .select("id, department_name")
-        .in("id", deptIds);
-      const deps = (deptRows || []) as Array<{ id: string; department_name: string }>;
-      const seen = new Set<string>();
-      const unique = deps.filter(d => (seen.has(d.id) ? false : (seen.add(d.id), true)));
-      setMyDepartments(unique);
-      if (unique.length === 1) {
-        setNewCourse(p => ({ ...p, department_id: unique[0].id }));
-      }
-      return unique.map(d => d.id);
+      try {
+        const { data: deptRows } = await supabase
+          .from("departments")
+          .select("id, department_name")
+          .in("id", deptIds);
+        const deps = (deptRows || []) as Array<{ id: string; department_name: string }>;
+        const seen = new Set<string>();
+        const unique = deps.filter(d => (seen.has(d.id) ? false : (seen.add(d.id), true)));
+        if (unique.length > 0) {
+          setMyDepartments(unique);
+          if (unique.length === 1) {
+            setNewCourse(p => ({ ...p, department_id: unique[0].id }));
+          }
+          return unique.map(d => d.id);
+        }
+      } catch { /* ignore */ }
     }
+
+    // ── Final fallback: user is faculty but department link is missing/broken
+    // (e.g. DM mirror was deleted, RLS blocked, or IFM department_id is NULL).
+    // Try to resolve institution from IFM and load all active departments there.
+    // This prevents the "لست عضوا في أي قسم" dead-end for legitimate members.
+    try {
+      const { data: ifmInst } = await supabase
+        .from("institution_faculty_members")
+        .select("institution_id, institution_type, department_id")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (ifmInst?.institution_id && ifmInst?.institution_type) {
+        const { data: instDepts } = await supabase
+          .from("departments")
+          .select("id, department_name")
+          .eq("institution_id", ifmInst.institution_id)
+          .eq("institution_type", ifmInst.institution_type)
+          .eq("status", "active");
+        if (instDepts && instDepts.length > 0) {
+          // If user has a specific department_id in IFM, prefer that one
+          const filtered = ifmInst.department_id
+            ? instDepts.filter((d: any) => d.id === ifmInst.department_id)
+            : instDepts;
+          const deps = (filtered.length > 0 ? filtered : instDepts) as Array<{ id: string; department_name: string }>;
+          setMyDepartments(deps);
+          if (deps.length === 1) {
+            setNewCourse(p => ({ ...p, department_id: deps[0].id }));
+          }
+          return deps.map(d => d.id);
+        }
+      }
+    } catch { /* ignore */ }
+
+    // Last resort: try college_members → institution → departments
+    try {
+      const { data: cmRow } = await supabase
+        .from("college_members")
+        .select("college_id")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (cmRow?.college_id) {
+        const { data: instDepts } = await supabase
+          .from("departments")
+          .select("id, department_name")
+          .eq("institution_id", cmRow.college_id)
+          .eq("institution_type", "college")
+          .eq("status", "active");
+        if (instDepts && instDepts.length > 0) {
+          setMyDepartments(instDepts as any);
+          if (instDepts.length === 1) setNewCourse(p => ({ ...p, department_id: instDepts[0].id }));
+          return instDepts.map((d: any) => d.id);
+        }
+      }
+    } catch { /* ignore */ }
+
     return [];
   };
 

@@ -1,4 +1,7 @@
 // Create a faculty member (non-student) auth account instantly.
+// v3: accepts department_ids (array). The first ID becomes the primary
+// department on institution_faculty_members; every valid ID gets a
+// department_members junction row so the member appears in each department.
 // v2: department is OPTIONAL at creation. Faculty are stored at the
 // institution level in `institution_faculty_members`. A department can be
 // assigned later via the edit page.
@@ -234,7 +237,13 @@ Deno.serve(async (req) => {
     let email = String(body.email || "").trim().toLowerCase();
     const phoneRaw = String(body.phone || "").trim();
     const phone = phoneRaw.length > 0 ? phoneRaw : null;
-    const requestedDeptId = typeof body.department_id === "string" ? body.department_id.trim() || null : null;
+    const requestedDeptIds: string[] = Array.from(
+      new Set(
+        ((Array.isArray(body.department_ids) ? body.department_ids : [body.department_id]) as unknown[])
+          .filter((id): id is string => typeof id === "string" && id.trim().length > 0)
+          .map((id) => id.trim()),
+      ),
+    );
 
     const ALLOWED_EXTRA = [
       "date_of_birth", "photo_url", "national_id", "gender",
@@ -431,27 +440,66 @@ if (/\s/.test(temporaryPassword)) {
       return fail("verification", `Post-save verification failed: ${problems.join("; ")}`, 500);
     }
 
-    // ---- Assign department if requested ----
-    if (requestedDeptId) {
-      // Verify the department belongs to this institution
-      const { data: deptCheck } = await admin
+    // ---- Assign departments if requested ----
+    if (requestedDeptIds.length > 0) {
+      // Verify every department belongs to this institution
+      const { data: validDepts, error: deptCheckErr } = await admin
         .from("departments")
-        .select("id")
-        .eq("id", requestedDeptId)
+        .select("id, department_code")
         .eq("institution_id", institutionId!)
         .eq("institution_type", institutionType!)
-        .maybeSingle();
-      if (deptCheck) {
+        .in("id", requestedDeptIds);
+      if (deptCheckErr) {
+        console.error("department lookup failed (non-fatal)", { message: deptCheckErr.message });
+      }
+      const validIds = (validDepts || []).map((d: any) => d.id as string);
+      const skippedCount = requestedDeptIds.length - validIds.length;
+      if (skippedCount > 0) {
+        console.warn("some requested departments are invalid and were skipped", {
+          requested: requestedDeptIds.length,
+          valid: validIds.length,
+        });
+      }
+
+      if (validIds.length > 0) {
+        const primaryDeptId = validIds[0];
         const { error: deptErr } = await admin.rpc("assign_faculty_department" as any, {
           p_user_id: uid,
-          p_new_department_id: requestedDeptId,
+          p_new_department_id: primaryDeptId,
           p_specific_role: role,
           p_full_name: fullName,
           p_email: email,
           p_phone: phone,
         });
         if (deptErr) {
-          console.error("department assignment failed (non-fatal)", { message: deptErr.message });
+          console.error("primary department assignment failed (non-fatal)", { message: deptErr.message });
+        }
+
+        // Additional departments: add a junction row each so the member shows
+        // up inside every selected department. The canonical faculty record
+        // keeps the primary department only.
+        const extraDeptIds = validIds.slice(1);
+        if (extraDeptIds.length > 0 && !deptErr) {
+          const rows = extraDeptIds.map((deptId: string) => {
+            const deptCode = (validDepts || []).find((d: any) => d.id === deptId)?.department_code || "GEN";
+            return {
+              department_id: deptId,
+              user_id: uid,
+              full_name: fullName,
+              role,
+              email,
+              phone,
+              invitation_code:
+                "FAC-" +
+                crypto.randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase() +
+                "-" +
+                deptCode,
+            };
+          });
+          const { error: extraErr } = await admin.from("department_members").insert(rows);
+          if (extraErr) {
+            console.error("additional department assignments failed (non-fatal)", { message: extraErr.message });
+          }
         }
       }
     }

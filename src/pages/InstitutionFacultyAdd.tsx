@@ -168,7 +168,8 @@ const InstitutionFacultyAdd = () => {
                 : null,
               phone: data.phone,
               temporary_password: data.tempPassword,
-              department_id: data.selectedDepartmentId || null,
+              department_ids: data.selectedDepartmentIds || [],
+              department_id: data.selectedDepartmentIds?.[0] || null,
               extra: {
                 date_of_birth: baseRow.date_of_birth,
                 photo_url: baseRow.photo_url,

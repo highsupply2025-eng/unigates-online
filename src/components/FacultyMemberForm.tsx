@@ -124,7 +124,9 @@ export interface FacultyMemberFormData {
   deptCodesInput?: string;
   /** admin-add student only: selected department IDs */
   selectedDeptIds?: string[];
-  /** admin-add faculty only: selected department ID */
+  /** admin-add faculty only: selected department IDs (primary is first) */
+  selectedDepartmentIds?: string[];
+  /** admin-add faculty only: primary selected department ID */
   selectedDepartmentId?: string;
 }
 
@@ -188,8 +190,9 @@ export const FacultyMemberForm = ({
     isStudent ? "student" : invitationRole || ""
   );
   const [selectedDeptIds, setSelectedDeptIds] = useState<string[]>([]);
-  const [selectedFacultyDeptId, setSelectedFacultyDeptId] = useState("");
+  const [selectedFacultyDeptIds, setSelectedFacultyDeptIds] = useState<string[]>([]);
   const [deptPopoverOpen, setDeptPopoverOpen] = useState(false);
+  const [facultyDeptPopoverOpen, setFacultyDeptPopoverOpen] = useState(false);
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");
   const [email, setEmail] = useState(invitationEmail || "");
@@ -338,7 +341,8 @@ export const FacultyMemberForm = ({
             .join(", ")
         : undefined,
       selectedDeptIds: isStudent ? selectedDeptIds : undefined,
-      selectedDepartmentId: !isStudent && selectedFacultyDeptId ? selectedFacultyDeptId : undefined,
+      selectedDepartmentIds: !isStudent && mode === "admin-add" ? [...selectedFacultyDeptIds] : undefined,
+      selectedDepartmentId: !isStudent && selectedFacultyDeptIds.length > 0 ? selectedFacultyDeptIds[0] : undefined,
     };
 
     await onSubmit(data);
@@ -494,27 +498,103 @@ export const FacultyMemberForm = ({
                     )}
                   </div>
 
-                  {/* Department selector for faculty */}
+                  {/* Department multi-select for faculty */}
                   {mode === "admin-add" && departments.length > 0 && (
                     <div className="space-y-2.5">
                       <Label className={labelCls}>
                         <Briefcase className={iconCls} strokeWidth={2.4} />
-                        {isRtl ? "القسم" : "Department"}
+                        {isRtl ? "الأقسام" : "Departments"}
+                        <span className="text-xs font-semibold text-muted-foreground">
+                          ({isRtl ? "اختياري" : "optional"})
+                        </span>
                       </Label>
-                      <Select value={selectedFacultyDeptId} onValueChange={setSelectedFacultyDeptId}>
-                        <SelectTrigger className={triggerCls}>
-                          <SelectValue
-                            placeholder={isRtl ? "اختر القسم (اختياري)" : "Select department (optional)"}
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {departments.map((dept) => (
-                            <SelectItem key={dept.id} value={dept.id} className="text-base">
-                              {dept.department_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Popover open={facultyDeptPopoverOpen} onOpenChange={setFacultyDeptPopoverOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={facultyDeptPopoverOpen}
+                            className={`${inputCls} justify-between font-normal ${
+                              selectedFacultyDeptIds.length === 0 ? "text-muted-foreground" : ""
+                            }`}
+                          >
+                            {selectedFacultyDeptIds.length > 0
+                              ? `${selectedFacultyDeptIds.length} ${isRtl ? "قسم محدد" : "department(s) selected"}`
+                              : isRtl
+                                ? "اختر الأقسام..."
+                                : "Select departments..."}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0" dir={dir}>
+                          <Command>
+                            <CommandInput placeholder={isRtl ? "ابحث عن قسم..." : "Search department..."} />
+                            <CommandEmpty>{isRtl ? "لا توجد أقسام" : "No departments found"}</CommandEmpty>
+                            <CommandGroup className="max-h-64 overflow-y-auto">
+                              {departments.map((dept) => {
+                                const isSelected = selectedFacultyDeptIds.includes(dept.id);
+                                return (
+                                  <CommandItem
+                                    key={dept.id}
+                                    value={dept.department_name}
+                                    onSelect={() => {
+                                      setSelectedFacultyDeptIds((prev) =>
+                                        isSelected
+                                          ? prev.filter((id) => id !== dept.id)
+                                          : [...prev, dept.id]
+                                      );
+                                    }}
+                                  >
+                                    <Check
+                                      className={`mr-2 h-4 w-4 ${
+                                        isSelected ? "opacity-100" : "opacity-0"
+                                      }`}
+                                    />
+                                    <span className="flex-1">{dept.department_name}</span>
+                                    {dept.department_code && (
+                                      <span className="text-xs text-muted-foreground ms-2 font-mono">
+                                        {dept.department_code}
+                                      </span>
+                                    )}
+                                  </CommandItem>
+                                );
+                              })}
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                      {selectedFacultyDeptIds.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {departments
+                            .filter((d) => selectedFacultyDeptIds.includes(d.id))
+                            .map((d) => (
+                              <span
+                                key={d.id}
+                                className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary text-xs px-2.5 py-1 font-semibold"
+                              >
+                                {d.department_name}
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setSelectedFacultyDeptIds((prev) =>
+                                      prev.filter((id) => id !== d.id)
+                                    )
+                                  }
+                                  className="rounded-full hover:bg-primary/20 p-0.5"
+                                  aria-label={isRtl ? "إزالة القسم" : "Remove department"}
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
+                              </span>
+                            ))}
+                        </div>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        {isRtl
+                          ? "يمكن اختيار قسم واحد أو أكثر — سيُضاف العضو لكل قسم تلقائياً."
+                          : "Select one or more departments — the member is added to each department automatically."}
+                      </p>
                     </div>
                   )}
                 </div>

@@ -180,19 +180,39 @@ const LeadershipDashboard = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/login"); return; }
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      setProfile(profile);
+      // Fetch the profile with one retry. A transient/RLS failure here used
+      // to be misread as a role mismatch and surfaced as an Unauthorized
+      // toast, locking brand-new faculty members out of their first login.
+      let profile: any = null;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (!error) { profile = data; break; }
+        console.error("[LeadershipDashboard] profiles fetch failed (attempt " + (attempt + 1) + ")", error);
+        if (attempt === 0) await new Promise((r) => setTimeout(r, 800));
+      }
 
-      if (!profile || !["department_head", "teaching_assistant", "vice_dean", "dean", "lecturer"].includes(profile.role)) {
+      if (!profile) {
+        toast({
+          title: isRtl ? "تعذر التحقق من الحساب" : "Could not verify account",
+          description: isRtl
+            ? "حدث خطأ مؤقت أثناء جلب بيانات حسابك. أعد تحميل الصفحة أو سجّل الدخول مرة أخرى."
+            : "A temporary error occurred while loading your account. Reload the page or sign in again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!["department_head", "teaching_assistant", "vice_dean", "dean", "lecturer"].includes(profile.role)) {
         toast({ title: isRtl ? "غير مصرح" : "Unauthorized", variant: "destructive" });
         navigate("/");
         return;
       }
 
+      setProfile(profile);
       setUserRole(profile.role);
       setUserId(user.id);
 

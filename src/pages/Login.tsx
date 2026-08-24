@@ -75,7 +75,9 @@ const Login = () => {
         return;
       }
 
-      const [{ data: roles }, { data: profile }] = await Promise.all([
+      // A failed roles/profile lookup must not be silently treated as "no
+      // role" — surface it through the generic error path instead.
+      const [{ data: roles, error: rolesError }, { data: profile, error: profileError }] = await Promise.all([
         supabase
           .from("user_roles")
           .select("role, approved")
@@ -86,6 +88,8 @@ const Login = () => {
           .eq("user_id", data.user.id)
           .maybeSingle(),
       ]);
+      if (rolesError) throw rolesError;
+      if (profileError) throw profileError;
 
       const profileRole = profile?.role;
       const userEmail = data.user.email?.trim();

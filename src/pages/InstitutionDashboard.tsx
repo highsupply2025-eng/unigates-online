@@ -1119,16 +1119,22 @@ const InstitutionDashboard = () => {
 
       if (error) throw error;
 
-      // Remove the mirror row in department_members if this was a faculty deletion.
+      // Remove the mirror rows in department_members if this was a faculty deletion.
+      // With multi-department support a member can hold junction rows in several
+      // departments, so remove every row of this user inside THIS institution.
       // The mirror is matched by user_id (authoritative) or by e-mail + department.
       if (isInstitutionFaculty && facultyRowForCleanup) {
         try {
+          const instDeptIds = (departments || []).map((d: any) => d.id);
           if (facultyRowForCleanup.user_id) {
-            await supabase
+            let delQuery = supabase
               .from("department_members")
               .delete()
-              .eq("user_id", facultyRowForCleanup.user_id)
-              .eq("department_id", facultyRowForCleanup.department_id || "");
+              .eq("user_id", facultyRowForCleanup.user_id);
+            if (instDeptIds.length > 0) {
+              delQuery = delQuery.in("department_id", instDeptIds);
+            }
+            await delQuery;
           } else if (facultyRowForCleanup.email && facultyRowForCleanup.department_id) {
             await supabase
               .from("department_members")
@@ -1145,9 +1151,6 @@ const InstitutionDashboard = () => {
         // Invalidate the department page cache for the affected department
         if (facultyRowForCleanup.department_id) {
           try {
-            // @ts-ignore - __deptCache is defined in DepartmentPage, but we clear
-            // via localStorage signal and query invalidation here. The realtime
-            // subscription on department_members will also refresh DepartmentPage.
             sessionStorage.setItem(`dept-cache-invalidate:${facultyRowForCleanup.department_id}`, String(Date.now()));
           } catch { /* ignore */ }
         }

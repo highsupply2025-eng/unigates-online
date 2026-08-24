@@ -339,10 +339,21 @@ const LeadershipDashboard = () => {
   const loadMyDepartments = async (userId: string, resolvedRole?: string, resolvedSpecificRole?: string): Promise<string[]> => {
     const role = resolvedRole || userRole;
     const specific = resolvedSpecificRole ?? specificRole;
+    const diag = {
+      userId,
+      role,
+      specificRole: specific,
+      rpcRows: -1,
+      junctionIds: 0,
+      ifmCanonical: 0,
+      errors: [] as string[],
+    };
 
     try {
-      const { data: rpcRows } = await supabase.rpc("get_my_departments" as any);
+      const { data: rpcRows, error: rpcErr } = await supabase.rpc("get_my_departments" as any);
+      if (rpcErr) diag.errors.push(`rpc: ${rpcErr.message}`);
       const rpcDeps = (rpcRows || []) as Array<{ id: string; department_name: string }>;
+      diag.rpcRows = rpcDeps.length;
       if (rpcDeps.length > 0) {
         const seen = new Set<string>();
         const unique = rpcDeps.filter(d => (seen.has(d.id) ? false : (seen.add(d.id), true)));
@@ -352,7 +363,9 @@ const LeadershipDashboard = () => {
         }
         return unique.map(d => d.id);
       }
-    } catch { /* RPC not deployed yet — fall through to client-side sources */ }
+    } catch (e: any) {
+      diag.errors.push(`rpc: ${e?.message || "unavailable"}`);
+    }
 
     // For deans/vice_deans, load ALL departments from their institution
     // since they oversee the entire institution, not just one department.
@@ -405,22 +418,30 @@ const LeadershipDashboard = () => {
 
     // Source 1: department_members (user_id match)
     try {
-      const { data: dmRows } = await supabase
+      const { data: dmRows, error: dmErr } = await supabase
         .from("department_members")
         .select("department_id")
         .eq("user_id", userId);
+      if (dmErr) diag.errors.push(`department_members: ${dmErr.message}`);
       (dmRows || []).forEach((r: any) => { if (r.department_id) deptIdSet.add(r.department_id); });
-    } catch { /* ignore */ }
+      diag.junctionIds = deptIdSet.size;
+    } catch (e: any) {
+      diag.errors.push(`department_members: ${e?.message || "failed"}`);
+    }
 
     // Source 2: institution_faculty_members (user_id match, department_id not null)
     try {
-      const { data: ifmRows } = await supabase
+      const { data: ifmRows, error: ifmErr } = await supabase
         .from("institution_faculty_members")
         .select("department_id")
         .eq("user_id", userId)
         .not("department_id", "is", null);
+      if (ifmErr) diag.errors.push(`institution_faculty_members: ${ifmErr.message}`);
       (ifmRows || []).forEach((r: any) => { if (r.department_id) deptIdSet.add(r.department_id); });
-    } catch { /* ignore */ }
+      diag.ifmCanonical = (ifmRows || []).length;
+    } catch (e: any) {
+      diag.errors.push(`institution_faculty_members: ${e?.message || "failed"}`);
+    }
 
     const deptIds = [...deptIdSet];
     if (deptIds.length > 0) {
@@ -498,6 +519,14 @@ const LeadershipDashboard = () => {
       }
     } catch { /* ignore */ }
 
+    console.error(
+      "[loadMyDepartments] No departments resolved for user — Create Lecture will be blocked",
+      {
+        ...diag,
+        query:
+          "get_my_departments() rpc → department_members(user_id) ∪ institution_faculty_members(user_id, department_id not null) → institution-wide fallback",
+      },
+    );
     return [];
   };
 

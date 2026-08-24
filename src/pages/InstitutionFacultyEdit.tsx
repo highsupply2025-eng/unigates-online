@@ -4,6 +4,7 @@ import {
   UserPlus, ArrowLeft, ArrowRight, Upload, Loader2, Save,
   GraduationCap, Mail, Phone, IdCard, Calendar, MapPin, Briefcase,
   BookOpen, Users2, StickyNote, UserRound, Building2, ShieldCheck, KeyRound,
+  Check, ChevronsUpDown, X,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,12 @@ import { Switch } from "@/components/ui/switch";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover, PopoverContent, PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command, CommandEmpty, CommandGroup, CommandInput, CommandItem,
+} from "@/components/ui/command";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -87,7 +94,8 @@ const InstitutionFacultyEdit = () => {
   const [photoUrl, setPhotoUrl] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState("");
-  const [departmentId, setDepartmentId] = useState("");
+  const [departmentIds, setDepartmentIds] = useState<string[]>([]);
+  const [deptPopoverOpen, setDeptPopoverOpen] = useState(false);
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");
   const [email, setEmail] = useState("");
@@ -104,10 +112,12 @@ const InstitutionFacultyEdit = () => {
   const [baseline, setBaseline] = useState<string>("");
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
 
+  const deptSnapshotKey = departmentIds.join("|");
+
   const snapshot = useMemo(() => JSON.stringify({
-    photoUrl, fullName, role, departmentId, dateOfBirth, gender,
+    photoUrl, fullName, role, deptSnapshotKey, dateOfBirth, gender,
     phone, nationalId, address, qualification, specialization, notes, banned,
-  }), [photoUrl, fullName, role, departmentId, dateOfBirth, gender, phone,
+  }), [photoUrl, fullName, role, deptSnapshotKey, dateOfBirth, gender, phone,
       nationalId, address, qualification, specialization, notes, banned]);
 
   const dirty = baseline !== "" && snapshot !== baseline;
@@ -246,7 +256,7 @@ const InstitutionFacultyEdit = () => {
        * تحميل الأقسام المتاحة وبيانات الملف الشخصي.
        * عدم وجود قسم لا يمنع فتح الصفحة.
        */
-      const [departmentsResult, profileResult] =
+      const [departmentsResult, profileResult, deptMembersResult] =
         await Promise.all([
           supabase
             .from("departments")
@@ -265,6 +275,16 @@ const InstitutionFacultyEdit = () => {
                 data: null,
                 error: null,
               }),
+
+          member.user_id
+            ? supabase
+                .from("department_members")
+                .select("department_id")
+                .eq("user_id", member.user_id)
+            : Promise.resolve({
+                data: null,
+                error: null,
+              }),
         ]);
 
       if (departmentsResult.error) {
@@ -274,6 +294,8 @@ const InstitutionFacultyEdit = () => {
       if (profileResult.error) {
         throw profileResult.error;
       }
+
+      const junctionRows = (deptMembersResult.data || []) as Array<{ department_id: string }>;
 
       if (!isMounted) return;
 
@@ -301,9 +323,17 @@ const InstitutionFacultyEdit = () => {
       );
 
       /*
-       * القسم اختياري.
+       * الأقسام اختيارية. القسم الأساسي (institution_faculty_members)
+       * يأتي أولاً، ثم أي أقسام إضافية من جدول العلاقات department_members.
        */
-      setDepartmentId(member.department_id || "");
+      const initialDeptIds: string[] = [];
+      if (member.department_id) initialDeptIds.push(member.department_id);
+      for (const row of junctionRows) {
+        if (row.department_id && !initialDeptIds.includes(row.department_id)) {
+          initialDeptIds.push(row.department_id);
+        }
+      }
+      setDepartmentIds(initialDeptIds);
 
       setDateOfBirth(member.date_of_birth || "");
       setGender(member.gender || "");
@@ -331,7 +361,7 @@ const InstitutionFacultyEdit = () => {
           "",
         role:
           member.specific_role || "",
-        departmentId: member.department_id || "",
+        deptSnapshotKey: initialDeptIds.join("|"),
         dateOfBirth: member.date_of_birth || "",
         gender: member.gender || "",
         phone:
@@ -445,8 +475,8 @@ const InstitutionFacultyEdit = () => {
     setSaving(true);
     try {
       // Empty is valid: this member can remain at institution level without a
-      // department assignment.
-      const selectedDepartmentId = departmentId.trim() || null;
+      // department assignment. The first selection is the primary department.
+      const selectedDepartmentId = departmentIds[0]?.trim() || null;
 
       const { data: resp, error: fnErr } = await supabase.functions.invoke("update-faculty-member", {
         body: {
@@ -455,6 +485,7 @@ const InstitutionFacultyEdit = () => {
           full_name: fullName.trim(),
           role,
           department_id: selectedDepartmentId,
+          department_ids: departmentIds.map(id => id.trim()).filter(Boolean),
           phone: phone.trim(),
           banned,
           extra: {
@@ -603,16 +634,82 @@ const InstitutionFacultyEdit = () => {
                 <div className="space-y-2.5 md:col-span-2">
                  <Label className={labelCls}>
   <Briefcase className={iconCls} strokeWidth={2.4} />
-  {isRtl ? "القسم (اختياري)" : "Department (Optional)"}
+  {isRtl ? "الأقسام (اختياري)" : "Departments (Optional)"}
 </Label>
-                  <Select value={departmentId} onValueChange={setDepartmentId}>
-                    <SelectTrigger className={triggerCls}><SelectValue placeholder={isRtl ? "اختر القسم" : "Select department"} /></SelectTrigger>
-                    <SelectContent>
-                      {departments.map(d => (
-                        <SelectItem key={d.id} value={d.id} className="text-base">{d.department_name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={deptPopoverOpen} onOpenChange={setDeptPopoverOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={deptPopoverOpen}
+                        className={`${inputCls} w-full justify-between font-normal ${
+                          departmentIds.length === 0 ? "text-muted-foreground" : ""
+                        }`}
+                      >
+                        {departmentIds.length > 0
+                          ? `${departmentIds.length} ${isRtl ? "قسم محدد" : "department(s) selected"}`
+                          : isRtl
+                            ? "اختر الأقسام..."
+                            : "Select departments..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0" dir={dir}>
+                      <Command>
+                        <CommandInput placeholder={isRtl ? "ابحث عن قسم..." : "Search department..."} />
+                        <CommandEmpty>{isRtl ? "لا توجد أقسام" : "No departments found"}</CommandEmpty>
+                        <CommandGroup className="max-h-64 overflow-y-auto">
+                          {departments.map(d => {
+                            const isSelected = departmentIds.includes(d.id);
+                            return (
+                              <CommandItem
+                                key={d.id}
+                                value={d.department_name}
+                                onSelect={() => {
+                                  setDepartmentIds(prev =>
+                                    isSelected
+                                      ? prev.filter(id => id !== d.id)
+                                      : [...prev, d.id]
+                                  );
+                                }}
+                              >
+                                <Check className={`mr-2 h-4 w-4 ${isSelected ? "opacity-100" : "opacity-0"}`} />
+                                <span className="flex-1">{d.department_name}</span>
+                              </CommandItem>
+                            );
+                          })}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  {departmentIds.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {departments
+                        .filter(d => departmentIds.includes(d.id))
+                        .map(d => (
+                          <span
+                            key={d.id}
+                            className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary text-xs px-2.5 py-1 font-semibold"
+                          >
+                            {d.department_name}
+                            <button
+                              type="button"
+                              onClick={() => setDepartmentIds(prev => prev.filter(id => id !== d.id))}
+                              className="rounded-full hover:bg-primary/20 p-0.5"
+                              aria-label={isRtl ? "إزالة القسم" : "Remove department"}
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </span>
+                        ))}
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    {isRtl
+                      ? "يمكن اختيار قسم واحد أو أكثر — القسم الأول هو القسم الأساسي."
+                      : "Select one or more departments — the first one is the primary department."}
+                  </p>
                 </div>
               </div>
 

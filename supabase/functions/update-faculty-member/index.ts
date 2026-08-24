@@ -9,7 +9,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 // Returned to the client so a stale deployed function can be detected.
-const FUNCTION_VERSION = "2026-07-21-nullable-department-v3";
+const FUNCTION_VERSION = "2026-08-24-multi-department-v4";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -109,6 +109,19 @@ Deno.serve(async (req) => {
       return fail("validate", "Invalid department_id", 400);
     }
     const newDepartmentId = typeof body.department_id === "string" ? body.department_id.trim() || null : null;
+
+    // Multi-department mode: department_ids (array) overrides department_id.
+    // null = not provided (legacy single-department behavior); an empty array
+    // explicitly clears all department assignments.
+    const requestedDeptIds: string[] | null = Array.isArray(body.department_ids)
+      ? Array.from(
+          new Set(
+            (body.department_ids as unknown[])
+              .filter((id): id is string => typeof id === "string" && id.trim().length > 0)
+              .map((id) => id.trim()),
+          ),
+        )
+      : null;
     const phoneRaw = String(body.phone || "").trim();
     const phone = phoneRaw.length > 0 ? phoneRaw : null;
     const banned = body.banned === true;
@@ -176,23 +189,36 @@ Deno.serve(async (req) => {
     }
 
     let newDept: any = null;
+    const validDeptIds: string[] = [];
+    let extraDepts: Array<{ id: string; department_code: string | null }> = [];
 
-    if (newDepartmentId) {
-      const { data: nd, error: ndErr } = await admin
+    const idsToValidate =
+      requestedDeptIds !== null ? requestedDeptIds : newDepartmentId ? [newDepartmentId] : [];
+
+    if (idsToValidate.length > 0) {
+      const { data: ndRows, error: ndErr } = await admin
         .from("departments")
-        .select("id, institution_id, institution_type")
-        .eq("id", newDepartmentId)
-        .maybeSingle();
+        .select("id, institution_id, institution_type, department_code")
+        .in("id", idsToValidate);
 
       if (ndErr) return fail("validate_department", ndErr.message);
 
-      if (!nd) return fail("validate_department", "Department not found", 404);
-
-      if (nd.institution_id !== institutionId || nd.institution_type !== institutionType) {
-        return fail("validate_department", "Department does not belong to this institution", 403);
+      for (const id of idsToValidate) {
+        const nd = (ndRows || []).find((d: any) => d.id === id);
+        if (!nd) return fail("validate_department", "Department not found", 404);
+        if (nd.institution_id !== institutionId || nd.institution_type !== institutionType) {
+          return fail("validate_department", "Department does not belong to this institution", 403);
+        }
+        validDeptIds.push(id);
       }
 
-      newDept = nd;
+      // First selection is the primary department; the rest are additional.
+      newDept = { id: validDeptIds[0] };
+      extraDepts = validDeptIds.slice(1).map((id) => ({
+        id,
+        department_code:
+          ((ndRows || []).find((d: any) => d.id === id) as any)?.department_code ?? null,
+      }));
     }
 
     // ---- Prevent role escalation via profiles check ----
@@ -238,6 +264,42 @@ Deno.serve(async (req) => {
         } as any);
       } catch (e) {
         console.error("ban toggle failed", e);
+      }
+    }
+
+    // ---- Sync additional department junction rows (multi-department mode) ----
+    // The tx RPC already removed every junction row except the primary one.
+    // Here we re-add one row per additional selected department so the member
+    // appears inside each of them.
+    if (requestedDeptIds !== null && extraDepts.length > 0) {
+      const { data: existingRows } = await admin
+        .from("department_members")
+        .select("department_id")
+        .eq("user_id", currentUserId)
+        .in("department_id", extraDepts.map((d) => d.id));
+      const existing = new Set((existingRows || []).map((r: any) => r.department_id as string));
+      const missing = extraDepts.filter((d) => !existing.has(d.id));
+      if (missing.length > 0) {
+        const { error: syncErr } = await admin.from("department_members").insert(
+          missing.map((d) => ({
+            department_id: d.id,
+            user_id: currentUserId,
+            full_name: fullName,
+            role,
+            email: currentProfile?.email ?? currentMember.email ?? null,
+            phone,
+            invitation_code:
+              "FAC-" +
+              crypto.randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase() +
+              "-" +
+              (d.department_code || "GEN"),
+          })),
+        );
+        if (syncErr) {
+          console.error("additional department sync failed (non-fatal)", {
+            message: syncErr.message,
+          });
+        }
       }
     }
 

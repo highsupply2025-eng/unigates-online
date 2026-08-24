@@ -154,6 +154,14 @@ const LeadershipDashboard = () => {
     }
   }, [selectedDeptId]);
 
+  // Refresh departments whenever the Create Lecture dialog opens so a newly
+  // assigned department appears without a full page reload
+  useEffect(() => {
+    if (showNewCourse && userId) {
+      loadMyDepartments(userId);
+    }
+  }, [showNewCourse, userId]);
+
   // Live updates: mirror any change from the backend into college & institute dashboards without refresh
   useRealtimeRefresh(
     [
@@ -331,6 +339,21 @@ const LeadershipDashboard = () => {
   const loadMyDepartments = async (userId: string, resolvedRole?: string, resolvedSpecificRole?: string): Promise<string[]> => {
     const role = resolvedRole || userRole;
     const specific = resolvedSpecificRole ?? specificRole;
+
+    try {
+      const { data: rpcRows } = await supabase.rpc("get_my_departments" as any);
+      const rpcDeps = (rpcRows || []) as Array<{ id: string; department_name: string }>;
+      if (rpcDeps.length > 0) {
+        const seen = new Set<string>();
+        const unique = rpcDeps.filter(d => (seen.has(d.id) ? false : (seen.add(d.id), true)));
+        setMyDepartments(unique);
+        if (unique.length === 1) {
+          setNewCourse(p => ({ ...p, department_id: unique[0].id }));
+        }
+        return unique.map(d => d.id);
+      }
+    } catch { /* RPC not deployed yet — fall through to client-side sources */ }
+
     // For deans/vice_deans, load ALL departments from their institution
     // since they oversee the entire institution, not just one department.
     const isOversightRole = ["dean", "vice_dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community", "vice_dean_environment"].includes(specific) || role === "dean" || role === "vice_dean";
@@ -399,7 +422,7 @@ const LeadershipDashboard = () => {
       (ifmRows || []).forEach((r: any) => { if (r.department_id) deptIdSet.add(r.department_id); });
     } catch { /* ignore */ }
 
-    let deptIds = [...deptIdSet];
+    const deptIds = [...deptIdSet];
     if (deptIds.length > 0) {
       try {
         const { data: deptRows } = await supabase
@@ -437,9 +460,11 @@ const LeadershipDashboard = () => {
           .eq("institution_type", ifmInst.institution_type)
           .eq("status", "active");
         if (instDepts && instDepts.length > 0) {
-          // If user has a specific department_id in IFM, prefer that one
-          const filtered = ifmInst.department_id
-            ? instDepts.filter((d: any) => d.id === ifmInst.department_id)
+          // Prefer every department the user is actually linked to
+          // (junction rows + canonical assignment), not just the primary one
+          const owned = new Set(deptIds);
+          const filtered = owned.size > 0
+            ? instDepts.filter((d: any) => owned.has(d.id))
             : instDepts;
           const deps = (filtered.length > 0 ? filtered : instDepts) as Array<{ id: string; department_name: string }>;
           setMyDepartments(deps);

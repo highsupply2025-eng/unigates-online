@@ -243,11 +243,12 @@ const InstitutionFacultyEdit = () => {
        */
       const { data: member, error: memberError } = await supabase
         .from("institution_faculty_members")
-        .select("*")
+        .select("id, institution_id, institution_type, user_id, full_name, specific_role, department_id, date_of_birth, gender, email, phone, national_id, address, qualification, specialization, notes, photo_url")
         .eq("id", memberId)
         .maybeSingle();
 
       if (memberError) {
+        console.error("Full Fetch Error:", memberError.message, (memberError as { details?: unknown }).details, (memberError as { hint?: unknown }).hint);
         throw memberError;
       }
 
@@ -305,6 +306,7 @@ const InstitutionFacultyEdit = () => {
           .maybeSingle();
 
       if (institutionError) {
+        console.error("Full Fetch Error:", institutionError.message, (institutionError as { details?: unknown }).details, (institutionError as { hint?: unknown }).hint);
         throw institutionError;
       }
 
@@ -370,14 +372,21 @@ const InstitutionFacultyEdit = () => {
         ]);
 
       if (departmentsResult.error) {
-        throw departmentsResult.error;
+        console.error("Full Fetch Error:", departmentsResult.error.message, (departmentsResult.error as { details?: unknown }).details, (departmentsResult.error as { hint?: unknown }).hint);
+        // Non-blocking: allow page to render without departments
       }
 
       if (profileResult.error) {
-        throw profileResult.error;
+        console.error("Full Fetch Error:", profileResult.error.message, (profileResult.error as { details?: unknown }).details, (profileResult.error as { hint?: unknown }).hint);
+        // Non-blocking: allow page to render without profile
       }
 
-      const junctionRows = (deptMembersResult.data || []) as Array<{ department_id: string }>;
+      if ((deptMembersResult as { error?: { message: string; details?: unknown; hint?: unknown } }).error) {
+        const dmErr = (deptMembersResult as { error: { message: string; details?: unknown; hint?: unknown } }).error;
+        console.error("Full Fetch Error:", dmErr.message, dmErr.details, dmErr.hint);
+      }
+
+      const junctionRows = ((deptMembersResult.data as Array<{ department_id: string }> | null) ?? []) as Array<{ department_id: string }>;
 
       if (!isMounted) return;
 

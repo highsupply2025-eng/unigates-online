@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   ChevronLeft, ChevronRight, Copy, UserCheck, GraduationCap,
-  Layers, LinkIcon, MessageCircle, Loader2, Search, Download, Trash2, Crown, Mail, Zap, Plus
+  Layers, LinkIcon, MessageCircle, Loader2, Search, Download, Crown, Mail, Zap, Plus, UserMinus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -84,8 +84,8 @@ const DepartmentPage = () => {
   const [profilesMap, setProfilesMap] = useState<Record<string, MemberProfile>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [memberToDelete, setMemberToDelete] = useState<DepartmentMember | null>(null);
-  const [deleting, setDeleting] = useState(false);
+  const [memberToRemove, setMemberToRemove] = useState<DepartmentMember | null>(null);
+  const [removing, setRemoving] = useState(false);
 
   const [activationResults, setActivationResults] = useState<Array<{ full_name: string; email: string; password: string }>>([]);
   const [showActivationResults, setShowActivationResults] = useState(false);
@@ -295,35 +295,98 @@ const DepartmentPage = () => {
     }
   };
 
-  const handleDeleteMember = async () => {
-    if (!memberToDelete) return;
-    setDeleting(true);
+  /**
+   * Removes a member from THIS department only (unlink / unassign).
+   *
+   * - Faculty members: the canonical record lives in
+   *   institution_faculty_members. We set department_id = NULL there so the
+   *   person stays intact in the global faculty directory
+   *   (/institution/dashboard?tab=faculty), then we delete this department's
+   *   mirror row in department_members (the junction row).
+   * - Non-faculty members (e.g. students): department_members is their only
+   *   membership record, so removing it simply unassigns them.
+   *
+   * The user/auth record and any global profile are NEVER deleted here.
+   */
+  const handleRemoveFromDepartment = async () => {
+    if (!memberToRemove || !deptId) return;
+    setRemoving(true);
     try {
+      // 1. Faculty: unlink the canonical institution_faculty_members record
+      //    from this department BEFORE deleting the mirror row, so the
+      //    dashboard never counts them in this department again.
+      if (isFacultyRole(memberToRemove.role)) {
+        if (!identity) throw new Error("Missing institution identity");
+
+        const { data: ifmRows, error: ifmQueryError } = await supabase
+          .from("institution_faculty_members")
+          .select("id,user_id,email")
+          .eq("institution_id", identity.institutionId)
+          .eq("institution_type", identity.institutionType)
+          .eq("department_id", deptId);
+        if (ifmQueryError) throw ifmQueryError;
+
+        const memberEmail = String((memberToRemove as any).email || "").toLowerCase();
+        const matchedIfm = (ifmRows || []).find((r: any) => {
+          if (memberToRemove.user_id && r.user_id) {
+            return String(r.user_id).toLowerCase() === String(memberToRemove.user_id).toLowerCase();
+          }
+          if (memberEmail && r.email) return String(r.email).toLowerCase() === memberEmail;
+          return false;
+        });
+
+        if (matchedIfm) {
+          const { error: unlinkError } = await supabase
+            .from("institution_faculty_members")
+            .update({ department_id: null })
+            .eq("id", matchedIfm.id);
+          if (unlinkError) throw unlinkError;
+        }
+        // No canonical match → legacy/pending placeholder row; removing the
+        // junction row below is enough (there is no global record to keep).
+      }
+
+      // 2. Delete this department's junction/mirror row.
       const { error } = await supabase
         .from("department_members")
         .delete()
-        .eq("id", memberToDelete.id);
-
+        .eq("id", memberToRemove.id);
       if (error) {
-        console.error("Delete failed:", error.message, error.details, error.hint);
+        console.error("Remove failed:", error.message, error.details, error.hint);
         throw error;
       }
 
-      setMembers(prev => prev.filter(m => m.id !== memberToDelete.id));
-      sonnerToast.success(isRtl ? "تم حذف العضو بنجاح" : "Member deleted successfully", { duration: 1500 });
-      if (deptId) {
-        __deptCache.delete(deptId);
-      }
+      // 3. Optimistic local update + cache invalidation so every view that
+      //    shows department counters/head status syncs immediately.
+      setMembers(prev => prev.filter(m => m.id !== memberToRemove.id));
+      __deptCache.delete(deptId);
+      try {
+        // Forces InstitutionDashboard to skip its in-memory snapshot hydration
+        // on next mount → member counter decrements + head shows "غير معيّن".
+        sessionStorage.setItem("institution-dashboard-force-refresh", Date.now().toString());
+        sessionStorage.setItem(`dept-cache-invalidate:${deptId}`, Date.now().toString());
+      } catch { /* ignore */ }
       queryClient.invalidateQueries({ queryKey: ["platform-stats"] });
+
+      sonnerToast.success(
+        isRtl ? "تمت إزالة العضو من القسم بنجاح" : "Member removed from department",
+        {
+          description: isRtl
+            ? "ظل العضو محفوظاً في قائمة أعضاء هيئة التدريس بالكلية"
+            : "The member remains in the institution-wide faculty directory",
+          duration: 2500,
+        },
+      );
     } catch (err: any) {
-      console.error("Delete member error:", err);
+      console.error("Remove member error:", err);
       sonnerToast.error(
-        isRtl ? "فشل حذف العضو" : "Failed to delete member",
+        isRtl ? "فشل إزالة العضو من القسم" : "Failed to remove member",
         { description: err?.message || String(err), duration: 3000 }
       );
+      await loadDepartmentData();
     } finally {
-      setDeleting(false);
-      setMemberToDelete(null);
+      setRemoving(false);
+      setMemberToRemove(null);
     }
   };
 
@@ -512,10 +575,11 @@ const DepartmentPage = () => {
                 size="sm"
                 variant="ghost"
                 className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10"
-                onClick={() => setMemberToDelete(member)}
-                title={isRtl ? "حذف" : "Delete"}
+                onClick={() => setMemberToRemove(member)}
+                title={isRtl ? "إزالة من القسم" : "Remove from department"}
+                aria-label={isRtl ? "إزالة من القسم" : "Remove from department"}
               >
-                <Trash2 className="w-4 h-4" />
+                <UserMinus className="w-4 h-4" />
               </Button>
             </div>
           </div>
@@ -769,30 +833,52 @@ const DepartmentPage = () => {
         </Card>
       </main>
 
-      <AlertDialog open={!!memberToDelete} onOpenChange={(open) => !open && setMemberToDelete(null)}>
+      <AlertDialog open={!!memberToRemove} onOpenChange={(open) => !open && setMemberToRemove(null)}>
         <AlertDialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg w-full">
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {isRtl ? "تأكيد حذف العضو" : "Confirm Delete Member"}
+              {isRtl ? "تأكيد إزالة العضو من القسم" : "Confirm Remove from Department"}
             </AlertDialogTitle>
-            <AlertDialogDescription>
-              {isRtl
-                ? `هل أنت متأكد من حذف "${memberToDelete?.full_name}"؟ لا يمكن التراجع عن هذا الإجراء.`
-                : `Are you sure you want to delete "${memberToDelete?.full_name}"? This action cannot be undone.`}
+            <AlertDialogDescription asChild>
+              <div className="space-y-2">
+                {isFacultyRole(memberToRemove?.role || "") ? (
+                  <>
+                    <p className="font-semibold text-destructive">
+                      {isRtl
+                        ? `سيتم إزالة "${memberToRemove?.full_name}" من هذا القسم فقط ولن يتم حذفه من أعضاء هيئة التدريس بالكلية.`
+                        : `"${memberToRemove?.full_name}" will only be removed from this department and will NOT be deleted from the faculty directory.`}
+                    </p>
+                    <p className="text-xs">
+                      {isRtl
+                        ? "سيبقى العضو ظاهراً في قائمة أعضاء هيئة التدريس بالكلية (تبويب أعضاء هيئة التدريس)."
+                        : "The member will remain listed in the institution-wide Faculty tab."}
+                    </p>
+                  </>
+                ) : (
+                  <p className="font-semibold text-destructive">
+                    {isRtl
+                      ? `سيتم إزالة "${memberToRemove?.full_name}" من هذا القسم فقط.`
+                      : `"${memberToRemove?.full_name}" will only be removed from this department.`}
+                  </p>
+                )}
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className={`gap-2 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
-            <AlertDialogCancel disabled={deleting}>
+            <AlertDialogCancel disabled={removing}>
               {isRtl ? "إلغاء" : "Cancel"}
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDeleteMember}
-              disabled={deleting}
+              onClick={(e) => {
+                e.preventDefault();
+                handleRemoveFromDepartment();
+              }}
+              disabled={removing}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleting
+              {removing
                 ? <Loader2 className="w-4 h-4 animate-spin" />
-                : (isRtl ? "حذف" : "Delete")}
+                : (isRtl ? "إزالة من القسم" : "Remove")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

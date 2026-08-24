@@ -63,6 +63,88 @@ const payloadError = (value: unknown): string | null => {
   return error == null ? null : String(error);
 };
 
+// --- Bilingual / schema resilience helpers ---
+const KNOWN_ROLE_SLUGS = new Set([
+  "dean",
+  "vice_dean_postgrad",
+  "vice_dean_students",
+  "vice_dean_community",
+  "vice_dean_environment",
+  "department_head",
+  "teaching_assistant",
+  "professor",
+  "doctor",
+  "assistant_lecturer",
+]);
+
+const ROLE_AR_TO_SLUG: Record<string, string> = {
+  "عميد الكلية": "dean",
+  "مدير المعهد": "dean",
+  "وكيل الكلية للدراسات العليا": "vice_dean_postgrad",
+  "وكيل المعهد للدراسات العليا": "vice_dean_postgrad",
+  "وكيل الكلية لشئون الطلاب": "vice_dean_students",
+  "وكيل المعهد لشئون الطلاب": "vice_dean_students",
+  "وكيل الكلية لخدمة المجتمع": "vice_dean_community",
+  "وكيل المعهد لخدمة المجتمع": "vice_dean_community",
+  "وكيل الكلية لشئون البيئة": "vice_dean_environment",
+  "وكيل المعهد لشئون البيئة": "vice_dean_environment",
+  "رئيس القسم": "department_head",
+  "مدرس مساعد": "teaching_assistant",
+  "أستاذ دكتور": "professor",
+  "استاذ دكتور": "professor",
+  "دكتور": "doctor",
+  "معيد": "assistant_lecturer",
+};
+
+const ROLE_EN_DISPLAY_TO_SLUG: Record<string, string> = {
+  dean: "dean",
+  "vice dean - postgraduate": "vice_dean_postgrad",
+  "vice dean - student affairs": "vice_dean_students",
+  "vice dean - community": "vice_dean_community",
+  "vice dean - environment": "vice_dean_environment",
+  "department head": "department_head",
+  "teaching assistant": "teaching_assistant",
+  professor: "professor",
+  doctor: "doctor",
+  "assistant lecturer": "assistant_lecturer",
+};
+
+const normalizeRole = (raw: unknown): string => {
+  if (raw == null) return "";
+  const s = String(raw).trim();
+  if (!s) return "";
+  if (KNOWN_ROLE_SLUGS.has(s)) return s;
+  const lower = s.toLowerCase();
+  if (KNOWN_ROLE_SLUGS.has(lower)) return lower;
+  if (ROLE_AR_TO_SLUG[s] != null) return ROLE_AR_TO_SLUG[s];
+  if (ROLE_EN_DISPLAY_TO_SLUG[lower] != null) return ROLE_EN_DISPLAY_TO_SLUG[lower];
+  // Unknown value: return safe fallback "" to avoid crash (Select will show placeholder)
+  // Do not throw.
+  return "";
+};
+
+const normalizeGender = (raw: unknown): string => {
+  if (raw == null) return "";
+  const s = String(raw).trim().toLowerCase();
+  if (!s) return "";
+  if (s === "male" || s === "ذكر") return "male";
+  if (s === "female" || s === "أنثى" || s === "انثى" || s === "أنثي" || s === "انثي") return "female";
+  // Also handle Arabic with tatweel/extra spaces already trimmed
+  return "";
+};
+
+const safeStr = (v: unknown): string => (v == null ? "" : String(v));
+const safeDeptIds = (primary: unknown, junction: Array<{ department_id: string }>): string[] => {
+  const ids: string[] = [];
+  const p = primary != null ? String(primary).trim() : "";
+  if (p) ids.push(p);
+  for (const row of junction ?? []) {
+    const did = row?.department_id != null ? String(row.department_id).trim() : "";
+    if (did && !ids.includes(did)) ids.push(did);
+  }
+  return ids;
+};
+
 const InstitutionFacultyEdit = () => {
   const { memberId } = useParams<{ memberId: string }>();
   const { language, dir } = useLanguage();
@@ -299,86 +381,104 @@ const InstitutionFacultyEdit = () => {
 
       if (!isMounted) return;
 
-      const profile = profileResult.data;
+      const profile = profileResult.data as unknown as { full_name?: unknown; phone?: unknown; email?: unknown } | null;
 
-      setDepartments(departmentsResult.data || []);
+      setDepartments((departmentsResult.data as DepartmentOption[] | null) ?? []);
       setInstitutionName(
-        String(institution[institutionNameColumn] || ""),
+        safeStr((institution as unknown as Record<string, unknown>)?.[institutionNameColumn] ?? ""),
       );
 
-      setUserId(member.user_id || "");
-      setPhotoUrl(member.photo_url || "");
+      // Fallback-safe assignments: handle null / unexpected format without crash
+      setUserId(safeStr((member as unknown as Record<string, unknown>)?.user_id ?? ""));
+      setPhotoUrl(safeStr((member as unknown as Record<string, unknown>)?.photo_url ?? ""));
       setFullName(
-        member.full_name ||
-          profile?.full_name ||
-          "",
+        safeStr(
+          (member as unknown as Record<string, unknown>)?.full_name ??
+            (profile as unknown as Record<string, unknown>)?.full_name ??
+            "",
+        ),
       );
 
       /*
        * institution_faculty_members يستخدم specific_role
        * وليس role كمصدر أساسي للمسمى الوظيفي.
+       * Gracefully accept Arabic or English values.
        */
       setRole(
-        member.specific_role || "",
+        normalizeRole((member as unknown as Record<string, unknown>)?.specific_role ?? ""),
       );
 
       /*
        * الأقسام اختيارية. القسم الأساسي (institution_faculty_members)
        * يأتي أولاً، ثم أي أقسام إضافية من جدول العلاقات department_members.
+       * department_id may be null or unexpected format — handle safely.
        */
-      const initialDeptIds: string[] = [];
-      if (member.department_id) initialDeptIds.push(member.department_id);
-      for (const row of junctionRows) {
-        if (row.department_id && !initialDeptIds.includes(row.department_id)) {
-          initialDeptIds.push(row.department_id);
-        }
-      }
+      const initialDeptIds = safeDeptIds(
+        (member as unknown as Record<string, unknown>)?.department_id,
+        junctionRows ?? [],
+      );
       setDepartmentIds(initialDeptIds);
 
-      setDateOfBirth(member.date_of_birth || "");
-      setGender(member.gender || "");
+      setDateOfBirth(safeStr((member as unknown as Record<string, unknown>)?.date_of_birth ?? ""));
+      setGender(normalizeGender((member as unknown as Record<string, unknown>)?.gender ?? ""));
       setEmail(
-        profile?.email ||
-          member.email ||
-          "",
+        safeStr(
+          (profile as unknown as Record<string, unknown>)?.email ??
+            (member as unknown as Record<string, unknown>)?.email ??
+            "",
+        ),
       );
       setPhone(
-        member.phone ||
-          profile?.phone ||
+        safeStr(
+          (member as unknown as Record<string, unknown>)?.phone ??
+            (profile as unknown as Record<string, unknown>)?.phone ??
+            "",
+        ),
+      );
+      setNationalId(safeStr((member as unknown as Record<string, unknown>)?.national_id ?? ""));
+      setAddress(safeStr((member as unknown as Record<string, unknown>)?.address ?? ""));
+      setQualification(safeStr((member as unknown as Record<string, unknown>)?.qualification ?? ""));
+      setSpecialization(safeStr((member as unknown as Record<string, unknown>)?.specialization ?? ""));
+      setNotes(safeStr((member as unknown as Record<string, unknown>)?.notes ?? ""));
+
+      const photoUrlSafe = safeStr((member as unknown as Record<string, unknown>)?.photo_url ?? "");
+      const fullNameSafe = safeStr(
+        (member as unknown as Record<string, unknown>)?.full_name ??
+          (profile as unknown as Record<string, unknown>)?.full_name ??
           "",
       );
-      setNationalId(member.national_id || "");
-      setAddress(member.address || "");
-      setQualification(member.qualification || "");
-      setSpecialization(member.specialization || "");
-      setNotes(member.notes || "");
+      const roleSafe = normalizeRole((member as unknown as Record<string, unknown>)?.specific_role ?? "");
+      const dobSafe = safeStr((member as unknown as Record<string, unknown>)?.date_of_birth ?? "");
+      const genderSafe = normalizeGender((member as unknown as Record<string, unknown>)?.gender ?? "");
+      const phoneSafe = safeStr(
+        (member as unknown as Record<string, unknown>)?.phone ??
+          (profile as unknown as Record<string, unknown>)?.phone ??
+          "",
+      );
 
       const initialSnapshot = JSON.stringify({
-        photoUrl: member.photo_url || "",
-        fullName:
-          member.full_name ||
-          profile?.full_name ||
-          "",
-        role:
-          member.specific_role || "",
-        deptSnapshotKey: initialDeptIds.join("|"),
-        dateOfBirth: member.date_of_birth || "",
-        gender: member.gender || "",
-        phone:
-          member.phone ||
-          profile?.phone ||
-          "",
-        nationalId: member.national_id || "",
-        address: member.address || "",
-        qualification: member.qualification || "",
-        specialization: member.specialization || "",
-        notes: member.notes || "",
+        photoUrl: photoUrlSafe ?? "",
+        fullName: fullNameSafe ?? "",
+        role: roleSafe ?? "",
+        deptSnapshotKey: (initialDeptIds ?? []).join("|"),
+        dateOfBirth: dobSafe ?? "",
+        gender: genderSafe ?? "",
+        phone: phoneSafe ?? "",
+        nationalId: safeStr((member as unknown as Record<string, unknown>)?.national_id ?? "") ?? "",
+        address: safeStr((member as unknown as Record<string, unknown>)?.address ?? "") ?? "",
+        qualification: safeStr((member as unknown as Record<string, unknown>)?.qualification ?? "") ?? "",
+        specialization: safeStr((member as unknown as Record<string, unknown>)?.specialization ?? "") ?? "",
+        notes: safeStr((member as unknown as Record<string, unknown>)?.notes ?? "") ?? "",
         banned: false,
       });
 
       setBaseline(initialSnapshot);
     } catch (error: unknown) {
       console.error("Failed to load faculty member:", error);
+      // Exact DB error for debugging (column / constraint)
+      // @ts-ignore - error may be PostgrestError with details/hint
+      console.error("Full Fetch Error:", error.message, error.details, error.hint);
+      console.error("Full Fetch Error:", (error as { message?: unknown })?.message, (error as { details?: unknown })?.details, (error as { hint?: unknown })?.hint);
 
       if (!isMounted) return;
 

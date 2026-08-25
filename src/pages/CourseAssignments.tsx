@@ -16,8 +16,8 @@ import { buildAssignmentPath } from "@/lib/assignment-url";
 export default function CourseAssignments() {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
-  const { language } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir } = useLanguage();
+  const isRtl = dir === "rtl";
   const { toast } = useToast();
 
   const [user, setUser] = useState<any>(null);

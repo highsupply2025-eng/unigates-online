@@ -15,7 +15,7 @@ import {
 
 const InstitutionFacultyAdd = () => {
   const { language, dir } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const forcedRole = searchParams.get("role");

@@ -18,7 +18,7 @@ interface SubPageHeaderProps {
  */
 const SubPageHeader = ({ titleAr, titleEn, icon, backTo }: SubPageHeaderProps) => {
   const { dir, language } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
 
   const handleBack = () => {

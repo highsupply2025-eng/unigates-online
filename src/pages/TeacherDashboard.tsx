@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function TeacherDashboard() {
   const { language, dir } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);

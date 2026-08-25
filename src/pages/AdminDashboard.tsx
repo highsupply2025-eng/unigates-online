@@ -56,7 +56,7 @@ const getSignedUrl = async (path: string | null): Promise<string | null> => {
 
 const AdminDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();

@@ -22,3 +22,5 @@ verify_jwt = true
 verify_jwt = true
 [functions.security-ingest]
 verify_jwt = false
+[functions.signup-logo-upload]
+verify_jwt = false

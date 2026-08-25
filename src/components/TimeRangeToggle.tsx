@@ -7,8 +7,8 @@ interface TimeRangeToggleProps {
 }
 
 export const TimeRangeToggle = ({ value, onChange, className = "" }: TimeRangeToggleProps) => {
-  const { language } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir } = useLanguage();
+  const isRtl = dir === "rtl";
   return (
     <div className={`flex items-center justify-end gap-2 ${className}`}>
       <span className="text-xs font-bold text-muted-foreground">{isRtl ? "النطاق الزمني:" : "Time range:"}</span>

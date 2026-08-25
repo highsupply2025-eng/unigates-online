@@ -14,9 +14,9 @@ import { supabase } from "@/integrations/supabase/client";
 const StudentLectureDetail = () => {
   const { lectureId } = useParams();
   const navigate = useNavigate();
-  const { language } = useLanguage();
+  const { language, dir } = useLanguage();
   const { toast } = useToast();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const [showRating, setShowRating] = useState(false);
 
   const requestBack = () => {

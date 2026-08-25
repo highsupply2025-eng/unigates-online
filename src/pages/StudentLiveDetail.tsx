@@ -9,8 +9,8 @@ import StudentPageHeader from "@/components/StudentPageHeader";
 const StudentLiveDetail = () => {
   const { streamId } = useParams();
   const navigate = useNavigate();
-  const { language } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir } = useLanguage();
+  const isRtl = dir === "rtl";
 
   const stream = {
     id: streamId || "demo-1",

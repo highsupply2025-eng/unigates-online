@@ -10,9 +10,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 const StudentSchedules = () => {
-  const { language } = useLanguage();
+  const { language, dir } = useLanguage();
   const navigate = useNavigate();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<any[]>([]);
 

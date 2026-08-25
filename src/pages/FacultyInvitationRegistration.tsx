@@ -23,7 +23,7 @@ interface InvitationData {
 const FacultyInvitationRegistration = () => {
   const { token } = useParams<{ token: string }>();
   const { language, dir } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
 
   const [status, setStatus] = useState<TokenStatus>("loading");

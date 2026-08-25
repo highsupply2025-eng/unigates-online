@@ -15,8 +15,8 @@ const collegeImages = [collegeBg1, collegeBg2];
 const instituteImages = [instituteBg1, instituteBg2];
 
 const RegisteredUniversitiesSection = () => {
-  const { language } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir } = useLanguage();
+  const isRtl = dir === "rtl";
   const collegesScrollRef = useRef<HTMLDivElement>(null);
   const institutesScrollRef = useRef<HTMLDivElement>(null);
 

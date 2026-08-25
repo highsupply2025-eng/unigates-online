@@ -61,8 +61,8 @@ interface SubsSnapshot { data: StudentRecord[]; total: number; fetchedAt: number
 let __subsCache: SubsSnapshot | null = null;
 
 const StudentSubscriptions = () => {
-  const { language, toggleLanguage } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir, toggleLanguage } = useLanguage();
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const { identity } = useInstitutionIdentity({ redirectOnMissing: false });
 

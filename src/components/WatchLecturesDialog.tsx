@@ -13,8 +13,8 @@ interface WatchLecturesDialogProps {
 }
 
 const WatchLecturesDialog = ({ open, onOpenChange, courses, episodes }: WatchLecturesDialogProps) => {
-  const { language } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir } = useLanguage();
+  const isRtl = dir === "rtl";
 
   const totalEpisodes = courses.reduce((sum, c) => {
     return sum + episodes.filter(e => e.course_id === c.id).length;

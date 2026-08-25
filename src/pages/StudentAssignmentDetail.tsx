@@ -14,8 +14,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 const StudentAssignmentDetail = () => {
   const { assignmentId } = useParams();
-  const { language } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir } = useLanguage();
+  const isRtl = dir === "rtl";
   const [answer, setAnswer] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);

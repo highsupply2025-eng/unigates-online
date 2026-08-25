@@ -27,8 +27,8 @@ interface Props {
  * exactly matches the activity chart above (which uses the same trick).
  */
 export const MenuItemsStatsGrid = ({ items, className = "", naturalRtl = true }: Props) => {
-  const { language } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir } = useLanguage();
+  const isRtl = dir === "rtl";
   const useNatural = isRtl && naturalRtl;
   const ordered = isRtl && !naturalRtl ? [...items].reverse() : items;
 

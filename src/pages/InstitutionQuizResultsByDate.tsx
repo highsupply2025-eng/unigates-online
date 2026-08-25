@@ -39,7 +39,7 @@ const InstitutionQuizResultsByDate = () => {
   const { date } = useParams<{ date: string }>();
   const navigate = useNavigate();
   const { language, dir } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const { identity, loading: identityLoading } = useInstitutionIdentity();
 
   const [loading, setLoading] = useState(true);

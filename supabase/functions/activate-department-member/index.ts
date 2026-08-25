@@ -51,6 +51,24 @@ function genPassword() {
   return out;
 }
 
+const ALLOWED_ROLES = new Set([
+  "student",
+  "dean",
+  "vice_dean",
+  "vice_dean_postgrad",
+  "vice_dean_students",
+  "vice_dean_community",
+  "vice_dean_environment",
+  "college_secretary",
+  "library_manager",
+  "department_head",
+  "teaching_assistant",
+  "professor",
+  "doctor",
+  "lecturer",
+  "assistant_lecturer",
+]);
+
 const FACULTY_ROLES = new Set([
   "dean",
   "vice_dean",
@@ -200,6 +218,7 @@ Deno.serve(async (req) => {
     if (!fullName) return fail("validate", "Missing full_name", 400);
     if (!departmentId) return fail("validate", "Missing department_id", 400);
     if (!role) return fail("validate", "Missing role", 400);
+    if (!ALLOWED_ROLES.has(role)) return fail("validate", "Invalid role", 400);
 
     // Synthesize email if not provided
     if (!email) {
@@ -420,7 +439,8 @@ Deno.serve(async (req) => {
       } catch (_) {
         /* ignore */
       }
-      return fail("rollback", e?.message || String(e), 500);
+      console.error("[activate-department-member] activation failed", { message: e?.message });
+      return fail("activation_failed", "Account activation failed", 500);
     }
   } catch (e: any) {
     const message = e instanceof Error ? e.message : String(e);
@@ -435,6 +455,6 @@ Deno.serve(async (req) => {
         /* ignore */
       }
     }
-    return fail("rollback", message, 500);
+    return fail("unexpected", "An unexpected error occurred", 500);
   }
 });

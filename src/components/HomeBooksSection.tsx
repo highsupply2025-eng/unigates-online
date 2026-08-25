@@ -12,9 +12,9 @@ import bookBg2 from "@/assets/book-bg-2.jpg";
 const bookImages = [bookBg1, bookBg2];
 
 const HomeBooksSection = () => {
-  const { language } = useLanguage();
+  const { language, dir } = useLanguage();
   const { data: books } = useBooks();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const allFeaturedBooks = [

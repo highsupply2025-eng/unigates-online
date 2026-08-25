@@ -45,6 +45,8 @@ export function useInstitutionStats(
   // Monotonically increasing tick that triggers a refetch
   const [refreshTick, setRefreshTick] = useState(0);
   const tickRef = useRef(0);
+  // Request counter to discard stale responses from overlapping fetches
+  const requestIdRef = useRef(0);
 
   const fetchStats = useCallback(async () => {
     if (!institutionId || !institutionType) {
@@ -52,21 +54,22 @@ export function useInstitutionStats(
       return;
     }
 
+    const currentRequest = ++requestIdRef.current;
+
     try {
       // 1. Fetch department IDs for this institution
-      const { data: depts } = await supabase
+      const { data: depts, error: deptsErr } = await supabase
         .from("departments")
         .select("id")
         .eq("institution_id", institutionId)
         .eq("institution_type", institutionType);
 
+      if (deptsErr) throw deptsErr;
+      if (currentRequest !== requestIdRef.current) return;
+
       const deptIds = (depts || []).map((d) => d.id);
 
       // 2. Parallel fetch all counts from authoritative sources.
-      // People totals (students + faculty) come from the shared server-side
-      // aggregate so dashboard numbers match the public university platform
-      // exactly: pending members counted, users deduplicated across
-      // membership sources, no client-side row limits.
       const [deptCountRes, peopleRes, schedulesRes, resultsRes] = await Promise.all([
         // A. Department count
         supabase
@@ -96,6 +99,20 @@ export function useInstitutionStats(
           .eq("institution_id", institutionId),
       ]);
 
+      // Discard if a newer request has started
+      if (currentRequest !== requestIdRef.current) return;
+
+      // Check for individual query errors
+      const errors = [
+        deptCountRes.error && "departments",
+        peopleRes.error && "people_stats",
+        schedulesRes.error && "schedules",
+        resultsRes.error && "results",
+      ].filter(Boolean);
+      if (errors.length) {
+        console.error(`useInstitutionStats: partial failures [${errors.join(", ")}]`);
+      }
+
       const people = (peopleRes.data || {}) as { students?: number; faculty?: number };
 
       setStats({
@@ -106,8 +123,8 @@ export function useInstitutionStats(
         resultCount: resultsRes.count || 0,
         isLoading: false,
       });
-    } catch (err) {
-      console.error("useInstitutionStats fetch error:", err);
+    } catch {
+      if (currentRequest !== requestIdRef.current) return;
       setStats((s) => ({ ...s, isLoading: false }));
     }
   }, [institutionId, institutionType]);

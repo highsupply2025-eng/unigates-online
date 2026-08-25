@@ -25,7 +25,7 @@ interface BankDetails {
 
 const AdminPaymentSettings = () => {
   const { language, dir, toggleLanguage } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const { toast } = useToast();
 

@@ -30,7 +30,7 @@ const SchoolTeacherDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
 
   const [user, setUser] = useState<any>(null);
   const [approved, setApproved] = useState<boolean | null>(null);

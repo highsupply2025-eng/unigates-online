@@ -8,7 +8,7 @@ import { useInstitutionIdentity } from "@/hooks/useInstitutionIdentity";
 
 const StudentMyAcademic = () => {
   const { language, dir } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const { identity } = useInstitutionIdentity({ redirectOnMissing: false });
   const isCollege = identity?.institutionType === "college";
 

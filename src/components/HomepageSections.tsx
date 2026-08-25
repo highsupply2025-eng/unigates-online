@@ -31,8 +31,8 @@ const schoolBgs = [schoolBg1, schoolBg2, schoolBg3, schoolBg4];
 const courseBgs = [courseBg1, courseBg2, courseBg3, courseBg4];
 
 const HomepageSections = () => {
-  const { language } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir } = useLanguage();
+  const isRtl = dir === "rtl";
 
   // ── Colleges (separate section, shown first) ────────────────
   const { data: rawColleges } = useQuery({

@@ -27,8 +27,8 @@ const MONTHLY_PRICE = 50;
 const ANNUAL_DISCOUNT = 0.1;
 
 const InstitutionPaymentDetails = () => {
-  const { language, toggleLanguage } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir, toggleLanguage } = useLanguage();
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();

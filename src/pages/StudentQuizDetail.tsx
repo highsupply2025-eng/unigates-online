@@ -60,8 +60,8 @@ const QUESTIONS: Question[] = [
 
 const StudentQuizDetail = () => {
   const { quizId } = useParams();
-  const { language } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir } = useLanguage();
+  const isRtl = dir === "rtl";
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState(0);

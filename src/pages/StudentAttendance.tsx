@@ -8,9 +8,9 @@ import StudentHero from "@/components/StudentHero";
 import { Card, CardContent } from "@/components/ui/card";
 
 const StudentAttendance = () => {
-  const { language } = useLanguage();
+  const { language, dir } = useLanguage();
   const navigate = useNavigate();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<any[]>([]);
   const [stats, setStats] = useState({ total: 0, last7: 0, totalMinutes: 0 });

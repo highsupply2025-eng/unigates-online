@@ -6,8 +6,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 
 const SchoolAdminAccount = () => {
-  const { language, toggleLanguage } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir, toggleLanguage } = useLanguage();
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const handleLogout = async () => { await supabase.auth.signOut(); navigate("/"); };
 

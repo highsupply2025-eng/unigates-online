@@ -12,8 +12,8 @@ import schoolBg2 from "@/assets/school-bg-2.jpg";
 const schoolImages = [schoolBg1, schoolBg2];
 
 const RegisteredSchoolsSection = () => {
-  const { language } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir } = useLanguage();
+  const isRtl = dir === "rtl";
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const { data: schools, isLoading } = useQuery({

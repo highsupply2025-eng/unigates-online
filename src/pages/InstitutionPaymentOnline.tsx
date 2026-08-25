@@ -107,8 +107,8 @@ const providers: Provider[] = [
 ];
 
 const InstitutionPaymentOnline = () => {
-  const { language, toggleLanguage } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir, toggleLanguage } = useLanguage();
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();

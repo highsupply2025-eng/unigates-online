@@ -24,10 +24,10 @@ const shuffle = <T,>(arr: T[]): T[] => {
 };
 
 const StudentQuizzes = () => {
-  const { language } = useLanguage();
+  const { language, dir } = useLanguage();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);

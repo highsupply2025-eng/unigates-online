@@ -30,8 +30,8 @@ const ComingSoonCardWithIcon = ({ icon: Icon, titleAr, titleEn, isRtl }: { icon:
 );
 
 const HomeBookStoreSection = () => {
-  const { language } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir } = useLanguage();
+  const isRtl = dir === "rtl";
 
   return (
     <section className="py-8 px-6 md:px-12">

@@ -15,7 +15,8 @@ const courseImages = [courseBg1, courseBg2];
 
 const TrendingCourses = memo(() => {
   const [filter, setFilter] = useState("popular");
-  const { t, language } = useLanguage();
+  const { t, dir, language } = useLanguage();
+  const isRtl = dir === "rtl";
   const scrollRef = useRef<HTMLDivElement>(null);
   const { ref: animRef, isVisible } = useScrollAnimation();
   const popular = usePopularCourses();
@@ -32,10 +33,10 @@ const TrendingCourses = memo(() => {
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
     const scrollAmount = 280;
-    const dir = language === "ar"
+    const scrollDir = isRtl
       ? (direction === "left" ? scrollAmount : -scrollAmount)
       : (direction === "left" ? -scrollAmount : scrollAmount);
-    scrollRef.current.scrollBy({ left: dir, behavior: "smooth" });
+    scrollRef.current.scrollBy({ left: scrollDir, behavior: "smooth" });
   };
 
   const getTitle = (course: Course) => language === "ar" ? course.title_ar : course.title_en;

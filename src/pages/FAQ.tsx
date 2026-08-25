@@ -157,7 +157,7 @@ const faqCategories = {
 
 const FAQ = () => {
   const { language, dir } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const categories = isRtl ? faqCategories.ar : faqCategories.en;
 
   const faqJsonLd = {

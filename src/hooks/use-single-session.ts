@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 const DEVICE_KEY = "unigates_device_id";
 const STALE_MS = 2 * 60 * 1000; // 2 minutes
@@ -15,6 +16,10 @@ const DEFAULT_LIMIT = 1;
 const getDeviceId = (): string => {
   let id = localStorage.getItem(DEVICE_KEY);
   if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem(DEVICE_KEY, id);
+  }
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
     id = crypto.randomUUID();
     localStorage.setItem(DEVICE_KEY, id);
   }
@@ -59,9 +64,11 @@ export const useSingleSession = () => {
       const mine = fresh.find((s: any) => s.device_id === deviceId);
 
       if (!mine && fresh.length >= limit) {
-        alert(
-          `لقد بلغت الحد الأقصى للأجهزة النشطة (${limit}). الرجاء تسجيل الخروج من جهاز آخر أولاً.\n\nYou reached the maximum active devices (${limit}). Please sign out from another device first.`
-        );
+        toast({
+          title: `Maximum active devices reached (${limit})`,
+          description: "You reached the maximum active devices. Please sign out from another device first.",
+          variant: "destructive",
+        });
         await supabase.auth.signOut();
         navigate("/login", { replace: true });
         return false;
@@ -89,6 +96,7 @@ export const useSingleSession = () => {
 
     const start = async (userId: string) => {
       const limit = await getLimit(userId);
+      if (cancelled) return;
       const ok = await claimSession(userId, limit);
       if (!ok || cancelled) return;
 
@@ -121,13 +129,13 @@ export const useSingleSession = () => {
     const bootTimer = setTimeout(() => {
       if (cancelled) return;
       supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session?.user && !cancelled) start(session.user.id);
-      });
+        if (session?.user && !cancelled) start(session.user.id).catch(() => {});
+      }).catch(() => {});
     }, 500);
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session?.user) {
-        setTimeout(() => start(session.user.id), 0);
+        setTimeout(() => start(session.user.id).catch(() => {}), 0);
       } else if (event === "SIGNED_OUT") {
         stop();
       }
@@ -136,8 +144,16 @@ export const useSingleSession = () => {
     const onUnload = () => {
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session?.user) {
-          navigator.sendBeacon?.(
-            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/active_sessions?user_id=eq.${session.user.id}&device_id=eq.${deviceId}`
+          fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/active_sessions?user_id=eq.${session.user.id}&device_id=eq.${deviceId}`,
+            {
+              method: "DELETE",
+              headers: {
+                apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+                Authorization: `Bearer ${session.access_token}`,
+              },
+              keepalive: true,
+            }
           );
         }
       });

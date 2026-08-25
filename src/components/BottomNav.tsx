@@ -78,8 +78,8 @@ const HIDDEN_PREFIXES = [
 
 const BottomNav = () => {
   const { pathname } = useLocation();
-  const { language } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir } = useLanguage();
+  const isRtl = dir === "rtl";
   const [isNative, setIsNative] = useState(false);
 
   useEffect(() => {

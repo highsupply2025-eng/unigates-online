@@ -29,7 +29,7 @@ const DemoItemPage = () => {
   const navigate = useNavigate();
   const { dir, language } = useLanguage();
   const { toast } = useToast();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
 
   const meta = SECTIONS[section] || SECTIONS.livestreams;
   const title = isRtl ? meta.ar : meta.en;

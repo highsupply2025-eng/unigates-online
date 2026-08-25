@@ -24,8 +24,8 @@ const blogPosts = {
 };
 
 const Blog = () => {
-  const { language } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir } = useLanguage();
+  const isRtl = dir === "rtl";
   const posts = blogPosts[language];
 
   return (

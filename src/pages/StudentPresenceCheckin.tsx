@@ -12,8 +12,8 @@ import StudentPageHeader from "@/components/StudentPageHeader";
 type Geo = { latitude: number; longitude: number; accuracy: number } | null;
 
 export default function StudentPresenceCheckin() {
-  const { language } = useLanguage();
-  const isAr = language === "ar";
+  const { language, dir } = useLanguage();
+  const isAr = dir === "rtl";
   const { toast } = useToast();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);

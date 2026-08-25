@@ -18,9 +18,9 @@ interface UploadFilesDialogProps {
 }
 
 const UploadFilesDialog = ({ open, onOpenChange, courses, userId, onUploaded }: UploadFilesDialogProps) => {
-  const { language } = useLanguage();
+  const { language, dir } = useLanguage();
   const { toast } = useToast();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [uploadFile, setUploadFile] = useState<File | null>(null);

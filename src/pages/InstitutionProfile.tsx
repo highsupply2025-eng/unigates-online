@@ -52,7 +52,7 @@ function getPlanLabel(plan: string | null | undefined, isRtl: boolean) {
 
 const InstitutionProfile = () => {
   const { dir, language, toggleLanguage } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
   const fileRef = useRef<HTMLInputElement>(null);

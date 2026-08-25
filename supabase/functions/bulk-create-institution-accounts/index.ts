@@ -115,7 +115,25 @@ async function rollbackNewUser(admin: ReturnType<typeof createClient>, uid: stri
     if (error) console.error(`[bulk-create-institution-accounts] rollback failed for ${table}: ${error.message}`);
   }
   const { error } = await admin.auth.admin.deleteUser(uid);
-  if (error) console.error(`[bulk-create-institution-accounts] auth rollback failed: ${error.message}`);
+  if (error) console.error(`[bulk-create-institution-accounts] auth rollback failed`);
+}
+
+// Per-user sliding-window rate limiter: max 3 bulk imports per 15 minutes.
+const RL_MAX = 3;
+const RL_WINDOW_MS = 15 * 60 * 1000;
+const rlHits = new Map<string, number[]>();
+function rateLimit(userId: string): boolean {
+  const now = Date.now();
+  const arr = (rlHits.get(userId) ?? []).filter((t) => now - t < RL_WINDOW_MS);
+  if (arr.length >= RL_MAX) { rlHits.set(userId, arr); return false; }
+  arr.push(now);
+  rlHits.set(userId, arr);
+  if (rlHits.size > 5000) {
+    for (const [k, v] of rlHits) {
+      if (v.length === 0 || now - v[v.length - 1] > RL_WINDOW_MS) rlHits.delete(k);
+    }
+  }
+  return true;
 }
 
 Deno.serve(async (req) => {
@@ -131,6 +149,10 @@ Deno.serve(async (req) => {
     });
     const { data: { user } } = await userClient.auth.getUser();
     if (!user?.id) return json({ error: "Unauthorized" }, 401);
+
+    if (!rateLimit(user.id)) {
+      return json({ error: "Too many requests. Try again later." }, 429);
+    }
 
     const body = await req.json().catch(() => ({}));
     const institutionType: string = body.institution_type;

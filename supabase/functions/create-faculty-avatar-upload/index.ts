@@ -292,11 +292,9 @@ Deno.serve(async (req) => {
       token: signedUpload.token,
       public_url: publicUrlData.publicUrl,
     });
-  } catch (error) {
+  } catch {
     return fail(
-      error instanceof Error
-        ? error.message
-        : String(error),
+      "Upload failed",
       500,
       "unexpected",
     );

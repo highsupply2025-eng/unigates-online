@@ -14,9 +14,9 @@ import { useToast } from "@/hooks/use-toast";
 const StudentScheduleDetail = () => {
   const { scheduleId } = useParams();
   const navigate = useNavigate();
-  const { language } = useLanguage();
+  const { language, dir } = useLanguage();
   const { toast } = useToast();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const [showRating, setShowRating] = useState(false);
   const alreadyRated = hasRated("schedule", scheduleId);
 

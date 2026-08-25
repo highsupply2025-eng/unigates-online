@@ -12,7 +12,7 @@ interface AccessStatus {
 
 const StudentAccessGuard = () => {
   const { language, dir } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(true);

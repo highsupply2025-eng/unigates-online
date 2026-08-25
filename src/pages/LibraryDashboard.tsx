@@ -8,7 +8,7 @@ import { Loader2, Library, MessageSquare, Users, Building2 } from "lucide-react"
 
 export default function LibraryDashboard() {
   const { language, dir } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [faculty, setFaculty] = useState<any>(null);

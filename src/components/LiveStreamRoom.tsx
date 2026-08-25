@@ -300,8 +300,8 @@ const LiveStreamRoom = ({ streamId, streamTitle, isHost, participantName, onClos
 
 /* ---------- Host: mute specific participants via data channel ---------- */
 function HostMuteControls() {
-  const { language } = useLanguage();
-  const isAr = language === "ar";
+  const { language, dir } = useLanguage();
+  const isAr = dir === "rtl";
   const room = useRoomContext();
   const remotes = useRemoteParticipants();
   const [open, setOpen] = useState(false);
@@ -360,8 +360,8 @@ function ForceMuteListener() {
   const room = useRoomContext();
   const { localParticipant } = useLocalParticipant();
   const { toast } = useToast();
-  const { language } = useLanguage();
-  const isAr = language === "ar";
+  const { language, dir } = useLanguage();
+  const isAr = dir === "rtl";
 
   useEffect(() => {
     const handler = (payload: Uint8Array, _participant: any, _kind: any, topic?: string) => {
@@ -386,8 +386,8 @@ function ForceMuteListener() {
 
 /* ---------- Viewer: rate the live stream ---------- */
 function StreamRating({ streamId }: { streamId: string }) {
-  const { language } = useLanguage();
-  const isAr = language === "ar";
+  const { language, dir } = useLanguage();
+  const isAr = dir === "rtl";
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [hover, setHover] = useState(0);

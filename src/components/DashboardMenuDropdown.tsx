@@ -55,8 +55,8 @@ const DashboardMenuDropdown = ({
   langLabel,
   logoutLabel,
 }: Props) => {
-  const { t, language } = useLanguage();
-  const isRtl = language === "ar";
+  const { t, language, dir } = useLanguage();
+  const isRtl = dir === "rtl";
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);

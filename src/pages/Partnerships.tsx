@@ -14,7 +14,7 @@ const partners = [
 
 const Partnerships = () => {
   const { language, dir } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
 
   return (
     <div dir={dir} className="min-h-screen bg-background flex flex-col">

@@ -24,9 +24,9 @@ const COLORS: Record<string, string> = {
 };
 
 const StudentRatings = () => {
-  const { language } = useLanguage();
+  const { language, dir } = useLanguage();
   const navigate = useNavigate();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const [params] = useSearchParams();
   const targetStudentId = params.get("student");
 

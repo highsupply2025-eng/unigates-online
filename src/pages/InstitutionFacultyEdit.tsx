@@ -148,7 +148,7 @@ const safeDeptIds = (primary: unknown, junction: Array<{ department_id: string }
 const InstitutionFacultyEdit = () => {
   const { memberId } = useParams<{ memberId: string }>();
   const { language, dir } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
 

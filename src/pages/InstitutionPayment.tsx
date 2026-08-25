@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   GraduationCap, CreditCard, Globe, ArrowLeft,
@@ -13,7 +13,7 @@ import { useInstitutionIdentity } from "@/hooks/useInstitutionIdentity";
 
 const InstitutionPayment = () => {
   const { language, dir, toggleLanguage } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { identity } = useInstitutionIdentity();
@@ -51,8 +51,8 @@ const InstitutionPayment = () => {
   const methods = [
     {
       id: "cash",
-      label: isRtl ? "الدفع نقداً" : "Cash Payment",
-      desc: isRtl ? "تأكيد يدوي عبر الإدارة" : "Manual confirmation by admin",
+      label: isRtl ? "????? ?????" : "Cash Payment",
+      desc: isRtl ? "????? ???? ??? ???????" : "Manual confirmation by admin",
       icon: <Banknote className="w-7 h-7" />,
       color: "from-emerald-400 to-teal-500",
       bg: "bg-emerald-50 dark:bg-emerald-900/20",
@@ -61,8 +61,8 @@ const InstitutionPayment = () => {
     },
     {
       id: "bank-transfer",
-      label: isRtl ? "التحويل البنكي" : "Bank Transfer",
-      desc: isRtl ? "تحويل إلى حساب البنك" : "Transfer to bank account",
+      label: isRtl ? "??????? ??????" : "Bank Transfer",
+      desc: isRtl ? "????? ??? ???? ?????" : "Transfer to bank account",
       icon: <Building2 className="w-7 h-7" />,
       color: "from-blue-400 to-indigo-500",
       bg: "bg-blue-50 dark:bg-blue-900/20",
@@ -71,8 +71,8 @@ const InstitutionPayment = () => {
     },
     {
       id: "online",
-      label: isRtl ? "الدفع أونلاين" : "Online Payment",
-      desc: isRtl ? "ادفع الآن عبر الإنترنت" : "Pay now online",
+      label: isRtl ? "????? ???????" : "Online Payment",
+      desc: isRtl ? "???? ???? ??? ????????" : "Pay now online",
       icon: <GlobeIcon className="w-7 h-7" />,
       color: "from-violet-400 to-purple-500",
       bg: "bg-violet-50 dark:bg-violet-900/20",
@@ -101,17 +101,17 @@ const InstitutionPayment = () => {
               </div>
               <div className="min-w-0">
                 <h1 className="text-sm sm:text-lg font-black text-foreground truncate">
-                  {isRtl ? "تفاصيل الدفع" : "Payment Details"}
+                  {isRtl ? "?????? ?????" : "Payment Details"}
                 </h1>
                 <p className="text-[10px] sm:text-xs text-muted-foreground font-semibold truncate">
-                  {identity?.institutionType === "institute" ? (isRtl ? "لوحة إدارة المعهد" : "Institute Administration") : (isRtl ? "لوحة إدارة الكلية" : "College Administration")}
+                  {identity?.institutionType === "institute" ? (isRtl ? "???? ????? ??????" : "Institute Administration") : (isRtl ? "???? ????? ??????" : "College Administration")}
                 </p>
               </div>
             </div>
           </div>
           <Button variant="ghost" size="sm" onClick={toggleLanguage} className="gap-1.5 shrink-0">
             <Globe className="w-4 h-4" />
-            <span className="hidden sm:inline">{isRtl ? "EN" : "عربي"}</span>
+            <span className="hidden sm:inline">{isRtl ? "EN" : "????"}</span>
           </Button>
         </div>
       </header>
@@ -127,10 +127,10 @@ const InstitutionPayment = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <h2 className="text-sm sm:text-base font-bold text-foreground">
-                  {isRtl ? `الطلاب المحددون` : `Selected Students`}
+                  {isRtl ? `?????? ????????` : `Selected Students`}
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  {isRtl ? `${studentIds.length} طالب` : `${studentIds.length} student(s)`}
+                  {isRtl ? `${studentIds.length} ????` : `${studentIds.length} student(s)`}
                 </p>
               </div>
               <Badge variant="secondary" className="bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 font-bold text-sm shrink-0">
@@ -149,7 +149,7 @@ const InstitutionPayment = () => {
                 ))}
                 {studentNames.length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-6">
-                    {isRtl ? "لم يتم تحديد أي طالب" : "No students selected"}
+                    {isRtl ? "?? ??? ????? ?? ????" : "No students selected"}
                   </p>
                 )}
               </div>
@@ -164,7 +164,7 @@ const InstitutionPayment = () => {
               </div>
               <div>
                 <h2 className="text-sm sm:text-base font-bold text-foreground">
-                  {isRtl ? "ملخص الاشتراك" : "Subscription Summary"}
+                  {isRtl ? "???? ????????" : "Subscription Summary"}
                 </h2>
               </div>
             </div>
@@ -172,31 +172,31 @@ const InstitutionPayment = () => {
               {/* Plan details rows */}
               <div className="rounded-xl bg-muted/30 divide-y divide-border/50 overflow-hidden">
                 <div className="flex items-center justify-between px-4 py-3">
-                  <span className="text-sm text-muted-foreground">{isRtl ? "نوع الباقة" : "Plan Type"}</span>
+                  <span className="text-sm text-muted-foreground">{isRtl ? "??? ??????" : "Plan Type"}</span>
                   <Badge variant="secondary" className={`text-xs font-bold ${planType === "annual" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" : "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400"}`}>
-                    {planType === "annual" ? (isRtl ? "سنوي" : "Annual") : (isRtl ? "شهري" : "Monthly")}
+                    {planType === "annual" ? (isRtl ? "????" : "Annual") : (isRtl ? "????" : "Monthly")}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3">
-                  <span className="text-sm text-muted-foreground">{isRtl ? "عدد الطلاب" : "Number of Students"}</span>
+                  <span className="text-sm text-muted-foreground">{isRtl ? "??? ??????" : "Number of Students"}</span>
                   <span className="text-sm font-semibold text-foreground">{count}</span>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3">
-                  <span className="text-sm text-muted-foreground">{isRtl ? "مدة الاشتراك" : "Subscription Duration"}</span>
-                  <span className="text-sm font-semibold text-foreground">{months} {isRtl ? "شهر" : "month(s)"}</span>
+                  <span className="text-sm text-muted-foreground">{isRtl ? "??? ????????" : "Subscription Duration"}</span>
+                  <span className="text-sm font-semibold text-foreground">{months} {isRtl ? "???" : "month(s)"}</span>
                 </div>
               </div>
 
               {/* Pricing breakdown */}
               <div className="mt-4 space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">{isRtl ? "المبلغ الأساسي" : "Base Amount"}</span>
-                  <span className="text-sm font-semibold text-foreground">{baseAmount} {isRtl ? "ج.م" : "EGP"}</span>
+                  <span className="text-sm text-muted-foreground">{isRtl ? "?????? ???????" : "Base Amount"}</span>
+                  <span className="text-sm font-semibold text-foreground">{baseAmount} {isRtl ? "?.?" : "EGP"}</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex items-center justify-between text-green-600 dark:text-green-400">
-                    <span className="text-sm font-medium">{isRtl ? "خصم الباقة السنوية (10%)" : "Annual Plan Discount (10%)"}</span>
-                    <span className="text-sm font-semibold">-{Math.round(baseAmount * discount)} {isRtl ? "ج.م" : "EGP"}</span>
+                    <span className="text-sm font-medium">{isRtl ? "??? ?????? ??????? (10%)" : "Annual Plan Discount (10%)"}</span>
+                    <span className="text-sm font-semibold">-{Math.round(baseAmount * discount)} {isRtl ? "?.?" : "EGP"}</span>
                   </div>
                 )}
               </div>
@@ -209,10 +209,10 @@ const InstitutionPayment = () => {
                   <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
                     <Shield className="w-5 h-5 text-white" />
                   </div>
-                  <span className="text-base font-bold text-white">{isRtl ? "الإجمالي" : "Total"}</span>
+                  <span className="text-base font-bold text-white">{isRtl ? "????????" : "Total"}</span>
                 </div>
                 <span className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                  {totalAmount} {isRtl ? "ج.م" : "EGP"}
+                  {totalAmount} {isRtl ? "?.?" : "EGP"}
                 </span>
               </div>
             </CardContent>
@@ -226,10 +226,10 @@ const InstitutionPayment = () => {
               </div>
               <div>
                 <h2 className="text-sm sm:text-base font-bold text-foreground">
-                  {isRtl ? "اختر طريقة الدفع" : "Choose Payment Method"}
+                  {isRtl ? "???? ????? ?????" : "Choose Payment Method"}
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  {isRtl ? "اختر الطريقة المناسبة لك" : "Select the method that works for you"}
+                  {isRtl ? "???? ??????? ???????? ??" : "Select the method that works for you"}
                 </p>
               </div>
             </div>

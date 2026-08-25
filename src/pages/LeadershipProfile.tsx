@@ -10,8 +10,8 @@ import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import FacultyMemberProfile from "@/components/FacultyMemberProfile";
 
 const LeadershipProfile = () => {
-  const { language, toggleLanguage } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir, toggleLanguage } = useLanguage();
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);

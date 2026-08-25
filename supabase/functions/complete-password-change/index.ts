@@ -73,9 +73,8 @@ Deno.serve(async (req) => {
     if (beforeError) {
       logProfileState("profile read before update failed", {
         user_id: user.id,
-        error: beforeError.message,
       });
-      return json({ success: false, error: beforeError.message }, 500);
+      return json({ success: false, error: "Failed to read profile" }, 500);
     }
 
     if (!profileBefore) {
@@ -104,7 +103,7 @@ Deno.serve(async (req) => {
       user_metadata: mergedMetadata,
     });
     if (passwordError || !updatedUser.user) {
-      return json({ success: false, error: passwordError?.message || "Password update failed" }, 500);
+      return json({ success: false, error: "Password update failed" }, 500);
     }
 
     // 2) Clear the database flag through the trusted backend helper.
@@ -119,9 +118,8 @@ Deno.serve(async (req) => {
       logProfileState("profile update failed", {
         user_id: user.id,
         rows_updated: 0,
-        reason: profileError?.message || "No profile row returned after update",
       });
-      return json({ success: false, error: profileError?.message || "Profile flag update failed" }, 500);
+      return json({ success: false, error: "Profile flag update failed" }, 500);
     }
 
     logProfileState("update result", {
@@ -161,11 +159,10 @@ Deno.serve(async (req) => {
       user_id: user.id,
       must_change_password: committedProfile?.must_change_password,
       updated_at: committedProfile?.updated_at,
-      error: commitError?.message || null,
     });
 
     if (commitError || !committedProfile || committedProfile.must_change_password !== false) {
-      return json({ success: false, error: commitError?.message || "Committed profile verification failed" }, 500);
+      return json({ success: false, error: "Committed profile verification failed" }, 500);
     }
 
     return json({
@@ -177,7 +174,7 @@ Deno.serve(async (req) => {
       },
       profile: committedProfile,
     });
-  } catch (error: unknown) {
-    return json({ success: false, error: error instanceof Error ? error.message : String(error) }, 500);
+  } catch {
+    return json({ success: false, error: "An unexpected error occurred" }, 500);
   }
 });

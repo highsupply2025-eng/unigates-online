@@ -25,8 +25,8 @@ const TITLES = {
 };
 
 const MandatoryRatingDialog = ({ open, kind, onSubmit, onOpenChange }: Props) => {
-  const { language } = useLanguage();
-  const isAr = language === "ar";
+  const { language, dir } = useLanguage();
+  const isAr = dir === "rtl";
   const { toast } = useToast();
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);

@@ -39,7 +39,7 @@ const UserProfile = () => {
   const { dir, language, toggleLanguage } = useLanguage();
   const { identity } = useInstitutionIdentity({ redirectOnMissing: false });
   const isCollege = identity?.institutionType === "college";
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const handleLogout = async () => { await supabase.auth.signOut(); navigate("/"); };
 

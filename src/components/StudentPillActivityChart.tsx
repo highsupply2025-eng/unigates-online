@@ -61,8 +61,8 @@ export const StudentPillActivityChart = ({
   days = 7,
   className = "",
 }: Props) => {
-  const { language } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir } = useLanguage();
+  const isRtl = dir === "rtl";
 
   const since = Date.now() - days * 24 * 60 * 60 * 1000;
   const baseData = sections.map((s, i) => {

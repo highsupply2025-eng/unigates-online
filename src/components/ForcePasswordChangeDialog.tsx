@@ -136,7 +136,7 @@ function StepIndicator({ step, isRtl }: { step: 1 | 2; isRtl: boolean }) {
  */
 export default function ForcePasswordChangeDialog() {
   const { language, dir } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState<string>("");

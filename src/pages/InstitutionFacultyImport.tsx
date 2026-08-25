@@ -46,7 +46,7 @@ const FACULTY_ROLE_OPTIONS = [
 
 const InstitutionFacultyImport = () => {
   const { language, dir } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isStudent = searchParams.get("role") === "student";

@@ -23,7 +23,7 @@ const ChoosePlan = () => {
   const [isYearly, setIsYearly] = useState(false);
   const navigate = useNavigate();
   const { t, dir, language, toggleLanguage } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ChevronLeft : ChevronRight;
 
   const selected = levels.find(l => l.id === selectedLevel)!;

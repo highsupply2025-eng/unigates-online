@@ -11,7 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
   const { dir, language } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
 
   return (
     <div className="min-h-screen bg-background text-foreground" dir={dir}>

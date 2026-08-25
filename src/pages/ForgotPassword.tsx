@@ -23,7 +23,7 @@ const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const { t, dir, language, toggleLanguage } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();

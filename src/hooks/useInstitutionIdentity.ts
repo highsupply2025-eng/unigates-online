@@ -57,7 +57,7 @@ export function useInstitutionIdentity(options?: UseInstitutionIdentityOptions) 
         }
 
         // Query college registrations
-        const { data: college } = await supabase
+        const { data: college, error: collegeErr } = await supabase
           .from("college_registrations")
           .select("id, college_name, subscription_plan")
           .ilike("email", email)
@@ -65,6 +65,8 @@ export function useInstitutionIdentity(options?: UseInstitutionIdentityOptions) 
           .maybeSingle();
 
         if (cancelled) return;
+
+        if (collegeErr) throw collegeErr;
 
         if (college) {
           const id: InstitutionIdentity = {
@@ -80,7 +82,7 @@ export function useInstitutionIdentity(options?: UseInstitutionIdentityOptions) 
         }
 
         // Fallback to institute registrations
-        const { data: institute } = await supabase
+        const { data: institute, error: instituteErr } = await supabase
           .from("institute_registrations")
           .select("id, institute_name, subscription_plan")
           .ilike("email", email)
@@ -88,6 +90,8 @@ export function useInstitutionIdentity(options?: UseInstitutionIdentityOptions) 
           .maybeSingle();
 
         if (cancelled) return;
+
+        if (instituteErr) throw instituteErr;
 
         if (institute) {
           const id: InstitutionIdentity = {

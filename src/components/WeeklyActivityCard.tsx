@@ -23,8 +23,8 @@ export const WeeklyActivityCard = ({
   subtitle,
   className = "mb-4 sm:mb-6",
 }: Props) => {
-  const { language } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir } = useLanguage();
+  const isRtl = dir === "rtl";
   const cleanDates = (timestamps || []).filter(Boolean) as string[];
   const total = cleanDates.length;
   const data = bucketByDay(cleanDates, 7);

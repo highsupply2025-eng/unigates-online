@@ -24,7 +24,7 @@ const SchoolLogin = () => {
   const goBack = useSmartBack("/school-platform");
   const { toast } = useToast();
   const { t, dir, language, toggleLanguage } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ChevronLeft : ChevronRight;
 
   const handleLogin = async (e: React.FormEvent) => {

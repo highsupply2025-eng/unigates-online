@@ -8,7 +8,7 @@ import { Loader2, ShieldCheck, MessageSquare, Users, Building2 } from "lucide-re
 
 export default function SecretaryDashboard() {
   const { language, dir } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [faculty, setFaculty] = useState<any>(null);

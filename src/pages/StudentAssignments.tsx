@@ -12,9 +12,9 @@ import { Button } from "@/components/ui/button";
 import { buildAssignmentPath } from "@/lib/assignment-url";
 
 const StudentAssignments = () => {
-  const { language } = useLanguage();
+  const { language, dir } = useLanguage();
   const navigate = useNavigate();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<any[]>([]);
   const [submittedIds, setSubmittedIds] = useState<Set<string>>(new Set());

@@ -6,6 +6,25 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// In-memory sliding-window rate limiter (per-IP): max 10 requests / 5 minutes.
+const RL_MAX = 10;
+const RL_WINDOW_MS = 5 * 60 * 1000;
+const rlHits = new Map<string, number[]>();
+function rateLimit(ip: string): boolean {
+  const now = Date.now();
+  const arr = (rlHits.get(ip) ?? []).filter((t) => now - t < RL_WINDOW_MS);
+  if (arr.length >= RL_MAX) { rlHits.set(ip, arr); return false; }
+  arr.push(now);
+  rlHits.set(ip, arr);
+  if (rlHits.size > 5000) {
+    for (const [k, v] of rlHits) {
+      const kept = v.filter((t) => now - t < RL_WINDOW_MS);
+      if (kept.length === 0) rlHits.delete(k); else rlHits.set(k, kept);
+    }
+  }
+  return true;
+}
+
 const SYSTEM_PROMPT = `أنت "مساعد UNIGATES الذكي" — مستشار تعليمي ودود ومحترف يمثّل منصة UNIGATES. مهمتك ليست فقط الإجابة، بل **توجيه العميل** لاتخاذ القرار المناسب عبر طرح أسئلة توضيحية قصيرة، وتقديم البيانات الدقيقة، واقتراح الخطوة التالية بوضوح (رابط تسجيل، قسم، أو تواصل مع الدعم).
 
 ═══════════════════════════════════════
@@ -63,7 +82,19 @@ serve(async (req) => {
   }
 
   try {
-    // Public endpoint: allow anonymous chat. Only rate-limit input size.
+    // Public endpoint: allow anonymous chat. Rate-limit per IP.
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+      req.headers.get("cf-connecting-ip") ||
+      req.headers.get("x-real-ip") ||
+      "unknown";
+    if (!rateLimit(ip)) {
+      return new Response(JSON.stringify({ error: "تم تجاوز الحد المسموح، يرجى المحاولة لاحقاً." }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const body = await req.json().catch(() => ({}));
     const messages = body?.messages;
 
@@ -131,8 +162,7 @@ serve(async (req) => {
     return new Response(response.body, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
-  } catch (e) {
-    console.error("chat error:", e);
+  } catch {
     return new Response(JSON.stringify({ error: "حدث خطأ غير متوقع" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

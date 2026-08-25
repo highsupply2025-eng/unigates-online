@@ -25,7 +25,11 @@ export const useAutoLogout = () => {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // signOut may fail on network issues; still navigate away
+    }
     navigate("/login", { replace: true });
   }, [navigate]);
 

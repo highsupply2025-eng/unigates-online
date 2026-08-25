@@ -51,7 +51,7 @@ const AccountPageBody = ({
   showPassword = true,
 }: Props) => {
   const { dir, language } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
 

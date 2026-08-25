@@ -23,9 +23,9 @@ interface Props {
 
 const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true, backTo, backLabelAr, backLabelEn, onBackClick }: Props) => {
 
-  const { t, language, toggleLanguage } = useLanguage();
+  const { t, language, dir, toggleLanguage } = useLanguage();
   const navigate = useNavigate();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

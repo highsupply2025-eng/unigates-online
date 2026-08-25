@@ -16,9 +16,9 @@ interface Props {
 }
 
 const LecturerPageHeader = ({ titleAr, titleEn, icon, activeKey = "quiz-results" }: Props) => {
-  const { language, toggleLanguage } = useLanguage();
+  const { language, dir, toggleLanguage } = useLanguage();
   const navigate = useNavigate();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

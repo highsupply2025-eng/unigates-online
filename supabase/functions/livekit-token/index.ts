@@ -174,10 +174,9 @@ Deno.serve(async (req) => {
       JSON.stringify({ token: livekitToken, url: LIVEKIT_URL }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-  } catch (error: unknown) {
-    console.error("Error generating LiveKit token:", error);
-    const msg = error instanceof Error ? error.message : "Unknown error";
-    return new Response(JSON.stringify({ error: msg }), {
+  } catch {
+    console.error("Error generating LiveKit token");
+    return new Response(JSON.stringify({ error: "Failed to generate token" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

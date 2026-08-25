@@ -26,7 +26,7 @@ const StudentDashboard = () => {
   const { identity } = useInstitutionIdentity({ redirectOnMissing: false });
   const isCollege = identity?.institutionType === "college";
   const navigate = useNavigate();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
 
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);

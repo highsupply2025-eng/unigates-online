@@ -79,8 +79,8 @@ const Section = ({ rows, emptyAr, emptyEn, isRtl }: { rows: Row[]; emptyAr: stri
 };
 
 const RatingsBreakdown = ({ lecturerId }: Props) => {
-  const { language } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir } = useLanguage();
+  const isRtl = dir === "rtl";
   const [lectures, setLectures] = useState<Row[]>([]);
   const [streams, setStreams] = useState<Row[]>([]);
   const [quizzes, setQuizzes] = useState<Row[]>([]);

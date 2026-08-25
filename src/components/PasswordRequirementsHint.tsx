@@ -3,8 +3,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { PASSWORD_RULES } from "@/lib/password";
 
 const PasswordRequirementsHint = () => {
-  const { language } = useLanguage();
-  const isRtl = language === "ar";
+  const { language, dir } = useLanguage();
+  const isRtl = dir === "rtl";
 
   return (
     <div className="rounded-lg border border-primary/15 bg-primary/5 p-3 space-y-1.5 text-start">

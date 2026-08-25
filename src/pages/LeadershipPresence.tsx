@@ -27,7 +27,7 @@ const todayStr = () => new Date().toISOString().slice(0, 10);
 
 export default function LeadershipPresence() {
   const { language, dir } = useLanguage();
-  const isRtl = language === "ar";
+  const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const { toast } = useToast();
 

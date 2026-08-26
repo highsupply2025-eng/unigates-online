@@ -800,10 +800,24 @@ const InstitutionDashboard = () => {
       ...leadershipMembersData.map(m => m.user_id),
     ]));
     if (linkedUserIds.length > 0) {
-      const { data: profs } = await supabase
-        .from("profiles")
-        .select("user_id, full_name, email, phone, role, created_at")
-        .in("user_id", linkedUserIds);
+      let profs: any[] = [];
+      try {
+        const { data: rpcData, error: rpcErr } = await supabase.rpc("get_user_profiles_for_institution" as any, {
+          p_user_ids: linkedUserIds,
+        });
+        if (!rpcErr && Array.isArray(rpcData) && rpcData.length > 0) {
+          profs = rpcData;
+        }
+      } catch { /* fallback */ }
+
+      if (!profs || profs.length === 0) {
+        const { data: directData } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, email, phone, role, created_at, must_change_password")
+          .in("user_id", linkedUserIds);
+        profs = directData || [];
+      }
+
       const map: Record<string, any> = {};
       (profs || []).forEach((p: any) => { map[p.user_id] = p; });
       snapshotProfilesMap = map;

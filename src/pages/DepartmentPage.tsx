@@ -241,9 +241,24 @@ const DepartmentPage = () => {
       const linkedUserIds = visibleMembers.filter(m => m.user_id).map(m => m.user_id as string);
       let snapshotMap: Record<string, MemberProfile> = {};
       if (linkedUserIds.length > 0) {
-        const [{ data: profilesData }] = await Promise.all([
-          supabase.from("profiles").select("user_id,email,phone,full_name,must_change_password,avatar_url").in("user_id", linkedUserIds),
-        ]);
+        let profilesData: any[] = [];
+        try {
+          const { data: rpcData, error: rpcErr } = await supabase.rpc("get_user_profiles_for_institution" as any, {
+            p_user_ids: linkedUserIds,
+          });
+          if (!rpcErr && Array.isArray(rpcData) && rpcData.length > 0) {
+            profilesData = rpcData;
+          }
+        } catch { /* fallback */ }
+
+        if (!profilesData || profilesData.length === 0) {
+          const { data: directData } = await supabase
+            .from("profiles")
+            .select("user_id,email,phone,full_name,must_change_password,avatar_url")
+            .in("user_id", linkedUserIds);
+          profilesData = directData || [];
+        }
+
         const map: Record<string, MemberProfile> = {};
         (profilesData || []).forEach((p: any) => {
           map[p.user_id] = {

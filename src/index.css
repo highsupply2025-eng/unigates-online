@@ -290,3 +290,24 @@ html.is-native-app body {
 .pt-safe { padding-top: calc(var(--safe-area-top) + 0.25rem); }
 .pb-safe { padding-bottom: calc(var(--safe-area-bottom) + 0.25rem); }
 
+/* Custom modern slim scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.6);
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
+}
+

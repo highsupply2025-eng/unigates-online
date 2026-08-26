@@ -1521,60 +1521,104 @@ const LecturerDashboard = () => {
 
       {/* New Course Dialog */}
       <Dialog open={showNewCourse} onOpenChange={setShowNewCourse}>
-        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{isRtl ? "إنشاء محاضرة جديدة" : "Create New Lecture"}</DialogTitle></DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المحاضر" : "Lecturer Name"}</Label>
-              <Input value={profile?.full_name || user?.email || ""} disabled readOnly className="bg-muted/50" />
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] p-0 gap-0 border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl overflow-hidden bg-card/95 backdrop-blur-xl">
+          {/* Radiant Header */}
+          <div className="relative bg-gradient-to-br from-teal-600 via-emerald-600 to-cyan-700 px-6 pt-7 pb-8 text-center text-white shadow-inner">
+            <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-4 ring-white/15 shadow-lg">
+              <BookOpen className="w-7 h-7 text-white" strokeWidth={2.2} />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المادة (عربي)" : "Subject (Arabic)"}</Label>
-                <Input
-                  value={newCourse.category_ar}
-                  onChange={e => setNewCourse(p => ({ ...p, category_ar: e.target.value }))}
-                  placeholder={isRtl ? "مثال: هندسة، طب، لغات" : "e.g. Engineering"}
-                />
+            <DialogTitle className="text-xl font-black text-white tracking-tight">
+              {isRtl ? "إنشاء محاضرة جديدة" : "Create New Lecture"}
+            </DialogTitle>
+            <p className="text-xs sm:text-sm text-white/85 mt-1 font-medium max-w-xs mx-auto">
+              {isRtl ? "أضف محاضرة جديدة واربطها بالقسم المحدد" : "Add a new lecture and assign it to a department"}
+            </p>
+          </div>
+
+          <div className="px-6 py-5 space-y-4">
+            {/* Lecturer Info */}
+            <div className="rounded-2xl bg-muted/40 border border-border/50 p-4">
+              <Label className="mb-1.5 block text-xs font-bold text-muted-foreground uppercase tracking-wider">{isRtl ? "اسم المحاضر" : "Lecturer Name"}</Label>
+              <Input value={profile?.full_name || user?.email || ""} disabled readOnly className="bg-background/80 border-border/50 h-10 font-semibold" />
+            </div>
+
+            {/* Subject & Title */}
+            <div className="rounded-2xl bg-muted/40 border border-border/50 p-4 space-y-3.5">
+              <Label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">{isRtl ? "تفاصيل المادة والمحاضرة" : "Subject & Lecture Details"}</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{isRtl ? "اسم المادة (عربي)" : "Subject (Arabic)"}</Label>
+                  <Input
+                    value={newCourse.category_ar}
+                    onChange={e => setNewCourse(p => ({ ...p, category_ar: e.target.value }))}
+                    placeholder={isRtl ? "مثال: هندسة، طب، لغات" : "e.g. Engineering"}
+                    className="h-10 border-border/60 focus:border-teal-500 focus:ring-teal-500/20"
+                    dir="rtl"
+                  />
+                </div>
+                <div>
+                  <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{isRtl ? "اسم المادة (إنجليزي)" : "Subject (English)"}</Label>
+                  <Input
+                    value={newCourse.category_en}
+                    onChange={e => setNewCourse(p => ({ ...p, category_en: e.target.value }))}
+                    placeholder="e.g. Engineering"
+                    className="h-10 border-border/60 focus:border-teal-500 focus:ring-teal-500/20"
+                    dir="ltr"
+                  />
+                </div>
               </div>
-              <div>
-                <Label className="mb-1 block text-sm font-semibold">{isRtl ? "اسم المادة (إنجليزي)" : "Subject (English)"}</Label>
-                <Input
-                  value={newCourse.category_en}
-                  onChange={e => setNewCourse(p => ({ ...p, category_en: e.target.value }))}
-                  placeholder="e.g. Engineering"
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="mb-1.5 block text-xs font-semibold">{isRtl ? "عنوان المحاضرة (عربي)" : "Lecture Title (Arabic)"} <span className="text-destructive text-xs">*</span></Label>
+                  <Input value={newCourse.title_ar} onChange={e => setNewCourse(p => ({ ...p, title_ar: e.target.value }))} placeholder={isRtl ? "أدخل عنوان المحاضرة" : "Enter title"} className="h-10 border-border/60 focus:border-teal-500 focus:ring-teal-500/20" dir="rtl" />
+                </div>
+                <div>
+                  <Label className="mb-1.5 block text-xs font-semibold">{isRtl ? "عنوان المحاضرة (إنجليزي)" : "Lecture Title (English)"} <span className="text-destructive text-xs">*</span></Label>
+                  <Input value={newCourse.title_en} onChange={e => setNewCourse(p => ({ ...p, title_en: e.target.value }))} placeholder={isRtl ? "أدخل عنوان المحاضرة" : "Enter title"} className="h-10 border-border/60 focus:border-teal-500 focus:ring-teal-500/20" dir="ltr" />
+                </div>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "عنوان المحاضرة (عربي)" : "Lecture Title (Arabic)"} *</Label><Input value={newCourse.title_ar} onChange={e => setNewCourse(p => ({ ...p, title_ar: e.target.value }))} /></div>
-              <div><Label className="mb-1 block text-sm font-semibold">{isRtl ? "عنوان المحاضرة (إنجليزي)" : "Lecture Title (English)"} *</Label><Input value={newCourse.title_en} onChange={e => setNewCourse(p => ({ ...p, title_en: e.target.value }))} /></div>
+
+            {/* Department & Expiry */}
+            <div className="rounded-2xl bg-muted/40 border border-border/50 p-4 space-y-3.5">
+              <Label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">{isRtl ? "القسم والتواريخ" : "Department & Dates"}</Label>
+              <div>
+                <Label className="mb-1.5 block text-xs font-semibold">{isRtl ? "القسم" : "Department"} <span className="text-destructive text-xs">*</span></Label>
+                <Select value={newCourse.department_id} onValueChange={v => setNewCourse(p => ({ ...p, department_id: v }))}>
+                  <SelectTrigger className={`h-11 border-border/60 focus:border-teal-500 focus:ring-teal-500/20 rounded-xl ${myDepartments.length === 0 ? "border-destructive/40 bg-destructive/5" : ""}`}>
+                    <SelectValue placeholder={myDepartments.length === 0 ? (isRtl ? "لست عضواً في أي قسم" : "Not a member of any department") : (isRtl ? "اختر القسم" : "Select department")} />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl">
+                    {myDepartments.map(d => (
+                      <SelectItem key={d.id} value={d.id} className="py-2.5 font-medium">{d.department_name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {myDepartments.length === 0 && (
+                  <p className="mt-1.5 text-xs text-destructive flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    {isRtl ? "لم يتم العثور على أقسام مرتبطة بحسابك" : "No departments found linked to your account"}
+                  </p>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{isRtl ? "تاريخ الإنشاء" : "Creation Date"}</Label>
+                  <Input type="date" value={newCourse.created_at} onChange={e => setNewCourse(p => ({ ...p, created_at: e.target.value }))} className="h-10 border-border/60 focus:border-teal-500 focus:ring-teal-500/20" />
+                </div>
+                <div>
+                  <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{isRtl ? "تاريخ الانتهاء" : "Expiry Date"}</Label>
+                  <Input type="date" value={newCourse.expires_at} onChange={e => setNewCourse(p => ({ ...p, expires_at: e.target.value }))} className="h-10 border-border/60 focus:border-teal-500 focus:ring-teal-500/20" />
+                </div>
+              </div>
             </div>
-            <div>
-              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "القسم" : "Department"} *</Label>
-              <Select value={newCourse.department_id} onValueChange={v => setNewCourse(p => ({ ...p, department_id: v }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder={myDepartments.length === 0 ? (isRtl ? "لست عضواً في أي قسم" : "Not a member of any department") : (isRtl ? "اختر القسم" : "Select department")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {myDepartments.map(d => (
-                    <SelectItem key={d.id} value={d.id}>{d.department_name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground mt-1">{isRtl ? "كل محتوى تنشئه في هذه المحاضرة سيكون متاحاً فقط لأعضاء هذا القسم" : "All content under this course will be visible only to members of the selected department"}</p>
-            </div>
-            <div>
-              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "تاريخ إنشاء المحاضرة" : "Lecture Creation Date"}</Label>
-              <Input type="date" value={newCourse.created_at} onChange={e => setNewCourse(p => ({ ...p, created_at: e.target.value }))} />
-            </div>
-            <div>
-              <Label className="mb-1 block text-sm font-semibold">{isRtl ? "تاريخ انتهاء المحاضرة" : "Lecture Expiry Date"}</Label>
-              <Input type="date" value={newCourse.expires_at} onChange={e => setNewCourse(p => ({ ...p, expires_at: e.target.value }))} />
-              <p className="text-xs text-muted-foreground mt-1">{isRtl ? "اختياري — تاريخ ينتهي بعده عرض المحاضرة" : "Optional — date after which the lecture is no longer shown"}</p>
-            </div>
-            <Button onClick={handleCreateCourse} disabled={savingCourse} className="w-full gap-2">
-              {savingCourse ? <div className="animate-spin w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full" /> : (<><Plus className="w-4 h-4" />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</>)}
+
+            <Button
+              onClick={handleCreateCourse}
+              disabled={savingCourse || myDepartments.length === 0}
+              className="w-full h-12 gap-2 font-bold bg-gradient-to-r from-teal-600 via-emerald-600 to-cyan-600 hover:from-teal-700 hover:via-emerald-700 hover:to-cyan-700 shadow-lg shadow-teal-600/20 hover:shadow-xl hover:shadow-teal-600/30 transition-all rounded-2xl text-base text-white disabled:opacity-50 disabled:shadow-none"
+            >
+              {savingCourse ? <Loader2 className="w-5 h-5 animate-spin" /> : (<><Plus className="w-5 h-5" strokeWidth={2.5} />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</>)}
             </Button>
           </div>
         </DialogContent>

@@ -2114,85 +2114,83 @@ const LeadershipDashboard = () => {
 
       {/* New Course Dialog */}
       <Dialog open={showNewCourse} onOpenChange={setShowNewCourse}>
-        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto border border-primary/15 shadow-xl shadow-primary/5 p-0">
-          <div className="p-5 pb-0">
-            <DialogHeader className="text-center sm:text-center">
-              <div className="mx-auto mb-3 inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/15 to-teal-500/10 ring-1 ring-primary/10">
-                <BookOpen className="w-5 h-5 text-primary" />
-              </div>
-              <DialogTitle className="text-xl font-bold bg-gradient-to-l from-primary to-teal-600 bg-clip-text text-transparent">
-                {isRtl ? "إنشاء محاضرة جديدة" : "Create New Lecture"}
-              </DialogTitle>
-              <p className="text-sm text-muted-foreground mt-1">{isRtl ? "أضف محاضرة جديدة للنظام" : "Add a new lecture to the system"}</p>
-            </DialogHeader>
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] p-0 gap-0 border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl overflow-hidden bg-card/95 backdrop-blur-xl">
+          {/* Radiant Header */}
+          <div className="relative bg-gradient-to-br from-teal-600 via-emerald-600 to-cyan-700 px-6 pt-7 pb-8 text-center text-white shadow-inner">
+            <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-4 ring-white/15 shadow-lg">
+              <BookOpen className="w-7 h-7 text-white" strokeWidth={2.2} />
+            </div>
+            <DialogTitle className="text-xl font-black text-white tracking-tight">
+              {isRtl ? "إنشاء محاضرة جديدة" : "Create New Lecture"}
+            </DialogTitle>
+            <p className="text-xs sm:text-sm text-white/85 mt-1 font-medium max-w-xs mx-auto">
+              {isRtl ? "أضف محاضرة جديدة واربطها بالقسم المحدد" : "Add a new lecture and assign it to a department"}
+            </p>
           </div>
 
-          <div className="px-5 pb-5 space-y-4">
+          <div className="px-6 py-5 space-y-4">
             {/* Lecturer Info */}
-            <div className="rounded-xl bg-muted/40 border border-border/40 p-3.5">
-              <Label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase tracking-wide">{isRtl ? "المعلومات الأساسية" : "Basic Info"}</Label>
-              <div>
-                <Label className="mb-1.5 block text-sm font-medium">{isRtl ? "اسم المحاضر" : "Lecturer Name"}</Label>
-                <Input value={profile?.full_name || ""} disabled readOnly className="bg-background/60 border-border/50 h-10" />
-              </div>
+            <div className="rounded-2xl bg-muted/40 border border-border/50 p-4">
+              <Label className="mb-1.5 block text-xs font-bold text-muted-foreground uppercase tracking-wider">{isRtl ? "اسم المحاضر" : "Lecturer Name"}</Label>
+              <Input value={profile?.full_name || ""} disabled readOnly className="bg-background/80 border-border/50 h-10 font-semibold" />
             </div>
 
             {/* Subject & Title */}
-            <div className="rounded-xl bg-muted/40 border border-border/40 p-3.5 space-y-3.5">
-              <Label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide">{isRtl ? "تفاصيل المادة والمحاضرة" : "Subject & Lecture Details"}</Label>
+            <div className="rounded-2xl bg-muted/40 border border-border/50 p-4 space-y-3.5">
+              <Label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">{isRtl ? "تفاصيل المادة والمحاضرة" : "Subject & Lecture Details"}</Label>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="mb-1.5 block text-sm font-medium text-muted-foreground">{isRtl ? "اسم المادة (عربي)" : "Subject (Arabic)"}</Label>
-                  <Input value={newCourse.category_ar} onChange={e => setNewCourse(p => ({ ...p, category_ar: e.target.value }))} placeholder={isRtl ? "مثال: هندسة" : "e.g. Engineering"} className="h-10 border-border/50 focus:border-primary focus:ring-primary/20" dir="rtl" />
+                  <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{isRtl ? "اسم المادة (عربي)" : "Subject (Arabic)"}</Label>
+                  <Input value={newCourse.category_ar} onChange={e => setNewCourse(p => ({ ...p, category_ar: e.target.value }))} placeholder={isRtl ? "مثال: هندسة" : "e.g. Engineering"} className="h-10 border-border/60 focus:border-teal-500 focus:ring-teal-500/20" dir="rtl" />
                 </div>
                 <div>
-                  <Label className="mb-1.5 block text-sm font-medium text-muted-foreground">{isRtl ? "اسم المادة (إنجليزي)" : "Subject (English)"}</Label>
-                  <Input value={newCourse.category_en} onChange={e => setNewCourse(p => ({ ...p, category_en: e.target.value }))} placeholder="e.g. Engineering" className="h-10 border-border/50 focus:border-primary focus:ring-primary/20" dir="ltr" />
+                  <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{isRtl ? "اسم المادة (إنجليزي)" : "Subject (English)"}</Label>
+                  <Input value={newCourse.category_en} onChange={e => setNewCourse(p => ({ ...p, category_en: e.target.value }))} placeholder="e.g. Engineering" className="h-10 border-border/60 focus:border-teal-500 focus:ring-teal-500/20" dir="ltr" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="mb-1.5 block text-sm font-medium">{isRtl ? "عنوان المحاضرة (عربي)" : "Lecture Title (Arabic)"} <span className="text-destructive text-xs">●</span></Label>
-                  <Input value={newCourse.title_ar} onChange={e => setNewCourse(p => ({ ...p, title_ar: e.target.value }))} placeholder={isRtl ? "أدخل عنوان المحاضرة" : "Enter lecture title"} className="h-10 border-border/50 focus:border-primary focus:ring-primary/20" dir="rtl" />
+                  <Label className="mb-1.5 block text-xs font-semibold">{isRtl ? "عنوان المحاضرة (عربي)" : "Lecture Title (Arabic)"} <span className="text-destructive text-xs">*</span></Label>
+                  <Input value={newCourse.title_ar} onChange={e => setNewCourse(p => ({ ...p, title_ar: e.target.value }))} placeholder={isRtl ? "أدخل عنوان المحاضرة" : "Enter lecture title"} className="h-10 border-border/60 focus:border-teal-500 focus:ring-teal-500/20" dir="rtl" />
                 </div>
                 <div>
-                  <Label className="mb-1.5 block text-sm font-medium">{isRtl ? "عنوان المحاضرة (إنجليزي)" : "Lecture Title (English)"} <span className="text-destructive text-xs">●</span></Label>
-                  <Input value={newCourse.title_en} onChange={e => setNewCourse(p => ({ ...p, title_en: e.target.value }))} placeholder={isRtl ? "أدخل عنوان المحاضرة" : "Enter lecture title"} className="h-10 border-border/50 focus:border-primary focus:ring-primary/20" dir="ltr" />
+                  <Label className="mb-1.5 block text-xs font-semibold">{isRtl ? "عنوان المحاضرة (إنجليزي)" : "Lecture Title (English)"} <span className="text-destructive text-xs">*</span></Label>
+                  <Input value={newCourse.title_en} onChange={e => setNewCourse(p => ({ ...p, title_en: e.target.value }))} placeholder={isRtl ? "أدخل عنوان المحاضرة" : "Enter lecture title"} className="h-10 border-border/60 focus:border-teal-500 focus:ring-teal-500/20" dir="ltr" />
                 </div>
               </div>
             </div>
 
             {/* Department & Date */}
-            <div className="rounded-xl bg-muted/40 border border-border/40 p-3.5 space-y-3.5">
-              <Label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide">{isRtl ? "القسم والتواريخ" : "Department & Dates"}</Label>
+            <div className="rounded-2xl bg-muted/40 border border-border/50 p-4 space-y-3.5">
+              <Label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">{isRtl ? "القسم والتواريخ" : "Department & Dates"}</Label>
               <div>
-                <Label className="mb-1.5 block text-sm font-medium">{isRtl ? "القسم" : "Department"} <span className="text-destructive text-xs">●</span></Label>
+                <Label className="mb-1.5 block text-xs font-semibold">{isRtl ? "القسم" : "Department"} <span className="text-destructive text-xs">*</span></Label>
                 <Select value={newCourse.department_id} onValueChange={v => setNewCourse(p => ({ ...p, department_id: v }))}>
-                  <SelectTrigger className={`h-10 border-border/50 focus:border-primary focus:ring-primary/20 ${myDepartments.length === 0 ? "border-destructive/40 bg-destructive/5" : ""}`}>
+                  <SelectTrigger className={`h-11 border-border/60 focus:border-teal-500 focus:ring-teal-500/20 rounded-xl ${myDepartments.length === 0 ? "border-destructive/40 bg-destructive/5" : ""}`}>
                     <SelectValue placeholder={myDepartments.length === 0 ? (isRtl ? "لست عضواً في أي قسم" : "Not a member of any department") : (isRtl ? "اختر القسم" : "Select department")} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="rounded-xl">
                     {myDepartments.map(d => (
-                      <SelectItem key={d.id} value={d.id}>{d.department_name}</SelectItem>
+                      <SelectItem key={d.id} value={d.id} className="py-2.5 font-medium">{d.department_name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 {myDepartments.length === 0 && (
                   <p className="mt-1.5 text-xs text-destructive flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3" />
+                    <AlertCircle className="w-3.5 h-3.5" />
                     {isRtl ? "لم يتم العثور على أقسام مرتبطة بحسابك" : "No departments found linked to your account"}
                   </p>
                 )}
               </div>
               <div>
-                <Label className="mb-1.5 block text-sm font-medium text-muted-foreground">{isRtl ? "تاريخ انتهاء المحاضرة" : "Lecture Expiry Date"}</Label>
-                <Input type="date" value={newCourse.expires_at} onChange={e => setNewCourse(p => ({ ...p, expires_at: e.target.value }))} className="h-10 border-border/50 focus:border-primary focus:ring-primary/20" />
+                <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{isRtl ? "تاريخ انتهاء المحاضرة" : "Lecture Expiry Date"}</Label>
+                <Input type="date" value={newCourse.expires_at} onChange={e => setNewCourse(p => ({ ...p, expires_at: e.target.value }))} className="h-10 border-border/60 focus:border-teal-500 focus:ring-teal-500/20" />
               </div>
             </div>
 
             {/* Thumbnail Upload */}
-            <div className="rounded-xl bg-muted/40 border border-border/40 p-3.5">
-              <Label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase tracking-wide">{isRtl ? "الصورة المصغرة" : "Thumbnail"}</Label>
+            <div className="rounded-2xl bg-muted/40 border border-border/50 p-4">
+              <Label className="mb-2 block text-xs font-bold text-muted-foreground uppercase tracking-wider">{isRtl ? "الصورة المصغرة" : "Thumbnail"}</Label>
               {thumbnailPreview ? (
                 <div className="relative w-full h-32 rounded-xl overflow-hidden border border-border/50 shadow-md group">
                   <img src={thumbnailPreview} alt="" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
@@ -2200,9 +2198,9 @@ const LeadershipDashboard = () => {
                   <button type="button" onClick={() => { setThumbnail(null); setThumbnailPreview(null); }} className="absolute top-2 right-2 w-7 h-7 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive/80 hover:scale-110 transition-all duration-200 shadow-lg z-10"><X className="w-4 h-4" /></button>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center h-24 rounded-lg border-2 border-dashed border-border/60 bg-background/50 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all">
-                  <Upload className="w-5 h-5 text-muted-foreground mb-1" />
-                  <span className="text-xs text-muted-foreground">{isRtl ? "اضغط لرفع صورة" : "Click to upload"}</span>
+                <label className="flex flex-col items-center justify-center h-24 rounded-xl border-2 border-dashed border-border/60 bg-background/50 cursor-pointer hover:border-teal-500/50 hover:bg-teal-500/5 transition-all">
+                  <Upload className="w-5 h-5 text-teal-600 mb-1" />
+                  <span className="text-xs font-semibold text-muted-foreground">{isRtl ? "اضغط لرفع صورة مصغرة" : "Click to upload thumbnail"}</span>
                   <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) { setThumbnail(f); setThumbnailPreview(URL.createObjectURL(f)); } }} />
                 </label>
               )}
@@ -2212,9 +2210,9 @@ const LeadershipDashboard = () => {
             <Button
               onClick={handleCreateCourse}
               disabled={savingCourse || myDepartments.length === 0}
-              className="w-full gap-2 font-bold bg-gradient-to-l from-primary to-teal-600 hover:from-primary/90 hover:to-teal-600/90 hover:scale-[1.01] shadow-md hover:shadow-lg transition-all h-11 rounded-xl text-base"
+              className="w-full h-12 gap-2 font-bold bg-gradient-to-r from-teal-600 via-emerald-600 to-cyan-600 hover:from-teal-700 hover:via-emerald-700 hover:to-cyan-700 shadow-lg shadow-teal-600/20 hover:shadow-xl hover:shadow-teal-600/30 transition-all rounded-2xl text-base text-white disabled:opacity-50 disabled:shadow-none"
             >
-              {savingCourse ? <Loader2 className="w-4 h-4 animate-spin" /> : (<><Plus className="w-4 h-4" strokeWidth={3} />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</>)}
+              {savingCourse ? <Loader2 className="w-5 h-5 animate-spin" /> : (<><Plus className="w-5 h-5" strokeWidth={2.5} />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</>)}
             </Button>
           </div>
         </DialogContent>

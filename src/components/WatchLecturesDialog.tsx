@@ -29,19 +29,15 @@ const WatchLecturesDialog = ({ open, onOpenChange, courses, episodes }: WatchLec
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-3xl max-h-[90vh] overflow-y-auto p-0 gap-0">
-        <div className="relative bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600 px-6 pt-8 pb-10 text-center">
-          <DialogClose className="absolute left-3 top-3 z-10 w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 shadow-md flex items-center justify-center text-white hover:bg-white/30 hover:scale-110 transition-all duration-200">
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </DialogClose>
-          <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/30">
-            <Eye className="w-8 h-8 text-white" strokeWidth={2} />
+      <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-3xl max-h-[90vh] p-0 gap-0 border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl overflow-hidden bg-card/95 backdrop-blur-xl">
+        <div className="relative bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600 px-6 pt-7 pb-8 text-center text-white shadow-inner">
+          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-4 ring-white/15 shadow-lg">
+            <Eye className="w-7 h-7 text-white" strokeWidth={2.2} />
           </div>
           <DialogTitle className="text-xl font-black text-white tracking-tight">
             {isRtl ? "مشاهدة المحاضرات من اللوحات الأخرى" : "Watch Lectures from Other Boards"}
           </DialogTitle>
-          <p className="text-sm text-white/75 mt-1 font-medium">
+          <p className="text-xs sm:text-sm text-white/85 mt-1 font-medium">
             {courses.length > 0
               ? isRtl
                 ? `${courses.length} محاضرة \u2014 ${totalEpisodes} حلقة`

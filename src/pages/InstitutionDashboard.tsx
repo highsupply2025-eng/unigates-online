@@ -95,18 +95,20 @@ const normalizeMemberText = (value: unknown) =>
   String(value || "").trim().toLowerCase();
 
 const memberIdentityKey = (member: any) => {
+  const deptPart = member?.department_id ? `dept:${normalizeMemberText(member.department_id)}` : "";
   const userId = normalizeMemberText(member?.user_id);
-  if (userId) return `user:${userId}`;
+  if (userId) return `user:${userId}${deptPart ? `:${deptPart}` : ""}`;
 
   const email = normalizeMemberText(member?.email);
-  if (email) return `email:${email}`;
+  if (email) return `email:${email}${deptPart ? `:${deptPart}` : ""}`;
 
   return [
     "fallback",
     normalizeMemberText(member?.full_name),
     normalizeMemberText(member?.role),
     normalizeMemberText(member?.institution_id),
-  ].join(":");
+    deptPart,
+  ].filter(Boolean).join(":");
 };
 
 const dedupeFacultyMembers = (members: any[]) => {
@@ -665,36 +667,53 @@ const InstitutionDashboard = () => {
       const normalizeText = (value: unknown) =>
         String(value || "").trim().toLowerCase();
 
-      const institutionFaculty = dedupeFacultyMembers((ifm || []).map((f: any) => ({
-        id: f.id,
-        department_id: f.department_id,
-        user_id: f.user_id,
-        full_name: f.full_name,
-        role: f.specific_role,
-        email: f.email,
-        phone: f.phone,
-        photo_url: f.photo_url,
-        date_of_birth: f.date_of_birth,
-        national_id: f.national_id,
-        gender: f.gender,
-        address: f.address,
-        qualification: f.qualification,
-        specialization: f.specialization,
-        notes: f.notes,
-        invitation_code: null,
-        created_at: f.created_at || new Date().toISOString(),
-        __from_ifm: true,
-      })));
+      // Enrich each department_members row with matching IFM details if available
+      const enrichedMembers = visibleMembers.map((m: any) => {
+        const matchingIfm = ifm?.find((f: any) => 
+          (m.user_id && f.user_id === m.user_id) || 
+          (m.email && normalizeMemberText(m.email) === normalizeMemberText(f.email))
+        );
+        if (matchingIfm) {
+          return {
+            ...m,
+            role: m.role || matchingIfm.specific_role || "lecturer",
+            photo_url: matchingIfm.photo_url || m.photo_url,
+            specialization: matchingIfm.specialization || m.specialization,
+            qualification: matchingIfm.qualification || m.qualification,
+            phone: matchingIfm.phone || m.phone,
+            __from_ifm: true,
+          };
+        }
+        return m;
+      });
 
-      // Faculty records are canonical in institution_faculty_members.
-      // Keep legacy department_members only for non-faculty records.
-      const nonFacultyLegacyMembers = visibleMembers.filter(
-        (member: any) => !isFacultyMember(member),
-      );
+      // Also ensure any faculty in IFM whose primary department_id is set is included if not already present in that department
+      const ifmExtras = (ifm || [])
+        .filter((f: any) => f.department_id && !enrichedMembers.some((m: any) => m.department_id === f.department_id && ((m.user_id && m.user_id === f.user_id) || (m.email && normalizeMemberText(m.email) === normalizeMemberText(f.email)))))
+        .map((f: any) => ({
+          id: f.id,
+          department_id: f.department_id,
+          user_id: f.user_id,
+          full_name: f.full_name,
+          role: f.specific_role || "lecturer",
+          email: f.email,
+          phone: f.phone,
+          photo_url: f.photo_url,
+          date_of_birth: f.date_of_birth,
+          national_id: f.national_id,
+          gender: f.gender,
+          address: f.address,
+          qualification: f.qualification,
+          specialization: f.specialization,
+          notes: f.notes,
+          invitation_code: null,
+          created_at: f.created_at || new Date().toISOString(),
+          __from_ifm: true,
+        }));
 
       mergedFacultyMembers = dedupeFacultyMembers([
-        ...nonFacultyLegacyMembers,
-        ...institutionFaculty,
+        ...enrichedMembers,
+        ...ifmExtras,
       ]);
 
       setDeptMembers(mergedFacultyMembers as any);
@@ -921,8 +940,8 @@ const InstitutionDashboard = () => {
       setNewDeptStudentCount("");
       setNewDeptLecturerCount("");
       setNewDeptHeadCount("");
-      const selectedLecturers = deptMembers.filter((m: any) =>
-        newDeptSelectedLecturerIds.includes(m.id) && m.role === "lecturer"
+      const selectedFaculty = deptMembers.filter((m: any) =>
+        newDeptSelectedLecturerIds.includes(m.id) || (m.user_id && newDeptSelectedLecturerIds.includes(m.user_id))
       );
       setNewDeptSelectedLecturerIds([]);
       setAddingDept(false);
@@ -940,7 +959,8 @@ const InstitutionDashboard = () => {
       // Background: create member slots in batches & notification (don't block UI)
       const memberInserts: any[] = [];
       // Student slots are added later via invitations; no pre-created slots needed
-      const blankLecturerSlots = Math.max(0, lecturerCount - selectedLecturers.length);
+      const selectedLecturersCount = selectedFaculty.filter((f: any) => f.role !== "department_head").length;
+      const blankLecturerSlots = Math.max(0, lecturerCount - selectedLecturersCount);
       for (let i = 1; i <= blankLecturerSlots; i++) {
         memberInserts.push({
           department_id: newDept.id,
@@ -949,22 +969,24 @@ const InstitutionDashboard = () => {
           invitation_code: generateCode(),
         });
       }
-      // Pre-fill chosen existing lecturers in the new department
-      for (const lec of selectedLecturers as any[]) {
+      // Pre-fill chosen existing faculty in the new department with their proper roles
+      for (const fac of selectedFaculty as any[]) {
         memberInserts.push({
           department_id: newDept.id,
-          full_name: lec.full_name,
-          email: lec.email ?? null,
-          phone: lec.phone ?? null,
-          user_id: lec.user_id ?? null,
-          role: "lecturer",
+          full_name: fac.full_name,
+          email: fac.email ?? null,
+          phone: fac.phone ?? null,
+          user_id: fac.user_id ?? null,
+          role: fac.role || "lecturer",
           invitation_code: generateCode(),
         });
       }
-      for (let i = 1; i <= headCount; i++) {
+      const selectedHeadsCount = selectedFaculty.filter((f: any) => f.role === "department_head").length;
+      const blankHeadSlots = Math.max(0, headCount - selectedHeadsCount);
+      for (let i = 1; i <= blankHeadSlots; i++) {
         memberInserts.push({
           department_id: newDept.id,
-          full_name: isRtl ? `رئيس قسم ${i}` : `Head ${i}`,
+          full_name: isRtl ? `رئيس قسم ${selectedHeadsCount + i}` : `Head ${selectedHeadsCount + i}`,
           role: "department_head",
           invitation_code: generateCode(),
         });

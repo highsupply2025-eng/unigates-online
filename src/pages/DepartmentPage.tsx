@@ -179,33 +179,53 @@ const DepartmentPage = () => {
         return nm !== "عضو جديد" && nm !== "New Member";
       });
 
-      // ── Faculty authority filter ──────────────────────────────────────
+      // ── Faculty authority filter & User linking ───────────────────────
       // institution_faculty_members is the canonical store for faculty in the institution.
-      // A faculty member may belong to their primary department (in IFM) and also be assigned
-      // to additional secondary departments (in department_members).
       // We query IFM at the institution level to verify the member exists in the institution,
-      // and hide orphan department_members rows if the faculty was deleted entirely.
-      const hasFaculty = visibleMembers.some(m => isFacultyRole(m.role));
-      if (hasFaculty && dept) {
+      // link missing user_ids, and hide orphan department_members rows if the faculty was deleted entirely.
+      if (dept) {
         try {
           const { data: ifmRows } = await supabase
             .from("institution_faculty_members")
-            .select("user_id,email")
+            .select("id,user_id,email,full_name,photo_url,phone,specific_role")
             .eq("institution_id", (dept as any).institution_id)
             .eq("institution_type", (dept as any).institution_type);
           
           if (ifmRows && ifmRows.length > 0) {
-            const validUserIds = new Set(
-              ifmRows.map((r: any) => String(r.user_id || "").toLowerCase()).filter(Boolean),
-            );
-            const validEmails = new Set(
-              ifmRows.map((r: any) => String(r.email || "").toLowerCase()).filter(Boolean),
-            );
-            visibleMembers = visibleMembers.filter(m => {
+            const ifmByEmail = new Map<string, any>();
+            const ifmByName = new Map<string, any>();
+            const ifmByUserId = new Map<string, any>();
+
+            ifmRows.forEach((r: any) => {
+              if (r.user_id) ifmByUserId.set(String(r.user_id).toLowerCase(), r);
+              if (r.email) ifmByEmail.set(String(r.email).toLowerCase(), r);
+              if (r.full_name) ifmByName.set(String(r.full_name).trim().toLowerCase(), r);
+            });
+
+            visibleMembers = visibleMembers.map(m => {
+              if (!isFacultyRole(m.role)) return m;
+              const match = 
+                (m.user_id && ifmByUserId.get(String(m.user_id).toLowerCase())) ||
+                (m.email && ifmByEmail.get(String(m.email).toLowerCase())) ||
+                (m.full_name && ifmByName.get(String(m.full_name).trim().toLowerCase()));
+
+              if (match) {
+                return {
+                  ...m,
+                  user_id: m.user_id || match.user_id || null,
+                  email: m.email || match.email || null,
+                  phone: m.phone || match.phone || null,
+                  photo_url: m.photo_url || match.photo_url || null,
+                };
+              }
+              return m;
+            }).filter(m => {
               if (!isFacultyRole(m.role)) return true;
-              if (m.user_id && validUserIds.has(String(m.user_id).toLowerCase())) return true;
+              if (m.user_id && ifmByUserId.has(String(m.user_id).toLowerCase())) return true;
               const email = (m as any).email ? String((m as any).email).toLowerCase() : "";
-              if (email && validEmails.has(email)) return true;
+              if (email && ifmByEmail.has(email)) return true;
+              const name = (m as any).full_name ? String((m as any).full_name).trim().toLowerCase() : "";
+              if (name && ifmByName.has(name)) return true;
               return false;
             });
           }
@@ -515,9 +535,14 @@ const DepartmentPage = () => {
                 )}
               </div>
               {isLinked && profile ? (
-                <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
                   {profile.email && <span className="truncate max-w-[180px]">{profile.email}</span>}
                   {profile.phone && <span dir="ltr" className="truncate">{profile.phone}</span>}
+                  {profile.must_change_password === true && (
+                    <span className="text-amber-600 dark:text-amber-400 font-medium">
+                      {isRtl ? "(بانتظار تغيير كلمة المرور)" : "(Pending password change)"}
+                    </span>
+                  )}
                 </div>
               ) : (
                 <p className="text-xs text-muted-foreground mt-1">
@@ -527,17 +552,15 @@ const DepartmentPage = () => {
             </div>
 
             <div className="shrink-0 flex items-center gap-2">
-              {isLinked && (
-                isActivated ? (
-                  <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1">
-                    <UserCheck className="w-3.5 h-3.5" />
-                    {isRtl ? "مفعّل" : "Active"}
-                  </Badge>
-                ) : (
-                  <Badge variant="outline" className="border-amber-500 text-amber-700 bg-amber-100/60">
-                    {isRtl ? "غير مفعّل" : "Inactive"}
-                  </Badge>
-                )
+              {isActivated ? (
+                <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 shadow-sm">
+                  <UserCheck className="w-3.5 h-3.5" />
+                  {isRtl ? "مفعّل" : "Active"}
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="border-amber-500 text-amber-700 bg-amber-100/60 font-semibold gap-1">
+                  {isRtl ? "غير مفعّل" : "Inactive"}
+                </Badge>
               )}
               <Button
                 size="sm"

@@ -146,6 +146,42 @@ const dedupeFacultyMembers = (members: any[]) => {
   return Array.from(byKey.values());
 };
 
+const dedupeGlobalFaculty = (members: any[]) => {
+  const byKey = new Map<string, any>();
+
+  for (const member of members) {
+    const userId = normalizeMemberText(member?.user_id);
+    const email = normalizeMemberText(member?.email);
+    const key = userId ? `user:${userId}` : email ? `email:${email}` : `id:${member.id || member.full_name}`;
+    const existing = byKey.get(key);
+
+    if (!existing) {
+      byKey.set(key, member);
+      continue;
+    }
+
+    const existingScore =
+      (existing.__from_ifm ? 100 : 0) +
+      (existing.photo_url ? 10 : 0) +
+      (existing.email ? 5 : 0) +
+      (existing.phone ? 2 : 0);
+
+    const currentScore =
+      (member.__from_ifm ? 100 : 0) +
+      (member.photo_url ? 10 : 0) +
+      (member.email ? 5 : 0) +
+      (member.phone ? 2 : 0);
+
+    if (currentScore > existingScore) {
+      byKey.set(key, { ...existing, ...member });
+    } else {
+      byKey.set(key, { ...member, ...existing });
+    }
+  }
+
+  return Array.from(byKey.values());
+};
+
 const getFunctionErrorMessage = async (
   error: unknown,
   responseData: unknown,
@@ -667,8 +703,30 @@ const InstitutionDashboard = () => {
       const normalizeText = (value: unknown) =>
         String(value || "").trim().toLowerCase();
 
-      // Enrich each department_members row with matching IFM details if available
-      const enrichedMembers = visibleMembers.map((m: any) => {
+      // 1. ALL faculty from institution_faculty_members are canonical members of the institution
+      const allIfmFaculty = (ifm || []).map((f: any) => ({
+        id: f.id,
+        department_id: f.department_id || null,
+        user_id: f.user_id || null,
+        full_name: f.full_name,
+        role: f.specific_role || "lecturer",
+        email: f.email || null,
+        phone: f.phone || null,
+        photo_url: f.photo_url || null,
+        date_of_birth: f.date_of_birth || null,
+        national_id: f.national_id || null,
+        gender: f.gender || null,
+        address: f.address || null,
+        qualification: f.qualification || null,
+        specialization: f.specialization || null,
+        notes: f.notes || null,
+        invitation_code: null,
+        created_at: f.created_at || new Date().toISOString(),
+        __from_ifm: true,
+      }));
+
+      // 2. Department members (from department_members table) enriched with IFM data
+      const enrichedDepartmentMembers = visibleMembers.map((m: any) => {
         const matchingIfm = ifm?.find((f: any) => 
           (m.user_id && f.user_id === m.user_id) || 
           (m.email && normalizeMemberText(m.email) === normalizeMemberText(f.email))
@@ -687,33 +745,10 @@ const InstitutionDashboard = () => {
         return m;
       });
 
-      // Also ensure any faculty in IFM whose primary department_id is set is included if not already present in that department
-      const ifmExtras = (ifm || [])
-        .filter((f: any) => f.department_id && !enrichedMembers.some((m: any) => m.department_id === f.department_id && ((m.user_id && m.user_id === f.user_id) || (m.email && normalizeMemberText(m.email) === normalizeMemberText(f.email)))))
-        .map((f: any) => ({
-          id: f.id,
-          department_id: f.department_id,
-          user_id: f.user_id,
-          full_name: f.full_name,
-          role: f.specific_role || "lecturer",
-          email: f.email,
-          phone: f.phone,
-          photo_url: f.photo_url,
-          date_of_birth: f.date_of_birth,
-          national_id: f.national_id,
-          gender: f.gender,
-          address: f.address,
-          qualification: f.qualification,
-          specialization: f.specialization,
-          notes: f.notes,
-          invitation_code: null,
-          created_at: f.created_at || new Date().toISOString(),
-          __from_ifm: true,
-        }));
-
+      // 3. Merge: all IFM faculty + all department members, deduped per department
       mergedFacultyMembers = dedupeFacultyMembers([
-        ...enrichedMembers,
-        ...ifmExtras,
+        ...allIfmFaculty,
+        ...enrichedDepartmentMembers,
       ]);
 
       setDeptMembers(mergedFacultyMembers as any);
@@ -2591,7 +2626,7 @@ ${exams.map((s: any, i: number) => `<tr>
                 lecturer: { ar: "محاضر", en: "Lecturer" },
                 assistant_lecturer: { ar: "معيد", en: "Assistant Lecturer" },
               };
-              const faculty = dedupeFacultyMembers(
+              const faculty = dedupeGlobalFaculty(
                 (deptMembers as any[])
                   .filter((m) => m.role && m.role !== "student" && !!m.full_name),
               ).sort((a, b) => (ROLE_ORDER[a.role] ?? 99) - (ROLE_ORDER[b.role] ?? 99));

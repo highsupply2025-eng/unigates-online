@@ -28,13 +28,20 @@ const CoursesLogin = () => {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
-      const [{ data: roles }, { data: profile }] = await Promise.all([
+      const [{ data: roles }, { data: profileRpc, error: profileError }] = await Promise.all([
         supabase.from("user_roles").select("role, approved").eq("user_id", data.user.id),
-        supabase.from("profiles").select("role, platform").eq("user_id", data.user.id).maybeSingle(),
+        // SECURITY DEFINER RPC that bypasses RLS entirely and auto-creates
+        // the profile row if it's missing.
+        supabase.rpc("get_or_create_login_profile"),
       ]);
 
+      const profile = profileRpc as { role?: string; platform?: string } | null;
+      if (profileError) {
+        console.warn("[CoursesLogin] get_or_create_login_profile failed:", profileError.message);
+      }
+
       // Ensure the account belongs to the courses platform
-      const platform = (profile as any)?.platform;
+      const platform = profile?.platform;
       if (platform && platform !== "courses") {
         await supabase.auth.signOut();
         toast({

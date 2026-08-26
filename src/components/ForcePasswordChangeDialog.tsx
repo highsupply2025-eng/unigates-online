@@ -179,11 +179,9 @@ export default function ForcePasswordChangeDialog() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setOpen(false); return; }
 
-    const { data: prof, error } = await supabase
-      .from("profiles")
-      .select("must_change_password, email")
-      .eq("user_id", user.id)
-      .maybeSingle();
+    // SECURITY DEFINER RPC: bypasses RLS entirely to avoid 500 errors
+    // from recursive cross-table policies on `profiles`.
+    const { data: profRpc, error } = await supabase.rpc("get_or_create_login_profile");
 
     if (error) {
       if (seq !== checkSeqRef.current || savingRef.current) return;
@@ -192,7 +190,7 @@ export default function ForcePasswordChangeDialog() {
     }
     if (seq !== checkSeqRef.current || savingRef.current) return;
 
-    const profile = prof as ForcePasswordProfile | null;
+    const profile = profRpc as ForcePasswordProfile | null;
     if (profile?.must_change_password === true) {
       setEmail(profile.email || user.email || "");
       setOpen(true);
@@ -258,13 +256,9 @@ export default function ForcePasswordChangeDialog() {
       const { data: { user: refreshedUser }, error: userErr } = await supabase.auth.getUser();
       if (userErr || !refreshedUser) throw userErr || new Error(isRtl ? "لم يتم العثور على المستخدم" : "User not found");
 
-      const { data: freshProfile, error: profileErr } = await supabase
-        .from("profiles")
-        .select("must_change_password, email")
-        .eq("user_id", refreshedUser.id)
-        .maybeSingle();
+      const { data: freshProfileRpc, error: profileErr } = await supabase.rpc("get_or_create_login_profile");
       if (profileErr) throw profileErr;
-      const verifiedProfile = freshProfile as ForcePasswordProfile | null;
+      const verifiedProfile = freshProfileRpc as ForcePasswordProfile | null;
       if (verifiedProfile?.must_change_password !== false) {
         throw new Error(isRtl ? "ما زال الحساب يتطلب تغيير كلمة السر" : "Password-change flag is still enabled");
       }

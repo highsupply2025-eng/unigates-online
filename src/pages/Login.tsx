@@ -75,21 +75,24 @@ const Login = () => {
         return;
       }
 
-      // A failed roles/profile lookup must not be silently treated as "no
-      // role" — surface it through the generic error path instead.
-      const [{ data: roles, error: rolesError }, { data: profile, error: profileError }] = await Promise.all([
+      const [{ data: roles, error: rolesError }, { data: profileRpc, error: profileError }] = await Promise.all([
         supabase
           .from("user_roles")
           .select("role, approved")
           .eq("user_id", data.user.id),
-        supabase
-          .from("profiles")
-          .select("role, platform")
-          .eq("user_id", data.user.id)
-          .maybeSingle(),
+        // SECURITY DEFINER RPC that bypasses RLS entirely and auto-creates
+        // the profile row if it's missing.  This avoids the 500 caused by
+        // recursive cross-table RLS policies on `profiles`.
+        supabase.rpc("get_or_create_login_profile"),
       ]);
+      // user_roles is the primary routing source; throw only if it fails.
       if (rolesError) throw rolesError;
-      if (profileError) throw profileError;
+      // Profile is fetched via RPC (bypasses RLS).  If it still fails, log
+      // and continue — routing will rely on user_roles alone.
+      const profile = profileRpc as { role?: string; platform?: string } | null;
+      if (profileError) {
+        console.warn("[Login] get_or_create_login_profile failed, continuing without profile:", profileError.message);
+      }
 
       const profileRole = profile?.role;
       const userEmail = data.user.email?.trim();

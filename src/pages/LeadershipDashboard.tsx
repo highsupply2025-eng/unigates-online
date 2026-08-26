@@ -652,95 +652,82 @@ const LeadershipDashboard = () => {
     }
     setSavingCourse(true);
     try {
-      // ── Ensure department membership exists for RLS ────────────────────
-      // Old user_in_department() only checks department_members, so if the
-      // mirror row is missing (e.g. after orphan cleanup) the insert fails
-      // with "new row violates row-level security policy". We proactively
-      // (re)create the mirror via the SECURITY DEFINER RPC.
-      try {
-        const { data: membershipOk } = await supabase.rpc("user_in_department" as any, {
-          _user: userId,
-          _dept: newCourse.department_id,
-        });
-        if (membershipOk === false) {
-          await supabase.rpc("assign_faculty_department" as any, {
-            p_user_id: userId,
-            p_new_department_id: newCourse.department_id,
-            p_specific_role: specificRole || profile?.role || "department_head",
-            p_full_name: profile?.full_name || "",
-            p_email: profile?.email || "",
-            p_phone: profile?.phone || "",
-          });
-        }
-      } catch (e) {
-        console.warn("membership ensure failed (non-fatal):", e);
-        // Fallback: try assign anyway
-        try {
-          await supabase.rpc("assign_faculty_department" as any, {
-            p_user_id: userId,
-            p_new_department_id: newCourse.department_id,
-            p_specific_role: specificRole || profile?.role || "department_head",
-            p_full_name: profile?.full_name || "",
-            p_email: profile?.email || "",
-            p_phone: profile?.phone || "",
-          });
-        } catch { /* ignore */ }
-      }
-
       let thumbnailUrl: string | null = null;
       if (thumbnail && userId) {
-        const ext = thumbnail.name.split(".").pop();
-        const path = `${userId}/${Date.now()}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("course-thumbnails").upload(path, thumbnail);
-        if (upErr) throw upErr;
-        const { data: urlData } = supabase.storage.from("course-thumbnails").getPublicUrl(path);
-        thumbnailUrl = urlData.publicUrl;
+        try {
+          const ext = thumbnail.name.split(".").pop();
+          const path = `${userId}/${Date.now()}.${ext}`;
+          const { error: upErr } = await supabase.storage.from("course-thumbnails").upload(path, thumbnail);
+          if (!upErr) {
+            const { data: urlData } = supabase.storage.from("course-thumbnails").getPublicUrl(path);
+            thumbnailUrl = urlData?.publicUrl || null;
+          } else {
+            console.warn("Thumbnail upload warning:", upErr);
+          }
+        } catch (e) {
+          console.warn("Thumbnail upload error:", e);
+        }
       }
-      const lecturerName = profile?.full_name || "";
-      // Try direct insert first (fast path when RLS is correct)
-      let insertedId: string | null = null;
-      const { data: directData, error: directError } = await supabase.from("courses").insert({
-        title_ar: newCourse.title_ar, title_en: newCourse.title_en,
-        category_ar: newCourse.category_ar || (isRtl ? "عام" : "General"),
-        category_en: newCourse.category_en || "General",
-        instructor_ar: lecturerName, instructor_en: lecturerName,
-        is_free: newCourse.is_free, creator_id: userId, thumbnail_url: thumbnailUrl,
-        department_id: newCourse.department_id,
-        expires_at: newCourse.expires_at || null,
-        created_at: newCourse.created_at ? new Date(newCourse.created_at).toISOString() : new Date().toISOString(),
-      } as any).select("id").single();
 
-      if (directError) {
-        const msg = (directError as any)?.message || String(directError);
-        const isRls = msg.includes("row-level security") || msg.includes("violates") || (directError as any)?.code === "42501";
-        if (isRls) {
-          // Fallback to service_role edge function that verifies membership via BOTH tables
-          const { data: fnData, error: fnError } = await supabase.functions.invoke("create-course", {
-            body: {
-              department_id: newCourse.department_id,
-              title_ar: newCourse.title_ar, title_en: newCourse.title_en,
-              category_ar: newCourse.category_ar, category_en: newCourse.category_en,
-              thumbnail_url: thumbnailUrl, expires_at: newCourse.expires_at || null,
-              is_free: newCourse.is_free,
-            },
-          });
-          if (fnError) throw new Error(fnError.message || String(fnError));
-          if (!fnData?.success) throw new Error(fnData?.error || "create-course fallback failed");
-          insertedId = fnData.id;
-        } else {
+      const lecturerName = profile?.full_name || "";
+      let insertedId: string | null = null;
+
+      // 1. Primary: Use atomic SECURITY DEFINER RPC
+      try {
+        const { data: rpcCourseId, error: rpcError } = await supabase.rpc("create_institution_course" as any, {
+          p_department_id: newCourse.department_id,
+          p_title_ar: newCourse.title_ar,
+          p_title_en: newCourse.title_en,
+          p_category_ar: newCourse.category_ar || (isRtl ? "عام" : "General"),
+          p_category_en: newCourse.category_en || "General",
+          p_instructor_ar: lecturerName,
+          p_instructor_en: lecturerName,
+          p_thumbnail_url: thumbnailUrl,
+          p_expires_at: newCourse.expires_at ? new Date(newCourse.expires_at).toISOString() : null,
+          p_is_free: newCourse.is_free ?? false,
+          p_created_at: newCourse.created_at ? new Date(newCourse.created_at).toISOString() : new Date().toISOString(),
+        });
+        if (!rpcError && rpcCourseId) {
+          insertedId = rpcCourseId;
+        }
+      } catch (e) {
+        console.warn("RPC create_institution_course error:", e);
+      }
+
+      // 2. Fallback: Direct insert if RPC not yet loaded
+      if (!insertedId) {
+        const { data: directData, error: directError } = await supabase.from("courses").insert({
+          title_ar: newCourse.title_ar,
+          title_en: newCourse.title_en,
+          category_ar: newCourse.category_ar || (isRtl ? "عام" : "General"),
+          category_en: newCourse.category_en || "General",
+          instructor_ar: lecturerName,
+          instructor_en: lecturerName,
+          is_free: newCourse.is_free,
+          creator_id: userId,
+          thumbnail_url: thumbnailUrl,
+          department_id: newCourse.department_id,
+          expires_at: newCourse.expires_at ? new Date(newCourse.expires_at).toISOString() : null,
+          created_at: newCourse.created_at ? new Date(newCourse.created_at).toISOString() : new Date().toISOString(),
+        } as any).select("id").single();
+
+        if (directError) {
           throw directError;
         }
-      } else {
-        insertedId = (directData as any)?.id || null;
+        insertedId = directData?.id || null;
       }
+
       toast({ title: isRtl ? "تم" : "Done", description: isRtl ? "تم إنشاء الدورة بنجاح" : "Course created successfully" });
       setShowNewCourse(false);
       setNewCourse({ title_ar: "", title_en: "", category_ar: "", category_en: "", instructor_ar: "", instructor_en: "", is_free: false, price: 0, created_at: new Date().toISOString().slice(0, 10), expires_at: "", department_id: "" });
-      setThumbnail(null); setThumbnailPreview(null);
+      setThumbnail(null);
+      setThumbnailPreview(null);
       await loadData();
     } catch (err: any) {
       toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
-    } finally { setSavingCourse(false); }
+    } finally {
+      setSavingCourse(false);
+    }
   };
 
   const openEpisodes = async (courseId: string) => {

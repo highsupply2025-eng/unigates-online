@@ -501,35 +501,79 @@ const LecturerDashboard = () => {
     try {
       let thumbnailUrl: string | null = null;
       if (thumbnail && user) {
-        const ext = thumbnail.name.split(".").pop();
-        const path = `${user.id}/${Date.now()}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("course-thumbnails").upload(path, thumbnail);
-        if (upErr) throw upErr;
-        const { data: urlData } = supabase.storage.from("course-thumbnails").getPublicUrl(path);
-        thumbnailUrl = urlData.publicUrl;
+        try {
+          const ext = thumbnail.name.split(".").pop();
+          const path = `${user.id}/${Date.now()}.${ext}`;
+          const { error: upErr } = await supabase.storage.from("course-thumbnails").upload(path, thumbnail);
+          if (!upErr) {
+            const { data: urlData } = supabase.storage.from("course-thumbnails").getPublicUrl(path);
+            thumbnailUrl = urlData?.publicUrl || null;
+          } else {
+            console.warn("Thumbnail upload warning:", upErr);
+          }
+        } catch (e) {
+          console.warn("Thumbnail upload error:", e);
+        }
       }
-      const lecturerName = profile?.full_name || user.email;
-      const { error } = await supabase.from("courses").insert({
-        title_ar: newCourse.title_ar, title_en: newCourse.title_en,
-        category_ar: newCourse.category_ar || (isRtl ? "عام" : "General"),
-        category_en: newCourse.category_en || "General",
-        instructor_ar: lecturerName,
-        instructor_en: lecturerName,
-        is_free: newCourse.is_free,
-        creator_id: user.id, thumbnail_url: thumbnailUrl,
-        department_id: newCourse.department_id,
-        expires_at: newCourse.expires_at || null,
-        created_at: newCourse.created_at ? new Date(newCourse.created_at).toISOString() : new Date().toISOString(),
-      } as any);
-      if (error) throw error;
+
+      const lecturerName = profile?.full_name || user?.email || "";
+      let insertedId: string | null = null;
+
+      // 1. Primary: Use atomic SECURITY DEFINER RPC
+      try {
+        const { data: rpcCourseId, error: rpcError } = await supabase.rpc("create_institution_course" as any, {
+          p_department_id: newCourse.department_id,
+          p_title_ar: newCourse.title_ar,
+          p_title_en: newCourse.title_en,
+          p_category_ar: newCourse.category_ar || (isRtl ? "عام" : "General"),
+          p_category_en: newCourse.category_en || "General",
+          p_instructor_ar: lecturerName,
+          p_instructor_en: lecturerName,
+          p_thumbnail_url: thumbnailUrl,
+          p_expires_at: newCourse.expires_at ? new Date(newCourse.expires_at).toISOString() : null,
+          p_is_free: newCourse.is_free ?? false,
+          p_created_at: newCourse.created_at ? new Date(newCourse.created_at).toISOString() : new Date().toISOString(),
+        });
+        if (!rpcError && rpcCourseId) {
+          insertedId = rpcCourseId;
+        }
+      } catch (e) {
+        console.warn("RPC create_institution_course error:", e);
+      }
+
+      // 2. Fallback: Direct insert if RPC not yet loaded
+      if (!insertedId && user) {
+        const { error: directError } = await supabase.from("courses").insert({
+          title_ar: newCourse.title_ar,
+          title_en: newCourse.title_en,
+          category_ar: newCourse.category_ar || (isRtl ? "عام" : "General"),
+          category_en: newCourse.category_en || "General",
+          instructor_ar: lecturerName,
+          instructor_en: lecturerName,
+          is_free: newCourse.is_free,
+          creator_id: user.id,
+          thumbnail_url: thumbnailUrl,
+          department_id: newCourse.department_id,
+          expires_at: newCourse.expires_at ? new Date(newCourse.expires_at).toISOString() : null,
+          created_at: newCourse.created_at ? new Date(newCourse.created_at).toISOString() : new Date().toISOString(),
+        } as any);
+
+        if (directError) {
+          throw directError;
+        }
+      }
+
       toast({ title: isRtl ? "تم" : "Done", description: isRtl ? "تم إنشاء الدورة بنجاح" : "Course created successfully" });
       setShowNewCourse(false);
       setNewCourse({ title_ar: "", title_en: "", category_ar: "", category_en: "", instructor_ar: "", instructor_en: "", is_free: false, price: 0, created_at: new Date().toISOString().slice(0, 10), expires_at: "", department_id: "" });
-      setThumbnail(null); setThumbnailPreview(null);
-      await loadCourses(user.id);
+      setThumbnail(null);
+      setThumbnailPreview(null);
+      if (user) await loadCourses(user.id);
     } catch (err: any) {
       toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
-    } finally { setSavingCourse(false); }
+    } finally {
+      setSavingCourse(false);
+    }
   };
 
   const handleDeleteCourse = async (courseId: string) => {

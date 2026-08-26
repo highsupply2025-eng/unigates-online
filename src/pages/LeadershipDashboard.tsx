@@ -652,17 +652,21 @@ const LeadershipDashboard = () => {
     }
     setSavingCourse(true);
     try {
+      const { data: authUserData } = await supabase.auth.getUser();
+      const activeUserId = authUserData?.user?.id || userId;
+      if (!activeUserId) throw new Error(isRtl ? "يرجى تسجيل الدخول أولاً" : "Please log in first");
+
       // ── Ensure department membership exists for user_in_department() RLS ──
       try {
         const { data: dmCheck } = await supabase
           .from("department_members")
           .select("id")
           .eq("department_id", newCourse.department_id)
-          .eq("user_id", userId)
+          .eq("user_id", activeUserId)
           .maybeSingle();
 
         if (!dmCheck) {
-          const memberEmail = profile?.email || user?.email || "";
+          const memberEmail = profile?.email || authUserData?.user?.email || "";
           if (memberEmail) {
             const { data: unlinkedDm } = await supabase
               .from("department_members")
@@ -674,7 +678,7 @@ const LeadershipDashboard = () => {
             if (unlinkedDm?.id) {
               await supabase
                 .from("department_members")
-                .update({ user_id: userId } as any)
+                .update({ user_id: activeUserId } as any)
                 .eq("id", unlinkedDm.id);
             }
           }
@@ -687,7 +691,7 @@ const LeadershipDashboard = () => {
 
           if (targetDept?.department_code) {
             await supabase.rpc("claim_department_codes" as any, {
-              _user_id: userId,
+              _user_id: activeUserId,
               _codes: [targetDept.department_code],
               _full_name: profile?.full_name || "",
               _email: memberEmail,
@@ -700,10 +704,10 @@ const LeadershipDashboard = () => {
       }
 
       let thumbnailUrl: string | null = null;
-      if (thumbnail && userId) {
+      if (thumbnail && activeUserId) {
         try {
           const ext = thumbnail.name.split(".").pop();
-          const path = `${userId}/${Date.now()}.${ext}`;
+          const path = `${activeUserId}/${Date.now()}.${ext}`;
           const { error: upErr } = await supabase.storage.from("course-thumbnails").upload(path, thumbnail);
           if (!upErr) {
             const { data: urlData } = supabase.storage.from("course-thumbnails").getPublicUrl(path);
@@ -751,7 +755,7 @@ const LeadershipDashboard = () => {
           instructor_ar: lecturerName,
           instructor_en: lecturerName,
           is_free: newCourse.is_free,
-          creator_id: userId,
+          creator_id: activeUserId,
           thumbnail_url: thumbnailUrl,
           department_id: newCourse.department_id,
           expires_at: newCourse.expires_at ? new Date(newCourse.expires_at).toISOString() : null,

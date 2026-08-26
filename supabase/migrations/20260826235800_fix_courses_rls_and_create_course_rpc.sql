@@ -1,44 +1,45 @@
-﻿-- ═══════════════════════════════════════════════════════════════════════════
+-- ═══════════════════════════════════════════════════════════════════════════
 -- Fix RLS Policies for Courses and Storage Thumbnails + Add create_institution_course RPC
 -- ═══════════════════════════════════════════════════════════════════════════
 
 -- 1. Fix course-thumbnails Storage Policies
-DO \$\$
+DO $$
 BEGIN
   -- Drop restrictive policies
-  DROP POLICY IF EXISTS \"Lecturers and admins can upload thumbnails\" ON storage.objects;
-  DROP POLICY IF EXISTS \"Authenticated users can upload thumbnails\" ON storage.objects;
-  DROP POLICY IF EXISTS \"Allow authenticated users to upload course thumbnails\" ON storage.objects;
-  DROP POLICY IF EXISTS \"Allow authenticated users to update course thumbnails\" ON storage.objects;
-  DROP POLICY IF EXISTS \"Allow authenticated users to delete course thumbnails\" ON storage.objects;
-END \$\$;
+  DROP POLICY IF EXISTS "Lecturers and admins can upload thumbnails" ON storage.objects;
+  DROP POLICY IF EXISTS "Authenticated users can upload thumbnails" ON storage.objects;
+  DROP POLICY IF EXISTS "Allow authenticated users to upload course thumbnails" ON storage.objects;
+  DROP POLICY IF EXISTS "Allow authenticated users to update course thumbnails" ON storage.objects;
+  DROP POLICY IF EXISTS "Allow authenticated users to delete course thumbnails" ON storage.objects;
+END $$;
 
-CREATE POLICY \"Allow authenticated users to upload course thumbnails\"
+CREATE POLICY "Allow authenticated users to upload course thumbnails"
 ON storage.objects
 FOR INSERT
 TO authenticated
 WITH CHECK (bucket_id = 'course-thumbnails');
 
-CREATE POLICY \"Allow authenticated users to update course thumbnails\"
+CREATE POLICY "Allow authenticated users to update course thumbnails"
 ON storage.objects
 FOR UPDATE
 TO authenticated
 USING (bucket_id = 'course-thumbnails');
 
-CREATE POLICY \"Allow authenticated users to delete course thumbnails\"
+CREATE POLICY "Allow authenticated users to delete course thumbnails"
 ON storage.objects
 FOR DELETE
 TO authenticated
 USING (bucket_id = 'course-thumbnails');
 
 -- 2. Fix Courses Table RLS Policies
-DROP POLICY IF EXISTS \"Approved lecturers can insert courses\" ON public.courses;
-DROP POLICY IF EXISTS \"Department heads can insert courses\" ON public.courses;
-DROP POLICY IF EXISTS \"Teaching assistants can insert courses\" ON public.courses;
-DROP POLICY IF EXISTS \"Admins can insert courses\" ON public.courses;
-DROP POLICY IF EXISTS \"Faculty and lecturers can insert courses\" ON public.courses;
+DROP POLICY IF EXISTS "Approved lecturers can insert courses" ON public.courses;
+DROP POLICY IF EXISTS "Department heads can insert courses" ON public.courses;
+DROP POLICY IF EXISTS "Teaching assistants can insert courses" ON public.courses;
+DROP POLICY IF EXISTS "Admins can insert courses" ON public.courses;
+DROP POLICY IF EXISTS "Faculty and lecturers can insert courses" ON public.courses;
+DROP POLICY IF EXISTS "Dept scope: courses insert" ON public.courses;
 
-CREATE POLICY \"Faculty and lecturers can insert courses\"
+CREATE POLICY "Faculty and lecturers can insert courses"
 ON public.courses
 FOR INSERT
 TO authenticated
@@ -47,9 +48,9 @@ WITH CHECK (
   OR public.has_role(auth.uid(), 'admin')
 );
 
-DROP POLICY IF EXISTS \"Lecturers can update own courses\" ON public.courses;
-DROP POLICY IF EXISTS \"Creators and admins can update courses\" ON public.courses;
-CREATE POLICY \"Creators and admins can update courses\"
+DROP POLICY IF EXISTS "Lecturers can update own courses" ON public.courses;
+DROP POLICY IF EXISTS "Creators and admins can update courses" ON public.courses;
+CREATE POLICY "Creators and admins can update courses"
 ON public.courses
 FOR UPDATE
 TO authenticated
@@ -58,9 +59,9 @@ USING (
   OR public.has_role(auth.uid(), 'admin')
 );
 
-DROP POLICY IF EXISTS \"Lecturers can delete own courses\" ON public.courses;
-DROP POLICY IF EXISTS \"Creators and admins can delete courses\" ON public.courses;
-CREATE POLICY \"Creators and admins can delete courses\"
+DROP POLICY IF EXISTS "Lecturers can delete own courses" ON public.courses;
+DROP POLICY IF EXISTS "Creators and admins can delete courses" ON public.courses;
+CREATE POLICY "Creators and admins can delete courses"
 ON public.courses
 FOR DELETE
 TO authenticated
@@ -87,7 +88,7 @@ RETURNS uuid
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public, pg_temp
-AS \$\$
+AS $$
 DECLARE
   v_course_id uuid;
   v_user_id uuid := auth.uid();
@@ -137,7 +138,7 @@ BEGIN
 
   RETURN v_course_id;
 END;
-\$\$;
+$$;
 
 REVOKE ALL ON FUNCTION public.create_institution_course(uuid, text, text, text, text, text, text, text, timestamptz, boolean, timestamptz) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.create_institution_course(uuid, text, text, text, text, text, text, text, timestamptz, boolean, timestamptz) TO authenticated;

@@ -103,46 +103,47 @@ const UploadFilesDialog = ({ open, onOpenChange, courses, userId, onUploaded }: 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] p-0 gap-0 border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl overflow-hidden bg-card/95 backdrop-blur-xl">
-        {/* Gradient Header */}
-        <div className="relative bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 px-6 pt-7 pb-8 text-center text-white shadow-inner">
-          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-4 ring-white/15 shadow-lg">
-            <CloudUpload className="w-7 h-7 text-white" strokeWidth={2.2} />
+      <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] p-0 gap-0 border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl overflow-hidden bg-card/95 backdrop-blur-xl flex flex-col">
+        {/* Gradient Header (Sticky at top) */}
+        <div className="relative shrink-0 bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 px-6 pt-6 pb-5 text-center text-white shadow-md">
+          <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-4 ring-white/15 shadow-lg">
+            <CloudUpload className="w-6 h-6 text-white" strokeWidth={2.2} />
           </div>
           <DialogTitle className="text-xl font-black text-white tracking-tight">
             {isRtl ? "رفع ملف للطلبة" : "Upload File for Students"}
           </DialogTitle>
-          <p className="text-xs sm:text-sm text-white/85 mt-1 font-medium max-w-xs mx-auto">
+          <p className="text-xs text-white/85 mt-0.5 font-medium max-w-xs mx-auto">
             {isRtl ? "شارك الملفات والمواد التعليمية مع طلابك بكل سهولة" : "Share files and materials with your students"}
           </p>
         </div>
 
-        <div className="px-6 py-5 space-y-5 -mt-4">
+        {/* Scrollable Body */}
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 custom-scrollbar">
           {/* File Name */}
           <div>
-            <Label className="mb-2 block text-sm font-bold text-foreground">
+            <Label className="mb-1.5 block text-xs font-bold text-foreground">
               {isRtl ? "اسم الملف" : "File Name"} <span className="text-destructive">*</span>
             </Label>
             <Input
               value={uploadFileName}
               onChange={e => setUploadFileName(e.target.value)}
               placeholder={isRtl ? "مثال: ملخص الوحدة الثالثة" : "e.g. Chapter 3 Summary"}
-              className="h-11 border-border/60 focus:border-purple-500 focus:ring-purple-500/20"
+              className="h-10 border-border/60 focus:border-purple-500 focus:ring-purple-500/20"
             />
           </div>
 
           {/* Course Select */}
           <div>
-            <Label className="mb-2 block text-sm font-bold text-foreground">
+            <Label className="mb-1.5 block text-xs font-bold text-foreground">
               {isRtl ? "المحاضرة" : "Lecture"} <span className="text-destructive">*</span>
             </Label>
             <Select value={uploadCourseId} onValueChange={setUploadCourseId}>
-              <SelectTrigger className="h-11 border-border/60 focus:border-purple-500 focus:ring-purple-500/20">
+              <SelectTrigger className="h-10 border-border/60 focus:border-purple-500 focus:ring-purple-500/20 rounded-xl">
                 <SelectValue placeholder={isRtl ? "اختر محاضرة لربط الملف" : "Select a lecture to attach"} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-xl">
                 {courses.map(c => (
-                  <SelectItem key={c.id} value={c.id}>{isRtl ? c.title_ar : c.title_en}</SelectItem>
+                  <SelectItem key={c.id} value={c.id} className="py-2 font-medium">{isRtl ? c.title_ar : c.title_en}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -150,7 +151,7 @@ const UploadFilesDialog = ({ open, onOpenChange, courses, userId, onUploaded }: 
 
           {/* Drop Zone */}
           <div>
-            <Label className="mb-2 block text-sm font-bold text-foreground">
+            <Label className="mb-1.5 block text-xs font-bold text-foreground">
               {isRtl ? "الملف" : "File"} <span className="text-destructive">*</span>
             </Label>
             <div
@@ -158,7 +159,7 @@ const UploadFilesDialog = ({ open, onOpenChange, courses, userId, onUploaded }: 
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`relative cursor-pointer rounded-xl border-2 border-dashed transition-all duration-200 ${
+              className={`relative cursor-pointer rounded-2xl border-2 border-dashed transition-all duration-200 ${
                 isDragOver
                   ? "border-purple-500 bg-purple-500/5 scale-[1.02]"
                   : uploadFile
@@ -173,43 +174,45 @@ const UploadFilesDialog = ({ open, onOpenChange, courses, userId, onUploaded }: 
                 className="hidden"
               />
               {uploadFile ? (
-                <div className="flex items-center gap-3 p-4">
-                  <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                <div className="flex items-center gap-3 p-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-foreground truncate">{uploadFile.name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{formatFileSize(uploadFile.size)}</p>
+                    <p className="text-xs font-bold text-foreground truncate">{uploadFile.name}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{formatFileSize(uploadFile.size)}</p>
                   </div>
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); setUploadFile(null); }}
-                    className="w-8 h-8 rounded-lg hover:bg-destructive/10 flex items-center justify-center transition-colors"
+                    className="w-7 h-7 rounded-lg hover:bg-destructive/10 flex items-center justify-center transition-colors"
                   >
-                    <X className="w-4 h-4 text-muted-foreground hover:text-destructive" />
+                    <X className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive" />
                   </button>
                 </div>
               ) : (
-                <div className="py-8 px-4 text-center">
-                  <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                    <Upload className="w-7 h-7 text-purple-500" />
+                <div className="py-6 px-4 text-center">
+                  <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                    <Upload className="w-6 h-6 text-purple-500" />
                   </div>
-                  <p className="text-sm font-bold text-foreground">
+                  <p className="text-xs font-bold text-foreground">
                     {isRtl ? "اسحب الملف هنا أو اضغط للاختيار" : "Drag & drop or click to browse"}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-[11px] text-muted-foreground mt-1">
                     PDF, DOC, PPT, MP4, ZIP — {isRtl ? "حتى 100 ميجا" : "Up to 100MB"}
                   </p>
                 </div>
               )}
             </div>
           </div>
+        </div>
 
-          {/* Upload Button */}
+        {/* Sticky Action Footer (ALWAYS VISIBLE!) */}
+        <div className="shrink-0 p-4 px-6 bg-card/95 backdrop-blur-md border-t border-border/40">
           <Button
             onClick={handleUpload}
             disabled={savingUpload || !uploadFile || !uploadFileName || !uploadCourseId}
-            className="w-full h-12 gap-2 font-bold text-base rounded-xl bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700 shadow-lg shadow-purple-500/25 transition-all duration-200 hover:shadow-xl hover:shadow-purple-500/30 disabled:opacity-50 disabled:shadow-none"
+            className="w-full h-12 gap-2 font-bold text-base rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700 shadow-lg shadow-purple-500/25 transition-all duration-200 hover:shadow-xl hover:shadow-purple-500/30 disabled:opacity-50 disabled:shadow-none text-white"
           >
             {savingUpload ? (
               <Loader2 className="w-5 h-5 animate-spin" />

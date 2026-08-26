@@ -2114,29 +2114,30 @@ const LeadershipDashboard = () => {
 
       {/* New Course Dialog */}
       <Dialog open={showNewCourse} onOpenChange={setShowNewCourse}>
-        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] p-0 gap-0 border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl overflow-hidden bg-card/95 backdrop-blur-xl">
-          {/* Radiant Header */}
-          <div className="relative bg-gradient-to-br from-teal-600 via-emerald-600 to-cyan-700 px-6 pt-7 pb-8 text-center text-white shadow-inner">
-            <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-4 ring-white/15 shadow-lg">
-              <BookOpen className="w-7 h-7 text-white" strokeWidth={2.2} />
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] p-0 gap-0 border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl overflow-hidden bg-card/95 backdrop-blur-xl flex flex-col">
+          {/* Radiant Header (Sticky at top) */}
+          <div className="relative shrink-0 bg-gradient-to-br from-teal-600 via-emerald-600 to-cyan-700 px-6 pt-6 pb-5 text-center text-white shadow-md">
+            <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-4 ring-white/15 shadow-lg">
+              <BookOpen className="w-6 h-6 text-white" strokeWidth={2.2} />
             </div>
             <DialogTitle className="text-xl font-black text-white tracking-tight">
               {isRtl ? "إنشاء محاضرة جديدة" : "Create New Lecture"}
             </DialogTitle>
-            <p className="text-xs sm:text-sm text-white/85 mt-1 font-medium max-w-xs mx-auto">
+            <p className="text-xs text-white/85 mt-0.5 font-medium max-w-xs mx-auto">
               {isRtl ? "أضف محاضرة جديدة واربطها بالقسم المحدد" : "Add a new lecture and assign it to a department"}
             </p>
           </div>
 
-          <div className="px-6 py-5 space-y-4">
+          {/* Scrollable Form Body */}
+          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3.5 custom-scrollbar">
             {/* Lecturer Info */}
-            <div className="rounded-2xl bg-muted/40 border border-border/50 p-4">
+            <div className="rounded-2xl bg-muted/40 border border-border/50 p-3.5">
               <Label className="mb-1.5 block text-xs font-bold text-muted-foreground uppercase tracking-wider">{isRtl ? "اسم المحاضر" : "Lecturer Name"}</Label>
               <Input value={profile?.full_name || ""} disabled readOnly className="bg-background/80 border-border/50 h-10 font-semibold" />
             </div>
 
             {/* Subject & Title */}
-            <div className="rounded-2xl bg-muted/40 border border-border/50 p-4 space-y-3.5">
+            <div className="rounded-2xl bg-muted/40 border border-border/50 p-3.5 space-y-3">
               <Label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">{isRtl ? "تفاصيل المادة والمحاضرة" : "Subject & Lecture Details"}</Label>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -2161,7 +2162,7 @@ const LeadershipDashboard = () => {
             </div>
 
             {/* Department & Date */}
-            <div className="rounded-2xl bg-muted/40 border border-border/50 p-4 space-y-3.5">
+            <div className="rounded-2xl bg-muted/40 border border-border/50 p-3.5 space-y-3">
               <Label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">{isRtl ? "القسم والتواريخ" : "Department & Dates"}</Label>
               <div>
                 <Label className="mb-1.5 block text-xs font-semibold">{isRtl ? "القسم" : "Department"} <span className="text-destructive text-xs">*</span></Label>
@@ -2189,24 +2190,26 @@ const LeadershipDashboard = () => {
             </div>
 
             {/* Thumbnail Upload */}
-            <div className="rounded-2xl bg-muted/40 border border-border/50 p-4">
+            <div className="rounded-2xl bg-muted/40 border border-border/50 p-3.5">
               <Label className="mb-2 block text-xs font-bold text-muted-foreground uppercase tracking-wider">{isRtl ? "الصورة المصغرة" : "Thumbnail"}</Label>
               {thumbnailPreview ? (
-                <div className="relative w-full h-32 rounded-xl overflow-hidden border border-border/50 shadow-md group">
+                <div className="relative w-full h-28 rounded-xl overflow-hidden border border-border/50 shadow-md group">
                   <img src={thumbnailPreview} alt="" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <button type="button" onClick={() => { setThumbnail(null); setThumbnailPreview(null); }} className="absolute top-2 right-2 w-7 h-7 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive/80 hover:scale-110 transition-all duration-200 shadow-lg z-10"><X className="w-4 h-4" /></button>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center h-24 rounded-xl border-2 border-dashed border-border/60 bg-background/50 cursor-pointer hover:border-teal-500/50 hover:bg-teal-500/5 transition-all">
+                <label className="flex flex-col items-center justify-center h-20 rounded-xl border-2 border-dashed border-border/60 bg-background/50 cursor-pointer hover:border-teal-500/50 hover:bg-teal-500/5 transition-all">
                   <Upload className="w-5 h-5 text-teal-600 mb-1" />
                   <span className="text-xs font-semibold text-muted-foreground">{isRtl ? "اضغط لرفع صورة مصغرة" : "Click to upload thumbnail"}</span>
                   <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) { setThumbnail(f); setThumbnailPreview(URL.createObjectURL(f)); } }} />
                 </label>
               )}
             </div>
+          </div>
 
-            {/* Submit */}
+          {/* Sticky Bottom Action Footer (ALWAYS VISIBLE!) */}
+          <div className="shrink-0 p-4 px-6 bg-card/95 backdrop-blur-md border-t border-border/40">
             <Button
               onClick={handleCreateCourse}
               disabled={savingCourse || myDepartments.length === 0}

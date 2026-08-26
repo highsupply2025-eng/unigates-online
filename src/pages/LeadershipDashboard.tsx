@@ -406,9 +406,7 @@ const LeadershipDashboard = () => {
         const seen = new Set<string>();
         const unique = rpcDeps.filter(d => (seen.has(d.id) ? false : (seen.add(d.id), true)));
         setMyDepartments(unique);
-        if (unique.length === 1) {
-          setNewCourse(p => ({ ...p, department_id: unique[0].id }));
-        }
+        setNewCourse(p => ({ ...p, department_id: p.department_id && unique.some(u => u.id === p.department_id) ? p.department_id : unique[0].id }));
         return unique.map(d => d.id);
       }
     } catch (e: any) {

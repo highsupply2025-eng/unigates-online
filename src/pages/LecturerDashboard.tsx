@@ -286,6 +286,17 @@ const LecturerDashboard = () => {
   };
 
   const loadMyDepartments = async (userId: string) => {
+    try {
+      const { data: rpcRows, error: rpcErr } = await supabase.rpc("get_my_departments" as any);
+      if (!rpcErr && Array.isArray(rpcRows) && rpcRows.length > 0) {
+        const seen = new Set<string>();
+        const unique = rpcRows.filter((d: any) => (seen.has(d.id) ? false : (seen.add(d.id), true)));
+        setMyDepartments(unique);
+        setNewCourse(p => ({ ...p, department_id: p.department_id && unique.some(u => u.id === p.department_id) ? p.department_id : unique[0].id }));
+        return;
+      }
+    } catch { /* fallback below */ }
+
     const deptIdSet = new Set<string>();
 
     const { data: dmRows } = await supabase
@@ -315,8 +326,11 @@ const LecturerDashboard = () => {
     const seen = new Set<string>();
     const unique = deps.filter(d => (seen.has(d.id) ? false : (seen.add(d.id), true)));
     setMyDepartments(unique);
-    if (unique.length > 0 && unique[0].institution_type) {
-      setInstitutionType(unique[0].institution_type as "college" | "institute");
+    if (unique.length > 0) {
+      setNewCourse(p => ({ ...p, department_id: p.department_id && unique.some(u => u.id === p.department_id) ? p.department_id : unique[0].id }));
+      if (unique[0].institution_type) {
+        setInstitutionType(unique[0].institution_type as "college" | "institute");
+      }
     }
   };
 

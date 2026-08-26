@@ -180,9 +180,7 @@ const LeadershipDashboard = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/login"); return; }
 
-      // Fetch the profile with one retry. A transient/RLS failure here used
-      // to be misread as a role mismatch and surfaced as an Unauthorized
-      // toast, locking brand-new faculty members out of their first login.
+      // Fetch the profile with retry + RPC fallback + IFM fallback
       let profile: any = null;
       for (let attempt = 0; attempt < 2; attempt++) {
         const { data, error } = await supabase
@@ -190,24 +188,54 @@ const LeadershipDashboard = () => {
           .select("*")
           .eq("user_id", user.id)
           .maybeSingle();
-        if (!error) { profile = data; break; }
-        console.error("[LeadershipDashboard] profiles fetch failed (attempt " + (attempt + 1) + ")", error);
-        if (attempt === 0) await new Promise((r) => setTimeout(r, 800));
+        if (!error && data) { profile = data; break; }
+        if (attempt === 0) await new Promise((r) => setTimeout(r, 400));
+      }
+
+      // Fallback 1: get_or_create_login_profile RPC
+      if (!profile) {
+        try {
+          const { data: rpcProfile } = await supabase.rpc("get_or_create_login_profile" as any);
+          if (rpcProfile) profile = rpcProfile;
+        } catch { /* ignore */ }
+      }
+
+      // Fallback 2: institution_faculty_members or user_roles
+      if (!profile) {
+        try {
+          const [{ data: ifm }, { data: ur }] = await Promise.all([
+            supabase.from("institution_faculty_members").select("*").or(`user_id.eq.${user.id},email.eq.${user.email}`).maybeSingle(),
+            supabase.from("user_roles").select("role").eq("user_id", user.id).maybeSingle(),
+          ]);
+
+          if (ifm || ur) {
+            const rawRole = ifm?.specific_role || ur?.role || "department_head";
+            const mappedRole =
+              ["dean", "director"].includes(rawRole) ? "dean" :
+              rawRole.startsWith("vice_dean") ? "vice_dean" :
+              rawRole === "department_head" ? "department_head" :
+              rawRole === "teaching_assistant" ? "teaching_assistant" : "lecturer";
+
+            profile = {
+              id: ifm?.id || user.id,
+              user_id: user.id,
+              full_name: ifm?.full_name || (user.user_metadata as any)?.full_name || user.email || "",
+              email: ifm?.email || user.email || "",
+              phone: ifm?.phone || "",
+              role: mappedRole,
+              avatar_url: ifm?.photo_url || null,
+            };
+          }
+        } catch { /* ignore */ }
       }
 
       if (!profile) {
-        toast({
-          title: isRtl ? "تعذر التحقق من الحساب" : "Could not verify account",
-          description: isRtl
-            ? "حدث خطأ مؤقت أثناء جلب بيانات حسابك. أعد تحميل الصفحة أو سجّل الدخول مرة أخرى."
-            : "A temporary error occurred while loading your account. Reload the page or sign in again.",
-          variant: "destructive",
-        });
+        navigate("/login");
         return;
       }
 
-      if (!["department_head", "teaching_assistant", "vice_dean", "dean", "lecturer"].includes(profile.role)) {
-        toast({ title: isRtl ? "غير مصرح" : "Unauthorized", variant: "destructive" });
+      const allowedRoles = ["department_head", "teaching_assistant", "vice_dean", "dean", "lecturer", "doctor", "professor", "assistant_lecturer"];
+      if (!allowedRoles.includes(profile.role)) {
         navigate("/");
         return;
       }

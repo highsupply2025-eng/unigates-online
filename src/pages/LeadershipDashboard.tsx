@@ -652,6 +652,53 @@ const LeadershipDashboard = () => {
     }
     setSavingCourse(true);
     try {
+      // ── Ensure department membership exists for user_in_department() RLS ──
+      try {
+        const { data: dmCheck } = await supabase
+          .from("department_members")
+          .select("id")
+          .eq("department_id", newCourse.department_id)
+          .eq("user_id", userId)
+          .maybeSingle();
+
+        if (!dmCheck) {
+          const memberEmail = profile?.email || user?.email || "";
+          if (memberEmail) {
+            const { data: unlinkedDm } = await supabase
+              .from("department_members")
+              .select("id")
+              .eq("department_id", newCourse.department_id)
+              .ilike("email", memberEmail)
+              .maybeSingle();
+
+            if (unlinkedDm?.id) {
+              await supabase
+                .from("department_members")
+                .update({ user_id: userId } as any)
+                .eq("id", unlinkedDm.id);
+            }
+          }
+
+          const { data: targetDept } = await supabase
+            .from("departments")
+            .select("id, department_code")
+            .eq("id", newCourse.department_id)
+            .maybeSingle();
+
+          if (targetDept?.department_code) {
+            await supabase.rpc("claim_department_codes" as any, {
+              _user_id: userId,
+              _codes: [targetDept.department_code],
+              _full_name: profile?.full_name || "",
+              _email: memberEmail,
+              _phone: profile?.phone || "",
+            });
+          }
+        }
+      } catch (deptLinkErr) {
+        console.warn("Department membership linkage warning:", deptLinkErr);
+      }
+
       let thumbnailUrl: string | null = null;
       if (thumbnail && userId) {
         try {
@@ -694,7 +741,7 @@ const LeadershipDashboard = () => {
         console.warn("RPC create_institution_course error:", e);
       }
 
-      // 2. Fallback: Direct insert if RPC not yet loaded
+      // 2. Fallback: Direct insert
       if (!insertedId) {
         const { data: directData, error: directError } = await supabase.from("courses").insert({
           title_ar: newCourse.title_ar,
@@ -717,7 +764,7 @@ const LeadershipDashboard = () => {
         insertedId = directData?.id || null;
       }
 
-      toast({ title: isRtl ? "تم" : "Done", description: isRtl ? "تم إنشاء الدورة بنجاح" : "Course created successfully" });
+      toast({ title: isRtl ? "تم" : "Done", description: isRtl ? "تم إنشاء المحاضرة بنجاح" : "Lecture created successfully" });
       setShowNewCourse(false);
       setNewCourse({ title_ar: "", title_en: "", category_ar: "", category_en: "", instructor_ar: "", instructor_en: "", is_free: false, price: 0, created_at: new Date().toISOString().slice(0, 10), expires_at: "", department_id: "" });
       setThumbnail(null);

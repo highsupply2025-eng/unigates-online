@@ -499,6 +499,55 @@ const LecturerDashboard = () => {
     }
     setSavingCourse(true);
     try {
+      // ── Ensure department membership exists for user_in_department() RLS ──
+      try {
+        if (user) {
+          const { data: dmCheck } = await supabase
+            .from("department_members")
+            .select("id")
+            .eq("department_id", newCourse.department_id)
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+          if (!dmCheck) {
+            const memberEmail = profile?.email || user.email || "";
+            if (memberEmail) {
+              const { data: unlinkedDm } = await supabase
+                .from("department_members")
+                .select("id")
+                .eq("department_id", newCourse.department_id)
+                .ilike("email", memberEmail)
+                .maybeSingle();
+
+              if (unlinkedDm?.id) {
+                await supabase
+                  .from("department_members")
+                  .update({ user_id: user.id } as any)
+                  .eq("id", unlinkedDm.id);
+              }
+            }
+
+            const { data: targetDept } = await supabase
+              .from("departments")
+              .select("id, department_code")
+              .eq("id", newCourse.department_id)
+              .maybeSingle();
+
+            if (targetDept?.department_code) {
+              await supabase.rpc("claim_department_codes" as any, {
+                _user_id: user.id,
+                _codes: [targetDept.department_code],
+                _full_name: profile?.full_name || "",
+                _email: memberEmail,
+                _phone: profile?.phone || "",
+              });
+            }
+          }
+        }
+      } catch (deptLinkErr) {
+        console.warn("Department membership linkage warning:", deptLinkErr);
+      }
+
       let thumbnailUrl: string | null = null;
       if (thumbnail && user) {
         try {
@@ -563,7 +612,7 @@ const LecturerDashboard = () => {
         }
       }
 
-      toast({ title: isRtl ? "تم" : "Done", description: isRtl ? "تم إنشاء الدورة بنجاح" : "Course created successfully" });
+      toast({ title: isRtl ? "تم" : "Done", description: isRtl ? "تم إنشاء المحاضرة بنجاح" : "Lecture created successfully" });
       setShowNewCourse(false);
       setNewCourse({ title_ar: "", title_en: "", category_ar: "", category_en: "", instructor_ar: "", instructor_en: "", is_free: false, price: 0, created_at: new Date().toISOString().slice(0, 10), expires_at: "", department_id: "" });
       setThumbnail(null);

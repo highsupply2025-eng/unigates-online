@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.1"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -3056,6 +3056,22 @@ export type Database = {
           role: string
         }[]
       }
+      create_institution_course: {
+        Args: {
+          p_category_ar?: string
+          p_category_en?: string
+          p_created_at?: string
+          p_department_id: string
+          p_expires_at?: string
+          p_instructor_ar?: string
+          p_instructor_en?: string
+          p_is_free?: boolean
+          p_thumbnail_url?: string
+          p_title_ar: string
+          p_title_en: string
+        }
+        Returns: string
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -3123,10 +3139,18 @@ export type Database = {
         }
         Returns: Json
       }
+      get_my_departments: {
+        Args: never
+        Returns: {
+          department_name: string
+          id: string
+        }[]
+      }
       get_my_submission_whatsapp: {
         Args: { _submission_id: string }
         Returns: string
       }
+      get_or_create_login_profile: { Args: never; Returns: Json }
       get_platform_setting: { Args: { _key: string }; Returns: Json }
       get_platform_statistics: { Args: { p_scope?: string }; Returns: Json }
       get_platform_statistics_legacy: {
@@ -3213,10 +3237,16 @@ export type Database = {
         Args: { _institution_id: string; _institution_type: string }
         Returns: boolean
       }
+      is_admin_user: { Args: { _uid?: string }; Returns: boolean }
       is_any_institution_owner: { Args: { _user_id: string }; Returns: boolean }
       is_current_school_account_archived: { Args: never; Returns: boolean }
+      is_department_admin: { Args: { _dept_id: string }; Returns: boolean }
       is_department_member: {
         Args: { _department_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_department_member_or_faculty: {
+        Args: { _dept_id: string; _inst_id: string; _inst_type: string }
         Returns: boolean
       }
       is_email_confirmed: { Args: { _user_id: string }; Returns: boolean }
@@ -3234,6 +3264,10 @@ export type Database = {
           _institution_type: string
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_institution_owner: {
+        Args: { _institution_id: string; _institution_type: string }
         Returns: boolean
       }
       is_leadership: { Args: { _user_id: string }; Returns: boolean }

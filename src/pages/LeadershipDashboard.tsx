@@ -1543,11 +1543,11 @@ const LeadershipDashboard = () => {
                                 <Button
                                   size="sm"
                                   variant="default"
-                                  onClick={() => openEpisodes(course.id)}
-                                  className="gap-1 font-bold h-8 px-2"
+                                  onClick={() => navigate(`/lecturer/course/${course.id}`)}
+                                  className="gap-1 font-bold h-8 px-2.5 bg-teal-600 hover:bg-teal-700 text-white shadow-sm"
                                 >
-                                  <Plus className="w-3.5 h-3.5" />
-                                  <span className="hidden sm:inline">{isRtl ? "إضافة" : "Add"}</span>
+                                  <Eye className="w-3.5 h-3.5" />
+                                  <span>{isRtl ? "مشاهدة" : "Watch"}</span>
                                 </Button>
                                 <Button
                                   size="sm"

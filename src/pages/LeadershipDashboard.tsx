@@ -4,7 +4,7 @@ import {
   Globe, ArrowLeft, ArrowRight, Loader2, Users, BookOpen, Calendar,
   Video, FileText, Download, BarChart3, Clock, CheckCircle, AlertCircle,
   GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, Menu, Home, XCircle, Award, ShieldCheck, User, RefreshCw,
-  Plus, Upload, X, Circle, Square, RotateCcw, Play, Film
+  Plus, Upload, X, Circle, Square, RotateCcw, Play, Film, Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -782,6 +782,22 @@ const LeadershipDashboard = () => {
       toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
     } finally {
       setSavingCourse(false);
+    }
+  };
+
+  const handleDeleteCourse = async (courseId: string) => {
+    if (!window.confirm(isRtl ? "هل أنت متأكد من حذف هذه المحاضرة وجميع محتوياتها؟" : "Are you sure you want to delete this lecture?")) {
+      return;
+    }
+    try {
+      await supabase.from("course_episodes").delete().eq("course_id", courseId);
+      await supabase.from("course_attachments").delete().eq("course_id", courseId);
+      const { error } = await supabase.from("courses").delete().eq("id", courseId);
+      if (error) throw error;
+      toast({ title: isRtl ? "تم الحذف" : "Deleted", description: isRtl ? "تم حذف المحاضرة بنجاح" : "Lecture deleted successfully" });
+      await loadData();
+    } catch (err: any) {
+      toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
     }
   };
 
@@ -1575,6 +1591,15 @@ const LeadershipDashboard = () => {
                                 >
                                   <Plus className="w-3.5 h-3.5" />
                                   <span className="hidden sm:inline">{isRtl ? "إضافة" : "Add"}</span>
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => handleDeleteCourse(course.id)}
+                                  className="h-8 px-2 shadow-sm"
+                                  title={isRtl ? "حذف المحاضرة" : "Delete Lecture"}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" strokeWidth={2.5} />
                                 </Button>
                               </div>
                             </div>

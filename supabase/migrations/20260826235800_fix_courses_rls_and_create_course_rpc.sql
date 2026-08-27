@@ -72,11 +72,42 @@ BEGIN
   DROP POLICY IF EXISTS "Authenticated users can view attachments" ON public.course_attachments;
 END $$;
 
-CREATE POLICY "Authenticated users can view attachments"
+CREATE POLICY "Subscribed or authorized users can view attachments"
 ON public.course_attachments
 FOR SELECT
 TO authenticated
-USING (true);
+USING (
+  EXISTS (
+    SELECT 1 FROM public.courses c
+    WHERE c.id = course_attachments.course_id
+      AND (
+        c.is_free = true
+        OR c.creator_id = auth.uid()
+        OR EXISTS (
+          SELECT 1 FROM public.user_subscriptions us
+          WHERE us.user_id = auth.uid()
+            AND us.course_id = c.id
+            AND us.status = 'active'
+        )
+        OR EXISTS (
+          SELECT 1 FROM public.department_members dm
+          WHERE dm.department_id = c.department_id
+            AND dm.user_id = auth.uid()
+        )
+        OR EXISTS (
+          SELECT 1 FROM public.academic_departments ad
+          WHERE ad.id = c.department_id
+            AND ad.head_id = auth.uid()
+        )
+        OR EXISTS (
+          SELECT 1 FROM public.user_roles ur
+          WHERE ur.user_id = auth.uid()
+            AND ur.approved = true
+            AND ur.role::text IN ('admin', 'institution_admin', 'college_admin', 'institute_admin', 'school_admin', 'dean', 'vice_dean', 'department_head')
+        )
+      )
+  )
+);
 
 CREATE POLICY "Authorized instructors and admins can insert attachments"
 ON public.course_attachments
@@ -92,6 +123,11 @@ WITH CHECK (
           SELECT 1 FROM public.department_members dm
           WHERE dm.department_id = c.department_id
             AND dm.user_id = auth.uid()
+        )
+        OR EXISTS (
+          SELECT 1 FROM public.academic_departments ad
+          WHERE ad.id = c.department_id
+            AND ad.head_id = auth.uid()
         )
         OR EXISTS (
           SELECT 1 FROM public.user_roles ur
@@ -119,6 +155,11 @@ USING (
             AND dm.user_id = auth.uid()
         )
         OR EXISTS (
+          SELECT 1 FROM public.academic_departments ad
+          WHERE ad.id = c.department_id
+            AND ad.head_id = auth.uid()
+        )
+        OR EXISTS (
           SELECT 1 FROM public.user_roles ur
           WHERE ur.user_id = auth.uid()
             AND ur.approved = true
@@ -135,14 +176,33 @@ DROP POLICY IF EXISTS "Teaching assistants can insert courses" ON public.courses
 DROP POLICY IF EXISTS "Admins can insert courses" ON public.courses;
 DROP POLICY IF EXISTS "Faculty and lecturers can insert courses" ON public.courses;
 DROP POLICY IF EXISTS "Dept scope: courses insert" ON public.courses;
+DROP POLICY IF EXISTS "Authorized faculty and admins can insert courses" ON public.courses;
 
-CREATE POLICY "Faculty and lecturers can insert courses"
+CREATE POLICY "Authorized faculty and admins can insert courses"
 ON public.courses
 FOR INSERT
 TO authenticated
 WITH CHECK (
   auth.uid() = creator_id
-  OR public.has_role(auth.uid(), 'admin')
+  AND (
+    courses.department_id IS NULL
+    OR EXISTS (
+      SELECT 1 FROM public.department_members dm
+      WHERE dm.department_id = courses.department_id
+        AND dm.user_id = auth.uid()
+    )
+    OR EXISTS (
+      SELECT 1 FROM public.academic_departments ad
+      WHERE ad.id = courses.department_id
+        AND ad.head_id = auth.uid()
+    )
+    OR EXISTS (
+      SELECT 1 FROM public.user_roles ur
+      WHERE ur.user_id = auth.uid()
+        AND ur.approved = true
+        AND ur.role::text IN ('admin', 'institution_admin', 'college_admin', 'institute_admin', 'school_admin', 'dean', 'vice_dean')
+    )
+  )
 );
 
 DROP POLICY IF EXISTS "Lecturers can update own courses" ON public.courses;
@@ -195,6 +255,30 @@ BEGIN
     RAISE EXCEPTION 'Not authenticated';
   END IF;
 
+  -- Verify department permission: caller must belong to the department, be the department head, or be an admin
+  IF p_department_id IS NOT NULL THEN
+    IF NOT (
+      EXISTS (
+        SELECT 1 FROM public.department_members dm
+        WHERE dm.department_id = p_department_id
+          AND dm.user_id = v_user_id
+      )
+      OR EXISTS (
+        SELECT 1 FROM public.academic_departments ad
+        WHERE ad.id = p_department_id
+          AND ad.head_id = v_user_id
+      )
+      OR EXISTS (
+        SELECT 1 FROM public.user_roles ur
+        WHERE ur.user_id = v_user_id
+          AND ur.approved = true
+          AND ur.role::text IN ('admin', 'institution_admin', 'college_admin', 'institute_admin', 'school_admin', 'dean', 'vice_dean')
+      )
+    ) THEN
+      RAISE EXCEPTION 'Unauthorized: You do not have permission to create a course in this department';
+    END IF;
+  END IF;
+
   IF p_instructor_ar IS NULL OR p_instructor_ar = '' THEN
     SELECT full_name INTO v_instructor FROM public.profiles WHERE user_id = v_user_id;
     IF v_instructor IS NULL THEN
@@ -239,3 +323,4 @@ $$;
 
 REVOKE ALL ON FUNCTION public.create_institution_course(uuid, text, text, text, text, text, text, text, timestamptz, boolean, timestamptz) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.create_institution_course(uuid, text, text, text, text, text, text, text, timestamptz, boolean, timestamptz) TO authenticated;
+

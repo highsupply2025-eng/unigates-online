@@ -29,6 +29,8 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Courses = lazy(() => import("./pages/Courses"));
 const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
 const Payment = lazy(() => import("./pages/Payment"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const CheckoutSuccess = lazy(() => import("./pages/CheckoutSuccess"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const LiveStreams = lazy(() => import("./pages/LiveStreams"));

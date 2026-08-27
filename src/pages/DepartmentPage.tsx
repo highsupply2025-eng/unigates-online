@@ -33,6 +33,8 @@ interface DepartmentMember {
   invitation_code: string | null;
   user_id: string | null;
   created_at: string;
+  email?: string | null;
+  phone?: string | null;
 }
 
 type StatusFilter = "all" | "linked" | "pending";

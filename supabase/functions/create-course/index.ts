@@ -1,9 +1,8 @@
 // Create a course/lecture bypassing RLS via service_role.
 // Used as fallback when the frontend's direct insert is blocked by
-// "new row violates row-level security policy" due to stale
-// user_in_department() (which only checked department_members).
-// This function verifies the caller is a member of the target department
-// via BOTH department_members and institution_faculty_members.
+// RLS policies.
+// Strictly enforces tenant isolation: ensures the caller has valid faculty/leadership
+// rights in the specific target department's institution.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -50,66 +49,95 @@ Deno.serve(async (req) => {
     if (!department_id) return fail("validate", "department_id required", 400);
     if (!title_ar || !title_en) return fail("validate", "title_ar and title_en required", 400);
 
-    // Verify caller is faculty/leadership
-    const { data: profile } = await admin.from("profiles").select("role, full_name").eq("user_id", user.id).maybeSingle();
-    if (!profile || !["department_head","teaching_assistant","vice_dean","dean","lecturer","professor","doctor","assistant_lecturer"].includes(profile.role)) {
-      // Also check IFM specific_role
-      const { data: ifmCheck } = await admin.from("institution_faculty_members").select("specific_role").eq("user_id", user.id).maybeSingle();
-      const allowedSpecific = ["dean","vice_dean_postgrad","vice_dean_students","vice_dean_community","vice_dean_environment","department_head","teaching_assistant","professor","doctor","lecturer","assistant_lecturer"];
-      if (!ifmCheck || !allowedSpecific.includes(ifmCheck.specific_role)) {
-        return fail("permission", "Only faculty/leadership can create courses", 403);
-      }
+    // 1. Fetch Target Department & its Institution
+    let dept = (await admin.from("departments").select("id, institution_id, institution_type, status").eq("id", department_id).maybeSingle()).data;
+    if (!dept) {
+      dept = (await admin.from("academic_departments").select("id, institution_id, institution_type, status").eq("id", department_id).maybeSingle()).data;
     }
-
-    // Verify department membership via BOTH tables + oversight
-    const { data: dept } = await admin.from("departments").select("id, institution_id, institution_type, status").eq("id", department_id).maybeSingle();
     if (!dept) return fail("department", "Department not found", 404);
 
-    // Check membership: DM, IFM direct, or oversight dean/vice_dean
-    const [{ data: dmMember }, { data: ifmMember }, { data: ifmOversight }] = await Promise.all([
-      admin.from("department_members").select("id").eq("user_id", user.id).eq("department_id", department_id).maybeSingle(),
-      admin.from("institution_faculty_members").select("id").eq("user_id", user.id).eq("department_id", department_id).maybeSingle(),
-      admin.from("institution_faculty_members").select("id, institution_id, institution_type").eq("user_id", user.id).maybeSingle(),
-    ]);
+    // 2. Fetch User Profile
+    const { data: profile } = await admin.from("profiles").select("role, full_name").eq("user_id", user.id).maybeSingle();
+    const isGlobalAdmin = profile?.role === "admin";
 
-    const isDirectMember = !!(dmMember || ifmMember);
+    // 3. Fetch User's Faculty Record STRICTLY in the TARGET Department's Institution (Tenant Isolation)
+    const { data: ifmInTargetInst } = await admin
+      .from("institution_faculty_members")
+      .select("id, full_name, email, phone, specific_role, institution_id, institution_type, department_id")
+      .eq("user_id", user.id)
+      .eq("institution_id", dept.institution_id)
+      .eq("institution_type", dept.institution_type)
+      .maybeSingle();
+
+    const isFacultyRole = profile && ["department_head", "teaching_assistant", "vice_dean", "dean", "lecturer", "professor", "doctor", "assistant_lecturer"].includes(profile.role);
+    const isIfmRole = ifmInTargetInst && ["dean", "vice_dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community", "vice_dean_environment", "department_head", "teaching_assistant", "professor", "doctor", "lecturer", "assistant_lecturer", "admin", "institution_admin"].includes(ifmInTargetInst.specific_role);
+
+    if (!isGlobalAdmin && !isFacultyRole && !isIfmRole) {
+      return fail("permission", "Only faculty/leadership can create courses", 403);
+    }
+
+    // 4. Verify Membership / Authorization within the target department & institution
+    // A. Direct Department Member in department_members table
+    const { data: dmMember } = await admin
+      .from("department_members")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("department_id", department_id)
+      .maybeSingle();
+
+    // B. Direct IFM Member explicitly assigned to this department
+    const isDirectIfmMember = !!(ifmInTargetInst && ifmInTargetInst.department_id === department_id);
+    const isDirectMember = !!(dmMember || isDirectIfmMember);
+
+    // C. Department Head check
+    const { data: deptHeadCheck } = await admin
+      .from("academic_departments")
+      .select("id")
+      .eq("id", department_id)
+      .eq("head_id", user.id)
+      .maybeSingle();
+    const isDeptHead = !!deptHeadCheck;
+
+    // D. Institution Oversight (Dean / Vice Dean / Institution Admin of this specific institution)
     const isOversight = !!(
-      ifmOversight &&
-      ["dean","vice_dean","vice_dean_postgrad","vice_dean_students","vice_dean_community","vice_dean_environment"].includes((ifmOversight as any).specific_role || "") &&
-      (ifmOversight as any).institution_id === dept.institution_id &&
-      (ifmOversight as any).institution_type === dept.institution_type
+      ifmInTargetInst &&
+      ["dean", "vice_dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community", "vice_dean_environment", "admin", "institution_admin", "college_admin", "institute_admin"].includes(ifmInTargetInst.specific_role || "")
     );
 
-    // Also allow if IFM shows any membership in this institution and the department is the only one (fallback for legacy)
+    // E. Tenant-scoped self-heal fallback:
+    // ONLY IF the user is an active faculty member of the SAME institution (ifmInTargetInst),
+    // and not from another tenant, we can safely link them into department_members.
     let isFallbackMember = false;
-    if (!isDirectMember && !isOversight) {
-      // Last resort: ensure a DM mirror exists now (self-heal)
-      const { data: ifmFull } = await admin.from("institution_faculty_members").select("full_name,email,phone,specific_role").eq("user_id", user.id).maybeSingle();
-      if (ifmFull) {
-        // Create DM mirror if missing
-        const vDeptCode = dept.id.slice(0, 4);
+    if (!isGlobalAdmin && !isDirectMember && !isDeptHead && !isOversight) {
+      if (ifmInTargetInst && ifmInTargetInst.institution_id === dept.institution_id && ifmInTargetInst.institution_type === dept.institution_type) {
         const vInvCode = 'FAC-' + Math.random().toString(36).substring(2, 10).toUpperCase();
         await admin.from("department_members").upsert({
           department_id,
           user_id: user.id,
-          full_name: ifmFull.full_name,
-          role: ifmFull.specific_role,
-          email: ifmFull.email,
-          phone: ifmFull.phone,
+          full_name: ifmInTargetInst.full_name || profile?.full_name || "Faculty Member",
+          role: ifmInTargetInst.specific_role || profile?.role || "lecturer",
+          email: ifmInTargetInst.email || user.email || "",
+          phone: ifmInTargetInst.phone || "",
           invitation_code: vInvCode,
         }, { onConflict: "department_id,user_id" } as any);
         isFallbackMember = true;
       }
     }
 
-    if (!isDirectMember && !isOversight && !isFallbackMember) {
-      return fail("membership", "You are not a member of this department", 403, { department_id });
+    if (!isGlobalAdmin && !isDirectMember && !isDeptHead && !isOversight && !isFallbackMember) {
+      return fail("membership", "You are not authorized to create courses in this department", 403, {
+        department_id,
+        institution_id: dept.institution_id
+      });
     }
 
-    const lecturerName = profile?.full_name || (await admin.from("institution_faculty_members").select("full_name").eq("user_id", user.id).maybeSingle()).data?.full_name || "Lecturer";
+    // 5. Determine Lecturer Display Name
+    const lecturerName = profile?.full_name || ifmInTargetInst?.full_name || "Lecturer";
 
+    // 6. Insert Course
     const { data: inserted, error: insErr } = await admin.from("courses").insert({
-      title_ar, title_en,
+      title_ar,
+      title_en,
       category_ar: category_ar || "عام",
       category_en: category_en || "General",
       instructor_ar: lecturerName,

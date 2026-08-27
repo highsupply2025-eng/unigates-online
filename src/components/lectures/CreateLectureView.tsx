@@ -71,12 +71,31 @@ export const CreateLectureView = ({
   const [isConnectingMedia, setIsConnectingMedia] = useState(false);
   const [mediaPermissionDenied, setMediaPermissionDenied] = useState(false);
 
+  const [activeStream, setActiveStream] = useState<MediaStream | null>(null);
+  const [hasVideoTrack, setHasVideoTrack] = useState(false);
+  const [hasAudioTrack, setHasAudioTrack] = useState(false);
+  const [isCameraBlocked, setIsCameraBlocked] = useState(false);
+
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<number | null>(null);
   const liveVideoPreviewRef = useRef<HTMLVideoElement | null>(null);
   const recordedPlaybackRef = useRef<HTMLVideoElement | null>(null);
+
+  // Safely bind activeStream to live video element
+  useEffect(() => {
+    if (liveVideoPreviewRef.current) {
+      if (activeStream) {
+        liveVideoPreviewRef.current.srcObject = activeStream;
+        liveVideoPreviewRef.current.play().catch((e) => {
+          console.warn("Video preview play warning:", e);
+        });
+      } else {
+        liveVideoPreviewRef.current.srcObject = null;
+      }
+    }
+  }, [activeStream]);
 
   // Auto-connect media stream when entering Step 2
   useEffect(() => {
@@ -100,6 +119,12 @@ export const CreateLectureView = ({
       mediaStreamRef.current.getTracks().forEach((track) => track.stop());
       mediaStreamRef.current = null;
     }
+    if (activeStream) {
+      activeStream.getTracks().forEach((track) => track.stop());
+      setActiveStream(null);
+    }
+    setHasVideoTrack(false);
+    setHasAudioTrack(false);
     if (liveVideoPreviewRef.current) {
       liveVideoPreviewRef.current.srcObject = null;
     }
@@ -125,6 +150,7 @@ export const CreateLectureView = ({
     stopMediaStream();
     setIsConnectingMedia(true);
     setMediaPermissionDenied(false);
+    setIsCameraBlocked(false);
 
     try {
       let stream: MediaStream | null = null;
@@ -141,13 +167,14 @@ export const CreateLectureView = ({
           try {
             stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
           } catch (e2) {
-            // Tier 3: Video Only (no mic requirement)
+            // Tier 3: Video Only (in case mic has issue)
             try {
               stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
             } catch (e3) {
-              // Tier 4: Audio Only (no camera hardware requirement)
+              // Tier 4: Audio Only (camera blocked in browser)
               try {
                 stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+                setIsCameraBlocked(true);
               } catch (e4) {
                 console.warn("All media devices access attempts failed:", e4);
               }
@@ -164,10 +191,19 @@ export const CreateLectureView = ({
 
       if (stream) {
         mediaStreamRef.current = stream;
-        if (liveVideoPreviewRef.current) {
-          liveVideoPreviewRef.current.srcObject = stream;
-          liveVideoPreviewRef.current.play().catch(() => {});
+        setActiveStream(stream);
+
+        const vTracks = stream.getVideoTracks();
+        const aTracks = stream.getAudioTracks();
+        setHasVideoTrack(vTracks.length > 0);
+        setHasAudioTrack(aTracks.length > 0);
+
+        if (mode === "camera" && vTracks.length === 0) {
+          setIsCameraBlocked(true);
+        } else {
+          setIsCameraBlocked(false);
         }
+
         setMediaPermissionDenied(false);
       } else {
         setMediaPermissionDenied(true);
@@ -1007,8 +1043,50 @@ export const CreateLectureView = ({
                     autoPlay
                     playsInline
                     muted
-                    className="w-full h-full object-cover"
+                    className={`w-full h-full object-cover ${recordMode === "camera" && hasVideoTrack ? "scale-x-[-1]" : ""}`}
                   />
+                )}
+
+                {/* Audio-only connected state (when Camera was blocked in Chrome) */}
+                {!recordedUrl && activeStream && !hasVideoTrack && hasAudioTrack && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-gradient-to-b from-zinc-900 via-zinc-950 to-black">
+                    <div className="relative mb-3">
+                      <span className="absolute -inset-3 rounded-full bg-teal-500/20 animate-ping" />
+                      <span className="relative flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-teal-600/30 border-2 border-teal-500 text-teal-300 shadow-xl shadow-teal-500/20">
+                        <Mic className="w-8 h-8 sm:w-10 sm:h-10 animate-pulse" />
+                      </span>
+                    </div>
+                    <Badge className="bg-teal-500/20 text-teal-300 border-teal-500/40 text-xs font-black mb-2">
+                      {isRtl ? "الميكروفون مفعّل وجاهز للتسجيل الصوتي" : "Audio / Mic Connected"}
+                    </Badge>
+                    <p className="text-xs text-amber-300/90 max-w-md font-medium mt-1 leading-relaxed">
+                      {isRtl
+                        ? "تنبيه: الكاميرا محظورة في متصفح كروم ولذلك تم تفعيل الميكروفون فقط. لإظهار صورتك اضغط على أيقونة الإعدادات 🔒 بجانب رابط الموقع في الأعلى واختر «السماح» للكاميرا."
+                        : "Note: Camera is blocked in Chrome settings. To show your video, click the lock icon 🔒 in the address bar and Allow Camera."}
+                    </p>
+                    <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+                      <Button
+                        type="button"
+                        onClick={() => startStream("camera")}
+                        className="bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl h-9 px-3.5 text-xs gap-1.5"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        {isRtl ? "إعادة تجربة الكاميرا" : "Retry Camera"}
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          setRecordMode("screen");
+                          startStream("screen");
+                        }}
+                        variant="secondary"
+                        className="font-bold rounded-xl h-9 px-3.5 text-xs gap-1.5"
+                      >
+                        <Monitor className="w-3.5 h-3.5" />
+                        {isRtl ? "مشاركة الشاشة" : "Screen Share"}
+                      </Button>
+                    </div>
+                  </div>
                 )}
 
                 {/* If not streaming and not recorded yet */}

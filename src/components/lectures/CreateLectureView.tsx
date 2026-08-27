@@ -749,14 +749,51 @@ export const CreateLectureView = ({
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-3.5 bg-muted/20 border border-border/60 rounded-2xl mt-2">
-                  <div>
-                    <p className="text-sm font-bold text-foreground">{isRtl ? "محاضرة مجانية ومتاحة للجميع" : "Free Public Lecture"}</p>
-                    <p className="text-xs text-muted-foreground">{isRtl ? "إتاحة مشاهدة المحاضرة لكافة طلاب القسم دون قيود" : "Allow all department students to watch freely"}</p>
+                <div
+                  onClick={() => setNewCourse({ ...newCourse, is_free: !newCourse.is_free })}
+                  className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all cursor-pointer select-none mt-3 ${
+                    newCourse.is_free
+                      ? "border-emerald-500/60 bg-emerald-500/10 shadow-sm"
+                      : "border-border/80 bg-muted/20 hover:bg-muted/40"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`p-2.5 rounded-xl transition-colors shrink-0 ${
+                        newCourse.is_free
+                          ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/30"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      <Sparkles className="w-4 h-4" />
+                    </span>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs sm:text-sm font-black text-foreground">
+                          {isRtl ? "محاضرة مجانية ومتاحة للجميع" : "Free Public Lecture"}
+                        </p>
+                        <Badge
+                          className={
+                            newCourse.is_free
+                              ? "bg-emerald-500 text-white font-black text-[10px] px-2 py-0.5"
+                              : "bg-muted text-muted-foreground font-bold text-[10px] px-2 py-0.5"
+                          }
+                        >
+                          {newCourse.is_free ? (isRtl ? "مجانية (مفعل)" : "Free (Active)") : (isRtl ? "غير مفعل" : "Off")}
+                        </Badge>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">
+                        {isRtl
+                          ? "إتاحة مشاهدة المحاضرة لكافة طلاب القسم دون قيود"
+                          : "Allow all department students to watch freely"}
+                      </p>
+                    </div>
                   </div>
                   <Switch
                     checked={newCourse.is_free}
                     onCheckedChange={(checked) => setNewCourse({ ...newCourse, is_free: checked })}
+                    className="data-[state=checked]:bg-emerald-500 shrink-0"
+                    onClick={(e) => e.stopPropagation()}
                   />
                 </div>
               </CardContent>

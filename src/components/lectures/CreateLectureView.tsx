@@ -76,6 +76,9 @@ export const CreateLectureView = ({
   const [hasAudioTrack, setHasAudioTrack] = useState(false);
   const [isCameraBlocked, setIsCameraBlocked] = useState(false);
 
+  // Step 3: Terms & Agreement
+  const [agreedToPolicy, setAgreedToPolicy] = useState(false);
+
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunksRef = useRef<Blob[]>([]);

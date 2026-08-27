@@ -415,7 +415,7 @@ USING (
 );
 
 -- INSERT (Fix Issue 3)
-CREATE POLICY "Authorized instructors and admins can insert attachments"
+CREATE POLICY "Faculty and lecturers can insert attachments"
 ON public.course_attachments
 FOR INSERT
 TO authenticated
@@ -436,6 +436,11 @@ WITH CHECK (
             AND ad.head_id = auth.uid()
         )
         OR EXISTS (
+          SELECT 1 FROM public.institution_faculty_members ifm
+          WHERE ifm.user_id = auth.uid()
+            AND ifm.department_id = c.department_id
+        )
+        OR EXISTS (
           SELECT 1 FROM public.user_roles ur
           WHERE ur.user_id = auth.uid()
             AND ur.approved = true
@@ -446,7 +451,7 @@ WITH CHECK (
 );
 
 -- DELETE (Fix Issue 3)
-CREATE POLICY "Authorized instructors and admins can delete attachments"
+CREATE POLICY "Faculty and lecturers can delete attachments"
 ON public.course_attachments
 FOR DELETE
 TO authenticated
@@ -467,6 +472,11 @@ USING (
             AND ad.head_id = auth.uid()
         )
         OR EXISTS (
+          SELECT 1 FROM public.institution_faculty_members ifm
+          WHERE ifm.user_id = auth.uid()
+            AND ifm.department_id = c.department_id
+        )
+        OR EXISTS (
           SELECT 1 FROM public.user_roles ur
           WHERE ur.user_id = auth.uid()
             AND ur.approved = true
@@ -477,7 +487,7 @@ USING (
 );
 
 -- UPDATE
-CREATE POLICY "Authorized instructors and admins can update attachments"
+CREATE POLICY "Faculty and lecturers can update attachments"
 ON public.course_attachments
 FOR UPDATE
 TO authenticated
@@ -496,6 +506,11 @@ USING (
           SELECT 1 FROM public.academic_departments ad
           WHERE ad.id = c.department_id
             AND ad.head_id = auth.uid()
+        )
+        OR EXISTS (
+          SELECT 1 FROM public.institution_faculty_members ifm
+          WHERE ifm.user_id = auth.uid()
+            AND ifm.department_id = c.department_id
         )
         OR EXISTS (
           SELECT 1 FROM public.user_roles ur
@@ -521,6 +536,11 @@ WITH CHECK (
           SELECT 1 FROM public.academic_departments ad
           WHERE ad.id = c.department_id
             AND ad.head_id = auth.uid()
+        )
+        OR EXISTS (
+          SELECT 1 FROM public.institution_faculty_members ifm
+          WHERE ifm.user_id = auth.uid()
+            AND ifm.department_id = c.department_id
         )
         OR EXISTS (
           SELECT 1 FROM public.user_roles ur

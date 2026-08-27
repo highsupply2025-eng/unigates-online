@@ -272,6 +272,8 @@ const App = () => (
                 <Route path="/student/presence-checkin" element={<StudentPresenceCheckin />} />
               </Route>
               
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/checkout/success" element={<CheckoutSuccess />} />
               <Route path="/about" element={<About />} />
               <Route path="/help-center" element={<HelpCenter />} />
               <Route path="/terms" element={<Terms />} />

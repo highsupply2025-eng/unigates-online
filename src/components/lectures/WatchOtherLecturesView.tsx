@@ -117,31 +117,20 @@ export const WatchOtherLecturesView = ({
 
   return (
     <div className="space-y-6 animate-in fade-in-50 duration-300" dir={isRtl ? "rtl" : "ltr"}>
-      {/* Header & Back Action */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/60">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onBack}
-            className="gap-2 font-bold rounded-xl border-border/70 hover:bg-muted"
-          >
-            {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-            {isRtl ? "الرجوع للمحاضرات" : "Back to Lectures"}
-          </Button>
-          <div>
-            <h2 className="text-xl sm:text-2xl font-black text-foreground flex items-center gap-2">
-              <span className="p-2 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/20">
-                <Eye className="w-5 h-5" />
-              </span>
-              {isRtl ? "محاضرات المحاضرين الآخرين بالقسم" : "Other Lecturers' Lectures"}
-            </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 font-medium">
-              {isRtl
-                ? "استعراض المحاضرات المضافة من قِبل الزملاء والمحاضرين الآخرين في نفس قسمك الأكاديمي"
-                : "Browse lectures published by other faculty members in your department"}
-            </p>
-          </div>
+        <div>
+          <h2 className="text-xl sm:text-2xl font-black text-foreground flex items-center gap-2">
+            <span className="p-2 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/20">
+              <Eye className="w-5 h-5" />
+            </span>
+            {isRtl ? "محاضرات المحاضرين الآخرين بالقسم" : "Other Lecturers' Lectures"}
+          </h2>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 font-medium">
+            {isRtl
+              ? "استعراض المحاضرات المضافة من قِبل الزملاء والمحاضرين الآخرين في نفس قسمك الأكاديمي"
+              : "Browse lectures published by other faculty members in your department"}
+          </p>
         </div>
 
         {/* Stats Badge */}

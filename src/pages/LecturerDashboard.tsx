@@ -1122,22 +1122,34 @@ const LecturerDashboard = () => {
             </div>
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            <DashboardMenuDropdown
-              onLanguageToggle={toggleLanguage}
-              onLogout={handleLogout}
-              items={[
-                { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: () => handleTabChange("home"), active: activeTab === "home" },
-                { key: "courses", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video, color: "from-cyan-500 to-teal-600", onClick: () => handleTabChange("courses"), active: activeTab === "courses" },
-                { key: "live", label: isRtl ? "البث المباشر" : "Live Stream", Icon: Radio, color: "from-red-500 to-rose-600", onClick: () => handleTabChange("live"), active: activeTab === "live" },
-                { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-purple-500 to-purple-600", onClick: () => handleTabChange("schedules"), active: activeTab === "schedules" },
-                { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-blue-500 to-indigo-600", onClick: () => handleTabChange("assignments"), active: activeTab === "assignments" },
-                { key: "quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: HelpCircle, color: "from-amber-500 to-amber-600", onClick: () => handleTabChange("quizzes"), active: activeTab === "quizzes" },
-                { key: "quiz-results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", onClick: () => handleTabChange("quiz-results"), active: activeTab === "quiz-results" },
-                { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-teal-500 to-emerald-600", onClick: () => handleTabChange("attendance"), active: activeTab === "attendance" },
-                { key: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, color: "from-green-500 to-emerald-600", onClick: () => handleTabChange("analytics"), active: activeTab === "analytics" },
-                { key: "profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: Users, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/lecturer/profile") },
-              ]}
-            />
+            {activeTab === "courses" && lectureSubView !== "overview" ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setLectureSubView("overview")}
+                className="h-10 px-3.5 gap-2 font-black rounded-xl border-2 border-primary/30 bg-primary/10 text-primary hover:bg-primary hover:text-white shadow-sm transition-all"
+              >
+                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                <span>{isRtl ? "الرجوع للمحاضرات" : "Back to Lectures"}</span>
+              </Button>
+            ) : (
+              <DashboardMenuDropdown
+                onLanguageToggle={toggleLanguage}
+                onLogout={handleLogout}
+                items={[
+                  { key: "home", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-blue-500 to-blue-600", onClick: () => handleTabChange("home"), active: activeTab === "home" },
+                  { key: "courses", label: isRtl ? "المحاضرات" : "Lectures", Icon: Video, color: "from-cyan-500 to-teal-600", onClick: () => handleTabChange("courses"), active: activeTab === "courses" },
+                  { key: "live", label: isRtl ? "البث المباشر" : "Live Stream", Icon: Radio, color: "from-red-500 to-rose-600", onClick: () => handleTabChange("live"), active: activeTab === "live" },
+                  { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-purple-500 to-purple-600", onClick: () => handleTabChange("schedules"), active: activeTab === "schedules" },
+                  { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-blue-500 to-indigo-600", onClick: () => handleTabChange("assignments"), active: activeTab === "assignments" },
+                  { key: "quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: HelpCircle, color: "from-amber-500 to-amber-600", onClick: () => handleTabChange("quizzes"), active: activeTab === "quizzes" },
+                  { key: "quiz-results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", onClick: () => handleTabChange("quiz-results"), active: activeTab === "quiz-results" },
+                  { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-teal-500 to-emerald-600", onClick: () => handleTabChange("attendance"), active: activeTab === "attendance" },
+                  { key: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, color: "from-green-500 to-emerald-600", onClick: () => handleTabChange("analytics"), active: activeTab === "analytics" },
+                  { key: "profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: Users, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/lecturer/profile") },
+                ]}
+              />
+            )}
           </div>
         </div>
       </header>

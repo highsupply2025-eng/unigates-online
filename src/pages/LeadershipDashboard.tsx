@@ -859,6 +859,53 @@ const LeadershipDashboard = () => {
     } finally { setSavingAttachment(false); }
   };
 
+  const handleDownloadAttachment = async (fileUrl: string, fileName: string) => {
+    try {
+      if (!fileUrl) return;
+
+      if (fileUrl.includes("course-content/")) {
+        const pathPart = fileUrl.split("course-content/")[1]?.split("?")[0];
+        if (pathPart) {
+          const { data, error } = await supabase.storage.from("course-content").download(decodeURIComponent(pathPart));
+          if (data && !error) {
+            const blobUrl = URL.createObjectURL(data);
+            const a = document.createElement("a");
+            a.href = blobUrl;
+            a.download = fileName || "attachment";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+            return;
+          }
+        }
+      }
+
+      try {
+        const res = await fetch(fileUrl);
+        if (res.ok) {
+          const blob = await res.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = blobUrl;
+          a.download = fileName || "attachment";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+          return;
+        }
+      } catch (e) {
+        console.warn("Fetch fallback:", e);
+      }
+
+      window.open(fileUrl, "_blank");
+    } catch (err: any) {
+      console.error("Download error:", err);
+      window.open(fileUrl, "_blank");
+    }
+  };
+
   // Recording functions
   const fmtTime = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 
@@ -1524,27 +1571,55 @@ const LeadershipDashboard = () => {
                         .filter(e => e.course_id === course.id)
                         .sort((a, b) => (a.level_number - b.level_number) || (a.episode_number - b.episode_number));
                       return (
-                        <Card key={course.id} className="overflow-hidden border-2 hover:border-primary/40 transition-colors">
-                          <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent pb-3">
+                        <Card key={course.id} className="overflow-hidden border-2 hover:border-primary/40 transition-all shadow-sm rounded-2xl">
+                          <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent pb-3.5">
                             <div className="flex items-start justify-between gap-3 flex-wrap">
-                              <div className="min-w-0">
-                                <CardTitle className="text-base font-black text-foreground truncate">
-                                  {isRtl ? course.title_ar : course.title_en}
-                                </CardTitle>
-                                <p className="text-xs text-muted-foreground font-bold mt-1 flex items-center gap-1.5">
-                                  <GraduationCap className="w-3.5 h-3.5" />
-                                  {isRtl ? course.instructor_ar : course.instructor_en}
-                                </p>
+                              <div className="min-w-0 space-y-1.5 flex-1">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <CardTitle className="text-base sm:text-lg font-black text-foreground">
+                                    {isRtl ? course.title_ar : course.title_en}
+                                  </CardTitle>
+                                  {course.title_en && isRtl && (
+                                    <span className="text-xs text-muted-foreground font-semibold" dir="ltr">
+                                      ({course.title_en})
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center gap-x-3 gap-y-1 text-xs text-muted-foreground font-bold flex-wrap">
+                                  <span className="flex items-center gap-1.5 text-foreground bg-primary/10 text-primary px-2.5 py-0.5 rounded-lg border border-primary/15">
+                                    <BookOpen className="w-3.5 h-3.5" />
+                                    <span>{isRtl ? "المادة:" : "Subject:"} {course.category_ar || course.category_en || (isRtl ? "عام" : "General")}</span>
+                                  </span>
+
+                                  <span className="flex items-center gap-1 text-foreground">
+                                    <GraduationCap className="w-3.5 h-3.5 text-primary" />
+                                    <span>{isRtl ? "رئيس القسم / المحاضر:" : "Instructor:"} {course.instructor_ar || course.instructor_en}</span>
+                                  </span>
+                                </div>
+
+                                <div className="flex items-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground font-medium flex-wrap pt-0.5">
+                                  <span className="flex items-center gap-1">
+                                    <Calendar className="w-3 h-3 text-teal-600 dark:text-teal-400" />
+                                    <span>{isRtl ? "تاريخ النشر:" : "Published:"} {course.created_at ? new Date(course.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : "—"}</span>
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                                    <span>{isRtl ? "تاريخ الانتهاء:" : "Expires:"} {course.expires_at ? new Date(course.expires_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : (isRtl ? "مستمر / بدون انتهاء" : "No Expiry")}</span>
+                                  </span>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="font-bold shrink-0">
-                                  {courseEps.length} {isRtl ? "محاضرة" : "lectures"}
+
+                              <div className="flex items-center gap-2 shrink-0">
+                                <Badge variant="outline" className="font-black text-xs bg-background border-teal-500/30 text-teal-700 dark:text-teal-300 gap-1 px-2.5 py-1">
+                                  <Video className="w-3.5 h-3.5" />
+                                  <span>{courseEps.length} {isRtl ? "فيديو" : "videos"}</span>
                                 </Badge>
                                 <Button
                                   size="sm"
                                   variant="default"
                                   onClick={() => navigate(`/lecturer/course/${course.id}`)}
-                                  className="gap-1 font-bold h-8 px-2.5 bg-teal-600 hover:bg-teal-700 text-white shadow-sm"
+                                  className="gap-1 font-bold h-8 px-2.5 bg-teal-600 hover:bg-teal-700 text-white shadow-sm rounded-xl"
                                 >
                                   <Eye className="w-3.5 h-3.5" />
                                   <span>{isRtl ? "مشاهدة" : "Watch"}</span>
@@ -1553,7 +1628,7 @@ const LeadershipDashboard = () => {
                                   size="sm"
                                   variant="destructive"
                                   onClick={() => handleDeleteCourse(course.id)}
-                                  className="h-8 px-2 shadow-sm"
+                                  className="h-8 px-2 shadow-sm rounded-xl"
                                   title={isRtl ? "حذف المحاضرة" : "Delete Lecture"}
                                 >
                                   <Trash2 className="w-3.5 h-3.5" strokeWidth={2.5} />
@@ -2269,9 +2344,17 @@ const LeadershipDashboard = () => {
           <div>
             <h3 className="font-bold text-foreground mb-3 flex items-center gap-2"><FileText className="w-4 h-4" /> {isRtl ? "المرفقات" : "Attachments"}</h3>
             {courseAttachments.length > 0 && <div className="space-y-2 mb-4">{courseAttachments.map(att => (
-              <div key={att.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
-                <FileText className="w-4 h-4 text-muted-foreground" /><span className="flex-1 text-sm font-semibold">{att.name}</span>
-                <a href={att.file_url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline">{isRtl ? "تحميل" : "Download"}</a>
+              <div key={att.id} className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border">
+                <FileText className="w-4 h-4 text-muted-foreground" /><span className="flex-1 text-sm font-semibold truncate">{att.name}</span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleDownloadAttachment(att.file_url, att.name)}
+                  className="h-8 px-2.5 text-xs font-bold gap-1 text-teal-700 dark:text-teal-300 border-teal-500/30 hover:bg-teal-500/10"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>{isRtl ? "تحميل الملف" : "Download File"}</span>
+                </Button>
               </div>
             ))}</div>}
             <div className="space-y-3 p-4 rounded-lg border border-dashed">

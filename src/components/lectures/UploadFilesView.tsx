@@ -180,6 +180,55 @@ export const UploadFilesView = ({
     }
   };
 
+  const handleDownloadAttachment = async (fileUrl: string, fileName: string) => {
+    try {
+      if (!fileUrl) return;
+
+      // Extract storage path if course-content
+      if (fileUrl.includes("course-content/")) {
+        const pathPart = fileUrl.split("course-content/")[1]?.split("?")[0];
+        if (pathPart) {
+          const { data, error } = await supabase.storage.from("course-content").download(decodeURIComponent(pathPart));
+          if (data && !error) {
+            const blobUrl = URL.createObjectURL(data);
+            const a = document.createElement("a");
+            a.href = blobUrl;
+            a.download = fileName || "attachment";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+            return;
+          }
+        }
+      }
+
+      // Try direct blob fetch
+      try {
+        const res = await fetch(fileUrl);
+        if (res.ok) {
+          const blob = await res.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = blobUrl;
+          a.download = fileName || "attachment";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+          return;
+        }
+      } catch (e) {
+        console.warn("Fetch fallback for download:", e);
+      }
+
+      window.open(fileUrl, "_blank");
+    } catch (err: any) {
+      console.error("Download error:", err);
+      window.open(fileUrl, "_blank");
+    }
+  };
+
   const formatFileSize = (bytes: number) => {
     if (!bytes) return "";
     if (bytes < 1024) return `${bytes} B`;
@@ -399,15 +448,15 @@ export const UploadFilesView = ({
 
                       <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
                         {att.file_url && (
-                          <a
-                            href={att.file_url}
-                            target="_blank"
-                            rel="noreferrer"
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDownloadAttachment(att.file_url, att.name)}
                             className="inline-flex items-center gap-1.5 h-9 px-3 text-xs font-bold rounded-xl bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/50 border border-purple-200 dark:border-purple-800 transition-colors"
                           >
                             <Download className="w-3.5 h-3.5" />
-                            {isRtl ? "تحميل" : "Download"}
-                          </a>
+                            {isRtl ? "تحميل الملف" : "Download File"}
+                          </Button>
                         )}
                         <Button
                           size="sm"

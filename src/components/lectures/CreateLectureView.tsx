@@ -68,6 +68,8 @@ export const CreateLectureView = ({
   const [recordedUrl, setRecordedUrl] = useState<string | null>(null);
   const [uploadedVideoFile, setUploadedVideoFile] = useState<File | null>(null);
   const [videoDurationSeconds, setVideoDurationSeconds] = useState(0);
+  const [isConnectingMedia, setIsConnectingMedia] = useState(false);
+  const [mediaPermissionDenied, setMediaPermissionDenied] = useState(false);
 
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -76,8 +78,12 @@ export const CreateLectureView = ({
   const liveVideoPreviewRef = useRef<HTMLVideoElement | null>(null);
   const recordedPlaybackRef = useRef<HTMLVideoElement | null>(null);
 
-  // Step 3: Terms & Agreement
-  const [agreedToPolicy, setAgreedToPolicy] = useState(false);
+  // Auto-connect media stream when entering Step 2
+  useEffect(() => {
+    if (step === 2 && !mediaStreamRef.current && !recordedBlob && !uploadedVideoFile) {
+      startStream("camera");
+    }
+  }, [step]);
 
   // Clean up media streams and object URLs on unmount
   useEffect(() => {
@@ -113,38 +119,64 @@ export const CreateLectureView = ({
 
   // -------------------------------------------------------------
   // Step 2: Native Recording Functions (Without External Services)
+  // Progressive Multi-Tier Auto-Fallback for zero-friction access
   // -------------------------------------------------------------
   const startStream = async (mode: "camera" | "screen") => {
     stopMediaStream();
+    setIsConnectingMedia(true);
+    setMediaPermissionDenied(false);
+
     try {
-      let stream: MediaStream;
+      let stream: MediaStream | null = null;
+
       if (mode === "camera") {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" },
-          audio: true,
-        });
+        // Tier 1: HD Video + Audio
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" },
+            audio: true,
+          });
+        } catch (e1) {
+          // Tier 2: Basic Video + Audio
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+          } catch (e2) {
+            // Tier 3: Video Only (no mic requirement)
+            try {
+              stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            } catch (e3) {
+              // Tier 4: Audio Only (no camera hardware requirement)
+              try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+              } catch (e4) {
+                console.warn("All media devices access attempts failed:", e4);
+              }
+            }
+          }
+        }
       } else {
+        // Screen Share Stream
         stream = await navigator.mediaDevices.getDisplayMedia({
           video: true,
           audio: true,
         });
       }
 
-      mediaStreamRef.current = stream;
-      if (liveVideoPreviewRef.current) {
-        liveVideoPreviewRef.current.srcObject = stream;
-        liveVideoPreviewRef.current.play().catch(() => {});
+      if (stream) {
+        mediaStreamRef.current = stream;
+        if (liveVideoPreviewRef.current) {
+          liveVideoPreviewRef.current.srcObject = stream;
+          liveVideoPreviewRef.current.play().catch(() => {});
+        }
+        setMediaPermissionDenied(false);
+      } else {
+        setMediaPermissionDenied(true);
       }
     } catch (err: any) {
-      console.error("Error accessing media devices:", err);
-      toast({
-        title: isRtl ? "تعذر الوصول لجهاز التسجيل" : "Media Device Error",
-        description:
-          isRtl
-            ? "يرجى منح الإذن للوصول إلى الكاميرا والميكروفون من إعدادات المتصفح."
-            : "Please grant camera and microphone permissions in browser settings.",
-        variant: "destructive",
-      });
+      console.warn("Media connection notice:", err);
+      setMediaPermissionDenied(true);
+    } finally {
+      setIsConnectingMedia(false);
     }
   };
 
@@ -152,7 +184,10 @@ export const CreateLectureView = ({
     if (!mediaStreamRef.current || !mediaStreamRef.current.active) {
       await startStream(recordMode === "screen" ? "screen" : "camera");
     }
-    if (!mediaStreamRef.current) return;
+    if (!mediaStreamRef.current) {
+      setMediaPermissionDenied(true);
+      return;
+    }
 
     recordedChunksRef.current = [];
     const mimeTypes = [
@@ -978,40 +1013,89 @@ export const CreateLectureView = ({
 
                 {/* If not streaming and not recorded yet */}
                 {!recordedUrl && !mediaStreamRef.current && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-zinc-950/80 backdrop-blur-xs">
-                    <span className="p-4 bg-teal-500/20 text-teal-400 rounded-full mb-3 ring-8 ring-teal-500/10">
-                      <Video className="w-8 h-8" />
-                    </span>
-                    <p className="text-xs text-zinc-300 max-w-md font-medium">
-                      {isRtl
-                        ? "اختر تشغيل الكاميرا أو مشاركة الشاشة ثم اضغط على زر بدء التسجيل لبدء حفظ المحاضرة."
-                        : "Enable camera or screen share, then click Start Recording to record your lecture."}
-                    </p>
-                    <div className="flex gap-2.5 mt-4">
-                      <Button
-                        type="button"
-                        onClick={() => {
-                          setRecordMode("camera");
-                          startStream("camera");
-                        }}
-                        className="bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl h-10 px-4 gap-2"
-                      >
-                        <Video className="w-4 h-4" />
-                        {isRtl ? "تشغيل الكاميرا" : "Enable Camera"}
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={() => {
-                          setRecordMode("screen");
-                          startStream("screen");
-                        }}
-                        variant="secondary"
-                        className="font-bold rounded-xl h-10 px-4 gap-2"
-                      >
-                        <Monitor className="w-4 h-4" />
-                        {isRtl ? "مشاركة الشاشة" : "Share Screen"}
-                      </Button>
-                    </div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-zinc-950/85 backdrop-blur-xs">
+                    {isConnectingMedia ? (
+                      <div className="flex flex-col items-center gap-3">
+                        <Loader2 className="w-8 h-8 text-teal-400 animate-spin" />
+                        <p className="text-xs font-bold text-zinc-300">
+                          {isRtl ? "جاري الاتصال بالكاميرا وجهاز التسجيل..." : "Connecting to media devices..."}
+                        </p>
+                      </div>
+                    ) : mediaPermissionDenied ? (
+                      <div className="flex flex-col items-center max-w-lg space-y-3">
+                        <span className="p-3 bg-amber-500/20 text-amber-400 rounded-full ring-8 ring-amber-500/10">
+                          <AlertCircle className="w-6 h-6" />
+                        </span>
+                        <div className="space-y-1">
+                          <p className="text-xs sm:text-sm font-black text-white">
+                            {isRtl ? "لتفعيل الكاميرا تلقائياً بدون عائق:" : "To enable camera automatically:"}
+                          </p>
+                          <p className="text-[11px] text-zinc-300 leading-relaxed font-medium">
+                            {isRtl
+                              ? "اضغط على أيقونة الإعدادات 🔒 أو 🎛️ بجانب رابط الموقع في شريط المتصفح (Google Chrome) بالأعلى، ثم اختر «السماح» للكاميرا والميكروفون."
+                              : "Click the lock icon 🔒 in your browser address bar above and set Camera and Microphone to 'Allow'."}
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                          <Button
+                            type="button"
+                            onClick={() => startStream("camera")}
+                            className="bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl h-9 px-3.5 text-xs gap-1.5"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                            {isRtl ? "إعادة المحاولة" : "Retry Camera"}
+                          </Button>
+                          <Button
+                            type="button"
+                            onClick={() => {
+                              setRecordMode("screen");
+                              startStream("screen");
+                            }}
+                            variant="secondary"
+                            className="font-bold rounded-xl h-9 px-3.5 text-xs gap-1.5"
+                          >
+                            <Monitor className="w-3.5 h-3.5" />
+                            {isRtl ? "مشاركة الشاشة" : "Screen Share"}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <span className="p-4 bg-teal-500/20 text-teal-400 rounded-full mb-3 ring-8 ring-teal-500/10">
+                          <Video className="w-8 h-8" />
+                        </span>
+                        <p className="text-xs text-zinc-300 max-w-md font-medium">
+                          {isRtl
+                            ? "اختر تشغيل الكاميرا أو مشاركة الشاشة ثم اضغط على زر بدء التسجيل لبدء حفظ المحاضرة."
+                            : "Enable camera or screen share, then click Start Recording to record your lecture."}
+                        </p>
+                        <div className="flex gap-2.5 mt-4">
+                          <Button
+                            type="button"
+                            onClick={() => {
+                              setRecordMode("camera");
+                              startStream("camera");
+                            }}
+                            className="bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl h-10 px-4 gap-2"
+                          >
+                            <Video className="w-4 h-4" />
+                            {isRtl ? "تشغيل الكاميرا" : "Enable Camera"}
+                          </Button>
+                          <Button
+                            type="button"
+                            onClick={() => {
+                              setRecordMode("screen");
+                              startStream("screen");
+                            }}
+                            variant="secondary"
+                            className="font-bold rounded-xl h-10 px-4 gap-2"
+                          >
+                            <Monitor className="w-4 h-4" />
+                            {isRtl ? "مشاركة الشاشة" : "Share Screen"}
+                          </Button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
 

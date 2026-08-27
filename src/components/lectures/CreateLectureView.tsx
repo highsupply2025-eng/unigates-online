@@ -876,7 +876,7 @@ export const CreateLectureView = ({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <CardTitle className="text-base sm:text-lg font-black flex items-center gap-2 text-foreground">
                   <Video className="w-5 h-5 text-teal-600 dark:text-teal-400" />
-                  {isRtl ? "تسجيل فيديو المحاضرة" : "Record Lecture Video"}
+                  {isRtl ? "تسجيل المحاضرة" : "Record Lecture"}
                 </CardTitle>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="font-bold text-xs bg-background border-teal-500/30 text-teal-700 dark:text-teal-300">

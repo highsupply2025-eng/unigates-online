@@ -24,3 +24,9 @@ verify_jwt = true
 verify_jwt = false
 [functions.signup-logo-upload]
 verify_jwt = false
+[functions.get-paddle-price]
+verify_jwt = false
+[functions.payments-webhook]
+verify_jwt = false
+[functions.claim-free-trial]
+verify_jwt = true

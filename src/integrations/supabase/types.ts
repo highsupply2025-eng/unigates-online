@@ -889,6 +889,39 @@ export type Database = {
         }
         Relationships: []
       }
+      free_trial_claims: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          institution_id: string | null
+          institution_type: string | null
+          ip_hash: string
+          plan_key: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          institution_id?: string | null
+          institution_type?: string | null
+          ip_hash: string
+          plan_key: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          institution_id?: string | null
+          institution_type?: string | null
+          ip_hash?: string
+          plan_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       institute_invitations: {
         Row: {
           created_at: string
@@ -2583,6 +2616,63 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean | null
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          environment: string
+          id: string
+          institution_id: string | null
+          institution_type: string | null
+          paddle_customer_id: string
+          paddle_subscription_id: string
+          price_id: string
+          product_id: string
+          quantity: number
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
+          id?: string
+          institution_id?: string | null
+          institution_type?: string | null
+          paddle_customer_id: string
+          paddle_subscription_id: string
+          price_id: string
+          product_id: string
+          quantity?: number
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
+          id?: string
+          institution_id?: string | null
+          institution_type?: string | null
+          paddle_customer_id?: string
+          paddle_subscription_id?: string
+          price_id?: string
+          product_id?: string
+          quantity?: number
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       suppressed_emails: {
         Row: {
           created_at: string
@@ -3219,6 +3309,10 @@ export type Database = {
       get_university_platform_statistics: { Args: never; Returns: Json }
       get_user_email: { Args: { _user_id: string }; Returns: string }
       get_user_sub_role: { Args: { _user_id: string }; Returns: string }
+      has_active_subscription: {
+        Args: { check_env?: string; user_uuid: string }
+        Returns: boolean
+      }
       has_approved_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

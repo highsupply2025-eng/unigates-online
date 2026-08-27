@@ -3308,6 +3308,19 @@ export type Database = {
       get_test_registration_emails: { Args: never; Returns: string[] }
       get_university_platform_statistics: { Args: never; Returns: Json }
       get_user_email: { Args: { _user_id: string }; Returns: string }
+      get_user_profiles_for_institution: {
+        Args: { p_user_ids: string[] }
+        Returns: {
+          avatar_url: string
+          created_at: string
+          email: string
+          full_name: string
+          must_change_password: boolean
+          phone: string
+          role: string
+          user_id: string
+        }[]
+      }
       get_user_sub_role: { Args: { _user_id: string }; Returns: string }
       has_active_subscription: {
         Args: { check_env?: string; user_uuid: string }

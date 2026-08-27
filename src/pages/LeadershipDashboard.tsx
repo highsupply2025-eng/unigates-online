@@ -1281,61 +1281,6 @@ const LeadershipDashboard = () => {
                       { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", count: ratings.length },
                     ]}
                   />
-
-                  {/* Department Members Section */}
-                  {deptMembers.length > 0 && (
-                    <Card className="mt-4 sm:mt-6 overflow-hidden border-2 border-primary/15 shadow-lg">
-                      <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent pb-3">
-                        <CardTitle className="text-sm flex items-center gap-2 font-black">
-                          <Users className="w-4 h-4 text-primary" />
-                          {isRtl ? "أعضاء القسم" : "Department Members"}
-                          <Badge variant="secondary" className="ms-auto text-xs font-bold">{deptMembers.length}</Badge>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="p-0">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 divide-y sm:divide-y-0 sm:divide-x divide-border/50">
-                          {deptMembers.map((member: any) => {
-                            const roleLabel = (() => {
-                              const roleMap: Record<string, { ar: string; en: string }> = {
-                                professor: { ar: "أستاذ دكتور", en: "Professor" },
-                                doctor: { ar: "دكتور", en: "Doctor" },
-                                teaching_assistant: { ar: "مدرس مساعد", en: "Teaching Asst." },
-                                assistant_lecturer: { ar: "معيد", en: "Lecturer" },
-                                lecturer: { ar: "محاضر", en: "Lecturer" },
-                                department_head: { ar: "رئيس قسم", en: "Dept. Head" },
-                              };
-                              return roleMap[member.resolved_role] || { ar: member.resolved_role || "-", en: member.resolved_role || "-" };
-                            })();
-                            return (
-                              <div key={member.id} className="p-3 sm:p-4 hover:bg-muted/30 transition-colors">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center shrink-0 text-xs font-black text-primary">
-                                    {member.avatar_url ? (
-                                      <img src={member.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
-                                    ) : (
-                                      (member.display_name || "?").charAt(0)
-                                    )}
-                                  </div>
-                                  <div className="min-w-0 flex-1">
-                                    <p className="text-sm font-bold text-foreground truncate">{member.display_name}</p>
-                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary border border-primary/15">
-                                      {isRtl ? roleLabel.ar : roleLabel.en}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-2 shrink-0 text-[11px] text-muted-foreground font-semibold">
-                                    <span className="flex items-center gap-0.5"><BookOpen className="w-3 h-3" />{member.course_count || 0}</span>
-                                    <span className="flex items-center gap-0.5"><ClipboardList className="w-3 h-3" />{member.assignment_count || 0}</span>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-
-
                 </>
               );
             })()}

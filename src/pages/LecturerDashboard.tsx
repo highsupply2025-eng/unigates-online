@@ -37,8 +37,9 @@ import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import RatingsBreakdown from "@/components/RatingsBreakdown";
 import { useSmartBack } from "@/hooks/use-smart-back";
-import UploadFilesDialog from "@/components/UploadFilesDialog";
-import WatchLecturesDialog from "@/components/WatchLecturesDialog";
+import { CreateLectureView } from "@/components/lectures/CreateLectureView";
+import { WatchOtherLecturesView } from "@/components/lectures/WatchOtherLecturesView";
+import { UploadFilesView } from "@/components/lectures/UploadFilesView";
 
 const ROLE_LABELS: Record<string, { ar: string; en: string }> = {
   department_head: { ar: "رئيس القسم", en: "Department Head" },
@@ -148,6 +149,9 @@ const LecturerDashboard = () => {
   const [showUploadFiles, setShowUploadFiles] = useState(false);
   const [showWatchLectures, setShowWatchLectures] = useState(false);
   const [allEpisodes, setAllEpisodes] = useState<any[]>([]);
+
+  // Dedicated full-page lecture subview ('overview' | 'create' | 'watch' | 'upload')
+  const [lectureSubView, setLectureSubView] = useState<"overview" | "create" | "watch" | "upload">("overview");
 
   const openWatchLectures = async () => {
     setShowWatchLectures(true);
@@ -1246,98 +1250,143 @@ const LecturerDashboard = () => {
                 />
               </TabsContent>
 
-
               {/* ===== COURSES TAB ===== */}
               <TabsContent value="courses" dir={isRtl ? "rtl" : "ltr"}>
-                {/* 3 Action Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
-                  <button onClick={handleOpenNewCourse} className={isRtl ? "text-right" : "text-left"}>
-                    <Card className="relative overflow-hidden bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600 border-2 border-cyan-400/60 shadow-xl shadow-cyan-500/30 hover:shadow-2xl hover:shadow-cyan-500/50 hover:-translate-y-1 transition-all h-full">
-                      <CardContent className="p-4 sm:p-5 text-center relative">
-                        <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
-                          <Plus className="w-7 h-7 text-white" strokeWidth={2.8} />
-                        </div>
-                        <p className="text-base sm:text-lg font-black text-white drop-shadow-md">{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</p>
-                        <p className="text-[10px] sm:text-xs font-bold text-white/85 tracking-wide mt-1">{isRtl ? "تسجيل حلقة ورفع ملف" : "Record episode & upload file"}</p>
-                      </CardContent>
-                    </Card>
-                  </button>
-                  <button onClick={openWatchLectures} className={isRtl ? "text-right" : "text-left"}>
-                    <Card className="relative overflow-hidden bg-gradient-to-br from-emerald-500 via-teal-500 to-green-600 border-2 border-emerald-400/60 shadow-xl shadow-emerald-500/30 hover:shadow-2xl hover:shadow-emerald-500/50 hover:-translate-y-1 transition-all h-full">
-                      <CardContent className="p-4 sm:p-5 text-center relative">
-                        <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
-                          <Eye className="w-7 h-7 text-white" strokeWidth={2.8} />
-                        </div>
-                        <p className="text-base sm:text-lg font-black text-white drop-shadow-md">{isRtl ? "مشاهدة المحاضرات" : "Watch Lectures"}</p>
-                        <p className="text-[10px] sm:text-xs font-bold text-white/85 tracking-wide mt-1">{isRtl ? "من اللوحات الأخرى" : "From other boards"}</p>
-                      </CardContent>
-                    </Card>
-                  </button>
-                  <button onClick={() => setShowUploadFiles(true)} className={isRtl ? "text-right" : "text-left"}>
-                    <Card className="relative overflow-hidden bg-gradient-to-br from-purple-500 via-violet-500 to-fuchsia-600 border-2 border-purple-400/60 shadow-xl shadow-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/50 hover:-translate-y-1 transition-all h-full">
-                      <CardContent className="p-4 sm:p-5 text-center relative">
-                        <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
-                          <Upload className="w-7 h-7 text-white" strokeWidth={2.8} />
-                        </div>
-                        <p className="text-base sm:text-lg font-black text-white drop-shadow-md">{isRtl ? "رفع ملف للطلبة" : "Upload Files"}</p>
-                        <p className="text-[10px] sm:text-xs font-bold text-white/85 tracking-wide mt-1">{isRtl ? "مشاركة الملفات مع الطلاب" : "Share materials with students"}</p>
-                      </CardContent>
-                    </Card>
-                  </button>
-                </div>
-                <div className="bg-gradient-to-l from-primary/10 via-card to-card border-2 border-primary/20 rounded-xl p-4 mb-6 shadow-sm">
-                  <p className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-md shrink-0">
-                      <Video className="w-4 h-4" strokeWidth={2.5} />
-                    </span>
-                    {isRtl ? "أنشئ محاضراتك وأدر الحلقات والمرفقات بسهولة من مكان واحد." : "Create your lectures and manage episodes and attachments from one place."}
-                  </p>
-                </div>
-                {courses.length === 0 ? (
-                  <div className="text-center py-16 font-bold text-muted-foreground">{isRtl ? "لا توجد محاضرات بعد. ابدأ بإنشاء أول محاضرة!" : "No lectures yet. Create your first one!"}</div>
+                {lectureSubView === "create" ? (
+                  <CreateLectureView
+                    isRtl={isRtl}
+                    userId={user?.id || ""}
+                    profile={profile}
+                    myDepartments={myDepartments}
+                    onBack={() => setLectureSubView("overview")}
+                    onCreated={async () => {
+                      if (user?.id) {
+                        await loadCourses(user.id);
+                        await loadMyDepartments(user.id);
+                      }
+                    }}
+                  />
+                ) : lectureSubView === "watch" ? (
+                  <WatchOtherLecturesView
+                    isRtl={isRtl}
+                    userId={user?.id || ""}
+                    myDepartmentIds={myDepartments.map(d => d.id)}
+                    myDepartments={myDepartments}
+                    onBack={() => setLectureSubView("overview")}
+                  />
+                ) : lectureSubView === "upload" ? (
+                  <UploadFilesView
+                    isRtl={isRtl}
+                    userId={user?.id || ""}
+                    courses={courses}
+                    onBack={() => setLectureSubView("overview")}
+                    onUploaded={() => {
+                      if (user?.id) loadCourses(user.id);
+                    }}
+                  />
                 ) : (
-                  <div id="lecturer-courses-grid" dir={isRtl ? "rtl" : "ltr"} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {courses.map(course => (
-                      <Card key={course.id} className="overflow-hidden bg-gradient-to-br from-card via-card to-cyan-50/40 dark:to-cyan-950/20 border-2 border-cyan-200/60 dark:border-cyan-900/50 hover:border-teal-400 dark:hover:border-teal-600 hover:shadow-xl hover:shadow-teal-500/10 transition-all">
-                        {course.thumbnail_url && <img src={course.thumbnail_url} alt="" className="w-full h-40 object-cover" />}
-                        <CardContent className="p-4">
-                          <p className="text-[11px] font-extrabold uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                            <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-gradient-to-br from-cyan-500 to-teal-600 text-white shadow shadow-teal-500/30"><BookOpen className="w-3 h-3" strokeWidth={3} /></span>
-                            <span className="bg-gradient-to-r from-cyan-700 to-teal-700 dark:from-cyan-300 dark:to-teal-300 bg-clip-text text-transparent">{isRtl ? "اسم المادة" : "Subject"}</span>
-                          </p>
-                          <p className="text-base font-black text-foreground mb-3 tracking-tight" dir="rtl">{course.category_ar || course.category_en}</p>
+                  <>
+                    {/* 3 Action Cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
+                      <button
+                        onClick={() => {
+                          setLectureSubView("create");
+                          if (user?.id) loadMyDepartments(user.id);
+                        }}
+                        className={isRtl ? "text-right" : "text-left"}
+                      >
+                        <Card className="relative overflow-hidden bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600 border-2 border-cyan-400/60 shadow-xl shadow-cyan-500/30 hover:shadow-2xl hover:shadow-cyan-500/50 hover:-translate-y-1 transition-all h-full">
+                          <CardContent className="p-4 sm:p-5 text-center relative">
+                            <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
+                              <Plus className="w-7 h-7 text-white" strokeWidth={2.8} />
+                            </div>
+                            <p className="text-base sm:text-lg font-black text-white drop-shadow-md">{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</p>
+                            <p className="text-[10px] sm:text-xs font-bold text-white/85 tracking-wide mt-1">{isRtl ? "تسجيل حلقة ورفع ملف" : "Record episode & upload file"}</p>
+                          </CardContent>
+                        </Card>
+                      </button>
+                      <button
+                        onClick={() => setLectureSubView("watch")}
+                        className={isRtl ? "text-right" : "text-left"}
+                      >
+                        <Card className="relative overflow-hidden bg-gradient-to-br from-emerald-500 via-teal-500 to-green-600 border-2 border-emerald-400/60 shadow-xl shadow-emerald-500/30 hover:shadow-2xl hover:shadow-emerald-500/50 hover:-translate-y-1 transition-all h-full">
+                          <CardContent className="p-4 sm:p-5 text-center relative">
+                            <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
+                              <Eye className="w-7 h-7 text-white" strokeWidth={2.8} />
+                            </div>
+                            <p className="text-base sm:text-lg font-black text-white drop-shadow-md">{isRtl ? "مشاهدة المحاضرات" : "Watch Lectures"}</p>
+                            <p className="text-[10px] sm:text-xs font-bold text-white/85 tracking-wide mt-1">{isRtl ? "من اللوحات الأخرى" : "From other boards"}</p>
+                          </CardContent>
+                        </Card>
+                      </button>
+                      <button
+                        onClick={() => setLectureSubView("upload")}
+                        className={isRtl ? "text-right" : "text-left"}
+                      >
+                        <Card className="relative overflow-hidden bg-gradient-to-br from-purple-500 via-violet-500 to-fuchsia-600 border-2 border-purple-400/60 shadow-xl shadow-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/50 hover:-translate-y-1 transition-all h-full">
+                          <CardContent className="p-4 sm:p-5 text-center relative">
+                            <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
+                              <Upload className="w-7 h-7 text-white" strokeWidth={2.8} />
+                            </div>
+                            <p className="text-base sm:text-lg font-black text-white drop-shadow-md">{isRtl ? "رفع ملف للطلبة" : "Upload Files"}</p>
+                            <p className="text-[10px] sm:text-xs font-bold text-white/85 tracking-wide mt-1">{isRtl ? "مشاركة الملفات مع الطلاب" : "Share materials with students"}</p>
+                          </CardContent>
+                        </Card>
+                      </button>
+                    </div>
+                    <div className="bg-gradient-to-l from-primary/10 via-card to-card border-2 border-primary/20 rounded-xl p-4 mb-6 shadow-sm">
+                      <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-md shrink-0">
+                          <Video className="w-4 h-4" strokeWidth={2.5} />
+                        </span>
+                        {isRtl ? "أنشئ محاضراتك وأدر الحلقات والمرفقات بسهولة من مكان واحد." : "Create your lectures and manage episodes and attachments from one place."}
+                      </p>
+                    </div>
+                    {courses.length === 0 ? (
+                      <div className="text-center py-16 font-bold text-muted-foreground">{isRtl ? "لا توجد محاضرات بعد. ابدأ بإنشاء أول محاضرة!" : "No lectures yet. Create your first one!"}</div>
+                    ) : (
+                      <div id="lecturer-courses-grid" dir={isRtl ? "rtl" : "ltr"} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {courses.map(course => (
+                          <Card key={course.id} className="overflow-hidden bg-gradient-to-br from-card via-card to-cyan-50/40 dark:to-cyan-950/20 border-2 border-cyan-200/60 dark:border-cyan-900/50 hover:border-teal-400 dark:hover:border-teal-600 hover:shadow-xl hover:shadow-teal-500/10 transition-all">
+                            {course.thumbnail_url && <img src={course.thumbnail_url} alt="" className="w-full h-40 object-cover" />}
+                            <CardContent className="p-4">
+                              <p className="text-[11px] font-extrabold uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-gradient-to-br from-cyan-500 to-teal-600 text-white shadow shadow-teal-500/30"><BookOpen className="w-3 h-3" strokeWidth={3} /></span>
+                                <span className="bg-gradient-to-r from-cyan-700 to-teal-700 dark:from-cyan-300 dark:to-teal-300 bg-clip-text text-transparent">{isRtl ? "اسم المادة" : "Subject"}</span>
+                              </p>
+                              <p className="text-base font-black text-foreground mb-3 tracking-tight" dir="rtl">{course.category_ar || course.category_en}</p>
 
-                          <p className="text-[11px] font-extrabold uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                            <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow shadow-teal-500/30"><Video className="w-3 h-3" strokeWidth={3} /></span>
-                            <span className="bg-gradient-to-r from-teal-700 to-emerald-700 dark:from-teal-300 dark:to-emerald-300 bg-clip-text text-transparent">{isRtl ? "عنوان المحاضرة" : "Lecture Title"}</span>
-                          </p>
-                          <h3 className="font-black text-foreground mb-3 text-lg tracking-tight leading-snug" dir="rtl">{course.title_ar || course.title_en}</h3>
+                              <p className="text-[11px] font-extrabold uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow shadow-teal-500/30"><Video className="w-3 h-3" strokeWidth={3} /></span>
+                                <span className="bg-gradient-to-r from-teal-700 to-emerald-700 dark:from-teal-300 dark:to-emerald-300 bg-clip-text text-transparent">{isRtl ? "عنوان المحاضرة" : "Lecture Title"}</span>
+                              </p>
+                              <h3 className="font-black text-foreground mb-3 text-lg tracking-tight leading-snug" dir="rtl">{course.title_ar || course.title_en}</h3>
 
-                          <p className="text-[11px] font-extrabold uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                            <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-gradient-to-br from-emerald-500 to-cyan-600 text-white shadow shadow-emerald-500/30"><GraduationCap className="w-3 h-3" strokeWidth={3} /></span>
-                            <span className="bg-gradient-to-r from-emerald-700 to-cyan-700 dark:from-emerald-300 dark:to-cyan-300 bg-clip-text text-transparent">{isRtl ? "اسم المحاضر" : "Lecturer"}</span>
-                          </p>
-                          <p className="text-sm font-extrabold text-foreground mb-3" dir="rtl">{course.instructor_ar || course.instructor_en}</p>
+                              <p className="text-[11px] font-extrabold uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-gradient-to-br from-emerald-500 to-cyan-600 text-white shadow shadow-emerald-500/30"><GraduationCap className="w-3 h-3" strokeWidth={3} /></span>
+                                <span className="bg-gradient-to-r from-emerald-700 to-cyan-700 dark:from-emerald-300 dark:to-cyan-300 bg-clip-text text-transparent">{isRtl ? "اسم المحاضر" : "Lecturer"}</span>
+                              </p>
+                              <p className="text-sm font-extrabold text-foreground mb-3" dir="rtl">{course.instructor_ar || course.instructor_en}</p>
 
-                          <div className="text-xs font-bold text-muted-foreground space-y-1 mb-3 border-t-2 border-cyan-200/50 dark:border-cyan-900/40 pt-3">
-                            <p className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" strokeWidth={2.5} />{isRtl ? "تاريخ الإنشاء: " : "Created: "}{new Date(course.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</p>
-                            {course.expires_at && (
-                              <p className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-destructive" strokeWidth={2.5} />{isRtl ? "تاريخ الانتهاء: " : "Expires: "}{new Date(course.expires_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</p>
-                            )}
-                          </div>
+                              <div className="text-xs font-bold text-muted-foreground space-y-1 mb-3 border-t-2 border-cyan-200/50 dark:border-cyan-900/40 pt-3">
+                                <p className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" strokeWidth={2.5} />{isRtl ? "تاريخ الإنشاء: " : "Created: "}{new Date(course.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</p>
+                                {course.expires_at && (
+                                  <p className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-destructive" strokeWidth={2.5} />{isRtl ? "تاريخ الانتهاء: " : "Expires: "}{new Date(course.expires_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}</p>
+                                )}
+                              </div>
 
-                          <div className="flex items-center gap-3 text-sm font-extrabold mb-3 flex-wrap">
-                            <span className="flex items-center gap-1 px-2 py-1 rounded-lg bg-gradient-to-br from-cyan-100 to-teal-100 dark:from-cyan-950/60 dark:to-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-300/50"><Eye className="w-3.5 h-3.5" strokeWidth={2.5} /> {courseViews[course.id] || 0}</span>
-                            <span className="flex items-center gap-1 px-2 py-1 rounded-lg bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-950/60 dark:to-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300/50"><Video className="w-3.5 h-3.5" strokeWidth={2.5} /> {course.episode_count}</span>
-                            {course.is_free 
-                              ? <span className="px-2 py-1 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-teal-500/30">{isRtl ? "مجاني" : "Free"}</span>
-                              : course.price > 0 && <span className="px-2 py-1 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-600 text-white shadow-md shadow-teal-500/30">{course.price} {isRtl ? "ج.م" : "EGP"}</span>
-                            }
-                          </div>
-                          <div className="flex gap-2 flex-wrap">
-                            <Button size="sm" variant="outline" className="flex-1 font-bold border-2 border-primary/30 hover:border-primary/60 hover:bg-primary/5" onClick={() => navigate(`/lecturer/course/${course.id}`)}>
-                              <Plus className="w-3.5 h-3.5 me-1 text-primary" strokeWidth={3} />{isRtl ? "الحلقات والمرفقات" : "Episodes & Attachments"}
-                            </Button>
+                              <div className="flex items-center gap-3 text-sm font-extrabold mb-3 flex-wrap">
+                                <span className="flex items-center gap-1 px-2 py-1 rounded-lg bg-gradient-to-br from-cyan-100 to-teal-100 dark:from-cyan-950/60 dark:to-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-300/50"><Eye className="w-3.5 h-3.5" strokeWidth={2.5} /> {courseViews[course.id] || 0}</span>
+                                <span className="flex items-center gap-1 px-2 py-1 rounded-lg bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-950/60 dark:to-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300/50"><Video className="w-3.5 h-3.5" strokeWidth={2.5} /> {course.episode_count}</span>
+                                {course.is_free 
+                                  ? <span className="px-2 py-1 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-teal-500/30">{isRtl ? "مجاني" : "Free"}</span>
+                                  : course.price > 0 && <span className="px-2 py-1 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-600 text-white shadow-md shadow-teal-500/30">{course.price} {isRtl ? "ج.م" : "EGP"}</span>
+                                }
+                              </div>
+                              <div className="flex gap-2 flex-wrap">
+                                <Button size="sm" variant="outline" className="flex-1 font-bold border-2 border-primary/30 hover:border-primary/60 hover:bg-primary/5" onClick={() => navigate(`/lecturer/course/${course.id}`)}>
+                                  <Plus className="w-3.5 h-3.5 me-1 text-primary" strokeWidth={3} />{isRtl ? "الحلقات والمرفقات" : "Episodes & Attachments"}
+                                </Button>
                             <Button size="sm" variant="outline" className="gap-1 font-bold border-2 border-primary/30 hover:border-primary/60 hover:bg-primary/5" onClick={() => {
                               navigator.clipboard.writeText(`${window.location.origin}/lecturer/course/${course.id}`);
                               sonnerToast.success(isRtl ? "تم النسخ!" : "Copied!", { duration: 500 });
@@ -1351,7 +1400,9 @@ const LecturerDashboard = () => {
                     ))}
                   </div>
                 )}
-              </TabsContent>
+              </>
+            )}
+          </TabsContent>
 
               {/* ===== LIVE STREAMING TAB ===== */}
               <TabsContent value="live" dir={isRtl ? "rtl" : "ltr"}>
@@ -1611,115 +1662,6 @@ const LecturerDashboard = () => {
       </main>
 
       {/* ===== DIALOGS ===== */}
-
-      {/* New Course Dialog */}
-      <Dialog open={showNewCourse} onOpenChange={setShowNewCourse}>
-        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] p-0 gap-0 border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl overflow-hidden bg-card/95 backdrop-blur-xl flex flex-col">
-          {/* Radiant Header (Sticky at top) */}
-          <div className="relative shrink-0 bg-gradient-to-br from-teal-600 via-emerald-600 to-cyan-700 px-6 pt-6 pb-5 text-center text-white shadow-md">
-            <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-4 ring-white/15 shadow-lg">
-              <BookOpen className="w-6 h-6 text-white" strokeWidth={2.2} />
-            </div>
-            <DialogTitle className="text-xl font-black text-white tracking-tight">
-              {isRtl ? "إنشاء محاضرة جديدة" : "Create New Lecture"}
-            </DialogTitle>
-            <p className="text-xs text-white/85 mt-0.5 font-medium max-w-xs mx-auto">
-              {isRtl ? "أضف محاضرة جديدة واربطها بالقسم المحدد" : "Add a new lecture and assign it to a department"}
-            </p>
-          </div>
-
-          {/* Scrollable Form Body */}
-          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3.5 custom-scrollbar">
-            {/* Lecturer Info */}
-            <div className="rounded-2xl bg-muted/40 border border-border/50 p-3.5">
-              <Label className="mb-1.5 block text-xs font-bold text-muted-foreground uppercase tracking-wider">{isRtl ? "اسم المحاضر" : "Lecturer Name"}</Label>
-              <Input value={profile?.full_name || user?.email || ""} disabled readOnly className="bg-background/80 border-border/50 h-10 font-semibold" />
-            </div>
-
-            {/* Subject & Title */}
-            <div className="rounded-2xl bg-muted/40 border border-border/50 p-3.5 space-y-3">
-              <Label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">{isRtl ? "تفاصيل المادة والمحاضرة" : "Subject & Lecture Details"}</Label>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{isRtl ? "اسم المادة (عربي)" : "Subject (Arabic)"}</Label>
-                  <Input
-                    value={newCourse.category_ar}
-                    onChange={e => setNewCourse(p => ({ ...p, category_ar: e.target.value }))}
-                    placeholder={isRtl ? "مثال: هندسة، طب، لغات" : "e.g. Engineering"}
-                    className="h-10 border-border/60 focus:border-teal-500 focus:ring-teal-500/20"
-                    dir="rtl"
-                  />
-                </div>
-                <div>
-                  <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{isRtl ? "اسم المادة (إنجليزي)" : "Subject (English)"}</Label>
-                  <Input
-                    value={newCourse.category_en}
-                    onChange={e => setNewCourse(p => ({ ...p, category_en: e.target.value }))}
-                    placeholder="e.g. Engineering"
-                    className="h-10 border-border/60 focus:border-teal-500 focus:ring-teal-500/20"
-                    dir="ltr"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label className="mb-1.5 block text-xs font-semibold">{isRtl ? "عنوان المحاضرة (عربي)" : "Lecture Title (Arabic)"} <span className="text-destructive text-xs">*</span></Label>
-                  <Input value={newCourse.title_ar} onChange={e => setNewCourse(p => ({ ...p, title_ar: e.target.value }))} placeholder={isRtl ? "أدخل عنوان المحاضرة" : "Enter title"} className="h-10 border-border/60 focus:border-teal-500 focus:ring-teal-500/20" dir="rtl" />
-                </div>
-                <div>
-                  <Label className="mb-1.5 block text-xs font-semibold">{isRtl ? "عنوان المحاضرة (إنجليزي)" : "Lecture Title (English)"} <span className="text-destructive text-xs">*</span></Label>
-                  <Input value={newCourse.title_en} onChange={e => setNewCourse(p => ({ ...p, title_en: e.target.value }))} placeholder={isRtl ? "أدخل عنوان المحاضرة" : "Enter title"} className="h-10 border-border/60 focus:border-teal-500 focus:ring-teal-500/20" dir="ltr" />
-                </div>
-              </div>
-            </div>
-
-            {/* Department & Expiry */}
-            <div className="rounded-2xl bg-muted/40 border border-border/50 p-3.5 space-y-3">
-              <Label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">{isRtl ? "القسم والتواريخ" : "Department & Dates"}</Label>
-              <div>
-                <Label className="mb-1.5 block text-xs font-semibold">{isRtl ? "القسم" : "Department"} <span className="text-destructive text-xs">*</span></Label>
-                <Select value={newCourse.department_id} onValueChange={v => setNewCourse(p => ({ ...p, department_id: v }))}>
-                  <SelectTrigger className={`h-11 border-border/60 focus:border-teal-500 focus:ring-teal-500/20 rounded-xl ${myDepartments.length === 0 ? "border-destructive/40 bg-destructive/5" : ""}`}>
-                    <SelectValue placeholder={myDepartments.length === 0 ? (isRtl ? "لست عضواً في أي قسم" : "Not a member of any department") : (isRtl ? "اختر القسم" : "Select department")} />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-xl">
-                    {myDepartments.map(d => (
-                      <SelectItem key={d.id} value={d.id} className="py-2.5 font-medium">{d.department_name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {myDepartments.length === 0 && (
-                  <p className="mt-1.5 text-xs text-destructive flex items-center gap-1">
-                    <AlertCircle className="w-3.5 h-3.5" />
-                    {isRtl ? "لم يتم العثور على أقسام مرتبطة بحسابك" : "No departments found linked to your account"}
-                  </p>
-                )}
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{isRtl ? "تاريخ الإنشاء" : "Creation Date"}</Label>
-                  <Input type="date" value={newCourse.created_at} onChange={e => setNewCourse(p => ({ ...p, created_at: e.target.value }))} className="h-10 border-border/60 focus:border-teal-500 focus:ring-teal-500/20" />
-                </div>
-                <div>
-                  <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{isRtl ? "تاريخ الانتهاء" : "Expiry Date"}</Label>
-                  <Input type="date" value={newCourse.expires_at} onChange={e => setNewCourse(p => ({ ...p, expires_at: e.target.value }))} className="h-10 border-border/60 focus:border-teal-500 focus:ring-teal-500/20" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Sticky Bottom Action Footer (ALWAYS VISIBLE!) */}
-          <div className="shrink-0 p-4 px-6 bg-card/95 backdrop-blur-md border-t border-border/40">
-            <Button
-              onClick={handleCreateCourse}
-              disabled={savingCourse || myDepartments.length === 0}
-              className="w-full h-12 gap-2 font-bold bg-gradient-to-r from-teal-600 via-emerald-600 to-cyan-600 hover:from-teal-700 hover:via-emerald-700 hover:to-cyan-700 shadow-lg shadow-teal-600/20 hover:shadow-xl hover:shadow-teal-600/30 transition-all rounded-2xl text-base text-white disabled:opacity-50 disabled:shadow-none"
-            >
-              {savingCourse ? <Loader2 className="w-5 h-5 animate-spin" /> : (<><Plus className="w-5 h-5" strokeWidth={2.5} />{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</>)}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Episodes & Attachments Dialog */}
       <Dialog open={showEpisodeDialog} onOpenChange={setShowEpisodeDialog}>
@@ -2139,20 +2081,6 @@ const LecturerDashboard = () => {
           </div>
         </DialogContent>
       </Dialog>
-
-      <WatchLecturesDialog
-        open={showWatchLectures}
-        onOpenChange={setShowWatchLectures}
-        courses={courses}
-        episodes={allEpisodes}
-      />
-
-      <UploadFilesDialog
-        open={showUploadFiles}
-        onOpenChange={setShowUploadFiles}
-        courses={courses}
-        userId={user?.id || ""}
-      />
 
       {/* LiveKit Stream Room */}
       {activeStreamId && user && (

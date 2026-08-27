@@ -839,11 +839,11 @@ export const CreateLectureView = ({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <CardTitle className="text-base sm:text-lg font-black flex items-center gap-2 text-foreground">
                   <Video className="w-5 h-5 text-teal-600 dark:text-teal-400" />
-                  {isRtl ? "تسجيل المحاضرة عبر البنية التحتية للموقع" : "In-Browser Lecture Recording Infrastructure"}
+                  {isRtl ? "تسجيل فيديو المحاضرة" : "Record Lecture Video"}
                 </CardTitle>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="font-bold text-xs bg-background border-teal-500/30 text-teal-700 dark:text-teal-300">
-                    {isRtl ? "تسجيل محلي ومباشر وآمن" : "Native & Secure Recording"}
+                    {isRtl ? "تسجيل مباشر وآمن" : "Direct & Secure"}
                   </Badge>
                 </div>
               </div>
@@ -945,8 +945,7 @@ export const CreateLectureView = ({
                     <span className="p-4 bg-teal-500/20 text-teal-400 rounded-full mb-3 ring-8 ring-teal-500/10">
                       <Video className="w-8 h-8" />
                     </span>
-                    <p className="text-sm font-black text-white">{isRtl ? "البنية التحتية للتسجيل المباشر جاهزة" : "Recording Studio Ready"}</p>
-                    <p className="text-xs text-zinc-400 mt-1 max-w-md">
+                    <p className="text-xs text-zinc-300 max-w-md font-medium">
                       {isRtl
                         ? "اختر تشغيل الكاميرا أو مشاركة الشاشة ثم اضغط على زر بدء التسجيل لبدء حفظ المحاضرة."
                         : "Enable camera or screen share, then click Start Recording to record your lecture."}

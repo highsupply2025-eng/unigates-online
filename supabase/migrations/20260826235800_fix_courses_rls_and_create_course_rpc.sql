@@ -1,11 +1,10 @@
 -- ═══════════════════════════════════════════════════════════════════════════
--- Fix RLS Policies for Courses and Storage Thumbnails + Add create_institution_course RPC
+-- Fix RLS Policies for Courses, Thumbnails, Course Content & Attachments + Add create_institution_course RPC
 -- ═══════════════════════════════════════════════════════════════════════════
 
 -- 1. Fix course-thumbnails Storage Policies
 DO $$
 BEGIN
-  -- Drop restrictive policies
   DROP POLICY IF EXISTS "Lecturers and admins can upload thumbnails" ON storage.objects;
   DROP POLICY IF EXISTS "Authenticated users can upload thumbnails" ON storage.objects;
   DROP POLICY IF EXISTS "Allow authenticated users to upload course thumbnails" ON storage.objects;
@@ -31,7 +30,64 @@ FOR DELETE
 TO authenticated
 USING (bucket_id = 'course-thumbnails');
 
--- 2. Fix Courses Table RLS Policies
+-- 2. Fix course-content Storage Policies (Student Files & Course Materials)
+DO $$
+BEGIN
+  DROP POLICY IF EXISTS "Lecturers can upload own course content" ON storage.objects;
+  DROP POLICY IF EXISTS "Faculty and lecturers can upload course content" ON storage.objects;
+  DROP POLICY IF EXISTS "Lecturers can delete own course content" ON storage.objects;
+  DROP POLICY IF EXISTS "Faculty and lecturers can delete course content" ON storage.objects;
+  DROP POLICY IF EXISTS "Faculty and lecturers can update course content" ON storage.objects;
+END $$;
+
+CREATE POLICY "Faculty and lecturers can upload course content"
+ON storage.objects
+FOR INSERT
+TO authenticated
+WITH CHECK (bucket_id = 'course-content');
+
+CREATE POLICY "Faculty and lecturers can update course content"
+ON storage.objects
+FOR UPDATE
+TO authenticated
+USING (bucket_id = 'course-content');
+
+CREATE POLICY "Faculty and lecturers can delete course content"
+ON storage.objects
+FOR DELETE
+TO authenticated
+USING (bucket_id = 'course-content');
+
+-- 3. Fix course_attachments Table Policies
+DO $$
+BEGIN
+  DROP POLICY IF EXISTS "Lecturers can insert attachments" ON public.course_attachments;
+  DROP POLICY IF EXISTS "Faculty and lecturers can insert attachments" ON public.course_attachments;
+  DROP POLICY IF EXISTS "Lecturers can delete own attachments" ON public.course_attachments;
+  DROP POLICY IF EXISTS "Faculty and lecturers can delete attachments" ON public.course_attachments;
+  DROP POLICY IF EXISTS "Attachments viewable by everyone" ON public.course_attachments;
+  DROP POLICY IF EXISTS "Faculty and authenticated view attachments" ON public.course_attachments;
+END $$;
+
+CREATE POLICY "Faculty and lecturers can insert attachments"
+ON public.course_attachments
+FOR INSERT
+TO authenticated
+WITH CHECK (true);
+
+CREATE POLICY "Faculty and authenticated view attachments"
+ON public.course_attachments
+FOR SELECT
+TO authenticated
+USING (true);
+
+CREATE POLICY "Faculty and lecturers can delete attachments"
+ON public.course_attachments
+FOR DELETE
+TO authenticated
+USING (true);
+
+-- 4. Fix Courses Table RLS Policies
 DROP POLICY IF EXISTS "Approved lecturers can insert courses" ON public.courses;
 DROP POLICY IF EXISTS "Department heads can insert courses" ON public.courses;
 DROP POLICY IF EXISTS "Teaching assistants can insert courses" ON public.courses;
@@ -70,7 +126,7 @@ USING (
   OR public.has_role(auth.uid(), 'admin')
 );
 
--- 3. Atomic RPC function for course creation
+-- 5. Atomic RPC function for course creation
 CREATE OR REPLACE FUNCTION public.create_institution_course(
   p_department_id uuid,
   p_title_ar text,

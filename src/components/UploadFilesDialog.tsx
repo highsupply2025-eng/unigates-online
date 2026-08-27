@@ -62,7 +62,7 @@ const UploadFilesDialog = ({ open, onOpenChange, courses, userId, onUploaded }: 
   };
 
   const handleUpload = async () => {
-    if (!uploadFile || !uploadFileName || !userId) return;
+    if (!uploadFile || !uploadFileName) return;
     if (!uploadCourseId) {
       toast({
         title: isRtl ? "اختر المحاضرة" : "Select a lecture",
@@ -75,8 +75,14 @@ const UploadFilesDialog = ({ open, onOpenChange, courses, userId, onUploaded }: 
     }
     setSavingUpload(true);
     try {
+      const { data: authUserData } = await supabase.auth.getUser();
+      const effectiveUserId = authUserData?.user?.id || userId;
+      if (!effectiveUserId) {
+        throw new Error(isRtl ? "يرجى تسجيل الدخول أولاً" : "Please log in first");
+      }
+
       const ext = uploadFile.name.split(".").pop();
-      const path = `${userId}/student-files/${Date.now()}.${ext}`;
+      const path = `${effectiveUserId}/${uploadCourseId}/${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage.from("course-content").upload(path, uploadFile);
       if (upErr) throw upErr;
       const { data: urlData } = supabase.storage.from("course-content").getPublicUrl(path);

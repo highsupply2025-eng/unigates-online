@@ -50,6 +50,7 @@ import { AssignmentApprovalsView } from "@/components/assignments/AssignmentAppr
 import { AssignmentResultsRosterView } from "@/components/assignments/AssignmentResultsRosterView";
 import { QuizResultsRosterView } from "@/components/quizzes/QuizResultsRosterView";
 import { QuizResultsApprovalsView } from "@/components/quizzes/QuizResultsApprovalsView";
+import { FacultyRatingsOverview } from "@/components/faculty/FacultyRatingsOverview";
 
 const LeadershipDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -1254,7 +1255,10 @@ const LeadershipDashboard = () => {
                        en: isDeanOrViceDean ? "Assignments Approval" : "Assignments",
                      },
                      assignmentresults: { ar: "نتائج التكليفات", en: "Assignment Results" },
-                     ratings: { ar: "التقييمات", en: "Ratings" },
+                     ratings: {
+                       ar: isDeanOrViceDean ? "تقييمات أعضاء هيئة التدريس" : "تقييمات الطلاب",
+                       en: isDeanOrViceDean ? "Faculty Ratings" : "Student Ratings",
+                     },
                      members: { ar: "أعضاء القسم", en: "Department Members" },
                    };
                    const cur = map[activeTab] ?? map.overview;
@@ -2905,13 +2909,49 @@ const LeadershipDashboard = () => {
 
           {/* Ratings */}
           <TabsContent value="ratings" id="section-ratings" dir={isRtl ? "rtl" : "ltr"}>
-            <div className="flex items-center justify-end mb-4" dir={isRtl ? "rtl" : "ltr"}>
-              <Button size="sm" variant="outline" onClick={() => exportToPDF("ratings")} className="gap-1.5">
-                <Download className="w-4 h-4" />
-                {isRtl ? "تحميل PDF" : "Export PDF"}
-              </Button>
-            </div>
-            <RatingsBreakdown />
+            {["dean", "vice_dean"].includes(userRole) ? (
+              <FacultyRatingsOverview
+                userId={userId}
+                userRole={userRole}
+                institutionType={institutionType}
+                departments={myDepartments}
+                onRefresh={() => {
+                  const deptIds = selectedDeptId === "all" ? myDepartments.map(d => d.id) : [selectedDeptId];
+                  loadData(deptIds);
+                }}
+              />
+            ) : (
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card p-5 rounded-3xl border-2 border-border shadow-sm mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-500 to-yellow-600 text-white flex items-center justify-center shadow-md">
+                      <Star className="w-6 h-6 fill-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-black text-foreground flex items-center gap-2">
+                        <span>{isRtl ? "تقييمات الطلاب لأعمالك الأكاديمية" : "Student Academic Ratings"}</span>
+                        <Sparkles className="w-4 h-4 text-amber-500" />
+                      </h2>
+                      <p className="text-xs font-bold text-muted-foreground">
+                        {isRtl
+                          ? "استعراض تقييمات الطلاب للمحاضرات، البث المباشر، الاختبارات، الجداول، والتكليفات بهوية مجهولة للحفاظ على سرية الطلاب."
+                          : "Student ratings for your lectures, streams, quizzes, schedules, and assignments with anonymous evaluations."}
+                      </p>
+                    </div>
+                  </div>
+
+                  <Button size="sm" variant="outline" onClick={() => exportToPDF("ratings")} className="gap-1.5 rounded-2xl font-bold h-11 border-2">
+                    <Download className="w-4 h-4" />
+                    {isRtl ? "تحميل PDF" : "Export PDF"}
+                  </Button>
+                </div>
+
+                <RatingsBreakdown
+                  lecturerId={userId}
+                  departmentId={selectedDeptId !== "all" ? selectedDeptId : undefined}
+                />
+              </div>
+            )}
           </TabsContent>
 
           {/* Assignments Management & Approval Tab */}

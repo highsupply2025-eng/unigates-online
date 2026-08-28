@@ -126,7 +126,15 @@ const LeadershipProfile = () => {
                 color: "from-indigo-500 to-purple-600",
                 onClick: () => goTab("quizresults"),
               },
-              { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => goTab("ratings") },
+              {
+                key: "ratings",
+                label: isDeanOrViceDean
+                  ? (isRtl ? "تقييمات أعضاء هيئة التدريس" : "Faculty Ratings")
+                  : (isRtl ? "تقييمات الطلاب" : "Student Ratings"),
+                Icon: Star,
+                color: "from-yellow-500 to-amber-600",
+                onClick: () => goTab("ratings"),
+              },
               { key: "profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => {}, active: true },
             ]}
           />

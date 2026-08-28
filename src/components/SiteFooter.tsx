@@ -1,9 +1,7 @@
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, Cloud, ExternalLink, ShieldCheck, Sparkles, Building2, School, BookOpen, Store, CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
-import unigatesLogo from "@/assets/unigates-logo-transparent.png";
-import googlePlayImg from "@/assets/google-play.png";
-import appStoreImg from "@/assets/app-store.png";
 
 const XIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" xmlns="http://www.w3.org/2000/svg">
@@ -39,10 +37,10 @@ const FacebookIcon = () => (
 
 const GooglePlayIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg">
-    <path d="M3.609 1.814L13.792 12 3.61 22.186a2.238 2.238 0 0 1-.61-1.6V3.414c0-.623.23-1.19.609-1.6z" fill="#00C3FF"/>
-    <path d="M17.204 8.587l-3.412 3.413L3.61 1.814c.32-.18.7-.286 1.112-.286.623 0 1.2.246 1.637.669l10.845 6.39z" fill="#00F076"/>
-    <path d="M17.204 15.413L6.359 21.803a2.38 2.38 0 0 1-1.637.669c-.412 0-.792-.106-1.112-.286l10.182-10.186 3.412 3.413z" fill="#FF3A44"/>
-    <path d="M21.364 10.147l-4.16 2.45-3.412-3.413 3.412-3.413 4.16 2.45c.78.46.78 1.466 0 1.926z" fill="#FFE000"/>
+    <path d="M3.609 1.814L13.792 12 3.61 22.186a2.238 2.238 0 0 1-.61-1.6V3.414c0-.623.23-1.19.609-1.6z" fill="#00C3FF" />
+    <path d="M17.204 8.587l-3.412 3.413L3.61 1.814c.32-.18.7-.286 1.112-.286.623 0 1.2.246 1.637.669l10.845 6.39z" fill="#00F076" />
+    <path d="M17.204 15.413L6.359 21.803a2.38 2.38 0 0 1-1.637.669c-.412 0-.792-.106-1.112-.286l10.182-10.186 3.412 3.413z" fill="#FF3A44" />
+    <path d="M21.364 10.147l-4.16 2.45-3.412-3.413 3.412-3.413 4.16 2.45c.78.46.78 1.466 0 1.926z" fill="#FFE000" />
   </svg>
 );
 
@@ -53,25 +51,48 @@ const AppStoreIcon = () => (
 );
 
 const SiteFooter = () => {
-  const { t } = useLanguage();
+  const { t, dir, language } = useLanguage();
+  const isRtl = dir === "rtl";
 
-  const footerLinks = [
-    [
-      { label: t.footerLinks.about, href: "/about" },
-      { label: t.footerLinks.certificates, href: "/certificates" },
-      { label: t.footerLinks.blog, href: "/blog" },
-    ],
-    [
-      { label: t.footerLinks.helpCenter, href: "/help-center" },
-      { label: t.footerLinks.terms, href: "/terms" },
-      { label: t.footerLinks.privacy, href: "/privacy" },
-    ],
-    [
-      { label: t.footerLinks.contactUs, href: "/contact" },
-      { label: t.footerLinks.faq, href: "/faq" },
-      { label: t.footerLinks.careers, href: "/careers" },
-      { label: t.footerLinks.partnerships, href: "/partnerships" },
-    ],
+  const footerNavSections = [
+    {
+      title: isRtl ? "🏛️ المنصات والبوابات" : "🏛️ Portals",
+      links: [
+        { label: isRtl ? "المنصة الجامعية" : "University Platform", href: "/university-platform" },
+        { label: isRtl ? "المنصة المدرسية" : "School Platform", href: "/school-platform" },
+        { label: isRtl ? "أكاديمية الدورات" : "Courses Academy", href: "/courses" },
+        { label: isRtl ? "متجر الكتب الرقمي" : "Digital Book Store", href: "/book-store" },
+      ],
+    },
+    {
+      title: isRtl ? "🎓 الخدمات الأكاديمية" : "🎓 Academic Services",
+      links: [
+        { label: isRtl ? "سلاسل الاعتماد الرقمي" : "Approval Workflows", href: "/university-platform" },
+        { label: isRtl ? "البث المباشر والحصص" : "Live Streaming", href: "/live" },
+        { label: isRtl ? "التحقق من الشهادات" : "Verify Certificates", href: "/certificates" },
+        { label: isRtl ? "الأسئلة الشائعة" : "FAQs", href: "/faq" },
+      ],
+    },
+    {
+      title: isRtl ? "🏢 المؤسسات والتسجيل" : "🏢 Onboarding & Signup",
+      links: [
+        { label: isRtl ? "تسجيل كلية جديدة" : "Register College", href: "/signup/college/admin" },
+        { label: isRtl ? "تسجيل معهد عالي" : "Register Institute", href: "/signup/institute/admin" },
+        { label: isRtl ? "تسجيل مدرسة جديدة" : "Register School", href: "/school-registration" },
+        { label: isRtl ? "إنشاء حساب طالب / معلم" : "Student / Teacher Signup", href: "/signup" },
+      ],
+    },
+    {
+      title: isRtl ? "ℹ️ المنظومة والدعم" : "ℹ️ Company & Support",
+      links: [
+        { label: isRtl ? "عن المنصة" : "About UNIGATES", href: "/about" },
+        { label: isRtl ? "مركز المساعدة" : "Help Center", href: "/help-center" },
+        { label: isRtl ? "الشروط والأحكام" : "Terms of Service", href: "/terms" },
+        { label: isRtl ? "سياسة الخصوصية" : "Privacy Policy", href: "/privacy" },
+        { label: isRtl ? "الشراكات" : "Partnerships", href: "/partnerships" },
+        { label: isRtl ? "تواصل معنا" : "Contact Us", href: "/contact" },
+      ],
+    },
   ];
 
   const socialLinks = [
@@ -134,32 +155,111 @@ const SiteFooter = () => {
   ];
 
   return (
-    <footer className="section-divider py-12 px-6 md:px-12">
-      <div className="max-w-full mx-auto">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center">
-            <GraduationCap className="w-6 h-6 text-white" />
+    <footer className="border-t-2 border-border/80 bg-card/60 backdrop-blur-xl text-foreground pt-14 pb-8 px-4 sm:px-6 md:px-12 transition-colors">
+      <div className="max-w-7xl mx-auto space-y-10">
+        {/* Top Section: Brand Overview & 4 Navigation Columns */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10">
+          {/* Brand Info (4 cols) */}
+          <div className="lg:col-span-4 space-y-4 text-start">
+            <Link to="/" className="inline-flex items-center gap-3 group">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 shadow-lg shadow-indigo-500/25 flex items-center justify-center text-white group-hover:scale-105 transition-transform">
+                <GraduationCap className="w-7 h-7" />
+              </div>
+              <div>
+                <span className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
+                  UNIGATES
+                </span>
+                <p className="text-[11px] font-bold text-primary">
+                  {isRtl ? "المنظومة التعليمية الرقمية الموحدة" : "Unified Educational Ecosystem"}
+                </p>
+              </div>
+            </Link>
+
+            <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">
+              {isRtl
+                ? "منظومة رقمية شاملة للتعليم العالي والمدرسي والتدريب المهني والنشر الأكاديمي، إحدى منصات شركة دار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م."
+                : "A unified platform for higher education, K-12 schooling, professional skill courses, and academic publishing by Dar Obeid Publishing & Distribution LLC."}
+            </p>
+
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <Badge variant="outline" className="text-[10px] font-bold border-blue-500/30 bg-blue-500/5 text-blue-600 dark:text-blue-400">
+                🏛️ {isRtl ? "جامعات ومعاهد" : "Universities"}
+              </Badge>
+              <Badge variant="outline" className="text-[10px] font-bold border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400">
+                🏫 {isRtl ? "مدارس K-12" : "K-12 Schools"}
+              </Badge>
+              <Badge variant="outline" className="text-[10px] font-bold border-purple-500/30 bg-purple-500/5 text-purple-600 dark:text-purple-400">
+                📚 {isRtl ? "أكاديمية الدورات" : "Courses Academy"}
+              </Badge>
+              <Badge variant="outline" className="text-[10px] font-bold border-amber-500/30 bg-amber-500/5 text-amber-600 dark:text-amber-400">
+                📖 {isRtl ? "دار عبيد للنشر" : "Dar Obeid Books"}
+              </Badge>
+            </div>
           </div>
-          <span className="text-lg font-bold">{t.brandName}</span>
+
+          {/* Navigation Columns (8 cols) */}
+          <div className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8">
+            {footerNavSections.map((sec, idx) => (
+              <div key={idx} className="space-y-3 text-start">
+                <h4 className="text-xs sm:text-sm font-black text-foreground tracking-tight">
+                  {sec.title}
+                </h4>
+                <ul className="space-y-2">
+                  {sec.links.map((link, lIdx) => (
+                    <li key={lIdx}>
+                      <Link
+                        to={link.href}
+                        className="text-xs sm:text-[13px] font-medium text-muted-foreground hover:text-primary transition-colors block py-0.5"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8">
-          {footerLinks.map((column, i) => (
-            <ul key={i} className="space-y-3">
-              {column.map((link) => (
-                <li key={link.label}>
-                  <Link to={link.href} className="text-sm text-foreground font-semibold hover:text-primary transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ))}
+        {/* Cloud Infrastructure Partner Banner (Delvai.cloud) */}
+        <div className="rounded-2xl sm:rounded-3xl border-2 border-primary/20 bg-gradient-to-r from-blue-500/5 via-indigo-500/5 to-purple-500/5 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-start shadow-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-md shrink-0">
+              <Cloud className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 text-xs sm:text-sm font-bold text-foreground">
+                <span>{isRtl ? "استضافة وتشغيل سحابي بواسطة" : "Cloud Infrastructure & Hosting by"}</span>
+                <a
+                  href="https://delvai.cloud"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-black text-primary hover:underline inline-flex items-center gap-1 bg-primary/10 hover:bg-primary/20 px-2 py-0.5 rounded-md transition-colors"
+                >
+                  <span>Delvai.cloud</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+                <span className="text-muted-foreground font-medium">
+                  {isRtl ? "(مزود البنية التحتية والحلول السحابية الذكية)" : "(Smart Cloud Solutions & Infrastructure Provider)"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
+            <CheckCircle2 className="w-4 h-4" />
+            <span>{isRtl ? "بنية سحابية آمنة 99.9% High Availability" : "99.9% High Availability Cloud"}</span>
+          </div>
         </div>
 
-        <div className="border-t border-border pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm font-semibold text-foreground">{t.copyright}</p>
-          <div className="flex gap-2.5 sm:gap-3 items-center flex-wrap justify-center md:justify-end">
+        {/* Bottom Bar: Copyright & Social Links */}
+        <div className="border-t border-border/80 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-xs sm:text-sm font-bold text-muted-foreground text-center md:text-start">
+            © 2026 {isRtl ? "دار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م. جميع الحقوق محفوظة." : "Dar Obeid Publishing & Distribution LLC. All Rights Reserved."}
+          </p>
+
+          {/* Social Icons Strip */}
+          <div className="flex gap-2 sm:gap-2.5 items-center flex-wrap justify-center md:justify-end">
             {socialLinks.map(({ icon: Icon, label, href, bgClass, glowClass, textClass }) => (
               <a
                 key={label}
@@ -168,18 +268,16 @@ const SiteFooter = () => {
                 rel={href !== "#" ? "noopener noreferrer" : undefined}
                 aria-label={label}
                 title={label}
-                className={`group relative w-10 h-10 sm:w-11 sm:h-11 rounded-full ${bgClass} ${textClass} flex items-center justify-center transition-all duration-300 hover:-translate-y-1.5 hover:scale-110 active:scale-95 shadow-md ${glowClass} ring-1 ring-white/20 dark:ring-white/10`}
+                className={`group relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl ${bgClass} ${textClass} flex items-center justify-center transition-all duration-300 hover:-translate-y-1 hover:scale-105 active:scale-95 shadow-md ${glowClass} ring-1 ring-white/20 dark:ring-white/10`}
               >
                 <div className="transition-transform duration-300 group-hover:scale-110 flex items-center justify-center">
                   <Icon />
                 </div>
-                {/* Specular glass reflection overlay */}
-                <span className="absolute inset-0 rounded-full bg-gradient-to-b from-white/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                <span className="absolute inset-0 rounded-xl bg-gradient-to-b from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
               </a>
             ))}
           </div>
         </div>
-
       </div>
     </footer>
   );

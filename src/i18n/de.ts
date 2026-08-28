@@ -1,0 +1,262 @@
+export const de = {
+  // Common
+  brandName: "UNIGATES",
+  login: "Anmelden",
+  signup: "Konto Erstellen",
+  home: "Startseite",
+  logout: "Abmelden",
+  exploreCourses: "Kurse & Weiterbildung",
+  bookStore: "Buchhandlung",
+  schoolPlatform: "Schulplattform",
+  universityPlatform: "Universitätsplattform",
+  langSwitch: "DE",
+  questions: "Fragen? Rufen Sie uns an:",
+  freeCall: "(Gebührenfrei)",
+
+  // Footer links
+  footerLinks: {
+    about: "Über Uns",
+    instructors: "Dozenten",
+    certificates: "Zertifikate",
+    blog: "Blog",
+    helpCenter: "Hilfecenter",
+    terms: "AGB",
+    privacy: "Datenschutz",
+    contactUs: "Kontakt",
+    careers: "Karriere",
+    partnerships: "Partnerschaften",
+    faq: "FAQ",
+    cookiePrefs: "Cookie-Einstellungen",
+    companyInfo: "Impressum",
+    usageTerms: "Nutzungsbedingungen",
+  },
+  copyright: "© 2026 Dar Obeid für Verlag, Vertrieb & Druck GmbH. Alle Rechte vorbehalten.",
+
+  // Homepage sections
+  homepage: {
+    newBooks: "📚 Neue Bücher",
+    bestsellerBooks: "🏆 Bestseller",
+    registeredSchools: "🏫 Registrierte Schulen",
+    noSchools: "Noch keine Schulen registriert",
+    partners: "🤝 Unsere Partner",
+    partnersSubtitle: "Führende Institutionen vertrauen auf UNIGATES",
+    viewAll: "Alle Anzeigen",
+  },
+
+  // Hero
+  hero: {
+    badge: "Über 500+ Bildungskurse",
+    title1: "Grenzenlos Lernen mit",
+    title2: "Professionellen Kursen",
+    cta: "Jetzt Lernen Starten",
+    browseCourses: "Veröffentlichen Sie Ihren Ersten Kurs",
+    browseCoursesSubtitle: "Ersten Kurs veröffentlichen & Einnahmen erzielen",
+    stats: {
+      students: "Studenten",
+      lecturers: "Dozenten",
+      courses: "Kurse",
+      schools: "Schulen",
+      readers: "Lehrer",
+      sellers: "Verkäufer",
+      publishers: "Verlage",
+      universities: "Fakultäten",
+      parents: "Eltern",
+    },
+  },
+
+  // Features
+  features: {
+    title: "Warum Unsere Plattform Wählen?",
+    subtitle: "Ein einzigartiges Lernerlebnis, angepasst an Ihren Lebensstil",
+    items: [
+      { title: "Episodenbasierte Lektionen", description: "Jeder Kurs ist in kurze, zielgerichtete Episoden unterteilt." },
+      { title: "Offline Lernen", description: "Laden Sie Lektionen herunter und lernen Sie jederzeit ohne Internetverbindung." },
+      { title: "Überall Lernen", description: "Sehen Sie Kurse auf Smartphone, Tablet oder PC in HD-Qualität." },
+      { title: "Zertifizierte Abschlüsse", description: "Erhalten Sie nach jedem Kursabschluss ein verifiziertes Zertifikat." },
+      { title: "Lernpfade", description: "Strukturierte Pfade vom Einsteiger bis zum Experten." },
+      { title: "Interaktive Gemeinschaft", description: "Tauschen Sie sich mit Dozenten und Mitlernenden aus." },
+      { title: "Live-Streams", description: "Interaktive Live-Vorlesungen und Diskussionsrunden." },
+      { title: "Mobile Apps (iOS & Android)", description: "Intuitive App für flexibles Lernen von unterwegs." },
+      { title: "Smarte Benachrichtigungen", description: "Echtzeit-Mitteilungen zu Live-Streams, Prüfungen und Aufgaben." },
+    ],
+  },
+
+  // Trending Courses
+  trending: {
+    title: "🔥 Beliebte Kurse",
+    mostViewed: "Meistgesehen",
+    new: "Neu",
+    free: "Kostenlos",
+    episode: "Episoden",
+    noCourses: "Derzeit keine Kurse verfügbar",
+  },
+
+  // FAQ
+  faq: {
+    title: "Häufig Gestellte Fragen",
+    items: [
+      { question: "Was ist UNIGATES?", answer: "UNIGATES ist ein integratives digitales Bildungsökosystem bestehend aus Hochschul-, Schul-, Kurs- und Buchhandelsplattform." },
+      { question: "Was kostet das Abonnement?", answer: "Wir bieten kostenfreie Kurse sowie flexible Monats- und Jahresabonnements an." },
+      { question: "Kann ich offline lernen?", answer: "Ja, laden Sie einfach Lektionen in unseren Apps herunter." },
+      { question: "Erhalte ich ein Zertifikat?", answer: "Ja, alle Abschlüsse beinhalten ein kryptografisch verifizierbares QR-Zertifikat." },
+      { question: "Wie kann ich kündigen?", answer: "Kündigen Sie jederzeit mit einem Klick in Ihren Kontoeinstellungen." },
+      { question: "In welchen Sprachen gibt es Inhalte?", answer: "Unsere Kurse sind multilingual verfügbar mit Untertiteln und internationalen Materialien." },
+    ],
+    ctaTitle: "Bereit für Ihre Bildungsreise?",
+    ctaSubtitle: "Schließen Sie sich über 50.000 Lernenden an",
+    ctaButton: "Kostenlos Starten",
+  },
+
+  // Login
+  loginPage: {
+    title: "Anmelden",
+    subtitle: "Geben Sie Ihre E-Mail und Ihr Passwort ein",
+    emailPlaceholder: "E-Mail-Adresse",
+    passwordPlaceholder: "Passwort",
+    noAccount: "Noch kein Konto?",
+    createAccount: "Neues Konto erstellen",
+    error: "Anmeldefehler",
+    forgotPassword: "Passwort vergessen?",
+    resetSent: "Link zum Zurücksetzen gesendet! Prüfen Sie Ihren Posteingang.",
+    resetError: "Fehler beim Senden des Links",
+    resetTitle: "Passwort Zurücksetzen",
+    resetSubtitle: "Geben Sie Ihre E-Mail ein für den Zurücksetzungslink",
+    sendReset: "Link Senden",
+    backToLogin: "Zurück zur Anmeldung",
+  },
+
+  // Signup
+  signupPage: {
+    title: "Neues Konto Erstellen",
+    subtitle: "Vervollständigen Sie Ihre Angaben zur Registrierung",
+    accountType: "Kontotyp",
+    student: "Student / Schüler",
+    lecturer: "Dozent / Lehrer",
+    fullName: "Vollständiger Name",
+    fullNamePlaceholder: "Vor- und Nachname eingeben",
+    phone: "Telefonnummer",
+    phonePlaceholder: "z.B. 01512345678",
+    countryCode: "Ländervorwahl",
+    email: "E-Mail-Adresse",
+    emailPlaceholder: "beispiel@email.de",
+    password: "Passwort",
+    passwordPlaceholder: "Passwort eingeben",
+    confirmPassword: "Passwort Bestätigen",
+    confirmPasswordPlaceholder: "Passwort erneut eingeben",
+    passwordRules: "Muss Groß-, Kleinbuchstaben, Zahlen und Sonderzeichen enthalten",
+    passwordMismatch: "Passwörter stimmen nicht überein",
+    passwordWeak: "Passwort erfüllt die Sicherheitsanforderungen nicht",
+    required: "*",
+    documentsTitle: "Dokumente und Fotos",
+    idPhoto: "Ausweisfoto",
+    idPhotoUpload: "Klicken zum Hochladen des Ausweises",
+    uniCert: "Hochschulabschluss",
+    uniCertUpload: "Klicken zum Hochladen des Abschlusses",
+    additionalCerts: "Zusätzliche Zertifikate",
+    additionalCertsUpload: "Klicken für weitere Zertifikate",
+    livePhoto: "Live-Foto (Selfie)",
+    livePhotoCapture: "Foto Aufnehmen",
+    createAccount: "Konto Erstellen",
+    checkEmail: "E-Mails Überprüfen",
+    checkEmailDesc: "Wir haben einen Bestätigungslink gesendet an",
+    checkEmailAction: "Klicken Sie auf den Link zur Aktivierung.",
+    goToLogin: "Zur Anmeldung",
+    errorFillFields: "Bitte füllen Sie alle erforderlichen Felder aus",
+    errorPassword: "Passwort muss mindestens 6 Zeichen lang sein",
+    errorGeneric: "Fehler",
+    errorNoUser: "Benutzer konnte nicht erstellt werden",
+  },
+
+  // Signup Choice
+  signupChoice: {
+    title: "Konto Erstellen",
+    subtitle: "Wählen Sie Ihren Kontotyp",
+    studentTitle: "Student / Schüler",
+    studentDesc: "Registrieren Sie sich, um mit dem Lernen zu beginnen",
+    lecturerTitle: "Dozent / Lehrer",
+    lecturerDesc: "Registrieren Sie sich, um Kurse zu veröffentlichen",
+  },
+
+  // Choose Plan
+  choosePlan: {
+    step: "Schritt",
+    of: "von",
+    title: "Wählen Sie das passende Abo",
+    noCommitment: "Keine Bindung, jederzeit kündbar.",
+    allContent: "Alle Inhalte zu einem fairen Preis.",
+    unlimitedWatch: "Unbegrenztes Streaming auf allen Geräten.",
+    mostPopular: "Am Beliebtesten",
+    bestValue: "Bester Wert",
+    currency: "EUR/Monat",
+    next: "Weiter",
+    plans: [
+      { name: "Basis", quality: "Gut", resolution: "720p (HD)" },
+      { name: "Standard", quality: "Hoch", resolution: "1080p (Full HD)" },
+      { name: "Premium", quality: "Beste", resolution: "4K + HDR" },
+    ],
+    comparison: {
+      quality: "Audio- & Videoqualität",
+      resolution: "Auflösung",
+      devices: "Gleichzeitige Geräte",
+      downloads: "Download-Geräte",
+    },
+    devicesNote: "Unterstützte Geräte: Fernseher, PC, Smartphone, Tablet.",
+    upgradeTitle: "Kostenloses Upgrade — Erster Monat!",
+    upgradeDesc: "Starten Sie Ihren ersten Monat mit dem",
+    upgradeDescPlan: "Premium",
+    upgradeDescEnd: "Tarif zum Basispreis. Jederzeit kündbar.",
+    tryPremium: "Premium Testen",
+  },
+
+  // Payment
+  payment: {
+    title: "Zahlungsmethode Wählen",
+    subtitle: "Zahlung ist verschlüsselt und jederzeit anpassbar.",
+    secure: "Sichere Ende-zu-Ende-Verschlüsselung",
+    startSubscription: "Abonnement Starten",
+    disclaimer: 'Mit Klick auf "Abonnement Starten" akzeptieren Sie die Nutzungsbedingungen.',
+    methods: {
+      card: { label: "Kredit- oder Debitkarte", desc: "Visa, Mastercard, AMEX" },
+      mobile: { label: "Mobilfunkrechnung", desc: "Mobilfunkanbieter" },
+      gift: { label: "Gutscheincode", desc: "Gutscheincode eingeben" },
+    },
+    cardNumber: "Kartennummer",
+    cardName: "Name auf der Karte",
+    giftCodePlaceholder: "Gutscheincode eingeben",
+    mobileNotice: "Der Betrag wird über Ihre Mobilfunkrechnung abgerechnet.",
+  },
+
+  // Courses Page
+  coursesPage: {
+    title: "Alle Kurse",
+    subtitle: "Stöbern Sie durch unsere Bildungsangebote",
+    allCategories: "Alle Kategorien",
+    episodes: "Episoden",
+    episode: "Episode",
+    freeEpisode: "Kostenlos — Jetzt Anschauen",
+    lockedEpisode: "Abonnement Erforderlich",
+    moreEpisodes: "weitere Episoden",
+    subscribeToWatch: "Abonnieren für Vollzugriff",
+  },
+
+  // Live Streams Page
+  liveStreamsPage: {
+    title: "Live-Übertragungen",
+    subtitle: "Verfolgen Sie Live-Vorlesungen in Echtzeit",
+    liveBadge: "Live",
+    liveNow: "Jetzt Live",
+    upcoming: "Geplante Sitzungen",
+    live: "LIVE",
+    scheduled: "Demnächst",
+    joinNow: "Jetzt Beitreten",
+    noStreams: "Keine Live-Streams verfügbar",
+    noStreamsDesc: "Aktuell finden keine Live-Übertragungen statt.",
+  },
+
+  // 404
+  notFound: {
+    title: "404",
+    message: "Hoppla! Seite nicht gefunden",
+    backHome: "Zurück zur Startseite",
+  },
+};

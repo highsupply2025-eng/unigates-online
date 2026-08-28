@@ -1,0 +1,262 @@
+export const zh = {
+  // Common
+  brandName: "UNIGATES",
+  login: "登录",
+  signup: "创建账号",
+  home: "首页",
+  logout: "退出登录",
+  exploreCourses: "教育课程",
+  bookStore: "在线书店",
+  schoolPlatform: "中小学平台",
+  universityPlatform: "大学与学院平台",
+  langSwitch: "ZH",
+  questions: "有疑问？联系我们：",
+  freeCall: "（免费服务热线）",
+
+  // Footer links
+  footerLinks: {
+    about: "关于我们",
+    instructors: "讲师团队",
+    certificates: "证书查询",
+    blog: "官方博客",
+    helpCenter: "帮助中心",
+    terms: "条款与条件",
+    privacy: "隐私政策",
+    contactUs: "联系我们",
+    careers: "加入我们",
+    partnerships: "合作伙伴",
+    faq: "常见问题",
+    cookiePrefs: "Cookie 偏好设置",
+    companyInfo: "公司信息",
+    usageTerms: "使用协议",
+  },
+  copyright: "© 2026 达尔·奥贝德出版、发行与印刷有限责任公司。保留所有权利。",
+
+  // Homepage sections
+  homepage: {
+    newBooks: "📚 新书上市",
+    bestsellerBooks: "🏆 畅销榜单",
+    registeredSchools: "🏫 已认证学校",
+    noSchools: "暂无入驻学校",
+    partners: "🤝 合作伙伴",
+    partnersSubtitle: "众多知名机构信赖 UNIGATES 教育生态",
+    viewAll: "查看全部",
+  },
+
+  // Hero
+  hero: {
+    badge: "超过 500+ 精品课程",
+    title1: "探索无限学习世界",
+    title2: "尽在专业课程平台",
+    cta: "立即开始学习",
+    browseCourses: "发布您的第一门课程",
+    browseCoursesSubtitle: "发布专业课程，实现知识变现",
+    stats: {
+      students: "学员",
+      lecturers: "讲师",
+      courses: "课程",
+      schools: "学校",
+      readers: "教师",
+      sellers: "卖家",
+      publishers: "出版社",
+      universities: "学院",
+      parents: "家长",
+    },
+  },
+
+  // Features
+  features: {
+    title: "为什么选择我们的平台？",
+    subtitle: "为您量身定制的高效数字化学习体验",
+    items: [
+      { title: "单元化短视频教学", description: "每门课程拆分为短小精炼的教学单元，循序渐进易于掌握。" },
+      { title: "离线下载与学习", description: "支持将课件下载至本地设备，随时随地无网络畅享学习。" },
+      { title: "全平台跨终端支持", description: "电脑、手机、平板多端无缝同步，高清画质流畅播放。" },
+      { title: "权威认证结业证书", description: "完成课程后获取专属加密数字证书，一键分享至求职简历。" },
+      { title: "系统化进阶路径", description: "精心规划的职业技能学习路径，助您从零基础跃升为行业专家。" },
+      { title: "高互动社群交流", description: "讲师答疑、同行互助，构建活跃积极的学术交流生态。" },
+      { title: "高清实时直播教学", description: "互动式在线直播课，支持电子白板与即时互动。" },
+      { title: "移动端原生应用", description: "适配 iOS 和 Android 系统，随时随地掌上轻松学习。" },
+      { title: "智能即时消息推送", description: "直播开始、考试批复、作业提醒全方位实时掌握。" },
+    ],
+  },
+
+  // Trending Courses
+  trending: {
+    title: "🔥 热门推荐课程",
+    mostViewed: "播放最多",
+    new: "最新上架",
+    free: "免费试听",
+    episode: "节",
+    noCourses: "当前暂无课程",
+  },
+
+  // FAQ
+  faq: {
+    title: "常见问题解答",
+    items: [
+      { question: "什么是 UNIGATES？", answer: "UNIGATES 是一个涵盖高等大学教育、K-12中小学、专业技能培训课程及国际图书出版的一体化智慧数字教育生态平台。" },
+      { question: "订阅费用如何计算？", answer: "我们提供免费试听内容及多种高性价比的订阅会员计划，满足不同阶段学习需求。" },
+      { question: "支持离线下载观看吗？", answer: "支持！通过 iOS 和 Android 官方应用即可轻松下载课件离线观看。" },
+      { question: "结业证书是否支持验真？", answer: "支持，每张证书均附带唯一加密二维码，全球用人单位可实时扫码查验真伪。" },
+      { question: "如何取消订阅？", answer: "您可以在个人账号设置中随时一键管理或取消订阅，无任何附加费用。" },
+      { question: "课程支持哪些教学语言？", answer: "课程提供多语种支持与国际化字幕，涵盖全球主流学术及职业技能领域。" },
+    ],
+    ctaTitle: "准备好开启您的学习新征程了吗？",
+    ctaSubtitle: "立即加入平台 50,000+ 学员大家庭",
+    ctaButton: "立即免费体验",
+  },
+
+  // Login
+  loginPage: {
+    title: "用户登录",
+    subtitle: "请输入您的电子邮箱与密码",
+    emailPlaceholder: "电子邮箱",
+    passwordPlaceholder: "登录密码",
+    noAccount: "还没有账号？",
+    createAccount: "立即注册新账号",
+    error: "登录失败",
+    forgotPassword: "忘记密码？",
+    resetSent: "重置密码邮件已发送，请查收您的收件箱。",
+    resetError: "发送重置链接失败",
+    resetTitle: "重置登录密码",
+    resetSubtitle: "输入您的注册邮箱，我们将发送重置链接",
+    sendReset: "发送重置邮件",
+    backToLogin: "返回登录界面",
+  },
+
+  // Signup
+  signupPage: {
+    title: "注册新账号",
+    subtitle: "请填写以下信息以完成注册",
+    accountType: "账号身份类型",
+    student: "学员 / 学生",
+    lecturer: "讲师 / 教师",
+    fullName: "用户姓名",
+    fullNamePlaceholder: "请输入您的真实姓名",
+    phone: "联系电话",
+    phonePlaceholder: "例如：13800138000",
+    countryCode: "国家/地区区号",
+    email: "电子邮箱",
+    emailPlaceholder: "example@email.com",
+    password: "设置密码",
+    passwordPlaceholder: "请输入登录密码",
+    confirmPassword: "确认密码",
+    confirmPasswordPlaceholder: "请再次输入密码",
+    passwordRules: "密码需包含大小写字母、数字及特殊符号",
+    passwordMismatch: "两次输入的密码不一致",
+    passwordWeak: "密码强度未达到安全要求",
+    required: "*",
+    documentsTitle: "身份认证与资料",
+    idPhoto: "身份证件照片",
+    idPhotoUpload: "点击上传身份证件",
+    uniCert: "学历/学位证书",
+    uniCertUpload: "点击上传学历证明",
+    additionalCerts: "其他资质证书",
+    additionalCertsUpload: "点击添加更多资质证明",
+    livePhoto: "免冠自拍认证照",
+    livePhotoCapture: "即时拍照上传",
+    createAccount: "立即注册账号",
+    checkEmail: "验证您的邮箱",
+    checkEmailDesc: "我们已向以下邮箱发送了激活链接：",
+    checkEmailAction: "点击邮件中的链接以激活您的账号。",
+    goToLogin: "前往登录",
+    errorFillFields: "请完整填写所有必填项",
+    errorPassword: "密码长度不能少于 6 个字符",
+    errorGeneric: "操作失败",
+    errorNoUser: "账号创建失败，请重试",
+  },
+
+  // Signup Choice
+  signupChoice: {
+    title: "选择注册身份",
+    subtitle: "请选择您要注册的身份类型",
+    studentTitle: "学员身份",
+    studentDesc: "注册为学员，即刻开启在线学习之旅",
+    lecturerTitle: "讲师身份",
+    lecturerDesc: "注册为讲师，发布您的优质原创课程",
+  },
+
+  // Choose Plan
+  choosePlan: {
+    step: "第",
+    of: "步，共",
+    title: "选择适合您的会员方案",
+    noCommitment: "随心选择，随时可取消。",
+    allContent: "超值定价，畅享全站精品内容。",
+    unlimitedWatch: "全设备无限制畅看。",
+    mostPopular: "最受青睐",
+    bestValue: "最佳性价比",
+    currency: "元/月",
+    next: "下一步",
+    plans: [
+      { name: "基础版", quality: "良好", resolution: "720p (高清)" },
+      { name: "标准版", quality: "高清", resolution: "1080p (超清)" },
+      { name: "尊享版", quality: "极清", resolution: "4K + HDR" },
+    ],
+    comparison: {
+      quality: "音视频播放画质",
+      resolution: "最高分辨率",
+      devices: "同时在线设备数",
+      downloads: "离线下载设备数",
+    },
+    devicesNote: "支持设备：智能电视、电脑、手机、平板电脑。",
+    upgradeTitle: "首月免费尊享升级特权！",
+    upgradeDesc: "首月以基础版价格享受",
+    upgradeDescPlan: "尊享版",
+    upgradeDescEnd: "全部权益。随时可取消。",
+    tryPremium: "体验尊享版",
+  },
+
+  // Payment
+  payment: {
+    title: "选择支付方式",
+    subtitle: "支付全程安全加密，可随时更改或取消。",
+    secure: "端到端金融级安全加密",
+    startSubscription: "立即开通订阅",
+    disclaimer: "点击“立即开通订阅”即表示您同意本平台《使用协议》和《隐私政策》。",
+    methods: {
+      card: { label: "信用卡 / 借记卡", desc: "Visa, Mastercard, 银联" },
+      mobile: { label: "移动支付 / 话费支付", desc: "快捷安全支付通道" },
+      gift: { label: "兑换码 / 礼品卡", desc: "输入优惠券或兑换码" },
+    },
+    cardNumber: "银行卡号",
+    cardName: "持卡人姓名",
+    giftCodePlaceholder: "输入兑换码 / 优惠码",
+    mobileNotice: "费用将通过您选定的支付通道完成结算。",
+  },
+
+  // Courses Page
+  coursesPage: {
+    title: "全部精选课程",
+    subtitle: "探索丰富学科门类，选择最适合您的学习路径",
+    allCategories: "全部分类",
+    episodes: "课时列表",
+    episode: "课时",
+    freeEpisode: "免费试听",
+    lockedEpisode: "会员专享",
+    moreEpisodes: "更多课时",
+    subscribeToWatch: "开通会员解锁完整课程",
+  },
+
+  // Live Streams Page
+  liveStreamsPage: {
+    title: "名师在线直播",
+    subtitle: "实时连线名校教授与专家，在线互动解惑",
+    liveBadge: "直播中",
+    liveNow: "正在直播",
+    upcoming: "即将开播",
+    live: "直播",
+    scheduled: "预约中",
+    joinNow: "进入直播间",
+    noStreams: "当前暂无直播安排",
+    noStreamsDesc: "当前时段无直播课程，欢迎浏览精选录播课程。",
+  },
+
+  // 404
+  notFound: {
+    title: "404",
+    message: "抱歉，您访问的页面不存在",
+    backHome: "返回首页",
+  },
+};

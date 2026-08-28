@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 
 const SiteHeader = () => {
   const { t, toggleLanguage, dir, language } = useLanguage();
@@ -200,30 +201,13 @@ const SiteHeader = () => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Language Toggle */}
-          <Button
-            size="sm"
-            onClick={toggleLanguage}
-            variant="outline"
-            className="h-9 px-3 rounded-xl font-bold text-xs bg-white/5 hover:bg-white/15 text-white border-white/20 gap-1.5"
-            aria-label={t.langSwitch}
-          >
-            <Globe className="w-3.5 h-3.5 text-teal-300" />
-            <span>{t.langSwitch}</span>
-          </Button>
+          {/* Multi-Language Selector Dropdown */}
+          <LanguageSelectorDropdown />
         </div>
 
         {/* Mobile Hamburger & Actions */}
         <div className="flex lg:hidden items-center gap-2">
-          <Button
-            size="sm"
-            onClick={toggleLanguage}
-            variant="outline"
-            className="h-9 px-2.5 rounded-xl font-bold text-xs bg-white/5 hover:bg-white/15 text-white border-white/20 gap-1"
-          >
-            <Globe className="w-3.5 h-3.5 text-teal-300" />
-            <span>{language.toUpperCase()}</span>
-          </Button>
+          <LanguageSelectorDropdown showNativeName={false} className="h-9 px-2.5" />
 
           <Button
             size="sm"

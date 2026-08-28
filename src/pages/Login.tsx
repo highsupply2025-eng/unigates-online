@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
+import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -322,22 +323,15 @@ const Login = () => {
                 <span>{isRtl ? "المنصة الجامعية" : "University Platform"}</span>
               </Button>
             </Link>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={toggleLanguage}
-              className="font-bold gap-1.5 h-10 px-4 rounded-xl border-border hover:bg-muted text-foreground"
-            >
-              <Globe className="w-4 h-4 text-primary" />
-              <span>{language === "ar" ? "English" : "العربية"}</span>
-            </Button>
+            <LanguageSelectorDropdown className="h-10 px-3.5 bg-muted/40 hover:bg-muted text-foreground border-border" />
           </div>
 
           {/* Mobile dropdown */}
-          <div className="md:hidden">
+          <div className="flex md:hidden items-center gap-2">
+            <LanguageSelectorDropdown showNativeName={false} className="h-9 px-2 bg-muted/40 text-foreground border-border" />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="p-2.5 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors flex items-center justify-center">
+                <button className="p-2 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors flex items-center justify-center">
                   <Menu className="w-5 h-5" />
                 </button>
               </DropdownMenuTrigger>
@@ -349,10 +343,6 @@ const Login = () => {
                 <DropdownMenuItem onClick={() => navigate('/university-platform')} className="gap-2 cursor-pointer font-bold">
                   <Home className="w-4 h-4 text-primary" />
                   <span>{isRtl ? "المنصة الجامعية" : "University"}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer font-bold">
-                  <Globe className="w-4 h-4 text-primary" />
-                  <span>{language === "ar" ? "English" : "العربية"}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

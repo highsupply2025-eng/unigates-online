@@ -1,29 +1,99 @@
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
 import { ar } from "@/i18n/ar";
 import { en } from "@/i18n/en";
+import { fr } from "@/i18n/fr";
+import { es } from "@/i18n/es";
+import { de } from "@/i18n/de";
+import { zh } from "@/i18n/zh";
+import { ru } from "@/i18n/ru";
+import { tr } from "@/i18n/tr";
 
-type Language = "ar" | "en";
-type Translations = typeof ar;
+export type Language = "ar" | "en" | "fr" | "es" | "de" | "zh" | "ru" | "tr";
+export type Translations = typeof ar;
+
+export interface LanguageInfo {
+  code: Language;
+  name: string;
+  nativeName: string;
+  flag: string;
+  dir: "rtl" | "ltr";
+}
+
+export const AVAILABLE_LANGUAGES: LanguageInfo[] = [
+  { code: "ar", name: "Arabic", nativeName: "العربية", flag: "🇸🇦", dir: "rtl" },
+  { code: "en", name: "English", nativeName: "English", flag: "🇬🇧", dir: "ltr" },
+  { code: "fr", name: "French", nativeName: "Français", flag: "🇫🇷", dir: "ltr" },
+  { code: "es", name: "Spanish", nativeName: "Español", flag: "🇪🇸", dir: "ltr" },
+  { code: "de", name: "German", nativeName: "Deutsch", flag: "🇩🇪", dir: "ltr" },
+  { code: "zh", name: "Chinese", nativeName: "中文 (简体)", flag: "🇨🇳", dir: "ltr" },
+  { code: "ru", name: "Russian", nativeName: "Русский", flag: "🇷🇺", dir: "ltr" },
+  { code: "tr", name: "Turkish", nativeName: "Türkçe", flag: "🇹🇷", dir: "ltr" },
+];
 
 interface LanguageContextType {
   language: Language;
   t: Translations;
+  setLanguage: (lang: Language) => void;
   toggleLanguage: () => void;
   dir: "rtl" | "ltr";
+  availableLanguages: LanguageInfo[];
+  currentLanguageInfo: LanguageInfo;
 }
 
 const LanguageContext = createContext<LanguageContextType | null>(null);
 
-const translations: Record<Language, Translations> = { ar, en };
+const translations: Record<Language, Translations> = {
+  ar,
+  en,
+  fr,
+  es,
+  de,
+  zh,
+  ru,
+  tr,
+};
+
+const STORAGE_KEY = "unigates_language";
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState<Language>("ar");
+  const [language, setLanguageState] = useState<Language>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY) as Language;
+      if (saved && translations[saved]) {
+        return saved;
+      }
+    } catch {
+      // ignore
+    }
+    return "ar";
+  });
+
+  const setLanguage = useCallback((lang: Language) => {
+    if (translations[lang]) {
+      setLanguageState(lang);
+      try {
+        localStorage.setItem(STORAGE_KEY, lang);
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
 
   const toggleLanguage = useCallback(() => {
-    setLanguage((prev) => (prev === "ar" ? "en" : "ar"));
+    setLanguageState((prev) => {
+      const next: Language = prev === "ar" ? "en" : "ar";
+      try {
+        localStorage.setItem(STORAGE_KEY, next);
+      } catch {
+        // ignore
+      }
+      return next;
+    });
   }, []);
 
   const dir = language === "ar" ? "rtl" : "ltr";
+  const currentLanguageInfo =
+    AVAILABLE_LANGUAGES.find((l) => l.code === language) || AVAILABLE_LANGUAGES[0];
 
   useEffect(() => {
     document.documentElement.dir = dir;
@@ -32,9 +102,12 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 
   const value: LanguageContextType = {
     language,
-    t: translations[language],
+    t: translations[language] || translations.ar,
+    setLanguage,
     toggleLanguage,
     dir,
+    availableLanguages: AVAILABLE_LANGUAGES,
+    currentLanguageInfo,
   };
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;

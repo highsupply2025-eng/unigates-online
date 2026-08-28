@@ -1,0 +1,262 @@
+export const fr = {
+  // Common
+  brandName: "UNIGATES",
+  login: "Connexion",
+  signup: "Créer un compte",
+  home: "Accueil",
+  logout: "Déconnexion",
+  exploreCourses: "Formations & Cours",
+  bookStore: "Librairie",
+  schoolPlatform: "Plateforme Scolaire",
+  universityPlatform: "Plateforme Universitaire",
+  langSwitch: "FR",
+  questions: "Des questions ? Contactez-nous :",
+  freeCall: "(Gratuit)",
+
+  // Footer links
+  footerLinks: {
+    about: "À propos",
+    instructors: "Formateurs",
+    certificates: "Certificats",
+    blog: "Blog",
+    helpCenter: "Centre d'aide",
+    terms: "Conditions Générales",
+    privacy: "Politique de Confidentialité",
+    contactUs: "Contactez-nous",
+    careers: "Carrières",
+    partnerships: "Partenariats",
+    faq: "FAQ",
+    cookiePrefs: "Préférences de cookies",
+    companyInfo: "Informations sur l'entreprise",
+    usageTerms: "Conditions d'utilisation",
+  },
+  copyright: "© 2026 Dar Obeid pour l'édition, la distribution et l'impression SARL. Tous droits réservés.",
+
+  // Homepage sections
+  homepage: {
+    newBooks: "📚 Nouveaux Livres",
+    bestsellerBooks: "🏆 Meilleures Ventes",
+    registeredSchools: "🏫 Écoles Inscrites",
+    noSchools: "Aucune école inscrite pour le moment",
+    partners: "🤝 Nos Partenaires",
+    partnersSubtitle: "Des institutions de premier plan font confiance à UNIGATES",
+    viewAll: "Voir Tout",
+  },
+
+  // Hero
+  hero: {
+    badge: "+500 Cours et Formations",
+    title1: "Apprenez Sans Limites avec",
+    title2: "Des Formations Professionnelles",
+    cta: "Commencer à Apprendre",
+    browseCourses: "Publiez Votre Premier Cours",
+    browseCoursesSubtitle: "Publiez votre premier cours et générez des revenus",
+    stats: {
+      students: "Étudiants",
+      lecturers: "Enseignants",
+      courses: "Cours",
+      schools: "Écoles",
+      readers: "Enseignants",
+      sellers: "Vendeurs",
+      publishers: "Éditeurs",
+      universities: "Facultés",
+      parents: "Parents",
+    },
+  },
+
+  // Features
+  features: {
+    title: "Pourquoi Choisir Notre Plateforme ?",
+    subtitle: "Une expérience d'apprentissage unique adaptée à votre rythme",
+    items: [
+      { title: "Leçons en Épisodes", description: "Chaque cours est divisé en modules courts et ciblés pour un apprentissage progressif." },
+      { title: "Téléchargez et Apprenez Hors Ligne", description: "Téléchargez les leçons et apprenez sans connexion Internet à tout moment." },
+      { title: "Apprenez Partout", description: "Regardez les cours sur smartphone, tablette ou ordinateur en haute définition." },
+      { title: "Certificats Reconnus", description: "Obtenez un certificat de réussite après chaque formation pour valoriser votre CV." },
+      { title: "Parcours Pédagogiques", description: "Des parcours structurés pour progresser du niveau débutant au niveau expert." },
+      { title: "Communauté Interactive", description: "Connectez-vous avec les professeurs et les apprenants dans un environnement collaboratif." },
+      { title: "Diffusion en Direct", description: "Séances de cours interactives en direct et webinaires." },
+      { title: "Applications Mobiles (iOS & Android)", description: "Application native fluide pour apprendre partout sur vos appareils mobiles." },
+      { title: "Notifications Intelligentes", description: "Alertes en temps réel pour les sessions en direct, examens et devoirs." },
+    ],
+  },
+
+  // Trending Courses
+  trending: {
+    title: "🔥 Formations Populaires",
+    mostViewed: "Les Plus Vues",
+    new: "Nouveau",
+    free: "Gratuit",
+    episode: "épisodes",
+    noCourses: "Aucune formation disponible actuellement",
+  },
+
+  // FAQ
+  faq: {
+    title: "Foire Aux Questions",
+    items: [
+      { question: "Qu'est-ce que UNIGATES ?", answer: "UNIGATES est un écosystème éducatif numérique complet regroupant une plateforme universitaire, scolaire K-12, une académie de formations professionnelles et une librairie internationale." },
+      { question: "Combien coûte l'abonnement ?", answer: "Nous proposons des cours gratuits et des formules d'abonnements flexibles adaptées à tous les besoins." },
+      { question: "Puis-je apprendre hors ligne ?", answer: "Oui, vous pouvez télécharger les cours sur votre appareil via nos applications mobiles iOS et Android." },
+      { question: "Les certificats sont-ils authentifiables ?", answer: "Oui, chaque certificat dispose d'un QR code cryptographique vérifiable instantanément." },
+      { question: "Comment annuler mon abonnement ?", answer: "Vous pouvez gérer et annuler votre abonnement à tout moment depuis les paramètres de votre compte." },
+      { question: "Dans quelles langues les cours sont-ils disponibles ?", answer: "Nos cours sont disponibles en plusieurs langues internationales avec sous-titrage et supports multilingues." },
+    ],
+    ctaTitle: "Prêt à Démarrer Votre Aventure ?",
+    ctaSubtitle: "Rejoignez plus de 50 000 apprenants sur notre plateforme",
+    ctaButton: "Commencer Gratuitement",
+  },
+
+  // Login
+  loginPage: {
+    title: "Connexion",
+    subtitle: "Entrez votre e-mail et mot de passe",
+    emailPlaceholder: "Adresse e-mail",
+    passwordPlaceholder: "Mot de passe",
+    noAccount: "Vous n'avez pas de compte ?",
+    createAccount: "Créer un nouveau compte",
+    error: "Erreur de connexion",
+    forgotPassword: "Mot de passe oublié ?",
+    resetSent: "Lien de réinitialisation envoyé ! Vérifiez votre boîte de réception.",
+    resetError: "Erreur lors de l'envoi du lien",
+    resetTitle: "Réinitialiser le mot de passe",
+    resetSubtitle: "Saisissez votre e-mail pour recevoir le lien de réinitialisation",
+    sendReset: "Envoyer le lien",
+    backToLogin: "Retour à la connexion",
+  },
+
+  // Signup
+  signupPage: {
+    title: "Créer un Nouveau Compte",
+    subtitle: "Remplissez les informations ci-dessous pour vous inscrire",
+    accountType: "Type de compte",
+    student: "Étudiant / Élève",
+    lecturer: "Enseignant / Formateur",
+    fullName: "Nom complet",
+    fullNamePlaceholder: "Entrez votre nom complet",
+    phone: "Numéro de téléphone",
+    phonePlaceholder: "ex. 0612345678",
+    countryCode: "Indicatif pays",
+    email: "Adresse e-mail",
+    emailPlaceholder: "exemple@email.com",
+    password: "Mot de passe",
+    passwordPlaceholder: "Entrez votre mot de passe",
+    confirmPassword: "Confirmer le mot de passe",
+    confirmPasswordPlaceholder: "Ressaisissez votre mot de passe",
+    passwordRules: "Doit contenir majuscule, minuscule, chiffre et symbole",
+    passwordMismatch: "Les mots de passe ne correspondent pas",
+    passwordWeak: "Le mot de passe ne respecte pas les critères de sécurité",
+    required: "*",
+    documentsTitle: "Documents et Photos",
+    idPhoto: "Pièce d'identité",
+    idPhotoUpload: "Cliquez pour téléverser votre pièce d'identité",
+    uniCert: "Diplôme universitaire",
+    uniCertUpload: "Cliquez pour téléverser votre diplôme",
+    additionalCerts: "Certificats complémentaires",
+    additionalCertsUpload: "Cliquez pour ajouter des certificats",
+    livePhoto: "Photo en direct (Selfie)",
+    livePhotoCapture: "Prendre une photo",
+    createAccount: "Créer mon compte",
+    checkEmail: "Vérifiez vos e-mails",
+    checkEmailDesc: "Nous avons envoyé un lien de confirmation à",
+    checkEmailAction: "Cliquez sur le lien pour activer votre compte.",
+    goToLogin: "Aller à la connexion",
+    errorFillFields: "Veuillez remplir tous les champs obligatoires",
+    errorPassword: "Le mot de passe doit comporter au moins 6 caractères",
+    errorGeneric: "Erreur",
+    errorNoUser: "L'utilisateur n'a pas pu être créé",
+  },
+
+  // Signup Choice
+  signupChoice: {
+    title: "Créer un Compte",
+    subtitle: "Choisissez votre profil pour continuer",
+    studentTitle: "Étudiant",
+    studentDesc: "Inscrivez-vous pour commencer à apprendre",
+    lecturerTitle: "Formateur / Enseignant",
+    lecturerDesc: "Inscrivez-vous pour publier vos cours et formations",
+  },
+
+  // Choose Plan
+  choosePlan: {
+    step: "Étape",
+    of: "sur",
+    title: "Choisissez la formule qui vous convient",
+    noCommitment: "Sans engagement, résiliez à tout moment.",
+    allContent: "Tout le catalogue au meilleur tarif.",
+    unlimitedWatch: "Visionnage illimité sur tous vos écrans.",
+    mostPopular: "Le Plus Populaire",
+    bestValue: "Meilleure Offre",
+    currency: "EUR/mois",
+    next: "Suivant",
+    plans: [
+      { name: "Basique", quality: "Standard", resolution: "720p (HD)" },
+      { name: "Standard", quality: "Haute", resolution: "1080p (Full HD)" },
+      { name: "Premium", quality: "Optimale", resolution: "4K + HDR" },
+    ],
+    comparison: {
+      quality: "Qualité Audio & Vidéo",
+      resolution: "Résolution",
+      devices: "Écrans simultanés",
+      downloads: "Appareils de téléchargement",
+    },
+    devicesNote: "Appareils pris en charge : TV, ordinateur, smartphone, tablette.",
+    upgradeTitle: "Surclassement Gratuit — Premier Mois !",
+    upgradeDesc: "Profitez de votre premier mois avec la formule",
+    upgradeDescPlan: "Premium",
+    upgradeDescEnd: "au tarif Basique. Annulation facile à tout moment.",
+    tryPremium: "Essayer Premium",
+  },
+
+  // Payment
+  payment: {
+    title: "Sélectionnez le mode de paiement",
+    subtitle: "Paiement 100% sécurisé et modifiable à tout moment.",
+    secure: "Cryptage sécurisé de bout en bout",
+    startSubscription: "Démarrer l'abonnement",
+    disclaimer: 'En cliquant sur "Démarrer l\'abonnement", vous acceptez les Conditions d\'utilisation.',
+    methods: {
+      card: { label: "Carte Bancaire", desc: "Visa, Mastercard, AMEX" },
+      mobile: { label: "Paiement Mobile", desc: "Opérateurs partenaires" },
+      gift: { label: "Carte Cadeau", desc: "Saisir le code promo" },
+    },
+    cardNumber: "Numéro de carte",
+    cardName: "Nom sur la carte",
+    giftCodePlaceholder: "Code cadeau / promo",
+    mobileNotice: "Le montant sera prélevé directement sur votre facture mobile.",
+  },
+
+  // Courses Page
+  coursesPage: {
+    title: "Toutes les Formations",
+    subtitle: "Parcourez nos cours disponibles et développez vos compétences",
+    allCategories: "Toutes les Catégories",
+    episodes: "Épisodes",
+    episode: "Épisode",
+    freeEpisode: "Gratuit — Visionner",
+    lockedEpisode: "Abonnement Requis",
+    moreEpisodes: "autres épisodes",
+    subscribeToWatch: "S'abonner pour tout débloquer",
+  },
+
+  // Live Streams Page
+  liveStreamsPage: {
+    title: "Séances en Direct",
+    subtitle: "Suivez les cours en temps réel et interagissez avec les enseignants",
+    liveBadge: "En Direct",
+    liveNow: "En Direct Maintenant",
+    upcoming: "Séances Programmées",
+    live: "DIRECT",
+    scheduled: "À Venir",
+    joinNow: "Rejoindre",
+    noStreams: "Aucune diffusion en cours",
+    noStreamsDesc: "Il n'y a pas de diffusion en direct pour le moment. Découvrez nos cours enregistrés.",
+  },
+
+  // 404
+  notFound: {
+    title: "404",
+    message: "Oups ! Page introuvable",
+    backHome: "Retour à l'accueil",
+  },
+};

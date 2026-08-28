@@ -15,6 +15,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
 import { useCountUp } from "@/hooks/useCountUp";
 
@@ -307,25 +308,20 @@ const CoursesPlatform = () => {
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
             </Link>
-            <Button
-              size="sm"
-              onClick={toggleLanguage}
-              variant="outline"
-              className="font-bold gap-1.5 px-4 h-10 text-sm bg-white/5 hover:bg-white/15 text-white border-white/20"
-            >
-              <Globe className="w-4 h-4" />
-              {t.langSwitch}
-            </Button>
+            <LanguageSelectorDropdown className="h-10 px-3.5" />
           </div>
 
           {/* Mobile Hamburger */}
-          <Button
-            size="sm"
-            className="md:hidden bg-white/10 text-white border border-white/20 hover:bg-white/20 h-10 w-10 p-0 rounded-xl"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </Button>
+          <div className="flex md:hidden items-center gap-2">
+            <LanguageSelectorDropdown showNativeName={false} className="h-9 px-2" />
+            <Button
+              size="sm"
+              className="bg-white/10 text-white border border-white/20 hover:bg-white/20 h-10 w-10 p-0 rounded-xl"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+          </div>
         </header>
 
         {/* Mobile Dropdown */}

@@ -1,0 +1,262 @@
+export const tr = {
+  // Common
+  brandName: "UNIGATES",
+  login: "Giriş Yap",
+  signup: "Hesap Oluştur",
+  home: "Ana Sayfa",
+  logout: "Çıkış Yap",
+  exploreCourses: "Eğitim Kursları",
+  bookStore: "Kitabevi",
+  schoolPlatform: "Okul Platformu",
+  universityPlatform: "Üniversite Platformu",
+  langSwitch: "TR",
+  questions: "Sorularınız mı var? Bizi arayın:",
+  freeCall: "(Ücretsiz)",
+
+  // Footer links
+  footerLinks: {
+    about: "Hakkımızda",
+    instructors: "Eğitmenler",
+    certificates: "Sertifikalar",
+    blog: "Blog",
+    helpCenter: "Yardım Merkezi",
+    terms: "Şartlar ve Koşullar",
+    privacy: "Gizlilik Politikası",
+    contactUs: "İletişim",
+    careers: "Kariyer",
+    partnerships: "İş Birlikleri",
+    faq: "SSS",
+    cookiePrefs: "Çerez Tercihleri",
+    companyInfo: "Şirket Bilgileri",
+    usageTerms: "Kullanım Koşulları",
+  },
+  copyright: "© 2026 Dar Obeid Yayıncılık, Dağıtım ve Basım Ltd. Şti. Tüm hakları saklıdır.",
+
+  // Homepage sections
+  homepage: {
+    newBooks: "📚 Yeni Kitaplar",
+    bestsellerBooks: "🏆 Çok Satanlar",
+    registeredSchools: "🏫 Kayıtlı Okullar",
+    noSchools: "Henüz kayıtlı okul bulunmamaktadır",
+    partners: "🤝 İş Ortaklarımız",
+    partnersSubtitle: "Öncü kurumlar UNIGATES eğitim ekosistemine güveniyor",
+    viewAll: "Tümünü Gör",
+  },
+
+  // Hero
+  hero: {
+    badge: "500+'den Fazla Eğitim Kursu",
+    title1: "Sınırsız Öğrenme Deneyimi",
+    title2: "Profesyonel Kurslar ile",
+    cta: "Öğrenmeye Başla",
+    browseCourses: "İlk Kursunuzu Yayınlayın",
+    browseCoursesSubtitle: "İlk kursunuzu yayınlayın ve gelir elde edin",
+    stats: {
+      students: "Öğrenci",
+      lecturers: "Eğitmen",
+      courses: "Kurs",
+      schools: "Okul",
+      readers: "Öğretmen",
+      sellers: "Satıcı",
+      publishers: "Yayınevi",
+      universities: "Fakülte",
+      parents: "Veli",
+    },
+  },
+
+  // Features
+  features: {
+    title: "Neden Platformumuzu Seçmelisiniz?",
+    subtitle: "Yaşam tarzınıza uygun benzersiz bir dijital öğrenme deneyimi",
+    items: [
+      { title: "Bölümlere Ayrılmış Dersler", description: "Her kurs kısa, odaklanmış ve adım adım takip edilmesi kolay derslere ayrılmıştır." },
+      { title: "İndir ve Çevrimdışı Öğren", description: "Dersleri cihazınıza indirin ve dilediğiniz an internetsiz izleyin." },
+      { title: "Her Yerden Öğrenin", description: "Dersleri telefonunuzda, bilgisayarınızda veya tabletinizde HD kalitesinde izleyin." },
+      { title: "Onaylı Sertifikalar", description: "CV'nizi güçlendirmek için her kursu tamamladıktan sonra doğrulanabilir sertifika alın." },
+      { title: "Kariyer Öğrenme Yolları", description: "Başlangıç seviyesinden uzmanlığa uzanan profesyonel eğitim yolları." },
+      { title: "Etkileşimli Topluluk", description: "Eğitmenler ve diğer öğrencilerle canlı toplulukta fikir alışverişinde bulunun." },
+      { title: "Canlı Yayın Dersleri", description: "Canlı ve etkileşimli dersler, seminerler ve atölyeler." },
+      { title: "Mobil Uygulamalar (iOS & Android)", description: "Hareket halindeyken sorunsuz öğrenmek için optimize edilmiş mobil uygulama." },
+      { title: "Akıllı Bildirimler", description: "Canlı yayınlar, sınav onayları ve ödevler için anlık bildirimler." },
+    ],
+  },
+
+  // Trending Courses
+  trending: {
+    title: "🔥 Popüler Kurslar",
+    mostViewed: "En Çok İzlenen",
+    new: "Yeni",
+    free: "Ücretsiz",
+    episode: "ders",
+    noCourses: "Şu anda mevcut kurs bulunmamaktadır",
+  },
+
+  // FAQ
+  faq: {
+    title: "Sıkça Sorulan Sorular",
+    items: [
+      { question: "UNIGATES nedir?", answer: "UNIGATES; üniversite, okul (K-12), profesyonel eğitim kursları ve uluslararası kitap yayıncılığını bir araya getiren kapsamlı bir dijital eğitim ekosistemidir." },
+      { question: "Abonelik ücreti ne kadar?", answer: "Ücretsiz deneme içeriklerinin yanı sıra her bütçeye uygun esnek abonelik planları sunuyoruz." },
+      { question: "Çevrimdışı izleyebilir miyim?", answer: "Evet! iOS ve Android mobil uygulamalarımız üzerinden dersleri cihazınıza indirip izleyebilirsiniz." },
+      { question: "Sertifikalar doğrulanabilir mi?", answer: "Evet, tüm sertifikalarımız QR kodlu ve şifrelenmiş dijital doğrulama sistemine sahiptir." },
+      { question: "Aboneliğimi nasıl iptal edebilirim?", answer: "Hesap ayarlarınızdan tek bir tıklamayla dilediğiniz an aboneliğinizi iptal edebilirsiniz." },
+      { question: "İçerikler hangi dillerde sunulmaktadır?", answer: "Kurslarımız çok dilli destek ve altyazı seçenekleriyle uluslararası standartlarda sunulmaktadır." },
+    ],
+    ctaTitle: "Öğrenme Yolculuğunuza Başlamaya Hazır mısınız?",
+    ctaSubtitle: "Platformdaki 50.000'den fazla öğrenciye katılın",
+    ctaButton: "Hemen Ücretsiz Başla",
+  },
+
+  // Login
+  loginPage: {
+    title: "Giriş Yap",
+    subtitle: "E-posta adresinizi ve şifrenizi girin",
+    emailPlaceholder: "E-posta adresi",
+    passwordPlaceholder: "Şifre",
+    noAccount: "Hesabınız yok mu?",
+    createAccount: "Yeni hesap oluştur",
+    error: "Giriş Hatası",
+    forgotPassword: "Şifrenizi mi unuttunuz?",
+    resetSent: "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi!",
+    resetError: "Sıfırlama bağlantısı gönderilirken hata oluştu",
+    resetTitle: "Şifre Sıfırlama",
+    resetSubtitle: "Sıfırlama bağlantısı almak için kayıtlı e-postanızı girin",
+    sendReset: "Bağlantı Gönder",
+    backToLogin: "Girişe Dön",
+  },
+
+  // Signup
+  signupPage: {
+    title: "Yeni Hesap Oluştur",
+    subtitle: "Kayıt olmak için aşağıdaki bilgileri doldurun",
+    accountType: "Hesap Türü",
+    student: "Öğrenci",
+    lecturer: "Eğitmen / Öğretmen",
+    fullName: "Ad Soyad",
+    fullNamePlaceholder: "Tam adınızı girin",
+    phone: "Telefon Numarası",
+    phonePlaceholder: "ör. 05551234567",
+    countryCode: "Ülke Kodu",
+    email: "E-posta Adresi",
+    emailPlaceholder: "ornek@email.com",
+    password: "Şifre",
+    passwordPlaceholder: "Şifrenizi girin",
+    confirmPassword: "Şifreyi Onayla",
+    confirmPasswordPlaceholder: "Şifrenizi tekrar girin",
+    passwordRules: "Büyük, küçük harf, rakam ve özel karakter içermelidir",
+    passwordMismatch: "Şifreler eşleşmiyor",
+    passwordWeak: "Şifre güvenlik gereksinimlerini karşılamıyor",
+    required: "*",
+    documentsTitle: "Belgeler ve Fotoğraflar",
+    idPhoto: "Kimlik Fotoğrafı",
+    idPhotoUpload: "Kimlik fotoğrafı yüklemek için tıklayın",
+    uniCert: "Üniversite Diploması / Belgesi",
+    uniCertUpload: "Diploma yüklemek için tıklayın",
+    additionalCerts: "Ek Sertifikalar",
+    additionalCertsUpload: "Daha fazla sertifika eklemek için tıklayın",
+    livePhoto: "Canlı Fotoğraf (Selfie)",
+    livePhotoCapture: "Fotoğraf Çek",
+    createAccount: "Hesap Oluştur",
+    checkEmail: "E-postanızı Kontrol Edin",
+    checkEmailDesc: "Onay bağlantısı şu adrese gönderildi:",
+    checkEmailAction: "Hesabınızı etkinleştirmek için bağlantıya tıklayın.",
+    goToLogin: "Giriş Yap",
+    errorFillFields: "Lütfen tüm zorunlu alanları doldurun",
+    errorPassword: "Şifre en az 6 karakter olmalıdır",
+    errorGeneric: "Hata",
+    errorNoUser: "Kullanıcı oluşturulamadı",
+  },
+
+  // Signup Choice
+  signupChoice: {
+    title: "Hesap Oluştur",
+    subtitle: "Devam etmek için profilinizi seçin",
+    studentTitle: "Öğrenci",
+    studentDesc: "Öğrenmeye başlamak için öğrenci olarak kaydolun",
+    lecturerTitle: "Eğitmen",
+    lecturerDesc: "Kurslarınızı yayınlamak için eğitmen olarak kaydolun",
+  },
+
+  // Choose Plan
+  choosePlan: {
+    step: "Adım",
+    of: "/",
+    title: "Size Uygun Planı Seçin",
+    noCommitment: "Taahhüt yok, dilediğiniz an iptal edin.",
+    allContent: "Tüm içerik tek bir uygun fiyata.",
+    unlimitedWatch: "Tüm cihazlarınızda sınırsız izleme.",
+    mostPopular: "En Popüler",
+    bestValue: "En İyi Fiyat",
+    currency: "TL/ay",
+    next: "İleri",
+    plans: [
+      { name: "Temel", quality: "İyi", resolution: "720p (HD)" },
+      { name: "Standart", quality: "Yüksek", resolution: "1080p (Full HD)" },
+      { name: "Premium", quality: "En İyi", resolution: "4K + HDR" },
+    ],
+    comparison: {
+      quality: "Ses ve Video Kalitesi",
+      resolution: "Çözünürlük",
+      devices: "Eşzamanlı Cihaz Sayısı",
+      downloads: "İndirme Cihazları",
+    },
+    devicesNote: "Desteklenen cihazlar: TV, bilgisayar, telefon, tablet.",
+    upgradeTitle: "İlk Ay Ücretsiz Yükseltme!",
+    upgradeDesc: "İlk ayınızı Temel fiyatına",
+    upgradeDescPlan: "Premium",
+    upgradeDescEnd: "plan ile başlatın. İstediğiniz an iptal edin.",
+    tryPremium: "Premium'u Dene",
+  },
+
+  // Payment
+  payment: {
+    title: "Ödeme Yöntemini Seçin",
+    subtitle: "Ödemeniz şifrelenir ve yönteminizi istediğiniz zaman değiştirebilirsiniz.",
+    secure: "Uçtan uca güvenli şifreleme",
+    startSubscription: "Aboneliği Başlat",
+    disclaimer: '"Aboneliği Başlat" butonuna tıklayarak Kullanım Şartları ve Gizlilik Politikasını kabul etmiş olursunuz.',
+    methods: {
+      card: { label: "Kredi veya Banka Kartı", desc: "Visa, Mastercard, Troy" },
+      mobile: { label: "Mobil Ödeme", desc: "Operatör faturanıza yansıtın" },
+      gift: { label: "Hediye Kodu", desc: "Hediye kartı kodunu girin" },
+    },
+    cardNumber: "Kart Numarası",
+    cardName: "Kart Üzerindeki İsim",
+    giftCodePlaceholder: "Hediye kodu / kupon",
+    mobileNotice: "Tutar doğrudan cep telefonu faturanıza yansıtılacaktır.",
+  },
+
+  // Courses Page
+  coursesPage: {
+    title: "Tüm Kurslar",
+    subtitle: "Mevcut kurslara göz atın ve size en uygun olanı seçin",
+    allCategories: "Tüm Kategoriler",
+    episodes: "Dersler",
+    episode: "Ders",
+    freeEpisode: "Ücretsiz — Hemen İzle",
+    lockedEpisode: "Abonelik Gerekir",
+    moreEpisodes: "daha fazla ders",
+    subscribeToWatch: "Hepsini İzlemek İçin Abone Ol",
+  },
+
+  // Live Streams Page
+  liveStreamsPage: {
+    title: "Canlı Yayınlar",
+    subtitle: "Canlı dersleri gerçek zamanlı izleyin ve eğitmenlerle etkileşim kurun",
+    liveBadge: "Canlı",
+    liveNow: "Şu Anda Canlı",
+    upcoming: "Yaklaşan Yayınlar",
+    live: "CANLI",
+    scheduled: "Planlanan",
+    joinNow: "Katıl",
+    noStreams: "Yayın Bulunmuyor",
+    noStreamsDesc: "Şu anda canlı yayın bulunmamaktadır. Kayıtlı kurslarımıza göz atabilirsiniz.",
+  },
+
+  // 404
+  notFound: {
+    title: "404",
+    message: "Sayfa bulunamadı",
+    backHome: "Ana Sayfaya Dön",
+  },
+};

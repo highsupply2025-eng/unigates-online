@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 
 const COURSES_ROLES = ["personal", "student", "lecturer", "teacher", "training_center", "language_center"];
 
@@ -119,10 +120,7 @@ const CoursesLogin = () => {
                 {isRtl ? "إنشاء حساب" : "Sign Up"}
               </Button>
             </Link>
-            <Button size="sm" onClick={toggleLanguage} className="bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 font-bold gap-1.5">
-              <Globe className="w-4 h-4" />
-              {isRtl ? "EN" : "AR"}
-            </Button>
+            <LanguageSelectorDropdown className="h-9 px-3" />
           </div>
         </div>
       </header>

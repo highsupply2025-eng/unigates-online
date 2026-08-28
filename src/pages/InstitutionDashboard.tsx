@@ -4,7 +4,8 @@ import {
   Landmark, Globe, Users, BookOpen, Search, ArrowLeft, ArrowRight,
   Layers, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
-  User, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell, PlusCircle, Pencil, Download, ShieldAlert, AlertTriangle, UserPlus, FileSpreadsheet, RefreshCw, Zap, Shield
+  User, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell, PlusCircle, Pencil, Download, ShieldAlert, AlertTriangle, UserPlus, FileSpreadsheet, RefreshCw, Zap, Shield,
+  LayoutGrid, ListFilter, CheckCircle2, Building2, SlidersHorizontal, Check, X
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useInstitutionStats } from "@/hooks/useInstitutionStats";
 import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 import { useQueryClient } from "@tanstack/react-query";
+import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import ugLogo from "@/assets/ug-logo.png";
 
 import BackButton from "@/components/BackButton";
 import { TrendIndicator } from "@/components/TrendIndicator";
@@ -258,6 +261,10 @@ const InstitutionDashboard = () => {
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "general");
   const [addDeptIdFromNav, setAddDeptIdFromNav] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [facultySearch, setFacultySearch] = useState("");
+  const [facultyRoleFilter, setFacultyRoleFilter] = useState("all");
+  const [facultyStatusFilter, setFacultyStatusFilter] = useState("all");
+  const [facultyViewMode, setFacultyViewMode] = useState<"grid" | "table">("grid");
   const [rangeDays, setRangeDays] = useState<7 | 30>(7);
   const [refreshing, setRefreshing] = useState(false);
   const [lastLoadedAt, setLastLoadedAt] = useState<number | null>(null);
@@ -1688,13 +1695,16 @@ ${exams.map((s: any, i: number) => `<tr>
     <div className="min-h-screen bg-background flex flex-col institution-admin-scope" dir={dir}>
       {/* Header */}
       <header className="border-b border-primary/20 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
             <div className="relative shrink-0">
-              <div className="absolute inset-0 rounded-2xl bg-primary/40 blur-md animate-pulse" />
-              <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary via-primary to-[hsl(200,75%,30%)] flex items-center justify-center shadow-xl shadow-primary/40 ring-2 ring-primary/30 hover:scale-105 transition-transform">
-                <Landmark className="w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow-md" strokeWidth={2.4} />
+              <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl overflow-hidden shadow-xl shadow-teal-500/25 p-0.5 bg-gradient-to-br from-teal-400 via-teal-600 to-indigo-600 flex items-center justify-center hover:scale-105 transition-transform">
+                <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-[14px]" />
               </div>
+              <span className="absolute -top-1 -end-1 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-teal-500" />
+              </span>
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
@@ -1706,23 +1716,23 @@ ${exams.map((s: any, i: number) => `<tr>
                 {subscriptionPlan && !(pageView === "members" && selectedDept) && (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary/10 text-primary border border-primary/20">
                     {isRtl
-                      ? (subscriptionPlan === "free" ? "المجانية" : subscriptionPlan === "monthly" ? "الشهرية" : "السنوية")
-                      : (subscriptionPlan === "free" ? "Free" : subscriptionPlan === "monthly" ? "Monthly" : "Annual")}
+                      ? (subscriptionPlan === "free" ? "الخطة المجانية" : subscriptionPlan === "monthly" ? "الخطة الشهرية" : "الخطة السنوية")
+                      : (subscriptionPlan === "free" ? "Free Plan" : subscriptionPlan === "monthly" ? "Monthly Plan" : "Annual Plan")}
                   </span>
                 )}
               </div>
-              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate mt-0.5">
                 {pageView === "members" && selectedDept
                   ? (isRtl ? "الأعضاء" : "Members")
                   : (() => {
                   const map: Record<string, { ar: string; en: string }> = {
-                    general: { ar: "الرئيسية", en: "Home" },
-                    schedules: { ar: "الجداول", en: "Schedules" },
-                    departments: { ar: "الأقسام", en: "Departments" },
+                    general: { ar: "نظرة عامة والتحليلات", en: "Overview & Analytics" },
+                    schedules: { ar: "الجداول الدراسية", en: "Schedules" },
+                    departments: { ar: "الأقسام الأكاديمية", en: "Academic Departments" },
                     faculty: { ar: "أعضاء هيئة التدريس", en: "Faculty Members" },
-                    students: { ar: "تسجيل الطلاب", en: "Student Registration" },
-                    quizresults: { ar: "النتائج", en: "Results" },
-                    livestreams: { ar: "البث المباشر", en: "Live Streams" },
+                    students: { ar: "تسجيل وبيانات الطلاب", en: "Student Directory" },
+                    quizresults: { ar: "نتائج الاختبارات", en: "Quiz Results" },
+                    livestreams: { ar: "المحاضرات والبث المباشر", en: "Live Lectures" },
                   };
                   const cur = map[activeTab] ?? map.general;
                   return isRtl ? cur.ar : cur.en;
@@ -1730,40 +1740,10 @@ ${exams.map((s: any, i: number) => `<tr>
               </p>
             </div>
           </div>
-          {/* Desktop navigation icons */}
-          <div className="hidden items-center gap-2">
-            <Button variant={activeTab === "general" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("general")}>
-              <Layers className="w-4 h-4" />
-              {isRtl ? "الرئيسية" : "Home"}
-            </Button>
-            <Button variant={activeTab === "departments" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("departments")}>
-              <BookOpen className="w-4 h-4" />
-              {isRtl ? "الأقسام" : "Departments"}
-            </Button>
-            <Button variant={activeTab === "quizresults" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("quizresults")}>
-              <CheckCircle className="w-4 h-4" />
-              {isRtl ? "النتائج" : "Results"}
-            </Button>
-            <Button variant={activeTab === "invitations" && accountMgmtView !== "accounts" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("invitations", "invitations")}>
-              <Mail className="w-4 h-4" />
-              {isRtl ? "الدعوات" : "Invitations"}
-            </Button>
-            <Button variant={activeTab === "invitations" && accountMgmtView === "accounts" ? "default" : "ghost"} size="sm" className="gap-1.5" onClick={() => handleTabChange("accounts")}>
-              <Users className="w-4 h-4" />
-              {isRtl ? "الحسابات" : "Accounts"}
-            </Button>
-            <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5">
-              <Globe className="w-4 h-4" />
-              {t.langSwitch}
-            </Button>
-            <Button variant="outline" size="sm" onClick={async () => {
-              await supabase.auth.signOut();
-              navigate("/university-platform");
-            }}>
-              <LogOut className="w-4 h-4" />
-            </Button>
-          </div>
-          <div className="flex items-center gap-1.5 shrink-0">
+
+          <div className="flex items-center gap-2 shrink-0">
+            <LanguageSelectorDropdown className="h-9 px-2.5 sm:px-3 text-xs bg-background/60 border-primary/20" />
+
             {pageView === "members" && selectedDept ? (
               <Button
                 size="icon"
@@ -2615,8 +2595,7 @@ ${exams.map((s: any, i: number) => `<tr>
           </TabsContent>
 
           {/* Faculty Members Tab */}
-          <TabsContent value="faculty" dir={isRtl ? "rtl" : "ltr"}>
-
+          <TabsContent value="faculty" dir={isRtl ? "rtl" : "ltr"} className="space-y-6 animate-fade-in">
             {(() => {
               const ROLE_ORDER: Record<string, number> = {
                 dean: 1,
@@ -2629,21 +2608,45 @@ ${exams.map((s: any, i: number) => `<tr>
                 lecturer: 8,
                 assistant_lecturer: 9,
               };
-              const ROLE_LABELS: Record<string, { ar: string; en: string }> = {
-                dean: { ar: isCollege ? "عميد الكلية" : "مدير المعهد", en: isCollege ? "Dean" : "Director" },
-                vice_dean_postgrad: { ar: isCollege ? "وكيل الكلية للدراسات العليا" : "وكيل المعهد للدراسات العليا", en: "Vice Dean - Postgraduate" },
-                vice_dean_students: { ar: isCollege ? "وكيل الكلية لشئون الطلاب" : "وكيل المعهد لشئون الطلاب", en: "Vice Dean - Student Affairs" },
-                vice_dean_community: { ar: isCollege ? "وكيل الكلية لخدمة المجتمع" : "وكيل المعهد لخدمة المجتمع", en: "Vice Dean - Community Service" },
-                department_head: { ar: "رئيس القسم", en: "Department Head" },
-                professor: { ar: "أستاذ دكتور", en: "Professor" },
-                doctor: { ar: "دكتور", en: "Doctor" },
-                lecturer: { ar: "محاضر", en: "Lecturer" },
-                assistant_lecturer: { ar: "معيد", en: "Assistant Lecturer" },
+
+              const ROLE_LABELS: Record<string, { ar: string; en: string; color: string }> = {
+                dean: { ar: isCollege ? "عميد الكلية" : "مدير المعهد", en: isCollege ? "Dean" : "Director", color: "bg-purple-500/15 text-purple-600 dark:text-purple-300 border-purple-500/30" },
+                vice_dean_postgrad: { ar: isCollege ? "وكيل الكلية للدراسات العليا" : "وكيل المعهد للدراسات العليا", en: "Vice Dean - Postgraduate", color: "bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 border-indigo-500/30" },
+                vice_dean_students: { ar: isCollege ? "وكيل الكلية لشئون الطلاب" : "وكيل المعهد لشئون الطلاب", en: "Vice Dean - Student Affairs", color: "bg-blue-500/15 text-blue-600 dark:text-blue-300 border-blue-500/30" },
+                vice_dean_community: { ar: isCollege ? "وكيل الكلية لخدمة المجتمع" : "وكيل المعهد لخدمة المجتمع", en: "Vice Dean - Community Service", color: "bg-cyan-500/15 text-cyan-600 dark:text-cyan-300 border-cyan-500/30" },
+                department_head: { ar: "رئيس القسم", en: "Department Head", color: "bg-teal-500/15 text-teal-600 dark:text-teal-300 border-teal-500/30" },
+                professor: { ar: "أستاذ دكتور", en: "Professor", color: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-500/30" },
+                doctor: { ar: "دكتور", en: "Doctor", color: "bg-sky-500/15 text-sky-600 dark:text-sky-300 border-sky-500/30" },
+                lecturer: { ar: "محاضر", en: "Lecturer", color: "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-500/30" },
+                assistant_lecturer: { ar: "معيد", en: "Assistant Lecturer", color: "bg-rose-500/15 text-rose-600 dark:text-rose-300 border-rose-500/30" },
               };
-              const faculty = dedupeGlobalFaculty(
+
+              const allFaculty = dedupeGlobalFaculty(
                 (deptMembers as any[])
                   .filter((m) => m.role && m.role !== "student" && !!m.full_name),
               ).sort((a, b) => (ROLE_ORDER[a.role] ?? 99) - (ROLE_ORDER[b.role] ?? 99));
+
+              // Compute quick stats
+              const totalCount = allFaculty.length;
+              const leadershipCount = allFaculty.filter(m => ["dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community", "department_head"].includes(m.role)).length;
+              const professorsCount = allFaculty.filter(m => ["professor", "doctor", "lecturer"].includes(m.role)).length;
+              const activeLinkedCount = allFaculty.filter(m => Boolean(m.user_id)).length;
+
+              // Filtered list
+              const filteredFaculty = allFaculty.filter((m) => {
+                if (facultySearch.trim()) {
+                  const q = facultySearch.trim().toLowerCase();
+                  const nameMatch = (m.full_name || "").toLowerCase().includes(q);
+                  const roleMatch = (ROLE_LABELS[m.role]?.ar || "").toLowerCase().includes(q) || (ROLE_LABELS[m.role]?.en || "").toLowerCase().includes(q);
+                  if (!nameMatch && !roleMatch) return false;
+                }
+                if (facultyRoleFilter !== "all" && m.role !== facultyRoleFilter) {
+                  return false;
+                }
+                if (facultyStatusFilter === "active" && !m.user_id) return false;
+                if (facultyStatusFilter === "pending" && m.user_id) return false;
+                return true;
+              });
 
               const isAddingMode = Boolean(addDeptIdFromNav);
               const targetDept = departments.find(d => d.id === addDeptIdFromNav);
@@ -2651,17 +2654,17 @@ ${exams.map((s: any, i: number) => `<tr>
               return (
                 <>
                   {isAddingMode && targetDept && (
-                    <div className="mb-5 p-4 rounded-xl border-2 border-primary/30 bg-primary/5">
+                    <div className="p-4 sm:p-5 rounded-2xl border-2 border-primary/40 bg-primary/5 backdrop-blur-md shadow-lg shadow-primary/5">
                       <div className="flex items-center justify-between gap-3 flex-wrap">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
-                            <Layers className="w-4 h-4 text-primary" />
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+                            <Layers className="w-5 h-5" />
                           </div>
                           <div>
-                            <p className="text-sm font-bold text-foreground">
+                            <p className="text-sm sm:text-base font-black text-foreground">
                               {isRtl ? `إضافة أعضاء إلى قسم: ${targetDept.department_name}` : `Adding members to: ${targetDept.department_name}`}
                             </p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs text-muted-foreground font-medium">
                               {selectFacultyMemberIds.length > 0
                                 ? isRtl
                                   ? `تم تحديد ${selectFacultyMemberIds.length} عضو`
@@ -2676,6 +2679,7 @@ ${exams.map((s: any, i: number) => `<tr>
                           <Button
                             variant="ghost"
                             size="sm"
+                            className="rounded-xl font-bold"
                             onClick={() => {
                               setAddDeptIdFromNav(null);
                               setSearchParams({ tab: "faculty" }, { replace: true });
@@ -2685,6 +2689,7 @@ ${exams.map((s: any, i: number) => `<tr>
                           </Button>
                           <Button
                             size="sm"
+                            className="rounded-xl font-bold gap-1.5 shadow-md"
                             disabled={selectFacultyMemberIds.length === 0 || addingExistingFaculty}
                             onClick={async () => {
                               if (!addDeptIdFromNav || selectFacultyMemberIds.length === 0) return;
@@ -2763,79 +2768,301 @@ ${exams.map((s: any, i: number) => `<tr>
                     </div>
                   )}
 
-                  {/* Quick actions */}
+                  {/* Luxury Top Action Cards Hub */}
                   {!isAddingMode && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-5">
-                    <button
-                      onClick={() => navigate("/institution/faculty/add")}
-                      className="group text-start border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent hover:border-primary/50 hover:shadow-lg transition-all rounded-xl p-4 sm:p-5 flex items-center gap-3"
-                    >
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-md shrink-0">
-                        <UserPlus className="w-6 h-6 text-primary-foreground" strokeWidth={2.4} />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-extrabold text-foreground text-sm sm:text-base">{isRtl ? "تسجيل البيانات" : "Register Data"}</p>
-                        <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "إضافة عضو" : "Add member"}</p>
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => navigate("/institution/faculty/import")}
-                      className="group text-start border-2 border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent hover:border-emerald-500/50 hover:shadow-lg transition-all rounded-xl p-4 sm:p-5 flex items-center gap-3"
-                    >
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-md shrink-0">
-                        <FileSpreadsheet className="w-6 h-6 text-white" strokeWidth={2.4} />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-extrabold text-foreground text-sm sm:text-base">{isRtl ? "رفع ملف Excel" : "Upload Excel File"}</p>
-                        <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "استيراد بيانات الأعضاء" : "Import members data"}</p>
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setInviteLinkRole("lecturer");
-                        setInviteLinkDeptId(departments[0]?.id || "");
-                        setGeneratedInviteLink("");
-                        setGeneratedInviteCode("");
-                        setShowInviteLinkDialog(true);
-                      }}
-                      className="group text-start border-2 border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent hover:border-amber-500/50 hover:shadow-lg transition-all rounded-xl p-4 sm:p-5 flex items-center gap-3"
-                    >
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-md shrink-0">
-                        <LinkIcon className="w-6 h-6 text-white" strokeWidth={2.4} />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-extrabold text-foreground text-sm sm:text-base">{isRtl ? "رابط الدعوة" : "Invitation Link"}</p>
-                        <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "توليد رابط تسجيل للعضو" : "Generate member signup link"}</p>
-                      </div>
-                    </button>
-                  </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
+                      {/* Card 1: Add Member */}
+                      <button
+                        type="button"
+                        onClick={() => navigate("/institution/faculty/add")}
+                        className="group text-start p-4 sm:p-5 rounded-2xl border-2 border-teal-500/20 bg-gradient-to-br from-teal-500/10 via-teal-500/5 to-transparent hover:border-teal-500/50 hover:shadow-xl hover:shadow-teal-500/10 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center gap-3.5 relative overflow-hidden"
+                      >
+                        <div className="absolute -end-6 -bottom-6 w-24 h-24 bg-teal-500/10 rounded-full blur-2xl group-hover:scale-125 transition-transform" />
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-teal-500/25 shrink-0 text-white group-hover:scale-105 transition-transform">
+                          <UserPlus className="w-6 h-6" strokeWidth={2.4} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <p className="font-black text-foreground text-sm sm:text-base truncate">
+                              {isRtl ? "تسجيل البيانات" : "Register Member"}
+                            </p>
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-teal-500/15 text-teal-600 dark:text-teal-300">
+                              {isRtl ? "مباشر" : "Direct"}
+                            </span>
+                          </div>
+                          <p className="text-[11px] sm:text-xs text-muted-foreground font-medium mt-0.5 truncate">
+                            {isRtl ? "إضافة عضو جديد يدويًا وتحديد رتبته" : "Add faculty member and set academic rank"}
+                          </p>
+                        </div>
+                      </button>
+
+                      {/* Card 2: Excel Import */}
+                      <button
+                        type="button"
+                        onClick={() => navigate("/institution/faculty/import")}
+                        className="group text-start p-4 sm:p-5 rounded-2xl border-2 border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center gap-3.5 relative overflow-hidden"
+                      >
+                        <div className="absolute -end-6 -bottom-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl group-hover:scale-125 transition-transform" />
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 shrink-0 text-white group-hover:scale-105 transition-transform">
+                          <FileSpreadsheet className="w-6 h-6" strokeWidth={2.4} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <p className="font-black text-foreground text-sm sm:text-base truncate">
+                              {isRtl ? "رفع ملف Excel" : "Upload Excel"}
+                            </p>
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-300">
+                              .XLSX
+                            </span>
+                          </div>
+                          <p className="text-[11px] sm:text-xs text-muted-foreground font-medium mt-0.5 truncate">
+                            {isRtl ? "استيراد دفعة كاملة من بيانات الأعضاء" : "Import bulk faculty members data"}
+                          </p>
+                        </div>
+                      </button>
+
+                      {/* Card 3: Invitation Link */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setInviteLinkRole("lecturer");
+                          setInviteLinkDeptId(departments[0]?.id || "");
+                          setGeneratedInviteLink("");
+                          setGeneratedInviteCode("");
+                          setShowInviteLinkDialog(true);
+                        }}
+                        className="group text-start p-4 sm:p-5 rounded-2xl border-2 border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent hover:border-amber-500/50 hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center gap-3.5 relative overflow-hidden"
+                      >
+                        <div className="absolute -end-6 -bottom-6 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl group-hover:scale-125 transition-transform" />
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/25 shrink-0 text-white group-hover:scale-105 transition-transform">
+                          <LinkIcon className="w-6 h-6" strokeWidth={2.4} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <p className="font-black text-foreground text-sm sm:text-base truncate">
+                              {isRtl ? "رابط الدعوة" : "Invitation Link"}
+                            </p>
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-300">
+                              {isRtl ? "رمز فوري" : "Instant"}
+                            </span>
+                          </div>
+                          <p className="text-[11px] sm:text-xs text-muted-foreground font-medium mt-0.5 truncate">
+                            {isRtl ? "توليد كود ورابط انضمام سريع للعضو" : "Generate invite link & code for quick joining"}
+                          </p>
+                        </div>
+                      </button>
+                    </div>
                   )}
 
-                  {faculty.length > 0 && (
-                    <Card className="border-2 border-primary/15 bg-gradient-to-br from-primary/3 to-transparent">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                          <GraduationCap className="w-4 h-4 text-primary" />
-                          <span className="font-extrabold">{isRtl ? "أعضاء هيئة التدريس" : "Faculty Members"}</span>
-                          <Badge variant="secondary" className="text-[10px]">{faculty.length}</Badge>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          {faculty.map((m: any) => {
+                  {/* Overview Stats Chips Bar */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div className="p-3.5 sm:p-4 rounded-2xl border border-primary/20 bg-card/60 backdrop-blur-md flex items-center gap-3 shadow-xs">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                        <GraduationCap className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xl sm:text-2xl font-black text-foreground">{totalCount}</p>
+                        <p className="text-[11px] text-muted-foreground font-bold truncate">{isRtl ? "إجمالي أعضاء الهيئة" : "Total Faculty"}</p>
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 sm:p-4 rounded-2xl border border-teal-500/20 bg-card/60 backdrop-blur-md flex items-center gap-3 shadow-xs">
+                      <div className="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-600 dark:text-teal-400 shrink-0">
+                        <Landmark className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xl sm:text-2xl font-black text-foreground">{leadershipCount}</p>
+                        <p className="text-[11px] text-muted-foreground font-bold truncate">{isRtl ? "القيادات ورؤساء الأقسام" : "Deans & Heads"}</p>
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 sm:p-4 rounded-2xl border border-blue-500/20 bg-card/60 backdrop-blur-md flex items-center gap-3 shadow-xs">
+                      <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+                        <Users className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xl sm:text-2xl font-black text-foreground">{professorsCount}</p>
+                        <p className="text-[11px] text-muted-foreground font-bold truncate">{isRtl ? "أساتذة ومحاضرون" : "Professors & Lecturers"}</p>
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 sm:p-4 rounded-2xl border border-emerald-500/20 bg-card/60 backdrop-blur-md flex items-center gap-3 shadow-xs">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                        <UserCheck className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400">{activeLinkedCount}</p>
+                        <p className="text-[11px] text-muted-foreground font-bold truncate">{isRtl ? "الحسابات المفعّلة" : "Active Accounts"}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Search, Filter, and Controls Bar */}
+                  <Card className="border-2 border-primary/20 bg-card/80 backdrop-blur-xl shadow-lg">
+                    <CardHeader className="pb-3 border-b border-border/50">
+                      <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
+                            <Users className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-base sm:text-lg font-black flex items-center gap-2">
+                              <span>{isRtl ? "دليل أعضاء هيئة التدريس" : "Faculty Members Directory"}</span>
+                              <Badge variant="secondary" className="font-bold text-xs">{filteredFaculty.length}</Badge>
+                            </CardTitle>
+                            <p className="text-xs text-muted-foreground font-medium">
+                              {isRtl ? "إدارة الصلاحيات، الرتب الأكاديمية، وربط الحسابات" : "Manage academic ranks, roles, and linked accounts"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* View Switcher Toggle */}
+                        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-muted border border-border">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant={facultyViewMode === "grid" ? "default" : "ghost"}
+                            className="h-7 px-2.5 rounded-lg text-xs font-bold gap-1"
+                            onClick={() => setFacultyViewMode("grid")}
+                          >
+                            <LayoutGrid className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">{isRtl ? "شبكة" : "Grid"}</span>
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant={facultyViewMode === "table" ? "default" : "ghost"}
+                            className="h-7 px-2.5 rounded-lg text-xs font-bold gap-1"
+                            onClick={() => setFacultyViewMode("table")}
+                          >
+                            <ListFilter className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">{isRtl ? "جدول" : "Table"}</span>
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Filter Inputs Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pt-3">
+                        {/* Live Search */}
+                        <div className="sm:col-span-6 relative">
+                          <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                          <Input
+                            type="text"
+                            placeholder={isRtl ? "بحث بالاسم أو الرتبة الأكاديمية..." : "Search by name or academic rank..."}
+                            value={facultySearch}
+                            onChange={(e) => setFacultySearch(e.target.value)}
+                            className="h-10 ps-9 pe-8 text-xs font-medium rounded-xl bg-background/70 border-primary/20 focus:border-primary"
+                          />
+                          {facultySearch && (
+                            <button
+                              type="button"
+                              onClick={() => setFacultySearch("")}
+                              className="absolute end-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Role Filter */}
+                        <div className="sm:col-span-3">
+                          <Select value={facultyRoleFilter} onValueChange={setFacultyRoleFilter}>
+                            <SelectTrigger className="h-10 text-xs font-bold rounded-xl bg-background/70 border-primary/20">
+                              <SelectValue placeholder={isRtl ? "كل الرتب" : "All Roles"} />
+                            </SelectTrigger>
+                            <SelectContent className="z-50">
+                              <SelectItem value="all">{isRtl ? "جميع الرتب الأكاديمية" : "All Academic Ranks"}</SelectItem>
+                              <SelectItem value="dean">{isCollege ? (isRtl ? "عميد الكلية" : "Dean") : (isRtl ? "مدير المعهد" : "Director")}</SelectItem>
+                              <SelectItem value="vice_dean_postgrad">{isRtl ? "وكيل الدراسات العليا" : "Vice Dean - Postgrad"}</SelectItem>
+                              <SelectItem value="vice_dean_students">{isRtl ? "وكيل شئون الطلاب" : "Vice Dean - Students"}</SelectItem>
+                              <SelectItem value="vice_dean_community">{isRtl ? "وكيل خدمة المجتمع" : "Vice Dean - Community"}</SelectItem>
+                              <SelectItem value="department_head">{isRtl ? "رئيس قسم" : "Department Head"}</SelectItem>
+                              <SelectItem value="professor">{isRtl ? "أستاذ دكتور" : "Professor"}</SelectItem>
+                              <SelectItem value="doctor">{isRtl ? "دكتور" : "Doctor"}</SelectItem>
+                              <SelectItem value="lecturer">{isRtl ? "محاضر" : "Lecturer"}</SelectItem>
+                              <SelectItem value="assistant_lecturer">{isRtl ? "معيد" : "Assistant Lecturer"}</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Status Filter */}
+                        <div className="sm:col-span-3">
+                          <Select value={facultyStatusFilter} onValueChange={setFacultyStatusFilter}>
+                            <SelectTrigger className="h-10 text-xs font-bold rounded-xl bg-background/70 border-primary/20">
+                              <SelectValue placeholder={isRtl ? "حالة الحساب" : "Account Status"} />
+                            </SelectTrigger>
+                            <SelectContent className="z-50">
+                              <SelectItem value="all">{isRtl ? "جميع الحالات" : "All Statuses"}</SelectItem>
+                              <SelectItem value="active">{isRtl ? "مفعّل (مرتبط بحساب)" : "Active (Linked)"}</SelectItem>
+                              <SelectItem value="pending">{isRtl ? "بانتظار التسجيل" : "Pending Registration"}</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="pt-4">
+                      {filteredFaculty.length === 0 ? (
+                        <div className="text-center py-12 px-4 space-y-3">
+                          <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary mx-auto flex items-center justify-center">
+                            <Users className="w-8 h-8" />
+                          </div>
+                          <h3 className="text-base sm:text-lg font-black text-foreground">
+                            {allFaculty.length === 0
+                              ? (isRtl ? "لم يتم إضافة أعضاء هيئة تدريس بعد" : "No faculty members added yet")
+                              : (isRtl ? "لا توجد نتائج مطابقة لبحثك" : "No members match your search criteria")}
+                          </h3>
+                          <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                            {allFaculty.length === 0
+                              ? (isRtl ? "ابدأ بإضافة الأعضاء وتعيين رتبهم وأقسامهم الأكاديمية بسهولة." : "Start adding faculty members and assigning them to academic departments.")
+                              : (isRtl ? "جرب تعديل كلمة البحث أو الفلاتر المحددة." : "Try adjusting your search keyword or clearing the filters.")}
+                          </p>
+                          {allFaculty.length > 0 && (facultySearch || facultyRoleFilter !== "all" || facultyStatusFilter !== "all") && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="rounded-xl font-bold gap-1 text-xs"
+                              onClick={() => {
+                                setFacultySearch("");
+                                setFacultyRoleFilter("all");
+                                setFacultyStatusFilter("all");
+                              }}
+                            >
+                              <RefreshCw className="w-3.5 h-3.5" />
+                              <span>{isRtl ? "إعادة ضبط الفلاتر" : "Reset Filters"}</span>
+                            </Button>
+                          )}
+                        </div>
+                      ) : facultyViewMode === "grid" ? (
+                        /* Grid Cards View */
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5">
+                          {filteredFaculty.map((m: any) => {
                             const linked = !!m.user_id;
-                            const initials = (m.full_name || "").split(" ").map((n: string) => n[0]).slice(0, 2).join("").toUpperCase();
-                            const roleLabel = ROLE_LABELS[m.role] || { ar: m.role, en: m.role };
+                            const initials = (m.full_name || "")
+                              .split(" ")
+                              .filter(Boolean)
+                              .map((n: string) => n[0])
+                              .slice(0, 2)
+                              .join("")
+                              .toUpperCase();
+                            const roleConfig = ROLE_LABELS[m.role] || {
+                              ar: m.role,
+                              en: m.role,
+                              color: "bg-primary/10 text-primary border-primary/20"
+                            };
                             const isSelected = selectFacultyMemberIds.includes(m.id);
+                            const memberDept = departments.find(d => d.id === m.department_id);
+
                             return (
                               <div
                                 key={m.id}
-                                className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-all ${
+                                className={`group rounded-2xl border-2 p-4 transition-all duration-200 relative bg-card/60 backdrop-blur-md hover:shadow-lg ${
                                   isAddingMode
                                     ? isSelected
-                                      ? "border-primary bg-primary/10"
+                                      ? "border-primary bg-primary/10 shadow-md"
                                       : "border-border hover:border-primary/40 hover:bg-primary/5 cursor-pointer"
-                                    : "border-border hover:border-primary/40 hover:bg-primary/5"
+                                    : "border-border/80 hover:border-primary/50 hover:bg-card"
                                 }`}
                                 onClick={isAddingMode ? () => {
                                   setSelectFacultyMemberIds(prev =>
@@ -2844,84 +3071,269 @@ ${exams.map((s: any, i: number) => `<tr>
                                 } : undefined}
                               >
                                 {isAddingMode && (
-                                  <input
-                                    type="checkbox"
-                                    checked={isSelected}
-                                    onChange={(e) => {
-                                      e.stopPropagation();
-                                      setSelectFacultyMemberIds(prev =>
-                                        e.target.checked ? [...prev, m.id] : prev.filter(id => id !== m.id)
-                                      );
-                                    }}
-                                    className="w-4 h-4 accent-primary shrink-0"
-                                  />
-                                )}
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    if ((m as any).__from_ifm) {
-                                      navigate(`/institution/faculty/${m.id}/edit`);
-                                      return;
-                                    }
-
-                                    navigate(`/institution/member/${m.id}`);
-                                  }}
-                                  className="text-start flex items-center gap-3 flex-1 min-w-0"
-                                >
-                                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-bold flex items-center justify-center shrink-0 overflow-hidden">
-                                    {m.photo_url
-                                      ? <img src={m.photo_url} alt={m.full_name} className="w-full h-full object-cover" />
-                                      : <span className="text-sm">{initials || "?"}</span>}
+                                  <div className="absolute top-3.5 end-3.5">
+                                    <input
+                                      type="checkbox"
+                                      checked={isSelected}
+                                      onChange={(e) => {
+                                        e.stopPropagation();
+                                        setSelectFacultyMemberIds(prev =>
+                                          e.target.checked ? [...prev, m.id] : prev.filter(id => id !== m.id)
+                                        );
+                                      }}
+                                      className="w-4 h-4 accent-primary rounded cursor-pointer"
+                                    />
                                   </div>
+                                )}
+
+                                <div className="flex items-start gap-3.5">
+                                  {/* Avatar with Status Dot */}
+                                  <div className="relative shrink-0">
+                                    <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary/80 via-primary to-indigo-600 text-primary-foreground font-black text-base flex items-center justify-center shadow-md overflow-hidden ring-2 ring-primary/20">
+                                      {m.photo_url ? (
+                                        <img src={m.photo_url} alt={m.full_name} className="w-full h-full object-cover" />
+                                      ) : (
+                                        <span>{initials || "?"}</span>
+                                      )}
+                                    </div>
+                                    <span
+                                      className={`absolute -bottom-1 -end-1 w-3.5 h-3.5 rounded-full border-2 border-card ${
+                                        linked ? "bg-emerald-500" : "bg-amber-400"
+                                      }`}
+                                      title={linked ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "بانتظار التسجيل" : "Pending")}
+                                    />
+                                  </div>
+
+                                  {/* Main Info */}
                                   <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-bold text-foreground truncate">{m.full_name}</p>
-                                    <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                                      <Badge variant="default" className="text-[10px] gap-1">
-                                        <GraduationCap className="w-3 h-3" />
-                                        {isRtl ? roleLabel.ar : roleLabel.en}
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        if ((m as any).__from_ifm) {
+                                          navigate(`/institution/faculty/${m.id}/edit`);
+                                          return;
+                                        }
+                                        navigate(`/institution/member/${m.id}`);
+                                      }}
+                                      className="text-start block w-full group-hover:text-primary transition-colors"
+                                    >
+                                      <p className="text-sm sm:text-base font-black text-foreground truncate leading-tight">
+                                        {m.full_name}
+                                      </p>
+                                    </button>
+
+                                    {/* Department Badge */}
+                                    <p className="text-[11px] text-muted-foreground font-bold truncate mt-1 flex items-center gap-1">
+                                      <Building2 className="w-3 h-3 text-muted-foreground shrink-0" />
+                                      <span>{memberDept?.department_name || (isRtl ? "عام / غير محدد" : "General / Unassigned")}</span>
+                                    </p>
+
+                                    {/* Badges Row */}
+                                    <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                                      <Badge variant="outline" className={`text-[10px] font-bold px-2 py-0.5 border ${roleConfig.color}`}>
+                                        <GraduationCap className="w-3 h-3 me-1" />
+                                        <span>{isRtl ? roleConfig.ar : roleConfig.en}</span>
                                       </Badge>
-                                      <Badge variant={linked ? "default" : "outline"} className="text-[10px]">
-                                        {linked
-                                          ? (isRtl ? "مفعّل" : "Active")
-                                          : (isRtl ? "بانتظار التسجيل" : "Pending")}
+
+                                      <Badge
+                                        variant="outline"
+                                        className={`text-[10px] font-bold px-1.5 py-0.5 border ${
+                                          linked
+                                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                                            : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                                        }`}
+                                      >
+                                        {linked ? (isRtl ? "✓ مفعّل" : "Active") : (isRtl ? "⏱ بانتظار التسجيل" : "Pending")}
                                       </Badge>
                                     </div>
                                   </div>
-                                </button>
+                                </div>
+
+                                {/* Card Actions Footer */}
                                 {!isAddingMode && (
-                                <button
-                                  type="button"
-                                  aria-label={isRtl ? "حذف العضو" : "Delete member"}
-                                  onClick={async (e) => {
-                                    e.stopPropagation();
-                                    const ok = window.confirm(
-                                      isRtl
-                                        ? `هل تريد حذف العضو "${m.full_name}"؟`
-                                        : `Delete member "${m.full_name}"?`
-                                    );
-                                    if (!ok) return;
-                                    try {
-                                      await handleDeleteMember(
-                                        String(m.id),
-                                        String(m.full_name || ""),
-                                        Boolean((m as any).__from_ifm),
-                                      );
-                                    } catch (err: any) {
-                                      sonnerToast.error(isRtl ? "فشل الحذف" : "Delete failed", { description: err.message });
-                                    }
-                                  }}
-                                  className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-destructive hover:bg-destructive/10 transition-colors"
-                                >
-                                  <Trash2 className="w-4 h-4" strokeWidth={2.4} />
-                                </button>
+                                  <div className="mt-3.5 pt-3 border-t border-border/50 flex items-center justify-between gap-2">
+                                    <Button
+                                      type="button"
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-8 px-2.5 text-xs font-bold gap-1 rounded-xl text-primary hover:bg-primary/10"
+                                      onClick={() => {
+                                        if ((m as any).__from_ifm) {
+                                          navigate(`/institution/faculty/${m.id}/edit`);
+                                          return;
+                                        }
+                                        navigate(`/institution/member/${m.id}`);
+                                      }}
+                                    >
+                                      <Pencil className="w-3.5 h-3.5" />
+                                      <span>{isRtl ? "تعديل البيانات" : "Edit Details"}</span>
+                                    </Button>
+
+                                    <Button
+                                      type="button"
+                                      size="sm"
+                                      variant="ghost"
+                                      aria-label={isRtl ? "حذف العضو" : "Delete member"}
+                                      className="h-8 w-8 p-0 rounded-xl text-destructive hover:bg-destructive/10"
+                                      onClick={async (e) => {
+                                        e.stopPropagation();
+                                        const ok = window.confirm(
+                                          isRtl
+                                            ? `هل تريد بالتأكيد حذف العضو "${m.full_name}" من المنظومة؟`
+                                            : `Are you sure you want to remove "${m.full_name}"?`
+                                        );
+                                        if (!ok) return;
+                                        try {
+                                          await handleDeleteMember(
+                                            String(m.id),
+                                            String(m.full_name || ""),
+                                            Boolean((m as any).__from_ifm),
+                                          );
+                                        } catch (err: any) {
+                                          sonnerToast.error(isRtl ? "فشل الحذف" : "Delete failed", { description: err.message });
+                                        }
+                                      }}
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" strokeWidth={2.4} />
+                                    </Button>
+                                  </div>
                                 )}
                               </div>
                             );
                           })}
                         </div>
-                      </CardContent>
-                    </Card>
-                  )}
+                      ) : (
+                        /* Table View */
+                        <div className="rounded-2xl border border-border overflow-hidden bg-card">
+                          <Table>
+                            <TableHeader className="bg-muted/50">
+                              <TableRow>
+                                {isAddingMode && <TableHead className="w-10" />}
+                                <TableHead className="font-bold">{isRtl ? "عضو هيئة التدريس" : "Faculty Member"}</TableHead>
+                                <TableHead className="font-bold">{isRtl ? "القسم الأكاديمي" : "Department"}</TableHead>
+                                <TableHead className="font-bold">{isRtl ? "الرتبة الأكاديمية" : "Academic Rank"}</TableHead>
+                                <TableHead className="font-bold">{isRtl ? "حالة الحساب" : "Status"}</TableHead>
+                                {!isAddingMode && <TableHead className="text-end font-bold">{isRtl ? "الإجراءات" : "Actions"}</TableHead>}
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {filteredFaculty.map((m: any) => {
+                                const linked = !!m.user_id;
+                                const initials = (m.full_name || "").split(" ").map((n: string) => n[0]).slice(0, 2).join("").toUpperCase();
+                                const roleConfig = ROLE_LABELS[m.role] || { ar: m.role, en: m.role, color: "bg-primary/10 text-primary border-primary/20" };
+                                const isSelected = selectFacultyMemberIds.includes(m.id);
+                                const memberDept = departments.find(d => d.id === m.department_id);
+
+                                return (
+                                  <TableRow key={m.id} className="hover:bg-muted/30">
+                                    {isAddingMode && (
+                                      <TableCell>
+                                        <input
+                                          type="checkbox"
+                                          checked={isSelected}
+                                          onChange={(e) => {
+                                            setSelectFacultyMemberIds(prev =>
+                                              e.target.checked ? [...prev, m.id] : prev.filter(id => id !== m.id)
+                                            );
+                                          }}
+                                          className="w-4 h-4 accent-primary rounded"
+                                        />
+                                      </TableCell>
+                                    )}
+                                    <TableCell>
+                                      <div className="flex items-center gap-3">
+                                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-indigo-600 text-white font-bold text-xs flex items-center justify-center shrink-0 overflow-hidden">
+                                          {m.photo_url ? (
+                                            <img src={m.photo_url} alt={m.full_name} className="w-full h-full object-cover" />
+                                          ) : (
+                                            <span>{initials || "?"}</span>
+                                          )}
+                                        </div>
+                                        <div>
+                                          <p className="font-bold text-foreground text-xs sm:text-sm">{m.full_name}</p>
+                                          {m.phone && <p className="text-[10px] text-muted-foreground" dir="ltr">{m.phone}</p>}
+                                        </div>
+                                      </div>
+                                    </TableCell>
+                                    <TableCell>
+                                      <span className="text-xs font-medium text-muted-foreground">
+                                        {memberDept?.department_name || (isRtl ? "عام / غير محدد" : "General")}
+                                      </span>
+                                    </TableCell>
+                                    <TableCell>
+                                      <Badge variant="outline" className={`text-[10px] font-bold border ${roleConfig.color}`}>
+                                        {isRtl ? roleConfig.ar : roleConfig.en}
+                                      </Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                      <Badge
+                                        variant="outline"
+                                        className={`text-[10px] font-bold border ${
+                                          linked
+                                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                                            : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                                        }`}
+                                      >
+                                        {linked ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "بانتظار التسجيل" : "Pending")}
+                                      </Badge>
+                                    </TableCell>
+                                    {!isAddingMode && (
+                                      <TableCell className="text-end">
+                                        <div className="flex items-center justify-end gap-1.5">
+                                          <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="ghost"
+                                            className="h-8 px-2 text-xs font-bold rounded-xl text-primary"
+                                            onClick={() => {
+                                              if ((m as any).__from_ifm) {
+                                                navigate(`/institution/faculty/${m.id}/edit`);
+                                                return;
+                                              }
+                                              navigate(`/institution/member/${m.id}`);
+                                            }}
+                                          >
+                                            <Pencil className="w-3.5 h-3.5 me-1" />
+                                            <span>{isRtl ? "تعديل" : "Edit"}</span>
+                                          </Button>
+
+                                          <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="ghost"
+                                            className="h-8 w-8 p-0 text-destructive rounded-xl hover:bg-destructive/10"
+                                            onClick={async () => {
+                                              const ok = window.confirm(
+                                                isRtl
+                                                  ? `هل تريد حذف العضو "${m.full_name}"؟`
+                                                  : `Delete member "${m.full_name}"?`
+                                              );
+                                              if (!ok) return;
+                                              try {
+                                                await handleDeleteMember(
+                                                  String(m.id),
+                                                  String(m.full_name || ""),
+                                                  Boolean((m as any).__from_ifm),
+                                                );
+                                              } catch (err: any) {
+                                                sonnerToast.error(isRtl ? "فشل الحذف" : "Delete failed", { description: err.message });
+                                              }
+                                            }}
+                                          >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                          </Button>
+                                        </div>
+                                      </TableCell>
+                                    )}
+                                  </TableRow>
+                                );
+                              })}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
                 </>
               );
             })()}

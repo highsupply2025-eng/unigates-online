@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   GraduationCap, Loader2, Eye, EyeOff, CheckCircle2, ArrowLeft, ArrowRight,
-  Lock, KeyRound, ShieldCheck, LogIn, Home
+  Lock, KeyRound, ShieldCheck, LogIn, Check, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,7 @@ const ResetPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [done, setDone] = useState(false);
   const mismatchToastId = useRef<string>();
   const { toast, dismiss } = useToast();
@@ -26,6 +27,25 @@ const ResetPassword = () => {
   const isRtl = dir === "rtl";
 
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
+
+  const passwordChecks = useMemo(() => ({
+    length: password.length >= 8,
+    hasNumber: /\d/.test(password),
+    hasLetter: /[a-zA-Z]/.test(password),
+    hasSpecial: /[^A-Za-z0-9]/.test(password),
+  }), [password]);
+
+  const passwordScore = useMemo(() => {
+    let score = 0;
+    if (passwordChecks.length) score += 25;
+    if (passwordChecks.hasNumber) score += 25;
+    if (passwordChecks.hasLetter) score += 25;
+    if (passwordChecks.hasSpecial) score += 25;
+    return score;
+  }, [passwordChecks]);
+
+  const isPasswordValid = passwordScore >= 50 && password.length >= 6;
+  const isMatching = password && confirmPassword && password === confirmPassword;
 
   const clearMismatchErrorIfMatching = (nextPassword: string, nextConfirmPassword: string) => {
     if (nextPassword === nextConfirmPassword && mismatchToastId.current) {
@@ -148,7 +168,7 @@ const ResetPassword = () => {
 
                 <div>
                   <h1 className="text-2xl sm:text-3xl font-black text-white tracking-normal leading-normal">
-                    {isRtl ? "كلمة المرور الجديدة" : "Set New Password"}
+                    {isRtl ? "تعيين كلمة المرور الجديدة" : "Set New Password"}
                   </h1>
                   <p className="text-xs sm:text-sm text-slate-300 font-medium mt-1 leading-relaxed">
                     {isRtl ? "أدخل كلمة المرور الجديدة لحسابك وقم بتأكيدها." : "Enter your new password and confirm it below."}
@@ -194,21 +214,58 @@ const ResetPassword = () => {
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
+
+                  {/* Password Strength Bar */}
+                  {password && (
+                    <div className="space-y-1.5 pt-1">
+                      <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold">
+                        <span>{isRtl ? "قوة كلمة المرور:" : "Password Strength:"}</span>
+                        <span className={passwordScore >= 75 ? "text-emerald-400" : passwordScore >= 50 ? "text-amber-400" : "text-rose-400"}>
+                          {passwordScore >= 75 ? (isRtl ? "قوية وممتازة" : "Strong") : passwordScore >= 50 ? (isRtl ? "متوسطة" : "Medium") : (isRtl ? "ضعيفة" : "Weak")}
+                        </span>
+                      </div>
+                      <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full transition-all duration-300 ${
+                            passwordScore >= 75 ? "bg-emerald-500" : passwordScore >= 50 ? "bg-amber-500" : "bg-rose-500"
+                          }`}
+                          style={{ width: `${passwordScore}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Confirm Password */}
                 <div className="space-y-1.5 text-start">
-                  <Label htmlFor="reset-confirm-password" className="text-xs font-bold text-slate-200 flex items-center gap-1.5 px-0.5">
-                    <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />
-                    <span>{isRtl ? "تأكيد كلمة المرور" : "Confirm Password"}</span>
-                  </Label>
+                  <div className="flex items-center justify-between px-0.5">
+                    <Label htmlFor="reset-confirm-password" className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                      <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />
+                      <span>{isRtl ? "تأكيد كلمة المرور" : "Confirm Password"}</span>
+                    </Label>
+                    {confirmPassword && (
+                      <span className={`text-[10px] font-bold flex items-center gap-1 ${isMatching ? "text-emerald-400" : "text-rose-400"}`}>
+                        {isMatching ? (
+                          <>
+                            <Check className="w-3 h-3" />
+                            <span>{isRtl ? "متطابقتان" : "Matched"}</span>
+                          </>
+                        ) : (
+                          <>
+                            <X className="w-3 h-3" />
+                            <span>{isRtl ? "غير متطابقة" : "Mismatch"}</span>
+                          </>
+                        )}
+                      </span>
+                    )}
+                  </div>
                   <div className="relative flex items-center">
                     <div className="absolute start-0 top-0 bottom-0 w-11 flex items-center justify-center text-slate-400 pointer-events-none z-10">
                       <Lock className="w-4 h-4" />
                     </div>
                     <Input
                       id="reset-confirm-password"
-                      type={showPassword ? "text" : "password"}
+                      type={showConfirmPassword ? "text" : "password"}
                       value={confirmPassword}
                       onChange={(e) => {
                         const next = e.currentTarget.value;
@@ -222,6 +279,15 @@ const ResetPassword = () => {
                       minLength={6}
                       autoComplete="new-password"
                     />
+                    <button
+                      type="button"
+                      aria-label={showConfirmPassword ? (isRtl ? "إخفاء كلمة المرور" : "Hide password") : (isRtl ? "إظهار كلمة المرور" : "Show password")}
+                      aria-pressed={showConfirmPassword}
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute end-1.5 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-teal-300 hover:bg-white/10 transition-colors z-10"
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
                 </div>
               </div>

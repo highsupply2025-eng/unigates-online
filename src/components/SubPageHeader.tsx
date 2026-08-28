@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 
 interface SubPageHeaderProps {
   titleAr: string;
@@ -14,7 +15,7 @@ interface SubPageHeaderProps {
 
 /**
  * Shared simple header used on lecturer sub-pages (Episodes-style).
- * Layout: [Title with gradient icon]  ...  [Back button]
+ * Layout: [Title with gradient icon]  ...  [Language Selector + Back button]
  */
 const SubPageHeader = ({ titleAr, titleEn, icon, backTo }: SubPageHeaderProps) => {
   const { dir, language } = useLanguage();
@@ -36,15 +37,18 @@ const SubPageHeader = ({ titleAr, titleEn, icon, backTo }: SubPageHeaderProps) =
           </span>
           <span className="truncate">{isRtl ? titleAr : titleEn}</span>
         </h1>
-        <Button
-          size="icon"
-          variant="default"
-          className="order-last touch-manipulation active:scale-95 transition-transform shadow-md shrink-0"
-          onPointerDown={handleBack}
-          aria-label={isRtl ? "رجوع" : "Back"}
-        >
-          {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
-        </Button>
+        <div className="flex items-center gap-2 shrink-0">
+          <LanguageSelectorDropdown className="hidden sm:flex border-border/80 text-foreground bg-muted/40 hover:bg-muted" />
+          <Button
+            size="icon"
+            variant="default"
+            className="order-last touch-manipulation active:scale-95 transition-transform shadow-md shrink-0"
+            onPointerDown={handleBack}
+            aria-label={isRtl ? "رجوع" : "Back"}
+          >
+            {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+          </Button>
+        </div>
       </div>
     </header>
   );

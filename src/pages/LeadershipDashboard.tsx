@@ -1551,602 +1551,442 @@ const LeadershipDashboard = () => {
                     onItemClick={(key) => key && setActiveTab(key)}
                     items={[
                       { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-cyan-500 to-blue-600", count: episodes.length },
-                      { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", count: liveStreams.length },
-                      ...(isApprovalRole ? [
-                        { key: "quizzesonline", label: isDeanOrViceDean ? (isRtl ? "اعتماد الاختبارات" : "Quizzes Approval") : (isRtl ? "الاختبارات" : "Quizzes"), Icon: ShieldCheck, color: "from-emerald-500 to-teal-600", count: quizzes.length },
-                        { key: "schedulesapproval", label: isDeanOrViceDean ? (isRtl ? "اعتماد الجداول" : "Schedules Approval") : (isRtl ? "الجداول" : "Schedules"), Icon: Calendar, color: "from-purple-500 to-fuchsia-600", count: lectureSchedules.length },
-                      ] : []),
-                      { key: "quizresults", label: isDeanOrViceDean ? (isRtl ? "اعتماد نتائج الاختبارات" : "Quiz Results Approval") : (isRtl ? "نتائج الاختبارات" : "Quiz Results"), Icon: Award, color: "from-indigo-500 to-purple-600", count: quizSubmissions.length },
-                      ...(!isDeanOrViceDean ? [
-                        { key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, color: "from-blue-500 to-indigo-600", count: assignmentSubmissions.length },
-                      ] : []),
-                      { key: "ratings", label: isDeanOrViceDean ? (isRtl ? "تقييمات أعضاء هيئة التدريس" : "Faculty Ratings") : (isRtl ? "تقييمات الطلاب" : "Student Ratings"), Icon: Star, color: "from-yellow-500 to-amber-600", count: ratings.length },
-                    ]}
-                  />
-                </>
-              );
-            })()}
-          </TabsContent>
-
-          {/* Live Streams Tab */}
+                      { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams"          {/* Live Streams Tab (Supervisory & Oversight: Streams, Attachments & Student Ratings Only) */}
           <TabsContent value="livestreams" id="section-livestreams" dir={isRtl ? "rtl" : "ltr"} className="space-y-6 animate-in fade-in-50 duration-200">
-            {isDeanOrViceDean ? (
-              <div className="space-y-6">
-                {/* 1. Dean & 3 Vice Deans 3 Top Luxury Supervisory Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
-                  {/* Card 1: Watch & Join Broadcasts */}
-                  <div
-                    onClick={() => setLeadershipStreamView("streams")}
-                    className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
-                      leadershipStreamView === "streams"
-                        ? "bg-gradient-to-br from-red-600 via-rose-600 to-red-700 text-white shadow-xl shadow-red-600/30 border-white/30 -translate-y-1"
-                        : "bg-card hover:bg-muted/40 border-border text-foreground hover:border-red-500/40 shadow-sm"
-                    }`}
-                  >
-                    <div>
-                      <div className="flex items-start justify-between">
-                        <div
-                          className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform ${
-                            leadershipStreamView === "streams"
-                              ? "bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40"
-                              : "bg-red-500/10 text-red-600 dark:text-red-400"
-                          }`}
-                        >
-                          <Radio className="w-6 h-6 animate-pulse" strokeWidth={2.6} />
-                        </div>
-                        <Badge
-                          className={
-                            leadershipStreamView === "streams"
-                              ? "bg-white/20 text-white border-white/30"
-                              : "bg-red-500/10 text-red-600 border-red-500/20"
-                          }
-                        >
-                          {liveNow.length > 0 ? (isRtl ? `${liveNow.length} مباشر الآن 🔴` : `${liveNow.length} Live Now 🔴`) : (isRtl ? "استعراض البثوث" : "Browse Streams")}
-                        </Badge>
-                      </div>
-
-                      <div className="mt-4 space-y-1">
-                        <h3 className="text-lg sm:text-xl font-black flex items-center gap-1.5">
-                          <span>{isRtl ? "مشاهدة واستعراض البثوث" : "Watch Live Broadcasts"}</span>
-                          <Sparkles className="w-4 h-4 text-amber-300" />
-                        </h3>
-                        <p
-                          className={`text-xs font-medium leading-relaxed ${
-                            leadershipStreamView === "streams" ? "text-white/85" : "text-muted-foreground"
-                          }`}
-                        >
-                          {isRtl
-                            ? `متابعة البثوث المباشرة والمجدولة والمسجلة والدخول للتفاعل الصوتي والمرئي مع الطلاب والمحاضر.`
-                            : "Monitor live & recorded streams and join with interactive voice and chat."}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mt-5 flex items-center justify-between pt-3 border-t border-current/10">
-                      <span className="text-xs font-black">
-                        {isRtl ? "عرض البثوث المباشرة ➔" : "View Streams ➔"}
-                      </span>
+            <div className="space-y-6">
+              {/* 1. Dean & 3 Vice Deans 3 Top Luxury Supervisory Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+                {/* Card 1: Watch & Join Broadcasts */}
+                <div
+                  onClick={() => setLeadershipStreamView("streams")}
+                  className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
+                    leadershipStreamView === "streams"
+                      ? "bg-gradient-to-br from-red-600 via-rose-600 to-red-700 text-white shadow-xl shadow-red-600/30 border-white/30 -translate-y-1"
+                      : "bg-card hover:bg-muted/40 border-border text-foreground hover:border-red-500/40 shadow-sm"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-start justify-between">
                       <div
-                        className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                          leadershipStreamView === "streams" ? "bg-white/20 text-white" : "bg-muted text-foreground"
+                        className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform ${
+                          leadershipStreamView === "streams"
+                            ? "bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40"
+                            : "bg-red-500/10 text-red-600 dark:text-red-400"
                         }`}
                       >
-                        <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
+                        <Radio className="w-6 h-6 animate-pulse" strokeWidth={2.6} />
                       </div>
+                      <Badge
+                        className={
+                          leadershipStreamView === "streams"
+                            ? "bg-white/20 text-white border-white/30"
+                            : "bg-red-500/10 text-red-600 border-red-500/20"
+                        }
+                      >
+                        {liveNow.length > 0 ? (isRtl ? `${liveNow.length} مباشر الآن 🔴` : `${liveNow.length} Live Now 🔴`) : (isRtl ? "استعراض البثوث" : "Browse Streams")}
+                      </Badge>
+                    </div>
+
+                    <div className="mt-4 space-y-1">
+                      <h3 className="text-lg sm:text-xl font-black flex items-center gap-1.5">
+                        <span>{isRtl ? "مشاهدة واستعراض البثوث" : "Watch Live Broadcasts"}</span>
+                        <Sparkles className="w-4 h-4 text-amber-300" />
+                      </h3>
+                      <p
+                        className={`text-xs font-medium leading-relaxed ${
+                          leadershipStreamView === "streams" ? "text-white/85" : "text-muted-foreground"
+                        }`}
+                      >
+                        {isRtl
+                          ? `متابعة البثوث المباشرة والمجدولة والمسجلة والدخول للتفاعل الصوتي والمرئي مع الطلاب والمحاضر.`
+                          : "Monitor live & recorded streams and join with interactive voice and chat."}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Card 2: Attached Stream Files Library */}
-                  <div
-                    onClick={() => setLeadershipStreamView("files")}
-                    className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
-                      leadershipStreamView === "files"
-                        ? "bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 text-white shadow-xl shadow-indigo-600/30 border-white/30 -translate-y-1"
-                        : "bg-card hover:bg-muted/40 border-border text-foreground hover:border-indigo-500/40 shadow-sm"
-                    }`}
-                  >
-                    <div>
-                      <div className="flex items-start justify-between">
-                        <div
-                          className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform ${
-                            leadershipStreamView === "files"
-                              ? "bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40"
-                              : "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
-                          }`}
-                        >
-                          <Paperclip className="w-6 h-6" strokeWidth={2.6} />
-                        </div>
-                        <Badge
-                          className={
-                            leadershipStreamView === "files"
-                              ? "bg-white/20 text-white border-white/30"
-                              : "bg-indigo-500/10 text-indigo-600 border-indigo-500/20"
-                          }
-                        >
-                          {isRtl ? "الملفات والمرفقات" : "Attachments"}
-                        </Badge>
-                      </div>
-
-                      <div className="mt-4 space-y-1">
-                        <h3 className="text-lg sm:text-xl font-black flex items-center gap-1.5">
-                          <span>{isRtl ? "ملفات ومذكرات البث" : "Stream Attached Files"}</span>
-                          <FileText className="w-4 h-4 text-cyan-300" />
-                        </h3>
-                        <p
-                          className={`text-xs font-medium leading-relaxed ${
-                            leadershipStreamView === "files" ? "text-white/85" : "text-muted-foreground"
-                          }`}
-                        >
-                          {isRtl
-                            ? "مراجعة وتحميل كافة الملفات والمستندات والعروض التقديمية المرفقة أثناء جلسات البث."
-                            : "Inspect and download handouts, slides, and files attached during live broadcasts."}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mt-5 flex items-center justify-between pt-3 border-t border-current/10">
-                      <span className="text-xs font-black">
-                        {isRtl ? "استعراض ملفات البث ➔" : "Explore Files ➔"}
-                      </span>
-                      <div
-                        className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                          leadershipStreamView === "files" ? "bg-white/20 text-white" : "bg-muted text-foreground"
-                        }`}
-                      >
-                        <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Card 3: Student Stream Ratings & Feedback */}
-                  <div
-                    onClick={() => setLeadershipStreamView("ratings")}
-                    className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
-                      leadershipStreamView === "ratings"
-                        ? "bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white shadow-xl shadow-amber-500/30 border-white/30 -translate-y-1"
-                        : "bg-card hover:bg-muted/40 border-border text-foreground hover:border-amber-500/40 shadow-sm"
-                    }`}
-                  >
-                    <div>
-                      <div className="flex items-start justify-between">
-                        <div
-                          className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform ${
-                            leadershipStreamView === "ratings"
-                              ? "bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40"
-                              : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                          }`}
-                        >
-                          <Star className="w-6 h-6 fill-current" strokeWidth={2.6} />
-                        </div>
-                        <Badge
-                          className={
-                            leadershipStreamView === "ratings"
-                              ? "bg-white/20 text-white border-white/30"
-                              : "bg-amber-500/10 text-amber-600 border-amber-500/20"
-                          }
-                        >
-                          {isRtl ? "تقييمات الطلاب" : "Ratings"}
-                        </Badge>
-                      </div>
-
-                      <div className="mt-4 space-y-1">
-                        <h3 className="text-lg sm:text-xl font-black flex items-center gap-1.5">
-                          <span>{isRtl ? "تقييمات وملاحظات الطلاب" : "Student Stream Ratings"}</span>
-                          <Sparkles className="w-4 h-4 text-yellow-200" />
-                        </h3>
-                        <p
-                          className={`text-xs font-medium leading-relaxed ${
-                            leadershipStreamView === "ratings" ? "text-white/85" : "text-muted-foreground"
-                          }`}
-                        >
-                          {isRtl
-                            ? "مؤشرات جودة الشرح والبث والملفات المرفقة وتقييمات الطلاب المباشرة لأعضاء هيئة التدريس."
-                            : "Real-time student feedback and star ratings on broadcast delivery and materials."}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mt-5 flex items-center justify-between pt-3 border-t border-current/10">
-                      <span className="text-xs font-black">
-                        {isRtl ? "متابعة تقييمات الطلاب ➔" : "View Ratings ➔"}
-                      </span>
-                      <div
-                        className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                          leadershipStreamView === "ratings" ? "bg-white/20 text-white" : "bg-muted text-foreground"
-                        }`}
-                      >
-                        <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
-                      </div>
+                  <div className="mt-5 flex items-center justify-between pt-3 border-t border-current/10">
+                    <span className="text-xs font-black">
+                      {isRtl ? "عرض البثوث المباشرة ➔" : "View Streams ➔"}
+                    </span>
+                    <div
+                      className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                        leadershipStreamView === "streams" ? "bg-white/20 text-white" : "bg-muted text-foreground"
+                      }`}
+                    >
+                      <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
                     </div>
                   </div>
                 </div>
 
-                {/* Subview Switcher Pills */}
-                <div className="flex items-center gap-2 p-1.5 bg-muted/40 rounded-2xl border border-border w-fit">
-                  <button
-                    onClick={() => setLeadershipStreamView("streams")}
-                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${
-                      leadershipStreamView === "streams"
-                        ? "bg-card text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <Radio className="w-3.5 h-3.5 text-red-500" />
-                    <span>{isRtl ? "البثوث المباشرة والمسجلة" : "Live & Recorded Streams"}</span>
-                    <Badge variant="secondary" className="text-[10px] py-0 px-1.5">{liveStreams.length}</Badge>
-                  </button>
-
-                  <button
-                    onClick={() => setLeadershipStreamView("files")}
-                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${
-                      leadershipStreamView === "files"
-                        ? "bg-card text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <Paperclip className="w-3.5 h-3.5 text-indigo-500" />
-                    <span>{isRtl ? "ملفات ومرفقات البث" : "Stream Handouts & Files"}</span>
-                    <Badge variant="secondary" className="text-[10px] py-0 px-1.5">{courseAttachments.length || liveStreams.length}</Badge>
-                  </button>
-
-                  <button
-                    onClick={() => setLeadershipStreamView("ratings")}
-                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${
-                      leadershipStreamView === "ratings"
-                        ? "bg-card text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                    <span>{isRtl ? "تقييمات الطلاب على البث" : "Student Stream Ratings"}</span>
-                  </button>
-                </div>
-
-                {/* Subview 1: Streams List */}
-                {leadershipStreamView === "streams" && (
-                  <div className="space-y-4">
-                    {/* Status KPI mini cards */}
-                    <div className="grid grid-cols-3 gap-3 sm:gap-4">
-                      <div className="p-4 rounded-2xl bg-red-500/10 border-2 border-red-500/30 text-center">
-                        <div className="text-2xl sm:text-3xl font-black text-red-600 dark:text-red-400">{liveNow.length}</div>
-                        <div className="text-xs font-bold text-red-700 dark:text-red-300 mt-0.5">{isRtl ? "بث مباشر الآن 🔴" : "Live Now"}</div>
+                {/* Card 2: Attached Stream Files Library */}
+                <div
+                  onClick={() => setLeadershipStreamView("files")}
+                  className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
+                    leadershipStreamView === "files"
+                      ? "bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 text-white shadow-xl shadow-indigo-600/30 border-white/30 -translate-y-1"
+                      : "bg-card hover:bg-muted/40 border-border text-foreground hover:border-indigo-500/40 shadow-sm"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-start justify-between">
+                      <div
+                        className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform ${
+                          leadershipStreamView === "files"
+                            ? "bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40"
+                            : "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
+                        }`}
+                      >
+                        <Paperclip className="w-6 h-6" strokeWidth={2.6} />
                       </div>
-                      <div className="p-4 rounded-2xl bg-blue-500/10 border-2 border-blue-500/30 text-center">
-                        <div className="text-2xl sm:text-3xl font-black text-blue-600 dark:text-blue-400">{scheduledStreams.length}</div>
-                        <div className="text-xs font-bold text-blue-700 dark:text-blue-300 mt-0.5">{isRtl ? "بثوث مجدولة 📅" : "Scheduled"}</div>
-                      </div>
-                      <div className="p-4 rounded-2xl bg-slate-500/10 border-2 border-slate-500/30 text-center">
-                        <div className="text-2xl sm:text-3xl font-black text-slate-700 dark:text-slate-300">{liveStreams.filter(s => s.status === "ended").length}</div>
-                        <div className="text-xs font-bold text-muted-foreground mt-0.5">{isRtl ? "بثوث مسجلة 👁️" : "Ended"}</div>
-                      </div>
+                      <Badge
+                        className={
+                          leadershipStreamView === "files"
+                            ? "bg-white/20 text-white border-white/30"
+                            : "bg-indigo-500/10 text-indigo-600 border-indigo-500/20"
+                        }
+                      >
+                        {isRtl ? "الملفات والمرفقات" : "Attachments"}
+                      </Badge>
                     </div>
 
-                    {liveStreams.length === 0 ? (
-                      <Card className="rounded-3xl border-2 border-dashed border-border/80 bg-card/50 p-12 text-center space-y-3">
-                        <Radio className="w-12 h-12 mx-auto text-muted-foreground/40 animate-pulse" />
-                        <h4 className="font-bold text-base text-foreground">
-                          {isRtl ? "لا توجد بثوث مسجلة حالياً في الكلية" : "No live streams registered currently"}
-                        </h4>
-                        <p className="text-xs text-muted-foreground max-w-md mx-auto">
-                          {isRtl
-                            ? "ستظهر هنا كافة البثوث المباشرة فور إطلاقها من أعضاء هيئة التدريس."
-                            : "Broadcasts will appear here once launched by faculty members."}
-                        </p>
-                      </Card>
-                    ) : (
-                      <div className="space-y-4">
-                        {liveStreams.map((stream) => {
-                          const isLive = stream.status === "live";
-                          const isScheduled = stream.status === "scheduled";
-                          const viewers = streamAttendance[stream.id] || 0;
+                    <div className="mt-4 space-y-1">
+                      <h3 className="text-lg sm:text-xl font-black flex items-center gap-1.5">
+                        <span>{isRtl ? "ملفات ومذكرات البث" : "Stream Attached Files"}</span>
+                        <FileText className="w-4 h-4 text-cyan-300" />
+                      </h3>
+                      <p
+                        className={`text-xs font-medium leading-relaxed ${
+                          leadershipStreamView === "files" ? "text-white/85" : "text-muted-foreground"
+                        }`}
+                      >
+                        {isRtl
+                          ? "مراجعة وتحميل كافة الملفات والمستندات والعروض التقديمية المرفقة أثناء جلسات البث."
+                          : "Inspect and download handouts, slides, and files attached during live broadcasts."}
+                      </p>
+                    </div>
+                  </div>
 
-                          return (
-                            <Card
-                              key={stream.id}
-                              className={`overflow-hidden rounded-3xl border-2 transition-all duration-300 shadow-md hover:shadow-xl ${
-                                isLive
-                                  ? "border-red-500/60 bg-gradient-to-br from-red-500/5 via-card to-card"
-                                  : isScheduled
-                                    ? "border-blue-500/40 bg-gradient-to-br from-blue-500/5 via-card to-card"
-                                    : "border-border/70 bg-card"
-                              }`}
-                            >
-                              <div className="p-5 sm:p-6 space-y-4">
-                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                  <div className="space-y-2 flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border border-cyan-500/20">
-                                        <Building2 className="w-3.5 h-3.5" />
-                                        <span>{isRtl ? "المادة:" : "Subject:"} {stream.category_ar || stream.category_en || (isRtl ? "عام" : "General")}</span>
-                                      </span>
+                  <div className="mt-5 flex items-center justify-between pt-3 border-t border-current/10">
+                    <span className="text-xs font-black">
+                      {isRtl ? "استعراض ملفات البث ➔" : "Explore Files ➔"}
+                    </span>
+                    <div
+                      className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                        leadershipStreamView === "files" ? "bg-white/20 text-white" : "bg-muted text-foreground"
+                      }`}
+                    >
+                      <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
+                    </div>
+                  </div>
+                </div>
 
-                                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-                                        <GraduationCap className="w-3.5 h-3.5" />
-                                        <span>{isRtl ? "مقدم البث:" : "Presenter:"} {stream.instructor_ar || stream.instructor_en || (isRtl ? "عضو هيئة تدريس" : "Faculty")}</span>
-                                      </span>
+                {/* Card 3: Student Stream Ratings & Feedback */}
+                <div
+                  onClick={() => setLeadershipStreamView("ratings")}
+                  className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
+                    leadershipStreamView === "ratings"
+                      ? "bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white shadow-xl shadow-amber-500/30 border-white/30 -translate-y-1"
+                      : "bg-card hover:bg-muted/40 border-border text-foreground hover:border-amber-500/40 shadow-sm"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-start justify-between">
+                      <div
+                        className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform ${
+                          leadershipStreamView === "ratings"
+                            ? "bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40"
+                            : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                        }`}
+                      >
+                        <Star className="w-6 h-6 fill-current" strokeWidth={2.6} />
+                      </div>
+                      <Badge
+                        className={
+                          leadershipStreamView === "ratings"
+                            ? "bg-white/20 text-white border-white/30"
+                            : "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                        }
+                      >
+                        {isRtl ? "تقييمات الطلاب" : "Ratings"}
+                      </Badge>
+                    </div>
 
-                                      <Badge
-                                        className={`font-black px-3 py-1 text-xs gap-1.5 rounded-xl ${
-                                          isLive
-                                            ? "bg-red-600 text-white shadow-md shadow-red-500/30 animate-pulse"
-                                            : isScheduled
-                                              ? "bg-blue-600 text-white shadow-sm"
-                                              : "bg-slate-600 text-white"
-                                        }`}
-                                      >
-                                        {isLive ? (
-                                          <>
-                                            <Radio className="w-3.5 h-3.5" />
-                                            <span>{isRtl ? "مباشر الآن 🔴" : "Live Now"}</span>
-                                          </>
-                                        ) : isScheduled ? (
-                                          <>
-                                            <Calendar className="w-3.5 h-3.5" />
-                                            <span>{isRtl ? "مجدول 📅" : "Scheduled"}</span>
-                                          </>
-                                        ) : (
-                                          <>
-                                            <CheckCircle2 className="w-3.5 h-3.5" />
-                                            <span>{isRtl ? "منتهي ومسجل 👁️" : "Ended"}</span>
-                                          </>
-                                        )}
-                                      </Badge>
+                    <div className="mt-4 space-y-1">
+                      <h3 className="text-lg sm:text-xl font-black flex items-center gap-1.5">
+                        <span>{isRtl ? "تقييمات وملاحظات الطلاب" : "Student Stream Ratings"}</span>
+                        <Sparkles className="w-4 h-4 text-yellow-200" />
+                      </h3>
+                      <p
+                        className={`text-xs font-medium leading-relaxed ${
+                          leadershipStreamView === "ratings" ? "text-white/85" : "text-muted-foreground"
+                        }`}
+                      >
+                        {isRtl
+                          ? "مؤشرات جودة الشرح والبث والملفات المرفقة وتقييمات الطلاب المباشرة لأعضاء هيئة التدريس."
+                          : "Real-time student feedback and star ratings on broadcast delivery and materials."}
+                      </p>
+                    </div>
+                  </div>
 
-                                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
-                                        <Users className="w-3.5 h-3.5" />
-                                        <span>{viewers} {isRtl ? "طالب متفاعل" : "viewers"}</span>
-                                      </span>
-                                    </div>
+                  <div className="mt-5 flex items-center justify-between pt-3 border-t border-current/10">
+                    <span className="text-xs font-black">
+                      {isRtl ? "متابعة تقييمات الطلاب ➔" : "View Ratings ➔"}
+                    </span>
+                    <div
+                      className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                        leadershipStreamView === "ratings" ? "bg-white/20 text-white" : "bg-muted text-foreground"
+                      }`}
+                    >
+                      <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-                                    <h3 className="text-base sm:text-xl font-black text-foreground tracking-tight pt-1">
-                                      {isRtl ? stream.title_ar || stream.title_en : stream.title_en || stream.title_ar}
-                                    </h3>
+              {/* Subview Switcher Pills */}
+              <div className="flex items-center gap-2 p-1.5 bg-muted/40 rounded-2xl border border-border w-fit">
+                <button
+                  onClick={() => setLeadershipStreamView("streams")}
+                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${
+                    leadershipStreamView === "streams"
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Radio className="w-3.5 h-3.5 text-red-500" />
+                  <span>{isRtl ? "البثوث المباشرة والمسجلة" : "Live & Recorded Streams"}</span>
+                  <Badge variant="secondary" className="text-[10px] py-0 px-1.5">{liveStreams.length}</Badge>
+                </button>
 
-                                    <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-                                      <Clock className="w-3.5 h-3.5" />
-                                      <span>{isRtl ? "الموعد:" : "Scheduled:"} {stream.scheduled_at ? new Date(stream.scheduled_at).toLocaleString(isRtl ? "ar-EG" : "en-US") : "-"}</span>
-                                    </p>
-                                  </div>
+                <button
+                  onClick={() => setLeadershipStreamView("files")}
+                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${
+                    leadershipStreamView === "files"
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Paperclip className="w-3.5 h-3.5 text-indigo-500" />
+                  <span>{isRtl ? "ملفات ومرفقات البث" : "Stream Handouts & Files"}</span>
+                  <Badge variant="secondary" className="text-[10px] py-0 px-1.5">{courseAttachments.length || liveStreams.length}</Badge>
+                </button>
 
-                                  <div className="flex items-center gap-2 shrink-0 flex-wrap">
-                                    <Button
-                                      size="lg"
-                                      className={`font-black gap-2 rounded-2xl h-11 px-6 shadow-md transition-all hover:scale-105 ${
+                <button
+                  onClick={() => setLeadershipStreamView("ratings")}
+                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${
+                    leadershipStreamView === "ratings"
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                  <span>{isRtl ? "تقييمات الطلاب على البث والملفات" : "Student Stream & Handouts Ratings"}</span>
+                </button>
+              </div>
+
+              {/* Subview 1: Streams List */}
+              {leadershipStreamView === "streams" && (
+                <div className="space-y-4">
+                  {/* Status KPI mini cards */}
+                  <div className="grid grid-cols-3 gap-3 sm:gap-4">
+                    <div className="p-4 rounded-2xl bg-red-500/10 border-2 border-red-500/30 text-center">
+                      <div className="text-2xl sm:text-3xl font-black text-red-600 dark:text-red-400">{liveNow.length}</div>
+                      <div className="text-xs font-bold text-red-700 dark:text-red-300 mt-0.5">{isRtl ? "بث مباشر الآن 🔴" : "Live Now"}</div>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-blue-500/10 border-2 border-blue-500/30 text-center">
+                      <div className="text-2xl sm:text-3xl font-black text-blue-600 dark:text-blue-400">{scheduledStreams.length}</div>
+                      <div className="text-xs font-bold text-blue-700 dark:text-blue-300 mt-0.5">{isRtl ? "بثوث مجدولة 📅" : "Scheduled"}</div>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-slate-500/10 border-2 border-slate-500/30 text-center">
+                      <div className="text-2xl sm:text-3xl font-black text-slate-700 dark:text-slate-300">{liveStreams.filter(s => s.status === "ended").length}</div>
+                      <div className="text-xs font-bold text-muted-foreground mt-0.5">{isRtl ? "بثوث مسجلة 👁️" : "Ended"}</div>
+                    </div>
+                  </div>
+
+                  {liveStreams.length === 0 ? (
+                    <Card className="rounded-3xl border-2 border-dashed border-border/80 bg-card/50 p-12 text-center space-y-3">
+                      <Radio className="w-12 h-12 mx-auto text-muted-foreground/40 animate-pulse" />
+                      <h4 className="font-bold text-base text-foreground">
+                        {isRtl ? "لا توجد بثوث مسجلة حالياً في الكلية / المعهد" : "No live streams registered currently"}
+                      </h4>
+                      <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                        {isRtl
+                          ? "ستظهر هنا كافة البثوث المباشرة فور إطلاقها من أعضاء هيئة التدريس."
+                          : "Broadcasts will appear here once launched by faculty members."}
+                      </p>
+                    </Card>
+                  ) : (
+                    <div className="space-y-4">
+                      {liveStreams.map((stream) => {
+                        const isLive = stream.status === "live";
+                        const isScheduled = stream.status === "scheduled";
+                        const viewers = streamAttendance[stream.id] || 0;
+
+                        return (
+                          <Card
+                            key={stream.id}
+                            className={`overflow-hidden rounded-3xl border-2 transition-all duration-300 shadow-md hover:shadow-xl ${
+                              isLive
+                                ? "border-red-500/60 bg-gradient-to-br from-red-500/5 via-card to-card"
+                                : isScheduled
+                                  ? "border-blue-500/40 bg-gradient-to-br from-blue-500/5 via-card to-card"
+                                  : "border-border/70 bg-card"
+                            }`}
+                          >
+                            <div className="p-5 sm:p-6 space-y-4">
+                              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div className="space-y-2 flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border border-cyan-500/20">
+                                      <Building2 className="w-3.5 h-3.5" />
+                                      <span>{isRtl ? "المادة:" : "Subject:"} {stream.category_ar || stream.category_en || (isRtl ? "عام" : "General")}</span>
+                                    </span>
+
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+                                      <GraduationCap className="w-3.5 h-3.5" />
+                                      <span>{isRtl ? "مقدم البث:" : "Presenter:"} {stream.instructor_ar || stream.instructor_en || (isRtl ? "عضو هيئة تدريس" : "Faculty")}</span>
+                                    </span>
+
+                                    <Badge
+                                      className={`font-black px-3 py-1 text-xs gap-1.5 rounded-xl ${
                                         isLive
-                                          ? "bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white shadow-red-600/40 ring-2 ring-red-300/40"
+                                          ? "bg-red-600 text-white shadow-md shadow-red-500/30 animate-pulse"
                                           : isScheduled
-                                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-600/30"
-                                            : "bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white shadow-slate-700/30"
+                                            ? "bg-blue-600 text-white shadow-sm"
+                                            : "bg-slate-600 text-white"
                                       }`}
-                                      onClick={() => navigate(`/stream/${stream.id}`)}
                                     >
-                                      <Eye className="w-4 h-4" strokeWidth={2.6} />
-                                      <span>
-                                        {isLive
-                                          ? (isRtl ? "دخول البث المباشر والتفاعل 🔴" : "Join Live Stream & Chat 🔴")
-                                          : isScheduled
-                                            ? (isRtl ? "دخول غرفة الانتظار 📅" : "Enter Waiting Room 📅")
-                                            : (isRtl ? "مشاهدة التسجيل والتعليقات 👁️" : "Replay Stream 👁️")}
-                                      </span>
-                                    </Button>
+                                      {isLive ? (
+                                        <>
+                                          <Radio className="w-3.5 h-3.5" />
+                                          <span>{isRtl ? "مباشر الآن 🔴" : "Live Now"}</span>
+                                        </>
+                                      ) : isScheduled ? (
+                                        <>
+                                          <Calendar className="w-3.5 h-3.5" />
+                                          <span>{isRtl ? "مجدول 📅" : "Scheduled"}</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <CheckCircle2 className="w-3.5 h-3.5" />
+                                          <span>{isRtl ? "منتهي ومسجل 👁️" : "Ended"}</span>
+                                        </>
+                                      )}
+                                    </Badge>
+
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                                      <Users className="w-3.5 h-3.5" />
+                                      <span>{viewers} {isRtl ? "طالب متفاعل" : "viewers"}</span>
+                                    </span>
                                   </div>
+
+                                  <h3 className="text-base sm:text-xl font-black text-foreground tracking-tight pt-1">
+                                    {isRtl ? stream.title_ar || stream.title_en : stream.title_en || stream.title_ar}
+                                  </h3>
+
+                                  <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+                                    <Clock className="w-3.5 h-3.5" />
+                                    <span>{isRtl ? "الموعد:" : "Scheduled:"} {stream.scheduled_at ? new Date(stream.scheduled_at).toLocaleString(isRtl ? "ar-EG" : "en-US") : "-"}</span>
+                                  </p>
+                                </div>
+
+                                <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                                  <Button
+                                    size="lg"
+                                    className={`font-black gap-2 rounded-2xl h-11 px-6 shadow-md transition-all hover:scale-105 ${
+                                      isLive
+                                        ? "bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white shadow-red-600/40 ring-2 ring-red-300/40"
+                                        : isScheduled
+                                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-600/30"
+                                          : "bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white shadow-slate-700/30"
+                                    }`}
+                                    onClick={() => navigate(`/stream/${stream.id}`)}
+                                  >
+                                    <Eye className="w-4 h-4" strokeWidth={2.6} />
+                                    <span>
+                                      {isLive
+                                        ? (isRtl ? "🔴 دخول البث المباشر فوراً والتفاعل" : "🔴 Join Live Broadcast Now")
+                                        : isScheduled
+                                          ? (isRtl ? "دخول غرفة الانتظار 📅" : "Enter Waiting Room 📅")
+                                          : (isRtl ? "مشاهدة التسجيل والتعليقات 👁️" : "Replay Stream 👁️")}
+                                    </span>
+                                  </Button>
                                 </div>
                               </div>
-                            </Card>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Subview 2: Attached Stream Files Library */}
-                {leadershipStreamView === "files" && (
-                  <Card className="rounded-3xl border-2 border-border shadow-md overflow-hidden p-6 space-y-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <h3 className="text-base sm:text-lg font-black text-foreground flex items-center gap-2">
-                          <Paperclip className="w-5 h-5 text-indigo-600" />
-                          <span>{isRtl ? "مكتبة ملفات ومرفقات البث المباشر" : "Live Stream Handouts & Attachments"}</span>
-                        </h3>
-                        <p className="text-xs text-muted-foreground font-medium mt-0.5">
-                          {isRtl ? "الملفات التي تمت مشاركتها أثناء البثوث المباشرة مع إمكانية التحميل والمعاينة الفورية." : "Files shared during live stream sessions with instant download."}
-                        </p>
-                      </div>
-                    </div>
-
-                    {courseAttachments.length === 0 ? (
-                      <div className="text-center py-12 text-muted-foreground space-y-2">
-                        <FileText className="w-12 h-12 mx-auto text-muted-foreground/30" />
-                        <p className="text-xs font-bold">
-                          {isRtl ? "لا توجد ملفات مرفقة بالبثوث حالياً." : "No stream files attached yet."}
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2">
-                        {courseAttachments.map((att: any) => (
-                          <div key={att.id} className="p-4 rounded-2xl bg-muted/40 border border-border flex flex-col justify-between space-y-3">
-                            <div className="flex items-start gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center shrink-0">
-                                <FileText className="w-5 h-5" />
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <p className="text-xs font-black text-foreground truncate">{att.name}</p>
-                                <p className="text-[10px] text-muted-foreground font-bold mt-0.5">
-                                  {att.created_at ? new Date(att.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : "2026"}
-                                </p>
-                              </div>
                             </div>
-
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleDownloadAttachment(att.file_url, att.name)}
-                              className="w-full text-xs font-black rounded-xl gap-1.5 border-indigo-500/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-500/10"
-                            >
-                              <Download className="w-3.5 h-3.5" />
-                              <span>{isRtl ? "تحميل الملف" : "Download File"}</span>
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </Card>
-                )}
-
-                {/* Subview 3: Student Ratings on Streams */}
-                {leadershipStreamView === "ratings" && (
-                  <div className="space-y-4">
-                    <RatingsBreakdown
-                      lecturerId={userId}
-                      departmentId={selectedDeptId !== "all" ? selectedDeptId : undefined}
-                    />
-                  </div>
-                )}
-              </div>
-            ) : streamSubView === "create" ? (
-              <CreateLiveStreamView
-                isRtl={isRtl}
-                userId={userId}
-                profile={profile}
-                institutionType={institutionType}
-                myDepartments={myDepartments}
-                onBack={() => setStreamSubView("overview")}
-                onCreated={async () => {
-                  await loadData();
-                  if (userId) loadMyDepartments(userId);
-                }}
-              />
-            ) : streamSubView === "watch" ? (
-              <WatchLiveStreamsView
-                isRtl={isRtl}
-                userId={userId}
-                institutionType={institutionType}
-                streams={liveStreams}
-                streamAttendance={streamAttendance}
-                onBack={() => setStreamSubView("overview")}
-                onRefresh={loadData}
-              />
-            ) : (
-              <div className="space-y-6">
-                {/* Regular Faculty Stream View */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setStreamSubView("create");
-                      if (userId) loadMyDepartments(userId);
-                    }}
-                    className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br from-red-600 via-rose-600 to-red-700 text-white p-5 sm:p-6 shadow-xl shadow-red-600/20 hover:shadow-2xl hover:shadow-red-600/40 hover:-translate-y-1.5 transition-all duration-300 ${isRtl ? "text-right" : "text-left"}`}
-                  >
-                    <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
-                    <div className="relative z-10 flex flex-col justify-between h-full min-h-[120px]">
-                      <div className="flex items-center justify-between">
-                        <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-2 ring-white/40 shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                          <Radio className="w-6 h-6 text-white animate-pulse" strokeWidth={2.8} />
-                        </div>
-                        <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-xs">
-                          {isRtl ? "استوديو البث 🔴 Live" : "Live Studio 🔴"}
-                        </span>
-                      </div>
-                      <div className="mt-4">
-                        <h3 className="text-lg sm:text-2xl font-black text-white drop-shadow-sm leading-tight">
-                          {isRtl ? "بدء / إنشاء بث مباشر جديد" : "Start / Create Live Broadcast"}
-                        </h3>
-                        <p className="text-xs sm:text-sm font-semibold text-white/85 mt-1">
-                          {isRtl ? `إعداد استوديو البث وتحديد الموعد أو البث الفوري لطلاب ${institutionType === "institute" ? "المعهد" : "الكلية"}` : "Configure broadcast studio and go live for students"}
-                        </p>
-                      </div>
+                          </Card>
+                        );
+                      })}
                     </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setStreamSubView("watch")}
-                    className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-600 to-teal-700 text-white p-5 sm:p-6 shadow-xl shadow-emerald-600/20 hover:shadow-2xl hover:shadow-emerald-600/40 hover:-translate-y-1.5 transition-all duration-300 ${isRtl ? "text-right" : "text-left"}`}
-                  >
-                    <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
-                    <div className="relative z-10 flex flex-col justify-between h-full min-h-[120px]">
-                      <div className="flex items-center justify-between">
-                        <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-2 ring-white/40 shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                          <Eye className="w-6 h-6 text-white" strokeWidth={2.8} />
-                        </div>
-                        <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-xs">
-                          {isRtl ? "استعراض 📡" : "Library 📡"}
-                        </span>
-                      </div>
-                      <div className="mt-4">
-                        <h3 className="text-lg sm:text-2xl font-black text-white drop-shadow-sm leading-tight">
-                          {isRtl ? "مشاهدة واستعراض البثوث" : "Watch & Explore Broadcasts"}
-                        </h3>
-                        <p className="text-xs sm:text-sm font-semibold text-white/85 mt-1">
-                          {isRtl ? `استعراض البثوث المباشرة والمجدولة والمسجلة في ${institutionType === "institute" ? "المعهد" : "الكلية"}` : "Browse live, scheduled, and recorded broadcasts"}
-                        </p>
-                      </div>
-                    </div>
-                  </button>
+                  )}
                 </div>
+              )}
 
-                {/* Streams List */}
+              {/* Subview 2: Attached Stream Files Library */}
+              {leadershipStreamView === "files" && (
+                <Card className="rounded-3xl border-2 border-border shadow-md overflow-hidden p-6 space-y-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-base sm:text-lg font-black text-foreground flex items-center gap-2">
+                        <Paperclip className="w-5 h-5 text-indigo-600" />
+                        <span>{isRtl ? "مكتبة ملفات ومرفقات البث المباشر" : "Live Stream Handouts & Attachments"}</span>
+                      </h3>
+                      <p className="text-xs text-muted-foreground font-medium mt-0.5">
+                        {isRtl ? "الملفات التي تمت مشاركتها أثناء البثوث المباشرة مع إمكانية التحميل والمعاينة الفورية." : "Files shared during live stream sessions with instant download."}
+                      </p>
+                    </div>
+                  </div>
+
+                  {courseAttachments.length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground space-y-2">
+                      <FileText className="w-12 h-12 mx-auto text-muted-foreground/30" />
+                      <p className="text-xs font-bold">
+                        {isRtl ? "لا توجد ملفات مرفقة بالبثوث حالياً." : "No stream files attached yet."}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2">
+                      {courseAttachments.map((att: any) => (
+                        <div key={att.id} className="p-4 rounded-2xl bg-muted/40 border border-border flex flex-col justify-between space-y-3">
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center shrink-0">
+                              <FileText className="w-5 h-5" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs font-black text-foreground truncate">{att.name}</p>
+                              <p className="text-[10px] text-muted-foreground font-bold mt-0.5">
+                                {att.created_at ? new Date(att.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : "2026"}
+                              </p>
+                            </div>
+                          </div>
+
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDownloadAttachment(att.file_url, att.name)}
+                            className="w-full text-xs font-black rounded-xl gap-1.5 border-indigo-500/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-500/10"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            <span>{isRtl ? "تحميل الملف" : "Download File"}</span>
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </Card>
+              )}
+
+              {/* Subview 3: Student Ratings on Streams */}
+              {leadershipStreamView === "ratings" && (
                 <div className="space-y-4">
-                  {liveStreams.map((stream) => {
-                    const isLive = stream.status === "live";
-                    const isScheduled = stream.status === "scheduled";
-                    const viewers = streamAttendance[stream.id] || 0;
-
-                    return (
-                      <Card
-                        key={stream.id}
-                        className={`overflow-hidden rounded-3xl border-2 transition-all duration-300 shadow-md hover:shadow-xl ${
-                          isLive
-                            ? "border-red-500/60 bg-gradient-to-br from-red-500/5 via-card to-card"
-                            : isScheduled
-                              ? "border-blue-500/40 bg-gradient-to-br from-blue-500/5 via-card to-card"
-                              : "border-border/70 bg-card"
-                        }`}
-                      >
-                        <div className="p-5 sm:p-6 space-y-4">
-                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <div className="space-y-2 flex-1 min-w-0">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border border-cyan-500/20">
-                                  <Building2 className="w-3.5 h-3.5" />
-                                  <span>{isRtl ? "المادة:" : "Subject:"} {stream.category_ar || stream.category_en || (isRtl ? "عام" : "General")}</span>
-                                </span>
-
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-                                  <GraduationCap className="w-3.5 h-3.5" />
-                                  <span>{isRtl ? "مقدم البث:" : "Presenter:"} {stream.instructor_ar || stream.instructor_en || (isRtl ? "عضو هيئة تدريس" : "Faculty")}</span>
-                                </span>
-
-                                <Badge
-                                  className={`font-black px-3 py-1 text-xs gap-1.5 rounded-xl ${
-                                    isLive
-                                      ? "bg-red-600 text-white shadow-md shadow-red-500/30 animate-pulse"
-                                      : isScheduled
-                                        ? "bg-blue-600 text-white shadow-sm"
-                                        : "bg-slate-600 text-white"
-                                  }`}
-                                >
-                                  {isLive ? (
-                                    <>
-                                      <Radio className="w-3.5 h-3.5" />
-                                      <span>{isRtl ? "مباشر الآن 🔴" : "Live Now"}</span>
-                                    </>
-                                  ) : isScheduled ? (
-                                    <>
-                                      <Calendar className="w-3.5 h-3.5" />
-                                      <span>{isRtl ? "مجدول 📅" : "Scheduled"}</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <CheckCircle2 className="w-3.5 h-3.5" />
-                                      <span>{isRtl ? "منتهي ومسجل 👁️" : "Ended"}</span>
-                                    </>
-                                  )}
-                                </Badge>
-
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                  <RatingsBreakdown
+                    lecturerId={userId}
+                    departmentId={selectedDeptId !== "all" ? selectedDeptId : undefined}
+                  />
+                </div>
+              )}
+            </div>
+          </TabsContent>-emerald-400 border border-emerald-500/20">
                                   <Users className="w-3.5 h-3.5" />
                                   <span>{viewers} {isRtl ? "طالب متفاعل" : "viewers"}</span>
                                 </span>

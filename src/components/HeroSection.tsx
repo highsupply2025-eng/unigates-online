@@ -38,7 +38,7 @@ const HeroSection = () => {
     {
       to: "/university-platform",
       label: t.universityPlatform,
-      badge: isRtl ? "كليات ومعاهد" : "Colleges & Institutes",
+      badge: t.header?.collegesBadge || "كليات ومعاهد",
       icon: Landmark,
       color: "from-blue-600 to-indigo-700",
       glow: "shadow-blue-500/25",
@@ -46,7 +46,7 @@ const HeroSection = () => {
     {
       to: "/school-platform",
       label: t.schoolPlatform,
-      badge: isRtl ? "مدارس وفصول" : "Schools & K-12",
+      badge: t.header?.schoolsBadge || "مدارس وفصول",
       icon: School,
       color: "from-emerald-600 to-teal-700",
       glow: "shadow-emerald-500/25",
@@ -54,7 +54,7 @@ const HeroSection = () => {
     {
       to: "/courses",
       label: t.exploreCourses,
-      badge: isRtl ? "دورات وشهادات" : "Courses & Certificates",
+      badge: t.header?.coursesBadge || "دورات وشهادات",
       icon: BookOpen,
       color: "from-purple-600 to-fuchsia-700",
       glow: "shadow-purple-500/25",
@@ -62,12 +62,38 @@ const HeroSection = () => {
     {
       to: "/book-store",
       label: t.bookStore,
-      badge: isRtl ? "كتب ومراجع" : "Books & References",
+      badge: t.header?.booksBadge || "كتب ومراجع",
       icon: Store,
       color: "from-amber-500 to-orange-600",
       glow: "shadow-amber-500/25",
     },
   ];
+
+  const getSearchPlaceholder = () => {
+    switch (language) {
+      case "en": return "Search colleges, schools, courses, or books...";
+      case "fr": return "Rechercher des facultés, cours, écoles ou livres...";
+      case "es": return "Buscar facultades, colegios, cursos o libros...";
+      case "de": return "Suchen Sie Fakultäten, Schulen, Kurse oder Bücher...";
+      case "zh": return "搜索大学、中小学、课程或图书...";
+      case "ru": return "Поиск факультетов, школ, курсов или книг...";
+      case "tr": return "Fakülte, okul, kurs veya kitap arayın...";
+      default: return "ابحث عن كلية، معهد، مدرسة، دورة تعليمية، أو كتاب...";
+    }
+  };
+
+  const getSearchButtonText = () => {
+    switch (language) {
+      case "en": return "Search";
+      case "fr": return "Rechercher";
+      case "es": return "Buscar";
+      case "de": return "Suchen";
+      case "zh": return "快速搜索";
+      case "ru": return "Поиск";
+      case "tr": return "Ara";
+      default: return "بحث سريع";
+    }
+  };
 
   return (
     <section className="relative min-h-[640px] md:min-h-[750px] lg:min-h-[820px] flex flex-col justify-center overflow-hidden pt-28 pb-16 md:pt-36 md:pb-24">
@@ -91,18 +117,18 @@ const HeroSection = () => {
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-white backdrop-blur-md shadow-lg shadow-black/20 mb-6 animate-fade-in">
           <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
           <span className="text-xs sm:text-sm font-black tracking-wide">
-            {isRtl
+            {t.hero.tagline || (isRtl
               ? "المنظومة التعليمية الرقمية الموحدة — دار عبيد"
-              : "The Unified Digital Educational Ecosystem — Dar Obeid"}
+              : "The Unified Digital Educational Ecosystem — Dar Obeid")}
           </span>
           <Badge className="bg-primary hover:bg-primary/90 text-primary-foreground font-black text-[10px] px-2 py-0.5 rounded-full">
-            {isRtl ? "إصدار 2026" : "2026 Edition"}
+            {t.hero.edition || "2026"}
           </Badge>
         </div>
 
         {/* Main Headline */}
         <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-[1.25] sm:leading-[1.2] max-w-4xl drop-shadow-lg mb-4 sm:mb-6">
-          {isRtl ? (
+          {language === "ar" ? (
             <>
               بوابتك الموحدة للتعليم{" "}
               <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">
@@ -112,20 +138,19 @@ const HeroSection = () => {
             </>
           ) : (
             <>
-              Your Unified Gateway for{" "}
+              {t.hero.title1}{" "}
               <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">
-                Higher Education & K-12
+                {t.hero.title2}
               </span>
-              , Courses & Library
             </>
           )}
         </h1>
 
         {/* Subtitle */}
         <p className="text-sm sm:text-lg md:text-xl text-slate-200 font-medium max-w-3xl leading-relaxed mb-8 drop-shadow">
-          {isRtl
+          {t.features.subtitle || (isRtl
             ? "بيئة أكاديمية وتربوية متكاملة تربط الكليات والمعاهد والمدارس بأعضاء هيئة التدريس والمعلمين والطلاب، بسلاسل اعتماد رقمية وبث مباشر واختبارات ذكية."
-            : "A comprehensive educational ecosystem connecting colleges, institutes, and schools with faculty, teachers, and students through digital approval workflows, live streams, and smart assessments."}
+            : "A comprehensive educational ecosystem connecting colleges, institutes, and schools with faculty, teachers, and students through digital approval workflows, live streams, and smart assessments.")}
         </p>
 
         {/* Interactive Search Bar */}
@@ -140,10 +165,10 @@ const HeroSection = () => {
               className="bg-transparent border-none outline-none font-bold cursor-pointer text-foreground text-xs"
             >
               <option value="all">{isRtl ? "كل المنصات" : "All Portals"}</option>
-              <option value="university">{isRtl ? "المنصة الجامعية" : "University"}</option>
-              <option value="school">{isRtl ? "المنصة المدرسية" : "Schools"}</option>
-              <option value="courses">{isRtl ? "الدورات التدريبية" : "Courses"}</option>
-              <option value="books">{isRtl ? "متجر الكتب" : "Books"}</option>
+              <option value="university">{t.universityPlatform}</option>
+              <option value="school">{t.schoolPlatform}</option>
+              <option value="courses">{t.exploreCourses}</option>
+              <option value="books">{t.bookStore}</option>
             </select>
           </div>
 
@@ -153,11 +178,7 @@ const HeroSection = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={
-                isRtl
-                  ? "ابحث عن كلية، معهد، مدرسة، دورة تعليمية، أو كتاب..."
-                  : "Search colleges, schools, courses, or books..."
-              }
+              placeholder={getSearchPlaceholder()}
               className="w-full h-11 ps-10 pe-4 bg-transparent text-sm font-semibold placeholder:text-muted-foreground/70 focus:outline-none text-foreground"
             />
           </div>
@@ -166,7 +187,7 @@ const HeroSection = () => {
             type="submit"
             className="w-full sm:w-auto h-11 px-6 rounded-xl sm:rounded-2xl font-black text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg gap-2"
           >
-            <span>{isRtl ? "بحث سريع" : "Search"}</span>
+            <span>{getSearchButtonText()}</span>
             {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
           </Button>
         </form>
@@ -179,48 +200,22 @@ const HeroSection = () => {
               <Link
                 key={pill.to}
                 to={pill.to}
-                className="group relative rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 bg-white/10 hover:bg-white/20 border border-white/25 hover:border-white/50 backdrop-blur-md shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 text-start flex flex-col justify-between gap-3 overflow-hidden"
+                className="group relative flex flex-col items-center p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/10 hover:bg-white/15 border border-white/20 backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
               >
-                <div className="flex items-center justify-between gap-2">
-                  <div
-                    className={`w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br ${pill.color} text-white flex items-center justify-center shadow-lg ${pill.glow} group-hover:scale-110 transition-transform`}
-                  >
-                    <IconComp className="w-5 h-5 sm:w-6 sm:h-6" />
-                  </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/15 text-slate-200">
-                    {pill.badge}
-                  </span>
+                <div
+                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br ${pill.color} text-white flex items-center justify-center shadow-lg ${pill.glow} mb-2.5 sm:mb-3 group-hover:scale-110 transition-transform`}
+                >
+                  <IconComp className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-
-                <div>
-                  <h3 className="text-xs sm:text-sm font-black text-white tracking-tight group-hover:text-amber-300 transition-colors flex items-center justify-between">
-                    <span>{pill.label}</span>
-                    <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-all" />
-                  </h3>
-                </div>
+                <h3 className="text-xs sm:text-sm font-black text-white text-center line-clamp-1 mb-1">
+                  {pill.label}
+                </h3>
+                <span className="text-[10px] sm:text-xs text-teal-300 font-bold">
+                  {pill.badge}
+                </span>
               </Link>
             );
           })}
-        </div>
-
-        {/* Trust Badges */}
-        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mt-8 text-xs font-bold text-slate-300">
-          <span className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            {isRtl ? "اعتماد أكاديمي ومدرسي رسمي" : "Accredited Institutions"}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-blue-400" />
-            {isRtl ? "بيانات مشفرة ومحمية 100%" : "Encrypted & Secure"}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Video className="w-4 h-4 text-rose-400" />
-            {isRtl ? "فصول وبث مباشر تفاعلي" : "Live Classrooms"}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Award className="w-4 h-4 text-amber-400" />
-            {isRtl ? "شهادات إتمام معتمدة" : "Verified Certificates"}
-          </span>
         </div>
       </div>
     </section>

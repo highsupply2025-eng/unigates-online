@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 
 const SiteHeader = () => {
-  const { t, toggleLanguage, dir, language } = useLanguage();
+  const { t, dir } = useLanguage();
   const isRtl = dir === "rtl";
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
@@ -34,36 +34,36 @@ const SiteHeader = () => {
   const platforms = [
     {
       to: "/university-platform",
-      label: isRtl ? "المنصة الجامعية" : "University",
+      label: t.universityPlatform,
       icon: Landmark,
-      badge: isRtl ? "كليات ومعاهد" : "Colleges",
+      badge: t.header?.collegesBadge || "كليات ومعاهد",
       activeColor: "from-blue-600 to-indigo-600",
       glowColor: "hover:border-blue-400/50 hover:bg-blue-500/15 text-blue-100",
       dotColor: "bg-blue-400",
     },
     {
       to: "/school-platform",
-      label: isRtl ? "المنصة المدرسية" : "School K-12",
+      label: t.schoolPlatform,
       icon: School,
-      badge: isRtl ? "مدارس K-12" : "K-12",
+      badge: t.header?.schoolsBadge || "مدارس K-12",
       activeColor: "from-emerald-600 to-teal-600",
       glowColor: "hover:border-emerald-400/50 hover:bg-emerald-500/15 text-emerald-100",
       dotColor: "bg-emerald-400",
     },
     {
       to: "/courses",
-      label: isRtl ? "أكاديمية الدورات" : "Courses Academy",
+      label: t.exploreCourses,
       icon: BookOpen,
-      badge: isRtl ? "تدريب مهني" : "Training",
+      badge: t.header?.coursesBadge || "تدريب مهني",
       activeColor: "from-purple-600 to-fuchsia-600",
       glowColor: "hover:border-purple-400/50 hover:bg-purple-500/15 text-purple-100",
       dotColor: "bg-purple-400",
     },
     {
       to: "/book-store",
-      label: isRtl ? "متجر الكتب" : "Book Store",
+      label: t.bookStore,
       icon: Store,
-      badge: isRtl ? "دار عبيد" : "Dar Obeid",
+      badge: t.header?.booksBadge || "دار عبيد",
       activeColor: "from-amber-500 to-orange-600",
       glowColor: "hover:border-amber-400/50 hover:bg-amber-500/15 text-amber-100",
       dotColor: "bg-amber-400",
@@ -101,7 +101,7 @@ const SiteHeader = () => {
               </span>
             </div>
             <span className="text-[10px] font-bold text-teal-300/90 tracking-wider">
-              {isRtl ? "المنظومة التعليمية الرقمية الموحدة" : "Unified Digital Ecosystem"}
+              {t.header?.tagline || (isRtl ? "المنظومة التعليمية الرقمية الموحدة" : "Unified Digital Ecosystem")}
             </span>
           </div>
         </Link>
@@ -135,6 +135,7 @@ const SiteHeader = () => {
           {/* Quick Sign In */}
           <Link to="/login">
             <Button
+              type="button"
               size="sm"
               variant="outline"
               className="h-9 px-3.5 rounded-xl font-bold text-xs bg-white/10 hover:bg-white/20 text-white border-white/20 shadow-xs backdrop-blur-md gap-1.5 transition-all"
@@ -148,6 +149,7 @@ const SiteHeader = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
+                type="button"
                 size="sm"
                 className="h-9 px-4 rounded-xl font-bold text-xs bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white shadow-md shadow-teal-500/25 gap-1.5 transition-all"
               >
@@ -156,33 +158,33 @@ const SiteHeader = () => {
                 <ChevronDown className="w-3 h-3 opacity-80" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align={isRtl ? "start" : "end"} className="w-56 p-1.5 bg-slate-950/95 backdrop-blur-xl border border-white/15 text-white shadow-2xl rounded-2xl">
+            <DropdownMenuContent align={isRtl ? "start" : "end"} className="w-60 p-1.5 bg-slate-950/95 backdrop-blur-xl border border-white/15 text-white shadow-2xl rounded-2xl z-50">
               <DropdownMenuItem asChild className="cursor-pointer rounded-xl hover:bg-white/10 focus:bg-white/10 py-2.5">
                 <Link to="/signup/college/admin" className="flex items-center gap-2.5">
-                  <Landmark className="w-4 h-4 text-blue-400" />
+                  <Landmark className="w-4 h-4 text-blue-400 shrink-0" />
                   <div className="flex flex-col">
-                    <span className="text-xs font-bold">{isRtl ? "تسجيل كلية جديدة" : "Register College"}</span>
-                    <span className="text-[10px] text-slate-400">{isRtl ? "إدارة الكليات الجامعية" : "Higher Education"}</span>
+                    <span className="text-xs font-bold">{t.header?.registerCollege || "تسجيل كلية جديدة"}</span>
+                    <span className="text-[10px] text-slate-400">{t.header?.registerCollegeSub || "إدارة الكليات"}</span>
                   </div>
                 </Link>
               </DropdownMenuItem>
 
               <DropdownMenuItem asChild className="cursor-pointer rounded-xl hover:bg-white/10 focus:bg-white/10 py-2.5">
                 <Link to="/signup/institute/admin" className="flex items-center gap-2.5">
-                  <Landmark className="w-4 h-4 text-indigo-400" />
+                  <Landmark className="w-4 h-4 text-indigo-400 shrink-0" />
                   <div className="flex flex-col">
-                    <span className="text-xs font-bold">{isRtl ? "تسجيل معهد عالي" : "Register Institute"}</span>
-                    <span className="text-[10px] text-slate-400">{isRtl ? "إدارة المعاهد العليا" : "Higher Institutes"}</span>
+                    <span className="text-xs font-bold">{t.header?.registerInstitute || "تسجيل معهد عالي"}</span>
+                    <span className="text-[10px] text-slate-400">{t.header?.registerInstituteSub || "إدارة المعاهد"}</span>
                   </div>
                 </Link>
               </DropdownMenuItem>
 
               <DropdownMenuItem asChild className="cursor-pointer rounded-xl hover:bg-white/10 focus:bg-white/10 py-2.5">
                 <Link to="/school-registration" className="flex items-center gap-2.5">
-                  <School className="w-4 h-4 text-emerald-400" />
+                  <School className="w-4 h-4 text-emerald-400 shrink-0" />
                   <div className="flex flex-col">
-                    <span className="text-xs font-bold">{isRtl ? "تسجيل مدرسة جديدة" : "Register School"}</span>
-                    <span className="text-[10px] text-slate-400">{isRtl ? "التعليم العام K-12" : "K-12 Education"}</span>
+                    <span className="text-xs font-bold">{t.header?.registerSchool || "تسجيل مدرسة جديدة"}</span>
+                    <span className="text-[10px] text-slate-400">{t.header?.registerSchoolSub || "التعليم العام"}</span>
                   </div>
                 </Link>
               </DropdownMenuItem>
@@ -191,10 +193,10 @@ const SiteHeader = () => {
 
               <DropdownMenuItem asChild className="cursor-pointer rounded-xl hover:bg-white/10 focus:bg-white/10 py-2.5">
                 <Link to="/signup" className="flex items-center gap-2.5">
-                  <GraduationCap className="w-4 h-4 text-teal-400" />
+                  <GraduationCap className="w-4 h-4 text-teal-400 shrink-0" />
                   <div className="flex flex-col">
-                    <span className="text-xs font-bold">{isRtl ? "حساب طالب / عضو هيئة تدريس" : "Student / Faculty Signup"}</span>
-                    <span className="text-[10px] text-slate-400">{isRtl ? "انضمام عبر الأكواد" : "Join with invite code"}</span>
+                    <span className="text-xs font-bold">{t.header?.registerLearner || "حساب طالب / معلم"}</span>
+                    <span className="text-[10px] text-slate-400">{t.header?.registerLearnerSub || "انضمام عبر الأكواد"}</span>
                   </div>
                 </Link>
               </DropdownMenuItem>
@@ -210,6 +212,7 @@ const SiteHeader = () => {
           <LanguageSelectorDropdown showNativeName={false} className="h-9 px-2.5" />
 
           <Button
+            type="button"
             size="sm"
             className="bg-white/10 text-white border border-white/20 hover:bg-white/20 h-9 w-9 p-0 rounded-xl"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -256,7 +259,7 @@ const SiteHeader = () => {
             <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>
               <Button size="sm" className="w-full justify-center gap-2 font-bold h-11 text-sm bg-gradient-to-r from-teal-500 to-emerald-600 text-white rounded-xl shadow-md">
                 <UserPlus className="w-4 h-4" />
-                <span>{isRtl ? "إنشاء حساب جديد" : "Create New Account"}</span>
+                <span>{t.header?.createNewAccount || t.signup}</span>
               </Button>
             </Link>
           </div>

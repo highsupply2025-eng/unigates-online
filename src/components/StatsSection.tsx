@@ -1,11 +1,10 @@
-import { Users, GraduationCap, Landmark, School, BookCopy, UserCheck, Sparkles } from "lucide-react";
+import { Users, GraduationCap, Landmark, School, BookCopy, UserCheck } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
 import { useCountUp } from "@/hooks/useCountUp";
 
 const StatsSection = () => {
-  const { language, dir } = useLanguage();
-  const isRtl = dir === "rtl";
+  const { t, language } = useLanguage();
   const { data: stats } = usePlatformStats();
   const { data: uniStats } = usePlatformStats("university");
 
@@ -19,16 +18,29 @@ const StatsSection = () => {
   const parents = useCountUp(stats?.parents ?? 0);
   const students = useCountUp(uniStats?.students ?? uniStats?.universityStudents ?? stats?.students ?? 0);
 
+  const getInstituteLabel = () => {
+    switch (language) {
+      case "en": return "Institute";
+      case "fr": return "Institut";
+      case "es": return "Instituto";
+      case "de": return "Institut";
+      case "zh": return "高等学院";
+      case "ru": return "Институт";
+      case "tr": return "Enstitü";
+      default: return "معهد";
+    }
+  };
+
   // Order: كلية - معهد - مدرسة - ناشر - محاضر - معلم - ولى أمر - طالب
   const items = [
-    { icon: Landmark, counter: colleges, label: language === "ar" ? "كلية" : "College", color: "from-blue-500 to-indigo-600" },
-    { icon: Landmark, counter: institutes, label: language === "ar" ? "معهد" : "Institute", color: "from-indigo-500 to-violet-600" },
-    { icon: School, counter: schools, label: language === "ar" ? "مدرسة" : "School", color: "from-emerald-500 to-teal-600" },
-    { icon: BookCopy, counter: publishers, label: language === "ar" ? "ناشر" : "Publisher", color: "from-amber-500 to-orange-600" },
-    { icon: GraduationCap, counter: lecturers, label: language === "ar" ? "محاضر" : "Lecturer", color: "from-cyan-500 to-blue-600" },
-    { icon: GraduationCap, counter: teachers, label: language === "ar" ? "معلم" : "Teacher", color: "from-teal-500 to-emerald-600" },
-    { icon: UserCheck, counter: parents, label: language === "ar" ? "ولي أمر" : "Parent", color: "from-purple-500 to-pink-600" },
-    { icon: Users, counter: students, label: language === "ar" ? "طالب" : "Student", color: "from-rose-500 to-red-600" },
+    { icon: Landmark, counter: colleges, label: t.hero.stats.universities || "كلية", color: "from-blue-500 to-indigo-600" },
+    { icon: Landmark, counter: institutes, label: getInstituteLabel(), color: "from-indigo-500 to-violet-600" },
+    { icon: School, counter: schools, label: t.hero.stats.schools || "مدرسة", color: "from-emerald-500 to-teal-600" },
+    { icon: BookCopy, counter: publishers, label: t.hero.stats.publishers || "ناشر", color: "from-amber-500 to-orange-600" },
+    { icon: GraduationCap, counter: lecturers, label: t.hero.stats.lecturers || "محاضر", color: "from-cyan-500 to-blue-600" },
+    { icon: GraduationCap, counter: teachers, label: t.hero.stats.readers || "معلم", color: "from-teal-500 to-emerald-600" },
+    { icon: UserCheck, counter: parents, label: t.hero.stats.parents || "ولي أمر", color: "from-purple-500 to-pink-600" },
+    { icon: Users, counter: students, label: t.hero.stats.students || "طالب", color: "from-rose-500 to-red-600" },
   ];
 
   return (

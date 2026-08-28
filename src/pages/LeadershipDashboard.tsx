@@ -4,7 +4,7 @@ import {
   Globe, ArrowLeft, ArrowRight, Loader2, Users, BookOpen, Calendar,
   Video, FileText, Download, BarChart3, Clock, CheckCircle, AlertCircle,
   GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, Menu, Home, XCircle, Award, ShieldCheck, User, RefreshCw,
-  Plus, Upload, X, Circle, Square, RotateCcw, Play, Film, Trash2,
+  Plus, Upload, X, Circle, Square, RotateCcw, Play, Film, Trash2, Paperclip,
   Activity, Zap, Sparkles, TrendingUp, Cpu, Flame, ArrowUpRight, CheckCircle2, ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -325,7 +325,7 @@ const LeadershipDashboard = () => {
       deptStreamIds = (streamRes.data || []).map((s: any) => s.id);
     }
 
-    const [coursesRes, streamsRes, assignmentsRes, episodesRes, ratingsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, assignSubsRes] = await Promise.all([
+    const [coursesRes, streamsRes, assignmentsRes, episodesRes, ratingsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, assignSubsRes, attachmentsRes] = await Promise.all([
       hasDeptFilter
         ? supabase.from("courses").select("*").in("department_id", deptIds).order("created_at", { ascending: false }).limit(50)
         : supabase.from("courses").select("*").order("created_at", { ascending: false }).limit(50),
@@ -366,6 +366,11 @@ const LeadershipDashboard = () => {
         : hasDeptFilter
           ? supabase.from("assignment_submissions").select("*").eq("assignment_id", "__none__").order("submitted_at", { ascending: false }).limit(0)
           : supabase.from("assignment_submissions").select("*").order("submitted_at", { ascending: false }).limit(500),
+      hasDeptFilter && deptCourseIds.length > 0
+        ? supabase.from("course_attachments").select("*").in("course_id", deptCourseIds).order("created_at", { ascending: false }).limit(200)
+        : hasDeptFilter
+          ? supabase.from("course_attachments").select("*").eq("course_id", "__none__").limit(0)
+          : supabase.from("course_attachments").select("*").order("created_at", { ascending: false }).limit(200),
     ]);
     setCourses(coursesRes.data || []);
     setLiveStreams(streamsRes.data || []);
@@ -376,6 +381,7 @@ const LeadershipDashboard = () => {
     setQuizSubmissions(quizSubsRes.data || []);
     setLectureSchedules(schedulesRes.data || []);
     setAssignmentSubmissions(assignSubsRes.data || []);
+    setCourseAttachments(attachmentsRes.data || []);
 
     // Count unique users per stream
     const counts: Record<string, Set<string>> = {};
@@ -1613,6 +1619,7 @@ const LeadershipDashboard = () => {
                       const courseEps = episodes
                         .filter(e => e.course_id === course.id)
                         .sort((a, b) => (a.level_number - b.level_number) || (a.episode_number - b.episode_number));
+                      const courseAtts = courseAttachments.filter((a: any) => a.course_id === course.id);
 
                       return (
                         <Card
@@ -1637,7 +1644,12 @@ const LeadershipDashboard = () => {
 
                                   <Badge variant="outline" className="font-black text-xs bg-muted/40 border-teal-500/30 text-teal-700 dark:text-teal-300 gap-1.5 px-2.5 py-1 rounded-xl">
                                     <Video className="w-3.5 h-3.5" />
-                                    <span>{courseEps.length} {isRtl ? "فيديو مسجل" : "videos"}</span>
+                                    <span>{courseEps.length} {isRtl ? "فيديو" : "videos"}</span>
+                                  </Badge>
+
+                                  <Badge variant="outline" className="font-black text-xs bg-muted/40 border-purple-500/30 text-purple-700 dark:text-purple-300 gap-1.5 px-2.5 py-1 rounded-xl">
+                                    <Paperclip className="w-3.5 h-3.5 text-purple-600" />
+                                    <span>{courseAtts.length} {isRtl ? "مرفق" : "attachments"}</span>
                                   </Badge>
                                 </div>
 

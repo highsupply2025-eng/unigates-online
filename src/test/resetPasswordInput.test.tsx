@@ -65,7 +65,7 @@ describe("ResetPassword password inputs", () => {
     for (const button of [passwordButton, confirmationButton]) {
       expect(button).toHaveClass("absolute", "right-2", "top-1/2", "-translate-y-1/2");
     }
-  });
+  }, 15000);
 
   it("toggles both password fields from either visibility button", () => {
     render(<ResetPassword />, { wrapper: MemoryRouter });

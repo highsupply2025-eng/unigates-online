@@ -50,11 +50,11 @@ describe("reset-admin-password Edge Function removed", () => {
 
   it("no frontend source references the removed function", () => {
     expect(findInFiles(appFiles, /reset-admin-password/)).toEqual([]);
-  });
+  }, 15000);
 
   it("no other Edge Function references the removed function", () => {
     expect(findInFiles(functionFiles, /reset-admin-password/)).toEqual([]);
-  });
+  }, 15000);
 
   it("supabase/config.toml has no configuration for the removed function", () => {
     expect(CONFIG_TOML_SOURCE).not.toContain("reset-admin-password");

@@ -325,7 +325,7 @@ export const CreateAssignmentView: React.FC<CreateAssignmentViewProps> = ({
       });
 
       // Call Safe RPC
-      const { data: rpcRes, error: rpcErr } = await supabase.rpc("create_assignment_with_approval_chain", {
+      const { data: rpcRes, error: rpcErr } = await (supabase.rpc as any)("create_assignment_with_approval_chain", {
         p_course_id: selectedCourseId,
         p_title_ar: titleAr.trim(),
         p_title_en: titleEn.trim() || titleAr.trim(),
@@ -342,7 +342,7 @@ export const CreateAssignmentView: React.FC<CreateAssignmentViewProps> = ({
 
       if (rpcErr) {
         // Fallback direct insert
-        const { error: insErr } = await supabase.from("assignments").insert({
+        const { error: insErr } = await (supabase.from("assignments") as any).insert({
           course_id: selectedCourseId,
           creator_id: userId,
           title_ar: titleAr.trim(),

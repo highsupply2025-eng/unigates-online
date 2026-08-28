@@ -212,7 +212,7 @@ export const CreateLiveStreamView = ({
 
       // 1. Try secure RPC first
       try {
-        const { data: rpcStreamId, error: rpcError } = await supabase.rpc("create_live_stream_secure", {
+        const { data: rpcStreamId, error: rpcError } = await (supabase.rpc as any)("create_live_stream_secure", {
           p_title_ar: newStream.title_ar.trim(),
           p_title_en: newStream.title_en.trim(),
           p_category_ar: newStream.category_ar.trim() || (isRtl ? "عام" : "General"),

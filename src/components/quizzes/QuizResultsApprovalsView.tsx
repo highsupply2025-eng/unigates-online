@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -231,7 +232,7 @@ export const QuizResultsApprovalsView: React.FC<QuizResultsApprovalsViewProps> =
         updatedChain[activeIdx].rejected_at = new Date().toISOString();
       }
 
-      const { error } = await supabase.from("quizzes").update({
+      const { error } = await (supabase.from("quizzes") as any).update({
         results_status: "rejected",
         results_rejected_by: userId,
         results_rejected_at: new Date().toISOString(),

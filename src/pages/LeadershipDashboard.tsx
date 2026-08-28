@@ -131,6 +131,11 @@ const LeadershipDashboard = () => {
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [savingCourse, setSavingCourse] = useState(false);
   const [myDepartments, setMyDepartments] = useState<Array<{ id: string; department_name: string }>>([]);
+  const departmentOptions = myDepartments.map((department) => ({
+    id: department.id,
+    name_ar: department.department_name,
+    name_en: department.department_name,
+  }));
   const [deptMembers, setDeptMembers] = useState<any[]>([]);
   const [isApprovalRole, setIsApprovalRole] = useState(false);
   const [selectedDeptId, setSelectedDeptId] = useState<string>("all");
@@ -2045,7 +2050,7 @@ const LeadershipDashboard = () => {
                 subRole={subRole}
                 quizzes={quizzes}
                 courses={courses}
-                departments={myDepartments}
+                departments={departmentOptions}
                 institutionType={institutionType}
                 onRefresh={() => {
                   const deptIds = selectedDeptId === "all" ? myDepartments.map(d => d.id) : [selectedDeptId];
@@ -2566,7 +2571,7 @@ const LeadershipDashboard = () => {
                 quizzes={quizzes}
                 quizSubmissions={quizSubmissions}
                 courses={courses}
-                departments={departments}
+                departments={myDepartments}
                 institutionType={institutionType}
                 onRefresh={checkAccess}
               />
@@ -2574,7 +2579,7 @@ const LeadershipDashboard = () => {
               <QuizResultsRosterView
                 userId={userId}
                 userRole={userRole}
-                departments={departments}
+                departments={myDepartments}
                 courses={courses}
                 quizzes={quizzes}
                 quizSubmissions={quizSubmissions}
@@ -2590,7 +2595,7 @@ const LeadershipDashboard = () => {
                 quizzes={quizzes}
                 quizSubmissions={quizSubmissions}
                 courses={courses}
-                departments={departments}
+                departments={myDepartments}
                 institutionType={institutionType}
                 onRefresh={checkAccess}
                 onBackToOverview={() => setQuizResultsSubView("overview")}
@@ -2914,7 +2919,7 @@ const LeadershipDashboard = () => {
                 userId={userId}
                 userRole={userRole}
                 institutionType={institutionType}
-                departments={myDepartments}
+                departments={departmentOptions}
                 onRefresh={() => {
                   const deptIds = selectedDeptId === "all" ? myDepartments.map(d => d.id) : [selectedDeptId];
                   loadData(deptIds);
@@ -3260,7 +3265,6 @@ const LeadershipDashboard = () => {
                                     <Button
                                       size="sm"
                                       onClick={() => {
-                                        setSelectedAssignmentId(a.id);
                                         setAssignmentSubView("results");
                                       }}
                                       variant="ghost"

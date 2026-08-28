@@ -227,7 +227,7 @@ export const QuizResultsRosterView: React.FC<QuizResultsRosterViewProps> = ({
 
       if (error) {
         // Fallback update directly on quizzes
-        const { error: directErr } = await supabase
+        const { error: directErr } = await (supabase
           .from("quizzes") as any)
           .update({
             results_approval_reviewers: finalChain,

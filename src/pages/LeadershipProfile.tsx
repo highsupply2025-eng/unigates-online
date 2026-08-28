@@ -33,11 +33,11 @@ const LeadershipProfile = () => {
         let r = prof?.role || "";
         const { data: ifm } = await supabase
           .from("institution_faculty_members")
-          .select("role_title, specific_role")
+          .select("specific_role")
           .eq("user_id", user.id)
           .maybeSingle();
 
-        if (ifm?.role_title) r = ifm.role_title;
+        if (ifm?.specific_role) r = ifm.specific_role;
         setRole(r);
       } catch (err) {
         console.error("LeadershipProfile error:", err);

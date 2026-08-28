@@ -34,6 +34,7 @@ const Login = () => {
   const goBack = useSmartBack();
   const { toast } = useToast();
   const { t, dir, language, toggleLanguage } = useLanguage();
+  const isRtl = dir === "rtl";
 
   const ArrowIcon = language === "ar" ? ChevronLeft : ChevronRight;
   const BackArrow = language === "ar" ? ArrowLeft : ArrowRight;
@@ -102,7 +103,7 @@ const Login = () => {
       const lecturerRole = roles?.find((r) => r.role === "lecturer");
       const leadershipRole = roles?.find((r) => ["department_head", "teaching_assistant", "vice_dean", "dean"].includes(r.role));
       const personalRole = roles?.find((r) => ["personal", "student", "parent"].includes(r.role));
-      const schoolAdminRole = roles?.find((r) => r.role === "school_admin");
+      const schoolAdminRole = roles?.find((r) => String(r.role) === "school_admin");
       const schoolTeacherRole = roles?.find((r) => r.role === "teacher" && profile?.platform === "school");
       const schoolStudentRole = roles?.find((r) => r.role === "school_student" || (r.role === "student" && profile?.platform === "school"));
       const coursesTrainingRole = roles?.find((r) => ["training_center", "language_center", "course_lecturer"].includes(r.role));

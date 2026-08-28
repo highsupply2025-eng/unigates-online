@@ -10,18 +10,26 @@ export const TimeRangeToggle = ({ value, onChange, className = "" }: TimeRangeTo
   const { language, dir } = useLanguage();
   const isRtl = dir === "rtl";
   return (
-    <div className={`flex items-center justify-end gap-2 ${className}`}>
-      <span className="text-xs font-bold text-muted-foreground">{isRtl ? "النطاق الزمني:" : "Time range:"}</span>
-      <div className="inline-flex rounded-lg border border-border bg-card p-0.5 shadow-sm">
+    <div className={`flex items-center justify-end gap-2.5 ${className}`}>
+      <span className="text-xs font-black text-muted-foreground">{isRtl ? "النطاق الزمني:" : "Time range:"}</span>
+      <div className="inline-flex rounded-xl border border-border/80 bg-muted/40 p-1 shadow-xs backdrop-blur-sm">
         <button
           onClick={() => onChange(7)}
-          className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${value === 7 ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
+          className={`px-3.5 py-1.5 text-xs font-black rounded-lg transition-all duration-200 ${
+            value === 7
+              ? "bg-gradient-to-r from-primary via-primary to-primary/85 text-primary-foreground shadow-sm shadow-primary/25 scale-[1.02]"
+              : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+          }`}
         >
           {isRtl ? "آخر 7 أيام" : "Last 7 days"}
         </button>
         <button
           onClick={() => onChange(30)}
-          className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${value === 30 ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
+          className={`px-3.5 py-1.5 text-xs font-black rounded-lg transition-all duration-200 ${
+            value === 30
+              ? "bg-gradient-to-r from-primary via-primary to-primary/85 text-primary-foreground shadow-sm shadow-primary/25 scale-[1.02]"
+              : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+          }`}
         >
           {isRtl ? "آخر 30 يوم" : "Last 30 days"}
         </button>

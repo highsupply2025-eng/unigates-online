@@ -38,7 +38,8 @@ function rateLimit(ip: string): boolean {
 
 // Verify a pending registration exists for the caller's IP (prevents abuse from random IPs).
 async function hasPendingRegistration(
-  supabase: ReturnType<typeof createClient>,
+  // deno-lint-ignore no-explicit-any
+  supabase: any,
   ip: string,
   kind: string,
 ): Promise<boolean> {

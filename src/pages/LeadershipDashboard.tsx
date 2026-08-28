@@ -47,6 +47,8 @@ import { CreateScheduleView } from "@/components/schedules/CreateScheduleView";
 import { ScheduleApprovalsView } from "@/components/schedules/ScheduleApprovalsView";
 import { CreateAssignmentView } from "@/components/assignments/CreateAssignmentView";
 import { AssignmentApprovalsView } from "@/components/assignments/AssignmentApprovalsView";
+import { QuizResultsRosterView } from "@/components/quizzes/QuizResultsRosterView";
+import { QuizResultsApprovalsView } from "@/components/quizzes/QuizResultsApprovalsView";
 
 const LeadershipDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -175,6 +177,9 @@ const LeadershipDashboard = () => {
 
   // Dedicated full-page assignment subview ('overview' | 'create' | 'approvals')
   const [assignmentSubView, setAssignmentSubView] = useState<"overview" | "create" | "approvals">("overview");
+
+  // Dedicated full-page quiz results subview ('overview' | 'roster' | 'approvals')
+  const [quizResultsSubView, setQuizResultsSubView] = useState<"overview" | "roster" | "approvals">("overview");
 
   useEffect(() => {
     checkAccess();
@@ -1231,7 +1236,10 @@ const LeadershipDashboard = () => {
                      overview: { ar: "الرئيسية", en: "Home" },
                      livestreams: { ar: "البث المباشر", en: "Live Streams" },
                      lectures: { ar: "المحاضرات", en: "Lectures" },
-                     quizresults: { ar: "نتائج الاختبارات", en: "Quiz Results" },
+                     quizresults: {
+                       ar: isDeanOrViceDean ? "اعتماد نتائج الاختبارات" : "نتائج الاختبارات",
+                       en: isDeanOrViceDean ? "Quiz Results Approval" : "Quiz Results",
+                     },
                      quizzesonline: {
                        ar: isDeanOrViceDean ? "اعتماد الاختبارات" : "الاختبارات",
                        en: isDeanOrViceDean ? "Quizzes Approval" : "Quizzes",
@@ -1305,6 +1313,16 @@ const LeadershipDashboard = () => {
                 {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
                 <span>{isRtl ? "الرجوع للتكليفات" : "Back to Assignments"}</span>
               </Button>
+            ) : activeTab === "quizresults" && !["dean", "vice_dean"].includes(userRole) && quizResultsSubView !== "overview" ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setQuizResultsSubView("overview")}
+                className="h-10 px-3.5 gap-2 font-black rounded-xl border-2 border-indigo-500/30 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-600 hover:text-white shadow-sm transition-all"
+              >
+                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                <span>{isRtl ? "الرجوع لنتائج الاختبارات" : "Back to Results"}</span>
+              </Button>
             ) : (
               <DashboardMenuDropdown
                 title={isRtl ? getRoleLabel().ar : getRoleLabel().en}
@@ -1353,7 +1371,19 @@ const LeadershipDashboard = () => {
                     },
                     active: activeTab === "assignments",
                   },
-                  { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", onClick: () => setActiveTab("quizresults"), active: activeTab === "quizresults" },
+                  {
+                    key: "quizresults",
+                    label: ["dean", "vice_dean"].includes(userRole)
+                      ? (isRtl ? "اعتماد نتائج الاختبارات" : "Quiz Results Approval")
+                      : (isRtl ? "نتائج الاختبارات" : "Quiz Results"),
+                    Icon: ["dean", "vice_dean"].includes(userRole) ? ShieldCheck : Award,
+                    color: "from-indigo-500 to-purple-600",
+                    onClick: () => {
+                      setActiveTab("quizresults");
+                      setQuizResultsSubView("overview");
+                    },
+                    active: activeTab === "quizresults",
+                  },
                   { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => setActiveTab("ratings"), active: activeTab === "ratings" },
                   { key: "profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/leadership/profile") },
                 ]}
@@ -2499,202 +2529,354 @@ const LeadershipDashboard = () => {
           </TabsContent>
 
 
-          {/* Quiz Results */}
+          {/* Quiz Results Management & Approval Tab */}
           <TabsContent value="quizresults" id="section-quizresults" dir={isRtl ? "rtl" : "ltr"}>
-
-            <div className="flex items-center justify-end mb-4" dir={isRtl ? "rtl" : "ltr"}>
-              <Button size="sm" variant="outline" onClick={() => exportToPDF("quizresults")} className="gap-1.5 font-bold border-2 border-primary/40 hover:bg-primary/10">
-                <Download className="w-4 h-4" strokeWidth={2.6} />
-                {isRtl ? "تحميل PDF" : "Export PDF"}
-              </Button>
-            </div>
-
-            {(() => {
-              const passed = quizSubmissions.filter(s => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length;
-              const notPassed = quizSubmissions.length - passed;
-              return (
-                <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
-                  <Card className="relative overflow-hidden bg-gradient-to-br from-emerald-500 via-green-500 to-emerald-600 border-2 border-emerald-400/60 shadow-xl shadow-emerald-500/30 hover:shadow-2xl hover:shadow-emerald-500/50 hover:-translate-y-1 transition-all">
-                    <CardContent className="p-4 sm:p-5">
-                      <div className="flex items-center gap-3">
-                        <div className="shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
-                          <CheckCircle className="w-8 h-8 sm:w-9 sm:h-9 text-white drop-shadow" strokeWidth={2.8} />
+            {["dean", "vice_dean"].includes(userRole) ? (
+              <QuizResultsApprovalsView
+                userId={userId}
+                userRole={userRole}
+                subRole={subRole}
+                quizzes={quizzes}
+                quizSubmissions={quizSubmissions}
+                courses={courses}
+                departments={departments}
+                institutionType={institutionType}
+                onRefresh={checkAccess}
+              />
+            ) : quizResultsSubView === "roster" ? (
+              <QuizResultsRosterView
+                userId={userId}
+                userRole={userRole}
+                departments={departments}
+                courses={courses}
+                quizzes={quizzes}
+                quizSubmissions={quizSubmissions}
+                institutionType={institutionType}
+                onRefresh={checkAccess}
+                onBackToOverview={() => setQuizResultsSubView("overview")}
+              />
+            ) : quizResultsSubView === "approvals" ? (
+              <QuizResultsApprovalsView
+                userId={userId}
+                userRole={userRole}
+                subRole={subRole}
+                quizzes={quizzes}
+                quizSubmissions={quizSubmissions}
+                courses={courses}
+                departments={departments}
+                institutionType={institutionType}
+                onRefresh={checkAccess}
+                onBackToOverview={() => setQuizResultsSubView("overview")}
+              />
+            ) : (
+              <div className="space-y-6 animate-in fade-in-50 duration-300">
+                {/* 2 Big Action Cards for Quiz Results */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                  {/* Action Card 1: Student Results & Approval Chain */}
+                  <Card
+                    onClick={() => setQuizResultsSubView("roster")}
+                    className="relative overflow-hidden cursor-pointer rounded-3xl border-2 border-indigo-500/30 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white shadow-xl shadow-indigo-500/20 hover:shadow-2xl hover:shadow-indigo-500/40 hover:-translate-y-1 transition-all group"
+                  >
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none group-hover:scale-110 transition-transform duration-500" />
+                    <CardContent className="p-6 sm:p-7 relative z-10 flex flex-col justify-between h-full min-h-[220px]">
+                      <div className="space-y-3">
+                        <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center ring-2 ring-white/30 group-hover:scale-110 transition-transform">
+                          <Award className="w-7 h-7 text-white" strokeWidth={2.4} />
                         </div>
-                        <div className="min-w-0">
-                          <p className="text-sm sm:text-base font-extrabold text-white/95 tracking-wide">{isRtl ? "معتمدة" : "Approved"}</p>
-                          <p className="text-3xl sm:text-4xl font-black mt-0.5 text-white drop-shadow-md">{passed}</p>
+                        <div>
+                          <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                            <span>{isRtl ? "رصد نتائج درجات الطلاب" : "Student Grade Rosters"}</span>
+                            <Sparkles className="w-4 h-4 text-amber-300" />
+                          </h3>
+                          <p className="text-xs sm:text-sm font-bold text-white/85 mt-1 leading-relaxed">
+                            {isRtl
+                              ? "كشف درجات ونتائج الطلاب لكل اختبار، وتحديد المخولين بسلسلة الاعتماد الأكاديمي مع تثبيت العميد للاعتماد النهائي."
+                              : "Review student scores per exam and choose authorized reviewers ending with mandatory Dean certification."}
+                          </p>
                         </div>
+                      </div>
+
+                      <div className="pt-4 flex items-center justify-between">
+                        <Badge className="bg-white/20 hover:bg-white/30 text-white border-white/30 font-black text-xs px-3 py-1 rounded-xl">
+                          {quizzes.length} {isRtl ? "اختبار متوفر" : "quizzes"}
+                        </Badge>
+                        <Button
+                          size="sm"
+                          className="rounded-xl font-black bg-white text-indigo-700 hover:bg-white/90 shadow-md gap-1.5"
+                        >
+                          <span>{isRtl ? "فتح كشف الدرجات والسلسلة" : "Open Rosters"}</span>
+                          {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
-                  <Card className="relative overflow-hidden bg-gradient-to-br from-red-500 via-rose-500 to-red-600 border-2 border-red-400/60 shadow-xl shadow-red-500/30 hover:shadow-2xl hover:shadow-red-500/50 hover:-translate-y-1 transition-all">
-                    <CardContent className="p-4 sm:p-5">
-                      <div className="flex items-center gap-3">
-                        <div className="shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
-                          <XCircle className="w-8 h-8 sm:w-9 sm:h-9 text-white drop-shadow" strokeWidth={2.8} />
+
+                  {/* Action Card 2: Quiz Results Approvals Chain */}
+                  <Card
+                    onClick={() => setQuizResultsSubView("approvals")}
+                    className="relative overflow-hidden cursor-pointer rounded-3xl border-2 border-purple-500/30 bg-gradient-to-br from-purple-600 via-indigo-600 to-cyan-600 text-white shadow-xl shadow-purple-500/20 hover:shadow-2xl hover:shadow-purple-500/40 hover:-translate-y-1 transition-all group"
+                  >
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none group-hover:scale-110 transition-transform duration-500" />
+                    <CardContent className="p-6 sm:p-7 relative z-10 flex flex-col justify-between h-full min-h-[220px]">
+                      <div className="space-y-3">
+                        <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center ring-2 ring-white/30 group-hover:scale-110 transition-transform">
+                          <ShieldCheck className="w-7 h-7 text-white" strokeWidth={2.4} />
                         </div>
-                        <div className="min-w-0">
-                          <p className="text-sm sm:text-base font-extrabold text-white/95 tracking-wide">{isRtl ? "غير معتمدة" : "Not Approved"}</p>
-                          <p className="text-3xl sm:text-4xl font-black mt-0.5 text-white drop-shadow-md">{notPassed}</p>
+                        <div>
+                          <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                            <span>{isRtl ? "اعتماد ومتابعة نتائج الاختبارات" : "Results Approvals & Oversight"}</span>
+                            <Sparkles className="w-4 h-4 text-cyan-300" />
+                          </h3>
+                          <p className="text-xs sm:text-sm font-bold text-white/85 mt-1 leading-relaxed">
+                            {isRtl
+                              ? "متابعة كشوف النتائج ومراحل سلسلة الاعتماد التتابعية لكل قسم دون خلط، والاعتماد الرسمي أو طلب التعديل."
+                              : "Track results approval progress per department without mixing, and certify or request revision."}
+                          </p>
                         </div>
+                      </div>
+
+                      <div className="pt-4 flex items-center justify-between">
+                        {(() => {
+                          const myTurn = quizzes.filter((q) => {
+                            if (q.results_status !== "pending_approval" || q.results_rejected_by) return false;
+                            const chain = q.results_approval_reviewers;
+                            if (!Array.isArray(chain) || chain.length === 0) return false;
+                            const active = chain.find((st: any) => !st.approved && !st.rejected);
+                            return active?.user_id === userId || (active?.role === "department_head" && userRole === "department_head");
+                          }).length;
+
+                          return (
+                            <>
+                              <Badge className="bg-white/20 hover:bg-white/30 text-white border-white/30 font-black text-xs px-3 py-1 rounded-xl">
+                                {myTurn > 0 ? (isRtl ? `${myTurn} بانتظار موافقتك` : `${myTurn} Awaiting you`) : (isRtl ? "سلسلة الاعتمادات" : "Review Chain")}
+                              </Badge>
+                              <Button
+                                size="sm"
+                                className="rounded-xl font-black bg-white text-purple-700 hover:bg-white/90 shadow-md gap-1.5"
+                              >
+                                <span>{isRtl ? "متابعة الاعتمادات" : "Approvals View"}</span>
+                                {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+                              </Button>
+                            </>
+                          );
+                        })()}
                       </div>
                     </CardContent>
                   </Card>
                 </div>
-              );
-            })()}
 
-            {/* Score Distribution Charts */}
-            {quizSubmissions.length > 0 && (() => {
-              const ranges = [
-                { label: isRtl ? "0-20%" : "0-20%", min: 0, max: 20, color: "#ef4444" },
-                { label: isRtl ? "21-40%" : "21-40%", min: 21, max: 40, color: "#f97316" },
-                { label: isRtl ? "41-60%" : "41-60%", min: 41, max: 60, color: "#eab308" },
-                { label: isRtl ? "61-80%" : "61-80%", min: 61, max: 80, color: "#22c55e" },
-                { label: isRtl ? "81-100%" : "81-100%", min: 81, max: 100, color: "#10b981" },
-              ];
-              const distData = ranges.map(r => {
-                const count = quizSubmissions.filter(s => {
-                  const pct = Math.round(((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100);
-                  return pct >= r.min && pct <= r.max;
-                }).length;
-                return { name: r.label, count, color: r.color };
-              });
-              const pieData = [
-                { name: isRtl ? "ناجح" : "Passed", value: quizSubmissions.filter(s => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length, color: "#22c55e" },
-                { name: isRtl ? "راسب" : "Failed", value: quizSubmissions.filter(s => ((s.score || 0) / Math.max(s.total_points || 1, 1)) < 0.5).length, color: "#ef4444" },
-              ];
-              return (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm flex items-center gap-2">
-                        <BarChart3 className="w-4 h-4 text-primary" />
-                        {isRtl ? "توزيع الدرجات" : "Score Distribution"}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ResponsiveContainer width="100%" height={220}>
-                        <BarChart data={distData}>
-                          <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                          <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                          <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                          <Tooltip
-                            contentStyle={{ borderRadius: 8, fontSize: 12 }}
-                            formatter={(value: number) => [value, isRtl ? "عدد الطلاب" : "Students"]}
-                          />
-                          <Bar dataKey="count" radius={[6, 6, 0, 0]}>
-                            {distData.map((entry, index) => (
-                              <Cell key={index} fill={entry.color} />
-                            ))}
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-emerald-500" />
-                        {isRtl ? "نسبة النجاح والرسوب" : "Pass/Fail Ratio"}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex items-center justify-center">
-                      <ResponsiveContainer width="100%" height={220}>
-                        <PieChart>
-                          <Pie
-                            data={pieData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={50}
-                            outerRadius={80}
-                            paddingAngle={4}
-                            dataKey="value"
-                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                          >
-                            {pieData.map((entry, index) => (
-                              <Cell key={index} fill={entry.color} />
-                            ))}
-                          </Pie>
-                          <Tooltip formatter={(value: number) => [value, isRtl ? "طالب" : "Students"]} />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </CardContent>
-                  </Card>
+                {/* 3 Quick Summary KPI Cards */}
+                {(() => {
+                  const passed = quizSubmissions.filter((s) => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length;
+                  const totalSubs = quizSubmissions.length;
+                  const certifiedCount = quizzes.filter((q) => q.results_approved_by_dean || q.results_status === "approved").length;
+                  const inChainCount = quizzes.filter((q) => q.results_status === "pending_approval" && !q.results_approved_by_dean && !q.results_rejected_by).length;
+
+                  return (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                      <Card className="rounded-2xl border-2 border-indigo-500/20 bg-indigo-500/5">
+                        <CardContent className="p-4 flex items-center justify-between">
+                          <div>
+                            <div className="text-2xl font-black text-indigo-700 dark:text-indigo-300">{totalSubs}</div>
+                            <div className="text-xs font-bold text-muted-foreground">{isRtl ? "إجمالي أوراق إجابات الطلاب" : "Total Submissions"}</div>
+                          </div>
+                          <Users className="w-8 h-8 text-indigo-600 opacity-80" />
+                        </CardContent>
+                      </Card>
+
+                      <Card className="rounded-2xl border-2 border-amber-500/20 bg-amber-500/5">
+                        <CardContent className="p-4 flex items-center justify-between">
+                          <div>
+                            <div className="text-2xl font-black text-amber-700 dark:text-amber-300">{inChainCount}</div>
+                            <div className="text-xs font-bold text-muted-foreground">{isRtl ? "نتائج قيد سلسلة المراجعة" : "In Review Chain"}</div>
+                          </div>
+                          <Clock className="w-8 h-8 text-amber-600 opacity-80" />
+                        </CardContent>
+                      </Card>
+
+                      <Card className="rounded-2xl border-2 border-emerald-500/20 bg-emerald-500/5">
+                        <CardContent className="p-4 flex items-center justify-between">
+                          <div>
+                            <div className="text-2xl font-black text-emerald-700 dark:text-emerald-300">{certifiedCount}</div>
+                            <div className="text-xs font-bold text-muted-foreground">{isRtl ? "نتائج معتمدة رسمياً للطلاب" : "Certified Results"}</div>
+                          </div>
+                          <CheckCircle2 className="w-8 h-8 text-emerald-600 opacity-80" />
+                        </CardContent>
+                      </Card>
+                    </div>
+                  );
+                })()}
+
+                {/* Score Distribution and PDF Export */}
+                <div className="flex items-center justify-between pt-2">
+                  <h3 className="text-base font-black text-foreground flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5 text-indigo-600" />
+                    <span>{isRtl ? "إحصائيات وتوزيع درجات الطلاب" : "Score Statistics & Distribution"}</span>
+                  </h3>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => exportToPDF("quizresults")}
+                    className="gap-1.5 font-bold border-2 border-primary/40 hover:bg-primary/10 rounded-xl"
+                  >
+                    <Download className="w-4 h-4" strokeWidth={2.6} />
+                    {isRtl ? "تحميل PDF" : "Export PDF"}
+                  </Button>
                 </div>
-              );
-            })()}
 
-            {quizzes.map(quiz => {
-              const subs = quizSubmissions.filter(s => s.quiz_id === quiz.id);
-              if (subs.length === 0) return null;
-              const avgScore = subs.length > 0 
-                ? Math.round(subs.reduce((a, s) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / subs.length) 
-                : 0;
-              return (
-                <Card key={quiz.id} className="mb-4">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm flex items-center justify-between">
+                {/* Charts */}
+                {quizSubmissions.length > 0 && (() => {
+                  const ranges = [
+                    { label: "0-20%", min: 0, max: 20, color: "#ef4444" },
+                    { label: "21-40%", min: 21, max: 40, color: "#f97316" },
+                    { label: "41-60%", min: 41, max: 60, color: "#eab308" },
+                    { label: "61-80%", min: 61, max: 80, color: "#22c55e" },
+                    { label: "81-100%", min: 81, max: 100, color: "#10b981" },
+                  ];
+                  const distData = ranges.map((r) => {
+                    const count = quizSubmissions.filter((s) => {
+                      const pct = Math.round(((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100);
+                      return pct >= r.min && pct <= r.max;
+                    }).length;
+                    return { name: r.label, count, color: r.color };
+                  });
+                  const pieData = [
+                    { name: isRtl ? "ناجح" : "Passed", value: quizSubmissions.filter((s) => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length, color: "#22c55e" },
+                    { name: isRtl ? "راسب" : "Failed", value: quizSubmissions.filter((s) => ((s.score || 0) / Math.max(s.total_points || 1, 1)) < 0.5).length, color: "#ef4444" },
+                  ];
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Card className="rounded-3xl border-2 border-border shadow-sm">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-sm flex items-center gap-2">
+                            <BarChart3 className="w-4 h-4 text-primary" />
+                            {isRtl ? "توزيع الدرجات" : "Score Distribution"}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <ResponsiveContainer width="100%" height={200}>
+                            <BarChart data={distData}>
+                              <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                              <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                              <Tooltip
+                                contentStyle={{ borderRadius: 8, fontSize: 12 }}
+                                formatter={(value: number) => [value, isRtl ? "عدد الطلاب" : "Students"]}
+                              />
+                              <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                                {distData.map((entry, index) => (
+                                  <Cell key={index} fill={entry.color} />
+                                ))}
+                              </Bar>
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </CardContent>
+                      </Card>
+
+                      <Card className="rounded-3xl border-2 border-border shadow-sm">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-sm flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-emerald-500" />
+                            {isRtl ? "نسبة النجاح والرسوب" : "Pass/Fail Ratio"}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex items-center justify-center">
+                          <ResponsiveContainer width="100%" height={200}>
+                            <PieChart>
+                              <Pie
+                                data={pieData}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={45}
+                                outerRadius={75}
+                                paddingAngle={4}
+                                dataKey="value"
+                                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                              >
+                                {pieData.map((entry, index) => (
+                                  <Cell key={index} fill={entry.color} />
+                                ))}
+                              </Pie>
+                              <Tooltip formatter={(value: number) => [value, isRtl ? "طالب" : "Students"]} />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  );
+                })()}
+
+                {/* Quizzes list summary */}
+                <Card className="rounded-3xl border-2 border-border shadow-sm overflow-hidden">
+                  <CardHeader className="p-4 bg-muted/20 border-b">
+                    <CardTitle className="text-sm font-black flex items-center justify-between">
                       <span className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-primary" />
-                        {isRtl ? quiz.title_ar : quiz.title_en}
+                        <Award className="w-4 h-4 text-primary" />
+                        {isRtl ? "كشوف نتائج الاختبارات الأخيرة بالقسم" : "Recent Department Quiz Results"}
                       </span>
-                      <Badge variant="outline">{subs.length} {isRtl ? "تقديم" : "submissions"}</Badge>
+                      <Badge variant="outline" className="font-bold">{quizzes.length} {isRtl ? "اختبار" : "quizzes"}</Badge>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-4 mb-3">
-                      <div className="text-center">
-                        <p className="text-lg font-bold text-primary">{avgScore}%</p>
-                        <p className="text-[10px] text-muted-foreground">{isRtl ? "المتوسط" : "Average"}</p>
+                  <CardContent className="p-0">
+                    {quizzes.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground font-bold text-xs">
+                        {isRtl ? "لا توجد نتائج اختبارات بعد." : "No quiz results recorded yet."}
                       </div>
-                      <div className="flex-1">
-                        <Progress value={avgScore} className="h-2" />
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader className="bg-muted/30">
+                            <TableRow>
+                              <TableHead className="font-black text-xs">{isRtl ? "الاختبار" : "Exam"}</TableHead>
+                              <TableHead className="font-black text-xs text-center">{isRtl ? "التقديمات" : "Submissions"}</TableHead>
+                              <TableHead className="font-black text-xs text-center">{isRtl ? "متوسط الدرجات" : "Average"}</TableHead>
+                              <TableHead className="font-black text-xs text-center">{isRtl ? "حالة الاعتماد" : "Approval"}</TableHead>
+                              <TableHead className="font-black text-xs text-end">{isRtl ? "الإجراء" : "Action"}</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {quizzes.slice(0, 5).map((q) => {
+                              const subs = quizSubmissions.filter((s) => s.quiz_id === q.id);
+                              const avg = subs.length > 0
+                                ? Math.round(subs.reduce((a, s) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / subs.length)
+                                : 0;
+                              const isAppr = q.results_approved_by_dean || q.results_status === "approved";
+                              return (
+                                <TableRow key={q.id} className="hover:bg-muted/20">
+                                  <TableCell className="font-bold text-xs py-3">
+                                    {isRtl ? q.title_ar || q.title_en : q.title_en}
+                                  </TableCell>
+                                  <TableCell className="text-center text-xs font-bold">
+                                    {subs.length} {isRtl ? "طالب" : "students"}
+                                  </TableCell>
+                                  <TableCell className="text-center text-xs font-black text-indigo-600">
+                                    {avg}%
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    <Badge className={`text-[9px] font-black ${isAppr ? "bg-emerald-500/20 text-emerald-700" : "bg-amber-500/20 text-amber-700"}`}>
+                                      {isAppr ? (isRtl ? "معتمدة ✓" : "Certified") : (isRtl ? "قيد المراجعة" : "Pending")}
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell className="text-end">
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => setQuizResultsSubView("roster")}
+                                      className="rounded-xl text-xs font-bold text-indigo-600 hover:bg-indigo-50"
+                                    >
+                                      {isRtl ? "عرض الدرجات" : "View Scores"}
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
                       </div>
-                    </div>
-                    <div className="overflow-x-auto -mx-2 sm:mx-0">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>{isRtl ? "الطالب" : "Student"}</TableHead>
-                            <TableHead>{isRtl ? "الدرجة" : "Score"}</TableHead>
-                            <TableHead>{isRtl ? "النسبة" : "Percentage"}</TableHead>
-                            <TableHead className="hidden sm:table-cell">{isRtl ? "التاريخ" : "Date"}</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {subs.map(sub => {
-                            const pct = Math.round(((sub.score || 0) / Math.max(sub.total_points || 1, 1)) * 100);
-                            return (
-                              <TableRow key={sub.id}>
-                                <TableCell className="text-xs sm:text-sm">{sub.student_id?.slice(0, 8)}...</TableCell>
-                                <TableCell className="font-bold text-xs sm:text-sm">{sub.score || 0}/{sub.total_points || 0}</TableCell>
-                                <TableCell>
-                                  <Badge variant={pct >= 50 ? "default" : "destructive"}>
-                                    {pct}%
-                                  </Badge>
-                                </TableCell>
-                                <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
-                                  {new Date(sub.submitted_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
-                                </TableCell>
-                              </TableRow>
-                            );
-                          })}
-                        </TableBody>
-                      </Table>
-                    </div>
+                    )}
                   </CardContent>
                 </Card>
-              );
-            })}
-
-            {quizSubmissions.length === 0 && (
-              <Card>
-                <CardContent className="text-center py-8 text-muted-foreground">
-                  <CheckCircle className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                  <p>{isRtl ? "لا توجد نتائج اختبارات بعد" : "No quiz results yet"}</p>
-                </CardContent>
-              </Card>
+              </div>
             )}
           </TabsContent>
 

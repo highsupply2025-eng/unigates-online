@@ -110,7 +110,15 @@ const LeadershipProfile = () => {
                 color: "from-amber-500 to-orange-600",
                 onClick: () => goTab("assignments"),
               },
-              { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", onClick: () => goTab("quizresults") },
+              {
+                key: "quizresults",
+                label: isDeanOrViceDean
+                  ? (isRtl ? "اعتماد نتائج الاختبارات" : "Quiz Results Approval")
+                  : (isRtl ? "نتائج الاختبارات" : "Quiz Results"),
+                Icon: isDeanOrViceDean ? ShieldCheck : Award,
+                color: "from-indigo-500 to-purple-600",
+                onClick: () => goTab("quizresults"),
+              },
               { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => goTab("ratings") },
               { key: "profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => {}, active: true },
             ]}

@@ -1,19 +1,22 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SiteFooter from "@/components/SiteFooter";
+import RegisteredUniversitiesSection from "@/components/RegisteredUniversitiesSection";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Landmark, BookOpen, Users, School,
   BarChart3, Globe, GraduationCap,
   FileText, Video, Award, ArrowLeft, ArrowRight, Home,
   ShieldCheck, MessageSquare, CalendarCheck, Layers,
-  Sparkles, Trophy, Zap, Check,
-  Menu, X,
+  Sparkles, Trophy, Zap, Check, ChevronDown, CheckCircle2,
+  Menu, X, ExternalLink, HelpCircle, Lock, ArrowUpRight
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
 import { useCountUp } from "@/hooks/useCountUp";
-import { useState } from "react";
 
 const UniversityPlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -30,54 +33,114 @@ const UniversityPlatform = () => {
   const uniStudents = useCountUp(stats?.universityStudents ?? 0);
 
   const statItems = [
-    { icon: Landmark, counter: colleges, label: isRtl ? "كلية" : "College", color: "from-amber-500 to-orange-400" },
-    { icon: Landmark, counter: institutes, label: isRtl ? "معهد" : "Institute", color: "from-emerald-500 to-teal-400" },
-    { icon: GraduationCap, counter: lecturers, label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", color: "from-violet-500 to-purple-400" },
-    { icon: Users, counter: uniStudents, label: isRtl ? "طالب" : "Student", color: "from-indigo-500 to-blue-400" },
+    { icon: Landmark, counter: colleges, label: isRtl ? "كلية معتمدة" : "Colleges", color: "from-amber-500 to-orange-500", glow: "shadow-amber-500/20" },
+    { icon: Landmark, counter: institutes, label: isRtl ? "معهد عالي" : "Institutes", color: "from-emerald-500 to-teal-500", glow: "shadow-emerald-500/20" },
+    { icon: GraduationCap, counter: lecturers, label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", color: "from-violet-500 to-purple-500", glow: "shadow-purple-500/20" },
+    { icon: Users, counter: uniStudents, label: isRtl ? "طالب جامعي" : "Students", color: "from-blue-500 to-indigo-500", glow: "shadow-blue-500/20" },
+  ];
+
+  const academicRoles = [
+    {
+      titleAr: "عميد الكلية / مدير المعهد",
+      titleEn: "Dean / Institute Director",
+      descAr: "الاعتماد النهائي الإلزامي لنتائج الاختبارات والجداول، الإشراف على تقييمات الجودة لهيئة التدريس، والتقارير الأكاديمية الشاملة.",
+      descEn: "Mandatory final approval for exams and schedules, institute-wide faculty evaluation oversight, and comprehensive institutional reporting.",
+      icon: Award,
+      color: "from-amber-500 to-yellow-600",
+      badge: isRtl ? "القيادة العليا" : "Executive Leadership",
+    },
+    {
+      titleAr: "وكلاء الكلية والمعاهد",
+      titleEn: "Vice Deans / Vice Directors",
+      descAr: "مراجعة واعتماد الاختبارات والجداول الأكاديمية، متابعة شئون الطلاب، الدراسات العليا، وشئون خدمة المجتمع والبيئة.",
+      descEn: "Reviewing and approving exams & schedules, managing student affairs, postgraduate studies, and community services.",
+      icon: ShieldCheck,
+      color: "from-indigo-500 to-blue-600",
+      badge: isRtl ? "الإدارة الأكاديمية" : "Academic Management",
+    },
+    {
+      titleAr: "رؤساء الأقسام والشعب الأكاديمية",
+      titleEn: "Heads of Departments",
+      descAr: "اعتماد اختبارات القسم، توزيع المقررات على الأساتذة، متابعة استطلاعات الطلاب وتقييمات أعضاء هيئة التدريس بالقسم.",
+      descEn: "Departmental exam approvals, course allocation, and monitoring anonymous student evaluations for faculty members.",
+      icon: Landmark,
+      color: "from-purple-500 to-fuchsia-600",
+      badge: isRtl ? "رئاسة الأقسام" : "Department Heads",
+    },
+    {
+      titleAr: "أعضاء هيئة التدريس والمحاضرون",
+      titleEn: "Faculty & Lecturers",
+      descAr: "بث المحاضرات المباشرة، إنشاء بنوك الأسئلة، نشر التكليفات والواجبات ورصد درجاتها مباشرة، واستعراض تقييمات الطلاب بسرية.",
+      descEn: "Live stream lectures, build quiz question banks, grade assignments independently, and review confidential student ratings.",
+      icon: GraduationCap,
+      color: "from-teal-500 to-emerald-600",
+      badge: isRtl ? "الكادر التدريسي" : "Faculty Staff",
+    },
+    {
+      titleAr: "الطلاب والطالبات",
+      titleEn: "Students",
+      descAr: "حضور المحاضرات المباشرة والمسجلة، أداء الاختبارات المعتمدة رقمياً، تسليم الواجبات، وتقييم المقررات والمحاضرين بنزاهة.",
+      descEn: "Attend live and recorded lectures, take digitally accredited exams, submit assignments, and evaluate courses anonymously.",
+      icon: Users,
+      color: "from-cyan-500 to-blue-600",
+      badge: isRtl ? "المجتمع الطلابي" : "Students Portal",
+    },
   ];
 
   const features = [
     {
-      icon: Video,
-      title: isRtl ? "المحاضرات المباشرة" : "Live Lectures",
-      desc: isRtl ? "بث مباشر للمحاضرات مع تفاعل فوري وتسجيل تلقائي" : "Live lecture streaming with real-time interaction and auto-recording",
-      iconBg: "bg-gradient-to-br from-[hsl(350,80%,55%)] to-[hsl(330,75%,50%)]",
-      borderAccent: "hover:border-[hsl(350,80%,55%)]/40",
+      icon: ShieldCheck,
+      title: isRtl ? "سلاسل الاعتماد الرقمي للاختبارات" : "Digital Exam Approval Chains",
+      desc: isRtl
+        ? "نظام اعتماد رقمي صارم متعدد المراحل (أستاذ المادة ➔ رئيس القسم ➔ الوكلاء ➔ عميد الكلية/مدير المعهد) يضمن جودة وسرية الاختبارات الأكاديمية."
+        : "Multi-stage cryptographic approval workflow ensuring exams are vetted and approved before student publication.",
+      iconBg: "bg-gradient-to-br from-indigo-500 to-purple-600",
+      borderAccent: "hover:border-indigo-500/40",
     },
     {
       icon: FileText,
-      title: isRtl ? "الاختبارات والتقييم" : "Exams & Assessment",
-      desc: isRtl ? "نظام اختبارات متقدم وتحليل شامل للأداء" : "Advanced exam system with comprehensive performance analysis",
-      iconBg: "bg-gradient-to-br from-[hsl(220,80%,55%)] to-[hsl(240,70%,50%)]",
-      borderAccent: "hover:border-[hsl(220,80%,55%)]/40",
+      title: isRtl ? "استوديو رصد التكليفات والواجبات" : "Autonomous Assignment Studio",
+      desc: isRtl
+        ? "بيئة متقدمة لنشر الواجبات والتكليفات ورصد درجات الطلاب وتصدير الكشوف دون تعقيدات وبشكل مستقل لأستاذ المادة."
+        : "Comprehensive assignment studio for homework management, automated grading rosters, and direct student feedback.",
+      iconBg: "bg-gradient-to-br from-blue-500 to-cyan-600",
+      borderAccent: "hover:border-blue-500/40",
+    },
+    {
+      icon: Award,
+      title: isRtl ? "تقييمات الطلاب واستطلاعات الجودة المجهولة" : "Anonymous Student Quality Ratings",
+      desc: isRtl
+        ? "استطلاعات تقييم شهرية وسنوية لأعضاء هيئة التدريس تحمي سرية الطلاب بنسبة 100% وتمنح العمداء ورؤساء الأقسام مؤشرات أداء دقيقة."
+        : "100% anonymous student evaluation board giving deans and dept heads objective monthly & annual faculty performance metrics.",
+      iconBg: "bg-gradient-to-br from-amber-500 to-orange-600",
+      borderAccent: "hover:border-amber-500/40",
+    },
+    {
+      icon: Video,
+      title: isRtl ? "الفصول الذكية والبث المباشر" : "Interactive Live Classrooms",
+      desc: isRtl
+        ? "بث مباشر فائق السرعة بدقة عالية مع لوحة تفاعلية، تسجيل فوري للحصص، وإدارة حضور وانصراف إلكترونية ذكية."
+        : "High-definition, low-latency live lectures with instant recording, interactive chat, and automated student attendance.",
+      iconBg: "bg-gradient-to-br from-rose-500 to-red-600",
+      borderAccent: "hover:border-rose-500/40",
     },
     {
       icon: BarChart3,
-      title: isRtl ? "لوحة التحليلات" : "Analytics Dashboard",
-      desc: isRtl ? "تقارير أداء مفصلة للطلاب والأقسام والكليات" : "Detailed performance reports for students, departments, and faculties",
-      iconBg: "bg-gradient-to-br from-[hsl(155,70%,45%)] to-[hsl(170,65%,40%)]",
-      borderAccent: "hover:border-[hsl(155,70%,45%)]/40",
+      title: isRtl ? "لوحات القيادة والتحليلات الأكاديمية" : "Executive Analytics & Reporting",
+      desc: isRtl
+        ? "تقارير أداء فورية لكافة الأقسام والشعب مع إمكانية تصدير الكشوفات بتنسيق PDF وطباعتها برأسية المؤسسة الرسمية."
+        : "Real-time institutional analytics with formatted PDF export and printable official department rosters.",
+      iconBg: "bg-gradient-to-br from-emerald-500 to-teal-600",
+      borderAccent: "hover:border-emerald-500/40",
     },
     {
-      icon: MessageSquare,
-      title: isRtl ? "التواصل والمناقشات" : "Communication & Forums",
-      desc: isRtl ? "منتديات نقاشية ورسائل مباشرة بين الطلاب والأساتذة" : "Discussion forums and direct messaging between students and professors",
-      iconBg: "bg-gradient-to-br from-[hsl(270,70%,55%)] to-[hsl(290,65%,48%)]",
-      borderAccent: "hover:border-[hsl(270,70%,55%)]/40",
-    },
-    {
-      icon: CalendarCheck,
-      title: isRtl ? "الجدولة الذكية" : "Smart Scheduling",
-      desc: isRtl ? "جدولة تلقائية للمحاضرات والاختبارات مع تنبيهات فورية" : "Auto-scheduling for lectures and exams with instant notifications",
-      iconBg: "bg-gradient-to-br from-[hsl(35,90%,55%)] to-[hsl(25,85%,50%)]",
-      borderAccent: "hover:border-[hsl(35,90%,55%)]/40",
-    },
-    {
-      icon: ShieldCheck,
-      title: isRtl ? "الأمان والخصوصية" : "Security & Privacy",
-      desc: isRtl ? "حماية متقدمة للبيانات الأكاديمية مع تشفير كامل" : "Advanced academic data protection with full encryption",
-      iconBg: "bg-gradient-to-br from-[hsl(174,72%,46%)] to-[hsl(190,70%,40%)]",
-      borderAccent: "hover:border-[hsl(174,72%,46%)]/40",
+      icon: Lock,
+      title: isRtl ? "حماية وتشفير البيانات الجامعية" : "Enterprise Security & Privacy",
+      desc: isRtl
+        ? "بنية تحتية سحابية متقدمة بتشفير من طرف إلى طرف، عزل كامل لبيانات كل كلية ومعهد، ومطابقة لأعلى معايير الحوكمة."
+        : "Enterprise-grade cloud isolation, end-to-end encryption, and role-based access control for higher education data.",
+      iconBg: "bg-gradient-to-br from-slate-700 to-zinc-900",
+      borderAccent: "hover:border-zinc-500/40",
     },
   ];
 
@@ -85,236 +148,274 @@ const UniversityPlatform = () => {
     {
       step: "1",
       icon: Landmark,
-      title: isRtl ? "سجل الآن" : "Register Now",
-      desc: isRtl ? "أنشئ حساب وأضف بيانات الكلية / المعهد" : "Create an account and add your college / institute data",
+      title: isRtl ? "تسجيل الكلية أو المعهد" : "Register Your Institution",
+      desc: isRtl
+        ? "يقوم المسؤول بإنشاء حساب الكلية أو المعهد ورفع بيانات الاعتماد الرسمية وتعيين الأقسام والشعب."
+        : "Create an official college or institute profile, add academic departments, and verify accreditation.",
+      cta: isRtl ? "تسجيل مؤسسة" : "Register Institution",
+      link: "/signup/college/admin",
     },
     {
       step: "2",
       icon: Layers,
-      title: isRtl ? "أرسل روابط الدعوة" : "Send Invitation Links",
-      desc: isRtl ? "أرسل روابط دعوة للطلاب والمحاضرين مع كود التفعيل للانضمام إلى مجتمع تعليمي متطور" : "Send invitation links with activation codes for students and lecturers to join an advanced learning community",
+      title: isRtl ? "دعوة الكادر التدريسي والطلاب" : "Invite Faculty & Students",
+      desc: isRtl
+        ? "توليد روابط وأكواد الانضمام الذكية لربط الأساتذة والطلاب بأقسامهم الأكاديمية فوراً."
+        : "Generate secure invitation links and enrollment codes to connect faculty and students to their divisions.",
+      cta: isRtl ? "تسجيل عضو / طالب" : "Signup Member",
+      link: "/signup",
     },
     {
       step: "3",
       icon: Zap,
-      title: isRtl ? "ابدأ التدريس" : "Start Teaching",
-      desc: isRtl ? "ارفع المقررات وابدأ المحاضرات المباشرة فوراً واحصل على مميزات أخرى" : "Upload courses, start live lectures immediately, and get more features",
+      title: isRtl ? "انطلاق المنظومة الرقمية" : "Launch Digital Learning",
+      desc: isRtl
+        ? "بدء المحاضرات المباشرة، جدولة الاختبارات، تفعيل سلاسل الاعتماد الرقمي، ومتابعة النتائج."
+        : "Start live lectures, schedule approved exams, track assignments, and export academic results.",
+      cta: isRtl ? "تسجيل الدخول" : "Login Now",
+      link: "/login",
     },
   ];
 
-  const plans = [
+  const faqs = [
     {
-      id: "free" as const,
-      name: isRtl ? "الباقة المجانية" : "Free Plan",
-      price: isRtl ? "مجاناً" : "Free",
-      period: isRtl ? "لمدة 30 يوم" : "For 30 days",
-      features: isRtl
-        ? ["حتى 100 طالب لكل قسم", "3 أعضاء هيئة تدريس لكل قسم", "تقارير أساسية", "دعم فني"]
-        : ["Up to 100 students per dept", "3 faculty per dept", "Basic reports", "Technical support"],
-      highlighted: false,
-      comingSoon: false,
-      icon: BookOpen,
-      gradient: "from-[hsl(174,72%,46%)] to-[hsl(190,80%,40%)]",
-      iconBg: "bg-gradient-to-br from-[hsl(174,72%,46%)] to-[hsl(174,72%,36%)]",
-      badgeBg: "bg-[hsl(174,72%,46%)]/10",
-      badgeText: "text-[hsl(174,72%,40%)]",
-      priceColor: "text-[hsl(174,72%,36%)]",
-      checkBg: "bg-[hsl(174,72%,46%)]",
-      topBorder: "border-t-[hsl(174,72%,46%)]",
-      buttonVariant: "outline" as const,
-      savingsBadge: null,
+      qAr: "ما هو الفرق بين تسجيل كلية وتسجيل معهد عالي في منصة UNIGATES؟",
+      qEn: "What is the difference between registering a college vs. an institute on UNIGATES?",
+      aAr: "توفر المنصة تخصيصاً كاملاً للمسميات والهياكل الأكاديمية؛ فالكليات تدار بواسطة «عميد الكلية ووكلاء الكلية»، بينما المعاهد تدار بواسطة «مدير المعهد ووكلاء المعهد ورؤساء الشعب»، مع الحفاظ على ذات الدقة والكفاءة في سلاسل الاعتماد الأكاديمي الرقمي.",
+      aEn: "UNIGATES fully tailors academic titles: Colleges feature Dean & Vice Deans, while Institutes feature Institute Director & Vice Directors, both utilizing the exact same high-security digital approval workflows.",
     },
     {
-      id: "monthly" as const,
-      name: isRtl ? "الباقة الشهرية" : "Monthly Plan",
-      price: isRtl ? "اشتراك مدفوع" : "Paid Subscription",
-      period: "",
-      features: isRtl
-        ? ["حتى 2000 طالب لكل قسم", "10 أعضاء هيئة تدريس لكل قسم", "تحليلات متقدمة", "دعم أولوية", "تقارير متقدمة"]
-        : ["Up to 2000 students per dept", "10 faculty per dept", "Advanced analytics", "Priority support", "Advanced reports"],
-      highlighted: true,
-      comingSoon: false,
-      icon: Trophy,
-      gradient: "from-primary to-[hsl(200,80%,35%)]",
-      iconBg: "bg-gradient-to-br from-primary to-[hsl(174,72%,36%)]",
-      badgeBg: "bg-primary/10",
-      badgeText: "text-primary",
-      priceColor: "text-primary",
-      checkBg: "bg-primary",
-      topBorder: "border-t-primary",
-      buttonVariant: "default" as const,
-      savingsBadge: null,
+      qAr: "كيف تضمن المنظومة عدم نشر الاختبارات إلا بعد اعتمادها رسمياً؟",
+      qEn: "How does the system ensure exams are not published without official accreditation?",
+      aAr: "عند إنشاء الاختبار من قبل أستاذ المادة، يدخل الاختبار في سلسلة اعتماد مشفرة تبدأ برئيس القسم ثم الوكلاء وتنتهي باعتماد عميد الكلية أو مدير المعهد كشرط إلزامي لا يقبل التجاوز، ولا يظهر الاختبار للطلاب إطلاقاً إلا بعد اكتمال التوقيعات الرقمية.",
+      aEn: "Upon exam creation by the lecturer, it enters an encrypted approval chain through Department Head, Vice Deans, and mandatory final sign-off by the Dean/Director. Students cannot view or access the exam until fully approved.",
     },
     {
-      id: "annual" as const,
-      name: isRtl ? "الباقة السنوية" : "Yearly Plan",
-      price: isRtl ? "قريباً" : "Coming Soon",
-      period: isRtl ? "خصم 10%" : "10% discount",
-      features: isRtl
-        ? ["جميع مميزات الباقة الشهرية", "خصم 10% على الاشتراك السنوي", "قريباً..."]
-        : ["All monthly plan features", "10% discount on yearly", "Coming soon..."],
-      highlighted: false,
-      icon: Sparkles,
-      comingSoon: true,
-      gradient: "from-[hsl(260,70%,50%)] to-[hsl(280,60%,45%)]",
-      iconBg: "bg-gradient-to-br from-[hsl(260,70%,50%)] to-[hsl(280,60%,45%)]",
-      badgeBg: "bg-[hsl(260,70%,50%)]/10",
-      badgeText: "text-[hsl(260,70%,50%)]",
-      priceColor: "text-[hsl(260,70%,50%)]",
-      checkBg: "bg-[hsl(260,70%,50%)]",
-      topBorder: "border-t-[hsl(260,70%,50%)]",
-      buttonVariant: "outline" as const,
-      savingsBadge: isRtl ? "خصم 10%" : "10% Off",
+      qAr: "هل استطلاعات وتقييمات الطلاب لأعضاء هيئة التدريس مجهولة تماماً؟",
+      qEn: "Are student ratings and feedback on faculty 100% anonymous?",
+      aAr: "نعم، يتم عزل وحذف كافة الهويات والبيانات الشخصية للطلاب في سجلات التقييم، وتظهر للإدارة ورؤساء الأقسام والأساتذة النسب التراكمية والتقييم الشهري والسنوي والتعليقات البناءة دون أي ربط باسم الطالب.",
+      aEn: "Yes, all student identifiers are stripped and isolated. Leadership and professors only see aggregated scores, monthly/annual averages, and feedback without any identity leakage.",
+    },
+    {
+      qAr: "كيف يمكن للكلية أو المعهد تصدير وطباعة نتائج الاختبارات والتكليفات؟",
+      qEn: "How can institutions export and print exam and assignment rosters?",
+      aAr: "تتيح المنصة في لوحات القيادة ولوحات المحاضرين تصدير كشوف الدرجات بنقرة زر واحدة بتنسيق PDF مهيأ للطباعة الرسمية متضمناً شعار المؤسسة، بيانات المقرر، وكافة درجات ونسب نجاح الطلاب.",
+      aEn: "Both leadership and faculty dashboards provide one-click formatted PDF export ready for official printouts, complete with institution headers, course stats, and student grade rosters.",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      {/* Hero - Deep vibrant gradient */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(220,80%,20%)] via-[hsl(200,75%,30%)] to-[hsl(174,72%,36%)]" />
+    <div className="min-h-screen bg-background flex flex-col selection:bg-primary selection:text-white" dir={dir}>
+      {/* Top Hero Section */}
+      <div className="relative overflow-hidden border-b border-border/40">
+        {/* Rich atmospheric gradients */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-indigo-950/90 to-blue-950/95" />
         <div className="absolute inset-0">
-          <div className="absolute top-10 start-10 w-80 h-80 bg-[hsl(174,72%,46%)] rounded-full blur-[120px] opacity-30" />
-          <div className="absolute bottom-0 end-10 w-96 h-96 bg-[hsl(260,70%,50%)] rounded-full blur-[120px] opacity-20" />
-          <div className="absolute top-1/2 start-1/2 w-64 h-64 bg-[hsl(200,80%,55%)] rounded-full blur-[100px] opacity-15" />
+          <div className="absolute top-0 start-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[140px]" />
+          <div className="absolute bottom-0 end-10 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[160px]" />
+          <div className="absolute top-1/3 end-1/3 w-80 h-80 bg-blue-500/15 rounded-full blur-[120px]" />
         </div>
-        {/* Subtle pattern overlay */}
-        <div className="absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
-          backgroundSize: '32px 32px',
-        }} />
 
-        <header className="relative z-50 flex items-center justify-between px-6 md:px-12 py-5">
+        {/* Header Bar */}
+        <header className="relative z-50 flex items-center justify-between px-4 sm:px-8 md:px-12 py-4 border-b border-white/10 backdrop-blur-md">
           <Link to="/" className="flex items-center gap-3 group min-w-0">
-            <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover:bg-white/20 transition-all duration-300 shadow-lg shadow-black/10 shrink-0">
-              <GraduationCap className="w-7 h-7 text-white" />
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-primary to-indigo-600 p-0.5 shadow-xl shadow-primary/25 group-hover:scale-105 transition-transform flex items-center justify-center text-white">
+              <GraduationCap className="w-7 h-7" />
             </div>
-            <span className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight drop-shadow-lg truncate">
-              {t.brandName}
-            </span>
+            <div>
+              <span className="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow-md">
+                UNIGATES
+              </span>
+              <p className="text-[10px] font-bold text-primary-foreground/80 tracking-wide">
+                {isRtl ? "المنصة الجامعية الذكية" : "University Platform"}
+              </p>
+            </div>
           </Link>
-          {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-2">
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-2.5">
             <Link to="/login">
-              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
+              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white/10 hover:bg-white/20 text-white border border-white/20 shadow-md backdrop-blur-md">
                 {t.login}
               </Button>
             </Link>
             <Link to="/signup">
-              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
+              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/90 hover:to-indigo-600/90 text-white shadow-lg shadow-primary/25">
                 {t.signup}
               </Button>
             </Link>
             <Link to="/">
-              <Button size="sm" className="font-bold gap-1.5 px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
+              <Button size="sm" variant="ghost" className="font-bold gap-1.5 px-4 h-10 text-sm text-white/90 hover:text-white hover:bg-white/10">
                 <Home className="w-4 h-4" />
                 {isRtl ? "الرئيسية" : "Home"}
               </Button>
             </Link>
-            <Button size="sm" onClick={toggleLanguage} className="font-bold gap-1.5 px-5 h-10 text-sm bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10">
+            <Button
+              size="sm"
+              onClick={toggleLanguage}
+              variant="outline"
+              className="font-bold gap-1.5 px-4 h-10 text-sm bg-white/5 hover:bg-white/15 text-white border-white/20"
+            >
               <Globe className="w-4 h-4" />
               {t.langSwitch}
             </Button>
           </div>
 
-          {/* Mobile hamburger */}
+          {/* Mobile Hamburger */}
           <Button
             size="sm"
-            className="md:hidden bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 shadow-lg shadow-black/10 h-11 w-11 p-0"
+            className="md:hidden bg-white/10 text-white border border-white/20 hover:bg-white/20 h-10 w-10 p-0 rounded-xl"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
         </header>
 
-        {/* Mobile dropdown menu */}
+        {/* Mobile Dropdown */}
         {mobileMenuOpen && (
-          <div className="relative z-40 md:hidden px-6 pb-4 animate-fade-in">
-            <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-3 flex flex-col gap-2 shadow-2xl">
-              <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                <Button size="sm" className="w-full justify-start gap-3 font-bold h-11 text-sm bg-white/10 text-white border border-white/15 hover:bg-white/20">
-                  <Users className="w-4 h-4" />
-                  {t.login}
-                </Button>
-              </Link>
-              <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>
-                <Button size="sm" className="w-full justify-start gap-3 font-bold h-11 text-sm bg-white/10 text-white border border-white/15 hover:bg-white/20">
-                  <GraduationCap className="w-4 h-4" />
-                  {t.signup}
-                </Button>
-              </Link>
-              <Link to="/" onClick={() => setMobileMenuOpen(false)}>
-                <Button size="sm" className="w-full justify-start gap-3 font-bold h-11 text-sm bg-white/10 text-white border border-white/15 hover:bg-white/20">
-                  <Home className="w-4 h-4" />
-                  {isRtl ? "الرئيسية" : "Home"}
-                </Button>
-              </Link>
-              <Button size="sm" onClick={() => { toggleLanguage(); setMobileMenuOpen(false); }} className="w-full justify-start gap-3 font-bold h-11 text-sm bg-white/10 text-white border border-white/15 hover:bg-white/20">
-                <Globe className="w-4 h-4" />
-                {t.langSwitch}
+          <div className="relative z-40 md:hidden px-4 py-3 bg-slate-950/90 backdrop-blur-xl border-b border-white/10 animate-fade-in flex flex-col gap-2">
+            <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+              <Button size="sm" className="w-full justify-start gap-2.5 font-bold h-11 text-sm bg-white/10 text-white border border-white/15">
+                <Users className="w-4 h-4" />
+                {t.login}
               </Button>
-            </div>
+            </Link>
+            <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>
+              <Button size="sm" className="w-full justify-start gap-2.5 font-bold h-11 text-sm bg-primary text-white">
+                <GraduationCap className="w-4 h-4" />
+                {t.signup}
+              </Button>
+            </Link>
+            <Link to="/" onClick={() => setMobileMenuOpen(false)}>
+              <Button size="sm" variant="ghost" className="w-full justify-start gap-2.5 font-bold h-11 text-sm text-white hover:bg-white/10">
+                <Home className="w-4 h-4" />
+                {isRtl ? "الرئيسية" : "Home"}
+              </Button>
+            </Link>
+            <Button
+              size="sm"
+              onClick={() => { toggleLanguage(); setMobileMenuOpen(false); }}
+              variant="outline"
+              className="w-full justify-start gap-2.5 font-bold h-11 text-sm bg-white/5 text-white border-white/20"
+            >
+              <Globe className="w-4 h-4" />
+              {t.langSwitch}
+            </Button>
           </div>
         )}
 
-        <div className="relative z-10 pb-8 md:pb-12 px-6 md:px-12 text-center max-w-4xl mx-auto pt-6 md:pt-8">
-          <div className="flex justify-center mb-3 md:mb-4">
-            <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl shadow-black/20">
-              <Landmark className="w-7 h-7 md:w-8 md:h-8 text-white drop-shadow-lg" />
-            </div>
+        {/* Hero Content */}
+        <div className="relative z-10 pt-10 sm:pt-14 pb-14 sm:pb-20 px-4 sm:px-6 md:px-12 text-center max-w-5xl mx-auto space-y-8">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs sm:text-sm font-bold shadow-lg shadow-black/10">
+            <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+            <span>{isRtl ? "المنظومة الرقمية الموحدة للكليات والمعاهد العليا" : "Unified Higher Education Digital Platform"}</span>
           </div>
-          <h1 className="text-2xl md:text-4xl font-black text-white mb-2 md:mb-3 leading-tight drop-shadow-lg">
-            {isRtl ? "المنصة الجامعية" : "University Platform"}
-          </h1>
-          <p className="text-white/75 text-sm md:text-base max-w-2xl mx-auto mb-5 md:mb-6 leading-relaxed">
-            {isRtl
-              ? "منصة أكاديمية شاملة تربط الكليات والمعاهد بأحدث تقنيات التعليم الرقمي لتمكين الطلاب والأساتذة من تجربة تعليمية استثنائية"
-              : "A comprehensive academic platform connecting colleges and institutes with cutting-edge digital education technology for an exceptional learning experience"}
-          </p>
 
-          {/* Stats with colored icon backgrounds */}
-          <div className="max-w-3xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-3 text-center">
+          {/* Main Headline */}
+          <div className="space-y-4">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white leading-tight sm:leading-none drop-shadow-lg tracking-tight">
+              {isRtl ? "المنصة الجامعية الذكية" : "Smart University Platform"}
+            </h1>
+            <p className="text-sm sm:text-lg md:text-xl text-slate-200/90 font-medium max-w-3xl mx-auto leading-relaxed">
+              {isRtl
+                ? "بيئة أكاديمية متكاملة تدير المحاضرات، سلاسل الاعتماد الرقمي للاختبارات، البث المباشر، استوديو التكليفات، واستطلاعات الجودة المجهولة لهيئة التدريس."
+                : "A unified academic ecosystem managing digital exam approval chains, live streaming, assignment grading studio, and anonymous student evaluations."}
+            </p>
+          </div>
+
+          {/* Quick Action Launchpad */}
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Link to="/signup/college/admin">
+              <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-xl shadow-amber-500/30 gap-2 hover:scale-105 transition-all">
+                <Landmark className="w-5 h-5" />
+                {isRtl ? "🏛️ تسجيل كلية جديدة" : "Register College"}
+              </Button>
+            </Link>
+
+            <Link to="/signup/institute/admin">
+              <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-xl shadow-emerald-500/30 gap-2 hover:scale-105 transition-all">
+                <Landmark className="w-5 h-5" />
+                {isRtl ? "🏢 تسجيل معهد عالي" : "Register Institute"}
+              </Button>
+            </Link>
+
+            <Link to="/signup">
+              <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-xl shadow-blue-500/30 gap-2 hover:scale-105 transition-all">
+                <GraduationCap className="w-5 h-5" />
+                {isRtl ? "🎓 حساب طالب / عضو تدريس" : "Student / Faculty Signup"}
+              </Button>
+            </Link>
+
+            <Link to="/login">
+              <Button size="lg" variant="outline" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-white/10 hover:bg-white/20 text-white border-white/30 shadow-lg backdrop-blur-md gap-2">
+                <Users className="w-5 h-5" />
+                {isRtl ? "تسجيل الدخول" : "Portal Login"}
+              </Button>
+            </Link>
+          </div>
+
+          {/* Live Platform Stats Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-6">
             {statItems.map((item, i) => (
               <div
                 key={i}
                 ref={item.counter.ref}
-                className="flex flex-col items-center gap-1 md:gap-1.5 px-1.5 py-2.5 md:px-3 md:py-4 animate-fade-in bg-white/10 backdrop-blur-md rounded-xl md:rounded-2xl border border-white/15 hover:bg-white/15 transition-all duration-300 shadow-lg shadow-black/10"
+                className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/10 hover:bg-white/15 backdrop-blur-xl border border-white/20 transition-all duration-300 shadow-xl ${item.glow} flex flex-col items-center gap-2 group hover:-translate-y-1`}
               >
-                <div className={`w-8 h-8 md:w-11 md:h-11 rounded-lg md:rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg`}>
-                  <item.icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
+                  <item.icon className="w-6 h-6" />
                 </div>
-                <span className="text-lg md:text-3xl font-black text-white drop-shadow-md">{item.counter.count}</span>
-                <span className="text-[10px] sm:text-xs font-bold text-white/80 leading-tight">{item.label}</span>
+                <span className="text-2xl sm:text-4xl font-black text-white tracking-tight drop-shadow-md">
+                  {item.counter.count}
+                </span>
+                <span className="text-xs sm:text-sm font-bold text-slate-200/90 leading-tight">
+                  {item.label}
+                </span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Features - 6 cards with colored gradients */}
-      <section className="py-10 md:py-16 px-4 sm:px-6 md:px-12">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8 md:mb-12">
-            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-bold mb-4">
-              <Sparkles className="w-4 h-4" />
-              {isRtl ? "المميزات" : "Features"}
+      {/* Academic Roles Matrix Section */}
+      <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-card/40 border-b border-border/60">
+        <div className="max-w-7xl mx-auto space-y-10">
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1 rounded-full text-xs font-bold">
+              <Award className="w-4 h-4" />
+              {isRtl ? "الهيكل الإداري والأكاديمي" : "Academic Hierarchy"}
             </div>
-            <h2 className="text-2xl md:text-3xl font-black text-foreground mb-3">
-              {isRtl ? "كل ما تحتاجه في مكان واحد" : "Everything You Need in One Place"}
+            <h2 className="text-2xl sm:text-4xl font-black text-foreground tracking-tight">
+              {isRtl ? "لوحات متخصصة لكل رتبة ودور أكاديمي" : "Tailored Portals for Every Academic Role"}
             </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              {isRtl ? "أدوات أكاديمية متقدمة مصممة لتلبية احتياجات التعليم الجامعي" : "Advanced academic tools designed to meet higher education needs"}
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
+              {isRtl
+                ? "تتكامل المنظومة لتمنح القيادات الأكاديمية والأساتذة والطلاب بيئة مخصصة لصلاحياتهم واختصاصاتهم."
+                : "Integrated portals designed specifically with custom permissions for leadership, faculty, and students."}
             </p>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {features.map((f, i) => (
-              <Card key={i} className={`group hover:shadow-xl transition-all duration-300 border-2 border-border/60 ${f.borderAccent} hover:-translate-y-1`}>
-                <CardContent className="p-5 md:p-6">
-                  <div className={`w-14 h-14 rounded-2xl ${f.iconBg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                    <f.icon className="w-7 h-7 text-white" />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {academicRoles.map((role, idx) => (
+              <Card key={idx} className="border-2 border-border/70 hover:border-primary/40 hover:shadow-xl transition-all duration-300 rounded-3xl overflow-hidden group hover:-translate-y-1">
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${role.color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
+                      <role.icon className="w-6 h-6" />
+                    </div>
+                    <Badge variant="outline" className="text-xs font-bold px-3 py-1 rounded-xl bg-muted">
+                      {role.badge}
+                    </Badge>
                   </div>
-                   <h3 className="font-bold text-foreground mb-2 text-base md:text-lg">{f.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                  <div>
+                    <h3 className="text-lg font-black text-foreground mb-2">
+                      {isRtl ? role.titleAr : role.titleEn}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                      {isRtl ? role.descAr : role.descEn}
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -322,170 +423,143 @@ const UniversityPlatform = () => {
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="py-10 md:py-16 px-4 sm:px-6 md:px-12 bg-muted/50">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-bold mb-4">
-            <Zap className="w-4 h-4" />
-            {isRtl ? "خطوات البداية" : "Getting Started"}
+      {/* Verified Registered Colleges and Institutes Showcase */}
+      <RegisteredUniversitiesSection />
+
+      {/* Core Innovation & Governance Features */}
+      <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-muted/30 border-b border-border/60">
+        <div className="max-w-7xl mx-auto space-y-12">
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold">
+              <Sparkles className="w-4 h-4" />
+              {isRtl ? "المميزات والتقنيات الأكاديمية" : "Academic Features"}
+            </div>
+            <h2 className="text-2xl sm:text-4xl font-black text-foreground">
+              {isRtl ? "كل ما يلزم لتشغيل الحرم الجامعي الرقمي" : "Everything Needed to Power a Digital Campus"}
+            </h2>
+            <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto">
+              {isRtl
+                ? "أدوات متطورة تضمن أعلى معايير الجودة والحوكمة والأمان الأكاديمي."
+                : "Advanced tools ensuring academic quality, cryptographic approvals, and institutional governance."}
+            </p>
           </div>
-          <h2 className="text-2xl md:text-3xl font-black text-foreground mb-6 md:mb-10">
-            {isRtl ? "كيف تبدأ؟" : "How to Get Started?"}
-          </h2>
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((f, i) => (
+              <Card key={i} className={`group hover:shadow-2xl transition-all duration-300 border-2 border-border/80 ${f.borderAccent} rounded-3xl overflow-hidden hover:-translate-y-1.5`}>
+                <CardContent className="p-6 sm:p-7 space-y-4">
+                  <div className={`w-14 h-14 rounded-2xl ${f.iconBg} flex items-center justify-center text-white shadow-xl shadow-indigo-500/20 group-hover:scale-110 transition-transform duration-300`}>
+                    <f.icon className="w-7 h-7" />
+                  </div>
+                  <h3 className="font-black text-foreground text-lg">{f.title}</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Onboarding Roadmap */}
+      <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-background border-b border-border/60">
+        <div className="max-w-5xl mx-auto space-y-12 text-center">
+          <div className="space-y-3">
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1 rounded-full text-xs font-bold">
+              <Zap className="w-4 h-4" />
+              {isRtl ? "خطوات الانضمام والتشغيل" : "Onboarding Pathway"}
+            </div>
+            <h2 className="text-2xl sm:text-4xl font-black text-foreground">
+              {isRtl ? "كيف تنضم مؤسستك إلى UNIGATES؟" : "How to Onboard Your Institution?"}
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
             {steps.map((item, i) => (
-              <div key={i} className="flex flex-col items-center group">
+              <div key={i} className="flex flex-col items-center text-center p-6 rounded-3xl bg-card border-2 border-border/70 shadow-lg hover:shadow-xl transition-all group">
                 <div className="relative mb-5">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground flex items-center justify-center shadow-xl shadow-primary/25 group-hover:shadow-primary/40 transition-shadow duration-300">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-indigo-600 text-white flex items-center justify-center shadow-xl shadow-primary/25 group-hover:scale-110 transition-transform">
                     <item.icon className="w-8 h-8" />
                   </div>
                   <div className="absolute -top-2 -end-2 w-7 h-7 rounded-full bg-foreground text-background flex items-center justify-center text-xs font-black shadow-md">
                     {item.step}
                   </div>
                 </div>
-                <h3 className="font-bold text-foreground mb-2 text-base md:text-lg">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.desc}</p>
+                <h3 className="font-black text-foreground mb-2 text-lg">{item.title}</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground mb-5 leading-relaxed">{item.desc}</p>
+                <Link to={item.link} className="mt-auto w-full">
+                  <Button variant="outline" className="w-full font-bold text-xs rounded-xl group-hover:bg-primary group-hover:text-white transition-colors">
+                    {item.cta}
+                    <ArrowIcon className="w-3.5 h-3.5 ms-1.5" />
+                  </Button>
+                </Link>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Pricing */}
-      <section className="py-12 md:py-20 px-4 sm:px-6 md:px-12 bg-gradient-to-b from-background via-muted/30 to-background">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10 md:mb-14">
-            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-5 py-2 rounded-full text-sm font-bold mb-5 border border-primary/15">
-              <Trophy className="w-4 h-4" />
-              {isRtl ? "الاشتراك" : "Subscription"}
+      {/* University FAQs Accordion */}
+      <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-muted/20 border-b border-border/60">
+        <div className="max-w-4xl mx-auto space-y-8">
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1 rounded-full text-xs font-bold">
+              <HelpCircle className="w-4 h-4" />
+              {isRtl ? "الأسئلة الشائعة للجامعات والمعاهد" : "Higher Ed FAQs"}
             </div>
-            <h2 className="text-3xl md:text-4xl font-black text-foreground mb-3 leading-tight">
-              {isRtl ? "اختر الباقة المناسبة" : "Choose the Right Plan"}
+            <h2 className="text-2xl sm:text-3xl font-black text-foreground">
+              {isRtl ? "إجابات على أهم الاستفسارات الأكاديمية" : "Frequently Asked Questions"}
             </h2>
-            <p className="text-muted-foreground text-base md:text-lg max-w-lg mx-auto">
-              {isRtl ? "باقات مرنة كلية / معهد" : "Flexible College / Institute Plans"}
-            </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
-            {plans.map((plan, i) => (
-              <div
-                key={i}
-                className={`relative flex flex-col rounded-2xl transition-all duration-500 group ${
-                  plan.highlighted
-                    ? "md:-mt-4 md:mb-[-1rem] z-10"
-                    : "hover:-translate-y-2"
-                }`}
-              >
-                {/* Savings badge for yearly */}
-                {plan.savingsBadge && (
-                  <div className="absolute -top-3 end-6 z-20">
-                    <div className={`px-3 py-1 rounded-full text-[11px] font-bold text-white bg-gradient-to-r ${plan.gradient} shadow-lg`}>
-                      {plan.savingsBadge}
-                    </div>
-                  </div>
-                )}
 
-                <div className={`relative flex flex-col h-full rounded-2xl bg-card border-2 overflow-hidden transition-all duration-500 ${
-                  plan.highlighted
-                    ? "border-primary shadow-2xl shadow-primary/20"
-                    : "border-border/60 shadow-lg hover:shadow-xl hover:border-primary/30"
-                }`}>
-                  {/* Top gradient accent bar */}
-                  <div className={`h-1.5 bg-gradient-to-r ${plan.gradient}`} />
-
-                  {/* Popular badge */}
-                  {plan.highlighted && (
-                    <div className={`bg-gradient-to-r ${plan.gradient} text-white text-xs font-bold text-center py-2.5 tracking-wide`}>
-                      <Sparkles className="w-3.5 h-3.5 inline-block me-1.5 animate-pulse" />
-                      {isRtl ? "الأكثر شعبية" : "Most Popular"}
-                    </div>
-                  )}
-
-                  <div className="flex flex-col flex-1 p-6 md:p-7">
-                    {/* Header */}
-                    <div className="flex items-center gap-3.5 mb-6">
-                      <div className={`w-13 h-13 rounded-2xl flex items-center justify-center ${plan.iconBg} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                        <plan.icon className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-extrabold text-lg md:text-xl text-foreground leading-tight">{plan.name}</h3>
-                      </div>
-                    </div>
-
-                    {/* Price */}
-                    <div className="mb-6 pb-6 border-b border-border/50">
-                      <div className="flex items-baseline gap-2 flex-wrap">
-                        <span className={`text-4xl sm:text-5xl font-black ${plan.priceColor} leading-none tracking-tight`}>
-                          {plan.price}
-                        </span>
-                      </div>
-                      {plan.period && (
-                        <span className="text-muted-foreground text-sm font-semibold mt-1.5 block">{plan.period}</span>
-                      )}
-                    </div>
-
-                    {/* Features */}
-                    <ul className="space-y-3.5 mb-8 flex-1">
-                      {plan.features.map((f, j) => (
-                        <li key={j} className="flex items-center gap-3 text-sm text-foreground/80 font-medium">
-                          <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${plan.checkBg}`}>
-                            <Check className="w-3 h-3 text-white" strokeWidth={3} />
-                          </div>
-                          <span className="leading-relaxed">{f}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    {/* CTA Button */}
-                    {plan.comingSoon ? (
-                      <Button
-                        className="w-full font-bold h-13 text-base rounded-xl opacity-60 border-2 border-dashed border-border"
-                        variant="outline"
-                        disabled
-                      >
-                        {isRtl ? "قريباً" : "Coming Soon"}
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={() => navigate("/signup")}
-                        className={`w-full font-bold h-13 text-base rounded-xl transition-all duration-300 ${
-                          plan.highlighted
-                            ? 'shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40'
-                            : 'border-2 hover:shadow-lg'
-                        }`}
-                        variant={plan.highlighted ? "default" : "outline"}
-                      >
-                        {isRtl ? "ابدأ الآن" : "Get Started"}
-                        <ArrowIcon className="w-4 h-4 me-1" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
+          <Accordion type="single" collapsible className="space-y-3">
+            {faqs.map((faq, idx) => (
+              <AccordionItem key={idx} value={`faq-${idx}`} className="bg-card border-2 border-border/80 rounded-2xl px-5 shadow-xs">
+                <AccordionTrigger className="font-black text-sm sm:text-base text-foreground hover:no-underline py-4 text-start">
+                  {isRtl ? faq.qAr : faq.qEn}
+                </AccordionTrigger>
+                <AccordionContent className="text-xs sm:text-sm text-muted-foreground leading-relaxed pt-1 pb-4 text-start">
+                  {isRtl ? faq.aAr : faq.aEn}
+                </AccordionContent>
+              </AccordionItem>
             ))}
+          </Accordion>
+        </div>
+      </section>
+
+      {/* Inspiring Call to Action Banner */}
+      <section className="py-16 sm:py-24 px-4 sm:px-6 md:px-12 relative overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-blue-950 text-white text-center">
+        <div className="absolute inset-0">
+          <div className="absolute top-0 end-0 w-80 h-80 bg-primary/20 rounded-full blur-[140px]" />
+          <div className="absolute bottom-0 start-0 w-80 h-80 bg-purple-600/20 rounded-full blur-[140px]" />
+        </div>
+        <div className="relative z-10 max-w-3xl mx-auto space-y-6">
+          <Badge className="bg-white/15 text-white border-white/20 text-xs px-3 py-1">
+            🚀 {isRtl ? "انضم الآن إلى منظومة UNIGATES الأكاديمية" : "Join UNIGATES Ecosystem"}
+          </Badge>
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
+            {isRtl ? "مستقبل التعليم العالي يبدأ هنا" : "The Future of Higher Education Starts Here"}
+          </h2>
+          <p className="text-slate-300 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+            {isRtl
+              ? "سجل كليتك أو معهدك اليوم واستمتع بأقوى منظومة تعليمية لإدارة المحاضرات وسلاسل الاعتماد الرقمية."
+              : "Register your college or institute today and empower your faculty and students with next-gen digital learning."}
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Link to="/signup/college/admin">
+              <Button size="lg" className="h-13 px-8 font-black text-sm sm:text-base rounded-2xl bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/30">
+                {isRtl ? "تسجيل كلية" : "Register College"}
+              </Button>
+            </Link>
+            <Link to="/signup/institute/admin">
+              <Button size="lg" className="h-13 px-8 font-black text-sm sm:text-base rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl shadow-emerald-600/30">
+                {isRtl ? "تسجيل معهد" : "Register Institute"}
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 md:px-12 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(220,80%,20%)] via-[hsl(200,75%,30%)] to-[hsl(174,72%,36%)]" />
-        <div className="absolute inset-0">
-          <div className="absolute top-0 end-0 w-72 h-72 bg-[hsl(174,72%,46%)] rounded-full blur-[100px] opacity-25" />
-        </div>
-        <div className="relative z-10 max-w-3xl mx-auto text-center">
-          <h2 className="text-2xl md:text-3xl font-black text-white mb-4 drop-shadow-lg">
-            {isRtl ? "مستقبل التعليم يبدأ هنا" : "The Future of Education Starts Here"}
-          </h2>
-          <p className="text-white/70">
-            {isRtl
-              ? "سجل الآن وكن جزءاً من تطوير التعليم الأكاديمي"
-              : "Register now and be part of advancing academic education"}
-          </p>
-        </div>
-      </section>
-
-
+      {/* Global Site Footer */}
       <SiteFooter />
     </div>
   );

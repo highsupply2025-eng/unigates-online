@@ -273,53 +273,68 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden relative" dir={dir}>
-      {/* Gradient background */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[hsl(174,72%,96%)] via-background to-[hsl(190,60%,95%)]" />
-      {/* Subtle decorative pattern overlay */}
+    <div className="min-h-screen flex flex-col overflow-x-hidden relative selection:bg-primary selection:text-white" dir={dir}>
+      {/* Dynamic background */}
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-slate-50 via-teal-50/40 to-indigo-50/50 dark:from-slate-950 dark:via-indigo-950/40 dark:to-slate-900" />
       <div className="fixed inset-0 -z-10 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, hsl(174,72%,46%) 1px, transparent 0)", backgroundSize: "32px 32px" }} />
 
-      <header className="border-b-2 border-primary/30 px-4 sm:px-6 py-4 bg-card/80 backdrop-blur-sm shadow-md">
+      <header className="border-b border-border/60 px-4 sm:px-8 py-3.5 bg-card/80 backdrop-blur-md sticky top-0 z-40 shadow-xs">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/university-platform" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <GraduationCap className="w-6 h-6 text-white" />
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary via-teal-600 to-indigo-600 shadow-md shadow-primary/20 flex items-center justify-center text-white group-hover:scale-105 transition-transform">
+              <GraduationCap className="w-6 h-6" />
             </div>
-            <span className="text-xl sm:text-2xl font-black text-foreground tracking-tight">{t.brandName}</span>
+            <div>
+              <span className="text-xl font-black text-foreground tracking-tight">UNIGATES</span>
+              <p className="text-[10px] font-bold text-primary">{isRtl ? "بوابة تسجيل الدخول" : "Portal Login"}</p>
+            </div>
           </Link>
+
           {/* Desktop buttons */}
-          <div className="hidden md:flex items-center gap-3">
-            <Button size="icon" onClick={() => navigate('/signup')} className="rounded-full w-10 h-10 bg-gradient-to-br from-[hsl(190,80%,45%)] to-primary shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 hover:scale-110 transition-all text-white">
-              <UserPlus className="w-5 h-5" />
-            </Button>
-            <Button size="icon" onClick={toggleLanguage} className="rounded-full w-10 h-10 bg-gradient-to-br from-[hsl(190,80%,45%)] to-primary shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 hover:scale-110 transition-all text-white">
-              <Globe className="w-5 h-5" />
-            </Button>
-            <Button size="icon" className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 hover:scale-110 transition-all text-white" onClick={() => navigate('/university-platform')}>
-              {language === "ar" ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
+          <div className="hidden md:flex items-center gap-2.5">
+            <Link to="/signup">
+              <Button size="sm" variant="outline" className="font-bold gap-1.5 h-10 px-4 rounded-xl border-2 border-primary/20 hover:border-primary/50 text-foreground">
+                <UserPlus className="w-4 h-4 text-primary" />
+                <span>{t.signup}</span>
+              </Button>
+            </Link>
+            <Link to="/university-platform">
+              <Button size="sm" variant="ghost" className="font-bold gap-1.5 h-10 px-4 rounded-xl text-foreground/80 hover:text-foreground">
+                <Home className="w-4 h-4" />
+                <span>{isRtl ? "المنصة الجامعية" : "University Platform"}</span>
+              </Button>
+            </Link>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={toggleLanguage}
+              className="font-bold gap-1.5 h-10 px-4 rounded-xl border-border hover:bg-muted text-foreground"
+            >
+              <Globe className="w-4 h-4 text-primary" />
+              <span>{language === "ar" ? "English" : "العربية"}</span>
             </Button>
           </div>
 
-          {/* Mobile/Tablet dropdown */}
+          {/* Mobile dropdown */}
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="p-3 rounded-lg bg-primary/20 text-primary min-h-11 min-w-11 flex items-center justify-center">
+                <button className="p-2.5 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors flex items-center justify-center">
                   <Menu className="w-5 h-5" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-48">
-                <DropdownMenuItem onClick={() => navigate('/signup')} className="gap-2 cursor-pointer">
+              <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-52 p-2 space-y-1">
+                <DropdownMenuItem onClick={() => navigate('/signup')} className="gap-2 cursor-pointer font-bold">
                   <UserPlus className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-semibold">{t.signup}</span>
+                  <span>{t.signup}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/university-platform')} className="gap-2 cursor-pointer">
+                <DropdownMenuItem onClick={() => navigate('/university-platform')} className="gap-2 cursor-pointer font-bold">
                   <Home className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-semibold">{t.home}</span>
+                  <span>{isRtl ? "المنصة الجامعية" : "University"}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer">
+                <DropdownMenuItem onClick={toggleLanguage} className="gap-2 cursor-pointer font-bold">
                   <Globe className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-semibold">{language === "ar" ? "English" : "العربية"}</span>
+                  <span>{language === "ar" ? "English" : "العربية"}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -327,41 +342,42 @@ const Login = () => {
         </div>
       </header>
 
-      <Separator />
-
-      <main className="flex-1 flex items-center justify-center px-5 py-8 sm:py-12 md:py-16">
-        <div className="max-w-md w-full bg-card rounded-2xl shadow-xl shadow-primary/5 border border-border/60 px-6 py-8 sm:px-8 sm:py-10 md:px-10 md:py-12">
-          <form onSubmit={handleLogin} className="text-center space-y-4 md:space-y-5">
-            <div className="flex justify-center mb-1">
-              <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/30 flex items-center justify-center">
-                <GraduationCap className="w-7 h-7 md:w-8 md:h-8 text-white" />
+      <main className="flex-1 flex items-center justify-center px-4 py-8 sm:py-12">
+        <div className="max-w-md w-full bg-card rounded-3xl shadow-2xl shadow-primary/5 border-2 border-border/80 p-6 sm:p-8 md:p-10 space-y-6">
+          <form onSubmit={handleLogin} className="text-center space-y-4">
+            <div className="flex justify-center mb-2">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-primary via-teal-600 to-indigo-600 shadow-xl shadow-primary/25 flex items-center justify-center text-white">
+                <GraduationCap className="w-8 h-8" />
               </div>
             </div>
-            <h1 className="text-xl md:text-2xl font-black text-foreground">{t.loginPage.title}</h1>
-            <p className="text-sm md:text-base text-muted-foreground">{t.loginPage.subtitle}</p>
+
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-black text-foreground">{t.loginPage.title}</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground">{t.loginPage.subtitle}</p>
+            </div>
 
             {/* Email input with icon */}
-            <div className="relative">
-              <Mail className={`${dir === 'rtl' ? 'right-3' : 'left-3'} absolute top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none`} />
+            <div className="relative text-start">
+              <Mail className={`${dir === 'rtl' ? 'right-3.5' : 'left-3.5'} absolute top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none`} />
               <Input
                 type="email"
                 placeholder={t.loginPage.emailPlaceholder}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={`${dir === 'rtl' ? 'pr-10' : 'pl-10'} h-12 md:h-14 text-sm md:text-base bg-background border-2 border-primary/20 text-center shadow-sm hover:shadow-md hover:border-primary/40 focus:border-primary focus:shadow-md transition-all rounded-xl`}
+                className={`${dir === 'rtl' ? 'pr-11' : 'pl-11'} h-12 text-sm bg-background border-2 border-border focus:border-primary transition-all rounded-2xl`}
                 required
               />
             </div>
 
             {/* Password input with icon */}
-            <div className="relative">
-              <Lock className={`${dir === 'rtl' ? 'right-3' : 'left-3'} absolute top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none`} />
+            <div className="relative text-start">
+              <Lock className={`${dir === 'rtl' ? 'right-3.5' : 'left-3.5'} absolute top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none`} />
               <Input
                 type={showPassword ? "text" : "password"}
                 placeholder={t.loginPage.passwordPlaceholder}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className={`${dir === 'rtl' ? 'pr-10 pl-12' : 'pl-10 pr-12'} h-12 md:h-14 text-center text-sm md:text-base bg-background border-2 border-primary/20 shadow-sm hover:shadow-md hover:border-primary/40 focus:border-primary focus:shadow-md transition-all rounded-xl`}
+                className={`${dir === 'rtl' ? 'pr-11 pl-12' : 'pl-11 pr-12'} h-12 text-sm bg-background border-2 border-border focus:border-primary transition-all rounded-2xl`}
                 dir="ltr"
                 style={{ unicodeBidi: "plaintext" }}
                 required
@@ -371,9 +387,9 @@ const Login = () => {
                 aria-label={showPassword ? (language === "ar" ? "إخفاء كلمة المرور" : "Hide password") : (language === "ar" ? "إظهار كلمة المرور" : "Show password")}
                 aria-pressed={showPassword}
                 onClick={() => setShowPassword(!showPassword)}
-                className={`${dir === 'rtl' ? 'left-2' : 'right-2'} absolute top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
+                className={`${dir === 'rtl' ? 'left-2' : 'right-2'} absolute top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:text-primary`}
               >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
 
@@ -381,28 +397,48 @@ const Login = () => {
             <Button
               type="submit"
               size="lg"
-              className="w-full h-12 md:h-14 text-base md:text-lg font-bold gap-2 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] hover:from-[hsl(174,72%,42%)] hover:to-[hsl(200,75%,26%)] shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 rounded-xl"
+              className="w-full h-12 text-base font-black gap-2 bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/90 hover:to-indigo-600/90 shadow-xl shadow-primary/25 rounded-2xl text-white transition-transform hover:scale-[1.01]"
               disabled={loading}
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowIcon className="w-5 h-5" />}
-              {t.login}
+              <span>{t.login}</span>
             </Button>
 
             {/* Forgot password link */}
-            <Link
-              to="/forgot-password"
-              className="inline-block text-sm md:text-base font-semibold text-primary/80 hover:text-primary hover:underline underline-offset-4 transition-colors"
-            >
-              {t.loginPage.forgotPassword}
-            </Link>
+            <div className="pt-1">
+              <Link
+                to="/forgot-password"
+                className="text-xs sm:text-sm font-bold text-primary hover:underline underline-offset-4 transition-colors"
+              >
+                {t.loginPage.forgotPassword}
+              </Link>
+            </div>
 
-            <div className="pt-2">
-              <p className="text-sm text-foreground/70 font-medium">
+            <Separator className="my-3" />
+
+            {/* Quick Registration & Role Links */}
+            <div className="space-y-3 pt-1 text-center">
+              <p className="text-xs text-muted-foreground font-semibold">
                 {t.loginPage.noAccount}{" "}
-                <Link to="/signup" className="text-primary font-bold hover:underline underline-offset-4">
+                <Link to="/signup" className="text-primary font-black hover:underline">
                   {t.loginPage.createAccount}
                 </Link>
               </p>
+
+              <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
+                <Link
+                  to="/signup/college/admin"
+                  className="p-2.5 rounded-xl border border-border/80 bg-muted/40 hover:bg-muted font-bold text-foreground transition-colors text-center truncate"
+                >
+                  🏛️ {isRtl ? "تسجيل كلية" : "College"}
+                </Link>
+                <Link
+                  to="/signup/institute/admin"
+                  className="p-2.5 rounded-xl border border-border/80 bg-muted/40 hover:bg-muted font-bold text-foreground transition-colors text-center truncate"
+                >
+                  🏢 {isRtl ? "تسجيل معهد" : "Institute"}
+                </Link>
+              </div>
             </div>
           </form>
         </div>

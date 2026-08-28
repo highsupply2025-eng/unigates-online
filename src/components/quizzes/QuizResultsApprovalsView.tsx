@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   ShieldCheck, CheckCircle2, XCircle, Clock, Award, Users, BarChart3,
   Eye, CheckCircle, ArrowRight, ArrowLeft, Search, Filter, RefreshCw,
-  Sparkles, FileText, Download, User, AlertCircle
+  Sparkles, FileText, Download, User, AlertCircle, BookOpen, GraduationCap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -265,154 +265,234 @@ export const QuizResultsApprovalsView: React.FC<QuizResultsApprovalsViewProps> =
     ? Math.round(currentQuizSubs.reduce((acc, s) => acc + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / currentQuizSubs.length)
     : 0;
 
+  // View mode switcher: 'cards' | 'table'
+  const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
+
+  // Summary of approvers helper
+  const getApproversSummary = (q: any) => {
+    const approvers: string[] = [];
+    if (q.results_approved_by_head) {
+      approvers.push(isRtl ? "رئيس القسم" : "Head of Dept");
+    }
+    if (q.results_approved_by_vice_dean) {
+      approvers.push(isRtl ? "وكيل الكلية" : "Vice Dean");
+    }
+    const chain: any[] = Array.isArray(q.results_approval_reviewers) ? q.results_approval_reviewers : [];
+    chain.forEach((r) => {
+      if (r.approved && (r.title || r.name)) {
+        if (!approvers.includes(r.title || r.name)) {
+          approvers.push(r.title || r.name);
+        }
+      }
+    });
+    if (q.results_approved_by_dean || q.results_status === "approved") {
+      if (!approvers.includes(deanTitle)) {
+        approvers.push(deanTitle);
+      }
+    }
+    return approvers;
+  };
+
+  const totalPendingCount = myTurnList.length + pendingList.length;
+
   return (
-    <div className="space-y-6 animate-in fade-in-50 duration-300">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card p-5 rounded-3xl border-2 border-border shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 via-indigo-600 to-pink-600 text-white flex items-center justify-center shadow-md">
-            <ShieldCheck className="w-6 h-6" />
+    <div className="space-y-6 pb-12 animate-in fade-in-50 duration-300">
+      {/* 1. Two Big Distinctive Highlight Cards: Approved vs Unapproved */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+        {/* Card 1: Unapproved / Pending Approval (Orange/Amber) */}
+        <div
+          onClick={() => setFilterTab(myTurnList.length > 0 ? "my_turn" : "pending")}
+          className={`group relative overflow-hidden rounded-3xl p-6 transition-all duration-300 cursor-pointer border-2 shadow-lg ${
+            filterTab === "my_turn" || filterTab === "pending"
+              ? "bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white border-amber-300/40 shadow-amber-500/30 scale-101"
+              : "bg-card hover:bg-muted/40 border-amber-500/30 text-foreground hover:border-amber-500/60"
+          }`}
+        >
+          <div className="flex items-start justify-between">
+            <div
+              className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform ${
+                filterTab === "my_turn" || filterTab === "pending"
+                  ? "bg-white/20 text-white ring-2 ring-white/40"
+                  : "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+              }`}
+            >
+              <Clock className="w-7 h-7 animate-pulse" strokeWidth={2.6} />
+            </div>
+
+            <Badge
+              className={
+                filterTab === "my_turn" || filterTab === "pending"
+                  ? "bg-white/20 text-white border-white/30 text-xs px-3 py-1 font-black"
+                  : "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30 text-xs px-3 py-1 font-black"
+              }
+            >
+              {isRtl ? "غير معتمد / قيد الاعتماد" : "Unapproved / Pending"}
+            </Badge>
           </div>
-          <div>
-            <h2 className="text-xl font-black text-foreground flex items-center gap-2">
-              <span>{isRtl ? "اعتماد ومتابعة نتائج الاختبارات" : "Quiz Results Approvals & Oversight"}</span>
-              <Sparkles className="w-4 h-4 text-amber-500" />
-            </h2>
-            <p className="text-xs font-bold text-muted-foreground">
+
+          <div className="mt-5 space-y-1">
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl sm:text-4xl font-black">{totalPendingCount}</span>
+              <span className="text-xs font-bold opacity-85">{isRtl ? "كشف درجات قيد المراجعة" : "result sheets pending"}</span>
+            </div>
+
+            <h3 className="text-lg sm:text-xl font-black mt-2">
+              {isRtl ? "النتائج غير المعتمدة" : "Unapproved Results"}
+            </h3>
+
+            <p
+              className={`text-xs font-medium leading-relaxed ${
+                filterTab === "my_turn" || filterTab === "pending" ? "text-white/90" : "text-muted-foreground"
+              }`}
+            >
               {isRtl
-                ? `مراجعة واعتماد كشوف درجات الطلاب لكل قسم بسلسلة الموافقات الأكاديمية حتى اعتماد ${deanTitle}.`
-                : "Inspect student grade sheets per department and record sequential approvals."}
+                ? `بانتظار استكمال سلسلة موافقات رئيس القسم، الوكلاء المختصين، والاعتماد النهائي للنتائج من ${deanTitle}.`
+                : "Awaiting sequential sign-offs from Head of Dept, Vice Deans, and final Dean approval."}
             </p>
           </div>
+
+          {myTurnList.length > 0 && (
+            <div className="mt-4 pt-3 border-t border-current/15 flex items-center justify-between">
+              <span className="text-xs font-black flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-400 animate-ping" />
+                <span>{isRtl ? `يتطلب اعتمادك الآن: (${myTurnList.length})` : `Action required by you: (${myTurnList.length})`}</span>
+              </span>
+              <span className="text-xs font-bold underline">{isRtl ? "اضغط للمراجعة ➔" : "Review now ➔"}</span>
+            </div>
+          )}
         </div>
 
-        <div className="flex items-center gap-2">
-          {onBackToOverview && (
+        {/* Card 2: Fully Approved & Live (Emerald/Green) */}
+        <div
+          onClick={() => setFilterTab("approved")}
+          className={`group relative overflow-hidden rounded-3xl p-6 transition-all duration-300 cursor-pointer border-2 shadow-lg ${
+            filterTab === "approved"
+              ? "bg-gradient-to-br from-emerald-600 via-teal-600 to-green-600 text-white border-emerald-300/40 shadow-emerald-600/30 scale-101"
+              : "bg-card hover:bg-muted/40 border-emerald-500/30 text-foreground hover:border-emerald-500/60"
+          }`}
+        >
+          <div className="flex items-start justify-between">
+            <div
+              className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform ${
+                filterTab === "approved"
+                  ? "bg-white/20 text-white ring-2 ring-white/40"
+                  : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+              }`}
+            >
+              <CheckCircle2 className="w-7 h-7" strokeWidth={2.6} />
+            </div>
+
+            <Badge
+              className={
+                filterTab === "approved"
+                  ? "bg-white/20 text-white border-white/30 text-xs px-3 py-1 font-black"
+                  : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 text-xs px-3 py-1 font-black"
+              }
+            >
+              {isRtl ? "معتمدة بالكامل ✓" : "Fully Certified ✓"}
+            </Badge>
+          </div>
+
+          <div className="mt-5 space-y-1">
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl sm:text-4xl font-black">{approvedList.length}</span>
+              <span className="text-xs font-bold opacity-85">{isRtl ? "كشف درجات معتمد ومنشور" : "certified & live"}</span>
+            </div>
+
+            <h3 className="text-lg sm:text-xl font-black mt-2">
+              {isRtl ? "النتائج المعتمدة والمنشورة" : "Certified & Published Results"}
+            </h3>
+
+            <p
+              className={`text-xs font-medium leading-relaxed ${
+                filterTab === "approved" ? "text-white/90" : "text-muted-foreground"
+              }`}
+            >
+              {isRtl
+                ? `تم اعتمادها رسمياً من قِبل ${deanTitle} وأصبحت متاحة للطلاب في ملفاتهم الأكاديمية وبلوحة إدارة الكلية.`
+                : "Formally certified by the Dean and live in college dashboard and student portal."}
+            </p>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-current/15 flex items-center justify-between">
+            <span className="text-xs font-black">
+              {isRtl ? `الاعتماد النهائي: ${deanTitle}` : `Final Approval: ${deanTitle}`}
+            </span>
+            <span className="text-xs font-bold">{isRtl ? "معاينة المعتمد ➔" : "View approved ➔"}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Top Banner Card */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-xl p-5 sm:p-6 border border-white/15">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-emerald-400 shadow-inner">
+              <ShieldCheck className="w-6 h-6 animate-pulse" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-white/15 border border-white/25 text-white uppercase tracking-wider">
+                  {isRtl ? `منظومة اعتماد نتائج ${isInstitute ? "المعهد" : "الكلية"}` : "Results Approvals Workflow"}
+                </span>
+                <span className="text-xs font-bold text-emerald-300">
+                  {isRtl ? "العميد هو آخر سلسلة الاعتماد" : "Dean is the final approver"}
+                </span>
+              </div>
+              <p className="text-xs text-slate-300 font-medium mt-1">
+                {isRtl
+                  ? `يتم مراجعة كشوف درجات الطلاب وتسلسلها، وبمجرد اعتماد ${deanTitle} تظهر النتائج مباشرة في لوحة إدارة الكلية وبوابة الطلاب.`
+                  : "Results sheets progress through the sign-off chain; once approved by the Dean, they become live."}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {onBackToOverview && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onBackToOverview}
+                className="bg-white/10 hover:bg-white/20 text-white border-white/30 font-bold rounded-xl self-start sm:self-auto shrink-0"
+              >
+                {isRtl ? <ArrowRight className="w-4 h-4 mr-1" /> : <ArrowLeft className="w-4 h-4 ml-1" />}
+                <span>{isRtl ? "لوحة النتائج" : "Results Overview"}</span>
+              </Button>
+            )}
+
             <Button
               variant="outline"
-              onClick={onBackToOverview}
-              className="rounded-xl font-bold gap-1.5 border-2 border-border"
+              size="sm"
+              onClick={onRefresh}
+              className="bg-white/10 hover:bg-white/20 text-white border-white/30 font-bold rounded-xl h-9 px-3 gap-1.5 shrink-0"
             >
-              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-              <span>{isRtl ? "لوحة النتائج" : "Results Overview"}</span>
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>{isRtl ? "تحديث" : "Refresh"}</span>
             </Button>
-          )}
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onRefresh}
-            className="rounded-xl font-bold gap-1.5 h-10"
-          >
-            <RefreshCw className="w-4 h-4" />
-            <span>{isRtl ? "تحديث" : "Refresh"}</span>
-          </Button>
+          </div>
         </div>
       </div>
 
-      {/* 4 KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        {/* Card 1 */}
-        <Card
-          onClick={() => setFilterTab("my_turn")}
-          className={`rounded-2xl border-2 cursor-pointer transition-all ${
-            filterTab === "my_turn"
-              ? "border-amber-500 bg-amber-500/10 shadow-md scale-[1.02]"
-              : "border-amber-500/30 bg-amber-500/5 hover:border-amber-500/60"
-          }`}
-        >
-          <CardContent className="p-4 text-center">
-            <Clock className="w-6 h-6 sm:w-7 sm:h-7 mx-auto mb-1 text-amber-600 dark:text-amber-400 animate-pulse" />
-            <div className="text-2xl sm:text-3xl font-black text-amber-700 dark:text-amber-300">
-              {myTurnList.length}
-            </div>
-            <div className="text-[11px] sm:text-xs font-black text-amber-800 dark:text-amber-200">
-              {isRtl ? "بانتظار موافقتك" : "Awaiting Your Action"}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Card 2 */}
-        <Card
-          onClick={() => setFilterTab("pending")}
-          className={`rounded-2xl border-2 cursor-pointer transition-all ${
-            filterTab === "pending"
-              ? "border-blue-500 bg-blue-500/10 shadow-md scale-[1.02]"
-              : "border-blue-500/30 bg-blue-500/5 hover:border-blue-500/60"
-          }`}
-        >
-          <CardContent className="p-4 text-center">
-            <ShieldCheck className="w-6 h-6 sm:w-7 sm:h-7 mx-auto mb-1 text-blue-600 dark:text-blue-400" />
-            <div className="text-2xl sm:text-3xl font-black text-blue-700 dark:text-blue-300">
-              {pendingList.length}
-            </div>
-            <div className="text-[11px] sm:text-xs font-black text-blue-800 dark:text-blue-200">
-              {isRtl ? "قيد المراجعة بالسلسلة" : "In Review Chain"}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Card 3 */}
-        <Card
-          onClick={() => setFilterTab("approved")}
-          className={`rounded-2xl border-2 cursor-pointer transition-all ${
-            filterTab === "approved"
-              ? "border-emerald-500 bg-emerald-500/10 shadow-md scale-[1.02]"
-              : "border-emerald-500/30 bg-emerald-500/5 hover:border-emerald-500/60"
-          }`}
-        >
-          <CardContent className="p-4 text-center">
-            <CheckCircle2 className="w-6 h-6 sm:w-7 sm:h-7 mx-auto mb-1 text-emerald-600 dark:text-emerald-400" />
-            <div className="text-2xl sm:text-3xl font-black text-emerald-700 dark:text-emerald-300">
-              {approvedList.length}
-            </div>
-            <div className="text-[11px] sm:text-xs font-black text-emerald-800 dark:text-emerald-200">
-              {isRtl ? "معتمدة رسمياً ومتاحة للطلاب" : "Certified & Live"}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Card 4 */}
-        <Card
-          onClick={() => setFilterTab("rejected")}
-          className={`rounded-2xl border-2 cursor-pointer transition-all ${
-            filterTab === "rejected"
-              ? "border-red-500 bg-red-500/10 shadow-md scale-[1.02]"
-              : "border-red-500/30 bg-red-500/5 hover:border-red-500/60"
-          }`}
-        >
-          <CardContent className="p-4 text-center">
-            <XCircle className="w-6 h-6 sm:w-7 sm:h-7 mx-auto mb-1 text-red-600 dark:text-red-400" />
-            <div className="text-2xl sm:text-3xl font-black text-red-700 dark:text-red-300">
-              {rejectedList.length}
-            </div>
-            <div className="text-[11px] sm:text-xs font-black text-red-800 dark:text-red-200">
-              {isRtl ? "مرفوضة / تتطلب تعديل" : "Rejected / Modification"}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Search, Department Filter & Tabs Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto">
+      {/* 3. Filter, Search, Department Filter and View Mode Switcher */}
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row items-center gap-2.5 flex-1 max-w-lg">
           <div className="relative w-full sm:w-64">
-            <Search className={`w-4 h-4 absolute top-3 ${isRtl ? "right-3" : "left-3"} text-muted-foreground`} />
+            <Search className={`w-4 h-4 absolute top-3.5 text-muted-foreground ${isRtl ? "right-3.5" : "left-3.5"}`} />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={isRtl ? "بحث في الاختبارات..." : "Search exams..."}
-              className={`rounded-xl font-bold h-10 border-2 ${isRtl ? "pr-9" : "pl-9"}`}
+              placeholder={isRtl ? "بحث في الاختبارات أو المقررات..." : "Search exams or courses..."}
+              className={`h-11 rounded-2xl bg-card border-2 border-border shadow-xs ${isRtl ? "pr-10" : "pl-10"}`}
             />
           </div>
 
           {(isDean || isViceDean) && departments.length > 1 && (
             <div className="w-full sm:w-48">
               <Select value={selectedDeptFilter} onValueChange={setSelectedDeptFilter}>
-                <SelectTrigger className="rounded-xl font-bold h-10 border-2 text-xs">
+                <SelectTrigger className="rounded-2xl font-bold h-11 border-2 text-xs">
                   <SelectValue placeholder={isRtl ? "جميع الأقسام" : "All Departments"} />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl">
+                <SelectContent className="rounded-2xl">
                   <SelectItem value="all" className="font-bold text-xs">{isRtl ? "جميع الأقسام" : "All Departments"}</SelectItem>
                   {departments.map((d) => (
                     <SelectItem key={d.id} value={d.id} className="font-bold text-xs">
@@ -425,43 +505,278 @@ export const QuizResultsApprovalsView: React.FC<QuizResultsApprovalsViewProps> =
           )}
         </div>
 
-        <Tabs value={filterTab} onValueChange={(v: any) => setFilterTab(v)} className="w-full sm:w-auto">
-          <TabsList className="rounded-xl border p-1 bg-muted/40 h-auto flex-wrap">
-            <TabsTrigger value="my_turn" className="rounded-lg font-bold text-xs">
-              {isRtl ? `بانتظار موافقتي (${myTurnList.length})` : `My Turn (${myTurnList.length})`}
-            </TabsTrigger>
-            <TabsTrigger value="pending" className="rounded-lg font-bold text-xs">
-              {isRtl ? `قيد المراجعة (${pendingList.length})` : `In Chain (${pendingList.length})`}
-            </TabsTrigger>
-            <TabsTrigger value="approved" className="rounded-lg font-bold text-xs">
-              {isRtl ? `معتمدة (${approvedList.length})` : `Certified (${approvedList.length})`}
-            </TabsTrigger>
-            <TabsTrigger value="rejected" className="rounded-lg font-bold text-xs">
-              {isRtl ? `مرفوضة (${rejectedList.length})` : `Rejected (${rejectedList.length})`}
-            </TabsTrigger>
-            <TabsTrigger value="all" className="rounded-lg font-bold text-xs">
-              {isRtl ? `الكل (${scopedQuizzes.length})` : `All (${scopedQuizzes.length})`}
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="flex items-center gap-2 flex-wrap justify-between md:justify-end">
+          {/* Status Tabs */}
+          <div className="flex items-center gap-1 overflow-x-auto p-1 bg-muted/60 rounded-2xl border border-border">
+            {[
+              { key: "all", label: isRtl ? "الكل" : "All", count: scopedQuizzes.length },
+              { key: "my_turn", label: isRtl ? "دوري" : "My Turn", count: myTurnList.length },
+              { key: "pending", label: isRtl ? "غير معتمد" : "Pending", count: pendingList.length },
+              { key: "approved", label: isRtl ? "معتمد" : "Approved", count: approvedList.length },
+              { key: "rejected", label: isRtl ? "مرفوض" : "Rejected", count: rejectedList.length },
+            ].map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setFilterTab(t.key as any)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                  filterTab === t.key
+                    ? "bg-card text-foreground shadow-sm font-black"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span>{t.label}</span>
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-muted font-bold">{t.count}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* View Mode Toggle: Cards vs Table */}
+          <div className="flex items-center p-1 bg-muted/60 rounded-2xl border border-border">
+            <button
+              onClick={() => setViewMode("cards")}
+              className={`p-2 rounded-xl transition-all ${
+                viewMode === "cards" ? "bg-card text-primary shadow-xs" : "text-muted-foreground hover:text-foreground"
+              }`}
+              title={isRtl ? "عرض البطاقات" : "Card View"}
+            >
+              <div className="w-4 h-4 grid grid-cols-2 gap-0.5">
+                <div className="bg-current rounded-[2px]" />
+                <div className="bg-current rounded-[2px]" />
+                <div className="bg-current rounded-[2px]" />
+                <div className="bg-current rounded-[2px]" />
+              </div>
+            </button>
+            <button
+              onClick={() => setViewMode("table")}
+              className={`p-2 rounded-xl transition-all ${
+                viewMode === "table" ? "bg-card text-primary shadow-xs" : "text-muted-foreground hover:text-foreground"
+              }`}
+              title={isRtl ? "عرض الجدول" : "Table View"}
+            >
+              <div className="w-4 h-4 flex flex-col justify-between py-0.5">
+                <div className="h-0.5 bg-current rounded-full" />
+                <div className="h-0.5 bg-current rounded-full" />
+                <div className="h-0.5 bg-current rounded-full" />
+              </div>
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Table */}
-      <Card className="rounded-3xl border-2 border-border shadow-md overflow-hidden">
-        <CardContent className="p-0">
-          {filteredList.length === 0 ? (
-            <div className="text-center py-16 text-muted-foreground font-bold text-sm">
-              <ShieldCheck className="w-10 h-10 mx-auto mb-2 opacity-40 text-purple-500" />
-              {isRtl ? "لا توجد نتائج اختبارات مطابقة للبحث أو الفلتر المختار." : "No quiz results match criteria."}
-            </div>
-          ) : (
+      {/* 4. Main List: Cards View or Table View */}
+      {filteredList.length === 0 ? (
+        <Card className="rounded-3xl border-2 border-dashed border-border/80 bg-card/50 shadow-sm p-12 text-center space-y-3">
+          <ShieldCheck className="w-14 h-14 mx-auto text-muted-foreground/30 animate-pulse text-purple-500" />
+          <h3 className="text-base font-black text-foreground">
+            {isRtl ? "لا توجد نتائج اختبارات تطابق هذا التصفية" : "No quiz results match this filter"}
+          </h3>
+          <p className="text-xs text-muted-foreground max-w-md mx-auto">
+            {isRtl
+              ? "سيتم عرض نتائج الاختبارات بمجرد أدائها من الطلاب وإرسالها للاعتماد الأكاديمي."
+              : "Quiz results will appear here once submitted for academic certification."}
+          </p>
+        </Card>
+      ) : viewMode === "cards" ? (
+        /* Luxury Cards Grid */
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+          {filteredList.map((q) => {
+            const course = courses.find((c) => c.id === q.course_id);
+            const dept = departments.find((d) => d.id === q.department_id);
+            const subs = quizSubmissions.filter((s) => s.quiz_id === q.id);
+            const passCount = subs.filter((s) => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length;
+            const passRate = subs.length ? Math.round((passCount / subs.length) * 100) : 0;
+            const canAct = canUserActOnResults(q);
+            const isAppr = isResultsFullyApproved(q);
+            const approversList = getApproversSummary(q);
+            const chain = Array.isArray(q.results_approval_reviewers) ? q.results_approval_reviewers : [];
+            const activeStep = chain.find((st: any) => !st.approved && !st.rejected);
+
+            return (
+              <Card
+                key={q.id}
+                className={`rounded-3xl border-2 transition-all duration-300 shadow-md hover:shadow-xl overflow-hidden flex flex-col justify-between ${
+                  isAppr
+                    ? "border-emerald-500/40 bg-gradient-to-br from-emerald-500/5 via-card to-card hover:border-emerald-500/70"
+                    : q.results_rejected_by
+                      ? "border-red-500/40 bg-gradient-to-br from-red-500/5 via-card to-card hover:border-red-500/70"
+                      : "border-amber-500/40 bg-gradient-to-br from-amber-500/5 via-card to-card hover:border-amber-500/70"
+                }`}
+              >
+                <div className="p-5 sm:p-6 space-y-4">
+                  {/* Top Status Badge & Title */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {isAppr ? (
+                          <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs gap-1.5 px-3 py-1 rounded-xl shadow-sm">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>{isRtl ? "معتمدة رسمياً ✓" : "Officially Certified ✓"}</span>
+                          </Badge>
+                        ) : q.results_rejected_by ? (
+                          <Badge className="bg-red-600 text-white font-black text-xs gap-1.5 px-3 py-1 rounded-xl shadow-sm">
+                            <XCircle className="w-3.5 h-3.5" />
+                            <span>{isRtl ? "مرفوضة ✗" : "Rejected ✗"}</span>
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-amber-500 hover:bg-amber-600 text-white font-black text-xs gap-1.5 px-3 py-1 rounded-xl shadow-sm animate-pulse">
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>{isRtl ? "غير معتمد / قيد المراجعة ⏳" : "Unapproved / Pending ⏳"}</span>
+                          </Badge>
+                        )}
+
+                        {course && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+                            <BookOpen className="w-3 h-3" />
+                            <span>{isRtl ? course.title_ar : course.title_en}</span>
+                          </span>
+                        )}
+
+                        {dept && (
+                          <Badge variant="outline" className="text-[10px] font-bold">
+                            {isRtl ? dept.name_ar : dept.name_en}
+                          </Badge>
+                        )}
+                      </div>
+
+                      <h3 className="text-base sm:text-lg font-black text-foreground tracking-tight pt-1">
+                        {isRtl ? q.title_ar || q.title_en : q.title_en || q.title_ar}
+                      </h3>
+                    </div>
+
+                    <div className="text-end shrink-0">
+                      <span className="text-xs font-black text-foreground flex items-center justify-end gap-1">
+                        <Users className="w-3.5 h-3.5 text-primary" />
+                        <span>{subs.length} {isRtl ? "طالب" : "students"}</span>
+                      </span>
+                      <span className="text-[10px] text-muted-foreground block mt-0.5">
+                        {new Date(q.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Pass Rate Bar & Analytics */}
+                  <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/80 space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold">
+                      <span className="flex items-center gap-1.5 text-foreground">
+                        <BarChart3 className="w-3.5 h-3.5 text-primary" />
+                        <span>{isRtl ? "نسبة نجاح الطلاب:" : "Student Pass Rate:"}</span>
+                      </span>
+                      <span className="font-black text-emerald-700 dark:text-emerald-400">
+                        {passCount} / {subs.length} ({passRate}%)
+                      </span>
+                    </div>
+
+                    <Progress value={passRate} className="h-2 rounded-full" />
+                  </div>
+
+                  {/* Approvers Details Chip Box */}
+                  <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/80 space-y-2">
+                    <div className="flex items-center justify-between text-[11px] font-black">
+                      <span className="text-foreground flex items-center gap-1.5">
+                        <ShieldCheck className="w-3.5 h-3.5 text-primary" />
+                        <span>{isRtl ? "سجل المعتمدين والمراجعين:" : "Approvers & Reviewers:"}</span>
+                      </span>
+                      <span className="text-muted-foreground text-[10px]">
+                        {isAppr
+                          ? (isRtl ? "معتمد ومنشور" : "Published")
+                          : (isRtl ? "قيد المراجعة" : "In Review")}
+                      </span>
+                    </div>
+
+                    {/* Approvers Names Pill List */}
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {approversList.length > 0 ? (
+                        approversList.map((apprName, idx) => (
+                          <span
+                            key={idx}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30"
+                          >
+                            <span>✓</span>
+                            <span>{apprName}</span>
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-[11px] text-muted-foreground">
+                          {isRtl ? "لم يتم تسجيل موافقات بعد" : "No approvals recorded yet"}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Pending on info if not approved */}
+                    {!isAppr && !q.results_rejected_by && (
+                      <div className="text-[11px] font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1 pt-1 border-t border-border/50">
+                        <Clock className="w-3 h-3 shrink-0" />
+                        <span>
+                          {activeStep
+                            ? (isRtl ? `المحطة الحالية بانتظار: ${activeStep.title || activeStep.name}` : `Currently awaiting: ${activeStep.title || activeStep.name}`)
+                            : (isRtl ? `بانتظار الاعتماد النهائي من: ${deanTitle}` : `Awaiting final approval from: ${deanTitle}`)}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Rejection Note */}
+                    {q.results_rejected_by && (
+                      <div className="text-[11px] font-bold text-red-700 dark:text-red-300 flex items-center gap-1 pt-1 border-t border-border/50">
+                        <XCircle className="w-3 h-3 shrink-0" />
+                        <span>{q.results_rejection_reason || (isRtl ? "تم رفض النتيجة وتحتاج لمراجعة وتعديل" : "Results rejected, requires review")}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Card Action Footer */}
+                <div className="p-4 sm:p-5 bg-muted/20 border-t border-border/60 flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-muted-foreground truncate">
+                    {dept ? (isRtl ? dept.name_ar || dept.name : dept.name_en || dept.name) : (isRtl ? "قسم عام" : "Department")}
+                  </span>
+
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedQuiz(q);
+                        setRejectionReason(q.results_rejection_reason || "");
+                        setReviewDialogOpen(true);
+                      }}
+                      className="rounded-xl font-bold gap-1 text-xs h-9 px-3 border-border"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>{isRtl ? "معاينة كشف الدرجات" : "Inspect Roster"}</span>
+                    </Button>
+
+                    {canAct && (
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setSelectedQuiz(q);
+                          setRejectionReason(q.results_rejection_reason || "");
+                          setReviewDialogOpen(true);
+                        }}
+                        className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black rounded-xl shadow-md gap-1.5 h-9 px-4 animate-pulse"
+                      >
+                        <ShieldCheck className="w-4 h-4" />
+                        <span>{isRtl ? "مراجعة واعتماد فوراً ⚡" : "Review & Certify"}</span>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      ) : (
+        /* Classic Table View */
+        <Card className="rounded-3xl border-2 border-border shadow-lg overflow-hidden">
+          <CardContent className="p-0">
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader className="bg-muted/30">
+                <TableHeader className="bg-muted/40 border-b">
                   <TableRow>
                     <TableHead className="font-black text-xs">{isRtl ? "الاختبار والمقرر والجهة" : "Exam & Course"}</TableHead>
+                    <TableHead className="font-black text-xs">{isRtl ? "حالة الاعتماد" : "Approval Status"}</TableHead>
+                    <TableHead className="font-black text-xs">{isRtl ? "المعتمدون" : "Approvers"}</TableHead>
                     <TableHead className="font-black text-xs hidden sm:table-cell text-center">{isRtl ? "المؤدون والنجاح" : "Students & Pass Rate"}</TableHead>
-                    <TableHead className="font-black text-xs">{isRtl ? "مسار وسلسلة الاعتماد" : "Approval Chain"}</TableHead>
                     <TableHead className="font-black text-xs text-end">{isRtl ? "الإجراء" : "Action"}</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -473,7 +788,9 @@ export const QuizResultsApprovalsView: React.FC<QuizResultsApprovalsViewProps> =
                     const passCount = subs.filter((s) => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length;
                     const canAct = canUserActOnResults(q);
                     const isAppr = isResultsFullyApproved(q);
+                    const approversList = getApproversSummary(q);
                     const chain = Array.isArray(q.results_approval_reviewers) ? q.results_approval_reviewers : [];
+                    const activeStep = chain.find((st: any) => !st.approved && !st.rejected);
 
                     return (
                       <TableRow key={q.id} className={`hover:bg-muted/20 ${canAct ? "bg-amber-500/5 dark:bg-amber-950/20" : ""}`}>
@@ -497,6 +814,43 @@ export const QuizResultsApprovalsView: React.FC<QuizResultsApprovalsViewProps> =
                           </div>
                         </TableCell>
 
+                        <TableCell>
+                          {isAppr ? (
+                            <Badge className="bg-emerald-600 text-white font-black text-xs gap-1">
+                              <CheckCircle2 className="w-3 h-3" />
+                              <span>{isRtl ? "معتمدة رسمياً ✓" : "Certified ✓"}</span>
+                            </Badge>
+                          ) : q.results_rejected_by ? (
+                            <Badge className="bg-red-600 text-white font-black text-xs gap-1">
+                              <XCircle className="w-3 h-3" />
+                              <span>{isRtl ? "مرفوضة" : "Rejected"}</span>
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-amber-500 text-white font-black text-xs gap-1">
+                              <Clock className="w-3 h-3" />
+                              <span>{isRtl ? "غير معتمد ⏳" : "Pending ⏳"}</span>
+                            </Badge>
+                          )}
+                        </TableCell>
+
+                        <TableCell>
+                          <div className="flex items-center gap-1 flex-wrap max-w-xs">
+                            {approversList.map((apprName, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20"
+                              >
+                                {apprName}
+                              </span>
+                            ))}
+                            {!isAppr && !q.results_rejected_by && (
+                              <span className="text-[10px] text-amber-700 dark:text-amber-400 font-bold block">
+                                ⏳ {activeStep ? (activeStep.title || activeStep.name) : deanTitle}
+                              </span>
+                            )}
+                          </div>
+                        </TableCell>
+
                         <TableCell className="hidden sm:table-cell text-xs font-bold text-center">
                           <div className="flex flex-col items-center">
                             <span className="text-foreground font-black flex items-center gap-1">
@@ -509,53 +863,6 @@ export const QuizResultsApprovalsView: React.FC<QuizResultsApprovalsViewProps> =
                           </div>
                         </TableCell>
 
-                        <TableCell>
-                          <div className="flex flex-col gap-1">
-                            <Badge
-                              className={`text-[10px] font-black border w-fit ${
-                                isAppr
-                                  ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
-                                  : q.results_rejected_by
-                                  ? "bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/30"
-                                  : canAct
-                                  ? "bg-amber-500/20 text-amber-800 dark:text-amber-200 border-amber-500/40 animate-pulse"
-                                  : "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30"
-                              }`}
-                            >
-                              {isAppr
-                                ? (isRtl ? "معتمدة رسمياً ✓" : "Officially Certified ✓")
-                                : q.results_rejected_by
-                                ? (isRtl ? "مرفوضة / مراجعة" : "Rejected")
-                                : canAct
-                                ? (isRtl ? "بانتظار اعتمادك الآن ⚡" : "Your Decision Required ⚡")
-                                : (isRtl ? "قيد المراجعة بالسلسلة" : "In Review Chain")}
-                            </Badge>
-
-                            {chain.length > 0 && (
-                              <div className="flex items-center gap-1 flex-wrap pt-0.5">
-                                {chain.map((step: any, idx: number) => (
-                                  <span key={idx} className="flex items-center">
-                                    <span
-                                      className={`text-[8px] font-bold px-1 py-0.5 rounded ${
-                                        step.approved
-                                          ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
-                                          : step.rejected
-                                          ? "bg-red-500/20 text-red-700 dark:text-red-300"
-                                          : "bg-muted text-muted-foreground"
-                                      }`}
-                                    >
-                                      {step.approved ? "✓" : step.rejected ? "✕" : "○"} {step.title || step.name}
-                                    </span>
-                                    {idx < chain.length - 1 && (
-                                      <span className="text-[8px] text-muted-foreground mx-0.5">→</span>
-                                    )}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-
                         <TableCell className="text-end">
                           <Button
                             size="sm"
@@ -564,18 +871,18 @@ export const QuizResultsApprovalsView: React.FC<QuizResultsApprovalsViewProps> =
                               setRejectionReason(q.results_rejection_reason || "");
                               setReviewDialogOpen(true);
                             }}
-                            className={`rounded-xl font-black text-xs gap-1.5 ${
+                            className={`rounded-xl font-black text-xs gap-1.5 h-8 px-3 ${
                               canAct
-                                ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md hover:shadow-lg"
+                                ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md hover:shadow-lg"
                                 : ""
                             }`}
                             variant={canAct ? "default" : "outline"}
                           >
-                            <Eye className="w-3.5 h-3.5" />
+                            <Eye className="w-3 h-3" />
                             <span>
                               {canAct
-                                ? (isRtl ? "مراجعة واعتماد النتيجة" : "Review & Certify")
-                                : (isRtl ? "معاينة كشف الدرجات" : "Inspect Roster")}
+                                ? (isRtl ? "اعتماد" : "Certify")
+                                : (isRtl ? "معاينة" : "Inspect")}
                             </span>
                           </Button>
                         </TableCell>
@@ -585,9 +892,9 @@ export const QuizResultsApprovalsView: React.FC<QuizResultsApprovalsViewProps> =
                 </TableBody>
               </Table>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Review & Decision Dialog */}
       <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>

@@ -150,14 +150,34 @@ const StudentAssignmentDetail = () => {
     }
   };
 
-  const finalizeSubmission = (rating: number) => {
+  const finalizeSubmission = async (rating: number, comment: string = "") => {
     if (rating > 0) markRated("assignment", assignmentId);
     setSubmitted(true);
     setAlreadySubmitted(true);
     setShowRating(false);
-    persistSubmission();
+    await persistSubmission();
+
+    if (rating > 0 && assignmentId) {
+      try {
+        const { data: auth } = await supabase.auth.getUser();
+        const uid = auth.user?.id;
+        const isUuid = /^[0-9a-f-]{36}$/i.test(assignmentId);
+        if (uid && isUuid) {
+          await supabase.from("assignment_ratings" as any).insert({
+            assignment_id: assignmentId,
+            course_id: realAssignment?.course_id ?? null,
+            user_id: uid,
+            rating,
+            comment: comment.trim() || null,
+          });
+        }
+      } catch (e) {
+        console.warn("assignment rating insert failed", e);
+      }
+    }
+
     toast({
-      title: isRtl ? "تم التسليم" : "Submitted",
+      title: isRtl ? "تم التسليم بنجاح ✓" : "Submitted Successfully ✓",
       description: rating > 0
         ? (isRtl
             ? `تم تسليم التكليف بنجاح. تقييمك: ${rating}/5`
@@ -165,7 +185,6 @@ const StudentAssignmentDetail = () => {
         : (isRtl ? "تم تسليم التكليف بنجاح" : "Assignment submitted successfully"),
     });
   };
-
 
   return (
     <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : "ltr"}>
@@ -180,7 +199,7 @@ const StudentAssignmentDetail = () => {
       <MandatoryRatingDialog
         open={showRating}
         kind="assignment"
-        onSubmit={(rating) => finalizeSubmission(rating)}
+        onSubmit={(rating, comment) => finalizeSubmission(rating, comment)}
       />
 
       <main className="max-w-5xl mx-auto px-3 sm:px-4 py-5 sm:py-8 space-y-5">

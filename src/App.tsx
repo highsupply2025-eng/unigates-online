@@ -55,6 +55,7 @@ const StudentQuizDetail = lazy(() => import("./pages/StudentQuizDetail"));
 const StudentAssignmentResults = lazy(() => import("./pages/StudentAssignmentResults"));
 const UniversityPlatform = lazy(() => import("./pages/UniversityPlatform"));
 const SchoolPlatform = lazy(() => import("./pages/SchoolPlatform"));
+const BookStorePlatform = lazy(() => import("./pages/BookStorePlatform"));
 const CollegeRegistration = lazy(() => import("./pages/CollegeRegistration"));
 const CollegeRoleSignup = lazy(() => import("./pages/CollegeRoleSignup"));
 const CollegeAdminSignup = lazy(() => import("./pages/CollegeAdminSignup"));
@@ -190,9 +191,9 @@ const App = () => (
               <Route path="/stream/:streamId" element={<WatchStream />} />
               <Route path="/live" element={<LiveStreams />} />
               {/* Book Store + separate auth */}
-              <Route path="/book-store" element={<ComingSoon />} />
-              <Route path="/book-store/login" element={<ComingSoon />} />
-              <Route path="/book-store/signup" element={<ComingSoon />} />
+              <Route path="/book-store" element={<BookStorePlatform />} />
+              <Route path="/book-store/login" element={<Navigate to="/courses/login" replace />} />
+              <Route path="/book-store/signup" element={<Navigate to="/courses/signup" replace />} />
               {/* School Platform */}
               <Route path="/school-platform" element={<SchoolPlatform />} />
               <Route path="/school-platform/register" element={<Navigate to="/school-registration" replace />} />

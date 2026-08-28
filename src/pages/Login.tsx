@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Globe, Eye, EyeOff, LogIn, UserPlus, ChevronDown, Menu, Home, Mail, Lock } from "lucide-react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft,
+  Eye, EyeOff, LogIn, UserPlus, Home, Mail, Lock, ShieldCheck,
+  Landmark, School, BookOpen, Store, Sparkles
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -23,8 +23,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  // If Supabase's OAuth consent (or any protected route) sent us here,
-  // consume `?next=` and return the user there after sign-in.
+
   const nextParam = searchParams.get("next");
   const safeNext =
     nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")
@@ -33,18 +32,17 @@ const Login = () => {
   const goNext = (fallback: string) => navigate(safeNext ?? fallback);
   const goBack = useSmartBack();
   const { toast } = useToast();
-  const { t, dir, language, toggleLanguage } = useLanguage();
+  const { t, dir, language } = useLanguage();
   const isRtl = dir === "rtl";
 
-  const ArrowIcon = language === "ar" ? ChevronLeft : ChevronRight;
-  const BackArrow = language === "ar" ? ArrowLeft : ArrowRight;
+  const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (error) throw error;
 
       const { data: collegeStatusData, error: collegeStatusError } = await supabase.rpc(
@@ -82,18 +80,13 @@ const Login = () => {
           .from("user_roles")
           .select("role, approved")
           .eq("user_id", data.user.id),
-        // SECURITY DEFINER RPC that bypasses RLS entirely and auto-creates
-        // the profile row if it's missing.  This avoids the 500 caused by
-        // recursive cross-table RLS policies on `profiles`.
         supabase.rpc("get_or_create_login_profile"),
       ]);
-      // user_roles is the primary routing source; throw only if it fails.
+
       if (rolesError) throw rolesError;
-      // Profile is fetched via RPC (bypasses RLS).  If it still fails, log
-      // and continue — routing will rely on user_roles alone.
       const profile = profileRpc as { role?: string; platform?: string } | null;
       if (profileError) {
-        console.warn("[Login] get_or_create_login_profile failed, continuing without profile:", profileError.message);
+        console.warn("[Login] get_or_create_login_profile warning:", profileError.message);
       }
 
       const profileRole = profile?.role;
@@ -111,8 +104,6 @@ const Login = () => {
       const secretaryRole = roles?.find((r) => String(r.role) === "college_secretary");
       const libraryRole = roles?.find((r) => String(r.role) === "library_manager");
 
-      // Check if a lecturer has a faculty-specific role (professor, doctor, teaching_assistant, lecturer)
-      // that should route to the leadership dashboard instead of the lecturer dashboard.
       let facultySpecificRole: string | null = null;
       if (lecturerRole && !leadershipRole) {
         const { data: ifmRow } = await supabase
@@ -149,6 +140,7 @@ const Login = () => {
         goNext("/secretary/dashboard");
         return;
       }
+
       if (libraryRole) {
         goNext("/library/dashboard");
         return;
@@ -177,7 +169,6 @@ const Login = () => {
       }
 
       if (personalRole || ["personal", "student", "parent"].includes(profileRole || "")) {
-        // Check student subscription access before allowing login
         const { data: accessStatus } = await supabase.rpc("get_student_access_status");
         if (accessStatus && !(accessStatus as any).is_active) {
           const isInstitute = (accessStatus as any).institution_type === "institute";
@@ -265,27 +256,31 @@ const Login = () => {
       });
       await supabase.auth.signOut();
     } catch (error: any) {
-      console.error('Login failed:', error);
+      console.error("Login failed:", error);
       await supabase.auth.signOut();
       const errMsg = error?.message || "";
       if (errMsg.includes("Email not confirmed")) {
-        toast({ 
-          title: language === "ar" ? "البريد غير مؤكد" : "Email not confirmed", 
-          description: language === "ar" 
-            ? "يرجى تأكيد بريدك الإلكتروني أولاً عبر الرابط المرسل إليك" 
-            : "Please confirm your email first via the link sent to you", 
-          variant: "destructive" 
+        toast({
+          title: language === "ar" ? "البريد غير مؤكد" : "Email not confirmed",
+          description: language === "ar"
+            ? "يرجى تأكيد بريدك الإلكتروني أولاً عبر الرابط المرسل إليك"
+            : "Please confirm your email first via the link sent to you",
+          variant: "destructive",
         });
       } else if (errMsg.includes("Invalid login credentials")) {
-        toast({ 
-          title: language === "ar" ? "بيانات غير صحيحة" : "Invalid credentials", 
-          description: language === "ar" 
-            ? "البريد الإلكتروني أو كلمة المرور غير صحيحة" 
-            : "Incorrect email or password", 
-          variant: "destructive" 
+        toast({
+          title: language === "ar" ? "بيانات غير صحيحة" : "Invalid credentials",
+          description: language === "ar"
+            ? "البريد الإلكتروني أو كلمة المرور غير صحيحة"
+            : "Incorrect email or password",
+          variant: "destructive",
         });
       } else {
-        toast({ title: t.loginPage.error, description: language === "ar" ? "حدث خطأ غير متوقع. حاول مرة أخرى." : "An unexpected error occurred. Please try again.", variant: "destructive" });
+        toast({
+          title: t.loginPage.error,
+          description: language === "ar" ? "حدث خطأ غير متوقع. حاول مرة أخرى." : "An unexpected error occurred. Please try again.",
+          variant: "destructive",
+        });
       }
     } finally {
       setLoading(false);
@@ -293,159 +288,218 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden relative selection:bg-primary selection:text-white" dir={dir}>
-      {/* Dynamic background */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-slate-50 via-teal-50/40 to-indigo-50/50 dark:from-slate-950 dark:via-indigo-950/40 dark:to-slate-900" />
-      <div className="fixed inset-0 -z-10 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, hsl(174,72%,46%) 1px, transparent 0)", backgroundSize: "32px 32px" }} />
+    <div className="min-h-screen flex flex-col overflow-x-hidden relative selection:bg-teal-500 selection:text-white" dir={dir}>
+      {/* Dynamic Ambient Background */}
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950/80" />
+      <div
+        className="fixed inset-0 -z-10 opacity-20 pointer-events-none"
+        style={{
+          backgroundImage: "radial-gradient(circle at 1px 1px, rgba(20,184,166,0.3) 1px, transparent 0)",
+          backgroundSize: "36px 36px",
+        }}
+      />
+      <div className="fixed top-1/4 start-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-teal-500/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="fixed bottom-10 end-10 w-[450px] h-[450px] bg-indigo-500/10 rounded-full blur-[130px] pointer-events-none" />
 
-      <header className="border-b border-border/60 px-4 sm:px-8 py-3.5 bg-card/80 backdrop-blur-md sticky top-0 z-40 shadow-xs">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary via-teal-600 to-indigo-600 shadow-md shadow-primary/20 flex items-center justify-center text-white group-hover:scale-105 transition-transform">
-              <GraduationCap className="w-6 h-6" />
+      {/* Top Header */}
+      <header className="border-b border-white/10 px-4 sm:px-8 py-3.5 bg-slate-950/70 backdrop-blur-xl sticky top-0 z-40 shadow-lg">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
+          <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-teal-400 via-teal-600 to-indigo-600 shadow-lg shadow-teal-500/25 p-0.5 flex items-center justify-center text-white group-hover:scale-105 transition-transform">
+              <div className="w-full h-full rounded-[14px] bg-slate-950/40 backdrop-blur-xs flex items-center justify-center">
+                <GraduationCap className="w-5 h-5" />
+              </div>
             </div>
-            <div>
-              <span className="text-xl font-black text-foreground tracking-tight">UNIGATES</span>
-              <p className="text-[10px] font-bold text-primary">{isRtl ? "بوابة تسجيل الدخول" : "Portal Login"}</p>
+            <div className="flex flex-col">
+              <span className="text-xl font-black text-white tracking-tight">UNIGATES</span>
+              <p className="text-[10px] font-bold text-teal-300">
+                {t.loginPage.title || (isRtl ? "بوابة تسجيل الدخول الموحدة" : "Unified Login Gateway")}
+              </p>
             </div>
           </Link>
 
-          {/* Desktop buttons */}
-          <div className="hidden md:flex items-center gap-2.5">
-            <Link to="/signup">
-              <Button size="sm" variant="outline" className="font-bold gap-1.5 h-10 px-4 rounded-xl border-2 border-primary/20 hover:border-primary/50 text-foreground">
-                <UserPlus className="w-4 h-4 text-primary" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link to="/signup" className="hidden sm:block">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="font-bold gap-1.5 h-9 px-3.5 rounded-xl border-white/20 bg-white/5 hover:bg-white/15 text-white shadow-xs backdrop-blur-md"
+              >
+                <UserPlus className="w-4 h-4 text-teal-300" />
                 <span>{t.signup}</span>
               </Button>
             </Link>
-            <Link to="/university-platform">
-              <Button size="sm" variant="ghost" className="font-bold gap-1.5 h-10 px-4 rounded-xl text-foreground/80 hover:text-foreground">
-                <Home className="w-4 h-4" />
-                <span>{isRtl ? "المنصة الجامعية" : "University Platform"}</span>
+
+            <Link to="/university-platform" className="hidden md:block">
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                className="font-bold gap-1.5 h-9 px-3.5 rounded-xl text-white/80 hover:text-white hover:bg-white/10"
+              >
+                <Landmark className="w-4 h-4 text-blue-400" />
+                <span>{t.universityPlatform}</span>
               </Button>
             </Link>
-            <LanguageSelectorDropdown className="h-10 px-3.5 bg-muted/40 hover:bg-muted text-foreground border-border" />
-          </div>
 
-          {/* Mobile dropdown */}
-          <div className="flex md:hidden items-center gap-2">
-            <LanguageSelectorDropdown showNativeName={false} className="h-9 px-2 bg-muted/40 text-foreground border-border" />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="p-2 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors flex items-center justify-center">
-                  <Menu className="w-5 h-5" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-52 p-2 space-y-1">
-                <DropdownMenuItem onClick={() => navigate('/signup')} className="gap-2 cursor-pointer font-bold">
-                  <UserPlus className="w-4 h-4 text-primary" />
-                  <span>{t.signup}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/university-platform')} className="gap-2 cursor-pointer font-bold">
-                  <Home className="w-4 h-4 text-primary" />
-                  <span>{isRtl ? "المنصة الجامعية" : "University"}</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <LanguageSelectorDropdown className="h-9 px-3 bg-white/5 hover:bg-white/15 text-white border-white/20" />
           </div>
         </div>
       </header>
 
-      <main className="flex-1 flex items-center justify-center px-4 py-8 sm:py-12">
-        <div className="max-w-md w-full bg-card rounded-3xl shadow-2xl shadow-primary/5 border-2 border-border/80 p-6 sm:p-8 md:p-10 space-y-6">
-          <form onSubmit={handleLogin} className="text-center space-y-4">
-            <div className="flex justify-center mb-2">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-primary via-teal-600 to-indigo-600 shadow-xl shadow-primary/25 flex items-center justify-center text-white">
-                <GraduationCap className="w-8 h-8" />
+      {/* Main Login Hub Content */}
+      <main className="flex-1 flex items-center justify-center px-4 py-8 sm:py-12 md:py-16">
+        <div className="max-w-md w-full bg-slate-950/80 backdrop-blur-2xl rounded-3xl sm:rounded-[2rem] shadow-2xl shadow-black/50 border border-white/15 p-6 sm:p-8 md:p-10 space-y-6">
+          <form onSubmit={handleLogin} className="space-y-5">
+            {/* 3D Glowing Brand Shield */}
+            <div className="flex flex-col items-center text-center space-y-2.5">
+              <div className="relative">
+                <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-teal-400 via-emerald-500 to-indigo-600 shadow-xl shadow-teal-500/30 p-0.5 flex items-center justify-center text-white">
+                  <div className="w-full h-full rounded-[14px] bg-slate-950/30 backdrop-blur-xs flex items-center justify-center">
+                    <GraduationCap className="w-8 h-8 sm:w-9 sm:h-9 text-white" />
+                  </div>
+                </div>
+                <span className="absolute -top-1 -end-1 flex h-3.5 w-3.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-teal-500" />
+                </span>
+              </div>
+
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-normal leading-normal">
+                  {t.loginPage.title}
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-300 font-medium mt-0.5">
+                  {t.loginPage.subtitle}
+                </p>
               </div>
             </div>
 
-            <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-black text-foreground">{t.loginPage.title}</h1>
-              <p className="text-xs sm:text-sm text-muted-foreground">{t.loginPage.subtitle}</p>
+            {/* Form Fields: Symmetrical & Harmonized */}
+            <div className="space-y-4 pt-1">
+              {/* Email Address Field */}
+              <div className="space-y-1.5 text-start">
+                <Label htmlFor="login-email" className="text-xs font-bold text-slate-200 flex items-center gap-1.5 px-0.5">
+                  <Mail className="w-3.5 h-3.5 text-teal-400" />
+                  <span>{isRtl ? "البريد الإلكتروني" : "Email Address"}</span>
+                </Label>
+                <div className="relative flex items-center">
+                  <div className="absolute start-0 top-0 bottom-0 w-11 flex items-center justify-center text-slate-400 pointer-events-none z-10">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <Input
+                    id="login-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={t.loginPage.emailPlaceholder || "name@example.com"}
+                    dir="ltr"
+                    className="h-12 ps-11 pe-4 text-sm font-medium bg-white/5 border border-white/15 focus:border-teal-400 focus:bg-white/10 text-white placeholder:text-slate-400 placeholder:text-start rounded-2xl transition-all shadow-inner"
+                    required
+                    autoComplete="email"
+                  />
+                </div>
+              </div>
+
+              {/* Password Field */}
+              <div className="space-y-1.5 text-start">
+                <div className="flex items-center justify-between px-0.5">
+                  <Label htmlFor="login-password" className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-teal-400" />
+                    <span>{isRtl ? "كلمة المرور" : "Password"}</span>
+                  </Label>
+                  <Link
+                    to="/forgot-password"
+                    tabIndex={-1}
+                    className="text-[11px] font-bold text-teal-300 hover:text-teal-200 hover:underline transition-colors"
+                  >
+                    {t.loginPage.forgotPassword}
+                  </Link>
+                </div>
+
+                <div className="relative flex items-center">
+                  <div className="absolute start-0 top-0 bottom-0 w-11 flex items-center justify-center text-slate-400 pointer-events-none z-10">
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <Input
+                    id="login-password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder={t.loginPage.passwordPlaceholder || "••••••••••••"}
+                    dir="ltr"
+                    className="h-12 ps-11 pe-11 text-sm font-medium bg-white/5 border border-white/15 focus:border-teal-400 focus:bg-white/10 text-white placeholder:text-slate-400 placeholder:text-start rounded-2xl transition-all shadow-inner tracking-widest"
+                    required
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    aria-label={showPassword ? (isRtl ? "إخفاء كلمة المرور" : "Hide password") : (isRtl ? "إظهار كلمة المرور" : "Show password")}
+                    aria-pressed={showPassword}
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute end-1.5 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-teal-300 hover:bg-white/10 transition-colors z-10"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
             </div>
 
-            {/* Email input with icon */}
-            <div className="relative text-start">
-              <Mail className={`${dir === 'rtl' ? 'right-3.5' : 'left-3.5'} absolute top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none`} />
-              <Input
-                type="email"
-                placeholder={t.loginPage.emailPlaceholder}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={`${dir === 'rtl' ? 'pr-11' : 'pl-11'} h-12 text-sm bg-background border-2 border-border focus:border-primary transition-all rounded-2xl`}
-                required
-              />
-            </div>
-
-            {/* Password input with icon */}
-            <div className="relative text-start">
-              <Lock className={`${dir === 'rtl' ? 'right-3.5' : 'left-3.5'} absolute top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none`} />
-              <Input
-                type={showPassword ? "text" : "password"}
-                placeholder={t.loginPage.passwordPlaceholder}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={`${dir === 'rtl' ? 'pr-11 pl-12' : 'pl-11 pr-12'} h-12 text-sm bg-background border-2 border-border focus:border-primary transition-all rounded-2xl`}
-                dir="ltr"
-                style={{ unicodeBidi: "plaintext" }}
-                required
-              />
-              <button
-                type="button"
-                aria-label={showPassword ? (language === "ar" ? "إخفاء كلمة المرور" : "Hide password") : (language === "ar" ? "إظهار كلمة المرور" : "Show password")}
-                aria-pressed={showPassword}
-                onClick={() => setShowPassword(!showPassword)}
-                className={`${dir === 'rtl' ? 'left-2' : 'right-2'} absolute top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:text-primary`}
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-
-            {/* Login button */}
+            {/* Login Submit Button */}
             <Button
               type="submit"
               size="lg"
-              className="w-full h-12 text-base font-black gap-2 bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/90 hover:to-indigo-600/90 shadow-xl shadow-primary/25 rounded-2xl text-white transition-transform hover:scale-[1.01]"
+              className="w-full h-12 text-sm font-black gap-2 bg-gradient-to-r from-teal-500 via-emerald-600 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white shadow-xl shadow-teal-500/25 rounded-2xl transition-all transform hover:scale-[1.01] active:scale-[0.99]"
               disabled={loading}
             >
-              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowIcon className="w-5 h-5" />}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowIcon className="w-4 h-4" />}
               <span>{t.login}</span>
             </Button>
 
-            {/* Forgot password link */}
-            <div className="pt-1">
-              <Link
-                to="/forgot-password"
-                className="text-xs sm:text-sm font-bold text-primary hover:underline underline-offset-4 transition-colors"
-              >
-                {t.loginPage.forgotPassword}
-              </Link>
-            </div>
+            <Separator className="bg-white/10 my-4" />
 
-            <Separator className="my-3" />
-
-            {/* Quick Registration & Role Links */}
-            <div className="space-y-3 pt-1 text-center">
-              <p className="text-xs text-muted-foreground font-semibold">
-                {t.loginPage.noAccount}{" "}
-                <Link to="/signup" className="text-primary font-black hover:underline">
+            {/* Quick Registration & Institutional Gateways */}
+            <div className="space-y-3.5 text-center">
+              <div className="flex items-center justify-center gap-1.5 text-xs text-slate-300 font-semibold">
+                <span>{t.loginPage.noAccount}</span>
+                <Link to="/signup" className="text-teal-300 font-black hover:underline hover:text-teal-200">
                   {t.loginPage.createAccount}
                 </Link>
-              </p>
+              </div>
 
+              {/* 4 Specialized Institutional Portals Grid */}
               <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
                 <Link
                   to="/signup/college/admin"
-                  className="p-2.5 rounded-xl border border-border/80 bg-muted/40 hover:bg-muted font-bold text-foreground transition-colors text-center truncate"
+                  className="flex items-center gap-2 p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-200 font-bold transition-all hover:scale-[1.02]"
                 >
-                  🏛️ {isRtl ? "تسجيل كلية" : "College"}
+                  <Landmark className="w-4 h-4 text-blue-400 shrink-0" />
+                  <span className="truncate">{isRtl ? "تسجيل كلية" : "Register College"}</span>
                 </Link>
+
                 <Link
                   to="/signup/institute/admin"
-                  className="p-2.5 rounded-xl border border-border/80 bg-muted/40 hover:bg-muted font-bold text-foreground transition-colors text-center truncate"
+                  className="flex items-center gap-2 p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-200 font-bold transition-all hover:scale-[1.02]"
                 >
-                  🏢 {isRtl ? "تسجيل معهد" : "Institute"}
+                  <Landmark className="w-4 h-4 text-indigo-400 shrink-0" />
+                  <span className="truncate">{isRtl ? "تسجيل معهد" : "Register Institute"}</span>
+                </Link>
+
+                <Link
+                  to="/school-registration"
+                  className="flex items-center gap-2 p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-200 font-bold transition-all hover:scale-[1.02]"
+                >
+                  <School className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span className="truncate">{isRtl ? "تسجيل مدرسة" : "Register School"}</span>
+                </Link>
+
+                <Link
+                  to="/signup"
+                  className="flex items-center gap-2 p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-200 font-bold transition-all hover:scale-[1.02]"
+                >
+                  <GraduationCap className="w-4 h-4 text-teal-400 shrink-0" />
+                  <span className="truncate">{isRtl ? "طالب / معلم" : "Student / Faculty"}</span>
                 </Link>
               </div>
             </div>

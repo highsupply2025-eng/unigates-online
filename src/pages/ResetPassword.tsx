@@ -136,7 +136,7 @@ const ResetPassword = () => {
                 className="font-bold gap-1.5 h-9 px-3.5 rounded-xl border-white/20 bg-white/5 hover:bg-white/15 text-white shadow-xs backdrop-blur-md"
               >
                 <LogIn className="w-4 h-4 text-teal-300" />
-                <span>{t.loginPage.backToLogin || t.login}</span>
+                <span>{t.loginPage?.backToLogin || t.login || "تسجيل الدخول"}</span>
               </Button>
             </Link>
 
@@ -277,7 +277,7 @@ const ResetPassword = () => {
                     />
                     <button
                       type="button"
-                      aria-label={showConfirmPassword ? (isRtl ? "إخفاء كلمة المرور" : "Hide password") : (isRtl ? "إظهار كلمة المرور" : "Show password")}
+                      aria-label={showConfirmPassword ? (isRtl ? "إخفاء تأكيد كلمة المرور" : "Hide confirmation password") : (isRtl ? "إظهار تأكيد كلمة المرور" : "Show confirmation password")}
                       aria-pressed={showConfirmPassword}
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       className="absolute end-1.5 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-teal-300 hover:bg-white/10 transition-colors z-10"
@@ -307,7 +307,7 @@ const ResetPassword = () => {
                   className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-teal-300 hover:text-teal-200 hover:underline transition-colors"
                 >
                   <LogIn className="w-3.5 h-3.5" />
-                  <span>{t.loginPage.backToLogin || (isRtl ? "العودة لتسجيل الدخول" : "Back to Sign In")}</span>
+                  <span>{t.loginPage?.backToLogin || (isRtl ? "العودة لتسجيل الدخول" : "Back to Sign In")}</span>
                 </Link>
               </div>
             </form>

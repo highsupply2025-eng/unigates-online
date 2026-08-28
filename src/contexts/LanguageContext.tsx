@@ -115,6 +115,23 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 
 export const useLanguage = (): LanguageContextType => {
   const ctx = useContext(LanguageContext);
-  if (!ctx) throw new Error("useLanguage must be used within LanguageProvider");
-  return ctx;
+  if (!ctx) {
+    return {
+      language: "ar",
+      t: translations.ar,
+      setLanguage: () => {},
+      toggleLanguage: () => {},
+      dir: "rtl",
+      availableLanguages: AVAILABLE_LANGUAGES,
+      currentLanguageInfo: AVAILABLE_LANGUAGES[0],
+    };
+  }
+  return {
+    ...ctx,
+    availableLanguages: ctx.availableLanguages || AVAILABLE_LANGUAGES,
+    currentLanguageInfo:
+      ctx.currentLanguageInfo ||
+      (ctx.availableLanguages || AVAILABLE_LANGUAGES).find((l) => l.code === ctx.language) ||
+      AVAILABLE_LANGUAGES[0],
+  };
 };

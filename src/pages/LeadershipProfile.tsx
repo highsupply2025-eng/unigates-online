@@ -7,6 +7,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
+import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import FacultyMemberProfile from "@/components/FacultyMemberProfile";
 
 const LeadershipProfile = () => {
@@ -57,8 +58,10 @@ const LeadershipProfile = () => {
 
   const goTab = (tab: string) => navigate(`/leadership/dashboard?tab=${tab}`);
 
-  const isDeanOrViceDean = ["dean", "vice_dean"].includes(role);
-  const isApprovalRole = ["dean", "vice_dean", "department_head"].includes(role);
+  const isDeanOrViceDean =
+    ["dean", "vice_dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community"].includes(role) ||
+    role.startsWith("vice_dean") ||
+    role === "dean";
 
   const header = (
     <header className="sticky top-0 z-40 w-full backdrop-blur-xl bg-background/80 border-b border-border/50 shadow-xs">
@@ -75,6 +78,8 @@ const LeadershipProfile = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <LanguageSelectorDropdown className="hidden sm:flex border-border/70 text-foreground bg-muted/40 hover:bg-muted" />
+
           <DashboardMenuDropdown
             title={isRtl ? "لوحة القيادة" : "Leadership"}
             onLanguageToggle={toggleLanguage}
@@ -101,22 +106,24 @@ const LeadershipProfile = () => {
                 color: "from-purple-500 to-fuchsia-600",
                 onClick: () => goTab("schedulesapproval"),
               },
-              {
-                key: "assignments",
-                label: isDeanOrViceDean
-                  ? (isRtl ? "اعتماد التكليفات" : "Assignments Approval")
-                  : (isRtl ? "التكليفات" : "Assignments"),
-                Icon: ClipboardList,
-                color: "from-amber-500 to-orange-600",
-                onClick: () => goTab("assignments"),
-              },
-              {
-                key: "assignmentresults",
-                label: isRtl ? "نتائج التكليفات" : "Assignment Results",
-                Icon: ClipboardList,
-                color: "from-blue-500 to-indigo-600",
-                onClick: () => goTab("assignmentresults"),
-              },
+              ...(!isDeanOrViceDean
+                ? [
+                    {
+                      key: "assignments",
+                      label: isRtl ? "التكليفات" : "Assignments",
+                      Icon: ClipboardList,
+                      color: "from-amber-500 to-orange-600",
+                      onClick: () => goTab("assignments"),
+                    },
+                    {
+                      key: "assignmentresults",
+                      label: isRtl ? "نتائج التكليفات" : "Assignment Results",
+                      Icon: ClipboardList,
+                      color: "from-blue-500 to-indigo-600",
+                      onClick: () => goTab("assignmentresults"),
+                    },
+                  ]
+                : []),
               {
                 key: "quizresults",
                 label: isDeanOrViceDean

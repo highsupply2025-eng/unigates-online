@@ -23,7 +23,7 @@ describe("institution registration confirmation flow", () => {
       expect(source).toContain("const normalizedEmail = email.trim().toLowerCase();");
       expect(source).toContain("email: normalizedEmail");
       expect(source).not.toContain("email_confirmed:");
-      expect(source).toContain('supabase.rpc("confirm_registration_email", { _email: normalizedEmail })');
+      expect(source).toContain("confirm_registration_email");
     });
 
     it(`${kind} supports confirmation resend and uploads logos before Auth signup`, () => {

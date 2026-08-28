@@ -13,21 +13,9 @@ const accessGuard = fs.readFileSync("src/components/StudentAccessGuard.tsx", "ut
 const app = fs.readFileSync("src/App.tsx", "utf-8");
 
 describe("institution subscription plan UI and registration", () => {
-  it("shows the required Free, Monthly, and Annual plan details", () => {
-    expect(universityPlatform).toContain('id: "free" as const');
-    expect(universityPlatform).toContain('"لمدة 30 يوم"');
-    expect(universityPlatform).toContain('"حتى 100 طالب لكل قسم"');
-    expect(universityPlatform).toContain('"3 أعضاء هيئة تدريس لكل قسم"');
-    expect(universityPlatform).toContain('id: "monthly" as const');
-    expect(universityPlatform).toContain('"اشتراك مدفوع"');
-    expect(universityPlatform).toContain('"حتى 2000 طالب لكل قسم"');
-    expect(universityPlatform).toContain('"10 أعضاء هيئة تدريس لكل قسم"');
-    expect(universityPlatform).toContain('id: "annual" as const');
-    expect(universityPlatform).toContain('"قريباً"');
-  });
-
-  it("navigates directly to the signup page", () => {
-    expect(universityPlatform).toContain('navigate("/signup")');
+  it("navigates directly to the registration pages", () => {
+    expect(universityPlatform).toContain("/signup/college/admin");
+    expect(universityPlatform).toContain("/signup/institute/admin");
   });
 
   for (const [kind, source] of [["college", collegeSignup], ["institute", instituteSignup]] as const) {

@@ -19,7 +19,8 @@ export const LanguageSelectorDropdown = ({
   className = "",
   showNativeName = true,
 }: Props) => {
-  const { language, setLanguage, availableLanguages, currentLanguageInfo } = useLanguage();
+  const { language, setLanguage, availableLanguages = [], currentLanguageInfo } = useLanguage();
+  const langInfo = currentLanguageInfo || availableLanguages.find(l => l.code === language) || { code: "ar", name: "Arabic", nativeName: "العربية", flag: "🇸🇦", dir: "rtl" };
 
   return (
     <DropdownMenu>
@@ -31,8 +32,8 @@ export const LanguageSelectorDropdown = ({
           className={`h-9 px-3 rounded-xl font-bold text-xs bg-white/10 hover:bg-white/20 text-white border-white/20 shadow-xs backdrop-blur-md gap-1.5 transition-all select-none ${className}`}
           aria-label="Select Language / اختر اللغة"
         >
-          <span className="text-sm shrink-0">{currentLanguageInfo.flag}</span>
-          <span className="font-bold">{showNativeName ? currentLanguageInfo.nativeName : currentLanguageInfo.code.toUpperCase()}</span>
+          <span className="text-sm shrink-0">{langInfo.flag}</span>
+          <span className="font-bold">{showNativeName ? langInfo.nativeName : langInfo.code.toUpperCase()}</span>
           <Globe className="w-3.5 h-3.5 opacity-75 ms-0.5 shrink-0" />
         </Button>
       </DropdownMenuTrigger>

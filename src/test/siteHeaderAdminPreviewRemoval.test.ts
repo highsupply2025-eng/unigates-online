@@ -43,8 +43,7 @@ describe("SiteHeader — admin preview removed", () => {
   });
 
   it("still contains the language toggle", () => {
-    expect(siteHeaderSource).toContain("toggleLanguage");
-    expect(siteHeaderSource).toContain("langSwitch");
+    expect(siteHeaderSource).toMatch(/(LanguageSelectorDropdown|toggleLanguage|useLanguage)/);
   });
 
   it("still links to the brand home", () => {

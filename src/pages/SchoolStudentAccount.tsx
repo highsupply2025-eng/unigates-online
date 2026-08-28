@@ -26,7 +26,7 @@ const SchoolStudentAccount = () => {
             </h1>
             <p className="text-xs sm:text-base font-bold truncate mt-0.5">
               <span className="bg-gradient-to-r from-sky-600 to-cyan-600 dark:from-sky-300 dark:to-cyan-300 bg-clip-text text-transparent">
-                {isRtl ? "البيانات الشخصية" : "Personal Information"}
+                {isRtl ? "بيانات الحساب" : "Account Information"}
               </span>
             </p>
           </div>
@@ -41,7 +41,7 @@ const SchoolStudentAccount = () => {
               { key: "live", label: isRtl ? "البث المباشر" : "Live", Icon: Radio, color: "from-red-500 to-rose-600", onClick: () => go("live") },
               { key: "homework", label: isRtl ? "الواجبات" : "Homework", Icon: CheckCircle, color: "from-amber-500 to-amber-600", onClick: () => go("homework") },
               { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => go("ratings") },
-              { key: "profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => {}, active: true },
+              { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Information", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => {}, active: true },
             ]}
           />
         </div>

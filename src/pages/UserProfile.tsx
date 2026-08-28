@@ -169,7 +169,7 @@ const UserProfile = () => {
             </span>
             <div className="min-w-0">
               <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground truncate">
-                {isRtl ? "البيانات الشخصية" : "Personal Information"}
+                {isRtl ? "بيانات الحساب" : "Account Information"}
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground font-bold truncate mt-0.5">
                 {isRtl
@@ -193,7 +193,7 @@ const UserProfile = () => {
                 { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: FileText, color: "from-amber-500 to-amber-600", onClick: () => navigate("/student/assignments") },
                 { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-blue-500 to-blue-600", onClick: () => navigate("/student/schedules") },
                 { key: "ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => navigate("/student/ratings") },
-                { key: "profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => {}, active: true },
+                { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Information", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => {}, active: true },
               ]}
             />
           </div>

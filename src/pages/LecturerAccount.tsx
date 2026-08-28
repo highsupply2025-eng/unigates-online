@@ -26,7 +26,7 @@ const LecturerAccount = () => {
             </h1>
             <p className="text-xs sm:text-base font-bold truncate mt-0.5">
               <span className="bg-gradient-to-r from-cyan-600 to-emerald-600 dark:from-cyan-300 dark:to-emerald-300 bg-clip-text text-transparent">
-                {isRtl ? "البيانات الشخصية" : "Personal Information"}
+                {isRtl ? "بيانات الحساب" : "Account Information"}
               </span>
             </p>
           </div>
@@ -46,7 +46,7 @@ const LecturerAccount = () => {
               { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-teal-500 to-emerald-600", onClick: () => go("attendance") },
               { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => go("ratings") },
               { key: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, color: "from-green-500 to-emerald-600", onClick: () => go("analytics") },
-              { key: "profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => {}, active: true },
+              { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Information", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => {}, active: true },
             ]}
           />
         </div>

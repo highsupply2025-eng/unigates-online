@@ -187,7 +187,7 @@ const StudentDashboard = () => {
     { to: "/student/ratings", label: isRtl ? "التقييمات" : "Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", palette: { from: "#eab308", to: "#d97706", glow: "234,179,8" }, badge: 0 },
     { to: "/student/results", label: isRtl ? "نتائج الاختبارات" : "Exam Results", Icon: Award, color: "from-teal-500 to-teal-600", palette: { from: "#14b8a6", to: "#0d9488", glow: "20,184,166" }, badge: 0 },
     { to: "/student/assignment-results", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, color: "from-cyan-500 to-cyan-600", palette: { from: "#06b6d4", to: "#0891b2", glow: "6,182,212" }, badge: 0 },
-    { to: "/profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, color: "from-cyan-500 to-cyan-600", palette: { from: "#06b6d4", to: "#0891b2", glow: "6,182,212" }, badge: 0 },
+    { to: "/profile", label: isRtl ? "بيانات الحساب" : "Account Information", Icon: User, color: "from-cyan-500 to-cyan-600", palette: { from: "#06b6d4", to: "#0891b2", glow: "6,182,212" }, badge: 0 },
   ];
 
   // Mark sections as viewed when navigating to them

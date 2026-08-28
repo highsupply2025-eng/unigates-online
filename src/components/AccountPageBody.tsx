@@ -320,7 +320,7 @@ const AccountPageBody = ({
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <User className="w-5 h-5 text-primary" />
-              {isRtl ? "تعديل البيانات" : "Edit Information"}
+              {isRtl ? "بيانات الحساب وتعديلها" : "Account Information & Edit"}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">

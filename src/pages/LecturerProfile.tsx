@@ -405,7 +405,7 @@ const LecturerProfile = () => {
           {/* Personal */}
           <SectionCard
             icon={<UserRound className="w-5 h-5" />}
-            title={isRtl ? "البيانات الشخصية" : "Personal Information"}
+            title={isRtl ? "بيانات الحساب" : "Account Information"}
             accent="from-indigo-500 to-indigo-600"
           >
             {dob && <InfoRow icon={<Calendar className="w-4 h-4" />} label={isRtl ? "تاريخ الميلاد" : "Date of Birth"} value={dob} />}

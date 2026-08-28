@@ -69,7 +69,7 @@ const LeadershipProfile = () => {
           </div>
           <div className="min-w-0 flex-1">
             <h1 className="text-base sm:text-xl font-black truncate text-foreground">
-              {isRtl ? "الملف الشخصي والبيانات الأكاديمية" : "Profile & Academic Information"}
+              {isRtl ? "بيانات الحساب" : "Account Information"}
             </h1>
           </div>
         </div>
@@ -135,7 +135,7 @@ const LeadershipProfile = () => {
                 color: "from-yellow-500 to-amber-600",
                 onClick: () => goTab("ratings"),
               },
-              { key: "profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => {}, active: true },
+              { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Information", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => {}, active: true },
             ]}
           />
         </div>

@@ -190,31 +190,75 @@ export const CreateLiveStreamView = ({
 
     setSavingStream(true);
     try {
+      // Ensure we have the current user id
+      let activeUserId = userId;
+      if (!activeUserId) {
+        const { data: authData } = await supabase.auth.getUser();
+        activeUserId = authData?.user?.id || "";
+      }
+
+      if (!activeUserId) {
+        throw new Error(isRtl ? "لم يتم التعرف على المستخدم المسجل" : "User session not found");
+      }
+
       const scheduledTime = streamType === "instant"
         ? new Date().toISOString()
         : (newStream.scheduled_at ? new Date(newStream.scheduled_at).toISOString() : new Date().toISOString());
 
       const status = streamType === "instant" ? "live" : "scheduled";
+      const instructorName = profile?.full_name || (isRtl ? "مقدم البث" : "Instructor");
 
-      const { data: streamRecord, error: insertError } = await supabase
-        .from("live_streams")
-        .insert({
-          creator_id: userId,
-          title_ar: newStream.title_ar.trim(),
-          title_en: newStream.title_en.trim(),
-          category_ar: newStream.category_ar.trim() || (isRtl ? "عام" : "General"),
-          category_en: newStream.category_en.trim() || "General",
-          instructor_ar: profile?.full_name || (isRtl ? "مقدم البث" : "Instructor"),
-          instructor_en: profile?.full_name || "Instructor",
-          status,
-          scheduled_at: scheduledTime,
-          department_id: newStream.department_id,
-          expires_at: newStream.expires_at ? new Date(newStream.expires_at).toISOString() : null,
-        } as any)
-        .select("id")
-        .single();
+      let createdStreamId: string | null = null;
 
-      if (insertError) throw insertError;
+      // 1. Try secure RPC first
+      try {
+        const { data: rpcStreamId, error: rpcError } = await supabase.rpc("create_live_stream_secure", {
+          p_title_ar: newStream.title_ar.trim(),
+          p_title_en: newStream.title_en.trim(),
+          p_category_ar: newStream.category_ar.trim() || (isRtl ? "عام" : "General"),
+          p_category_en: newStream.category_en.trim() || "General",
+          p_instructor_ar: instructorName,
+          p_instructor_en: instructorName,
+          p_status: status,
+          p_scheduled_at: scheduledTime,
+          p_department_id: newStream.department_id || null,
+          p_expires_at: newStream.expires_at ? new Date(newStream.expires_at).toISOString() : null,
+        });
+
+        if (!rpcError && rpcStreamId) {
+          createdStreamId = rpcStreamId;
+        }
+      } catch (e) {
+        console.warn("RPC create_live_stream_secure warning:", e);
+      }
+
+      // 2. Direct insert fallback
+      if (!createdStreamId) {
+        const { data: streamRecord, error: insertError } = await supabase
+          .from("live_streams")
+          .insert({
+            creator_id: activeUserId,
+            title_ar: newStream.title_ar.trim(),
+            title_en: newStream.title_en.trim(),
+            category_ar: newStream.category_ar.trim() || (isRtl ? "عام" : "General"),
+            category_en: newStream.category_en.trim() || "General",
+            instructor_ar: instructorName,
+            instructor_en: instructorName,
+            status,
+            scheduled_at: scheduledTime,
+            department_id: newStream.department_id,
+            expires_at: newStream.expires_at ? new Date(newStream.expires_at).toISOString() : null,
+          } as any)
+          .select("id")
+          .single();
+
+        if (insertError) throw insertError;
+        createdStreamId = streamRecord?.id || null;
+      }
+
+      if (!createdStreamId) {
+        throw new Error(isRtl ? "فشل إنشاء سجل البث" : "Failed to create stream record");
+      }
 
       toast({
         title: isRtl ? "تم إطلاق البث بنجاح! 🚀" : "Stream launched successfully! 🚀",
@@ -230,8 +274,8 @@ export const CreateLiveStreamView = ({
 
       onCreated();
 
-      if (streamType === "instant" && streamRecord?.id) {
-        navigate(`/stream/${streamRecord.id}`);
+      if (streamType === "instant" && createdStreamId) {
+        navigate(`/stream/${createdStreamId}`);
       } else {
         onBack();
       }

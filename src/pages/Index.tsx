@@ -1,12 +1,14 @@
 import SiteHeader from "@/components/SiteHeader";
 import HeroSection from "@/components/HeroSection";
-import FeaturesSection from "@/components/FeaturesSection";
-import SiteFooter from "@/components/SiteFooter";
 import StatsSection from "@/components/StatsSection";
+import EcosystemPortals from "@/components/EcosystemPortals";
 import HomepageSections from "@/components/HomepageSections";
+import FeaturesSection from "@/components/FeaturesSection";
+import TestimonialsSection from "@/components/TestimonialsSection";
+import FAQSection from "@/components/FAQSection";
+import CTASection from "@/components/CTASection";
+import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
-
-
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
@@ -14,29 +16,49 @@ const Index = () => {
   const isRtl = dir === "rtl";
 
   return (
-    <div className="min-h-screen bg-background text-foreground" dir={dir}>
+    <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-primary/20" dir={dir}>
       <SEO
-        title={isRtl ? "UNIGATES — منصة تعليمية عربية وإنجليزية" : "UNIGATES — Arabic & English Educational Platform"}
-        description={isRtl
-          ? "منصة UNIGATES التابعة لدار عبيد: دورات أونلاين، متجر كتب، ومنصات للمدارس والجامعات للطلاب والمعلمين والمؤسسات."
-          : "UNIGATES by Dar Obeid: online courses, a digital book store, and K-12 / university platforms for students, teachers, and institutions."}
+        title={
+          isRtl
+            ? "UNIGATES — المنظومة التعليمية الرقمية الموحدة | دار عبيد"
+            : "UNIGATES — The Unified Educational Digital Ecosystem | Dar Obeid"
+        }
+        description={
+          isRtl
+            ? "منظومة UNIGATES التعليمية المتكاملة التابعة لدار عبيد: منصة جامعية للكليات والمعاهد، منصة مدرسية، أكاديمية دورات تدريبية، ومتجر كتب ومكتبة رقمية شاملة."
+            : "UNIGATES by Dar Obeid: integrated university platform, K-12 school platform, professional courses academy, and digital bookstore."
+        }
       />
-      <SiteHeader />
-      <main>
-        <div className="relative">
-          <HeroSection />
-          <div className="absolute bottom-4 sm:bottom-8 left-0 right-0 z-20">
-            <StatsSection />
-          </div>
-        </div>
 
+      <SiteHeader />
+
+      <main className="flex-1 space-y-0">
+        {/* 1. Dynamic Hero Section */}
+        <HeroSection />
+
+        {/* 2. Real-Time Platform Stats Bar */}
+        <StatsSection />
+
+        {/* 3. The 4 Specialized Portals Ecosystem */}
+        <EcosystemPortals />
+
+        {/* 4. Live Institution, Course & Book Carousels */}
         <HomepageSections />
 
-        <div className="divide-y divide-border/40">
-          <FeaturesSection />
-        </div>
+        {/* 5. Smart Features & Technical Capabilities */}
+        <FeaturesSection />
+
+        {/* 6. Authentic Testimonials & Success Stories */}
+        <TestimonialsSection />
+
+        {/* 7. Comprehensive FAQs */}
+        <FAQSection />
+
+        {/* 8. Call to Action Banner */}
+        <CTASection />
       </main>
 
+      {/* 9. Comprehensive Footer */}
       <SiteFooter />
     </div>
   );

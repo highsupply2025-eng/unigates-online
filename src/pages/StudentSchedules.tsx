@@ -28,12 +28,10 @@ const StudentSchedules = () => {
       .eq("status", "active");
     const subIds = (subs || []).map((s: any) => s.course_id);
 
-    // Only show fully approved schedules for courses the student is subscribed to
+    // Only show fully approved schedules (approved by Dean) for courses the student is subscribed to
     const { data } = await supabase
       .from("lecture_schedules")
       .select("*")
-      .eq("approved_by_head", true)
-      .eq("approved_by_vice_dean", true)
       .eq("approved_by_dean", true)
       .order("scheduled_date", { ascending: true });
     const allSchedules = data || [];
@@ -102,9 +100,22 @@ const StudentSchedules = () => {
                         )}
                       </div>
                     </div>
-                    <Badge variant={isTest ? "default" : "secondary"} className="shrink-0 text-[10px] sm:text-xs">
-                      {isTest ? (isRtl ? "اختبار" : "Test") : (isRtl ? "محاضرة" : "Lecture")}
-                    </Badge>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {s.file_url && (
+                        <a
+                          href={s.file_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="p-2 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors"
+                          title={isRtl ? "تحميل ملف / صورة الجدول" : "Download Timetable"}
+                        >
+                          <BookOpen className="w-4 h-4" />
+                        </a>
+                      )}
+                      <Badge variant={isTest ? "default" : "secondary"} className="shrink-0 text-[10px] sm:text-xs">
+                        {isTest ? (isRtl ? "اختبار" : "Test") : (isRtl ? "محاضرة" : "Lecture")}
+                      </Badge>
+                    </div>
                   </CardContent>
                 </Card>
               );

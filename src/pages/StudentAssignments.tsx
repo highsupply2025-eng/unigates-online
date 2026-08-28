@@ -22,12 +22,21 @@ const StudentAssignments = () => {
   const load = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigate("/login"); return; }
-    // Show all assignments added by lecturers regardless of subscription
+    // Show approved assignments for enrolled student courses
+    const { data: subs } = await supabase
+      .from("user_subscriptions")
+      .select("course_id")
+      .eq("user_id", user.id)
+      .eq("status", "active");
+    const subIds = (subs || []).map((s: any) => s.course_id);
+
     const { data: asgs } = await supabase
       .from("assignments")
       .select("*")
+      .or("is_published.eq.true,approved_by_dean.eq.true")
       .order("due_date", { ascending: true });
-    setItems(asgs || []);
+    const liveAsgs = (asgs || []).filter((a: any) => subIds.length === 0 || subIds.includes(a.course_id));
+    setItems(liveAsgs);
     const { data: mySubs } = await supabase
       .from("assignment_submissions")
       .select("assignment_id")

@@ -92,11 +92,25 @@ const LeadershipProfile = () => {
                 color: "from-emerald-500 to-teal-600",
                 onClick: () => goTab("quizzesonline"),
               },
-              ...(isApprovalRole ? [
-                { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, color: "from-purple-500 to-fuchsia-600", onClick: () => goTab("schedulesapproval") },
-              ] : []),
+              {
+                key: "schedulesapproval",
+                label: isDeanOrViceDean
+                  ? (isRtl ? "اعتماد الجداول" : "Schedules Approval")
+                  : (isRtl ? "الجداول" : "Schedules"),
+                Icon: Calendar,
+                color: "from-purple-500 to-fuchsia-600",
+                onClick: () => goTab("schedulesapproval"),
+              },
+              {
+                key: "assignments",
+                label: isDeanOrViceDean
+                  ? (isRtl ? "اعتماد التكليفات" : "Assignments Approval")
+                  : (isRtl ? "التكليفات" : "Assignments"),
+                Icon: ClipboardList,
+                color: "from-amber-500 to-orange-600",
+                onClick: () => goTab("assignments"),
+              },
               { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", onClick: () => goTab("quizresults") },
-              { key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, color: "from-blue-500 to-indigo-600", onClick: () => goTab("assignments") },
               { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => goTab("ratings") },
               { key: "profile", label: isRtl ? "البيانات الشخصية" : "Personal Information", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => {}, active: true },
             ]}

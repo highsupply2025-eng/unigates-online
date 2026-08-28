@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { ClipboardList, Calendar, FileText, Upload, CheckCircle2, Lock } from "lucide-react";
+import { ClipboardList, Calendar, FileText, Upload, CheckCircle2, Lock, Download, Image as ImageIcon, Eye } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentPageHeader from "@/components/StudentPageHeader";
 import MandatoryRatingDialog from "@/components/MandatoryRatingDialog";
@@ -22,10 +23,27 @@ const StudentAssignmentDetail = () => {
   const [checking, setChecking] = useState(true);
   const [showRating, setShowRating] = useState(false);
 
+  const [realAssignment, setRealAssignment] = useState<any | null>(null);
+  const [zoomImageUrl, setZoomImageUrl] = useState<string | null>(null);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
+      const isUuid = /^[0-9a-f-]{36}$/i.test(assignmentId || "");
+
+      if (isUuid && assignmentId) {
+        const { data: asgData } = await supabase
+          .from("assignments")
+          .select("*, courses:course_id(title_ar, title_en)")
+          .eq("id", assignmentId)
+          .maybeSingle();
+
+        if (!cancelled && asgData) {
+          setRealAssignment(asgData);
+        }
+      }
+
       if (!user || !assignmentId) {
         // Fallback to localStorage for demo assignments
         const key = `assignment_submitted:${assignmentId}:${user?.id ?? "anon"}`;
@@ -38,7 +56,6 @@ const StudentAssignmentDetail = () => {
       const key = `assignment_submitted:${assignmentId}:${user.id}`;
       const localFlag = localStorage.getItem(key) === "1";
       // Try DB (real assignment ids only)
-      const isUuid = /^[0-9a-f-]{36}$/i.test(assignmentId);
       let dbFound = false;
       if (isUuid) {
         const { data } = await supabase
@@ -58,8 +75,22 @@ const StudentAssignmentDetail = () => {
     return () => { cancelled = true; };
   }, [assignmentId]);
 
-
-  const assignment = {
+  const assignment = realAssignment ? {
+    id: realAssignment.id,
+    titleAr: realAssignment.title_ar || realAssignment.title_en,
+    titleEn: realAssignment.title_en || realAssignment.title_ar,
+    instructorAr: isRtl ? "مدرس المقرر" : "Course Lecturer",
+    instructorEn: "Course Lecturer",
+    courseAr: realAssignment.courses?.title_ar || (isRtl ? "مقرر جامعي" : "University Course"),
+    courseEn: realAssignment.courses?.title_en || "University Course",
+    dueDate: realAssignment.due_date ? new Date(realAssignment.due_date).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : "-",
+    grade: realAssignment.points || 10,
+    descAr: realAssignment.description_ar || realAssignment.description_en || "",
+    descEn: realAssignment.description_en || realAssignment.description_ar || "",
+    fileUrls: realAssignment.file_urls || (realAssignment.file_url ? [realAssignment.file_url] : []),
+    fileNames: realAssignment.file_names || (realAssignment.file_name ? [realAssignment.file_name] : []),
+    imageUrls: realAssignment.image_urls || [],
+  } : {
     id: assignmentId || "demo-1",
     titleAr: "تكليف تجريبي - مقدمة في المادة",
     titleEn: "Demo Assignment - Course Introduction",
@@ -73,6 +104,9 @@ const StudentAssignmentDetail = () => {
       "هذا تكليف تجريبي لعرض شكل صفحة التكليف. اكتب إجابتك في المربع أدناه ثم اضغط على زر التسليم.",
     descEn:
       "This is a demo assignment to showcase the assignment detail page. Write your answer below and click submit.",
+    fileUrls: [],
+    fileNames: [],
+    imageUrls: [],
   };
 
   const handleSubmit = () => {
@@ -186,13 +220,74 @@ const StudentAssignmentDetail = () => {
           <CardContent className="p-5">
             <h2 className="font-bold text-foreground mb-3 flex items-center gap-2">
               <FileText className="w-4 h-4 text-primary" />
-              {isRtl ? "وصف التكليف" : "Description"}
+              {isRtl ? "وصف وتعليمات التكليف" : "Assignment Description"}
             </h2>
-            <p className="text-sm text-foreground/80 leading-relaxed">
+            <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
               {isRtl ? assignment.descAr : assignment.descEn}
             </p>
           </CardContent>
         </Card>
+
+        {/* Attached Files & Documents */}
+        {assignment.fileUrls && assignment.fileUrls.length > 0 && (
+          <Card className="border-2 border-amber-500/30 bg-amber-500/5">
+            <CardContent className="p-5 space-y-3">
+              <h2 className="font-black text-foreground flex items-center gap-2 text-sm">
+                <FileText className="w-4 h-4 text-amber-600" />
+                {isRtl ? "المستندات والملفات المرفقة بالتكليف" : "Attached Assignment Files"}
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {assignment.fileUrls.map((url: string, idx: number) => {
+                  const name = assignment.fileNames?.[idx] || `Document_${idx + 1}`;
+                  return (
+                    <div key={idx} className="p-3 rounded-2xl bg-card border flex items-center justify-between gap-2 shadow-xs">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <FileText className="w-4 h-4 text-amber-600 shrink-0" />
+                        <span className="text-xs font-bold truncate">{name}</span>
+                      </div>
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-black text-amber-700 dark:text-amber-400 hover:underline shrink-0"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        {isRtl ? "تحميل" : "Download"}
+                      </a>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Attached Images Gallery */}
+        {assignment.imageUrls && assignment.imageUrls.length > 0 && (
+          <Card className="border-2 border-pink-500/30 bg-pink-500/5">
+            <CardContent className="p-5 space-y-3">
+              <h2 className="font-black text-foreground flex items-center gap-2 text-sm">
+                <ImageIcon className="w-4 h-4 text-pink-600" />
+                {isRtl ? `الرسومات والصور التوضيحية (${assignment.imageUrls.length})` : "Assignment Images & Figures"}
+              </h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {assignment.imageUrls.map((imgUrl: string, idx: number) => (
+                  <div
+                    key={idx}
+                    onClick={() => setZoomImageUrl(imgUrl)}
+                    className="h-32 rounded-2xl border border-border overflow-hidden bg-black/5 cursor-pointer hover:opacity-90 transition-opacity relative group"
+                  >
+                    <img src={imgUrl} alt={`Figure ${idx + 1}`} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-black gap-1">
+                      <Eye className="w-4 h-4" />
+                      <span>{isRtl ? "تكبير" : "Zoom"}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Card>
           <CardContent className="p-5 space-y-3">
@@ -232,6 +327,15 @@ const StudentAssignmentDetail = () => {
           </CardContent>
         </Card>
       </main>
+
+      {/* Image Zoom Modal */}
+      <Dialog open={!!zoomImageUrl} onOpenChange={() => setZoomImageUrl(null)}>
+        <DialogContent className="max-w-4xl rounded-3xl p-2 bg-black/90 border-0 flex items-center justify-center">
+          {zoomImageUrl && (
+            <img src={zoomImageUrl} alt="Preview" className="max-h-[85vh] max-w-full object-contain rounded-2xl" />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

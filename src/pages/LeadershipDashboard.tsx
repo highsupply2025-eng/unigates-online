@@ -1247,320 +1247,88 @@ const LeadershipDashboard = () => {
             
           </TabsList>
 
-          {/* Overview - Futuristic Command Center */}
-          <TabsContent value="overview" dir={isRtl ? "rtl" : "ltr"} className="space-y-6 animate-in fade-in-50 duration-300">
-            {/* 1. Futuristic Command Core Telemetry Header Banner */}
-            <div className="relative overflow-hidden rounded-3xl border border-cyan-500/30 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white p-5 sm:p-7 shadow-2xl">
-              {/* Futuristic Cyber Mesh & Glow Effect */}
-              <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-cyan-500/15 blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-purple-500/15 blur-3xl pointer-events-none" />
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f29370a_1px,transparent_1px),linear-gradient(to_bottom,#1f29370a_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none opacity-40" />
+          {/* Overview - Enhanced Original Design */}
+          <TabsContent value="overview" dir={isRtl ? "rtl" : "ltr"} className="space-y-4 animate-in fade-in-50 duration-200">
 
-              <div className="relative z-10 space-y-5">
-                {/* Header Top Meta */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5 flex-wrap">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-xs backdrop-blur-md">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                      <span>{isRtl ? "المركز الذكي متصل ومباشر" : "CORE TELEMETRY ONLINE"}</span>
-                    </span>
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 backdrop-blur-md">
-                      <Cpu className="w-3.5 h-3.5" />
-                      <span>{isRtl ? getRoleLabel().ar : getRoleLabel().en}</span>
-                    </span>
-                  </div>
+            {/* Department Filter Dropdown - only for oversight roles with multiple departments */}
+            {myDepartments.length > 1 && (
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-xs font-bold text-muted-foreground whitespace-nowrap">
+                  {isRtl ? "عرض بيانات:" : "Show data:"}
+                </span>
+                <Select value={selectedDeptId} onValueChange={setSelectedDeptId}>
+                  <SelectTrigger className="w-[200px] sm:w-[260px] h-9 text-sm font-bold border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-transparent rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{isRtl ? "كل الأقسام" : "All Departments"}</SelectItem>
+                    {myDepartments.map(d => (
+                      <SelectItem key={d.id} value={d.id}>{d.department_name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
-                  <div className="flex items-center gap-2 self-start sm:self-auto">
-                    <span className="text-[11px] font-mono text-slate-400" aria-live="polite" data-tick={nowTick}>
-                      {isRtl ? "آخر مزامنة: " : "Synced: "}{formatLastUpdated(lastLoadedAt)}
-                    </span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={handleManualRefresh}
-                      disabled={refreshing}
-                      className="h-8 px-2.5 text-xs font-bold text-cyan-300 hover:text-white hover:bg-cyan-500/20 rounded-xl border border-cyan-500/30"
-                    >
-                      {refreshing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-                      <span className="hidden sm:inline">{isRtl ? "مزامنة" : "Sync"}</span>
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Welcome & Organization Details */}
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-1">
-                  <div className="space-y-1">
-                    <h2 className="text-xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2">
-                      <Sparkles className="w-6 h-6 text-cyan-400 shrink-0" />
-                      <span>{profile?.full_name || (isRtl ? "رئيس القسم" : "Department Head")}</span>
-                    </h2>
-                    <p className="text-xs sm:text-sm text-slate-300/90 font-bold flex items-center gap-2 flex-wrap">
-                      <Landmark className="w-4 h-4 text-cyan-400" />
-                      <span>{institutionName || (isRtl ? "بوابة الأكاديمية الذكية" : "Smart Academic Gateway")}</span>
-                      {selectedDeptId !== "all" && myDepartments.length > 0 && (
-                        <>
-                          <span className="text-slate-500">•</span>
-                          <span className="text-cyan-300">
-                            {myDepartments.find(d => d.id === selectedDeptId)?.department_name}
-                          </span>
-                        </>
-                      )}
-                    </p>
-                  </div>
-
-                  {/* Multi-department selector if available */}
-                  {myDepartments.length > 1 && (
-                    <div className="flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-2xl border border-cyan-500/30 backdrop-blur-md">
-                      <span className="text-xs font-bold text-slate-400 px-2 whitespace-nowrap">
-                        {isRtl ? "القسم النشط:" : "Active Dept:"}
+            {(() => {
+              return (
+                <>
+                  {/* Top Bar: Time Range Toggle & Last Updated */}
+                  <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                    <TimeRangeToggle value={rangeDays} onChange={setRangeDays} />
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground font-semibold" aria-live="polite" data-tick={nowTick}>
+                        {isRtl ? "آخر تحديث: " : "Updated: "}{formatLastUpdated(lastLoadedAt)}
                       </span>
-                      <Select value={selectedDeptId} onValueChange={setSelectedDeptId}>
-                        <SelectTrigger className="w-[170px] sm:w-[210px] h-8 text-xs font-bold border-cyan-500/30 bg-slate-800/90 text-white rounded-xl">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-slate-900 border-cyan-500/30 text-white">
-                          <SelectItem value="all">{isRtl ? "كل الأقسام" : "All Departments"}</SelectItem>
-                          {myDepartments.map(d => (
-                            <SelectItem key={d.id} value={d.id}>{d.department_name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-                </div>
-
-                {/* Telemetry Matrix Chips */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3 border-t border-slate-800/80">
-                  <div className="bg-slate-900/60 rounded-2xl p-3 border border-cyan-500/20 backdrop-blur-sm">
-                    <p className="text-[11px] text-slate-400 font-bold flex items-center gap-1.5">
-                      <Video className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>{isRtl ? "إجمالي الفيديوهات" : "Total Videos"}</span>
-                    </p>
-                    <p className="text-lg sm:text-2xl font-black text-cyan-300 mt-1">{episodes.length}</p>
-                  </div>
-
-                  <div className="bg-slate-900/60 rounded-2xl p-3 border border-rose-500/20 backdrop-blur-sm">
-                    <p className="text-[11px] text-slate-400 font-bold flex items-center gap-1.5">
-                      <Radio className="w-3.5 h-3.5 text-rose-400" />
-                      <span>{isRtl ? "البث المباشر" : "Live Streams"}</span>
-                    </p>
-                    <p className="text-lg sm:text-2xl font-black text-rose-300 mt-1">
-                      {liveNow.length > 0 ? (
-                        <span className="flex items-center gap-1.5">
-                          <span>{liveNow.length} {isRtl ? "نشط" : "Live"}</span>
-                          <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
-                        </span>
-                      ) : (
-                        <span>{liveStreams.length}</span>
-                      )}
-                    </p>
-                  </div>
-
-                  <div className="bg-slate-900/60 rounded-2xl p-3 border border-purple-500/20 backdrop-blur-sm">
-                    <p className="text-[11px] text-slate-400 font-bold flex items-center gap-1.5">
-                      <Award className="w-3.5 h-3.5 text-purple-400" />
-                      <span>{isRtl ? "الاختبارات والتكليفات" : "Exams & Tasks"}</span>
-                    </p>
-                    <p className="text-lg sm:text-2xl font-black text-purple-300 mt-1">{quizzes.length + assignments.length}</p>
-                  </div>
-
-                  <div className="bg-slate-900/60 rounded-2xl p-3 border border-amber-500/20 backdrop-blur-sm">
-                    <p className="text-[11px] text-slate-400 font-bold flex items-center gap-1.5">
-                      <Star className="w-3.5 h-3.5 text-amber-400" />
-                      <span>{isRtl ? "رضا وتقييمات الطلاب" : "Student Ratings"}</span>
-                    </p>
-                    <p className="text-lg sm:text-2xl font-black text-amber-300 mt-1">
-                      {ratings.length > 0
-                        ? `${(ratings.reduce((acc: number, r: any) => acc + (r.rating || 5), 0) / ratings.length).toFixed(1)} ★`
-                        : "5.0 ★"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 2. Futuristic Quick Launchpad Deck */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-black text-foreground flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-                  <span>{isRtl ? "منصة الإطلاق والعمليات السريعة" : "Quick Operations Launchpad"}</span>
-                </h3>
-              </div>
-
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("lectures")}
-                  className="group relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br from-cyan-500/10 via-card to-card border border-cyan-500/30 hover:border-cyan-500 hover:shadow-lg hover:shadow-cyan-500/20 transition-all text-right flex flex-col justify-between min-h-[110px]"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                      <BookOpen className="w-5 h-5" />
-                    </span>
-                    <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-cyan-500 transition-colors" />
-                  </div>
-                  <div>
-                    <p className="font-black text-sm text-foreground mt-2">{isRtl ? "استوديو المحاضرات" : "Lecture Studio"}</p>
-                    <p className="text-[11px] text-muted-foreground font-bold">{isRtl ? "تسجيل ونشر الفيديوهات" : "Record & Publish"}</p>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("livestreams")}
-                  className="group relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br from-red-500/10 via-card to-card border border-red-500/30 hover:border-red-500 hover:shadow-lg hover:shadow-red-500/20 transition-all text-right flex flex-col justify-between min-h-[110px]"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                      <Radio className="w-5 h-5" />
-                    </span>
-                    <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-red-500 transition-colors" />
-                  </div>
-                  <div>
-                    <p className="font-black text-sm text-foreground mt-2">{isRtl ? "البث المباشر الفوري" : "Live Streaming"}</p>
-                    <p className="text-[11px] text-muted-foreground font-bold">{isRtl ? "بدء غرفة بث تفاعلية" : "Interactive Room"}</p>
-                  </div>
-                </button>
-
-                {isApprovalRole ? (
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("quizzesonline")}
-                    className="group relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br from-emerald-500/10 via-card to-card border border-emerald-500/30 hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/20 transition-all text-right flex flex-col justify-between min-h-[110px]"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                        <ShieldCheck className="w-5 h-5" />
-                      </span>
-                      <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-emerald-500 transition-colors" />
-                    </div>
-                    <div>
-                      <p className="font-black text-sm text-foreground mt-2">{isRtl ? "مركز الاعتمادات" : "Approvals Center"}</p>
-                      <p className="text-[11px] text-muted-foreground font-bold">{isRtl ? "مراجعة واعتماد الاختبارات" : "Review & Approve"}</p>
-                    </div>
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("quizresults")}
-                    className="group relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br from-indigo-500/10 via-card to-card border border-indigo-500/30 hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/20 transition-all text-right flex flex-col justify-between min-h-[110px]"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                        <Award className="w-5 h-5" />
-                      </span>
-                      <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-indigo-500 transition-colors" />
-                    </div>
-                    <div>
-                      <p className="font-black text-sm text-foreground mt-2">{isRtl ? "نتائج الاختبارات" : "Quiz Results"}</p>
-                      <p className="text-[11px] text-muted-foreground font-bold">{isRtl ? "سجل الدرجات والإحصائيات" : "Scores & Metrics"}</p>
-                    </div>
-                  </button>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("ratings")}
-                  className="group relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br from-amber-500/10 via-card to-card border border-amber-500/30 hover:border-amber-500 hover:shadow-lg hover:shadow-amber-500/20 transition-all text-right flex flex-col justify-between min-h-[110px]"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-600 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                      <Star className="w-5 h-5" />
-                    </span>
-                    <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-amber-500 transition-colors" />
-                  </div>
-                  <div>
-                    <p className="font-black text-sm text-foreground mt-2">{isRtl ? "تقييمات الطلاب" : "Student Ratings"}</p>
-                    <p className="text-[11px] text-muted-foreground font-bold">{isRtl ? "مؤشر الرضا والجودة" : "Satisfaction Index"}</p>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            {/* 3. Futuristic Holographic KPI Grid (All Sections) */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-black text-foreground flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                  <span>{isRtl ? "المصفوفة الشاملة للأنشطة والعمليات" : "Comprehensive Activity Matrix"}</span>
-                </h3>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                {[
-                  { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", count: episodes.length, sub: isRtl ? "فيديو مسجل" : "Videos", Icon: BookOpen, gradient: "from-cyan-500 to-blue-600", glow: "border-cyan-500/30 hover:border-cyan-500", textGlow: "text-cyan-600 dark:text-cyan-400" },
-                  { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", count: liveStreams.length, sub: liveNow.length > 0 ? (isRtl ? "بث نشط الآن" : "Live Now") : (isRtl ? "جلسة بث" : "Sessions"), Icon: Radio, gradient: "from-red-500 to-rose-600", glow: "border-red-500/30 hover:border-red-500", textGlow: "text-red-600 dark:text-red-400" },
-                  ...(isApprovalRole ? [
-                    { key: "quizzesonline", label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", count: quizzes.length, sub: isRtl ? "اختبار" : "Quizzes", Icon: ShieldCheck, gradient: "from-emerald-500 to-teal-600", glow: "border-emerald-500/30 hover:border-emerald-500", textGlow: "text-emerald-600 dark:text-emerald-400" },
-                    { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", count: lectureSchedules.length, sub: isRtl ? "جدول دراسي" : "Schedules", Icon: Calendar, gradient: "from-purple-500 to-fuchsia-600", glow: "border-purple-500/30 hover:border-purple-500", textGlow: "text-purple-600 dark:text-purple-400" },
-                  ] : []),
-                  { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", count: quizSubmissions.length, sub: isRtl ? "تسليم وإجابة" : "Submissions", Icon: Award, gradient: "from-indigo-500 to-purple-600", glow: "border-indigo-500/30 hover:border-indigo-500", textGlow: "text-indigo-600 dark:text-indigo-400" },
-                  { key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", count: assignments.length, sub: isRtl ? "تكليف دراسي" : "Assignments", Icon: ClipboardList, gradient: "from-blue-500 to-indigo-600", glow: "border-blue-500/30 hover:border-blue-500", textGlow: "text-blue-600 dark:text-blue-400" },
-                  { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", count: ratings.length, sub: isRtl ? "تقييم معتمد" : "Reviews", Icon: Star, gradient: "from-yellow-500 to-amber-600", glow: "border-yellow-500/30 hover:border-yellow-500", textGlow: "text-amber-600 dark:text-amber-400" },
-                ].map((item) => {
-                  const ItemIcon = item.Icon;
-                  return (
-                    <div
-                      key={item.key}
-                      onClick={() => setActiveTab(item.key)}
-                      className={`group relative overflow-hidden rounded-3xl bg-card border ${item.glow} hover:shadow-xl transition-all duration-300 cursor-pointer p-4 sm:p-5 flex flex-col justify-between min-h-[140px] hover:-translate-y-1`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${item.gradient} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
-                          <ItemIcon className="w-6 h-6" strokeWidth={2.5} />
-                        </div>
-                        <span className={`text-2xl sm:text-3xl font-black ${item.textGlow}`}>
-                          {item.count}
-                        </span>
-                      </div>
-
-                      <div className="pt-3 border-t border-border/50">
-                        <p className="font-black text-sm text-foreground truncate">{item.label}</p>
-                        <p className="text-[11px] font-semibold text-muted-foreground mt-0.5">{item.sub}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* 4. Futuristic Telemetry Chart / Activity Matrix */}
-            <Card className="border border-border/80 bg-card shadow-sm rounded-3xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent pb-3 border-b border-border/60">
-                <div className="flex items-center justify-between gap-3 flex-wrap">
-                  <div className="flex items-center gap-2.5">
-                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-primary/15 text-primary">
-                      <BarChart3 className="w-4 h-4" strokeWidth={2.5} />
-                    </span>
-                    <div>
-                      <CardTitle className="text-sm sm:text-base font-black text-foreground">
-                        {isRtl ? "مؤشرات التفاعل والنشاط الزمني" : "Telemetry Activity & Engagement"}
-                      </CardTitle>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleManualRefresh}
+                        disabled={refreshing}
+                        className="gap-1.5 rounded-xl font-bold border-border/80"
+                        aria-label={isRtl ? "تحديث" : "Refresh"}
+                      >
+                        {refreshing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                        <span className="hidden sm:inline text-xs">{isRtl ? "تحديث" : "Refresh"}</span>
+                      </Button>
                     </div>
                   </div>
-                  <TimeRangeToggle value={rangeDays} onChange={setRangeDays} />
-                </div>
-              </CardHeader>
 
-              <CardContent className="p-5">
-                <SectionsActivityChart
-                  className="border-0 shadow-none p-0"
-                  days={rangeDays}
-                  sections={[
-                    { label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, palette: { from: "#06b6d4", to: "#2563eb", glow: "6,182,212" }, timestamps: episodes.map((e: any) => e.created_at) },
-                    { label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, palette: { from: "#ef4444", to: "#e11d48", glow: "239,68,68" }, timestamps: liveStreams.map((s: any) => s.created_at || s.scheduled_at) },
-                    ...(isApprovalRole ? [
-                      { label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: ShieldCheck, palette: { from: "#10b981", to: "#0d9488", glow: "16,185,129" }, timestamps: quizzes.map((q: any) => q.created_at) },
-                      { label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, palette: { from: "#a855f7", to: "#c026d3", glow: "168,85,247" }, timestamps: lectureSchedules.map((s: any) => s.created_at) },
-                    ] : []),
-                    { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, palette: { from: "#6366f1", to: "#9333ea", glow: "99,102,241" }, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
-                    { label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, palette: { from: "#f97316", to: "#ea580c", glow: "249,115,22" }, timestamps: assignmentSubmissions.map((s: any) => s.submitted_at || s.created_at) },
-                    { label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, palette: { from: "#eab308", to: "#d97706", glow: "234,179,8" }, timestamps: ratings.map((r: any) => r.created_at) },
-                  ]}
-                />
-              </CardContent>
-            </Card>
+                  {/* Sections Overview Chart (Pill Activity Chart) */}
+                  <SectionsActivityChart
+                    className="mb-4 sm:mb-6"
+                    days={rangeDays}
+                    sections={[
+                      { label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, palette: { from: "#3b82f6", to: "#4f46e5", glow: "59,130,246" }, timestamps: episodes.map((e: any) => e.created_at) },
+                      { label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, palette: { from: "#ef4444", to: "#e11d48", glow: "239,68,68" }, timestamps: liveStreams.map((s: any) => s.created_at || s.scheduled_at) },
+                      ...(isApprovalRole ? [
+                        { label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: ShieldCheck, palette: { from: "#10b981", to: "#0d9488", glow: "16,185,129" }, timestamps: quizzes.map((q: any) => q.created_at) },
+                        { label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, palette: { from: "#a855f7", to: "#c026d3", glow: "168,85,247" }, timestamps: lectureSchedules.map((s: any) => s.created_at) },
+                      ] : []),
+                      { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, palette: { from: "#6366f1", to: "#9333ea", glow: "99,102,241" }, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
+                      { label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, palette: { from: "#f97316", to: "#ea580c", glow: "249,115,22" }, timestamps: assignmentSubmissions.map((s: any) => s.submitted_at || s.created_at) },
+                      { label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, palette: { from: "#eab308", to: "#d97706", glow: "234,179,8" }, timestamps: ratings.map((r: any) => r.created_at) },
+                    ]}
+                  />
+
+                  {/* Section Cards Grid */}
+                  <MenuItemsStatsGrid
+                    onItemClick={(key) => key && setActiveTab(key)}
+                    items={[
+                      { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-cyan-500 to-blue-600", count: episodes.length },
+                      { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", count: liveStreams.length },
+                      ...(isApprovalRole ? [
+                        { key: "quizzesonline", label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: ShieldCheck, color: "from-emerald-500 to-teal-600", count: quizzes.length },
+                        { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, color: "from-purple-500 to-fuchsia-600", count: lectureSchedules.length },
+                      ] : []),
+                      { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", count: quizSubmissions.length },
+                      { key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, color: "from-blue-500 to-indigo-600", count: assignments.length },
+                      { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", count: ratings.length },
+                    ]}
+                  />
+                </>
+              );
+            })()}
           </TabsContent>
 
           {/* Live Streams */}

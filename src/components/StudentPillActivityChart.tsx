@@ -24,16 +24,13 @@ interface Props {
 
 // Stronger, more vivid gradients with matching glow shadows
 const PALETTE = [
-  { from: "#ec4899", to: "#f9a8d4", glow: "236,72,153" },   // pink
-  { from: "#4f46e5", to: "#818cf8", glow: "79,70,229" },    // indigo
-  { from: "#9333ea", to: "#c084fc", glow: "147,51,234" },   // purple
+  { from: "#3b82f6", to: "#60a5fa", glow: "59,130,246" },   // blue
+  { from: "#ef4444", to: "#f87171", glow: "239,68,68" },    // red
+  { from: "#10b981", to: "#34d399", glow: "16,185,129" },   // emerald
+  { from: "#a855f7", to: "#c084fc", glow: "168,85,247" },   // purple
+  { from: "#6366f1", to: "#818cf8", glow: "99,102,241" },   // indigo
+  { from: "#f97316", to: "#fb923c", glow: "249,115,22" },   // orange
   { from: "#eab308", to: "#fde047", glow: "234,179,8" },    // yellow
-  { from: "#64748b", to: "#cbd5e1", glow: "100,116,139" },  // slate
-  { from: "#ea580c", to: "#fb923c", glow: "234,88,12" },    // orange
-  { from: "#db2777", to: "#f472b6", glow: "219,39,119" },   // pink-2
-  { from: "#0891b2", to: "#22d3ee", glow: "8,145,178" },    // cyan
-  { from: "#16a34a", to: "#4ade80", glow: "22,163,74" },    // green
-  { from: "#dc2626", to: "#f87171", glow: "220,38,38" },    // red
 ];
 
 // Pick an icon based on section label keywords (Arabic + English)
@@ -52,8 +49,7 @@ const pickIcon = (label: string) => {
 };
 
 /**
- * Decorative pill-style bar chart with vivid colors and bold icons.
- * Pure CSS/SVG — no recharts needed.
+ * Enhanced original pill-style activity chart with balanced proportions and vivid colors.
  */
 export const StudentPillActivityChart = ({
   sections,
@@ -80,76 +76,94 @@ export const StudentPillActivityChart = ({
       Icon: s.Icon ?? pickIcon(s.label),
     };
   });
-  // In RTL, keep natural order and lay the chart out RTL so the first item
-  // sits at the right (matching the icon grid below).
   const data = baseData;
-  // Calculate percentage relative to total activity or count
-  const totalCount = data.reduce((acc, curr) => acc + curr.count, 0);
-  const getDisplayPct = (count: number, fixed?: number) => {
-    if (fixed != null) return Math.min(Math.max(fixed, 0), 100);
-    if (totalCount === 0) return 0;
-    return Math.round((count / totalCount) * 100);
-  };
+
+  // 1% per 100 records; 100 records = 100%
+  const pct = (count: number, fixed?: number) =>
+    fixed != null ? Math.min(Math.max(fixed, 0), 100) : Math.min(Math.max(Math.round((count / 100) * 100), 0), 100);
 
   return (
-    <div className={`w-full ${className}`}>
-      <div
-        className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2.5 sm:gap-3 w-full"
-        style={{ direction: isRtl ? "rtl" : "ltr" }}
-      >
-        {data.map((d, i) => {
-          const Icon = d.Icon;
-          const displayPct = getDisplayPct(d.count, d.fixedPercentage);
-          const barHeight = Math.max(12, Math.min(100, displayPct || (d.count > 0 ? 35 : 12)));
+    <Card className={`border-2 border-primary/20 shadow-md bg-card rounded-2xl overflow-hidden ${className}`}>
+      <CardHeader className="pb-2 pt-4 px-4 sm:px-6 border-b border-border/40 bg-gradient-to-r from-primary/5 via-transparent to-transparent">
+        <CardTitle
+          dir={isRtl ? "rtl" : "ltr"}
+          className="text-base sm:text-lg font-black flex items-center gap-2 justify-start w-full text-foreground"
+        >
+          <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white shadow-sm">
+            <BarChart3 className="w-4 h-4" strokeWidth={2.6} />
+          </span>
+          <span className="bg-gradient-to-l from-primary to-primary/80 bg-clip-text text-transparent font-extrabold">
+            {title || (isRtl ? "نظرة شاملة على الإحصائيات" : "Overall Statistics Overview")}
+          </span>
+        </CardTitle>
+      </CardHeader>
 
-          return (
-            <div
-              key={`${d.name}-${i}`}
-              className="relative flex flex-col items-center justify-between p-3.5 rounded-2xl bg-card border border-border/80 hover:border-primary/40 hover:shadow-md transition-all group"
-            >
-              {/* Top value badge */}
+      <CardContent className="px-3 sm:px-6 pt-6 pb-4">
+        <div
+          className="grid grid-cols-4 sm:grid-cols-7 gap-2 sm:gap-4 items-end justify-between w-full"
+          style={{ direction: isRtl ? "rtl" : "ltr" }}
+        >
+          {data.map((d, i) => {
+            const minH = 28;
+            const maxH = 90;
+            const Icon = d.Icon;
+            const percentage = pct(d.count, d.fixedPercentage);
+
+            return (
               <div
-                className="text-xs font-black px-2 py-0.5 rounded-full mb-2"
-                style={{
-                  color: d.palette.from,
-                  background: `rgba(${d.palette.glow}, 0.12)`,
-                }}
+                key={`${d.name}-${i}`}
+                className="relative flex flex-col items-center justify-end w-full group"
+                style={{ minHeight: maxH + 65 }}
               >
-                {d.count}
-              </div>
-
-              {/* Futuristic Equalizer Track */}
-              <div className="relative w-7 sm:w-8 h-24 sm:h-28 bg-muted/40 rounded-full flex flex-col justify-end p-1 overflow-hidden border border-border/40">
+                {/* value (percentage) */}
                 <div
-                  className="w-full rounded-full transition-all duration-700 ease-out"
+                  className="text-[11px] sm:text-xs font-black mb-2 px-2 py-0.5 rounded-full transition-transform group-hover:scale-105"
                   style={{
-                    height: `${barHeight}%`,
-                    background: `linear-gradient(180deg, ${d.palette.from} 0%, ${d.palette.to} 100%)`,
-                    boxShadow: `0 0 12px rgba(${d.palette.glow}, 0.6)`,
+                    color: d.palette.from,
+                    background: `rgba(${d.palette.glow}, 0.12)`,
                   }}
-                />
-              </div>
+                >
+                  {percentage}%
+                </div>
 
-              {/* Icon Disc */}
-              <div
-                className="mt-2.5 w-8 h-8 rounded-xl flex items-center justify-center text-white shadow-sm group-hover:scale-110 transition-transform"
-                style={{
-                  background: `linear-gradient(135deg, ${d.palette.from} 0%, ${d.palette.to} 100%)`,
-                  boxShadow: `0 4px 10px rgba(${d.palette.glow}, 0.4)`,
-                }}
-              >
-                <Icon className="w-4 h-4" strokeWidth={2.5} />
-              </div>
+                {/* pill bar with icon at the bottom */}
+                <div
+                  className="relative w-full max-w-[28px] sm:max-w-[36px] md:max-w-[42px] rounded-full transition-all duration-500 flex items-end justify-center"
+                  style={{
+                    height: minH + (percentage / 100) * (maxH - minH),
+                    background: `linear-gradient(180deg, ${d.palette.from} 0%, ${d.palette.to} 100%)`,
+                    boxShadow: `0 8px 18px -4px rgba(${d.palette.glow}, 0.5), inset 0 -3px 6px rgba(0,0,0,0.12), inset 0 2px 4px rgba(255,255,255,0.4)`,
+                  }}
+                >
+                  {/* highlighted icon disc at bar bottom */}
+                  <div
+                    className="absolute -bottom-3.5 w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ring-[3px] ring-background shadow-md transition-transform group-hover:scale-110"
+                    style={{
+                      background: `linear-gradient(135deg, ${d.palette.from} 0%, ${d.palette.to} 100%)`,
+                      boxShadow: `0 6px 14px -2px rgba(${d.palette.glow}, 0.6)`,
+                    }}
+                  >
+                    <Icon
+                      className="w-4 h-4 sm:w-5 sm:h-5 text-white drop-shadow"
+                      strokeWidth={2.6}
+                    />
+                  </div>
+                </div>
 
-              {/* Label */}
-              <span className="text-[11px] font-bold text-foreground text-center mt-2 leading-tight truncate max-w-full">
-                {d.name}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+                {/* label */}
+                <div className="mt-5 h-9 w-full flex items-start justify-center px-0.5">
+                  <span
+                    className="text-[11px] sm:text-xs font-bold text-foreground text-center leading-tight truncate max-w-full"
+                  >
+                    {d.name}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

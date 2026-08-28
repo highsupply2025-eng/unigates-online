@@ -7,9 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Loader2, Eye, EyeOff, ShieldCheck, CheckCircle2, Circle, ArrowLeft, ArrowRight, Sparkles, LogOut } from "lucide-react";
+import {
+  Loader2, Eye, EyeOff, ShieldCheck, CheckCircle2,
+  Circle, Lock, KeyRound, Sparkles, LogOut, Check, AlertTriangle
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PASSWORD_RULES, getMissingPasswordRules } from "@/lib/password";
+import ugLogo from "@/assets/ug-logo.png";
 
 type ForcePasswordProfile = {
   email: string | null;
@@ -37,103 +41,12 @@ function getPasswordStrength(value: string): { score: number; label: string; col
   if (/[0-9]/.test(value)) score++;
   if (/[^A-Za-z0-9]/.test(value)) score++;
 
-  if (score <= 1) return { score, label: "ضعيفة", color: "bg-red-500", segments: 1 };
+  if (score <= 1) return { score, label: "ضعيفة", color: "bg-rose-500", segments: 1 };
   if (score <= 2) return { score, label: "متوسطة", color: "bg-amber-500", segments: 2 };
   if (score <= 3) return { score, label: "جيدة", color: "bg-teal-500", segments: 3 };
-  return { score, label: "قوية جدًا", color: "bg-emerald-600", segments: 4 };
+  return { score, label: "قوية وممتازة", color: "bg-emerald-500", segments: 4 };
 }
 
-function PasswordInput({
-  value,
-  onChange,
-  show,
-  onToggleShow,
-  placeholder,
-  isRtl,
-  error,
-  autoComplete,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  show: boolean;
-  onToggleShow: () => void;
-  placeholder?: string;
-  isRtl: boolean;
-  error?: boolean;
-  autoComplete?: string;
-}) {
-  return (
-    <div className="relative group">
-      <Input
-        type={show ? "text" : "password"}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        autoComplete={autoComplete}
-        className={`h-12 pe-11 rounded-xl border-border/60 bg-background/50 focus:bg-background transition-all duration-200 ${
-          error ? "border-destructive focus-visible:ring-destructive/30" : "focus-visible:ring-primary/20"
-        }`}
-      />
-      <button
-        type="button"
-        tabIndex={-1}
-        onClick={onToggleShow}
-        className={`absolute top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-muted-foreground transition-colors p-1 rounded-md hover:bg-muted/50 ${
-          isRtl ? "start-3" : "end-3"
-        }`}
-        aria-label={show ? (isRtl ? "إخفاء كلمة السر" : "Hide password") : (isRtl ? "إظهار كلمة السر" : "Show password")}
-      >
-        {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-      </button>
-    </div>
-  );
-}
-
-function StepIndicator({ step, isRtl }: { step: 1 | 2; isRtl: boolean }) {
-  return (
-    <div className="flex items-center justify-center gap-3 py-1">
-      <div className="flex items-center gap-2">
-        <div
-          className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-            step === 1
-              ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
-              : "bg-primary/10 text-primary"
-          }`}
-        >
-          {step > 1 ? <CheckCircle2 className="w-4 h-4" /> : "1"}
-        </div>
-        <span className={`text-xs font-medium hidden sm:inline ${step === 1 ? "text-foreground" : "text-muted-foreground"}`}>
-          {isRtl ? "كلمة السر الحالية" : "Current"}
-        </span>
-      </div>
-
-      <div className={`w-8 h-0.5 rounded-full transition-all duration-300 ${step === 2 ? "bg-primary" : "bg-border"}`} />
-
-      <div className="flex items-center gap-2">
-        <div
-          className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-            step === 2
-              ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
-              : "bg-muted text-muted-foreground"
-          }`}
-        >
-          2
-        </div>
-        <span className={`text-xs font-medium hidden sm:inline ${step === 2 ? "text-foreground" : "text-muted-foreground"}`}>
-          {isRtl ? "كلمة السر الجديدة" : "New Password"}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-/**
- * Global dialog: prompts users flagged with profiles.must_change_password=true
- * to set a new password. MANDATORY: cannot be dismissed — the only way out is
- * to change the password (full access) or sign out. The flag stays true on the
- * server until complete-password-change succeeds, so full system access is
- * only granted after the password is actually changed.
- */
 export default function ForcePasswordChangeDialog() {
   const { language, dir } = useLanguage();
   const isRtl = dir === "rtl";
@@ -152,7 +65,6 @@ export default function ForcePasswordChangeDialog() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmTouched, setConfirmTouched] = useState(false);
 
-  const nextMeetsMin = next.length >= 8;
   const passwordsMatch = next === confirm && confirm.length > 0;
   const missingRules = useMemo(() => (next.length > 0 ? getMissingPasswordRules(next) : []), [next]);
   const allRulesPass = next.length > 0 && missingRules.length === 0;
@@ -165,9 +77,7 @@ export default function ForcePasswordChangeDialog() {
   };
 
   const strength = useMemo(() => getPasswordStrength(next), [next]);
-
   const confirmError = confirmTouched && confirm.length > 0 && !passwordsMatch;
-  const step: 1 | 2 = current ? 2 : 1;
 
   const check = async () => {
     const seq = ++checkSeqRef.current;
@@ -179,8 +89,6 @@ export default function ForcePasswordChangeDialog() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setOpen(false); return; }
 
-    // SECURITY DEFINER RPC: bypasses RLS entirely to avoid 500 errors
-    // from recursive cross-table policies on `profiles`.
     const { data: profRpc, error } = await supabase.rpc("get_or_create_login_profile");
 
     if (error) {
@@ -291,193 +199,221 @@ export default function ForcePasswordChangeDialog() {
     <Dialog open={open} onOpenChange={(nextOpen) => { if (!nextOpen) { /* mandatory: ignore close attempts */ } }}>
       <DialogContent
         dir={dir}
-        className="max-w-md w-[calc(100vw-1.25rem)] sm:w-full rounded-2xl !shadow-2xl border-0 p-0 gap-0 overflow-hidden flex flex-col max-h-[calc(100dvh-1rem)] sm:max-h-[min(90vh,720px)]"
+        className="max-w-md w-[calc(100vw-1.5rem)] sm:w-full rounded-3xl !shadow-2xl border border-white/20 dark:border-white/10 p-0 gap-0 overflow-hidden flex flex-col bg-slate-950 text-white backdrop-blur-2xl [&>button]:hidden max-h-[92vh]"
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
-        {/* Header - fixed, does not scroll - professional compact design */}
-        <div className="relative shrink-0 bg-gradient-to-br from-primary/[0.08] via-primary/[0.04] to-transparent px-5 sm:px-6 pt-5 sm:pt-6 pb-4 sm:pb-5 text-center border-b border-border/10">
-          <div className="mx-auto w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-primary to-teal-600 flex items-center justify-center shadow-lg shadow-primary/20 mb-3 sm:mb-3.5 ring-1 ring-primary/10">
-            <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+        {/* Luxury Glowing Header */}
+        <div className="relative shrink-0 bg-gradient-to-b from-teal-500/20 via-slate-900/60 to-transparent px-5 sm:px-6 pt-6 pb-4 text-center border-b border-white/10">
+          <div className="relative mx-auto w-14 h-14 sm:w-16 sm:h-16 mb-3">
+            <div className="w-full h-full rounded-2xl bg-gradient-to-br from-teal-400 via-teal-600 to-indigo-600 shadow-xl shadow-teal-500/30 p-0.5 flex items-center justify-center">
+              <div className="w-full h-full rounded-[14px] bg-slate-950/40 backdrop-blur-xs flex items-center justify-center">
+                <ShieldCheck className="w-7 h-7 sm:w-8 sm:h-8 text-teal-300" />
+              </div>
+            </div>
+            <span className="absolute -top-1 -end-1 flex h-3.5 w-3.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-teal-500" />
+            </span>
           </div>
-          <h2 className="text-[16px] sm:text-[18px] font-extrabold tracking-tight text-foreground mb-1.5">
+
+          <h2 className="text-xl sm:text-2xl font-black text-white tracking-normal leading-normal">
             {isRtl ? "يجب تغيير كلمة السر" : "You must change your password"}
           </h2>
-          <p className="text-xs sm:text-[13px] text-muted-foreground leading-relaxed max-w-[300px] mx-auto">
+          <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed max-w-xs mx-auto mt-1">
             {isRtl
               ? "تم إنشاء حسابك بكلمة مرور مؤقتة. يجب تعيين كلمة سر جديدة للمتابعة واستخدام النظام."
               : "Your account was created with a temporary password. You must set a new password to continue using the system."}
           </p>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 border border-red-500/20 px-3 py-1 mt-3 text-[11px] font-semibold text-red-700 dark:text-red-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-            {isRtl ? "نافذة إلزامية — لا يمكن إغلاقها قبل تغيير كلمة السر" : "Mandatory — cannot be closed until the password is changed"}
+
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-rose-500/15 border border-rose-500/30 px-3 py-1 mt-3 text-[11px] font-bold text-rose-300">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+            <span>{isRtl ? "نافذة إلزامية — لا يمكن إغلاقها قبل تغيير كلمة السر" : "Mandatory — cannot be closed until the password is changed"}</span>
           </div>
         </div>
 
-        {/* Scrollable body - fits any screen height / 80% zoom */}
-        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-5 sm:px-6 py-4 sm:py-5 overscroll-contain [scrollbar-width:thin] [scrollbar-color:hsl(var(--border))_transparent]">
-          {/* Step indicator */}
-          <StepIndicator step={step} isRtl={isRtl} />
-
-          <div className="space-y-4 mt-4">
-            {/* Current password */}
-            <div className="space-y-2">
-              <Label className="text-sm font-semibold flex items-center gap-2">
-                <span className="w-5 h-5 rounded-md bg-primary/10 flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-primary">1</span>
-                </span>
-                {isRtl ? "كلمة السر الحالية (المؤقتة)" : "Current (temporary) password"}
-              </Label>
-              <PasswordInput
-                value={current}
-                onChange={setCurrent}
-                show={showCurrent}
-                onToggleShow={() => setShowCurrent((v) => !v)}
-                isRtl={isRtl}
-                autoComplete="current-password"
-              />
-            </div>
-
-            {/* Divider */}
-            <div className="relative flex items-center gap-3 py-1">
-              <div className="flex-1 h-px bg-border/50" />
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                {isRtl ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
-                <span className="text-[11px] font-medium uppercase tracking-wider">
-                  {isRtl ? "كلمة السر الجديدة" : "New Password"}
-                </span>
-                {isRtl ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
+        {/* Scrollable Form Body */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-5 sm:px-6 py-4 sm:py-5 space-y-4">
+          {/* Field 1: Current Password */}
+          <div className="space-y-1.5 text-start">
+            <Label className="text-xs font-bold text-slate-200 flex items-center gap-1.5 px-0.5">
+              <KeyRound className="w-3.5 h-3.5 text-teal-400" />
+              <span>{isRtl ? "كلمة السر الحالية (المؤقتة)" : "Current (Temporary) Password"}</span>
+            </Label>
+            <div className="relative flex items-center">
+              <div className="absolute start-0 top-0 bottom-0 w-11 flex items-center justify-center text-slate-400 pointer-events-none z-10">
+                <KeyRound className="w-4 h-4" />
               </div>
-              <div className="flex-1 h-px bg-border/50" />
-            </div>
-
-            {/* New password */}
-            <div className="space-y-2">
-              <Label className="text-sm font-semibold flex items-center gap-2">
-                <span className="w-5 h-5 rounded-md bg-primary/10 flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-primary">2</span>
-                </span>
-                {isRtl ? "كلمة السر الجديدة" : "New password"}
-              </Label>
-              <PasswordInput
-                value={next}
-                onChange={setNext}
-                show={showNext}
-                onToggleShow={() => setShowNext((v) => !v)}
-                isRtl={isRtl}
-                autoComplete="new-password"
+              <Input
+                type={showCurrent ? "text" : "password"}
+                value={current}
+                onChange={(e) => setCurrent(e.target.value)}
+                placeholder="••••••••••••"
+                dir="ltr"
+                autoComplete="current-password"
+                className="h-11 ps-11 pe-11 text-xs sm:text-sm font-medium bg-white/5 border border-white/15 focus:border-teal-400 focus:bg-white/10 text-white placeholder:text-slate-400 placeholder:text-start rounded-2xl transition-all shadow-inner tracking-widest"
               />
-
-              {/* Strength indicator */}
-              {next.length > 0 && (
-                <div className="space-y-2 pt-1">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs text-muted-foreground font-medium">
-                      {isRtl ? "قوة كلمة السر" : "Password strength"}
-                    </p>
-                    <span className={`text-xs font-bold ${
-                      strength.score <= 1 ? "text-red-500" : strength.score <= 2 ? "text-amber-500" : strength.score <= 3 ? "text-teal-500" : "text-emerald-600"
-                    }`}>
-                      {strength.label}
-                    </span>
-                  </div>
-                  <div className="flex gap-1">
-                    {[1, 2, 3, 4].map((i) => (
-                      <div
-                        key={i}
-                        className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-                          i <= strength.segments ? strength.color : "bg-muted"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Requirements checklist */}
-              {next.length > 0 && (
-                <div className="rounded-xl border border-border/40 bg-muted/30 p-3 space-y-1.5">
-                  <p className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 mb-1">
-                    <Sparkles className="w-3 h-3 text-primary" />
-                    {isRtl ? "شروط كلمة المرور" : "Password requirements"}
-                  </p>
-                  {PASSWORD_RULES.map((rule) => {
-                    const passed = rule.test(next);
-                    return (
-                      <div key={rule.key} className="flex items-center gap-2 transition-all duration-200">
-                        {passed ? (
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                        ) : (
-                          <Circle className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" />
-                        )}
-                        <span className={`text-[11px] leading-none ${passed ? "text-emerald-600 line-through decoration-emerald-300" : "text-muted-foreground"}`}>
-                          {isRtl ? rule.ar : rule.en}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Confirm password */}
-            <div className="space-y-2">
-              <Label className="text-sm font-semibold flex items-center gap-2">
-                <span className="w-5 h-5 rounded-md bg-primary/10 flex items-center justify-center">
-                  {confirmError ? (
-                    <span className="text-[10px] font-bold text-destructive">!</span>
-                  ) : passwordsMatch ? (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  ) : (
-                    <span className="text-[10px] font-bold text-primary">3</span>
-                  )}
-                </span>
-                {isRtl ? "تأكيد كلمة السر الجديدة" : "Confirm new password"}
-              </Label>
-              <PasswordInput
-                value={confirm}
-                onChange={setConfirm}
-                show={showConfirm}
-                onToggleShow={() => setShowConfirm((v) => !v)}
-                isRtl={isRtl}
-                error={confirmError}
-                autoComplete="new-password"
-              />
-              {confirmError && (
-                <p className="text-xs text-destructive flex items-center gap-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
-                  <span className="inline-block w-1 h-1 rounded-full bg-destructive shrink-0" />
-                  {isRtl ? "كلمتا السر غير متطابقتين" : "Passwords do not match"}
-                </p>
-              )}
-              {confirm.length > 0 && passwordsMatch && !confirmError && (
-                <p className="text-xs text-emerald-600 flex items-center gap-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
-                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                  {isRtl ? "كلمتا السر متطابقتان" : "Passwords match"}
-                </p>
-              )}
-            </div>
-
-            {/* Submit */}
-            <Button
-              className="w-full h-12 mt-2 font-semibold text-sm rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-200"
-              onClick={submit}
-              disabled={canSubmit}
-            >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin me-2" /> : null}
-              {isRtl ? "حفظ كلمة السر الجديدة" : "Save new password"}
-            </Button>
-
-            {/* Logout escape hatch */}
-            <div className="pt-2 border-t border-border/30 mt-3">
               <button
                 type="button"
-                onClick={handleLogout}
-                className="w-full flex items-center justify-center gap-2 h-10 text-xs font-medium text-muted-foreground hover:text-destructive transition-colors rounded-lg hover:bg-destructive/5"
+                tabIndex={-1}
+                onClick={() => setShowCurrent(!showCurrent)}
+                aria-label={showCurrent ? (isRtl ? "إخفاء كلمة السر" : "Hide password") : (isRtl ? "إظهار كلمة السر" : "Show password")}
+                className="absolute end-1.5 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-teal-300 hover:bg-white/10 transition-colors z-10"
               >
-                <LogOut className="w-3.5 h-3.5" />
-                {isRtl ? "تسجيل الخروج" : "Sign out"}
+                {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
+          </div>
+
+          {/* Field 2: New Password */}
+          <div className="space-y-1.5 text-start">
+            <Label className="text-xs font-bold text-slate-200 flex items-center gap-1.5 px-0.5">
+              <Lock className="w-3.5 h-3.5 text-teal-400" />
+              <span>{isRtl ? "كلمة السر الجديدة" : "New Password"}</span>
+            </Label>
+            <div className="relative flex items-center">
+              <div className="absolute start-0 top-0 bottom-0 w-11 flex items-center justify-center text-slate-400 pointer-events-none z-10">
+                <Lock className="w-4 h-4" />
+              </div>
+              <Input
+                type={showNext ? "text" : "password"}
+                value={next}
+                onChange={(e) => setNext(e.target.value)}
+                placeholder="••••••••••••"
+                dir="ltr"
+                autoComplete="new-password"
+                className="h-11 ps-11 pe-11 text-xs sm:text-sm font-medium bg-white/5 border border-white/15 focus:border-teal-400 focus:bg-white/10 text-white placeholder:text-slate-400 placeholder:text-start rounded-2xl transition-all shadow-inner tracking-widest"
+              />
+              <button
+                type="button"
+                tabIndex={-1}
+                onClick={() => setShowNext(!showNext)}
+                aria-label={showNext ? (isRtl ? "إخفاء كلمة السر" : "Hide password") : (isRtl ? "إظهار كلمة السر" : "Show password")}
+                className="absolute end-1.5 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-teal-300 hover:bg-white/10 transition-colors z-10"
+              >
+                {showNext ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+
+            {/* Password Strength Meter */}
+            {next.length > 0 && (
+              <div className="space-y-1 pt-1">
+                <div className="flex items-center justify-between text-[11px] font-bold">
+                  <span className="text-slate-400">{isRtl ? "قوة كلمة السر:" : "Strength:"}</span>
+                  <span className={strength.score >= 3 ? "text-emerald-400" : strength.score >= 2 ? "text-amber-400" : "text-rose-400"}>
+                    {strength.label}
+                  </span>
+                </div>
+                <div className="flex gap-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className={`flex-1 transition-all duration-300 ${
+                        i <= strength.segments ? strength.color : "bg-transparent"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Password Requirements Checklist */}
+            {next.length > 0 && (
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-3 space-y-1.5 text-[11px]">
+                <p className="font-bold text-teal-300 flex items-center gap-1.5 mb-1">
+                  <Sparkles className="w-3 h-3" />
+                  <span>{isRtl ? "شروط كلمة المرور:" : "Password Requirements:"}</span>
+                </p>
+                {PASSWORD_RULES.map((rule) => {
+                  const passed = rule.test(next);
+                  return (
+                    <div key={rule.key} className="flex items-center gap-2">
+                      {passed ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      ) : (
+                        <Circle className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                      )}
+                      <span className={passed ? "text-emerald-300 line-through opacity-80" : "text-slate-400"}>
+                        {isRtl ? rule.ar : rule.en}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Field 3: Confirm Password */}
+          <div className="space-y-1.5 text-start">
+            <div className="flex items-center justify-between px-0.5">
+              <Label className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />
+                <span>{isRtl ? "تأكيد كلمة السر الجديدة" : "Confirm New Password"}</span>
+              </Label>
+              {confirm.length > 0 && (
+                <span className={`text-[10px] font-bold flex items-center gap-1 ${passwordsMatch ? "text-emerald-400" : "text-rose-400"}`}>
+                  {passwordsMatch ? (
+                    <>
+                      <Check className="w-3 h-3" />
+                      <span>{isRtl ? "متطابقتان" : "Matched"}</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle className="w-3 h-3" />
+                      <span>{isRtl ? "غير متطابقة" : "Mismatch"}</span>
+                    </>
+                  )}
+                </span>
+              )}
+            </div>
+            <div className="relative flex items-center">
+              <div className="absolute start-0 top-0 bottom-0 w-11 flex items-center justify-center text-slate-400 pointer-events-none z-10">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+              <Input
+                type={showConfirm ? "text" : "password"}
+                value={confirm}
+                onChange={(e) => {
+                  setConfirm(e.target.value);
+                  setConfirmTouched(true);
+                }}
+                placeholder="••••••••••••"
+                dir="ltr"
+                autoComplete="new-password"
+                className="h-11 ps-11 pe-11 text-xs sm:text-sm font-medium bg-white/5 border border-white/15 focus:border-teal-400 focus:bg-white/10 text-white placeholder:text-slate-400 placeholder:text-start rounded-2xl transition-all shadow-inner tracking-widest"
+              />
+              <button
+                type="button"
+                tabIndex={-1}
+                onClick={() => setShowConfirm(!showConfirm)}
+                aria-label={showConfirm ? (isRtl ? "إخفاء كلمة السر" : "Hide password") : (isRtl ? "إظهار كلمة السر" : "Show password")}
+                className="absolute end-1.5 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-teal-300 hover:bg-white/10 transition-colors z-10"
+              >
+                {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <Button
+            className="w-full h-11 sm:h-12 font-black text-xs sm:text-sm bg-gradient-to-r from-teal-500 via-emerald-600 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white shadow-xl shadow-teal-500/25 rounded-2xl transition-all transform hover:scale-[1.01] active:scale-[0.99] gap-2 mt-2"
+            onClick={submit}
+            disabled={canSubmit}
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <CheckCircle2 className="w-4 h-4 shrink-0" />}
+            <span>{isRtl ? "حفظ كلمة السر الجديدة" : "Save new password"}</span>
+          </Button>
+
+          {/* Logout Escape Hatch */}
+          <div className="pt-2 border-t border-white/10 text-center">
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="inline-flex items-center justify-center gap-1.5 text-xs font-bold text-slate-400 hover:text-rose-400 transition-colors p-1.5 rounded-xl hover:bg-white/5"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>{isRtl ? "تسجيل الخروج" : "Sign out"}</span>
+            </button>
           </div>
         </div>
       </DialogContent>

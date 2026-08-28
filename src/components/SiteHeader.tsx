@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import ugLogo from "@/assets/ug-logo.png";
 
 const SiteHeader = () => {
   const { t, dir } = useLanguage();
@@ -83,10 +84,8 @@ const SiteHeader = () => {
         {/* Brand Logo & Name */}
         <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
           <div className="relative">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-blue-500 via-teal-500 to-indigo-600 p-0.5 shadow-lg shadow-teal-500/25 group-hover:scale-105 transition-transform flex items-center justify-center">
-              <div className="w-full h-full rounded-[14px] bg-slate-950/40 backdrop-blur-xs flex items-center justify-center text-white">
-                <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-white group-hover:rotate-6 transition-transform" />
-              </div>
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl overflow-hidden shadow-lg shadow-teal-500/25 p-0.5 bg-gradient-to-br from-teal-400 via-teal-600 to-indigo-600 group-hover:scale-105 transition-transform flex items-center justify-center">
+              <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-[14px]" />
             </div>
             <span className="absolute -top-1 -end-1 flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />

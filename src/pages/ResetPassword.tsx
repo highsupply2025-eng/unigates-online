@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  GraduationCap, Loader2, Eye, EyeOff, CheckCircle2, ArrowLeft, ArrowRight,
-  Lock, KeyRound, ShieldCheck, LogIn, Check, X
+  Loader2, Eye, EyeOff, CheckCircle2, ArrowLeft, ArrowRight,
+  Lock, KeyRound, ShieldCheck, LogIn, Check, X, Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import ugLogo from "@/assets/ug-logo.png";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -44,7 +45,6 @@ const ResetPassword = () => {
     return score;
   }, [passwordChecks]);
 
-  const isPasswordValid = passwordScore >= 50 && password.length >= 6;
   const isMatching = password && confirmPassword && password === confirmPassword;
 
   const clearMismatchErrorIfMatching = (nextPassword: string, nextConfirmPassword: string) => {
@@ -116,10 +116,8 @@ const ResetPassword = () => {
       <header className="border-b border-white/10 px-4 sm:px-8 py-3.5 bg-slate-950/70 backdrop-blur-xl sticky top-0 z-40 shadow-lg">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-teal-400 via-teal-600 to-indigo-600 shadow-lg shadow-teal-500/25 p-0.5 flex items-center justify-center text-white group-hover:scale-105 transition-transform">
-              <div className="w-full h-full rounded-[14px] bg-slate-950/40 backdrop-blur-xs flex items-center justify-center">
-                <GraduationCap className="w-5 h-5" />
-              </div>
+            <div className="w-10 h-10 rounded-2xl overflow-hidden shadow-lg shadow-teal-500/25 p-0.5 bg-gradient-to-br from-teal-400 to-indigo-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-[14px]" />
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-black text-white tracking-tight">UNIGATES</span>
@@ -152,17 +150,15 @@ const ResetPassword = () => {
         <div className="max-w-md w-full bg-slate-950/80 backdrop-blur-2xl rounded-3xl sm:rounded-[2rem] shadow-2xl shadow-black/50 border border-white/15 p-6 sm:p-8 md:p-10 space-y-6">
           {!done ? (
             <form onSubmit={handleReset} className="space-y-5">
-              {/* 3D Key Icon */}
-              <div className="flex flex-col items-center text-center space-y-2.5">
+              {/* Logo Emblem Header */}
+              <div className="flex flex-col items-center text-center space-y-3">
                 <div className="relative">
-                  <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-teal-400 via-emerald-500 to-indigo-600 shadow-xl shadow-teal-500/30 p-0.5 flex items-center justify-center text-white">
-                    <div className="w-full h-full rounded-[14px] bg-slate-950/30 backdrop-blur-xs flex items-center justify-center">
-                      <KeyRound className="w-8 h-8 sm:w-9 sm:h-9 text-teal-300" />
-                    </div>
+                  <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-3xl p-1 bg-gradient-to-br from-teal-400 via-emerald-500 to-indigo-600 shadow-2xl shadow-teal-500/30 flex items-center justify-center">
+                    <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-[22px]" />
                   </div>
-                  <span className="absolute -top-1 -end-1 flex h-3.5 w-3.5">
+                  <span className="absolute -top-1 -end-1 flex h-4 w-4">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-teal-500" />
+                    <span className="relative inline-flex rounded-full h-4 w-4 bg-teal-500" />
                   </span>
                 </div>
 
@@ -316,11 +312,16 @@ const ResetPassword = () => {
               </div>
             </form>
           ) : (
-            /* Success State */
+            /* Luxury Success State with Official Logo */
             <div className="space-y-6 text-center animate-fade-in">
               <div className="flex justify-center">
-                <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 shadow-xl shadow-emerald-500/20 flex items-center justify-center">
-                  <CheckCircle2 className="w-9 h-9" />
+                <div className="relative">
+                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl p-1 bg-gradient-to-br from-teal-400 via-emerald-500 to-indigo-600 shadow-2xl shadow-teal-500/30 flex items-center justify-center">
+                    <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-[22px]" />
+                  </div>
+                  <div className="absolute -bottom-2 -end-2 w-10 h-10 rounded-2xl bg-emerald-500 border-2 border-slate-950 text-white flex items-center justify-center shadow-lg shadow-emerald-500/50">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
                 </div>
               </div>
 
@@ -330,8 +331,8 @@ const ResetPassword = () => {
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
                   {isRtl
-                    ? "سيتم تحويلك إلى صفحة تسجيل الدخول تلقائياً خلال ثوانٍ..."
-                    : "Redirecting you to the sign-in page shortly..."}
+                    ? "سيتم تحويلك تلقائياً إلى صفحة تسجيل الدخول..."
+                    : "Redirecting you to the sign-in page..."}
                 </p>
               </div>
 
@@ -339,9 +340,9 @@ const ResetPassword = () => {
                 <Link to="/login" className="block w-full">
                   <Button
                     type="button"
-                    className="w-full h-11 text-xs font-black gap-2 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-md rounded-2xl"
+                    className="w-full h-12 text-sm font-black gap-2 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-xl shadow-teal-500/25 rounded-2xl transition-all transform hover:scale-[1.01]"
                   >
-                    <LogIn className="w-3.5 h-3.5" />
+                    <LogIn className="w-4 h-4" />
                     <span>{t.loginPage.backToLogin || (isRtl ? "الذهاب لتسجيل الدخول الآن" : "Go to Sign In Now")}</span>
                   </Button>
                 </Link>

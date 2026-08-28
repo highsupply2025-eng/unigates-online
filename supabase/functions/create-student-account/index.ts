@@ -114,7 +114,7 @@ function validateEmail(v: string): boolean {
 function json(b: unknown, s = 200, extraHeaders: Record<string, string> = {}) {
   // If caller already passed CORS headers, use them; otherwise default to permissive
   const hasCors = Object.keys(extraHeaders).some((k) => k.toLowerCase().startsWith("access-control"));
-  const baseCors = hasCors ? {} : { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type", "Access-Control-Allow-Methods": "POST, OPTIONS" };
+  const baseCors: Record<string, string> = hasCors ? {} : { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type", "Access-Control-Allow-Methods": "POST, OPTIONS" };
   return new Response(JSON.stringify(b), {
     status: s,
     headers: { ...baseCors, "Content-Type": "application/json", ...extraHeaders },

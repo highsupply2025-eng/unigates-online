@@ -54,6 +54,7 @@ const LeadershipDashboard = () => {
   const [subRole, setSubRole] = useState<string>("");
   const [specificRole, setSpecificRole] = useState<string>("");
   const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
+  const [institutionName, setInstitutionName] = useState<string>("");
   const normalizeTab = (t: string | null) => {
     if (!t) return "overview";
     if (t === "courses") return "lectures";

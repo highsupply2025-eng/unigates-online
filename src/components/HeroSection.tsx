@@ -126,28 +126,28 @@ const HeroSection = () => {
           </Badge>
         </div>
 
-        {/* Main Headline */}
-        <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-[1.25] sm:leading-[1.2] max-w-4xl drop-shadow-lg mb-4 sm:mb-6">
+        {/* Main Headline with Anti-Collision Typography */}
+        <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-normal leading-normal sm:leading-[1.4] md:leading-[1.45] max-w-4xl drop-shadow-lg mb-6 py-1">
           {language === "ar" ? (
-            <>
+            <span className="inline-block leading-relaxed">
               بوابتك الموحدة للتعليم{" "}
-              <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent px-1 inline-block pb-1">
                 الجامعي والمدرسي
               </span>{" "}
               والدورات والمكتبة
-            </>
+            </span>
           ) : (
-            <>
+            <span className="inline-block leading-relaxed">
               {t.hero.title1}{" "}
-              <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent px-1 inline-block pb-1">
                 {t.hero.title2}
               </span>
-            </>
+            </span>
           )}
         </h1>
 
         {/* Subtitle */}
-        <p className="text-sm sm:text-lg md:text-xl text-slate-200 font-medium max-w-3xl leading-relaxed mb-8 drop-shadow">
+        <p className="text-sm sm:text-lg md:text-xl text-slate-200 font-medium max-w-3xl leading-relaxed sm:leading-loose mb-8 drop-shadow">
           {t.features.subtitle || (isRtl
             ? "بيئة أكاديمية وتربوية متكاملة تربط الكليات والمعاهد والمدارس بأعضاء هيئة التدريس والمعلمين والطلاب، بسلاسل اعتماد رقمية وبث مباشر واختبارات ذكية."
             : "A comprehensive educational ecosystem connecting colleges, institutes, and schools with faculty, teachers, and students through digital approval workflows, live streams, and smart assessments.")}

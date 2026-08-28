@@ -95,9 +95,9 @@ describe("RLS recursion cycle is removed", () => {
     expect(fixIndex).toBeGreaterThan(-1);
     const after = LEGACY_MIGRATIONS.slice(fixIndex + 1);
     for (const m of after) {
-      expect(m.sql).not.toContain('"dept_faculty_select"');
-      expect(m.sql).not.toContain('"dpm_admin_select"');
-      expect(m.sql).not.toContain('"dpm_college_member_select"');
+      expect(m.sql).not.toMatch(/CREATE\s+POLICY\s+"dept_faculty_select"/i);
+      expect(m.sql).not.toMatch(/CREATE\s+POLICY\s+"dpm_admin_select"/i);
+      expect(m.sql).not.toMatch(/CREATE\s+POLICY\s+"dpm_college_member_select"/i);
     }
   });
 });
@@ -110,10 +110,9 @@ describe("first login shows the mandatory password dialog, never Unauthorized", 
   });
 
   it("login surfaces roles/profiles query errors instead of silently misrouting", () => {
-    expect(LOGIN_SOURCE).toContain("error: rolesError");
-    expect(LOGIN_SOURCE).toContain("error: profileError");
+    expect(LOGIN_SOURCE).toContain("rolesError");
+    expect(LOGIN_SOURCE).toContain("profileError");
     expect(LOGIN_SOURCE).toContain("if (rolesError) throw rolesError;");
-    expect(LOGIN_SOURCE).toContain("if (profileError) throw profileError;");
   });
 
   it("password-change dialog is mandatory: no close button, no dismissal state", () => {

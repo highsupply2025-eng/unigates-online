@@ -82,89 +82,73 @@ export const StudentPillActivityChart = ({
   });
   // In RTL, keep natural order and lay the chart out RTL so the first item
   // sits at the right (matching the icon grid below).
-  const data = baseData;
-
-  // 1% per 100 records; 100 records = 100%
-  const pct = (count: number, fixed?: number) =>
-    fixed != null ? Math.min(Math.max(fixed, 0), 100) : Math.min(Math.max(Math.round((count / 100) * 100), 0), 100);
+  // Calculate percentage relative to total activity or count
+  const totalCount = data.reduce((acc, curr) => acc + curr.count, 0);
+  const getDisplayPct = (count: number, fixed?: number) => {
+    if (fixed != null) return Math.min(Math.max(fixed, 0), 100);
+    if (totalCount === 0) return 0;
+    return Math.round((count / totalCount) * 100);
+  };
 
   return (
-    <Card className={`border-2 border-primary/20 shadow-lg ${className}`}>
-      <CardHeader className="pb-2">
-        <CardTitle
-          dir={isRtl ? "rtl" : "ltr"}
-          className="text-base sm:text-lg font-extrabold flex items-center gap-2 justify-start w-full"
-        >
-          <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 text-white shadow-md">
-            <BarChart3 className="w-5 h-5" strokeWidth={2.8} />
-          </span>
-          <span className="bg-gradient-to-l from-primary to-primary/70 bg-clip-text text-transparent">
-            {title || (isRtl ? "نظرة شاملة على الإحصائيات" : "Overall Statistics Overview")}
-          </span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="px-2 sm:px-4">
-        <div
-          className="grid grid-cols-5 gap-x-1 gap-y-4 sm:flex sm:items-end sm:justify-between sm:gap-3 md:gap-4 w-full pt-8 pb-2"
-          style={{ direction: isRtl ? "rtl" : "ltr" }}
-        >
-          {data.map((d, i) => {
-            const minH = 40;
-            const maxH = 180;
-            const Icon = d.Icon;
-            return (
+    <div className={`w-full ${className}`}>
+      <div
+        className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2.5 sm:gap-3 w-full"
+        style={{ direction: isRtl ? "rtl" : "ltr" }}
+      >
+        {data.map((d, i) => {
+          const Icon = d.Icon;
+          const displayPct = getDisplayPct(d.count, d.fixedPercentage);
+          const barHeight = Math.max(12, Math.min(100, displayPct || (d.count > 0 ? 35 : 12)));
+
+          return (
+            <div
+              key={`${d.name}-${i}`}
+              className="relative flex flex-col items-center justify-between p-3.5 rounded-2xl bg-card border border-border/80 hover:border-primary/40 hover:shadow-md transition-all group"
+            >
+              {/* Top value badge */}
               <div
-                key={`${d.name}-${i}`}
-                className="relative flex flex-col items-center justify-end sm:flex-1 sm:min-w-0"
-                style={{ minHeight: maxH + 80 }}
+                className="text-xs font-black px-2 py-0.5 rounded-full mb-2"
+                style={{
+                  color: d.palette.from,
+                  background: `rgba(${d.palette.glow}, 0.12)`,
+                }}
               >
-                {/* value (percentage) */}
-                <div
-                  className="text-xs sm:text-base font-black mb-2 px-2 py-0.5 rounded-md"
-                  style={{
-                    color: d.palette.from,
-                    background: `rgba(${d.palette.glow}, 0.12)`,
-                  }}
-                >
-                  {pct(d.count, d.fixedPercentage)}%
-                </div>
-                {/* pill bar with icon at the bottom */}
-                <div
-                  className="relative w-full max-w-[28px] sm:max-w-[44px] md:max-w-[52px] rounded-full transition-all duration-500 flex items-end justify-center"
-                  style={{
-                    height: minH + (pct(d.count, d.fixedPercentage) / 100) * (maxH - minH),
-                    background: `linear-gradient(180deg, ${d.palette.from} 0%, ${d.palette.to} 100%)`,
-                    boxShadow: `0 10px 24px -4px rgba(${d.palette.glow}, 0.65), inset 0 -4px 8px rgba(0,0,0,0.15), inset 0 2px 4px rgba(255,255,255,0.4)`,
-                  }}
-                >
-                  {/* highlighted icon disc at bar bottom */}
-                  <div
-                    className="absolute -bottom-3 w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center ring-[3px] ring-background"
-                    style={{
-                      background: `linear-gradient(135deg, ${d.palette.from} 0%, ${d.palette.to} 100%)`,
-                      boxShadow: `0 8px 18px -2px rgba(${d.palette.glow}, 0.8)`,
-                    }}
-                  >
-                    <Icon
-                      className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white drop-shadow"
-                      strokeWidth={2.9}
-                    />
-                  </div>
-                </div>
-                {/* label */}
-                <div className="mt-5 h-10 w-full flex items-start justify-center px-0.5">
-                  <span
-                    className="text-[10px] sm:text-[11px] md:text-xs font-bold text-foreground text-center leading-tight hyphens-none [word-break:keep-all] [overflow-wrap:normal]"
-                  >
-                    {d.name}
-                  </span>
-                </div>
+                {d.count}
               </div>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
+
+              {/* Futuristic Equalizer Track */}
+              <div className="relative w-7 sm:w-8 h-24 sm:h-28 bg-muted/40 rounded-full flex flex-col justify-end p-1 overflow-hidden border border-border/40">
+                <div
+                  className="w-full rounded-full transition-all duration-700 ease-out"
+                  style={{
+                    height: `${barHeight}%`,
+                    background: `linear-gradient(180deg, ${d.palette.from} 0%, ${d.palette.to} 100%)`,
+                    boxShadow: `0 0 12px rgba(${d.palette.glow}, 0.6)`,
+                  }}
+                />
+              </div>
+
+              {/* Icon Disc */}
+              <div
+                className="mt-2.5 w-8 h-8 rounded-xl flex items-center justify-center text-white shadow-sm group-hover:scale-110 transition-transform"
+                style={{
+                  background: `linear-gradient(135deg, ${d.palette.from} 0%, ${d.palette.to} 100%)`,
+                  boxShadow: `0 4px 10px rgba(${d.palette.glow}, 0.4)`,
+                }}
+              >
+                <Icon className="w-4 h-4" strokeWidth={2.5} />
+              </div>
+
+              {/* Label */}
+              <span className="text-[11px] font-bold text-foreground text-center mt-2 leading-tight truncate max-w-full">
+                {d.name}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 };
 

@@ -2048,53 +2048,8 @@ const LeadershipDashboard = () => {
                 </div>
               )}
             </div>
-          </TabsContent>-emerald-400 border border-emerald-500/20">
-                                  <Users className="w-3.5 h-3.5" />
-                                  <span>{viewers} {isRtl ? "طالب متفاعل" : "viewers"}</span>
-                                </span>
-                              </div>
-
-                              <h3 className="text-base sm:text-xl font-black text-foreground tracking-tight pt-1">
-                                {isRtl ? stream.title_ar || stream.title_en : stream.title_en || stream.title_ar}
-                              </h3>
-
-                              <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-                                <Clock className="w-3.5 h-3.5" />
-                                <span>{isRtl ? "الموعد:" : "Scheduled:"} {stream.scheduled_at ? new Date(stream.scheduled_at).toLocaleString(isRtl ? "ar-EG" : "en-US") : "-"}</span>
-                              </p>
-                            </div>
-
-                            <div className="flex items-center gap-2 shrink-0 flex-wrap">
-                              <Button
-                                size="lg"
-                                className={`font-black gap-2 rounded-2xl h-11 px-6 shadow-md transition-all hover:scale-105 ${
-                                  isLive
-                                    ? "bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white shadow-red-600/40 ring-2 ring-red-300/40"
-                                    : isScheduled
-                                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-600/30"
-                                      : "bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white shadow-slate-700/30"
-                                }`}
-                                onClick={() => navigate(`/stream/${stream.id}`)}
-                              >
-                                <Eye className="w-4 h-4" strokeWidth={2.6} />
-                                <span>
-                                  {isLive
-                                    ? (isRtl ? "دخول البث والتفاعل 🔴" : "Join & Chat 🔴")
-                                    : isScheduled
-                                      ? (isRtl ? "دخول غرفة الانتظار 📅" : "Enter Waiting Room 📅")
-                                      : (isRtl ? "مشاهدة التسجيل والتعليقات 👁️" : "Replay Stream 👁️")}
-                                </span>
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </Card>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
           </TabsContent>
+
 
           {/* Lectures Tab */}
           <TabsContent value="lectures" id="section-lectures" dir={isRtl ? "rtl" : "ltr"} className="space-y-6 animate-in fade-in-50 duration-200">

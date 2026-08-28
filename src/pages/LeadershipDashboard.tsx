@@ -2349,35 +2349,63 @@ const LeadershipDashboard = () => {
                                   </a>
                                 )}
                               </div>
-                                <Calendar className="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0" />
-                                <span>{isRtl ? "تاريخ النشر:" : "Published:"}</span>
-                                <span className="text-foreground">
-                                  {course.created_at ? new Date(course.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US", { year: 'numeric', month: 'long', day: 'numeric' }) : "—"}
-                                </span>
-                              </div>
-
-                              <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
-                                <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                                <span>{isRtl ? "تاريخ الانتهاء:" : "Expires:"}</span>
-                                <span className="text-foreground">
-                                  {course.expires_at ? new Date(course.expires_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US", { year: 'numeric', month: 'long', day: 'numeric' }) : (isRtl ? "مستمر / بدون انتهاء" : "No Expiry")}
-                                </span>
-                              </div>
-
-                              <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground sm:col-span-2 lg:col-span-1">
-                                <Film className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
-                                <span>{isRtl ? "حالة المحتوى:" : "Content Status:"}</span>
-                                <span className="text-foreground font-black">
-                                  {courseEps.length > 0 ? (isRtl ? "جاهز للعرض والمشاهدة" : "Ready to watch") : (isRtl ? "بانتظار إضافة الفيديوهات" : "Awaiting videos")}
-                                </span>
-                              </div>
                             </div>
+                          );
+                        })}
+                      </div>
+                    )
+                  ) : leadershipLectureView === "ratings" ? (
+                    <RatingsBreakdown
+                      lecturerId={userId}
+                      departmentId={selectedDeptId !== "all" ? selectedDeptId : undefined}
+                    />
+                  ) : courses.length === 0 ? (
+                    <Card className="rounded-3xl border-2 border-dashed border-border/80 bg-card/50 shadow-sm">
+                      <CardContent className="py-16 text-center space-y-3">
+                        <div className="w-16 h-16 rounded-3xl bg-teal-500/10 text-teal-600 flex items-center justify-center mx-auto shadow-inner">
+                          <BookOpen className="w-8 h-8" />
+                        </div>
+                        <p className="text-base font-black text-foreground">
+                          {isRtl ? "لا توجد محاضرات مسجلة حتى الآن" : "No lectures recorded yet"}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                      {courses.map((course: any) => (
+                        <div
+                          key={course.id}
+                          className="p-4 sm:p-5 rounded-3xl bg-card border-2 border-border/80 hover:border-teal-500/40 shadow-sm space-y-3 transition-all"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <h4 className="text-sm font-black text-foreground line-clamp-2">
+                              {isRtl ? course.title_ar || course.title_en : course.title_en || course.title_ar}
+                            </h4>
+                            <Badge variant="secondary" className="text-[10px] font-bold shrink-0">
+                              {isRtl ? "محاضرة" : "Lecture"}
+                            </Badge>
                           </div>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                )}
+
+                          <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
+                            <Calendar className="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0" />
+                            <span>{isRtl ? "تاريخ النشر:" : "Published:"}</span>
+                            <span className="text-foreground">
+                              {course.created_at ? new Date(course.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : "—"}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
+                            <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                            <span>{isRtl ? "تاريخ الانتهاء:" : "Expires:"}</span>
+                            <span className="text-foreground">
+                              {course.expires_at ? new Date(course.expires_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : (isRtl ? "مستمر / بدون انتهاء" : "No Expiry")}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
               </>
             )}
           </TabsContent>

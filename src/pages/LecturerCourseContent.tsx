@@ -4,7 +4,7 @@ import {
   Plus, Upload, Video, FileText, Trash2, Paperclip, ArrowLeft, ArrowRight,
   Circle, Square, RotateCcw, Download, BookOpen, Calendar, Clock, GraduationCap,
   Mic, Monitor, ShieldCheck, CheckCircle2, AlertCircle, Play, Pause, FileVideo,
-  Layers, Check, Sparkles, ChevronRight, ChevronLeft
+  Layers, Check, Sparkles, ChevronRight, ChevronLeft, Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +39,7 @@ const LecturerCourseContent = () => {
   const [viewOnly, setViewOnly] = useState(false);
   const [episodes, setEpisodes] = useState<any[]>([]);
   const [attachments, setAttachments] = useState<any[]>([]);
+  const [ratings, setRatings] = useState<any[]>([]);
   const [showEpisodeForm, setShowEpisodeForm] = useState(false);
   const [showAttachmentForm, setShowAttachmentForm] = useState(false);
 
@@ -341,6 +342,8 @@ const LecturerCourseContent = () => {
     setEpisodes(eps || []);
     const { data: att } = await supabase.from("course_attachments").select("*").eq("course_id", courseId);
     setAttachments(att || []);
+    const { data: rat } = await supabase.from("lecture_ratings").select("*").eq("course_id", courseId).order("created_at", { ascending: false });
+    setRatings(rat || []);
     const { data: c } = await supabase.from("courses").select("*").eq("id", courseId).maybeSingle();
     if (c) setCourse(c);
   };
@@ -1278,6 +1281,88 @@ const LecturerCourseContent = () => {
                         </Button>
                       )}
                     </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* ------------------------------------------------------------- */}
+        {/* Student Ratings & Reviews Section                             */}
+        {/* ------------------------------------------------------------- */}
+        <Card className="rounded-3xl border-2 border-amber-500/20 bg-card shadow-lg">
+          <CardHeader className="p-5 sm:p-6 border-b border-border/80">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shadow-xs">
+                  <Star className="w-6 h-6 fill-amber-500" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-black text-foreground flex items-center gap-2">
+                    <span>{isRtl ? "تقييمات وآراء الطلاب على المحاضرة" : "Student Ratings & Feedback"}</span>
+                    {ratings.length > 0 && (
+                      <Badge className="bg-amber-500 text-white font-black text-xs px-2.5 py-0.5 rounded-xl border-0">
+                        ⭐ {(ratings.reduce((acc, r) => acc + (r.rating || 0), 0) / ratings.length).toFixed(1)} / 5
+                      </Badge>
+                    )}
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {isRtl ? "إحصائيات تقييمات الطلاب المسجلين بالمقرر وتعليقاتهم" : "Enrolled students ratings and feedback"}
+                  </p>
+                </div>
+              </div>
+
+              <Badge variant="outline" className="font-black text-xs bg-amber-500/10 text-amber-600 border-amber-500/30 px-3 py-1 rounded-xl self-start sm:self-auto">
+                {ratings.length} {isRtl ? "تقييم مسجل" : "ratings"}
+              </Badge>
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-5 sm:p-6 space-y-4">
+            {ratings.length === 0 ? (
+              <div className="py-12 text-center rounded-3xl bg-muted/20 border-2 border-dashed border-border/80 space-y-2">
+                <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto shadow-inner">
+                  <Star className="w-7 h-7" />
+                </div>
+                <p className="text-sm font-black text-foreground">
+                  {isRtl ? "لا توجد تقييمات مسجلة من الطلاب حتى الآن" : "No student ratings yet"}
+                </p>
+                <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                  {isRtl ? "ستظهر هنا تقييمات وآراء الطلاب وملاحظاتهم فور قيامهم بتقييم المحاضرة." : "Student ratings and reviews will appear here as soon as they rate the lecture."}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {ratings.map((r: any) => (
+                  <div
+                    key={r.id}
+                    className="p-4 rounded-2xl bg-muted/30 border border-border/70 hover:border-amber-500/30 space-y-2 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <Star
+                            key={s}
+                            className={`w-3.5 h-3.5 ${
+                              s <= r.rating ? "text-amber-400 fill-amber-400" : "text-muted-foreground/30"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-[11px] text-muted-foreground font-semibold">
+                        {r.created_at ? new Date(r.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : ""}
+                      </span>
+                    </div>
+                    {r.comment ? (
+                      <p className="text-xs text-foreground/90 font-medium leading-relaxed bg-background/60 p-2.5 rounded-xl border border-border/40">
+                        "{r.comment}"
+                      </p>
+                    ) : (
+                      <p className="text-[11px] text-muted-foreground italic">
+                        {isRtl ? "(بدون تعليق مكتوب)" : "(No written comment)"}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>

@@ -145,6 +145,8 @@ const LeadershipDashboard = () => {
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const [courseEpisodes, setCourseEpisodes] = useState<any[]>([]);
   const [courseAttachments, setCourseAttachments] = useState<any[]>([]);
+  const [lectureRatings, setLectureRatings] = useState<any[]>([]);
+  const [leadershipLectureView, setLeadershipLectureView] = useState<"lectures" | "attachments" | "ratings">("lectures");
   const [newEpisode, setNewEpisode] = useState({ title_ar: "", title_en: "", video_url: "", duration_minutes: 0, is_preview: false });
   const [savingEpisode, setSavingEpisode] = useState(false);
   const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
@@ -367,7 +369,7 @@ const LeadershipDashboard = () => {
       deptStreamIds = (streamRes.data || []).map((s: any) => s.id);
     }
 
-    const [coursesRes, streamsRes, assignmentsRes, episodesRes, ratingsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, assignSubsRes, attachmentsRes] = await Promise.all([
+    const [coursesRes, streamsRes, assignmentsRes, episodesRes, ratingsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, assignSubsRes, attachmentsRes, lectureRatingsRes] = await Promise.all([
       hasDeptFilter
         ? supabase.from("courses").select("*").in("department_id", deptIds).order("created_at", { ascending: false }).limit(50)
         : supabase.from("courses").select("*").order("created_at", { ascending: false }).limit(50),
@@ -413,6 +415,11 @@ const LeadershipDashboard = () => {
         : hasDeptFilter
           ? supabase.from("course_attachments").select("*").eq("course_id", "__none__").limit(0)
           : supabase.from("course_attachments").select("*").order("created_at", { ascending: false }).limit(200),
+      hasDeptFilter && deptCourseIds.length > 0
+        ? supabase.from("lecture_ratings").select("*").in("course_id", deptCourseIds).order("created_at", { ascending: false }).limit(300)
+        : hasDeptFilter
+          ? supabase.from("lecture_ratings").select("*").eq("course_id", "__none__").limit(0)
+          : supabase.from("lecture_ratings").select("*").order("created_at", { ascending: false }).limit(300),
     ]);
     setCourses(coursesRes.data || []);
     setLiveStreams(streamsRes.data || []);
@@ -424,6 +431,7 @@ const LeadershipDashboard = () => {
     setLectureSchedules(schedulesRes.data || []);
     setAssignmentSubmissions(assignSubsRes.data || []);
     setCourseAttachments(attachmentsRes.data || []);
+    setLectureRatings(lectureRatingsRes.data || []);
 
     // Count unique users per stream
     const counts: Record<string, Set<string>> = {};
@@ -1238,7 +1246,7 @@ const LeadershipDashboard = () => {
               <p className="text-xs sm:text-base font-bold truncate mt-0.5">
                 <span className="bg-gradient-to-r from-indigo-600 to-fuchsia-600 dark:from-indigo-300 dark:to-fuchsia-300 bg-clip-text text-transparent">
                 {(() => {
-                   const isDeanOrViceDean = ["dean", "vice_dean"].includes(userRole);
+                   const isDeanOrViceDean = ["dean", "vice_dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community"].includes(userRole) || userRole.startsWith("vice_dean") || userRole === "dean";
                    const map: Record<string, { ar: string; en: string }> = {
                      overview: { ar: "الرئيسية", en: "Home" },
                      livestreams: { ar: "البث المباشر", en: "Live Streams" },
@@ -1800,214 +1808,302 @@ const LeadershipDashboard = () => {
 
           {/* Lectures Tab */}
           <TabsContent value="lectures" id="section-lectures" dir={isRtl ? "rtl" : "ltr"} className="space-y-6 animate-in fade-in-50 duration-200">
-            {lectureSubView === "create" ? (
-              <CreateLectureView
-                isRtl={isRtl}
-                userId={userId}
-                profile={profile}
-                myDepartments={myDepartments}
-                onBack={() => setLectureSubView("overview")}
-                onCreated={async () => {
-                  await loadData();
-                  if (userId) loadMyDepartments(userId);
-                }}
-              />
-            ) : lectureSubView === "watch" ? (
-              <WatchOtherLecturesView
-                isRtl={isRtl}
-                userId={userId}
-                myDepartmentIds={myDepartments.map(d => d.id)}
-                myDepartments={myDepartments}
-                onBack={() => setLectureSubView("overview")}
-              />
-            ) : lectureSubView === "upload" ? (
-              <UploadFilesView
-                isRtl={isRtl}
-                userId={userId}
-                courses={courses}
-                onBack={() => setLectureSubView("overview")}
-                onUploaded={loadData}
-              />
-            ) : (
-              <>
-                {/* 1. Modern Hero Action Cards (Create & Watch) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLectureSubView("create");
-                      if (userId) loadMyDepartments(userId);
-                    }}
-                    className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br from-cyan-600 via-blue-600 to-indigo-700 text-white p-5 sm:p-6 shadow-xl shadow-cyan-600/20 hover:shadow-2xl hover:shadow-cyan-600/40 hover:-translate-y-1.5 transition-all duration-300 ${isRtl ? "text-right" : "text-left"}`}
-                  >
-                    <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
-                    <div className="relative z-10 flex flex-col justify-between h-full min-h-[120px]">
-                      <div className="flex items-center justify-between">
-                        <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-2 ring-white/40 shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                          <Plus className="w-6 h-6 text-white" strokeWidth={2.8} />
+              {lectureSubView === "create" ? (
+                <CreateLectureView
+                  isRtl={isRtl}
+                  userId={userId}
+                  profile={profile}
+                  myDepartments={myDepartments}
+                  onBack={() => setLectureSubView("overview")}
+                  onCreated={async () => {
+                    await loadData();
+                    if (userId) loadMyDepartments(userId);
+                  }}
+                />
+              ) : lectureSubView === "watch" ? (
+                <WatchOtherLecturesView
+                  isRtl={isRtl}
+                  userId={userId}
+                  myDepartmentIds={myDepartments.map(d => d.id)}
+                  myDepartments={myDepartments}
+                  onBack={() => setLectureSubView("overview")}
+                />
+              ) : lectureSubView === "upload" ? (
+                <UploadFilesView
+                  isRtl={isRtl}
+                  userId={userId}
+                  courses={courses}
+                  onBack={() => setLectureSubView("overview")}
+                  onUploaded={loadData}
+                />
+              ) : (
+                <>
+                  {/* Hero Action Cards */}
+                  {isDeanOrViceDean ? (
+                    /* 3 Supervisory Cards for Dean and the 3 Vice Deans */
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {/* Card 1: Watch & Browse Lectures */}
+                      <button
+                        type="button"
+                        onClick={() => setLeadershipLectureView("lectures")}
+                        className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 shadow-lg transition-all duration-300 ${
+                          leadershipLectureView === "lectures"
+                            ? "bg-gradient-to-br from-teal-600 via-emerald-600 to-teal-700 text-white ring-2 ring-teal-400 shadow-teal-500/25 -translate-y-1"
+                            : "bg-card border-2 border-border/80 hover:border-teal-500/40 text-foreground hover:-translate-y-1"
+                        } ${isRtl ? "text-right" : "text-left"}`}
+                      >
+                        <div className="flex items-center justify-between mb-4">
+                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xs transition-transform group-hover:scale-110 ${
+                            leadershipLectureView === "lectures" ? "bg-white/20 text-white" : "bg-teal-500/15 text-teal-600 dark:text-teal-400"
+                          }`}>
+                            <BookOpen className="w-6 h-6" strokeWidth={2.5} />
+                          </div>
+                          <Badge className={leadershipLectureView === "lectures" ? "bg-white/25 text-white border-0" : "bg-teal-500/10 text-teal-600 border-teal-500/30"}>
+                            {courses.length} {isRtl ? "محاضرة" : "lectures"}
+                          </Badge>
                         </div>
-                        <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-xs">
-                          {isRtl ? "تسجيل وبث" : "Studio"}
-                        </span>
-                      </div>
-                      <div className="mt-4">
-                        <h3 className="text-lg sm:text-2xl font-black text-white drop-shadow-sm leading-tight">
-                          {isRtl ? "إنشاء محاضرة جديدة" : "Create Lecture"}
+                        <h3 className="text-base sm:text-lg font-black leading-tight">
+                          {isRtl ? "مشاهدة واستعراض المحاضرات" : "Watch & Browse Lectures"}
                         </h3>
-                        <p className="text-xs sm:text-sm font-semibold text-white/85 mt-1">
-                          {isRtl ? "تسجيل حلقة مرئية وإعداد وتجهيز المحاضرة" : "Record video episode & set up lecture"}
+                        <p className={`text-xs mt-1 font-medium ${leadershipLectureView === "lectures" ? "text-white/85" : "text-muted-foreground"}`}>
+                          {isRtl ? "استعراض ومتابعة المحاضرات المسجلة للأقسام" : "Browse recorded lectures across departments"}
                         </p>
-                      </div>
-                    </div>
-                  </button>
+                      </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setLectureSubView("watch")}
-                    className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-600 to-teal-700 text-white p-5 sm:p-6 shadow-xl shadow-emerald-600/20 hover:shadow-2xl hover:shadow-emerald-600/40 hover:-translate-y-1.5 transition-all duration-300 ${isRtl ? "text-right" : "text-left"}`}
-                  >
-                    <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
-                    <div className="relative z-10 flex flex-col justify-between h-full min-h-[120px]">
-                      <div className="flex items-center justify-between">
-                        <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-2 ring-white/40 shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                          <Eye className="w-6 h-6 text-white" strokeWidth={2.8} />
+                      {/* Card 2: Attached Course Files */}
+                      <button
+                        type="button"
+                        onClick={() => setLeadershipLectureView("attachments")}
+                        className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 shadow-lg transition-all duration-300 ${
+                          leadershipLectureView === "attachments"
+                            ? "bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-700 text-white ring-2 ring-purple-400 shadow-purple-500/25 -translate-y-1"
+                            : "bg-card border-2 border-border/80 hover:border-purple-500/40 text-foreground hover:-translate-y-1"
+                        } ${isRtl ? "text-right" : "text-left"}`}
+                      >
+                        <div className="flex items-center justify-between mb-4">
+                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xs transition-transform group-hover:scale-110 ${
+                            leadershipLectureView === "attachments" ? "bg-white/20 text-white" : "bg-purple-500/15 text-purple-600 dark:text-purple-400"
+                          }`}>
+                            <Paperclip className="w-6 h-6" strokeWidth={2.5} />
+                          </div>
+                          <Badge className={leadershipLectureView === "attachments" ? "bg-white/25 text-white border-0" : "bg-purple-500/10 text-purple-600 border-purple-500/30"}>
+                            {courseAttachments.length} {isRtl ? "مرفق" : "files"}
+                          </Badge>
                         </div>
-                        <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-xs">
-                          {isRtl ? "استعراض" : "Library"}
-                        </span>
-                      </div>
-                      <div className="mt-4">
-                        <h3 className="text-lg sm:text-2xl font-black text-white drop-shadow-sm leading-tight">
-                          {isRtl ? "مشاهدة المحاضرات" : "Watch Lectures"}
+                        <h3 className="text-base sm:text-lg font-black leading-tight">
+                          {isRtl ? "الملفات والمذكرات المرفقة" : "Attached Files & Handouts"}
                         </h3>
-                        <p className="text-xs sm:text-sm font-semibold text-white/85 mt-1">
-                          {isRtl ? "استعراض المحاضرات من اللوحات والأقسام الأخرى" : "Browse lectures from other departments"}
+                        <p className={`text-xs mt-1 font-medium ${leadershipLectureView === "attachments" ? "text-white/85" : "text-muted-foreground"}`}>
+                          {isRtl ? "استعراض وتحميل مذكرات المقررات والملخصات" : "View & download lecture PDFs & handouts"}
                         </p>
-                      </div>
+                      </button>
+
+                      {/* Card 3: Student Ratings & Evaluations */}
+                      <button
+                        type="button"
+                        onClick={() => setLeadershipLectureView("ratings")}
+                        className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 shadow-lg transition-all duration-300 ${
+                          leadershipLectureView === "ratings"
+                            ? "bg-gradient-to-br from-amber-500 via-orange-600 to-yellow-600 text-white ring-2 ring-amber-400 shadow-amber-500/25 -translate-y-1"
+                            : "bg-card border-2 border-border/80 hover:border-amber-500/40 text-foreground hover:-translate-y-1"
+                        } ${isRtl ? "text-right" : "text-left"}`}
+                      >
+                        <div className="flex items-center justify-between mb-4">
+                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xs transition-transform group-hover:scale-110 ${
+                            leadershipLectureView === "ratings" ? "bg-white/20 text-white" : "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                          }`}>
+                            <Star className="w-6 h-6 fill-current" strokeWidth={2.5} />
+                          </div>
+                          <Badge className={leadershipLectureView === "ratings" ? "bg-white/25 text-white border-0" : "bg-amber-500/10 text-amber-600 border-amber-500/30"}>
+                            {lectureRatings.length} {isRtl ? "تقييم" : "ratings"}
+                          </Badge>
+                        </div>
+                        <h3 className="text-base sm:text-lg font-black leading-tight">
+                          {isRtl ? "تقييمات وملاحظات الطلاب" : "Student Ratings & Feedback"}
+                        </h3>
+                        <p className={`text-xs mt-1 font-medium ${leadershipLectureView === "ratings" ? "text-white/85" : "text-muted-foreground"}`}>
+                          {isRtl ? "متابعة تقييمات الطلاب للمحاضرات والمقررات" : "Monitor student feedback & course satisfaction"}
+                        </p>
+                      </button>
                     </div>
-                  </button>
-                </div>
-
-                {/* 2. Lectures Header & Counter */}
-                <div className="flex items-center justify-between gap-3 pt-2">
-                  <div className="flex items-center gap-2">
-                    <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                      <BookOpen className="w-4 h-4" strokeWidth={2.5} />
-                    </span>
-                    <h3 className="text-base sm:text-lg font-black text-foreground">
-                      {isRtl ? "المحاضرات والمقررات الدراسية" : "Lectures & Courses Catalog"}
-                    </h3>
-                  </div>
-                  <Badge variant="outline" className="font-black text-xs px-3 py-1 bg-card rounded-xl border-2 border-primary/20 text-primary shadow-xs">
-                    {courses.length} {isRtl ? "محاضرة مسجلة" : "Lectures"}
-                  </Badge>
-                </div>
-
-                {/* 3. Lectures Cards List */}
-                {courses.length === 0 ? (
-                  <Card className="rounded-3xl border-2 border-dashed border-border/80 bg-card/50 shadow-sm">
-                    <CardContent className="py-16 text-center space-y-4">
-                      <div className="w-16 h-16 rounded-3xl bg-primary/10 text-primary flex items-center justify-center mx-auto shadow-inner">
-                        <BookOpen className="w-8 h-8" />
-                      </div>
-                      <div className="space-y-1">
-                        <h4 className="font-black text-base sm:text-lg text-foreground">
-                          {isRtl ? "لا توجد محاضرات منشورة بعد" : "No lectures published yet"}
-                        </h4>
-                        <p className="text-xs text-muted-foreground font-semibold max-w-sm mx-auto">
-                          {isRtl ? "يمكنك تسجيل وبث أول محاضرة لطلاب القسم عبر الضغط على إنشاء محاضرة بالأعلى." : "Get started by creating and recording your first lecture above."}
-                        </p>
-                      </div>
-                      <Button
+                  ) : (
+                    /* Default cards for Lecturers / Department Heads */
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                      <button
+                        type="button"
                         onClick={() => {
                           setLectureSubView("create");
                           if (userId) loadMyDepartments(userId);
                         }}
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground font-black rounded-2xl gap-2 shadow-md shadow-primary/20 px-5"
+                        className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br from-cyan-600 via-blue-600 to-indigo-700 text-white p-5 sm:p-6 shadow-xl shadow-cyan-600/20 hover:shadow-2xl hover:shadow-cyan-600/40 hover:-translate-y-1.5 transition-all duration-300 ${isRtl ? "text-right" : "text-left"}`}
                       >
-                        <Plus className="w-4 h-4" strokeWidth={2.6} />
-                        <span>{isRtl ? "إنشاء أول محاضرة" : "Create First Lecture"}</span>
+                        <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
+                        <div className="relative z-10 flex flex-col justify-between h-full min-h-[120px]">
+                          <div className="flex items-center justify-between">
+                            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-2 ring-white/40 shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                              <Plus className="w-6 h-6 text-white" strokeWidth={2.8} />
+                            </div>
+                            <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-xs">
+                              {isRtl ? "تسجيل وبث" : "Studio"}
+                            </span>
+                          </div>
+                          <div className="mt-4">
+                            <h3 className="text-lg sm:text-2xl font-black text-white drop-shadow-sm leading-tight">
+                              {isRtl ? "إنشاء محاضرة جديدة" : "Create Lecture"}
+                            </h3>
+                            <p className="text-xs sm:text-sm font-semibold text-white/85 mt-1">
+                              {isRtl ? "تسجيل حلقة مرئية وإعداد وتجهيز المحاضرة" : "Record video episode & set up lecture"}
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setLectureSubView("watch")}
+                        className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-600 to-teal-700 text-white p-5 sm:p-6 shadow-xl shadow-emerald-600/20 hover:shadow-2xl hover:shadow-emerald-600/40 hover:-translate-y-1.5 transition-all duration-300 ${isRtl ? "text-right" : "text-left"}`}
+                      >
+                        <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
+                        <div className="relative z-10 flex flex-col justify-between h-full min-h-[120px]">
+                          <div className="flex items-center justify-between">
+                            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-2 ring-white/40 shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                              <Eye className="w-6 h-6 text-white" strokeWidth={2.8} />
+                            </div>
+                            <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-xs">
+                              {isRtl ? "استعراض" : "Library"}
+                            </span>
+                          </div>
+                          <div className="mt-4">
+                            <h3 className="text-lg sm:text-2xl font-black text-white drop-shadow-sm leading-tight">
+                              {isRtl ? "مشاهدة المحاضرات" : "Watch Lectures"}
+                            </h3>
+                            <p className="text-xs sm:text-sm font-semibold text-white/85 mt-1">
+                              {isRtl ? "استعراض المحاضرات من اللوحات والأقسام الأخرى" : "Browse lectures from other departments"}
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Section Switcher Pills for Dean & Vice Deans */}
+                  {isDeanOrViceDean && (
+                    <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-muted/40 border border-border/80 w-fit flex-wrap">
+                      <Button
+                        size="sm"
+                        variant={leadershipLectureView === "lectures" ? "default" : "ghost"}
+                        onClick={() => setLeadershipLectureView("lectures")}
+                        className="rounded-xl text-xs font-bold gap-1.5 h-9"
+                      >
+                        <BookOpen className="w-3.5 h-3.5" />
+                        <span>{isRtl ? "المحاضرات والمقررات" : "Lectures"}</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-background/30">{courses.length}</span>
                       </Button>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <div className="space-y-4">
-                    {courses.map(course => {
-                      const courseEps = episodes
-                        .filter(e => e.course_id === course.id)
-                        .sort((a, b) => (a.level_number - b.level_number) || (a.episode_number - b.episode_number));
-                      const courseAtts = courseAttachments.filter((a: any) => a.course_id === course.id);
+                      <Button
+                        size="sm"
+                        variant={leadershipLectureView === "attachments" ? "default" : "ghost"}
+                        onClick={() => setLeadershipLectureView("attachments")}
+                        className="rounded-xl text-xs font-bold gap-1.5 h-9"
+                      >
+                        <Paperclip className="w-3.5 h-3.5" />
+                        <span>{isRtl ? "الملفات والمذكرات المرفقة" : "Attachments"}</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-background/30">{courseAttachments.length}</span>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={leadershipLectureView === "ratings" ? "default" : "ghost"}
+                        onClick={() => setLeadershipLectureView("ratings")}
+                        className="rounded-xl text-xs font-bold gap-1.5 h-9"
+                      >
+                        <Star className="w-3.5 h-3.5 fill-current" />
+                        <span>{isRtl ? "تقييمات الطلاب" : "Student Ratings"}</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-background/30">{lectureRatings.length}</span>
+                      </Button>
+                    </div>
+                  )}
 
-                      return (
-                        <Card
-                          key={course.id}
-                          className="overflow-hidden border-2 border-border/70 hover:border-primary/40 bg-card rounded-3xl shadow-md hover:shadow-xl transition-all duration-300"
-                        >
-                          <div className="p-5 sm:p-6 space-y-4">
-                            {/* Card Top Row: Title + Badges + Action Buttons */}
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                              <div className="space-y-2 flex-1 min-w-0">
-                                {/* Subject Pill */}
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border border-cyan-500/20">
-                                    <BookOpen className="w-3.5 h-3.5" />
-                                    <span>{isRtl ? "المادة:" : "Subject:"} {course.category_ar || course.category_en || (isRtl ? "عام" : "General")}</span>
-                                  </span>
+                  {/* 2. Header & Counter */}
+                  <div className="flex items-center justify-between gap-3 pt-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                        {leadershipLectureView === "attachments" ? (
+                          <Paperclip className="w-4 h-4" />
+                        ) : leadershipLectureView === "ratings" ? (
+                          <Star className="w-4 h-4 fill-primary" />
+                        ) : (
+                          <BookOpen className="w-4 h-4" strokeWidth={2.5} />
+                        )}
+                      </span>
+                      <h3 className="text-base sm:text-lg font-black text-foreground">
+                        {leadershipLectureView === "attachments"
+                          ? (isRtl ? "مكتبة الملفات والمذكرات المرفقة" : "Lecture Attachments Library")
+                          : leadershipLectureView === "ratings"
+                            ? (isRtl ? "سجل تقييمات الطلاب وملاحظاتهم" : "Student Lecture Ratings Record")
+                            : (isRtl ? "المحاضرات والمقررات الدراسية" : "Lectures & Courses Catalog")}
+                      </h3>
+                    </div>
+                    <Badge variant="outline" className="font-black text-xs px-3 py-1 bg-card rounded-xl border-2 border-primary/20 text-primary shadow-xs">
+                      {leadershipLectureView === "attachments"
+                        ? `${courseAttachments.length} ${isRtl ? "ملف مرفق" : "files"}`
+                        : leadershipLectureView === "ratings"
+                          ? `${lectureRatings.length} ${isRtl ? "تقييم مسجل" : "ratings"}`
+                          : `${courses.length} ${isRtl ? "محاضرة مسجلة" : "Lectures"}`}
+                    </Badge>
+                  </div>
 
-                                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-                                    <GraduationCap className="w-3.5 h-3.5" />
-                                    <span>{isRtl ? "رئيس القسم / المحاضر:" : "Instructor:"} {course.instructor_ar || course.instructor_en}</span>
-                                  </span>
-
-                                  <Badge variant="outline" className="font-black text-xs bg-muted/40 border-teal-500/30 text-teal-700 dark:text-teal-300 gap-1.5 px-2.5 py-1 rounded-xl">
-                                    <Video className="w-3.5 h-3.5" />
-                                    <span>{courseEps.length} {isRtl ? "فيديو" : "videos"}</span>
-                                  </Badge>
-
-                                  <Badge variant="outline" className="font-black text-xs bg-muted/40 border-purple-500/30 text-purple-700 dark:text-purple-300 gap-1.5 px-2.5 py-1 rounded-xl">
-                                    <Paperclip className="w-3.5 h-3.5 text-purple-600" />
-                                    <span>{courseAtts.length} {isRtl ? "مرفق" : "attachments"}</span>
-                                  </Badge>
+                  {/* 3. Main Dynamic Content according to selected view */}
+                  {isDeanOrViceDean && leadershipLectureView === "attachments" ? (
+                    /* Attached Files View */
+                    courseAttachments.length === 0 ? (
+                      <Card className="rounded-3xl border-2 border-dashed border-border/80 bg-card/50 shadow-sm">
+                        <CardContent className="py-16 text-center space-y-3">
+                          <div className="w-16 h-16 rounded-3xl bg-purple-500/10 text-purple-600 flex items-center justify-center mx-auto shadow-inner">
+                            <Paperclip className="w-8 h-8" />
+                          </div>
+                          <p className="text-base font-black text-foreground">
+                            {isRtl ? "لا توجد ملفات مرفقة للمحاضرات حتى الآن" : "No lecture attachments uploaded yet"}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                        {courseAttachments.map((att: any) => {
+                          const parentCourse = courses.find(c => c.id === att.course_id);
+                          return (
+                            <div
+                              key={att.id}
+                              className="p-4 sm:p-5 rounded-3xl bg-card border-2 border-border/80 hover:border-purple-500/40 shadow-sm space-y-3 transition-all"
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="flex items-center gap-3 min-w-0">
+                                  <div className="w-11 h-11 rounded-2xl bg-purple-500/15 text-purple-600 flex items-center justify-center shrink-0">
+                                    <FileText className="w-5 h-5" />
+                                  </div>
+                                  <div className="min-w-0">
+                                    <h4 className="text-sm font-black text-foreground truncate">{att.name}</h4>
+                                    <p className="text-xs text-primary font-bold truncate">
+                                      {parentCourse ? (isRtl ? parentCourse.title_ar : parentCourse.title_en) : (isRtl ? "مقرر دراسي" : "Course")}
+                                    </p>
+                                  </div>
                                 </div>
+                                <Badge variant="secondary" className="text-[10px] font-bold uppercase shrink-0">
+                                  {att.file_type || "PDF"}
+                                </Badge>
+                              </div>
 
-                                {/* Main Title */}
-                                <h3 className="text-lg sm:text-2xl font-black text-foreground tracking-tight leading-snug">
-                                  {isRtl ? course.title_ar : course.title_en}
-                                </h3>
-
-                                {course.title_en && isRtl && (
-                                  <p className="text-xs text-muted-foreground font-semibold" dir="ltr">
-                                    {course.title_en}
-                                  </p>
+                              <div className="flex items-center justify-between pt-2 border-t border-border/50 text-xs">
+                                <span className="text-muted-foreground font-medium">
+                                  {att.created_at ? new Date(att.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : "—"}
+                                </span>
+                                {att.file_url && (
+                                  <a href={att.file_url} target="_blank" rel="noopener noreferrer" download>
+                                    <Button size="sm" className="h-8 px-3 text-xs font-bold rounded-xl bg-teal-600 hover:bg-teal-700 text-white gap-1.5">
+                                      <Download className="w-3.5 h-3.5" />
+                                      <span>{isRtl ? "تنزيل" : "Download"}</span>
+                                    </Button>
+                                  </a>
                                 )}
                               </div>
-
-                              {/* Action Buttons */}
-                              <div className="flex items-center gap-2.5 shrink-0 self-start md:self-center">
-                                <Button
-                                  size="default"
-                                  onClick={() => navigate(`/lecturer/course/${course.id}`)}
-                                  className="gap-2 font-black h-10 px-4 bg-gradient-to-r from-teal-600 via-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white shadow-md shadow-teal-600/20 rounded-2xl transition-all"
-                                >
-                                  <Eye className="w-4 h-4" strokeWidth={2.6} />
-                                  <span>{isRtl ? "مشاهدة وإدارة المحاضرة" : "Watch & Manage"}</span>
-                                </Button>
-
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  onClick={() => handleDeleteCourse(course.id)}
-                                  className="h-10 w-10 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-2xl transition-colors"
-                                  title={isRtl ? "حذف المحاضرة" : "Delete Lecture"}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            </div>
-
-                            {/* Card Details Grid */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-3 border-t border-border/50 bg-muted/20 -mx-5 -mb-5 p-4 sm:p-5 rounded-b-3xl">
-                              <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
                                 <Calendar className="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0" />
                                 <span>{isRtl ? "تاريخ النشر:" : "Published:"}</span>
                                 <span className="text-foreground">

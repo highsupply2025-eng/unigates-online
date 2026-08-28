@@ -179,7 +179,7 @@ const App = () => (
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/choose-plan" element={<ChoosePlan />} />
               <Route path="/payment" element={<Payment />} />
-              <Route path="/lecturer/dashboard" element={<LecturerDashboard />} />
+              <Route path="/lecturer/dashboard" element={<LeadershipDashboard />} />
               <Route path="/lecturer/course/:courseId" element={<LecturerCourseContent />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin" element={<AdminOverview />} />

@@ -54,14 +54,23 @@ const LeadershipDashboard = () => {
   const [subRole, setSubRole] = useState<string>("");
   const [specificRole, setSpecificRole] = useState<string>("");
   const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
-  const [institutionName, setInstitutionName] = useState("");
-  const [activeTab, setActiveTabState] = useState(searchParams.get("tab") || "overview");
+  const normalizeTab = (t: string | null) => {
+    if (!t) return "overview";
+    if (t === "courses") return "lectures";
+    if (t === "live") return "livestreams";
+    if (t === "quizzes") return "quizzesonline";
+    if (t === "schedules") return "schedulesapproval";
+    if (t === "quiz-results") return "quizresults";
+    return t;
+  };
+  const [activeTab, setActiveTabState] = useState(() => normalizeTab(searchParams.get("tab")));
   const setActiveTab = (tab: string) => {
-    setActiveTabState(tab);
-    setSearchParams(tab === "overview" ? {} : { tab }, { replace: true });
+    const normalized = normalizeTab(tab);
+    setActiveTabState(normalized);
+    setSearchParams(normalized === "overview" ? {} : { tab: normalized }, { replace: true });
   };
   useEffect(() => {
-    const t = searchParams.get("tab");
+    const t = normalizeTab(searchParams.get("tab"));
     if (t && t !== activeTab) setActiveTabState(t);
   }, [searchParams]);
   const [rangeDays, setRangeDays] = useState<7 | 30>(7);
@@ -239,7 +248,7 @@ const LeadershipDashboard = () => {
         return;
       }
 
-      const allowedRoles = ["department_head", "teaching_assistant", "vice_dean", "dean", "lecturer", "doctor", "professor", "assistant_lecturer"];
+      const allowedRoles = ["department_head", "teaching_assistant", "vice_dean", "dean", "lecturer", "doctor", "professor", "assistant_lecturer", "teacher"];
       if (!allowedRoles.includes(profile.role)) {
         navigate("/");
         return;
@@ -1026,16 +1035,28 @@ const LeadershipDashboard = () => {
         vice_dean_students: { ar: institutionType === "institute" ? "وكيل المعهد لشئون الطلاب" : "وكيل الكلية لشئون الطلاب", en: institutionType === "institute" ? "Vice Director - Student Affairs" : "Vice Dean - Student Affairs" },
         vice_dean_community: { ar: institutionType === "institute" ? "وكيل المعهد لشئون البيئة وخدمة المجتمع" : "وكيل الكلية لشئون البيئة وخدمة المجتمع", en: institutionType === "institute" ? "Vice Director - Community Service" : "Vice Dean - Community Service" },
         department_head: { ar: "رئيس القسم", en: "Department Head" },
+        professor: { ar: "أستاذ دكتور", en: "Professor" },
+        doctor: { ar: "دكتور", en: "Doctor" },
+        lecturer: { ar: "مدرس", en: "Lecturer" },
+        teacher: { ar: "مدرس", en: "Teacher" },
+        assistant_lecturer: { ar: "مدرس مساعد", en: "Assistant Lecturer" },
+        teaching_assistant: { ar: "معيد", en: "Teaching Assistant" },
       };
       const sp = specificLabels[specificRole];
       if (sp) return sp;
     }
     const labels: Record<string, { ar: string; en: string }> = {
       department_head: { ar: "رئيس القسم", en: "Department Head" },
+      professor: { ar: "أستاذ دكتور", en: "Professor" },
+      doctor: { ar: "دكتور", en: "Doctor" },
+      lecturer: { ar: "مدرس", en: "Lecturer" },
+      teacher: { ar: "مدرس", en: "Teacher" },
+      assistant_lecturer: { ar: "مدرس مساعد", en: "Assistant Lecturer" },
+      teaching_assistant: { ar: "معيد", en: "Teaching Assistant" },
       vice_dean: { ar: institutionType === "institute" ? "وكيل المعهد" : "وكيل الكلية", en: institutionType === "institute" ? "Vice Director" : "Vice Dean" },
       dean: { ar: institutionType === "institute" ? "مدير المعهد" : "عميد الكلية", en: institutionType === "institute" ? "Director" : "Dean" },
     };
-    return labels[userRole] || { ar: "", en: "" };
+    return labels[userRole] || { ar: "عضو هيئة التدريس", en: "Faculty Member" };
   };
 
   const escHtml = (s: any) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));

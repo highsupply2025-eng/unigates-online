@@ -54,6 +54,7 @@ const StudentQuizzes = lazy(() => import("./pages/StudentQuizzes"));
 const StudentQuizDetail = lazy(() => import("./pages/StudentQuizDetail"));
 const StudentAssignmentResults = lazy(() => import("./pages/StudentAssignmentResults"));
 const UniversityPlatform = lazy(() => import("./pages/UniversityPlatform"));
+const SchoolPlatform = lazy(() => import("./pages/SchoolPlatform"));
 const CollegeRegistration = lazy(() => import("./pages/CollegeRegistration"));
 const CollegeRoleSignup = lazy(() => import("./pages/CollegeRoleSignup"));
 const CollegeAdminSignup = lazy(() => import("./pages/CollegeAdminSignup"));
@@ -193,10 +194,10 @@ const App = () => (
               <Route path="/book-store/login" element={<ComingSoon />} />
               <Route path="/book-store/signup" element={<ComingSoon />} />
               {/* School Platform */}
-              <Route path="/school-platform" element={<ComingSoon />} />
-              <Route path="/school-platform/register" element={<ComingSoon />} />
-              <Route path="/school-platform/login" element={<ComingSoon />} />
-              <Route path="/school-platform/signup" element={<ComingSoon />} />
+              <Route path="/school-platform" element={<SchoolPlatform />} />
+              <Route path="/school-platform/register" element={<Navigate to="/school-registration" replace />} />
+              <Route path="/school-platform/login" element={<Navigate to="/login" replace />} />
+              <Route path="/school-platform/signup" element={<Navigate to="/signup" replace />} />
 
               <Route path="/school/student/dashboard" element={<SchoolStudentDashboard />} />
               <Route path="/school/teacher/dashboard" element={<SchoolTeacherDashboard />} />

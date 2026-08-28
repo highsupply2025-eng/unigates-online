@@ -15,10 +15,11 @@ import { Track, VideoPresets, ScreenSharePresets, RoomEvent, type RoomOptions } 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import MandatoryRatingDialog from "@/components/MandatoryRatingDialog";
-import { X, Radio, Users, Mic, MicOff, Star, MessageSquare } from "lucide-react";
+import { X, Radio, Users, Mic, MicOff, Star, MessageSquare, Paperclip, Download, FileText, Sparkles, CheckCircle2 } from "lucide-react";
 
 
 interface LiveStreamRoomProps {
@@ -274,9 +275,10 @@ const LiveStreamRoom = ({ streamId, streamTitle, isHost, participantName, onClos
           <RoomAudioRenderer />
           {/* Listens for force-mute requests from host */}
           {!isHost && <ForceMuteListener />}
-          {/* Floating action panels */}
+          {/* Floating action panels (Attachments, Host Controls, Stream Rating) */}
           <div className="absolute top-3 end-3 flex flex-col gap-2 z-20 pointer-events-none">
-            <div className="pointer-events-auto">
+            <div className="pointer-events-auto flex flex-col gap-2">
+              <StreamAttachmentsPanel streamId={streamId} />
               {isHost ? (
                 <HostMuteControls />
               ) : (
@@ -464,6 +466,125 @@ function StreamRating({ streamId }: { streamId: string }) {
           <Button size="sm" className="w-full font-bold" disabled={!rating || saving} onClick={submit}>
             {saving ? (isAr ? "جاري الحفظ..." : "Saving...") : (isAr ? "إرسال التقييم" : "Submit")}
           </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------- In-Room Attachments & Handouts Panel ---------- */
+function StreamAttachmentsPanel({ streamId }: { streamId: string }) {
+  const { dir } = useLanguage();
+  const isAr = dir === "rtl";
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const [attachments, setAttachments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        // Fetch course attachments or direct attachments
+        const { data } = await supabase
+          .from("course_attachments")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(10);
+        if (!cancelled && data) {
+          setAttachments(data);
+        }
+      } catch (err) {
+        console.warn("Error fetching stream attachments:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [streamId]);
+
+  const handleDownload = (fileUrl: string, fileName: string) => {
+    try {
+      const a = document.createElement("a");
+      a.href = fileUrl;
+      a.download = fileName;
+      a.target = "_blank";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      toast({
+        title: isAr ? "جاري تنزيل الملف" : "Downloading file",
+        description: fileName,
+      });
+    } catch {
+      window.open(fileUrl, "_blank");
+    }
+  };
+
+  return (
+    <div className="bg-background/90 backdrop-blur border-2 border-indigo-500/30 rounded-xl shadow-lg w-72 max-w-[85vw] overflow-hidden">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between gap-2 px-3 py-2 font-bold text-sm text-foreground hover:bg-muted/40 transition-colors"
+      >
+        <span className="flex items-center gap-2">
+          <Paperclip className="w-4 h-4 text-indigo-500" strokeWidth={2.5} />
+          <span>{isAr ? "الملفات والمرفقات أثناء البث" : "Live Stream Handouts"}</span>
+        </span>
+        <div className="flex items-center gap-1.5">
+          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+            {attachments.length}
+          </Badge>
+          <span className="text-xs text-muted-foreground">{open ? "▾" : "▸"}</span>
+        </div>
+      </button>
+
+      {open && (
+        <div className="p-3 border-t border-border space-y-2.5 max-h-64 overflow-y-auto">
+          {loading ? (
+            <p className="text-xs text-muted-foreground text-center py-3">
+              {isAr ? "جاري تحميل الملفات..." : "Loading attachments..."}
+            </p>
+          ) : attachments.length === 0 ? (
+            <div className="text-center py-4 space-y-1 text-muted-foreground">
+              <FileText className="w-6 h-6 mx-auto opacity-40" />
+              <p className="text-xs font-semibold">
+                {isAr ? "لا توجد ملفات مرفقة بهذا البث بعد" : "No attached files yet"}
+              </p>
+            </div>
+          ) : (
+            attachments.map((att) => (
+              <div
+                key={att.id}
+                className="p-2.5 rounded-xl bg-card border border-border/80 flex items-center justify-between gap-2 shadow-2xs"
+              >
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <FileText className="w-4 h-4 text-indigo-500 shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold text-foreground truncate">{att.name}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {att.file_type || "PDF"}
+                    </p>
+                  </div>
+                </div>
+
+                {att.file_url && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDownload(att.file_url, att.name)}
+                    className="h-7 px-2 text-xs font-bold gap-1 rounded-lg border-indigo-500/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-500/10 shrink-0"
+                  >
+                    <Download className="w-3 h-3" />
+                    <span>{isAr ? "تحميل" : "Get"}</span>
+                  </Button>
+                )}
+              </div>
+            ))
+          )}
         </div>
       )}
     </div>

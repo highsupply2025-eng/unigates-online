@@ -47,6 +47,7 @@ import { CreateScheduleView } from "@/components/schedules/CreateScheduleView";
 import { ScheduleApprovalsView } from "@/components/schedules/ScheduleApprovalsView";
 import { CreateAssignmentView } from "@/components/assignments/CreateAssignmentView";
 import { AssignmentApprovalsView } from "@/components/assignments/AssignmentApprovalsView";
+import { AssignmentResultsRosterView } from "@/components/assignments/AssignmentResultsRosterView";
 import { QuizResultsRosterView } from "@/components/quizzes/QuizResultsRosterView";
 import { QuizResultsApprovalsView } from "@/components/quizzes/QuizResultsApprovalsView";
 
@@ -175,8 +176,8 @@ const LeadershipDashboard = () => {
   // Dedicated full-page schedule subview ('overview' | 'create' | 'approvals')
   const [scheduleSubView, setScheduleSubView] = useState<"overview" | "create" | "approvals">("overview");
 
-  // Dedicated full-page assignment subview ('overview' | 'create' | 'approvals')
-  const [assignmentSubView, setAssignmentSubView] = useState<"overview" | "create" | "approvals">("overview");
+  // Dedicated full-page assignment subview ('overview' | 'create' | 'approvals' | 'results')
+  const [assignmentSubView, setAssignmentSubView] = useState<"overview" | "create" | "approvals" | "results">("overview");
 
   // Dedicated full-page quiz results subview ('overview' | 'roster' | 'approvals')
   const [quizResultsSubView, setQuizResultsSubView] = useState<"overview" | "roster" | "approvals">("overview");
@@ -1252,6 +1253,7 @@ const LeadershipDashboard = () => {
                        ar: isDeanOrViceDean ? "اعتماد التكليفات" : "التكليفات",
                        en: isDeanOrViceDean ? "Assignments Approval" : "Assignments",
                      },
+                     assignmentresults: { ar: "نتائج التكليفات", en: "Assignment Results" },
                      ratings: { ar: "التقييمات", en: "Ratings" },
                      members: { ar: "أعضاء القسم", en: "Department Members" },
                    };
@@ -1309,6 +1311,16 @@ const LeadershipDashboard = () => {
                 size="sm"
                 onClick={() => setAssignmentSubView("overview")}
                 className="h-10 px-3.5 gap-2 font-black rounded-xl border-2 border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-600 hover:text-white shadow-sm transition-all"
+              >
+                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                <span>{isRtl ? "الرجوع للتكليفات" : "Back to Assignments"}</span>
+              </Button>
+            ) : activeTab === "assignmentresults" ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => { setActiveTab("assignments"); setAssignmentSubView("overview"); }}
+                className="h-10 px-3.5 gap-2 font-black rounded-xl border-2 border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300 hover:bg-blue-600 hover:text-white shadow-sm transition-all"
               >
                 {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
                 <span>{isRtl ? "الرجوع للتكليفات" : "Back to Assignments"}</span>
@@ -1372,6 +1384,16 @@ const LeadershipDashboard = () => {
                     active: activeTab === "assignments",
                   },
                   {
+                    key: "assignmentresults",
+                    label: isRtl ? "نتائج التكليفات" : "Assignment Results",
+                    Icon: ClipboardList,
+                    color: "from-blue-500 to-indigo-600",
+                    onClick: () => {
+                      setActiveTab("assignmentresults");
+                    },
+                    active: activeTab === "assignmentresults",
+                  },
+                  {
                     key: "quizresults",
                     label: ["dean", "vice_dean"].includes(userRole)
                       ? (isRtl ? "اعتماد نتائج الاختبارات" : "Quiz Results Approval")
@@ -1406,6 +1428,7 @@ const LeadershipDashboard = () => {
 
             <TabsTrigger value="ratings">ratings</TabsTrigger>
             <TabsTrigger value="assignments">assignments</TabsTrigger>
+            <TabsTrigger value="assignmentresults">assignmentresults</TabsTrigger>
             
           </TabsList>
 
@@ -2936,80 +2959,139 @@ const LeadershipDashboard = () => {
                 }}
                 onBackToOverview={() => setAssignmentSubView("overview")}
               />
+            ) : assignmentSubView === "results" ? (
+              <AssignmentResultsRosterView
+                userId={userId}
+                userRole={userRole}
+                subRole={subRole}
+                assignments={assignments}
+                assignmentSubmissions={assignmentSubmissions}
+                courses={courses}
+                departments={myDepartments}
+                institutionType={institutionType}
+                onRefresh={() => {
+                  const deptIds = selectedDeptId === "all" ? myDepartments.map(d => d.id) : [selectedDeptId];
+                  loadData(deptIds);
+                }}
+                onBackToOverview={() => setAssignmentSubView("overview")}
+              />
             ) : (
               <div className="space-y-6 animate-in fade-in-50 duration-300">
-                {/* 2 Big Action Hero Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                {/* 3 Action Hero Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
                   {/* Hero Card 1: Create Assignment */}
                   <div
                     onClick={() => setAssignmentSubView("create")}
-                    className="group relative overflow-hidden rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-amber-600 via-orange-600 to-red-600 text-white shadow-xl shadow-amber-600/20 hover:shadow-2xl hover:shadow-amber-600/35 hover:-translate-y-1 transition-all duration-300 cursor-pointer border border-white/20"
+                    className="group relative overflow-hidden rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-amber-600 via-orange-600 to-red-600 text-white shadow-xl shadow-amber-600/20 hover:shadow-2xl hover:shadow-amber-600/35 hover:-translate-y-1 transition-all duration-300 cursor-pointer border border-white/20 flex flex-col justify-between"
                   >
                     <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none group-hover:scale-125 transition-transform" />
-                    <div className="flex items-start justify-between">
-                      <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform">
-                        <ClipboardList className="w-7 h-7 animate-pulse" />
+                    <div>
+                      <div className="flex items-start justify-between">
+                        <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform">
+                          <ClipboardList className="w-6 h-6 animate-pulse" />
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-white/20 backdrop-blur-sm border border-white/30 text-white shadow-xs">
+                          {isRtl ? "إنشاء تكليف" : "Create"}
+                        </span>
                       </div>
-                      <span className="px-3 py-1 rounded-full text-xs font-black bg-white/20 backdrop-blur-sm border border-white/30 text-white shadow-xs">
-                        {isRtl ? "استوديو التكليفات" : "Assignment Studio"}
-                      </span>
+
+                      <div className="mt-4 space-y-1">
+                        <h3 className="text-lg sm:text-xl font-black text-white flex items-center gap-1.5">
+                          <span>{isRtl ? "إنشاء تكليف جديد ورفع الملفات" : "Create Assignment & Files"}</span>
+                          <Sparkles className="w-4 h-4 text-amber-300" />
+                        </h3>
+                        <p className="text-xs text-amber-100 font-medium leading-relaxed">
+                          {isRtl
+                            ? "كتابة نص التكليف ورفع المستندات (PDF/Word) والصور وسلسلة الاعتماد."
+                            : "Create assignments with file & image attachments and approval chain."}
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="mt-5 space-y-1.5">
-                      <h3 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-                        <span>{isRtl ? "إنشاء تكليف جديد ورفع الملفات والصور" : "Create Assignment & Upload Files/Images"}</span>
-                        <Sparkles className="w-5 h-5 text-amber-300" />
-                      </h3>
-                      <p className="text-xs sm:text-sm text-amber-100 font-medium leading-relaxed">
-                        {isRtl
-                          ? `كتابة نص التكليف ورفع المستندات (PDF, Word) والصور والرسومات وسلسلة الاعتماد حتى اعتماد ${institutionType === "institute" ? "مدير المعهد" : "عميد الكلية"}.`
-                          : "Create assignments with file & image attachments and configure sequential approval chain."}
-                      </p>
-                    </div>
-
-                    <div className="mt-6 flex items-center justify-between pt-4 border-t border-white/20">
+                    <div className="mt-5 flex items-center justify-between pt-3 border-t border-white/20">
                       <span className="text-xs font-black text-white/90 group-hover:text-white">
-                        {isRtl ? "دخول استوديو إنشاء التكليف ➔" : "Launch Assignment Wizard ➔"}
+                        {isRtl ? "استوديو التكليف ➔" : "Launch Wizard ➔"}
                       </span>
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-amber-900 transition-colors">
-                        <Plus className="w-4 h-4" />
+                      <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-amber-900 transition-colors">
+                        <Plus className="w-3.5 h-3.5" />
                       </div>
                     </div>
                   </div>
 
-                  {/* Hero Card 2: Approvals & Submissions */}
+                  {/* Hero Card 2: Approvals Workflow */}
                   <div
                     onClick={() => setAssignmentSubView("approvals")}
-                    className="group relative overflow-hidden rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-600 text-white shadow-xl shadow-violet-600/20 hover:shadow-2xl hover:shadow-violet-600/35 hover:-translate-y-1 transition-all duration-300 cursor-pointer border border-white/20"
+                    className="group relative overflow-hidden rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-600 text-white shadow-xl shadow-violet-600/20 hover:shadow-2xl hover:shadow-violet-600/35 hover:-translate-y-1 transition-all duration-300 cursor-pointer border border-white/20 flex flex-col justify-between"
                   >
                     <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none group-hover:scale-125 transition-transform" />
-                    <div className="flex items-start justify-between">
-                      <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform">
-                        <ShieldCheck className="w-7 h-7" />
+                    <div>
+                      <div className="flex items-start justify-between">
+                        <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform">
+                          <ShieldCheck className="w-6 h-6" />
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-white/20 backdrop-blur-sm border border-white/30 text-white shadow-xs">
+                          {isRtl ? "سلسلة الاعتماد" : "Approvals"}
+                        </span>
                       </div>
-                      <span className="px-3 py-1 rounded-full text-xs font-black bg-white/20 backdrop-blur-sm border border-white/30 text-white shadow-xs">
-                        {isRtl ? "سلسلة الاعتماد والمتابعة" : "Approval Chain & Tracking"}
-                      </span>
+
+                      <div className="mt-4 space-y-1">
+                        <h3 className="text-lg sm:text-xl font-black text-white flex items-center gap-1.5">
+                          <span>{isRtl ? "اعتماد ومتابعة التكليفات" : "Review & Approvals"}</span>
+                          <CheckCircle className="w-4 h-4 text-emerald-300" />
+                        </h3>
+                        <p className="text-xs text-violet-100 font-medium leading-relaxed">
+                          {isRtl
+                            ? "متابعة مسار اعتماد التكليفات حتى اعتماد العميد للنشر للطلاب."
+                            : "Track approval progress until Dean final approval for student release."}
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="mt-5 space-y-1.5">
-                      <h3 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-                        <span>{isRtl ? "اعتماد ومتابعة التكليفات" : "Review & Track Assignments"}</span>
-                        <CheckCircle className="w-5 h-5 text-emerald-300" />
-                      </h3>
-                      <p className="text-xs sm:text-sm text-violet-100 font-medium leading-relaxed">
-                        {isRtl
-                          ? `متابعة حالة التكليفات ومعاينة المرفقات والموافقة عليها حتى اعتماد ${institutionType === "institute" ? "مدير المعهد" : "عميد الكلية"}.`
-                          : "Track assignment approvals, inspect uploaded attachments, and monitor student submissions."}
-                      </p>
-                    </div>
-
-                    <div className="mt-6 flex items-center justify-between pt-4 border-t border-white/20">
+                    <div className="mt-5 flex items-center justify-between pt-3 border-t border-white/20">
                       <span className="text-xs font-black text-white/90 group-hover:text-white">
-                        {isRtl ? "عرض ومتابعة الاعتمادات ➔" : "View Approvals Workflow ➔"}
+                        {isRtl ? "متابعة الاعتمادات ➔" : "View Approvals ➔"}
                       </span>
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-violet-900 transition-colors">
-                        <ChevronRight className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
+                      <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-violet-900 transition-colors">
+                        <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Hero Card 3: Results & Grading Studio (No external approvals) */}
+                  <div
+                    onClick={() => setAssignmentSubView("results")}
+                    className="group relative overflow-hidden rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 text-white shadow-xl shadow-blue-600/20 hover:shadow-2xl hover:shadow-blue-600/35 hover:-translate-y-1 transition-all duration-300 cursor-pointer border border-white/20 flex flex-col justify-between"
+                  >
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none group-hover:scale-125 transition-transform" />
+                    <div>
+                      <div className="flex items-start justify-between">
+                        <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform">
+                          <Award className="w-6 h-6" />
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-white/20 backdrop-blur-sm border border-white/30 text-white shadow-xs">
+                          {isRtl ? "تصحيح مباشر" : "Direct Grading"}
+                        </span>
+                      </div>
+
+                      <div className="mt-4 space-y-1">
+                        <h3 className="text-lg sm:text-xl font-black text-white flex items-center gap-1.5">
+                          <span>{isRtl ? "نتائج وتصحيح التكليفات" : "Results & Grading Studio"}</span>
+                          <Sparkles className="w-4 h-4 text-cyan-300" />
+                        </h3>
+                        <p className="text-xs text-blue-100 font-medium leading-relaxed">
+                          {isRtl
+                            ? "رصد درجات الطلاب وتصحيح ملفات الإجابات وإعطاء الملاحظات مباشرة بدون أي اعتماد."
+                            : "Grade student files and record feedback directly without approvals."}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 flex items-center justify-between pt-3 border-t border-white/20">
+                      <span className="text-xs font-black text-white/90 group-hover:text-white">
+                        {isRtl ? "استوديو التصحيح والنتائج ➔" : "Open Grading Studio ➔"}
+                      </span>
+                      <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-blue-900 transition-colors">
+                        <ArrowLeft className={`w-3.5 h-3.5 ${!isRtl ? "rotate-180" : ""}`} />
                       </div>
                     </div>
                   </div>
@@ -3065,11 +3147,11 @@ const LeadershipDashboard = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setAssignmentSubView("approvals")}
-                        className="rounded-xl text-xs font-bold gap-1"
+                        onClick={() => setAssignmentSubView("results")}
+                        className="rounded-xl text-xs font-bold gap-1 text-blue-600 border-blue-500/30 hover:bg-blue-50"
                       >
-                        <span>{isRtl ? "عرض كل الاعتمادات" : "View All Approvals"}</span>
-                        {isRtl ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
+                        <Award className="w-3.5 h-3.5" />
+                        <span>{isRtl ? "رصد وتصحيح النتائج" : "Grade Results"}</span>
                       </Button>
                     </div>
                   </CardHeader>
@@ -3137,11 +3219,14 @@ const LeadershipDashboard = () => {
                                   <TableCell className="text-end">
                                     <Button
                                       size="sm"
-                                      onClick={() => setAssignmentSubView("approvals")}
-                                      variant="outline"
-                                      className="rounded-xl font-bold text-xs"
+                                      onClick={() => {
+                                        setSelectedAssignmentId(a.id);
+                                        setAssignmentSubView("results");
+                                      }}
+                                      variant="ghost"
+                                      className="rounded-xl font-bold text-xs text-blue-600 hover:bg-blue-50"
                                     >
-                                      {isRtl ? "متابعة الاعتماد" : "Track Approval"}
+                                      {isRtl ? "تصحيح ورصد" : "Grade"}
                                     </Button>
                                   </TableCell>
                                 </TableRow>
@@ -3155,6 +3240,24 @@ const LeadershipDashboard = () => {
                 </Card>
               </div>
             )}
+          </TabsContent>
+
+          {/* Dedicated Assignment Results Tab */}
+          <TabsContent value="assignmentresults" id="section-assignmentresults" dir={isRtl ? "rtl" : "ltr"}>
+            <AssignmentResultsRosterView
+              userId={userId}
+              userRole={userRole}
+              subRole={subRole}
+              assignments={assignments}
+              assignmentSubmissions={assignmentSubmissions}
+              courses={courses}
+              departments={myDepartments}
+              institutionType={institutionType}
+              onRefresh={() => {
+                const deptIds = selectedDeptId === "all" ? myDepartments.map(d => d.id) : [selectedDeptId];
+                loadData(deptIds);
+              }}
+            />
           </TabsContent>
 
 

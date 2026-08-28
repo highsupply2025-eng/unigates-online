@@ -111,6 +111,13 @@ const LeadershipProfile = () => {
                 onClick: () => goTab("assignments"),
               },
               {
+                key: "assignmentresults",
+                label: isRtl ? "نتائج التكليفات" : "Assignment Results",
+                Icon: ClipboardList,
+                color: "from-blue-500 to-indigo-600",
+                onClick: () => goTab("assignmentresults"),
+              },
+              {
                 key: "quizresults",
                 label: isDeanOrViceDean
                   ? (isRtl ? "اعتماد نتائج الاختبارات" : "Quiz Results Approval")

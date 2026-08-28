@@ -1551,7 +1551,69 @@ const LeadershipDashboard = () => {
                     onItemClick={(key) => key && setActiveTab(key)}
                     items={[
                       { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-cyan-500 to-blue-600", count: episodes.length },
-                      { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams"          {/* Live Streams Tab (Supervisory & Oversight: Streams, Attachments & Student Ratings Only) */}
+                      { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", count: liveStreams.length },
+                      {
+                        key: "quizzesonline",
+                        label: isDeanOrViceDean
+                          ? (isRtl ? "اعتماد الاختبارات" : "Quizzes Approval")
+                          : (isRtl ? "الاختبارات" : "Quizzes"),
+                        Icon: isDeanOrViceDean ? ShieldCheck : FileQuestion,
+                        color: "from-emerald-500 to-teal-600",
+                        count: quizzes.length,
+                      },
+                      {
+                        key: "schedulesapproval",
+                        label: isDeanOrViceDean
+                          ? (isRtl ? "اعتماد الجداول" : "Schedules Approval")
+                          : (isRtl ? "الجداول" : "Schedules"),
+                        Icon: Calendar,
+                        color: "from-purple-500 to-fuchsia-600",
+                        count: lectureSchedules.length,
+                      },
+                      ...(!isDeanOrViceDean
+                        ? [
+                            {
+                              key: "assignments",
+                              label: isRtl ? "التكليفات" : "Assignments",
+                              Icon: ClipboardList,
+                              color: "from-amber-500 to-orange-600",
+                              count: assignments.length,
+                            },
+                            {
+                              key: "assignmentresults",
+                              label: isRtl ? "نتائج التكليفات" : "Assignment Results",
+                              Icon: ClipboardList,
+                              color: "from-blue-500 to-indigo-600",
+                              count: assignmentSubmissions.length,
+                            },
+                          ]
+                        : []),
+                      {
+                        key: "quizresults",
+                        label: isDeanOrViceDean
+                          ? (isRtl ? "اعتماد نتائج الاختبارات" : "Quiz Results Approval")
+                          : (isRtl ? "نتائج الاختبارات" : "Quiz Results"),
+                        Icon: isDeanOrViceDean ? ShieldCheck : Award,
+                        color: "from-indigo-500 to-purple-600",
+                        count: quizSubmissions.length,
+                      },
+                      {
+                        key: "ratings",
+                        label: isDeanOrViceDean
+                          ? (isRtl ? "تقييمات أعضاء هيئة التدريس" : "Faculty Ratings")
+                          : (isRtl ? "تقييمات الطلاب" : "Student Ratings"),
+                        Icon: Star,
+                        color: "from-yellow-500 to-amber-600",
+                        count: ratings.length,
+                      },
+                    ]}
+                  />
+                </>
+              );
+            })()}
+          </TabsContent>
+
+          {/* Live Streams Tab (Supervisory & Oversight: Streams, Attachments & Student Ratings Only) */}
           <TabsContent value="livestreams" id="section-livestreams" dir={isRtl ? "rtl" : "ltr"} className="space-y-6 animate-in fade-in-50 duration-200">
             <div className="space-y-6">
               {/* 1. Dean & 3 Vice Deans 3 Top Luxury Supervisory Cards */}
@@ -3610,22 +3672,28 @@ const LeadershipDashboard = () => {
             )}
           </TabsContent>
 
-          {/* Dedicated Assignment Results Tab */}
+          {/* Dedicated Assignment Results Tab (Strictly for Department Head and Lecturers only - deleted from Dean and Vice Deans) */}
           <TabsContent value="assignmentresults" id="section-assignmentresults" dir={isRtl ? "rtl" : "ltr"}>
-            <AssignmentResultsRosterView
-              userId={userId}
-              userRole={userRole}
-              subRole={subRole}
-              assignments={assignments}
-              assignmentSubmissions={assignmentSubmissions}
-              courses={courses}
-              departments={myDepartments}
-              institutionType={institutionType}
-              onRefresh={() => {
-                const deptIds = selectedDeptId === "all" ? myDepartments.map(d => d.id) : [selectedDeptId];
-                loadData(deptIds);
-              }}
-            />
+            {!isDeanOrViceDean ? (
+              <AssignmentResultsRosterView
+                userId={userId}
+                userRole={userRole}
+                subRole={subRole}
+                assignments={assignments}
+                assignmentSubmissions={assignmentSubmissions}
+                courses={courses}
+                departments={myDepartments}
+                institutionType={institutionType}
+                onRefresh={() => {
+                  const deptIds = selectedDeptId === "all" ? myDepartments.map(d => d.id) : [selectedDeptId];
+                  loadData(deptIds);
+                }}
+              />
+            ) : (
+              <div className="p-8 text-center text-muted-foreground font-bold">
+                {isRtl ? "صفحة نتائج التكليفات مخصصة لرئيس القسم والمحاضرين فقط." : "Assignment results are restricted to department heads and lecturers."}
+              </div>
+            )}
           </TabsContent>
 
 

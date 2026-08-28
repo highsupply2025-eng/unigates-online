@@ -76,9 +76,8 @@ export const en = {
       { title: "Learning Paths", description: "Carefully designed paths that take you from beginner to professional." },
       { title: "Interactive Community", description: "Connect with instructors and students and participate in useful discussions." },
       { title: "Live Streaming", description: "Live streaming for lectures and courses." },
-      { title: "Future Books", description: "Buy books online for reading or fast shipping." },
-      { title: "Google Play", description: "Coming Soon" },
-      { title: "App Store", description: "Coming Soon" },
+      { title: "Mobile Apps (iOS & Android)", description: "Seamless mobile application for iOS and Android to learn on the go." },
+      { title: "Instant Smart Alerts", description: "Real-time notifications for live streams, exam approvals, and homework." },
     ],
   },
 

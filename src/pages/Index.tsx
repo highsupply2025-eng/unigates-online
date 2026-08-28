@@ -11,6 +11,8 @@ import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+import AppDownloadSection from "@/components/AppDownloadSection";
+
 const Index = () => {
   const { dir, language } = useLanguage();
   const isRtl = dir === "rtl";
@@ -48,13 +50,16 @@ const Index = () => {
         {/* 5. Smart Features & Technical Capabilities */}
         <FeaturesSection />
 
-        {/* 6. Authentic Testimonials & Success Stories */}
+        {/* 6. Native Mobile Apps Showcase (iOS & Android) */}
+        <AppDownloadSection />
+
+        {/* 7. Authentic Testimonials & Success Stories */}
         <TestimonialsSection />
 
-        {/* 7. Comprehensive FAQs */}
+        {/* 8. Comprehensive FAQs */}
         <FAQSection />
 
-        {/* 8. Call to Action Banner */}
+        {/* 9. Call to Action Banner */}
         <CTASection />
       </main>
 

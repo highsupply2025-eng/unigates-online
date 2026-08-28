@@ -273,6 +273,29 @@ const AccountPageBody = ({
                 <h2 className="text-2xl font-extrabold text-foreground tracking-tight">{profile.full_name}</h2>
                 <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-2">
                   <Badge className={`bg-gradient-to-r ${badgeGradient} text-primary-foreground`}>{isRtl ? rl.ar : rl.en}</Badge>
+                  {(() => {
+                    const r = profile.role;
+                    const p = profile.platform;
+                    let platformLabel = isRtl ? "🏛️ المنصة الجامعية والمعاهد العليا" : "🏛️ University & Institutes Platform";
+                    let platformClass = "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30";
+
+                    if (["school_admin", "school_teacher", "school_student", "parent"].includes(r) || p === "school") {
+                      platformLabel = isRtl ? "🏫 المنصة المدرسية (K-12)" : "🏫 School Platform (K-12)";
+                      platformClass = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30";
+                    } else if (["training_center", "language_center", "course_lecturer"].includes(r) || p === "courses") {
+                      platformLabel = isRtl ? "🎓 أكاديمية الدورات والتدريب" : "🎓 Courses & Skills Academy";
+                      platformClass = "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30";
+                    } else if (["author", "publisher", "reader"].includes(r) || p === "book_store") {
+                      platformLabel = isRtl ? "📖 متجر الكتب ودار عبيد للنشر" : "📖 Book Store & Dar Obeid Publishing";
+                      platformClass = "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30";
+                    }
+
+                    return (
+                      <Badge variant="outline" className={`gap-1 font-bold ${platformClass}`}>
+                        {platformLabel}
+                      </Badge>
+                    );
+                  })()}
                   <Badge variant="outline" className="gap-1">
                     <Calendar className="w-3 h-3" />
                     {isRtl ? "انضم" : "Joined"} {new Date(profile.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}

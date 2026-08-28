@@ -101,8 +101,11 @@ const Login = () => {
       const lecturerRole = roles?.find((r) => r.role === "lecturer");
       const leadershipRole = roles?.find((r) => ["department_head", "teaching_assistant", "vice_dean", "dean"].includes(r.role));
       const personalRole = roles?.find((r) => ["personal", "student", "parent"].includes(r.role));
-      const schoolTeacherRole = roles?.find((r) => r.role === "teacher");
-      const schoolStudentRole = roles?.find((r) => r.role === "school_student");
+      const schoolAdminRole = roles?.find((r) => r.role === "school_admin");
+      const schoolTeacherRole = roles?.find((r) => r.role === "teacher" && profile?.platform === "school");
+      const schoolStudentRole = roles?.find((r) => r.role === "school_student" || (r.role === "student" && profile?.platform === "school"));
+      const coursesTrainingRole = roles?.find((r) => ["training_center", "language_center", "course_lecturer"].includes(r.role));
+      const bookStoreRole = roles?.find((r) => ["author", "publisher", "reader"].includes(r.role));
       const secretaryRole = roles?.find((r) => String(r.role) === "college_secretary");
       const libraryRole = roles?.find((r) => String(r.role) === "library_manager");
 
@@ -190,13 +193,28 @@ const Login = () => {
         return;
       }
 
-      if (schoolTeacherRole || profileRole === "teacher") {
+      if (schoolAdminRole || profileRole === "school_admin") {
+        goNext("/school/dashboard");
+        return;
+      }
+
+      if (schoolTeacherRole || profileRole === "school_teacher" || (profileRole === "teacher" && profile?.platform === "school")) {
         goNext("/school/teacher/dashboard");
         return;
       }
 
-      if (schoolStudentRole || profileRole === "school_student") {
+      if (schoolStudentRole || profileRole === "school_student" || (profileRole === "student" && profile?.platform === "school")) {
         goNext("/school/student/dashboard");
+        return;
+      }
+
+      if (coursesTrainingRole || profile?.platform === "courses") {
+        goNext("/courses");
+        return;
+      }
+
+      if (bookStoreRole || profile?.platform === "book_store") {
+        goNext("/book-store");
         return;
       }
 

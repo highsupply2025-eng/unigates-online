@@ -1475,8 +1475,8 @@ const LeadershipDashboard = () => {
             </Card>
           </TabsContent>
 
-          {/* Lectures */}
-          <TabsContent value="lectures" id="section-lectures" dir={isRtl ? "rtl" : "ltr"}>
+          {/* Lectures Tab */}
+          <TabsContent value="lectures" id="section-lectures" dir={isRtl ? "rtl" : "ltr"} className="space-y-6 animate-in fade-in-50 duration-200">
             {lectureSubView === "create" ? (
               <CreateLectureView
                 isRtl={isRtl}
@@ -1507,59 +1507,130 @@ const LeadershipDashboard = () => {
               />
             ) : (
               <>
-                {/* 3 Action Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
+                {/* 1. Modern Hero Action Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-5">
                   <button
+                    type="button"
                     onClick={() => {
                       setLectureSubView("create");
                       if (userId) loadMyDepartments(userId);
                     }}
-                    className={isRtl ? "text-right" : "text-left"}
+                    className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br from-cyan-600 via-blue-600 to-indigo-700 text-white p-5 sm:p-6 shadow-xl shadow-cyan-600/20 hover:shadow-2xl hover:shadow-cyan-600/40 hover:-translate-y-1.5 transition-all duration-300 ${isRtl ? "text-right" : "text-left"}`}
                   >
-                    <Card className="relative overflow-hidden bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600 border-2 border-cyan-400/60 shadow-xl shadow-cyan-500/30 hover:shadow-2xl hover:shadow-cyan-500/50 hover:-translate-y-1 transition-all h-full">
-                      <CardContent className="p-4 sm:p-5 text-center relative">
-                        <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
-                          <Plus className="w-7 h-7 text-white" strokeWidth={2.8} />
+                    <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-white/10 blur-xl pointer-events-none" />
+                    <div className="relative z-10 flex flex-col justify-between h-full min-h-[120px]">
+                      <div className="flex items-center justify-between">
+                        <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-2 ring-white/40 shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                          <Plus className="w-6 h-6 text-white" strokeWidth={2.8} />
                         </div>
-                        <p className="text-base sm:text-lg font-black text-white drop-shadow-md">{isRtl ? "إنشاء محاضرة" : "Create Lecture"}</p>
-                        <p className="text-[10px] sm:text-xs font-bold text-white/85 tracking-wide mt-1">{isRtl ? "تسجيل حلقة ورفع ملف" : "Record episode & upload file"}</p>
-                      </CardContent>
-                    </Card>
+                        <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-xs">
+                          {isRtl ? "تسجيل وبث" : "Studio"}
+                        </span>
+                      </div>
+                      <div className="mt-3">
+                        <h3 className="text-lg sm:text-xl font-black text-white drop-shadow-sm leading-tight">
+                          {isRtl ? "إنشاء محاضرة جديدة" : "Create Lecture"}
+                        </h3>
+                        <p className="text-xs font-semibold text-white/85 mt-1">
+                          {isRtl ? "تسجيل حلقة مرئية ورفع المذكرات المرفقة" : "Record video & upload materials"}
+                        </p>
+                      </div>
+                    </div>
                   </button>
+
                   <button
+                    type="button"
                     onClick={() => setLectureSubView("watch")}
-                    className={isRtl ? "text-right" : "text-left"}
+                    className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-600 to-teal-700 text-white p-5 sm:p-6 shadow-xl shadow-emerald-600/20 hover:shadow-2xl hover:shadow-emerald-600/40 hover:-translate-y-1.5 transition-all duration-300 ${isRtl ? "text-right" : "text-left"}`}
                   >
-                    <Card className="relative overflow-hidden bg-gradient-to-br from-emerald-500 via-teal-500 to-green-600 border-2 border-emerald-400/60 shadow-xl shadow-emerald-500/30 hover:shadow-2xl hover:shadow-emerald-500/50 hover:-translate-y-1 transition-all h-full">
-                      <CardContent className="p-4 sm:p-5 text-center relative">
-                        <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
-                          <Eye className="w-7 h-7 text-white" strokeWidth={2.8} />
+                    <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-white/10 blur-xl pointer-events-none" />
+                    <div className="relative z-10 flex flex-col justify-between h-full min-h-[120px]">
+                      <div className="flex items-center justify-between">
+                        <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-2 ring-white/40 shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                          <Eye className="w-6 h-6 text-white" strokeWidth={2.8} />
                         </div>
-                        <p className="text-base sm:text-lg font-black text-white drop-shadow-md">{isRtl ? "مشاهدة المحاضرات" : "Watch Lectures"}</p>
-                        <p className="text-[10px] sm:text-xs font-bold text-white/85 tracking-wide mt-1">{isRtl ? "من اللوحات الأخرى" : "From other boards"}</p>
-                      </CardContent>
-                    </Card>
+                        <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-xs">
+                          {isRtl ? "استعراض" : "Library"}
+                        </span>
+                      </div>
+                      <div className="mt-3">
+                        <h3 className="text-lg sm:text-xl font-black text-white drop-shadow-sm leading-tight">
+                          {isRtl ? "مشاهدة المحاضرات" : "Watch Lectures"}
+                        </h3>
+                        <p className="text-xs font-semibold text-white/85 mt-1">
+                          {isRtl ? "استعراض المحاضرات من اللوحات والأقسام الأخرى" : "Browse lectures from other departments"}
+                        </p>
+                      </div>
+                    </div>
                   </button>
+
                   <button
+                    type="button"
                     onClick={() => setLectureSubView("upload")}
-                    className={isRtl ? "text-right" : "text-left"}
+                    className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-600 via-violet-600 to-fuchsia-700 text-white p-5 sm:p-6 shadow-xl shadow-purple-600/20 hover:shadow-2xl hover:shadow-purple-600/40 hover:-translate-y-1.5 transition-all duration-300 ${isRtl ? "text-right" : "text-left"}`}
                   >
-                    <Card className="relative overflow-hidden bg-gradient-to-br from-purple-500 via-violet-500 to-fuchsia-600 border-2 border-purple-400/60 shadow-xl shadow-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/50 hover:-translate-y-1 transition-all h-full">
-                      <CardContent className="p-4 sm:p-5 text-center relative">
-                        <div className="w-12 h-12 mx-auto mb-2 rounded-2xl bg-white/25 backdrop-blur flex items-center justify-center ring-2 ring-white/40">
-                          <Upload className="w-7 h-7 text-white" strokeWidth={2.8} />
+                    <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-white/10 blur-xl pointer-events-none" />
+                    <div className="relative z-10 flex flex-col justify-between h-full min-h-[120px]">
+                      <div className="flex items-center justify-between">
+                        <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-2 ring-white/40 shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                          <Upload className="w-6 h-6 text-white" strokeWidth={2.8} />
                         </div>
-                        <p className="text-base sm:text-lg font-black text-white drop-shadow-md">{isRtl ? "رفع ملف للطلبة" : "Upload Files"}</p>
-                        <p className="text-[10px] sm:text-xs font-bold text-white/85 tracking-wide mt-1">{isRtl ? "مشاركة الملفات مع الطلاب" : "Share materials with students"}</p>
-                      </CardContent>
-                    </Card>
+                        <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-xs">
+                          {isRtl ? "مرفقات" : "Handouts"}
+                        </span>
+                      </div>
+                      <div className="mt-3">
+                        <h3 className="text-lg sm:text-xl font-black text-white drop-shadow-sm leading-tight">
+                          {isRtl ? "رفع ملف للطلبة" : "Upload Files"}
+                        </h3>
+                        <p className="text-xs font-semibold text-white/85 mt-1">
+                          {isRtl ? "مشاركة الكتب والملفات والمذكرات التعليمية" : "Share notes, slides & references"}
+                        </p>
+                      </div>
+                    </div>
                   </button>
                 </div>
 
+                {/* 2. Lectures Header & Counter */}
+                <div className="flex items-center justify-between gap-3 pt-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                      <BookOpen className="w-4 h-4" strokeWidth={2.5} />
+                    </span>
+                    <h3 className="text-base sm:text-lg font-black text-foreground">
+                      {isRtl ? "المحاضرات والمقررات الدراسية" : "Lectures & Courses Catalog"}
+                    </h3>
+                  </div>
+                  <Badge variant="outline" className="font-black text-xs px-3 py-1 bg-card rounded-xl border-2 border-primary/20 text-primary shadow-xs">
+                    {courses.length} {isRtl ? "محاضرة مسجلة" : "Lectures"}
+                  </Badge>
+                </div>
+
+                {/* 3. Lectures Cards List */}
                 {courses.length === 0 ? (
-                  <Card>
-                    <CardContent className="py-12 text-center text-muted-foreground">
-                      {isRtl ? "لا توجد محاضرات بعد. ابدأ بإنشاء أول محاضرة!" : "No lectures yet. Create your first one!"}
+                  <Card className="rounded-3xl border-2 border-dashed border-border/80 bg-card/50 shadow-sm">
+                    <CardContent className="py-16 text-center space-y-4">
+                      <div className="w-16 h-16 rounded-3xl bg-primary/10 text-primary flex items-center justify-center mx-auto shadow-inner">
+                        <BookOpen className="w-8 h-8" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="font-black text-base sm:text-lg text-foreground">
+                          {isRtl ? "لا توجد محاضرات منشورة بعد" : "No lectures published yet"}
+                        </h4>
+                        <p className="text-xs text-muted-foreground font-semibold max-w-sm mx-auto">
+                          {isRtl ? "يمكنك تسجيل وبث أول محاضرة لطلاب القسم عبر الضغط على إنشاء محاضرة بالأعلى." : "Get started by creating and recording your first lecture above."}
+                        </p>
+                      </div>
+                      <Button
+                        onClick={() => {
+                          setLectureSubView("create");
+                          if (userId) loadMyDepartments(userId);
+                        }}
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground font-black rounded-2xl gap-2 shadow-md shadow-primary/20 px-5"
+                      >
+                        <Plus className="w-4 h-4" strokeWidth={2.6} />
+                        <span>{isRtl ? "إنشاء أول محاضرة" : "Create First Lecture"}</span>
+                      </Button>
                     </CardContent>
                   </Card>
                 ) : (
@@ -1568,104 +1639,96 @@ const LeadershipDashboard = () => {
                       const courseEps = episodes
                         .filter(e => e.course_id === course.id)
                         .sort((a, b) => (a.level_number - b.level_number) || (a.episode_number - b.episode_number));
-                      return (
-                        <Card key={course.id} className="overflow-hidden border-2 hover:border-primary/40 transition-all shadow-sm rounded-2xl">
-                          <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent pb-3.5">
-                            <div className="flex items-start justify-between gap-3 flex-wrap">
-                              <div className="min-w-0 space-y-1.5 flex-1">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <CardTitle className="text-base sm:text-lg font-black text-foreground">
-                                    {isRtl ? course.title_ar : course.title_en}
-                                  </CardTitle>
-                                  {course.title_en && isRtl && (
-                                    <span className="text-xs text-muted-foreground font-semibold" dir="ltr">
-                                      ({course.title_en})
-                                    </span>
-                                  )}
-                                </div>
 
-                                <div className="flex items-center gap-x-3 gap-y-1 text-xs text-muted-foreground font-bold flex-wrap">
-                                  <span className="flex items-center gap-1.5 text-foreground bg-primary/10 text-primary px-2.5 py-0.5 rounded-lg border border-primary/15">
+                      return (
+                        <Card
+                          key={course.id}
+                          className="overflow-hidden border-2 border-border/70 hover:border-primary/40 bg-card rounded-3xl shadow-md hover:shadow-xl transition-all duration-300"
+                        >
+                          <div className="p-5 sm:p-6 space-y-4">
+                            {/* Card Top Row: Title + Badges + Action Buttons */}
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                              <div className="space-y-2 flex-1 min-w-0">
+                                {/* Subject Pill */}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border border-cyan-500/20">
                                     <BookOpen className="w-3.5 h-3.5" />
                                     <span>{isRtl ? "المادة:" : "Subject:"} {course.category_ar || course.category_en || (isRtl ? "عام" : "General")}</span>
                                   </span>
 
-                                  <span className="flex items-center gap-1 text-foreground">
-                                    <GraduationCap className="w-3.5 h-3.5 text-primary" />
+                                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+                                    <GraduationCap className="w-3.5 h-3.5" />
                                     <span>{isRtl ? "رئيس القسم / المحاضر:" : "Instructor:"} {course.instructor_ar || course.instructor_en}</span>
                                   </span>
+
+                                  <Badge variant="outline" className="font-black text-xs bg-muted/40 border-teal-500/30 text-teal-700 dark:text-teal-300 gap-1.5 px-2.5 py-1 rounded-xl">
+                                    <Video className="w-3.5 h-3.5" />
+                                    <span>{courseEps.length} {isRtl ? "فيديو مسجل" : "videos"}</span>
+                                  </Badge>
                                 </div>
 
-                                <div className="flex items-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground font-medium flex-wrap pt-0.5">
-                                  <span className="flex items-center gap-1">
-                                    <Calendar className="w-3 h-3 text-teal-600 dark:text-teal-400" />
-                                    <span>{isRtl ? "تاريخ النشر:" : "Published:"} {course.created_at ? new Date(course.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : "—"}</span>
-                                  </span>
-                                  <span className="flex items-center gap-1">
-                                    <Clock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                                    <span>{isRtl ? "تاريخ الانتهاء:" : "Expires:"} {course.expires_at ? new Date(course.expires_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : (isRtl ? "مستمر / بدون انتهاء" : "No Expiry")}</span>
-                                  </span>
-                                </div>
+                                {/* Main Title */}
+                                <h3 className="text-lg sm:text-2xl font-black text-foreground tracking-tight leading-snug">
+                                  {isRtl ? course.title_ar : course.title_en}
+                                </h3>
+
+                                {course.title_en && isRtl && (
+                                  <p className="text-xs text-muted-foreground font-semibold" dir="ltr">
+                                    {course.title_en}
+                                  </p>
+                                )}
                               </div>
 
-                              <div className="flex items-center gap-2 shrink-0">
-                                <Badge variant="outline" className="font-black text-xs bg-background border-teal-500/30 text-teal-700 dark:text-teal-300 gap-1 px-2.5 py-1">
-                                  <Video className="w-3.5 h-3.5" />
-                                  <span>{courseEps.length} {isRtl ? "فيديو" : "videos"}</span>
-                                </Badge>
+                              {/* Action Buttons */}
+                              <div className="flex items-center gap-2.5 shrink-0 self-start md:self-center">
                                 <Button
-                                  size="sm"
-                                  variant="default"
+                                  size="default"
                                   onClick={() => navigate(`/lecturer/course/${course.id}`)}
-                                  className="gap-1 font-bold h-8 px-2.5 bg-teal-600 hover:bg-teal-700 text-white shadow-sm rounded-xl"
+                                  className="gap-2 font-black h-10 px-4 bg-gradient-to-r from-teal-600 via-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white shadow-md shadow-teal-600/20 rounded-2xl transition-all"
                                 >
-                                  <Eye className="w-3.5 h-3.5" />
-                                  <span>{isRtl ? "مشاهدة" : "Watch"}</span>
+                                  <Eye className="w-4 h-4" strokeWidth={2.6} />
+                                  <span>{isRtl ? "مشاهدة وإدارة المحاضرة" : "Watch & Manage"}</span>
                                 </Button>
+
                                 <Button
-                                  size="sm"
-                                  variant="destructive"
+                                  size="icon"
+                                  variant="ghost"
                                   onClick={() => handleDeleteCourse(course.id)}
-                                  className="h-8 px-2 shadow-sm rounded-xl"
+                                  className="h-10 w-10 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-2xl transition-colors"
                                   title={isRtl ? "حذف المحاضرة" : "Delete Lecture"}
                                 >
-                                  <Trash2 className="w-3.5 h-3.5" strokeWidth={2.5} />
+                                  <Trash2 className="w-4 h-4" />
                                 </Button>
                               </div>
                             </div>
-                          </CardHeader>
-                          {courseEps.length > 0 && (
-                            <CardContent className="p-0 overflow-x-auto">
-                              <Table>
-                                <TableHeader>
-                                  <TableRow>
-                                    <TableHead>{isRtl ? "المحاضرة" : "Lecture"}</TableHead>
-                                    <TableHead className="hidden sm:table-cell">{isRtl ? "الحلقة" : "Episode"}</TableHead>
-                                    <TableHead className="hidden sm:table-cell">{isRtl ? "المدة" : "Duration"}</TableHead>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                  {courseEps.map(ep => (
-                                    <TableRow key={ep.id}>
-                                      <TableCell className="font-medium">
-                                        <div className="flex items-center gap-2">
-                                          <Video className="w-4 h-4 text-primary shrink-0" />
-                                          <span className="truncate">{isRtl ? ep.title_ar : ep.title_en}</span>
-                                        </div>
-                                      </TableCell>
-                                      <TableCell className="hidden sm:table-cell">{ep.episode_number}</TableCell>
-                                      <TableCell className="hidden sm:table-cell">
-                                        <span className="flex items-center gap-1 text-xs font-bold text-muted-foreground">
-                                          <Clock className="w-3.5 h-3.5" />
-                                          {ep.duration_minutes || 0} {isRtl ? "د" : "min"}
-                                        </span>
-                                      </TableCell>
-                                    </TableRow>
-                                  ))}
-                                </TableBody>
-                              </Table>
-                            </CardContent>
-                          )}
+
+                            {/* Card Details Grid */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-3 border-t border-border/50 bg-muted/20 -mx-5 -mb-5 p-4 sm:p-5 rounded-b-3xl">
+                              <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
+                                <Calendar className="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0" />
+                                <span>{isRtl ? "تاريخ النشر:" : "Published:"}</span>
+                                <span className="text-foreground">
+                                  {course.created_at ? new Date(course.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US", { year: 'numeric', month: 'long', day: 'numeric' }) : "—"}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
+                                <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                                <span>{isRtl ? "تاريخ الانتهاء:" : "Expires:"}</span>
+                                <span className="text-foreground">
+                                  {course.expires_at ? new Date(course.expires_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US", { year: 'numeric', month: 'long', day: 'numeric' }) : (isRtl ? "مستمر / بدون انتهاء" : "No Expiry")}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground sm:col-span-2 lg:col-span-1">
+                                <Film className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
+                                <span>{isRtl ? "حالة المحتوى:" : "Content Status:"}</span>
+                                <span className="text-foreground font-black">
+                                  {courseEps.length > 0 ? (isRtl ? "جاهز للعرض والمشاهدة" : "Ready to watch") : (isRtl ? "بانتظار إضافة الفيديوهات" : "Awaiting videos")}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
                         </Card>
                       );
                     })}

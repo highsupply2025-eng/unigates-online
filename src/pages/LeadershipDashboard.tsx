@@ -5,7 +5,7 @@ import {
   Video, FileText, Download, BarChart3, Clock, CheckCircle, AlertCircle,
   GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, Menu, Home, XCircle, Award, ShieldCheck, User, RefreshCw,
   Plus, Upload, X, Circle, Square, RotateCcw, Play, Film, Trash2, Paperclip,
-  Activity, Zap, Sparkles, TrendingUp, Cpu, Flame, ArrowUpRight, CheckCircle2, ChevronRight, Building2
+  Activity, Zap, Sparkles, TrendingUp, Cpu, Flame, ArrowUpRight, CheckCircle2, ChevronRight, Building2, FileQuestion
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,6 +41,8 @@ import { WatchOtherLecturesView } from "@/components/lectures/WatchOtherLectures
 import { UploadFilesView } from "@/components/lectures/UploadFilesView";
 import { CreateLiveStreamView } from "@/components/streams/CreateLiveStreamView";
 import { WatchLiveStreamsView } from "@/components/streams/WatchLiveStreamsView";
+import { CreateQuizView } from "@/components/quizzes/CreateQuizView";
+import { QuizApprovalsView } from "@/components/quizzes/QuizApprovalsView";
 
 const LeadershipDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -160,6 +162,9 @@ const LeadershipDashboard = () => {
 
   // Dedicated full-page live stream subview ('overview' | 'create' | 'watch')
   const [streamSubView, setStreamSubView] = useState<"overview" | "create" | "watch">("overview");
+
+  // Dedicated full-page quiz subview ('overview' | 'create' | 'approvals')
+  const [quizSubView, setQuizSubView] = useState<"overview" | "create" | "approvals">("overview");
 
   useEffect(() => {
     checkAccess();
@@ -1211,12 +1216,16 @@ const LeadershipDashboard = () => {
               <p className="text-xs sm:text-base font-bold truncate mt-0.5">
                 <span className="bg-gradient-to-r from-indigo-600 to-fuchsia-600 dark:from-indigo-300 dark:to-fuchsia-300 bg-clip-text text-transparent">
                 {(() => {
+                   const isDeanOrViceDean = ["dean", "vice_dean"].includes(userRole);
                    const map: Record<string, { ar: string; en: string }> = {
                      overview: { ar: "الرئيسية", en: "Home" },
                      livestreams: { ar: "البث المباشر", en: "Live Streams" },
                      lectures: { ar: "المحاضرات", en: "Lectures" },
                      quizresults: { ar: "نتائج الاختبارات", en: "Quiz Results" },
-                     quizzesonline: { ar: "اعتماد الاختبارات", en: "Quizzes Approval" },
+                     quizzesonline: {
+                       ar: isDeanOrViceDean ? "اعتماد الاختبارات" : "الاختبارات",
+                       en: isDeanOrViceDean ? "Quizzes Approval" : "Quizzes",
+                     },
                      schedulesapproval: { ar: "اعتماد الجداول", en: "Schedules Approval" },
                      ratings: { ar: "التقييمات", en: "Ratings" },
                      assignments: { ar: "نتائج التكليفات", en: "Assignment Results" },
@@ -1250,6 +1259,16 @@ const LeadershipDashboard = () => {
                 {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
                 <span>{isRtl ? "الرجوع للبثوث" : "Back to Streams"}</span>
               </Button>
+            ) : activeTab === "quizzesonline" && !["dean", "vice_dean"].includes(userRole) && quizSubView !== "overview" ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setQuizSubView("overview")}
+                className="h-10 px-3.5 gap-2 font-black rounded-xl border-2 border-teal-500/30 bg-teal-500/10 text-teal-700 dark:text-teal-300 hover:bg-teal-600 hover:text-white shadow-sm transition-all"
+              >
+                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                <span>{isRtl ? "الرجوع للاختبارات" : "Back to Quizzes"}</span>
+              </Button>
             ) : (
               <DashboardMenuDropdown
                 title={isRtl ? getRoleLabel().ar : getRoleLabel().en}
@@ -1259,8 +1278,20 @@ const LeadershipDashboard = () => {
                   { key: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-indigo-500 to-violet-600", onClick: () => setActiveTab("overview"), active: activeTab === "overview" },
                   { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-cyan-500 to-blue-600", onClick: () => setActiveTab("lectures"), active: activeTab === "lectures" },
                   { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", onClick: () => setActiveTab("livestreams"), active: activeTab === "livestreams" },
+                  {
+                    key: "quizzesonline",
+                    label: ["dean", "vice_dean"].includes(userRole)
+                      ? (isRtl ? "اعتماد الاختبارات" : "Quizzes Approval")
+                      : (isRtl ? "الاختبارات" : "Quizzes"),
+                    Icon: ["dean", "vice_dean"].includes(userRole) ? ShieldCheck : FileQuestion,
+                    color: "from-emerald-500 to-teal-600",
+                    onClick: () => {
+                      setActiveTab("quizzesonline");
+                      setQuizSubView("overview");
+                    },
+                    active: activeTab === "quizzesonline",
+                  },
                   ...(isApprovalRole ? [
-                    { key: "quizzesonline", label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: ShieldCheck, color: "from-emerald-500 to-teal-600", onClick: () => setActiveTab("quizzesonline"), active: activeTab === "quizzesonline" },
                     { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, color: "from-purple-500 to-fuchsia-600", onClick: () => setActiveTab("schedulesapproval"), active: activeTab === "schedulesapproval" },
                   ] : []),
                   { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", onClick: () => setActiveTab("quizresults"), active: activeTab === "quizresults" },
@@ -1890,162 +1921,263 @@ const LeadershipDashboard = () => {
             )}
           </TabsContent>
 
-          {/* Quizzes Approval - approval workflow */}
+          {/* Quizzes & Exams Tab - Multi-role with Create and Approval Chain */}
           <TabsContent value="quizzesonline" id="section-quizzesonline" dir={isRtl ? "rtl" : "ltr"}>
-            {(() => {
-              const vdColumn =
-                subRole === "vice_dean_students" ? "students"
-                : subRole === "vice_dean_postgrad" ? "postgrad"
-                : subRole === "vice_dean_environment" || subRole === "vice_dean_community" ? "environment"
-                : "";
+            {["dean", "vice_dean"].includes(userRole) ? (
+              <QuizApprovalsView
+                userId={userId}
+                userRole={userRole}
+                subRole={subRole}
+                quizzes={quizzes}
+                courses={courses}
+                departments={myDepartments}
+                institutionType={institutionType}
+                onRefresh={() => {
+                  const deptIds = selectedDeptId === "all" ? myDepartments.map(d => d.id) : [selectedDeptId];
+                  loadData(deptIds);
+                }}
+              />
+            ) : quizSubView === "create" ? (
+              <CreateQuizView
+                userId={userId}
+                userRole={userRole}
+                departments={myDepartments}
+                courses={courses}
+                institutionType={institutionType}
+                onCreated={() => {
+                  setQuizSubView("overview");
+                  const deptIds = selectedDeptId === "all" ? myDepartments.map(d => d.id) : [selectedDeptId];
+                  loadData(deptIds);
+                }}
+                onBack={() => setQuizSubView("overview")}
+              />
+            ) : quizSubView === "approvals" ? (
+              <QuizApprovalsView
+                userId={userId}
+                userRole={userRole}
+                subRole={subRole}
+                quizzes={quizzes}
+                courses={courses}
+                departments={myDepartments}
+                institutionType={institutionType}
+                onRefresh={() => {
+                  const deptIds = selectedDeptId === "all" ? myDepartments.map(d => d.id) : [selectedDeptId];
+                  loadData(deptIds);
+                }}
+                onBackToOverview={() => setQuizSubView("overview")}
+              />
+            ) : (
+              <div className="space-y-6 animate-in fade-in-50 duration-300">
+                {/* 2 Big Action Hero Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                  {/* Hero Card 1: Create Exam Studio */}
+                  <div
+                    onClick={() => setQuizSubView("create")}
+                    className="group relative overflow-hidden rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-teal-600 via-emerald-600 to-cyan-600 text-white shadow-xl shadow-teal-600/20 hover:shadow-2xl hover:shadow-teal-600/35 hover:-translate-y-1 transition-all duration-300 cursor-pointer border border-white/20"
+                  >
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none group-hover:scale-125 transition-transform" />
+                    <div className="flex items-start justify-between">
+                      <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform">
+                        <FileQuestion className="w-7 h-7 animate-pulse" />
+                      </div>
+                      <span className="px-3 py-1 rounded-full text-xs font-black bg-white/20 backdrop-blur-sm border border-white/30 text-white shadow-xs">
+                        {isRtl ? "استوديو إنشاء الاختبارات" : "Exam Studio"}
+                      </span>
+                    </div>
 
-              const stageOf = (q: any) => {
-                if (q.rejected_by) return { key: "rejected", labelAr: "مرفوض", labelEn: "Rejected", color: "from-red-500 to-rose-600" };
-                if (!q.approved_by_lecturer) return { key: "lecturer", labelAr: "بانتظار المحاضر", labelEn: "Awaiting Lecturer", color: "from-slate-400 to-slate-500" };
-                if (!q.approved_by_head) return { key: "head", labelAr: "بانتظار رئيس القسم", labelEn: "Awaiting Department Head", color: "from-amber-500 to-orange-600" };
-                const vdAll = q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad && q.approved_by_vice_dean_environment;
-                if (!vdAll) return { key: "vd", labelAr: institutionType === "institute" ? "بانتظار وكلاء المعهد" : "بانتظار وكلاء الكلية", labelEn: institutionType === "institute" ? "Awaiting Vice Directors" : "Awaiting Vice Deans", color: "from-blue-500 to-indigo-600" };
-                if (!q.approved_by_dean) return { key: "dean", labelAr: "بانتظار العميد", labelEn: "Awaiting Dean", color: "from-violet-500 to-purple-600" };
-                return { key: "done", labelAr: "معتمد بالكامل", labelEn: "Fully Approved", color: "from-emerald-500 to-green-600" };
-              };
+                    <div className="mt-5 space-y-1.5">
+                      <h3 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+                        <span>{isRtl ? "إنشاء اختبار جديد" : "Create New Exam / Quiz"}</span>
+                        <Sparkles className="w-5 h-5 text-amber-300" />
+                      </h3>
+                      <p className="text-xs sm:text-sm text-teal-100 font-medium leading-relaxed">
+                        {isRtl
+                          ? `إعداد الأسئلة وتحديد سلسلة الاعتماد الأكاديمي حتى اعتماد ${institutionType === "institute" ? "مدير المعهد" : "عميد الكلية"}.`
+                          : "Build questions bank and configure multi-stage academic approval sequence."}
+                      </p>
+                    </div>
 
-              const canActOn = (q: any) => {
-                if (q.rejected_by) return false;
-                if (userRole === "department_head") return q.approved_by_lecturer && !q.approved_by_head;
-                if (userRole === "vice_dean" && vdColumn) {
-                  if (!q.approved_by_head) return false;
-                  return !q[`approved_by_vice_dean_${vdColumn}`];
-                }
-                if (userRole === "dean") {
-                  const vdAll = q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad && q.approved_by_vice_dean_environment;
-                  return vdAll && !q.approved_by_dean;
-                }
-                return false;
-              };
-
-              const pending = quizzes.filter(q => !q.rejected_by && !(q.approved_by_lecturer && q.approved_by_head && q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad && q.approved_by_vice_dean_environment && q.approved_by_dean));
-              const myTurn = pending.filter(canActOn);
-              const waiting = pending.filter(q => !canActOn(q));
-              const approved = quizzes.filter(q => q.approved_by_lecturer && q.approved_by_head && q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad && q.approved_by_vice_dean_environment && q.approved_by_dean);
-
-              const StageBadge = ({ q }: { q: any }) => {
-                const s = stageOf(q);
-                // Build a detailed chain indicator showing each step
-                const steps = [
-                  { label: isRtl ? "المحاضر" : "Lecturer", done: q.approved_by_lecturer },
-                  { label: isRtl ? "رئيس القسم" : "Head", done: q.approved_by_head },
-                  { label: isRtl ? "شؤون الطلاب" : "Students VD", done: q.approved_by_vice_dean_students },
-                  { label: isRtl ? "الدراسات العليا" : "Postgrad VD", done: q.approved_by_vice_dean_postgrad },
-                  { label: isRtl ? "البيئة" : "Environment VD", done: q.approved_by_vice_dean_environment },
-                  { label: isRtl ? "العميد" : "Dean", done: q.approved_by_dean },
-                ];
-                return (
-                  <div className="flex flex-col gap-1">
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-extrabold text-white bg-gradient-to-r ${s.color} shadow-sm`}>
-                      <ShieldCheck className="w-3 h-3" />
-                      {isRtl ? s.labelAr : s.labelEn}
-                    </span>
-                    <div className="flex items-center gap-0.5 flex-wrap">
-                      {steps.map((step, i) => (
-                        <span key={i} className="flex items-center">
-                          <span className={`inline-flex items-center px-1 py-0.5 rounded text-[8px] sm:text-[9px] font-bold ${step.done ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
-                            {step.done ? "✓" : "○"} {step.label}
-                          </span>
-                          {i < steps.length - 1 && <span className="text-[8px] text-muted-foreground mx-0.5">→</span>}
-                        </span>
-                      ))}
+                    <div className="mt-6 flex items-center justify-between pt-4 border-t border-white/20">
+                      <span className="text-xs font-black text-white/90 group-hover:text-white">
+                        {isRtl ? "دخول استوديو إنشاء الاختبار ➔" : "Launch Exam Wizard ➔"}
+                      </span>
+                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-teal-900 transition-colors">
+                        <Plus className="w-4 h-4" />
+                      </div>
                     </div>
                   </div>
-                );
-              };
 
-              const QuizTable = ({ list, showAction }: { list: any[]; showAction: boolean }) => (
-                <div className="overflow-x-auto rounded-xl border border-border bg-card">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>{isRtl ? "الاختبار" : "Quiz"}</TableHead>
-                        <TableHead className="hidden sm:table-cell">{isRtl ? "تاريخ الإنشاء" : "Created"}</TableHead>
-                        <TableHead>{isRtl ? "الحالة" : "Status"}</TableHead>
-                        <TableHead className="text-end">{isRtl ? "الإجراء" : "Action"}</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {list.map(q => {
-                        const course = courses.find(c => c.id === q.course_id);
-                        const act = canActOn(q);
-                        return (
-                          <TableRow key={q.id}>
-                            <TableCell className="font-bold">
-                              <div className="flex flex-col">
-                                <span>{isRtl ? q.title_ar : q.title_en}</span>
-                                {course && (
-                                  <span className="text-[10px] text-muted-foreground font-medium">
-                                    {isRtl ? course.title_ar : course.title_en}
-                                  </span>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell text-xs text-muted-foreground">
-                              {new Date(q.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}
-                            </TableCell>
-                            <TableCell><StageBadge q={q} /></TableCell>
-                            <TableCell className="text-end">
-                              <Button
-                                size="sm"
-                                onClick={() => navigate(`/quiz-results/${q.id}`)}
-                                className={showAction && act
-                                  ? "bg-gradient-to-r from-emerald-500 to-green-600 text-white font-extrabold shadow hover:shadow-lg"
-                                  : ""}
-                                variant={showAction && act ? "default" : "outline"}
-                              >
-                                {showAction && act
-                                  ? (isRtl ? "عرض ثم الاعتماد" : "Review & Approve")
-                                  : (isRtl ? "عرض" : "View")}
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
+                  {/* Hero Card 2: Approvals & Tracking */}
+                  <div
+                    onClick={() => setQuizSubView("approvals")}
+                    className="group relative overflow-hidden rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white shadow-xl shadow-purple-600/20 hover:shadow-2xl hover:shadow-purple-600/35 hover:-translate-y-1 transition-all duration-300 cursor-pointer border border-white/20"
+                  >
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none group-hover:scale-125 transition-transform" />
+                    <div className="flex items-start justify-between">
+                      <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform">
+                        <ShieldCheck className="w-7 h-7" />
+                      </div>
+                      <span className="px-3 py-1 rounded-full text-xs font-black bg-white/20 backdrop-blur-sm border border-white/30 text-white shadow-xs">
+                        {isRtl ? "سلسلة الاعتماد الأكاديمي" : "Approval Chain"}
+                      </span>
+                    </div>
+
+                    <div className="mt-5 space-y-1.5">
+                      <h3 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+                        <span>{isRtl ? "اعتماد ومتابعة الاختبارات" : "Review & Track Approvals"}</span>
+                        <CheckCircle className="w-5 h-5 text-emerald-300" />
+                      </h3>
+                      <p className="text-xs sm:text-sm text-purple-100 font-medium leading-relaxed">
+                        {isRtl
+                          ? `متابعة حالة الاختبارات، ومراجعة الأسئلة وسلسلة الموافقات حتى اعتماد ${institutionType === "institute" ? "مدير المعهد" : "عميد الكلية"}.`
+                          : "Track approval progress, inspect exam questions, and manage approvals."}
+                      </p>
+                    </div>
+
+                    <div className="mt-6 flex items-center justify-between pt-4 border-t border-white/20">
+                      <span className="text-xs font-black text-white/90 group-hover:text-white">
+                        {isRtl ? "عرض ومتابعة الاعتمادات ➔" : "View Approval Workflow ➔"}
+                      </span>
+                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-purple-900 transition-colors">
+                        <ChevronRight className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              );
 
-              const notApproved = [...myTurn, ...waiting];
-
-              return (
-                <>
-                  <div className="flex items-center justify-end mb-4">
-                    <Badge variant="secondary" className="font-extrabold">
-                      {isRtl ? `بانتظار اعتمادك: ${myTurn.length}` : `Awaiting you: ${myTurn.length}`}
-                    </Badge>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-5">
-                    <button onClick={() => navigate("/leadership/approvals/quizzes/approved")} className="text-start">
-                      <Card className="bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:scale-[1.02] transition-all cursor-pointer">
-                        <CardContent className="p-3 sm:p-4 text-center">
-                          <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7 mx-auto mb-1 opacity-95" />
-                          <div className="text-2xl sm:text-3xl font-black">{approved.length}</div>
-                          <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "معتمد" : "Approved"}</div>
-                        </CardContent>
+                {/* 3 KPI Summary Cards */}
+                {(() => {
+                  const fullyApproved = quizzes.filter(q => q.is_published || q.approved_by_dean);
+                  const pendingApproval = quizzes.filter(q => !q.rejected_by && !q.is_published && !q.approved_by_dean);
+                  return (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                      <Card className="rounded-2xl border-2 border-border bg-card shadow-sm p-4 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-teal-500/10 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0">
+                          <FileQuestion className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <div className="text-2xl font-black text-foreground">{quizzes.length}</div>
+                          <div className="text-xs font-bold text-muted-foreground">{isRtl ? "إجمالي الاختبارات" : "Total Quizzes"}</div>
+                        </div>
                       </Card>
-                    </button>
-                    <button onClick={() => navigate("/leadership/approvals/quizzes/pending")} className="text-start">
-                      <Card className="bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/30 hover:shadow-xl hover:scale-[1.02] transition-all cursor-pointer">
-                        <CardContent className="p-3 sm:p-4 text-center">
-                          <Clock className="w-6 h-6 sm:w-7 sm:h-7 mx-auto mb-1 opacity-95" />
-                          <div className="text-2xl sm:text-3xl font-black">{notApproved.length}</div>
-                          <div className="text-[10px] sm:text-xs font-extrabold opacity-95">{isRtl ? "غير معتمد" : "Not Approved"}</div>
-                        </CardContent>
-                      </Card>
-                    </button>
-                  </div>
 
-                </>
-              );
-            })()}
+                      <Card className="rounded-2xl border-2 border-amber-500/30 bg-amber-500/5 shadow-sm p-4 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0">
+                          <Clock className="w-6 h-6 animate-pulse" />
+                        </div>
+                        <div>
+                          <div className="text-2xl font-black text-amber-700 dark:text-amber-400">{pendingApproval.length}</div>
+                          <div className="text-xs font-bold text-muted-foreground">{isRtl ? "قيد المراجعة والاعتماد" : "Pending Approval"}</div>
+                        </div>
+                      </Card>
+
+                      <Card className="rounded-2xl border-2 border-emerald-500/30 bg-emerald-500/5 shadow-sm p-4 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                          <CheckCircle className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{fullyApproved.length}</div>
+                          <div className="text-xs font-bold text-muted-foreground">{isRtl ? "معتمد ومنشور للطلاب" : "Approved & Live"}</div>
+                        </div>
+                      </Card>
+                    </div>
+                  );
+                })()}
+
+                {/* Quick Table of Recent Quizzes */}
+                <Card className="rounded-3xl border-2 border-border shadow-md overflow-hidden">
+                  <CardHeader className="border-b bg-muted/30 pb-4">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base sm:text-lg font-black flex items-center gap-2">
+                        <FileQuestion className="w-5 h-5 text-teal-600" />
+                        <span>{isRtl ? "سجل الاختبارات الأحدث" : "Recent Quizzes"}</span>
+                      </CardTitle>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setQuizSubView("approvals")}
+                        className="rounded-xl text-xs font-bold gap-1"
+                      >
+                        <span>{isRtl ? "عرض كل الاعتمادات" : "View All Approvals"}</span>
+                        {isRtl ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    {quizzes.length === 0 ? (
+                      <div className="text-center py-12 text-muted-foreground font-bold text-sm">
+                        {isRtl ? "لا توجد اختبارات مسجلة حالياً. ابدأ بإنشاء أول اختبار الآن!" : "No exams created yet."}
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader className="bg-muted/20">
+                            <TableRow>
+                              <TableHead className="font-black text-xs">{isRtl ? "الاختبار والمقرر" : "Exam & Course"}</TableHead>
+                              <TableHead className="font-black text-xs hidden sm:table-cell">{isRtl ? "المدة" : "Duration"}</TableHead>
+                              <TableHead className="font-black text-xs">{isRtl ? "حالة الاعتماد" : "Approval Status"}</TableHead>
+                              <TableHead className="font-black text-xs text-end">{isRtl ? "الإجراء" : "Action"}</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {quizzes.slice(0, 8).map((q) => {
+                              const course = courses.find((c) => c.id === q.course_id);
+                              const isAppr = !!(q.is_published || q.approved_by_dean);
+                              return (
+                                <TableRow key={q.id} className="hover:bg-muted/20">
+                                  <TableCell className="font-bold">
+                                    <div className="flex flex-col">
+                                      <span className="text-sm font-black text-foreground">
+                                        {isRtl ? q.title_ar || q.title_en : q.title_en || q.title_ar}
+                                      </span>
+                                      {course && (
+                                        <span className="text-xs text-teal-700 dark:text-teal-400 font-bold">
+                                          {isRtl ? course.title_ar : course.title_en}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="hidden sm:table-cell text-xs text-muted-foreground font-medium">
+                                    {q.duration_minutes || 30} {isRtl ? "دقيقة" : "mins"}
+                                  </TableCell>
+                                  <TableCell>
+                                    <Badge
+                                      className={`text-xs font-bold border ${
+                                        isAppr
+                                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
+                                          : q.rejected_by
+                                          ? "bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/30"
+                                          : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30"
+                                      }`}
+                                    >
+                                      {isAppr
+                                        ? (isRtl ? "معتمد ومنشور للطلاب ✓" : "Approved & Live ✓")
+                                        : q.rejected_by
+                                        ? (isRtl ? "مرفوض" : "Rejected")
+                                        : (isRtl ? "قيد المراجعة بالسلسلة" : "In Review Chain")}
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell className="text-end">
+                                    <Button
+                                      size="sm"
+                                      onClick={() => setQuizSubView("approvals")}
+                                      variant="outline"
+                                      className="rounded-xl font-bold text-xs"
+                                    >
+                                      {isRtl ? "متابعة الاعتماد" : "Track Approval"}
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </TabsContent>
 
           {/* Schedules Approval workflow */}

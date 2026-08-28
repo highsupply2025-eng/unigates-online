@@ -82,15 +82,21 @@ export const FacultyRatingsOverview: React.FC<FacultyRatingsOverviewProps> = ({
 
   const getRoleLabel = (role: string, subRole?: string) => {
     const raw = (subRole || role || "").toLowerCase();
-    if (raw.includes("dean") && !raw.includes("vice")) return { ar: institutionType === "institute" ? "مدير المعهد" : "عميد الكلية", en: "Dean" };
-    if (raw.includes("vice_dean") || raw.includes("vicedean")) return { ar: "وكيل الكلية", en: "Vice Dean" };
-    if (raw.includes("head") || raw.includes("department_head")) return { ar: "رئيس قسم", en: "Head of Department" };
+    const isInst = institutionType === "institute";
+    if (raw.includes("dean") && !raw.includes("vice")) return { ar: isInst ? "مدير المعهد" : "عميد الكلية", en: isInst ? "Director" : "Dean" };
+    if (raw.includes("vice_dean") || raw.includes("vicedean")) {
+      if (raw.includes("postgrad")) return { ar: isInst ? "وكيل المعهد للدراسات العليا" : "وكيل الكلية للدراسات العليا", en: "Vice Dean - Postgraduate" };
+      if (raw.includes("student")) return { ar: isInst ? "وكيل المعهد لشئون الطلاب" : "وكيل الكلية لشئون الطلاب", en: "Vice Dean - Students" };
+      if (raw.includes("community") || raw.includes("environment")) return { ar: isInst ? "وكيل المعهد لشئون البيئة" : "وكيل الكلية لشئون البيئة", en: "Vice Dean - Community" };
+      return { ar: isInst ? "وكيل المعهد" : "وكيل الكلية", en: isInst ? "Vice Director" : "Vice Dean" };
+    }
+    if (raw.includes("head") || raw.includes("department_head")) return { ar: isInst ? "رئيس الشعبة / القسم" : "رئيس قسم", en: "Head of Department" };
     if (raw.includes("prof_dr") || raw.includes("professor")) return { ar: "أستاذ دكتور (أ.د)", en: "Professor" };
     if (raw.includes("dr") || raw.includes("doctor")) return { ar: "دكتور (د.)", en: "Doctor / Lecturer" };
     if (raw.includes("assistant_lecturer") || raw.includes("teaching_assistant")) return { ar: "مدرس مساعد", en: "Assistant Lecturer" };
-    if (raw.includes("teacher") || raw.includes("lecturer")) return { ar: "مدرس", en: "Lecturer" };
+    if (raw.includes("teacher") || raw.includes("lecturer")) return { ar: "مدرس / محاضر", en: "Lecturer" };
     if (raw.includes("demonstrator") || raw.includes("ta")) return { ar: "معيد", en: "Demonstrator" };
-    return { ar: "عضو هيئة تدريس", en: "Faculty Member" };
+    return { ar: isInst ? "عضو هيئة تدريس بالمعهد" : "عضو هيئة تدريس", en: "Faculty Member" };
   };
 
   const fetchFacultyRatings = async () => {

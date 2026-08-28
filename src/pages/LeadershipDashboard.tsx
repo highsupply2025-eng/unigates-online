@@ -2320,7 +2320,7 @@ const LeadershipDashboard = () => {
               <CreateScheduleView
                 userId={userId}
                 userRole={userRole}
-                departments={myDepartments}
+                departments={departmentOptions}
                 courses={courses}
                 institutionType={institutionType}
                 onCreated={() => {
@@ -2979,7 +2979,7 @@ const LeadershipDashboard = () => {
               <CreateAssignmentView
                 userId={userId}
                 userRole={userRole}
-                departments={myDepartments}
+                departments={departmentOptions}
                 courses={courses}
                 institutionType={institutionType}
                 onCreated={() => {

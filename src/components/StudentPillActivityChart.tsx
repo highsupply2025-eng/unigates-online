@@ -82,6 +82,7 @@ export const StudentPillActivityChart = ({
   });
   // In RTL, keep natural order and lay the chart out RTL so the first item
   // sits at the right (matching the icon grid below).
+  const data = baseData;
   // Calculate percentage relative to total activity or count
   const totalCount = data.reduce((acc, curr) => acc + curr.count, 0);
   const getDisplayPct = (count: number, fixed?: number) => {

@@ -1359,7 +1359,23 @@ const LeadershipDashboard = () => {
                     onItemClick={(key) => key && setActiveTab(key)}
                     items={[
                       { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-cyan-500 to-blue-600", count: episodes.length },
-                   {/* Live Streams Tab */}
+                      { key: "livestreams", label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, color: "from-red-500 to-rose-600", count: liveStreams.length },
+                      ...(isApprovalRole ? [
+                        { key: "quizzesonline", label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: ShieldCheck, color: "from-emerald-500 to-teal-600", count: quizzes.length },
+                        { key: "schedulesapproval", label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, color: "from-purple-500 to-fuchsia-600", count: lectureSchedules.length },
+                      ] : []),
+                      { key: "quizresults", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", count: quizSubmissions.length },
+                      { key: "assignments", label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, color: "from-blue-500 to-indigo-600", count: assignmentSubmissions.length },
+                      { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", count: ratings.length },
+                    ]}
+                  />
+                </>
+              );
+            })()}
+          </TabsContent>
+
+          {/* Live Streams Tab */}
+
           <TabsContent value="livestreams" id="section-livestreams" dir={isRtl ? "rtl" : "ltr"} className="space-y-6 animate-in fade-in-50 duration-200">
             {streamSubView === "create" ? (
               <CreateLiveStreamView

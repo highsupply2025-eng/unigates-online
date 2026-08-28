@@ -47,6 +47,7 @@ interface MemberRow {
   specialization: string | null;
   hire_date: string | null;
   notes: string | null;
+  department_id?: string | null;
 }
 
 interface Academic {
@@ -106,7 +107,7 @@ const FacultyMemberProfile = ({ header }: Props) => {
       // 1) Fetch profiles table
       const { data: prof } = await supabase
         .from("profiles")
-        .select("full_name, email, phone, role, sub_role, avatar_url, department_id, created_at")
+        .select("full_name, email, phone, role, avatar_url, created_at")
         .eq("id", user.id)
         .maybeSingle();
 
@@ -131,7 +132,7 @@ const FacultyMemberProfile = ({ header }: Props) => {
       }
 
       // 3) Resolve Department & College/Institute Name
-      const deptId = mem?.department_id || prof?.department_id;
+      const deptId = mem?.department_id;
       let deptName: string | null = null;
       let collegeName: string | null = null;
       let instType: "college" | "institute" = "college";
@@ -139,12 +140,12 @@ const FacultyMemberProfile = ({ header }: Props) => {
       if (deptId) {
         const { data: dept } = await supabase
           .from("departments")
-          .select("department_name, name_ar, institution_id, institution_type")
+          .select("department_name, institution_id, institution_type")
           .eq("id", deptId)
           .maybeSingle();
 
         if (dept) {
-          deptName = dept.department_name || dept.name_ar || null;
+          deptName = dept.department_name || null;
           instType = (dept.institution_type as "college" | "institute") || "college";
 
           if (dept.institution_id) {

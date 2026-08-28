@@ -124,9 +124,9 @@ export const QuizResultsRosterView: React.FC<QuizResultsRosterViewProps> = ({
       });
 
       // Also ensure Vice Deans and Dept Heads from profiles exist
-      const { data: leadProfiles } = await supabase
+      const { data: leadProfiles } = await (supabase
         .from("profiles")
-        .select("id, full_name, full_name_en, role, department_id")
+        .select("id, full_name, full_name_en, role, department_id") as any)
         .in("role", ["vice_dean", "department_head", "professor", "doctor", "assistant_lecturer", "teaching_assistant"])
         .eq("department_id", deptId);
 
@@ -219,7 +219,7 @@ export const QuizResultsRosterView: React.FC<QuizResultsRosterViewProps> = ({
         },
       ];
 
-      const { data, error } = await supabase.rpc("submit_quiz_results_for_approval", {
+      const { data, error } = await (supabase.rpc as any)("submit_quiz_results_for_approval", {
         p_quiz_id: selectedQuizForApproval.id,
         p_reviewers: finalChain as any,
         p_user_id: userId,
@@ -228,7 +228,7 @@ export const QuizResultsRosterView: React.FC<QuizResultsRosterViewProps> = ({
       if (error) {
         // Fallback update directly on quizzes
         const { error: directErr } = await supabase
-          .from("quizzes")
+          .from("quizzes") as any)
           .update({
             results_approval_reviewers: finalChain,
             results_status: "pending_approval",

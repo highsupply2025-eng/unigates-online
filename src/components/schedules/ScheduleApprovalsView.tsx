@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -207,7 +208,7 @@ export const ScheduleApprovalsView: React.FC<ScheduleApprovalsViewProps> = ({
         updatedChain[activeIdx].rejected_at = new Date().toISOString();
       }
 
-      const { error } = await supabase.from("lecture_schedules").update({
+      const { error } = await (supabase.from("lecture_schedules") as any).update({
         rejected_by: userId,
         rejected_at: new Date().toISOString(),
         rejection_reason: rejectionReason.trim(),

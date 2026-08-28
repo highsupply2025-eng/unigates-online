@@ -317,7 +317,7 @@ export const CreateQuizView = ({
 
       // 2. Try secure RPC first
       try {
-        const { data: rpcQuizId, error: rpcError } = await supabase.rpc("create_quiz_with_approval_chain", {
+        const { data: rpcQuizId, error: rpcError } = await (supabase.rpc as any)("create_quiz_with_approval_chain", {
           p_course_id: formData.course_id,
           p_title_ar: formData.title_ar.trim() || formData.title_en.trim(),
           p_title_en: formData.title_en.trim() || formData.title_ar.trim(),
@@ -330,7 +330,7 @@ export const CreateQuizView = ({
         });
 
         if (!rpcError && rpcQuizId) {
-          insertedQuizId = rpcQuizId;
+          insertedQuizId = rpcQuizId as string;
         }
       } catch (e) {
         console.warn("create_quiz_with_approval_chain RPC notice:", e);

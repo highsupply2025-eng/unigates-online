@@ -103,7 +103,6 @@ const FAQ = lazy(() => import("./pages/FAQ"));
 const SchoolStudentDashboard = lazy(() => import("./pages/SchoolStudentDashboard"));
 const SchoolTeacherDashboard = lazy(() => import("./pages/SchoolTeacherDashboard"));
 const SchoolDashboard = lazy(() => import("./pages/SchoolDashboard"));
-const SchoolPlatform = lazy(() => import("./pages/SchoolPlatform"));
 const SchoolLogin = lazy(() => import("./pages/SchoolLogin"));
 const SchoolSignup = lazy(() => import("./pages/SchoolSignup"));
 const SchoolRegistration = lazy(() => import("./pages/SchoolRegistration"));

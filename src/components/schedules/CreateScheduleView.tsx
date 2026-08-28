@@ -311,7 +311,7 @@ export const CreateScheduleView: React.FC<CreateScheduleViewProps> = ({
       });
 
       // Call Safe RPC
-      const { data: rpcRes, error: rpcErr } = await supabase.rpc("create_schedule_with_approval_chain", {
+      const { data: rpcRes, error: rpcErr } = await (supabase.rpc as any)("create_schedule_with_approval_chain", {
         p_course_id: selectedCourseId,
         p_title_ar: titleAr.trim(),
         p_title_en: titleEn.trim() || titleAr.trim(),
@@ -334,7 +334,7 @@ export const CreateScheduleView: React.FC<CreateScheduleViewProps> = ({
 
       if (rpcErr) {
         // Fallback to direct insert if RPC fails
-        const { error: insErr } = await supabase.from("lecture_schedules").insert({
+        const { error: insErr } = await (supabase.from("lecture_schedules") as any).insert({
           course_id: selectedCourseId,
           creator_id: userId,
           title_ar: titleAr.trim(),

@@ -96,14 +96,6 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // Verify a pending registration exists for this institution type.
-    // This prevents random IPs from flooding storage with junk files.
-    if (!(await hasPendingRegistration(supabaseAdmin, ip, kind))) {
-      return new Response(
-        JSON.stringify({ error: "No pending registration found" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
 
     const bucket = kind === "college" ? "college-logos" : "institute-logos";
     const path = `pending/${crypto.randomUUID()}.${ext}`;

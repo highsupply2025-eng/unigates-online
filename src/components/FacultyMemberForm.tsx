@@ -26,6 +26,11 @@ import {
   Check,
   ChevronsUpDown,
   X,
+  Sparkles,
+  Building2,
+  UserCheck,
+  BadgeCheck,
+  Lock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -53,6 +58,8 @@ import {
 } from "@/components/ui/command";
 import { toast } from "@/hooks/use-toast";
 import { generateStrongPassword as _generateStrongPassword } from "@/utils/crypto";
+import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import ugLogo from "@/assets/ug-logo.png";
 
 /* ------------------------------------------------------------------ */
 /*  Shared helpers                                                     */
@@ -149,19 +156,17 @@ interface FacultyMemberFormProps {
   invitationEmail?: string;
   /** For invitation mode: make role read-only */
   roleReadonly?: boolean;
-  /** For admin-add mode: student flow */
-  isStudent?: boolean;
-  /** Department options for student multi-select */
+  /** Available departments for multi-select */
   departments?: DepartmentOption[];
-  /** Optional payment button for student subscription */
+  /** Initial values for editing */
+  initialData?: Partial<FacultyMemberFormData>;
+  /** When true, tweaks labels for student registration */
+  isStudent?: boolean;
+  /** Optional element rendered alongside submit button (e.g. payment CTA) */
   paymentButton?: React.ReactNode;
-  /** Institution type for conditional role labels */
+  /** Institution type: "college" or "institute" */
   institutionType?: "college" | "institute";
 }
-
-/* ------------------------------------------------------------------ */
-/*  Component                                                          */
-/* ------------------------------------------------------------------ */
 
 export const FacultyMemberForm = ({
   mode,
@@ -175,152 +180,178 @@ export const FacultyMemberForm = ({
   invitationRole,
   invitationEmail,
   roleReadonly = false,
-  isStudent = false,
   departments = [],
+  initialData,
+  isStudent = false,
   paymentButton,
   institutionType = "college",
 }: FacultyMemberFormProps) => {
-  const fileRef = useRef<HTMLInputElement>(null);
-  const roleOptions = useMemo(() => buildRoleOptions(institutionType === "college"), [institutionType]);
+  const isCollege = institutionType !== "institute";
+  const roleOptions = useMemo(() => buildRoleOptions(isCollege), [isCollege]);
 
+  /* ---------------------------------------------------------------- */
+  /*  Form state                                                      */
+  /* ---------------------------------------------------------------- */
+  const [photoUrl, setPhotoUrl] = useState(initialData?.photoUrl ?? "");
   const [uploading, setUploading] = useState(false);
-  const [photoUrl, setPhotoUrl] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState(
-    isStudent ? "student" : invitationRole || ""
-  );
-  const [selectedDeptIds, setSelectedDeptIds] = useState<string[]>([]);
-  const [selectedFacultyDeptIds, setSelectedFacultyDeptIds] = useState<string[]>([]);
-  const [deptPopoverOpen, setDeptPopoverOpen] = useState(false);
-  const [facultyDeptPopoverOpen, setFacultyDeptPopoverOpen] = useState(false);
-  const [dateOfBirth, setDateOfBirth] = useState("");
-  const [gender, setGender] = useState("");
-  const [email, setEmail] = useState(invitationEmail || "");
-  const [phone, setPhone] = useState("");
-  const [nationalId, setNationalId] = useState("");
-  const [address, setAddress] = useState("");
-  const [qualification, setQualification] = useState("");
-  const [specialization, setSpecialization] = useState("");
-  const [hireDate, setHireDate] = useState("");
-  const [notes, setNotes] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  /* admin-add password state */
-  const [tempPassword, setTempPassword] = useState<string>(() =>
+  const [fullName, setFullName] = useState(initialData?.fullName ?? "");
+  const [role, setRole] = useState(
+    initialData?.role ?? invitationRole ?? (isStudent ? "student" : "lecturer")
+  );
+  const [dateOfBirth, setDateOfBirth] = useState(initialData?.dateOfBirth ?? "");
+  const [gender, setGender] = useState(initialData?.gender ?? "");
+  const [email, setEmail] = useState(initialData?.email ?? invitationEmail ?? "");
+  const [phone, setPhone] = useState(initialData?.phone ?? "");
+  const [nationalId, setNationalId] = useState(initialData?.nationalId ?? "");
+  const [address, setAddress] = useState(initialData?.address ?? "");
+  const [qualification, setQualification] = useState(initialData?.qualification ?? "");
+  const [specialization, setSpecialization] = useState(initialData?.specialization ?? "");
+  const [notes, setNotes] = useState(initialData?.notes ?? "");
+
+  /* admin-add only: temp password */
+  const [tempPassword, setTempPassword] = useState(() =>
     mode === "admin-add" ? generateStrongPassword() : ""
   );
   const [showPassword, setShowPassword] = useState(false);
 
-  /* invitation password state */
+  /* invitation only: passwords */
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showInvitationPassword, setShowInvitationPassword] = useState(false);
 
-  /* Clean up password on unmount (admin-add mode) */
+  /* admin-add student only: department IDs */
+  const [selectedDeptIds, setSelectedDeptIds] = useState<string[]>(
+    initialData?.selectedDeptIds ?? []
+  );
+  const [deptPopoverOpen, setDeptPopoverOpen] = useState(false);
+
+  /* admin-add faculty only: multi-department selection */
+  const [selectedFacultyDeptIds, setSelectedFacultyDeptIds] = useState<string[]>(
+    initialData?.selectedDepartmentIds ?? (initialData?.selectedDepartmentId ? [initialData.selectedDepartmentId] : [])
+  );
+  const [facultyDeptPopoverOpen, setFacultyDeptPopoverOpen] = useState(false);
+
+  /* Keep role in sync if invitationRole changes */
   useEffect(() => {
-    return () => {
-      if (mode === "admin-add") setTempPassword("");
-    };
-  }, [mode]);
+    if (invitationRole) setRole(invitationRole);
+  }, [invitationRole]);
+
+  /* Keep email in sync if invitationEmail changes */
+  useEffect(() => {
+    if (invitationEmail) setEmail(invitationEmail);
+  }, [invitationEmail]);
 
   /* ---------------------------------------------------------------- */
-  /*  Photo upload                                                     */
+  /*  Photo upload handler                                            */
   /* ---------------------------------------------------------------- */
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
+
+    if (file.size > 2 * 1024 * 1024) {
       toast({
-        title: isRtl ? "حجم الصورة كبير (الحد 5MB)" : "Image too large (max 5MB)",
+        title: isRtl ? "حجم الملف كبير" : "File too large",
+        description: isRtl
+          ? "أقصى حجم مسموح به هو 2 ميجابايت"
+          : "Maximum allowed file size is 2MB",
         variant: "destructive",
       });
       return;
     }
+
+    setUploading(true);
     try {
-      setUploading(true);
-      /* Dynamically import supabase only when needed for upload */
-      const { supabase } = await import("@/integrations/supabase/client");
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      const ext = file.name.split(".").pop();
-      const userId = user?.id || "anonymous";
-      const path = `${userId}/faculty/${Date.now()}.${ext}`;
-      const { error } = await supabase.storage
-        .from("avatars")
-        .upload(path, file, { upsert: true });
-      if (error) throw error;
-      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
-      setPhotoUrl(data.publicUrl);
-    } catch (err: any) {
-      toast({
-        title: isRtl ? "فشل رفع الصورة" : "Upload failed",
-        description: err.message,
-        variant: "destructive",
-      });
-    } finally {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoUrl(reader.result as string);
+        setUploading(false);
+      };
+      reader.onerror = () => {
+        toast({
+          title: isRtl ? "فشل قراءة الصورة" : "Failed to read image",
+          variant: "destructive",
+        });
+        setUploading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch {
       setUploading(false);
     }
   };
 
   /* ---------------------------------------------------------------- */
-  /*  Validation                                                       */
+  /*  Submit handler                                                  */
   /* ---------------------------------------------------------------- */
-  const canSubmit = useMemo(() => {
-    if (!fullName.trim()) return false;
-    if (!role) return false;
-
-    if (mode === "invitation") {
-      return (
-        isStrongPassword(password) && password === confirmPassword
-      );
-    }
-
-    if (isStudent) return selectedDeptIds.length > 0;
-    return isStrongPassword(tempPassword);
-  }, [
-    fullName,
-    role,
-    mode,
-    password,
-    confirmPassword,
-    isStudent,
-    selectedDeptIds,
-    tempPassword,
-  ]);
-
-  /* ---------------------------------------------------------------- */
-  /*  Submit                                                           */
-  /* ---------------------------------------------------------------- */
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (saving) return;
-    if (!canSubmit) {
-      const missing: string[] = [];
-      if (!fullName.trim()) missing.push(isRtl ? "الاسم" : "Full name");
-      if (!role) missing.push(isRtl ? "المسمى الوظيفي" : "Role");
-      if (mode === "invitation") {
-        if (!isStrongPassword(password))
-          missing.push(isRtl ? "كلمة مرور قوية" : "Strong password");
-        if (password !== confirmPassword)
-          missing.push(isRtl ? "تأكيد كلمة المرور" : "Password confirmation");
-      } else {
-        if (isStudent && selectedDeptIds.length === 0)
-          missing.push(isRtl ? "الأقسام" : "Departments");
-        if (!isStudent && !isStrongPassword(tempPassword))
-          missing.push(isRtl ? "كلمة مرور قوية" : "Strong password");
-      }
+
+    if (!fullName.trim()) {
       toast({
-        title: isRtl ? "أكمل الحقول المطلوبة" : "Complete required fields",
-        description: missing.join(" • "),
+        title: isRtl ? "حقل مطلوب" : "Required field",
+        description: isRtl ? "يرجى إدخال الاسم الكامل" : "Please enter the full name",
         variant: "destructive",
       });
       return;
     }
 
+    if (!isStudent && !role) {
+      toast({
+        title: isRtl ? "حقل مطلوب" : "Required field",
+        description: isRtl ? "يرجى اختيار المسمى الوظيفي" : "Please select a role",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isStudent && mode === "admin-add" && departments.length > 0 && selectedDeptIds.length === 0) {
+      toast({
+        title: isRtl ? "حقل مطلوب" : "Required field",
+        description: isRtl ? "يرجى اختيار قسم واحد على الأقل" : "Please select at least one department",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (mode === "admin-add" && !isStudent && !isStrongPassword(tempPassword)) {
+      toast({
+        title: isRtl ? "كلمة مرور ضعيفة" : "Weak password",
+        description: isRtl
+          ? "يجب أن تكون كلمة المرور 8 أحرف على الأقل، وتحتوي على حرف كبير وحرف صغير ورقم"
+          : "Password must be at least 8 chars and contain uppercase, lowercase and a number",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (mode === "invitation") {
+      if (!isStrongPassword(password)) {
+        toast({
+          title: isRtl ? "كلمة مرور ضعيفة" : "Weak password",
+          description: isRtl
+            ? "يجب أن تكون كلمة المرور 8 أحرف على الأقل، وتحتوي على حرف كبير وحرف صغير ورقم"
+            : "Password must be at least 8 chars and contain uppercase, lowercase and a number",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (password !== confirmPassword) {
+        toast({
+          title: isRtl ? "عدم تطابق" : "Mismatch",
+          description: isRtl
+            ? "كلمتا المرور غير متطابقتين"
+            : "Passwords do not match",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     const data: FacultyMemberFormData = {
       photoUrl,
       fullName: fullName.trim(),
-      role,
+      role: isStudent ? "student" : role,
       dateOfBirth,
       gender,
       email: email.trim(),
@@ -329,49 +360,37 @@ export const FacultyMemberForm = ({
       address: address.trim(),
       qualification: qualification.trim(),
       specialization: specialization.trim(),
-      hireDate,
+      hireDate: "",
       notes: notes.trim(),
       tempPassword: mode === "admin-add" ? tempPassword : undefined,
       password: mode === "invitation" ? password : undefined,
       confirmPassword: mode === "invitation" ? confirmPassword : undefined,
-      deptCodesInput: isStudent
-        ? departments
-            .filter((d) => selectedDeptIds.includes(d.id))
-            .map((d) => d.department_code)
-            .join(", ")
-        : undefined,
       selectedDeptIds: isStudent ? selectedDeptIds : undefined,
-      selectedDepartmentIds: !isStudent && mode === "admin-add" ? [...selectedFacultyDeptIds] : undefined,
-      selectedDepartmentId: !isStudent && selectedFacultyDeptIds.length > 0 ? selectedFacultyDeptIds[0] : undefined,
+      selectedDepartmentIds: !isStudent ? selectedFacultyDeptIds : undefined,
+      selectedDepartmentId: !isStudent ? selectedFacultyDeptIds[0] : undefined,
     };
 
-    await onSubmit(data);
+    onSubmit(data);
   };
 
-  /* ---------------------------------------------------------------- */
-  /*  CSS tokens (exact match with InstitutionFacultyAdd)              */
-  /* ---------------------------------------------------------------- */
-  const labelCls =
-    "flex items-center gap-2 text-base sm:text-lg font-extrabold text-foreground";
-  const iconCls = "w-5 h-5 sm:w-6 sm:h-6 text-primary";
-  const inputCls =
-    "h-12 text-base border-2 border-primary/30 focus-visible:border-primary focus-visible:ring-primary/30 bg-card";
-  const triggerCls =
-    "h-12 text-base border-2 border-primary/30 focus:border-primary focus:ring-primary/30 bg-card font-semibold";
+  const labelCls = "flex items-center gap-2 text-xs sm:text-sm font-bold text-foreground";
+  const iconCls = "w-4 h-4 text-primary shrink-0";
+  const inputCls = "h-11 text-xs sm:text-sm rounded-xl border border-primary/20 bg-background/70 focus:border-primary focus:bg-background transition-all";
+  const triggerCls = "h-11 text-xs sm:text-sm rounded-xl border border-primary/20 bg-background/70 font-semibold";
 
   const pageTitle =
     title ||
     (isStudent
       ? isRtl
-        ? "تسجيل طالب"
-        : "Register Student"
+        ? "تسجيل وإضافة طالب جديد"
+        : "Register New Student"
       : mode === "invitation"
         ? isRtl
           ? "إنشاء حساب العضو"
           : "Create Member Account"
         : isRtl
-          ? "إضافة عضو"
-          : "Add Member");
+          ? "إضافة عضو هيئة تدريس"
+          : "Add Faculty Member");
 
   const buttonLabel =
     submitLabel ||
@@ -380,260 +399,522 @@ export const FacultyMemberForm = ({
         ? "إنشاء الحساب"
         : "Create Account"
       : isRtl
-        ? "حفظ العضو"
-        : "Save Member");
+        ? "حفظ البيانات والتسجيل"
+        : "Save & Register");
 
   return (
-    <div dir={dir} className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-primary/10 overflow-x-hidden">
-      <header className="border-b-2 border-primary/30 bg-gradient-to-l from-primary/25 via-primary/10 to-card shadow-lg sticky top-0 z-10 backdrop-blur">
-        <div className="container mx-auto px-4 py-3 sm:py-5 flex items-center justify-between gap-3">
-          <h1 className="text-2xl sm:text-3xl font-black text-foreground flex items-center gap-3 min-w-0">
-            <span className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-xl shadow-primary/40 shrink-0">
-              {mode === "invitation" ? (
-                <ShieldCheck className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.6} />
-              ) : (
-                <UserPlus className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.6} />
-              )}
-            </span>
-            <span className="truncate tracking-tight">{pageTitle}</span>
-          </h1>
-          <Button
-            size="icon"
-            variant="default"
-            className="shadow-lg shadow-primary/40 shrink-0 w-11 h-11"
-            onClick={onCancel}
-            aria-label={isRtl ? "رجوع" : "Back"}
-          >
-            {isRtl ? (
-              <ArrowLeft className="w-5 h-5" />
-            ) : (
-              <ArrowRight className="w-5 h-5" />
-            )}
-          </Button>
+    <div dir={dir} className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-primary/10 overflow-x-hidden flex flex-col">
+      {/* Top Header */}
+      <header className="border-b border-primary/20 bg-card/85 backdrop-blur-xl sticky top-0 z-30 shadow-md">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl overflow-hidden shadow-lg shadow-teal-500/25 p-0.5 bg-gradient-to-br from-teal-400 via-teal-600 to-indigo-600 flex items-center justify-center shrink-0">
+              <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-[14px]" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-xl font-black text-foreground truncate">
+                {pageTitle}
+              </h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">
+                {isStudent
+                  ? (isRtl ? "إضافة طالب وتعيين الأقسام الأكاديمية" : "Student Enrollment & Department Assignment")
+                  : (isRtl ? "تعيين الرتبة الأكاديمية وبيانات الدخول" : "Academic Rank, Department & Credentials Setup")}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <LanguageSelectorDropdown className="h-9 px-2.5 text-xs bg-background/60 border-primary/20" />
+            <Button
+              size="sm"
+              variant="outline"
+              className="font-bold text-xs gap-1.5 h-9 rounded-xl border-primary/20"
+              onClick={onCancel}
+              aria-label={isRtl ? "رجوع" : "Back"}
+            >
+              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              <span className="hidden sm:inline">{isRtl ? "إلغاء ورجوع" : "Back"}</span>
+            </Button>
+          </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-3 sm:py-5">
-        <form onSubmit={handleSubmit}>
-          <Card className="border-2 border-primary/30 max-w-4xl mx-auto shadow-2xl shadow-primary/10 bg-gradient-to-br from-card via-card to-primary/5">
-            <CardContent className="p-4 sm:p-6 space-y-5">
-              {/* ---- Photo ---- */}
-              <div className="flex flex-col items-center gap-2">
-                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-4 border-primary/40 ring-2 ring-primary/15 bg-muted flex items-center justify-center shadow-lg shadow-primary/30">
-                  {photoUrl ? (
-                    <img
-                      src={photoUrl}
-                      alt={fullName || "photo"}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <UserRound
-                      className="w-10 h-10 text-primary/60"
-                      strokeWidth={1.8}
-                    />
-                  )}
-                </div>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept="image/*"
-                  hidden
-                  onChange={handlePhotoChange}
-                />
+      {/* Main Form Content */}
+      <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
+
+          {/* Top Avatar Upload Card */}
+          <div className="p-6 rounded-3xl border-2 border-primary/20 bg-card/80 backdrop-blur-xl shadow-lg text-center relative overflow-hidden flex flex-col items-center justify-center gap-3">
+            <div className="relative">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl p-0.5 bg-gradient-to-br from-primary via-teal-500 to-indigo-600 shadow-xl shadow-primary/25 flex items-center justify-center overflow-hidden">
+                {photoUrl ? (
+                  <img src={photoUrl} alt={fullName || "photo"} className="w-full h-full object-cover rounded-[22px]" />
+                ) : (
+                  <div className="w-full h-full rounded-[22px] bg-muted/90 flex items-center justify-center text-primary/70">
+                    <UserRound className="w-10 h-10" strokeWidth={1.8} />
+                  </div>
+                )}
+              </div>
+              <span className="absolute -top-1 -end-1 flex h-3.5 w-3.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-teal-500" />
+              </span>
+            </div>
+
+            <input ref={fileRef} type="file" accept="image/*" hidden onChange={handlePhotoChange} />
+
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="font-bold text-xs h-9 px-3.5 rounded-xl border-primary/30 shadow-xs gap-1.5"
+                onClick={() => fileRef.current?.click()}
+                disabled={uploading}
+              >
+                {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5 text-primary" />}
+                <span>{isRtl ? "رفع صورة شخصية" : "Upload Photo"}</span>
+              </Button>
+
+              {photoUrl && (
                 <Button
                   type="button"
-                  variant="default"
-                  size="default"
-                  className="shadow-md shadow-primary/30 font-bold text-sm h-11 px-4"
-                  onClick={() => fileRef.current?.click()}
-                  disabled={uploading}
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 px-2.5 text-xs text-destructive hover:bg-destructive/10 rounded-xl"
+                  onClick={() => setPhotoUrl("")}
                 >
-                  {uploading ? (
-                    <Loader2 className="w-4 h-4 animate-spin me-2" />
-                  ) : (
-                    <Upload className="w-4 h-4 me-2" />
-                  )}
-                  {isRtl ? "رفع صورة شخصية" : "Upload Photo"}
+                  <X className="w-3.5 h-3.5 me-1" />
+                  <span>{isRtl ? "حذف" : "Remove"}</span>
                 </Button>
+              )}
+            </div>
+            <p className="text-[11px] text-muted-foreground font-medium">
+              {isRtl ? "صيغة JPG أو PNG (الحد الأقصى 2 ميجابايت)" : "JPG or PNG format (Max 2MB)"}
+            </p>
+          </div>
+
+          {/* Section 1: Personal & Identity Details */}
+          <div className="p-5 sm:p-6 rounded-3xl border-2 border-primary/20 bg-card/80 backdrop-blur-xl shadow-lg space-y-4">
+            <div className="flex items-center gap-2.5 border-b border-border/50 pb-3">
+              <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
+                <UserCheck className="w-4 h-4" />
+              </div>
+              <div>
+                <h2 className="text-sm sm:text-base font-black text-foreground">
+                  {isRtl ? "1. البيانات الشخصية والتعريفية" : "1. Personal & Contact Information"}
+                </h2>
+                <p className="text-[11px] text-muted-foreground font-medium">
+                  {isRtl ? "الاسم الرباعي، معلومات الاتصال، وبيانات الهوية" : "Full name, contact info, and identity data"}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Full Name */}
+              <div className="space-y-1.5">
+                <Label className={labelCls}>
+                  <UserRound className={iconCls} />
+                  <span>{isRtl ? "الاسم الكامل" : "Full Name"}</span>
+                  <span className="text-destructive font-black">*</span>
+                </Label>
+                <Input
+                  className={inputCls}
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder={isRtl ? "الاسم رباعي بالكامل" : "Full four-part name"}
+                  required
+                />
               </div>
 
-              {/* ---- Role (faculty only) ---- */}
-              {!isStudent && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
-                  <div className="space-y-2.5">
-                    <Label className={labelCls}>
-                      <Users2 className={iconCls} strokeWidth={2.4} />
-                      {isRtl ? "المسمى الوظيفي" : "Role"}
-                      <span className="text-destructive text-lg">*</span>
-                    </Label>
-                    {roleReadonly ? (
-                      <div className={`${inputCls} flex items-center px-3 bg-muted/50`}>
-                        <span className="text-base font-semibold">
-                          {roleOptions.find((r) => r.value === role)
-                            ? isRtl
-                              ? roleOptions.find((r) => r.value === role)!.ar
-                              : roleOptions.find((r) => r.value === role)!.en
-                            : role}
-                        </span>
-                      </div>
-                    ) : (
-                      <Select value={role} onValueChange={setRole}>
-                        <SelectTrigger className={triggerCls}>
-                          <SelectValue
-                            placeholder={isRtl ? "اختر المسمى" : "Select role"}
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {roleOptions.map((r) => (
-                            <SelectItem
-                              key={r.value}
-                              value={r.value}
-                              className="text-base"
-                            >
-                              {isRtl ? r.ar : r.en}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </div>
+              {/* Date of Birth */}
+              <div className="space-y-1.5">
+                <Label className={labelCls}>
+                  <Calendar className={iconCls} />
+                  <span>{isRtl ? "تاريخ الميلاد" : "Date of Birth"}</span>
+                </Label>
+                <Input
+                  className={inputCls}
+                  type="date"
+                  value={dateOfBirth}
+                  onChange={(e) => setDateOfBirth(e.target.value)}
+                />
+              </div>
 
-                  {/* Department multi-select for faculty */}
-                  {mode === "admin-add" && departments.length > 0 && (
-                    <div className="space-y-2.5">
-                      <Label className={labelCls}>
-                        <Briefcase className={iconCls} strokeWidth={2.4} />
-                        {isRtl ? "الأقسام" : "Departments"}
-                        <span className="text-xs font-semibold text-muted-foreground">
-                          ({isRtl ? "اختياري" : "optional"})
-                        </span>
-                      </Label>
-                      <Popover open={facultyDeptPopoverOpen} onOpenChange={setFacultyDeptPopoverOpen}>
-                        <PopoverTrigger asChild>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            role="combobox"
-                            aria-expanded={facultyDeptPopoverOpen}
-                            className={`${inputCls} justify-between font-normal ${
-                              selectedFacultyDeptIds.length === 0 ? "text-muted-foreground" : ""
-                            }`}
-                          >
+              {/* Gender */}
+              <div className="space-y-1.5">
+                <Label className={labelCls}>
+                  <Users2 className={iconCls} />
+                  <span>{isRtl ? "النوع" : "Gender"}</span>
+                </Label>
+                <Select value={gender} onValueChange={setGender}>
+                  <SelectTrigger className={triggerCls}>
+                    <SelectValue placeholder={isRtl ? "اختر النوع" : "Select Gender"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">{isRtl ? "ذكر" : "Male"}</SelectItem>
+                    <SelectItem value="female">{isRtl ? "أنثى" : "Female"}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* National ID */}
+              <div className="space-y-1.5">
+                <Label className={labelCls}>
+                  <IdCard className={iconCls} />
+                  <span>{isRtl ? "الرقم القومي / رقم الجواز" : "National ID / Passport"}</span>
+                </Label>
+                <Input
+                  className={inputCls}
+                  value={nationalId}
+                  onChange={(e) => setNationalId(e.target.value)}
+                  placeholder={isRtl ? "الرقم القومي المكون من 14 رقم" : "National ID or Passport number"}
+                  maxLength={20}
+                  dir="ltr"
+                />
+              </div>
+
+              {/* Email */}
+              <div className="space-y-1.5">
+                <Label className={labelCls}>
+                  <Mail className={iconCls} />
+                  <span>{isRtl ? "البريد الإلكتروني" : "Email Address"}</span>
+                </Label>
+                <Input
+                  className={inputCls}
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  dir="ltr"
+                  readOnly={mode === "invitation" && !!invitationEmail}
+                />
+              </div>
+
+              {/* Phone */}
+              <div className="space-y-1.5">
+                <Label className={labelCls}>
+                  <Phone className={iconCls} />
+                  <span>{isRtl ? "رقم الهاتف" : "Phone Number"}</span>
+                </Label>
+                <Input
+                  className={inputCls}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+20 100 000 0000"
+                  dir="ltr"
+                />
+              </div>
+
+              {/* Address */}
+              <div className="space-y-1.5 md:col-span-2">
+                <Label className={labelCls}>
+                  <MapPin className={iconCls} />
+                  <span>{isRtl ? "العنوان السكني" : "Residential Address"}</span>
+                </Label>
+                <Input
+                  className={inputCls}
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder={isRtl ? "المدينة، المحافظة، العنوان بالتفصيل" : "City, Governorate, Street address"}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: Academic Role & Departments */}
+          {!isStudent && (
+            <div className="p-5 sm:p-6 rounded-3xl border-2 border-primary/20 bg-card/80 backdrop-blur-xl shadow-lg space-y-4">
+              <div className="flex items-center gap-2.5 border-b border-border/50 pb-3">
+                <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
+                  <GraduationCap className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-sm sm:text-base font-black text-foreground">
+                    {isRtl ? "2. المسمى والرتبة الأكاديمية والأقسام" : "2. Academic Rank & Departments"}
+                  </h2>
+                  <p className="text-[11px] text-muted-foreground font-medium">
+                    {isRtl ? "تحديد المنصب الأكاديمي وربطه بالأقسام العلمية" : "Assign academic role and department affiliations"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Role / Job Title */}
+                <div className="space-y-1.5">
+                  <Label className={labelCls}>
+                    <Users2 className={iconCls} />
+                    <span>{isRtl ? "المسمى والرتبة الأكاديمية" : "Academic Rank / Role"}</span>
+                    <span className="text-destructive font-black">*</span>
+                  </Label>
+                  {roleReadonly ? (
+                    <div className={`${inputCls} flex items-center px-3 bg-muted/50`}>
+                      <span className="text-xs sm:text-sm font-bold">
+                        {roleOptions.find((r) => r.value === role)
+                          ? isRtl
+                            ? roleOptions.find((r) => r.value === role)!.ar
+                            : roleOptions.find((r) => r.value === role)!.en
+                          : role}
+                      </span>
+                    </div>
+                  ) : (
+                    <Select value={role} onValueChange={setRole}>
+                      <SelectTrigger className={triggerCls}>
+                        <SelectValue placeholder={isRtl ? "اختر المسمى الأكاديمي" : "Select Role"} />
+                      </SelectTrigger>
+                      <SelectContent className="z-50">
+                        {roleOptions.map((r) => (
+                          <SelectItem key={r.value} value={r.value} className="text-xs sm:text-sm font-bold">
+                            {isRtl ? r.ar : r.en}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+
+                {/* Department Multi-Select for Faculty */}
+                {mode === "admin-add" && departments.length > 0 && (
+                  <div className="space-y-1.5">
+                    <Label className={labelCls}>
+                      <Building2 className={iconCls} />
+                      <span>{isRtl ? "الأقسام التابع لها" : "Assigned Departments"}</span>
+                      <span className="text-[10px] text-muted-foreground font-normal">({isRtl ? "اختياري" : "Optional"})</span>
+                    </Label>
+                    <Popover open={facultyDeptPopoverOpen} onOpenChange={setFacultyDeptPopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={facultyDeptPopoverOpen}
+                          className={`${inputCls} justify-between font-normal ${
+                            selectedFacultyDeptIds.length === 0 ? "text-muted-foreground" : ""
+                          }`}
+                        >
+                          <span className="truncate text-xs font-bold">
                             {selectedFacultyDeptIds.length > 0
                               ? `${selectedFacultyDeptIds.length} ${isRtl ? "قسم محدد" : "department(s) selected"}`
                               : isRtl
-                                ? "اختر الأقسام..."
+                                ? "اختر الأقسام الأكاديمية..."
                                 : "Select departments..."}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0" dir={dir}>
-                          <Command>
-                            <CommandInput placeholder={isRtl ? "ابحث عن قسم..." : "Search department..."} />
-                            <CommandEmpty>{isRtl ? "لا توجد أقسام" : "No departments found"}</CommandEmpty>
-                            <CommandGroup className="max-h-64 overflow-y-auto">
-                              {departments.map((dept) => {
-                                const isSelected = selectedFacultyDeptIds.includes(dept.id);
-                                return (
-                                  <CommandItem
-                                    key={dept.id}
-                                    value={dept.department_name}
-                                    onSelect={() => {
-                                      setSelectedFacultyDeptIds((prev) =>
-                                        isSelected
-                                          ? prev.filter((id) => id !== dept.id)
-                                          : [...prev, dept.id]
-                                      );
-                                    }}
-                                  >
-                                    <Check
-                                      className={`mr-2 h-4 w-4 ${
-                                        isSelected ? "opacity-100" : "opacity-0"
-                                      }`}
-                                    />
-                                    <span className="flex-1">{dept.department_name}</span>
-                                    {dept.department_code && (
-                                      <span className="text-xs text-muted-foreground ms-2 font-mono">
-                                        {dept.department_code}
-                                      </span>
-                                    )}
-                                  </CommandItem>
-                                );
-                              })}
-                            </CommandGroup>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                      {selectedFacultyDeptIds.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5">
-                          {departments
-                            .filter((d) => selectedFacultyDeptIds.includes(d.id))
-                            .map((d) => (
-                              <span
-                                key={d.id}
-                                className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary text-xs px-2.5 py-1 font-semibold"
-                              >
-                                {d.department_name}
-                                <button
-                                  type="button"
-                                  onClick={() =>
+                          </span>
+                          <ChevronsUpDown className="ms-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0 z-50" dir={dir}>
+                        <Command>
+                          <CommandInput placeholder={isRtl ? "ابحث عن قسم..." : "Search department..."} />
+                          <CommandEmpty>{isRtl ? "لا توجد أقسام" : "No departments found"}</CommandEmpty>
+                          <CommandGroup className="max-h-64 overflow-y-auto">
+                            {departments.map((dept) => {
+                              const isSelected = selectedFacultyDeptIds.includes(dept.id);
+                              return (
+                                <CommandItem
+                                  key={dept.id}
+                                  value={dept.department_name}
+                                  onSelect={() => {
                                     setSelectedFacultyDeptIds((prev) =>
-                                      prev.filter((id) => id !== d.id)
-                                    )
-                                  }
-                                  className="rounded-full hover:bg-primary/20 p-0.5"
-                                  aria-label={isRtl ? "إزالة القسم" : "Remove department"}
+                                      isSelected ? prev.filter((id) => id !== dept.id) : [...prev, dept.id]
+                                    );
+                                  }}
                                 >
-                                  <X className="h-3 w-3" />
-                                </button>
-                              </span>
-                            ))}
-                        </div>
-                      )}
-                      <p className="text-xs text-muted-foreground">
-                        {isRtl
-                          ? "يمكن اختيار قسم واحد أو أكثر — سيُضاف العضو لكل قسم تلقائياً."
-                          : "Select one or more departments — the member is added to each department automatically."}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
+                                  <Check className={`me-2 h-4 w-4 ${isSelected ? "opacity-100" : "opacity-0"}`} />
+                                  <span className="flex-1 text-xs font-bold">{dept.department_name}</span>
+                                  {dept.department_code && (
+                                    <span className="text-[10px] text-muted-foreground font-mono">
+                                      {dept.department_code}
+                                    </span>
+                                  )}
+                                </CommandItem>
+                              );
+                            })}
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
 
-              {/* ---- Password section ---- */}
-              {mode === "admin-add" && !isStudent && (
-                <div className="space-y-2.5 rounded-lg border border-primary/30 bg-primary/5 p-3 sm:p-4">
-                  <Label className={labelCls}>
-                    <KeyRound className={iconCls} strokeWidth={2.4} />
-                    {isRtl
-                      ? "بيانات الدخول (كلمة مرور مؤقتة)"
-                      : "Login Details (Temporary Password)"}
-                    <span className="text-destructive text-lg">*</span>
-                  </Label>
-                  <div className="flex gap-2">
-                    <Input
-                      className={`${inputCls} font-mono tracking-wider min-w-0 flex-1`}
-                      type={showPassword ? "text" : "password"}
-                      value={tempPassword}
-                      onChange={(e) => setTempPassword(e.target.value)}
-                      dir="ltr"
-                      autoComplete="new-password"
-                      spellCheck={false}
-                    />
-                    <div className="flex gap-1.5 shrink-0">
+                    {selectedFacultyDeptIds.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {departments
+                          .filter((d) => selectedFacultyDeptIds.includes(d.id))
+                          .map((d) => (
+                            <span
+                              key={d.id}
+                              className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-[11px] px-2.5 py-0.5 font-bold"
+                            >
+                              <span>{d.department_name}</span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setSelectedFacultyDeptIds((prev) =>
+                                    prev.filter((id) => id !== d.id)
+                                  )
+                                }
+                                className="rounded-full hover:bg-primary/20 p-0.5"
+                                aria-label={isRtl ? "إزالة القسم" : "Remove department"}
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </span>
+                          ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Department Selector for Students */}
+          {isStudent && (
+            <div className="p-5 sm:p-6 rounded-3xl border-2 border-primary/20 bg-card/80 backdrop-blur-xl shadow-lg space-y-4">
+              <div className="flex items-center gap-2.5 border-b border-border/50 pb-3">
+                <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
+                  <Building2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-sm sm:text-base font-black text-foreground">
+                    {isRtl ? "2. القسم الأكاديمي للطالب" : "2. Student Department Assignment"}
+                  </h2>
+                  <p className="text-[11px] text-muted-foreground font-medium">
+                    {isRtl ? "اختر القسم أو الأقسام الدراسية التي سينضم إليها الطالب" : "Select departments the student is enrolled in"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className={labelCls}>
+                  <Briefcase className={iconCls} />
+                  <span>{isRtl ? "الأقسام الدراسية" : "Departments"}</span>
+                  <span className="text-destructive font-black">*</span>
+                </Label>
+                <Popover open={deptPopoverOpen} onOpenChange={setDeptPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={deptPopoverOpen}
+                      className={`${inputCls} justify-between font-normal ${
+                        selectedDeptIds.length === 0 ? "text-muted-foreground" : ""
+                      }`}
+                    >
+                      <span className="truncate text-xs font-bold">
+                        {selectedDeptIds.length > 0
+                          ? `${selectedDeptIds.length} ${isRtl ? "قسم محدد" : "department(s) selected"}`
+                          : isRtl
+                            ? "اختر الأقسام..."
+                            : "Select departments..."}
+                      </span>
+                      <ChevronsUpDown className="ms-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0 z-50" dir={dir}>
+                    <Command>
+                      <CommandInput placeholder={isRtl ? "ابحث عن قسم..." : "Search department..."} />
+                      <CommandEmpty>{isRtl ? "لا توجد أقسام" : "No departments found"}</CommandEmpty>
+                      <CommandGroup className="max-h-64 overflow-y-auto">
+                        {departments.map((dept) => {
+                          const isSelected = selectedDeptIds.includes(dept.id);
+                          return (
+                            <CommandItem
+                              key={dept.id}
+                              value={dept.department_name}
+                              onSelect={() => {
+                                setSelectedDeptIds((prev) =>
+                                  isSelected ? prev.filter((id) => id !== dept.id) : [...prev, dept.id]
+                                );
+                              }}
+                            >
+                              <Check className={`me-2 h-4 w-4 ${isSelected ? "opacity-100" : "opacity-0"}`} />
+                              <span className="flex-1 text-xs font-bold">{dept.department_name}</span>
+                              {dept.department_code && (
+                                <span className="text-[10px] text-muted-foreground font-mono">
+                                  {dept.department_code}
+                                </span>
+                              )}
+                            </CommandItem>
+                          );
+                        })}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+
+                {selectedDeptIds.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {departments
+                      .filter((d) => selectedDeptIds.includes(d.id))
+                      .map((d) => (
+                        <span
+                          key={d.id}
+                          className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-[11px] px-2.5 py-0.5 font-bold"
+                        >
+                          <span>{d.department_name}</span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setSelectedDeptIds((prev) =>
+                                prev.filter((id) => id !== d.id)
+                              )
+                            }
+                            className="rounded-full hover:bg-primary/20 p-0.5"
+                            aria-label={isRtl ? "إزالة القسم" : "Remove department"}
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Section 3: Credentials & Access Security */}
+          {mode === "admin-add" && !isStudent && (
+            <div className="p-5 sm:p-6 rounded-3xl border-2 border-teal-500/30 bg-teal-500/5 backdrop-blur-xl shadow-lg space-y-4">
+              <div className="flex items-center gap-2.5 border-b border-teal-500/20 pb-3">
+                <div className="w-8 h-8 rounded-xl bg-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400">
+                  <KeyRound className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-sm sm:text-base font-black text-foreground">
+                    {isRtl ? "3. بيانات الدخول وكلمة المرور المؤقتة" : "3. Login Credentials & Temporary Password"}
+                  </h2>
+                  <p className="text-[11px] text-muted-foreground font-medium">
+                    {isRtl ? "كلمة مرور مؤقتة سيتم تسليمها للعضو لتفعيل حسابه" : "Temporary password provided to member for initial access"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className={labelCls}>
+                  <Lock className={iconCls} />
+                  <span>{isRtl ? "كلمة المرور المؤقتة" : "Temporary Password"}</span>
+                  <span className="text-destructive font-black">*</span>
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    className={`${inputCls} font-mono tracking-wider flex-1 text-sm font-bold`}
+                    type={showPassword ? "text" : "password"}
+                    value={tempPassword}
+                    onChange={(e) => setTempPassword(e.target.value)}
+                    dir="ltr"
+                    autoComplete="new-password"
+                    spellCheck={false}
+                  />
+                  <div className="flex gap-1.5 shrink-0">
                     <Button
                       type="button"
                       variant="outline"
                       size="icon"
                       onClick={() => setShowPassword((v) => !v)}
                       aria-label={isRtl ? "إظهار/إخفاء" : "Show/Hide"}
-                      className="h-11 w-11"
+                      className="h-11 w-11 rounded-xl border-primary/20"
                     >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                     <Button
                       type="button"
@@ -642,15 +923,13 @@ export const FacultyMemberForm = ({
                       onClick={async () => {
                         try {
                           await navigator.clipboard.writeText(tempPassword);
-                          toast({
-                            title: isRtl ? "تم النسخ" : "Copied",
-                          });
+                          toast({ title: isRtl ? "تم نسخ كلمة المرور" : "Password copied" });
                         } catch {
                           /* ignore */
                         }
                       }}
                       aria-label={isRtl ? "نسخ" : "Copy"}
-                      className="h-11 w-11"
+                      className="h-11 w-11 rounded-xl border-primary/20"
                     >
                       <Copy className="h-4 w-4" />
                     </Button>
@@ -659,38 +938,49 @@ export const FacultyMemberForm = ({
                       variant="outline"
                       size="icon"
                       onClick={() => setTempPassword(generateStrongPassword())}
-                      aria-label={isRtl ? "توليد" : "Regenerate"}
-                      className="h-11 w-11"
+                      aria-label={isRtl ? "توليد كلمة مرور جديدة" : "Generate"}
+                      className="h-11 w-11 rounded-xl border-primary/20 text-teal-600 dark:text-teal-400"
                     >
                       <RefreshCw className="h-4 w-4" />
                     </Button>
-                    </div>
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                </div>
+
+                <div className="p-3 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-[11px] text-muted-foreground flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                  <span>
                     {isRtl
                       ? "شارك هذه البيانات مع العضو الآن. سيُطلب منه تغيير كلمة المرور عند أول تسجيل دخول."
-                      : "Share these credentials with the member now. They will be forced to change the password on first sign-in."}
-                  </p>
-                  {!isStrongPassword(tempPassword) && (
-                    <p className="text-xs text-destructive">
-                      {isRtl
-                        ? "كلمة المرور ضعيفة: 8 أحرف+ تحتوي حرفاً كبيراً وصغيراً ورقماً."
-                        : "Weak password: 8+ chars with upper, lower and a digit."}
-                    </p>
-                  )}
+                      : "Share these credentials with the member now. They will change their password upon first login."}
+                  </span>
                 </div>
-              )}
+              </div>
+            </div>
+          )}
 
-              {mode === "invitation" && (
-                <div className="space-y-2.5 rounded-lg border border-primary/30 bg-primary/5 p-3 sm:p-4">
+          {mode === "invitation" && (
+            <div className="p-5 sm:p-6 rounded-3xl border-2 border-primary/20 bg-card/80 backdrop-blur-xl shadow-lg space-y-4">
+              <div className="flex items-center gap-2.5 border-b border-border/50 pb-3">
+                <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
+                  <KeyRound className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-sm sm:text-base font-black text-foreground">
+                    {isRtl ? "3. تعيين كلمة المرور للحساب" : "3. Set Account Password"}
+                  </h2>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
                   <Label className={labelCls}>
-                    <KeyRound className={iconCls} strokeWidth={2.4} />
-                    {isRtl ? "كلمة المرور" : "Password"}
-                    <span className="text-destructive text-lg">*</span>
+                    <Lock className={iconCls} />
+                    <span>{isRtl ? "كلمة المرور" : "Password"}</span>
+                    <span className="text-destructive font-black">*</span>
                   </Label>
-                  <div className="flex gap-2">
+                  <div className="relative flex items-center">
                     <Input
-                      className={`${inputCls} font-mono tracking-wider min-w-0`}
+                      className={`${inputCls} pe-10 font-mono tracking-wider`}
                       type={showInvitationPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -698,32 +988,21 @@ export const FacultyMemberForm = ({
                       autoComplete="new-password"
                       spellCheck={false}
                     />
-                    <Button
+                    <button
                       type="button"
-                      variant="outline"
-                      size="icon"
                       onClick={() => setShowInvitationPassword((v) => !v)}
-                      aria-label={isRtl ? "إظهار/إخفاء" : "Show/Hide"}
+                      className="absolute end-3 text-muted-foreground hover:text-foreground"
                     >
-                      {showInvitationPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </Button>
+                      {showInvitationPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
-                  {!isStrongPassword(password) && password.length > 0 && (
-                    <p className="text-xs text-destructive">
-                      {isRtl
-                        ? "كلمة المرور ضعيفة: 8 أحرف+ تحتوي حرفاً كبيراً وصغيراً ورقماً."
-                        : "Weak password: 8+ chars with upper, lower and a digit."}
-                    </p>
-                  )}
+                </div>
 
+                <div className="space-y-1.5">
                   <Label className={labelCls}>
-                    <KeyRound className={iconCls} strokeWidth={2.4} />
-                    {isRtl ? "تأكيد كلمة المرور" : "Confirm Password"}
-                    <span className="text-destructive text-lg">*</span>
+                    <ShieldCheck className={iconCls} />
+                    <span>{isRtl ? "تأكيد كلمة المرور" : "Confirm Password"}</span>
+                    <span className="text-destructive font-black">*</span>
                   </Label>
                   <Input
                     className={`${inputCls} font-mono tracking-wider`}
@@ -734,300 +1013,119 @@ export const FacultyMemberForm = ({
                     autoComplete="new-password"
                     spellCheck={false}
                   />
-                  {confirmPassword.length > 0 && password !== confirmPassword && (
-                    <p className="text-xs text-destructive">
-                      {isRtl
-                        ? "كلمتا المرور غير متطابقتين"
-                        : "Passwords do not match"}
-                    </p>
-                  )}
-                </div>
-              )}
-
-              {/* ---- Department selector (student only) ---- */}
-              {isStudent && (
-                <div className="space-y-2.5">
-                  <Label className={labelCls}>
-                    <Briefcase className={iconCls} strokeWidth={2.4} />
-                    {isRtl ? "الأقسام" : "Departments"}
-                    <span className="text-destructive text-lg">*</span>
-                  </Label>
-                  <Popover open={deptPopoverOpen} onOpenChange={setDeptPopoverOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={deptPopoverOpen}
-                        className={`${inputCls} justify-between font-normal ${
-                          selectedDeptIds.length === 0 ? "text-muted-foreground" : ""
-                        }`}
-                      >
-                        {selectedDeptIds.length > 0
-                          ? `${selectedDeptIds.length} ${isRtl ? "قسم محدد" : "department(s) selected"}`
-                          : isRtl
-                            ? "اختر الأقسام..."
-                            : "Select departments..."}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0" dir={dir}>
-                      <Command>
-                        <CommandInput placeholder={isRtl ? "ابحث عن قسم..." : "Search department..."} />
-                        <CommandEmpty>{isRtl ? "لا توجد أقسام" : "No departments found"}</CommandEmpty>
-                        <CommandGroup className="max-h-64 overflow-y-auto">
-                          {departments.map((dept) => {
-                            const isSelected = selectedDeptIds.includes(dept.id);
-                            return (
-                              <CommandItem
-                                key={dept.id}
-                                value={dept.department_name}
-                                onSelect={() => {
-                                  setSelectedDeptIds((prev) =>
-                                    isSelected
-                                      ? prev.filter((id) => id !== dept.id)
-                                      : [...prev, dept.id]
-                                  );
-                                }}
-                              >
-                                <Check
-                                  className={`mr-2 h-4 w-4 ${
-                                    isSelected ? "opacity-100" : "opacity-0"
-                                  }`}
-                                />
-                                <span className="flex-1">{dept.department_name}</span>
-                                {dept.department_code && (
-                                  <span className="text-xs text-muted-foreground ms-2 font-mono">
-                                    {dept.department_code}
-                                  </span>
-                                )}
-                              </CommandItem>
-                            );
-                          })}
-                        </CommandGroup>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  {selectedDeptIds.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5">
-                      {departments
-                        .filter((d) => selectedDeptIds.includes(d.id))
-                        .map((d) => (
-                          <span
-                            key={d.id}
-                            className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary text-xs px-2.5 py-1 font-semibold"
-                          >
-                            {d.department_name}
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setSelectedDeptIds((prev) =>
-                                  prev.filter((id) => id !== d.id)
-                                )
-                              }
-                              className="rounded-full hover:bg-primary/20 p-0.5"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </span>
-                        ))}
-                    </div>
-                  )}
-                  <p className="text-xs text-muted-foreground">
-                    {isRtl
-                      ? "اختر قسمًا واحدًا أو أكثر — سيُضاف الطالب لكل قسم تلقائياً."
-                      : "Select one or more departments — the student is added to each department automatically."}
-                  </p>
-                </div>
-              )}
-
-              {/* ---- Basic info ---- */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-2.5">
-                  <Label className={labelCls}>
-                    <UserRound className={iconCls} strokeWidth={2.4} />
-                    {isRtl ? "الاسم الكامل" : "Full Name"}
-                    <span className="text-destructive text-lg">*</span>
-                  </Label>
-                  <Input
-                    className={inputCls}
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder={isRtl ? "الاسم رباعي" : "Full name"}
-                  />
-                </div>
-                <div className="space-y-2.5">
-                  <Label className={labelCls}>
-                    <Calendar className={iconCls} strokeWidth={2.4} />
-                    {isRtl ? "تاريخ الميلاد" : "Date of Birth"}
-                  </Label>
-                  <Input
-                    className={inputCls}
-                    type="date"
-                    value={dateOfBirth}
-                    onChange={(e) => setDateOfBirth(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2.5">
-                  <Label className={labelCls}>
-                    <Users2 className={iconCls} strokeWidth={2.4} />
-                    {isRtl ? "النوع" : "Gender"}
-                  </Label>
-                  <Select value={gender} onValueChange={setGender}>
-                    <SelectTrigger className={triggerCls}>
-                      <SelectValue
-                        placeholder={isRtl ? "اختر" : "Select"}
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="male" className="text-base">
-                        {isRtl ? "ذكر" : "Male"}
-                      </SelectItem>
-                      <SelectItem value="female" className="text-base">
-                        {isRtl ? "أنثى" : "Female"}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2.5">
-                  <Label className={labelCls}>
-                    <IdCard className={iconCls} strokeWidth={2.4} />
-                    {isRtl ? "الرقم القومي" : "National ID"}
-                  </Label>
-                  <Input
-                    className={inputCls}
-                    value={nationalId}
-                    onChange={(e) => setNationalId(e.target.value)}
-                    maxLength={20}
-                  />
                 </div>
               </div>
+            </div>
+          )}
 
-              {/* ---- Contact ---- */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-2.5">
-                  <Label className={labelCls}>
-                    <Mail className={iconCls} strokeWidth={2.4} />
-                    {isRtl ? "البريد الإلكتروني" : "Email"}
-                  </Label>
-                  <Input
-                    className={inputCls}
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    readOnly={mode === "invitation" && !!invitationEmail}
-                  />
-                </div>
-                <div className="space-y-2.5">
-                  <Label className={labelCls}>
-                    <Phone className={iconCls} strokeWidth={2.4} />
-                    {isRtl ? "رقم الهاتف" : "Phone"}
-                  </Label>
-                  <Input
-                    className={inputCls}
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2.5 md:col-span-2">
-                  <Label className={labelCls}>
-                    <MapPin className={iconCls} strokeWidth={2.4} />
-                    {isRtl ? "العنوان" : "Address"}
-                  </Label>
-                  <Input
-                    className={inputCls}
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                  />
-                </div>
+          {/* Section 4: Qualifications & Notes */}
+          <div className="p-5 sm:p-6 rounded-3xl border-2 border-primary/20 bg-card/80 backdrop-blur-xl shadow-lg space-y-4">
+            <div className="flex items-center gap-2.5 border-b border-border/50 pb-3">
+              <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
+                <BookOpen className="w-4 h-4" />
               </div>
+              <div>
+                <h2 className="text-sm sm:text-base font-black text-foreground">
+                  {isRtl ? "4. المؤهلات والتخصص والملاحظات" : "4. Qualifications & Notes"}
+                </h2>
+                <p className="text-[11px] text-muted-foreground font-medium">
+                  {isRtl ? "المؤهل الدراسي أو العلمي والتخصص والملاحظات الإضافية" : "Academic degree, specialization, and extra notes"}
+                </p>
+              </div>
+            </div>
 
-              {/* ---- Academic ---- */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-2.5">
-                  <Label className={labelCls}>
-                    <BookOpen className={iconCls} strokeWidth={2.4} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className={labelCls}>
+                  <BookOpen className={iconCls} />
+                  <span>
                     {isStudent
                       ? isRtl
-                        ? "المؤهل الدراسي"
-                        : "Study Qualification"
+                        ? "المؤهل أو الفرقة الدراسية"
+                        : "Study Level"
                       : isRtl
                         ? "المؤهل العلمي"
-                        : "Qualification"}
-                  </Label>
-                  <Input
-                    className={inputCls}
-                    value={qualification}
-                    onChange={(e) => setQualification(e.target.value)}
-                    placeholder={
-                      isStudent
-                        ? isRtl
-                          ? "مثال: الفرقة الثانية"
-                          : "e.g. 2nd year"
-                        : isRtl
-                          ? "مثال: دكتوراه"
-                          : "e.g. PhD"
-                    }
-                  />
-                </div>
-                {!isStudent && (
-                  <div className="space-y-2.5">
-                    <Label className={labelCls}>
-                      <GraduationCap className={iconCls} strokeWidth={2.4} />
-                      {isRtl ? "التخصص" : "Specialization"}
-                    </Label>
-                    <Input
-                      className={inputCls}
-                      value={specialization}
-                      onChange={(e) => setSpecialization(e.target.value)}
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* ---- Notes ---- */}
-              <div className="space-y-2.5">
-                <Label className={labelCls}>
-                  <StickyNote className={iconCls} strokeWidth={2.4} />
-                  {isRtl ? "ملاحظات" : "Notes"}
+                        : "Academic Qualification"}
+                  </span>
                 </Label>
-                <Textarea
-                  className="text-base border-2 border-primary/30 focus-visible:border-primary focus-visible:ring-primary/30 bg-card"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={3}
+                <Input
+                  className={inputCls}
+                  value={qualification}
+                  onChange={(e) => setQualification(e.target.value)}
+                  placeholder={
+                    isStudent
+                      ? isRtl
+                        ? "مثال: الفرقة الثانية"
+                        : "e.g. 2nd year"
+                      : isRtl
+                        ? "مثال: دكتوراه في هندسة البرمجيات"
+                        : "e.g. PhD in Software Engineering"
+                  }
                 />
               </div>
 
-              {/* ---- Actions ---- */}
-              <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t-2 border-primary/15">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="lg"
-                  className="border-2 border-primary/30 font-bold text-base"
-                  onClick={onCancel}
-                  disabled={saving}
-                >
-                  {isRtl ? "إلغاء" : "Cancel"}
-                </Button>
-                <Button
-                  type="submit"
-                  size="lg"
-                  disabled={saving}
-                  className="shadow-xl shadow-primary/40 font-extrabold text-base bg-gradient-to-l from-primary to-primary/80 gap-2"
-                >
-                  {saving ? (
-                    <Loader2 className="w-5 h-5 animate-spin shrink-0" />
-                  ) : (
-                    <Save className="w-5 h-5 shrink-0" strokeWidth={2.5} />
-                  )}
-                  <span>{buttonLabel}</span>
-                </Button>
-                {paymentButton}
+              {!isStudent && (
+                <div className="space-y-1.5">
+                  <Label className={labelCls}>
+                    <GraduationCap className={iconCls} />
+                    <span>{isRtl ? "التخصص الدقيق" : "Specialization"}</span>
+                  </Label>
+                  <Input
+                    className={inputCls}
+                    value={specialization}
+                    onChange={(e) => setSpecialization(e.target.value)}
+                    placeholder={isRtl ? "مثال: الذكاء الاصطناعي / الشبكات" : "e.g. Artificial Intelligence"}
+                  />
+                </div>
+              )}
+
+              <div className="space-y-1.5 md:col-span-2">
+                <Label className={labelCls}>
+                  <StickyNote className={iconCls} />
+                  <span>{isRtl ? "ملاحظات إدارية إضافية" : "Administrative Notes"}</span>
+                </Label>
+                <Textarea
+                  className="rounded-2xl border border-primary/20 bg-background/70 focus:border-primary text-xs sm:text-sm p-3.5"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder={isRtl ? "أي ملاحظات إضافية خاصة بالسجل أو التعيين..." : "Any additional notes regarding this record..."}
+                  rows={3}
+                />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+
+          {/* Action Footer */}
+          <div className="p-4 sm:p-5 rounded-3xl border-2 border-primary/20 bg-card/90 backdrop-blur-xl shadow-xl flex flex-col-reverse sm:flex-row items-center justify-between gap-3 sticky bottom-4 z-20">
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="w-full sm:w-auto h-12 px-6 rounded-2xl font-bold text-xs sm:text-sm border-primary/20"
+              onClick={onCancel}
+              disabled={saving}
+            >
+              {isRtl ? "إلغاء ورجوع" : "Cancel"}
+            </Button>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Button
+                type="submit"
+                size="lg"
+                disabled={saving}
+                className="w-full sm:w-auto h-12 px-8 rounded-2xl font-black text-xs sm:text-sm bg-gradient-to-r from-teal-500 via-emerald-600 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white shadow-xl shadow-teal-500/25 gap-2 transition-all transform hover:scale-[1.01]"
+              >
+                {saving ? (
+                  <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                ) : (
+                  <Save className="w-4 h-4 shrink-0" strokeWidth={2.4} />
+                )}
+                <span>{buttonLabel}</span>
+              </Button>
+              {paymentButton}
+            </div>
+          </div>
+
         </form>
       </main>
     </div>

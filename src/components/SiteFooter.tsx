@@ -255,7 +255,7 @@ const SiteFooter = () => {
         {/* Bottom Bar: Copyright & Social Links */}
         <div className="border-t border-border/80 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs sm:text-sm font-bold text-muted-foreground text-center md:text-start">
-            © 2026 {isRtl ? "دار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م. جميع الحقوق محفوظة." : "Dar Obeid Publishing & Distribution LLC. All Rights Reserved."}
+            {t.copyright}
           </p>
 
           {/* Social Icons Strip */}

@@ -59,6 +59,147 @@ const renderMessageContent = (text: string, navigate: (to: string) => void): Rea
   return parts.length > 0 ? parts : [text];
 };
 
+const getLocalizedChatContent = (lang: string) => {
+  switch (lang) {
+    case "fr":
+      return {
+        welcomeMsg: "Bienvenue sur UNIGATES ! 👋 Je suis votre conseiller IA en direct. Comment puis-je vous orienter aujourd'hui ? Posez-moi des questions sur la création de compte, l'inscription des facultés ou des écoles, nos cours ou la librairie.",
+        onlineBadge: "En Direct",
+        advisorSubtitle: "Votre Conseiller Académique Intelligent",
+        newChatTitle: "Nouvelle discussion",
+        quickOptionsTitle: "⚡ Options et orientations rapides :",
+        whatsappBtn: "Support officiel via WhatsApp",
+        inputPlaceholder: "Posez votre question ou indiquez l'établissement...",
+        quickPrompts: [
+          { label: "🏛️ Inscription Faculté / Institut", prompt: "Comment inscrire une faculté ou un institut sur UNIGATES ?" },
+          { label: "🏫 Inscription École", prompt: "Comment inscrire une école K-12 sur la plateforme ?" },
+          { label: "🎓 Inscription Étudiant", prompt: "Comment créer un compte étudiant pour accéder aux cours ?" },
+          { label: "👨‍🏫 Inscription Enseignant", prompt: "Comment créer un compte enseignant et le lier à un établissement ?" },
+          { label: "🔒 Validation des Examens", prompt: "Comment fonctionnent les circuits de validation numérique des examens ?" },
+        ],
+      };
+    case "es":
+      return {
+        welcomeMsg: "¡Bienvenido a UNIGATES! 👋 Soy tu asesor inteligente en tiempo real. ¿Cómo puedo ayudarte hoy? Pregúntame sobre la creación de cuentas, registro de facultades o escuelas, cursos o librería.",
+        onlineBadge: "En Vivo",
+        advisorSubtitle: "Tu Asesor Académico Inteligente",
+        newChatTitle: "Nueva conversación",
+        quickOptionsTitle: "⚡ Consultas rápidas y frecuentes:",
+        whatsappBtn: "Atención directa por WhatsApp",
+        inputPlaceholder: "Escribe tu consulta o institución a registrar...",
+        quickPrompts: [
+          { label: "🏛️ Registrar Facultad / Instituto", prompt: "¿Cómo registro una facultad o instituto en UNIGATES?" },
+          { label: "🏫 Registrar Escuela", prompt: "¿Cómo inscribir una escuela K-12 en la plataforma?" },
+          { label: "🎓 Registro de Estudiante", prompt: "¿Cómo crear una cuenta de estudiante para acceder a clases?" },
+          { label: "👨‍🏫 Registro de Profesor", prompt: "¿Cómo unirme como docente o profesor?" },
+          { label: "🔒 Aprobación de Exámenes", prompt: "¿Cómo funcionan las cadenas de aprobación digital de exámenes?" },
+        ],
+      };
+    case "de":
+      return {
+        welcomeMsg: "Willkommen bei UNIGATES! 👋 Ich bin Ihr KI-Berater in Echtzeit. Wie kann ich Ihnen heute helfen? Fragen Sie mich nach Kontoerstellung, Registrierung von Fakultäten oder Schulen, Kursen oder Büchern.",
+        onlineBadge: "Live Online",
+        advisorSubtitle: "Ihr Intelligenter Studienberater",
+        newChatTitle: "Neuer Chat",
+        quickOptionsTitle: "⚡ Häufige Schnellfragen:",
+        whatsappBtn: "Direkter WhatsApp-Support",
+        inputPlaceholder: "Geben Sie Ihre Frage oder Einrichtung ein...",
+        quickPrompts: [
+          { label: "🏛️ Fakultät / Institut registrieren", prompt: "Wie registriere ich eine Fakultät oder ein Institut auf UNIGATES?" },
+          { label: "🏫 Schule registrieren", prompt: "Wie melde ich eine K-12 Schule auf der Plattform an?" },
+          { label: "🎓 Als Student registrieren", prompt: "Wie erstelle ich ein Studentenkonto für Vorlesungen?" },
+          { label: "👨‍🏫 Als Dozent beitreten", prompt: "Wie erstelle ich ein Dozentenkonto?" },
+          { label: "🔒 Prüfungsfreigabe-Ketten", prompt: "Wie funktioniert die digitale Prüfungsfreigabe?" },
+        ],
+      };
+    case "zh":
+      return {
+        welcomeMsg: "欢迎来到 UNIGATES！👋 我是您的全天候智能导师。今天有什么可以帮助您？您可以咨询账号注册、院校与中小学入驻、在线课程或图书出版等问题。",
+        onlineBadge: "实时在线",
+        advisorSubtitle: "您的全方位智慧数字教育顾问",
+        newChatTitle: "开启新会话",
+        quickOptionsTitle: "⚡ 常见快捷咨询：",
+        whatsappBtn: "官方 WhatsApp 在线支持",
+        inputPlaceholder: "输入您的疑问或需入驻的机构名称...",
+        quickPrompts: [
+          { label: "🏛️ 申请入驻大学学院 / 研究所", prompt: "如何以机构管理员身份入驻并注册大学学院或研究所？" },
+          { label: "🏫 申请入驻中小学", prompt: "如何在中小学智能平台注册入驻学校？" },
+          { label: "🎓 注册学员 / 学生账号", prompt: "如何注册学生账号以获取课程与作业？" },
+          { label: "👨‍🏫 教师 / 讲师身份入驻", prompt: "如何注册教师或讲师账号并关联学校？" },
+          { label: "🔒 数字试卷审批流程说明", prompt: "请介绍试卷从教研主任到院长的多级数字审批机制。" },
+        ],
+      };
+    case "ru":
+      return {
+        welcomeMsg: "Добро пожаловать в UNIGATES! 👋 Я ваш интеллектуальный помощник в реальном времени. Чем я могу помочь? Задайте вопрос о создании аккаунта, регистрации факультетов или школ, курсах и книгах.",
+        onlineBadge: "В Сети",
+        advisorSubtitle: "Ваш Академический ИИ-Консультант",
+        newChatTitle: "Новый диалог",
+        quickOptionsTitle: "⚡ Быстрые вопросы и темы:",
+        whatsappBtn: "Поддержка в WhatsApp",
+        inputPlaceholder: "Введите ваш вопрос или название учреждения...",
+        quickPrompts: [
+          { label: "🏛️ Регистрация Факультета / Института", prompt: "Как зарегистрировать факультет или институт в UNIGATES?" },
+          { label: "🏫 Регистрация Школы", prompt: "Как подключить школу к школьной платформе?" },
+          { label: "🎓 Регистрация Студента", prompt: "Как создать аккаунт студента для доступа к занятиям?" },
+          { label: "👨‍🏫 Регистрация Преподавателя", prompt: "Как зарегистрироваться преподавателю?" },
+          { label: "🔒 Утверждение Экзаменов", prompt: "Как работает цифровая цепочка утверждения экзаменов?" },
+        ],
+      };
+    case "tr":
+      return {
+        welcomeMsg: "UNIGATES'e Hoş Geldiniz! 👋 Ben gerçek zamanlı yapay zeka danışmanınızım. Bugün size nasıl yardımcı olabilirim? Hesap oluşturma, fakülte ve okul kayıtları, kurslar ve kitabevi hakkında sorular sorabilirsiniz.",
+        onlineBadge: "Çevrimiçi",
+        advisorSubtitle: "Akıllı Akademik Rehberiniz",
+        newChatTitle: "Yeni Sohbet",
+        quickOptionsTitle: "⚡ Hızlı Yönlendirme Seçenekleri:",
+        whatsappBtn: "Resmi WhatsApp Canlı Destek",
+        inputPlaceholder: "Sorunuzu veya kurum adını yazın...",
+        quickPrompts: [
+          { label: "🏛️ Fakülte / Enstitü Kaydı", prompt: "UNIGATES'te fakülte veya enstitü nasıl kaydedilir?" },
+          { label: "🏫 Okul Kaydı", prompt: "K-12 okulunu platforma nasıl kaydederim?" },
+          { label: "🎓 Öğrenci Hesabı Oluştur", prompt: "Derslere ve ödevlere erişmek için öğrenci hesabı nasıl açılır?" },
+          { label: "👨‍🏫 Eğitmen / Öğretmen Kaydı", prompt: "Eğitmen hesabı nasıl oluşturulur?" },
+          { label: "🔒 Sınav Onay Zincirleri", prompt: "Dijital sınav onay iş akışları nasıl çalışır?" },
+        ],
+      };
+    case "en":
+      return {
+        welcomeMsg: "Welcome to UNIGATES! 👋 I'm your real-time AI advisor. How can I guide you today? Ask me about account setup, institutional onboarding, courses, or bookstore.",
+        onlineBadge: "Live Online",
+        advisorSubtitle: "Your Smart Academic Advisor",
+        newChatTitle: "New Chat",
+        quickOptionsTitle: "⚡ Quick guidance options:",
+        whatsappBtn: "Chat on Official WhatsApp",
+        inputPlaceholder: "Type your inquiry or institution name...",
+        quickPrompts: [
+          { label: "🏛️ Register College / Institute", prompt: "How do I register a college or institute on UNIGATES?" },
+          { label: "🏫 Register School", prompt: "How do I onboard a new K-12 school?" },
+          { label: "🎓 Student Sign Up", prompt: "How do I create a student account?" },
+          { label: "👨‍🏫 Faculty / Teacher Sign Up", prompt: "How do I join as faculty or teacher?" },
+          { label: "🔒 Exam Approval Chains", prompt: "How do digital exam approval workflows work?" },
+        ],
+      };
+    default: // "ar"
+      return {
+        welcomeMsg: "مرحباً بك في UNIGATES! 👋 أنا مساعدك الذكي اللحظي. كيف يمكنني مساعدتك اليوم؟ يمكنك سؤالي عن إنشاء الحسابات، تسجيل الكليات والمدارس، أو استعراض الدورات والمكتبة.",
+        onlineBadge: "متصل لحظياً",
+        advisorSubtitle: "مستشارك التعليمي والتوجيهي",
+        newChatTitle: "محادثة جديدة",
+        quickOptionsTitle: "⚡ استفسارات سريعة وشائعة:",
+        whatsappBtn: "محادثة الدعم المباشر عبر الواتساب",
+        inputPlaceholder: "اكتب استفسارك أو الجهة التي ترغب بتسجيلها...",
+        quickPrompts: [
+          { label: "🏛️ كيف أسجل كليتي أو معهدي؟", prompt: "كيف يمكنني تسجيل كليتي أو معهدي كمسؤول مؤسسي؟ وما هي الخطوات؟" },
+          { label: "🏫 كيف أسجل مدرسة جديدة؟", prompt: "أريد تسجيل مدرسة في المنصة المدرسية، ما هي طريقة إنشاء الحساب والبيانات المطلوبة؟" },
+          { label: "🎓 كيف أنشئ حساب كطالب؟", prompt: "كيف أنشئ حساب طالب جديد للوصول إلى المحاضرات والواجبات؟" },
+          { label: "👨‍🏫 كيف أنضم كعضو هيئة تدريس أو معلم؟", prompt: "كيف يتم إنشاء حساب محاضر أو معلم وربطه بالكلية أو المدرسة؟" },
+          { label: "🔒 كيف تعمل سلاسل اعتماد الاختبارات؟", prompt: "اشرح لي آلية سلاسل الاعتماد الرقمي للاختبارات من رئيس القسم حتى العميد." },
+        ],
+      };
+  }
+};
+
 const AIChatWidget = () => {
   const { language, dir } = useLanguage();
   const isRtl = dir === "rtl";
@@ -71,25 +212,7 @@ const AIChatWidget = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const welcomeMsg = isRtl
-    ? "مرحباً بك في UNIGATES! 👋 أنا مساعدك الذكي اللحظي. كيف يمكنني مساعدتك اليوم؟ يمكنك سؤالي عن إنشاء الحسابات، تسجيل الكليات والمدارس، أو استعراض الدورات والمكتبة."
-    : "Welcome to UNIGATES! 👋 I'm your real-time AI advisor. How can I guide you today? Ask me about account setup, institutional onboarding, courses, or bookstore.";
-
-  const quickPrompts = isRtl
-    ? [
-        { label: "🏛️ كيف أسجل كليتي أو معهدي؟", prompt: "كيف يمكنني تسجيل كليتي أو معهدي كمسؤول مؤسسي؟ وما هي الخطوات؟" },
-        { label: "🏫 كيف أسجل مدرسة جديدة؟", prompt: "أريد تسجيل مدرسة في المنصة المدرسية، ما هي طريقة إنشاء الحساب والبيانات المطلوبة؟" },
-        { label: "🎓 كيف أنشئ حساب كطالب؟", prompt: "كيف أنشئ حساب طالب جديد للوصول إلى المحاضرات والواجبات؟" },
-        { label: "👨‍🏫 كيف أنضم كعضو هيئة تدريس أو معلم؟", prompt: "كيف يتم إنشاء حساب محاضر أو معلم وربطه بالكلية أو المدرسة؟" },
-        { label: "🔒 كيف تعمل سلاسل اعتماد الاختبارات؟", prompt: "اشرح لي آلية سلاسل الاعتماد الرقمي للاختبارات من رئيس القسم حتى العميد." },
-      ]
-    : [
-        { label: "🏛️ Register College / Institute", prompt: "How do I register a college or institute on UNIGATES?" },
-        { label: "🏫 Register School", prompt: "How do I onboard a new K-12 school?" },
-        { label: "🎓 Student Sign Up", prompt: "How do I create a student account?" },
-        { label: "👨‍🏫 Faculty / Teacher Sign Up", prompt: "How do I join as faculty or teacher?" },
-        { label: "🔒 Exam Approval Chains", prompt: "How do digital exam approval workflows work?" },
-      ];
+  const localized = getLocalizedChatContent(language);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -257,11 +380,11 @@ const AIChatWidget = () => {
                 <p className="font-black text-sm leading-tight flex items-center gap-1.5">
                   <span>UNIGATES AI</span>
                   <Badge className="bg-emerald-400/20 text-emerald-300 border-emerald-400/30 text-[9px] px-1.5 py-0">
-                    {isRtl ? "متصل لحظياً" : "Live Online"}
+                    {localized.onlineBadge}
                   </Badge>
                 </p>
                 <p className="text-[10px] text-slate-200 font-medium">
-                  {isRtl ? "مستشارك التعليمي والتوجيهي" : "Your Smart Academic Advisor"}
+                  {localized.advisorSubtitle}
                 </p>
               </div>
             </div>
@@ -270,7 +393,7 @@ const AIChatWidget = () => {
               {messages.length > 0 && (
                 <button
                   onClick={clearChat}
-                  title={isRtl ? "محادثة جديدة" : "New Chat"}
+                  title={localized.newChatTitle}
                   className="hover:bg-white/20 rounded-xl p-1.5 transition-colors text-white/80 hover:text-white"
                 >
                   <RefreshCw className="w-4 h-4" />
@@ -291,7 +414,7 @@ const AIChatWidget = () => {
             {/* Welcome message */}
             <div className="flex justify-start">
               <div className="max-w-[88%] bg-card border border-border/80 text-foreground rounded-2xl rounded-tl-xs p-3.5 text-xs sm:text-sm leading-relaxed shadow-xs space-y-2">
-                <p>{welcomeMsg}</p>
+                <p>{localized.welcomeMsg}</p>
               </div>
             </div>
 
@@ -299,10 +422,10 @@ const AIChatWidget = () => {
             {messages.length === 0 && (
               <div className="space-y-1.5 pt-1">
                 <p className="text-[11px] font-black text-muted-foreground px-1">
-                  {isRtl ? "⚡ استفسارات سريعة وشائعة:" : "⚡ Quick guidance options:"}
+                  {localized.quickOptionsTitle}
                 </p>
                 <div className="flex flex-col gap-1.5">
-                  {quickPrompts.map((qp, idx) => (
+                  {localized.quickPrompts.map((qp, idx) => (
                     <button
                       key={idx}
                       onClick={() => handleSendText(qp.prompt)}
@@ -359,7 +482,7 @@ const AIChatWidget = () => {
               className="w-full flex items-center justify-center gap-2 text-xs text-white bg-[#25D366] hover:bg-[#20bd5a] rounded-xl py-2 px-3 transition-all duration-200 font-bold shadow-xs"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              <span>{isRtl ? "محادثة الدعم المباشر عبر الواتساب" : "Chat on Official WhatsApp"}</span>
+              <span>{localized.whatsappBtn}</span>
             </button>
           </div>
 
@@ -376,7 +499,7 @@ const AIChatWidget = () => {
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder={isRtl ? "اكتب استفسارك أو الجهة التي ترغب بتسجيلها..." : "Type your inquiry or institution name..."}
+                placeholder={localized.inputPlaceholder}
                 className="flex-1 bg-muted/60 border border-border rounded-xl px-3.5 py-2.5 text-xs sm:text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-muted-foreground"
                 disabled={isLoading}
               />

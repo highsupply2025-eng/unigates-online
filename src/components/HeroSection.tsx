@@ -10,7 +10,7 @@ import eduHeroBg from "@/assets/edu-hero-bg.jpg";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const HeroSection = () => {
-  const { dir, language } = useLanguage();
+  const { t, dir, language } = useLanguage();
   const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -37,7 +37,7 @@ const HeroSection = () => {
   const portalPills = [
     {
       to: "/university-platform",
-      label: isRtl ? "المنصة الجامعية" : "University Platform",
+      label: t.universityPlatform,
       badge: isRtl ? "كليات ومعاهد" : "Colleges & Institutes",
       icon: Landmark,
       color: "from-blue-600 to-indigo-700",
@@ -45,7 +45,7 @@ const HeroSection = () => {
     },
     {
       to: "/school-platform",
-      label: isRtl ? "المنصة المدرسية" : "School Platform",
+      label: t.schoolPlatform,
       badge: isRtl ? "مدارس وفصول" : "Schools & K-12",
       icon: School,
       color: "from-emerald-600 to-teal-700",
@@ -53,7 +53,7 @@ const HeroSection = () => {
     },
     {
       to: "/courses",
-      label: isRtl ? "أكاديمية الدورات" : "Courses Academy",
+      label: t.exploreCourses,
       badge: isRtl ? "دورات وشهادات" : "Courses & Certificates",
       icon: BookOpen,
       color: "from-purple-600 to-fuchsia-700",
@@ -61,7 +61,7 @@ const HeroSection = () => {
     },
     {
       to: "/book-store",
-      label: isRtl ? "متجر الكتب الرقمي" : "Digital Book Store",
+      label: t.bookStore,
       badge: isRtl ? "كتب ومراجع" : "Books & References",
       icon: Store,
       color: "from-amber-500 to-orange-600",

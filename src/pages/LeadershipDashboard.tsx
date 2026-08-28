@@ -1507,8 +1507,8 @@ const LeadershipDashboard = () => {
               />
             ) : (
               <>
-                {/* 1. Modern Hero Action Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-5">
+                {/* 1. Modern Hero Action Cards (Create & Watch) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <button
                     type="button"
                     onClick={() => {
@@ -1517,22 +1517,22 @@ const LeadershipDashboard = () => {
                     }}
                     className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br from-cyan-600 via-blue-600 to-indigo-700 text-white p-5 sm:p-6 shadow-xl shadow-cyan-600/20 hover:shadow-2xl hover:shadow-cyan-600/40 hover:-translate-y-1.5 transition-all duration-300 ${isRtl ? "text-right" : "text-left"}`}
                   >
-                    <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-white/10 blur-xl pointer-events-none" />
+                    <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
                     <div className="relative z-10 flex flex-col justify-between h-full min-h-[120px]">
                       <div className="flex items-center justify-between">
                         <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-2 ring-white/40 shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
                           <Plus className="w-6 h-6 text-white" strokeWidth={2.8} />
                         </div>
-                        <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-xs">
+                        <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-xs">
                           {isRtl ? "تسجيل وبث" : "Studio"}
                         </span>
                       </div>
-                      <div className="mt-3">
-                        <h3 className="text-lg sm:text-xl font-black text-white drop-shadow-sm leading-tight">
+                      <div className="mt-4">
+                        <h3 className="text-lg sm:text-2xl font-black text-white drop-shadow-sm leading-tight">
                           {isRtl ? "إنشاء محاضرة جديدة" : "Create Lecture"}
                         </h3>
-                        <p className="text-xs font-semibold text-white/85 mt-1">
-                          {isRtl ? "تسجيل حلقة مرئية ورفع المذكرات المرفقة" : "Record video & upload materials"}
+                        <p className="text-xs sm:text-sm font-semibold text-white/85 mt-1">
+                          {isRtl ? "تسجيل حلقة مرئية وإعداد وتجهيز المحاضرة" : "Record video episode & set up lecture"}
                         </p>
                       </div>
                     </div>
@@ -1543,48 +1543,22 @@ const LeadershipDashboard = () => {
                     onClick={() => setLectureSubView("watch")}
                     className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-600 to-teal-700 text-white p-5 sm:p-6 shadow-xl shadow-emerald-600/20 hover:shadow-2xl hover:shadow-emerald-600/40 hover:-translate-y-1.5 transition-all duration-300 ${isRtl ? "text-right" : "text-left"}`}
                   >
-                    <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-white/10 blur-xl pointer-events-none" />
+                    <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
                     <div className="relative z-10 flex flex-col justify-between h-full min-h-[120px]">
                       <div className="flex items-center justify-between">
                         <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-2 ring-white/40 shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
                           <Eye className="w-6 h-6 text-white" strokeWidth={2.8} />
                         </div>
-                        <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-xs">
+                        <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-xs">
                           {isRtl ? "استعراض" : "Library"}
                         </span>
                       </div>
-                      <div className="mt-3">
-                        <h3 className="text-lg sm:text-xl font-black text-white drop-shadow-sm leading-tight">
+                      <div className="mt-4">
+                        <h3 className="text-lg sm:text-2xl font-black text-white drop-shadow-sm leading-tight">
                           {isRtl ? "مشاهدة المحاضرات" : "Watch Lectures"}
                         </h3>
-                        <p className="text-xs font-semibold text-white/85 mt-1">
+                        <p className="text-xs sm:text-sm font-semibold text-white/85 mt-1">
                           {isRtl ? "استعراض المحاضرات من اللوحات والأقسام الأخرى" : "Browse lectures from other departments"}
-                        </p>
-                      </div>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setLectureSubView("upload")}
-                    className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-600 via-violet-600 to-fuchsia-700 text-white p-5 sm:p-6 shadow-xl shadow-purple-600/20 hover:shadow-2xl hover:shadow-purple-600/40 hover:-translate-y-1.5 transition-all duration-300 ${isRtl ? "text-right" : "text-left"}`}
-                  >
-                    <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-white/10 blur-xl pointer-events-none" />
-                    <div className="relative z-10 flex flex-col justify-between h-full min-h-[120px]">
-                      <div className="flex items-center justify-between">
-                        <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-2 ring-white/40 shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                          <Upload className="w-6 h-6 text-white" strokeWidth={2.8} />
-                        </div>
-                        <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-xs">
-                          {isRtl ? "مرفقات" : "Handouts"}
-                        </span>
-                      </div>
-                      <div className="mt-3">
-                        <h3 className="text-lg sm:text-xl font-black text-white drop-shadow-sm leading-tight">
-                          {isRtl ? "رفع ملف للطلبة" : "Upload Files"}
-                        </h3>
-                        <p className="text-xs font-semibold text-white/85 mt-1">
-                          {isRtl ? "مشاركة الكتب والملفات والمذكرات التعليمية" : "Share notes, slides & references"}
                         </p>
                       </div>
                     </div>

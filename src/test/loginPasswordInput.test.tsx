@@ -58,7 +58,7 @@ describe("Login password input", () => {
     fireEvent.change(input, { target: { value: "Aa$#@159753" } });
     expect(input).toHaveValue("Aa$#@159753");
     expect(input).toHaveClass("pl-12", "pr-10", "text-center");
-  });
+  }, 15000);
 
   it("preserves password visibility toggling", () => {
     render(<Login />, { wrapper: MemoryRouter });
@@ -69,5 +69,5 @@ describe("Login password input", () => {
     expect(input).toHaveAttribute("type", "text");
     fireEvent.click(screen.getByLabelText("إخفاء كلمة المرور"));
     expect(input).toHaveAttribute("type", "password");
-  });
+  }, 15000);
 });

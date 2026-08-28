@@ -290,24 +290,47 @@ html.is-native-app body {
 .pt-safe { padding-top: calc(var(--safe-area-top) + 0.25rem); }
 .pb-safe { padding-bottom: calc(var(--safe-area-bottom) + 0.25rem); }
 
-/* Custom modern slim scrollbars */
+/* Prominent, stylish scrollbars for easy vertical scrolling */
+* {
+  scrollbar-width: auto;
+  scrollbar-color: #6366f1 rgba(0, 0, 0, 0.06);
+}
+
+.dark * {
+  scrollbar-color: #818cf8 rgba(255, 255, 255, 0.06);
+}
+
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 12px;
+  height: 12px;
 }
+
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.04);
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.6);
+  background: rgba(0, 0, 0, 0.05);
   border-radius: 9999px;
 }
+
+.dark ::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
+  border-radius: 9999px;
+  border: 2.5px solid transparent;
+  background-clip: padding-box;
+  box-shadow: 0 0 6px rgba(99, 102, 241, 0.4);
+}
+
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(13, 148, 136, 0.8);
+  background: linear-gradient(180deg, #2563eb 0%, #4f46e5 50%, #7c3aed 100%);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.7);
 }
 
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 184, 0.6) rgba(0, 0, 0, 0.04);
+  scrollbar-color: #6366f1 rgba(0, 0, 0, 0.06);
 }
 

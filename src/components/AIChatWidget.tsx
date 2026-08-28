@@ -208,29 +208,44 @@ const AIChatWidget = () => {
 
   return (
     <>
-      {/* Floating Trigger Button with Pulsing Badge */}
+      {/* Floating Trigger Button on the Right - Vertical Orientation */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 end-6 z-50 group flex items-center gap-2.5 p-3 sm:px-4 sm:py-3 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-2xl shadow-indigo-500/30 hover:scale-105 transition-all duration-300 ring-4 ring-white/20 dark:ring-white/10"
+          className="fixed right-2 sm:right-4 top-1/2 -translate-y-1/2 z-50 group flex flex-col items-center gap-2.5 py-3.5 px-2 sm:px-2.5 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-blue-600 via-indigo-600 to-purple-700 text-white shadow-2xl shadow-indigo-500/40 hover:scale-105 hover:-translate-x-1 transition-all duration-300 ring-2 ring-white/40 dark:ring-white/20 cursor-pointer"
           aria-label="Open AI Assistant"
         >
-          <div className="relative">
-            <MessageCircle className="w-6 h-6" />
+          {/* Top Live Icon */}
+          <div className="relative w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-md shadow-xs group-hover:scale-110 transition-transform">
+            <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             <span className="absolute -top-1 -end-1 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-            <span className="absolute -top-1 -end-1 w-2.5 h-2.5 rounded-full bg-emerald-400" />
+            <span className="absolute -top-1 -end-1 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-white" />
           </div>
-          <span className="hidden sm:inline-block font-black text-xs tracking-tight">
-            {isRtl ? "مساعد UNIGATES الذكي" : "UNIGATES AI"}
+
+          {/* Vertical Text */}
+          <span
+            className="font-black text-[11px] sm:text-xs tracking-wider text-slate-100 group-hover:text-amber-300 transition-colors select-none py-1"
+            style={{
+              writingMode: "vertical-rl",
+              transform: isRtl ? "rotate(180deg)" : "rotate(180deg)",
+              letterSpacing: "1px",
+            }}
+          >
+            {isRtl ? "مساعد UNIGATES الذكي" : "UNIGATES AI ASSISTANT"}
           </span>
+
+          {/* Bottom Mini Sparkle */}
+          <div className="w-5 h-5 rounded-full bg-white/15 flex items-center justify-center">
+            <Sparkles className="w-3 h-3 text-amber-300 animate-pulse" />
+          </div>
         </button>
       )}
 
-      {/* Chat Window */}
+      {/* Chat Window Anchored on the Right */}
       {isOpen && (
         <div
           dir={isRtl ? "rtl" : "ltr"}
-          className="fixed bottom-4 sm:bottom-6 end-4 sm:end-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[580px] max-h-[calc(100vh-3rem)] bg-card border-2 border-primary/30 rounded-3xl shadow-2xl shadow-indigo-500/25 flex flex-col overflow-hidden animate-fade-in"
+          className="fixed bottom-4 sm:bottom-6 right-3 sm:right-6 z-50 w-[380px] max-w-[calc(100vw-1.5rem)] h-[580px] max-h-[calc(100vh-3rem)] bg-card border-2 border-primary/30 rounded-3xl shadow-2xl shadow-indigo-500/30 flex flex-col overflow-hidden animate-fade-in"
         >
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 p-4 flex items-center justify-between text-white shadow-md">

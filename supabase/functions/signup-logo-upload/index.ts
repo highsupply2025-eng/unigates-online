@@ -36,20 +36,9 @@ function rateLimit(ip: string): boolean {
   return true;
 }
 
-// Verify a pending registration exists for the caller's IP (prevents abuse from random IPs).
-async function hasPendingRegistration(
-  // deno-lint-ignore no-explicit-any
-  supabase: any,
-  ip: string,
-  kind: string,
-): Promise<boolean> {
-  const table = kind === "college" ? "college_registrations" : "institute_registrations";
-  const { count } = await supabase
-    .from(table)
-    .select("id", { count: "exact", head: true })
-    .eq("status", "pending");
-  return (count ?? 0) > 0;
-}
+// NOTE: The logo is uploaded during signup BEFORE the registration row exists,
+// so we cannot require a pending registration here. Abuse is limited by the
+// per-IP rate limiter above plus the size/type checks below.
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -107,14 +96,6 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // Verify a pending registration exists for this institution type.
-    // This prevents random IPs from flooding storage with junk files.
-    if (!(await hasPendingRegistration(supabaseAdmin, ip, kind))) {
-      return new Response(
-        JSON.stringify({ error: "No pending registration found" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
 
     const bucket = kind === "college" ? "college-logos" : "institute-logos";
     const path = `pending/${crypto.randomUUID()}.${ext}`;

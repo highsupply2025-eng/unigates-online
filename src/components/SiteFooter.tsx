@@ -5,7 +5,7 @@ import unigatesLogo from "@/assets/unigates-logo-transparent.png";
 import googlePlayImg from "@/assets/google-play.png";
 import appStoreImg from "@/assets/app-store.png";
 
-const TwitterIcon = () => (
+const XIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" xmlns="http://www.w3.org/2000/svg">
     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
   </svg>
@@ -18,8 +18,10 @@ const YouTubeIcon = () => (
 );
 
 const InstagramIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z" />
+  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-current" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg">
+    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" strokeWidth="2.5" />
   </svg>
 );
 
@@ -32,6 +34,21 @@ const TikTokIcon = () => (
 const FacebookIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" xmlns="http://www.w3.org/2000/svg">
     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+  </svg>
+);
+
+const GooglePlayIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg">
+    <path d="M3.609 1.814L13.792 12 3.61 22.186a2.238 2.238 0 0 1-.61-1.6V3.414c0-.623.23-1.19.609-1.6z" fill="#00C3FF"/>
+    <path d="M17.204 8.587l-3.412 3.413L3.61 1.814c.32-.18.7-.286 1.112-.286.623 0 1.2.246 1.637.669l10.845 6.39z" fill="#00F076"/>
+    <path d="M17.204 15.413L6.359 21.803a2.38 2.38 0 0 1-1.637.669c-.412 0-.792-.106-1.112-.286l10.182-10.186 3.412 3.413z" fill="#FF3A44"/>
+    <path d="M21.364 10.147l-4.16 2.45-3.412-3.413 3.412-3.413 4.16 2.45c.78.46.78 1.466 0 1.926z" fill="#FFE000"/>
+  </svg>
+);
+
+const AppStoreIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.93-2.85-.9.04-1.99.6-2.63 1.35-.57.65-1.07 1.72-.94 2.74 1.01.08 2.03-.5 2.64-1.24z" />
   </svg>
 );
 
@@ -58,11 +75,62 @@ const SiteFooter = () => {
   ];
 
   const socialLinks = [
-    { icon: FacebookIcon, label: "Facebook", href: "https://www.facebook.com/profile.php?id=61590799649501&sk=about", color: "bg-[#1877F2]" },
-    { icon: TwitterIcon, label: "X", href: "https://x.com/UNIGATES_ONLINE", color: "bg-[#000000]" },
-    { icon: YouTubeIcon, label: "YouTube", href: "https://www.youtube.com/@UNIGATESPLATFORM", color: "bg-[#FF0000]" },
-    { icon: InstagramIcon, label: "Instagram", href: "#", color: "bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF]" },
-    { icon: TikTokIcon, label: "TikTok", href: "https://www.tiktok.com/@darobaid3", color: "bg-[#000000]" },
+    {
+      icon: FacebookIcon,
+      label: "Facebook",
+      href: "https://www.facebook.com/profile.php?id=61590799649501&sk=about",
+      bgClass: "bg-gradient-to-tr from-[#1877F2] to-[#0D65D9]",
+      glowClass: "hover:shadow-[0_8px_25px_rgba(24,119,242,0.45)]",
+      textClass: "text-white",
+    },
+    {
+      icon: XIcon,
+      label: "X",
+      href: "https://x.com/UNIGATES_ONLINE",
+      bgClass: "bg-gradient-to-tr from-[#1c1c20] via-[#09090b] to-[#000000] border border-zinc-700/50",
+      glowClass: "hover:shadow-[0_8px_25px_rgba(255,255,255,0.25)]",
+      textClass: "text-white",
+    },
+    {
+      icon: YouTubeIcon,
+      label: "YouTube",
+      href: "https://www.youtube.com/@UNIGATESPLATFORM",
+      bgClass: "bg-gradient-to-tr from-[#FF0000] via-[#E60000] to-[#B30000]",
+      glowClass: "hover:shadow-[0_8px_25px_rgba(255,0,0,0.5)]",
+      textClass: "text-white",
+    },
+    {
+      icon: InstagramIcon,
+      label: "Instagram",
+      href: "#",
+      bgClass: "bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#833AB4] via-[#FD1D1D] to-[#FCB045]",
+      glowClass: "hover:shadow-[0_8px_25px_rgba(221,42,123,0.5)]",
+      textClass: "text-white",
+    },
+    {
+      icon: TikTokIcon,
+      label: "TikTok",
+      href: "https://www.tiktok.com/@darobaid3",
+      bgClass: "bg-gradient-to-tr from-[#161823] via-[#000000] to-[#0a0a0a] border border-zinc-700/50",
+      glowClass: "hover:shadow-[0_8px_25px_rgba(37,244,238,0.4)]",
+      textClass: "text-white",
+    },
+    {
+      icon: GooglePlayIcon,
+      label: "Google Play",
+      href: "#",
+      bgClass: "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 shadow-sm",
+      glowClass: "hover:shadow-[0_8px_25px_rgba(0,195,255,0.4)]",
+      textClass: "",
+    },
+    {
+      icon: AppStoreIcon,
+      label: "App Store",
+      href: "#",
+      bgClass: "bg-gradient-to-tr from-[#007AFF] via-[#0062D2] to-[#004EA8]",
+      glowClass: "hover:shadow-[0_8px_25px_rgba(0,122,255,0.45)]",
+      textClass: "text-white",
+    },
   ];
 
   return (
@@ -91,26 +159,26 @@ const SiteFooter = () => {
 
         <div className="border-t border-border pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm font-semibold text-foreground">{t.copyright}</p>
-          <div className="flex gap-3 items-center">
-            {socialLinks.map(({ icon: Icon, label, href, color }) => (
+          <div className="flex gap-2.5 sm:gap-3 items-center flex-wrap justify-center md:justify-end">
+            {socialLinks.map(({ icon: Icon, label, href, bgClass, glowClass, textClass }) => (
               <a
                 key={label}
                 href={href}
+                target={href !== "#" ? "_blank" : undefined}
+                rel={href !== "#" ? "noopener noreferrer" : undefined}
                 aria-label={label}
-                className={`w-10 h-10 rounded-full ${color} text-white flex items-center justify-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:scale-110`}
+                title={label}
+                className={`group relative w-10 h-10 sm:w-11 sm:h-11 rounded-full ${bgClass} ${textClass} flex items-center justify-center transition-all duration-300 hover:-translate-y-1.5 hover:scale-110 active:scale-95 shadow-md ${glowClass} ring-1 ring-white/20 dark:ring-white/10`}
               >
-                <Icon />
+                <div className="transition-transform duration-300 group-hover:scale-110 flex items-center justify-center">
+                  <Icon />
+                </div>
+                {/* Specular glass reflection overlay */}
+                <span className="absolute inset-0 rounded-full bg-gradient-to-b from-white/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
               </a>
             ))}
-            <a href="#" aria-label="Google Play" className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:scale-110 overflow-hidden">
-              <img src={googlePlayImg} alt="Google Play" className="w-7 h-7 object-contain" loading="lazy" width={28} height={28} />
-            </a>
-            <a href="#" aria-label="App Store" className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:scale-110 overflow-hidden">
-              <img src={appStoreImg} alt="App Store" className="w-7 h-7 object-contain" loading="lazy" width={28} height={28} />
-            </a>
           </div>
         </div>
-
 
       </div>
     </footer>

@@ -5,6 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { FirewallProvider } from "@/contexts/FirewallContext";
+import { SecurityBlockedScreen } from "@/components/security/SecurityBlockedScreen";
 import Index from "./pages/Index";
 import { useSingleSession } from "@/hooks/use-single-session";
 import { useAutoLogout } from "@/hooks/use-auto-logout";
@@ -157,11 +159,13 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <SessionGuard />
-          <AutoLogoutGuard />
-          <ScrollToTop />
-          <PrefetchRoutes />
-          <NavigationProgress />
+          <FirewallProvider>
+            <SecurityBlockedScreen />
+            <SessionGuard />
+            <AutoLogoutGuard />
+            <ScrollToTop />
+            <PrefetchRoutes />
+            <NavigationProgress />
           <Suspense fallback={<RouteFallback />}>
             <PageTransition>
             <Routes>
@@ -297,6 +301,7 @@ const App = () => (
           <Suspense fallback={null}>
             <ForcePasswordChangeDialog />
           </Suspense>
+          </FirewallProvider>
         </BrowserRouter>
       </LanguageProvider>
     </TooltipProvider>

@@ -194,8 +194,8 @@ const SiteHeader = () => {
                 <Link to="/signup" className="flex items-center gap-2.5">
                   <GraduationCap className="w-4 h-4 text-teal-400 shrink-0" />
                   <div className="flex flex-col">
-                    <span className="text-xs font-bold">{t.header?.registerLearner || "حساب طالب / معلم"}</span>
-                    <span className="text-[10px] text-slate-400">{t.header?.registerLearnerSub || "انضمام عبر الأكواد"}</span>
+                    <span className="text-xs font-bold">{isRtl ? "طالب / عضو هيئة تدريس" : "Student / Faculty Member"}</span>
+                    <span className="text-[10px] text-slate-400">{isRtl ? "الجامعات والمعاهد الأكاديمية" : "Higher Education Access"}</span>
                   </div>
                 </Link>
               </DropdownMenuItem>

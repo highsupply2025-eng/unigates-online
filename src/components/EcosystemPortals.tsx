@@ -9,11 +9,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { isPlatformUnderDevelopment, PlatformKey } from "@/lib/platformAvailability";
 
 const EcosystemPortals = () => {
   const { dir, language } = useLanguage();
   const isRtl = dir === "rtl";
   const { ref, isVisible } = useScrollAnimation();
+
+  const isSchoolDev = isPlatformUnderDevelopment("school");
+  const isCoursesDev = isPlatformUnderDevelopment("courses");
+  const isBooksDev = isPlatformUnderDevelopment("bookstore");
 
   const portals = [
     {
@@ -41,8 +46,12 @@ const EcosystemPortals = () => {
     {
       id: "school",
       to: "/school-platform",
-      badge: isRtl ? "التعليم المدرسي K-12" : "K-12 Education",
-      badgeColor: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+      badge: isSchoolDev
+        ? (isRtl ? "قريباً • قيد التطوير" : "Coming Soon • In Dev")
+        : (isRtl ? "التعليم المدرسي K-12" : "K-12 Education"),
+      badgeColor: isSchoolDev
+        ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
+        : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
       title: isRtl ? "المنصة المدرسية" : "School Platform",
       subtitle: isRtl
         ? "منظومة مدرسية ذكية تربط إدارة المدرسة بالمعلمين والطلاب وأولياء الأمور مع الفصول الافتراضية والواجبات والمتابعة المستمرة."
@@ -57,14 +66,20 @@ const EcosystemPortals = () => {
         { icon: CheckCircle2, text: isRtl ? "بنك الواجبات والأنشطة المدرسية" : "Homework studio & assignments bank" },
         { icon: Users, text: isRtl ? "بوابة مخصصة لمتابعة أولياء الأمور" : "Dedicated parent supervision portal" },
       ],
-      ctaText: isRtl ? "دخول المنصة المدرسية" : "Explore School Portal",
+      ctaText: isSchoolDev
+        ? (isRtl ? "قريباً — استكشف المنصة المدرسية" : "Coming Soon — Explore School")
+        : (isRtl ? "دخول المنصة المدرسية" : "Explore School Portal"),
       roles: isRtl ? "إدارة المدرسة • المعلمين • الطلاب • أولياء الأمور" : "School Admins • Teachers • Students • Parents",
     },
     {
       id: "courses",
       to: "/courses",
-      badge: isRtl ? "التطوير المهني والمهارات" : "Professional Skills",
-      badgeColor: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+      badge: isCoursesDev
+        ? (isRtl ? "قريباً • قيد التطوير" : "Coming Soon • In Dev")
+        : (isRtl ? "التطوير المهني والمهارات" : "Professional Skills"),
+      badgeColor: isCoursesDev
+        ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
+        : "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
       title: isRtl ? "أكاديمية الدورات" : "Courses Academy",
       subtitle: isRtl
         ? "منصة تعليمية تقدم دورات احترافية مقسمة لحلقات قصيرة ومركزة في البرمجة، التصميم، الأعمال، واللغات مع شهادات معتمدة."
@@ -79,14 +94,20 @@ const EcosystemPortals = () => {
         { icon: TrendingUp, text: isRtl ? "مسارات تعليمية متدرجة من الصفر للاحتراف" : "Curated tracks from beginner to pro" },
         { icon: Sparkles, text: isRtl ? "بوابة خاصة للمدربين لنشر دوراتهم والربح" : "Instructor studio to publish & monetize" },
       ],
-      ctaText: isRtl ? "تصفح الدورات والمسارات" : "Browse All Courses",
+      ctaText: isCoursesDev
+        ? (isRtl ? "قريباً — تصفح الدورات" : "Coming Soon — View Courses")
+        : (isRtl ? "تصفح الدورات والمسارات" : "Browse All Courses"),
       roles: isRtl ? "المتعلمين • المدربين • الباحثين عن تطوير المهارات" : "Learners • Instructors • Skill Seekers",
     },
     {
       id: "books",
       to: "/book-store",
-      badge: isRtl ? "المكتبة والنشر الرقمي" : "Digital Bookstore",
-      badgeColor: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+      badge: isBooksDev
+        ? (isRtl ? "قريباً • قيد التطوير" : "Coming Soon • In Dev")
+        : (isRtl ? "المكتبة والنشر الرقمي" : "Digital Bookstore"),
+      badgeColor: isBooksDev
+        ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
+        : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
       title: isRtl ? "متجر الكتب والمكتبة الرقمية" : "Digital Book Store",
       subtitle: isRtl
         ? "مكتبة عربية شاملة تابعة لدار عبيد توفر الكتب الأكاديمية والمراجع العلمية والروايات مع خيارات القراءة الفورية أو الشحن السريع."
@@ -101,7 +122,9 @@ const EcosystemPortals = () => {
         { icon: Sparkles, text: isRtl ? "منصة للناشرين والمؤلفين لعرض كتبهم" : "Platform for authors & publishers" },
         { icon: Users, text: isRtl ? "تقييمات ومراجعات موثقة من القراء" : "Verified reader reviews and ratings" },
       ],
-      ctaText: isRtl ? "تصفح متجر الكتب" : "Explore Bookstore",
+      ctaText: isBooksDev
+        ? (isRtl ? "قريباً — استكشف متجر الكتب" : "Coming Soon — View Bookstore")
+        : (isRtl ? "تصفح متجر الكتب" : "Explore Bookstore"),
       roles: isRtl ? "القراء • الباحثين • المؤلفين • دور النشر" : "Readers • Researchers • Authors • Publishers",
     },
   ];

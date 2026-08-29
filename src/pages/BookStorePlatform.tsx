@@ -17,6 +17,8 @@ import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import { useBooks } from "@/hooks/useBooks";
+import { isPlatformUnderDevelopment } from "@/lib/platformAvailability";
+import PlatformUnderDevelopment from "@/components/PlatformUnderDevelopment";
 
 const BookStorePlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -24,6 +26,10 @@ const BookStorePlatform = () => {
   const { t, dir, toggleLanguage, language } = useLanguage();
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
+
+  if (isPlatformUnderDevelopment("bookstore")) {
+    return <PlatformUnderDevelopment platform="bookstore" />;
+  }
 
   const { data: books } = useBooks();
   const totalBooks = books?.length ?? 24;

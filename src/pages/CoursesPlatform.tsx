@@ -18,6 +18,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
 import { useCountUp } from "@/hooks/useCountUp";
+import { isPlatformUnderDevelopment } from "@/lib/platformAvailability";
+import PlatformUnderDevelopment from "@/components/PlatformUnderDevelopment";
 
 const CoursesPlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -25,6 +27,10 @@ const CoursesPlatform = () => {
   const { t, dir, toggleLanguage, language } = useLanguage();
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
+
+  if (isPlatformUnderDevelopment("courses")) {
+    return <PlatformUnderDevelopment platform="courses" />;
+  }
 
   const { data: stats } = usePlatformStats("courses");
   const lecturers = useCountUp(stats?.lecturers ?? 0);

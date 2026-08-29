@@ -493,7 +493,7 @@ const Login = () => {
                   className="flex items-center gap-2 p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-200 font-bold transition-all hover:scale-[1.02]"
                 >
                   <GraduationCap className="w-4 h-4 text-teal-400 shrink-0" />
-                  <span className="truncate">{isRtl ? "طالب / معلم" : "Student / Faculty"}</span>
+                  <span className="truncate">{isRtl ? "طالب / عضو تدريس" : "Student / Faculty"}</span>
                 </Link>
               </div>
             </div>

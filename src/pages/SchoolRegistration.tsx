@@ -11,6 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
+import { isPlatformUnderDevelopment } from "@/lib/platformAvailability";
+import PlatformUnderDevelopment from "@/components/PlatformUnderDevelopment";
 
 const countryCodes = [
   { code: "+20", country: "🇪🇬" }, { code: "+966", country: "🇸🇦" },
@@ -24,6 +26,10 @@ const SchoolRegistration = () => {
   const isRtl = dir === "rtl";
   const goBack = useSmartBack();
   const { toast } = useToast();
+
+  if (isPlatformUnderDevelopment("school")) {
+    return <PlatformUnderDevelopment platform="school" />;
+  }
 
   const [schoolName, setSchoolName] = useState("");
   const [city, setCity] = useState("");

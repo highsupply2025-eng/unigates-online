@@ -1,14 +1,17 @@
 import { memo, useCallback, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LucideIcon, Menu, Globe, LogOut, X, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { LucideIcon, Menu, Globe, LogOut, X, ChevronLeft, ChevronRight, Sparkles, Check } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage, type Language } from "@/contexts/LanguageContext";
 
 export interface DashboardMenuItem {
   key?: string;
@@ -56,13 +59,21 @@ const DashboardMenuDropdown = ({
   logoutLabel,
   title,
 }: Props) => {
-  const { t, language, dir } = useLanguage();
+  const { t, language, setLanguage, dir, availableLanguages = [], currentLanguageInfo } = useLanguage();
   const isRtl = dir === "rtl";
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   const close = useCallback(() => setOpen(false), []);
+
+  const langInfo = currentLanguageInfo || availableLanguages.find((l) => l.code === language) || {
+    code: "ar",
+    name: "Arabic",
+    nativeName: "العربية",
+    flag: "🇸🇦",
+    dir: "rtl",
+  };
 
   // Eagerly prefetch every menu route chunk during browser idle time so that
   // tapping an item navigates instantly without waiting for a JS chunk fetch.
@@ -186,24 +197,61 @@ const DashboardMenuDropdown = ({
 
         {/* Footer Actions */}
         <div className="space-y-1">
-          {/* Language Switch */}
-          <DropdownMenuItem
-            onClick={() => {
-              close();
-              onLanguageToggle();
-            }}
-            className="group gap-3.5 cursor-pointer rounded-2xl py-2.5 px-3 hover:bg-muted/60 transition-all duration-200"
-          >
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-md shadow-black/15 ring-2 ring-white/30 dark:ring-white/10 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-2 transition-all duration-200">
-              <Globe className="w-5 h-5 text-white drop-shadow-sm" strokeWidth={2.6} />
-            </div>
-            <span className="text-sm font-extrabold text-foreground group-hover:text-cyan-600 dark:group-hover:text-cyan-400 flex-1 truncate transition-colors">
-              {langLabel ?? (language === "ar" ? "English (EN)" : "العربية (AR)")}
-            </span>
-            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20">
-              {language === "ar" ? "EN" : "AR"}
-            </span>
-          </DropdownMenuItem>
+          {/* Multilingual Submenu */}
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger className="group gap-3.5 cursor-pointer rounded-2xl py-2.5 px-3 hover:bg-muted/60 transition-all duration-200 focus:bg-muted/60">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-md shadow-black/15 ring-2 ring-white/30 dark:ring-white/10 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-2 transition-all duration-200">
+                <Globe className="w-5 h-5 text-white drop-shadow-sm" strokeWidth={2.6} />
+              </div>
+              <div className="flex flex-col text-start flex-1 min-w-0">
+                <span className="text-sm font-extrabold text-foreground group-hover:text-cyan-600 dark:group-hover:text-cyan-400 truncate">
+                  {langInfo.nativeName} ({langInfo.code.toUpperCase()})
+                </span>
+                <span className="text-[10px] text-muted-foreground font-bold truncate">
+                  {isRtl ? "تغيير اللغة (تعدد اللغات)" : "Change Language"}
+                </span>
+              </div>
+              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 shrink-0">
+                {langInfo.code.toUpperCase()}
+              </span>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent className="w-56 p-1.5 rounded-2xl border-2 border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl z-50 animate-scale-in">
+              <div className="px-2.5 py-1.5 text-[10px] font-black text-cyan-600 dark:text-cyan-400 uppercase tracking-wider border-b border-border/50 mb-1">
+                {isRtl ? "اختر لغة المنصة / Select Language" : "Select Language"}
+              </div>
+              {availableLanguages.map((langItem) => {
+                const isSelected = language === langItem.code;
+                return (
+                  <DropdownMenuItem
+                    key={langItem.code}
+                    onClick={() => {
+                      setLanguage(langItem.code);
+                      close();
+                    }}
+                    className={`flex items-center justify-between px-2.5 py-2 rounded-xl cursor-pointer transition-all ${
+                      isSelected
+                        ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-black border border-cyan-500/30"
+                        : "hover:bg-muted/80 text-foreground"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className="text-base shrink-0">{langItem.flag}</span>
+                      <div className="flex flex-col text-start min-w-0">
+                        <span className="text-xs font-bold leading-tight truncate">{langItem.nativeName}</span>
+                        <span className="text-[10px] text-muted-foreground leading-tight truncate">{langItem.name}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border">
+                        {langItem.code}
+                      </span>
+                      {isSelected && <Check className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 ms-1 shrink-0" />}
+                    </div>
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
 
           {/* Logout */}
           <DropdownMenuItem
@@ -227,3 +275,4 @@ const DashboardMenuDropdown = ({
 };
 
 export default memo(DashboardMenuDropdown);
+

@@ -6,9 +6,34 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 const serviceIcons = [Landmark, School, BookOpen, Store];
 const serviceLinks = ["/university-platform", "/school-platform", "/courses", "/book-store"];
 
+const servicesCopy = {
+  ar: {
+    title: "خدماتنا",
+    subtitle: "منصات متكاملة تخدم الجامعات والمدارس والمتعلمين والقراء",
+    items: [
+      { title: "المنصة الجامعية", description: "إدارة رقمية متكاملة للكليات والمعاهد والأقسام الأكاديمية" },
+      { title: "منصة المدارس", description: "منظومة تعليمية شاملة للمدارس والمعلمين والطلاب" },
+      { title: "الدورات التدريبية", description: "دورات احترافية بمحاضرين متخصصين وشهادات معتمدة" },
+      { title: "المكتبة والنشر", description: "كتب ومراجع رقمية وخدمات نشر أكاديمي" },
+    ],
+  },
+  en: {
+    title: "Our Services",
+    subtitle: "Integrated platforms for universities, schools, learners and readers",
+    items: [
+      { title: "University Platform", description: "Complete digital management for colleges, institutes and departments" },
+      { title: "School Platform", description: "A full learning system for schools, teachers and students" },
+      { title: "Courses", description: "Professional courses with expert instructors and certificates" },
+      { title: "Bookstore & Publishing", description: "Digital books, references and academic publishing services" },
+    ],
+  },
+};
+
 const ServicesSection = () => {
-  const { t } = useLanguage();
+  const { language } = useLanguage();
+  const copy = language === "ar" ? servicesCopy.ar : servicesCopy.en;
   const { ref, isVisible } = useScrollAnimation();
+
 
   return (
     <section
@@ -18,12 +43,12 @@ const ServicesSection = () => {
     >
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-10 md:mb-14">
-          <h2 className="text-2xl md:text-3xl font-black text-foreground mb-3">{t.services.title}</h2>
-          <p className="text-muted-foreground text-sm md:text-base max-w-xl mx-auto">{t.services.subtitle}</p>
+          <h2 className="text-2xl md:text-3xl font-black text-foreground mb-3">{copy.title}</h2>
+          <p className="text-muted-foreground text-sm md:text-base max-w-xl mx-auto">{copy.subtitle}</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-          {t.services.items.map((service, i) => {
+          {copy.items.map((service, i) => {
             const Icon = serviceIcons[i];
             return (
               <Link key={i} to={serviceLinks[i]}>

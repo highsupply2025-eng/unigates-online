@@ -182,7 +182,7 @@ const StudentLectures = () => {
             </Card>
           </div>
 
-          {subscribedCourses.map(course => {
+          {courses.map(course => {
             const prog = getCourseProgress(course.id, course.episode_count);
             const sub = subscriptions.find(s => s.course_id === course.id);
             const userRating = userRatings[course.id];

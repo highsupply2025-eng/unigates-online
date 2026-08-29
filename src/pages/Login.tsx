@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Loader2, ArrowRight, ArrowLeft,
   Eye, EyeOff, UserPlus, Mail, Lock,
-  Landmark, School, GraduationCap
+  Landmark
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -462,7 +462,7 @@ const Login = () => {
                 </Link>
               </div>
 
-              {/* 4 Specialized Institutional Portals Grid */}
+              {/* Institutional Portals Grid */}
               <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
                 <Link
                   to="/signup/college/admin"
@@ -478,22 +478,6 @@ const Login = () => {
                 >
                   <Landmark className="w-4 h-4 text-indigo-400 shrink-0" />
                   <span className="truncate">{isRtl ? "تسجيل معهد" : "Register Institute"}</span>
-                </Link>
-
-                <Link
-                  to="/school-registration"
-                  className="flex items-center gap-2 p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-200 font-bold transition-all hover:scale-[1.02]"
-                >
-                  <School className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span className="truncate">{isRtl ? "تسجيل مدرسة" : "Register School"}</span>
-                </Link>
-
-                <Link
-                  to="/signup"
-                  className="flex items-center gap-2 p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-200 font-bold transition-all hover:scale-[1.02]"
-                >
-                  <GraduationCap className="w-4 h-4 text-teal-400 shrink-0" />
-                  <span className="truncate">{isRtl ? "طالب / عضو تدريس" : "Student / Faculty"}</span>
                 </Link>
               </div>
             </div>

@@ -43,12 +43,12 @@ const ServicesSection = () => {
     >
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-10 md:mb-14">
-          <h2 className="text-2xl md:text-3xl font-black text-foreground mb-3">{t.services.title}</h2>
-          <p className="text-muted-foreground text-sm md:text-base max-w-xl mx-auto">{t.services.subtitle}</p>
+          <h2 className="text-2xl md:text-3xl font-black text-foreground mb-3">{copy.title}</h2>
+          <p className="text-muted-foreground text-sm md:text-base max-w-xl mx-auto">{copy.subtitle}</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-          {t.services.items.map((service, i) => {
+          {copy.items.map((service, i) => {
             const Icon = serviceIcons[i];
             return (
               <Link key={i} to={serviceLinks[i]}>

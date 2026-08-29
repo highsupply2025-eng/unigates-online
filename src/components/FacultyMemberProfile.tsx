@@ -4,7 +4,7 @@ import {
   Mail, Phone, Calendar, Lock, Loader2, Eye, EyeOff,
   UserRound, Users2, IdCard, MapPin, Briefcase, BookOpen,
   GraduationCap, StickyNote, Building2, ShieldCheck, CheckCircle2,
-  Sparkles, Award, UserCheck, KeyRound, AlertCircle, Clock
+  Sparkles, Award, UserCheck, KeyRound, AlertCircle, Clock, Globe
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage, AVAILABLE_LANGUAGES, type Language } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 import { getPasswordErrorMessage } from "@/lib/password";
@@ -59,15 +59,16 @@ interface Academic {
 const buildRoleLabel = (institutionType: "college" | "institute"): Record<string, { ar: string; en: string }> => ({
   dean: { ar: institutionType === "institute" ? "مدير المعهد" : "عميد الكلية", en: institutionType === "institute" ? "Director" : "Dean" },
   vice_dean: { ar: institutionType === "institute" ? "وكيل المعهد" : "وكيل الكلية", en: institutionType === "institute" ? "Vice Director" : "Vice Dean" },
-  vice_dean_postgrad: { ar: institutionType === "institute" ? "وكيل المعهد للدراسات العليا" : "وكيل الكلية للدراسات العليا", en: institutionType === "institute" ? "Vice Director - Postgraduate" : "Vice Dean - Postgraduate" },
-  vice_dean_students: { ar: institutionType === "institute" ? "وكيل المعهد لشئون الطلاب" : "وكيل الكلية لشئون الطلاب", en: institutionType === "institute" ? "Vice Director - Students" : "Vice Dean - Students" },
-  vice_dean_community: { ar: institutionType === "institute" ? "وكيل المعهد لشئون البيئة وخدمة المجتمع" : "وكيل الكلية لشئون البيئة وخدمة المجتمع", en: institutionType === "institute" ? "Vice Director - Community" : "Vice Dean - Community" },
-  department_head: { ar: "رئيس القسم", en: "Head of Department" },
+  vice_dean_postgrad: { ar: institutionType === "institute" ? "وكيل المعهد للدراسات العليا والبحوث" : "وكيل الكلية للدراسات العليا والبحوث", en: institutionType === "institute" ? "Vice Director - Postgraduate" : "Vice Dean - Postgraduate" },
+  vice_dean_students: { ar: institutionType === "institute" ? "وكيل المعهد لشئون التعليم والطلاب" : "وكيل الكلية لشئون التعليم والطلاب", en: institutionType === "institute" ? "Vice Director - Students" : "Vice Dean - Students" },
+  vice_dean_community: { ar: institutionType === "institute" ? "وكيل المعهد لشئون خدمة المجتمع وتنمية البيئة" : "وكيل الكلية لشئون خدمة المجتمع وتنمية البيئة", en: institutionType === "institute" ? "Vice Director - Community" : "Vice Dean - Community" },
+  vice_dean_environment: { ar: institutionType === "institute" ? "وكيل المعهد لشئون خدمة المجتمع وتنمية البيئة" : "وكيل الكلية لشئون خدمة المجتمع وتنمية البيئة", en: institutionType === "institute" ? "Vice Director - Community" : "Vice Dean - Community" },
+  department_head: { ar: institutionType === "institute" ? "رئيس الشعبة / القسم" : "رئيس قسم", en: "Head of Department" },
   professor: { ar: "أستاذ دكتور (أ.د)", en: "Professor" },
   prof_dr: { ar: "أستاذ دكتور (أ.د)", en: "Professor" },
   doctor: { ar: "دكتور (د.)", en: "Doctor / Lecturer" },
   dr: { ar: "دكتور (د.)", en: "Doctor / Lecturer" },
-  lecturer: { ar: "مدرس", en: "Lecturer" },
+  lecturer: { ar: "مدرس / محاضر", en: "Lecturer" },
   assistant_lecturer: { ar: "مدرس مساعد", en: "Assistant Lecturer" },
   demonstrator: { ar: "معيد", en: "Demonstrator" },
 });
@@ -78,7 +79,7 @@ interface Props {
 }
 
 const FacultyMemberProfile = ({ header }: Props) => {
-  const { dir } = useLanguage();
+  const { dir, language, setLanguage, availableLanguages, currentLanguageInfo } = useLanguage();
   const isRtl = dir === "rtl";
   const navigate = useNavigate();
 
@@ -107,13 +108,26 @@ const FacultyMemberProfile = ({ header }: Props) => {
       // 1) Fetch profiles table
       const { data: prof } = await supabase
         .from("profiles")
-        .select("full_name, email, phone, role, avatar_url, created_at")
+        .select("full_name, email, phone, role, sub_role, avatar_url, created_at, national_id, date_of_birth, gender")
         .eq("id", user.id)
         .maybeSingle();
+
+      let resolvedSubRole = prof?.sub_role;
+      try {
+        const { data: ifm } = await supabase
+          .from("institution_faculty_members")
+          .select("specific_role, department_id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (ifm?.specific_role) {
+          resolvedSubRole = ifm.specific_role;
+        }
+      } catch { /* noop */ }
 
       if (prof) {
         setProfile({
           ...prof,
+          sub_role: resolvedSubRole || prof.sub_role,
           created_at: prof.created_at || user.created_at,
         });
       }
@@ -192,9 +206,16 @@ const FacultyMemberProfile = ({ header }: Props) => {
         }
       }
 
+      const leadershipRoles = ["dean", "vice_dean", "vice_dean_students", "vice_dean_postgrad", "vice_dean_community", "vice_dean_environment"];
+      const isLeadership = leadershipRoles.includes(resolvedSubRole || prof?.role || "");
+
+      let defaultDept = isLeadership 
+        ? (isRtl ? (instType === "institute" ? "إدارة المعهد العامة والوكلاء" : "عمادة الكلية وإدارة الشؤون الأكاديمية") : "Deanery & Academic Leadership")
+        : (isRtl ? "قسم الحاسبات ونظم المعلومات" : "Department");
+
       setAcademic({
         collegeName: collegeName || (isRtl ? (instType === "institute" ? "المعهد العالي" : "كلية الحاسبات والمعلومات") : "Faculty"),
-        departmentName: deptName || (isRtl ? "قسم الحاسبات ونظم المعلومات" : "Department"),
+        departmentName: deptName || defaultDept,
         institutionType: instType,
       });
     } catch (e) {
@@ -322,7 +343,7 @@ const FacultyMemberProfile = ({ header }: Props) => {
                     <Sparkles className="w-5 h-5 text-amber-500" />
                   </h2>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs">
+                    <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs shadow-xs">
                       {isRtl ? roleInfo.ar : roleInfo.en}
                     </Badge>
                     <Badge variant="outline" className="font-bold text-xs border-muted-foreground/30 bg-muted/40">
@@ -346,8 +367,8 @@ const FacultyMemberProfile = ({ header }: Props) => {
               <ShieldCheck className="w-5 h-5 text-blue-600 shrink-0" />
               <span>
                 {isRtl
-                  ? "بيانات الحساب الأكاديمية معتمدة رسمياً ومحمية. يمكنك تغيير وتحديث كلمة المرور في أي وقت من الأسفل."
-                  : "Academic account details are officially verified. You can update your password below at any time."}
+                  ? "بيانات الحساب الأكاديمية معتمدة رسمياً ومحمية. يمكنك تغيير لغة العرض وتحديث كلمة المرور في أي وقت من الأسفل."
+                  : "Academic account details are officially verified. You can change language preferences and update your password below."}
               </span>
             </div>
           </CardContent>
@@ -386,7 +407,7 @@ const FacultyMemberProfile = ({ header }: Props) => {
               <div className="space-y-1.5">
                 <Label className={labelCls}>
                   <GraduationCap className="w-4 h-4 text-indigo-600" />
-                  <span>{isRtl ? "القسم الأكاديمي" : "Department"}</span>
+                  <span>{isRtl ? "القسم الأكاديمي / الإدارة" : "Department / Division"}</span>
                 </Label>
                 <Input className={inputCls} value={academic.departmentName ?? ""} readOnly disabled />
               </div>
@@ -483,7 +504,78 @@ const FacultyMemberProfile = ({ header }: Props) => {
           </CardContent>
         </Card>
 
-        {/* Section 3: Account Security & Password */}
+        {/* Section 3: Language Preferences & Multilingual Support / تعدد اللغات */}
+        <Card className="rounded-3xl border-2 border-border shadow-sm overflow-hidden bg-card">
+          <CardHeader className="border-b bg-muted/20 pb-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-base font-black flex items-center gap-2">
+                  <Globe className="w-5 h-5 text-teal-600" />
+                  <span>{isRtl ? "تفضيلات اللغة وتعدد اللغات المستحدثة" : "Language Preferences & Multilingual"}</span>
+                </CardTitle>
+                <CardDescription className="text-xs font-bold mt-0.5">
+                  {isRtl ? "اختر لغة الواجهة المفضلة من اللغات المعتمدة في المنصة الجامعية." : "Choose your preferred interface language across the platform."}
+                </CardDescription>
+              </div>
+              <Badge variant="outline" className="font-mono text-xs font-black bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-500/30">
+                {currentLanguageInfo.flag} {currentLanguageInfo.code.toUpperCase()}
+              </Badge>
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-5 sm:p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {availableLanguages.map((langItem) => {
+                const isSelected = language === langItem.code;
+                return (
+                  <button
+                    key={langItem.code}
+                    type="button"
+                    onClick={() => {
+                      setLanguage(langItem.code);
+                      toast({
+                        title: isRtl ? "تم تغيير اللغة بنجاح ✓" : "Language Changed ✓",
+                        description: `${langItem.flag} ${langItem.nativeName} (${langItem.name})`,
+                      });
+                    }}
+                    className={`group relative p-3 rounded-2xl border-2 text-start transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 ${
+                      isSelected
+                        ? "border-teal-500 bg-teal-500/10 shadow-sm text-foreground ring-2 ring-teal-500/20"
+                        : "border-border/80 hover:border-teal-500/40 bg-muted/20 hover:bg-muted/40 text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 via-teal-500 to-emerald-500 text-white flex items-center justify-center text-base shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                        <Globe className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-xs sm:text-sm font-black block text-foreground truncate">
+                          {langItem.nativeName}
+                        </span>
+                        <span className="text-[11px] font-bold text-muted-foreground truncate">
+                          {langItem.name}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-background border border-border shadow-2xs">
+                        {langItem.code}
+                      </span>
+                      {isSelected && (
+                        <div className="w-5 h-5 rounded-full bg-teal-500 text-white flex items-center justify-center shadow-xs">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Section 4: Account Security & Password */}
         <Card className="rounded-3xl border-2 border-border shadow-sm overflow-hidden bg-card">
           <CardHeader className="border-b bg-muted/20 pb-3">
             <CardTitle className="text-base font-black flex items-center gap-2">
@@ -558,3 +650,4 @@ const FacultyMemberProfile = ({ header }: Props) => {
 };
 
 export default FacultyMemberProfile;
+

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Star, BookOpen, Radio, ClipboardList, Calendar, ClipboardCheck, MessageSquare, UserCheck, Sparkles, Download } from "lucide-react";
+import { Star, BookOpen, Radio, ClipboardList, Calendar, ClipboardCheck, MessageSquare, UserCheck, Sparkles, Download, Layers } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,12 @@ type Row = {
   comment: string | null;
   created_at: string;
   course_id?: string | null;
+  stream_id?: string | null;
   item_title?: string | null;
+  categoryKey?: "lectures" | "streams" | "quizzes" | "schedules" | "assignments";
+  categoryLabelAr?: string;
+  categoryLabelEn?: string;
+  categoryColor?: string;
 };
 
 interface Props {
@@ -28,13 +33,13 @@ const Stars = ({ value }: { value: number }) => (
     {[1, 2, 3, 4, 5].map((n) => (
       <Star
         key={n}
-        className={`w-3.5 h-3.5 ${n <= value ? "text-amber-400 fill-amber-400" : "text-muted-foreground/30"}`}
+        className={`w-3.5 h-3.5 ${n <= Math.round(value) ? "text-amber-400 fill-amber-400" : "text-muted-foreground/30"}`}
       />
     ))}
   </div>
 );
 
-const Section = ({ rows, emptyAr, emptyEn, isRtl }: { rows: Row[]; emptyAr: string; emptyEn: string; isRtl: boolean }) => {
+const Section = ({ rows, emptyAr, emptyEn, isRtl, showCategoryTag = false }: { rows: Row[]; emptyAr: string; emptyEn: string; isRtl: boolean; showCategoryTag?: boolean }) => {
   const count = rows.length;
   const avg = count > 0 ? rows.reduce((a, r) => a + (r.rating || 0), 0) / count : 0;
   const positiveCount = rows.filter((r) => r.rating >= 4).length;
@@ -75,24 +80,34 @@ const Section = ({ rows, emptyAr, emptyEn, isRtl }: { rows: Row[]; emptyAr: stri
               <p>{isRtl ? emptyAr : emptyEn}</p>
             </div>
           ) : (
-            rows.slice(0, 50).map((r, idx) => (
+            rows.slice(0, 100).map((r, idx) => (
               <div key={r.id || idx} className="p-4 sm:p-5 flex items-start justify-between gap-3 hover:bg-muted/20 transition-colors flex-wrap">
-                <div className="space-y-1.5 min-w-0 flex-1">
+                <div className="space-y-2 min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <Stars value={r.rating} />
+                    <span className="text-xs font-black text-foreground">⭐ {r.rating} / 5</span>
+                    
+                    {showCategoryTag && r.categoryLabelAr && (
+                      <Badge variant="outline" className={`text-[10px] font-black px-2 py-0.5 rounded-md ${r.categoryColor || "bg-muted text-muted-foreground"}`}>
+                        {isRtl ? r.categoryLabelAr : r.categoryLabelEn}
+                      </Badge>
+                    )}
+
                     <Badge variant="outline" className="text-[10px] font-bold border-muted-foreground/30 bg-muted/30 flex items-center gap-1">
                       <UserCheck className="w-3 h-3 text-muted-foreground" />
                       <span>{isRtl ? "طالب مسجل (تقييم سري)" : "Enrolled Student (Anonymous)"}</span>
                     </Badge>
                   </div>
+
                   {r.comment ? (
-                    <p className="text-sm font-medium text-foreground/90 leading-relaxed bg-muted/30 p-2.5 rounded-xl border border-border/50">
+                    <p className="text-sm font-medium text-foreground/90 leading-relaxed bg-muted/30 p-3 rounded-2xl border border-border/50">
                       "{r.comment}"
                     </p>
                   ) : (
                     <p className="text-xs text-muted-foreground italic">{isRtl ? "تقييم بالنجوم بدون تعليق مكتوب." : "Star rating without written note."}</p>
                   )}
                 </div>
+
                 <Badge variant="secondary" className="text-[11px] font-mono shrink-0">
                   {new Date(r.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}
                 </Badge>
@@ -135,7 +150,14 @@ const RatingsBreakdown = ({ lecturerId, departmentId }: Props) => {
 
         // 1) Lectures
         const lr = await scope(supabase.from("lecture_ratings").select("id,rating,comment,created_at,course_id").order("created_at", { ascending: false }).limit(200));
-        setLectures((lr.data as Row[]) || []);
+        const lRows: Row[] = (lr.data || []).map((r: any) => ({
+          ...r,
+          categoryKey: "lectures",
+          categoryLabelAr: "محاضرة 📚",
+          categoryLabelEn: "Lecture 📚",
+          categoryColor: "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30",
+        }));
+        setLectures(lRows);
 
         // 2) Live Streams
         const streamQuery = supabase.from("live_stream_ratings").select("id,rating,comment,created_at,stream_id").order("created_at", { ascending: false }).limit(200);
@@ -151,20 +173,51 @@ const RatingsBreakdown = ({ lecturerId, departmentId }: Props) => {
             sRows = [];
           }
         }
-        setStreams(sRows.map((r) => ({ id: r.id, rating: r.rating, comment: r.comment, created_at: r.created_at })));
+        const mappedStreams: Row[] = sRows.map((r) => ({
+          id: r.id,
+          rating: r.rating,
+          comment: r.comment,
+          created_at: r.created_at,
+          categoryKey: "streams",
+          categoryLabelAr: "بث مباشر 🔴",
+          categoryLabelEn: "Live Stream 🔴",
+          categoryColor: "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/30",
+        }));
+        setStreams(mappedStreams);
 
         // 3) Quizzes
         const qr = await scope(supabase.from("quiz_ratings").select("id,rating,comment,created_at,course_id").order("created_at", { ascending: false }).limit(200));
-        setQuizzes((qr.data as Row[]) || []);
+        const qRows: Row[] = (qr.data || []).map((r: any) => ({
+          ...r,
+          categoryKey: "quizzes",
+          categoryLabelAr: "اختبار 📝",
+          categoryLabelEn: "Quiz 📝",
+          categoryColor: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30",
+        }));
+        setQuizzes(qRows);
 
         // 4) Schedules
         const sr = await scope(supabase.from("schedule_ratings").select("id,rating,comment,created_at,course_id").order("created_at", { ascending: false }).limit(200));
-        setSchedules((sr.data as Row[]) || []);
+        const schedRows: Row[] = (sr.data || []).map((r: any) => ({
+          ...r,
+          categoryKey: "schedules",
+          categoryLabelAr: "جدول 📅",
+          categoryLabelEn: "Schedule 📅",
+          categoryColor: "bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-500/30",
+        }));
+        setSchedules(schedRows);
 
         // 5) Assignments
         try {
           const ar = await scope(supabase.from("assignment_ratings" as any).select("id,rating,comment,created_at,course_id").order("created_at", { ascending: false }).limit(200));
-          setAssignments((ar.data as Row[]) || []);
+          const aRows: Row[] = (ar.data || []).map((r: any) => ({
+            ...r,
+            categoryKey: "assignments",
+            categoryLabelAr: "تكليف 📋",
+            categoryLabelEn: "Assignment 📋",
+            categoryColor: "bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/30",
+          }));
+          setAssignments(aRows);
         } catch (err) {
           console.warn("assignment_ratings not populated yet:", err);
           setAssignments([]);
@@ -177,21 +230,28 @@ const RatingsBreakdown = ({ lecturerId, departmentId }: Props) => {
     })();
   }, [lecturerId, departmentId]);
 
+  const allRatings = useMemo(() => {
+    return [...lectures, ...streams, ...quizzes, ...schedules, ...assignments].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+  }, [lectures, streams, quizzes, schedules, assignments]);
+
   const tabs = useMemo(() => ([
     {
-      key: "lectures",
-      labelAr: "تقييم المحاضرات",
-      labelEn: "Lectures",
-      Icon: BookOpen,
-      rows: lectures,
-      emptyAr: "لا توجد تقييمات للدروس والمحاضرات بعد.",
-      emptyEn: "No lecture ratings yet.",
-      activeGrad: "data-[state=active]:from-violet-600 data-[state=active]:via-purple-600 data-[state=active]:to-fuchsia-600",
-      iconColor: "text-violet-600",
+      key: "all",
+      labelAr: "جميع التقييمات",
+      labelEn: "All Ratings",
+      Icon: Sparkles,
+      rows: allRatings,
+      emptyAr: "لا توجد أي تقييمات مسجلة حتى الآن.",
+      emptyEn: "No ratings recorded yet.",
+      activeGrad: "data-[state=active]:from-amber-500 data-[state=active]:via-orange-500 data-[state=active]:to-rose-600",
+      iconColor: "text-amber-500",
+      showCategoryTag: true,
     },
     {
       key: "streams",
-      labelAr: "تقييم البث",
+      labelAr: "تقييم البث 🔴",
       labelEn: "Live Streams",
       Icon: Radio,
       rows: streams,
@@ -199,21 +259,23 @@ const RatingsBreakdown = ({ lecturerId, departmentId }: Props) => {
       emptyEn: "No stream ratings yet.",
       activeGrad: "data-[state=active]:from-rose-500 data-[state=active]:via-red-500 data-[state=active]:to-orange-500",
       iconColor: "text-rose-600",
+      showCategoryTag: false,
     },
     {
-      key: "quizzes",
-      labelAr: "تقييم الاختبارات",
-      labelEn: "Quizzes",
-      Icon: ClipboardList,
-      rows: quizzes,
-      emptyAr: "لا توجد تقييمات للاختبارات بعد.",
-      emptyEn: "No quiz ratings yet.",
-      activeGrad: "data-[state=active]:from-amber-500 data-[state=active]:via-orange-500 data-[state=active]:to-yellow-500",
-      iconColor: "text-amber-600",
+      key: "lectures",
+      labelAr: "تقييم المحاضرات 📚",
+      labelEn: "Lectures",
+      Icon: BookOpen,
+      rows: lectures,
+      emptyAr: "لا توجد تقييمات للدروس والمحاضرات بعد.",
+      emptyEn: "No lecture ratings yet.",
+      activeGrad: "data-[state=active]:from-violet-600 data-[state=active]:via-purple-600 data-[state=active]:to-fuchsia-600",
+      iconColor: "text-violet-600",
+      showCategoryTag: false,
     },
     {
       key: "schedules",
-      labelAr: "تقييم الجداول",
+      labelAr: "تقييم الجداول 📅",
       labelEn: "Schedules",
       Icon: Calendar,
       rows: schedules,
@@ -221,10 +283,23 @@ const RatingsBreakdown = ({ lecturerId, departmentId }: Props) => {
       emptyEn: "No schedule ratings yet.",
       activeGrad: "data-[state=active]:from-teal-500 data-[state=active]:via-cyan-500 data-[state=active]:to-emerald-500",
       iconColor: "text-teal-600",
+      showCategoryTag: false,
+    },
+    {
+      key: "quizzes",
+      labelAr: "تقييم الاختبارات 📝",
+      labelEn: "Quizzes",
+      Icon: ClipboardList,
+      rows: quizzes,
+      emptyAr: "لا توجد تقييمات للاختبارات بعد.",
+      emptyEn: "No quiz ratings yet.",
+      activeGrad: "data-[state=active]:from-amber-500 data-[state=active]:via-orange-500 data-[state=active]:to-yellow-500",
+      iconColor: "text-amber-600",
+      showCategoryTag: false,
     },
     {
       key: "assignments",
-      labelAr: "تقييم التكليفات",
+      labelAr: "تقييم التكليفات 📋",
       labelEn: "Assignments",
       Icon: ClipboardCheck,
       rows: assignments,
@@ -232,19 +307,20 @@ const RatingsBreakdown = ({ lecturerId, departmentId }: Props) => {
       emptyEn: "No assignment ratings yet.",
       activeGrad: "data-[state=active]:from-blue-600 data-[state=active]:via-indigo-600 data-[state=active]:to-violet-600",
       iconColor: "text-blue-600",
+      showCategoryTag: false,
     },
-  ]), [lectures, streams, quizzes, schedules, assignments]);
+  ]), [allRatings, lectures, streams, quizzes, schedules, assignments]);
 
   return (
-    <Tabs defaultValue="lectures" className="w-full" dir={isRtl ? "rtl" : "ltr"}>
-      <TabsList className="grid grid-cols-2 sm:grid-cols-5 w-full h-auto gap-2 p-2 bg-muted/40 rounded-2xl border-2 border-border mb-4">
+    <Tabs defaultValue="all" className="w-full" dir={isRtl ? "rtl" : "ltr"}>
+      <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 w-full h-auto gap-2 p-2 bg-muted/40 rounded-2xl border-2 border-border mb-4">
         {tabs.map((t) => (
           <TabsTrigger
             key={t.key}
             value={t.key}
-            className={`gap-2 text-xs sm:text-sm font-black py-2.5 sm:py-3 rounded-xl bg-gradient-to-br ${t.activeGrad} data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:scale-[1.02] transition-all`}
+            className={`gap-1.5 text-xs sm:text-sm font-black py-2.5 sm:py-3 rounded-xl bg-gradient-to-br ${t.activeGrad} data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:scale-[1.02] transition-all`}
           >
-            <t.Icon className={`w-4 h-4 sm:w-4.5 sm:h-4.5 ${t.iconColor} data-[state=active]:text-white`} strokeWidth={2.4} />
+            <t.Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${t.iconColor} data-[state=active]:text-white`} strokeWidth={2.4} />
             <span className="truncate">{isRtl ? t.labelAr : t.labelEn}</span>
             <Badge variant="secondary" className="ms-1 px-1.5 py-0.2 text-[10px] font-black">{t.rows.length}</Badge>
           </TabsTrigger>
@@ -252,7 +328,7 @@ const RatingsBreakdown = ({ lecturerId, departmentId }: Props) => {
       </TabsList>
       {tabs.map((t) => (
         <TabsContent key={t.key} value={t.key} className="mt-2">
-          <Section rows={t.rows} emptyAr={t.emptyAr} emptyEn={t.emptyEn} isRtl={isRtl} />
+          <Section rows={t.rows} emptyAr={t.emptyAr} emptyEn={t.emptyEn} isRtl={isRtl} showCategoryTag={t.showCategoryTag} />
         </TabsContent>
       ))}
     </Tabs>
@@ -260,3 +336,4 @@ const RatingsBreakdown = ({ lecturerId, departmentId }: Props) => {
 };
 
 export default RatingsBreakdown;
+

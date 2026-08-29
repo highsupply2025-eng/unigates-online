@@ -12,6 +12,7 @@ import {
   DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { useLanguage, type Language } from "@/contexts/LanguageContext";
+import { preloadRoute } from "@/PrefetchRoutes";
 
 export interface DashboardMenuItem {
   key?: string;
@@ -148,7 +149,14 @@ const DashboardMenuDropdown = ({
             const Icon = it.Icon;
             const isActive = it.active ?? (it.path ? pathname === it.path : false);
             const palette = it.color ?? ICON_PALETTE[idx % ICON_PALETTE.length];
-            const handleHover = () => { try { it.prefetch?.(); } catch { /* noop */ } };
+            const handleHover = () => {
+              try {
+                it.prefetch?.();
+                if (it.path) preloadRoute(it.path);
+              } catch {
+                /* noop */
+              }
+            };
 
             return (
               <DropdownMenuItem

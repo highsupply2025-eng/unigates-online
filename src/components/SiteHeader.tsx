@@ -16,6 +16,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ugLogo from "@/assets/ug-logo.png";
+import { preloadRoute } from "@/PrefetchRoutes";
 
 const SiteHeader = () => {
   const { t, dir } = useLanguage();
@@ -112,7 +113,11 @@ const SiteHeader = () => {
             const isActive = location.pathname.startsWith(item.to);
 
             return (
-              <Link key={item.to} to={item.to}>
+              <Link
+                key={item.to}
+                to={item.to}
+                onMouseEnter={() => preloadRoute(item.to)}
+              >
                 <button
                   type="button"
                   className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 border border-transparent ${
@@ -132,7 +137,7 @@ const SiteHeader = () => {
         {/* Right / Left Action Hub (Auth + Language Switcher) */}
         <div className="hidden sm:flex items-center gap-2">
           {/* Quick Sign In */}
-          <Link to="/login">
+          <Link to="/login" onMouseEnter={() => preloadRoute("/login")}>
             <Button
               type="button"
               size="sm"
@@ -151,6 +156,12 @@ const SiteHeader = () => {
                 type="button"
                 size="sm"
                 className="h-9 px-4 rounded-xl font-bold text-xs bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white shadow-md shadow-teal-500/25 gap-1.5 transition-all"
+                onMouseEnter={() => {
+                  preloadRoute("/signup/college/admin");
+                  preloadRoute("/signup/institute/admin");
+                  preloadRoute("/school-registration");
+                  preloadRoute("/signup");
+                }}
               >
                 <UserPlus className="w-3.5 h-3.5" />
                 <span>{t.signup}</span>

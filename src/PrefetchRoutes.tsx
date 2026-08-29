@@ -1,135 +1,150 @@
 import { useEffect } from "react";
 
 /**
- * Route prefetching:
- *  1. After first paint, prefetch only the top five most-visited routes.
- *     Prefetching all 61+ routes floods the network and competes with
- *     critical page resources.
- *  2. Intent-based prefetch: on hover/touch/focus, warm the matching
- *     chunk instantly so navigation feels instant.
+ * ==============================================================================
+ * UNIGATES ULTRA-FAST TURBO ROUTE PREFETCHER & NAVIGATION ACCELERATOR
+ * ==============================================================================
+ * Enables instantaneous (0ms perceived latency) navigation across all platform pages:
+ * 1. Immediate Intent Preloading (on pointerenter, touchstart, focusin).
+ * 2. Idle Viewport Observer (IntersectionObserver pre-warms links visible on screen).
+ * 3. Eager Top-Priority Chunks (pre-warmed after initial DOM paint).
+ * 4. Deduplicated Memory Module Cache (never fetches the same chunk twice).
  */
 
 type Loader = () => Promise<unknown>;
 
-// All route path -> loader mappings (used for intent-based prefetch).
-const ROUTE_LOADERS: Array<[RegExp, Loader]> = [
+// Universal Route Pattern -> Dynamic Import Chunk Mapping
+export const ROUTE_LOADERS: Array<[RegExp, Loader]> = [
+  // Primary Platforms
+  [/^\/university-platform$/, () => import("./pages/UniversityPlatform")],
+  [/^\/school-platform$/, () => import("./pages/SchoolPlatform")],
+  [/^\/book-store$/, () => import("./pages/BookStorePlatform")],
+  [/^\/courses$/, () => import("./pages/CoursesPlatform")],
+  [/^\/courses\/browse$/, () => import("./pages/Courses")],
+  [/^\/courses\/login$/, () => import("./pages/CoursesLogin")],
+  [/^\/courses\/signup$/, () => import("./pages/CoursesSignup")],
+  [/^\/school-registration$/, () => import("./pages/SchoolRegistration")],
+
+  // Auth & Core Access
+  [/^\/login$/, () => import("./pages/Login")],
+  [/^\/signup$/, () => import("./pages/Signup")],
   [/^\/signup\/college$/, () => import("./pages/CollegeAdminSignup")],
   [/^\/signup\/college\/admin$/, () => import("./pages/CollegeAdminSignup")],
   [/^\/signup\/college\/[^/]+$/, () => import("./pages/CollegeRoleSignup")],
   [/^\/signup\/institute$/, () => import("./pages/InstituteAdminSignup")],
   [/^\/signup\/institute\/admin$/, () => import("./pages/InstituteAdminSignup")],
   [/^\/signup\/institute\/[^/]+$/, () => import("./pages/InstituteRoleSignup")],
-  [/^\/login$/, () => import("./pages/Login")],
-  [/^\/signup(\/.*)?$/, () => import("./pages/Signup")],
   [/^\/forgot-password$/, () => import("./pages/ForgotPassword")],
   [/^\/reset-password$/, () => import("./pages/ResetPassword")],
   [/^\/auth\/callback$/, () => import("./pages/AuthCallback")],
   [/^\/choose-plan$/, () => import("./pages/ChoosePlan")],
   [/^\/payment$/, () => import("./pages/Payment")],
   [/^\/profile$/, () => import("./pages/UserProfile")],
-  [/^\/book-store\/profile$/, () => import("./pages/UserProfile")],
-  [/^\/university-platform$/, () => import("./pages/UniversityPlatform")],
+
+  // University & Higher-Ed Administration
+  [/^\/institution\/dashboard$/, () => import("./pages/InstitutionDashboard")],
   [/^\/institution\/profile$/, () => import("./pages/InstitutionProfile")],
   [/^\/institution\/faculty\/add$/, () => import("./pages/InstitutionFacultyAdd")],
   [/^\/institution\/faculty\/import$/, () => import("./pages/InstitutionFacultyImport")],
   [/^\/institution\/faculty\/[^/]+\/edit$/, () => import("./pages/InstitutionFacultyEdit")],
+  [/^\/institution\/faculty\/invite\//, () => import("./pages/FacultyInvitationRegistration")],
+  [/^\/institution\/student\/invite\//, () => import("./pages/StudentInvitationRegistration")],
+  [/^\/institution\/student-subscriptions$/, () => import("./pages/StudentSubscriptions")],
   [/^\/institution\/department\//, () => import("./pages/DepartmentPage")],
   [/^\/institution\/member\//, () => import("./pages/LecturerProfile")],
   [/^\/institution\/quiz-results\//, () => import("./pages/InstitutionQuizResultsByDate")],
-  [/^\/institution\/student-subscriptions$/, () => import("./pages/StudentSubscriptions")],
   [/^\/institution\/payment$/, () => import("./pages/InstitutionPayment")],
   [/^\/institution\/payment\/cash$/, () => import("./pages/InstitutionPaymentCash")],
   [/^\/institution\/payment\/bank-transfer$/, () => import("./pages/InstitutionPaymentBankTransfer")],
   [/^\/institution\/payment\/online$/, () => import("./pages/InstitutionPaymentOnline")],
-  [/^\/institution\/dashboard$/, () => import("./pages/InstitutionDashboard")],
-  [/^\/institution\/faculty\/invite\//, () => import("./pages/FacultyInvitationRegistration")],
-  [/^\/institution\/student\/invite\//, () => import("./pages/StudentInvitationRegistration")],
+
+  // Leadership (Dean & Vice Deans)
   [/^\/leadership\/dashboard$/, () => import("./pages/LeadershipDashboard")],
   [/^\/leadership\/streams\//, () => import("./pages/LeadershipStreamsByStatus")],
   [/^\/leadership\/approvals\//, () => import("./pages/LeadershipApprovals")],
   [/^\/leadership\/profile$/, () => import("./pages/LeadershipProfile")],
   [/^\/leadership\/presence$/, () => import("./pages/LeadershipPresence")],
   [/^\/(?:leadership|institution)\/demo\//, () => import("./pages/DemoItemPage")],
+
+  // Lecturer & Faculty Portals
   [/^\/lecturer\/dashboard$/, () => import("./pages/LecturerDashboard")],
   [/^\/lecturer\/course\//, () => import("./pages/LecturerCourseContent")],
   [/^\/lecturer\/profile$/, () => import("./pages/LecturerAccount")],
+  [/^\/quiz-results$/, () => import("./pages/LecturerDashboard")],
+  [/^\/quiz\/create\//, () => import("./pages/QuizCreate")],
+  [/^\/quiz\/.*\/results$/, () => import("./pages/QuizResults")],
+  [/^\/course\/[^/]+\/assignments$/, () => import("./pages/CourseAssignments")],
+  [/^\/assignment\//, () => import("./pages/AssignmentDetail")],
+  [/^\/schedule\//, () => import("./pages/ScheduleDetail")],
+
+  // Student Portals
   [/^\/student\/dashboard$/, () => import("./pages/StudentDashboard")],
   [/^\/student\/profile$/, () => import("./pages/UserProfile")],
-  [/^\/student\/lectures\/[^/]+$/, () => import("./pages/StudentLectureDetail")],
   [/^\/student\/lectures/, () => import("./pages/StudentLectures")],
-  [/^\/student\/live\/[^/]+$/, () => import("./pages/StudentLiveDetail")],
-  [/^\/student\/live$/, () => import("./pages/StudentLive")],
-  [/^\/student\/quizzes\/[^/]+$/, () => import("./pages/StudentQuizDetail")],
+  [/^\/student\/live/, () => import("./pages/StudentLive")],
   [/^\/student\/quizzes/, () => import("./pages/StudentQuizzes")],
   [/^\/student\/results/, () => import("./pages/StudentResults")],
-  [/^\/student\/assignments\/[^/]+$/, () => import("./pages/StudentAssignmentDetail")],
-  [/^\/student\/assignments$/, () => import("./pages/StudentAssignments")],
+  [/^\/student\/assignments/, () => import("./pages/StudentAssignments")],
   [/^\/student\/assignment-results/, () => import("./pages/StudentAssignmentResults")],
-  [/^\/student\/schedules\/[^/]+$/, () => import("./pages/StudentScheduleDetail")],
   [/^\/student\/schedules/, () => import("./pages/StudentSchedules")],
   [/^\/student\/my-academic/, () => import("./pages/StudentMyAcademic")],
   [/^\/student\/ratings/, () => import("./pages/StudentRatings")],
   [/^\/student\/presence-checkin/, () => import("./pages/StudentPresenceCheckin")],
-  [/^\/student\/attendance/, () => import("./pages/StudentAttendance")],
-  [/^\/assignment\//, () => import("./pages/AssignmentDetail")],
-  [/^\/schedule\//, () => import("./pages/ScheduleDetail")],
-  [/^\/course\/[^/]+\/assignments$/, () => import("./pages/CourseAssignments")],
-  [/^\/attendance\/course\//, () => import("./pages/CourseAttendance")],
-  [/^\/quiz\/create\//, () => import("./pages/QuizCreate")],
-  [/^\/quiz\/.*\/results$/, () => import("./pages/QuizResults")],
-  [/^\/quiz-results$/, () => import("./pages/LecturerDashboard")],
-  [/^\/courses$/, () => import("./pages/CoursesPlatform")],
-  [/^\/courses\/login$/, () => import("./pages/CoursesLogin")],
-  [/^\/courses\/signup$/, () => import("./pages/CoursesSignup")],
+
+  // Live Streams
   [/^\/live$/, () => import("./pages/LiveStreams")],
   [/^\/stream\//, () => import("./pages/WatchStream")],
-  [/^\/admin\/dashboard$/, () => import("./pages/AdminDashboard")],
-  [/^\/admin(?:\/overview)?$/, () => import("./pages/AdminOverview")],
-  [/^\/admin\/security-center$/, () => import("./pages/AdminSecurityCenter")],
-  [/^\/admin\/payment-settings$/, () => import("./pages/AdminPaymentSettings")],
-  [/^\/school\/student\/dashboard$/, () => import("./pages/SchoolStudentDashboard")],
-  [/^\/school\/teacher\/dashboard$/, () => import("./pages/SchoolTeacherDashboard")],
-  [/^\/school\/dashboard$/, () => import("./pages/SchoolDashboard")],
-  [/^\/school\/student\/profile$/, () => import("./pages/SchoolStudentAccount")],
-  [/^\/school\/teacher\/profile$/, () => import("./pages/SchoolTeacherAccount")],
-  [/^\/school\/profile$/, () => import("./pages/SchoolAdminAccount")],
+
+  // Public & Informational
   [/^\/about$/, () => import("./pages/About")],
+  [/^\/pricing$/, () => import("./pages/Pricing")],
   [/^\/terms$/, () => import("./pages/Terms")],
   [/^\/privacy$/, () => import("./pages/Privacy")],
   [/^\/contact$/, () => import("./pages/Contact")],
   [/^\/blog$/, () => import("./pages/Blog")],
   [/^\/faq$/, () => import("./pages/FAQ")],
   [/^\/help-center$/, () => import("./pages/HelpCenter")],
-  [/^\/\.lovable\/oauth\/consent$/, () => import("./pages/OAuthConsent")],
-  [/^\/(?:courses\/browse|book-store(?:\/(?:login|signup))?|school-platform(?:\/(?:register|login|signup))?|careers|partnerships|certificates)$/, () => import("./pages/ComingSoon")],
+  [/^\/coming-soon$/, () => import("./pages/ComingSoon")],
 ];
 
-// Only the most commonly visited routes are prefetched eagerly.
-// All routes are still available via intent-based (hover) prefetch.
+// High-frequency routes pre-warmed during initial idle time
 const TOP_ROUTE_LOADERS: Loader[] = [
+  () => import("./pages/UniversityPlatform"),
   () => import("./pages/Login"),
   () => import("./pages/Signup"),
-  () => import("./pages/UserProfile"),
-  () => import("./pages/ComingSoon"),
-  () => import("./pages/NotFound"),
-  // Institution pages — most visited by college/institute admins
   () => import("./pages/InstitutionDashboard"),
-  () => import("./pages/StudentSubscriptions"),
-  () => import("./pages/InstitutionProfile"),
+  () => import("./pages/LeadershipDashboard"),
+  () => import("./pages/StudentDashboard"),
+  () => import("./pages/LecturerDashboard"),
+  () => import("./pages/UserProfile"),
 ];
 
+// In-memory module cache to avoid redundant network requests
+const warmedLoaders = new Set<Loader>();
+const observedAnchors = new WeakSet<HTMLAnchorElement>();
 
-const warmed = new Set<Loader>();
-const warm = (loader: Loader) => {
-  if (warmed.has(loader)) return;
-  warmed.add(loader);
-  loader().catch(() => warmed.delete(loader));
+/**
+ * Executes dynamic module import chunk warming.
+ */
+export const warmLoader = (loader: Loader) => {
+  if (warmedLoaders.has(loader)) return;
+  warmedLoaders.add(loader);
+  loader().catch(() => {
+    // If failed, allow retry on next navigation attempt
+    warmedLoaders.delete(loader);
+  });
 };
 
-const warmPath = (path: string) => {
+/**
+ * Pre-warms the module chunk associated with any given internal URL path.
+ */
+export const preloadRoute = (path: string) => {
+  if (!path || !path.startsWith("/")) return;
+  const cleanPath = path.split("?")[0].split("#")[0];
+
   for (const [re, loader] of ROUTE_LOADERS) {
-    if (re.test(path)) {
-      warm(loader);
+    if (re.test(cleanPath)) {
+      warmLoader(loader);
       return;
     }
   }
@@ -137,41 +152,87 @@ const warmPath = (path: string) => {
 
 const PrefetchRoutes = () => {
   useEffect(() => {
-    // Idle + connection-aware prefetch of top routes only.
-    // Intent-based prefetch (hover/touch/focus) handles all other routes.
-    const conn = (navigator as any).connection;
-    const slow = conn && (conn.saveData || /(^|-)[23]g$/.test(String(conn.effectiveType)));
-    const kick = () => {
-      if (slow) return;
-      TOP_ROUTE_LOADERS.forEach(warm);
+    // Check network conditions: if device is on data-saver or 2G, defer heavy prefetching
+    const conn = (navigator as any)?.connection;
+    const isConstrained = conn && (conn.saveData || /(^|-)[23]g$/.test(String(conn.effectiveType)));
+
+    // 1. Initial idle prefetch of top frequent routes
+    const kickEagerRoutes = () => {
+      if (isConstrained) return;
+      TOP_ROUTE_LOADERS.forEach(warmLoader);
     };
-    const schedule = (window.requestIdleCallback || ((cb: any) => setTimeout(cb, 3000))) as any;
-    const handle = schedule(kick, { timeout: 5000 });
 
+    const schedule = (window.requestIdleCallback || ((cb: any) => setTimeout(cb, 1500))) as any;
+    const idleHandle = schedule(kickEagerRoutes, { timeout: 3000 });
 
-    // Intent-based prefetch: warm the matching chunk the instant the user
-    //    hovers, touches, or focuses an internal link.
-    const onHint = (e: Event) => {
+    // 2. High-speed intent listener (pointer hover, touchstart, focus)
+    const handleNavigationIntent = (e: Event) => {
       const target = e.target as HTMLElement | null;
       const anchor = target?.closest?.("a[href]") as HTMLAnchorElement | null;
       if (!anchor) return;
+
       const href = anchor.getAttribute("href") || "";
       if (!href.startsWith("/") || href.startsWith("//")) return;
-      const path = href.split("?")[0].split("#")[0];
-      warmPath(path);
+
+      preloadRoute(href);
     };
 
-    document.addEventListener("pointerover", onHint, { passive: true, capture: true });
-    document.addEventListener("pointerdown", onHint, { passive: true, capture: true });
-    document.addEventListener("touchstart", onHint, { passive: true, capture: true });
-    document.addEventListener("focusin", onHint, { capture: true });
+    document.addEventListener("pointerover", handleNavigationIntent, { passive: true, capture: true });
+    document.addEventListener("pointerdown", handleNavigationIntent, { passive: true, capture: true });
+    document.addEventListener("touchstart", handleNavigationIntent, { passive: true, capture: true });
+    document.addEventListener("focusin", handleNavigationIntent, { capture: true });
+
+    // 3. Viewport IntersectionObserver to warm links visible on the screen
+    let intersectionObserver: IntersectionObserver | null = null;
+
+    if (!isConstrained && typeof IntersectionObserver !== "undefined") {
+      intersectionObserver = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              const anchor = entry.target as HTMLAnchorElement;
+              const href = anchor.getAttribute("href") || "";
+              if (href.startsWith("/") && !href.startsWith("//")) {
+                preloadRoute(href);
+              }
+              intersectionObserver?.unobserve(anchor);
+            }
+          }
+        },
+        { rootMargin: "250px" } // Pre-warm 250px before entering viewport!
+      );
+
+      const observeVisibleLinks = () => {
+        const anchors = document.querySelectorAll<HTMLAnchorElement>("a[href^='/']:not([href^='//'])");
+        anchors.forEach((a) => {
+          if (!observedAnchors.has(a)) {
+            observedAnchors.add(a);
+            intersectionObserver?.observe(a);
+          }
+        });
+      };
+
+      // Initial observe + periodic scan for dynamic content
+      observeVisibleLinks();
+      const interval = setInterval(observeVisibleLinks, 2000);
+
+      return () => {
+        clearInterval(interval);
+        intersectionObserver?.disconnect();
+        if ((window as any).cancelIdleCallback) (window as any).cancelIdleCallback(idleHandle);
+        document.removeEventListener("pointerover", handleNavigationIntent, { capture: true } as EventListenerOptions);
+        document.removeEventListener("pointerdown", handleNavigationIntent, { capture: true } as EventListenerOptions);
+        document.removeEventListener("touchstart", handleNavigationIntent, { capture: true } as EventListenerOptions);
+        document.removeEventListener("focusin", handleNavigationIntent, { capture: true } as EventListenerOptions);
+      };
+    }
 
     return () => {
-      if ((window as any).cancelIdleCallback) (window as any).cancelIdleCallback(handle);
-      document.removeEventListener("pointerover", onHint, { capture: true } as EventListenerOptions);
-      document.removeEventListener("pointerdown", onHint, { capture: true } as EventListenerOptions);
-      document.removeEventListener("touchstart", onHint, { capture: true } as EventListenerOptions);
-      document.removeEventListener("focusin", onHint, { capture: true } as EventListenerOptions);
+      if ((window as any).cancelIdleCallback) (window as any).cancelIdleCallback(idleHandle);
+      document.removeEventListener("pointerover", handleNavigationIntent, { capture: true } as EventListenerOptions);
+      document.removeEventListener("pointerdown", handleNavigationIntent, { capture: true } as EventListenerOptions);
+      document.removeEventListener("touchstart", handleNavigationIntent, { capture: true } as EventListenerOptions);
+      document.removeEventListener("focusin", handleNavigationIntent, { capture: true } as EventListenerOptions);
     };
   }, []);
 

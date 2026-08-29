@@ -119,7 +119,73 @@
   }
 }
 
+/* Native (Capacitor) shells: keep content clear of the status bar / notch. */
+html.is-native-app {
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+html.is-native-app body {
+  padding-top: var(--safe-area-top);
+}
+html.is-native-app header[class*="fixed"],
+html.is-native-app header[class*="sticky"] {
+  padding-top: var(--safe-area-top);
+}
+html.is-native-app,
+html.is-native-app body {
+  -webkit-touch-callout: none;
+}
+
+/* Print: only the results sheet (.print-area) is printed. */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible !important;
+  }
+  .print-area {
+    position: absolute !important;
+    inset: 0 auto auto 0 !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  [data-radix-dialog-content] {
+    position: static !important;
+    transform: none !important;
+  }
+  [data-radix-dialog-overlay] {
+    display: none !important;
+  }
+}
+
 @layer utilities {
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.35) transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.35);
+    border-radius: 9999px;
+  }
+
+
   .hero-gradient {
     background: linear-gradient(
       to top,

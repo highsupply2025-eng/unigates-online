@@ -6,9 +6,34 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 const serviceIcons = [Landmark, School, BookOpen, Store];
 const serviceLinks = ["/university-platform", "/school-platform", "/courses", "/book-store"];
 
+const servicesCopy = {
+  ar: {
+    title: "خدماتنا",
+    subtitle: "منصات متكاملة تخدم الجامعات والمدارس والمتعلمين والقراء",
+    items: [
+      { title: "المنصة الجامعية", description: "إدارة رقمية متكاملة للكليات والمعاهد والأقسام الأكاديمية" },
+      { title: "منصة المدارس", description: "منظومة تعليمية شاملة للمدارس والمعلمين والطلاب" },
+      { title: "الدورات التدريبية", description: "دورات احترافية بمحاضرين متخصصين وشهادات معتمدة" },
+      { title: "المكتبة والنشر", description: "كتب ومراجع رقمية وخدمات نشر أكاديمي" },
+    ],
+  },
+  en: {
+    title: "Our Services",
+    subtitle: "Integrated platforms for universities, schools, learners and readers",
+    items: [
+      { title: "University Platform", description: "Complete digital management for colleges, institutes and departments" },
+      { title: "School Platform", description: "A full learning system for schools, teachers and students" },
+      { title: "Courses", description: "Professional courses with expert instructors and certificates" },
+      { title: "Bookstore & Publishing", description: "Digital books, references and academic publishing services" },
+    ],
+  },
+};
+
 const ServicesSection = () => {
-  const { t } = useLanguage();
+  const { language } = useLanguage();
+  const copy = language === "ar" ? servicesCopy.ar : servicesCopy.en;
   const { ref, isVisible } = useScrollAnimation();
+
 
   return (
     <section

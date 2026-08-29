@@ -59,9 +59,29 @@ const LeadershipProfile = () => {
   const goTab = (tab: string) => navigate(`/leadership/dashboard?tab=${tab}`);
 
   const isDeanOrViceDean =
-    ["dean", "vice_dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community"].includes(role) ||
+    ["dean", "vice_dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community", "vice_dean_environment"].includes(role) ||
     role.startsWith("vice_dean") ||
     role === "dean";
+
+  const getLeadershipTitle = () => {
+    switch (role) {
+      case "dean":
+        return isRtl ? "منصب عميد الكلية" : "Dean Leadership";
+      case "vice_dean_students":
+        return isRtl ? "وكيل الكلية لشئون التعليم والطلاب" : "Vice Dean - Students";
+      case "vice_dean_postgrad":
+        return isRtl ? "وكيل الكلية للدراسات العليا" : "Vice Dean - Postgraduate";
+      case "vice_dean_community":
+      case "vice_dean_environment":
+        return isRtl ? "وكيل الكلية لخدمة المجتمع والبيئة" : "Vice Dean - Community";
+      case "vice_dean":
+        return isRtl ? "وكيل الكلية" : "Vice Dean";
+      case "department_head":
+        return isRtl ? "رئيس القسم" : "Department Head";
+      default:
+        return isRtl ? "القيادة الأكاديمية" : "Academic Leadership";
+    }
+  };
 
   const header = (
     <header className="sticky top-0 z-40 w-full backdrop-blur-xl bg-background/80 border-b border-border/50 shadow-xs">
@@ -72,8 +92,11 @@ const LeadershipProfile = () => {
           </div>
           <div className="min-w-0 flex-1">
             <h1 className="text-base sm:text-xl font-black truncate text-foreground">
-              {isRtl ? "بيانات الحساب" : "Account Information"}
+              {isRtl ? "بيانات الحساب الأكاديمي" : "Academic Account Information"}
             </h1>
+            <p className="text-xs text-muted-foreground font-bold truncate">
+              {getLeadershipTitle()}
+            </p>
           </div>
         </div>
 
@@ -81,7 +104,7 @@ const LeadershipProfile = () => {
           <LanguageSelectorDropdown className="hidden sm:flex border-border/70 text-foreground bg-muted/40 hover:bg-muted" />
 
           <DashboardMenuDropdown
-            title={isRtl ? "لوحة القيادة" : "Leadership"}
+            title={getLeadershipTitle()}
             onLanguageToggle={toggleLanguage}
             onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
             items={[

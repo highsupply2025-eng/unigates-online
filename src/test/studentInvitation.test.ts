@@ -283,14 +283,27 @@ describe("Student invitation integration", () => {
     expect(body.temporary_password).toBe("StrongP4ss");
   });
 
-  it("admin-add request has no invitation_code", () => {
+  it("admin-add student request includes temporary_password", () => {
     const body: Record<string, unknown> = {
       full_name: "محمد أحمد",
       email: null,
       phone: "+966500000000",
+      temporary_password: generateStrongPassword(),
       department_codes: ["CS101"],
       extra: {},
     };
     expect(body.invitation_code).toBeUndefined();
+    expect(body.temporary_password).toBeDefined();
+    expect(isStrongPassword(body.temporary_password as string)).toBe(true);
+  });
+
+  it("admin-add mode for isStudent=true requires valid temporary password", () => {
+    const formValues = {
+      fullName: "طالب جديد",
+      role: "student",
+      tempPassword: generateStrongPassword(),
+    };
+    expect(isStrongPassword(formValues.tempPassword)).toBe(true);
   });
 });
+

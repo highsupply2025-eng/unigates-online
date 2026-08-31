@@ -314,12 +314,12 @@ export const FacultyMemberForm = ({
       return;
     }
 
-    if (mode === "admin-add" && !isStudent && !isStrongPassword(tempPassword)) {
+    if (mode === "admin-add" && !isStrongPassword(tempPassword)) {
       toast({
-        title: isRtl ? "كلمة مرور ضعيفة" : "Weak password",
+        title: isRtl ? "كلمة مرور مؤقتة غير صالحة" : "Invalid Temporary Password",
         description: isRtl
-          ? "يجب أن تكون كلمة المرور 8 أحرف على الأقل، وتحتوي على حرف كبير وحرف صغير ورقم"
-          : "Password must be at least 8 chars and contain uppercase, lowercase and a number",
+          ? "يجب أن تكون كلمة المرور المؤقتة 8 أحرف على الأقل، وتحتوي على حرف كبير وحرف صغير ورقم"
+          : "Temporary password must be at least 8 chars and contain uppercase, lowercase and a number",
         variant: "destructive",
       });
       return;
@@ -873,7 +873,7 @@ export const FacultyMemberForm = ({
           )}
 
           {/* Section 3: Credentials & Access Security */}
-          {mode === "admin-add" && !isStudent && (
+          {mode === "admin-add" && (
             <div className="p-5 sm:p-6 rounded-3xl border-2 border-teal-500/30 bg-teal-500/5 backdrop-blur-xl shadow-lg space-y-4">
               <div className="flex items-center gap-2.5 border-b border-teal-500/20 pb-3">
                 <div className="w-8 h-8 rounded-xl bg-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400">
@@ -881,10 +881,20 @@ export const FacultyMemberForm = ({
                 </div>
                 <div>
                   <h2 className="text-sm sm:text-base font-black text-foreground">
-                    {isRtl ? "3. بيانات الدخول وكلمة المرور المؤقتة" : "3. Login Credentials & Temporary Password"}
+                    {isRtl
+                      ? isStudent
+                        ? "3. الرقم السري المؤقت لتسجيل دخول الطالب"
+                        : "3. بيانات الدخول وكلمة المرور المؤقتة"
+                      : isStudent
+                      ? "3. Student Temporary Password & Credentials"
+                      : "3. Login Credentials & Temporary Password"}
                   </h2>
                   <p className="text-[11px] text-muted-foreground font-medium">
-                    {isRtl ? "كلمة مرور مؤقتة سيتم تسليمها للعضو لتفعيل حسابه" : "Temporary password provided to member for initial access"}
+                    {isRtl
+                      ? isStudent
+                        ? "رقم سري مؤقت يستخدمه الطالب عند أول تسجيل دخول لتغيير وتعيين كلمة المرور الخاصة به"
+                        : "كلمة مرور مؤقتة سيتم تسليمها للعضو لتفعيل حسابه"
+                      : "Temporary password provided for initial login and password change"}
                   </p>
                 </div>
               </div>
@@ -892,7 +902,13 @@ export const FacultyMemberForm = ({
               <div className="space-y-2">
                 <Label className={labelCls}>
                   <Lock className={iconCls} />
-                  <span>{isRtl ? "كلمة المرور المؤقتة" : "Temporary Password"}</span>
+                  <span>
+                    {isRtl
+                      ? isStudent
+                        ? "الرقم السري المؤقت للطالب"
+                        : "كلمة المرور المؤقتة"
+                      : "Temporary Password"}
+                  </span>
                   <span className="text-destructive font-black">*</span>
                 </Label>
                 <div className="flex gap-2">
@@ -923,7 +939,10 @@ export const FacultyMemberForm = ({
                       onClick={async () => {
                         try {
                           await navigator.clipboard.writeText(tempPassword);
-                          toast({ title: isRtl ? "تم نسخ كلمة المرور" : "Password copied" });
+                          toast({
+                            title: isRtl ? "تم نسخ الرقم السري المؤقت" : "Temporary password copied",
+                            description: tempPassword,
+                          });
                         } catch {
                           /* ignore */
                         }
@@ -938,8 +957,8 @@ export const FacultyMemberForm = ({
                       variant="outline"
                       size="icon"
                       onClick={() => setTempPassword(generateStrongPassword())}
-                      aria-label={isRtl ? "توليد كلمة مرور جديدة" : "Generate"}
-                      className="h-11 w-11 rounded-xl border-primary/20 text-teal-600 dark:text-teal-400"
+                      aria-label={isRtl ? "توليد رقم سري مؤقت جديد" : "Generate new temporary password"}
+                      className="h-11 w-11 rounded-xl border-primary/20 text-teal-600 dark:text-teal-400 hover:text-teal-500"
                     >
                       <RefreshCw className="h-4 w-4" />
                     </Button>
@@ -950,8 +969,10 @@ export const FacultyMemberForm = ({
                   <ShieldCheck className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
                   <span>
                     {isRtl
-                      ? "شارك هذه البيانات مع العضو الآن. سيُطلب منه تغيير كلمة المرور عند أول تسجيل دخول."
-                      : "Share these credentials with the member now. They will change their password upon first login."}
+                      ? isStudent
+                        ? "يجب تزويد الطالب بالبريد الإلكتروني والرقم السري المؤقت. عند أول تسجيل دخول سيُطلب منه إدخال الرقم السري المؤقت وتعيين كلمة سر جديدة لحسابه."
+                        : "شارك هذه البيانات مع العضو الآن. سيُطلب منه تغيير كلمة المرور عند أول تسجيل دخول."
+                      : "Provide student with email and temporary password. Upon first sign-in, they will be required to change it."}
                   </span>
                 </div>
               </div>

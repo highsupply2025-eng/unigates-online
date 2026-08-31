@@ -90,6 +90,7 @@ const InstitutionFacultyAdd = () => {
               full_name: baseRow.full_name,
               email: baseRow.email,
               phone: baseRow.phone,
+              temporary_password: data.tempPassword,
               department_codes: codes,
               extra: {
                 date_of_birth: baseRow.date_of_birth,
@@ -129,21 +130,22 @@ const InstitutionFacultyAdd = () => {
         if (resp && (resp as any).error)
           throw new Error((resp as any).error);
         const r = resp as any;
+        const tempPin = data.tempPassword || r.password || "-";
         toast({
           title: isRtl
-            ? `تم تسجيل الطالب في ${r.joined} قسم`
+            ? `تم تسجيل الطالب بنجاح في ${r.joined} قسم`
             : `Student enrolled in ${r.joined} department(s)`,
           description: (
             isRtl
-              ? `تم تفعيل الحساب بنجاح. البريد: ${r.email}`
-              : `Account activated. Email: ${r.email}`
+              ? `البريد: ${r.email}\nالرقم السري المؤقت: ${tempPin}\n(يجب على الطالب تغيير كلمة المرور عند أول تسجيل دخول)`
+              : `Email: ${r.email}\nTemporary PIN: ${tempPin}\n(Student must change password upon first login)`
           ) +
             (r.missing?.length
               ? isRtl
                 ? `\nأكواد غير صالحة: ${r.missing.join(", ")}`
                 : `\nInvalid codes: ${r.missing.join(", ")}`
               : ""),
-          duration: 8000,
+          duration: 10000,
         });
         setCreatedStudentId(r.user_id || null);
         setCreatedStudentEmail(r.email || null);

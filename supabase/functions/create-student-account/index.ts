@@ -410,7 +410,9 @@ Deno.serve(async (req) => {
       email = `${slug}.${Date.now().toString(36)}@unigates.online`;
     }
 
-    const password = invitationCode ? temporaryPassword : genPassword();
+    const password =
+      temporaryPassword ||
+      (body.temporary_password ? String(body.temporary_password) : genPassword());
 
     const extra = (body.extra && typeof body.extra === "object" && !Array.isArray(body.extra)) ? body.extra as Record<string, unknown> : {};
     const photoUrl = typeof extra.photo_url === "string" && extra.photo_url.trim() ? extra.photo_url.trim() : null;
@@ -453,6 +455,7 @@ Deno.serve(async (req) => {
         phone: phone || null,
         role: "student",
         platform: "courses",
+        must_change_password: invitationCode ? false : true,
       });
       if (pe) throw new Error(`profile insert: ${pe.message}`);
 

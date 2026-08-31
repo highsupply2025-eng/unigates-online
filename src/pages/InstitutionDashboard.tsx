@@ -426,6 +426,14 @@ const InstitutionDashboard = () => {
   const [pendingChoice, setPendingChoice] = useState<"invitations" | "accounts" | null>(null);
   const [membersActiveOnly, setMembersActiveOnly] = useState(false);
 
+  // Enhanced Students Management State
+  const [studentSearch, setStudentSearch] = useState("");
+  const [studentDeptFilter, setStudentDeptFilter] = useState("all");
+  const [studentStatusFilter, setStudentStatusFilter] = useState<"all" | "active" | "pending">("all");
+  const [studentViewMode, setStudentViewMode] = useState<"cards" | "table">("cards");
+  const [studentDeleteTarget, setStudentDeleteTarget] = useState<DepartmentMember | null>(null);
+  const [deletingStudentId, setDeletingStudentId] = useState<string | null>(null);
+
   // Activation state for pending department members
   const [memberToActivate, setMemberToActivate] = useState<DepartmentMember | null>(null);
   const [activateEmail, setActivateEmail] = useState("");
@@ -433,6 +441,62 @@ const InstitutionDashboard = () => {
   const [activating, setActivating] = useState(false);
   const [activationResults, setActivationResults] = useState<Array<{ full_name: string; email: string; password: string }>>([]);
   const [showActivationResults, setShowActivationResults] = useState(false);
+
+  const allStudents = useMemo(() => {
+    return (deptMembers || []).filter((m) => m.role === "student");
+  }, [deptMembers]);
+
+  const filteredStudents = useMemo(() => {
+    return allStudents.filter((st) => {
+      const q = studentSearch.trim().toLowerCase();
+      const matchesSearch =
+        !q ||
+        (st.full_name || "").toLowerCase().includes(q) ||
+        (st.invitation_code || "").toLowerCase().includes(q);
+
+      const matchesDept =
+        studentDeptFilter === "all" || st.department_id === studentDeptFilter;
+
+      const matchesStatus =
+        studentStatusFilter === "all" ||
+        (studentStatusFilter === "active" && Boolean(st.user_id)) ||
+        (studentStatusFilter === "pending" && !st.user_id);
+
+      return matchesSearch && matchesDept && matchesStatus;
+    });
+  }, [allStudents, studentSearch, studentDeptFilter, studentStatusFilter]);
+
+  const exportStudentsToExcel = () => {
+    if (filteredStudents.length === 0) {
+      toast({
+        title: isRtl ? "تنبيه" : "Notice",
+        description: isRtl ? "لا توجد بيانات طلاب للتصدير" : "No student data to export",
+      });
+      return;
+    }
+
+    const rows = filteredStudents.map((st, idx) => {
+      const dept = departments.find((d) => d.id === st.department_id);
+      return {
+        "م": idx + 1,
+        "اسم الطالب": st.full_name || "بدون اسم",
+        "القسم الأكاديمي": dept?.department_name || "غير محدد",
+        "كود الدعوة / التسجيل": st.invitation_code || "-",
+        "حالة الحساب": st.user_id ? "مفعّل ومسجل" : "بانتظار التسجيل",
+        "تاريخ الإضافة": st.created_at ? new Date(st.created_at).toLocaleDateString("ar-EG") : "-",
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "الطلاب");
+    XLSX.writeFile(workbook, `كشف_بيانات_الطلاب_${new Date().toISOString().slice(0, 10)}.xlsx`);
+
+    toast({
+      title: isRtl ? "تم التصدير بنجاح" : "Exported Successfully",
+      description: isRtl ? `تم تصدير كشف ${rows.length} طالب إلى ملف Excel` : `Exported ${rows.length} students to Excel`,
+    });
+  };
 
   const generateInviteLinkNow = async (roleParam: "lecturer" | "student" | "department_head", deptId: string) => {
     setGeneratingInviteLink(true);
@@ -3339,34 +3403,40 @@ ${exams.map((s: any, i: number) => `<tr>
             })()}
           </TabsContent>
 
-          {/* Student Registration Tab */}
-          <TabsContent value="students" dir={isRtl ? "rtl" : "ltr"}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-5">
+          {/* Student Registration & Directory Tab */}
+          <TabsContent value="students" dir={isRtl ? "rtl" : "ltr"} className="space-y-6">
+            {/* 1. Top Quick Action Hub (4 Cards Grid) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <button
+                type="button"
                 onClick={() => navigate("/institution/faculty/add?role=student")}
-                className="group text-start border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent hover:border-primary/50 hover:shadow-lg transition-all rounded-xl p-4 sm:p-5 flex items-center gap-3"
+                className="group text-start border-2 border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent hover:border-primary/60 hover:shadow-xl transition-all duration-200 rounded-2xl p-4 sm:p-5 flex items-center gap-3.5"
               >
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-md shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-md shadow-primary/30 shrink-0 group-hover:scale-105 transition-transform">
                   <UserPlus className="w-6 h-6 text-primary-foreground" strokeWidth={2.4} />
                 </div>
-                <div className="min-w-0">
-                  <p className="font-extrabold text-foreground text-sm sm:text-base">{isRtl ? "تسجيل البيانات" : "Register Data"}</p>
-                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "إضافة طالب" : "Add student"}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="font-black text-foreground text-sm sm:text-base leading-tight">{isRtl ? "تسجيل البيانات" : "Register Data"}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">{isRtl ? "إضافة طالب جديد فردياً" : "Add single student"}</p>
                 </div>
               </button>
+
               <button
+                type="button"
                 onClick={() => navigate("/institution/faculty/import?role=student")}
-                className="group text-start border-2 border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent hover:border-emerald-500/50 hover:shadow-lg transition-all rounded-xl p-4 sm:p-5 flex items-center gap-3"
+                className="group text-start border-2 border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent hover:border-emerald-500/60 hover:shadow-xl transition-all duration-200 rounded-2xl p-4 sm:p-5 flex items-center gap-3.5"
               >
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-md shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-md shadow-emerald-500/30 shrink-0 group-hover:scale-105 transition-transform">
                   <FileSpreadsheet className="w-6 h-6 text-white" strokeWidth={2.4} />
                 </div>
-                <div className="min-w-0">
-                  <p className="font-extrabold text-foreground text-sm sm:text-base">{isRtl ? "رفع ملف Excel" : "Upload Excel File"}</p>
-                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "استيراد بيانات الطلاب" : "Import students data"}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="font-black text-foreground text-sm sm:text-base leading-tight">{isRtl ? "رفع ملف Excel" : "Upload Excel File"}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">{isRtl ? "استيراد كشف طلاب جماعي" : "Bulk import students"}</p>
                 </div>
               </button>
+
               <button
+                type="button"
                 onClick={() => {
                   setInviteLinkRole("student");
                   setInviteLinkDeptId(departments[0]?.id || "");
@@ -3374,17 +3444,489 @@ ${exams.map((s: any, i: number) => `<tr>
                   setGeneratedInviteCode("");
                   setShowInviteLinkDialog(true);
                 }}
-                className="group text-start border-2 border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent hover:border-amber-500/50 hover:shadow-lg transition-all rounded-xl p-4 sm:p-5 flex items-center gap-3"
+                className="group text-start border-2 border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent hover:border-amber-500/60 hover:shadow-xl transition-all duration-200 rounded-2xl p-4 sm:p-5 flex items-center gap-3.5"
               >
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-md shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-md shadow-amber-500/30 shrink-0 group-hover:scale-105 transition-transform">
                   <LinkIcon className="w-6 h-6 text-white" strokeWidth={2.4} />
                 </div>
-                <div className="min-w-0">
-                  <p className="font-extrabold text-foreground text-sm sm:text-base">{isRtl ? "رابط الدعوة" : "Invitation Link"}</p>
-                  <p className="text-[11px] sm:text-xs text-muted-foreground">{isRtl ? "توليد رابط تسجيل للطالب" : "Generate student signup link"}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="font-black text-foreground text-sm sm:text-base leading-tight">{isRtl ? "رابط الدعوة" : "Invitation Link"}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">{isRtl ? "توليد كود ورابط تسجيل" : "Generate signup code"}</p>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={exportStudentsToExcel}
+                className="group text-start border-2 border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 via-indigo-500/5 to-transparent hover:border-indigo-500/60 hover:shadow-xl transition-all duration-200 rounded-2xl p-4 sm:p-5 flex items-center gap-3.5"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-md shadow-indigo-500/30 shrink-0 group-hover:scale-105 transition-transform">
+                  <Download className="w-6 h-6 text-white" strokeWidth={2.4} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-black text-foreground text-sm sm:text-base leading-tight">{isRtl ? "تصدير كشف Excel" : "Export to Excel"}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">{isRtl ? "تحميل كشف الطلاب كاملاً" : "Download roster"}</p>
                 </div>
               </button>
             </div>
+
+            {/* 2. Executive Real-Time Student Metrics KPI Bar */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              <Card className="rounded-2xl border-2 border-primary/20 bg-card/80 backdrop-blur-md shadow-sm">
+                <CardContent className="p-4 flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0">
+                    <GraduationCap className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-black text-foreground leading-tight">{allStudents.length}</p>
+                    <p className="text-xs font-bold text-muted-foreground">{isRtl ? "إجمالي الطلاب المسجلين" : "Total Students"}</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-2xl border-2 border-emerald-500/20 bg-card/80 backdrop-blur-md shadow-sm">
+                <CardContent className="p-4 flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 leading-tight">
+                      {allStudents.filter(s => s.user_id).length}
+                    </p>
+                    <p className="text-xs font-bold text-muted-foreground">{isRtl ? "حسابات نشطة ومسجلة" : "Active Verified"}</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-2xl border-2 border-amber-500/20 bg-card/80 backdrop-blur-md shadow-sm">
+                <CardContent className="p-4 flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                    <Clock className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-black text-amber-600 dark:text-amber-400 leading-tight">
+                      {allStudents.filter(s => !s.user_id).length}
+                    </p>
+                    <p className="text-xs font-bold text-muted-foreground">{isRtl ? "بانتظار تفعيل الكود" : "Pending Invitation"}</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-2xl border-2 border-blue-500/20 bg-card/80 backdrop-blur-md shadow-sm">
+                <CardContent className="p-4 flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                    <Building2 className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-black text-blue-600 dark:text-blue-400 leading-tight">
+                      {departments.length}
+                    </p>
+                    <p className="text-xs font-bold text-muted-foreground">{isRtl ? "الأقسام الأكاديمية" : "Departments"}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* 3. Search, Filter & View Mode Controls Bar */}
+            <Card className="rounded-2xl border border-border/80 bg-card/90 shadow-sm p-4">
+              <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                {/* Search input */}
+                <div className="relative flex-1">
+                  <Search className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    value={studentSearch}
+                    onChange={(e) => setStudentSearch(e.target.value)}
+                    placeholder={isRtl ? "بحث باسم الطالب أو كود التسجيل..." : "Search by student name or code..."}
+                    className="ps-10 pe-9 h-10 rounded-xl bg-background border-border/80 text-xs font-bold"
+                  />
+                  {studentSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setStudentSearch("")}
+                      className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Department Filter */}
+                <div className="w-full md:w-56">
+                  <Select value={studentDeptFilter} onValueChange={setStudentDeptFilter}>
+                    <SelectTrigger className="h-10 rounded-xl bg-background text-xs font-bold">
+                      <div className="flex items-center gap-2 truncate">
+                        <Building2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                        <SelectValue placeholder={isRtl ? "كافة الأقسام" : "All Departments"} />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{isRtl ? "كافة الأقسام الأكاديمية" : "All Departments"}</SelectItem>
+                      {departments.map((d) => (
+                        <SelectItem key={d.id} value={d.id}>
+                          {d.department_name} ({getDeptBucket(d.id).student.length})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Status Filter Pills */}
+                <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/60 border border-border/60">
+                  <button
+                    type="button"
+                    onClick={() => setStudentStatusFilter("all")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                      studentStatusFilter === "all"
+                        ? "bg-background text-foreground shadow-xs"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {isRtl ? "الكل" : "All"} ({allStudents.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStudentStatusFilter("active")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      studentStatusFilter === "active"
+                        ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 shadow-xs"
+                        : "text-muted-foreground hover:text-emerald-600"
+                    }`}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <span>{isRtl ? "مفعّل" : "Active"}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStudentStatusFilter("pending")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      studentStatusFilter === "pending"
+                        ? "bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 shadow-xs"
+                        : "text-muted-foreground hover:text-amber-600"
+                    }`}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                    <span>{isRtl ? "معلق" : "Pending"}</span>
+                  </button>
+                </div>
+
+                {/* View Mode Toggle (Cards vs Table) */}
+                <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/60 border border-border/60">
+                  <button
+                    type="button"
+                    onClick={() => setStudentViewMode("cards")}
+                    className={`p-1.5 rounded-lg text-xs transition-all ${
+                      studentViewMode === "cards" ? "bg-background text-primary shadow-xs" : "text-muted-foreground"
+                    }`}
+                    title={isRtl ? "عرض البطاقات" : "Cards view"}
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStudentViewMode("table")}
+                    className={`p-1.5 rounded-lg text-xs transition-all ${
+                      studentViewMode === "table" ? "bg-background text-primary shadow-xs" : "text-muted-foreground"
+                    }`}
+                    title={isRtl ? "عرض الجدول" : "Table view"}
+                  >
+                    <ListFilter className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </Card>
+
+            {/* 4. Students Directory Display (Cards vs Table) */}
+            {filteredStudents.length === 0 ? (
+              <Card className="rounded-3xl border-2 border-dashed border-border/80 bg-card/50 p-12 text-center">
+                <div className="max-w-md mx-auto space-y-4">
+                  <div className="w-16 h-16 rounded-3xl bg-primary/10 text-primary mx-auto flex items-center justify-center">
+                    <GraduationCap className="w-8 h-8" />
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-black text-foreground">
+                      {isRtl ? "لم يتم العثور على طلاب" : "No students found"}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      {studentSearch || studentDeptFilter !== "all" || studentStatusFilter !== "all"
+                        ? (isRtl ? "جرب تعديل خيارات البحث أو التصفية الحالية." : "Try adjusting your search or filter criteria.")
+                        : (isRtl ? "ابدأ بإضافة الطلاب أو رفع كشف Excel للقسم الأكاديمي." : "Start by adding students or uploading an Excel roster.")}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-center gap-2 pt-2">
+                    <Button
+                      size="sm"
+                      onClick={() => navigate("/institution/faculty/add?role=student")}
+                      className="rounded-xl font-black text-xs gap-1.5"
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      <span>{isRtl ? "إضافة طالب الآن" : "Add Student"}</span>
+                    </Button>
+                    {(studentSearch || studentDeptFilter !== "all" || studentStatusFilter !== "all") && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setStudentSearch("");
+                          setStudentDeptFilter("all");
+                          setStudentStatusFilter("all");
+                        }}
+                        className="rounded-xl font-bold text-xs"
+                      >
+                        {isRtl ? "إعادة ضبط التصفية" : "Reset Filters"}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            ) : studentViewMode === "cards" ? (
+              /* Cards Grid View */
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {filteredStudents.map((st) => {
+                  const dept = departments.find((d) => d.id === st.department_id);
+                  const isRegistered = Boolean(st.user_id);
+                  const inviteLink = `${window.location.origin}/signup?code=${st.invitation_code || ""}`;
+
+                  return (
+                    <Card
+                      key={st.id}
+                      className="group rounded-2xl border-2 border-border/80 hover:border-primary/50 bg-card hover:shadow-lg transition-all duration-200 overflow-hidden flex flex-col justify-between"
+                    >
+                      <CardContent className="p-5 space-y-4">
+                        {/* Top Header info */}
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/20 via-teal-500/10 to-indigo-500/20 text-primary font-black text-base flex items-center justify-center shrink-0 border border-primary/30 shadow-xs">
+                              {st.full_name?.charAt(0) || "ط"}
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="font-black text-foreground text-sm truncate group-hover:text-primary transition-colors">
+                                {st.full_name}
+                              </h4>
+                              <div className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground truncate mt-0.5">
+                                <Building2 className="w-3 h-3 text-primary shrink-0" />
+                                <span className="truncate">{dept?.department_name || (isRtl ? "قسم عام" : "General Dept")}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Status Badge */}
+                          <Badge
+                            variant="outline"
+                            className={`font-black text-[10px] px-2.5 py-0.5 rounded-full shrink-0 ${
+                              isRegistered
+                                ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                                : "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
+                            }`}
+                          >
+                            {isRegistered
+                              ? (isRtl ? "مفعّل ومسجل" : "Active")
+                              : (isRtl ? "بانتظار التسجيل" : "Pending")}
+                          </Badge>
+                        </div>
+
+                        {/* Invitation Code Box with 1-click copy */}
+                        {st.invitation_code && (
+                          <div className="p-2.5 rounded-xl bg-muted/60 border border-border/80 flex items-center justify-between gap-2">
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-[10px] font-extrabold text-muted-foreground uppercase">
+                                {isRtl ? "كود دعوة الطالب" : "Invitation Code"}
+                              </span>
+                              <span className="text-xs font-black text-foreground tracking-wider font-mono truncate">
+                                {st.invitation_code}
+                              </span>
+                            </div>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                navigator.clipboard.writeText(st.invitation_code || "");
+                                toast({
+                                  title: isRtl ? "تم النسخ بنجاح" : "Copied Successfully",
+                                  description: isRtl ? `كود الطالب: ${st.invitation_code}` : `Code: ${st.invitation_code}`,
+                                });
+                              }}
+                              className="h-7 px-2.5 rounded-lg text-xs font-bold hover:bg-background hover:text-primary gap-1 shrink-0"
+                            >
+                              <Copy className="w-3 h-3" />
+                              <span>{isRtl ? "نسخ" : "Copy"}</span>
+                            </Button>
+                          </div>
+                        )}
+
+                        {/* Action buttons */}
+                        <div className="flex items-center justify-between pt-2 border-t border-border/60 text-xs">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              navigator.clipboard.writeText(inviteLink);
+                              toast({
+                                title: isRtl ? "تم نسخ رابط التسجيل" : "Registration Link Copied",
+                                description: isRtl ? `تم نسخ الرابط المباشر للطالب ${st.full_name}` : `Invite link copied for ${st.full_name}`,
+                              });
+                            }}
+                            className="h-8 px-2 rounded-lg text-[11px] font-bold text-muted-foreground hover:text-primary gap-1"
+                          >
+                            <LinkIcon className="w-3 h-3" />
+                            <span>{isRtl ? "رابط التسجيل" : "Invite Link"}</span>
+                          </Button>
+
+                          <div className="flex items-center gap-1">
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => navigate(`/institution/faculty/${st.id}/edit`)}
+                              className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:text-primary"
+                              title={isRtl ? "تعديل بيانات الطالب" : "Edit student"}
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </Button>
+
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setStudentDeleteTarget(st)}
+                              className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                              title={isRtl ? "حذف الطالب" : "Delete student"}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            ) : (
+              /* Detailed Table View */
+              <Card className="rounded-2xl border border-border/80 overflow-hidden shadow-sm">
+                <Table>
+                  <TableHeader className="bg-muted/50">
+                    <TableRow>
+                      <TableHead className="w-12 text-center">#</TableHead>
+                      <TableHead>{isRtl ? "اسم الطالب" : "Student Name"}</TableHead>
+                      <TableHead>{isRtl ? "القسم الأكاديمي" : "Department"}</TableHead>
+                      <TableHead>{isRtl ? "كود التسجيل" : "Invitation Code"}</TableHead>
+                      <TableHead>{isRtl ? "الحالة" : "Status"}</TableHead>
+                      <TableHead className="text-center">{isRtl ? "الإجراءات" : "Actions"}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredStudents.map((st, idx) => {
+                      const dept = departments.find((d) => d.id === st.department_id);
+                      const isRegistered = Boolean(st.user_id);
+                      const inviteLink = `${window.location.origin}/signup?code=${st.invitation_code || ""}`;
+
+                      return (
+                        <TableRow key={st.id} className="hover:bg-muted/30 transition-colors">
+                          <TableCell className="text-center font-bold text-xs text-muted-foreground">
+                            {idx + 1}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary font-black text-xs flex items-center justify-center shrink-0">
+                                {st.full_name?.charAt(0) || "ط"}
+                              </div>
+                              <span className="font-bold text-xs text-foreground">{st.full_name}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <span className="text-xs font-semibold text-muted-foreground">
+                              {dept?.department_name || "-"}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            {st.invitation_code ? (
+                              <div className="flex items-center gap-1.5">
+                                <code className="font-mono text-xs font-black bg-muted px-2 py-0.5 rounded-md border border-border/80">
+                                  {st.invitation_code}
+                                </code>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(st.invitation_code || "");
+                                    toast({
+                                      title: isRtl ? "تم النسخ" : "Copied",
+                                      description: st.invitation_code,
+                                    });
+                                  }}
+                                  className="text-muted-foreground hover:text-primary p-1"
+                                >
+                                  <Copy className="w-3 h-3" />
+                                </button>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant="outline"
+                              className={`font-black text-[10px] px-2.5 py-0.5 rounded-full ${
+                                isRegistered
+                                  ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                                  : "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
+                              }`}
+                            >
+                              {isRegistered
+                                ? (isRtl ? "مفعّل ومسجل" : "Active")
+                                : (isRtl ? "بانتظار التسجيل" : "Pending")}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <div className="flex items-center justify-center gap-1">
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(inviteLink);
+                                  toast({
+                                    title: isRtl ? "تم نسخ رابط التسجيل" : "Link Copied",
+                                    description: inviteLink,
+                                  });
+                                }}
+                                className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-primary"
+                                title={isRtl ? "نسخ رابط التسجيل" : "Copy invite link"}
+                              >
+                                <LinkIcon className="w-3.5 h-3.5" />
+                              </Button>
+
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => navigate(`/institution/faculty/${st.id}/edit`)}
+                                className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-primary"
+                                title={isRtl ? "تعديل" : "Edit"}
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </Button>
+
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setStudentDeleteTarget(st)}
+                                className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                title={isRtl ? "حذف" : "Delete"}
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </Card>
+            )}
           </TabsContent>
 
 
@@ -5263,6 +5805,59 @@ ${exams.map((s: any, i: number) => `<tr>
             </Button>
             <Button onClick={() => setShowActivationResults(false)}>
               {isRtl ? "إغلاق" : "Close"}
+            </Button>
+          </DialogFooter>
+      {/* Student Delete Confirmation Dialog */}
+      <Dialog open={!!studentDeleteTarget} onOpenChange={(open) => !open && setStudentDeleteTarget(null)}>
+        <DialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-md w-full">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="w-5 h-5 text-destructive" />
+              {isRtl ? "تأكيد حذف الطالب" : "Confirm Student Deletion"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <p className="text-sm text-foreground">
+              {isRtl
+                ? `هل أنت متأكد من رغبتك في حذف بيانات الطالب "${studentDeleteTarget?.full_name}"؟`
+                : `Are you sure you want to delete student "${studentDeleteTarget?.full_name}"?`}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {isRtl
+                ? "سيتم إزالة الطالب وسجل الدعوة الخاص به من القسم الأكاديمي بشكل نهائي."
+                : "The student record and invitation will be permanently removed from the department."}
+            </p>
+          </div>
+          <DialogFooter className={`gap-2 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
+            <Button
+              variant="outline"
+              onClick={() => setStudentDeleteTarget(null)}
+              disabled={!!deletingStudentId}
+            >
+              {isRtl ? "إلغاء" : "Cancel"}
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={!!deletingStudentId}
+              onClick={async () => {
+                if (!studentDeleteTarget) return;
+                setDeletingStudentId(studentDeleteTarget.id);
+                try {
+                  await handleDeleteMember(studentDeleteTarget.id, studentDeleteTarget.full_name, false);
+                  setStudentDeleteTarget(null);
+                } finally {
+                  setDeletingStudentId(null);
+                }
+              }}
+            >
+              {deletingStudentId ? (
+                <>
+                  <Loader2 className="w-4 h-4 me-1 animate-spin" />
+                  <span>{isRtl ? "جاري الحذف..." : "Deleting..."}</span>
+                </>
+              ) : (
+                <span>{isRtl ? "تأكيد الحذف" : "Confirm Delete"}</span>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

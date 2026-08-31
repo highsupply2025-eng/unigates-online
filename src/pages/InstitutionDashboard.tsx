@@ -5407,225 +5407,102 @@ ${exams.map((s: any, i: number) => `<tr>
                               {m.role}
                             </span>
                           )}
-                        </label>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })()}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setShowSelectFacultyDialog(false); setSelectFacultyMemberIds([]); }}>
-              {isRtl ? "إلغاء" : "Cancel"}
-            </Button>
-            <Button
-              disabled={selectFacultyMemberIds.length === 0 || addingExistingFaculty || !addMemberDeptId}
-              onClick={async () => {
-                if (!addMemberDeptId || selectFacultyMemberIds.length === 0) return;
-                setAddingExistingFaculty(true);
-                try {
-                  const selected = dedupeFacultyMembers(
-                    (deptMembers as any[]).filter(
-                      m =>
-                        selectFacultyMemberIds.includes(m.id) &&
-                        m.__from_ifm &&
-                        m.user_id,
-                    ),
-                  );
-
-                  if (selected.length === 0) {
-                    throw new Error(
-                      isRtl
-                        ? "تعذر العثور على السجل الأساسي للعضو"
-                        : "The member's canonical record could not be found",
-                    );
-                  }
-
-                  // Reuse the secured update path. It changes the canonical
-                  // faculty record and synchronizes department_members in one
-                  // database transaction, including an existing mirror row.
-                  for (const member of selected as any[]) {
-                    const { data, error } = await supabase.functions.invoke(
-                      "update-faculty-member",
-                      {
-                        body: {
-                          member_id: member.id,
-                          user_id: member.user_id,
-                          full_name: member.full_name,
-                          role: member.role,
-                          department_id: addMemberDeptId,
-                          phone: member.phone || "",
-                          extra: {
-                            date_of_birth: member.date_of_birth || null,
-                            photo_url: member.photo_url || null,
-                            national_id: member.national_id || null,
-                            gender: member.gender || null,
-                            address: member.address || null,
-                            qualification: member.qualification || null,
-                            specialization: member.specialization || null,
-                            notes: member.notes || null,
-                          },
-                        },
-                      },
-                    );
-
-                    if (error || !data?.success) {
-                      const message = await getFunctionErrorMessage(
-                        error,
-                        data,
-                        isRtl ? "تعذر ربط العضو بالقسم" : "Unable to assign member to department",
-                      );
-                      throw new Error(message);
-                    }
-                  }
-
-                  sonnerToast.success(isRtl ? "تمت إضافة الأعضاء للقسم" : "Members added to department", { duration: 2000 });
-                  setShowSelectFacultyDialog(false);
-                  setSelectFacultyMemberIds([]);
-                  await loadInstitutionData(institutionId, institutionType || "college");
-                } catch (err: any) {
-                  sonnerToast.error(isRtl ? "فشل الإضافة" : "Add failed", { description: err.message });
-                } finally {
-                  setAddingExistingFaculty(false);
-                }
-              }}
-
-            >
-              {addingExistingFaculty ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : null}
-              {isRtl ? "إضافة للقسم" : "Add to Department"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-
-
-      {/* Add/Edit Result Dialog */}
-      <Dialog open={showResultDialog} onOpenChange={setShowResultDialog}>
-        <DialogContent dir={dir} className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>{editingResult ? (isRtl ? "تعديل النتيجة" : "Edit Result") : (isRtl ? "إضافة نتيجة جديدة" : "Add New Result")}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>{isRtl ? "اسم الطالب" : "Student Name"}</Label>
-              <Input value={resultForm.student_name} onChange={e => setResultForm(prev => ({ ...prev, student_name: e.target.value }))} placeholder={isRtl ? "أدخل اسم الطالب" : "Enter student name"} />
-            </div>
-            <div>
-              <Label>{isRtl ? "القسم" : "Department"}</Label>
-              <Input value={resultForm.department_name} onChange={e => setResultForm(prev => ({ ...prev, department_name: e.target.value }))} placeholder={isRtl ? "أدخل اسم القسم" : "Enter department"} />
-            </div>
-            <div>
-              <Label>{isRtl ? "الدرجة العلمية" : "Academic Degree"}</Label>
-              <Select value={resultForm.academic_degree} onValueChange={v => setResultForm(prev => ({ ...prev, academic_degree: v }))}>
-                <SelectTrigger><SelectValue placeholder={isRtl ? "اختر الدرجة" : "Select degree"} /></SelectTrigger>
-                <SelectContent>
-                  {degreeOptions.map(opt => (
-                    <SelectItem key={opt.value} value={opt.value}>{isRtl ? opt.ar : opt.en}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>{isRtl ? "الدرجة (من 100)" : "Grade (out of 100)"}</Label>
-              <Input type="number" min="0" max="100" value={resultForm.grade} onChange={e => setResultForm(prev => ({ ...prev, grade: e.target.value }))} placeholder="0 - 100" />
-            </div>
-            <div>
-              <Label>{isRtl ? "التقدير" : "Rating"}</Label>
-              <Select value={resultForm.rating} onValueChange={v => setResultForm(prev => ({ ...prev, rating: v }))}>
-                <SelectTrigger><SelectValue placeholder={isRtl ? "اختر التقدير" : "Select rating"} /></SelectTrigger>
-                <SelectContent>
-                  {ratingOptions.map(opt => (
-                    <SelectItem key={opt.value} value={opt.value}>{isRtl ? opt.ar : opt.en}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>{isRtl ? "ملاحظات (اختياري)" : "Notes (optional)"}</Label>
-              <Input value={resultForm.notes} onChange={e => setResultForm(prev => ({ ...prev, notes: e.target.value }))} placeholder={isRtl ? "أدخل ملاحظات" : "Enter notes"} />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowResultDialog(false)}>
-              {isRtl ? "إلغاء" : "Cancel"}
-            </Button>
-            <Button onClick={handleSaveResult} disabled={savingResult}>
-              {savingResult ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : <CheckCircle className="w-4 h-4 me-1" />}
-              {editingResult ? (isRtl ? "تحديث" : "Update") : (isRtl ? "إضافة" : "Add")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       {/* Invitation Link Dialog */}
       <Dialog open={showInviteLinkDialog} onOpenChange={setShowInviteLinkDialog}>
-        <DialogContent dir={dir} className="max-w-md p-0 overflow-hidden">
+        <DialogContent dir={dir} className="max-w-md p-0 overflow-hidden rounded-3xl border-2 border-teal-500/30 bg-slate-950/95 text-white backdrop-blur-2xl shadow-2xl">
           {/* Header */}
-          <div className="px-6 pt-6 pb-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center shadow-md shadow-teal-500/20">
-              <LinkIcon className="w-5 h-5 text-white" />
+          <div className="p-6 pb-4 flex items-center justify-between border-b border-white/10 bg-slate-900/60">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-teal-400 via-emerald-500 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-teal-500/30">
+                <LinkIcon className="w-5 h-5" strokeWidth={2.4} />
+              </div>
+              <div>
+                <DialogTitle className="text-base sm:text-lg font-black text-white">
+                  {isRtl ? "رابط وكود دعوة تسجيل الطلاب" : "Student Registration Invite Link"}
+                </DialogTitle>
+                <p className="text-xs font-bold text-teal-300 mt-0.5">
+                  {isRtl ? "شارك الرابط أو الكود للانضمام الفوري" : "Share for instant student enrollment"}
+                </p>
+              </div>
             </div>
-            <DialogTitle className="text-lg font-bold">
-              {isRtl ? "رابط دعوة التسجيل" : "Registration Invitation Link"}
-            </DialogTitle>
           </div>
 
-          <div className="px-6 pb-6 space-y-4">
+          <div className="p-6 space-y-4">
             {/* Success banner */}
             {generatedInviteLink && (
-              <div className="flex items-center gap-2.5 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800">
-                <CheckCircle className="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
-                  {isRtl ? "تم توليد الرابط بنجاح" : "Link generated successfully"}
+              <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300">
+                <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
+                <p className="text-xs font-black">
+                  {isRtl ? "تم توليد وتوثيق رابط الدعوة بنجاح" : "Invitation link active and verified"}
                 </p>
               </div>
             )}
 
             {/* Link & code card */}
             {generatedInviteLink && (
-              <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+              <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-4 space-y-3.5 shadow-inner">
                 {/* Invite link */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-muted-foreground">
-                    {isRtl ? "رابط الدعوة" : "Invitation Link"}
+                  <label className="text-xs font-black text-slate-300 flex items-center justify-between">
+                    <span>{isRtl ? "رابط الدعوة المباشر:" : "Direct Invite URL:"}</span>
+                    <a
+                      href={generatedInviteLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] font-bold text-teal-400 hover:text-teal-300 flex items-center gap-1"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      <span>{isRtl ? "معاينة الرابط" : "Open Link"}</span>
+                    </a>
                   </label>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-muted/50 border border-border">
-                      <code className="text-xs font-mono text-foreground break-all leading-relaxed" dir="ltr">
+                    <div className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-slate-950/90 border border-white/10">
+                      <code className="text-xs font-mono text-teal-300 truncate block select-all" dir="ltr">
                         {generatedInviteLink}
                       </code>
                     </div>
                     <Button
-                      variant="ghost"
                       size="sm"
-                      className="h-9 w-9 p-0 shrink-0 rounded-lg hover:bg-teal-50 hover:text-teal-600 dark:hover:bg-teal-950/30"
-                      onClick={() => copyToClipboard(generatedInviteLink)}
+                      className="h-10 px-3 shrink-0 rounded-xl bg-teal-500 hover:bg-teal-600 text-white font-black text-xs gap-1.5 shadow-md shadow-teal-500/20"
+                      onClick={() => {
+                        copyToClipboard(generatedInviteLink);
+                        toast({
+                          title: isRtl ? "تم نسخ الرابط" : "Link Copied",
+                          description: generatedInviteLink,
+                        });
+                      }}
                     >
-                      <Copy className="w-4 h-4" />
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>{isRtl ? "نسخ" : "Copy"}</span>
                     </Button>
                   </div>
                 </div>
 
                 {/* Invite code */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-muted-foreground">
-                    {isRtl ? "كود الدعوة" : "Invitation Code"}
+                  <label className="text-xs font-black text-slate-300">
+                    {isRtl ? "كود الدعوة:" : "Invitation Code:"}
                   </label>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-muted/50 border border-border">
-                      <code className="text-sm font-mono font-semibold text-foreground" dir="ltr">
+                    <div className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-slate-950/90 border border-white/10 text-center">
+                      <code className="text-base font-mono font-black text-emerald-400 tracking-widest" dir="ltr">
                         {generatedInviteCode}
                       </code>
                     </div>
                     <Button
-                      variant="ghost"
                       size="sm"
-                      className="h-9 w-9 p-0 shrink-0 rounded-lg hover:bg-teal-50 hover:text-teal-600 dark:hover:bg-teal-950/30"
-                      onClick={() => copyToClipboard(generatedInviteCode)}
+                      variant="outline"
+                      className="h-10 px-3 shrink-0 rounded-xl border-white/20 bg-white/5 hover:bg-white/15 text-white font-black text-xs gap-1.5"
+                      onClick={() => {
+                        copyToClipboard(generatedInviteCode);
+                        toast({
+                          title: isRtl ? "تم نسخ كود الدعوة" : "Code Copied",
+                          description: generatedInviteCode,
+                        });
+                      }}
                     >
-                      <Copy className="w-4 h-4" />
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>{isRtl ? "نسخ الكود" : "Copy Code"}</span>
                     </Button>
                   </div>
                 </div>
@@ -5634,37 +5511,66 @@ ${exams.map((s: any, i: number) => `<tr>
 
             {/* Share buttons */}
             {generatedInviteLink && (
-              <div className="grid grid-cols-2 gap-2">
-                <a
-                  href={`mailto:?subject=${encodeURIComponent(isRtl ? "دعوة للتسجيل" : "Registration Invitation")}&body=${encodeURIComponent(isRtl ? `مرحباً! يمكنك التسجيل عبر هذا الرابط:\n${generatedInviteLink}\nكود الدعوة: ${generatedInviteCode}` : `Hello! You can register via this link:\n${generatedInviteLink}\nInvitation code: ${generatedInviteCode}`)}`}
-                  className="flex-1"
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(
+                      isRtl
+                        ? `🎓 مرحباً بك!\nيمكنك الانضمام والتسجيل كطالب عبر هذا الرابط المباشر:\n${generatedInviteLink}\n\nكود الدعوة: ${generatedInviteCode}`
+                        : `🎓 Welcome!\nYou can register as a student using this link:\n${generatedInviteLink}\n\nInvitation Code: ${generatedInviteCode}`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1"
+                  >
+                    <Button className="w-full h-11 gap-2 rounded-2xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-black text-xs shadow-lg shadow-[#25D366]/20">
+                      <MessageCircle className="w-4 h-4 fill-white" />
+                      <span>{isRtl ? "مشاركة عبر واتساب" : "WhatsApp"}</span>
+                    </Button>
+                  </a>
+
+                  <a
+                    href={`mailto:?subject=${encodeURIComponent(isRtl ? "دعوة تسجيل طالب" : "Student Registration Invitation")}&body=${encodeURIComponent(
+                      isRtl
+                        ? `مرحباً بك!\nيسعدنا دعوتك للتسجيل كطالب عبر منصة UNIGATES عبر هذا الرابط:\n${generatedInviteLink}\n\nكود الدعوة: ${generatedInviteCode}`
+                        : `Welcome!\nYou are invited to register as a student on UNIGATES:\n${generatedInviteLink}\n\nInvitation Code: ${generatedInviteCode}`
+                    )}`}
+                    className="flex-1"
+                  >
+                    <Button variant="outline" className="w-full h-11 gap-2 rounded-2xl border-white/20 bg-white/5 hover:bg-white/15 text-white font-black text-xs">
+                      <Mail className="w-4 h-4 text-teal-400" />
+                      <span>{isRtl ? "إرسال عبر البريد" : "Send Email"}</span>
+                    </Button>
+                  </a>
+                </div>
+
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    const fullText = isRtl
+                      ? `🎓 دعوة تسجيل طالب:\nالرابط: ${generatedInviteLink}\nكود الدعوة: ${generatedInviteCode}`
+                      : `🎓 Student Registration:\nLink: ${generatedInviteLink}\nCode: ${generatedInviteCode}`;
+                    copyToClipboard(fullText);
+                    toast({
+                      title: isRtl ? "تم نسخ نص الدعوة كاملاً" : "Invitation Text Copied",
+                      description: isRtl ? "يمكنك لصقها ومشاركتها مع الطلاب مباشرة" : "Ready to share with students",
+                    });
+                  }}
+                  className="w-full h-9 rounded-xl font-bold text-xs text-slate-300 hover:text-white hover:bg-white/5 gap-1.5"
                 >
-                  <Button variant="outline" className="w-full h-10 gap-2 rounded-xl border-border">
-                    <Mail className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">{isRtl ? "بريد" : "Email"}</span>
-                  </Button>
-                </a>
-                <a
-                  href={`https://wa.me/?text=${encodeURIComponent(isRtl ? `مرحباً! يمكنك التسجيل عبر هذا الرابط:\n${generatedInviteLink}\nكود الدعوة: ${generatedInviteCode}` : `Hello! You can register via this link:\n${generatedInviteLink}\nInvitation code: ${generatedInviteCode}`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1"
-                >
-                  <Button variant="outline" className="w-full h-10 gap-2 rounded-xl border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 hover:border-emerald-300 dark:hover:bg-emerald-950/30">
-                    <MessageCircle className="w-4 h-4" />
-                    <span className="text-sm font-medium">WhatsApp</span>
-                  </Button>
-                </a>
+                  <Copy className="w-3.5 h-3.5 text-teal-400" />
+                  <span>{isRtl ? "نسخ نص الدعوة والكود كاملاً للمشاركة" : "Copy Full Invitation Message"}</span>
+                </Button>
               </div>
             )}
 
             {/* Empty state */}
             {!generatedInviteLink && (
               <div className="text-center py-6">
-                <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-muted/60 flex items-center justify-center">
-                  <LinkIcon className="w-7 h-7 text-muted-foreground/50" />
+                <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-white/5 flex items-center justify-center">
+                  <LinkIcon className="w-7 h-7 text-teal-400/60" />
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs font-bold text-slate-300">
                   {isRtl ? "اضغط على الزر أدناه لتوليد رابط دعوة جديد" : "Click the button below to generate a new invitation link"}
                 </p>
               </div>
@@ -5672,11 +5578,11 @@ ${exams.map((s: any, i: number) => `<tr>
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-border bg-muted/30 flex items-center justify-end gap-2">
+          <div className="px-6 py-4 border-t border-white/10 bg-slate-900/80 flex items-center justify-end gap-2.5">
             <Button
               variant="ghost"
               onClick={() => setShowInviteLinkDialog(false)}
-              className="text-muted-foreground hover:text-foreground"
+              className="rounded-xl font-black text-xs text-slate-400 hover:text-white"
             >
               {isRtl ? "إغلاق" : "Close"}
             </Button>
@@ -5687,15 +5593,12 @@ ${exams.map((s: any, i: number) => `<tr>
                 await generateInviteLinkNow(inviteLinkRole, inviteLinkDeptId);
               }}
               disabled={generatingInviteLink}
-              className="gap-2 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white shadow-md shadow-teal-500/20"
+              className="rounded-xl font-black text-xs gap-2 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white shadow-lg shadow-teal-500/25"
             >
-              {generatingInviteLink ? <Loader2 className="w-4 h-4 animate-spin" /> : <LinkIcon className="w-4 h-4" />}
-              {isRtl ? (generatedInviteLink ? "توليد رابط جديد" : "توليد الرابط") : (generatedInviteLink ? "Generate New Link" : "Generate Link")}
+              {generatingInviteLink ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+              {isRtl ? (generatedInviteLink ? "توليد كود جديد" : "توليد الرابط") : (generatedInviteLink ? "Generate New Code" : "Generate Link")}
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
-
       {/* Activate Existing Member Dialog */}
       <Dialog open={!!memberToActivate} onOpenChange={(open) => !open && setMemberToActivate(null)}>
         <DialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-md w-full">

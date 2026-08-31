@@ -5407,6 +5407,152 @@ ${exams.map((s: any, i: number) => `<tr>
                               {m.role}
                             </span>
                           )}
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setShowSelectFacultyDialog(false); setSelectFacultyMemberIds([]); }}>
+              {isRtl ? "إلغاء" : "Cancel"}
+            </Button>
+            <Button
+              disabled={selectFacultyMemberIds.length === 0 || addingExistingFaculty || !addMemberDeptId}
+              onClick={async () => {
+                if (!addMemberDeptId || selectFacultyMemberIds.length === 0) return;
+                setAddingExistingFaculty(true);
+                try {
+                  const selected = dedupeFacultyMembers(
+                    (deptMembers as any[]).filter(
+                      m =>
+                        selectFacultyMemberIds.includes(m.id) &&
+                        m.__from_ifm &&
+                        m.user_id,
+                    ),
+                  );
+
+                  if (selected.length === 0) {
+                    throw new Error(
+                      isRtl
+                        ? "تعذر العثور على السجل الأساسي للعضو"
+                        : "The member's canonical record could not be found",
+                    );
+                  }
+
+                  for (const member of selected as any[]) {
+                    const { data, error } = await supabase.functions.invoke(
+                      "update-faculty-member",
+                      {
+                        body: {
+                          member_id: member.id,
+                          user_id: member.user_id,
+                          full_name: member.full_name,
+                          role: member.role,
+                          department_id: addMemberDeptId,
+                          phone: member.phone || "",
+                          extra: {
+                            date_of_birth: member.date_of_birth || null,
+                            photo_url: member.photo_url || null,
+                            national_id: member.national_id || null,
+                            gender: member.gender || null,
+                            address: member.address || null,
+                            qualification: member.qualification || null,
+                            specialization: member.specialization || null,
+                            notes: member.notes || null,
+                          },
+                        },
+                      },
+                    );
+
+                    if (error || !data?.success) {
+                      const message = await getFunctionErrorMessage(
+                        error,
+                        data,
+                        isRtl ? "تعذر ربط العضو بالقسم" : "Unable to assign member to department",
+                      );
+                      throw new Error(message);
+                    }
+                  }
+
+                  sonnerToast.success(isRtl ? "تمت إضافة الأعضاء للقسم" : "Members added to department", { duration: 2000 });
+                  setShowSelectFacultyDialog(false);
+                  setSelectFacultyMemberIds([]);
+                  await loadInstitutionData(institutionId, institutionType || "college");
+                } catch (err: any) {
+                  sonnerToast.error(isRtl ? "فشل الإضافة" : "Add failed", { description: err.message });
+                } finally {
+                  setAddingExistingFaculty(false);
+                }
+              }}
+            >
+              {addingExistingFaculty ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : null}
+              {isRtl ? "إضافة للقسم" : "Add to Department"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add/Edit Result Dialog */}
+      <Dialog open={showResultDialog} onOpenChange={setShowResultDialog}>
+        <DialogContent dir={dir} className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editingResult ? (isRtl ? "تعديل النتيجة" : "Edit Result") : (isRtl ? "إضافة نتيجة جديدة" : "Add New Result")}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>{isRtl ? "اسم الطالب" : "Student Name"}</Label>
+              <Input value={resultForm.student_name} onChange={e => setResultForm(prev => ({ ...prev, student_name: e.target.value }))} placeholder={isRtl ? "أدخل اسم الطالب" : "Enter student name"} />
+            </div>
+            <div>
+              <Label>{isRtl ? "القسم" : "Department"}</Label>
+              <Input value={resultForm.department_name} onChange={e => setResultForm(prev => ({ ...prev, department_name: e.target.value }))} placeholder={isRtl ? "أدخل اسم القسم" : "Enter department"} />
+            </div>
+            <div>
+              <Label>{isRtl ? "الدرجة العلمية" : "Academic Degree"}</Label>
+              <Select value={resultForm.academic_degree} onValueChange={v => setResultForm(prev => ({ ...prev, academic_degree: v }))}>
+                <SelectTrigger><SelectValue placeholder={isRtl ? "اختر الدرجة" : "Select degree"} /></SelectTrigger>
+                <SelectContent>
+                  {degreeOptions.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>{isRtl ? opt.ar : opt.en}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>{isRtl ? "الدرجة (من 100)" : "Grade (out of 100)"}</Label>
+              <Input type="number" min="0" max="100" value={resultForm.grade} onChange={e => setResultForm(prev => ({ ...prev, grade: e.target.value }))} placeholder="0 - 100" />
+            </div>
+            <div>
+              <Label>{isRtl ? "التقدير" : "Rating"}</Label>
+              <Select value={resultForm.rating} onValueChange={v => setResultForm(prev => ({ ...prev, rating: v }))}>
+                <SelectTrigger><SelectValue placeholder={isRtl ? "اختر التقدير" : "Select rating"} /></SelectTrigger>
+                <SelectContent>
+                  {ratingOptions.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>{isRtl ? opt.ar : opt.en}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>{isRtl ? "ملاحظات (اختياري)" : "Notes (optional)"}</Label>
+              <Input value={resultForm.notes} onChange={e => setResultForm(prev => ({ ...prev, notes: e.target.value }))} placeholder={isRtl ? "أدخل ملاحظات" : "Enter notes"} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowResultDialog(false)}>
+              {isRtl ? "إلغاء" : "Cancel"}
+            </Button>
+            <Button onClick={handleSaveResult} disabled={savingResult}>
+              {savingResult ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : <CheckCircle className="w-4 h-4 me-1" />}
+              {editingResult ? (isRtl ? "تحديث" : "Update") : (isRtl ? "إضافة" : "Add")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Invitation Link Dialog */}
       <Dialog open={showInviteLinkDialog} onOpenChange={setShowInviteLinkDialog}>
         <DialogContent dir={dir} className="max-w-md p-0 overflow-hidden rounded-3xl border-2 border-teal-500/30 bg-slate-950/95 text-white backdrop-blur-2xl shadow-2xl">
@@ -5599,6 +5745,9 @@ ${exams.map((s: any, i: number) => `<tr>
               {isRtl ? (generatedInviteLink ? "توليد كود جديد" : "توليد الرابط") : (generatedInviteLink ? "Generate New Code" : "Generate Link")}
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Activate Existing Member Dialog */}
       <Dialog open={!!memberToActivate} onOpenChange={(open) => !open && setMemberToActivate(null)}>
         <DialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-md w-full">

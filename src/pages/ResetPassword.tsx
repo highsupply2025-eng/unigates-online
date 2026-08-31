@@ -140,7 +140,7 @@ const ResetPassword = () => {
               </Button>
             </Link>
 
-            <LanguageSelectorDropdown className="h-9 px-3 bg-white/5 hover:bg-white/15 text-white border-white/20" />
+            <LanguageSelectorDropdown />
           </div>
         </div>
       </header>

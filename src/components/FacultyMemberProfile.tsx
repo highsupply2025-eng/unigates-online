@@ -108,7 +108,7 @@ const FacultyMemberProfile = ({ header }: Props) => {
       // 1) Fetch profiles table
       const { data: prof } = await supabase
         .from("profiles")
-        .select("full_name, email, phone, role, avatar_url, created_at, national_id, date_of_birth, gender")
+        .select("full_name, email, phone, role, avatar_url, created_at")
         .eq("id", user.id)
         .maybeSingle();
 

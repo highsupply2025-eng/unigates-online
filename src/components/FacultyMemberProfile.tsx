@@ -108,11 +108,11 @@ const FacultyMemberProfile = ({ header }: Props) => {
       // 1) Fetch profiles table
       const { data: prof } = await supabase
         .from("profiles")
-        .select("full_name, email, phone, role, sub_role, avatar_url, created_at, national_id, date_of_birth, gender")
+        .select("full_name, email, phone, role, avatar_url, created_at, national_id, date_of_birth, gender")
         .eq("id", user.id)
         .maybeSingle();
 
-      let resolvedSubRole = prof?.sub_role;
+      let resolvedSubRole: string | null = null;
       try {
         const { data: ifm } = await supabase
           .from("institution_faculty_members")
@@ -127,7 +127,7 @@ const FacultyMemberProfile = ({ header }: Props) => {
       if (prof) {
         setProfile({
           ...prof,
-          sub_role: resolvedSubRole || prof.sub_role,
+          sub_role: resolvedSubRole || null,
           created_at: prof.created_at || user.created_at,
         });
       }

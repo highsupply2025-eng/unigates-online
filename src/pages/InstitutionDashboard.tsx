@@ -5807,7 +5807,11 @@ ${exams.map((s: any, i: number) => `<tr>
               {isRtl ? "إغلاق" : "Close"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Student Delete Confirmation Dialog */}
+
       <Dialog open={!!studentDeleteTarget} onOpenChange={(open) => !open && setStudentDeleteTarget(null)}>
         <DialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-md w-full">
           <DialogHeader>

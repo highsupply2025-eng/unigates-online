@@ -327,6 +327,9 @@ export const FacultyRatingsOverview: React.FC<FacultyRatingsOverviewProps> = ({
       });
   }, [facultyMembers, searchQuery, selectedDepartment, selectedRole, categoryFilter, sortBy]);
 
+  const overallAvgMonthly = facultyMembers.filter(f => f.monthlyCount > 0).length > 0
+    ? (facultyMembers.filter(f => f.monthlyCount > 0).reduce((a, b) => a + b.monthlyRating, 0) / facultyMembers.filter(f => f.monthlyCount > 0).length).toFixed(1)
+    : "0.0";
   const overallAvgAnnual = facultyMembers.filter(f => f.annualCount > 0).length > 0
     ? (facultyMembers.filter(f => f.annualCount > 0).reduce((a, b) => a + b.annualRating, 0) / facultyMembers.filter(f => f.annualCount > 0).length).toFixed(1)
     : "0.0";

@@ -50,13 +50,6 @@ export function getInstitutionMenuItems({
       active: activeKey === "general",
     },
     {
-      key: "faculty",
-      label: tr("أعضاء هيئة التدريس", "Faculty Members"),
-      Icon: GraduationCap,
-      onClick: () => onTabChange("faculty"),
-      active: activeKey === "faculty",
-    },
-    {
       key: "departments",
       label: tr("الأقسام", "Departments"),
       Icon: BookOpen,
@@ -64,19 +57,18 @@ export function getInstitutionMenuItems({
       active: activeKey === "departments",
     },
     {
+      key: "faculty",
+      label: tr("أعضاء هيئة التدريس", "Faculty Members"),
+      Icon: GraduationCap,
+      onClick: () => onTabChange("faculty"),
+      active: activeKey === "faculty",
+    },
+    {
       key: "students",
       label: tr("تسجيل الطلاب", "Student Registration"),
       Icon: UserPlus,
       onClick: () => onTabChange("students"),
       active: activeKey === "students",
-    },
-    {
-      key: "messages",
-      label: tr("التواصل", "Messages"),
-      Icon: MessageSquare,
-      path: "/institution/messages",
-      onClick: () => onNavigate("/institution/messages"),
-      active: activeKey === "messages",
     },
     {
       key: "subscriptions",
@@ -101,6 +93,14 @@ export function getInstitutionMenuItems({
       active: activeKey === "quizresults",
     },
     {
+      key: "messages",
+      label: tr("التواصل", "Messages"),
+      Icon: MessageSquare,
+      path: "/institution/messages",
+      onClick: () => onNavigate("/institution/messages"),
+      active: activeKey === "messages",
+    },
+    {
       key: "profile",
       label: tr("بيانات الحساب", "Account Information"),
       Icon: User,
@@ -111,3 +111,4 @@ export function getInstitutionMenuItems({
     },
   ];
 }
+

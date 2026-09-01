@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import ThemeToggle from "@/components/ThemeToggle";
 import ugLogo from "@/assets/ug-logo.png";
 import { preloadRoute } from "@/PrefetchRoutes";
 
@@ -215,10 +216,14 @@ const SiteHeader = () => {
 
           {/* Multi-Language Selector Dropdown */}
           <LanguageSelectorDropdown />
+
+          {/* Theme & Brightness Switcher */}
+          <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
         </div>
 
         {/* Mobile Hamburger & Actions */}
         <div className="flex lg:hidden items-center gap-2">
+          <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
           <LanguageSelectorDropdown showNativeName={false} className="h-9 px-2.5" />
 
           <Button

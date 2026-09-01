@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import ThemeToggle from "@/components/ThemeToggle";
 
 interface SubPageHeaderProps {
   titleAr: string;
@@ -38,6 +39,7 @@ const SubPageHeader = ({ titleAr, titleEn, icon, backTo }: SubPageHeaderProps) =
           <span className="truncate">{isRtl ? titleAr : titleEn}</span>
         </h1>
         <div className="flex items-center gap-2 shrink-0">
+          <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
           <LanguageSelectorDropdown className="hidden sm:flex border-border/80 text-foreground bg-muted/40 hover:bg-muted" />
           <Button
             size="icon"

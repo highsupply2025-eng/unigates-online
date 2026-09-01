@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import ThemeToggle from "@/components/ThemeToggle";
 
 type SimpleHeaderProps = {
   backTo?: string;
@@ -71,13 +72,15 @@ const SimpleHeader = ({ backTo = "/", mobileBackOnly = false, useHistoryBack = f
 
         {/* Desktop buttons */}
         <div className="hidden md:flex items-center gap-3">
+          <ThemeToggle className="h-10 w-10 p-0 rounded-2xl" />
           <Button size="icon" onClick={handleBack} className="rounded-full w-10 h-10 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all text-white">
             <ArrowLeft className="w-5 h-5" />
           </Button>
         </div>
 
         {/* Mobile/Tablet action */}
-        <div className="md:hidden">
+        <div className="flex md:hidden items-center gap-2">
+          <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
           {mobileBackOnly ? (
             <Button
               size="icon"

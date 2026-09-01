@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import ThemeToggle from "@/components/ThemeToggle";
 import { useBooks } from "@/hooks/useBooks";
 import { isPlatformUnderDevelopment } from "@/lib/platformAvailability";
 import PlatformUnderDevelopment from "@/components/PlatformUnderDevelopment";
@@ -260,10 +261,12 @@ const BookStorePlatform = () => {
               </Button>
             </Link>
             <LanguageSelectorDropdown className="h-10 px-3.5" />
+            <ThemeToggle className="h-10 w-10 p-0 rounded-2xl" />
           </div>
 
           {/* Mobile Hamburger */}
           <div className="flex md:hidden items-center gap-2">
+            <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
             <LanguageSelectorDropdown showNativeName={false} className="h-9 px-2" />
             <Button
               size="sm"

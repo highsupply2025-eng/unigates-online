@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const categoryColors: Record<string, string> = {
   "برمجة": "from-teal-800 to-teal-600",
@@ -101,6 +102,7 @@ const Courses = () => {
             ) : (
               <></>
             )}
+            <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
             <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
               <Globe className="w-4 h-4" />
               {t.langSwitch}

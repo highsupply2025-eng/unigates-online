@@ -31,6 +31,7 @@ import { useInstitutionStats } from "@/hooks/useInstitutionStats";
 import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 import { useQueryClient } from "@tanstack/react-query";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import ThemeToggle from "@/components/ThemeToggle";
 import ugLogo from "@/assets/ug-logo.png";
 
 import BackButton from "@/components/BackButton";
@@ -1804,6 +1805,7 @@ ${exams.map((s: any, i: number) => `<tr>
 
           <div className="flex items-center gap-2 shrink-0">
             <LanguageSelectorDropdown className="h-9 px-2.5 sm:px-3 text-xs bg-background/60 border-primary/20" />
+            <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
 
             {pageView === "members" && selectedDept ? (
               <Button
@@ -4076,25 +4078,7 @@ ${exams.map((s: any, i: number) => `<tr>
 
           {/* Quiz Results Tab - Results Management */}
           {(isLeadershipRole || institutionId) && (
-            <TabsContent value="quizresults" dir={isRtl ? "rtl" : "ltr"}>
-              {/* Search (replaces "Results Management" heading) + Excel */}
-              <div className="flex items-center gap-2 mb-4" dir={isRtl ? "rtl" : "ltr"}>
-                <div className="relative flex-1">
-                  <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    placeholder={isRtl ? "بحث باسم الطالب أو القسم..." : "Search by student or department..."}
-                    value={resultSearch}
-                    onChange={e => setResultSearch(e.target.value)}
-                    className="ps-9"
-                  />
-                </div>
-                <Button size="sm" className="gap-2 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={exportResultsToPDF}>
-                  <Download className="w-4 h-4" />
-                  <span className="hidden sm:inline">{isRtl ? "تصدير PDF" : "Export PDF"}</span>
-                </Button>
-              </div>
-
-              {/* Quiz items — only approved exam days, grouped by date, newest first */}
+            <TabsContent value="quizresults" dir={dir} className="space-y-6 animate-in fade-in-50 duration-200">
               {(() => {
                 const approvedDays = new Set(
                   (examSchedules || [])
@@ -4116,56 +4100,262 @@ ${exams.map((s: any, i: number) => `<tr>
                 }
                 const sorted = Array.from(groups.entries()).sort((a, b) => b[0].localeCompare(a[0]));
 
-                if (sorted.length === 0) {
-                  return (
-                    <Card>
-                      <CardContent className="py-12 text-center">
-                        <GraduationCap className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
-                        <p className="text-sm text-muted-foreground">{isRtl ? "لا توجد نتائج اختبارات معتمدة بعد" : "No approved exam results yet"}</p>
-                      </CardContent>
-                    </Card>
-                  );
-                }
+                const totalApprovedDays = sorted.length;
+                const totalStudentsTested = onlyApproved.length;
+                const totalPass = onlyApproved.filter(r => r.rating !== "fail").length;
+                const totalTop = onlyApproved.filter(r => r.rating === "excellent" || r.rating === "very_good").length;
+                const passRate = totalStudentsTested > 0 ? Math.round((totalPass / totalStudentsTested) * 100) : 0;
+                const topRate = totalStudentsTested > 0 ? Math.round((totalTop / totalStudentsTested) * 100) : 0;
 
                 return (
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    {sorted.map(([day, items]) => {
-                      const top = items.filter(r => r.rating === "excellent" || r.rating === "very_good").length;
-                      const pass = items.filter(r => r.rating === "good" || r.rating === "acceptable").length;
-                      const fail = items.filter(r => r.rating === "fail").length;
-                      const dateLabel = new Date(day).toLocaleDateString(isRtl ? "ar-EG" : "en-US", { year: "numeric", month: "long", day: "numeric" });
-                      const title = isRtl ? `اختبار ${dateLabel}` : `Quiz — ${dateLabel}`;
-                      return (
-                        <button
-                          key={day}
-                          onClick={() => navigate(`/institution/quiz-results/${day}`)}
-                          className="text-start group rounded-2xl border border-border bg-card hover:border-primary/40 hover:shadow-lg transition-all overflow-hidden"
-                          dir={isRtl ? "rtl" : "ltr"}
+                  <div className="space-y-6">
+                    {/* ── 1. Top HUD Metric Cards ── */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                      {/* Approved Quiz Days */}
+                      <Card className="rounded-3xl border-2 border-border/80 bg-gradient-to-br from-card via-card/95 to-card shadow-md hover:border-emerald-500/40 hover:shadow-xl transition-all duration-300">
+                        <CardContent className="p-4 sm:p-5 flex items-center gap-3.5">
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/25 shrink-0">
+                            <ClipboardList className="w-6 h-6" strokeWidth={2.4} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[11px] text-muted-foreground font-black uppercase tracking-wider">{tText("أيام الاختبارات المعتمدة", "Approved Exam Days")}</p>
+                            <p className="font-mono font-black text-2xl text-foreground truncate">{totalApprovedDays}</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Total Examinees */}
+                      <Card className="rounded-3xl border-2 border-border/80 bg-gradient-to-br from-card via-card/95 to-card shadow-md hover:border-blue-500/40 hover:shadow-xl transition-all duration-300">
+                        <CardContent className="p-4 sm:p-5 flex items-center gap-3.5">
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-blue-500/25 shrink-0">
+                            <Users className="w-6 h-6" strokeWidth={2.4} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[11px] text-muted-foreground font-black uppercase tracking-wider">{tText("الطلاب الممتحنون", "Exams Taken")}</p>
+                            <p className="font-mono font-black text-2xl text-foreground truncate">{totalStudentsTested}</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Pass Rate */}
+                      <Card className="rounded-3xl border-2 border-border/80 bg-gradient-to-br from-card via-card/95 to-card shadow-md hover:border-amber-500/40 hover:shadow-xl transition-all duration-300">
+                        <CardContent className="p-4 sm:p-5 flex items-center gap-3.5">
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center shadow-md shadow-amber-500/25 shrink-0">
+                            <CheckCircle className="w-6 h-6" strokeWidth={2.4} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[11px] text-muted-foreground font-black uppercase tracking-wider">{tText("نسبة النجاح العامة", "Overall Pass Rate")}</p>
+                            <p className="font-mono font-black text-2xl text-foreground truncate">{passRate}%</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Excellence Rate */}
+                      <Card className="rounded-3xl border-2 border-border/80 bg-gradient-to-br from-card via-card/95 to-card shadow-md hover:border-purple-500/40 hover:shadow-xl transition-all duration-300">
+                        <CardContent className="p-4 sm:p-5 flex items-center gap-3.5">
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-fuchsia-600 text-white flex items-center justify-center shadow-md shadow-purple-500/25 shrink-0">
+                            <Star className="w-6 h-6" strokeWidth={2.4} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[11px] text-muted-foreground font-black uppercase tracking-wider">{tText("نسبة المتفوقين", "Top Honor Rate")}</p>
+                            <p className="font-mono font-black text-2xl text-foreground truncate">{topRate}%</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* ── 2. Filter & Export Action Bar ── */}
+                    <div className="flex flex-col sm:flex-row items-center gap-3 bg-card p-3 rounded-2xl border border-border/80 shadow-xs">
+                      <div className="relative flex-1 w-full">
+                        <Search className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input
+                          placeholder={tText("بحث باسم الطالب أو القسم أو التاريخ...", "Search by student name, department or date...")}
+                          value={resultSearch}
+                          onChange={e => setResultSearch(e.target.value)}
+                          className="ps-10 h-10 rounded-xl bg-background border-border/80 text-xs sm:text-sm"
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1 sm:flex-none h-10 px-4 rounded-xl gap-2 border-border bg-background hover:bg-muted font-bold text-xs"
+                          onClick={exportResultsToExcel}
                         >
-                          <div className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white p-4 flex items-center justify-between gap-3">
-                            <div className="min-w-0">
-                              <p className="text-xs opacity-90 flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" />{dateLabel}</p>
-                              <h3 className="font-extrabold text-base mt-0.5 truncate">{title}</h3>
+                          <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                          <span>{tText("تصدير Excel", "Export Excel")}</span>
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          className="flex-1 sm:flex-none h-10 px-4 rounded-xl gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs shadow-md shadow-emerald-600/20"
+                          onClick={exportResultsToPDF}
+                        >
+                          <Download className="w-4 h-4" />
+                          <span>{tText("تصدير PDF", "Export PDF")}</span>
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* ── 3. Results Grid OR Futuristic Empty State ── */}
+                    {sorted.length === 0 ? (
+                      <Card className="border-2 border-border/80 bg-gradient-to-b from-card via-card/95 to-card rounded-3xl shadow-xl overflow-hidden">
+                        <CardContent className="p-8 sm:p-12 text-center relative z-10 space-y-6">
+                          {/* 3D Holographic Icon */}
+                          <div className="relative mx-auto w-24 h-24 sm:w-28 sm:h-28">
+                            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 opacity-20 blur-2xl animate-pulse" />
+                            <div className="relative w-full h-full rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 p-0.5 shadow-xl flex items-center justify-center">
+                              <div className="w-full h-full rounded-[22px] bg-card/90 backdrop-blur-xl flex items-center justify-center">
+                                <GraduationCap className="w-12 h-12 text-emerald-600 dark:text-emerald-400 drop-shadow-md" />
+                              </div>
                             </div>
-                            <div className="w-11 h-11 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                              <ClipboardList className="w-5 h-5" />
+                          </div>
+
+                          {/* Status Badge */}
+                          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-teal-500/30 bg-teal-500/10 text-teal-700 dark:text-teal-300 font-black text-xs">
+                            <Shield className="w-3.5 h-3.5" />
+                            <span>{tText("دورة اعتماد نتائج الاختبارات الأكاديمية", "Academic Exam Approval Cycle")}</span>
+                          </div>
+
+                          <div className="max-w-xl mx-auto space-y-2">
+                            <h3 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+                              {tText("لا توجد نتائج اختبارات معتمدة حالياً", "No Approved Exam Results Yet")}
+                            </h3>
+                            <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">
+                              {tText(
+                                "تظهر نتائج الاختبارات هنا تلقائياً بمجرد إتمام سلسلة الاعتماد الإلزامية من رئيس القسم، ثم وكيل الكلية، ثم الاعتماد النهائي من العميد.",
+                                "Exam results will appear here automatically once approved through the department head, vice dean, and final dean approval."
+                              )}
+                            </p>
+                          </div>
+
+                          {/* Informative Workflow Stepper */}
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto pt-2 text-start">
+                            <div className="p-4 rounded-2xl bg-muted/40 border border-border/70 space-y-1.5">
+                              <span className="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-blue-500/15 text-blue-600 font-mono font-black text-xs">1</span>
+                              <h4 className="font-bold text-xs text-foreground">{tText("إدراج جدول الاختبارات", "Schedule Exams")}</h4>
+                              <p className="text-[11px] text-muted-foreground">{tText("تحديد المواعيد والمواد والقاعات الدراسية في تبويب الجداول.", "Specify dates, courses and halls in Schedules tab.")}</p>
+                            </div>
+
+                            <div className="p-4 rounded-2xl bg-muted/40 border border-border/70 space-y-1.5">
+                              <span className="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-amber-500/15 text-amber-600 font-mono font-black text-xs">2</span>
+                              <h4 className="font-bold text-xs text-foreground">{tText("رصد درجات الطلاب", "Record Grades")}</h4>
+                              <p className="text-[11px] text-muted-foreground">{tText("يقوم المحاضرون برصد درجات الطلاب وتحديد التقديرات.", "Instructors submit grades and performance ratings.")}</p>
+                            </div>
+
+                            <div className="p-4 rounded-2xl bg-muted/40 border border-border/70 space-y-1.5">
+                              <span className="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-emerald-500/15 text-emerald-600 font-mono font-black text-xs">3</span>
+                              <h4 className="font-bold text-xs text-foreground">{tText("الاعتماد النهائي والنشر", "Final Dean Approval")}</h4>
+                              <p className="text-[11px] text-muted-foreground">{tText("يعتمد العميد النتائج لتنشر فوراً وتظهر في هذه اللوحة.", "Dean gives final approval to publish results live.")}</p>
                             </div>
                           </div>
-                          <div className="p-3 grid grid-cols-4 gap-2 text-center">
-                            <div><p className="text-base font-black text-primary">{items.length}</p><p className="text-[10px] text-muted-foreground">{isRtl ? "إجمالي" : "Total"}</p></div>
-                            <div><p className="text-base font-black text-emerald-600">{top}</p><p className="text-[10px] text-muted-foreground">{isRtl ? "متفوق" : "Top"}</p></div>
-                            <div><p className="text-base font-black text-amber-600">{pass}</p><p className="text-[10px] text-muted-foreground">{isRtl ? "ناجح" : "Pass"}</p></div>
-                            <div><p className="text-base font-black text-red-600">{fail}</p><p className="text-[10px] text-muted-foreground">{isRtl ? "راسب" : "Fail"}</p></div>
+
+                          {/* Action CTAs */}
+                          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3">
+                            <Button
+                              onClick={() => handleTabChange("schedules")}
+                              className="w-full sm:w-auto h-11 px-6 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-black text-xs gap-2 shadow-lg shadow-teal-500/25"
+                            >
+                              <Calendar className="w-4 h-4" />
+                              <span>{tText("الانتقال لجداول الاختبارات", "Go to Exam Schedules")}</span>
+                            </Button>
+
+                            <Button
+                              variant="outline"
+                              onClick={() => handleTabChange("departments")}
+                              className="w-full sm:w-auto h-11 px-6 rounded-xl border-border bg-card hover:bg-muted font-bold text-xs gap-2"
+                            >
+                              <BookOpen className="w-4 h-4 text-primary" />
+                              <span>{tText("عرض الأقسام الأكاديمية", "View Academic Departments")}</span>
+                            </Button>
                           </div>
-                          <div className="px-3 pb-3">
-                            <span className="text-[11px] text-primary font-medium inline-flex items-center gap-1 group-hover:gap-2 transition-all">
-                              {isRtl ? "اطلاع وتحميل PDF" : "View & download PDF"}
-                              <span className={isRtl ? "rotate-180" : ""}>→</span>
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })}
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      /* Populated Quiz Results Cards Grid */
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        {sorted.map(([day, items]) => {
+                          const top = items.filter(r => r.rating === "excellent" || r.rating === "very_good").length;
+                          const pass = items.filter(r => r.rating === "good" || r.rating === "acceptable").length;
+                          const fail = items.filter(r => r.rating === "fail").length;
+                          const dateLabel = new Date(day).toLocaleDateString(isRtl ? "ar-EG" : "en-US", { year: "numeric", month: "long", day: "numeric" });
+                          const title = tText(`نتائج اختبار ${dateLabel}`, `Exam Results — ${dateLabel}`);
+                          const cardPassPercent = items.length > 0 ? Math.round(((items.length - fail) / items.length) * 100) : 100;
+
+                          return (
+                            <button
+                              key={day}
+                              onClick={() => navigate(`/institution/quiz-results/${day}`)}
+                              className="text-start group rounded-3xl border-2 border-border/80 bg-card hover:border-primary/50 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer flex flex-col justify-between"
+                              dir={dir}
+                            >
+                              {/* Card Header Banner */}
+                              <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 text-white p-5 flex items-center justify-between gap-3 w-full">
+                                <div className="min-w-0">
+                                  <span className="text-xs opacity-90 flex items-center gap-1.5 font-bold">
+                                    <Calendar className="w-3.5 h-3.5" />
+                                    {dateLabel}
+                                  </span>
+                                  <h3 className="font-black text-base sm:text-lg mt-1 truncate">{title}</h3>
+                                </div>
+                                <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-3 transition-transform shadow-md">
+                                  <ClipboardList className="w-6 h-6 text-white" strokeWidth={2.4} />
+                                </div>
+                              </div>
+
+                              {/* Progress bar and metrics */}
+                              <div className="p-5 space-y-4 w-full">
+                                {/* Success Bar */}
+                                <div className="space-y-1.5">
+                                  <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
+                                    <span>{tText("نسبة النجاح في الاختبار", "Pass Rate")}</span>
+                                    <span className="font-mono text-emerald-600 dark:text-emerald-400 font-black">{cardPassPercent}%</span>
+                                  </div>
+                                  <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
+                                    <div
+                                      className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500"
+                                      style={{ width: `${cardPassPercent}%` }}
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* 4-grid metric breakdown */}
+                                <div className="grid grid-cols-4 gap-2 text-center pt-1">
+                                  <div className="p-2 rounded-xl bg-muted/40 border border-border/50">
+                                    <p className="text-base font-black font-mono text-foreground">{items.length}</p>
+                                    <p className="text-[10px] font-bold text-muted-foreground">{tText("إجمالي", "Total")}</p>
+                                  </div>
+                                  <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                                    <p className="text-base font-black font-mono text-emerald-600 dark:text-emerald-400">{top}</p>
+                                    <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">{tText("متفوق", "Top")}</p>
+                                  </div>
+                                  <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                                    <p className="text-base font-black font-mono text-amber-600 dark:text-amber-400">{pass}</p>
+                                    <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400">{tText("ناجح", "Pass")}</p>
+                                  </div>
+                                  <div className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20">
+                                    <p className="text-base font-black font-mono text-rose-600 dark:text-rose-400">{fail}</p>
+                                    <p className="text-[10px] font-bold text-rose-600 dark:text-rose-400">{tText("راسب", "Fail")}</p>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Footer Action Link */}
+                              <div className="px-5 py-3 border-t border-border/60 bg-muted/20 flex items-center justify-between w-full">
+                                <span className="text-xs text-primary font-black inline-flex items-center gap-1.5 group-hover:gap-2.5 transition-all">
+                                  <span>{tText("عرض النتائج التفصيلية وتصدير PDF", "View Details & Export PDF")}</span>
+                                  {isRtl ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
+                                </span>
+                                <Badge variant="outline" className="text-[10px] font-bold border-border">
+                                  {tText("معتمد رسمياً", "Verified")}
+                                </Badge>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 );
               })()}

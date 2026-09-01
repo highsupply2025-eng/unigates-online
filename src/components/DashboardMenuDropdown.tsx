@@ -1,8 +1,8 @@
 import { memo, useCallback, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
-  LucideIcon, Globe, LogOut, X, ChevronRight,
-  Sparkles, Check
+  LucideIcon, LogOut, X, ChevronRight,
+  Sparkles
 } from "lucide-react";
 
 import {
@@ -11,11 +11,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
-import { useLanguage, type Language } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { preloadRoute } from "@/PrefetchRoutes";
 
 export interface DashboardMenuItem {
@@ -33,12 +30,12 @@ export interface DashboardMenuItem {
 
 interface Props {
   items: DashboardMenuItem[];
-  onLanguageToggle: () => void;
+  onLanguageToggle?: () => void;
   onLogout: () => void;
   langLabel?: string;
   logoutLabel?: string;
   title?: string;
-  /** Deprecated — notifications were removed project-wide. Prop kept for backward compatibility. */
+  /** Deprecated — kept for backward compatibility. */
   showNotifications?: boolean;
 }
 
@@ -58,13 +55,11 @@ const ICON_PALETTE = [
 
 const DashboardMenuDropdown = ({
   items,
-  onLanguageToggle,
   onLogout,
-  langLabel,
   logoutLabel,
   title,
 }: Props) => {
-  const { t, language, setLanguage, dir, availableLanguages = [], currentLanguageInfo, translate, tText, isRtl } = useLanguage();
+  const { translate, tText, isRtl } = useLanguage();
 
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -72,16 +67,7 @@ const DashboardMenuDropdown = ({
 
   const close = useCallback(() => setOpen(false), []);
 
-  const langInfo = currentLanguageInfo || availableLanguages.find((l) => l.code === language) || {
-    code: "ar",
-    name: "Arabic",
-    nativeName: "العربية",
-    flag: "🇸🇦",
-    dir: "rtl",
-  };
-
-  // Eagerly prefetch every menu route chunk during browser idle time so that
-  // tapping an item navigates instantly without waiting for a JS chunk fetch.
+  // Eagerly prefetch every menu route chunk during browser idle time
   useEffect(() => {
     const w = window as Window & {
       requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
@@ -104,8 +90,6 @@ const DashboardMenuDropdown = ({
       });
     }
   }, [items]);
-
-  const Chevron = ChevronRight;
 
   return (
     <DropdownMenu open={open} onOpenChange={handleOpenChange}>
@@ -193,7 +177,7 @@ const DashboardMenuDropdown = ({
                 {isActive ? (
                   <span className="w-2 h-2 rounded-full bg-primary animate-pulse shrink-0 ring-4 ring-primary/20" />
                 ) : (
-                  <Chevron className="w-4 h-4 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-[-2px] shrink-0 transition-all duration-200" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-primary shrink-0 transition-all duration-200" />
                 )}
               </DropdownMenuItem>
             );
@@ -202,85 +186,24 @@ const DashboardMenuDropdown = ({
 
         <DropdownMenuSeparator className="my-2 border-border/60" />
 
-        {/* Footer Actions */}
-        <div className="space-y-1">
-
-          {/* Multilingual Submenu */}
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger className="group gap-3.5 cursor-pointer rounded-2xl py-2.5 px-3 hover:bg-muted/60 transition-all duration-200 focus:bg-muted/60">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-md shadow-black/15 ring-2 ring-white/30 dark:ring-white/10 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-2 transition-all duration-200">
-                <Globe className="w-5 h-5 text-white drop-shadow-sm" strokeWidth={2.6} />
-              </div>
-              <div className="flex flex-col text-start flex-1 min-w-0">
-                <span className="text-sm font-extrabold text-foreground group-hover:text-cyan-600 dark:group-hover:text-cyan-400 truncate">
-                  {langInfo.nativeName} ({langInfo.code.toUpperCase()})
-                </span>
-                <span className="text-[10px] text-muted-foreground font-bold truncate">
-                  {tText("تغيير اللغة", "Change Language")}
-                </span>
-              </div>
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 shrink-0">
-                {langInfo.code.toUpperCase()}
-              </span>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent className="w-56 p-1.5 rounded-2xl border-2 border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl z-50 animate-scale-in">
-              <div className="px-2.5 py-1.5 text-[10px] font-black text-cyan-600 dark:text-cyan-400 uppercase tracking-wider border-b border-border/50 mb-1">
-                {tText("اختر اللغة", "Select Language")}
-              </div>
-              {availableLanguages.map((langItem) => {
-                const isSelected = language === langItem.code;
-                return (
-                  <DropdownMenuItem
-                    key={langItem.code}
-                    onClick={() => {
-                      setLanguage(langItem.code);
-                      close();
-                    }}
-                    className={`flex items-center justify-between px-2.5 py-2 rounded-xl cursor-pointer transition-all ${
-                      isSelected
-                        ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-black border border-cyan-500/30"
-                        : "hover:bg-muted/80 text-foreground"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <span className="text-base shrink-0">{langItem.flag}</span>
-                      <div className="flex flex-col text-start min-w-0">
-                        <span className="text-xs font-bold leading-tight truncate">{langItem.nativeName}</span>
-                        <span className="text-[10px] text-muted-foreground leading-tight truncate">{langItem.name}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border">
-                        {langItem.code}
-                      </span>
-                      {isSelected && <Check className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 ms-1 shrink-0" />}
-                    </div>
-                  </DropdownMenuItem>
-                );
-              })}
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
-
-          {/* Logout */}
-          <DropdownMenuItem
-            onClick={() => {
-              close();
-              onLogout();
-            }}
-            className="group gap-3.5 cursor-pointer rounded-2xl py-2.5 px-3 hover:bg-red-500/10 transition-all duration-200 text-destructive focus:text-destructive"
-          >
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-red-500 via-rose-600 to-red-700 shadow-md shadow-black/15 ring-2 ring-white/30 dark:ring-white/10 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-2 transition-all duration-200">
-              <LogOut className="w-5 h-5 text-white drop-shadow-sm" strokeWidth={2.6} />
-            </div>
-            <span className="text-sm font-black text-rose-600 dark:text-rose-400 group-hover:text-rose-700 flex-1 truncate transition-colors">
-              {logoutLabel ?? tText("تسجيل الخروج", "Logout")}
-            </span>
-          </DropdownMenuItem>
-        </div>
+        {/* Logout */}
+        <DropdownMenuItem
+          onClick={() => {
+            close();
+            onLogout();
+          }}
+          className="group gap-3.5 cursor-pointer rounded-2xl py-2.5 px-3 hover:bg-red-500/10 transition-all duration-200 text-destructive focus:text-destructive"
+        >
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-red-500 via-rose-600 to-red-700 shadow-md shadow-black/15 ring-2 ring-white/30 dark:ring-white/10 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-2 transition-all duration-200">
+            <LogOut className="w-5 h-5 text-white drop-shadow-sm" strokeWidth={2.6} />
+          </div>
+          <span className="text-sm font-black text-rose-600 dark:text-rose-400 group-hover:text-rose-700 flex-1 truncate transition-colors">
+            {logoutLabel ?? tText("تسجيل الخروج", "Logout")}
+          </span>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
 
 export default memo(DashboardMenuDropdown);
-

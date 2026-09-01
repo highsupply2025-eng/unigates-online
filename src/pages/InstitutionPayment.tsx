@@ -27,9 +27,9 @@ const InstitutionPayment = () => {
   const studentIds = useMemo(() => studentIdsRaw.split(",").filter(Boolean), [studentIdsRaw]);
   const studentNames = useMemo(() => studentNamesRaw.split(",").filter(Boolean), [studentNamesRaw]);
 
-  const baseAmount = count * months * 50;
-  const discount = planType === "annual" ? 0.1 : 0;
-  const totalAmount = Math.round(baseAmount * (1 - discount));
+  const baseAmount = count * (planType === "annual" ? 48 : months * 6);
+  const discount = 0;
+  const totalAmount = baseAmount;
 
   useEffect(() => {
     if (studentIds.length === 0) {

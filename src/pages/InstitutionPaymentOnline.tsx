@@ -20,10 +20,10 @@ interface StudentRecord {
   subscription_active: boolean;
 }
 
-const MONTHLY_PRICE = 50;
-const ANNUAL_DISCOUNT = 0.1;
+const MONTHLY_PRICE = 6;
+const ANNUAL_DISCOUNT = 0.3333;
 
-type ProviderId = "stripe" | "fawry" | "paymob" | "valu" | "tap" | "paytab";
+type ProviderId = "stripe" | "paddle" | "fawry" | "paymob" | "valu" | "tap" | "paytab";
 
 interface Provider {
   id: ProviderId;
@@ -40,12 +40,23 @@ interface Provider {
 const providers: Provider[] = [
   {
     id: "stripe",
-    label: "Stripe",
-    labelAr: "Stripe",
-    desc: "Accept payments worldwide with credit/debit cards",
-    descAr: "استقبال المدفوعات من جميع أنحاء العالم بالبطاقات الائتمانية",
+    label: "Stripe Global",
+    labelAr: "Stripe Global",
+    desc: "Accept payments worldwide with credit/debit cards, Apple Pay & Google Pay",
+    descAr: "استقبال المدفوعات العالمية بالبطاقات الائتمانية و Apple/Google Pay",
     icon: <CreditCard className="w-6 h-6" />,
     gradient: "from-indigo-500 to-purple-600",
+    available: true,
+    comingSoon: false,
+  },
+  {
+    id: "paddle",
+    label: "Paddle Merchant",
+    labelAr: "Paddle Merchant",
+    desc: "Global Merchant of Record, PayPal, Cards and Wire transfers",
+    descAr: "معالجة المدفوعات الدولية عبر PayPal والبطاقات والتحويلات",
+    icon: <Globe className="w-6 h-6" />,
+    gradient: "from-teal-500 to-emerald-600",
     available: true,
     comingSoon: false,
   },

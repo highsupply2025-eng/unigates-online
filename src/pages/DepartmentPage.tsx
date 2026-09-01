@@ -3,7 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   ChevronLeft, ChevronRight, Copy, UserCheck, GraduationCap,
-  Layers, LinkIcon, MessageCircle, Loader2, Search, Download, Crown, Mail, Zap, Plus, UserMinus
+  Layers, LinkIcon, MessageCircle, Loader2, Search, Download,
+  Crown, Mail, Zap, Plus, UserMinus, Users, BookOpen,
+  Shield, CheckCircle2, Clock, X, FileSpreadsheet, Share2,
+  ArrowLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,31 +53,39 @@ type DeptSnapshot = {
 const __deptCache = new Map<string, DeptSnapshot>();
 
 const STUDENT_ROLE = "student";
-const HEAD_ROLE = "department_head";
 
-// Canonical faculty roles — must stay in sync with InstitutionDashboard FACULTY_ROLES
 const FACULTY_ROLES = new Set<string>([
-  "dean",
-  "vice_dean",
-  "vice_dean_postgrad",
-  "vice_dean_students",
-  "vice_dean_community",
-  "vice_dean_environment",
-  "department_head",
-  "teaching_assistant",
-  "professor",
-  "doctor",
-  "lecturer",
-  "assistant_lecturer",
+  "dean", "vice_dean", "vice_dean_postgrad", "vice_dean_students",
+  "vice_dean_community", "vice_dean_environment", "department_head",
+  "teaching_assistant", "professor", "doctor", "lecturer", "assistant_lecturer",
 ]);
 const isFacultyRole = (role: string) => FACULTY_ROLES.has(String(role || ""));
 
+// Role label helper
+const getRoleLabel = (role: string, isRtl: boolean): string => {
+  const map: Record<string, [string, string]> = {
+    department_head:      ["رئيس قسم",       "Department Head"],
+    dean:                 ["العميد",          "Dean"],
+    vice_dean:            ["نائب العميد",     "Vice Dean"],
+    vice_dean_postgrad:   ["نائب الدراسات",   "Vice Dean Postgrad"],
+    vice_dean_students:   ["نائب شؤون الطلاب","Vice Dean Students"],
+    vice_dean_community:  ["نائب المجتمع",    "Vice Dean Community"],
+    vice_dean_environment:["نائب البيئة",     "Vice Dean Environment"],
+    professor:            ["أستاذ",           "Professor"],
+    doctor:               ["دكتور",           "Doctor"],
+    lecturer:             ["محاضر",           "Lecturer"],
+    teaching_assistant:   ["مدرس مساعد",      "Teaching Assistant"],
+    assistant_lecturer:   ["مدرس",            "Assistant Lecturer"],
+    student:              ["طالب",            "Student"],
+  };
+  return map[role]?.[isRtl ? 0 : 1] ?? role;
+};
 
 const DepartmentPage = () => {
   const { deptId } = useParams<{ deptId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { dir, language } = useLanguage();
+  const { dir, tText, translate } = useLanguage();
   const isRtl = dir === "rtl";
   const { identity, loading: identityLoading } = useInstitutionIdentity();
 
@@ -88,14 +99,12 @@ const DepartmentPage = () => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [memberToRemove, setMemberToRemove] = useState<DepartmentMember | null>(null);
   const [removing, setRemoving] = useState(false);
-
   const [activationResults, setActivationResults] = useState<Array<{ full_name: string; email: string; password: string }>>([]);
   const [showActivationResults, setShowActivationResults] = useState(false);
   const [memberToActivate, setMemberToActivate] = useState<DepartmentMember | null>(null);
   const [activateEmail, setActivateEmail] = useState("");
   const [activatePhone, setActivatePhone] = useState("");
   const [activating, setActivating] = useState(false);
-
   const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
   const loadRequestIdRef = useRef(0);
 
@@ -111,7 +120,6 @@ const DepartmentPage = () => {
       setLoading(false);
     }
     loadDepartmentData();
-
     const handleVisibility = () => {
       if (document.visibilityState === "visible" && deptId) {
         __deptCache.delete(deptId);
@@ -124,12 +132,7 @@ const DepartmentPage = () => {
 
   useRealtimeRefresh(
     ["department_members", "institution_faculty_members"],
-    () => {
-      if (deptId) {
-        __deptCache.delete(deptId);
-        loadDepartmentData();
-      }
-    },
+    () => { if (deptId) { __deptCache.delete(deptId); loadDepartmentData(); } },
     Boolean(deptId),
   );
 
@@ -138,7 +141,6 @@ const DepartmentPage = () => {
     const requestId = ++loadRequestIdRef.current;
     try {
       if (!identity) return;
-
       const [deptResult, membersResult] = await Promise.all([
         supabase.from("departments").select("*").eq("id", deptId).maybeSingle(),
         (async () => {
@@ -147,10 +149,7 @@ const DepartmentPage = () => {
           let hasMore = true;
           while (hasMore) {
             const { data: batch } = await supabase
-              .from("department_members")
-              .select("*")
-              .eq("department_id", deptId)
-              .range(from, from + 999);
+              .from("department_members").select("*").eq("department_id", deptId).range(from, from + 999);
             all = [...all, ...(batch || [])];
             hasMore = (batch?.length || 0) === 1000;
             from += 1000;
@@ -158,33 +157,19 @@ const DepartmentPage = () => {
           return all;
         })(),
       ]);
-
       if (requestId !== loadRequestIdRef.current) return;
-
       const dept = deptResult.data;
       if (!dept) { navigate("/institution/dashboard"); return; }
-
       setDeptName(dept.department_name);
       setDeptStatus(dept.status);
       setInstitutionType(dept.institution_type as "college" | "institute");
-
       const seenIds = new Set<string>();
-      const allMembers = (membersResult || []).filter(m => {
-        if (seenIds.has(m.id)) return false;
-        seenIds.add(m.id);
-        return true;
-      });
-
+      const allMembers = (membersResult || []).filter(m => { if (seenIds.has(m.id)) return false; seenIds.add(m.id); return true; });
       let visibleMembers = allMembers.filter(m => {
         if (m.user_id) return true;
         const nm = (m.full_name || "").trim();
         return nm !== "عضو جديد" && nm !== "New Member";
       });
-
-      // ── Faculty authority filter & User linking ───────────────────────
-      // institution_faculty_members is the canonical store for faculty in the institution.
-      // We query IFM at the institution level to verify the member exists in the institution,
-      // link missing user_ids, and hide orphan department_members rows if the faculty was deleted entirely.
       if (dept) {
         try {
           const { data: ifmRows } = await supabase
@@ -192,34 +177,21 @@ const DepartmentPage = () => {
             .select("id,user_id,email,full_name,photo_url,phone,specific_role")
             .eq("institution_id", (dept as any).institution_id)
             .eq("institution_type", (dept as any).institution_type);
-          
           if (ifmRows && ifmRows.length > 0) {
             const ifmByEmail = new Map<string, any>();
             const ifmByName = new Map<string, any>();
             const ifmByUserId = new Map<string, any>();
-
             ifmRows.forEach((r: any) => {
               if (r.user_id) ifmByUserId.set(String(r.user_id).toLowerCase(), r);
               if (r.email) ifmByEmail.set(String(r.email).toLowerCase(), r);
               if (r.full_name) ifmByName.set(String(r.full_name).trim().toLowerCase(), r);
             });
-
             visibleMembers = visibleMembers.map(m => {
               if (!isFacultyRole(m.role)) return m;
-              const match = 
-                (m.user_id && ifmByUserId.get(String(m.user_id).toLowerCase())) ||
+              const match = (m.user_id && ifmByUserId.get(String(m.user_id).toLowerCase())) ||
                 (m.email && ifmByEmail.get(String(m.email).toLowerCase())) ||
                 (m.full_name && ifmByName.get(String(m.full_name).trim().toLowerCase()));
-
-              if (match) {
-                return {
-                  ...m,
-                  user_id: m.user_id || match.user_id || null,
-                  email: m.email || match.email || null,
-                  phone: m.phone || match.phone || null,
-                  photo_url: m.photo_url || match.photo_url || null,
-                };
-              }
+              if (match) return { ...m, user_id: m.user_id || match.user_id || null, email: m.email || match.email || null, phone: m.phone || match.phone || null, photo_url: m.photo_url || match.photo_url || null };
               return m;
             }).filter(m => {
               if (!isFacultyRole(m.role)) return true;
@@ -231,228 +203,107 @@ const DepartmentPage = () => {
               return false;
             });
           }
-        } catch (e) {
-          console.warn("faculty authority filter failed (non-fatal):", e);
-        }
+        } catch (e) { console.warn("faculty authority filter failed:", e); }
       }
-
       if (requestId !== loadRequestIdRef.current) return;
-
       setMembers(visibleMembers);
-
       const linkedUserIds = visibleMembers.filter(m => m.user_id).map(m => m.user_id as string);
       let snapshotMap: Record<string, MemberProfile> = {};
       if (linkedUserIds.length > 0) {
         let profilesData: any[] = [];
         try {
-          const { data: rpcData, error: rpcErr } = await supabase.rpc("get_user_profiles_for_institution" as any, {
-            p_user_ids: linkedUserIds,
-          });
-          if (!rpcErr && Array.isArray(rpcData) && rpcData.length > 0) {
-            profilesData = rpcData;
-          }
+          const { data: rpcData, error: rpcErr } = await supabase.rpc("get_user_profiles_for_institution" as any, { p_user_ids: linkedUserIds });
+          if (!rpcErr && Array.isArray(rpcData) && rpcData.length > 0) profilesData = rpcData;
         } catch { /* fallback */ }
-
         if (!profilesData || profilesData.length === 0) {
-          const { data: directData } = await supabase
-            .from("profiles")
-            .select("user_id,email,phone,full_name,must_change_password,avatar_url")
-            .in("user_id", linkedUserIds);
+          const { data: directData } = await supabase.from("profiles").select("user_id,email,phone,full_name,must_change_password,avatar_url").in("user_id", linkedUserIds);
           profilesData = directData || [];
         }
-
         const map: Record<string, MemberProfile> = {};
         (profilesData || []).forEach((p: any) => {
-          map[p.user_id] = {
-            email: p.email,
-            phone: p.phone,
-            live_photo_url: null,
-            photo_url: p.avatar_url ?? null,
-            full_name: p.full_name,
-            must_change_password: p.must_change_password === true,
-          };
+          map[p.user_id] = { email: p.email, phone: p.phone, live_photo_url: null, photo_url: p.avatar_url ?? null, full_name: p.full_name, must_change_password: p.must_change_password === true };
         });
-        allMembers.forEach(m => {
-          if (m.user_id && map[m.user_id] && !map[m.user_id].photo_url && m.photo_url) {
-            map[m.user_id].photo_url = m.photo_url;
-          }
-        });
+        allMembers.forEach(m => { if (m.user_id && map[m.user_id] && !map[m.user_id].photo_url && m.photo_url) map[m.user_id].photo_url = m.photo_url; });
         snapshotMap = map;
         if (requestId !== loadRequestIdRef.current) return;
         setProfilesMap(map);
       }
-
       setImgErrors({});
-
-      __deptCache.set(deptId, {
-        deptName: dept.department_name,
-        deptStatus: dept.status,
-        institutionType: dept.institution_type as "college" | "institute",
-        members: visibleMembers,
-        profilesMap: snapshotMap,
-      });
-    } catch {
-      navigate("/institution/dashboard");
-    } finally {
-      if (requestId === loadRequestIdRef.current) {
-        setLoading(false);
-      }
-    }
+      __deptCache.set(deptId, { deptName: dept.department_name, deptStatus: dept.status, institutionType: dept.institution_type as "college" | "institute", members: visibleMembers, profilesMap: snapshotMap });
+    } catch { navigate("/institution/dashboard"); }
+    finally { if (requestId === loadRequestIdRef.current) setLoading(false); }
   };
 
-  /**
-   * Removes a member from THIS department only (unlink / unassign).
-   *
-   * - Faculty members: the canonical record lives in
-   *   institution_faculty_members. We set department_id = NULL there so the
-   *   person stays intact in the global faculty directory
-   *   (/institution/dashboard?tab=faculty), then we delete this department's
-   *   mirror row in department_members (the junction row).
-   * - Non-faculty members (e.g. students): department_members is their only
-   *   membership record, so removing it simply unassigns them.
-   *
-   * The user/auth record and any global profile are NEVER deleted here.
-   */
   const handleRemoveFromDepartment = async () => {
     if (!memberToRemove || !deptId) return;
     setRemoving(true);
     try {
-      // 1. Faculty: unlink the canonical institution_faculty_members record
-      //    from this department BEFORE deleting the mirror row, so the
-      //    dashboard never counts them in this department again.
       if (isFacultyRole(memberToRemove.role)) {
         if (!identity) throw new Error("Missing institution identity");
-
-        const { data: ifmRows, error: ifmQueryError } = await supabase
-          .from("institution_faculty_members")
-          .select("id,user_id,email")
-          .eq("institution_id", identity.institutionId)
-          .eq("institution_type", identity.institutionType)
-          .eq("department_id", deptId);
+        const { data: ifmRows, error: ifmQueryError } = await supabase.from("institution_faculty_members").select("id,user_id,email").eq("institution_id", identity.institutionId).eq("institution_type", identity.institutionType).eq("department_id", deptId);
         if (ifmQueryError) throw ifmQueryError;
-
         const memberEmail = String((memberToRemove as any).email || "").toLowerCase();
         const matchedIfm = (ifmRows || []).find((r: any) => {
-          if (memberToRemove.user_id && r.user_id) {
-            return String(r.user_id).toLowerCase() === String(memberToRemove.user_id).toLowerCase();
-          }
+          if (memberToRemove.user_id && r.user_id) return String(r.user_id).toLowerCase() === String(memberToRemove.user_id).toLowerCase();
           if (memberEmail && r.email) return String(r.email).toLowerCase() === memberEmail;
           return false;
         });
-
         if (matchedIfm) {
-          const { error: unlinkError } = await supabase
-            .from("institution_faculty_members")
-            .update({ department_id: null })
-            .eq("id", matchedIfm.id);
+          const { error: unlinkError } = await supabase.from("institution_faculty_members").update({ department_id: null }).eq("id", matchedIfm.id);
           if (unlinkError) throw unlinkError;
         }
-        // No canonical match → legacy/pending placeholder row; removing the
-        // junction row below is enough (there is no global record to keep).
       }
-
-      // 2. Delete this department's junction/mirror row.
-      const { error } = await supabase
-        .from("department_members")
-        .delete()
-        .eq("id", memberToRemove.id);
-      if (error) {
-        console.error("Remove failed:", error.message, error.details, error.hint);
-        throw error;
-      }
-
-      // 3. Optimistic local update + cache invalidation so every view that
-      //    shows department counters/head status syncs immediately.
+      const { error } = await supabase.from("department_members").delete().eq("id", memberToRemove.id);
+      if (error) throw error;
       setMembers(prev => prev.filter(m => m.id !== memberToRemove.id));
       __deptCache.delete(deptId);
       try {
-        // Forces InstitutionDashboard to skip its in-memory snapshot hydration
-        // on next mount → member counter decrements + head shows "غير معيّن".
         sessionStorage.setItem("institution-dashboard-force-refresh", Date.now().toString());
         sessionStorage.setItem(`dept-cache-invalidate:${deptId}`, Date.now().toString());
       } catch { /* ignore */ }
       queryClient.invalidateQueries({ queryKey: ["platform-stats"] });
-
-      sonnerToast.success(
-        isRtl ? "تمت إزالة العضو من القسم بنجاح" : "Member removed from department",
-        {
-          description: isRtl
-            ? "ظل العضو محفوظاً في قائمة أعضاء هيئة التدريس بالكلية"
-            : "The member remains in the institution-wide faculty directory",
-          duration: 2500,
-        },
-      );
+      sonnerToast.success(isRtl ? "تمت إزالة العضو من القسم بنجاح" : "Member removed from department", { description: isRtl ? "ظل العضو محفوظاً في قائمة أعضاء هيئة التدريس بالكلية" : "The member remains in the institution-wide faculty directory", duration: 2500 });
     } catch (err: any) {
-      console.error("Remove member error:", err);
-      sonnerToast.error(
-        isRtl ? "فشل إزالة العضو من القسم" : "Failed to remove member",
-        { description: err?.message || String(err), duration: 3000 }
-      );
+      sonnerToast.error(isRtl ? "فشل إزالة العضو من القسم" : "Failed to remove member", { description: err?.message || String(err), duration: 3000 });
       await loadDepartmentData();
-    } finally {
-      setRemoving(false);
-      setMemberToRemove(null);
-    }
+    } finally { setRemoving(false); setMemberToRemove(null); }
   };
 
   const handleActivateExistingMember = async () => {
     if (!memberToActivate || !deptId) return;
     setActivating(true);
     try {
-      const { data: fnData, error: fnError } = await supabase.functions.invoke("activate-department-member", {
-        body: {
-          full_name: memberToActivate.full_name,
-          email: activateEmail || undefined,
-          phone: activatePhone || undefined,
-          department_id: deptId,
-          role: memberToActivate.role,
-          existing_member_id: memberToActivate.id,
-        },
-      });
+      const { data: fnData, error: fnError } = await supabase.functions.invoke("activate-department-member", { body: { full_name: memberToActivate.full_name, email: activateEmail || undefined, phone: activatePhone || undefined, department_id: deptId, role: memberToActivate.role, existing_member_id: memberToActivate.id } });
       if (fnError) throw fnError;
       if (!fnData?.success) throw new Error(fnData?.error || "Activation failed");
-
-      setActivationResults([{
-        full_name: memberToActivate.full_name,
-        email: fnData.email,
-        password: fnData.password,
-      }]);
+      setActivationResults([{ full_name: memberToActivate.full_name, email: fnData.email, password: fnData.password }]);
       setShowActivationResults(true);
-      sonnerToast.success(
-        isRtl ? "تم تفعيل الحساب بنجاح" : "Account activated successfully",
-        { duration: 2000 }
-      );
-      setMemberToActivate(null);
-      setActivateEmail("");
-      setActivatePhone("");
+      sonnerToast.success(isRtl ? "تم تفعيل الحساب بنجاح" : "Account activated successfully", { duration: 2000 });
+      setMemberToActivate(null); setActivateEmail(""); setActivatePhone("");
       if (deptId) __deptCache.delete(deptId);
       await loadDepartmentData();
     } catch (err: any) {
-      const msg = err?.message || String(err);
-      sonnerToast.error(
-        isRtl ? "فشل تفعيل الحساب" : "Failed to activate account",
-        { description: msg, duration: 3000 }
-      );
-    } finally {
-      setActivating(false);
-    }
-  };
-
-  const filterMembers = (list: DepartmentMember[]) => {
-    return list.filter(m => {
-      const profile = m.user_id ? profilesMap[m.user_id] : null;
-      const name = profile?.full_name || m.full_name;
-      const matchesSearch = !searchQuery ||
-        name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (profile?.email && profile.email.toLowerCase().includes(searchQuery.toLowerCase()));
-      return matchesSearch;
-    });
+      sonnerToast.error(isRtl ? "فشل تفعيل الحساب" : "Failed to activate account", { description: err?.message || String(err), duration: 3000 });
+    } finally { setActivating(false); }
   };
 
   const allLecturers = members.filter(m => m.role !== STUDENT_ROLE);
   const allStudents = members.filter(m => m.role === STUDENT_ROLE);
+
+  const filterMembers = (list: DepartmentMember[]) => list.filter(m => {
+    const profile = m.user_id ? profilesMap[m.user_id] : null;
+    const name = profile?.full_name || m.full_name;
+    const matchSearch = !searchQuery || name.toLowerCase().includes(searchQuery.toLowerCase()) || (profile?.email && profile.email.toLowerCase().includes(searchQuery.toLowerCase()));
+    const isLinked = !!m.user_id;
+    const matchStatus = statusFilter === "all" || (statusFilter === "linked" && isLinked) || (statusFilter === "pending" && !isLinked);
+    return matchSearch && matchStatus;
+  });
+
   const lecturers = useMemo(() => filterMembers(allLecturers), [members, searchQuery, statusFilter, profilesMap]);
   const students = useMemo(() => filterMembers(allStudents), [members, searchQuery, statusFilter, profilesMap]);
+
+  const linkedFaculty = allLecturers.filter(m => !!m.user_id).length;
+  const linkedStudents = allStudents.filter(m => !!m.user_id).length;
 
   const baseUrl = window.location.origin;
   const instPath = institutionType === "college" ? "college" : "institute";
@@ -462,33 +313,22 @@ const DepartmentPage = () => {
     sonnerToast.success(isRtl ? "تم النسخ" : "Copied!", { duration: 500 });
   };
 
-  const getExportData = () => {
-    return [...lecturers, ...students].map(m => ({
-      [isRtl ? "الاسم" : "Name"]: m.full_name,
-      [isRtl ? "الدور" : "Role"]: m.role === "department_head" ? (isRtl ? "رئيس قسم" : "Department Head") : m.role === "teaching_assistant" ? (isRtl ? "مدرس مساعد" : "Teaching Assistant") : m.role === "lecturer" ? (isRtl ? "محاضر" : "Lecturer") : (isRtl ? "طالب" : "Student"),
-      [isRtl ? "الحالة" : "Status"]: m.user_id ? (isRtl ? "مسجّل" : "Linked") : (isRtl ? "بانتظار" : "Pending"),
-      [isRtl ? "كود الدعوة" : "Invitation Code"]: m.invitation_code || "",
-      [isRtl ? "رابط التسجيل" : "Signup Link"]: m.invitation_code
-        ? `${baseUrl}/signup/${instPath}/${m.role === "department_head" ? "department_head" : m.role === "lecturer" ? "lecturer" : "student"}?code=${m.invitation_code}`
-        : "",
-    }));
-  };
+  const getExportData = () => [...lecturers, ...students].map(m => ({
+    [isRtl ? "الاسم" : "Name"]: m.full_name,
+    [isRtl ? "الدور" : "Role"]: getRoleLabel(m.role, isRtl),
+    [isRtl ? "الحالة" : "Status"]: m.user_id ? (isRtl ? "مسجّل" : "Linked") : (isRtl ? "بانتظار" : "Pending"),
+    [isRtl ? "كود الدعوة" : "Invitation Code"]: m.invitation_code || "",
+    [isRtl ? "رابط التسجيل" : "Signup Link"]: m.invitation_code ? `${baseUrl}/signup/${instPath}/${m.role}?code=${m.invitation_code}` : "",
+  }));
 
   const exportCSV = () => {
     const data = getExportData();
     if (data.length === 0) return;
     const headers = Object.keys(data[0]);
-    const csvRows = [
-      headers.join(","),
-      ...data.map(row => headers.map(h => `"${(row as Record<string, string>)[h]}"`).join(","))
-    ];
+    const csvRows = [headers.join(","), ...data.map(row => headers.map(h => `"${(row as Record<string, string>)[h]}"`).join(","))];
     const blob = new Blob(["\uFEFF" + csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${deptName}_members.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const a = document.createElement("a"); a.href = url; a.download = `${deptName}_members.csv`; a.click(); URL.revokeObjectURL(url);
     sonnerToast.success(isRtl ? "تم تصدير CSV" : "CSV exported!", { duration: 1000 });
   };
 
@@ -503,152 +343,122 @@ const DepartmentPage = () => {
     sonnerToast.success(isRtl ? "تم تصدير Excel" : "Excel exported!", { duration: 1000 });
   };
 
-  const renderMemberCard = (member: DepartmentMember, roleParam: string, colorClass: string, icon: React.ReactNode) => {
-    const inviteLink = `${baseUrl}/signup/${instPath}/${roleParam}?code=${member.invitation_code}`;
+  // ── Member Card ─────────────────────────────────────────────────────────────
+  const renderMemberCard = (member: DepartmentMember) => {
+    const inviteLink = `${baseUrl}/signup/${instPath}/${member.role}?code=${member.invitation_code}`;
     const profile = member.user_id ? profilesMap[member.user_id] : null;
     const displayName = profile?.full_name || member.full_name;
     const avatar = profile?.live_photo_url || profile?.photo_url || member.photo_url;
     const isLinked = !!member.user_id;
     const isActivated = isLinked && !!profile && profile.must_change_password === false;
+    const isHead = member.role === "department_head";
+    const isStudent = member.role === STUDENT_ROLE;
     const shareText = isRtl
-      ? `مرحباً ${member.full_name}، يمكنك التسجيل في منصة إدراك عبر هذا الرابط:\n${inviteLink}\nكود الدعوة: ${member.invitation_code}`
-      : `Hi ${member.full_name}, register on Edrak platform:\n${inviteLink}\nInvitation code: ${member.invitation_code}`;
+      ? `مرحباً ${member.full_name}، يمكنك التسجيل في منصة يونيجيتس عبر هذا الرابط:\n${inviteLink}\nكود الدعوة: ${member.invitation_code}`
+      : `Hi ${member.full_name}, register on UNIGATES platform:\n${inviteLink}\nInvitation code: ${member.invitation_code}`;
+
+    const avatarBg = isHead ? "from-amber-500 to-orange-600" : isStudent ? "from-blue-500 to-indigo-600" : "from-emerald-500 to-teal-600";
+    const AvatarIcon = isHead ? Crown : isStudent ? GraduationCap : UserCheck;
 
     return (
-      <div key={member.id} className="rounded-xl border bg-card shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group">
+      <div key={member.id} className="group rounded-2xl border-2 border-border/60 hover:border-primary/30 bg-card hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 overflow-hidden">
         <div className="p-4">
-          <div className="flex items-start gap-3">
-            <button
-              type="button"
-              onClick={() => navigate(`/institution/member/${member.id}`)}
-              className="shrink-0"
-            >
-              <div className={`w-11 h-11 rounded-full ${colorClass} flex items-center justify-center overflow-hidden ring-2 ring-background shadow-sm group-hover:ring-primary/30 transition-all`}>
+          <div className="flex items-center gap-3">
+            {/* Avatar */}
+            <button type="button" onClick={() => navigate(`/institution/member/${member.id}`)} className="shrink-0 relative">
+              <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${avatarBg} flex items-center justify-center overflow-hidden ring-2 ring-white/50 dark:ring-white/20 shadow-md group-hover:scale-105 transition-transform duration-300`}>
                 {avatar && !imgErrors[member.id] ? (
-                  <img
-                    src={avatar}
-                    alt={displayName}
-                    className="w-full h-full object-cover"
-                    onError={() => setImgErrors(prev => ({ ...prev, [member.id]: true }))}
-                  />
-                ) : icon}
+                  <img src={avatar} alt={displayName} className="w-full h-full object-cover" onError={() => setImgErrors(prev => ({ ...prev, [member.id]: true }))} />
+                ) : <AvatarIcon className="w-5 h-5 text-white drop-shadow-sm" />}
               </div>
+              {isActivated && (
+                <span className="absolute -bottom-0.5 -end-0.5 w-4 h-4 rounded-full bg-emerald-500 border-2 border-card flex items-center justify-center">
+                  <CheckCircle2 className="w-2.5 h-2.5 text-white" />
+                </span>
+              )}
             </button>
 
+            {/* Info */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => navigate(`/institution/member/${member.id}`)}
-                  className="font-bold text-foreground text-sm hover:text-primary transition-colors truncate"
-                >
+              <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                <button type="button" onClick={() => navigate(`/institution/member/${member.id}`)} className="font-black text-sm text-foreground hover:text-primary transition-colors truncate">
                   {displayName}
                 </button>
-                {member.role === "department_head" && (
-                  <Badge className="bg-amber-500 hover:bg-amber-600 text-white text-[10px] px-1.5 py-0 gap-0.5 shrink-0">
-                    <Crown className="w-3 h-3" />
-                    {isRtl ? "رئيس قسم" : "Head"}
+                {isHead && (
+                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] px-2 py-0 gap-1 shrink-0 shadow-sm">
+                    <Crown className="w-2.5 h-2.5" />
+                    {tText("رئيس قسم", "Head")}
                   </Badge>
                 )}
               </div>
+              <p className="text-[11px] text-muted-foreground font-bold">{getRoleLabel(member.role, isRtl)}</p>
               {isLinked && profile ? (
-                <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
-                  {profile.email && <span className="truncate max-w-[180px]">{profile.email}</span>}
+                <div className="flex items-center gap-2 mt-0.5 text-[11px] text-muted-foreground flex-wrap">
+                  {profile.email && <span className="truncate max-w-[180px]" dir="ltr">{profile.email}</span>}
                   {profile.phone && <span dir="ltr" className="truncate">{profile.phone}</span>}
                   {profile.must_change_password === true && (
-                    <span className="text-amber-600 dark:text-amber-400 font-medium">
-                      {isRtl ? "(بانتظار تغيير كلمة المرور)" : "(Pending password change)"}
-                    </span>
+                    <span className="text-amber-600 dark:text-amber-400 font-bold">{tText("⚠ كلمة مرور مؤقتة", "⚠ Temp password")}</span>
                   )}
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground mt-1">
-                  {isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending registration"}
+                <p className="text-[11px] text-amber-600 dark:text-amber-400 font-bold mt-0.5 flex items-center gap-1">
+                  <Clock className="w-3 h-3 shrink-0" />
+                  {tText("في انتظار التسجيل", "Pending registration")}
                 </p>
               )}
             </div>
 
-            <div className="shrink-0 flex items-center gap-2">
+            {/* Status + Remove */}
+            <div className="shrink-0 flex flex-col items-end gap-1.5">
               {isActivated ? (
-                <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 shadow-sm">
-                  <UserCheck className="w-3.5 h-3.5" />
-                  {isRtl ? "مفعّل" : "Active"}
+                <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 gap-1 text-[10px] font-black">
+                  <CheckCircle2 className="w-3 h-3" />{tText("مفعّل", "Active")}
                 </Badge>
               ) : (
-                <Badge variant="outline" className="border-amber-500 text-amber-700 bg-amber-100/60 font-semibold gap-1">
-                  {isRtl ? "غير مفعّل" : "Inactive"}
+                <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30 gap-1 text-[10px] font-black">
+                  <Clock className="w-3 h-3" />{tText("غير مفعّل", "Inactive")}
                 </Badge>
               )}
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10"
+              <button
                 onClick={() => setMemberToRemove(member)}
-                title={isRtl ? "إزالة من القسم" : "Remove from department"}
-                aria-label={isRtl ? "إزالة من القسم" : "Remove from department"}
+                className="p-1.5 rounded-xl text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 transition-all"
+                title={tText("إزالة من القسم", "Remove from department")}
               >
-                <UserMinus className="w-4 h-4" />
-              </Button>
+                <UserMinus className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
         </div>
 
+        {/* Pending Footer — Invite Actions */}
         {!isLinked && (
-          <div className="border-t bg-muted/30 px-4 py-3">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Button
-                size="sm"
-                variant="default"
-                className="text-xs h-8 px-3 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
-                onClick={() => {
-                  setMemberToActivate(member);
-                  setActivateEmail("");
-                  setActivatePhone("");
-                }}
-              >
+          <div className="border-t border-border/60 bg-muted/20 px-4 py-3">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <Button size="sm" className="text-xs h-8 px-3 gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-sm shadow-emerald-500/20"
+                onClick={() => { setMemberToActivate(member); setActivateEmail(""); setActivatePhone(""); }}>
                 <Zap className="w-3.5 h-3.5" />
-                {isRtl ? "تفعيل" : "Activate"}
+                {tText("تفعيل", "Activate")}
               </Button>
-
               <span className="h-5 w-px bg-border" aria-hidden />
-
-              <Button size="sm" variant="outline" className="text-xs h-8 px-2.5 gap-1" onClick={() => copyToClipboard(member.invitation_code!)}>
-                <Copy className="w-3.5 h-3.5" />
-                {isRtl ? "الكود" : "Code"}
+              <Button size="sm" variant="outline" className="text-xs h-8 px-2.5 gap-1 rounded-xl" onClick={() => copyToClipboard(member.invitation_code!)}>
+                <Copy className="w-3.5 h-3.5" />{tText("الكود", "Code")}
               </Button>
-              <Button size="sm" variant="outline" className="text-xs h-8 px-2.5 gap-1" onClick={() => copyToClipboard(inviteLink)}>
-                <LinkIcon className="w-3.5 h-3.5" />
-                {isRtl ? "الرابط" : "Link"}
+              <Button size="sm" variant="outline" className="text-xs h-8 px-2.5 gap-1 rounded-xl" onClick={() => copyToClipboard(inviteLink)}>
+                <LinkIcon className="w-3.5 h-3.5" />{tText("الرابط", "Link")}
               </Button>
-              <a
-                href={`https://wa.me/?text=${encodeURIComponent(shareText)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Button size="sm" variant="outline" className="text-xs h-8 px-2.5 gap-1 text-green-600 border-green-300 hover:bg-green-50">
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  WhatsApp
+              <a href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer">
+                <Button size="sm" variant="outline" className="text-xs h-8 px-2.5 gap-1 rounded-xl text-green-600 border-green-200 hover:bg-green-50 dark:hover:bg-green-950/30">
+                  <MessageCircle className="w-3.5 h-3.5" />WA
                 </Button>
               </a>
               {(() => {
-                const subject = isRtl ? "دعوة للتسجيل في منصة إدراك" : "Edrak Platform Invitation";
-                const gmailUrl = `https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(shareText)}`;
-                const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(shareText)}`;
+                const subject = isRtl ? "دعوة للتسجيل في منصة يونيجيتس" : "UNIGATES Platform Invitation";
                 return (
-                  <>
-                    <a href={gmailUrl} target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" variant="outline" className="text-xs h-8 px-2.5 gap-1 text-red-600 border-red-300 hover:bg-red-50">
-                        <Mail className="w-3.5 h-3.5" />
-                        Gmail
-                      </Button>
-                    </a>
-                    <a href={mailtoUrl}>
-                      <Button size="sm" variant="outline" className="text-xs h-8 px-2.5 gap-1 text-blue-600 border-blue-300 hover:bg-blue-50">
-                        <Mail className="w-3.5 h-3.5" />
-                        {isRtl ? "إيميل" : "Email"}
-                      </Button>
-                    </a>
-                  </>
+                  <a href={`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(shareText)}`}>
+                    <Button size="sm" variant="outline" className="text-xs h-8 px-2.5 gap-1 rounded-xl text-blue-600 border-blue-200 hover:bg-blue-50 dark:hover:bg-blue-950/30">
+                      <Mail className="w-3.5 h-3.5" />{tText("إيميل", "Email")}
+                    </Button>
+                  </a>
                 );
               })()}
             </div>
@@ -658,212 +468,297 @@ const DepartmentPage = () => {
     );
   };
 
+  // ── Loading Skeleton ─────────────────────────────────────────────────────────
   if (identityLoading || (loading && members.length === 0)) {
     return (
       <div className="min-h-screen bg-background institution-admin-scope" dir={dir}>
-        <header className="sticky top-0 z-30 border-b bg-gradient-to-l from-primary/10 via-card to-card shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/80">
-          <div className="max-w-5xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between gap-3">
-            <h1 className="text-base sm:text-xl font-extrabold text-foreground flex items-center gap-2 min-w-0">
-              <span className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-md shrink-0">
-                <Layers className="w-5 h-5" />
-              </span>
+        <header className="sticky top-0 z-30 border-b bg-card/80 backdrop-blur">
+          <div className="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Skeleton className="w-9 h-9 rounded-xl shrink-0" />
               <Skeleton className="h-5 w-32" />
-            </h1>
-            <Skeleton className="h-9 w-9 rounded-md shrink-0" />
+            </div>
+            <Skeleton className="h-9 w-9 rounded-xl shrink-0" />
           </div>
         </header>
-        <main className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-6">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <Skeleton className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl shrink-0" />
-            <div className="min-w-0 flex-1 space-y-2">
-              <Skeleton className="h-7 w-48" />
-              <Skeleton className="h-4 w-32" />
-            </div>
+        <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[1,2,3,4].map(i => <Skeleton key={i} className="h-24 rounded-3xl" />)}
           </div>
-          <Skeleton className="h-10 w-full rounded-md" />
-          {[1, 2].map((i) => (
-            <Card key={`skel-card-${i}`} className="border shadow-sm overflow-hidden">
-              <CardHeader className="pb-3 pt-4 border-b">
-                <CardTitle className="flex items-center gap-2.5 text-base">
-                  <Skeleton className="w-8 h-8 rounded-lg" />
-                  <Skeleton className="h-5 w-24" />
-                  <Skeleton className="h-5 w-12 rounded-full" />
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                {Array.from({ length: 2 }).map((_, j) => (
-                  <div key={`skel-row-${i}-${j}`} className="flex items-center gap-3 p-3 rounded-xl border">
-                    <Skeleton className="w-11 h-11 rounded-full shrink-0" />
-                    <div className="flex-1 space-y-1.5">
-                      <Skeleton className="h-4 w-28" />
-                      <Skeleton className="h-3 w-36" />
-                    </div>
-                    <Skeleton className="h-6 w-16 rounded-full shrink-0" />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+          <Skeleton className="h-11 w-full rounded-2xl" />
+          {[1,2].map(i => (
+            <div key={i} className="rounded-3xl border-2 border-border/60 overflow-hidden">
+              <div className="p-5 border-b bg-muted/20"><Skeleton className="h-6 w-32" /></div>
+              <div className="p-4 space-y-3">
+                {[1,2].map(j => <Skeleton key={j} className="h-20 rounded-2xl" />)}
+              </div>
+            </div>
           ))}
         </main>
       </div>
     );
   }
 
+  const isActive = deptStatus === "active";
+  const activeFaculty = allLecturers.filter(m => !!m.user_id && (m.user_id ? profilesMap[m.user_id]?.must_change_password === false : false)).length;
+
+  // ── Main Render ──────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-background institution-admin-scope" dir={dir}>
-      <header className="sticky top-0 z-30 border-b bg-gradient-to-l from-primary/10 via-card to-card shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/80">
-        <div className="max-w-5xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between gap-3">
-          <h1 className="text-base sm:text-xl font-extrabold text-foreground flex items-center gap-2 min-w-0">
-            <span className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-md shrink-0">
-              <Layers className="w-5 h-5" />
-            </span>
-            <span className="truncate">{isRtl ? "إدارة القسم" : "Department Management"}</span>
-          </h1>
+
+      {/* ── Header ── */}
+      <header className="sticky top-0 z-30 border-b border-primary/15 bg-gradient-to-r from-primary/10 via-card/95 to-card/95 backdrop-blur-xl shadow-sm">
+        <div className="max-w-5xl mx-auto px-3 sm:px-5 py-3.5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-md shrink-0">
+              <Layers className="w-5 h-5 text-primary-foreground" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-sm sm:text-base font-black text-foreground truncate">{tText("إدارة القسم", "Department Management")}</h1>
+              <p className="text-[11px] text-muted-foreground font-bold truncate">{deptName}</p>
+            </div>
+          </div>
           <Button
             size="icon"
-            variant="default"
-            className="shadow-md shrink-0 active:scale-95 transition-transform"
+            variant="outline"
+            className="rounded-xl shrink-0 border-border/60 hover:bg-primary/10 hover:border-primary/30 transition-all"
             onClick={() => navigate("/institution/dashboard?tab=departments")}
-            aria-label={isRtl ? "رجوع" : "Back"}
+            aria-label={tText("رجوع", "Back")}
           >
-            {isRtl ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+            {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </Button>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-6">
-        <div className="flex items-center gap-3 sm:gap-4">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shrink-0 shadow-md">
-            <Layers className="w-6 h-6 sm:w-7 sm:h-7 text-primary-foreground" />
+      <main className="max-w-5xl mx-auto px-3 sm:px-5 py-5 sm:py-7 space-y-6">
+
+        {/* ── Department Title Block ── */}
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-gradient-to-br from-primary via-primary/80 to-indigo-600 flex items-center justify-center shadow-lg shadow-primary/25 shrink-0">
+            <BookOpen className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="text-lg sm:text-2xl font-black text-foreground truncate">{deptName}</h2>
-            <div className="flex items-center gap-2 mt-1 flex-wrap">
-              <Badge variant={deptStatus === "active" ? "default" : "secondary"} className="text-xs">
-                {deptStatus === "active" ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "بانتظار الموافقة" : "Pending")}
-              </Badge>
-              <span className="text-xs text-muted-foreground">
-                {allLecturers.length} {isRtl ? "عضو" : "members"} · {allStudents.length} {isRtl ? "طالب" : "students"}
+            <h2 className="text-xl sm:text-3xl font-black text-foreground truncate">{deptName}</h2>
+            <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+              <span className={`inline-flex items-center gap-1.5 text-xs font-black px-3 py-1 rounded-full ${isActive ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/25" : "bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/25"}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-emerald-500" : "bg-amber-500"} animate-pulse`} />
+                {isActive ? tText("قسم مفعّل", "Active Department") : tText("بانتظار الموافقة", "Pending Approval")}
+              </span>
+              <span className="text-xs text-muted-foreground font-bold">
+                {allLecturers.length} {tText("عضو", "members")} · {allStudents.length} {tText("طالب", "students")}
               </span>
             </div>
           </div>
         </div>
 
+        {/* ── HUD Stats Cards ── */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            {
+              label: tText("أعضاء هيئة التدريس", "Faculty Members"),
+              value: allLecturers.length,
+              sub: `${linkedFaculty} ${tText("مرتبط", "linked")}`,
+              icon: <Shield className="w-5 h-5 text-white" />,
+              gradient: "from-violet-500 to-purple-600",
+              glow: "shadow-violet-500/20",
+            },
+            {
+              label: tText("الطلاب المسجلون", "Registered Students"),
+              value: allStudents.length,
+              sub: `${linkedStudents} ${tText("مرتبط", "linked")}`,
+              icon: <GraduationCap className="w-5 h-5 text-white" />,
+              gradient: "from-blue-500 to-indigo-600",
+              glow: "shadow-blue-500/20",
+            },
+            {
+              label: tText("الحسابات المفعّلة", "Activated Accounts"),
+              value: activeFaculty + linkedStudents,
+              sub: tText("مفعّل بالكامل", "fully active"),
+              icon: <CheckCircle2 className="w-5 h-5 text-white" />,
+              gradient: "from-emerald-500 to-teal-600",
+              glow: "shadow-emerald-500/20",
+            },
+            {
+              label: tText("في الانتظار", "Pending Registration"),
+              value: members.filter(m => !m.user_id).length,
+              sub: tText("بحاجة تفعيل", "need activation"),
+              icon: <Clock className="w-5 h-5 text-white" />,
+              gradient: "from-amber-500 to-orange-600",
+              glow: "shadow-amber-500/20",
+            },
+          ].map((stat, i) => (
+            <Card key={i} className="rounded-3xl border-2 border-border/60 hover:border-primary/30 shadow-sm hover:shadow-lg transition-all duration-300">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shrink-0 shadow-md ${stat.glow}`}>
+                  {stat.icon}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-2xl font-black text-foreground leading-none">{stat.value}</p>
+                  <p className="text-[11px] font-black text-muted-foreground mt-0.5 leading-tight">{stat.label}</p>
+                  <p className="text-[10px] text-muted-foreground/70 font-bold">{stat.sub}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* ── Search + Filters + Actions Bar ── */}
         <div className="flex flex-col sm:flex-row gap-3">
+          {/* Search */}
           <div className="relative flex-1">
-            <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder={isRtl ? "ابحث بالاسم أو البريد..." : "Search by name or email..."}
+              placeholder={tText("ابحث بالاسم أو البريد الإلكتروني...", "Search by name or email...")}
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="ps-9"
+              onChange={e => setSearchQuery(e.target.value)}
+              className="ps-10 h-11 rounded-2xl bg-background border-border/80 font-bold text-sm"
             />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery("")} className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
-          <div className="flex items-center gap-2">
+
+          {/* Status Filter Pills */}
+          <div className="flex items-center gap-1.5 bg-muted/50 p-1 rounded-2xl border border-border/60 shrink-0">
+            {(["all", "linked", "pending"] as StatusFilter[]).map(f => (
+              <button key={f} type="button" onClick={() => setStatusFilter(f)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${statusFilter === f ? "bg-card text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+                {f === "all" ? tText("الكل", "All") : f === "linked" ? tText("مرتبط", "Linked") : tText("انتظار", "Pending")}
+              </button>
+            ))}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2 shrink-0">
             <Button
               size="sm"
-              variant="default"
-              className="gap-1.5 bg-primary hover:bg-primary/90"
+              className="h-11 px-4 rounded-2xl gap-1.5 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-black shadow-md shadow-primary/20"
               onClick={() => navigate(`/institution/dashboard?tab=faculty&addDeptId=${deptId}`)}
             >
               <Plus className="w-4 h-4" />
-              {isRtl ? "اضافة عضو" : "Add Member"}
+              {tText("إضافة عضو", "Add Member")}
             </Button>
-            <Button size="sm" variant="outline" onClick={exportExcel} className="gap-1.5">
-              <Download className="w-4 h-4" />
-              Excel
+            <Button size="sm" variant="outline" onClick={exportExcel} className="h-11 px-3 rounded-2xl gap-1.5 border-border/60 font-bold">
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+              <span className="hidden sm:inline">Excel</span>
             </Button>
-            <Button size="sm" variant="outline" onClick={exportCSV} className="gap-1.5">
+            <Button size="sm" variant="outline" onClick={exportCSV} className="h-11 px-3 rounded-2xl gap-1.5 border-border/60 font-bold">
               <Download className="w-4 h-4" />
-              CSV
+              <span className="hidden sm:inline">CSV</span>
             </Button>
           </div>
         </div>
 
-        <Card className="border shadow-sm overflow-hidden">
-          <CardHeader className="pb-3 pt-4 bg-green-50/40 dark:bg-green-950/10 border-b">
-            <CardTitle className="flex items-center gap-2.5 text-base">
-              <div className="w-8 h-8 rounded-lg bg-green-500/15 flex items-center justify-center">
-                <UserCheck className="w-4.5 h-4.5 text-green-600" />
+        {/* ── Faculty Members Section ── */}
+        <div className="rounded-3xl border-2 border-border/60 overflow-hidden bg-card shadow-sm">
+          {/* Section Header */}
+          <div className="px-5 py-4 bg-gradient-to-r from-violet-500/8 via-purple-500/5 to-transparent border-b border-border/60 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-md shadow-violet-500/20">
+                <Shield className="w-4.5 h-4.5 text-white" />
               </div>
-              <span className="font-extrabold">{isRtl ? "الأعضاء" : "Members"}</span>
-              <Badge variant="outline" className="text-green-700 border-green-300 bg-green-100/60 font-bold text-xs">
-                {lecturers.length}/{allLecturers.length}
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4">
-            {lecturers.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                {searchQuery
-                  ? (isRtl ? "لا توجد نتائج مطابقة" : "No matching results")
-                  : (isRtl ? "لا يوجد أعضاء مسجّلون بعد" : "No registered members yet")}
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {lecturers.map(member =>
-                  member.role === "department_head"
-                    ? renderMemberCard(member, "department_head", "bg-amber-500/10", <Crown className="w-5 h-5 text-amber-600" />)
-                    : renderMemberCard(member, "lecturer", "bg-green-500/10", <UserCheck className="w-5 h-5 text-green-600" />)
-                )}
+              <div>
+                <h3 className="font-black text-foreground text-sm">{tText("أعضاء هيئة التدريس", "Faculty Members")}</h3>
+                <p className="text-[11px] text-muted-foreground font-bold">{lecturers.length}/{allLecturers.length} {tText("عضو", "member")}</p>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </div>
+            <span className="text-xs font-black px-3 py-1 rounded-full bg-violet-500/10 text-violet-700 dark:text-violet-400 border border-violet-500/20">
+              {linkedFaculty}/{allLecturers.length}
+            </span>
+          </div>
 
-        <Card className="border shadow-sm overflow-hidden">
-          <CardHeader className="pb-3 pt-4 bg-blue-50/40 dark:bg-blue-950/10 border-b">
-            <CardTitle className="flex items-center gap-2.5 text-base">
-              <div className="w-8 h-8 rounded-lg bg-blue-500/15 flex items-center justify-center">
-                <GraduationCap className="w-4.5 h-4.5 text-blue-600" />
-              </div>
-              <span className="font-extrabold">{isRtl ? "الطلاب" : "Students"}</span>
-              <Badge variant="outline" className="text-blue-700 border-blue-300 bg-blue-100/60 font-bold text-xs">
-                {students.length}/{allStudents.length}
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4">
-            {students.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                {searchQuery
-                  ? (isRtl ? "لا توجد نتائج مطابقة" : "No matching results")
-                  : (isRtl ? "لا يوجد طلاب مسجّلون بعد" : "No registered students yet")}
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {students.map(member =>
-                  renderMemberCard(member, "student", "bg-blue-500/10", <GraduationCap className="w-5 h-5 text-blue-600" />)
+          {/* Content */}
+          <div className="p-4">
+            {lecturers.length === 0 ? (
+              <div className="py-12 text-center space-y-3">
+                <div className="w-16 h-16 rounded-3xl bg-muted/60 flex items-center justify-center mx-auto">
+                  <Users className="w-7 h-7 text-muted-foreground/40" />
+                </div>
+                <p className="text-sm font-bold text-muted-foreground">
+                  {searchQuery || statusFilter !== "all"
+                    ? tText("لا توجد نتائج مطابقة", "No matching results")
+                    : tText("لا يوجد أعضاء مسجّلون بعد", "No registered members yet")}
+                </p>
+                {!searchQuery && statusFilter === "all" && (
+                  <Button size="sm" variant="outline" className="rounded-xl gap-1.5 font-bold"
+                    onClick={() => navigate(`/institution/dashboard?tab=faculty&addDeptId=${deptId}`)}>
+                    <Plus className="w-4 h-4" />{tText("إضافة عضو هيئة تدريس", "Add Faculty Member")}
+                  </Button>
                 )}
               </div>
+            ) : (
+              <div className="space-y-3">
+                {lecturers.map(m => renderMemberCard(m))}
+              </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+
+        {/* ── Students Section ── */}
+        <div className="rounded-3xl border-2 border-border/60 overflow-hidden bg-card shadow-sm">
+          {/* Section Header */}
+          <div className="px-5 py-4 bg-gradient-to-r from-blue-500/8 via-indigo-500/5 to-transparent border-b border-border/60 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md shadow-blue-500/20">
+                <GraduationCap className="w-4.5 h-4.5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-black text-foreground text-sm">{tText("الطلاب المسجلون", "Registered Students")}</h3>
+                <p className="text-[11px] text-muted-foreground font-bold">{students.length}/{allStudents.length} {tText("طالب", "student")}</p>
+              </div>
+            </div>
+            <span className="text-xs font-black px-3 py-1 rounded-full bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20">
+              {linkedStudents}/{allStudents.length}
+            </span>
+          </div>
+
+          {/* Content */}
+          <div className="p-4">
+            {students.length === 0 ? (
+              <div className="py-12 text-center space-y-3">
+                <div className="w-16 h-16 rounded-3xl bg-muted/60 flex items-center justify-center mx-auto">
+                  <GraduationCap className="w-7 h-7 text-muted-foreground/40" />
+                </div>
+                <p className="text-sm font-bold text-muted-foreground">
+                  {searchQuery || statusFilter !== "all"
+                    ? tText("لا توجد نتائج مطابقة", "No matching results")
+                    : tText("لا يوجد طلاب مسجّلون في هذا القسم بعد", "No students registered in this department yet")}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {students.map(m => renderMemberCard(m))}
+              </div>
+            )}
+          </div>
+        </div>
       </main>
 
-      <AlertDialog open={!!memberToRemove} onOpenChange={(open) => !open && setMemberToRemove(null)}>
-        <AlertDialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg w-full">
+      {/* ── Remove Confirmation Dialog ── */}
+      <AlertDialog open={!!memberToRemove} onOpenChange={open => !open && setMemberToRemove(null)}>
+        <AlertDialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg w-full rounded-3xl border-2">
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {isRtl ? "تأكيد إزالة العضو من القسم" : "Confirm Remove from Department"}
+            <AlertDialogTitle className="flex items-center gap-2">
+              <UserMinus className="w-5 h-5 text-destructive" />
+              {tText("تأكيد إزالة العضو من القسم", "Confirm Remove from Department")}
             </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-2">
                 {isFacultyRole(memberToRemove?.role || "") ? (
                   <>
-                    <p className="font-semibold text-destructive">
+                    <p className="font-bold text-destructive">
                       {isRtl
                         ? `سيتم إزالة "${memberToRemove?.full_name}" من هذا القسم فقط ولن يتم حذفه من أعضاء هيئة التدريس بالكلية.`
                         : `"${memberToRemove?.full_name}" will only be removed from this department and will NOT be deleted from the faculty directory.`}
                     </p>
-                    <p className="text-xs">
-                      {isRtl
-                        ? "سيبقى العضو ظاهراً في قائمة أعضاء هيئة التدريس بالكلية (تبويب أعضاء هيئة التدريس)."
-                        : "The member will remain listed in the institution-wide Faculty tab."}
+                    <p className="text-xs text-muted-foreground">
+                      {tText("سيبقى العضو ظاهراً في قائمة أعضاء هيئة التدريس بالكلية.", "The member will remain listed in the institution-wide Faculty tab.")}
                     </p>
                   </>
                 ) : (
-                  <p className="font-semibold text-destructive">
+                  <p className="font-bold text-destructive">
                     {isRtl
                       ? `سيتم إزالة "${memberToRemove?.full_name}" من هذا القسم فقط.`
                       : `"${memberToRemove?.full_name}" will only be removed from this department.`}
@@ -873,135 +768,99 @@ const DepartmentPage = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className={`gap-2 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
-            <AlertDialogCancel disabled={removing}>
-              {isRtl ? "إلغاء" : "Cancel"}
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={removing} className="rounded-2xl">{tText("إلغاء", "Cancel")}</AlertDialogCancel>
             <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                handleRemoveFromDepartment();
-              }}
+              onClick={e => { e.preventDefault(); handleRemoveFromDepartment(); }}
               disabled={removing}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-2xl gap-2"
             >
-              {removing
-                ? <Loader2 className="w-4 h-4 animate-spin" />
-                : (isRtl ? "إزالة من القسم" : "Remove")}
+              {removing ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserMinus className="w-4 h-4" />}
+              {tText("إزالة من القسم", "Remove")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      <Dialog open={!!memberToActivate} onOpenChange={(open) => !open && setMemberToActivate(null)}>
-        <DialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-md w-full">
+      {/* ── Activate Member Dialog ── */}
+      <Dialog open={!!memberToActivate} onOpenChange={open => !open && setMemberToActivate(null)}>
+        <DialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-md w-full rounded-3xl border-2">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Zap className="w-5 h-5 text-emerald-600" />
-              {isRtl ? "تفعيل حساب العضو" : "Activate Member Account"}
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md">
+                <Zap className="w-4 h-4 text-white" />
+              </div>
+              {tText("تفعيل حساب العضو", "Activate Member Account")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <p className="text-sm text-muted-foreground">
-              {isRtl
-                ? `تفعيل حساب "${memberToActivate?.full_name}". يمكنك إدخال البريد الإلكتروني ورقم الهاتف (اختياري).`
-                : `Activate account for "${memberToActivate?.full_name}". Email and phone are optional.`}
-            </p>
-            <div>
-              <Label>{isRtl ? "البريد الإلكتروني (اختياري)" : "Email (optional)"}</Label>
-              <Input
-                type="email"
-                value={activateEmail}
-                onChange={(e) => setActivateEmail(e.target.value)}
-                placeholder={isRtl ? "سيتم توليد بريد تلقائي إذا لم يُدخل" : "Auto-generated if left empty"}
-                dir="ltr"
-              />
+            <div className="p-3 rounded-2xl bg-muted/40 border border-border/60">
+              <p className="text-sm font-black text-foreground">{memberToActivate?.full_name}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{getRoleLabel(memberToActivate?.role || "", isRtl)}</p>
             </div>
-            <div>
-              <Label>{isRtl ? "رقم الهاتف (اختياري)" : "Phone (optional)"}</Label>
-              <Input
-                type="tel"
-                value={activatePhone}
-                onChange={(e) => setActivatePhone(e.target.value)}
-                placeholder={isRtl ? "+201000000000" : "+201000000000"}
-                dir="ltr"
-              />
+            <p className="text-sm text-muted-foreground">{tText("يمكنك إدخال البريد الإلكتروني ورقم الهاتف (اختيارياً) أو تركهما فارغين ليتم توليدهما تلقائياً.", "Enter email and phone optionally. Leave blank for auto-generation.")}</p>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-black">{tText("البريد الإلكتروني (اختياري)", "Email (optional)")}</Label>
+              <Input type="email" value={activateEmail} onChange={e => setActivateEmail(e.target.value)} placeholder={tText("سيتم توليد بريد تلقائي إذا لم يُدخل", "Auto-generated if empty")} dir="ltr" className="rounded-xl" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-black">{tText("رقم الهاتف (اختياري)", "Phone (optional)")}</Label>
+              <Input type="tel" value={activatePhone} onChange={e => setActivatePhone(e.target.value)} placeholder="+201000000000" dir="ltr" className="rounded-xl" />
             </div>
           </div>
           <DialogFooter className={`gap-2 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
-            <Button variant="outline" onClick={() => setMemberToActivate(null)} disabled={activating}>
-              {isRtl ? "إلغاء" : "Cancel"}
-            </Button>
-            <Button
-              onClick={handleActivateExistingMember}
-              disabled={activating}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
-            >
-              {activating
-                ? <Loader2 className="w-4 h-4 animate-spin me-1" />
-                : <Zap className="w-4 h-4 me-1" />}
-              {isRtl ? "تفعيل" : "Activate"}
+            <Button variant="outline" onClick={() => setMemberToActivate(null)} disabled={activating} className="rounded-2xl">{tText("إلغاء", "Cancel")}</Button>
+            <Button onClick={handleActivateExistingMember} disabled={activating} className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white gap-2 shadow-md shadow-emerald-500/20">
+              {activating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+              {tText("تفعيل الحساب", "Activate Account")}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
+      {/* ── Activation Results Dialog ── */}
       <Dialog open={showActivationResults} onOpenChange={setShowActivationResults}>
-        <DialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <DialogContent dir={dir} className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg w-full rounded-3xl border-2 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Zap className="w-5 h-5 text-emerald-600" />
-              {isRtl ? "تم تفعيل الحسابات" : "Accounts Activated"}
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                <CheckCircle2 className="w-4 h-4 text-white" />
+              </div>
+              {tText("تم تفعيل الحسابات بنجاح", "Accounts Activated Successfully")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-3 py-2">
-            <p className="text-sm text-muted-foreground">
-              {isRtl
-                ? "تم إنشاء حسابات للمستخدمين التالية. يُرجى مشاركة بيانات الدخول مع كل عضو."
-                : "Accounts created for the following users. Please share login credentials with each member."}
-            </p>
+            <p className="text-sm text-muted-foreground">{tText("يُرجى مشاركة بيانات الدخول مع كل عضو.", "Please share login credentials with each member.")}</p>
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {activationResults.map((r, i) => (
-                <div key={i} className="p-3 rounded-lg border bg-muted/30 space-y-1">
-                  <p className="font-bold text-sm">{r.full_name}</p>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">{isRtl ? "البريد:" : "Email:"}</span>
-                    <code className="text-xs font-mono bg-background px-1.5 py-0.5 rounded border flex-1 truncate" dir="ltr">{r.email}</code>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 shrink-0" onClick={() => copyToClipboard(r.email)}>
-                      <Copy className="w-3 h-3" />
-                    </Button>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">{isRtl ? "كلمة المرور:" : "Password:"}</span>
-                    <code className="text-xs font-mono bg-background px-1.5 py-0.5 rounded border flex-1 truncate" dir="ltr">{r.password}</code>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 shrink-0" onClick={() => copyToClipboard(r.password)}>
-                      <Copy className="w-3 h-3" />
-                    </Button>
-                  </div>
+                <div key={i} className="p-3 rounded-2xl border-2 border-border/60 bg-muted/20 space-y-2">
+                  <p className="font-black text-sm text-foreground">{r.full_name}</p>
+                  {[
+                    { label: tText("البريد:", "Email:"), val: r.email },
+                    { label: tText("كلمة المرور:", "Password:"), val: r.password },
+                  ].map(({ label, val }) => (
+                    <div key={label} className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground font-bold shrink-0">{label}</span>
+                      <code className="text-xs font-mono bg-background px-2 py-1 rounded-lg border flex-1 truncate" dir="ltr">{val}</code>
+                      <button onClick={() => copyToClipboard(val)} className="p-1.5 rounded-lg hover:bg-muted transition-colors shrink-0">
+                        <Copy className="w-3 h-3 text-muted-foreground" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>
-            <p className="text-xs text-amber-600 font-semibold">
-              {isRtl
-                ? "يجب على كل عضو تغيير كلمة المرور عند أول دخول."
-                : "Each member must change their password on first login."}
+            <p className="text-xs text-amber-600 dark:text-amber-400 font-bold bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
+              ⚠ {tText("يجب على كل عضو تغيير كلمة المرور عند أول دخول.", "Each member must change their password on first login.")}
             </p>
           </div>
           <DialogFooter className={`gap-2 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
-            <Button
-              variant="outline"
-              onClick={() => {
-                const allText = activationResults.map(r =>
-                  `${r.full_name}\n${isRtl ? "البريد" : "Email"}: ${r.email}\n${isRtl ? "كلمة المرور" : "Password"}: ${r.password}`
-                ).join("\n\n");
-                copyToClipboard(allText);
-              }}
-            >
-              <Copy className="w-4 h-4 me-1" />
-              {isRtl ? "نسخ الكل" : "Copy All"}
+            <Button variant="outline" className="rounded-2xl gap-2" onClick={() => {
+              const allText = activationResults.map(r => `${r.full_name}\n${isRtl ? "البريد" : "Email"}: ${r.email}\n${isRtl ? "كلمة المرور" : "Password"}: ${r.password}`).join("\n\n");
+              copyToClipboard(allText);
+            }}>
+              <Copy className="w-4 h-4" />{tText("نسخ الكل", "Copy All")}
             </Button>
-            <Button onClick={() => setShowActivationResults(false)}>
-              {isRtl ? "إغلاق" : "Close"}
-            </Button>
+            <Button onClick={() => setShowActivationResults(false)} className="rounded-2xl">{tText("إغلاق", "Close")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

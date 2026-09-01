@@ -112,23 +112,23 @@ export const StudentSubscriptionCheckoutDialog: React.FC<StudentSubscriptionChec
     <Dialog open={open} onOpenChange={handleReset}>
       <DialogContent
         dir={isRtl ? "rtl" : "ltr"}
-        className="max-w-2xl p-0 overflow-hidden rounded-3xl border-2 border-teal-500/30 bg-slate-950 text-white shadow-2xl backdrop-blur-2xl"
+        className="max-w-2xl p-0 overflow-hidden rounded-3xl border-2 border-border/80 bg-card text-foreground shadow-2xl backdrop-blur-2xl"
       >
         {/* Header */}
-        <div className="p-6 pb-4 bg-gradient-to-r from-teal-500/20 via-emerald-500/15 to-transparent border-b border-white/10 flex items-center justify-between">
+        <div className="p-6 pb-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent border-b border-border/80 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center text-white shadow-lg shadow-teal-500/30">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center text-white shadow-lg shadow-teal-500/30 ring-2 ring-primary/20">
               <CreditCard className="w-6 h-6" />
             </div>
             <div>
-              <DialogTitle className="text-lg font-black text-white flex items-center gap-2">
+              <DialogTitle className="text-lg font-black text-foreground flex items-center gap-2">
                 {isRtl ? "سداد وتفعيل اشتراكات الطلاب" : "Student Subscriptions Checkout"}
-                <Badge className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black">
+                <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-[10px] font-black">
                   <ShieldCheck className="w-3 h-3 me-1 inline" />
                   {isRtl ? "بوابات دفع آمنة وموثقة" : "Secure Gateways"}
                 </Badge>
               </DialogTitle>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5 font-medium">
                 {isRtl
                   ? `تفعيل ${count} طالب في ${institutionName || "الكلية / المعهد"}`
                   : `Activating ${count} student(s) at ${institutionName || "Institution"}`}
@@ -145,13 +145,13 @@ export const StudentSubscriptionCheckoutDialog: React.FC<StudentSubscriptionChec
             </div>
 
             <div className="space-y-2">
-              <Badge className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-black px-3 py-1">
+              <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-black px-3 py-1">
                 {isRtl ? "اكتملت عملية الدفع والتفعيل" : "Payment Completed"}
               </Badge>
-              <h2 className="text-2xl font-black text-white">
+              <h2 className="text-2xl font-black text-foreground">
                 {isRtl ? "تم تفعيل حسابات الطلاب بنجاح!" : "Students Activated Successfully!"}
               </h2>
-              <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto leading-relaxed">
+              <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
                 {isRtl
                   ? `أصبح بإمكان ${count} طالب الآن تسجيل الدخول إلى حساباتهم وتغيير كلمة السر المؤقتة والوصول إلى كافة الخدمات الأكاديمية.`
                   : `All ${count} student(s) can now log in, update their temporary password, and access all platform features.`}
@@ -159,24 +159,24 @@ export const StudentSubscriptionCheckoutDialog: React.FC<StudentSubscriptionChec
             </div>
 
             {/* Receipt Summary Card */}
-            <div className="p-4 rounded-2xl bg-slate-900/90 border border-white/10 text-start space-y-2 max-w-md mx-auto text-xs font-semibold">
-              <div className="flex justify-between text-slate-400">
+            <div className="p-4 rounded-2xl bg-muted/50 border border-border/80 text-start space-y-2 max-w-md mx-auto text-xs font-semibold">
+              <div className="flex justify-between text-muted-foreground">
                 <span>{isRtl ? "رقم الفاتورة:" : "Invoice #:"}</span>
-                <span className="font-mono font-black text-white">{invoiceNumber}</span>
+                <span className="font-mono font-black text-foreground">{invoiceNumber}</span>
               </div>
-              <div className="flex justify-between text-slate-400">
+              <div className="flex justify-between text-muted-foreground">
                 <span>{isRtl ? "الباقة المختارة:" : "Plan:"}</span>
-                <span className="font-bold text-teal-300">
+                <span className="font-bold text-primary">
                   {billingCycle === "annual" ? (isRtl ? "اشتراك سنوي (12 شهر)" : "Annual Plan") : (isRtl ? "اشتراك شهري" : "Monthly Plan")}
                 </span>
               </div>
-              <div className="flex justify-between text-slate-400">
+              <div className="flex justify-between text-muted-foreground">
                 <span>{isRtl ? "بوابة الدفع:" : "Gateway:"}</span>
-                <span className="font-bold text-white uppercase">{gateway}</span>
+                <span className="font-bold text-foreground uppercase">{gateway}</span>
               </div>
-              <div className="flex justify-between pt-2 border-t border-white/10 text-sm font-black text-white">
+              <div className="flex justify-between pt-2 border-t border-border/80 text-sm font-black text-foreground">
                 <span>{isRtl ? "المبلغ المدفوع:" : "Total Paid:"}</span>
-                <span className="font-mono text-emerald-400">${totalAmount} USD</span>
+                <span className="font-mono text-emerald-600 dark:text-emerald-400">${totalAmount} USD</span>
               </div>
             </div>
 
@@ -192,7 +192,7 @@ export const StudentSubscriptionCheckoutDialog: React.FC<StudentSubscriptionChec
           <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
             {/* 1. Billing Cycle Selection */}
             <div className="space-y-3">
-              <label className="text-xs font-black text-slate-300 block">
+              <label className="text-xs font-black text-muted-foreground block">
                 {isRtl ? "1. اختر باقة وفترة الاشتراك:" : "1. Select Subscription Plan:"}
               </label>
 
@@ -202,8 +202,8 @@ export const StudentSubscriptionCheckoutDialog: React.FC<StudentSubscriptionChec
                   onClick={() => setBillingCycle("annual")}
                   className={`relative p-4 rounded-2xl border-2 cursor-pointer transition-all ${
                     billingCycle === "annual"
-                      ? "bg-gradient-to-br from-teal-500/20 to-emerald-500/10 border-teal-400 ring-2 ring-teal-400/20 shadow-lg"
-                      : "bg-slate-900/60 border-white/10 hover:border-white/20"
+                      ? "bg-primary/10 border-primary ring-2 ring-primary/20 shadow-md"
+                      : "bg-card border-border hover:border-border/80"
                   }`}
                 >
                   <div className="absolute -top-3 start-4">
@@ -215,22 +215,22 @@ export const StudentSubscriptionCheckoutDialog: React.FC<StudentSubscriptionChec
 
                   <div className="flex items-center justify-between pt-1">
                     <div>
-                      <h4 className="font-black text-sm text-white">
+                      <h4 className="font-black text-sm text-foreground">
                         {isRtl ? "الباقة السنوية" : "Annual Plan"}
                       </h4>
-                      <p className="text-[11px] text-teal-300 font-bold mt-0.5">
+                      <p className="text-[11px] text-primary font-bold mt-0.5">
                         {isRtl ? "$48 / طالب / سنة" : "$48 / student / year"}
                       </p>
-                      <span className="text-[10px] text-slate-400 block mt-1">
+                      <span className="text-[10px] text-muted-foreground block mt-1">
                         {isRtl ? "($4 شهرياً بدلاً من $6 - وفر $24 لكل طالب)" : "($4/mo instead of $6 - Save $24/student)"}
                       </span>
                     </div>
 
                     <div className="text-end">
-                      <span className="text-xl font-black font-mono text-emerald-400">
+                      <span className="text-xl font-black font-mono text-emerald-600 dark:text-emerald-400">
                         ${count * 48}
                       </span>
-                      <span className="text-[10px] text-slate-400 block font-mono">
+                      <span className="text-[10px] text-muted-foreground block font-mono">
                         {isRtl ? "لمدة 12 شهراً" : "For 12 Months"}
                       </span>
                     </div>
@@ -242,28 +242,28 @@ export const StudentSubscriptionCheckoutDialog: React.FC<StudentSubscriptionChec
                   onClick={() => setBillingCycle("monthly")}
                   className={`p-4 rounded-2xl border-2 cursor-pointer transition-all ${
                     billingCycle === "monthly"
-                      ? "bg-gradient-to-br from-teal-500/20 to-emerald-500/10 border-teal-400 ring-2 ring-teal-400/20 shadow-lg"
-                      : "bg-slate-900/60 border-white/10 hover:border-white/20"
+                      ? "bg-primary/10 border-primary ring-2 ring-primary/20 shadow-md"
+                      : "bg-card border-border hover:border-border/80"
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-black text-sm text-white">
+                      <h4 className="font-black text-sm text-foreground">
                         {isRtl ? "الباقة الشهرية" : "Monthly Plan"}
                       </h4>
-                      <p className="text-[11px] text-slate-300 font-bold mt-0.5">
+                      <p className="text-[11px] text-foreground font-bold mt-0.5">
                         {isRtl ? "$6 / طالب / شهر" : "$6 / student / month"}
                       </p>
-                      <span className="text-[10px] text-slate-400 block mt-1">
+                      <span className="text-[10px] text-muted-foreground block mt-1">
                         {isRtl ? "تجديد شهري مرن" : "Flexible monthly renewal"}
                       </span>
                     </div>
 
                     <div className="text-end">
-                      <span className="text-xl font-black font-mono text-white">
+                      <span className="text-xl font-black font-mono text-foreground">
                         ${count * 6}
                       </span>
-                      <span className="text-[10px] text-slate-400 block font-mono">
+                      <span className="text-[10px] text-muted-foreground block font-mono">
                         {isRtl ? "لكل شهر" : "Per Month"}
                       </span>
                     </div>
@@ -274,7 +274,7 @@ export const StudentSubscriptionCheckoutDialog: React.FC<StudentSubscriptionChec
 
             {/* 2. Payment Gateway Selection (Paddle & Stripe) */}
             <div className="space-y-3">
-              <label className="text-xs font-black text-slate-300 block">
+              <label className="text-xs font-black text-muted-foreground block">
                 {isRtl ? "2. اختر بوابة الدفع المعتمدة:" : "2. Select Payment Gateway:"}
               </label>
 
@@ -285,20 +285,20 @@ export const StudentSubscriptionCheckoutDialog: React.FC<StudentSubscriptionChec
                   className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all flex items-center gap-3 ${
                     gateway === "stripe"
                       ? "bg-indigo-500/15 border-indigo-400 ring-2 ring-indigo-400/20 shadow-md"
-                      : "bg-slate-900/60 border-white/10 hover:border-white/20"
+                      : "bg-card border-border hover:border-border/80"
                   }`}
                 >
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-sm shrink-0">
                     S
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h5 className="font-black text-xs text-white flex items-center gap-1.5">
+                    <h5 className="font-black text-xs text-foreground flex items-center gap-1.5">
                       Stripe Global
-                      <Badge className="bg-indigo-500/20 text-indigo-300 border-0 text-[9px] font-black">
+                      <Badge className="bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-0 text-[9px] font-black">
                         {isRtl ? "دفع فوري" : "Instant"}
                       </Badge>
                     </h5>
-                    <p className="text-[10px] text-slate-400 truncate">
+                    <p className="text-[10px] text-muted-foreground truncate">
                       {isRtl ? "بطاقات الائتمان، Apple Pay، Google Pay" : "Credit Cards, Apple/Google Pay"}
                     </p>
                   </div>
@@ -310,20 +310,20 @@ export const StudentSubscriptionCheckoutDialog: React.FC<StudentSubscriptionChec
                   className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all flex items-center gap-3 ${
                     gateway === "paddle"
                       ? "bg-teal-500/15 border-teal-400 ring-2 ring-teal-400/20 shadow-md"
-                      : "bg-slate-900/60 border-white/10 hover:border-white/20"
+                      : "bg-card border-border hover:border-border/80"
                   }`}
                 >
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-black text-sm shrink-0">
                     P
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h5 className="font-black text-xs text-white flex items-center gap-1.5">
+                    <h5 className="font-black text-xs text-foreground flex items-center gap-1.5">
                       Paddle Merchant
-                      <Badge className="bg-emerald-500/20 text-emerald-300 border-0 text-[9px] font-black">
+                      <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-0 text-[9px] font-black">
                         {isRtl ? "دولي" : "Global"}
                       </Badge>
                     </h5>
-                    <p className="text-[10px] text-slate-400 truncate">
+                    <p className="text-[10px] text-muted-foreground truncate">
                       {isRtl ? "دفع دولي، PayPal، بطاقات ومدفوعات بنكية" : "Cards, PayPal & Global Merchant"}
                     </p>
                   </div>
@@ -332,13 +332,13 @@ export const StudentSubscriptionCheckoutDialog: React.FC<StudentSubscriptionChec
             </div>
 
             {/* 3. Selected Students Preview (Collapsed List) */}
-            <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2">
+            <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/80 space-y-2">
               <div className="flex items-center justify-between text-xs font-bold">
-                <span className="text-slate-300 flex items-center gap-1.5">
-                  <Users className="w-4 h-4 text-teal-400" />
+                <span className="text-foreground flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-primary" />
                   {isRtl ? `الطلاب المشمولون في السداد (${count} طالب):` : `Selected Students (${count}):`}
                 </span>
-                <span className="text-teal-300 font-mono">
+                <span className="text-primary font-mono">
                   ${unitPrice} × {count}
                 </span>
               </div>
@@ -346,13 +346,13 @@ export const StudentSubscriptionCheckoutDialog: React.FC<StudentSubscriptionChec
                 {students.slice(0, 10).map((s) => (
                   <span
                     key={s.id}
-                    className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-white/5 border border-white/10 text-slate-200"
+                    className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-background border border-border text-foreground"
                   >
                     {s.full_name}
                   </span>
                 ))}
                 {count > 10 && (
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-teal-500/20 text-teal-300">
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-primary/15 text-primary">
                     +{count - 10} {isRtl ? "طلاب إضافيون" : "more"}
                   </span>
                 )}
@@ -360,23 +360,23 @@ export const StudentSubscriptionCheckoutDialog: React.FC<StudentSubscriptionChec
             </div>
 
             {/* 4. Total Amount Summary */}
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-teal-950/40 border border-teal-500/30 flex items-center justify-between">
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-card via-card to-primary/10 border border-primary/30 flex items-center justify-between shadow-xs">
               <div>
-                <span className="text-xs text-slate-400 block font-bold">
+                <span className="text-xs text-muted-foreground block font-bold">
                   {isRtl ? "المبلغ الإجمالي المستحق للسداد:" : "Total Amount Due:"}
                 </span>
                 {savings > 0 && (
-                  <span className="text-[10px] text-emerald-400 font-black flex items-center gap-1 mt-0.5">
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-black flex items-center gap-1 mt-0.5">
                     <Sparkles className="w-3 h-3" />
                     {isRtl ? `وفرت $${savings} بفضل الخصم السنوي` : `Saved $${savings} with Annual Discount`}
                   </span>
                 )}
               </div>
               <div className="text-end">
-                <span className="text-2xl sm:text-3xl font-black font-mono text-emerald-400">
+                <span className="text-2xl sm:text-3xl font-black font-mono text-emerald-600 dark:text-emerald-400">
                   ${totalAmount}
                 </span>
-                <span className="text-xs text-slate-400 block font-bold">USD</span>
+                <span className="text-xs text-muted-foreground block font-bold">USD</span>
               </div>
             </div>
 
@@ -386,7 +386,7 @@ export const StudentSubscriptionCheckoutDialog: React.FC<StudentSubscriptionChec
                 variant="ghost"
                 onClick={handleReset}
                 disabled={processing}
-                className="rounded-xl text-slate-400 hover:text-white"
+                className="rounded-xl text-muted-foreground hover:text-foreground"
               >
                 {isRtl ? "إلغاء" : "Cancel"}
               </Button>

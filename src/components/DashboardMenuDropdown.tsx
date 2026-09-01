@@ -1,6 +1,10 @@
 import { memo, useCallback, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LucideIcon, Menu, Globe, LogOut, X, ChevronLeft, ChevronRight, Sparkles, Check } from "lucide-react";
+import {
+  LucideIcon, Menu, Globe, LogOut, X, ChevronLeft, ChevronRight,
+  Sparkles, Check, Sun, Moon, SunMoon, Monitor
+} from "lucide-react";
+import { useTheme } from "next-themes";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -61,6 +65,7 @@ const DashboardMenuDropdown = ({
   title,
 }: Props) => {
   const { t, language, setLanguage, dir, availableLanguages = [], currentLanguageInfo } = useLanguage();
+  const { theme = "dark", setTheme } = useTheme();
   const isRtl = dir === "rtl";
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -205,6 +210,92 @@ const DashboardMenuDropdown = ({
 
         {/* Footer Actions */}
         <div className="space-y-1">
+          {/* Brightness / Theme Switcher Submenu */}
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger className="group gap-3.5 cursor-pointer rounded-2xl py-2.5 px-3 hover:bg-muted/60 transition-all duration-200 focus:bg-muted/60">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-500 to-yellow-500 shadow-md shadow-black/15 ring-2 ring-white/30 dark:ring-white/10 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-2 transition-all duration-200">
+                {theme === "light" ? (
+                  <Sun className="w-5 h-5 text-white drop-shadow-sm" strokeWidth={2.6} />
+                ) : theme === "dark" ? (
+                  <Moon className="w-5 h-5 text-white drop-shadow-sm" strokeWidth={2.6} />
+                ) : (
+                  <SunMoon className="w-5 h-5 text-white drop-shadow-sm" strokeWidth={2.6} />
+                )}
+              </div>
+              <div className="flex flex-col text-start flex-1 min-w-0">
+                <span className="text-sm font-extrabold text-foreground group-hover:text-amber-600 dark:group-hover:text-amber-400 truncate">
+                  {isRtl ? "السطوع والمظهر" : "Theme & Brightness"}
+                </span>
+                <span className="text-[10px] text-muted-foreground font-bold truncate">
+                  {theme === "light"
+                    ? (isRtl ? "الوضع الفاتح (النهاري)" : "Light Mode")
+                    : theme === "dark"
+                    ? (isRtl ? "الوضع الداكن (الليلي)" : "Dark Mode")
+                    : (isRtl ? "تلقائي حسب النظام" : "System Default")}
+                </span>
+              </div>
+              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0">
+                {theme === "light" ? "☀️" : theme === "dark" ? "🌙" : "💻"}
+              </span>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent className="w-56 p-1.5 rounded-2xl border-2 border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl z-50 animate-scale-in">
+              <div className="px-2.5 py-1.5 text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider border-b border-border/50 mb-1">
+                {isRtl ? "تغيير السطوع / المظهر" : "Select Brightness Theme"}
+              </div>
+              <DropdownMenuItem
+                onClick={() => {
+                  setTheme("light");
+                  close();
+                }}
+                className={`flex items-center justify-between px-2.5 py-2 rounded-xl cursor-pointer transition-all ${
+                  theme === "light"
+                    ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 font-black border border-amber-500/30"
+                    : "hover:bg-muted/80 text-foreground"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Sun className="w-4 h-4 text-amber-500" />
+                  <span className="text-xs font-bold">{isRtl ? "الوضع الفاتح (النهاري)" : "Light Mode"}</span>
+                </div>
+                {theme === "light" && <Check className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 ms-1 shrink-0" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setTheme("dark");
+                  close();
+                }}
+                className={`flex items-center justify-between px-2.5 py-2 rounded-xl cursor-pointer transition-all ${
+                  theme === "dark"
+                    ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 font-black border border-amber-500/30"
+                    : "hover:bg-muted/80 text-foreground"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Moon className="w-4 h-4 text-indigo-400" />
+                  <span className="text-xs font-bold">{isRtl ? "الوضع الداكن (الليلي)" : "Dark Mode"}</span>
+                </div>
+                {theme === "dark" && <Check className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 ms-1 shrink-0" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setTheme("system");
+                  close();
+                }}
+                className={`flex items-center justify-between px-2.5 py-2 rounded-xl cursor-pointer transition-all ${
+                  theme === "system"
+                    ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 font-black border border-amber-500/30"
+                    : "hover:bg-muted/80 text-foreground"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Monitor className="w-4 h-4 text-slate-400" />
+                  <span className="text-xs font-bold">{isRtl ? "تلقائي (حسب نظام الجهاز)" : "System Default"}</span>
+                </div>
+                {theme === "system" && <Check className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 ms-1 shrink-0" />}
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+
           {/* Multilingual Submenu */}
           <DropdownMenuSub>
             <DropdownMenuSubTrigger className="group gap-3.5 cursor-pointer rounded-2xl py-2.5 px-3 hover:bg-muted/60 transition-all duration-200 focus:bg-muted/60">

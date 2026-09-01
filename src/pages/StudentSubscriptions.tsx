@@ -273,31 +273,31 @@ const StudentSubscriptions = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col" dir={isRtl ? "rtl" : "ltr"}>
+    <div className="min-h-screen bg-background text-foreground flex flex-col transition-colors duration-300" dir={isRtl ? "rtl" : "ltr"}>
       {/* 1. Header */}
-      <header className="border-b border-white/10 px-4 sm:px-6 py-4 bg-slate-900/90 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between">
+      <header className="border-b border-border/80 px-4 sm:px-6 py-4 bg-card/80 dark:bg-card/70 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-400 via-emerald-500 to-cyan-500 flex items-center justify-center text-white shadow-xl shadow-teal-500/25 shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-400 via-emerald-500 to-cyan-500 flex items-center justify-center text-white shadow-xl shadow-teal-500/25 shrink-0 ring-2 ring-primary/20">
             <GraduationCap className="w-7 h-7" strokeWidth={2.3} />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-base sm:text-xl font-black text-white">
+              <h1 className="text-base sm:text-xl font-black text-foreground">
                 {identity?.institutionType === "institute"
                   ? isRtl ? "لوحة إدارة المعهد — اشتراكات الطلاب" : "Institute Student Subscriptions"
                   : isRtl ? "لوحة إدارة الكلية — اشتراكات الطلاب" : "College Student Subscriptions"}
               </h1>
               <Badge className={`text-[10px] font-black px-2.5 py-0.5 ${
                 isCapacityExceeded
-                  ? "bg-rose-500/20 text-rose-300 border border-rose-500/40"
-                  : "bg-teal-500/20 text-teal-300 border border-teal-500/40"
+                  ? "bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30"
+                  : "bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/30"
               }`}>
                 {isCapacityExceeded
                   ? isRtl ? "⚠️ تجاوزت السعة المجانية (100)" : "Capacity Exceeded (>100)"
                   : isRtl ? "🟢 الباقة المجانية (100 طالب)" : "Free Tier (100 Students)"}
               </Badge>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5 font-medium">
               {isRtl
                 ? "متابعة حالة تفعيل حسابات الطلاب، وتجديد الاشتراكات عبر Stripe و Paddle"
                 : "Manage student activation status, renewals & checkout via Stripe and Paddle"}
@@ -325,17 +325,17 @@ const StudentSubscriptions = () => {
         {/* 2. Top Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Plan & Capacity Card */}
-          <Card className="rounded-3xl border border-white/10 bg-slate-900/80 p-5 backdrop-blur-xl shadow-xl">
+          <Card className="rounded-3xl border border-border/80 bg-card p-5 shadow-sm dark:shadow-md transition-all">
             <div className="space-y-3">
-              <div className="flex items-center justify-between text-xs font-bold text-slate-400">
+              <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
                 <span>{isRtl ? "سعة الباقة المجانية" : "Free Plan Capacity"}</span>
-                <span className="font-mono text-teal-300 font-black">{total} / {FREE_TIER_LIMIT}</span>
+                <span className="font-mono text-primary font-black">{total} / {FREE_TIER_LIMIT}</span>
               </div>
               <Progress
                 value={Math.min(100, (total / FREE_TIER_LIMIT) * 100)}
-                className="h-2 bg-white/10"
+                className="h-2 bg-muted"
               />
-              <p className="text-[11px] font-semibold text-slate-400">
+              <p className="text-[11px] font-semibold text-muted-foreground">
                 {isCapacityExceeded
                   ? isRtl ? "تجاوزت الحد المجاني. يلزم سداد الاشتراكات لتفعيل الطلاب الإضافيين." : "Limit exceeded. Payment required to activate additional students."
                   : isRtl ? `متبقي سعة لـ ${Math.max(0, FREE_TIER_LIMIT - total)} طالب مجاناً لمدة شهر.` : `${Math.max(0, FREE_TIER_LIMIT - total)} free slots remaining.`}
@@ -344,41 +344,41 @@ const StudentSubscriptions = () => {
           </Card>
 
           {/* Active Students Card */}
-          <Card className="rounded-3xl border border-emerald-500/30 bg-emerald-950/20 p-5 backdrop-blur-xl shadow-xl">
+          <Card className="rounded-3xl border border-emerald-500/30 bg-emerald-500/5 dark:bg-emerald-950/20 p-5 shadow-sm dark:shadow-md transition-all">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <span className="text-xs font-bold text-emerald-400">{isRtl ? "الطلاب المفعلون" : "Active Students"}</span>
-                <h3 className="text-2xl sm:text-3xl font-black font-mono text-white">{activeCount}</h3>
-                <span className="text-[10px] text-emerald-300 font-bold block">{isRtl ? "يستطيعون الدخول فوراً" : "Can log in now"}</span>
+                <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">{isRtl ? "الطلاب المفعلون" : "Active Students"}</span>
+                <h3 className="text-2xl sm:text-3xl font-black font-mono text-foreground">{activeCount}</h3>
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-300 font-bold block">{isRtl ? "يستطيعون الدخول فوراً" : "Can log in now"}</span>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
             </div>
           </Card>
 
           {/* Inactive / Pending Payment Card */}
-          <Card className="rounded-3xl border border-rose-500/30 bg-rose-950/20 p-5 backdrop-blur-xl shadow-xl">
+          <Card className="rounded-3xl border border-rose-500/30 bg-rose-500/5 dark:bg-rose-950/20 p-5 shadow-sm dark:shadow-md transition-all">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <span className="text-xs font-bold text-rose-400">{isRtl ? "بانتظار سداد الاشتراك" : "Pending Payment"}</span>
-                <h3 className="text-2xl sm:text-3xl font-black font-mono text-white">{inactiveCount}</h3>
-                <span className="text-[10px] text-rose-300 font-bold block">{isRtl ? "حساب معلق حتى السداد" : "Suspended till paid"}</span>
+                <span className="text-xs font-bold text-rose-700 dark:text-rose-400">{isRtl ? "بانتظار سداد الاشتراك" : "Pending Payment"}</span>
+                <h3 className="text-2xl sm:text-3xl font-black font-mono text-foreground">{inactiveCount}</h3>
+                <span className="text-[10px] text-rose-600 dark:text-rose-300 font-bold block">{isRtl ? "حساب معلق حتى السداد" : "Suspended till paid"}</span>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-rose-500/20 flex items-center justify-center text-rose-400">
+              <div className="w-12 h-12 rounded-2xl bg-rose-500/15 flex items-center justify-center text-rose-600 dark:text-rose-400">
                 <Clock className="w-6 h-6" />
               </div>
             </div>
           </Card>
 
           {/* Payment Action Summary Card */}
-          <Card className="rounded-3xl border border-teal-500/40 bg-gradient-to-br from-teal-950/40 to-slate-900 p-5 backdrop-blur-xl shadow-xl flex flex-col justify-between">
+          <Card className="rounded-3xl border border-teal-500/40 bg-teal-500/5 dark:bg-teal-950/30 p-5 shadow-sm dark:shadow-md flex flex-col justify-between transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-xs font-bold text-teal-300 block">{isRtl ? "مستحقات التفعيل" : "Total Due"}</span>
-                <span className="text-2xl font-black font-mono text-white">${inactiveCount * 6} USD</span>
+                <span className="text-xs font-bold text-teal-700 dark:text-teal-300 block">{isRtl ? "مستحقات التفعيل" : "Total Due"}</span>
+                <span className="text-2xl font-black font-mono text-foreground">${inactiveCount * 6} USD</span>
               </div>
-              <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-black">
+              <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-[10px] font-black">
                 {isRtl ? "أو $48 سنوي" : "Or $48/yr"}
               </Badge>
             </div>
@@ -395,21 +395,21 @@ const StudentSubscriptions = () => {
         </div>
 
         {/* 3. Pricing Plan Highlights Banner */}
-        <div className="p-4 sm:p-5 rounded-3xl bg-slate-900/80 border border-white/10 backdrop-blur-2xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="p-4 sm:p-5 rounded-3xl bg-card border border-border/80 shadow-sm dark:shadow-md flex flex-col md:flex-row items-center justify-between gap-4 transition-all">
           <div className="flex items-center gap-3.5 text-center sm:text-start">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white shadow-lg shrink-0">
               <Sparkles className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap justify-center sm:justify-start">
-                <h3 className="text-sm sm:text-base font-black text-white">
+                <h3 className="text-sm sm:text-base font-black text-foreground">
                   {isRtl ? "باقات اشتراك الطلاب المعتمدة (Paddle & Stripe)" : "Approved Student Subscription Plans"}
                 </h3>
                 <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 text-[10px] font-black">
                   {isRtl ? "خصم 33% على الباقة السنوية" : "33% Annual Discount"}
                 </Badge>
               </div>
-              <p className="text-xs text-slate-300 font-semibold mt-0.5">
+              <p className="text-xs text-muted-foreground font-semibold mt-0.5">
                 {isRtl
                   ? "الباقة الشهرية: $6 / طالب / شهر | الباقة السنوية: $48 / طالب / سنة ($4 شهرياً بدلاً من $6 - وفر $24 سنوياً لكل طالب)"
                   : "Monthly: $6/student/mo | Annual: $48/student/yr ($4/mo instead of $6 - Save $24/yr per student)"}
@@ -418,8 +418,8 @@ const StudentSubscriptions = () => {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <Badge variant="outline" className="text-xs font-bold border-white/20 bg-white/5 text-slate-300 py-1.5 px-3">
-              <ShieldCheck className="w-3.5 h-3.5 me-1 text-teal-400 inline" />
+            <Badge variant="outline" className="text-xs font-bold border-border bg-muted/50 text-foreground py-1.5 px-3">
+              <ShieldCheck className="w-3.5 h-3.5 me-1 text-primary inline" />
               Stripe & Paddle
             </Badge>
           </div>
@@ -428,12 +428,12 @@ const StudentSubscriptions = () => {
         {/* 4. Search and Multi-Select Bar */}
         <div className="flex flex-col sm:flex-row items-center gap-3">
           <div className="relative flex-1 w-full">
-            <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={isRtl ? "بحث باسم الطالب أو القسم أو البريد الإلكتروني..." : "Search by student name, department or email..."}
-              className="ps-10 h-11 rounded-2xl bg-slate-900 border-white/10 text-xs sm:text-sm text-white placeholder:text-slate-500 focus-visible:ring-teal-500/30 focus-visible:border-teal-500"
+              className="ps-10 h-11 rounded-2xl bg-card border-border/80 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/30 focus-visible:border-primary"
             />
           </div>
 
@@ -452,7 +452,7 @@ const StudentSubscriptions = () => {
               <Button
                 variant="outline"
                 onClick={() => setSelectedIds(new Set())}
-                className="h-11 rounded-2xl border-white/20 bg-white/5 text-white font-bold text-xs"
+                className="h-11 rounded-2xl border-border bg-card text-foreground font-bold text-xs"
               >
                 {isRtl ? "إلغاء" : "Clear"}
               </Button>
@@ -461,12 +461,12 @@ const StudentSubscriptions = () => {
         </div>
 
         {/* 5. Main Students Subscriptions Table */}
-        <Card className="rounded-3xl border border-white/10 bg-slate-900/80 backdrop-blur-2xl shadow-2xl overflow-hidden">
-          <CardHeader className="p-4 sm:p-5 pb-3 border-b border-white/10 flex flex-row items-center justify-between">
-            <CardTitle className="text-sm sm:text-base font-black text-white flex items-center gap-2">
-              <Users className="w-5 h-5 text-teal-400" />
+        <Card className="rounded-3xl border border-border/80 bg-card shadow-sm dark:shadow-md overflow-hidden">
+          <CardHeader className="p-4 sm:p-5 pb-3 border-b border-border/60 flex flex-row items-center justify-between">
+            <CardTitle className="text-sm sm:text-base font-black text-foreground flex items-center gap-2">
+              <Users className="w-5 h-5 text-primary" />
               <span>{isRtl ? "بيانات واشتراكات الطلاب" : "Student Subscription Directory"}</span>
-              <Badge variant="secondary" className="bg-white/10 text-slate-300 border-0 text-xs font-mono font-bold">
+              <Badge variant="secondary" className="bg-muted text-foreground border-0 text-xs font-mono font-bold">
                 {total}
               </Badge>
             </CardTitle>
@@ -475,15 +475,15 @@ const StudentSubscriptions = () => {
           <CardContent className="p-0">
             {error ? (
               <div className="p-12 text-center space-y-3">
-                <AlertTriangle className="w-10 h-10 mx-auto text-rose-400" />
-                <p className="text-xs font-bold text-rose-300">{error}</p>
-                <Button variant="outline" size="sm" onClick={fetchStudents} className="rounded-xl border-white/20 text-white">
+                <AlertTriangle className="w-10 h-10 mx-auto text-rose-500" />
+                <p className="text-xs font-bold text-rose-600 dark:text-rose-400">{error}</p>
+                <Button variant="outline" size="sm" onClick={fetchStudents} className="rounded-xl border-border text-foreground">
                   <RefreshCw className="w-4 h-4 me-1.5" />
                   {isRtl ? "إعادة المحاولة" : "Retry"}
                 </Button>
               </div>
             ) : !loading && data.length === 0 ? (
-              <div className="p-16 text-center space-y-3 text-slate-500">
+              <div className="p-16 text-center space-y-3 text-muted-foreground">
                 <Users className="w-12 h-12 mx-auto opacity-40" />
                 <p className="text-xs sm:text-sm font-bold">
                   {search ? (isRtl ? "لا توجد نتائج مطابقة للبحث" : "No matching results") : (isRtl ? "لا يوجد طلاب مسجلون بعد" : "No registered students yet")}
@@ -492,8 +492,8 @@ const StudentSubscriptions = () => {
             ) : (
               <div className="overflow-x-auto">
                 <Table>
-                  <TableHeader className="bg-slate-950/60 border-b border-white/10">
-                    <TableRow className="border-white/10 hover:bg-transparent">
+                  <TableHeader className="bg-muted/40 border-b border-border/60">
+                    <TableRow className="border-border/60 hover:bg-transparent">
                       <TableHead className="w-12 text-center">
                         <input
                           type="checkbox"
@@ -502,31 +502,31 @@ const StudentSubscriptions = () => {
                           onChange={toggleSelectAll}
                         />
                       </TableHead>
-                      <TableHead className="cursor-pointer font-black text-xs text-slate-300" onClick={() => toggleSort("full_name")}>
+                      <TableHead className="cursor-pointer font-black text-xs text-muted-foreground" onClick={() => toggleSort("full_name")}>
                         <span className="inline-flex items-center gap-1">
                           {isRtl ? "اسم الطالب" : "Student Name"} <SortIcon col="full_name" />
                         </span>
                       </TableHead>
-                      <TableHead className="cursor-pointer font-black text-xs text-slate-300 hidden sm:table-cell" onClick={() => toggleSort("department_name")}>
+                      <TableHead className="cursor-pointer font-black text-xs text-muted-foreground hidden sm:table-cell" onClick={() => toggleSort("department_name")}>
                         <span className="inline-flex items-center gap-1">
                           {isRtl ? "القسم الأكاديمي" : "Department"} <SortIcon col="department_name" />
                         </span>
                       </TableHead>
-                      <TableHead className="font-black text-xs text-slate-300 hidden md:table-cell">
+                      <TableHead className="font-black text-xs text-muted-foreground hidden md:table-cell">
                         {isRtl ? "البريد الإلكتروني" : "Email"}
                       </TableHead>
-                      <TableHead className="cursor-pointer font-black text-xs text-slate-300 hidden lg:table-cell" onClick={() => toggleSort("created_at")}>
+                      <TableHead className="cursor-pointer font-black text-xs text-muted-foreground hidden lg:table-cell" onClick={() => toggleSort("created_at")}>
                         <span className="inline-flex items-center gap-1">
                           {isRtl ? "تاريخ التسجيل" : "Registered"} <SortIcon col="created_at" />
                         </span>
                       </TableHead>
-                      <TableHead className="font-black text-xs text-slate-300 text-center">
+                      <TableHead className="font-black text-xs text-muted-foreground text-center">
                         {isRtl ? "فترة الاشتراك" : "Trial / Validity"}
                       </TableHead>
-                      <TableHead className="font-black text-xs text-slate-300 text-center">
+                      <TableHead className="font-black text-xs text-muted-foreground text-center">
                         {isRtl ? "حالة الحساب" : "Account Status"}
                       </TableHead>
-                      <TableHead className="font-black text-xs text-slate-300 text-center">
+                      <TableHead className="font-black text-xs text-muted-foreground text-center">
                         {isRtl ? "إجراء السداد" : "Action"}
                       </TableHead>
                     </TableRow>
@@ -534,7 +534,7 @@ const StudentSubscriptions = () => {
                   <TableBody>
                     {loading && data.length === 0 ? (
                       Array.from({ length: 6 }).map((_, i) => (
-                        <TableRow key={i} className="border-white/5">
+                        <TableRow key={i} className="border-border/40">
                           <TableCell><Skeleton className="h-4 w-4 rounded mx-auto" /></TableCell>
                           <TableCell><Skeleton className="h-4 w-32" /></TableCell>
                           <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
@@ -554,8 +554,8 @@ const StudentSubscriptions = () => {
                         return (
                           <TableRow
                             key={s.id}
-                            className={`border-white/5 transition-colors ${
-                              isSelected ? "bg-teal-500/10" : "hover:bg-white/5"
+                            className={`border-border/40 transition-colors ${
+                              isSelected ? "bg-primary/10" : "hover:bg-muted/50"
                             }`}
                           >
                             <TableCell className="text-center">
@@ -570,7 +570,7 @@ const StudentSubscriptions = () => {
                             {/* Name & Avatar */}
                             <TableCell>
                               <div className="flex items-center gap-2.5">
-                                <div className="w-8 h-8 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-300 font-black text-xs shrink-0 overflow-hidden">
+                                <div className="w-8 h-8 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary font-black text-xs shrink-0 overflow-hidden">
                                   {s.photo_url ? (
                                     <img src={s.photo_url} alt={s.full_name} className="w-full h-full object-cover" />
                                   ) : (
@@ -578,9 +578,9 @@ const StudentSubscriptions = () => {
                                   )}
                                 </div>
                                 <div>
-                                  <p className="font-bold text-xs sm:text-sm text-white">{s.full_name}</p>
+                                  <p className="font-bold text-xs sm:text-sm text-foreground">{s.full_name}</p>
                                   {s.phone && (
-                                    <span className="text-[10px] text-slate-500 font-mono block">{s.phone}</span>
+                                    <span className="text-[10px] text-muted-foreground font-mono block">{s.phone}</span>
                                   )}
                                 </div>
                               </div>
@@ -588,36 +588,36 @@ const StudentSubscriptions = () => {
 
                             {/* Department */}
                             <TableCell className="hidden sm:table-cell">
-                              <span className="text-xs font-semibold text-slate-300">
+                              <span className="text-xs font-semibold text-muted-foreground">
                                 {s.department_name || "—"}
                               </span>
                             </TableCell>
 
                             {/* Email */}
                             <TableCell className="hidden md:table-cell">
-                              <span className="text-xs font-mono text-slate-400">{s.email || "—"}</span>
+                              <span className="text-xs font-mono text-muted-foreground">{s.email || "—"}</span>
                             </TableCell>
 
                             {/* Registration Date */}
-                            <TableCell className="hidden lg:table-cell text-xs font-mono text-slate-400">
+                            <TableCell className="hidden lg:table-cell text-xs font-mono text-muted-foreground">
                               {new Date(s.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}
                             </TableCell>
 
                             {/* Validity / Trial Badge */}
                             <TableCell className="text-center">
                               {s.subscription_active ? (
-                                <Badge className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black">
+                                <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-[10px] font-black">
                                   {isRtl ? "اشتراك مدفوع نشط" : "Active Paid"}
                                 </Badge>
                               ) : total <= FREE_TIER_LIMIT && daysLeft > 0 ? (
                                 <div className="inline-flex flex-col items-center">
-                                  <Badge className="bg-teal-500/20 text-teal-300 border border-teal-500/40 text-[10px] font-black">
+                                  <Badge className="bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/30 text-[10px] font-black">
                                     <Clock className="w-3 h-3 me-1 inline" />
                                     {isRtl ? `تجربة مجانية: باقي ${daysLeft} يوم` : `${daysLeft} days left`}
                                   </Badge>
                                 </div>
                               ) : (
-                                <Badge className="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] font-black">
+                                <Badge className="bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30 text-[10px] font-black">
                                   {isRtl ? "انتهت الفترة (مطلوب الدفع)" : "Expired (Payment Due)"}
                                 </Badge>
                               )}
@@ -627,8 +627,8 @@ const StudentSubscriptions = () => {
                             <TableCell className="text-center">
                               <Badge className={`text-[10px] font-black px-2 py-0.5 ${
                                 active
-                                  ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-                                  : "bg-rose-500/20 text-rose-300 border border-rose-500/40"
+                                  ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30"
+                                  : "bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30"
                               }`}>
                                 {active ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "معلق" : "Suspended")}
                               </Badge>
@@ -641,7 +641,7 @@ const StudentSubscriptions = () => {
                                   size="sm"
                                   variant="ghost"
                                   onClick={() => openCheckoutForStudents([s])}
-                                  className="h-8 px-2.5 rounded-xl text-teal-400 hover:bg-teal-500/10 font-black text-xs gap-1"
+                                  className="h-8 px-2.5 rounded-xl text-primary hover:bg-primary/10 font-black text-xs gap-1"
                                 >
                                   <Sparkles className="w-3.5 h-3.5" />
                                   <span>{isRtl ? "تجديد" : "Renew"}</span>
@@ -668,7 +668,7 @@ const StudentSubscriptions = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="p-4 border-t border-white/10 flex items-center justify-between text-xs font-bold text-slate-400">
+              <div className="p-4 border-t border-border/60 flex items-center justify-between text-xs font-bold text-muted-foreground">
                 <span>
                   {isRtl ? `صفحة ${safePage} من ${totalPages}` : `Page ${safePage} of ${totalPages}`}
                 </span>
@@ -678,7 +678,7 @@ const StudentSubscriptions = () => {
                     size="sm"
                     disabled={safePage <= 1 || loading}
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    className="h-8 rounded-lg text-white"
+                    className="h-8 rounded-lg text-foreground hover:bg-muted"
                   >
                     {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
                   </Button>
@@ -687,7 +687,7 @@ const StudentSubscriptions = () => {
                     size="sm"
                     disabled={safePage >= totalPages || loading}
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    className="h-8 rounded-lg text-white"
+                    className="h-8 rounded-lg text-foreground hover:bg-muted"
                   >
                     {isRtl ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                   </Button>

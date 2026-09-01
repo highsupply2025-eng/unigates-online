@@ -590,46 +590,63 @@ export default function InstitutionMessages() {
             </div>
 
             {/* Category Filter Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-[11px] font-bold">
+            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
               <button
                 onClick={() => setSelectedCategory("all")}
-                className={`px-3 py-1.5 rounded-xl transition-colors shrink-0 ${
+                className={`px-2.5 py-1 rounded-xl text-[11px] font-black transition-all duration-200 flex items-center gap-1 ${
                   selectedCategory === "all"
-                    ? "bg-teal-500 text-white font-black shadow-md shadow-teal-500/20"
-                    : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
+                    ? "bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-md shadow-teal-500/25 ring-1 ring-white/20"
+                    : "bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-white/5"
                 }`}
               >
-                {isRtl ? "الكل" : "All"} ({contacts.length})
+                <span>{isRtl ? "الكل" : "All"}</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-black/25 opacity-90">
+                  {contacts.length}
+                </span>
               </button>
+
               <button
                 onClick={() => setSelectedCategory("admin")}
-                className={`px-3 py-1.5 rounded-xl transition-colors shrink-0 ${
+                className={`px-2.5 py-1 rounded-xl text-[11px] font-black transition-all duration-200 flex items-center gap-1 ${
                   selectedCategory === "admin"
-                    ? "bg-teal-500 text-white font-black shadow-md shadow-teal-500/20"
-                    : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
+                    ? "bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-md shadow-teal-500/25 ring-1 ring-white/20"
+                    : "bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-white/5"
                 }`}
               >
-                {isRtl ? "العمادة والإدارة" : "Administration"}
+                <span>{isRtl ? "العمادة والإدارة" : "Administration"}</span>
               </button>
+
               <button
                 onClick={() => setSelectedCategory("heads")}
-                className={`px-3 py-1.5 rounded-xl transition-colors shrink-0 ${
+                className={`px-2.5 py-1 rounded-xl text-[11px] font-black transition-all duration-200 flex items-center gap-1 ${
                   selectedCategory === "heads"
-                    ? "bg-teal-500 text-white font-black shadow-md shadow-teal-500/20"
-                    : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
+                    ? "bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-md shadow-teal-500/25 ring-1 ring-white/20"
+                    : "bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-white/5"
                 }`}
               >
-                {isRtl ? "رؤساء الأقسام" : "Dept Heads"}
+                <span>{isRtl ? "رؤساء الأقسام" : "Dept Heads"}</span>
               </button>
+
               <button
                 onClick={() => setSelectedCategory("faculty")}
-                className={`px-3 py-1.5 rounded-xl transition-colors shrink-0 ${
+                className={`px-2.5 py-1 rounded-xl text-[11px] font-black transition-all duration-200 flex items-center gap-1 ${
                   selectedCategory === "faculty"
-                    ? "bg-teal-500 text-white font-black shadow-md shadow-teal-500/20"
-                    : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
+                    ? "bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-md shadow-teal-500/25 ring-1 ring-white/20"
+                    : "bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-white/5"
                 }`}
               >
-                {isRtl ? "أعضاء التدريس" : "Faculty"}
+                <span>{isRtl ? "أعضاء التدريس" : "Faculty"}</span>
+              </button>
+
+              <button
+                onClick={() => setSelectedCategory("staff")}
+                className={`px-2.5 py-1 rounded-xl text-[11px] font-black transition-all duration-200 flex items-center gap-1 ${
+                  selectedCategory === "staff"
+                    ? "bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-md shadow-teal-500/25 ring-1 ring-white/20"
+                    : "bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-white/5"
+                }`}
+              >
+                <span>{isRtl ? "الكادر المساعد" : "Staff"}</span>
               </button>
             </div>
           </div>

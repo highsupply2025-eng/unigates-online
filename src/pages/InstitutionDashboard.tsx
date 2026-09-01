@@ -5,7 +5,7 @@ import {
   Layers, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
   User, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell, PlusCircle, Pencil, Download, ShieldAlert, AlertTriangle, UserPlus, FileSpreadsheet, RefreshCw, Zap, Shield,
-  LayoutGrid, ListFilter, CheckCircle2, Building2, SlidersHorizontal, Check, X
+  LayoutGrid, ListFilter, CheckCircle2, Building2, SlidersHorizontal, Check, X, MapPin, Sparkles
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
@@ -441,6 +441,21 @@ const InstitutionDashboard = () => {
   const [activating, setActivating] = useState(false);
   const [activationResults, setActivationResults] = useState<Array<{ full_name: string; email: string; password: string }>>([]);
   const [showActivationResults, setShowActivationResults] = useState(false);
+
+  // Schedules Management States
+  const [scheduleSearch, setScheduleSearch] = useState("");
+  const [scheduleTypeFilter, setScheduleTypeFilter] = useState<"all" | "lecture" | "exam">("all");
+  const [scheduleDeptFilter, setScheduleDeptFilter] = useState<string>("all");
+  const [showAddScheduleModal, setShowAddScheduleModal] = useState(false);
+  const [newScheduleTitleAr, setNewScheduleTitleAr] = useState("");
+  const [newScheduleTitleEn, setNewScheduleTitleEn] = useState("");
+  const [newScheduleType, setNewScheduleType] = useState<"lecture" | "exam">("lecture");
+  const [newScheduleDate, setNewScheduleDate] = useState(new Date().toISOString().slice(0, 10));
+  const [newScheduleStartTime, setNewScheduleStartTime] = useState("09:00");
+  const [newScheduleEndTime, setNewScheduleEndTime] = useState("11:00");
+  const [newScheduleLocation, setNewScheduleLocation] = useState("");
+  const [newScheduleDeptId, setNewScheduleDeptId] = useState("");
+  const [savingSchedule, setSavingSchedule] = useState(false);
 
   const allStudents = useMemo(() => {
     return (deptMembers || []).filter((m) => m.role === "student");
@@ -1508,6 +1523,75 @@ ${exams.map((s: any, i: number) => `<tr>
 
     w.document.write(html);
     w.document.close();
+  };
+
+  const exportSchedulesToExcel = () => {
+    if (examSchedules.length === 0) {
+      sonnerToast.error(tText("لا توجد جداول للتصدير", "No schedules to export"));
+      return;
+    }
+    const excelRows = examSchedules.map((s: any, idx: number) => ({
+      "#": idx + 1,
+      [tText("نوع الجدول", "Type")]: s.schedule_type === "exam" ? tText("اختبار", "Exam") : tText("محاضرة", "Lecture"),
+      [tText("العنوان", "Title")]: isRtl ? s.title_ar : s.title_en,
+      [tText("التاريخ", "Date")]: new Date(s.scheduled_date).toLocaleDateString(isRtl ? "ar-EG" : "en-US"),
+      [tText("وقت البدء", "Start Time")]: s.start_time || "—",
+      [tText("وقت الانتهاء", "End Time")]: s.end_time || "—",
+      [tText("المكان والقاعة", "Location / Hall")]: isRtl ? (s.location_ar || "—") : (s.location_en || "—"),
+    }));
+    const worksheet = XLSX.utils.json_to_sheet(excelRows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Schedules");
+    XLSX.writeFile(workbook, `Schedules-${new Date().toISOString().slice(0, 10)}.xlsx`);
+    sonnerToast.success(tText("تم تصدير ملف Excel بنجاح", "Excel exported successfully"));
+  };
+
+  const handleAddSchedule = async () => {
+    if (!newScheduleTitleAr.trim() || !newScheduleDate || savingSchedule) return;
+    setSavingSchedule(true);
+    try {
+      const targetDeptId = newScheduleDeptId && newScheduleDeptId !== "all" ? newScheduleDeptId : (departments[0]?.id ?? null);
+      const { data: newSch, error } = await supabase.from("lecture_schedules").insert({
+        institution_id: institutionId,
+        department_id: targetDeptId,
+        schedule_type: newScheduleType,
+        title_ar: newScheduleTitleAr.trim(),
+        title_en: newScheduleTitleEn.trim() || newScheduleTitleAr.trim(),
+        scheduled_date: newScheduleDate,
+        start_time: newScheduleStartTime || null,
+        end_time: newScheduleEndTime || null,
+        location_ar: newScheduleLocation.trim() || null,
+        location_en: newScheduleLocation.trim() || null,
+        approved_by_head: true,
+        approved_by_vice_dean: true,
+        approved_by_dean: true,
+      }).select().single();
+
+      if (error) throw error;
+      if (newSch) {
+        setExamSchedules(prev => [...prev, newSch]);
+      }
+      sonnerToast.success(tText("تمت إضافة الجدول بنجاح", "Schedule added successfully"));
+      setShowAddScheduleModal(false);
+      setNewScheduleTitleAr("");
+      setNewScheduleTitleEn("");
+      setNewScheduleLocation("");
+    } catch (e: any) {
+      sonnerToast.error(e.message || tText("فشل في إضافة الجدول", "Failed to add schedule"));
+    } finally {
+      setSavingSchedule(false);
+    }
+  };
+
+  const handleDeleteSchedule = async (id: string) => {
+    try {
+      const { error } = await supabase.from("lecture_schedules").delete().eq("id", id);
+      if (error) throw error;
+      setExamSchedules(prev => prev.filter(s => s.id !== id));
+      sonnerToast.success(tText("تم حذف الجدول بنجاح", "Schedule deleted successfully"));
+    } catch (e: any) {
+      sonnerToast.error(e.message || tText("فشل في حذف الجدول", "Failed to delete schedule"));
+    }
   };
 
   const handleDeleteDepartment = async (deptId: string, deptName: string) => {
@@ -4364,63 +4448,498 @@ ${exams.map((s: any, i: number) => `<tr>
 
           {/* Schedules Tab */}
           {(
-            <TabsContent value="schedules" dir={isRtl ? "rtl" : "ltr"}>
-
-              {/* Exam Schedules only */}
+            <TabsContent value="schedules" dir={dir} className="space-y-6 animate-in fade-in-50 duration-200">
               {(() => {
-                const exams = examSchedules.filter(s => s.schedule_type === 'exam');
+                const allSchedules = examSchedules || [];
+                const lecturesCount = allSchedules.filter(s => s.schedule_type === 'lecture').length;
+                const examsCount = allSchedules.filter(s => s.schedule_type === 'exam').length;
+                const activeLocationsCount = new Set(allSchedules.map(s => s.location_ar || s.location_en).filter(Boolean)).size;
+
+                // Filtering
+                const filtered = allSchedules.filter((s: any) => {
+                  if (scheduleTypeFilter !== "all" && s.schedule_type !== scheduleTypeFilter) return false;
+                  if (scheduleDeptFilter !== "all" && s.department_id !== scheduleDeptFilter) return false;
+                  if (scheduleSearch.trim()) {
+                    const q = scheduleSearch.trim().toLowerCase();
+                    const title = ((s.title_ar || "") + " " + (s.title_en || "")).toLowerCase();
+                    const loc = ((s.location_ar || "") + " " + (s.location_en || "")).toLowerCase();
+                    if (!title.includes(q) && !loc.includes(q)) return false;
+                  }
+                  return true;
+                });
+
                 return (
-                  <Card className="mb-4">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm flex items-center gap-2">
-                        <ClipboardList className="w-4 h-4 text-red-500" />
-                        {isRtl ? "جداول الاختبارات" : "Exam Schedules"}
-                        <Badge variant="destructive" className="text-[10px]">{exams.length}</Badge>
-                        {exams.length > 0 && (
+                  <div className="space-y-6">
+                    {/* ── 1. Top HUD Metric Cards ── */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                      {/* Total Schedules */}
+                      <Card className="rounded-3xl border-2 border-border/80 bg-gradient-to-br from-card via-card/95 to-card shadow-md hover:border-teal-500/40 hover:shadow-xl transition-all duration-300">
+                        <CardContent className="p-4 sm:p-5 flex items-center gap-3.5">
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white flex items-center justify-center shadow-md shadow-teal-500/25 shrink-0">
+                            <Calendar className="w-6 h-6" strokeWidth={2.4} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[11px] text-muted-foreground font-black uppercase tracking-wider">{tText("إجمالي الجداول المعتمدة", "Total Schedules")}</p>
+                            <p className="font-mono font-black text-2xl text-foreground truncate">{allSchedules.length}</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Weekly Lectures */}
+                      <Card className="rounded-3xl border-2 border-border/80 bg-gradient-to-br from-card via-card/95 to-card shadow-md hover:border-blue-500/40 hover:shadow-xl transition-all duration-300">
+                        <CardContent className="p-4 sm:p-5 flex items-center gap-3.5">
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-blue-500/25 shrink-0">
+                            <BookOpen className="w-6 h-6" strokeWidth={2.4} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[11px] text-muted-foreground font-black uppercase tracking-wider">{tText("المحاضرات الدراسية", "Weekly Lectures")}</p>
+                            <p className="font-mono font-black text-2xl text-foreground truncate">{lecturesCount}</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Exam Sessions */}
+                      <Card className="rounded-3xl border-2 border-border/80 bg-gradient-to-br from-card via-card/95 to-card shadow-md hover:border-rose-500/40 hover:shadow-xl transition-all duration-300">
+                        <CardContent className="p-4 sm:p-5 flex items-center gap-3.5">
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 text-white flex items-center justify-center shadow-md shadow-rose-500/25 shrink-0">
+                            <ClipboardList className="w-6 h-6" strokeWidth={2.4} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[11px] text-muted-foreground font-black uppercase tracking-wider">{tText("جلسات الاختبارات", "Exam Sessions")}</p>
+                            <p className="font-mono font-black text-2xl text-foreground truncate">{examsCount}</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Active Halls */}
+                      <Card className="rounded-3xl border-2 border-border/80 bg-gradient-to-br from-card via-card/95 to-card shadow-md hover:border-amber-500/40 hover:shadow-xl transition-all duration-300">
+                        <CardContent className="p-4 sm:p-5 flex items-center gap-3.5">
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center shadow-md shadow-amber-500/25 shrink-0">
+                            <MapPin className="w-6 h-6" strokeWidth={2.4} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[11px] text-muted-foreground font-black uppercase tracking-wider">{tText("القاعات والمدرجات النشطة", "Active Halls / Labs")}</p>
+                            <p className="font-mono font-black text-2xl text-foreground truncate">{activeLocationsCount || (allSchedules.length > 0 ? 1 : 0)}</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* ── 2. Type Tabs & Filter Bar ── */}
+                    <div className="flex flex-col gap-3 bg-card p-3 sm:p-4 rounded-3xl border border-border/80 shadow-xs">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        {/* Segmented Type Filters */}
+                        <div className="inline-flex p-1 rounded-2xl bg-muted/70 border border-border/80 gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setScheduleTypeFilter("all")}
+                            className={`px-3 sm:px-4 py-1.5 rounded-xl font-black text-xs transition-all cursor-pointer ${
+                              scheduleTypeFilter === "all"
+                                ? "bg-card text-primary shadow-xs"
+                                : "text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            {tText("كافة الجداول", "All Schedules")} ({allSchedules.length})
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setScheduleTypeFilter("lecture")}
+                            className={`px-3 sm:px-4 py-1.5 rounded-xl font-black text-xs transition-all cursor-pointer ${
+                              scheduleTypeFilter === "lecture"
+                                ? "bg-card text-blue-600 dark:text-blue-400 shadow-xs"
+                                : "text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            {tText("المحاضرات الدراسية", "Lectures")} ({lecturesCount})
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setScheduleTypeFilter("exam")}
+                            className={`px-3 sm:px-4 py-1.5 rounded-xl font-black text-xs transition-all cursor-pointer ${
+                              scheduleTypeFilter === "exam"
+                                ? "bg-card text-rose-600 dark:text-rose-400 shadow-xs"
+                                : "text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            {tText("جداول الاختبارات", "Exam Schedules")} ({examsCount})
+                          </button>
+                        </div>
+
+                        {/* Add Schedule Button */}
+                        <Button
+                          onClick={() => setShowAddScheduleModal(true)}
+                          className="h-10 px-5 rounded-2xl bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-black text-xs gap-2 shadow-lg shadow-teal-500/25 transition-all hover:scale-105 cursor-pointer"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>{tText("إضافة جدول جديد", "Add Schedule")}</span>
+                        </Button>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-1">
+                        {/* Live Search */}
+                        <div className="relative flex-1 w-full">
+                          <Search className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            placeholder={tText("بحث بالمادة أو القاعة أو التاريخ...", "Search by course, hall or date...")}
+                            value={scheduleSearch}
+                            onChange={e => setScheduleSearch(e.target.value)}
+                            className="ps-10 h-10 rounded-2xl bg-background border-border/80 text-xs sm:text-sm font-bold"
+                          />
+                        </div>
+
+                        {/* Department Filter */}
+                        {departments.length > 0 && (
+                          <div className="w-full sm:w-48">
+                            <Select value={scheduleDeptFilter} onValueChange={setScheduleDeptFilter}>
+                              <SelectTrigger className="h-10 rounded-2xl bg-background border-border/80 font-bold text-xs">
+                                <SelectValue placeholder={tText("كل الأقسام", "All Departments")} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">{tText("كل الأقسام الأكاديمية", "All Departments")}</SelectItem>
+                                {departments.map(d => (
+                                  <SelectItem key={d.id} value={d.id}>
+                                    {isRtl ? d.name_ar : (d.name_en || d.name_ar)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+
+                        {/* Export Buttons */}
+                        <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
                           <Button
                             size="sm"
-                            className="ms-auto gap-1 h-7 text-[11px] bg-red-600 hover:bg-red-700 text-white"
+                            variant="outline"
+                            className="flex-1 sm:flex-none h-10 px-4 rounded-2xl gap-2 border-border bg-background hover:bg-muted font-bold text-xs cursor-pointer"
+                            onClick={exportSchedulesToExcel}
+                          >
+                            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                            <span>{tText("تصدير Excel", "Export Excel")}</span>
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            className="flex-1 sm:flex-none h-10 px-4 rounded-2xl gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs shadow-md shadow-emerald-600/20 cursor-pointer"
                             onClick={exportSchedulesToPDF}
                           >
-                            <Download className="w-3.5 h-3.5" />
-                            <span className="hidden sm:inline">{isRtl ? "تصدير PDF" : "Export PDF"}</span>
+                            <Download className="w-4 h-4" />
+                            <span>{tText("تصدير PDF", "Export PDF")}</span>
                           </Button>
-                        )}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {exams.length === 0 ? (
-                        <p className="text-sm text-muted-foreground text-center py-4">
-                          {isRtl ? "لا توجد اختبارات مجدولة" : "No exams scheduled"}
-                        </p>
-                      ) : (
-                        <div className="space-y-2">
-                          {exams.map(sch => (
-                            <div key={sch.id} className="flex items-center justify-between p-3 rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/20">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-red-500 to-rose-600 shadow-md shadow-black/10 flex items-center justify-center">
-                                  <ClipboardList className="w-5 h-5 text-white" />
-                                </div>
-                                <div>
-                                  <p className="font-bold text-sm">{isRtl ? sch.title_ar : sch.title_en}</p>
-                                  <p className="text-xs text-muted-foreground">
-                                    <Calendar className="w-3 h-3 inline me-1" />
-                                    {new Date(sch.scheduled_date).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
-                                    {sch.start_time && ` · ${sch.start_time}`}
-                                    {sch.end_time && ` - ${sch.end_time}`}
-                                  </p>
-                                  {(sch.location_ar || sch.location_en) && (
-                                    <p className="text-xs text-muted-foreground">{isRtl ? sch.location_ar : sch.location_en}</p>
-                                  )}
-                                </div>
-                              </div>
-                              <Badge className="bg-red-100 text-red-700">{isRtl ? "اختبار" : "Exam"}</Badge>
-                            </div>
-                          ))}
                         </div>
-                      )}
-                    </CardContent>
-                  </Card>
+                      </div>
+                    </div>
+
+                    {/* ── 3. Schedules Grid OR Futuristic Empty State ── */}
+                    {filtered.length === 0 ? (
+                      <Card className="border-2 border-border/80 bg-gradient-to-b from-card via-card/95 to-card rounded-3xl shadow-xl overflow-hidden">
+                        <CardContent className="p-8 sm:p-12 text-center relative z-10 space-y-6">
+                          {/* 3D Holographic Icon */}
+                          <div className="relative mx-auto w-24 h-24 sm:w-28 sm:h-28">
+                            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-teal-500 to-cyan-600 opacity-20 blur-2xl animate-pulse" />
+                            <div className="relative w-full h-full rounded-3xl bg-gradient-to-br from-teal-500 to-cyan-600 p-0.5 shadow-xl flex items-center justify-center">
+                              <div className="w-full h-full rounded-[22px] bg-card/90 backdrop-blur-xl flex items-center justify-center">
+                                <Calendar className="w-12 h-12 text-teal-600 dark:text-teal-400 drop-shadow-md" />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Status Badge */}
+                          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-teal-500/30 bg-teal-500/10 text-teal-700 dark:text-teal-300 font-black text-xs">
+                            <Sparkles className="w-3.5 h-3.5" />
+                            <span>{tText("منظومة الجداول الدراسية والاختبارات الأكاديمية", "Academic Schedule & Exam System")}</span>
+                          </div>
+
+                          <div className="max-w-xl mx-auto space-y-2">
+                            <h3 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+                              {tText("لا توجد جداول مسجلة حالياً", "No Schedules Registered Yet")}
+                            </h3>
+                            <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">
+                              {tText(
+                                "يمكنك إضافة وتنسيق جداول المحاضرات الدراسية الأسبوعية وجداول الامتحانات وتحديد القاعات والمواعيد ونشرها فوراً للطلاب وهيئة التدريس.",
+                                "You can add weekly lectures, exam schedules, allocate halls, and publish them live to students and faculty."
+                              )}
+                            </p>
+                          </div>
+
+                          {/* Informative Workflow Stepper */}
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto pt-2 text-start">
+                            <div className="p-4 rounded-2xl bg-muted/40 border border-border/70 space-y-1.5">
+                              <span className="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-teal-500/15 text-teal-600 font-mono font-black text-xs">1</span>
+                              <h4 className="font-bold text-xs text-foreground">{tText("تحديد المواعيد والقاعات", "Set Dates & Halls")}</h4>
+                              <p className="text-[11px] text-muted-foreground">{tText("تحديد أوقات المحاضرات أو الاختبارات والمدرجات المخصصة.", "Specify lecture or exam times and assigned halls.")}</p>
+                            </div>
+
+                            <div className="p-4 rounded-2xl bg-muted/40 border border-border/70 space-y-1.5">
+                              <span className="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-blue-500/15 text-blue-600 font-mono font-black text-xs">2</span>
+                              <h4 className="font-bold text-xs text-foreground">{tText("ربط المواد بالأقسام", "Assign Departments")}</h4>
+                              <p className="text-[11px] text-muted-foreground">{tText("ربط كل مادة وجدول بالقسم الأكاديمي التابع له.", "Link each course schedule to its academic department.")}</p>
+                            </div>
+
+                            <div className="p-4 rounded-2xl bg-muted/40 border border-border/70 space-y-1.5">
+                              <span className="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-emerald-500/15 text-emerald-600 font-mono font-black text-xs">3</span>
+                              <h4 className="font-bold text-xs text-foreground">{tText("النشر الفوري للطلاب", "Live Student Sync")}</h4>
+                              <p className="text-[11px] text-muted-foreground">{tText("يظهر الجدول في حسابات الطلاب ومساعد المنصة الذكي.", "Syncs instantly to student portals and smart assistant.")}</p>
+                            </div>
+                          </div>
+
+                          {/* Quick CTA */}
+                          <div className="pt-3">
+                            <Button
+                              onClick={() => setShowAddScheduleModal(true)}
+                              className="h-11 px-7 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-black text-xs gap-2 shadow-lg shadow-teal-500/25 transition-all hover:scale-105 cursor-pointer"
+                            >
+                              <Plus className="w-4 h-4" />
+                              <span>{tText("إضافة أول جدول دراسي / اختبار", "Add First Schedule")}</span>
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      /* Populated Schedules Grid */
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {filtered.map((sch: any) => {
+                          const isExam = sch.schedule_type === 'exam';
+                          const dept = departments.find(d => d.id === sch.department_id);
+                          const deptName = dept ? (isRtl ? dept.name_ar : (dept.name_en || dept.name_ar)) : null;
+
+                          return (
+                            <Card
+                              key={sch.id}
+                              className="rounded-3xl border-2 border-border/80 bg-card hover:border-primary/50 hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
+                            >
+                              <div>
+                                {/* Header Strip */}
+                                <div className={`p-4 flex items-center justify-between gap-2 text-white ${
+                                  isExam
+                                    ? "bg-gradient-to-r from-rose-600 via-pink-600 to-rose-700"
+                                    : "bg-gradient-to-r from-teal-600 via-emerald-600 to-cyan-700"
+                                }`}>
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <div className="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0">
+                                      {isExam ? <ClipboardList className="w-5 h-5 text-white" /> : <BookOpen className="w-5 h-5 text-white" />}
+                                    </div>
+                                    <Badge className="bg-black/20 text-white border-white/20 font-black text-[10px]">
+                                      {isExam ? tText("جدول اختبار", "Exam Schedule") : tText("محاضرة دراسية", "Weekly Lecture")}
+                                    </Badge>
+                                  </div>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteSchedule(sch.id)}
+                                    className="w-8 h-8 rounded-xl bg-white/15 hover:bg-rose-500/80 text-white flex items-center justify-center transition-colors cursor-pointer"
+                                    title={tText("حذف الجدول", "Delete Schedule")}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+
+                                {/* Body Content */}
+                                <CardContent className="p-4 sm:p-5 space-y-3">
+                                  <div>
+                                    <h4 className="font-black text-base text-foreground truncate">
+                                      {isRtl ? sch.title_ar : (sch.title_en || sch.title_ar)}
+                                    </h4>
+                                    {deptName && (
+                                      <p className="text-xs text-muted-foreground font-bold mt-0.5 flex items-center gap-1.5">
+                                        <Building2 className="w-3.5 h-3.5 text-primary" />
+                                        <span>{deptName}</span>
+                                      </p>
+                                    )}
+                                  </div>
+
+                                  <div className="space-y-2 pt-1 text-xs font-semibold text-muted-foreground">
+                                    <div className="flex items-center gap-2">
+                                      <Calendar className="w-4 h-4 text-primary shrink-0" />
+                                      <span className="font-bold text-foreground">
+                                        {new Date(sch.scheduled_date).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                      </span>
+                                    </div>
+
+                                    {(sch.start_time || sch.end_time) && (
+                                      <div className="flex items-center gap-2">
+                                        <Clock className="w-4 h-4 text-emerald-600 shrink-0" />
+                                        <span className="font-mono font-bold text-foreground" dir="ltr">
+                                          {sch.start_time || "—"} {sch.end_time ? `- ${sch.end_time}` : ""}
+                                        </span>
+                                      </div>
+                                    )}
+
+                                    {(sch.location_ar || sch.location_en) && (
+                                      <div className="flex items-center gap-2">
+                                        <MapPin className="w-4 h-4 text-amber-600 shrink-0" />
+                                        <span className="font-bold text-foreground">
+                                          {isRtl ? sch.location_ar : (sch.location_en || sch.location_ar)}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </CardContent>
+                              </div>
+
+                              {/* Footer Badge */}
+                              <div className="px-4 py-2.5 bg-muted/30 border-t border-border/60 flex items-center justify-between text-[11px] font-bold">
+                                <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                                  <CheckCircle2 className="w-3.5 h-3.5" />
+                                  <span>{tText("معتمد رسمياً", "Verified")}</span>
+                                </span>
+                                <span className="text-muted-foreground text-[10px]">
+                                  {new Date(sch.created_at || sch.scheduled_date).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
+                                </span>
+                              </div>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* ── 4. Add Schedule Dialog Modal ── */}
+                    <Dialog open={showAddScheduleModal} onOpenChange={setShowAddScheduleModal}>
+                      <DialogContent className="max-w-md rounded-3xl p-6 border-2 border-border" dir={dir}>
+                        <DialogHeader>
+                          <DialogTitle className="text-lg font-black flex items-center gap-2">
+                            <span className="w-9 h-9 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                              <Calendar className="w-5 h-5" />
+                            </span>
+                            {tText("إضافة جدول دراسي أو اختبار", "Add Class or Exam Schedule")}
+                          </DialogTitle>
+                        </DialogHeader>
+
+                        <div className="space-y-4 py-2">
+                          {/* Type Selector */}
+                          <div className="space-y-1.5">
+                            <Label className="text-xs font-black">{tText("نوع الجدول", "Schedule Type")}</Label>
+                            <div className="grid grid-cols-2 gap-2">
+                              <Button
+                                type="button"
+                                variant={newScheduleType === "lecture" ? "default" : "outline"}
+                                className={`h-10 rounded-xl font-black text-xs gap-1.5 ${newScheduleType === "lecture" ? "bg-teal-600 text-white" : ""}`}
+                                onClick={() => setNewScheduleType("lecture")}
+                              >
+                                <BookOpen className="w-4 h-4" />
+                                <span>{tText("محاضرة دراسية", "Lecture")}</span>
+                              </Button>
+                              <Button
+                                type="button"
+                                variant={newScheduleType === "exam" ? "default" : "outline"}
+                                className={`h-10 rounded-xl font-black text-xs gap-1.5 ${newScheduleType === "exam" ? "bg-rose-600 text-white" : ""}`}
+                                onClick={() => setNewScheduleType("exam")}
+                              >
+                                <ClipboardList className="w-4 h-4" />
+                                <span>{tText("جدول اختبار", "Exam")}</span>
+                              </Button>
+                            </div>
+                          </div>
+
+                          {/* Title Arabic */}
+                          <div className="space-y-1.5">
+                            <Label className="text-xs font-black">{tText("اسم المادة / العنوان (بالعربية)", "Course / Title (Arabic)")}</Label>
+                            <Input
+                              value={newScheduleTitleAr}
+                              onChange={e => setNewScheduleTitleAr(e.target.value)}
+                              placeholder={tText("مثال: محاسبة مالية 1", "e.g. Financial Accounting 1")}
+                              className="h-10 rounded-xl font-bold text-xs"
+                            />
+                          </div>
+
+                          {/* Title English */}
+                          <div className="space-y-1.5">
+                            <Label className="text-xs font-black">{tText("اسم المادة / العنوان (بالإنجليزية)", "Course / Title (English)")}</Label>
+                            <Input
+                              value={newScheduleTitleEn}
+                              onChange={e => setNewScheduleTitleEn(e.target.value)}
+                              placeholder="e.g. Financial Accounting 1"
+                              className="h-10 rounded-xl font-bold text-xs"
+                              dir="ltr"
+                            />
+                          </div>
+
+                          {/* Department */}
+                          {departments.length > 0 && (
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-black">{tText("القسم الأكاديمي", "Academic Department")}</Label>
+                              <Select value={newScheduleDeptId} onValueChange={setNewScheduleDeptId}>
+                                <SelectTrigger className="h-10 rounded-xl font-bold text-xs">
+                                  <SelectValue placeholder={tText("اختر القسم", "Select Department")} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {departments.map(d => (
+                                    <SelectItem key={d.id} value={d.id}>
+                                      {isRtl ? d.name_ar : (d.name_en || d.name_ar)}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
+
+                          {/* Date */}
+                          <div className="space-y-1.5">
+                            <Label className="text-xs font-black">{tText("تاريخ الجدولة", "Scheduled Date")}</Label>
+                            <Input
+                              type="date"
+                              value={newScheduleDate}
+                              onChange={e => setNewScheduleDate(e.target.value)}
+                              className="h-10 rounded-xl font-bold text-xs"
+                            />
+                          </div>
+
+                          {/* Times */}
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-black">{tText("وقت البدء", "Start Time")}</Label>
+                              <Input
+                                type="time"
+                                value={newScheduleStartTime}
+                                onChange={e => setNewScheduleStartTime(e.target.value)}
+                                className="h-10 rounded-xl font-bold text-xs"
+                              />
+                            </div>
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-black">{tText("وقت الانتهاء", "End Time")}</Label>
+                              <Input
+                                type="time"
+                                value={newScheduleEndTime}
+                                onChange={e => setNewScheduleEndTime(e.target.value)}
+                                className="h-10 rounded-xl font-bold text-xs"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Location / Hall */}
+                          <div className="space-y-1.5">
+                            <Label className="text-xs font-black">{tText("القاعة / المدرج الدراسي", "Hall / Room Location")}</Label>
+                            <Input
+                              value={newScheduleLocation}
+                              onChange={e => setNewScheduleLocation(e.target.value)}
+                              placeholder={tText("مثال: مدرج أ - مبنى 2", "e.g. Hall A - Building 2")}
+                              className="h-10 rounded-xl font-bold text-xs"
+                            />
+                          </div>
+                        </div>
+
+                        <DialogFooter className="gap-2 pt-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setShowAddScheduleModal(false)}
+                            className="rounded-xl font-bold text-xs"
+                          >
+                            {tText("إلغاء", "Cancel")}
+                          </Button>
+                          <Button
+                            type="button"
+                            onClick={handleAddSchedule}
+                            disabled={savingSchedule || !newScheduleTitleAr.trim()}
+                            className="rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-black text-xs gap-1.5 shadow-md shadow-teal-500/25"
+                          >
+                            {savingSchedule ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                            <span>{tText("حفظ ونشر الجدول", "Save & Publish")}</span>
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 );
               })()}
             </TabsContent>

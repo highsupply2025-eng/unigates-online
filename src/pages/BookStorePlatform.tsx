@@ -25,15 +25,13 @@ const BookStorePlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { t, dir, toggleLanguage, language } = useLanguage();
-  const isRtl = dir === "rtl";
-  const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
-
-  if (isPlatformUnderDevelopment("bookstore")) {
-    return <PlatformUnderDevelopment platform="bookstore" />;
-  }
-
   const { data: books } = useBooks();
   const totalBooks = books?.length ?? 24;
+
+  const isUnderDev = isPlatformUnderDevelopment("bookstore");
+  if (isUnderDev) {
+    return <PlatformUnderDevelopment platform="bookstore" />;
+  }
 
   const statItems = [
     { icon: BookOpen, count: `${totalBooks}+`, label: isRtl ? "عنوان ومؤلف منشور" : "Titles Published", color: "from-amber-500 to-orange-500", glow: "shadow-amber-500/20" },

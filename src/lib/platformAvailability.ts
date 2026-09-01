@@ -5,10 +5,10 @@
  * Controls access and "Coming Soon / Under Development" screens based on
  * the hosting environment:
  * - Production (unigates.online / www.unigates.online):
- *   School Platform, Courses Platform, and Book Store are marked as "Under Development".
+ *   School Platform, Courses Platform, and Book Store are marked as "Under Development" for the public.
  *   University Platform is 100% LIVE and ACTIVE.
- * - Development & Lovable Environments (localhost, *.lovableproject.com, *.lovable.app):
- *   All platforms remain 100% OPEN & FUNCTIONAL for development, testing, and building.
+ * - Development & Lovable Environments (localhost, lovable.dev, *.lovableproject.com, *.lovable.app):
+ *   All platforms remain 100% OPEN & FUNCTIONAL for development, testing, and building inside Lovable.
  */
 
 export type PlatformKey = "university" | "school" | "courses" | "bookstore";
@@ -28,12 +28,20 @@ export function isPlatformUnderDevelopment(
   // Allow test / SSR mock hostname or fallback to window.location
   let hostname = "";
   let search = "";
+  let referrer = "";
+  let isIframe = false;
 
   if (customHostname !== undefined) {
     hostname = customHostname.toLowerCase();
   } else if (typeof window !== "undefined") {
     hostname = (window.location.hostname || "").toLowerCase();
     search = window.location.search || "";
+    referrer = (window.document?.referrer || "").toLowerCase();
+    try {
+      isIframe = window.self !== window.top;
+    } catch {
+      isIframe = true;
+    }
   }
 
   // 1. Check for manual developer bypass via query param (?dev=true or ?preview=true)
@@ -63,10 +71,14 @@ export function isPlatformUnderDevelopment(
     hostname.includes("lovable") ||
     hostname.includes("lovableproject.com") ||
     hostname.includes("lovable.app") ||
+    hostname.includes("lovable.dev") ||
     hostname.includes("vercel.app") ||
     hostname.includes("netlify.app") ||
     hostname.includes("ngrok") ||
-    hostname.endsWith(".local");
+    hostname.endsWith(".local") ||
+    referrer.includes("lovable.dev") ||
+    referrer.includes("lovableproject.com") ||
+    (isIframe && referrer.includes("lovable"));
 
   // In Lovable and Dev environments, keep ALL platforms OPEN for ongoing development
   if (isDevOrLovable) {

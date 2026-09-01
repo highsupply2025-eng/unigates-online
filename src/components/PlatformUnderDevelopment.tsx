@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   Lock,
   ExternalLink,
+  Code2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -64,8 +65,19 @@ export const PlatformUnderDevelopment: React.FC<Props> = ({ platform, onBypassDe
 
   const gradient = getPlatformGradient();
 
+  const handleDevUnlock = () => {
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.setItem("unigates_dev_mode", "true");
+        window.location.reload();
+      } catch {
+        /* noop */
+      }
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-primary/20" dir={dir}>
+    <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-primary/20 transition-colors duration-300" dir={dir}>
       <SEO
         title={`${meta.name} — ${isRtl ? "قريباً • قيد التطوير" : "Coming Soon • In Development"} | UNIGATES`}
         description={meta.desc}
@@ -75,41 +87,41 @@ export const PlatformUnderDevelopment: React.FC<Props> = ({ platform, onBypassDe
 
       <main className="flex-1 flex items-center justify-center px-4 py-16 sm:py-24 relative overflow-hidden">
         {/* Background Ambient Glows */}
-        <div className="absolute top-1/4 -translate-y-1/2 start-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-to-br from-primary/10 via-cyan-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/4 -translate-y-1/2 start-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-to-br from-primary/15 via-cyan-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-3xl w-full mx-auto text-center relative z-10 space-y-8 animate-in fade-in zoom-in-95 duration-300">
           {/* Main 3D Icon & Pulse */}
           <div className="relative mx-auto w-24 h-24 sm:w-28 sm:h-28">
             <div className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${gradient} opacity-30 blur-2xl animate-pulse`} />
             <div
-              className={`relative w-full h-full rounded-3xl bg-gradient-to-br ${gradient} p-0.5 shadow-2xl shadow-black/50 flex items-center justify-center`}
+              className={`relative w-full h-full rounded-3xl bg-gradient-to-br ${gradient} p-0.5 shadow-2xl shadow-black/20 dark:shadow-black/50 flex items-center justify-center`}
             >
-              <div className="w-full h-full rounded-[22px] bg-slate-900/90 backdrop-blur-xl flex items-center justify-center">
-                <IconComp className="w-12 h-12 text-white drop-shadow-md" />
+              <div className="w-full h-full rounded-[22px] bg-card/90 backdrop-blur-xl flex items-center justify-center">
+                <IconComp className="w-12 h-12 text-foreground drop-shadow-md" />
               </div>
             </div>
           </div>
 
           {/* Under Development Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 font-black text-xs shadow-lg shadow-amber-500/10">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-300 font-black text-xs shadow-lg shadow-amber-500/10">
             <Clock className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: "8s" }} />
-            <span>{isRtl ? "قريباً — نعمل على التطوير والبرمجة الآن" : "Coming Soon — Under Active Development"}</span>
+            <span>{isRtl ? "قريباً للجمهور — قيد التطوير والبرمجة الآن" : "Coming Soon — Under Active Development"}</span>
           </div>
 
           {/* Title and Subtitle */}
           <div className="space-y-3">
-            <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+            <h1 className="text-3xl sm:text-5xl font-black text-foreground tracking-tight">
               {meta.name}
             </h1>
-            <p className="text-base sm:text-lg text-slate-300 max-w-xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed font-medium">
               {meta.desc}
             </p>
           </div>
 
           {/* Feature Sneak Peek Card */}
-          <Card className="border border-white/10 bg-slate-900/60 backdrop-blur-xl shadow-2xl rounded-3xl overflow-hidden text-start">
+          <Card className="border border-border/80 bg-card/80 backdrop-blur-xl shadow-lg rounded-3xl overflow-hidden text-start">
             <CardContent className="p-6 sm:p-8 space-y-4">
-              <div className="flex items-center gap-2 text-xs font-black uppercase text-teal-400">
+              <div className="flex items-center gap-2 text-xs font-black uppercase text-primary">
                 <Sparkles className="w-4 h-4" />
                 <span>{isRtl ? "المميزات التي يجري تطويرها حالياً:" : "Features currently being engineered:"}</span>
               </div>
@@ -118,9 +130,9 @@ export const PlatformUnderDevelopment: React.FC<Props> = ({ platform, onBypassDe
                 {meta.expectedFeatures.map((feat, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center gap-2.5 p-3 rounded-2xl bg-white/5 border border-white/5 text-xs font-bold text-slate-200"
+                    className="flex items-center gap-2.5 p-3 rounded-2xl bg-muted/50 border border-border/60 text-xs font-bold text-foreground"
                   >
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span className="truncate">{feat}</span>
                   </div>
                 ))}
@@ -144,7 +156,7 @@ export const PlatformUnderDevelopment: React.FC<Props> = ({ platform, onBypassDe
             <Button
               asChild
               variant="outline"
-              className="w-full sm:w-auto h-12 px-6 rounded-2xl border-white/15 bg-white/5 hover:bg-white/10 text-white font-bold text-sm"
+              className="w-full sm:w-auto h-12 px-6 rounded-2xl border-border bg-card hover:bg-muted text-foreground font-bold text-sm"
             >
               <Link to="/">
                 <Home className="w-4 h-4 me-2" />

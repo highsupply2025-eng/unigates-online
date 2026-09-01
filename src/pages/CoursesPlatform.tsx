@@ -27,18 +27,17 @@ const CoursesPlatform = () => {
   const navigate = useNavigate();
   const { t, dir, toggleLanguage, language } = useLanguage();
   const isRtl = dir === "rtl";
-  const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
-
-  if (isPlatformUnderDevelopment("courses")) {
-    return <PlatformUnderDevelopment platform="courses" />;
-  }
-
   const { data: stats } = usePlatformStats("courses");
   const lecturers = useCountUp(stats?.lecturers ?? 0);
   const teachers = useCountUp(stats?.teachers ?? 0);
   const students = useCountUp(stats?.students ?? 0);
   const trainingCenters = useCountUp(stats?.trainingCenters ?? 0);
   const languageCenters = useCountUp(stats?.languageCenters ?? 0);
+
+  const isUnderDev = isPlatformUnderDevelopment("courses");
+  if (isUnderDev) {
+    return <PlatformUnderDevelopment platform="courses" />;
+  }
 
   const statItems = [
     { icon: User, counter: students, label: isRtl ? "طالب ومتدرب" : "Learners", color: "from-indigo-500 to-blue-500", glow: "shadow-blue-500/20" },

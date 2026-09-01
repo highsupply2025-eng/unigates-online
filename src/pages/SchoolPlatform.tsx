@@ -28,18 +28,16 @@ const SchoolPlatform = () => {
   const navigate = useNavigate();
   const { t, dir, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
-  const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
-
-  if (isPlatformUnderDevelopment("school")) {
-    return <PlatformUnderDevelopment platform="school" />;
-  }
-
   const { data: stats } = usePlatformStats("school");
-
   const schools = useCountUp(stats?.schools ?? 0);
   const teachers = useCountUp(stats?.teachers ?? 0);
   const schoolStudents = useCountUp(stats?.schoolStudents ?? 0);
   const totalParents = useCountUp(stats?.parents ?? 0);
+
+  const isUnderDev = isPlatformUnderDevelopment("school");
+  if (isUnderDev) {
+    return <PlatformUnderDevelopment platform="school" />;
+  }
 
   const statItems = [
     { icon: School, counter: schools, label: isRtl ? "مدرسة معتمدة" : "Schools", color: "from-emerald-500 to-teal-500", glow: "shadow-emerald-500/20" },

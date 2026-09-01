@@ -20,8 +20,7 @@ import ugLogo from "@/assets/ug-logo.png";
 import { preloadRoute } from "@/PrefetchRoutes";
 
 const SiteHeader = () => {
-  const { t, dir } = useLanguage();
-  const isRtl = dir === "rtl";
+  const { t, dir, tText, isRtl } = useLanguage();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -206,8 +205,8 @@ const SiteHeader = () => {
                 <Link to="/signup" className="flex items-center gap-2.5">
                   <GraduationCap className="w-4 h-4 text-teal-400 shrink-0" />
                   <div className="flex flex-col">
-                    <span className="text-xs font-bold">{isRtl ? "طالب / عضو هيئة تدريس" : "Student / Faculty Member"}</span>
-                    <span className="text-[10px] text-slate-400">{isRtl ? "الجامعات والمعاهد الأكاديمية" : "Higher Education Access"}</span>
+                    <span className="text-xs font-bold">{tText("طالب / عضو هيئة تدريس", "Student / Faculty Member")}</span>
+                    <span className="text-[10px] text-slate-400">{tText("الجامعات والمعاهد الأكاديمية", "Higher Education Access")}</span>
                   </div>
                 </Link>
               </DropdownMenuItem>

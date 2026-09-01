@@ -86,8 +86,7 @@ interface SubsSnapshot { data: StudentRecord[]; total: number; fetchedAt: number
 let __subsCache: SubsSnapshot | null = null;
 
 const StudentSubscriptions = () => {
-  const { language, dir, toggleLanguage } = useLanguage();
-  const isRtl = dir === "rtl";
+  const { language, dir, toggleLanguage, tText, translate, isRtl } = useLanguage();
   const navigate = useNavigate();
   const { identity } = useInstitutionIdentity({ redirectOnMissing: false });
 
@@ -284,8 +283,8 @@ const StudentSubscriptions = () => {
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-base sm:text-xl font-black text-foreground">
                 {identity?.institutionType === "institute"
-                  ? isRtl ? "لوحة إدارة المعهد — اشتراكات الطلاب" : "Institute Student Subscriptions"
-                  : isRtl ? "لوحة إدارة الكلية — اشتراكات الطلاب" : "College Student Subscriptions"}
+                  ? tText("لوحة إدارة المعهد — اشتراكات الطلاب", "Institute Student Subscriptions")
+                  : tText("لوحة إدارة الكلية — اشتراكات الطلاب", "College Student Subscriptions")}
               </h1>
               <Badge className={`text-[10px] font-black px-2.5 py-0.5 ${
                 isCapacityExceeded
@@ -293,26 +292,28 @@ const StudentSubscriptions = () => {
                   : "bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/30"
               }`}>
                 {isCapacityExceeded
-                  ? isRtl ? "⚠️ تجاوزت السعة المجانية (100)" : "Capacity Exceeded (>100)"
-                  : isRtl ? "🟢 الباقة المجانية (100 طالب)" : "Free Tier (100 Students)"}
+                  ? tText("⚠️ تجاوزت السعة المجانية (100)", "Capacity Exceeded (>100)")
+                  : tText("🟢 الباقة المجانية (100 طالب)", "Free Tier (100 Students)")}
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5 font-medium">
-              {isRtl
-                ? "متابعة حالة تفعيل حسابات الطلاب، وتجديد الاشتراكات عبر Stripe و Paddle"
-                : "Manage student activation status, renewals & checkout via Stripe and Paddle"}
+              {tText(
+                "متابعة حالة تفعيل حسابات الطلاب، وتجديد الاشتراكات عبر Stripe و Paddle",
+                "Manage student activation status, renewals & checkout via Stripe and Paddle"
+              )}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <DashboardMenuDropdown
-            title={identity?.institutionType === "institute" ? (isRtl ? "لوحة المعهد" : "Institute Panel") : (isRtl ? "لوحة الكلية" : "College Panel")}
+            title={identity?.institutionType === "institute" ? tText("لوحة المعهد", "Institute Panel") : tText("لوحة الكلية", "College Panel")}
             onLanguageToggle={toggleLanguage}
             showNotifications={false}
             onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
             items={getInstitutionMenuItems({
               isRtl,
+              language,
               activeKey: "subscriptions",
               onTabChange: (tab) => navigate(`/institution/dashboard?tab=${tab}`),
               onNavigate: (path) => navigate(path),

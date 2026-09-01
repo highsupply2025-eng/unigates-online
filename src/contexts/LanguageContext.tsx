@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode, useMemo } from "react";
 import { ar } from "@/i18n/ar";
 import { en } from "@/i18n/en";
 import { fr } from "@/i18n/fr";
@@ -7,6 +7,7 @@ import { de } from "@/i18n/de";
 import { zh } from "@/i18n/zh";
 import { ru } from "@/i18n/ru";
 import { tr } from "@/i18n/tr";
+import { translateTerm } from "@/i18n/multilingualGlossary";
 
 export type Language = "ar" | "en" | "fr" | "es" | "de" | "zh" | "ru" | "tr";
 export type Translations = typeof ar;
@@ -30,12 +31,15 @@ export const AVAILABLE_LANGUAGES: LanguageInfo[] = [
   { code: "tr", name: "Turkish", nativeName: "Türkçe", flag: "🇹🇷", dir: "ltr" },
 ];
 
-interface LanguageContextType {
+export interface LanguageContextType {
   language: Language;
   t: Translations;
+  translate: (text: string, fallbackEn?: string) => string;
+  tText: (arText: string, enText: string) => string;
   setLanguage: (lang: Language) => void;
   toggleLanguage: () => void;
   dir: "rtl" | "ltr";
+  isRtl: boolean;
   availableLanguages: LanguageInfo[];
   currentLanguageInfo: LanguageInfo;
 }
@@ -92,6 +96,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const dir = language === "ar" ? "rtl" : "ltr";
+  const isRtl = dir === "rtl";
   const currentLanguageInfo =
     AVAILABLE_LANGUAGES.find((l) => l.code === language) || AVAILABLE_LANGUAGES[0];
 
@@ -100,15 +105,37 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     document.documentElement.lang = language;
   }, [dir, language]);
 
-  const value: LanguageContextType = {
-    language,
-    t: translations[language] || translations.ar,
-    setLanguage,
-    toggleLanguage,
-    dir,
-    availableLanguages: AVAILABLE_LANGUAGES,
-    currentLanguageInfo,
-  };
+  const translate = useCallback(
+    (text: string, fallbackEn?: string) => {
+      return translateTerm(text, language, fallbackEn);
+    },
+    [language]
+  );
+
+  const tText = useCallback(
+    (arText: string, enText: string) => {
+      if (language === "ar") return arText;
+      if (language === "en") return enText;
+      return translateTerm(arText, language, enText);
+    },
+    [language]
+  );
+
+  const value: LanguageContextType = useMemo(
+    () => ({
+      language,
+      t: translations[language] || translations.ar,
+      translate,
+      tText,
+      setLanguage,
+      toggleLanguage,
+      dir,
+      isRtl,
+      availableLanguages: AVAILABLE_LANGUAGES,
+      currentLanguageInfo,
+    }),
+    [language, dir, isRtl, currentLanguageInfo, translate, tText, setLanguage, toggleLanguage]
+  );
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 };
@@ -119,9 +146,12 @@ export const useLanguage = (): LanguageContextType => {
     return {
       language: "ar",
       t: translations.ar,
+      translate: (text: string, fallbackEn?: string) => text || fallbackEn || "",
+      tText: (arText: string, enText: string) => arText || enText,
       setLanguage: () => {},
       toggleLanguage: () => {},
       dir: "rtl",
+      isRtl: true,
       availableLanguages: AVAILABLE_LANGUAGES,
       currentLanguageInfo: AVAILABLE_LANGUAGES[0],
     };
@@ -135,3 +165,5 @@ export const useLanguage = (): LanguageContextType => {
       AVAILABLE_LANGUAGES[0],
   };
 };
+
+export default LanguageContext;

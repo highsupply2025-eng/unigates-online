@@ -18,7 +18,7 @@ interface Props {
   items: MenuStatItem[];
   className?: string;
   /** When true in RTL: keep natural item order and lay grid out RTL,
-   *  so item[0] sits at the top-right. Default false (legacy behavior). */
+   * so item[0] sits at the top-right. Default false (legacy behavior). */
   naturalRtl?: boolean;
   onItemClick?: (key?: string) => void;
 }
@@ -29,8 +29,7 @@ interface Props {
  * exactly matches the activity chart above (which uses the same trick).
  */
 export const MenuItemsStatsGrid = ({ items, className = "", naturalRtl = true, onItemClick }: Props) => {
-  const { language, dir } = useLanguage();
-  const isRtl = dir === "rtl";
+  const { language, dir, isRtl, translate } = useLanguage();
   const useNatural = isRtl && naturalRtl;
   const ordered = isRtl && !naturalRtl ? [...items].reverse() : items;
 
@@ -43,6 +42,7 @@ export const MenuItemsStatsGrid = ({ items, className = "", naturalRtl = true, o
         const Icon = it.Icon;
         const gradient = it.color ?? "from-primary to-primary/70";
         const isClickable = Boolean(it.onClick || onItemClick);
+        const translatedLabel = translate(it.label);
 
         return (
           <Card
@@ -76,7 +76,7 @@ export const MenuItemsStatsGrid = ({ items, className = "", naturalRtl = true, o
 
               {/* Title */}
               <h3 className="font-black text-foreground text-sm sm:text-base leading-tight tracking-tight mt-1 group-hover:text-primary transition-colors">
-                {it.label}
+                {translatedLabel}
               </h3>
             </CardContent>
 

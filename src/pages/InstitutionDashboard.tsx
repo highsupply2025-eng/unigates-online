@@ -250,8 +250,7 @@ type DashboardSnapshot = {
 let __dashboardCache: DashboardSnapshot | null = null;
 
 const InstitutionDashboard = () => {
-  const { t, dir, language, toggleLanguage } = useLanguage();
-  const isRtl = dir === "rtl";
+  const { t, dir, language, toggleLanguage, translate, tText, isRtl } = useLanguage();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -1775,19 +1774,17 @@ ${exams.map((s: any, i: number) => `<tr>
                 <h1 className="text-base sm:text-xl font-black text-foreground truncate">
                   {pageView === "members" && selectedDept
                     ? selectedDept.department_name
-                    : (institutionType === "institute" ? (isRtl ? "لوحة إدارة المعهد" : "Institute Administration") : (isRtl ? "لوحة إدارة الكلية" : "College Administration"))}
+                    : (institutionType === "institute" ? tText("لوحة إدارة المعهد", "Institute Administration") : tText("لوحة إدارة الكلية", "College Administration"))}
                 </h1>
                 {subscriptionPlan && !(pageView === "members" && selectedDept) && (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-                    {isRtl
-                      ? (subscriptionPlan === "free" ? "الخطة المجانية" : subscriptionPlan === "monthly" ? "الخطة الشهرية" : "الخطة السنوية")
-                      : (subscriptionPlan === "free" ? "Free Plan" : subscriptionPlan === "monthly" ? "Monthly Plan" : "Annual Plan")}
+                    {subscriptionPlan === "free" ? tText("الخطة المجانية", "Free Plan") : subscriptionPlan === "monthly" ? tText("الخطة الشهرية", "Monthly Plan") : tText("الخطة السنوية", "Annual Plan")}
                   </span>
                 )}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate mt-0.5">
                 {pageView === "members" && selectedDept
-                  ? (isRtl ? "الأعضاء" : "Members")
+                  ? tText("الأعضاء", "Members")
                   : (() => {
                   const map: Record<string, { ar: string; en: string }> = {
                     general: { ar: "نظرة عامة والتحليلات", en: "Overview & Analytics" },
@@ -1799,7 +1796,7 @@ ${exams.map((s: any, i: number) => `<tr>
                     livestreams: { ar: "المحاضرات والبث المباشر", en: "Live Lectures" },
                   };
                   const cur = map[activeTab] ?? map.general;
-                  return isRtl ? cur.ar : cur.en;
+                  return tText(cur.ar, cur.en);
                 })()}
               </p>
             </div>
@@ -1814,18 +1811,19 @@ ${exams.map((s: any, i: number) => `<tr>
                 variant="default"
                 className="rounded-xl shadow-md"
                 onClick={() => setPageView("main")}
-                aria-label={isRtl ? "رجوع" : "Back"}
+                aria-label={tText("رجوع", "Back")}
               >
                 {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
               </Button>
             ) : (
               <DashboardMenuDropdown
-                title={institutionType === "institute" ? (isRtl ? "لوحة المعهد" : "Institute Panel") : (isRtl ? "لوحة الكلية" : "College Panel")}
+                title={institutionType === "institute" ? tText("لوحة المعهد", "Institute Panel") : tText("لوحة الكلية", "College Panel")}
                 onLanguageToggle={toggleLanguage}
                 showNotifications={false}
                 onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
                 items={getInstitutionMenuItems({
                   isRtl,
+                  language,
                   activeKey: activeTab,
                   onTabChange: (tab) => handleTabChange(tab),
                   onNavigate: (path) => navigate(path),

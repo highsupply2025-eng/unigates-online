@@ -10,12 +10,14 @@ import {
   MessageSquare,
 } from "lucide-react";
 import type { DashboardMenuItem } from "@/components/DashboardMenuDropdown";
+import { translateTerm } from "@/i18n/multilingualGlossary";
+import type { Language } from "@/contexts/LanguageContext";
 
 /**
  * Standardised institution sidebar menu items.
  *
  * Every `/institution/*` page should use this factory so the menu stays
- * consistent across the whole dashboard.  Pass `activeKey` to highlight
+ * consistent across the whole dashboard. Pass `activeKey` to highlight
  * the current page/tab, and provide navigation callbacks that match the
  * calling page's routing strategy (local tab switch vs. cross-page navigate).
  */
@@ -24,6 +26,7 @@ export function getInstitutionMenuItems({
   activeKey,
   onTabChange,
   onNavigate,
+  language,
 }: {
   isRtl: boolean;
   /** The key of the currently active item (e.g. "general", "profile"). */
@@ -32,11 +35,15 @@ export function getInstitutionMenuItems({
   onTabChange: (tab: string) => void;
   /** Called when a route-based item is clicked (subscriptions, profile). */
   onNavigate: (path: string) => void;
+  language?: Language;
 }): DashboardMenuItem[] {
+  const lang: Language = language || (isRtl ? "ar" : "en");
+  const tr = (ar: string, en: string) => translateTerm(ar, lang, en);
+
   return [
     {
       key: "general",
-      label: isRtl ? "الرئيسية" : "Home",
+      label: tr("الرئيسية", "Home"),
       Icon: Layers,
       path: "/institution/dashboard",
       onClick: () => onTabChange("general"),
@@ -44,28 +51,28 @@ export function getInstitutionMenuItems({
     },
     {
       key: "faculty",
-      label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members",
+      label: tr("أعضاء هيئة التدريس", "Faculty Members"),
       Icon: GraduationCap,
       onClick: () => onTabChange("faculty"),
       active: activeKey === "faculty",
     },
     {
       key: "departments",
-      label: isRtl ? "الأقسام" : "Departments",
+      label: tr("الأقسام", "Departments"),
       Icon: BookOpen,
       onClick: () => onTabChange("departments"),
       active: activeKey === "departments",
     },
     {
       key: "students",
-      label: isRtl ? "تسجيل الطلاب" : "Student Registration",
+      label: tr("تسجيل الطلاب", "Student Registration"),
       Icon: UserPlus,
       onClick: () => onTabChange("students"),
       active: activeKey === "students",
     },
     {
       key: "messages",
-      label: isRtl ? "التواصل" : "Messages",
+      label: tr("التواصل", "Messages"),
       Icon: MessageSquare,
       path: "/institution/messages",
       onClick: () => onNavigate("/institution/messages"),
@@ -73,7 +80,7 @@ export function getInstitutionMenuItems({
     },
     {
       key: "subscriptions",
-      label: isRtl ? "اشتراك الطلاب" : "Student Subscriptions",
+      label: tr("اشتراك الطلاب", "Student Subscriptions"),
       Icon: CreditCard,
       path: "/institution/student-subscriptions",
       onClick: () => onNavigate("/institution/student-subscriptions"),
@@ -81,21 +88,21 @@ export function getInstitutionMenuItems({
     },
     {
       key: "schedules",
-      label: isRtl ? "الجداول" : "Schedules",
+      label: tr("الجداول", "Schedules"),
       Icon: Calendar,
       onClick: () => onTabChange("schedules"),
       active: activeKey === "schedules",
     },
     {
       key: "quizresults",
-      label: isRtl ? "النتائج" : "Results",
+      label: tr("النتائج", "Results"),
       Icon: CheckCircle,
       onClick: () => onTabChange("quizresults"),
       active: activeKey === "quizresults",
     },
     {
       key: "profile",
-      label: isRtl ? "بيانات الحساب" : "Account Information",
+      label: tr("بيانات الحساب", "Account Information"),
       Icon: User,
       color: "from-cyan-500 to-cyan-600",
       path: "/institution/profile",

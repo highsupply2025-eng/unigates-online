@@ -64,9 +64,8 @@ const DashboardMenuDropdown = ({
   logoutLabel,
   title,
 }: Props) => {
-  const { t, language, setLanguage, dir, availableLanguages = [], currentLanguageInfo } = useLanguage();
+  const { t, language, setLanguage, dir, availableLanguages = [], currentLanguageInfo, translate, tText, isRtl } = useLanguage();
   const { theme = "dark", setTheme } = useTheme();
-  const isRtl = dir === "rtl";
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -140,10 +139,10 @@ const DashboardMenuDropdown = ({
           <div className="px-3 py-2 mb-1.5 flex items-center justify-between rounded-2xl bg-gradient-to-r from-primary/10 via-cyan-500/5 to-transparent border border-primary/20">
             <span className="text-xs font-black text-foreground flex items-center gap-1.5 truncate">
               <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
-              <span className="truncate">{title}</span>
+              <span className="truncate">{translate(title)}</span>
             </span>
             <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-xl bg-primary/15 text-primary border border-primary/25 shrink-0">
-              {isRtl ? "القائمة" : "Menu"}
+              {tText("القائمة", "Menu")}
             </span>
           </div>
         )}
@@ -170,30 +169,25 @@ const DashboardMenuDropdown = ({
                 onTouchStart={handleHover}
                 onClick={() => {
                   close();
-                  if (it.path) navigate(it.path);
-                  else it.onClick?.();
+                  if (it.onClick) it.onClick();
+                  else if (it.path) navigate(it.path);
                 }}
-                className={`group gap-3.5 cursor-pointer rounded-2xl py-2.5 px-3 transition-all duration-200 hover:translate-x-[-3px] focus:bg-accent ${
+                className={`group flex items-center justify-between gap-3 px-3 py-2.5 rounded-2xl cursor-pointer transition-all duration-200 ${
                   isActive
-                    ? "bg-primary/15 border border-primary/30 ring-1 ring-primary/20 shadow-xs"
-                    : "hover:bg-muted/60"
+                    ? "bg-primary/15 text-primary font-black border border-primary/30 shadow-sm"
+                    : "hover:bg-muted/70 text-foreground"
                 }`}
               >
-                {/* 3D Icon Squircle */}
-                <div
-                  className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${palette} shadow-md shadow-black/15 ring-2 ring-white/30 dark:ring-white/10 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-2 transition-all duration-200`}
-                >
-                  <Icon className="w-5 h-5 text-white drop-shadow-sm" strokeWidth={2.6} />
+                <div className="flex items-center gap-3 min-w-0">
+                  <div
+                    className={`w-9 h-9 rounded-xl bg-gradient-to-br ${palette} shadow-md shadow-black/15 ring-2 ring-white/30 dark:ring-white/10 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-2 transition-all duration-200`}
+                  >
+                    <Icon className="w-4 h-4 text-white drop-shadow-sm" strokeWidth={2.4} />
+                  </div>
+                  <span className="text-xs sm:text-sm font-bold truncate leading-tight">
+                    {translate(it.label)}
+                  </span>
                 </div>
-
-                {/* Text Label */}
-                <span
-                  className={`text-sm flex-1 truncate transition-colors ${
-                    isActive ? "font-black text-primary" : "font-extrabold text-foreground group-hover:text-primary"
-                  }`}
-                >
-                  {it.label}
-                </span>
 
                 {/* Active pulsating indicator or Chevron */}
                 {isActive ? (
@@ -224,14 +218,14 @@ const DashboardMenuDropdown = ({
               </div>
               <div className="flex flex-col text-start flex-1 min-w-0">
                 <span className="text-sm font-extrabold text-foreground group-hover:text-amber-600 dark:group-hover:text-amber-400 truncate">
-                  {isRtl ? "السطوع والمظهر" : "Theme & Brightness"}
+                  {tText("السطوع والمظهر", "Theme & Brightness")}
                 </span>
                 <span className="text-[10px] text-muted-foreground font-bold truncate">
                   {theme === "light"
-                    ? (isRtl ? "الوضع الفاتح (النهاري)" : "Light Mode")
+                    ? tText("السطوع الطبيعي", "Natural Light")
                     : theme === "dark"
-                    ? (isRtl ? "الوضع الداكن (الليلي)" : "Dark Mode")
-                    : (isRtl ? "تلقائي حسب النظام" : "System Default")}
+                    ? tText("الوضع الداكن", "Dark Mode")
+                    : tText("تلقائي", "System Default")}
                 </span>
               </div>
               <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0">
@@ -240,7 +234,7 @@ const DashboardMenuDropdown = ({
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent className="w-56 p-1.5 rounded-2xl border-2 border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl z-50 animate-scale-in">
               <div className="px-2.5 py-1.5 text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider border-b border-border/50 mb-1">
-                {isRtl ? "تغيير السطوع / المظهر" : "Select Brightness Theme"}
+                {tText("تغيير السطوع والمظهر", "Select Brightness Theme")}
               </div>
               <DropdownMenuItem
                 onClick={() => {
@@ -255,7 +249,7 @@ const DashboardMenuDropdown = ({
               >
                 <div className="flex items-center gap-2.5">
                   <Sun className="w-4 h-4 text-amber-500" />
-                  <span className="text-xs font-bold">{isRtl ? "الوضع الفاتح (النهاري)" : "Light Mode"}</span>
+                  <span className="text-xs font-bold">{tText("السطوع الطبيعي", "Natural Light")}</span>
                 </div>
                 {theme === "light" && <Check className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 ms-1 shrink-0" />}
               </DropdownMenuItem>
@@ -272,7 +266,7 @@ const DashboardMenuDropdown = ({
               >
                 <div className="flex items-center gap-2.5">
                   <Moon className="w-4 h-4 text-indigo-400" />
-                  <span className="text-xs font-bold">{isRtl ? "الوضع الداكن (الليلي)" : "Dark Mode"}</span>
+                  <span className="text-xs font-bold">{tText("الوضع الداكن", "Dark Mode")}</span>
                 </div>
                 {theme === "dark" && <Check className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 ms-1 shrink-0" />}
               </DropdownMenuItem>
@@ -289,7 +283,7 @@ const DashboardMenuDropdown = ({
               >
                 <div className="flex items-center gap-2.5">
                   <Monitor className="w-4 h-4 text-slate-400" />
-                  <span className="text-xs font-bold">{isRtl ? "تلقائي (حسب نظام الجهاز)" : "System Default"}</span>
+                  <span className="text-xs font-bold">{tText("تلقائي", "System Default")}</span>
                 </div>
                 {theme === "system" && <Check className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 ms-1 shrink-0" />}
               </DropdownMenuItem>
@@ -307,7 +301,7 @@ const DashboardMenuDropdown = ({
                   {langInfo.nativeName} ({langInfo.code.toUpperCase()})
                 </span>
                 <span className="text-[10px] text-muted-foreground font-bold truncate">
-                  {isRtl ? "تغيير اللغة (تعدد اللغات)" : "Change Language"}
+                  {tText("تغيير اللغة", "Change Language")}
                 </span>
               </div>
               <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 shrink-0">
@@ -316,7 +310,7 @@ const DashboardMenuDropdown = ({
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent className="w-56 p-1.5 rounded-2xl border-2 border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl z-50 animate-scale-in">
               <div className="px-2.5 py-1.5 text-[10px] font-black text-cyan-600 dark:text-cyan-400 uppercase tracking-wider border-b border-border/50 mb-1">
-                {isRtl ? "اختر لغة المنصة / Select Language" : "Select Language"}
+                {tText("اختر اللغة", "Select Language")}
               </div>
               {availableLanguages.map((langItem) => {
                 const isSelected = language === langItem.code;
@@ -364,7 +358,7 @@ const DashboardMenuDropdown = ({
               <LogOut className="w-5 h-5 text-white drop-shadow-sm" strokeWidth={2.6} />
             </div>
             <span className="text-sm font-black text-rose-600 dark:text-rose-400 group-hover:text-rose-700 flex-1 truncate transition-colors">
-              {logoutLabel ?? (isRtl ? "تسجيل الخروج" : "Logout")}
+              {logoutLabel ?? tText("تسجيل الخروج", "Logout")}
             </span>
           </DropdownMenuItem>
         </div>

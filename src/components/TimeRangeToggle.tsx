@@ -7,11 +7,10 @@ interface TimeRangeToggleProps {
 }
 
 export const TimeRangeToggle = ({ value, onChange, className = "" }: TimeRangeToggleProps) => {
-  const { language, dir } = useLanguage();
-  const isRtl = dir === "rtl";
+  const { language, dir, isRtl, tText } = useLanguage();
   return (
     <div className={`flex items-center justify-end gap-2.5 ${className}`}>
-      <span className="text-xs font-black text-muted-foreground">{isRtl ? "النطاق الزمني:" : "Time range:"}</span>
+      <span className="text-xs font-black text-muted-foreground">{tText("النطاق الزمني:", "Time range:")}</span>
       <div className="inline-flex rounded-xl border border-border/80 bg-muted/40 p-1 shadow-xs backdrop-blur-sm">
         <button
           onClick={() => onChange(7)}
@@ -21,7 +20,7 @@ export const TimeRangeToggle = ({ value, onChange, className = "" }: TimeRangeTo
               : "text-muted-foreground hover:text-foreground hover:bg-background/50"
           }`}
         >
-          {isRtl ? "آخر 7 أيام" : "Last 7 days"}
+          {tText("آخر 7 أيام", "Last 7 Days")}
         </button>
         <button
           onClick={() => onChange(30)}
@@ -31,7 +30,7 @@ export const TimeRangeToggle = ({ value, onChange, className = "" }: TimeRangeTo
               : "text-muted-foreground hover:text-foreground hover:bg-background/50"
           }`}
         >
-          {isRtl ? "آخر 30 يوم" : "Last 30 days"}
+          {tText("آخر 30 يوم", "Last 30 Days")}
         </button>
       </div>
     </div>

@@ -57,8 +57,7 @@ export const StudentPillActivityChart = ({
   days = 7,
   className = "",
 }: Props) => {
-  const { language, dir } = useLanguage();
-  const isRtl = dir === "rtl";
+  const { language, dir, isRtl, translate, tText } = useLanguage();
 
   const since = Date.now() - days * 24 * 60 * 60 * 1000;
   const baseData = sections.map((s, i) => {
@@ -69,7 +68,7 @@ export const StudentPillActivityChart = ({
       return ts >= since;
     }).length;
     return {
-      name: s.label,
+      name: translate(s.label),
       count,
       fixedPercentage: s.fixedPercentage,
       palette: s.palette ?? PALETTE[i % PALETTE.length],
@@ -98,13 +97,13 @@ export const StudentPillActivityChart = ({
               <BarChart3 className="w-5 h-5" strokeWidth={2.6} />
             </span>
             <span className="bg-gradient-to-l from-primary via-primary/90 to-primary/70 bg-clip-text text-transparent font-black tracking-tight">
-              {title || (isRtl ? "نظرة شاملة على الإحصائيات" : "Overall Statistics Overview")}
+              {title ? translate(title) : tText("نظرة شاملة على الإحصائيات", "Overall Statistics Overview")}
             </span>
           </CardTitle>
 
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>{isRtl ? "مؤشرات تفاعلية" : "Live Telemetry"}</span>
+            <span>{tText("مؤشرات تفاعلية", "Live Telemetry")}</span>
           </span>
         </div>
       </CardHeader>

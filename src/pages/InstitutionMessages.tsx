@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
+import { getInstitutionMenuItems } from "@/components/institutionMenuItems";
 import {
   Contact, Message, RichMessageData, parseMessageContent,
   serializeMessage, formatFileSize, formatSeconds
@@ -65,7 +67,7 @@ const roleLabel = (role: string, isCollege: boolean, isRtl: boolean) => {
 };
 
 export default function InstitutionMessages() {
-  const { language, dir } = useLanguage();
+  const { language, dir, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
   const navigate = useNavigate();
 
@@ -561,15 +563,21 @@ export default function InstitutionMessages() {
         </div>
 
         <div className="flex items-center gap-2.5">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="rounded-xl border-white/20 bg-white/5 hover:bg-white/15 text-white font-bold text-xs gap-1.5"
-          >
-            {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-            <span>{isRtl ? "رجوع للوحة التحكم" : "Back to Dashboard"}</span>
-          </Button>
+          <DashboardMenuDropdown
+            title={institutionType === "institute" ? (isRtl ? "لوحة المعهد" : "Institute Panel") : (isRtl ? "لوحة الكلية" : "College Panel")}
+            onLanguageToggle={toggleLanguage}
+            showNotifications={false}
+            onLogout={async () => {
+              await supabase.auth.signOut();
+              navigate("/university-platform");
+            }}
+            items={getInstitutionMenuItems({
+              isRtl,
+              activeKey: "messages",
+              onTabChange: (tab) => navigate(`/institution/dashboard?tab=${tab}`),
+              onNavigate: (path) => navigate(path),
+            })}
+          />
         </div>
       </header>
 

@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
-  LucideIcon, Menu, Globe, LogOut, X, ChevronLeft, ChevronRight,
+  LucideIcon, Menu, Globe, LogOut, X, ChevronRight,
   Sparkles, Check, Sun, Moon, SunMoon, Monitor
 } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -105,7 +105,7 @@ const DashboardMenuDropdown = ({
     }
   }, [items]);
 
-  const Chevron = isRtl ? ChevronLeft : ChevronRight;
+  const Chevron = ChevronRight;
 
   return (
     <DropdownMenu open={open} onOpenChange={handleOpenChange}>

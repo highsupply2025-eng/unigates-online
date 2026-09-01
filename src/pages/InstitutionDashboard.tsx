@@ -2410,28 +2410,29 @@ ${exams.map((s: any, i: number) => `<tr>
               className="mb-6"
               days={rangeDays}
               sections={[
-                { label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, palette: { from: "#6366f1", to: "#4f46e5", glow: "99,102,241" }, timestamps: deptMembers.filter(isFacultyMember).map((m: any) => m.created_at) },
-                { label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, palette: { from: "#a855f7", to: "#9333ea", glow: "168,85,247" }, timestamps: departments.map((d: any) => d.created_at) },
-                { label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, palette: { from: "#f97316", to: "#ea580c", glow: "249,115,22" }, timestamps: deptMembers.filter((m: any) => m.role === 'student').map((m: any) => m.created_at) },
-                { label: isRtl ? "اشتراك الطلاب" : "Student Subscriptions", Icon: CreditCard, palette: { from: "#14b8a6", to: "#0d9488", glow: "20,184,166" }, timestamps: deptMembers.filter((m: any) => m.role === 'student' && m.user_id).map((m: any) => m.created_at) },
-                { label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, palette: { from: "#10b981", to: "#059669", glow: "16,185,129" }, timestamps: examSchedules.map((s: any) => s.created_at) },
-                { label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, palette: { from: "#0ea5e9", to: "#0284c7", glow: "14,165,233" }, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
-                { label: isRtl ? "بيانات الحساب" : "Account Information", Icon: User, palette: { from: "#06b6d4", to: "#0891b2", glow: "6,182,212" }, timestamps: institutionId ? [new Date().toISOString()] : [], fixedPercentage: 100 },
+                { label: translate("أعضاء هيئة التدريس"), Icon: GraduationCap, palette: { from: "#6366f1", to: "#4f46e5", glow: "99,102,241" }, timestamps: deptMembers.filter(isFacultyMember).map((m: any) => m.created_at) },
+                { label: translate("الأقسام"), Icon: BookOpen, palette: { from: "#a855f7", to: "#9333ea", glow: "168,85,247" }, timestamps: departments.map((d: any) => d.created_at) },
+                { label: translate("تسجيل الطلاب"), Icon: UserPlus, palette: { from: "#f97316", to: "#ea580c", glow: "249,115,22" }, timestamps: deptMembers.filter((m: any) => m.role === 'student').map((m: any) => m.created_at) },
+                { label: translate("اشتراك الطلاب"), Icon: CreditCard, palette: { from: "#14b8a6", to: "#0d9488", glow: "20,184,166" }, timestamps: deptMembers.filter((m: any) => m.role === 'student' && m.user_id).map((m: any) => m.created_at) },
+                { label: translate("الجداول"), Icon: Calendar, palette: { from: "#10b981", to: "#059669", glow: "16,185,129" }, timestamps: examSchedules.map((s: any) => s.created_at) },
+                { label: translate("النتائج"), Icon: CheckCircle, palette: { from: "#0ea5e9", to: "#0284c7", glow: "14,165,233" }, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
+                { label: translate("بيانات الحساب"), Icon: User, palette: { from: "#06b6d4", to: "#0891b2", glow: "6,182,212" }, timestamps: institutionId ? [new Date().toISOString()] : [], fixedPercentage: 100 },
               ]}
             />
 
             <MenuItemsStatsGrid
               className="mb-6"
               items={[
-                { key: "faculty", label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", Icon: GraduationCap, color: "from-indigo-500 to-indigo-600", count: categoryStats.faculty.count },
-                { key: "departments", label: isRtl ? "الأقسام" : "Departments", Icon: BookOpen, color: "from-purple-500 to-purple-600", count: categoryStats.departments.count },
-                { key: "students", label: isRtl ? "تسجيل الطلاب" : "Student Registration", Icon: UserPlus, color: "from-orange-500 to-orange-600", count: categoryStats.students.count },
-                { key: "subscriptions", label: isRtl ? "اشتراك الطلاب" : "Student Subscriptions", Icon: CreditCard, color: "from-teal-500 to-teal-600", count: categoryStats.subscriptions.count },
-                { key: "schedules", label: isRtl ? "الجداول" : "Schedules", Icon: Calendar, color: "from-emerald-500 to-emerald-600", count: categoryStats.schedules.count },
-                { key: "results", label: isRtl ? "النتائج" : "Results", Icon: CheckCircle, color: "from-sky-500 to-sky-600", count: categoryStats.results.count },
-                { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Information", Icon: User, color: "from-cyan-500 to-cyan-600", count: categoryStats.account.count },
+                { key: "faculty", label: translate("أعضاء هيئة التدريس"), Icon: GraduationCap, color: "from-indigo-500 to-indigo-600", count: categoryStats.faculty.count },
+                { key: "departments", label: translate("الأقسام"), Icon: BookOpen, color: "from-purple-500 to-purple-600", count: categoryStats.departments.count },
+                { key: "students", label: translate("تسجيل الطلاب"), Icon: UserPlus, color: "from-orange-500 to-orange-600", count: categoryStats.students.count },
+                { key: "subscriptions", label: translate("اشتراك الطلاب"), Icon: CreditCard, color: "from-teal-500 to-teal-600", count: categoryStats.subscriptions.count },
+                { key: "schedules", label: translate("الجداول"), Icon: Calendar, color: "from-emerald-500 to-emerald-600", count: categoryStats.schedules.count },
+                { key: "results", label: translate("النتائج"), Icon: CheckCircle, color: "from-sky-500 to-sky-600", count: categoryStats.results.count },
+                { key: "profile", label: translate("بيانات الحساب"), Icon: User, color: "from-cyan-500 to-cyan-600", count: categoryStats.account.count },
               ]}
             />
+
 
             {/* ═══════════════════════════════════════════════════════════════
                 Approval Overview – aggregated stats across all departments

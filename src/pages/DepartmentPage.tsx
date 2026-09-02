@@ -525,7 +525,7 @@ const DepartmentPage = () => {
             onClick={() => navigate("/institution/dashboard?tab=departments")}
             aria-label={tText("رجوع", "Back")}
           >
-            {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            <ChevronLeft className="w-4 h-4" />
           </Button>
         </div>
       </header>

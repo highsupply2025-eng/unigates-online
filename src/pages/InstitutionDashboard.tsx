@@ -1552,7 +1552,14 @@ ${exams.map((s: any, i: number) => `<tr>
     setSavingSchedule(true);
     try {
       const targetDeptId = newScheduleDeptId && newScheduleDeptId !== "all" ? newScheduleDeptId : (departments[0]?.id ?? null);
+      const { data: authData } = await supabase.auth.getUser();
+      const creatorId = authData.user?.id;
+      if (!creatorId) throw new Error(tText("يجب تسجيل الدخول", "You must be signed in"));
+      const targetCourseId = (courses.find((c: any) => c.department_id === targetDeptId) ?? courses[0])?.id;
+      if (!targetCourseId) throw new Error(tText("لا توجد مواد متاحة لإنشاء الجدول", "No course available to attach this schedule to"));
       const { data: newSch, error } = await supabase.from("lecture_schedules").insert({
+        course_id: targetCourseId,
+        creator_id: creatorId,
         department_id: targetDeptId,
         schedule_type: newScheduleType,
         title_ar: newScheduleTitleAr.trim(),

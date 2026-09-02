@@ -84,6 +84,18 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, State> {
           >
             إعادة التحميل
           </button>
+          {this.state.error && (
+            <details style={{ marginTop: 24, textAlign: "left", direction: "ltr", fontSize: 12, opacity: 0.8, background: "rgba(0,0,0,0.05)", padding: 12, borderRadius: 8, overflowX: "auto" }}>
+              <summary style={{ cursor: "pointer", fontWeight: 600, direction: "rtl", textAlign: "center", marginBottom: 8 }}>
+                تفاصيل الخطأ الفنية (Technical Details)
+              </summary>
+              <pre style={{ margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
+                {this.state.error.toString()}
+                {"\n"}
+                {this.state.error.stack}
+              </pre>
+            </details>
+          )}
         </div>
       </div>
     );

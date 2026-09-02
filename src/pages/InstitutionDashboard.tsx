@@ -5,7 +5,7 @@ import {
   Layers, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
   User, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell, PlusCircle, Pencil, Download, ShieldAlert, AlertTriangle, UserPlus, FileSpreadsheet, RefreshCw, Zap, Shield,
-  LayoutGrid, ListFilter, CheckCircle2, Building2, SlidersHorizontal, Check, X, MapPin, Sparkles, Save
+  LayoutGrid, ListFilter, CheckCircle2, Building2, SlidersHorizontal, Check, X, MapPin, Sparkles, Save, Crown
 } from "lucide-react";
 
 import * as XLSX from "xlsx";
@@ -2565,7 +2565,6 @@ ${exams.map((s: any, i: number) => `<tr>
                   )}
                 </div>
               );
-            })()}
           </TabsContent>
 
           {/* Departments Tab */}
@@ -2577,7 +2576,7 @@ ${exams.map((s: any, i: number) => `<tr>
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {filteredDepts.map(dept => {
                 const registeredMembersCount = getMembersForDept(dept.id).length;
                 const deptHeads = getDeptBucket(dept.id).head;
@@ -2589,14 +2588,22 @@ ${exams.map((s: any, i: number) => `<tr>
                   ? (Date.now() - Date.parse(headLastLogin)) < 30 * 24 * 60 * 60 * 1000
                   : false;
 
+                // Dept courses & episodes
+                const deptCourseIds = courses.filter((c: any) => c.department_id === dept.id).map((c: any) => c.id);
+                const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+                const lecturesThisWeek = episodes.filter((e: any) => {
+                  if (!deptCourseIds.includes(e.course_id)) return false;
+                  const t = Date.parse(e.created_at);
+                  return !isNaN(t) && t >= weekAgo;
+                }).length;
+
                 // Approved quizzes for this dept
                 const deptApprovedQuizzes = quizzes.filter((q: any) =>
                   q.department_id === dept.id &&
-                  q.approved_by_lecturer && q.approved_by_head &&
-                  q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad &&
-                  q.approved_by_vice_dean_environment && q.approved_by_dean
+                  q.approved_by_lecturer &&
+                  q.approved_by_head &&
+                  q.approved_by_dean
                 ).length;
-
 
                 const isActive = dept.status === "active";
                 const facultyCount = getDeptBucket(dept.id).head.length + getDeptBucket(dept.id).lecturer.length;

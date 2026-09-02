@@ -27,6 +27,7 @@ const CoursesPlatform = () => {
   const navigate = useNavigate();
   const { t, dir, toggleLanguage, language } = useLanguage();
   const isRtl = dir === "rtl";
+  const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
   const { data: stats } = usePlatformStats("courses");
   const lecturers = useCountUp(stats?.lecturers ?? 0);
   const teachers = useCountUp(stats?.teachers ?? 0);

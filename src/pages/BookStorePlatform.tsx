@@ -27,6 +27,8 @@ const BookStorePlatform = () => {
   const { t, dir, toggleLanguage, language } = useLanguage();
   const { data: books } = useBooks();
   const totalBooks = books?.length ?? 24;
+  const isRtl = dir === "rtl";
+  const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
   const isUnderDev = isPlatformUnderDevelopment("bookstore");
   if (isUnderDev) {

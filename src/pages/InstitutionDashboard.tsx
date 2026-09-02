@@ -5,7 +5,7 @@ import {
   Layers, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
   User, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell, PlusCircle, Pencil, Download, ShieldAlert, AlertTriangle, UserPlus, FileSpreadsheet, RefreshCw, Zap, Shield,
-  LayoutGrid, ListFilter, CheckCircle2, Building2, SlidersHorizontal, Check, X, MapPin, Sparkles, Save, Crown
+  ChevronLeft, ExternalLink, LayoutGrid, ListFilter, CheckCircle2, Building2, SlidersHorizontal, Check, X, MapPin, Sparkles, Save, Crown
 } from "lucide-react";
 
 import * as XLSX from "xlsx";
@@ -1552,8 +1552,14 @@ ${exams.map((s: any, i: number) => `<tr>
     setSavingSchedule(true);
     try {
       const targetDeptId = newScheduleDeptId && newScheduleDeptId !== "all" ? newScheduleDeptId : (departments[0]?.id ?? null);
+      const { data: authData } = await supabase.auth.getUser();
+      const creatorId = authData.user?.id;
+      if (!creatorId) throw new Error(tText("يجب تسجيل الدخول", "You must be signed in"));
+      const targetCourseId = (courses.find((c: any) => c.department_id === targetDeptId) ?? courses[0])?.id;
+      if (!targetCourseId) throw new Error(tText("لا توجد مواد متاحة لإنشاء الجدول", "No course available to attach this schedule to"));
       const { data: newSch, error } = await supabase.from("lecture_schedules").insert({
-        institution_id: institutionId,
+        course_id: targetCourseId,
+        creator_id: creatorId,
         department_id: targetDeptId,
         schedule_type: newScheduleType,
         title_ar: newScheduleTitleAr.trim(),
@@ -2565,6 +2571,7 @@ ${exams.map((s: any, i: number) => `<tr>
                   )}
                 </div>
               );
+            })()}
           </TabsContent>
 
           {/* Departments Tab */}
@@ -4617,7 +4624,7 @@ ${exams.map((s: any, i: number) => `<tr>
                                 <SelectItem value="all">{tText("كل الأقسام الأكاديمية", "All Departments")}</SelectItem>
                                 {departments.map(d => (
                                   <SelectItem key={d.id} value={d.id}>
-                                    {isRtl ? d.name_ar : (d.name_en || d.name_ar)}
+                                    {d.department_name}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -4720,7 +4727,7 @@ ${exams.map((s: any, i: number) => `<tr>
                         {filtered.map((sch: any) => {
                           const isExam = sch.schedule_type === 'exam';
                           const dept = departments.find(d => d.id === sch.department_id);
-                          const deptName = dept ? (isRtl ? dept.name_ar : (dept.name_en || dept.name_ar)) : null;
+                          const deptName = dept ? dept.department_name : null;
 
                           return (
                             <Card
@@ -4884,7 +4891,7 @@ ${exams.map((s: any, i: number) => `<tr>
                                 <SelectContent>
                                   {departments.map(d => (
                                     <SelectItem key={d.id} value={d.id}>
-                                      {isRtl ? d.name_ar : (d.name_en || d.name_ar)}
+                                      {d.department_name}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>

@@ -2554,184 +2554,152 @@ ${exams.map((s: any, i: number) => `<tr>
                         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
                           {quizCards.map((card, i) => (
                             <div key={i} className={`text-center p-2 sm:p-3 rounded-xl bg-gradient-to-br ${card.color} shadow-md shadow-black/10`}>
-                              <card.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white/90 mx-auto mb-1" />
-                              <p className="text-xl sm:text-2xl font-extrabold text-white">{card.count}</p>
-                              <p className="text-[9px] sm:text-[10px] font-bold text-white/85">{card.label}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-              );
-            })()}
+                                         ).length;
 
-
-
-          </TabsContent>
-
-
-
-          {/* Departments Tab */}
-          <TabsContent value="departments" dir={isRtl ? "rtl" : "ltr"}>
-            <div className={`flex mb-4 ${isRtl ? "justify-start" : "justify-end"}`}>
-              <Button onClick={() => setShowAddDeptDialog(true)} className="gap-2 shrink-0">
-                <Plus className="w-4 h-4" />
-                {isRtl ? "إضافة قسم" : "Add Department"}
-              </Button>
-            </div>
-
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredDepts.map(dept => {
-                const registeredMembersCount = getMembersForDept(dept.id).length;
-                const deptHeads = getDeptBucket(dept.id).head;
-                const deptHead = deptHeads.length > 0 ? deptHeads[0] : null;
-                const headUserId = deptHead?.user_id;
-                const headProfile = headUserId ? profilesMap[headUserId] : null;
-                const headLastLogin = headProfile?.created_at;
-                const headActive = headUserId && headLastLogin
-                  ? (Date.now() - Date.parse(headLastLogin)) < 30 * 24 * 60 * 60 * 1000
-                  : false;
-
-                // Dept courses & episodes
-                const deptCourseIds = courses.filter((c: any) => c.department_id === dept.id).map((c: any) => c.id);
-                const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-                const lecturesThisWeek = episodes.filter((e: any) => {
-                  if (!deptCourseIds.includes(e.course_id)) return false;
-                  const t = Date.parse(e.created_at);
-                  return !isNaN(t) && t >= weekAgo;
-                }).length;
-
-                // Approved quizzes for this dept
-                const deptApprovedQuizzes = quizzes.filter((q: any) =>
-                  q.department_id === dept.id &&
-                  q.approved_by_lecturer && q.approved_by_head &&
-                  q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad &&
-                  q.approved_by_vice_dean_environment && q.approved_by_dean
-                ).length;
+                const isActive = dept.status === "active";
+                const facultyCount = getDeptBucket(dept.id).head.length + getDeptBucket(dept.id).lecturer.length;
+                const studentCount = getStudentsCount(dept.id);
 
                 return (
-                  <Card key={dept.id} className="border-2 border-primary/15 hover:shadow-xl hover:border-primary/30 transition-all bg-gradient-to-br from-primary/3 to-transparent">
-                    <CardContent className="p-5">
-                      <div className="flex items-start justify-between gap-3 mb-4">
+                  <div key={dept.id} className="group rounded-3xl border-2 border-border/60 hover:border-primary/35 bg-card hover:shadow-xl hover:shadow-primary/8 transition-all duration-300 overflow-hidden flex flex-col">
+
+                    {/* Card Top Gradient Hero */}
+                    <div className="relative bg-gradient-to-br from-primary/12 via-indigo-500/6 to-purple-500/4 px-5 pt-5 pb-4 border-b border-border/60">
+                      {/* Status pill */}
+                      <div className="absolute top-4 end-4">
+                        <span className={`inline-flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded-full border ${isActive ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/25" : "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/25"}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-emerald-500 animate-pulse" : "bg-amber-500"}`} />
+                          {isActive ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "معلّق" : "Pending")}
+                        </span>
+                      </div>
+
+                      {/* Icon + Name + Head */}
+                      <div className="flex items-center gap-3.5 pe-16">
                         <button
                           type="button"
-                          onClick={() => {
-                            setSelectedDept(dept);
-                            setMembersActiveOnly(true);
-                            setPageView("members");
-                            window.scrollTo({ top: 0, behavior: "smooth" });
-                          }}
-                          className="flex items-center gap-3 text-start flex-1 min-w-0 cursor-pointer hover:text-primary transition-colors"
-                          title={isRtl ? "عرض الأعضاء" : "View members"}
+                          onClick={() => navigate(`/institution/department/${dept.id}`)}
+                          onPointerEnter={() => import("./DepartmentPage")}
+                          className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-indigo-600 flex items-center justify-center shadow-lg shadow-primary/25 shrink-0 hover:scale-105 transition-transform"
                         >
-                          <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-black/10 flex items-center justify-center shrink-0">
-                            <Users className="w-5 h-5 text-white" />
-                          </div>
-                          <div className="min-w-0">
-                            <h3 className="text-lg font-bold text-foreground truncate">{dept.department_name}</h3>
-                          </div>
+                          <Layers className="w-6 h-6 text-white" />
                         </button>
-                        <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/20 gap-1 shrink-0">
-                          <CheckCircle className="w-3 h-3" />
-                          {isRtl ? "مفعّل" : "Active"}
-                        </Badge>
+                        <div className="min-w-0 flex-1">
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/institution/department/${dept.id}`)}
+                            onPointerEnter={() => import("./DepartmentPage")}
+                            className="text-base font-black text-foreground hover:text-primary transition-colors text-start leading-tight line-clamp-2 w-full"
+                          >
+                            {dept.department_name}
+                          </button>
+                          {deptHead ? (
+                            <p className="text-[11px] text-muted-foreground font-bold mt-0.5 flex items-center gap-1">
+                              <Crown className="w-3 h-3 text-amber-500 shrink-0" />
+                              <span className="truncate">{deptHead.full_name || (isRtl ? "رئيس القسم" : "Head")}</span>
+                              {headActive && <span className="text-emerald-500 font-black text-xs">●</span>}
+                            </p>
+                          ) : (
+                            <p className="text-[11px] text-amber-600/80 dark:text-amber-400/80 font-bold mt-0.5">
+                              {isRtl ? "لم يُعيَّن رئيس قسم بعد" : "No head assigned yet"}
+                            </p>
+                          )}
+                        </div>
                       </div>
+                    </div>
 
-                      {/* Department activity indicators */}
-                      <div className="grid grid-cols-3 gap-2 mb-4">
-                        <div className="text-center p-2 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-md shadow-black/10">
-                          <p className="text-lg font-extrabold text-white">{lecturesThisWeek}</p>
-                          <p className="text-[9px] font-bold text-white/85">{isRtl ? "محاضرات أسبوع" : "Lectures/wk"}</p>
+                    {/* Stats Row */}
+                    <div className="grid grid-cols-3 gap-0 divide-x divide-x-reverse divide-border/60 border-b border-border/60">
+                      {[
+                        { icon: <Shield className="w-3.5 h-3.5" />, val: facultyCount, label: isRtl ? "هيئة التدريس" : "Faculty", color: "text-violet-600 dark:text-violet-400" },
+                        { icon: <GraduationCap className="w-3.5 h-3.5" />, val: studentCount, label: isRtl ? "الطلاب" : "Students", color: "text-blue-600 dark:text-blue-400" },
+                        { icon: <CheckCircle className="w-3.5 h-3.5" />, val: deptApprovedQuizzes, label: isRtl ? "اختبارات" : "Exams", color: "text-emerald-600 dark:text-emerald-400" },
+                      ].map((s, i) => (
+                        <div key={i} className="flex flex-col items-center py-3 px-2 gap-0.5 bg-muted/10">
+                          <div className={`${s.color} mb-0.5`}>{s.icon}</div>
+                          <p className="text-xl font-black text-foreground leading-none">{s.val}</p>
+                          <p className="text-[10px] text-muted-foreground font-bold text-center">{s.label}</p>
                         </div>
-                        <div className="text-center p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-md shadow-black/10">
-                          <p className="text-lg font-extrabold text-white">{deptApprovedQuizzes}</p>
-                          <p className="text-[9px] font-bold text-white/85">{isRtl ? "اختبارات معتمدة" : "Approved"}</p>
-                        </div>
-                        <div className={`text-center p-2 rounded-lg shadow-md shadow-black/10 ${headActive ? "bg-gradient-to-br from-green-500 to-green-600" : "bg-gradient-to-br from-gray-400 to-gray-500"}`}>
-                          <p className="text-[9px] font-bold text-white/85">{isRtl ? "رئيس القسم" : "Head"}</p>
-                          <p className={`text-[10px] font-extrabold ${headActive ? "text-white" : "text-white/70"}`}>
-                            {deptHead ? (headActive ? (isRtl ? "نشط" : "Active") : (isRtl ? "غير نشط" : "Inactive")) : (isRtl ? "غير معيّن" : "None")}
-                          </p>
-                        </div>
-                      </div>
+                      ))}
+                    </div>
 
-                      {/* Department code (copyable, fixed) */}
-                      <div className="flex items-center gap-2 mb-4 p-2.5 rounded-lg bg-muted/60 border border-border">
-                        <span className="text-[11px] font-bold text-muted-foreground shrink-0">
-                          {isRtl ? "كود القسم:" : "Department code:"}
+                    {/* Body */}
+                    <div className="flex-1 p-4 space-y-3">
+                      {/* Members clickable hero */}
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/institution/department/${dept.id}`)}
+                        onPointerEnter={() => import("./DepartmentPage")}
+                        className="w-full text-center p-3.5 rounded-2xl bg-gradient-to-r from-indigo-500 via-blue-600 to-cyan-500 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.99] transition-all duration-200 relative overflow-hidden"
+                        aria-label={isRtl ? "فتح تفاصيل القسم" : "Open department details"}
+                      >
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,white,transparent_60%)] opacity-10 pointer-events-none" />
+                        <div className="flex items-center justify-center gap-2.5">
+                          <Users className="w-5 h-5 text-white/90" />
+                          <p className="text-2xl font-black text-white tracking-tight">{registeredMembersCount}</p>
+                          <GraduationCap className="w-5 h-5 text-white/90" />
+                        </div>
+                        <p className="text-[11px] text-white/90 font-black mt-1">{isRtl ? "أعضاء وطلاب القسم — اضغط لعرض التفاصيل" : "Members & Students — tap to view details"}</p>
+                      </button>
+
+                      {/* Department Code */}
+                      <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-muted/40 border border-border/60">
+                        <span className="text-[10px] font-black text-muted-foreground shrink-0">
+                          {isRtl ? "كود القسم:" : "Code:"}
                         </span>
-                        <code dir="ltr" className="flex-1 font-mono font-bold tracking-widest text-center text-primary truncate">
+                        <code dir="ltr" className="flex-1 font-mono font-black tracking-widest text-center text-primary text-sm truncate">
                           {dept.department_code}
                         </code>
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-7 px-2 gap-1"
+                          className="h-6 w-6 p-0 rounded-lg hover:bg-primary/10 shrink-0"
                           onClick={() => {
                             navigator.clipboard.writeText(dept.department_code || "");
                             sonnerToast.success(isRtl ? "تم النسخ" : "Copied", { duration: 1500 });
                           }}
                         >
-                          <Copy className="w-3.5 h-3.5" />
-                          {isRtl ? "نسخ" : "Copy"}
+                          <Copy className="w-3 h-3" />
                         </Button>
                       </div>
+                    </div>
 
-                      {/* Members & Students count box (clickable) */}
-                      <button
-                        type="button"
-                        onClick={() => navigate(`/institution/department/${dept.id}`)}
-                        onPointerEnter={() => import("./DepartmentPage")}
-                        className="w-full text-center p-4 mb-4 rounded-xl bg-gradient-to-br from-indigo-500 via-blue-600 to-cyan-500 shadow-lg shadow-blue-900/20 hover:shadow-xl hover:scale-[1.02] active:scale-[0.99] transition-all duration-200 group relative overflow-hidden"
-                        aria-label={isRtl ? "فتح أعضاء وطلاب القسم" : "Open department members & students"}
+                    {/* Footer Actions */}
+                    <div className="px-4 pb-4 flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        className="h-9 flex-1 rounded-xl gap-1.5 text-xs font-black bg-gradient-to-r from-primary/90 to-indigo-600/80 hover:from-primary hover:to-indigo-600 text-white shadow-sm shadow-primary/20"
+                        onClick={() => navigate(`/institution/dashboard?tab=faculty&addDeptId=${dept.id}`)}
                       >
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,white,transparent_60%)] opacity-10 pointer-events-none" />
-                        <div className="flex items-center justify-center gap-2 mb-1">
-                          <GraduationCap className="w-5 h-5 text-white/95" />
-                          <p className="text-2xl font-extrabold text-white tracking-tight">{registeredMembersCount}</p>
-                          <Users className="w-5 h-5 text-white/95" />
-                        </div>
-                        <p className="text-sm text-white font-extrabold tracking-wide">
-                          {isRtl ? "أعضاء وطلاب القسم" : "Department Members & Students"}
-                        </p>
-                        <p className="text-[11px] text-white/80 mt-1 font-medium">
-                          {isRtl ? "اضغط لعرض القائمة ←" : "Tap to view list →"}
-                        </p>
-                      </button>
-
-                      <div className="flex gap-2 flex-wrap justify-end">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="gap-1"
-                          onClick={() => {
-                            navigate(`/institution/dashboard?tab=faculty&addDeptId=${dept.id}`);
-                          }}
-                        >
-                          <Plus className="w-4 h-4" />
-                          {isRtl ? "اضافة عضو" : "Add Member"}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="text-destructive border-destructive/30 hover:bg-destructive/10"
-                          onClick={() => handleDeleteDepartment(dept.id, dept.department_name)}
-                          title={isRtl ? "حذف القسم" : "Delete department"}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                        <Plus className="w-3.5 h-3.5" />
+                        {isRtl ? "إضافة عضو" : "Add Member"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-9 px-3 rounded-xl gap-1 text-xs font-bold border-border/60 hover:border-primary/30 hover:bg-primary/5"
+                        onClick={() => navigate(`/institution/department/${dept.id}`)}
+                      >
+                        {isRtl ? "عرض" : "View"}
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-9 w-9 rounded-xl text-destructive/60 border-destructive/20 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/40 shrink-0"
+                        onClick={() => handleDeleteDepartment(dept.id, dept.department_name)}
+                        title={isRtl ? "حذف القسم" : "Delete department"}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
                 );
               })}
             </div>
 
 
             {filteredDepts.length === 0 && (
+
               <div className="text-center py-16 text-muted-foreground">
                 <div className="relative w-24 h-24 mx-auto mb-4">
                   <div className="absolute inset-0 rounded-full bg-primary/10 blur-xl" />

@@ -2565,6 +2565,7 @@ ${exams.map((s: any, i: number) => `<tr>
                   )}
                 </div>
               );
+            })()}
           </TabsContent>
 
           {/* Departments Tab */}

@@ -2554,7 +2554,49 @@ ${exams.map((s: any, i: number) => `<tr>
                         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
                           {quizCards.map((card, i) => (
                             <div key={i} className={`text-center p-2 sm:p-3 rounded-xl bg-gradient-to-br ${card.color} shadow-md shadow-black/10`}>
-                                         ).length;
+                              <card.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white/90 mx-auto mb-1" />
+                              <p className="text-xl sm:text-2xl font-extrabold text-white">{card.count}</p>
+                              <p className="text-[9px] sm:text-[10px] font-bold text-white/85">{card.label}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              );
+            })()}
+          </TabsContent>
+
+          {/* Departments Tab */}
+          <TabsContent value="departments" dir={isRtl ? "rtl" : "ltr"}>
+            <div className={`flex mb-4 ${isRtl ? "justify-start" : "justify-end"}`}>
+              <Button onClick={() => setShowAddDeptDialog(true)} className="gap-2 shrink-0">
+                <Plus className="w-4 h-4" />
+                {isRtl ? "إضافة قسم" : "Add Department"}
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {filteredDepts.map(dept => {
+                const registeredMembersCount = getMembersForDept(dept.id).length;
+                const deptHeads = getDeptBucket(dept.id).head;
+                const deptHead = deptHeads.length > 0 ? deptHeads[0] : null;
+                const headUserId = deptHead?.user_id;
+                const headProfile = headUserId ? profilesMap[headUserId] : null;
+                const headLastLogin = headProfile?.created_at;
+                const headActive = headUserId && headLastLogin
+                  ? (Date.now() - Date.parse(headLastLogin)) < 30 * 24 * 60 * 60 * 1000
+                  : false;
+
+                // Approved quizzes for this dept
+                const deptApprovedQuizzes = quizzes.filter((q: any) =>
+                  q.department_id === dept.id &&
+                  q.approved_by_lecturer && q.approved_by_head &&
+                  q.approved_by_vice_dean_students && q.approved_by_vice_dean_postgrad &&
+                  q.approved_by_vice_dean_environment && q.approved_by_dean
+                ).length;
+
 
                 const isActive = dept.status === "active";
                 const facultyCount = getDeptBucket(dept.id).head.length + getDeptBucket(dept.id).lecturer.length;

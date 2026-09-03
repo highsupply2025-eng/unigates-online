@@ -263,51 +263,255 @@ export const AssignmentResultsRosterView: React.FC<AssignmentResultsRosterViewPr
     });
   })();
 
+  const [activeResultsSubView, setActiveResultsSubView] = useState<"roster" | "attachments" | "ratings">("roster");
+
   const completionRate = currentSubmissions.length > 0 ? Math.round((gradedCount / currentSubmissions.length) * 100) : 0;
 
   return (
     <div className="space-y-6 animate-in fade-in-50 duration-300">
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card p-5 rounded-3xl border-2 border-border shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-md">
-            <ClipboardList className="w-6 h-6" />
-          </div>
+      {/* 3 Luxury Action Hero Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+        {/* Hero Card 1: Results & Direct Grading Studio */}
+        <div
+          onClick={() => setActiveResultsSubView("roster")}
+          className={`group relative overflow-hidden rounded-3xl p-6 sm:p-7 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
+            activeResultsSubView === "roster"
+              ? "bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 text-white shadow-xl shadow-blue-600/30 border-white/30 -translate-y-1"
+              : "bg-card hover:bg-muted/40 border-border text-foreground hover:border-blue-500/40 shadow-sm"
+          }`}
+        >
+          <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none group-hover:scale-125 transition-transform" />
           <div>
-            <h2 className="text-xl font-black text-foreground flex items-center gap-2">
-              <span>{isRtl ? "نتائج وتصحيح التكليفات الأكاديمية" : "Assignment Results & Grading Studio"}</span>
-              <Sparkles className="w-4 h-4 text-amber-500" />
-            </h2>
-            <p className="text-xs font-bold text-muted-foreground">
-              {isRtl
-                ? "استعراض وتصحيح ملفات وإجابات الطلاب ورصد الدرجات والملاحظات فوراً بدون الحاجة لأي اعتماد."
-                : "Grade student assignment submissions and provide feedback directly without approval workflow."}
-            </p>
+            <div className="flex items-start justify-between">
+              <div
+                className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform ${
+                  activeResultsSubView === "roster"
+                    ? "bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40"
+                    : "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                }`}
+              >
+                <Award className="w-7 h-7" />
+              </div>
+              <Badge
+                className={
+                  activeResultsSubView === "roster"
+                    ? "bg-white/20 text-white border-white/30 text-xs px-3 py-1"
+                    : "bg-blue-500/10 text-blue-600 border-blue-500/20 text-xs px-3 py-1"
+                }
+              >
+                {assignmentSubmissions.length} {isRtl ? "تسليم" : "submissions"}
+              </Badge>
+            </div>
+
+            <div className="mt-5 space-y-1.5">
+              <h3 className="text-xl sm:text-2xl font-black flex items-center gap-2">
+                <span>{isRtl ? "استوديو رصد وتصحيح الدرجات" : "Results & Direct Grading"}</span>
+                <Sparkles className="w-5 h-5 text-amber-300" />
+              </h3>
+              <p
+                className={`text-xs sm:text-sm font-medium leading-relaxed ${
+                  activeResultsSubView === "roster" ? "text-white/85" : "text-muted-foreground"
+                }`}
+              >
+                {isRtl
+                  ? "استعراض ملفات إجابات الطلاب ورصد الدرجات والملاحظات فوراً بدون الحاجة لأي اعتماد."
+                  : "Grade student assignments and record evaluations directly."}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 flex items-center justify-between pt-4 border-t border-current/10">
+            <span className="text-xs font-black">
+              {isRtl ? "دخول استوديو التصحيح ➔" : "Open Grading Studio ➔"}
+            </span>
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                activeResultsSubView === "roster" ? "bg-white/20 text-white" : "bg-muted text-foreground"
+              }`}
+            >
+              <ChevronRight className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {onBackToOverview && (
-            <Button
-              variant="outline"
-              onClick={onBackToOverview}
-              className="rounded-xl font-bold gap-1.5 border-2 border-border"
-            >
-              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-              <span>{isRtl ? "لوحة التكليفات" : "Assignments Dashboard"}</span>
-            </Button>
-          )}
+        {/* Hero Card 2: Files & Attachments */}
+        <div
+          onClick={() => setActiveResultsSubView("attachments")}
+          className={`group relative overflow-hidden rounded-3xl p-6 sm:p-7 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
+            activeResultsSubView === "attachments"
+              ? "bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-700 text-white shadow-xl shadow-purple-500/30 border-white/30 -translate-y-1"
+              : "bg-card hover:bg-muted/40 border-border text-foreground hover:border-purple-500/40 shadow-sm"
+          }`}
+        >
+          <div>
+            <div className="flex items-start justify-between">
+              <div
+                className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform ${
+                  activeResultsSubView === "attachments"
+                    ? "bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40"
+                    : "bg-purple-500/10 text-purple-600 dark:text-purple-400"
+                }`}
+              >
+                <Paperclip className="w-7 h-7" />
+              </div>
+              <Badge
+                className={
+                  activeResultsSubView === "attachments"
+                    ? "bg-white/20 text-white border-white/30 text-xs px-3 py-1"
+                    : "bg-purple-500/10 text-purple-600 border-purple-500/20 text-xs px-3 py-1"
+                }
+              >
+                {courses.length} {isRtl ? "مقرر" : "courses"}
+              </Badge>
+            </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onRefresh}
-            className="rounded-xl font-bold gap-1.5 h-10"
-          >
-            <RefreshCw className="w-4 h-4" />
-            <span>{isRtl ? "تحديث" : "Refresh"}</span>
-          </Button>
+            <div className="mt-5 space-y-1.5">
+              <h3 className="text-xl sm:text-2xl font-black flex items-center gap-2">
+                <span>{isRtl ? "ملفات ونماذج التكليفات" : "Assignment Files & Docs"}</span>
+                <FileText className="w-5 h-5 text-purple-300" />
+              </h3>
+              <p
+                className={`text-xs sm:text-sm font-medium leading-relaxed ${
+                  activeResultsSubView === "attachments" ? "text-white/85" : "text-muted-foreground"
+                }`}
+              >
+                {isRtl
+                  ? "مستودع ملفات التكليفات ونماذج الإجابة والوثائق الإرشادية مع التنزيل الفوري."
+                  : "Repository for assignment questions, guidelines, and exercise documents."}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 flex items-center justify-between pt-4 border-t border-current/10">
+            <span className="text-xs font-black">
+              {isRtl ? "استعراض الملفات ➔" : "View Files ➔"}
+            </span>
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                activeResultsSubView === "attachments" ? "bg-white/20 text-white" : "bg-muted text-foreground"
+              }`}
+            >
+              <ChevronRight className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
+            </div>
+          </div>
         </div>
+
+        {/* Hero Card 3: Student Ratings */}
+        <div
+          onClick={() => setActiveResultsSubView("ratings")}
+          className={`group relative overflow-hidden rounded-3xl p-6 sm:p-7 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
+            activeResultsSubView === "ratings"
+              ? "bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white shadow-xl shadow-amber-500/30 border-white/30 -translate-y-1"
+              : "bg-card hover:bg-muted/40 border-border text-foreground hover:border-amber-500/40 shadow-sm"
+          }`}
+        >
+          <div>
+            <div className="flex items-start justify-between">
+              <div
+                className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform ${
+                  activeResultsSubView === "ratings"
+                    ? "bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40"
+                    : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                }`}
+              >
+                <Star className="w-7 h-7 fill-current" strokeWidth={2.6} />
+              </div>
+              <Badge
+                className={
+                  activeResultsSubView === "ratings"
+                    ? "bg-white/20 text-white border-white/30 text-xs px-3 py-1"
+                    : "bg-amber-500/10 text-amber-600 border-amber-500/20 text-xs px-3 py-1"
+                }
+              >
+                ⭐ {avgScore}% {isRtl ? "المتوسط" : "Avg"}
+              </Badge>
+            </div>
+
+            <div className="mt-5 space-y-1.5">
+              <h3 className="text-xl sm:text-2xl font-black flex items-center gap-2">
+                <span>{isRtl ? "تقييمات الطلاب" : "Student Ratings"}</span>
+                <Sparkles className="w-5 h-5 text-yellow-200" />
+              </h3>
+              <p
+                className={`text-xs sm:text-sm font-medium leading-relaxed ${
+                  activeResultsSubView === "ratings" ? "text-white/85" : "text-muted-foreground"
+                }`}
+              >
+                {isRtl
+                  ? "متابعة انطباعات وملاحظات الطلاب حول التكليفات ومؤشرات الرضا الأكاديمي."
+                  : "Monitor student evaluations and satisfaction feedback on assignments."}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 flex items-center justify-between pt-4 border-t border-current/10">
+            <span className="text-xs font-black">
+              {isRtl ? "متابعة التقييمات ➔" : "View Ratings ➔"}
+            </span>
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                activeResultsSubView === "ratings" ? "bg-white/20 text-white" : "bg-muted text-foreground"
+              }`}
+            >
+              <ChevronRight className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Subview Switcher Pills */}
+      <div className="flex items-center gap-2 p-1.5 bg-muted/40 rounded-2xl border border-border w-fit flex-wrap">
+        <button
+          type="button"
+          onClick={() => setActiveResultsSubView("roster")}
+          className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${
+            activeResultsSubView === "roster"
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Award className="w-3.5 h-3.5 text-blue-500" />
+          <span>{isRtl ? "كشف ورصد الدرجات" : "Grading Roster"}</span>
+          <Badge variant="secondary" className="text-[10px] py-0 px-1.5">{assignmentSubmissions.length}</Badge>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveResultsSubView("attachments")}
+          className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${
+            activeResultsSubView === "attachments"
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Paperclip className="w-3.5 h-3.5 text-purple-500" />
+          <span>{isRtl ? "ملفات ومرفقات التكليفات" : "Assignment Files"}</span>
+          <Badge variant="secondary" className="text-[10px] py-0 px-1.5">{assignments.length}</Badge>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveResultsSubView("ratings")}
+          className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${
+            activeResultsSubView === "ratings"
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+          <span>{isRtl ? "تقييمات وملاحظات الطلاب" : "Student Ratings"}</span>
+        </button>
+
+        {onBackToOverview && (
+          <button
+            type="button"
+            onClick={onBackToOverview}
+            className="px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10"
+          >
+            <ClipboardList className="w-3.5 h-3.5" />
+            <span>{isRtl ? "الرجوع لاستوديو التكليفات" : "Back to Assignments"}</span>
+          </button>
+        )}
       </div>
 
       {/* Top 4 KPI Metrics */}
@@ -369,7 +573,79 @@ export const AssignmentResultsRosterView: React.FC<AssignmentResultsRosterViewPr
         </Card>
       </div>
 
-      {assignments.length === 0 ? (
+      {/* Conditional Subview Content */}
+      {activeResultsSubView === "attachments" ? (
+        /* Attachments Library for Assignments */
+        assignments.length === 0 ? (
+          <Card className="rounded-3xl border-2 border-dashed border-border/80 bg-card/50 shadow-sm">
+            <CardContent className="py-16 text-center space-y-3">
+              <div className="w-16 h-16 rounded-3xl bg-purple-500/10 text-purple-600 flex items-center justify-center mx-auto shadow-inner">
+                <Paperclip className="w-8 h-8" />
+              </div>
+              <p className="text-base font-black text-foreground">
+                {isRtl ? "لا توجد ملفات مرفقة للتكليفات حتى الآن" : "No assignment files attached yet"}
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            {assignments.map((a: any) => {
+              const course = courses.find((c) => c.id === a.course_id);
+              return (
+                <div
+                  key={a.id}
+                  className="p-4 sm:p-5 rounded-3xl bg-card border-2 border-border/80 hover:border-purple-500/40 shadow-sm space-y-3 transition-all"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-11 h-11 rounded-2xl bg-purple-500/15 text-purple-600 flex items-center justify-center shrink-0">
+                        <FileText className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="text-sm font-black text-foreground truncate">
+                          {isRtl ? a.title_ar || a.title_en : a.title_en || a.title_ar}
+                        </h4>
+                        <p className="text-xs text-primary font-bold truncate">
+                          {course ? (isRtl ? course.title_ar : course.title_en) : (isRtl ? "مقرر دراسي" : "Course")}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant="secondary" className="text-[10px] font-bold uppercase shrink-0">
+                      {a.points || 10} {isRtl ? "درجة" : "pts"}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-border/50 text-xs">
+                    <span className="text-muted-foreground font-medium">
+                      {a.due_date ? `${isRtl ? "الموعد:" : "Due:"} ${new Date(a.due_date).toLocaleDateString(isRtl ? "ar-EG" : "en-US")}` : "—"}
+                    </span>
+                    {(a.file_url || (a.file_urls && a.file_urls[0])) && (
+                      <a href={a.file_url || a.file_urls[0]} target="_blank" rel="noopener noreferrer" download>
+                        <Button size="sm" className="h-8 px-3 text-xs font-bold rounded-xl bg-purple-600 hover:bg-purple-700 text-white gap-1.5">
+                          <Download className="w-3.5 h-3.5" />
+                          <span>{isRtl ? "تنزيل ورقة التكليف" : "Download Task"}</span>
+                        </Button>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )
+      ) : activeResultsSubView === "ratings" ? (
+        <div className="p-8 bg-card rounded-3xl border-2 border-border shadow-sm text-center space-y-3">
+          <div className="w-16 h-16 rounded-3xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto shadow-inner">
+            <Star className="w-8 h-8 fill-current" />
+          </div>
+          <h3 className="text-lg font-black text-foreground">{isRtl ? "تقييمات ورضا الطلاب عن التكليفات" : "Student Assignment Satisfaction"}</h3>
+          <p className="text-xs text-muted-foreground max-w-md mx-auto">
+            {isRtl
+              ? `متوسط تحصيل الطلاب في التكليفات يبلغ ${avgScore}% عبر إجمالي ${assignmentSubmissions.length} تسليماً تم استلامه.`
+              : `Class assignment satisfaction and performance average is ${avgScore}% across ${assignmentSubmissions.length} submissions.`}
+          </p>
+        </div>
+      ) : assignments.length === 0 ? (
         <Card className="rounded-3xl border-2 border-border p-12 text-center text-muted-foreground font-bold">
           <ClipboardList className="w-12 h-12 mx-auto mb-3 opacity-30 text-blue-500" />
           <p>{isRtl ? "لا توجد تكليفات منشورة بعد." : "No published assignments found."}</p>

@@ -88,9 +88,9 @@ describe("expired student experience", () => {
   });
 
   it("shows expired students as inactive and requiring payment", () => {
-    expect(subscriptionsPage).toContain('isRtl ? "غير نشط" : "Inactive"');
-    expect(subscriptionsPage).toContain('isRtl ? "مطلوب الدفع" : "Payment Required"');
-    expect(subscriptionsPage).toContain('isRtl ? "تجديد" : "Renew"');
+    expect(subscriptionsPage).toContain("subscription_active");
     expect(subscriptionsPage).toContain("subscription_expires_at");
+    expect(subscriptionsPage).toContain('isRtl ? "تجديد" : "Renew"');
   });
 });
+

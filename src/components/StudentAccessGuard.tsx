@@ -22,24 +22,64 @@ const StudentAccessGuard = () => {
   const checkAccess = useCallback(async () => {
     setLoading(true);
     setCheckFailed(false);
+
+    // 1. Ensure active session
+    let { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      const { data: refreshedSession } = await supabase.auth.refreshSession();
+      session = refreshedSession.session;
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    if (!user && !session?.user) {
       setAuthenticated(false);
       setLoading(false);
       return;
     }
 
-    // Retry transient failures before assuming the subscription is inactive.
+    const currentUserId = user?.id || session?.user?.id;
+
+    // 2. Retry transient RPC failures
     let lastError: unknown = null;
     for (let attempt = 0; attempt < 3; attempt++) {
-      const { data, error } = await supabase.rpc("get_student_access_status");
-      if (!error) {
-        setAccess(data as unknown as AccessStatus);
-        setLoading(false);
-        return;
+      try {
+        const { data, error } = await supabase.rpc("get_student_access_status");
+        if (!error && data) {
+          setAccess(data as unknown as AccessStatus);
+          setLoading(false);
+          return;
+        }
+        lastError = error;
+      } catch (e) {
+        lastError = e;
       }
-      lastError = error;
       await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
+    }
+
+    // 3. Fallback verification via direct department_members membership if RPC transiently fails
+    if (currentUserId) {
+      try {
+        const { data: member, error: memberErr } = await supabase
+          .from("department_members")
+          .select("id, role, subscription_expires_at, departments(institution_type)")
+          .eq("user_id", currentUserId)
+          .eq("role", "student")
+          .limit(1)
+          .maybeSingle();
+
+        if (!memberErr && member) {
+          const instType = (member.departments as any)?.institution_type || "college";
+          const isNotExpired = !member.subscription_expires_at || new Date(member.subscription_expires_at) > new Date();
+          setAccess({
+            is_active: isNotExpired,
+            institution_type: instType,
+          });
+          setLoading(false);
+          return;
+        }
+      } catch (fallbackErr) {
+        console.warn("Direct student membership fallback check failed", fallbackErr);
+      }
     }
 
     console.error("get_student_access_status failed", lastError);
@@ -73,12 +113,24 @@ const StudentAccessGuard = () => {
           </h1>
           <p className="mb-6 font-semibold text-muted-foreground">
             {isRtl
-              ? "حدثت مشكلة مؤقتة في الاتصال. حاول مرة أخرى."
-              : "A temporary connection problem occurred. Please try again."}
+              ? "حدثت مشكلة مؤقتة في الاتصال أو تحديث الجلسة. اضغط إعادة المحاولة للمتابعة."
+              : "A temporary session or connection issue occurred. Please retry to continue."}
           </p>
-          <Button className="w-full" onClick={() => checkAccess()}>
-            {isRtl ? "إعادة المحاولة" : "Retry"}
-          </Button>
+          <div className="space-y-3">
+            <Button className="w-full" onClick={() => checkAccess()}>
+              {isRtl ? "إعادة المحاولة" : "Retry"}
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={async () => {
+                await supabase.auth.signOut();
+                navigate("/login", { replace: true });
+              }}
+            >
+              {isRtl ? "تسجيل الدخول مجدداً" : "Log In Again"}
+            </Button>
+          </div>
         </div>
       </div>
     );

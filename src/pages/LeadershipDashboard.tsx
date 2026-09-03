@@ -163,6 +163,17 @@ const LeadershipDashboard = () => {
 
   // Episode management
   const [showEpisodeDialog, setShowEpisodeDialog] = useState(false);
+  const [showStreamDialog, setShowStreamDialog] = useState(false);
+  const [newStream, setNewStream] = useState({
+    title_ar: "",
+    title_en: "",
+    category_ar: "",
+    category_en: "",
+    scheduled_at: "",
+    expires_at: "",
+    department_id: "",
+  });
+  const [savingStream, setSavingStream] = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const [courseEpisodes, setCourseEpisodes] = useState<any[]>([]);
   const [courseAttachments, setCourseAttachments] = useState<any[]>([]);
@@ -860,6 +871,73 @@ const LeadershipDashboard = () => {
       toast({ title: isRtl ? "خطأ" : "Error", description: err.message, variant: "destructive" });
     } finally {
       setSavingCourse(false);
+    }
+  };
+
+  const handleCreateStream = async () => {
+    if (!newStream.title_ar || !newStream.title_en) {
+      toast({
+        title: isRtl ? "خطأ" : "Error",
+        description: isRtl ? "يرجى إدخال عنوان البث بالعربية والإنجليزية" : "Please enter the stream title in Arabic and English",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!newStream.department_id) {
+      toast({
+        title: isRtl ? "خطأ" : "Error",
+        description: isRtl ? "يرجى اختيار القسم" : "Please select a department",
+        variant: "destructive",
+      });
+      return;
+    }
+    setSavingStream(true);
+    try {
+      const { data: authUserData } = await supabase.auth.getUser();
+      const activeUserId = authUserData?.user?.id || userId;
+      if (!activeUserId) throw new Error(isRtl ? "يرجى تسجيل الدخول أولاً" : "Please log in first");
+
+      const presenterName = profile?.full_name || (isRtl ? "عضو هيئة تدريس" : "Faculty Member");
+
+      const { error } = await supabase.from("live_streams").insert({
+        creator_id: activeUserId,
+        title_ar: newStream.title_ar,
+        title_en: newStream.title_en,
+        category_ar: newStream.category_ar || (isRtl ? "عام" : "General"),
+        category_en: newStream.category_en || "General",
+        instructor_ar: presenterName,
+        instructor_en: presenterName,
+        status: "scheduled",
+        scheduled_at: newStream.scheduled_at ? new Date(newStream.scheduled_at).toISOString() : new Date().toISOString(),
+        department_id: newStream.department_id,
+        expires_at: newStream.expires_at ? new Date(newStream.expires_at).toISOString() : null,
+      } as any);
+
+      if (error) throw error;
+
+      toast({
+        title: isRtl ? "تم بنجاح" : "Success",
+        description: isRtl ? "تم إنشاء وإطلاق جلسة البث بنجاح" : "Live stream created successfully",
+      });
+      setShowStreamDialog(false);
+      setNewStream({
+        title_ar: "",
+        title_en: "",
+        category_ar: "",
+        category_en: "",
+        scheduled_at: "",
+        expires_at: "",
+        department_id: "",
+      });
+      await loadData();
+    } catch (err: any) {
+      toast({
+        title: isRtl ? "خطأ" : "Error",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSavingStream(false);
     }
   };
 
@@ -1642,15 +1720,57 @@ const LeadershipDashboard = () => {
           {/* Live Streams Tab (Supervisory & Oversight: Streams, Attachments & Student Ratings Only) */}
           <TabsContent value="livestreams" id="section-livestreams" dir={isRtl ? "rtl" : "ltr"} className="space-y-6 animate-in fade-in-50 duration-200">
             <div className="space-y-6">
-              {/* 1. Dean & 3 Vice Deans 3 Top Luxury Supervisory Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
-                {/* Card 1: Watch & Join Broadcasts */}
+              {/* 1. Top Luxury Action & Supervisory Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+                {/* Card 1: Create / Launch New Live Stream */}
+                <div
+                  onClick={() => {
+                    setShowStreamDialog(true);
+                    if (userId) loadMyDepartments(userId);
+                  }}
+                  className="group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between bg-gradient-to-br from-red-600 via-rose-600 to-pink-700 text-white shadow-xl shadow-red-600/30 border-white/30 hover:scale-[1.02] hover:-translate-y-1"
+                >
+                  <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
+                  <div>
+                    <div className="flex items-start justify-between">
+                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-transform bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40">
+                        <Plus className="w-6 h-6 text-white" strokeWidth={2.8} />
+                      </div>
+                      <Badge className="bg-white/20 text-white border-white/30">
+                        {isRtl ? "استوديو البث" : "Broadcast Studio"}
+                      </Badge>
+                    </div>
+
+                    <div className="mt-4 space-y-1">
+                      <h3 className="text-lg sm:text-xl font-black flex items-center gap-1.5">
+                        <span>{isRtl ? "بدء بث مباشر جديد" : "Start New Live Stream"}</span>
+                        <Radio className="w-4 h-4 text-white animate-pulse" />
+                      </h3>
+                      <p className="text-xs font-medium leading-relaxed text-white/90">
+                        {isRtl
+                          ? "إطلاق جلسة بث تفاعلي للطلاب مع إتاحة المحادثة والملفات."
+                          : "Launch an interactive live broadcast for students with chat and attachments."}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 flex items-center justify-between pt-3 border-t border-white/20">
+                    <span className="text-xs font-black">
+                      {isRtl ? "إنشاء البث الآن ➔" : "Create Stream Now ➔"}
+                    </span>
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center transition-colors bg-white/20 text-white">
+                      <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card 2: Watch & Join Broadcasts */}
                 <div
                   onClick={() => setLeadershipStreamView("streams")}
                   className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
                     leadershipStreamView === "streams"
-                      ? "bg-gradient-to-br from-red-600 via-rose-600 to-red-700 text-white shadow-xl shadow-red-600/30 border-white/30 -translate-y-1"
-                      : "bg-card hover:bg-muted/40 border-border text-foreground hover:border-red-500/40 shadow-sm"
+                      ? "bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-700 text-white shadow-xl shadow-blue-600/30 border-white/30 -translate-y-1"
+                      : "bg-card hover:bg-muted/40 border-border text-foreground hover:border-blue-500/40 shadow-sm"
                   }`}
                 >
                   <div>
@@ -1659,16 +1779,16 @@ const LeadershipDashboard = () => {
                         className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform ${
                           leadershipStreamView === "streams"
                             ? "bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40"
-                            : "bg-red-500/10 text-red-600 dark:text-red-400"
+                            : "bg-blue-500/10 text-blue-600 dark:text-blue-400"
                         }`}
                       >
-                        <Radio className="w-6 h-6 animate-pulse" strokeWidth={2.6} />
+                        <Eye className="w-6 h-6" strokeWidth={2.6} />
                       </div>
                       <Badge
                         className={
                           leadershipStreamView === "streams"
                             ? "bg-white/20 text-white border-white/30"
-                            : "bg-red-500/10 text-red-600 border-red-500/20"
+                            : "bg-blue-500/10 text-blue-600 border-blue-500/20"
                         }
                       >
                         {liveNow.length > 0 ? (isRtl ? `${liveNow.length} مباشر الآن 🔴` : `${liveNow.length} Live Now 🔴`) : (isRtl ? "استعراض البثوث" : "Browse Streams")}
@@ -1706,7 +1826,7 @@ const LeadershipDashboard = () => {
                   </div>
                 </div>
 
-                {/* Card 2: Attached Stream Files Library */}
+                {/* Card 3: Attached Stream Files Library */}
                 <div
                   onClick={() => setLeadershipStreamView("files")}
                   className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
@@ -2111,189 +2231,306 @@ const LeadershipDashboard = () => {
                 />
               ) : (
                 <>
-                  {/* Hero Action Cards */}
-                  {isDeanOrViceDean ? (
-                    /* 3 Supervisory Cards for Dean and the 3 Vice Deans */
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      {/* Card 1: Watch & Browse Lectures */}
-                      <button
-                        type="button"
-                        onClick={() => setLeadershipLectureView("lectures")}
-                        className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 shadow-lg transition-all duration-300 ${
-                          leadershipLectureView === "lectures"
-                            ? "bg-gradient-to-br from-teal-600 via-emerald-600 to-teal-700 text-white ring-2 ring-teal-400 shadow-teal-500/25 -translate-y-1"
-                            : "bg-card border-2 border-border/80 hover:border-teal-500/40 text-foreground hover:-translate-y-1"
-                        } ${isRtl ? "text-right" : "text-left"}`}
-                      >
-                        <div className="flex items-center justify-between mb-4">
-                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xs transition-transform group-hover:scale-110 ${
-                            leadershipLectureView === "lectures" ? "bg-white/20 text-white" : "bg-teal-500/15 text-teal-600 dark:text-teal-400"
-                          }`}>
-                            <BookOpen className="w-6 h-6" strokeWidth={2.5} />
+                  {/* 1. Top 4 Luxury Action & Oversight Cards (Unified for Dean, Vice Deans, Dept Heads & All Academic Ranks) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+                    {/* Card 1: Create New Lecture Studio */}
+                    <div
+                      onClick={() => {
+                        setLectureSubView("create");
+                        if (userId) loadMyDepartments(userId);
+                      }}
+                      className="group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between bg-gradient-to-br from-cyan-600 via-blue-600 to-indigo-700 text-white shadow-xl shadow-cyan-600/30 border-white/30 hover:scale-[1.02] hover:-translate-y-1"
+                    >
+                      <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
+                      <div>
+                        <div className="flex items-start justify-between">
+                          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-transform bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40">
+                            <Plus className="w-6 h-6 text-white" strokeWidth={2.8} />
                           </div>
-                          <Badge className={leadershipLectureView === "lectures" ? "bg-white/25 text-white border-0" : "bg-teal-500/10 text-teal-600 border-teal-500/30"}>
+                          <Badge className="bg-white/20 text-white border-white/30">
+                            {isRtl ? "تسجيل وبث" : "Lecture Studio"}
+                          </Badge>
+                        </div>
+
+                        <div className="mt-4 space-y-1">
+                          <h3 className="text-lg sm:text-xl font-black flex items-center gap-1.5">
+                            <span>{isRtl ? "إنشاء محاضرة جديدة" : "Create New Lecture"}</span>
+                            <Sparkles className="w-4 h-4 text-cyan-200" />
+                          </h3>
+                          <p className="text-xs font-medium leading-relaxed text-white/90">
+                            {isRtl
+                              ? "تسجيل حلقة مرئية ورفع ملفات الشرح والمذكرات المرفقة للمقرر."
+                              : "Record video episode, upload handouts and configure lecture details."}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-5 flex items-center justify-between pt-3 border-t border-white/20">
+                        <span className="text-xs font-black">
+                          {isRtl ? "تسجيل المحاضرة الآن ➔" : "Record Lecture ➔"}
+                        </span>
+                        <div className="w-7 h-7 rounded-full flex items-center justify-center transition-colors bg-white/20 text-white">
+                          <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card 2: Watch & Browse Lectures */}
+                    <div
+                      onClick={() => setLeadershipLectureView("lectures")}
+                      className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
+                        leadershipLectureView === "lectures"
+                          ? "bg-gradient-to-br from-teal-600 via-emerald-600 to-teal-700 text-white shadow-xl shadow-teal-600/30 border-white/30 -translate-y-1"
+                          : "bg-card hover:bg-muted/40 border-border text-foreground hover:border-teal-500/40 shadow-sm"
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-start justify-between">
+                          <div
+                            className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform ${
+                              leadershipLectureView === "lectures"
+                                ? "bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40"
+                                : "bg-teal-500/10 text-teal-600 dark:text-teal-400"
+                            }`}
+                          >
+                            <BookOpen className="w-6 h-6" strokeWidth={2.6} />
+                          </div>
+                          <Badge
+                            className={
+                              leadershipLectureView === "lectures"
+                                ? "bg-white/20 text-white border-white/30"
+                                : "bg-teal-500/10 text-teal-600 border-teal-500/20"
+                            }
+                          >
                             {courses.length} {isRtl ? "محاضرة" : "lectures"}
                           </Badge>
                         </div>
-                        <h3 className="text-base sm:text-lg font-black leading-tight">
-                          {isRtl ? "مشاهدة واستعراض المحاضرات" : "Watch & Browse Lectures"}
-                        </h3>
-                        <p className={`text-xs mt-1 font-medium ${leadershipLectureView === "lectures" ? "text-white/85" : "text-muted-foreground"}`}>
-                          {isRtl ? "استعراض ومتابعة المحاضرات المسجلة للأقسام" : "Browse recorded lectures across departments"}
-                        </p>
-                      </button>
 
-                      {/* Card 2: Attached Course Files */}
-                      <button
-                        type="button"
-                        onClick={() => setLeadershipLectureView("attachments")}
-                        className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 shadow-lg transition-all duration-300 ${
-                          leadershipLectureView === "attachments"
-                            ? "bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-700 text-white ring-2 ring-purple-400 shadow-purple-500/25 -translate-y-1"
-                            : "bg-card border-2 border-border/80 hover:border-purple-500/40 text-foreground hover:-translate-y-1"
-                        } ${isRtl ? "text-right" : "text-left"}`}
-                      >
-                        <div className="flex items-center justify-between mb-4">
-                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xs transition-transform group-hover:scale-110 ${
-                            leadershipLectureView === "attachments" ? "bg-white/20 text-white" : "bg-purple-500/15 text-purple-600 dark:text-purple-400"
-                          }`}>
-                            <Paperclip className="w-6 h-6" strokeWidth={2.5} />
+                        <div className="mt-4 space-y-1">
+                          <h3 className="text-lg sm:text-xl font-black flex items-center gap-1.5">
+                            <span>{isRtl ? "مشاهدة واستعراض المحاضرات" : "Watch & Browse Lectures"}</span>
+                            <Sparkles className="w-4 h-4 text-emerald-300" />
+                          </h3>
+                          <p
+                            className={`text-xs font-medium leading-relaxed ${
+                              leadershipLectureView === "lectures" ? "text-white/85" : "text-muted-foreground"
+                            }`}
+                          >
+                            {isRtl
+                              ? "استعراض ومتابعة المحاضرات المسجلة والحلقات المرئية للأقسام."
+                              : "Explore and watch recorded video episodes and courses across departments."}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-5 flex items-center justify-between pt-3 border-t border-current/10">
+                        <span className="text-xs font-black">
+                          {isRtl ? "استعراض المحاضرات ➔" : "Browse Lectures ➔"}
+                        </span>
+                        <div
+                          className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                            leadershipLectureView === "lectures" ? "bg-white/20 text-white" : "bg-muted text-foreground"
+                          }`}
+                        >
+                          <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card 3: Attached Course Files & Handouts */}
+                    <div
+                      onClick={() => setLeadershipLectureView("attachments")}
+                      className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
+                        leadershipLectureView === "attachments"
+                          ? "bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-700 text-white shadow-xl shadow-purple-600/30 border-white/30 -translate-y-1"
+                          : "bg-card hover:bg-muted/40 border-border text-foreground hover:border-purple-500/40 shadow-sm"
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-start justify-between">
+                          <div
+                            className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform ${
+                              leadershipLectureView === "attachments"
+                                ? "bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40"
+                                : "bg-purple-500/10 text-purple-600 dark:text-purple-400"
+                            }`}
+                          >
+                            <Paperclip className="w-6 h-6" strokeWidth={2.6} />
                           </div>
-                          <Badge className={leadershipLectureView === "attachments" ? "bg-white/25 text-white border-0" : "bg-purple-500/10 text-purple-600 border-purple-500/30"}>
+                          <Badge
+                            className={
+                              leadershipLectureView === "attachments"
+                                ? "bg-white/20 text-white border-white/30"
+                                : "bg-purple-500/10 text-purple-600 border-purple-500/20"
+                            }
+                          >
                             {courseAttachments.length} {isRtl ? "مرفق" : "files"}
                           </Badge>
                         </div>
-                        <h3 className="text-base sm:text-lg font-black leading-tight">
-                          {isRtl ? "الملفات والمذكرات المرفقة" : "Attached Files & Handouts"}
-                        </h3>
-                        <p className={`text-xs mt-1 font-medium ${leadershipLectureView === "attachments" ? "text-white/85" : "text-muted-foreground"}`}>
-                          {isRtl ? "استعراض وتحميل مذكرات المقررات والملخصات" : "View & download lecture PDFs & handouts"}
-                        </p>
-                      </button>
 
-                      {/* Card 3: Student Ratings & Evaluations */}
-                      <button
-                        type="button"
-                        onClick={() => setLeadershipLectureView("ratings")}
-                        className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 shadow-lg transition-all duration-300 ${
-                          leadershipLectureView === "ratings"
-                            ? "bg-gradient-to-br from-amber-500 via-orange-600 to-yellow-600 text-white ring-2 ring-amber-400 shadow-amber-500/25 -translate-y-1"
-                            : "bg-card border-2 border-border/80 hover:border-amber-500/40 text-foreground hover:-translate-y-1"
-                        } ${isRtl ? "text-right" : "text-left"}`}
-                      >
-                        <div className="flex items-center justify-between mb-4">
-                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xs transition-transform group-hover:scale-110 ${
-                            leadershipLectureView === "ratings" ? "bg-white/20 text-white" : "bg-amber-500/15 text-amber-600 dark:text-amber-400"
-                          }`}>
-                            <Star className="w-6 h-6 fill-current" strokeWidth={2.5} />
+                        <div className="mt-4 space-y-1">
+                          <h3 className="text-lg sm:text-xl font-black flex items-center gap-1.5">
+                            <span>{isRtl ? "ملفات ومذكرات المحاضرات" : "Attached Files & Handouts"}</span>
+                            <FileText className="w-4 h-4 text-purple-300" />
+                          </h3>
+                          <p
+                            className={`text-xs font-medium leading-relaxed ${
+                              leadershipLectureView === "attachments" ? "text-white/85" : "text-muted-foreground"
+                            }`}
+                          >
+                            {isRtl
+                              ? "استعراض وتحميل مذكرات المقررات والملخصات والملفات المرفقة."
+                              : "View and download handouts, slides, and syllabus documents."}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-5 flex items-center justify-between pt-3 border-t border-current/10">
+                        <span className="text-xs font-black">
+                          {isRtl ? "استعراض المذكرات ➔" : "View Handouts ➔"}
+                        </span>
+                        <div
+                          className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                            leadershipLectureView === "attachments" ? "bg-white/20 text-white" : "bg-muted text-foreground"
+                          }`}
+                        >
+                          <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card 4: Student Ratings & Feedback */}
+                    <div
+                      onClick={() => setLeadershipLectureView("ratings")}
+                      className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
+                        leadershipLectureView === "ratings"
+                          ? "bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white shadow-xl shadow-amber-500/30 border-white/30 -translate-y-1"
+                          : "bg-card hover:bg-muted/40 border-border text-foreground hover:border-amber-500/40 shadow-sm"
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-start justify-between">
+                          <div
+                            className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform ${
+                              leadershipLectureView === "ratings"
+                                ? "bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40"
+                                : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                            }`}
+                          >
+                            <Star className="w-6 h-6 fill-current" strokeWidth={2.6} />
                           </div>
-                          <Badge className={leadershipLectureView === "ratings" ? "bg-white/25 text-white border-0" : "bg-amber-500/10 text-amber-600 border-amber-500/30"}>
+                          <Badge
+                            className={
+                              leadershipLectureView === "ratings"
+                                ? "bg-white/20 text-white border-white/30"
+                                : "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                            }
+                          >
                             {lectureRatings.length} {isRtl ? "تقييم" : "ratings"}
                           </Badge>
                         </div>
-                        <h3 className="text-base sm:text-lg font-black leading-tight">
-                          {isRtl ? "تقييمات وملاحظات الطلاب" : "Student Ratings & Feedback"}
-                        </h3>
-                        <p className={`text-xs mt-1 font-medium ${leadershipLectureView === "ratings" ? "text-white/85" : "text-muted-foreground"}`}>
-                          {isRtl ? "متابعة تقييمات الطلاب للمحاضرات والمقررات" : "Monitor student feedback & course satisfaction"}
-                        </p>
-                      </button>
-                    </div>
-                  ) : (
-                    /* Default cards for Lecturers / Department Heads */
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setLectureSubView("create");
-                          if (userId) loadMyDepartments(userId);
-                        }}
-                        className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br from-cyan-600 via-blue-600 to-indigo-700 text-white p-5 sm:p-6 shadow-xl shadow-cyan-600/20 hover:shadow-2xl hover:shadow-cyan-600/40 hover:-translate-y-1.5 transition-all duration-300 ${isRtl ? "text-right" : "text-left"}`}
-                      >
-                        <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
-                        <div className="relative z-10 flex flex-col justify-between h-full min-h-[120px]">
-                          <div className="flex items-center justify-between">
-                            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-2 ring-white/40 shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                              <Plus className="w-6 h-6 text-white" strokeWidth={2.8} />
-                            </div>
-                            <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-xs">
-                              {isRtl ? "تسجيل وبث" : "Studio"}
-                            </span>
-                          </div>
-                          <div className="mt-4">
-                            <h3 className="text-lg sm:text-2xl font-black text-white drop-shadow-sm leading-tight">
-                              {isRtl ? "إنشاء محاضرة جديدة" : "Create Lecture"}
-                            </h3>
-                            <p className="text-xs sm:text-sm font-semibold text-white/85 mt-1">
-                              {isRtl ? "تسجيل حلقة مرئية وإعداد وتجهيز المحاضرة" : "Record video episode & set up lecture"}
-                            </p>
-                          </div>
-                        </div>
-                      </button>
 
-                      <button
-                        type="button"
-                        onClick={() => setLectureSubView("watch")}
-                        className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-600 to-teal-700 text-white p-5 sm:p-6 shadow-xl shadow-emerald-600/20 hover:shadow-2xl hover:shadow-emerald-600/40 hover:-translate-y-1.5 transition-all duration-300 ${isRtl ? "text-right" : "text-left"}`}
-                      >
-                        <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
-                        <div className="relative z-10 flex flex-col justify-between h-full min-h-[120px]">
-                          <div className="flex items-center justify-between">
-                            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-2 ring-white/40 shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                              <Eye className="w-6 h-6 text-white" strokeWidth={2.8} />
-                            </div>
-                            <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-xs">
-                              {isRtl ? "استعراض" : "Library"}
-                            </span>
-                          </div>
-                          <div className="mt-4">
-                            <h3 className="text-lg sm:text-2xl font-black text-white drop-shadow-sm leading-tight">
-                              {isRtl ? "مشاهدة المحاضرات" : "Watch Lectures"}
-                            </h3>
-                            <p className="text-xs sm:text-sm font-semibold text-white/85 mt-1">
-                              {isRtl ? "استعراض المحاضرات من اللوحات والأقسام الأخرى" : "Browse lectures from other departments"}
-                            </p>
-                          </div>
+                        <div className="mt-4 space-y-1">
+                          <h3 className="text-lg sm:text-xl font-black flex items-center gap-1.5">
+                            <span>{isRtl ? "تقييمات وملاحظات الطلاب" : "Student Lecture Ratings"}</span>
+                            <Sparkles className="w-4 h-4 text-yellow-200" />
+                          </h3>
+                          <p
+                            className={`text-xs font-medium leading-relaxed ${
+                              leadershipLectureView === "ratings" ? "text-white/85" : "text-muted-foreground"
+                            }`}
+                          >
+                            {isRtl
+                              ? "متابعة تقييمات الطلاب للمحاضرات والمقررات ومؤشرات الرضا الأكاديمي."
+                              : "Monitor real-time student satisfaction and feedback on lectures."}
+                          </p>
                         </div>
-                      </button>
-                    </div>
-                  )}
+                      </div>
 
-                  {/* Section Switcher Pills for Dean & Vice Deans */}
-                  {isDeanOrViceDean && (
-                    <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-muted/40 border border-border/80 w-fit flex-wrap">
-                      <Button
-                        size="sm"
-                        variant={leadershipLectureView === "lectures" ? "default" : "ghost"}
-                        onClick={() => setLeadershipLectureView("lectures")}
-                        className="rounded-xl text-xs font-bold gap-1.5 h-9"
-                      >
-                        <BookOpen className="w-3.5 h-3.5" />
-                        <span>{isRtl ? "المحاضرات والمقررات" : "Lectures"}</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-background/30">{courses.length}</span>
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={leadershipLectureView === "attachments" ? "default" : "ghost"}
-                        onClick={() => setLeadershipLectureView("attachments")}
-                        className="rounded-xl text-xs font-bold gap-1.5 h-9"
-                      >
-                        <Paperclip className="w-3.5 h-3.5" />
-                        <span>{isRtl ? "الملفات والمذكرات المرفقة" : "Attachments"}</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-background/30">{courseAttachments.length}</span>
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={leadershipLectureView === "ratings" ? "default" : "ghost"}
-                        onClick={() => setLeadershipLectureView("ratings")}
-                        className="rounded-xl text-xs font-bold gap-1.5 h-9"
-                      >
-                        <Star className="w-3.5 h-3.5 fill-current" />
-                        <span>{isRtl ? "تقييمات الطلاب" : "Student Ratings"}</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-background/30">{lectureRatings.length}</span>
-                      </Button>
+                      <div className="mt-5 flex items-center justify-between pt-3 border-t border-current/10">
+                        <span className="text-xs font-black">
+                          {isRtl ? "متابعة التقييمات ➔" : "View Ratings ➔"}
+                        </span>
+                        <div
+                          className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                            leadershipLectureView === "ratings" ? "bg-white/20 text-white" : "bg-muted text-foreground"
+                          }`}
+                        >
+                          <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
+                        </div>
+                      </div>
                     </div>
-                  )}
+                  </div>
+
+                  {/* Subview Switcher Pills */}
+                  <div className="flex items-center gap-2 p-1.5 bg-muted/40 rounded-2xl border border-border w-fit flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => setLeadershipLectureView("lectures")}
+                      className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${
+                        leadershipLectureView === "lectures"
+                          ? "bg-card text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <BookOpen className="w-3.5 h-3.5 text-teal-500" />
+                      <span>{isRtl ? "المحاضرات والمقررات" : "Lectures & Courses"}</span>
+                      <Badge variant="secondary" className="text-[10px] py-0 px-1.5">{courses.length}</Badge>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setLeadershipLectureView("attachments")}
+                      className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${
+                        leadershipLectureView === "attachments"
+                          ? "bg-card text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Paperclip className="w-3.5 h-3.5 text-purple-500" />
+                      <span>{isRtl ? "الملفات والمذكرات المرفقة" : "Handouts & Attachments"}</span>
+                      <Badge variant="secondary" className="text-[10px] py-0 px-1.5">{courseAttachments.length}</Badge>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setLeadershipLectureView("ratings")}
+                      className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${
+                        leadershipLectureView === "ratings"
+                          ? "bg-card text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                      <span>{isRtl ? "تقييمات وملاحظات الطلاب" : "Student Ratings"}</span>
+                      <Badge variant="secondary" className="text-[10px] py-0 px-1.5">{lectureRatings.length}</Badge>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setLectureSubView("watch")}
+                      className="px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>{isRtl ? "استعراض مشغل المحاضرات" : "Lecture Player"}</span>
+                    </button>
+                  </div>
+
+                  {/* Status KPI mini cards matching livestream tab */}
+                  <div className="grid grid-cols-3 gap-3 sm:gap-4">
+                    <div className="p-4 rounded-2xl bg-teal-500/10 border-2 border-teal-500/30 text-center">
+                      <div className="text-2xl sm:text-3xl font-black text-teal-600 dark:text-teal-400">{courses.length}</div>
+                      <div className="text-xs font-bold text-teal-700 dark:text-teal-300 mt-0.5">{isRtl ? "مقررات منشورة 📚" : "Published Courses"}</div>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-purple-500/10 border-2 border-purple-500/30 text-center">
+                      <div className="text-2xl sm:text-3xl font-black text-purple-600 dark:text-purple-400">{courseAttachments.length}</div>
+                      <div className="text-xs font-bold text-purple-700 dark:text-purple-300 mt-0.5">{isRtl ? "ملفات ومذكرات 📎" : "Attached Files"}</div>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 text-center">
+                      <div className="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-400">{lectureRatings.length}</div>
+                      <div className="text-xs font-bold text-amber-700 dark:text-amber-300 mt-0.5">{isRtl ? "تقييمات الطلاب ⭐" : "Student Ratings"}</div>
+                    </div>
+                  </div>
 
                   {/* 2. Header & Counter */}
                   <div className="flex items-center justify-between gap-3 pt-2">
@@ -2325,7 +2562,7 @@ const LeadershipDashboard = () => {
                   </div>
 
                   {/* 3. Main Dynamic Content according to selected view */}
-                  {isDeanOrViceDean && leadershipLectureView === "attachments" ? (
+                  {leadershipLectureView === "attachments" ? (
                     /* Attached Files View */
                     courseAttachments.length === 0 ? (
                       <Card className="rounded-3xl border-2 border-dashed border-border/80 bg-card/50 shadow-sm">
@@ -2394,7 +2631,9 @@ const LeadershipDashboard = () => {
                           <BookOpen className="w-8 h-8" />
                         </div>
                         <p className="text-base font-black text-foreground">
-                          {isRtl ? "لا توجد محاضرات مسجلة حتى الآن" : "No lectures recorded yet"}
+                          {isRtl
+                            ? `لا توجد محاضرات مسجلة حالياً في ${institutionType === "institute" ? "المعهد" : "الكلية"}`
+                            : `No lectures recorded currently in this ${institutionType === "institute" ? "institute" : "college"}`}
                         </p>
                       </CardContent>
                     </Card>
@@ -3818,6 +4057,106 @@ const LeadershipDashboard = () => {
               <Input type="file" onChange={e => setAttachmentFile(e.target.files?.[0] || null)} />
               <Button size="sm" onClick={handleAddAttachment} disabled={savingAttachment || !attachmentFile || !attachmentName}><Upload className="w-3.5 h-3.5 me-1" /> {isRtl ? "رفع" : "Upload"}</Button>
             </div>
+          </div>
+        </DialogContent>
+      {/* Create Live Stream Dialog */}
+      <Dialog open={showStreamDialog} onOpenChange={setShowStreamDialog}>
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg font-black">
+              <Radio className="w-5 h-5 text-red-500 animate-pulse" />
+              <span>{isRtl ? "إنشاء وبدء بث مباشر" : "Create & Launch Live Stream"}</span>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div>
+              <Label className="mb-1.5 block text-xs font-bold text-muted-foreground">{isRtl ? "مقدم البث" : "Presenter"}</Label>
+              <Input value={profile?.full_name || (isRtl ? "عضو هيئة تدريس" : "Faculty Member")} disabled readOnly className="bg-muted/50 font-bold" />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <Label className="mb-1.5 block text-xs font-bold text-muted-foreground">{isRtl ? "اسم المادة (عربي)" : "Subject (Arabic)"}</Label>
+                <Input
+                  value={newStream.category_ar}
+                  onChange={e => setNewStream(p => ({ ...p, category_ar: e.target.value }))}
+                  placeholder={isRtl ? "مثال: هندسة البرمجيات، التشريح" : "e.g. Software Engineering"}
+                />
+              </div>
+              <div>
+                <Label className="mb-1.5 block text-xs font-bold text-muted-foreground">{isRtl ? "اسم المادة (إنجليزي)" : "Subject (English)"}</Label>
+                <Input
+                  value={newStream.category_en}
+                  onChange={e => setNewStream(p => ({ ...p, category_en: e.target.value }))}
+                  placeholder="e.g. Software Engineering"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <Label className="mb-1.5 block text-xs font-bold text-muted-foreground">{isRtl ? "عنوان البث (عربي) *" : "Title (Arabic) *"}</Label>
+                <Input
+                  value={newStream.title_ar}
+                  onChange={e => setNewStream(p => ({ ...p, title_ar: e.target.value }))}
+                  placeholder={isRtl ? "مثال: مراجعة نهائية - الفصل الأول" : "e.g. Final Review"}
+                />
+              </div>
+              <div>
+                <Label className="mb-1.5 block text-xs font-bold text-muted-foreground">{isRtl ? "عنوان البث (إنجليزي) *" : "Title (English) *"}</Label>
+                <Input
+                  value={newStream.title_en}
+                  onChange={e => setNewStream(p => ({ ...p, title_en: e.target.value }))}
+                  placeholder="e.g. Final Review"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label className="mb-1.5 block text-xs font-bold text-muted-foreground">{isRtl ? "القسم الأكاديمي *" : "Department *"}</Label>
+              <Select value={newStream.department_id} onValueChange={v => setNewStream(p => ({ ...p, department_id: v }))}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={myDepartments.length === 0 ? (isRtl ? "جاري تحميل الأقسام..." : "Loading departments...") : (isRtl ? "اختر القسم" : "Select Department")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {myDepartments.map(d => (
+                    <SelectItem key={d.id} value={d.id}>{d.department_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                {isRtl ? "سيتاح هذا البث لطلاب وأعضاء هذا القسم الأكاديمي." : "Stream will be visible to students and faculty of this department."}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <Label className="mb-1.5 block text-xs font-bold text-muted-foreground">{isRtl ? "موعد انطلاق البث" : "Scheduled Time"}</Label>
+                <Input type="datetime-local" value={newStream.scheduled_at} onChange={e => setNewStream(p => ({ ...p, scheduled_at: e.target.value }))} />
+              </div>
+              <div>
+                <Label className="mb-1.5 block text-xs font-bold text-muted-foreground">{isRtl ? "تاريخ انتهاء عرض البث" : "Stream Expiry Date"}</Label>
+                <Input type="date" value={newStream.expires_at} onChange={e => setNewStream(p => ({ ...p, expires_at: e.target.value }))} />
+              </div>
+            </div>
+
+            <Button
+              onClick={handleCreateStream}
+              disabled={savingStream}
+              className="w-full font-black h-11 text-sm bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white rounded-xl shadow-md gap-2"
+            >
+              {savingStream ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>{isRtl ? "جارٍ إنشاء البث..." : "Creating Stream..."}</span>
+                </>
+              ) : (
+                <>
+                  <Radio className="w-4 h-4" />
+                  <span>{isRtl ? "إطلاق وإنشاء البث الآن" : "Launch Stream Now"}</span>
+                </>
+              )}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

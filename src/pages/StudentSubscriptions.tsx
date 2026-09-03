@@ -307,7 +307,7 @@ const StudentSubscriptions = () => {
                 )}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate mt-0.5">
-                {tText("اشتراكات الطلاب", "Student Subscriptions")}
+                {tText("تسجيل الطلاب", "Student Registration")}
               </p>
             </div>
           </div>

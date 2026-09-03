@@ -1884,7 +1884,7 @@ ${exams.map((s: any, i: number) => `<tr>
                     schedules: { ar: "الجداول الدراسية", en: "Schedules" },
                     departments: { ar: "الأقسام الأكاديمية", en: "Academic Departments" },
                     faculty: { ar: "أعضاء هيئة التدريس", en: "Faculty Members" },
-                    students: { ar: "تسجيل وبيانات الطلاب", en: "Student Directory" },
+                    students: { ar: "تسجيل الطلاب", en: "Student Registration" },
                     quizresults: { ar: "نتائج الاختبارات", en: "Quiz Results" },
                     livestreams: { ar: "المحاضرات والبث المباشر", en: "Live Lectures" },
                   };

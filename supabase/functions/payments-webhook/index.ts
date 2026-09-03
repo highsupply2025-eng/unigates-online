@@ -49,7 +49,7 @@ async function applyInstitutionBusinessLogic(params: {
     .eq("institution_id", institutionId)
     .eq("institution_type", institutionType);
 
-  const departmentIds = (departments ?? []).map((d: { id: string }) => d.id);
+  const departmentIds = ((departments ?? []) as { id: string }[]).map((d) => d.id);
   if (departmentIds.length === 0) return;
 
   const { data: members } = await supabase

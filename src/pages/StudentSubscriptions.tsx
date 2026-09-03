@@ -20,6 +20,9 @@ import { getInstitutionMenuItems } from "@/components/institutionMenuItems";
 import { useToast } from "@/hooks/use-toast";
 import { useInstitutionIdentity } from "@/hooks/useInstitutionIdentity";
 import { StudentSubscriptionCheckoutDialog } from "@/components/subscriptions/StudentSubscriptionCheckoutDialog";
+import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import ThemeToggle from "@/components/ThemeToggle";
+import ugLogo from "@/assets/ug-logo.png";
 
 export const FREE_TIER_LIMIT = 100;
 
@@ -272,53 +275,61 @@ const StudentSubscriptions = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col transition-colors duration-300" dir={isRtl ? "rtl" : "ltr"}>
-      {/* 1. Header */}
-      <header className="border-b border-border/80 px-4 sm:px-6 py-4 bg-card/80 dark:bg-card/70 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between shadow-xs">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-400 via-emerald-500 to-cyan-500 flex items-center justify-center text-white shadow-xl shadow-teal-500/25 shrink-0 ring-2 ring-primary/20">
-            <GraduationCap className="w-7 h-7" strokeWidth={2.3} />
-          </div>
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-base sm:text-xl font-black text-foreground">
-                {identity?.institutionType === "institute"
-                  ? tText("لوحة إدارة المعهد — اشتراكات الطلاب", "Institute Student Subscriptions")
-                  : tText("لوحة إدارة الكلية — اشتراكات الطلاب", "College Student Subscriptions")}
-              </h1>
-              <Badge className={`text-[10px] font-black px-2.5 py-0.5 ${
-                isCapacityExceeded
-                  ? "bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30"
-                  : "bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/30"
-              }`}>
-                {isCapacityExceeded
-                  ? tText("⚠️ تجاوزت السعة المجانية (100)", "Capacity Exceeded (>100)")
-                  : tText("🟢 الباقة المجانية (100 طالب)", "Free Tier (100 Students)")}
-              </Badge>
+    <div className="min-h-screen bg-background flex flex-col institution-admin-scope transition-colors duration-300" dir={dir}>
+      {/* Header */}
+      <header className="border-b border-primary/20 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+            <div className="relative shrink-0">
+              <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl overflow-hidden shadow-xl shadow-teal-500/25 p-0.5 bg-gradient-to-br from-teal-400 via-teal-600 to-indigo-600 flex items-center justify-center hover:scale-105 transition-transform">
+                <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-[14px]" />
+              </div>
+              <span className="absolute -top-1 -end-1 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-teal-500" />
+              </span>
             </div>
-            <p className="text-xs text-muted-foreground mt-0.5 font-medium">
-              {tText(
-                "متابعة حالة تفعيل حسابات الطلاب، وتجديد الاشتراكات عبر Stripe و Paddle",
-                "Manage student activation status, renewals & checkout via Stripe and Paddle"
-              )}
-            </p>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-base sm:text-xl font-black text-foreground truncate">
+                  {identity?.institutionType === "institute"
+                    ? tText("لوحة إدارة المعهد", "Institute Administration")
+                    : tText("لوحة إدارة الكلية", "College Administration")}
+                </h1>
+                {subscriptionPlan && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+                    {subscriptionPlan === "free"
+                      ? tText("الخطة المجانية", "Free Plan")
+                      : subscriptionPlan === "monthly"
+                      ? tText("الخطة الشهرية", "Monthly Plan")
+                      : tText("الخطة السنوية", "Annual Plan")}
+                  </span>
+                )}
+              </div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate mt-0.5">
+                {tText("اشتراكات الطلاب", "Student Subscriptions")}
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-2">
-          <DashboardMenuDropdown
-            title={identity?.institutionType === "institute" ? tText("لوحة المعهد", "Institute Panel") : tText("لوحة الكلية", "College Panel")}
-            onLanguageToggle={toggleLanguage}
-            showNotifications={false}
-            onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
-            items={getInstitutionMenuItems({
-              isRtl,
-              language,
-              activeKey: "subscriptions",
-              onTabChange: (tab) => navigate(`/institution/dashboard?tab=${tab}`),
-              onNavigate: (path) => navigate(path),
-            })}
-          />
+          <div className="flex items-center gap-2 shrink-0">
+            <LanguageSelectorDropdown className="h-9 px-2.5 sm:px-3 text-xs bg-background/60 border-primary/20" />
+            <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
+
+            <DashboardMenuDropdown
+              title={identity?.institutionType === "institute" ? tText("لوحة المعهد", "Institute Panel") : tText("لوحة الكلية", "College Panel")}
+              onLanguageToggle={toggleLanguage}
+              showNotifications={false}
+              onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
+              items={getInstitutionMenuItems({
+                isRtl,
+                language,
+                activeKey: "subscriptions",
+                onTabChange: (tab) => navigate(`/institution/dashboard?tab=${tab}`),
+                onNavigate: (path) => navigate(path),
+              })}
+            />
+          </div>
         </div>
       </header>
 

@@ -21,6 +21,7 @@ import { toast } from "@/hooks/use-toast";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
+import ugLogo from "@/assets/ug-logo.png";
 import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 import { useInstitutionStats } from "@/hooks/useInstitutionStats";
 
@@ -273,12 +274,12 @@ const InstitutionProfile = () => {
     : tText("الخطة السنوية", "Annual Plan");
 
   const headerNode = (
-    <header className="border-b border-border/80 px-3 sm:px-6 py-3.5 bg-card/80 dark:bg-card/70 backdrop-blur-xl sticky top-0 z-30 shadow-xs">
+    <header className="border-b border-primary/20 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
           <div className="relative shrink-0">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-400 via-emerald-500 to-cyan-500 flex items-center justify-center text-white shadow-xl shadow-teal-500/25 ring-2 ring-primary/20">
-              <Landmark className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.3} />
+            <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl overflow-hidden shadow-xl shadow-teal-500/25 p-0.5 bg-gradient-to-br from-teal-400 via-teal-600 to-indigo-600 flex items-center justify-center hover:scale-105 transition-transform">
+              <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-[14px]" />
             </div>
             <span className="absolute -top-1 -end-1 flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
@@ -291,18 +292,18 @@ const InstitutionProfile = () => {
               <h1 className="text-base sm:text-xl font-black text-foreground truncate">
                 {institutionType === "institute" ? tText("لوحة إدارة المعهد", "Institute Administration") : tText("لوحة إدارة الكلية", "College Administration")}
               </h1>
-              <Badge className="bg-primary/10 text-primary border-primary/20 font-black text-[10px] sm:text-xs">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary/10 text-primary border border-primary/20">
                 {planName}
-              </Badge>
+              </span>
             </div>
             <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate mt-0.5">
-              {tText("بيانات الحساب وتعديل الملف الأكاديمي", "Account Information & Academic Profile")}
+              {tText("بيانات الحساب", "Account Information")}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <LanguageSelectorDropdown className="h-9 px-2.5 sm:px-3 text-xs" />
+          <LanguageSelectorDropdown className="h-9 px-2.5 sm:px-3 text-xs bg-background/60 border-primary/20" />
           <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
           <DashboardMenuDropdown
             title={institutionType === "institute" ? tText("لوحة المعهد", "Institute Panel") : tText("لوحة الكلية", "College Panel")}
@@ -324,7 +325,7 @@ const InstitutionProfile = () => {
 
   if (loading || !data) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col" dir={dir}>
+      <div className="min-h-screen bg-background text-foreground flex flex-col institution-admin-scope transition-colors duration-300" dir={dir}>
         {headerNode}
         <div className="flex-1 flex flex-col items-center justify-center py-24 space-y-4">
           <div className="relative">
@@ -341,7 +342,7 @@ const InstitutionProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col transition-colors duration-300" dir={dir}>
+    <div className="min-h-screen bg-background text-foreground flex flex-col institution-admin-scope transition-colors duration-300" dir={dir}>
       {headerNode}
 
       <main className="max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8 w-full flex-1">

@@ -526,15 +526,24 @@ export const CreateLectureView = ({
 
         const { error: videoUpErr } = await supabase.storage
           .from("course-content")
-          .upload(videoPath, videoPayload, { contentType });
+          .upload(videoPath, videoPayload, { contentType, upsert: true });
 
-        if (!videoUpErr) {
+        if (videoUpErr) {
+          console.error("Episode video upload error:", videoUpErr);
+          toast({
+            title: isRtl ? "تنبيه في رفع الفيديو" : "Video Upload Warning",
+            description: isRtl
+              ? "تم حفظ بيانات المحاضرة ولكن تعذر رفع الفيديو بسبب مشكلة في التخزين. يمكنك رفع الفيديو لاحقاً من قائمة المحاضرات."
+              : "Course created, but video upload failed. You can re-upload it later.",
+            variant: "destructive",
+          });
+        } else {
           const { data: vidUrlData } = supabase.storage.from("course-content").getPublicUrl(videoPath);
           const finalVideoUrl = vidUrlData?.publicUrl || null;
 
           if (finalVideoUrl) {
             const calculatedMinutes = Math.max(1, Math.round(videoDurationSeconds / 60));
-            await supabase.from("course_episodes").insert({
+            const { error: epInsertErr } = await supabase.from("course_episodes").insert({
               course_id: insertedCourseId,
               title_ar: newCourse.title_ar,
               title_en: newCourse.title_en,
@@ -544,9 +553,11 @@ export const CreateLectureView = ({
               is_free: newCourse.is_free,
               level_number: 1,
             } as any);
+
+            if (epInsertErr) {
+              console.error("Episode insert error:", epInsertErr);
+            }
           }
-        } else {
-          console.warn("Episode video upload error:", videoUpErr);
         }
       }
 

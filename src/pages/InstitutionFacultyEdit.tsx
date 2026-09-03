@@ -28,6 +28,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import ugLogo from "@/assets/ug-logo.png";
 
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
 const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -674,38 +677,69 @@ const InstitutionFacultyEdit = () => {
     else navigate("/institution/dashboard?tab=faculty");
   };
 
-  const labelCls = "flex items-center gap-2 text-base sm:text-lg font-extrabold text-foreground";
-  const iconCls = "w-5 h-5 sm:w-6 sm:h-6 text-primary";
-  const inputCls = "h-12 text-base border-2 border-primary/30 focus-visible:border-primary focus-visible:ring-primary/30 bg-card";
-  const triggerCls = "h-12 text-base border-2 border-primary/30 focus:border-primary focus:ring-primary/30 bg-card font-semibold";
+  const labelCls = "flex items-center gap-2 text-sm sm:text-base font-bold text-foreground";
+  const iconCls = "w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0";
+  const inputCls = "h-11 text-sm sm:text-base border-2 border-border focus-visible:border-primary focus-visible:ring-primary/30 bg-background/80 rounded-xl";
+  const triggerCls = "h-11 text-sm sm:text-base border-2 border-border focus:border-primary focus:ring-primary/30 bg-background/80 rounded-xl font-medium";
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-primary/10">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-10 h-10 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div dir={dir} className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-primary/10">
-      <header className="border-b-2 border-primary/30 bg-gradient-to-l from-primary/25 via-primary/10 to-card shadow-lg sticky top-0 z-10 backdrop-blur">
-        <div className="container mx-auto px-4 py-5 flex items-center justify-between gap-3">
-          <h1 className="text-2xl sm:text-3xl font-black text-foreground flex items-center gap-3 min-w-0">
-            <span className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-xl shadow-primary/40 shrink-0">
-              <UserPlus className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.6} />
-            </span>
-            <span className="truncate tracking-tight">{isRtl ? "تعديل بيانات العضو" : "Edit Member"}</span>
-          </h1>
-          <Button size="icon" variant="default" className="shadow-lg shadow-primary/40 shrink-0 w-11 h-11" onClick={attemptCancel} aria-label={isRtl ? "رجوع" : "Back"}>
-            {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
-          </Button>
+    <div dir={dir} className="min-h-screen bg-background text-foreground flex flex-col institution-admin-scope transition-colors duration-300">
+      {/* Unified UNIGATES Header */}
+      <header className="border-b border-primary/20 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent sticky top-0 z-30 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+            <div className="relative shrink-0">
+              <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl overflow-hidden shadow-xl shadow-teal-500/25 p-0.5 bg-gradient-to-br from-teal-400 via-teal-600 to-indigo-600 flex items-center justify-center hover:scale-105 transition-transform">
+                <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-[14px]" />
+              </div>
+              <span className="absolute -top-1 -end-1 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-teal-500" />
+              </span>
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap min-w-0">
+                <h1 className="text-base sm:text-xl font-black text-foreground truncate">
+                  {isRtl ? "تعديل بيانات عضو هيئة التدريس" : "Edit Faculty Member"}
+                </h1>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+                  {institutionType === "college" ? (isRtl ? "إدارة الكلية" : "College Admin") : (isRtl ? "إدارة المعهد" : "Institute Admin")}
+                </span>
+              </div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate mt-0.5">
+                {institutionName || (institutionType === "college" ? (isRtl ? "لوحة إدارة الكلية" : "College Administration") : (isRtl ? "لوحة إدارة المعهد" : "Institute Administration"))}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <LanguageSelectorDropdown className="h-9 px-2.5 sm:px-3 text-xs bg-background/60 border-primary/20" />
+            <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-9 px-3.5 rounded-xl font-bold text-xs bg-background/80 hover:bg-muted border-border text-foreground shadow-xs gap-1.5 transition-all"
+              onClick={attemptCancel}
+              aria-label={isRtl ? "رجوع" : "Back"}
+            >
+              {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+              <span className="hidden sm:inline">{isRtl ? "رجوع" : "Back"}</span>
+            </Button>
+          </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-3 sm:py-5">
+      <main className="max-w-7xl mx-auto w-full px-3 sm:px-6 py-4 sm:py-6 flex-1">
         <form onSubmit={handleSubmit}>
-          <Card className="border-2 border-primary/30 max-w-4xl mx-auto shadow-2xl shadow-primary/10 bg-gradient-to-br from-card via-card to-primary/5">
+          <Card className="border border-border/80 max-w-4xl mx-auto shadow-xl bg-card/95 rounded-3xl">
             <CardContent className="p-4 sm:p-6 space-y-5">
               {/* Photo */}
               <div className="flex flex-col items-center gap-2">

@@ -529,10 +529,10 @@ export default function InstitutionMessages() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white" dir={dir}>
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground institution-admin-scope" dir={dir}>
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-10 h-10 animate-spin text-teal-400" />
-          <p className="text-sm font-bold text-slate-300">
+          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+          <p className="text-sm font-bold text-muted-foreground">
             {isRtl ? "جاري تحميل مركز التواصل..." : "Loading Communication Hub..."}
           </p>
         </div>
@@ -541,7 +541,7 @@ export default function InstitutionMessages() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col institution-admin-scope transition-colors duration-300 overflow-hidden" dir={dir}>
+    <div className="min-h-screen bg-background text-foreground flex flex-col institution-admin-scope transition-colors duration-300 overflow-hidden" dir={dir}>
       {/* Hidden File Upload Inputs */}
       <input
         ref={fileInputRef}
@@ -572,13 +572,13 @@ export default function InstitutionMessages() {
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-base sm:text-xl font-black text-white truncate">
+                <h1 className="text-base sm:text-xl font-black text-foreground truncate">
                   {institutionType === "institute"
                     ? (isRtl ? "لوحة إدارة المعهد" : "Institute Administration")
                     : (isRtl ? "لوحة إدارة الكلية" : "College Administration")}
                 </h1>
                 {subscriptionPlan && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary/10 text-primary border border-primary/20">
                     {subscriptionPlan === "free"
                       ? (isRtl ? "الخطة المجانية" : "Free Plan")
                       : subscriptionPlan === "monthly"
@@ -587,14 +587,14 @@ export default function InstitutionMessages() {
                   </span>
                 )}
               </div>
-              <p className="text-[10px] sm:text-xs text-slate-400 font-bold truncate mt-0.5">
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate mt-0.5">
                 {isRtl ? "التواصل والمراسلات" : "Messages & Communication"}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <LanguageSelectorDropdown className="h-9 px-2.5 sm:px-3 text-xs bg-slate-900/60 border-teal-500/20 text-white" />
+            <LanguageSelectorDropdown className="h-9 px-2.5 sm:px-3 text-xs bg-background/60 border-primary/20" />
             <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
 
             <DashboardMenuDropdown
@@ -620,16 +620,16 @@ export default function InstitutionMessages() {
       {/* 2. Main Chat Layout */}
       <div className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 grid md:grid-cols-12 gap-4 h-[calc(100vh-75px)] overflow-hidden">
         {/* Left/Right Sidebar: Contacts List (4 cols) */}
-        <Card className="md:col-span-4 flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-slate-900/80 backdrop-blur-2xl shadow-2xl">
+        <Card className="md:col-span-4 flex flex-col overflow-hidden rounded-3xl border border-border/80 bg-card/95 dark:bg-slate-900/80 backdrop-blur-2xl shadow-xl shadow-black/5 dark:shadow-2xl">
           {/* Search Contacts */}
-          <div className="p-3.5 border-b border-white/10 space-y-3 bg-slate-950/40">
+          <div className="p-3.5 border-b border-border/70 space-y-3 bg-muted/40 dark:bg-slate-950/40">
             <div className="relative">
-              <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={isRtl ? "بحث في جهات الاتصال أو الأقسام..." : "Search contacts or departments..."}
-                className="ps-9 h-10 rounded-2xl bg-slate-900 border-white/10 text-xs text-white placeholder:text-slate-500 focus-visible:ring-teal-500/30 focus-visible:border-teal-500"
+                className="ps-9 h-10 rounded-2xl bg-background border-border/80 text-xs text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/30 focus-visible:border-primary"
               />
             </div>
 
@@ -640,11 +640,11 @@ export default function InstitutionMessages() {
                 className={`px-2.5 py-1 rounded-xl text-[11px] font-black transition-all duration-200 flex items-center gap-1 ${
                   selectedCategory === "all"
                     ? "bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-md shadow-teal-500/25 ring-1 ring-white/20"
-                    : "bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-white/5"
+                    : "bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/60"
                 }`}
               >
                 <span>{isRtl ? "الكل" : "All"}</span>
-                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-black/25 opacity-90">
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-black/25 opacity-90 text-white">
                   {contacts.length}
                 </span>
               </button>
@@ -654,7 +654,7 @@ export default function InstitutionMessages() {
                 className={`px-2.5 py-1 rounded-xl text-[11px] font-black transition-all duration-200 flex items-center gap-1 ${
                   selectedCategory === "admin"
                     ? "bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-md shadow-teal-500/25 ring-1 ring-white/20"
-                    : "bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-white/5"
+                    : "bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/60"
                 }`}
               >
                 <span>{isRtl ? "العمادة والإدارة" : "Administration"}</span>
@@ -665,7 +665,7 @@ export default function InstitutionMessages() {
                 className={`px-2.5 py-1 rounded-xl text-[11px] font-black transition-all duration-200 flex items-center gap-1 ${
                   selectedCategory === "heads"
                     ? "bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-md shadow-teal-500/25 ring-1 ring-white/20"
-                    : "bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-white/5"
+                    : "bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/60"
                 }`}
               >
                 <span>{isRtl ? "رؤساء الأقسام" : "Dept Heads"}</span>
@@ -676,7 +676,7 @@ export default function InstitutionMessages() {
                 className={`px-2.5 py-1 rounded-xl text-[11px] font-black transition-all duration-200 flex items-center gap-1 ${
                   selectedCategory === "faculty"
                     ? "bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-md shadow-teal-500/25 ring-1 ring-white/20"
-                    : "bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-white/5"
+                    : "bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/60"
                 }`}
               >
                 <span>{isRtl ? "أعضاء التدريس" : "Faculty"}</span>
@@ -687,7 +687,7 @@ export default function InstitutionMessages() {
                 className={`px-2.5 py-1 rounded-xl text-[11px] font-black transition-all duration-200 flex items-center gap-1 ${
                   selectedCategory === "staff"
                     ? "bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-md shadow-teal-500/25 ring-1 ring-white/20"
-                    : "bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-white/5"
+                    : "bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/60"
                 }`}
               >
                 <span>{isRtl ? "الكادر المساعد" : "Staff"}</span>
@@ -698,7 +698,7 @@ export default function InstitutionMessages() {
           {/* Contacts List */}
           <CardContent className="flex-1 overflow-y-auto p-2 space-y-1.5">
             {filteredContacts.length === 0 ? (
-              <div className="text-center py-12 text-slate-500 space-y-2">
+              <div className="text-center py-12 text-muted-foreground space-y-2">
                 <Users className="w-10 h-10 mx-auto opacity-40" />
                 <p className="text-xs font-bold">
                   {isRtl ? "لا توجد جهات اتصال مطابقة للبحث" : "No contacts matching search"}
@@ -713,41 +713,41 @@ export default function InstitutionMessages() {
                     onClick={() => setSelected(c)}
                     className={`w-full text-start p-3 rounded-2xl border transition-all flex items-center gap-3 ${
                       isSelected
-                        ? "bg-gradient-to-r from-teal-500/20 to-emerald-500/20 border-teal-500/50 text-white shadow-lg"
-                        : "bg-slate-900/40 hover:bg-white/5 border-white/5 text-slate-300"
+                        ? "bg-gradient-to-r from-teal-500/15 via-emerald-500/15 to-teal-500/10 dark:from-teal-500/25 dark:to-emerald-500/25 border-primary/40 text-foreground shadow-md"
+                        : "bg-background/50 hover:bg-muted/60 border-border/50 text-foreground"
                     }`}
                   >
                     {/* Avatar */}
                     <div className="relative shrink-0">
-                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-teal-500/30 to-emerald-500/30 border border-white/10 flex items-center justify-center text-teal-300 font-black text-sm overflow-hidden">
+                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-teal-500/20 to-emerald-500/20 border border-primary/20 flex items-center justify-center text-primary font-black text-sm overflow-hidden">
                         {c.photo_url ? (
                           <img src={c.photo_url} alt={c.full_name} className="w-full h-full object-cover" />
                         ) : c.isAdmin ? (
-                          <ShieldCheck className="w-5 h-5 text-teal-400" />
+                          <ShieldCheck className="w-5 h-5 text-primary" />
                         ) : (
                           c.full_name.charAt(0)
                         )}
                       </div>
                       {c.isOnline && (
-                        <span className="absolute -bottom-0.5 -end-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-slate-900" />
+                        <span className="absolute -bottom-0.5 -end-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-background" />
                       )}
                     </div>
 
                     {/* Info */}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-1">
-                        <p className="font-black text-xs sm:text-sm text-white truncate">
+                        <p className="font-black text-xs sm:text-sm text-foreground truncate">
                           {c.full_name}
                         </p>
                       </div>
                       <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className={`text-[11px] truncate ${isSelected ? "text-teal-300 font-bold" : "text-slate-400"}`}>
+                        <span className={`text-[11px] truncate ${isSelected ? "text-primary font-bold" : "text-muted-foreground"}`}>
                           {roleLabel(c.specific_role, isCollege, isRtl)}
                         </span>
                         {c.department_name && (
                           <>
-                            <span className="text-slate-600 text-[10px]">•</span>
-                            <span className="text-[10px] text-slate-500 truncate">{c.department_name}</span>
+                            <span className="text-muted-foreground/60 text-[10px]">•</span>
+                            <span className="text-[10px] text-muted-foreground truncate">{c.department_name}</span>
                           </>
                         )}
                       </div>
@@ -760,17 +760,17 @@ export default function InstitutionMessages() {
         </Card>
 
         {/* Central Chat Area (8 cols) */}
-        <Card className="md:col-span-8 flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-slate-900/80 backdrop-blur-2xl shadow-2xl">
+        <Card className="md:col-span-8 flex flex-col overflow-hidden rounded-3xl border border-border/80 bg-card/95 dark:bg-slate-900/80 backdrop-blur-2xl shadow-xl shadow-black/5 dark:shadow-2xl">
           {!selected ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-8 space-y-4">
-              <div className="w-20 h-20 rounded-3xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 shadow-xl shadow-teal-500/10">
+              <div className="w-20 h-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-xl shadow-primary/10">
                 <MessageSquare className="w-10 h-10" />
               </div>
               <div className="space-y-1.5 max-w-sm">
-                <h2 className="text-lg font-black text-white">
+                <h2 className="text-lg font-black text-foreground">
                   {isRtl ? "اختر جهة اتصال لبدء المحادثة" : "Select a contact to begin"}
                 </h2>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   {isRtl
                     ? "يمكنك إجراء محادثات فورية، تسجيل رسائل صوتية، ومكالمات فيديو عالية الدقة مع أعضاء هيئة التدريس والإدارة."
                     : "Conduct instant chat, send voice notes, and start HD video/audio calls with faculty & administration."}
@@ -780,28 +780,28 @@ export default function InstitutionMessages() {
           ) : (
             <>
               {/* Active Contact Header */}
-              <div className="p-3 sm:p-4 px-5 border-b border-white/10 bg-slate-950/50 backdrop-blur flex items-center justify-between gap-3">
+              <div className="p-3 sm:p-4 px-5 border-b border-border/70 bg-muted/40 dark:bg-slate-950/50 backdrop-blur flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="relative shrink-0">
-                    <div className="w-10 h-10 rounded-2xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-300 font-black text-sm overflow-hidden">
+                    <div className="w-10 h-10 rounded-2xl bg-teal-500/20 border border-primary/30 flex items-center justify-center text-primary font-black text-sm overflow-hidden">
                       {selected.photo_url ? (
                         <img src={selected.photo_url} alt={selected.full_name} className="w-full h-full object-cover" />
                       ) : (
                         selected.full_name.charAt(0)
                       )}
                     </div>
-                    <span className="absolute -bottom-0.5 -end-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-slate-900" />
+                    <span className="absolute -bottom-0.5 -end-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-background" />
                   </div>
 
                   <div className="min-w-0">
-                    <h2 className="text-sm sm:text-base font-black text-white truncate flex items-center gap-1.5">
+                    <h2 className="text-sm sm:text-base font-black text-foreground truncate flex items-center gap-1.5">
                       {selected.full_name}
-                      <Badge className="bg-teal-500/15 text-teal-300 border border-teal-500/30 text-[10px] font-bold py-0">
+                      <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] font-bold py-0">
                         {roleLabel(selected.specific_role, isCollege, isRtl)}
                       </Badge>
                     </h2>
-                    <p className="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       {isRtl ? "متصل الآن" : "Online"}
                     </p>
                   </div>
@@ -814,7 +814,7 @@ export default function InstitutionMessages() {
                     onClick={() => startCall("audio")}
                     variant="outline"
                     size="icon"
-                    className="h-10 w-10 rounded-2xl border-white/20 bg-white/5 hover:bg-emerald-500/20 hover:border-emerald-500/40 text-emerald-400 shadow-sm"
+                    className="h-10 w-10 rounded-2xl border-border/80 bg-background/80 hover:bg-emerald-500/10 hover:border-emerald-500/40 text-emerald-600 dark:text-emerald-400 shadow-sm"
                     title={isRtl ? "مكالمة صوتية" : "Voice Call"}
                   >
                     <Phone className="w-4 h-4" />
@@ -835,7 +835,7 @@ export default function InstitutionMessages() {
                     variant="ghost"
                     size="icon"
                     onClick={() => setShowChatSearch(!showChatSearch)}
-                    className="h-10 w-10 rounded-2xl text-slate-400 hover:text-white"
+                    className="h-10 w-10 rounded-2xl text-muted-foreground hover:text-foreground border border-border/80 bg-background/60"
                   >
                     <Search className="w-4 h-4" />
                   </Button>
@@ -844,19 +844,19 @@ export default function InstitutionMessages() {
 
               {/* Chat Search Bar */}
               {showChatSearch && (
-                <div className="p-2.5 px-4 bg-slate-950/90 border-b border-white/10 flex items-center gap-2 animate-fade-in">
-                  <Search className="w-4 h-4 text-slate-400" />
+                <div className="p-2.5 px-4 bg-muted/60 dark:bg-slate-950/90 border-b border-border/70 flex items-center gap-2 animate-fade-in">
+                  <Search className="w-4 h-4 text-muted-foreground" />
                   <Input
                     value={chatSearch}
                     onChange={(e) => setChatSearch(e.target.value)}
                     placeholder={isRtl ? "بحث داخل هذه المحادثة..." : "Search inside conversation..."}
-                    className="h-8 text-xs bg-slate-900 border-white/10"
+                    className="h-8 text-xs bg-background border-border/80 text-foreground"
                   />
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => { setShowChatSearch(false); setChatSearch(""); }}
-                    className="h-8 w-8 text-slate-400 hover:text-white"
+                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
                   >
                     <X className="w-3.5 h-3.5" />
                   </Button>
@@ -864,10 +864,10 @@ export default function InstitutionMessages() {
               )}
 
               {/* Messages Feed */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-slate-950/30">
+              <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-muted/20 dark:bg-slate-950/30">
                 {filteredMessages.length === 0 ? (
-                  <div className="text-center py-16 text-slate-500 space-y-2">
-                    <Sparkles className="w-8 h-8 mx-auto text-teal-400/40" />
+                  <div className="text-center py-16 text-muted-foreground space-y-2">
+                    <Sparkles className="w-8 h-8 mx-auto text-primary/40" />
                     <p className="text-xs font-bold">
                       {isRtl ? "لا توجد رسائل سابقة. ابدأ المحادثة الآن!" : "No messages yet. Say hello!"}
                     </p>
@@ -883,10 +883,10 @@ export default function InstitutionMessages() {
                         className={`flex flex-col ${isMe ? "items-end" : "items-start"} group animate-fade-in`}
                       >
                         <div
-                          className={`relative max-w-[85%] sm:max-w-[70%] rounded-3xl p-3.5 shadow-lg ${
+                          className={`relative max-w-[85%] sm:max-w-[70%] rounded-3xl p-3.5 shadow-md ${
                             isMe
                               ? "bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-br-sm shadow-teal-500/10"
-                              : "bg-slate-900/90 border border-white/10 text-slate-100 rounded-bl-sm"
+                              : "bg-card dark:bg-slate-900 border border-border/80 text-card-foreground rounded-bl-sm"
                           }`}
                         >
                           {/* 1. Text Message */}
@@ -910,7 +910,7 @@ export default function InstitutionMessages() {
                             <div className="space-y-2">
                               <div
                                 onClick={() => setLightboxImage(parsed.url!)}
-                                className="rounded-2xl overflow-hidden cursor-pointer border border-white/15 hover:opacity-90 transition-opacity max-h-64"
+                                className="rounded-2xl overflow-hidden cursor-pointer border border-border/80 hover:opacity-90 transition-opacity max-h-64"
                               >
                                 <img
                                   src={parsed.url}
@@ -926,8 +926,8 @@ export default function InstitutionMessages() {
 
                           {/* 4. Document / File */}
                           {parsed.type === "file" && parsed.url && (
-                            <div className="flex items-center gap-3 p-2 rounded-2xl bg-black/20 border border-white/10">
-                              <div className="w-10 h-10 rounded-xl bg-teal-500/20 flex items-center justify-center text-teal-300 shrink-0">
+                            <div className="flex items-center gap-3 p-2 rounded-2xl bg-black/10 dark:bg-black/20 border border-border/60">
+                              <div className="w-10 h-10 rounded-xl bg-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-300 shrink-0">
                                 <FileText className="w-5 h-5" />
                               </div>
                               <div className="min-w-0 flex-1">
@@ -939,7 +939,7 @@ export default function InstitutionMessages() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 download
-                                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white shrink-0 transition-colors"
+                                className="p-2 rounded-xl bg-muted hover:bg-muted/80 text-foreground shrink-0 transition-colors"
                               >
                                 <Download className="w-4 h-4" />
                               </a>
@@ -949,7 +949,7 @@ export default function InstitutionMessages() {
                           {/* 5. Call Log */}
                           {parsed.type === "call_log" && (
                             <div className="flex items-center gap-2.5 py-1">
-                              <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                              <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                                 {parsed.callType === "video" ? <Video className="w-4 h-4" /> : <Phone className="w-4 h-4" />}
                               </div>
                               <div className="text-xs">
@@ -981,8 +981,8 @@ export default function InstitutionMessages() {
 
                 {/* Remote User Typing Indicator */}
                 {remoteTyping && (
-                  <div className="flex items-center gap-2 text-xs font-bold text-teal-400 animate-pulse">
-                    <span className="w-2 h-2 rounded-full bg-teal-400" />
+                  <div className="flex items-center gap-2 text-xs font-bold text-teal-600 dark:text-teal-400 animate-pulse">
+                    <span className="w-2 h-2 rounded-full bg-teal-500" />
                     <span>{isRtl ? `${selected.full_name} يكتب الآن...` : `${selected.full_name} is typing...`}</span>
                   </div>
                 )}
@@ -991,7 +991,7 @@ export default function InstitutionMessages() {
               </div>
 
               {/* Bottom Input Area */}
-              <div className="p-3 border-t border-white/10 bg-slate-950/80 backdrop-blur space-y-2">
+              <div className="p-3 border-t border-border/70 bg-muted/40 dark:bg-slate-950/80 backdrop-blur space-y-2">
                 {/* Quick Replies Drawer */}
                 {showQuickReplies && (
                   <QuickRepliesBar
@@ -1017,26 +1017,26 @@ export default function InstitutionMessages() {
                           variant="ghost"
                           size="icon"
                           disabled={uploadingMedia}
-                          className="h-10 w-10 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white shrink-0"
+                          className="h-10 w-10 rounded-2xl border border-border/80 bg-background hover:bg-muted text-muted-foreground hover:text-foreground shrink-0"
                           title={isRtl ? "إرفاق ملفات أو صور" : "Attach files or photos"}
                         >
                           {uploadingMedia ? <Loader2 className="w-4 h-4 animate-spin" /> : <Paperclip className="w-4 h-4" />}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent side="top" className="w-48 p-2 rounded-2xl bg-slate-900 border-white/15 text-white shadow-2xl">
+                      <PopoverContent side="top" className="w-48 p-2 rounded-2xl bg-popover border-border text-popover-foreground shadow-2xl">
                         <div className="space-y-1">
                           <button
                             onClick={() => imageInputRef.current?.click()}
-                            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold hover:bg-white/10 text-start text-slate-200 hover:text-teal-300 transition-colors"
+                            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold hover:bg-muted text-start text-foreground hover:text-primary transition-colors"
                           >
-                            <ImageIcon className="w-4 h-4 text-teal-400" />
+                            <ImageIcon className="w-4 h-4 text-teal-500" />
                             <span>{isRtl ? "إرسال صورة" : "Photos & Images"}</span>
                           </button>
                           <button
                             onClick={() => fileInputRef.current?.click()}
-                            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold hover:bg-white/10 text-start text-slate-200 hover:text-teal-300 transition-colors"
+                            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold hover:bg-muted text-start text-foreground hover:text-primary transition-colors"
                           >
-                            <FileText className="w-4 h-4 text-emerald-400" />
+                            <FileText className="w-4 h-4 text-emerald-500" />
                             <span>{isRtl ? "إرسال مستند / ملف" : "Document or File"}</span>
                           </button>
                         </div>
@@ -1049,19 +1049,19 @@ export default function InstitutionMessages() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-10 w-10 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white shrink-0"
+                          className="h-10 w-10 rounded-2xl border border-border/80 bg-background hover:bg-muted text-muted-foreground hover:text-foreground shrink-0"
                           title="Emojis"
                         >
                           <Smile className="w-4 h-4" />
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent side="top" className="w-64 p-3 rounded-2xl bg-slate-900 border-white/15 shadow-2xl">
+                      <PopoverContent side="top" className="w-64 p-3 rounded-2xl bg-popover border-border text-popover-foreground shadow-2xl">
                         <div className="grid grid-cols-6 gap-2">
                           {EMOJI_LIST.map((emoji) => (
                             <button
                               key={emoji}
                               onClick={() => handleInputChange(input + emoji)}
-                              className="w-8 h-8 flex items-center justify-center text-lg rounded-xl hover:bg-white/10 transition-transform active:scale-125"
+                              className="w-8 h-8 flex items-center justify-center text-lg rounded-xl hover:bg-muted transition-transform active:scale-125"
                             >
                               {emoji}
                             </button>
@@ -1077,8 +1077,8 @@ export default function InstitutionMessages() {
                       onClick={() => setShowQuickReplies(!showQuickReplies)}
                       className={`h-10 w-10 rounded-2xl border shrink-0 transition-colors ${
                         showQuickReplies
-                          ? "bg-teal-500 text-white border-teal-400"
-                          : "border-white/10 bg-white/5 hover:bg-white/10 text-slate-300"
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "border-border/80 bg-background hover:bg-muted text-muted-foreground hover:text-foreground"
                       }`}
                       title={isRtl ? "ردود سريعة جاهزة" : "Quick replies"}
                     >
@@ -1091,7 +1091,7 @@ export default function InstitutionMessages() {
                       onChange={(e) => handleInputChange(e.target.value)}
                       placeholder={isRtl ? "اكتب رسالتك هنا..." : "Type your message..."}
                       onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSendText()}
-                      className="h-10 rounded-2xl bg-slate-900 border-white/10 text-xs sm:text-sm text-white placeholder:text-slate-500 focus-visible:ring-teal-500/30 focus-visible:border-teal-500"
+                      className="h-10 rounded-2xl bg-background border-border/80 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/30 focus-visible:border-primary"
                     />
 
                     {/* Voice Recording Button OR Send Button */}
@@ -1108,7 +1108,7 @@ export default function InstitutionMessages() {
                       <Button
                         onClick={() => setIsRecordingVoice(true)}
                         size="icon"
-                        className="h-10 w-10 rounded-2xl bg-teal-500/20 hover:bg-teal-500/30 border border-teal-500/40 text-teal-400 shrink-0"
+                        className="h-10 w-10 rounded-2xl bg-teal-500/15 hover:bg-teal-500/25 border border-primary/30 text-primary shrink-0"
                         title={isRtl ? "تسجيل رسالة صوتية" : "Record voice note"}
                       >
                         <Mic className="w-4 h-4" />

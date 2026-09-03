@@ -83,8 +83,8 @@ export const AudioMessagePlayer: React.FC<AudioMessagePlayerProps> = ({
     <div
       className={`flex items-center gap-3 p-2.5 rounded-2xl min-w-[240px] max-w-[320px] select-none ${
         isMe
-          ? "bg-teal-700/60 text-white border border-white/20"
-          : "bg-slate-900/80 text-white border border-white/10 dark:bg-slate-950/80"
+          ? "bg-teal-700/80 text-white border border-white/20 shadow-sm"
+          : "bg-muted/70 dark:bg-slate-900/80 text-foreground dark:text-white border border-border/80 dark:border-white/10"
       }`}
       dir="ltr"
     >
@@ -103,7 +103,7 @@ export const AudioMessagePlayer: React.FC<AudioMessagePlayerProps> = ({
       </button>
 
       {/* Waveform & Scrubber */}
-      <div className="flex-1 flex flex-col justify-center gap-1.5 min-w-0">
+      <div className="flex-1 flex flex-col justify-center gap-1.5 min-w-0 relative">
         {/* Animated Sound Wave Bars */}
         <div className="flex items-center gap-[3px] h-5 px-1">
           {Array.from({ length: 24 }).map((_, i) => {
@@ -115,8 +115,8 @@ export const AudioMessagePlayer: React.FC<AudioMessagePlayerProps> = ({
                 style={{ height: `${height}px` }}
                 className={`w-[3px] rounded-full transition-all duration-150 ${
                   isPassed
-                    ? isMe ? "bg-white" : "bg-teal-400"
-                    : isMe ? "bg-white/40" : "bg-slate-600"
+                    ? isMe ? "bg-white" : "bg-teal-500"
+                    : isMe ? "bg-white/40" : "bg-muted-foreground/30"
                 } ${isPlaying && isPassed ? "animate-pulse" : ""}`}
               />
             );
@@ -130,7 +130,7 @@ export const AudioMessagePlayer: React.FC<AudioMessagePlayerProps> = ({
           max={totalDuration || 1}
           value={currentTime}
           onChange={handleSeek}
-          className="w-full h-1 bg-transparent appearance-none cursor-pointer accent-teal-400 opacity-0 hover:opacity-100 transition-opacity absolute inset-0"
+          className="w-full h-1 bg-transparent appearance-none cursor-pointer accent-teal-500 opacity-0 hover:opacity-100 transition-opacity absolute inset-0"
         />
 
         {/* Time and speed */}
@@ -146,7 +146,7 @@ export const AudioMessagePlayer: React.FC<AudioMessagePlayerProps> = ({
         className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono font-black shrink-0 transition-colors ${
           isMe
             ? "bg-white/20 hover:bg-white/30 text-white"
-            : "bg-white/10 hover:bg-white/20 text-teal-300"
+            : "bg-background/80 hover:bg-muted text-primary border border-border/60"
         }`}
         title="Playback Speed"
       >

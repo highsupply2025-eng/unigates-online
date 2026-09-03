@@ -51,11 +51,11 @@ export const QuickRepliesBar: React.FC<QuickRepliesBarProps> = ({
 }) => {
   return (
     <div
-      className="p-3 bg-slate-900/95 border border-teal-500/30 rounded-2xl shadow-2xl backdrop-blur-2xl animate-scale-in mb-2"
+      className="p-3 bg-card/95 dark:bg-slate-900/95 border border-border dark:border-teal-500/30 rounded-2xl shadow-2xl backdrop-blur-2xl animate-scale-in mb-2"
       dir={isRtl ? "rtl" : "ltr"}
     >
-      <div className="flex items-center justify-between pb-2 border-b border-white/10 mb-2">
-        <div className="flex items-center gap-2 text-teal-400">
+      <div className="flex items-center justify-between pb-2 border-b border-border/60 mb-2">
+        <div className="flex items-center gap-2 text-primary">
           <Sparkles className="w-4 h-4" />
           <span className="text-xs font-black">
             {isRtl ? "الردود الأكاديمية والرسمية السريعة" : "Quick Academic & Official Templates"}
@@ -65,7 +65,7 @@ export const QuickRepliesBar: React.FC<QuickRepliesBarProps> = ({
           variant="ghost"
           size="icon"
           onClick={onClose}
-          className="h-6 w-6 rounded-full text-slate-400 hover:text-white"
+          className="h-6 w-6 rounded-full text-muted-foreground hover:text-foreground"
         >
           <X className="w-3.5 h-3.5" />
         </Button>
@@ -74,7 +74,7 @@ export const QuickRepliesBar: React.FC<QuickRepliesBarProps> = ({
       <div className="space-y-3 max-h-52 overflow-y-auto pr-1">
         {QUICK_TEMPLATES.map((cat, idx) => (
           <div key={idx} className="space-y-1.5">
-            <span className="text-[11px] font-black text-slate-400 block px-1">
+            <span className="text-[11px] font-black text-muted-foreground block px-1">
               {isRtl ? cat.category.ar : cat.category.en}
             </span>
             <div className="flex flex-wrap gap-1.5">
@@ -87,7 +87,7 @@ export const QuickRepliesBar: React.FC<QuickRepliesBarProps> = ({
                       onSelectReply(text);
                       onClose();
                     }}
-                    className="text-xs text-start font-semibold px-3 py-1.5 rounded-xl bg-white/5 hover:bg-teal-500/20 hover:border-teal-500/40 border border-white/10 text-slate-200 hover:text-teal-300 transition-colors"
+                    className="text-xs text-start font-semibold px-3 py-1.5 rounded-xl bg-muted/60 hover:bg-teal-500/15 hover:border-primary/40 border border-border/80 text-foreground hover:text-primary transition-colors"
                   >
                     {text}
                   </button>

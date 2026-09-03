@@ -148,7 +148,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 
   return (
     <div
-      className="flex items-center justify-between gap-3 w-full bg-slate-900/90 dark:bg-slate-950 border border-teal-500/30 rounded-2xl p-2 px-4 shadow-lg backdrop-blur-xl animate-fade-in"
+      className="flex items-center justify-between gap-3 w-full bg-card dark:bg-slate-950 border border-border dark:border-teal-500/30 rounded-2xl p-2 px-4 shadow-lg backdrop-blur-xl animate-fade-in"
       dir={isRtl ? "rtl" : "ltr"}
     >
       {/* Recording status & timer */}
@@ -157,10 +157,10 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-rose-500"></span>
         </span>
-        <span className="font-mono font-black text-sm text-white">
+        <span className="font-mono font-black text-sm text-foreground">
           {formatSeconds(seconds)}
         </span>
-        <span className="text-xs font-bold text-slate-400 hidden sm:inline">
+        <span className="text-xs font-bold text-muted-foreground hidden sm:inline">
           {isRtl ? "جاري تسجيل رسالة صوتية..." : "Recording voice note..."}
         </span>
       </div>

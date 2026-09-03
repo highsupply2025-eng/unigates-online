@@ -15,6 +15,10 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { getInstitutionMenuItems } from "@/components/institutionMenuItems";
+import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import ThemeToggle from "@/components/ThemeToggle";
+import ugLogo from "@/assets/ug-logo.png";
+import { useInstitutionIdentity } from "@/hooks/useInstitutionIdentity";
 import {
   Contact, Message, RichMessageData, parseMessageContent,
   serializeMessage, formatFileSize, formatSeconds
@@ -67,9 +71,11 @@ const roleLabel = (role: string, isCollege: boolean, isRtl: boolean) => {
 };
 
 export default function InstitutionMessages() {
-  const { language, dir, toggleLanguage } = useLanguage();
+  const { language, dir, toggleLanguage, tText } = useLanguage();
   const isRtl = dir === "rtl";
   const navigate = useNavigate();
+  const { identity } = useInstitutionIdentity({ redirectOnMissing: false });
+  const subscriptionPlan = identity?.subscriptionPlan ?? "free";
 
   // Basic States
   const [loading, setLoading] = useState(true);
@@ -526,7 +532,7 @@ export default function InstitutionMessages() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col overflow-hidden" dir={dir}>
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col institution-admin-scope transition-colors duration-300 overflow-hidden" dir={dir}>
       {/* Hidden File Upload Inputs */}
       <input
         ref={fileInputRef}
@@ -542,42 +548,63 @@ export default function InstitutionMessages() {
         onChange={(e) => handleFileUpload(e, true)}
       />
 
-      {/* 1. Modern Top Header */}
-      <header className="border-b border-white/10 px-4 sm:px-6 py-3.5 bg-slate-900/90 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-teal-400 via-emerald-500 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-teal-500/25">
-            <MessageSquare className="w-5 h-5" strokeWidth={2.4} />
+      {/* Header */}
+      <header className="border-b border-primary/20 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+            <div className="relative shrink-0">
+              <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl overflow-hidden shadow-xl shadow-teal-500/25 p-0.5 bg-gradient-to-br from-teal-400 via-teal-600 to-indigo-600 flex items-center justify-center hover:scale-105 transition-transform">
+                <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-[14px]" />
+              </div>
+              <span className="absolute -top-1 -end-1 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-teal-500" />
+              </span>
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-base sm:text-xl font-black text-white truncate">
+                  {institutionType === "institute"
+                    ? (isRtl ? "لوحة إدارة المعهد" : "Institute Administration")
+                    : (isRtl ? "لوحة إدارة الكلية" : "College Administration")}
+                </h1>
+                {subscriptionPlan && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                    {subscriptionPlan === "free"
+                      ? (isRtl ? "الخطة المجانية" : "Free Plan")
+                      : subscriptionPlan === "monthly"
+                      ? (isRtl ? "الخطة الشهرية" : "Monthly Plan")
+                      : (isRtl ? "الخطة السنوية" : "Annual Plan")}
+                  </span>
+                )}
+              </div>
+              <p className="text-[10px] sm:text-xs text-slate-400 font-bold truncate mt-0.5">
+                {isRtl ? "التواصل والمراسلات" : "Messages & Communication"}
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-              {isRtl ? "مركز التواصل الأكاديمي المباشر" : "Academic Communication Hub"}
-              <Badge className="bg-teal-500/20 text-teal-300 border border-teal-500/40 text-[10px] font-black hidden sm:inline-flex">
-                <ShieldCheck className="w-3 h-3 me-1 inline" />
-                {isRtl ? "قناة مشفرة" : "Encrypted"}
-              </Badge>
-            </h1>
-            <p className="text-xs text-slate-400">
-              {isRtl ? "محادثات نصية ومكالمات فيديو وصوت ومشاركة ملفات فورية" : "HD Video/Audio Calls, Voice Notes & Instant Messaging"}
-            </p>
-          </div>
-        </div>
 
-        <div className="flex items-center gap-2.5">
-          <DashboardMenuDropdown
-            title={institutionType === "institute" ? (isRtl ? "لوحة المعهد" : "Institute Panel") : (isRtl ? "لوحة الكلية" : "College Panel")}
-            onLanguageToggle={toggleLanguage}
-            showNotifications={false}
-            onLogout={async () => {
-              await supabase.auth.signOut();
-              navigate("/university-platform");
-            }}
-            items={getInstitutionMenuItems({
-              isRtl,
-              activeKey: "messages",
-              onTabChange: (tab) => navigate(`/institution/dashboard?tab=${tab}`),
-              onNavigate: (path) => navigate(path),
-            })}
-          />
+          <div className="flex items-center gap-2 shrink-0">
+            <LanguageSelectorDropdown className="h-9 px-2.5 sm:px-3 text-xs bg-slate-900/60 border-teal-500/20 text-white" />
+            <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
+
+            <DashboardMenuDropdown
+              title={institutionType === "institute" ? (isRtl ? "لوحة المعهد" : "Institute Panel") : (isRtl ? "لوحة الكلية" : "College Panel")}
+              onLanguageToggle={toggleLanguage}
+              showNotifications={false}
+              onLogout={async () => {
+                await supabase.auth.signOut();
+                navigate("/university-platform");
+              }}
+              items={getInstitutionMenuItems({
+                isRtl,
+                language,
+                activeKey: "messages",
+                onTabChange: (tab) => navigate(`/institution/dashboard?tab=${tab}`),
+                onNavigate: (path) => navigate(path),
+              })}
+            />
+          </div>
         </div>
       </header>
 

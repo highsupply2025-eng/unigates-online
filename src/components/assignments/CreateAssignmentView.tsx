@@ -297,81 +297,73 @@ export const CreateAssignmentView: React.FC<CreateAssignmentViewProps> = ({
 
       // Build sequential approval chain
       const approvalChain = selectedReviewerIds.map((rUserId, idx) => {
-        const rev = availableReviewers.find((r) => r.user_id === rUserId);
-        return {
-          step_order: idx + 1,
-          user_id: rUserId,
-          name: isRtl ? rev?.full_name_ar : rev?.full_name_en,
-          role: rev?.role || "faculty",
-          title: isRtl ? rev?.role_title_ar : rev?.role_title_en,
-          approved: false,
-          approved_at: null,
-          rejected: false,
-          rejection_reason: null,
-        };
-      });
+    setLoading(true);
+    try {
+      // 1. Upload pending files/images to supabase storage
+      const fileUrls: string[] = [];
+      const fileNames: string[] = [];
+      const imageUrls: string[] = [];
 
-      // Add Fixed Final Dean Step
-      approvalChain.push({
-        step_order: approvalChain.length + 1,
-        user_id: "dean-final",
-        name: deanTitle,
-        role: "dean",
-        title: deanTitle,
-        approved: false,
-        approved_at: null,
-        rejected: false,
-        rejection_reason: null,
-      });
+      for (const item of uploadedFiles) {
+        const ext = item.name.split(".").pop() || "dat";
+        const cleanName = item.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const filePath = `assignments/${userId}/${Date.now()}_${cleanName}`;
 
-      // Call Safe RPC
-      const { data: rpcRes, error: rpcErr } = await (supabase.rpc as any)("create_assignment_with_approval_chain", {
-        p_course_id: selectedCourseId,
-        p_title_ar: titleAr.trim(),
-        p_title_en: titleEn.trim() || titleAr.trim(),
-        p_description_ar: descriptionAr.trim() || null,
-        p_description_en: descriptionEn.trim() || null,
-        p_due_date: combinedDueDate,
-        p_points: points || 10,
-        p_department_id: selectedDeptId || null,
-        p_file_urls: fileUrls,
-        p_file_names: fileNames,
-        p_image_urls: imageUrls,
-        p_approval_reviewers: approvalChain,
-      });
+        const { error: upErr } = await supabase.storage
+          .from("course-materials")
+          .upload(filePath, item.file, { upsert: true });
 
-      if (rpcErr) {
-        // Fallback direct insert
-        const { error: insErr } = await (supabase.from("assignments") as any).insert({
-          course_id: selectedCourseId,
-          creator_id: userId,
-          title_ar: titleAr.trim(),
-          title_en: titleEn.trim() || titleAr.trim(),
-          description_ar: descriptionAr.trim() || null,
-          description_en: descriptionEn.trim() || null,
-          due_date: combinedDueDate,
-          points: points || 10,
-          department_id: selectedDeptId || null,
-          file_url: fileUrls[0] || null,
-          file_name: fileNames[0] || null,
-          file_urls: fileUrls,
-          file_names: fileNames,
-          image_urls: imageUrls,
-          approval_reviewers: approvalChain,
-          approved_by_head: false,
-          approved_by_vice_dean: false,
-          approved_by_dean: false,
-          is_published: false,
-        });
+        if (upErr) {
+          console.warn("Could not upload to course-materials, trying direct url:", upErr);
+        }
 
-        if (insErr) throw insErr;
+        const { data: { publicUrl } } = supabase.storage
+          .from("course-materials")
+          .getPublicUrl(filePath);
+
+        const isImg = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/jpg"].includes(item.type) ||
+          ["png", "jpg", "jpeg", "webp", "gif"].includes(ext.toLowerCase());
+
+        if (isImg) {
+          imageUrls.push(publicUrl);
+        } else {
+          fileUrls.push(publicUrl);
+          fileNames.push(item.name);
+        }
       }
 
+      const combinedDueDate = dueDate ? `${dueDate}T${dueTime || "23:59"}:00Z` : null;
+
+      // Direct publish assignment without approvals
+      const { error: insErr } = await (supabase.from("assignments") as any).insert({
+        course_id: selectedCourseId,
+        creator_id: userId,
+        title_ar: titleAr.trim(),
+        title_en: titleEn.trim() || titleAr.trim(),
+        description_ar: descriptionAr.trim() || null,
+        description_en: descriptionEn.trim() || null,
+        due_date: combinedDueDate,
+        points: points || 10,
+        department_id: selectedDeptId || null,
+        file_url: fileUrls[0] || null,
+        file_name: fileNames[0] || null,
+        file_urls: fileUrls,
+        file_names: fileNames,
+        image_urls: imageUrls,
+        approval_reviewers: [],
+        approved_by_head: true,
+        approved_by_vice_dean: true,
+        approved_by_dean: true,
+        is_published: true,
+      });
+
+      if (insErr) throw insErr;
+
       toast({
-        title: isRtl ? "تم إرسال التكليف للاعتماد بنجاح" : "Assignment Submitted for Approval",
+        title: isRtl ? "تم نشر التكليف للطلاب بنجاح" : "Assignment Published Live to Students",
         description: isRtl
-          ? `تم حفظ التكليف وتوجيهه لسلسلة الاعتماد الأكاديمي حتى اعتماد ${deanTitle}.`
-          : "Assignment queued for academic review sequence.",
+          ? "تم حفظ التكليف ونشره مباشرة للطلاب بدون الحاجة لأي اعتماد."
+          : "Assignment published live directly for enrolled students.",
       });
 
       onCreated();
@@ -406,8 +398,8 @@ export const CreateAssignmentView: React.FC<CreateAssignmentViewProps> = ({
             </h2>
             <p className="text-xs font-bold text-muted-foreground">
               {isRtl
-                ? `إعداد التكليف ورفع الملفات والصور وتحديد سلسلة الاعتماد حتى اعتماد ${deanTitle}.`
-                : "Create assignment, attach documents/photos, and configure approval sequence."}
+                ? "إعداد التكليف ورفع الملفات والصور ونشره مباشرة للطلاب بدون الحاجة لاعتماد."
+                : "Create assignment, attach documents/photos, and publish directly to students."}
             </p>
           </div>
         </div>
@@ -422,12 +414,11 @@ export const CreateAssignmentView: React.FC<CreateAssignmentViewProps> = ({
         </Button>
       </div>
 
-      {/* 3-Step Wizard Navigation */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+      {/* 2-Step Wizard Navigation */}
+      <div className="grid grid-cols-2 gap-2 sm:gap-4">
         {[
           { num: 1, title: isRtl ? "بيانات التكليف" : "Assignment Info", desc: isRtl ? "المقرر والدرجات والموعد" : "Course, Points & Date" },
-          { num: 2, title: isRtl ? "رفع الملفات والصور" : "Files & Images", desc: isRtl ? "إرفاق المستندات والرسومات" : "Attach Docs & Photos" },
-          { num: 3, title: isRtl ? "سلسلة الاعتماد" : "Approval Chain", desc: isRtl ? `الوكلاء وأعضاء التدريس والعميد` : "Reviewers Sequence" },
+          { num: 2, title: isRtl ? "رفع الملفات والصور والنشر" : "Files & Publish", desc: isRtl ? "المستندات والنشر المباشر" : "Attach Docs & Publish" },
         ].map((s) => (
           <button
             key={s.num}
@@ -456,7 +447,6 @@ export const CreateAssignmentView: React.FC<CreateAssignmentViewProps> = ({
               <span className="text-xs sm:text-sm font-black text-foreground truncate">{s.title}</span>
             </div>
             <p className="text-[10px] sm:text-xs text-muted-foreground font-medium truncate hidden sm:block">{s.desc}</p>
-          </button>
         ))}
       </div>
 
@@ -706,192 +696,6 @@ export const CreateAssignmentView: React.FC<CreateAssignmentViewProps> = ({
                 type="button"
                 variant="outline"
                 onClick={() => setStep(1)}
-                className="rounded-xl font-bold"
-              >
-                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                <span>{isRtl ? "السابق" : "Back"}</span>
-              </Button>
-
-              <Button
-                type="button"
-                onClick={() => setStep(3)}
-                className="rounded-xl font-black px-6 gap-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-md hover:shadow-lg"
-              >
-                <span>{isRtl ? "المتابعة لسلسلة الاعتماد" : "Continue to Approval Chain"}</span>
-                {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Step 3: Approval Chain Selector */}
-      {step === 3 && (
-        <Card className="rounded-3xl border-2 border-border shadow-md">
-          <CardHeader className="border-b bg-muted/20 pb-4">
-            <CardTitle className="text-lg font-black flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-amber-600" />
-              <span>{isRtl ? "الخطوة 3: تحديد سلسلة الاعتماد الأكاديمي للتكليف" : "Step 3: Assignment Approval Chain"}</span>
-            </CardTitle>
-            <CardDescription className="font-bold text-xs">
-              {isRtl
-                ? `اختر المراجعين من وكلاء الكلية وأعضاء هيئة التدريس بالترتيب، مع اعتماد ${deanTitle} كمرحلة أخيرة لنشر التكليف للطلاب.`
-                : "Select reviewers sequence, with Dean fixed as final publishing authority."}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-6 space-y-6">
-            {/* Live Flowchart */}
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-red-500/10 border-2 border-amber-500/20 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black text-amber-800 dark:text-amber-200 flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4" />
-                  {isRtl ? "مسار سلسلة الموافقات المباشر" : "Live Approval Chain Flow"}
-                </span>
-                <Badge className="bg-amber-600 text-white font-black text-[10px]">
-                  {selectedReviewerIds.length + 2} {isRtl ? "مراحل اعتماد" : "Stages"}
-                </Badge>
-              </div>
-
-              <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-1">
-                {/* Creator */}
-                <div className="flex items-center gap-2 shrink-0">
-                  <div className="p-2.5 rounded-xl bg-card border-2 border-border text-center min-w-[120px] shadow-xs">
-                    <div className="text-[10px] font-bold text-muted-foreground">{isRtl ? "المعد (أنت)" : "Creator (You)"}</div>
-                    <div className="text-xs font-black text-foreground truncate">{isRtl ? "معد التكليف" : "Instructor"}</div>
-                    <span className="inline-block mt-1 text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
-                      {isRtl ? "جاهز للإرسال ✓" : "Ready ✓"}
-                    </span>
-                  </div>
-                  <ChevronRight className={`w-4 h-4 text-amber-500 ${isRtl ? "rotate-180" : ""}`} />
-                </div>
-
-                {/* Reviewers */}
-                {selectedReviewerIds.map((rId, idx) => {
-                  const rev = availableReviewers.find((r) => r.user_id === rId);
-                  return (
-                    <div key={rId} className="flex items-center gap-2 shrink-0">
-                      <div className="p-2.5 rounded-xl bg-card border-2 border-amber-500/40 text-center min-w-[140px] shadow-xs relative group">
-                        <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-amber-600 text-white text-[10px] font-black flex items-center justify-center">
-                          {idx + 1}
-                        </span>
-                        <div className="text-[10px] font-bold text-amber-700 dark:text-amber-300 truncate">
-                          {isRtl ? rev?.role_title_ar : rev?.role_title_en}
-                        </div>
-                        <div className="text-xs font-black text-foreground truncate">
-                          {isRtl ? rev?.full_name_ar : rev?.full_name_en}
-                        </div>
-                        <div className="flex items-center justify-center gap-1 mt-1.5">
-                          <button
-                            type="button"
-                            onClick={() => moveReviewerOrder(idx, "up")}
-                            disabled={idx === 0}
-                            className="p-1 rounded bg-muted hover:bg-muted/80 disabled:opacity-30 text-[9px]"
-                          >
-                            ▲
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => moveReviewerOrder(idx, "down")}
-                            disabled={idx === selectedReviewerIds.length - 1}
-                            className="p-1 rounded bg-muted hover:bg-muted/80 disabled:opacity-30 text-[9px]"
-                          >
-                            ▼
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => toggleReviewer(rId)}
-                            className="p-1 rounded bg-red-500/10 text-red-600 hover:bg-red-500/20 text-[9px]"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      </div>
-                      <ChevronRight className={`w-4 h-4 text-amber-500 ${isRtl ? "rotate-180" : ""}`} />
-                    </div>
-                  );
-                })}
-
-                {/* Final Step: Dean */}
-                <div className="shrink-0">
-                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border-2 border-emerald-500/50 text-center min-w-[140px] shadow-xs">
-                    <div className="text-[10px] font-black text-emerald-700 dark:text-emerald-300">{isRtl ? "المعتمد النهائي" : "Final Authority"}</div>
-                    <div className="text-xs font-black text-foreground truncate">{deanTitle}</div>
-                    <span className="inline-block mt-1 text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-500/30 text-emerald-800 dark:text-emerald-200">
-                      {isRtl ? "نشر التكليف للطلاب ✓" : "Publish to Students"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Selection Grid */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs font-black">{isRtl ? "قائمة الوكلاء وأعضاء هيئة التدريس المتاحين للاعتماد" : "Available Faculty & Vice Deans"}</Label>
-                <span className="text-xs font-bold text-muted-foreground">
-                  {isRtl ? `تم اختيار ${selectedReviewerIds.length} مراجعين` : `${selectedReviewerIds.length} selected`}
-                </span>
-              </div>
-
-              {loadingReviewers ? (
-                <div className="text-center py-8 text-muted-foreground font-bold text-xs">
-                  {isRtl ? "جاري تحميل قائمة أعضاء هيئة التدريس..." : "Loading faculty list..."}
-                </div>
-              ) : availableReviewers.length === 0 ? (
-                <div className="text-center py-6 text-muted-foreground text-xs font-bold border-2 border-dashed rounded-2xl">
-                  {isRtl ? "لا يوجد مراجعين مسجلين حالياً" : "No reviewers found"}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-72 overflow-y-auto p-1">
-                  {availableReviewers.map((rev) => {
-                    const isSel = selectedReviewerIds.includes(rev.user_id);
-                    const orderIndex = selectedReviewerIds.indexOf(rev.user_id) + 1;
-                    return (
-                      <div
-                        key={rev.user_id}
-                        onClick={() => toggleReviewer(rev.user_id)}
-                        className={`p-3 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between ${
-                          isSel
-                            ? "bg-amber-500/10 border-amber-600 shadow-sm"
-                            : "bg-card border-border hover:border-amber-300"
-                        }`}
-                      >
-                        <div className="min-w-0 flex-1">
-                          <div className="text-xs font-black text-foreground truncate">
-                            {isRtl ? rev.full_name_ar : rev.full_name_en}
-                          </div>
-                          <div className="text-[10px] font-bold text-amber-700 dark:text-amber-400 truncate">
-                            {isRtl ? rev.role_title_ar : rev.role_title_en}
-                          </div>
-                          {rev.department_name_ar && (
-                            <div className="text-[9px] text-muted-foreground font-medium truncate">
-                              {isRtl ? rev.department_name_ar : rev.department_name_en}
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="shrink-0 ms-2">
-                          {isSel ? (
-                            <span className="w-6 h-6 rounded-full bg-amber-600 text-white text-xs font-black flex items-center justify-center shadow-xs">
-                              {orderIndex}
-                            </span>
-                          ) : (
-                            <div className="w-5 h-5 rounded-md border-2 border-muted-foreground/40" />
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Bottom Actions */}
-            <div className="flex items-center justify-between pt-6 border-t border-border">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setStep(2)}
                 disabled={loading}
                 className="rounded-xl font-bold"
               >
@@ -908,8 +712,8 @@ export const CreateAssignmentView: React.FC<CreateAssignmentViewProps> = ({
                 <CheckCircle2 className="w-5 h-5" />
                 <span>
                   {loading
-                    ? (isRtl ? "جاري حفظ وتوجيه التكليف..." : "Submitting...")
-                    : (isRtl ? "اعتماد وإرسال التكليف للسلسلة" : "Submit Assignment to Approval Chain")}
+                    ? (isRtl ? "جاري حفظ ونشر التكليف..." : "Publishing...")
+                    : (isRtl ? "حفظ ونشر التكليف مباشرة للطلاب" : "Publish Assignment Directly")}
                 </span>
               </Button>
             </div>

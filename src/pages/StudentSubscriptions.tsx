@@ -4,7 +4,7 @@ import {
   Search, Users, GraduationCap, ChevronLeft, ChevronRight, ArrowUpDown,
   ArrowUp, ArrowDown, AlertTriangle, RefreshCw, CreditCard, Clock,
   Sparkles, CheckCircle2, ShieldCheck, Zap, Lock, AlertCircle,
-  HelpCircle, ArrowRight
+  HelpCircle, ArrowRight, Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -174,11 +174,10 @@ const StudentSubscriptions = () => {
     }
   }, []);
 
-  // Fetch only after identity is loaded
+  // Fetch students on mount and whenever dependencies change
   useEffect(() => {
-    if (!identity) return;
     fetchStudents();
-  }, [fetchStudents, identity]);
+  }, [fetchStudents]);
 
   // Debounce search input
   useEffect(() => {
@@ -494,7 +493,12 @@ const StudentSubscriptions = () => {
                   {isRtl ? "إعادة المحاولة" : "Retry"}
                 </Button>
               </div>
-            ) : !loading && data.length === 0 ? (
+            ) : loading && data.length === 0 ? (
+              <div className="p-16 text-center space-y-3 text-muted-foreground">
+                <Loader2 className="w-10 h-10 animate-spin mx-auto text-primary opacity-60" />
+                <p className="text-xs font-bold">{isRtl ? "جاري تحميل بيانات واشتراكات الطلاب..." : "Loading student subscriptions..."}</p>
+              </div>
+            ) : data.length === 0 ? (
               <div className="p-16 text-center space-y-3 text-muted-foreground">
                 <Users className="w-12 h-12 mx-auto opacity-40" />
                 <p className="text-xs sm:text-sm font-bold">

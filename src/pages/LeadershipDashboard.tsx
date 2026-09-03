@@ -1895,7 +1895,9 @@ const LeadershipDashboard = () => {
                     <Card className="rounded-3xl border-2 border-dashed border-border/80 bg-card/50 p-12 text-center space-y-3">
                       <Radio className="w-12 h-12 mx-auto text-muted-foreground/40 animate-pulse" />
                       <h4 className="font-bold text-base text-foreground">
-                        {isRtl ? "لا توجد بثوث مسجلة حالياً في الكلية / المعهد" : "No live streams registered currently"}
+                        {isRtl
+                          ? `لا توجد بثوث مسجلة حالياً في ${institutionType === "institute" ? "المعهد" : "الكلية"}`
+                          : `No live streams registered currently in this ${institutionType === "institute" ? "institute" : "college"}`}
                       </h4>
                       <p className="text-xs text-muted-foreground max-w-md mx-auto">
                         {isRtl

@@ -135,7 +135,7 @@ const SiteHeader = () => {
         </nav>
 
         {/* Right / Left Action Hub (Auth + Language Switcher) */}
-        <div className="hidden sm:flex items-center gap-2">
+        <div className="hidden lg:flex items-center gap-2">
           {/* Quick Sign In */}
           <Link to="/login" onMouseEnter={() => preloadRoute("/login")}>
             <Button

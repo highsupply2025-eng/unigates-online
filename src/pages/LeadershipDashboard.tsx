@@ -53,6 +53,8 @@ import { QuizResultsRosterView } from "@/components/quizzes/QuizResultsRosterVie
 import { QuizResultsApprovalsView } from "@/components/quizzes/QuizResultsApprovalsView";
 import { FacultyRatingsOverview } from "@/components/faculty/FacultyRatingsOverview";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import ugLogo from "@/assets/ug-logo.png";
 import { StudentLiveRatingModal } from "@/components/StudentLiveRatingModal";
 
 const LeadershipDashboard = () => {
@@ -1246,24 +1248,29 @@ const LeadershipDashboard = () => {
   const scheduledStreams = liveStreams.filter(s => s.status === "scheduled");
 
   return (
-    <div className="min-h-screen bg-background flex flex-col" dir={dir}>
+    <div className="min-h-screen bg-background flex flex-col institution-admin-scope transition-colors duration-300" dir={dir}>
       {/* Header */}
-      <header className="relative border-b-2 border-indigo-200/50 dark:border-indigo-900/50 px-3 sm:px-6 py-3.5 sm:py-5 sticky top-0 z-30 bg-gradient-to-r from-indigo-50 via-violet-50 to-fuchsia-50 dark:from-indigo-950/60 dark:via-violet-950/60 dark:to-fuchsia-950/60 backdrop-blur-xl shadow-md">
-        <div className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500 opacity-80" />
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2.5 sm:gap-4 min-w-0 flex-1 group">
-            <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-600 to-fuchsia-600 shadow-xl shadow-violet-500/40 flex items-center justify-center shrink-0 ring-2 ring-white/40 dark:ring-white/10 group-hover:scale-105 transition-all duration-300">
-              <Landmark className="w-6 h-6 sm:w-8 sm:h-8 text-white drop-shadow" strokeWidth={2.5} />
-              <span className="absolute -top-0.5 -end-0.5 w-2.5 h-2.5 rounded-full bg-amber-400 ring-2 ring-white dark:ring-background animate-pulse" />
+      <header className="border-b border-primary/20 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent sticky top-0 z-30 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+            <div className="relative shrink-0">
+              <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl overflow-hidden shadow-xl shadow-teal-500/25 p-0.5 bg-gradient-to-br from-teal-400 via-teal-600 to-indigo-600 flex items-center justify-center hover:scale-105 transition-transform">
+                <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-[14px]" />
+              </div>
+              <span className="absolute -top-1 -end-1 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-teal-500" />
+              </span>
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-lg sm:text-2xl font-black truncate tracking-tight bg-gradient-to-r from-indigo-700 via-violet-700 to-fuchsia-700 dark:from-indigo-300 dark:via-violet-300 dark:to-fuchsia-300 bg-clip-text text-transparent">{(() => {
-                const r = getRoleLabel();
-                if (r.ar || r.en) return isRtl ? `لوحة ${r.ar}` : `${r.en} Dashboard`;
-                return isRtl ? "لوحة القيادة" : "Leadership Dashboard";
-              })()}</h1>
-              <p className="text-xs sm:text-base font-bold truncate mt-0.5">
-                <span className="bg-gradient-to-r from-indigo-600 to-fuchsia-600 dark:from-indigo-300 dark:to-fuchsia-300 bg-clip-text text-transparent">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-base sm:text-xl font-black text-foreground truncate">{(() => {
+                  const r = getRoleLabel();
+                  if (r.ar || r.en) return isRtl ? `لوحة ${r.ar}` : `${r.en} Dashboard`;
+                  return isRtl ? "لوحة القيادة" : "Leadership Dashboard";
+                })()}</h1>
+              </div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate mt-0.5">
                 {(() => {
                    const isDeanOrViceDean = ["dean", "vice_dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community"].includes(userRole) || userRole.startsWith("vice_dean") || userRole === "dean";
                    const map: Record<string, { ar: string; en: string }> = {
@@ -1296,12 +1303,12 @@ const LeadershipDashboard = () => {
                    const cur = map[activeTab] ?? map.overview;
                    return isRtl ? cur.ar : cur.en;
                  })()}
-                </span>
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            <LanguageSelectorDropdown className="hidden sm:flex border-indigo-200/60 dark:border-indigo-800 text-foreground bg-white/40 dark:bg-black/20 hover:bg-white/60 shadow-xs" />
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <LanguageSelectorDropdown className="h-9 px-2.5 sm:px-3 text-xs bg-background/60 border-primary/20" />
+            <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
 
             {activeTab === "lectures" && lectureSubView !== "overview" ? (
               <Button

@@ -37,10 +37,12 @@ import { LiveActivityTrends } from "@/components/LiveActivityTrends";
 import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import RatingsBreakdown from "@/components/RatingsBreakdown";
-import { useSmartBack } from "@/hooks/use-smart-back";
 import { CreateLectureView } from "@/components/lectures/CreateLectureView";
 import { WatchOtherLecturesView } from "@/components/lectures/WatchOtherLecturesView";
 import { UploadFilesView } from "@/components/lectures/UploadFilesView";
+import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import ugLogo from "@/assets/ug-logo.png";
 
 const ROLE_LABELS: Record<string, { ar: string; en: string }> = {
   department_head: { ar: "رئيس القسم", en: "Department Head" },
@@ -1079,19 +1081,23 @@ const LecturerDashboard = () => {
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
 
   return (
-    <div className="min-h-screen bg-background" dir={dir}>
+    <div className="min-h-screen bg-background flex flex-col institution-admin-scope transition-colors duration-300" dir={dir}>
       {/* Header */}
-      <header className="relative border-b-2 border-cyan-200/50 dark:border-cyan-900/50 px-3 sm:px-6 py-3.5 sm:py-5 sticky top-0 z-30 bg-gradient-to-r from-cyan-50 via-teal-50 to-emerald-50 dark:from-cyan-950/60 dark:via-teal-950/60 dark:to-emerald-950/60 backdrop-blur-xl shadow-md">
-        <div className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 opacity-80" />
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-          <Link to="/lecturer/dashboard" className="flex items-center gap-2.5 sm:gap-4 min-w-0 flex-1 group">
-            <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-cyan-500 via-teal-600 to-emerald-600 shadow-xl shadow-teal-500/40 flex items-center justify-center shrink-0 ring-2 ring-white/40 dark:ring-white/10 group-hover:scale-105 group-hover:shadow-teal-500/60 transition-all duration-300">
-              <GraduationCap className="w-6 h-6 sm:w-8 sm:h-8 text-white drop-shadow" strokeWidth={2.5} />
-              <span className="absolute -top-0.5 -end-0.5 w-2.5 h-2.5 rounded-full bg-amber-400 ring-2 ring-white dark:ring-background animate-pulse" />
+      <header className="border-b border-primary/20 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent sticky top-0 z-30 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+          <Link to="/lecturer/dashboard" className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1 group">
+            <div className="relative shrink-0">
+              <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl overflow-hidden shadow-xl shadow-teal-500/25 p-0.5 bg-gradient-to-br from-teal-400 via-teal-600 to-indigo-600 flex items-center justify-center hover:scale-105 transition-transform">
+                <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-[14px]" />
+              </div>
+              <span className="absolute -top-1 -end-1 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-teal-500" />
+              </span>
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap min-w-0">
-                <h1 className="text-lg sm:text-2xl font-black truncate tracking-tight bg-gradient-to-r from-cyan-700 via-teal-700 to-emerald-700 dark:from-cyan-300 dark:via-teal-300 dark:to-emerald-300 bg-clip-text text-transparent">
+                <h1 className="text-base sm:text-xl font-black text-foreground truncate">
                   {isRtl ? "لوحة المحاضر" : "Lecturer Dashboard"}
                 </h1>
                 {jobRoleLabel && (
@@ -1100,9 +1106,7 @@ const LecturerDashboard = () => {
                   </span>
                 )}
               </div>
-              <p className="text-xs sm:text-base font-bold truncate mt-0.5">
-
-                <span className="bg-gradient-to-r from-cyan-600 to-emerald-600 dark:from-cyan-300 dark:to-emerald-300 bg-clip-text text-transparent">
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate mt-0.5">
                 {(() => {
                   const map: Record<string, { ar: string; en: string }> = {
                     home: { ar: "الرئيسية", en: "Home" },
@@ -1112,17 +1116,19 @@ const LecturerDashboard = () => {
                     assignments: { ar: "التكليفات", en: "Assignments" },
                     schedules: { ar: "الجداول", en: "Schedules" },
                     attendance: { ar: "الحضور", en: "Attendance" },
-                      analytics: { ar: "تحميل التقارير", en: "Export Reports" },
-                     "quiz-results": { ar: "نتائج الاختبارات", en: "Quiz Results" },
+                    analytics: { ar: "تحميل التقارير", en: "Export Reports" },
+                    "quiz-results": { ar: "نتائج الاختبارات", en: "Quiz Results" },
                   };
                   const cur = map[activeTab] ?? map.home;
                   return isRtl ? cur.ar : cur.en;
                 })()}
-                </span>
               </p>
             </div>
           </Link>
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <LanguageSelectorDropdown className="h-9 px-2.5 sm:px-3 text-xs bg-background/60 border-primary/20" />
+            <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
+
             {activeTab === "courses" && lectureSubView !== "overview" ? (
               <Button
                 variant="outline"

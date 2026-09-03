@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import ugLogo from "@/assets/ug-logo.png";
 import FacultyMemberProfile from "@/components/FacultyMemberProfile";
 
 const LeadershipProfile = () => {
@@ -84,24 +86,31 @@ const LeadershipProfile = () => {
   };
 
   const header = (
-    <header className="sticky top-0 z-40 w-full backdrop-blur-xl bg-background/80 border-b border-border/50 shadow-xs">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white shadow-md shrink-0">
-            <Landmark className="w-5 h-5 sm:w-5 sm:h-5" />
+    <header className="border-b border-primary/20 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent sticky top-0 z-40 backdrop-blur-xl">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+          <div className="relative shrink-0">
+            <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl overflow-hidden shadow-xl shadow-teal-500/25 p-0.5 bg-gradient-to-br from-teal-400 via-teal-600 to-indigo-600 flex items-center justify-center hover:scale-105 transition-transform">
+              <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-[14px]" />
+            </div>
+            <span className="absolute -top-1 -end-1 flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-teal-500" />
+            </span>
           </div>
           <div className="min-w-0 flex-1">
             <h1 className="text-base sm:text-xl font-black truncate text-foreground">
               {isRtl ? "بيانات الحساب الأكاديمي" : "Academic Account Information"}
             </h1>
-            <p className="text-xs text-muted-foreground font-bold truncate">
+            <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate mt-0.5">
               {getLeadershipTitle()}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <LanguageSelectorDropdown className="hidden sm:flex border-border/70 text-foreground bg-muted/40 hover:bg-muted" />
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <LanguageSelectorDropdown className="h-9 px-2.5 sm:px-3 text-xs bg-background/60 border-primary/20" />
+          <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
 
           <DashboardMenuDropdown
             title={getLeadershipTitle()}

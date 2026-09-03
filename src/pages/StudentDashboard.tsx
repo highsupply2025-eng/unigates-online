@@ -11,6 +11,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRealtimeRefresh } from "@/hooks/use-realtime-refresh";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useInstitutionIdentity } from "@/hooks/useInstitutionIdentity";
+import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import ugLogo from "@/assets/ug-logo.png";
 
 import BackButton from "@/components/BackButton";
 import { Sparkline, bucketByDay } from "@/components/Sparkline";
@@ -197,19 +200,27 @@ const StudentDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/10 to-primary/5">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 flex items-center justify-center shrink-0">
-              <GraduationCap className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+    <div className="min-h-screen bg-background flex flex-col institution-admin-scope transition-colors duration-300" dir={dir}>
+      <header className="border-b border-primary/20 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent sticky top-0 z-30 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+            <div className="relative shrink-0">
+              <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl overflow-hidden shadow-xl shadow-teal-500/25 p-0.5 bg-gradient-to-br from-teal-400 via-teal-600 to-indigo-600 flex items-center justify-center hover:scale-105 transition-transform">
+                <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-[14px]" />
+              </div>
+              <span className="absolute -top-1 -end-1 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-teal-500" />
+              </span>
             </div>
             <div className="min-w-0 flex-1">
               <h1 className="text-base sm:text-xl font-black text-foreground truncate">{isRtl ? "لوحة الطالب" : "Student Dashboard"}</h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">{isRtl ? "الرئيسية" : "Home"}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate mt-0.5">{isRtl ? "الرئيسية" : "Home"}</p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <LanguageSelectorDropdown className="h-9 px-2.5 sm:px-3 text-xs bg-background/60 border-primary/20" />
+            <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
             <DashboardMenuDropdown
               onLanguageToggle={toggleLanguage}
               onLogout={handleLogout}

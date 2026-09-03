@@ -278,5 +278,28 @@ html.is-native-app body {
     transform: translateY(-4px);
     box-shadow: 0 12px 40px hsl(0 0% 0% / 0.08);
   }
+
+  /* Suppress Lovable badge / overlay */
+  #lovable-badge,
+  .lovable-badge,
+  [id*="lovable-badge"],
+  [class*="lovable-badge"],
+  [data-lovable-badge],
+  a[href*="lovable.dev"],
+  a[href*="lovable.app"],
+  div:has(> a[href*="lovable.dev"]),
+  div:has(> a[href*="lovable.app"]) {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    z-index: -99999 !important;
+    transform: scale(0) !important;
+    position: absolute !important;
+    left: -99999px !important;
+    top: -99999px !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
 }
 

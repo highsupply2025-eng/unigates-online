@@ -81,9 +81,73 @@
     </script>
 
     <meta property="og:title" content="UNIGATES — Arabic &amp; English Educational Platform">
-  <meta name="twitter:title" content="UNIGATES — Arabic &amp; English Educational Platform">
-  <meta property="og:description" content="UNIGATES by Dar Obeid: online courses, a digital book store, and K-12 / university platforms for students, teachers, and institutions.">
-  <meta name="twitter:description" content="UNIGATES by Dar Obeid: online courses, a digital book store, and K-12 / university platforms for students, teachers, and institutions.">
+    <meta name="twitter:title" content="UNIGATES — Arabic &amp; English Educational Platform">
+    <meta property="og:description" content="UNIGATES by Dar Obeid: online courses, a digital book store, and K-12 / university platforms for students, teachers, and institutions.">
+    <meta name="twitter:description" content="UNIGATES by Dar Obeid: online courses, a digital book store, and K-12 / university platforms for students, teachers, and institutions.">
+
+    <!-- Suppress Lovable Badge / Overlay -->
+    <style>
+      #lovable-badge,
+      .lovable-badge,
+      [id*="lovable-badge"],
+      [class*="lovable-badge"],
+      [data-lovable-badge],
+      a[href*="lovable.dev"],
+      a[href*="lovable.app"],
+      div:has(> a[href*="lovable.dev"]),
+      div:has(> a[href*="lovable.app"]) {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        z-index: -99999 !important;
+        transform: scale(0) !important;
+        position: absolute !important;
+        left: -99999px !important;
+        top: -99999px !important;
+        width: 0 !important;
+        height: 0 !important;
+      }
+    </style>
+    <script>
+      (function () {
+        function removeLovable() {
+          try {
+            // Target by links/ids/classes
+            var els = document.querySelectorAll('a[href*="lovable.dev"], a[href*="lovable.app"], [id*="lovable-badge"], [class*="lovable-badge"], [data-lovable-badge]');
+            for (var i = 0; i < els.length; i++) {
+              var parent = els[i].closest('div[style*="fixed"], div[class*="fixed"], [id*="lovable"]') || els[i];
+              if (parent && parent.parentNode) {
+                parent.parentNode.removeChild(parent);
+              }
+            }
+            // Target by text content
+            var buttons = document.querySelectorAll('button, a, div');
+            for (var j = 0; j < buttons.length; j++) {
+              var text = (buttons[j].textContent || '').trim();
+              if (text.indexOf('Edit with') !== -1 && text.indexOf('Lovable') !== -1) {
+                var container = buttons[j].closest('div[style*="fixed"], div[class*="fixed"]') || buttons[j];
+                if (container && container.parentNode) {
+                  container.parentNode.removeChild(container);
+                }
+              }
+            }
+          } catch (e) {}
+        }
+        if (typeof document !== 'undefined') {
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', removeLovable);
+          } else {
+            removeLovable();
+          }
+          if (window.MutationObserver) {
+            var obs = new MutationObserver(removeLovable);
+            obs.observe(document.documentElement, { childList: true, subtree: true });
+          }
+          setInterval(removeLovable, 1000);
+        }
+      })();
+    </script>
 </head>
 
   <body>

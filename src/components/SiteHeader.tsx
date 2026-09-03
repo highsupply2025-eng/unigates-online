@@ -142,76 +142,12 @@ const SiteHeader = () => {
               type="button"
               size="sm"
               variant="outline"
-              className="h-9 px-3.5 rounded-xl font-bold text-xs bg-white/10 hover:bg-white/20 text-white border-white/20 shadow-xs backdrop-blur-md gap-1.5 transition-all"
+              className="h-9 px-4 rounded-xl font-bold text-xs bg-white/10 hover:bg-white/20 text-white border-white/20 shadow-xs backdrop-blur-md gap-1.5 transition-all"
             >
               <LogIn className="w-3.5 h-3.5" />
               <span>{t.login}</span>
             </Button>
           </Link>
-
-          {/* Quick Registration Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                type="button"
-                size="sm"
-                className="h-9 px-4 rounded-xl font-bold text-xs bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white shadow-md shadow-teal-500/25 gap-1.5 transition-all"
-                onMouseEnter={() => {
-                  preloadRoute("/signup/college/admin");
-                  preloadRoute("/signup/institute/admin");
-                  preloadRoute("/school-registration");
-                  preloadRoute("/signup");
-                }}
-              >
-                <UserPlus className="w-3.5 h-3.5" />
-                <span>{t.signup}</span>
-                <ChevronDown className="w-3 h-3 opacity-80" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align={isRtl ? "start" : "end"} className="w-60 p-1.5 bg-slate-950/95 backdrop-blur-xl border border-white/15 text-white shadow-2xl rounded-2xl z-50">
-              <DropdownMenuItem asChild className="cursor-pointer rounded-xl hover:bg-white/10 focus:bg-white/10 py-2.5">
-                <Link to="/signup/college/admin" className="flex items-center gap-2.5">
-                  <Landmark className="w-4 h-4 text-blue-400 shrink-0" />
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold">{t.header?.registerCollege || "تسجيل كلية جديدة"}</span>
-                    <span className="text-[10px] text-slate-400">{t.header?.registerCollegeSub || "إدارة الكليات"}</span>
-                  </div>
-                </Link>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem asChild className="cursor-pointer rounded-xl hover:bg-white/10 focus:bg-white/10 py-2.5">
-                <Link to="/signup/institute/admin" className="flex items-center gap-2.5">
-                  <Landmark className="w-4 h-4 text-indigo-400 shrink-0" />
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold">{t.header?.registerInstitute || "تسجيل معهد عالي"}</span>
-                    <span className="text-[10px] text-slate-400">{t.header?.registerInstituteSub || "إدارة المعاهد"}</span>
-                  </div>
-                </Link>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem asChild className="cursor-pointer rounded-xl hover:bg-white/10 focus:bg-white/10 py-2.5">
-                <Link to="/school-registration" className="flex items-center gap-2.5">
-                  <School className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold">{t.header?.registerSchool || "تسجيل مدرسة جديدة"}</span>
-                    <span className="text-[10px] text-slate-400">{t.header?.registerSchoolSub || "التعليم العام"}</span>
-                  </div>
-                </Link>
-              </DropdownMenuItem>
-
-              <DropdownMenuSeparator className="bg-white/10 my-1" />
-
-              <DropdownMenuItem asChild className="cursor-pointer rounded-xl hover:bg-white/10 focus:bg-white/10 py-2.5">
-                <Link to="/signup" className="flex items-center gap-2.5">
-                  <GraduationCap className="w-4 h-4 text-teal-400 shrink-0" />
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold">{tText("طالب / عضو هيئة تدريس", "Student / Faculty Member")}</span>
-                    <span className="text-[10px] text-slate-400">{tText("الجامعات والمعاهد الأكاديمية", "Higher Education Access")}</span>
-                  </div>
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
 
           {/* Multi-Language Selector Dropdown */}
           <LanguageSelectorDropdown />
@@ -267,13 +203,6 @@ const SiteHeader = () => {
               <Button size="sm" className="w-full justify-center gap-2 font-bold h-11 text-sm bg-white/10 text-white border border-white/15 hover:bg-white/20 rounded-xl">
                 <LogIn className="w-4 h-4" />
                 <span>{t.login}</span>
-              </Button>
-            </Link>
-
-            <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>
-              <Button size="sm" className="w-full justify-center gap-2 font-bold h-11 text-sm bg-gradient-to-r from-teal-500 to-emerald-600 text-white rounded-xl shadow-md">
-                <UserPlus className="w-4 h-4" />
-                <span>{t.header?.createNewAccount || t.signup}</span>
               </Button>
             </Link>
           </div>

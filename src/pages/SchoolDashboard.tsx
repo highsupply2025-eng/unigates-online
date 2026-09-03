@@ -23,6 +23,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 import { MiniBars } from "@/components/MiniBars";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
+import { LiveActivityTrends } from "@/components/LiveActivityTrends";
 import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { bucketByDay } from "@/components/Sparkline";
@@ -433,6 +434,16 @@ const SchoolDashboard = () => {
           </div>
         </div>
         <SectionsActivityChart
+          className="mb-8"
+          days={rangeDays}
+          sections={[
+            { label: isRtl ? "الفصول" : "Classes", Icon: Building2, palette: { from: "#3b82f6", to: "#2563eb", glow: "59,130,246" }, timestamps: departments.map((d: any) => d.created_at) },
+            { label: isRtl ? "الطلاب" : "Students", Icon: GraduationCap, palette: { from: "#22c55e", to: "#16a34a", glow: "34,197,94" }, timestamps: deptMembers.filter((m: any) => m.role === "student").map((m: any) => m.created_at) },
+            { label: isRtl ? "المعلمون" : "Teachers", Icon: UserCheck, palette: { from: "#f59e0b", to: "#d97706", glow: "245,158,11" }, timestamps: deptMembers.filter((m: any) => m.role === "lecturer" || m.role === "teacher").map((m: any) => m.created_at) },
+            { label: isRtl ? "المُفعّلون" : "Active", Icon: CheckCircle, palette: { from: "#a855f7", to: "#9333ea", glow: "168,85,247" }, timestamps: deptMembers.filter((m: any) => m.user_id).map((m: any) => m.created_at) },
+          ]}
+        />
+        <LiveActivityTrends
           className="mb-8"
           days={rangeDays}
           sections={[

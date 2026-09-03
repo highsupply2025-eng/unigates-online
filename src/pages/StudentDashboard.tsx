@@ -18,6 +18,7 @@ import { TrendIndicator } from "@/components/TrendIndicator";
 import { MiniBars } from "@/components/MiniBars";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
 import { StudentPillActivityChart } from "@/components/StudentPillActivityChart";
+import { LiveActivityTrends } from "@/components/LiveActivityTrends";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 
@@ -308,6 +309,16 @@ const StudentDashboard = () => {
                 </div>
               </div>
               <StudentPillActivityChart
+                className="mb-4 sm:mb-6"
+                days={rangeDays}
+                sections={visibleMenu.map((m) => ({
+                  label: m.label,
+                  Icon: m.Icon,
+                  palette: m.palette,
+                  timestamps: tsFor(m.to),
+                }))}
+              />
+              <LiveActivityTrends
                 className="mb-4 sm:mb-6"
                 days={rangeDays}
                 sections={visibleMenu.map((m) => ({

@@ -15,6 +15,7 @@ import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import BackButton from "@/components/BackButton";
 import TestAccountsPanel from "@/components/TestAccountsPanel";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
+import { LiveActivityTrends } from "@/components/LiveActivityTrends";
 import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -923,6 +924,22 @@ const AdminDashboard = () => {
               </div>
             </div>
             <SectionsActivityChart
+              className="mb-6"
+              days={rangeDays}
+              sections={[
+                { label: "Users", Icon: Users, color: "#3b82f6", timestamps: allUsers.map((u: any) => u.created_at || u.profile?.created_at) },
+                { label: "Lecturers", Icon: UserCheck, color: "#22c55e", timestamps: allUsers.filter((u: any) => u.role === "lecturer").map((u: any) => u.created_at || u.profile?.created_at) },
+                { label: "Schools", Icon: School, color: "#06b6d4", timestamps: schoolRegistrations.map((s: any) => s.created_at) },
+                { label: "Colleges", Icon: Landmark, color: "#6366f1", timestamps: colleges.map((c: any) => c.created_at) },
+                { label: "Institutes", Icon: Landmark, color: "#8b5cf6", timestamps: institutes.map((i: any) => i.created_at) },
+                { label: "Courses", Icon: BookOpen, color: "#f59e0b", timestamps: courses.map((c: any) => c.created_at) },
+                { label: "Books", Icon: BookMarked, color: "#ec4899", timestamps: books.map((b: any) => b.created_at) },
+                { label: "Orders", Icon: ShoppingCart, color: "#f97316", timestamps: bookOrders.map((o: any) => o.created_at) },
+                { label: "Subscriptions", Icon: CreditCard, color: "#14b8a6", timestamps: subscriptions.map((s: any) => s.created_at) },
+                { label: "Streams", Icon: Radio, color: "#ef4444", timestamps: liveStreams.map((s: any) => s.created_at || s.scheduled_at) },
+              ]}
+            />
+            <LiveActivityTrends
               className="mb-6"
               days={rangeDays}
               sections={[

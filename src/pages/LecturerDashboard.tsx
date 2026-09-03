@@ -33,6 +33,7 @@ import { TrendIndicator } from "@/components/TrendIndicator";
 import StudentHero from "@/components/StudentHero";
 import { MiniBars } from "@/components/MiniBars";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
+import { LiveActivityTrends } from "@/components/LiveActivityTrends";
 import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import RatingsBreakdown from "@/components/RatingsBreakdown";
@@ -1241,7 +1242,20 @@ const LecturerDashboard = () => {
                     { label: isRtl ? "الحضور" : "Attendance", timestamps: attendance.map((x: any) => x.joined_at || x.created_at), Icon: Users, palette: { from: "#14b8a6", to: "#0d9488", glow: "20,184,166" } },
                     { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", timestamps: quizSubmissions.map((x: any) => x.submitted_at || x.created_at), Icon: Award, palette: { from: "#6366f1", to: "#4f46e5", glow: "99,102,241" } },
                     { label: isRtl ? "تحميل التقارير" : "Reports", timestamps: attachments.map((x: any) => x.created_at), Icon: Download, palette: { from: "#22c55e", to: "#16a34a", glow: "34,197,94" } },
-                    
+                  ]}
+                />
+                <LiveActivityTrends
+                  className="mb-6"
+                  days={rangeDays}
+                  sections={[
+                    { label: isRtl ? "المحاضرات" : "Lectures", timestamps: courses.map((x: any) => x.created_at), Icon: Video, palette: { from: "#06b6d4", to: "#14b8a6", glow: "20,184,166" } },
+                    { label: isRtl ? "البث المباشر" : "Live Stream", timestamps: streams.map((x: any) => x.created_at || x.scheduled_at), Icon: Radio, palette: { from: "#ef4444", to: "#e11d48", glow: "239,68,68" } },
+                    { label: isRtl ? "الاختبارات" : "Online Tests", timestamps: quizzes.map((x: any) => x.created_at), Icon: HelpCircle, palette: { from: "#f59e0b", to: "#d97706", glow: "245,158,11" } },
+                    { label: isRtl ? "التكليفات" : "Assignments", timestamps: assignments.map((x: any) => x.created_at), Icon: ClipboardList, palette: { from: "#3b82f6", to: "#2563eb", glow: "59,130,246" } },
+                    { label: isRtl ? "الجداول" : "Schedules", timestamps: schedules.map((x: any) => x.created_at), Icon: Calendar, palette: { from: "#a855f7", to: "#9333ea", glow: "168,85,247" } },
+                    { label: isRtl ? "الحضور" : "Attendance", timestamps: attendance.map((x: any) => x.joined_at || x.created_at), Icon: Users, palette: { from: "#14b8a6", to: "#0d9488", glow: "20,184,166" } },
+                    { label: isRtl ? "نتائج الاختبارات" : "Quiz Results", timestamps: quizSubmissions.map((x: any) => x.submitted_at || x.created_at), Icon: Award, palette: { from: "#6366f1", to: "#4f46e5", glow: "99,102,241" } },
+                    { label: isRtl ? "تحميل التقارير" : "Reports", timestamps: attachments.map((x: any) => x.created_at), Icon: Download, palette: { from: "#22c55e", to: "#16a34a", glow: "34,197,94" } },
                   ]}
                 />
 

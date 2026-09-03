@@ -31,6 +31,7 @@ import { Sparkline, bucketByDay } from "@/components/Sparkline";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { MiniBars } from "@/components/MiniBars";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
+import { LiveActivityTrends } from "@/components/LiveActivityTrends";
 import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 
@@ -1529,6 +1530,24 @@ const LeadershipDashboard = () => {
 
                   {/* Sections Overview Chart (Pill Activity Chart) */}
                   <SectionsActivityChart
+                    className="mb-4 sm:mb-6"
+                    days={rangeDays}
+                    sections={[
+                      { label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, palette: { from: "#3b82f6", to: "#4f46e5", glow: "59,130,246" }, timestamps: episodes.map((e: any) => e.created_at) },
+                      { label: isRtl ? "البث المباشر" : "Live Streams", Icon: Radio, palette: { from: "#ef4444", to: "#e11d48", glow: "239,68,68" }, timestamps: liveStreams.map((s: any) => s.created_at || s.scheduled_at) },
+                      ...(isApprovalRole ? [
+                        { label: isRtl ? "اعتماد الاختبارات" : "Quizzes Approval", Icon: ShieldCheck, palette: { from: "#10b981", to: "#0d9488", glow: "16,185,129" }, timestamps: quizzes.map((q: any) => q.created_at) },
+                        { label: isRtl ? "اعتماد الجداول" : "Schedules Approval", Icon: Calendar, palette: { from: "#a855f7", to: "#c026d3", glow: "168,85,247" }, timestamps: lectureSchedules.map((s: any) => s.created_at) },
+                      ] : []),
+                      { label: isDeanOrViceDean ? (isRtl ? "اعتماد نتائج الاختبارات" : "Quiz Results Approval") : (isRtl ? "نتائج الاختبارات" : "Quiz Results"), Icon: Award, palette: { from: "#6366f1", to: "#9333ea", glow: "99,102,241" }, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
+                      ...(!isDeanOrViceDean ? [
+                        { label: isRtl ? "نتائج التكليفات" : "Assignment Results", Icon: ClipboardList, palette: { from: "#f97316", to: "#ea580c", glow: "249,115,22" }, timestamps: assignmentSubmissions.map((s: any) => s.submitted_at || s.created_at) },
+                      ] : []),
+                      { label: isDeanOrViceDean ? (isRtl ? "تقييمات أعضاء هيئة التدريس" : "Faculty Ratings") : (isRtl ? "تقييمات الطلاب" : "Student Ratings"), Icon: Star, palette: { from: "#eab308", to: "#d97706", glow: "234,179,8" }, timestamps: ratings.map((r: any) => r.created_at) },
+                    ]}
+                  />
+
+                  <LiveActivityTrends
                     className="mb-4 sm:mb-6"
                     days={rangeDays}
                     sections={[

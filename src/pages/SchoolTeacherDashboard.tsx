@@ -21,6 +21,7 @@ import BackButton from "@/components/BackButton";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
+import { LiveActivityTrends } from "@/components/LiveActivityTrends";
 import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { bucketByDay } from "@/components/Sparkline";
@@ -455,6 +456,16 @@ const SchoolTeacherDashboard = () => {
               </div>
             </div>
             <SectionsActivityChart
+              className="mb-8"
+              days={rangeDays}
+              sections={[
+                { label: isRtl ? "الدروس" : "Lessons", Icon: Video, palette: { from: "#06b6d4", to: "#0d9488", glow: "6,182,212" }, timestamps: episodes.map((e: any) => e.created_at) },
+                { label: isRtl ? "حصص مباشرة" : "Live", Icon: Radio, palette: { from: "#ef4444", to: "#e11d48", glow: "239,68,68" }, timestamps: streams.map((s: any) => s.created_at || s.scheduled_at) },
+                { label: isRtl ? "الواجبات" : "Homework", Icon: ClipboardList, palette: { from: "#3b82f6", to: "#2563eb", glow: "59,130,246" }, timestamps: assignments.map((a: any) => a.created_at) },
+                { label: isRtl ? "التقييمات" : "Ratings", Icon: Star, palette: { from: "#eab308", to: "#d97706", glow: "234,179,8" }, timestamps: teacherRatings.map((r: any) => r.created_at) },
+              ]}
+            />
+            <LiveActivityTrends
               className="mb-8"
               days={rangeDays}
               sections={[

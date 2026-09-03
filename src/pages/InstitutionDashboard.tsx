@@ -38,6 +38,7 @@ import ugLogo from "@/assets/ug-logo.png";
 import BackButton from "@/components/BackButton";
 import { TrendIndicator } from "@/components/TrendIndicator";
 import { StudentPillActivityChart as SectionsActivityChart } from "@/components/StudentPillActivityChart";
+import { LiveActivityTrends } from "@/components/LiveActivityTrends";
 import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import { MenuItemsStatsGrid } from "@/components/MenuItemsStatsGrid";
 import { bucketByDay } from "@/components/Sparkline";
@@ -2425,6 +2426,21 @@ ${exams.map((s: any, i: number) => `<tr>
                 { label: translate("بيانات الحساب"), Icon: User, palette: { from: "#06b6d4", to: "#0891b2", glow: "6,182,212" }, timestamps: institutionId ? [new Date().toISOString()] : [], fixedPercentage: 100 },
               ]}
             />
+
+            <LiveActivityTrends
+              className="mb-6"
+              days={rangeDays}
+              sections={[
+                { label: translate("أعضاء هيئة التدريس"), Icon: GraduationCap, palette: { from: "#6366f1", to: "#4f46e5", glow: "99,102,241" }, timestamps: deptMembers.filter(isFacultyMember).map((m: any) => m.created_at) },
+                { label: translate("الأقسام"), Icon: BookOpen, palette: { from: "#a855f7", to: "#9333ea", glow: "168,85,247" }, timestamps: departments.map((d: any) => d.created_at) },
+                { label: translate("تسجيل الطلاب"), Icon: UserPlus, palette: { from: "#f97316", to: "#ea580c", glow: "249,115,22" }, timestamps: deptMembers.filter((m: any) => m.role === 'student').map((m: any) => m.created_at) },
+                { label: translate("اشتراك الطلاب"), Icon: CreditCard, palette: { from: "#14b8a6", to: "#0d9488", glow: "20,184,166" }, timestamps: deptMembers.filter((m: any) => m.role === 'student' && m.user_id).map((m: any) => m.created_at) },
+                { label: translate("الجداول"), Icon: Calendar, palette: { from: "#10b981", to: "#059669", glow: "16,185,129" }, timestamps: examSchedules.map((s: any) => s.created_at) },
+                { label: translate("النتائج"), Icon: CheckCircle, palette: { from: "#0ea5e9", to: "#0284c7", glow: "14,165,233" }, timestamps: quizSubmissions.map((s: any) => s.submitted_at || s.created_at) },
+                { label: translate("بيانات الحساب"), Icon: User, palette: { from: "#06b6d4", to: "#0891b2", glow: "6,182,212" }, timestamps: institutionId ? [new Date().toISOString()] : [], fixedPercentage: 100 },
+              ]}
+            />
+
 
             <MenuItemsStatsGrid
               className="mb-6"

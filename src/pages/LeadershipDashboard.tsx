@@ -1391,81 +1391,10 @@ const LeadershipDashboard = () => {
             <LanguageSelectorDropdown className="h-9 px-2.5 sm:px-3 text-xs bg-background/60 border-primary/20" />
             <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
 
-            {activeTab === "lectures" && lectureSubView !== "overview" ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setLectureSubView("overview")}
-                className="h-10 px-3.5 gap-2 font-black rounded-xl border-2 border-primary/30 bg-primary/10 text-primary hover:bg-primary hover:text-white shadow-sm transition-all"
-              >
-                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                <span>{isRtl ? "الرجوع للمحاضرات" : "Back to Lectures"}</span>
-              </Button>
-            ) : activeTab === "livestreams" && streamSubView !== "overview" ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setStreamSubView("overview")}
-                className="h-10 px-3.5 gap-2 font-black rounded-xl border-2 border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white shadow-sm transition-all"
-              >
-                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                <span>{isRtl ? "الرجوع للبثوث" : "Back to Streams"}</span>
-              </Button>
-            ) : activeTab === "quizzesonline" && !isDeanOrViceDean && quizSubView !== "overview" ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setQuizSubView("overview")}
-                className="h-10 px-3.5 gap-2 font-black rounded-xl border-2 border-teal-500/30 bg-teal-500/10 text-teal-700 dark:text-teal-300 hover:bg-teal-600 hover:text-white shadow-sm transition-all"
-              >
-                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                <span>{isRtl ? "الرجوع للاختبارات" : "Back to Quizzes"}</span>
-              </Button>
-            ) : activeTab === "schedulesapproval" && !isDeanOrViceDean && scheduleSubView !== "overview" ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setScheduleSubView("overview")}
-                className="h-10 px-3.5 gap-2 font-black rounded-xl border-2 border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300 hover:bg-purple-600 hover:text-white shadow-sm transition-all"
-              >
-                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                <span>{isRtl ? "الرجوع للجداول" : "Back to Schedules"}</span>
-              </Button>
-            ) : activeTab === "assignments" && !isDeanOrViceDean && assignmentSubView !== "overview" ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setAssignmentSubView("overview")}
-                className="h-10 px-3.5 gap-2 font-black rounded-xl border-2 border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-600 hover:text-white shadow-sm transition-all"
-              >
-                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                <span>{isRtl ? "الرجوع للتكليفات" : "Back to Assignments"}</span>
-              </Button>
-            ) : activeTab === "assignmentresults" ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => { setActiveTab("assignments"); setAssignmentSubView("overview"); }}
-                className="h-10 px-3.5 gap-2 font-black rounded-xl border-2 border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300 hover:bg-blue-600 hover:text-white shadow-sm transition-all"
-              >
-                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                <span>{isRtl ? "الرجوع للتكليفات" : "Back to Assignments"}</span>
-              </Button>
-            ) : activeTab === "quizresults" && !isDeanOrViceDean && quizResultsSubView !== "overview" ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setQuizResultsSubView("overview")}
-                className="h-10 px-3.5 gap-2 font-black rounded-xl border-2 border-indigo-500/30 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-600 hover:text-white shadow-sm transition-all"
-              >
-                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                <span>{isRtl ? "الرجوع لنتائج الاختبارات" : "Back to Results"}</span>
-              </Button>
-            ) : (
-              <DashboardMenuDropdown
-                title={isRtl ? getRoleLabel().ar : getRoleLabel().en}
-                onLanguageToggle={toggleLanguage}
-                onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
+            <DashboardMenuDropdown
+              title={isRtl ? getRoleLabel().ar : getRoleLabel().en}
+              onLanguageToggle={toggleLanguage}
+              onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
                 items={[
                   { key: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-indigo-500 to-violet-600", onClick: () => setActiveTab("overview"), active: activeTab === "overview" },
                   { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-cyan-500 to-blue-600", onClick: () => setActiveTab("lectures"), active: activeTab === "lectures" },

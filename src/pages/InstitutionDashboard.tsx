@@ -259,7 +259,7 @@ const InstitutionDashboard = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !__dashboardCache);
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "general");
   const [addDeptIdFromNav, setAddDeptIdFromNav] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -338,11 +338,11 @@ const InstitutionDashboard = () => {
     }
   }, [searchParams]);
 
-  const [institutionType, setInstitutionType] = useState<"college" | "institute" | null>(null);
+  const [institutionType, setInstitutionType] = useState<"college" | "institute" | null>(() => __dashboardCache?.instType ?? null);
   const isCollege = institutionType === "college";
-  const [institutionName, setInstitutionName] = useState("");
-  const [institutionId, setInstitutionId] = useState("");
-  const [subscriptionPlan, setSubscriptionPlan] = useState<string | null>(null);
+  const [institutionName, setInstitutionName] = useState(() => __dashboardCache?.instName ?? "");
+  const [institutionId, setInstitutionId] = useState(() => __dashboardCache?.instId ?? "");
+  const [subscriptionPlan, setSubscriptionPlan] = useState<string | null>(() => __dashboardCache?.subscriptionPlan ?? null);
 
   // Shared authoritative stats — provides Realtime auto-refresh + invalidation
   const {
@@ -354,25 +354,25 @@ const InstitutionDashboard = () => {
   } = useInstitutionStats(institutionId || null, institutionType);
   const queryClient = useQueryClient();
 
-  const [departments, setDepartments] = useState<Department[]>([]);
+  const [departments, setDepartments] = useState<Department[]>(() => __dashboardCache?.departments ?? []);
   const [deletedDeptIds, setDeletedDeptIds] = useState<Set<string>>(new Set());
   const deletedDeptIdsRef = useRef<Set<string>>(new Set());
-  const [deptMembers, setDeptMembers] = useState<DepartmentMember[]>([]);
+  const [deptMembers, setDeptMembers] = useState<DepartmentMember[]>(() => __dashboardCache?.deptMembers ?? []);
   const [deptSearch, setDeptSearch] = useState("");
-  const [isLeadershipRole, setIsLeadershipRole] = useState(false);
-  const [liveStreams, setLiveStreams] = useState<any[]>([]);
-  const [streamAttendance, setStreamAttendance] = useState<Record<string, number>>({});
-  const [quizzes, setQuizzes] = useState<any[]>([]);
-  const [quizSubmissions, setQuizSubmissions] = useState<any[]>([]);
-  const [examSchedules, setExamSchedules] = useState<any[]>([]);
-  const [lecturerRatings, setLecturerRatings] = useState<any[]>([]);
-  const [leadershipInvitations, setLeadershipInvitations] = useState<any[]>([]);
-  const [assignments, setAssignments] = useState<any[]>([]);
-  const [assignmentSubmissions, setAssignmentSubmissions] = useState<any[]>([]);
-  const [studentResults, setStudentResults] = useState<any[]>([]);
-  const [institutionQuizzes, setInstitutionQuizzes] = useState<any[]>([]);
-  const [courses, setCourses] = useState<any[]>([]);
-  const [episodes, setEpisodes] = useState<any[]>([]);
+  const [isLeadershipRole, setIsLeadershipRole] = useState(() => __dashboardCache?.isLeadershipRole ?? false);
+  const [liveStreams, setLiveStreams] = useState<any[]>(() => __dashboardCache?.liveStreams ?? []);
+  const [streamAttendance, setStreamAttendance] = useState<Record<string, number>>(() => __dashboardCache?.streamAttendance ?? {});
+  const [quizzes, setQuizzes] = useState<any[]>(() => __dashboardCache?.quizzes ?? []);
+  const [quizSubmissions, setQuizSubmissions] = useState<any[]>(() => __dashboardCache?.quizSubmissions ?? []);
+  const [examSchedules, setExamSchedules] = useState<any[]>(() => __dashboardCache?.examSchedules ?? []);
+  const [lecturerRatings, setLecturerRatings] = useState<any[]>(() => __dashboardCache?.lecturerRatings ?? []);
+  const [leadershipInvitations, setLeadershipInvitations] = useState<any[]>(() => __dashboardCache?.leadershipInvitations ?? []);
+  const [assignments, setAssignments] = useState<any[]>(() => __dashboardCache?.assignments ?? []);
+  const [assignmentSubmissions, setAssignmentSubmissions] = useState<any[]>(() => __dashboardCache?.assignmentSubmissions ?? []);
+  const [studentResults, setStudentResults] = useState<any[]>(() => __dashboardCache?.studentResults ?? []);
+  const [institutionQuizzes, setInstitutionQuizzes] = useState<any[]>(() => __dashboardCache?.institutionQuizzes ?? []);
+  const [courses, setCourses] = useState<any[]>(() => __dashboardCache?.courses ?? []);
+  const [episodes, setEpisodes] = useState<any[]>(() => __dashboardCache?.episodes ?? []);
   const [showResultDialog, setShowResultDialog] = useState(false);
   const [editingResult, setEditingResult] = useState<any>(null);
   const [resultForm, setResultForm] = useState({ student_name: "", department_name: "", academic_degree: "", grade: "", rating: "", notes: "" });

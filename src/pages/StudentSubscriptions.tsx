@@ -93,10 +93,10 @@ const StudentSubscriptions = () => {
   const navigate = useNavigate();
   const { identity } = useInstitutionIdentity({ redirectOnMissing: false });
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !__subsCache);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<StudentRecord[]>([]);
-  const [total, setTotal] = useState(0);
+  const [data, setData] = useState<StudentRecord[]>(() => __subsCache?.data ?? []);
+  const [total, setTotal] = useState(() => __subsCache?.total ?? 0);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("full_name");

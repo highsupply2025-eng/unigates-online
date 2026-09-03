@@ -42,24 +42,26 @@ interface InstitutionData {
   subscription_plan?: string | null;
 }
 
+let __institutionProfileCache: InstitutionData | null = null;
+
 const InstitutionProfile = () => {
   const { dir, language, toggleLanguage, tText, translate, isRtl } = useLanguage();
   const navigate = useNavigate();
-  const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
+  const [institutionType, setInstitutionType] = useState<"college" | "institute">(() => __institutionProfileCache?.kind ?? "college");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<InstitutionData | null>(null);
+  const [loading, setLoading] = useState(() => !__institutionProfileCache);
+  const [data, setData] = useState<InstitutionData | null>(() => __institutionProfileCache);
 
   const { studentCount: liveStudentCount, departmentCount: liveDeptCount, facultyCount: liveFacultyCount } = useInstitutionStats(
     data?.id ?? null,
     data?.kind ?? null,
   );
 
-  const [leaderName, setLeaderName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [city, setCity] = useState("");
-  const [address, setAddress] = useState("");
+  const [leaderName, setLeaderName] = useState(() => __institutionProfileCache?.leaderName ?? "");
+  const [phone, setPhone] = useState(() => __institutionProfileCache?.phone ?? "");
+  const [city, setCity] = useState(() => __institutionProfileCache?.city ?? "");
+  const [address, setAddress] = useState(() => __institutionProfileCache?.address ?? "");
   const [savingInfo, setSavingInfo] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
 
@@ -147,6 +149,7 @@ const InstitutionProfile = () => {
           return;
         }
 
+        __institutionProfileCache = row;
         setData(row);
         setInstitutionType(row.kind);
         setLeaderName(row.leaderName || "");

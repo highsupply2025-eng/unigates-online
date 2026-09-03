@@ -70,6 +70,8 @@ const roleLabel = (role: string, isCollege: boolean, isRtl: boolean) => {
   return isRtl ? entry.ar : entry.en;
 };
 
+let __messagesContactsCache: { contacts: Contact[]; instId: string; instType: "college" | "institute"; userName: string; userId: string } | null = null;
+
 export default function InstitutionMessages() {
   const { language, dir, toggleLanguage, tText } = useLanguage();
   const isRtl = dir === "rtl";
@@ -78,13 +80,13 @@ export default function InstitutionMessages() {
   const subscriptionPlan = identity?.subscriptionPlan ?? "free";
 
   // Basic States
-  const [loading, setLoading] = useState(true);
-  const [institutionId, setInstitutionId] = useState<string | null>(null);
-  const [institutionType, setInstitutionType] = useState<"college" | "institute">("college");
-  const [isCollege, setIsCollege] = useState(true);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [currentUserName, setCurrentUserName] = useState<string>("");
-  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [loading, setLoading] = useState(() => !__messagesContactsCache);
+  const [institutionId, setInstitutionId] = useState<string | null>(() => __messagesContactsCache?.instId ?? null);
+  const [institutionType, setInstitutionType] = useState<"college" | "institute">(() => __messagesContactsCache?.instType ?? "college");
+  const [isCollege, setIsCollege] = useState(() => (__messagesContactsCache?.instType ?? "college") === "college");
+  const [currentUserId, setCurrentUserId] = useState<string | null>(() => __messagesContactsCache?.userId ?? null);
+  const [currentUserName, setCurrentUserName] = useState<string>(() => __messagesContactsCache?.userName ?? "");
+  const [contacts, setContacts] = useState<Contact[]>(() => __messagesContactsCache?.contacts ?? []);
   const [selected, setSelected] = useState<Contact | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -245,6 +247,13 @@ export default function InstitutionMessages() {
         });
       }
 
+      __messagesContactsCache = {
+        contacts: list,
+        instId: instId || "",
+        instType,
+        userName,
+        userId: user.id,
+      };
       setContacts(list);
       setLoading(false);
     })();

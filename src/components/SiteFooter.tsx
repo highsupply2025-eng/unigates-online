@@ -86,6 +86,7 @@ const SiteFooter = () => {
       title: isRtl ? "ℹ️ المنظومة والدعم" : "ℹ️ Company & Support",
       links: [
         { label: isRtl ? "عن المنصة" : "About UNIGATES", href: "/about" },
+        { label: isRtl ? "🎬 استوديو الفيديو الترويجي" : "🎬 Promo Video Studio", href: "/promo-video" },
         { label: isRtl ? "مركز المساعدة" : "Help Center", href: "/help-center" },
         { label: isRtl ? "الشروط والأحكام" : "Terms of Service", href: "/terms" },
         { label: isRtl ? "سياسة الخصوصية" : "Privacy Policy", href: "/privacy" },

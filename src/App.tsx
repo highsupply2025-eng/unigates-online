@@ -103,6 +103,7 @@ const Contact = lazy(() => import("./pages/Contact"));
 const Blog = lazy(() => import("./pages/Blog"));
 const Partnerships = lazy(() => import("./pages/Partnerships"));
 const FAQ = lazy(() => import("./pages/FAQ"));
+const PromoVideoPage = lazy(() => import("./pages/PromoVideoPage"));
 const SchoolStudentDashboard = lazy(() => import("./pages/SchoolStudentDashboard"));
 const SchoolTeacherDashboard = lazy(() => import("./pages/SchoolTeacherDashboard"));
 const SchoolDashboard = lazy(() => import("./pages/SchoolDashboard"));
@@ -291,6 +292,8 @@ const App = () => (
               <Route path="/certificates" element={<ComingSoon />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/faq" element={<FAQ />} />
+              <Route path="/promo-video" element={<PromoVideoPage />} />
+              <Route path="/promo" element={<Navigate to="/promo-video" replace />} />
               <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

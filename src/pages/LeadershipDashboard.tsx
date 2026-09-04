@@ -1495,7 +1495,6 @@ const LeadershipDashboard = () => {
                   { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Information", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/leadership/profile") },
                 ]}
               />
-            )}
           </div>
         </div>
       </header>
@@ -4059,6 +4058,8 @@ const LeadershipDashboard = () => {
             </div>
           </div>
         </DialogContent>
+      </Dialog>
+
       {/* Create Live Stream Dialog */}
       <Dialog open={showStreamDialog} onOpenChange={setShowStreamDialog}>
         <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto">

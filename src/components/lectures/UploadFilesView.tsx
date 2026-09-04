@@ -15,6 +15,8 @@ interface UploadFilesViewProps {
   courses: any[];
   onBack: () => void;
   onUploaded?: () => void;
+  contextTitle?: string;
+  onBackLabel?: string;
 }
 
 export const UploadFilesView = ({
@@ -23,6 +25,8 @@ export const UploadFilesView = ({
   courses,
   onBack,
   onUploaded,
+  contextTitle,
+  onBackLabel,
 }: UploadFilesViewProps) => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -264,17 +268,17 @@ export const UploadFilesView = ({
               className="h-8 px-3 rounded-xl border-primary/30 text-primary hover:bg-primary/10 gap-1.5 text-xs font-black"
             >
               {isRtl ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
-              <span>{isRtl ? "رجوع للمحاضرات" : "Back to Lectures"}</span>
+              <span>{onBackLabel || (isRtl ? "رجوع للمحاضرات" : "Back to Lectures")}</span>
             </Button>
             <Badge className="bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/30 text-[10px] font-black">
-              {isRtl ? "المذكرات والمرفقات" : "Course Materials"}
+              {contextTitle || (isRtl ? "المذكرات والمرفقات" : "Course Materials")}
             </Badge>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-foreground flex items-center gap-2">
             <span className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-fuchsia-600 text-white shadow-md shadow-purple-500/20">
               <Upload className="w-5 h-5" />
             </span>
-            {isRtl ? "رفع ملف ومواد تعليمية للطلبة" : "Upload Course Materials"}
+            {contextTitle ? (isRtl ? `رفع ملفات ومواد: ${contextTitle}` : `Upload Files: ${contextTitle}`) : (isRtl ? "رفع ملف ومواد تعليمية للطلبة" : "Upload Course Materials")}
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 font-medium">
             {isRtl ? "شارك المذكرات والملازم والكتب وملفات الـ PDF مع طلابك بسهولة" : "Share notes, assignments, and PDF documents with your students"}

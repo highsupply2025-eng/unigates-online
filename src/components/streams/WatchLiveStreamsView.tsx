@@ -64,7 +64,7 @@ export const WatchLiveStreamsView = ({
             className="rounded-2xl border-2 border-white/40 bg-white/15 hover:bg-white/30 text-white font-black px-4 py-2 gap-2 shrink-0 backdrop-blur-md shadow-sm transition-all hover:scale-105 active:scale-95"
           >
             {isRtl ? <ArrowRight className="w-4 h-4" strokeWidth={2.8} /> : <ArrowLeft className="w-4 h-4" strokeWidth={2.8} />}
-            <span>{isRtl ? "الرجوع للرئيسية" : "Back to Dashboard"}</span>
+            <span>{isRtl ? "الرجوع للبث المباشر" : "Back to Streams"}</span>
           </Button>
 
           <div className="min-w-0">

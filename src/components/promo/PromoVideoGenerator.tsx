@@ -583,3 +583,5 @@ export const PromoVideoGenerator: React.FC<{ isRtl?: boolean }> = ({ isRtl = tru
     </div>
   );
 };
+
+export default PromoVideoGenerator;

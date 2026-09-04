@@ -3,7 +3,7 @@ import {
   Calendar, ShieldCheck, Clock, CheckCircle2, XCircle, Eye,
   Download, ArrowRight, ArrowLeft, Search, Filter, RefreshCw,
   FileText, Image as ImageIcon, MapPin, Building2, User, Sparkles,
-  BookOpen
+  BookOpen, Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -17,6 +17,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { ScheduleRatingModal } from "@/components/ScheduleRatingModal";
 
 interface ScheduleApprovalsViewProps {
   userId: string;
@@ -51,6 +52,7 @@ export const ScheduleApprovalsView: React.FC<ScheduleApprovalsViewProps> = ({
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [ratingSchedule, setRatingSchedule] = useState<{ id: string; courseId?: string; title: string; location?: string; instructor?: string } | null>(null);
 
   const isDean = userRole === "dean";
   const isViceDean = userRole === "vice_dean";
@@ -266,121 +268,132 @@ export const ScheduleApprovalsView: React.FC<ScheduleApprovalsViewProps> = ({
 
   return (
     <div className="space-y-6 pb-12 animate-in fade-in-50 duration-300">
-      {/* 1. Two Big Distinctive Highlight Cards: Approved vs Unapproved */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+      {/* 1. Three Luxury Action & Oversight Cards: Unapproved vs Approved vs Schedule Quality */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Card 1: Unapproved / Pending Approval (Orange/Amber) */}
         <div
           onClick={() => setFilterTab(myTurnSchedules.length > 0 ? "my_turn" : "pending")}
-          className={`group relative overflow-hidden rounded-3xl p-6 transition-all duration-300 cursor-pointer border-2 shadow-lg ${
+          className={`group relative overflow-hidden rounded-3xl p-6 transition-all duration-300 cursor-pointer border-2 shadow-lg flex flex-col justify-between ${
             filterTab === "my_turn" || filterTab === "pending"
               ? "bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white border-amber-300/40 shadow-amber-500/30 scale-101"
               : "bg-card hover:bg-muted/40 border-amber-500/30 text-foreground hover:border-amber-500/60"
           }`}
         >
-          <div className="flex items-start justify-between">
-            <div
-              className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform ${
-                filterTab === "my_turn" || filterTab === "pending"
-                  ? "bg-white/20 text-white ring-2 ring-white/40"
-                  : "bg-amber-500/15 text-amber-600 dark:text-amber-400"
-              }`}
-            >
-              <Clock className="w-7 h-7 animate-pulse" strokeWidth={2.6} />
+          <div>
+            <div className="flex items-start justify-between">
+              <div
+                className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform ${
+                  filterTab === "my_turn" || filterTab === "pending"
+                    ? "bg-white/20 text-white ring-2 ring-white/40"
+                    : "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                }`}
+              >
+                <Clock className="w-7 h-7 animate-pulse" strokeWidth={2.6} />
+              </div>
+
+              <Badge
+                className={
+                  filterTab === "my_turn" || filterTab === "pending"
+                    ? "bg-white/20 text-white border-white/30 text-xs px-3 py-1 font-black"
+                    : "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30 text-xs px-3 py-1 font-black"
+                }
+              >
+                {isRtl ? "غير معتمد / قيد الاعتماد" : "Unapproved / Pending"}
+              </Badge>
             </div>
 
-            <Badge
-              className={
-                filterTab === "my_turn" || filterTab === "pending"
-                  ? "bg-white/20 text-white border-white/30 text-xs px-3 py-1 font-black"
-                  : "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30 text-xs px-3 py-1 font-black"
-              }
-            >
-              {isRtl ? "غير معتمد / قيد الاعتماد" : "Unapproved / Pending"}
-            </Badge>
+            <div className="mt-5 space-y-1">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl sm:text-4xl font-black">{totalPendingCount}</span>
+                <span className="text-xs font-bold opacity-85">{isRtl ? "جدول قيد المراجعة" : "schedules pending"}</span>
+              </div>
+
+              <h3 className="text-lg sm:text-xl font-black mt-2">
+                {isRtl ? "الجداول غير المعتمدة" : "Unapproved / In Review"}
+              </h3>
+
+              <p
+                className={`text-xs font-medium leading-relaxed ${
+                  filterTab === "my_turn" || filterTab === "pending" ? "text-white/90" : "text-muted-foreground"
+                }`}
+              >
+                {isRtl
+                  ? `بانتظار استكمال سلسلة موافقات رئيس القسم، الوكلاء المختصين، والاعتماد النهائي من ${deanTitle}.`
+                  : "Awaiting sequential sign-offs from Head of Dept, Vice Deans, and final Dean approval."}
+              </p>
+            </div>
           </div>
 
-          <div className="mt-5 space-y-1">
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl sm:text-4xl font-black">{totalPendingCount}</span>
-              <span className="text-xs font-bold opacity-85">{isRtl ? "جدول قيد المراجعة" : "schedules pending"}</span>
-            </div>
-
-            <h3 className="text-lg sm:text-xl font-black mt-2">
-              {isRtl ? "الجداول غير المعتمدة" : "Unapproved / In Review"}
-            </h3>
-
-            <p
-              className={`text-xs font-medium leading-relaxed ${
-                filterTab === "my_turn" || filterTab === "pending" ? "text-white/90" : "text-muted-foreground"
-              }`}
-            >
-              {isRtl
-                ? `بانتظار استكمال سلسلة موافقات رئيس القسم، الوكلاء المختصين، والاعتماد النهائي من ${deanTitle}.`
-                : "Awaiting sequential sign-offs from Head of Dept, Vice Deans, and final Dean approval."}
-            </p>
+          <div className="mt-4 pt-3 border-t border-current/15 flex items-center justify-between">
+            {myTurnSchedules.length > 0 ? (
+              <>
+                <span className="text-xs font-black flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-400 animate-ping" />
+                  <span>{isRtl ? `يتطلب موافقتك الآن: (${myTurnSchedules.length})` : `Action required: (${myTurnSchedules.length})`}</span>
+                </span>
+                <span className="text-xs font-bold underline">{isRtl ? "اضغط للمراجعة ➔" : "Review now ➔"}</span>
+              </>
+            ) : (
+              <>
+                <span className="text-xs font-black">{isRtl ? "متابعة قيد المراجعة" : "Track In Review"}</span>
+                <span className="text-xs font-bold">{isRtl ? "استعراض ➔" : "Explore ➔"}</span>
+              </>
+            )}
           </div>
-
-          {myTurnSchedules.length > 0 && (
-            <div className="mt-4 pt-3 border-t border-current/15 flex items-center justify-between">
-              <span className="text-xs font-black flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-400 animate-ping" />
-                <span>{isRtl ? `يتطلب موافقتك الآن: (${myTurnSchedules.length})` : `Action required by you: (${myTurnSchedules.length})`}</span>
-              </span>
-              <span className="text-xs font-bold underline">{isRtl ? "اضغط للمراجعة ➔" : "Review now ➔"}</span>
-            </div>
-          )}
         </div>
 
         {/* Card 2: Fully Approved & Live (Emerald/Green) */}
         <div
           onClick={() => setFilterTab("approved")}
-          className={`group relative overflow-hidden rounded-3xl p-6 transition-all duration-300 cursor-pointer border-2 shadow-lg ${
+          className={`group relative overflow-hidden rounded-3xl p-6 transition-all duration-300 cursor-pointer border-2 shadow-lg flex flex-col justify-between ${
             filterTab === "approved"
               ? "bg-gradient-to-br from-emerald-600 via-teal-600 to-green-600 text-white border-emerald-300/40 shadow-emerald-600/30 scale-101"
               : "bg-card hover:bg-muted/40 border-emerald-500/30 text-foreground hover:border-emerald-500/60"
           }`}
         >
-          <div className="flex items-start justify-between">
-            <div
-              className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform ${
-                filterTab === "approved"
-                  ? "bg-white/20 text-white ring-2 ring-white/40"
-                  : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-              }`}
-            >
-              <CheckCircle2 className="w-7 h-7" strokeWidth={2.6} />
+          <div>
+            <div className="flex items-start justify-between">
+              <div
+                className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform ${
+                  filterTab === "approved"
+                    ? "bg-white/20 text-white ring-2 ring-white/40"
+                    : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                }`}
+              >
+                <CheckCircle2 className="w-7 h-7" strokeWidth={2.6} />
+              </div>
+
+              <Badge
+                className={
+                  filterTab === "approved"
+                    ? "bg-white/20 text-white border-white/30 text-xs px-3 py-1 font-black"
+                    : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 text-xs px-3 py-1 font-black"
+                }
+              >
+                {isRtl ? "معتمد بالكامل ✓" : "Fully Approved ✓"}
+              </Badge>
             </div>
 
-            <Badge
-              className={
-                filterTab === "approved"
-                  ? "bg-white/20 text-white border-white/30 text-xs px-3 py-1 font-black"
-                  : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 text-xs px-3 py-1 font-black"
-              }
-            >
-              {isRtl ? "معتمد بالكامل ✓" : "Fully Approved ✓"}
-            </Badge>
-          </div>
+            <div className="mt-5 space-y-1">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl sm:text-4xl font-black">{approvedSchedules.length}</span>
+                <span className="text-xs font-bold opacity-85">{isRtl ? "جدول معتمد ومنشور" : "approved & live"}</span>
+              </div>
 
-          <div className="mt-5 space-y-1">
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl sm:text-4xl font-black">{approvedSchedules.length}</span>
-              <span className="text-xs font-bold opacity-85">{isRtl ? "جدول معتمد ومنشور" : "approved & live"}</span>
+              <h3 className="text-lg sm:text-xl font-black mt-2">
+                {isRtl ? "الجداول المعتمدة والمنشورة" : "Approved & Published Schedules"}
+              </h3>
+
+              <p
+                className={`text-xs font-medium leading-relaxed ${
+                  filterTab === "approved" ? "text-white/90" : "text-muted-foreground"
+                }`}
+              >
+                {isRtl
+                  ? `تم اعتمادها رسمياً من قِبل ${deanTitle} وتظهر حالياً في لوحة إدارة الكلية وبوابة الطلاب.`
+                  : "Formally certified by the Dean and live in college dashboard and student portal."}
+              </p>
             </div>
-
-            <h3 className="text-lg sm:text-xl font-black mt-2">
-              {isRtl ? "الجداول المعتمدة والمنشورة" : "Approved & Published Schedules"}
-            </h3>
-
-            <p
-              className={`text-xs font-medium leading-relaxed ${
-                filterTab === "approved" ? "text-white/90" : "text-muted-foreground"
-              }`}
-            >
-              {isRtl
-                ? `تم اعتمادها رسمياً من قِبل ${deanTitle} وتظهر حالياً في لوحة إدارة الكلية وبوابة الطلاب.`
-                : "Formally certified by the Dean and live in college dashboard and student portal."}
-            </p>
           </div>
 
           <div className="mt-4 pt-3 border-t border-current/15 flex items-center justify-between">
@@ -388,6 +401,66 @@ export const ScheduleApprovalsView: React.FC<ScheduleApprovalsViewProps> = ({
               {isRtl ? `الاعتماد النهائي: ${deanTitle}` : `Final Approval: ${deanTitle}`}
             </span>
             <span className="text-xs font-bold">{isRtl ? "معاينة المعتمد ➔" : "View approved ➔"}</span>
+          </div>
+        </div>
+
+        {/* Card 3: Schedule Ratings & Timetable Quality (Purple/Indigo) */}
+        <div
+          onClick={() => {
+            if (schedules.length > 0) {
+              const target = schedules[0];
+              const parentCourse = courses.find((c) => c.id === target.course_id);
+              setRatingSchedule({
+                id: target.id,
+                courseId: target.course_id,
+                title: isRtl ? target.title_ar || target.title_en : target.title_en || target.title_ar,
+                location: isRtl ? target.location_ar || target.location_en : target.location_en || target.location_ar,
+                instructor: target.instructor_ar || target.instructor_en || (parentCourse ? (isRtl ? parentCourse.instructor_name : parentCourse.instructor_name) : undefined),
+              });
+            } else {
+              toast({
+                title: isRtl ? "لا توجد جداول للتقييم حالياً" : "No schedules available to rate",
+                description: isRtl ? "ستظهر الجداول فور إضافتها واعتمادها." : "Schedules will appear once created.",
+              });
+            }
+          }}
+          className="group relative overflow-hidden rounded-3xl p-6 transition-all duration-300 cursor-pointer border-2 shadow-lg flex flex-col justify-between bg-card hover:bg-muted/40 border-purple-500/30 text-foreground hover:border-purple-500/60"
+        >
+          <div>
+            <div className="flex items-start justify-between">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-transform bg-purple-500/15 text-purple-600 dark:text-purple-400">
+                <Star className="w-7 h-7 fill-current" strokeWidth={2.6} />
+              </div>
+
+              <Badge className="bg-purple-500/15 text-purple-700 dark:text-purple-400 border-purple-500/30 text-xs px-3 py-1 font-black">
+                {isRtl ? "تقييم الجداول" : "Schedule Rating"}
+              </Badge>
+            </div>
+
+            <div className="mt-5 space-y-1">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl sm:text-4xl font-black">{schedules.length}</span>
+                <span className="text-xs font-bold opacity-85">{isRtl ? "جدول متاح" : "schedules"}</span>
+              </div>
+
+              <h3 className="text-lg sm:text-xl font-black mt-2 flex items-center gap-1.5">
+                <span>{isRtl ? "تقييم جودة وتنظيم الجداول" : "Schedule Quality & Ratings"}</span>
+                <Sparkles className="w-4 h-4 text-amber-500" />
+              </h3>
+
+              <p className="text-xs font-medium leading-relaxed text-muted-foreground">
+                {isRtl
+                  ? "تسجيل التقييم الأكاديمي لملائمة المواعيد، القاعات الدراسية، وضمان عدم التعارض على مستوى الكلية."
+                  : "Submit academic evaluations on schedule distribution, lecture room suitability, and collision avoidance."}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-current/15 flex items-center justify-between">
+            <span className="text-xs font-black text-purple-700 dark:text-purple-400">
+              {isRtl ? "⭐ تقييم الجدول الآن" : "⭐ Evaluate Schedule Now"}
+            </span>
+            <span className="text-xs font-bold">{isRtl ? "فتح التقييم ➔" : "Open ➔"}</span>
           </div>
         </div>
       </div>
@@ -705,6 +778,25 @@ export const ScheduleApprovalsView: React.FC<ScheduleApprovalsViewProps> = ({
                   <div className="flex items-center gap-2">
                     <Button
                       size="sm"
+                      variant="secondary"
+                      onClick={() => {
+                        const parentCourse = courses.find((c) => c.id === s.course_id);
+                        setRatingSchedule({
+                          id: s.id,
+                          courseId: s.course_id,
+                          title: isRtl ? s.title_ar || s.title_en : s.title_en || s.title_ar,
+                          location: isRtl ? s.location_ar || s.location_en : s.location_en || s.location_ar,
+                          instructor: s.instructor_ar || s.instructor_en || (parentCourse ? parentCourse.instructor_name : undefined),
+                        });
+                      }}
+                      className="rounded-xl font-bold gap-1 text-xs h-9 px-3 bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/25"
+                    >
+                      <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                      <span>{isRtl ? "تقييم الجدول" : "Rate"}</span>
+                    </Button>
+
+                    <Button
+                      size="sm"
                       variant="outline"
                       onClick={() => {
                         setSelectedSchedule(s);
@@ -952,51 +1044,40 @@ export const ScheduleApprovalsView: React.FC<ScheduleApprovalsViewProps> = ({
                 )}
 
                 {/* Attached File or Image preview */}
-                {selectedSchedule.file_url && (
-                  <div className="p-4 rounded-2xl bg-indigo-500/10 border-2 border-indigo-500/30 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-black text-indigo-800 dark:text-indigo-200 flex items-center gap-1.5">
-                        <FileText className="w-4 h-4" />
-                        {isRtl ? "الملف أو الصورة المرفقة للجدول" : "Attached Timetable Document / Image"}
-                      </span>
-                      <a
-                        href={selectedSchedule.file_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-black text-indigo-700 hover:underline"
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                        {isRtl ? "تحميل الملف" : "Download File"}
-                      </a>
-                    </div>
-
-                    {/* Image Render if image */}
-                    {selectedSchedule.file_url.match(/\.(png|jpg|jpeg|webp)$/i) && (
-                      <div className="max-h-72 overflow-auto rounded-xl border border-border bg-black/10 flex items-center justify-center p-2">
-                        <img
-                          src={selectedSchedule.file_url}
-                          alt="Schedule Timetable"
-                          className="max-h-64 object-contain rounded shadow-sm"
-                        />
-                      </div>
-                    )}
+              {/* Body */}
+              <div className="space-y-4 pt-2">
+                {/* Info Card */}
+                <div className="p-4 rounded-2xl bg-muted/40 border border-border grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <span className="text-[10px] text-muted-foreground font-bold block">{isRtl ? "المقرر الدراسي:" : "Course:"}</span>
+                    <span className="text-xs font-black">
+                      {courses.find((c) => c.id === selectedSchedule.course_id)
+                        ? (isRtl ? courses.find((c) => c.id === selectedSchedule.course_id)?.title_ar : courses.find((c) => c.id === selectedSchedule.course_id)?.title_en)
+                        : (isRtl ? "عام" : "General")}
+                    </span>
                   </div>
-                )}
 
-                {/* Notes */}
-                {selectedSchedule.notes_ar && (
-                  <div className="p-3.5 rounded-2xl bg-muted/30 border space-y-1">
-                    <span className="text-xs font-black text-foreground">{isRtl ? "ملاحظات وتعليمات الحضور:" : "Instructions:"}</span>
-                    <p className="text-xs text-muted-foreground font-medium leading-relaxed">
-                      {selectedSchedule.notes_ar}
-                    </p>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground font-bold block">{isRtl ? "القسم الأكاديمي:" : "Department:"}</span>
+                    <span className="text-xs font-black">
+                      {departments.find((d) => d.id === selectedSchedule.department_id)
+                        ? (isRtl ? departments.find((d) => d.id === selectedSchedule.department_id)?.name_ar : departments.find((d) => d.id === selectedSchedule.department_id)?.name_en)
+                        : (isRtl ? "كلية عام" : "General")}
+                    </span>
                   </div>
-                )}
 
-                {/* Approval Chain Progress Timeline */}
+                  <div>
+                    <span className="text-[10px] text-muted-foreground font-bold block">{isRtl ? "القاعة / المكان:" : "Hall / Location:"}</span>
+                    <span className="text-xs font-black">
+                      {isRtl ? selectedSchedule.location_ar || "أونلاين" : selectedSchedule.location_en || "Online"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Approvers chain detailed view */}
                 {Array.isArray(selectedSchedule.approval_reviewers) && selectedSchedule.approval_reviewers.length > 0 && (
-                  <div className="space-y-2 pt-2 border-t">
-                    <Label className="text-xs font-black">{isRtl ? "مراحل سلسلة الاعتماد الأكاديمي:" : "Approval Stages:"}</Label>
+                  <div className="space-y-2 border rounded-2xl p-3 bg-muted/20">
+                    <span className="text-xs font-black text-foreground block">{isRtl ? "مسار سلسلة الاعتمادات:" : "Approval Stages Chain:"}</span>
                     <div className="space-y-2">
                       {selectedSchedule.approval_reviewers.map((st: any, idx: number) => (
                         <div
@@ -1065,13 +1146,34 @@ export const ScheduleApprovalsView: React.FC<ScheduleApprovalsViewProps> = ({
               </div>
 
               <DialogFooter className="flex flex-col sm:flex-row items-center justify-between gap-2 border-t pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setReviewDialogOpen(false)}
-                  className="rounded-xl font-bold"
-                >
-                  {isRtl ? "إغلاق" : "Close"}
-                </Button>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      const parentCourse = courses.find((c) => c.id === selectedSchedule.course_id);
+                      setRatingSchedule({
+                        id: selectedSchedule.id,
+                        courseId: selectedSchedule.course_id,
+                        title: isRtl ? selectedSchedule.title_ar || selectedSchedule.title_en : selectedSchedule.title_en || selectedSchedule.title_ar,
+                        location: isRtl ? selectedSchedule.location_ar || selectedSchedule.location_en : selectedSchedule.location_en || selectedSchedule.location_ar,
+                        instructor: selectedSchedule.instructor_ar || selectedSchedule.instructor_en || (parentCourse ? parentCourse.instructor_name : undefined),
+                      });
+                    }}
+                    className="rounded-xl font-black gap-1.5 h-10 px-3 bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/25"
+                  >
+                    <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
+                    <span>{isRtl ? "⭐ تقييم تنظيم الجدول" : "Rate Schedule Quality"}</span>
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    onClick={() => setReviewDialogOpen(false)}
+                    className="rounded-xl font-bold h-10 px-4"
+                  >
+                    {isRtl ? "إغلاق" : "Close"}
+                  </Button>
+                </div>
 
                 {canUserActOn(selectedSchedule) && (
                   <div className="flex items-center gap-2">
@@ -1079,7 +1181,7 @@ export const ScheduleApprovalsView: React.FC<ScheduleApprovalsViewProps> = ({
                       variant="destructive"
                       disabled={actionLoading}
                       onClick={() => handleRejectSchedule(selectedSchedule)}
-                      className="rounded-xl font-black gap-1.5"
+                      className="rounded-xl font-black gap-1.5 h-10 px-4"
                     >
                       <XCircle className="w-4 h-4" />
                       <span>{isRtl ? "طلب تعديل / رفض" : "Request Revision"}</span>
@@ -1088,7 +1190,7 @@ export const ScheduleApprovalsView: React.FC<ScheduleApprovalsViewProps> = ({
                     <Button
                       disabled={actionLoading}
                       onClick={() => handleApproveSchedule(selectedSchedule)}
-                      className="rounded-xl font-black px-6 gap-1.5 bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-md hover:shadow-lg"
+                      className="rounded-xl font-black px-6 h-10 gap-1.5 bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-md hover:shadow-lg"
                     >
                       <CheckCircle2 className="w-4 h-4" />
                       <span>
@@ -1104,6 +1206,22 @@ export const ScheduleApprovalsView: React.FC<ScheduleApprovalsViewProps> = ({
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Direct Schedule Quality Rating Modal */}
+      {ratingSchedule && (
+        <ScheduleRatingModal
+          open={!!ratingSchedule}
+          onOpenChange={(isOpen) => !isOpen && setRatingSchedule(null)}
+          scheduleId={ratingSchedule.id}
+          courseId={ratingSchedule.courseId}
+          scheduleTitle={ratingSchedule.title}
+          location={ratingSchedule.location}
+          instructorName={ratingSchedule.instructor}
+          onRated={() => {
+            onRefresh();
+          }}
+        />
+      )}
     </div>
   );
 };

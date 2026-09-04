@@ -22,6 +22,7 @@ import {
   ArrowLeft,
   Award,
   BookOpen,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +34,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { StudentQuizRatingModal } from "@/components/StudentQuizRatingModal";
 
 interface Props {
   userId: string;
@@ -76,6 +78,9 @@ export const QuizApprovalsView = ({
   // Rejection dialog
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
+
+  // Leadership / Faculty Quiz Rating dialog
+  const [ratingQuiz, setRatingQuiz] = useState<{ id: string; courseId?: string; title: string; instructor?: string } | null>(null);
 
   const vdColumn =
     subRole === "vice_dean_students" ? "students"
@@ -365,121 +370,132 @@ export const QuizApprovalsView = ({
 
   return (
     <div className="space-y-6 pb-12 animate-in fade-in-50 duration-300">
-      {/* 1. Two Big Distinctive Highlight Cards: Approved vs Unapproved */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+      {/* 1. Three Luxury Action & Oversight Cards: Unapproved vs Approved vs Exam Ratings */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Card 1: Unapproved / Pending Approval (Orange/Amber) */}
         <div
           onClick={() => setFilterTab(myTurnList.length > 0 ? "my_turn" : "pending")}
-          className={`group relative overflow-hidden rounded-3xl p-6 transition-all duration-300 cursor-pointer border-2 shadow-lg ${
+          className={`group relative overflow-hidden rounded-3xl p-6 transition-all duration-300 cursor-pointer border-2 shadow-lg flex flex-col justify-between ${
             filterTab === "my_turn" || filterTab === "pending"
               ? "bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white border-amber-300/40 shadow-amber-500/30 scale-101"
               : "bg-card hover:bg-muted/40 border-amber-500/30 text-foreground hover:border-amber-500/60"
           }`}
         >
-          <div className="flex items-start justify-between">
-            <div
-              className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform ${
-                filterTab === "my_turn" || filterTab === "pending"
-                  ? "bg-white/20 text-white ring-2 ring-white/40"
-                  : "bg-amber-500/15 text-amber-600 dark:text-amber-400"
-              }`}
-            >
-              <Clock className="w-7 h-7 animate-pulse" strokeWidth={2.6} />
+          <div>
+            <div className="flex items-start justify-between">
+              <div
+                className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform ${
+                  filterTab === "my_turn" || filterTab === "pending"
+                    ? "bg-white/20 text-white ring-2 ring-white/40"
+                    : "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                }`}
+              >
+                <Clock className="w-7 h-7 animate-pulse" strokeWidth={2.6} />
+              </div>
+
+              <Badge
+                className={
+                  filterTab === "my_turn" || filterTab === "pending"
+                    ? "bg-white/20 text-white border-white/30 text-xs px-3 py-1 font-black"
+                    : "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30 text-xs px-3 py-1 font-black"
+                }
+              >
+                {isRtl ? "غير معتمد / قيد الاعتماد" : "Unapproved / Pending"}
+              </Badge>
             </div>
 
-            <Badge
-              className={
-                filterTab === "my_turn" || filterTab === "pending"
-                  ? "bg-white/20 text-white border-white/30 text-xs px-3 py-1 font-black"
-                  : "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30 text-xs px-3 py-1 font-black"
-              }
-            >
-              {isRtl ? "غير معتمد / قيد الاعتماد" : "Unapproved / Pending"}
-            </Badge>
+            <div className="mt-5 space-y-1">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl sm:text-4xl font-black">{totalPendingCount}</span>
+                <span className="text-xs font-bold opacity-85">{isRtl ? "اختبار قيد المراجعة" : "quizzes pending"}</span>
+              </div>
+
+              <h3 className="text-lg sm:text-xl font-black mt-2">
+                {isRtl ? "الاختبارات غير المعتمدة" : "Unapproved / In Review"}
+              </h3>
+
+              <p
+                className={`text-xs font-medium leading-relaxed ${
+                  filterTab === "my_turn" || filterTab === "pending" ? "text-white/90" : "text-muted-foreground"
+                }`}
+              >
+                {isRtl
+                  ? `بانتظار استكمال سلسلة موافقات رئيس القسم، الوكلاء المختصين، والاعتماد النهائي من ${deanTitle}.`
+                  : "Awaiting sequential sign-offs from Head of Dept, Vice Deans, and final Dean approval."}
+              </p>
+            </div>
           </div>
 
-          <div className="mt-5 space-y-1">
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl sm:text-4xl font-black">{totalPendingCount}</span>
-              <span className="text-xs font-bold opacity-85">{isRtl ? "اختبار قيد المراجعة" : "quizzes pending"}</span>
-            </div>
-
-            <h3 className="text-lg sm:text-xl font-black mt-2">
-              {isRtl ? "الاختبارات غير المعتمدة" : "Unapproved / In Review"}
-            </h3>
-
-            <p
-              className={`text-xs font-medium leading-relaxed ${
-                filterTab === "my_turn" || filterTab === "pending" ? "text-white/90" : "text-muted-foreground"
-              }`}
-            >
-              {isRtl
-                ? `بانتظار استكمال سلسلة موافقات رئيس القسم، الوكلاء المختصين، والاعتماد النهائي من ${deanTitle}.`
-                : "Awaiting sequential sign-offs from Head of Dept, Vice Deans, and final Dean approval."}
-            </p>
+          <div className="mt-4 pt-3 border-t border-current/15 flex items-center justify-between">
+            {myTurnList.length > 0 ? (
+              <>
+                <span className="text-xs font-black flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-400 animate-ping" />
+                  <span>{isRtl ? `يتطلب موافقتك الآن: (${myTurnList.length})` : `Action required: (${myTurnList.length})`}</span>
+                </span>
+                <span className="text-xs font-bold underline">{isRtl ? "مراجعة ➔" : "Review ➔"}</span>
+              </>
+            ) : (
+              <>
+                <span className="text-xs font-black">{isRtl ? "متابعة قيد المراجعة" : "Track In Review"}</span>
+                <span className="text-xs font-bold">{isRtl ? "استعراض ➔" : "Explore ➔"}</span>
+              </>
+            )}
           </div>
-
-          {myTurnList.length > 0 && (
-            <div className="mt-4 pt-3 border-t border-current/15 flex items-center justify-between">
-              <span className="text-xs font-black flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-400 animate-ping" />
-                <span>{isRtl ? `يتطلب موافقتك الآن: (${myTurnList.length})` : `Action required by you: (${myTurnList.length})`}</span>
-              </span>
-              <span className="text-xs font-bold underline">{isRtl ? "اضغط للمراجعة ➔" : "Review now ➔"}</span>
-            </div>
-          )}
         </div>
 
         {/* Card 2: Fully Approved & Live (Emerald/Green) */}
         <div
           onClick={() => setFilterTab("approved")}
-          className={`group relative overflow-hidden rounded-3xl p-6 transition-all duration-300 cursor-pointer border-2 shadow-lg ${
+          className={`group relative overflow-hidden rounded-3xl p-6 transition-all duration-300 cursor-pointer border-2 shadow-lg flex flex-col justify-between ${
             filterTab === "approved"
               ? "bg-gradient-to-br from-emerald-600 via-teal-600 to-green-600 text-white border-emerald-300/40 shadow-emerald-600/30 scale-101"
               : "bg-card hover:bg-muted/40 border-emerald-500/30 text-foreground hover:border-emerald-500/60"
           }`}
         >
-          <div className="flex items-start justify-between">
-            <div
-              className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform ${
-                filterTab === "approved"
-                  ? "bg-white/20 text-white ring-2 ring-white/40"
-                  : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-              }`}
-            >
-              <CheckCircle className="w-7 h-7" strokeWidth={2.6} />
+          <div>
+            <div className="flex items-start justify-between">
+              <div
+                className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform ${
+                  filterTab === "approved"
+                    ? "bg-white/20 text-white ring-2 ring-white/40"
+                    : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                }`}
+              >
+                <CheckCircle className="w-7 h-7" strokeWidth={2.6} />
+              </div>
+
+              <Badge
+                className={
+                  filterTab === "approved"
+                    ? "bg-white/20 text-white border-white/30 text-xs px-3 py-1 font-black"
+                    : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 text-xs px-3 py-1 font-black"
+                }
+              >
+                {isRtl ? "معتمد بالكامل ✓" : "Fully Approved ✓"}
+              </Badge>
             </div>
 
-            <Badge
-              className={
-                filterTab === "approved"
-                  ? "bg-white/20 text-white border-white/30 text-xs px-3 py-1 font-black"
-                  : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 text-xs px-3 py-1 font-black"
-              }
-            >
-              {isRtl ? "معتمد بالكامل ✓" : "Fully Approved ✓"}
-            </Badge>
-          </div>
+            <div className="mt-5 space-y-1">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl sm:text-4xl font-black">{approvedList.length}</span>
+                <span className="text-xs font-bold opacity-85">{isRtl ? "اختبار معتمد ومنشور" : "approved & live"}</span>
+              </div>
 
-          <div className="mt-5 space-y-1">
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl sm:text-4xl font-black">{approvedList.length}</span>
-              <span className="text-xs font-bold opacity-85">{isRtl ? "اختبار معتمد ومنشور" : "approved & live"}</span>
+              <h3 className="text-lg sm:text-xl font-black mt-2">
+                {isRtl ? "الاختبارات المعتمدة والمنشورة" : "Approved & Published Exams"}
+              </h3>
+
+              <p
+                className={`text-xs font-medium leading-relaxed ${
+                  filterTab === "approved" ? "text-white/90" : "text-muted-foreground"
+                }`}
+              >
+                {isRtl
+                  ? `تم اعتمادها رسمياً من قِبل ${deanTitle} وتظهر حالياً في لوحة إدارة الكلية وبوابة الطلاب.`
+                  : "Formally certified by the Dean and live in college dashboard and student portal."}
+              </p>
             </div>
-
-            <h3 className="text-lg sm:text-xl font-black mt-2">
-              {isRtl ? "الاختبارات المعتمدة والمنشورة" : "Approved & Published Exams"}
-            </h3>
-
-            <p
-              className={`text-xs font-medium leading-relaxed ${
-                filterTab === "approved" ? "text-white/90" : "text-muted-foreground"
-              }`}
-            >
-              {isRtl
-                ? `تم اعتمادها رسمياً من قِبل ${deanTitle} وتظهر حالياً في لوحة إدارة الكلية وبوابة الطلاب.`
-                : "Formally certified by the Dean and live in college dashboard and student portal."}
-            </p>
           </div>
 
           <div className="mt-4 pt-3 border-t border-current/15 flex items-center justify-between">
@@ -487,6 +503,65 @@ export const QuizApprovalsView = ({
               {isRtl ? `الاعتماد النهائي: ${deanTitle}` : `Final Approval: ${deanTitle}`}
             </span>
             <span className="text-xs font-bold">{isRtl ? "معاينة المعتمد ➔" : "View approved ➔"}</span>
+          </div>
+        </div>
+
+        {/* Card 3: Quiz Ratings & Academic Quality (Purple/Indigo) */}
+        <div
+          onClick={() => {
+            if (quizzes.length > 0) {
+              const target = quizzes[0];
+              const parentCourse = courses.find((c) => c.id === target.course_id);
+              setRatingQuiz({
+                id: target.id,
+                courseId: target.course_id,
+                title: isRtl ? target.title_ar || target.title_en : target.title_en || target.title_ar,
+                instructor: target.instructor_ar || target.instructor_en || (parentCourse ? (isRtl ? parentCourse.instructor_name : parentCourse.instructor_name) : undefined),
+              });
+            } else {
+              toast({
+                title: isRtl ? "لا توجد اختبارات للتقييم حالياً" : "No quizzes available to rate",
+                description: isRtl ? "ستظهر الاختبارات فور إنشائها واعتمادها." : "Quizzes will appear once created.",
+              });
+            }
+          }}
+          className="group relative overflow-hidden rounded-3xl p-6 transition-all duration-300 cursor-pointer border-2 shadow-lg flex flex-col justify-between bg-card hover:bg-muted/40 border-purple-500/30 text-foreground hover:border-purple-500/60"
+        >
+          <div>
+            <div className="flex items-start justify-between">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-transform bg-purple-500/15 text-purple-600 dark:text-purple-400">
+                <Star className="w-7 h-7 fill-current" strokeWidth={2.6} />
+              </div>
+
+              <Badge className="bg-purple-500/15 text-purple-700 dark:text-purple-400 border-purple-500/30 text-xs px-3 py-1 font-black">
+                {isRtl ? "تقييم الاختبارات" : "Quiz Evaluation"}
+              </Badge>
+            </div>
+
+            <div className="mt-5 space-y-1">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl sm:text-4xl font-black">{quizzes.length}</span>
+                <span className="text-xs font-bold opacity-85">{isRtl ? "اختبار متاح" : "quizzes"}</span>
+              </div>
+
+              <h3 className="text-lg sm:text-xl font-black mt-2 flex items-center gap-1.5">
+                <span>{isRtl ? "تقييم جودة الاختبارات" : "Quiz Quality & Ratings"}</span>
+                <Sparkles className="w-4 h-4 text-amber-500" />
+              </h3>
+
+              <p className="text-xs font-medium leading-relaxed text-muted-foreground">
+                {isRtl
+                  ? "تسجيل التقييم الأكاديمي لجودة الأسئلة والشمولية وتطبيق الملاحظات على مستوى القسم والكلية."
+                  : "Submit academic evaluations on exam questions quality, coverage, and structure."}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-current/15 flex items-center justify-between">
+            <span className="text-xs font-black text-purple-700 dark:text-purple-400">
+              {isRtl ? "⭐ تقييم الاختبار الآن" : "⭐ Evaluate Quiz Now"}
+            </span>
+            <span className="text-xs font-bold">{isRtl ? "فتح التقييم ➔" : "Open ➔"}</span>
           </div>
         </div>
       </div>
@@ -744,6 +819,21 @@ export const QuizApprovalsView = ({
                   <div className="flex items-center gap-2">
                     <Button
                       size="sm"
+                      variant="secondary"
+                      onClick={() => setRatingQuiz({
+                        id: quiz.id,
+                        courseId: quiz.course_id,
+                        title: isRtl ? quiz.title_ar || quiz.title_en : quiz.title_en || quiz.title_ar,
+                        instructor: course?.instructor_name
+                      })}
+                      className="rounded-xl font-bold gap-1 text-xs h-9 px-3 bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/25"
+                    >
+                      <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                      <span>{isRtl ? "تقييم الاختبار" : "Rate Exam"}</span>
+                    </Button>
+
+                    <Button
+                      size="sm"
                       variant="outline"
                       onClick={() => handleOpenReview(quiz)}
                       className="rounded-xl font-bold gap-1 text-xs h-9 px-3 border-border"
@@ -855,6 +945,21 @@ export const QuizApprovalsView = ({
 
                         <TableCell className="text-end">
                           <div className="flex items-center justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => setRatingQuiz({
+                                id: quiz.id,
+                                courseId: quiz.course_id,
+                                title: isRtl ? quiz.title_ar || quiz.title_en : quiz.title_en || quiz.title_ar,
+                                instructor: course?.instructor_name
+                              })}
+                              className="rounded-xl font-bold gap-1 text-xs h-8 px-2.5 bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/25"
+                            >
+                              <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                              <span>{isRtl ? "تقييم" : "Rate"}</span>
+                            </Button>
+
                             {canAct ? (
                               <Button
                                 size="sm"
@@ -999,17 +1104,39 @@ export const QuizApprovalsView = ({
               </div>
 
               {/* Action Buttons if user can act */}
-              {canUserActOn(selectedQuiz) ? (
-                <div className="pt-4 border-t flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="pt-4 border-t flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="flex items-center gap-2 w-full sm:w-auto">
                   <Button
-                    variant="outline"
-                    onClick={() => setRejectDialogOpen(true)}
-                    className="w-full sm:w-auto text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 border-red-300 rounded-xl font-bold"
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      const course = courses.find((c) => c.id === selectedQuiz.course_id);
+                      setRatingQuiz({
+                        id: selectedQuiz.id,
+                        courseId: selectedQuiz.course_id,
+                        title: isRtl ? selectedQuiz.title_ar || selectedQuiz.title_en : selectedQuiz.title_en || selectedQuiz.title_ar,
+                        instructor: course?.instructor_name
+                      });
+                    }}
+                    className="rounded-xl font-black gap-1.5 h-11 px-4 bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/25"
                   >
-                    <XCircle className="w-4 h-4 mr-1.5" />
-                    <span>{isRtl ? "طلب تعديل / رفض الاختبار" : "Reject with Notes"}</span>
+                    <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
+                    <span>{isRtl ? "⭐ تقييم جودة الاختبار" : "Rate Exam Quality"}</span>
                   </Button>
 
+                  {canUserActOn(selectedQuiz) && (
+                    <Button
+                      variant="outline"
+                      onClick={() => setRejectDialogOpen(true)}
+                      className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 border-red-300 rounded-xl font-bold h-11 px-4"
+                    >
+                      <XCircle className="w-4 h-4 mr-1.5" />
+                      <span>{isRtl ? "طلب تعديل / رفض" : "Reject"}</span>
+                    </Button>
+                  )}
+                </div>
+
+                {canUserActOn(selectedQuiz) ? (
                   <Button
                     onClick={() => handleApproveQuiz(selectedQuiz)}
                     disabled={actionLoading}
@@ -1022,18 +1149,16 @@ export const QuizApprovalsView = ({
                         : (isRtl ? "الموافقة وتمرير الاختبار للمرحلة التالية ✓" : "Approve & Pass to Next Step ✓")}
                     </span>
                   </Button>
-                </div>
-              ) : (
-                <div className="pt-3 border-t flex justify-end">
+                ) : (
                   <Button
                     variant="outline"
                     onClick={() => setReviewDialogOpen(false)}
-                    className="rounded-xl font-bold"
+                    className="rounded-xl font-bold h-11 px-5"
                   >
                     {isRtl ? "إغلاق المعاينة" : "Close"}
                   </Button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           )}
         </DialogContent>
@@ -1075,6 +1200,22 @@ export const QuizApprovalsView = ({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Direct Student / Academic Quiz Rating Modal */}
+      {ratingQuiz && (
+        <StudentQuizRatingModal
+          isOpen={!!ratingQuiz}
+          onClose={() => setRatingQuiz(null)}
+          quizId={ratingQuiz.id}
+          quizTitle={ratingQuiz.title}
+          courseId={ratingQuiz.courseId}
+          instructorName={ratingQuiz.instructor}
+          onRatingSubmitted={() => {
+            fetchStats();
+            fetchApprovals();
+          }}
+        />
+      )}
     </div>
   );
 };

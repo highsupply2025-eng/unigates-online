@@ -592,6 +592,21 @@ export const CreateLectureView = ({
       <div className="bg-card border-2 border-border/70 shadow-sm rounded-3xl p-4 sm:p-6 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onBack}
+                className="h-8 px-3 rounded-xl border-primary/30 text-primary hover:bg-primary/10 gap-1.5 text-xs font-black"
+              >
+                {isRtl ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
+                <span>{isRtl ? "رجوع للمحاضرات" : "Back to Lectures"}</span>
+              </Button>
+              <Badge className="bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border-cyan-500/30 text-[10px] font-black">
+                {isRtl ? "استوديو المحاضرات" : "Lecture Studio"}
+              </Badge>
+            </div>
             <h2 className="text-xl sm:text-2xl font-black text-foreground flex items-center gap-2.5">
               <span className="p-2.5 rounded-2xl bg-gradient-to-br from-cyan-500 via-teal-500 to-blue-600 text-white shadow-lg shadow-cyan-500/20">
                 <BookOpen className="w-5 h-5" />

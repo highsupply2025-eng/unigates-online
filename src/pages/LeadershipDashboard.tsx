@@ -212,8 +212,8 @@ const LeadershipDashboard = () => {
   // Upload files for students dialog
   const [showUploadFiles, setShowUploadFiles] = useState(false);
 
-  // Dedicated full-page lecture subview ('overview' | 'create' | 'watch' | 'upload')
-  const [lectureSubView, setLectureSubView] = useState<"overview" | "create" | "watch" | "upload">("overview");
+  // Dedicated full-page lecture subview ('overview' | 'create' | 'watch' | 'upload' | 'attachments' | 'ratings')
+  const [lectureSubView, setLectureSubView] = useState<"overview" | "create" | "watch" | "upload" | "attachments" | "ratings">("overview");
 
   // Dedicated full-page live stream subview ('overview' | 'create' | 'watch')
   const [streamSubView, setStreamSubView] = useState<"overview" | "create" | "watch">("overview");
@@ -1403,10 +1403,75 @@ const LeadershipDashboard = () => {
             <LanguageSelectorDropdown className="h-9 px-2.5 sm:px-3 text-xs bg-background/60 border-primary/20" />
             <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
 
-            <DashboardMenuDropdown
-              title={isRtl ? getRoleLabel().ar : getRoleLabel().en}
-              onLanguageToggle={toggleLanguage}
-              onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
+            {/* Back Button with Arrow icon when inside any subview (Lectures, Quizzes, Streams, Schedules, Assignments, Results) */}
+            {activeTab === "lectures" && lectureSubView !== "overview" ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setLectureSubView("overview")}
+                className="h-10 px-4 gap-2 font-black rounded-2xl border-2 border-primary/30 bg-primary/10 text-primary hover:bg-primary hover:text-white shadow-md transition-all animate-in fade-in"
+              >
+                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                <span>{isRtl ? "الرجوع للمحاضرات" : "Back to Lectures"}</span>
+              </Button>
+            ) : activeTab === "livestreams" && streamSubView !== "overview" ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setStreamSubView("overview")}
+                className="h-10 px-4 gap-2 font-black rounded-2xl border-2 border-primary/30 bg-primary/10 text-primary hover:bg-primary hover:text-white shadow-md transition-all animate-in fade-in"
+              >
+                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                <span>{isRtl ? "الرجوع للبث المباشر" : "Back to Streams"}</span>
+              </Button>
+            ) : activeTab === "quizzesonline" && (quizSubView !== "overview" || leadershipQuizResultsView === "create") ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setQuizSubView("overview");
+                  setLeadershipQuizResultsView("overview");
+                }}
+                className="h-10 px-4 gap-2 font-black rounded-2xl border-2 border-primary/30 bg-primary/10 text-primary hover:bg-primary hover:text-white shadow-md transition-all animate-in fade-in"
+              >
+                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                <span>{isRtl ? "الرجوع للاختبارات" : "Back to Quizzes"}</span>
+              </Button>
+            ) : activeTab === "quizresults" && quizResultsSubView !== "overview" ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setQuizResultsSubView("overview")}
+                className="h-10 px-4 gap-2 font-black rounded-2xl border-2 border-primary/30 bg-primary/10 text-primary hover:bg-primary hover:text-white shadow-md transition-all animate-in fade-in"
+              >
+                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                <span>{isRtl ? "الرجوع لنتائج الاختبارات" : "Back to Quiz Results"}</span>
+              </Button>
+            ) : activeTab === "schedulesapproval" && scheduleSubView !== "overview" ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setScheduleSubView("overview")}
+                className="h-10 px-4 gap-2 font-black rounded-2xl border-2 border-primary/30 bg-primary/10 text-primary hover:bg-primary hover:text-white shadow-md transition-all animate-in fade-in"
+              >
+                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                <span>{isRtl ? "الرجوع للجداول" : "Back to Schedules"}</span>
+              </Button>
+            ) : activeTab === "assignments" && assignmentSubView !== "overview" ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAssignmentSubView("overview")}
+                className="h-10 px-4 gap-2 font-black rounded-2xl border-2 border-primary/30 bg-primary/10 text-primary hover:bg-primary hover:text-white shadow-md transition-all animate-in fade-in"
+              >
+                {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                <span>{isRtl ? "الرجوع للتكليفات" : "Back to Assignments"}</span>
+              </Button>
+            ) : (
+              <DashboardMenuDropdown
+                title={isRtl ? getRoleLabel().ar : getRoleLabel().en}
+                onLanguageToggle={toggleLanguage}
+                onLogout={async () => { await supabase.auth.signOut(); navigate("/university-platform"); }}
                 items={[
                   { key: "overview", label: isRtl ? "الرئيسية" : "Home", Icon: Home, color: "from-indigo-500 to-violet-600", onClick: () => setActiveTab("overview"), active: activeTab === "overview" },
                   { key: "lectures", label: isRtl ? "المحاضرات" : "Lectures", Icon: BookOpen, color: "from-cyan-500 to-blue-600", onClick: () => setActiveTab("lectures"), active: activeTab === "lectures" },
@@ -2199,6 +2264,153 @@ const LeadershipDashboard = () => {
                   onBack={() => setLectureSubView("overview")}
                   onUploaded={loadData}
                 />
+              ) : lectureSubView === "attachments" ? (
+                <div className="space-y-6 animate-in fade-in-50 duration-300 pb-12">
+                  <div className="bg-card border-2 border-border/70 shadow-sm rounded-3xl p-5 sm:p-6 space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setLectureSubView("overview")}
+                            className="h-8 px-3 rounded-xl border-primary/30 text-primary hover:bg-primary/10 gap-1.5 text-xs font-black"
+                          >
+                            {isRtl ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
+                            <span>{isRtl ? "رجوع للمحاضرات" : "Back to Lectures"}</span>
+                          </Button>
+                          <Badge className="bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/30 text-[10px] font-black">
+                            {isRtl ? "مكتبة المذكرات" : "Handouts Library"}
+                          </Badge>
+                        </div>
+                        <h2 className="text-xl sm:text-2xl font-black text-foreground flex items-center gap-2.5">
+                          <span className="p-2.5 rounded-2xl bg-gradient-to-br from-purple-500 via-indigo-600 to-fuchsia-600 text-white shadow-lg shadow-purple-500/20">
+                            <Paperclip className="w-5 h-5" />
+                          </span>
+                          {isRtl ? "الملفات والمذكرات المرفقة بالمحاضرات" : "Lecture Attached Handouts & Files"}
+                        </h2>
+                        <p className="text-xs sm:text-sm text-muted-foreground mt-1 font-medium">
+                          {isRtl
+                            ? "استعراض وتحميل مذكرات المقررات والملخصات والملفات المرفقة لجميع محاضرات القسم."
+                            : "Browse and download syllabus, lecture notes, slides and attached documents."}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="font-black text-xs px-3 py-1.5 bg-card rounded-xl border-2 border-purple-500/30 text-purple-700 dark:text-purple-300 shadow-xs">
+                          {courseAttachments.length} {isRtl ? "ملف مرفق" : "files"}
+                        </Badge>
+                        <Button
+                          size="sm"
+                          onClick={() => setLectureSubView("upload")}
+                          className="h-9 px-3.5 rounded-xl font-black text-xs bg-purple-600 hover:bg-purple-700 text-white gap-1.5 shadow-sm"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>{isRtl ? "رفع ملف جديد" : "Upload File"}</span>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {courseAttachments.length === 0 ? (
+                    <Card className="rounded-3xl border-2 border-dashed border-border/80 bg-card/50 shadow-sm">
+                      <CardContent className="py-16 text-center space-y-3">
+                        <div className="w-16 h-16 rounded-3xl bg-purple-500/10 text-purple-600 flex items-center justify-center mx-auto shadow-inner">
+                          <Paperclip className="w-8 h-8" />
+                        </div>
+                        <p className="text-base font-black text-foreground">
+                          {isRtl ? "لا توجد ملفات مرفقة للمحاضرات حتى الآن" : "No lecture attachments uploaded yet"}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {courseAttachments.map((att: any) => {
+                        const parentCourse = courses.find(c => c.id === att.course_id);
+                        return (
+                          <div
+                            key={att.id}
+                            className="p-5 rounded-3xl bg-card border-2 border-border/80 hover:border-purple-500/40 shadow-sm space-y-3 transition-all flex flex-col justify-between"
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className="w-11 h-11 rounded-2xl bg-purple-500/15 text-purple-600 flex items-center justify-center shrink-0">
+                                  <FileText className="w-5 h-5" />
+                                </div>
+                                <div className="min-w-0">
+                                  <h4 className="text-sm font-black text-foreground truncate">{att.name}</h4>
+                                  <p className="text-xs text-primary font-bold truncate">
+                                    {parentCourse ? (isRtl ? parentCourse.title_ar : parentCourse.title_en) : (isRtl ? "مقرر دراسي" : "Course")}
+                                  </p>
+                                </div>
+                              </div>
+                              <Badge variant="secondary" className="text-[10px] font-bold uppercase shrink-0">
+                                {att.file_type || "PDF"}
+                              </Badge>
+                            </div>
+
+                            <div className="flex items-center justify-between pt-2 border-t border-border/50 text-xs">
+                              <span className="text-muted-foreground font-medium">
+                                {att.created_at ? new Date(att.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : "—"}
+                              </span>
+                              {att.file_url && (
+                                <a href={att.file_url} target="_blank" rel="noopener noreferrer" download>
+                                  <Button size="sm" className="h-8 px-3 text-xs font-bold rounded-xl bg-purple-600 hover:bg-purple-700 text-white gap-1.5 shadow-xs">
+                                    <Download className="w-3.5 h-3.5" />
+                                    <span>{isRtl ? "تنزيل" : "Download"}</span>
+                                  </Button>
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              ) : lectureSubView === "ratings" ? (
+                <div className="space-y-6 animate-in fade-in-50 duration-300 pb-12">
+                  <div className="bg-card border-2 border-border/70 shadow-sm rounded-3xl p-5 sm:p-6 space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setLectureSubView("overview")}
+                            className="h-8 px-3 rounded-xl border-primary/30 text-primary hover:bg-primary/10 gap-1.5 text-xs font-black"
+                          >
+                            {isRtl ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
+                            <span>{isRtl ? "رجوع للمحاضرات" : "Back to Lectures"}</span>
+                          </Button>
+                          <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30 text-[10px] font-black">
+                            {isRtl ? "سجل تقييمات الطلاب" : "Student Ratings"}
+                          </Badge>
+                        </div>
+                        <h2 className="text-xl sm:text-2xl font-black text-foreground flex items-center gap-2.5">
+                          <span className="p-2.5 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-500 to-yellow-600 text-white shadow-lg shadow-amber-500/20">
+                            <Star className="w-5 h-5 fill-white" />
+                          </span>
+                          {isRtl ? "تقييمات وملاحظات الطلاب على المحاضرات" : "Student Lecture Ratings & Feedback"}
+                        </h2>
+                        <p className="text-xs sm:text-sm text-muted-foreground mt-1 font-medium">
+                          {isRtl
+                            ? "متابعة دقيقة لتقييمات الطلاب التفصيلية للمحاضرات والملاحظات المكتوبة بسرية تامة."
+                            : "Detailed anonymous student evaluations and written feedback for your lectures."}
+                        </p>
+                      </div>
+
+                      <Badge variant="outline" className="font-black text-xs px-3 py-1.5 bg-card rounded-xl border-2 border-amber-500/30 text-amber-700 dark:text-amber-300 shadow-xs">
+                        {lectureRatings.length} {isRtl ? "تقييم مسجل" : "ratings"}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <RatingsBreakdown
+                    lecturerId={userId}
+                    departmentId={selectedDeptId !== "all" ? selectedDeptId : undefined}
+                  />
+                </div>
               ) : (
                 <>
                   {/* 1. Top Action & Oversight Cards (Customized 3 cards for Dean & Vice Deans, 4 cards for Faculty) */}
@@ -2247,33 +2459,17 @@ const LeadershipDashboard = () => {
                       </div>
                     )}
 
-                    {/* Card: Watch & Browse Lectures */}
+                    {/* Card 2: Watch & Browse Lectures */}
                     <div
-                      onClick={() => setLeadershipLectureView("lectures")}
-                      className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
-                        leadershipLectureView === "lectures"
-                          ? "bg-gradient-to-br from-teal-600 via-emerald-600 to-teal-700 text-white shadow-xl shadow-teal-600/30 border-white/30 -translate-y-1"
-                          : "bg-card hover:bg-muted/40 border-border text-foreground hover:border-teal-500/40 shadow-sm"
-                      }`}
+                      onClick={() => setLectureSubView("watch")}
+                      className="group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between bg-gradient-to-br from-teal-600 via-emerald-600 to-teal-700 text-white shadow-xl shadow-teal-600/30 border-white/30 hover:scale-[1.02] hover:-translate-y-1"
                     >
                       <div>
                         <div className="flex items-start justify-between">
-                          <div
-                            className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform ${
-                              leadershipLectureView === "lectures"
-                                ? "bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40"
-                                : "bg-teal-500/10 text-teal-600 dark:text-teal-400"
-                            }`}
-                          >
-                            <BookOpen className="w-6 h-6" strokeWidth={2.6} />
+                          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40">
+                            <BookOpen className="w-6 h-6 text-white" strokeWidth={2.6} />
                           </div>
-                          <Badge
-                            className={
-                              leadershipLectureView === "lectures"
-                                ? "bg-white/20 text-white border-white/30"
-                                : "bg-teal-500/10 text-teal-600 border-teal-500/20"
-                            }
-                          >
+                          <Badge className="bg-white/20 text-white border-white/30">
                             {courses.length} {isRtl ? "محاضرة" : "lectures"}
                           </Badge>
                         </div>
@@ -2283,11 +2479,7 @@ const LeadershipDashboard = () => {
                             <span>{isRtl ? "مشاهدة واستعراض المحاضرات" : "Watch & Browse Lectures"}</span>
                             <Sparkles className="w-4 h-4 text-emerald-300" />
                           </h3>
-                          <p
-                            className={`text-xs font-medium leading-relaxed ${
-                              leadershipLectureView === "lectures" ? "text-white/85" : "text-muted-foreground"
-                            }`}
-                          >
+                          <p className="text-xs font-medium leading-relaxed text-white/90">
                             {isRtl
                               ? "استعراض ومتابعة المحاضرات المسجلة والحلقات المرئية للأقسام."
                               : "Explore and watch recorded video episodes and courses across departments."}
@@ -2295,47 +2487,27 @@ const LeadershipDashboard = () => {
                         </div>
                       </div>
 
-                      <div className="mt-5 flex items-center justify-between pt-3 border-t border-current/10">
+                      <div className="mt-5 flex items-center justify-between pt-3 border-t border-white/20">
                         <span className="text-xs font-black">
                           {isRtl ? "استعراض المحاضرات ➔" : "Browse Lectures ➔"}
                         </span>
-                        <div
-                          className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                            leadershipLectureView === "lectures" ? "bg-white/20 text-white" : "bg-muted text-foreground"
-                          }`}
-                        >
+                        <div className="w-7 h-7 rounded-full flex items-center justify-center transition-colors bg-white/20 text-white">
                           <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
                         </div>
                       </div>
                     </div>
 
-                    {/* Card: Attached Course Files & Handouts */}
+                    {/* Card 3: Attached Course Files & Handouts */}
                     <div
-                      onClick={() => setLeadershipLectureView("attachments")}
-                      className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
-                        leadershipLectureView === "attachments"
-                          ? "bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-700 text-white shadow-xl shadow-purple-600/30 border-white/30 -translate-y-1"
-                          : "bg-card hover:bg-muted/40 border-border text-foreground hover:border-purple-500/40 shadow-sm"
-                      }`}
+                      onClick={() => setLectureSubView("attachments")}
+                      className="group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-700 text-white shadow-xl shadow-purple-600/30 border-white/30 hover:scale-[1.02] hover:-translate-y-1"
                     >
                       <div>
                         <div className="flex items-start justify-between">
-                          <div
-                            className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform ${
-                              leadershipLectureView === "attachments"
-                                ? "bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40"
-                                : "bg-purple-500/10 text-purple-600 dark:text-purple-400"
-                            }`}
-                          >
-                            <Paperclip className="w-6 h-6" strokeWidth={2.6} />
+                          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40">
+                            <Paperclip className="w-6 h-6 text-white" strokeWidth={2.6} />
                           </div>
-                          <Badge
-                            className={
-                              leadershipLectureView === "attachments"
-                                ? "bg-white/20 text-white border-white/30"
-                                : "bg-purple-500/10 text-purple-600 border-purple-500/20"
-                            }
-                          >
+                          <Badge className="bg-white/20 text-white border-white/30">
                             {courseAttachments.length} {isRtl ? "مرفق" : "files"}
                           </Badge>
                         </div>
@@ -2345,11 +2517,7 @@ const LeadershipDashboard = () => {
                             <span>{isRtl ? "الملفات والمذكرات المرفقة" : "Attached Files & Handouts"}</span>
                             <FileText className="w-4 h-4 text-purple-300" />
                           </h3>
-                          <p
-                            className={`text-xs font-medium leading-relaxed ${
-                              leadershipLectureView === "attachments" ? "text-white/85" : "text-muted-foreground"
-                            }`}
-                          >
+                          <p className="text-xs font-medium leading-relaxed text-white/90">
                             {isRtl
                               ? "استعراض وتحميل مذكرات المقررات والملخصات والملفات المرفقة."
                               : "View and download handouts, slides, and syllabus documents."}
@@ -2357,47 +2525,27 @@ const LeadershipDashboard = () => {
                         </div>
                       </div>
 
-                      <div className="mt-5 flex items-center justify-between pt-3 border-t border-current/10">
+                      <div className="mt-5 flex items-center justify-between pt-3 border-t border-white/20">
                         <span className="text-xs font-black">
                           {isRtl ? "استعراض المذكرات ➔" : "View Handouts ➔"}
                         </span>
-                        <div
-                          className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                            leadershipLectureView === "attachments" ? "bg-white/20 text-white" : "bg-muted text-foreground"
-                          }`}
-                        >
+                        <div className="w-7 h-7 rounded-full flex items-center justify-center transition-colors bg-white/20 text-white">
                           <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
                         </div>
                       </div>
                     </div>
 
-                    {/* Card: Student Ratings & Feedback */}
+                    {/* Card 4: Student Ratings & Feedback */}
                     <div
-                      onClick={() => setLeadershipLectureView("ratings")}
-                      className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
-                        leadershipLectureView === "ratings"
-                          ? "bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white shadow-xl shadow-amber-500/30 border-white/30 -translate-y-1"
-                          : "bg-card hover:bg-muted/40 border-border text-foreground hover:border-amber-500/40 shadow-sm"
-                      }`}
+                      onClick={() => setLectureSubView("ratings")}
+                      className="group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white shadow-xl shadow-amber-500/30 border-white/30 hover:scale-[1.02] hover:-translate-y-1"
                     >
                       <div>
                         <div className="flex items-start justify-between">
-                          <div
-                            className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform ${
-                              leadershipLectureView === "ratings"
-                                ? "bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40"
-                                : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                            }`}
-                          >
-                            <Star className="w-6 h-6 fill-current" strokeWidth={2.6} />
+                          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40">
+                            <Star className="w-6 h-6 fill-white text-white" strokeWidth={2.6} />
                           </div>
-                          <Badge
-                            className={
-                              leadershipLectureView === "ratings"
-                                ? "bg-white/20 text-white border-white/30"
-                                : "bg-amber-500/10 text-amber-600 border-amber-500/20"
-                            }
-                          >
+                          <Badge className="bg-white/20 text-white border-white/30">
                             {lectureRatings.length} {isRtl ? "تقييم" : "ratings"}
                           </Badge>
                         </div>
@@ -2407,11 +2555,7 @@ const LeadershipDashboard = () => {
                             <span>{isRtl ? "تقييمات وملاحظات الطلاب" : "Student Lecture Ratings"}</span>
                             <Sparkles className="w-4 h-4 text-yellow-200" />
                           </h3>
-                          <p
-                            className={`text-xs font-medium leading-relaxed ${
-                              leadershipLectureView === "ratings" ? "text-white/85" : "text-muted-foreground"
-                            }`}
-                          >
+                          <p className="text-xs font-medium leading-relaxed text-white/90">
                             {isRtl
                               ? "متابعة تقييمات الطلاب للمحاضرات والمقررات ومؤشرات الرضا الأكاديمي."
                               : "Monitor real-time student satisfaction and feedback on lectures."}
@@ -2419,15 +2563,11 @@ const LeadershipDashboard = () => {
                         </div>
                       </div>
 
-                      <div className="mt-5 flex items-center justify-between pt-3 border-t border-current/10">
+                      <div className="mt-5 flex items-center justify-between pt-3 border-t border-white/20">
                         <span className="text-xs font-black">
                           {isRtl ? "متابعة التقييمات ➔" : "View Ratings ➔"}
                         </span>
-                        <div
-                          className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                            leadershipLectureView === "ratings" ? "bg-white/20 text-white" : "bg-muted text-foreground"
-                          }`}
-                        >
+                        <div className="w-7 h-7 rounded-full flex items-center justify-center transition-colors bg-white/20 text-white">
                           <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
                         </div>
                       </div>

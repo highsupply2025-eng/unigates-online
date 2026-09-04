@@ -246,6 +246,21 @@ export const UploadFilesView = ({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/60">
         <div>
+          <div className="flex items-center gap-2 mb-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onBack}
+              className="h-8 px-3 rounded-xl border-primary/30 text-primary hover:bg-primary/10 gap-1.5 text-xs font-black"
+            >
+              {isRtl ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
+              <span>{isRtl ? "رجوع للمحاضرات" : "Back to Lectures"}</span>
+            </Button>
+            <Badge className="bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/30 text-[10px] font-black">
+              {isRtl ? "المذكرات والمرفقات" : "Course Materials"}
+            </Badge>
+          </div>
           <h2 className="text-xl sm:text-2xl font-black text-foreground flex items-center gap-2">
             <span className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-fuchsia-600 text-white shadow-md shadow-purple-500/20">
               <Upload className="w-5 h-5" />

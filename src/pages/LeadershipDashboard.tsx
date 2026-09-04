@@ -206,6 +206,7 @@ const LeadershipDashboard = () => {
   // Watch lectures dialog
   const [showWatchLectures, setShowWatchLectures] = useState(false);
   const [ratingCourse, setRatingCourse] = useState<{ id: string; title: string; instructor?: string } | null>(null);
+  const [ratingStream, setRatingStream] = useState<{ id: string; title: string; instructor?: string } | null>(null);
   const [selectedVideoModal, setSelectedVideoModal] = useState<{ url: string; title: string; courseTitle: string; instructor?: string } | null>(null);
 
   // Upload files for students dialog
@@ -2051,6 +2052,26 @@ const LeadershipDashboard = () => {
                                 </div>
 
                                 <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                                  {isDeanOrViceDean && (
+                                    <Button
+                                      size="lg"
+                                      variant="secondary"
+                                      onClick={() => {
+                                        setRatingStream({
+                                          id: stream.id,
+                                          title: isRtl ? stream.title_ar || stream.title_en : stream.title_en || stream.title_ar,
+                                          instructor: stream.instructor_ar || stream.instructor_en,
+                                        });
+                                      }}
+                                      className="h-11 px-4 text-xs font-black rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-amber-500/15 hover:from-amber-500/25 hover:to-orange-500/25 text-amber-700 dark:text-amber-300 border border-amber-500/30 gap-1.5 shadow-sm transition-all hover:scale-105"
+                                    >
+                                      <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
+                                      <span>
+                                        {isRtl ? "⭐ تقييم البث (العميد / الوكيل)" : "⭐ Evaluate Stream"}
+                                      </span>
+                                    </Button>
+                                  )}
+
                                   <Button
                                     size="lg"
                                     className={`font-black gap-2 rounded-2xl h-11 px-6 shadow-md transition-all hover:scale-105 ${
@@ -4071,6 +4092,22 @@ const LeadershipDashboard = () => {
           courseId={ratingCourse.id}
           lectureTitle={ratingCourse.title}
           instructorName={ratingCourse.instructor}
+          onRated={() => {
+            loadData();
+          }}
+        />
+      )}
+
+      {/* Leadership / Dean & Vice Dean Live Stream Rating Modal */}
+      {ratingStream && (
+        <StudentLiveRatingModal
+          open={!!ratingStream}
+          onOpenChange={(open) => {
+            if (!open) setRatingStream(null);
+          }}
+          streamId={ratingStream.id}
+          streamTitle={ratingStream.title}
+          instructorName={ratingStream.instructor}
           onRated={() => {
             loadData();
           }}

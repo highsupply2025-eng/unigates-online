@@ -182,6 +182,7 @@ const Signup = () => {
   const isLecturer = role === "lecturer";
 
   const { t, dir, language, toggleLanguage } = useLanguage();
+  const isRtl = dir === "rtl";
   const ArrowIcon = language === "ar" ? ChevronLeft : ChevronRight;
 
   const [fullName, setFullName] = useState("");

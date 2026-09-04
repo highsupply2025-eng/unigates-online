@@ -7,8 +7,9 @@ import {
   GraduationCap, Plus, Eye, BookOpen, FileText, Video, Trash2, Globe, LogOut,
   Upload, X, Radio, Calendar, ExternalLink, ClipboardList, Star, Send, ArrowLeft, ArrowRight, MonitorPlay, Link2, Copy, Check,
   Download, Users, Clock, BarChart3, CheckCircle, HelpCircle, MoreVertical, Menu, Award, Home, Loader2, RefreshCw,
-  Circle, Square, RotateCcw, Play, AlertCircle
+  Circle, Square, RotateCcw, Play, AlertCircle, MessageSquare
 } from "lucide-react";
+import { useSmartBack } from "@/hooks/use-smart-back";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import LiveStreamRoom from "@/components/LiveStreamRoom";

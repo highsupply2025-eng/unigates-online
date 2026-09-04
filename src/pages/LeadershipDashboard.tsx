@@ -56,6 +56,7 @@ import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import ugLogo from "@/assets/ug-logo.png";
 import { StudentLiveRatingModal } from "@/components/StudentLiveRatingModal";
+import { StudentLectureRatingModal } from "@/components/StudentLectureRatingModal";
 
 const LeadershipDashboard = () => {
   const { t, dir, language, toggleLanguage } = useLanguage();
@@ -204,6 +205,8 @@ const LeadershipDashboard = () => {
 
   // Watch lectures dialog
   const [showWatchLectures, setShowWatchLectures] = useState(false);
+  const [ratingCourse, setRatingCourse] = useState<{ id: string; title: string; instructor?: string } | null>(null);
+  const [selectedVideoModal, setSelectedVideoModal] = useState<{ url: string; title: string; courseTitle: string; instructor?: string } | null>(null);
 
   // Upload files for students dialog
   const [showUploadFiles, setShowUploadFiles] = useState(false);
@@ -2178,51 +2181,53 @@ const LeadershipDashboard = () => {
                 />
               ) : (
                 <>
-                  {/* 1. Top 4 Luxury Action & Oversight Cards (Unified for Dean, Vice Deans, Dept Heads & All Academic Ranks) */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-                    {/* Card 1: Create New Lecture Studio */}
-                    <div
-                      onClick={() => {
-                        setLectureSubView("create");
-                        if (userId) loadMyDepartments(userId);
-                      }}
-                      className="group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between bg-gradient-to-br from-cyan-600 via-blue-600 to-indigo-700 text-white shadow-xl shadow-cyan-600/30 border-white/30 hover:scale-[1.02] hover:-translate-y-1"
-                    >
-                      <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
-                      <div>
-                        <div className="flex items-start justify-between">
-                          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-transform bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40">
-                            <Plus className="w-6 h-6 text-white" strokeWidth={2.8} />
+                  {/* 1. Top Action & Oversight Cards (Customized 3 cards for Dean & Vice Deans, 4 cards for Faculty) */}
+                  <div className={`grid grid-cols-1 sm:grid-cols-2 ${isDeanOrViceDean ? "lg:grid-cols-3" : "lg:grid-cols-4"} gap-4 sm:gap-5`}>
+                    {/* Card 1 for regular faculty: Create New Lecture Studio */}
+                    {!isDeanOrViceDean && (
+                      <div
+                        onClick={() => {
+                          setLectureSubView("create");
+                          if (userId) loadMyDepartments(userId);
+                        }}
+                        className="group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between bg-gradient-to-br from-cyan-600 via-blue-600 to-indigo-700 text-white shadow-xl shadow-cyan-600/30 border-white/30 hover:scale-[1.02] hover:-translate-y-1"
+                      >
+                        <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
+                        <div>
+                          <div className="flex items-start justify-between">
+                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-transform bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40">
+                              <Plus className="w-6 h-6 text-white" strokeWidth={2.8} />
+                            </div>
+                            <Badge className="bg-white/20 text-white border-white/30">
+                              {isRtl ? "تسجيل وبث" : "Lecture Studio"}
+                            </Badge>
                           </div>
-                          <Badge className="bg-white/20 text-white border-white/30">
-                            {isRtl ? "تسجيل وبث" : "Lecture Studio"}
-                          </Badge>
+
+                          <div className="mt-4 space-y-1">
+                            <h3 className="text-lg sm:text-xl font-black flex items-center gap-1.5">
+                              <span>{isRtl ? "إنشاء محاضرة جديدة" : "Create New Lecture"}</span>
+                              <Sparkles className="w-4 h-4 text-cyan-200" />
+                            </h3>
+                            <p className="text-xs font-medium leading-relaxed text-white/90">
+                              {isRtl
+                                ? "تسجيل حلقة مرئية ورفع ملفات الشرح والمذكرات المرفقة للمقرر."
+                                : "Record video episode, upload handouts and configure lecture details."}
+                            </p>
+                          </div>
                         </div>
 
-                        <div className="mt-4 space-y-1">
-                          <h3 className="text-lg sm:text-xl font-black flex items-center gap-1.5">
-                            <span>{isRtl ? "إنشاء محاضرة جديدة" : "Create New Lecture"}</span>
-                            <Sparkles className="w-4 h-4 text-cyan-200" />
-                          </h3>
-                          <p className="text-xs font-medium leading-relaxed text-white/90">
-                            {isRtl
-                              ? "تسجيل حلقة مرئية ورفع ملفات الشرح والمذكرات المرفقة للمقرر."
-                              : "Record video episode, upload handouts and configure lecture details."}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="mt-5 flex items-center justify-between pt-3 border-t border-white/20">
-                        <span className="text-xs font-black">
-                          {isRtl ? "تسجيل المحاضرة الآن ➔" : "Record Lecture ➔"}
-                        </span>
-                        <div className="w-7 h-7 rounded-full flex items-center justify-center transition-colors bg-white/20 text-white">
-                          <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
+                        <div className="mt-5 flex items-center justify-between pt-3 border-t border-white/20">
+                          <span className="text-xs font-black">
+                            {isRtl ? "تسجيل المحاضرة الآن ➔" : "Record Lecture ➔"}
+                          </span>
+                          <div className="w-7 h-7 rounded-full flex items-center justify-center transition-colors bg-white/20 text-white">
+                            <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
 
-                    {/* Card 2: Watch & Browse Lectures */}
+                    {/* Card: Watch & Browse Lectures */}
                     <div
                       onClick={() => setLeadershipLectureView("lectures")}
                       className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
@@ -2284,7 +2289,7 @@ const LeadershipDashboard = () => {
                       </div>
                     </div>
 
-                    {/* Card 3: Attached Course Files & Handouts */}
+                    {/* Card: Attached Course Files & Handouts */}
                     <div
                       onClick={() => setLeadershipLectureView("attachments")}
                       className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
@@ -2317,7 +2322,7 @@ const LeadershipDashboard = () => {
 
                         <div className="mt-4 space-y-1">
                           <h3 className="text-lg sm:text-xl font-black flex items-center gap-1.5">
-                            <span>{isRtl ? "ملفات ومذكرات المحاضرات" : "Attached Files & Handouts"}</span>
+                            <span>{isRtl ? "الملفات والمذكرات المرفقة" : "Attached Files & Handouts"}</span>
                             <FileText className="w-4 h-4 text-purple-300" />
                           </h3>
                           <p
@@ -2346,7 +2351,7 @@ const LeadershipDashboard = () => {
                       </div>
                     </div>
 
-                    {/* Card 4: Student Ratings & Feedback */}
+                    {/* Card: Student Ratings & Feedback */}
                     <div
                       onClick={() => setLeadershipLectureView("ratings")}
                       className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
@@ -2585,76 +2590,128 @@ const LeadershipDashboard = () => {
                       </CardContent>
                     </Card>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                      {courses.map((course: any) => (
-                            <TableRow>
-                              <TableHead className="font-black text-xs">{isRtl ? "الجدول والمقرر" : "Schedule & Course"}</TableHead>
-                              <TableHead className="font-black text-xs hidden sm:table-cell">{isRtl ? "المواعيد والقاعة" : "Time & Hall"}</TableHead>
-                              <TableHead className="font-black text-xs">{isRtl ? "حالة الاعتماد" : "Approval Status"}</TableHead>
-                              <TableHead className="font-black text-xs text-end">{isRtl ? "الإجراء" : "Action"}</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {lectureSchedules.slice(0, 8).map((s) => {
-                              const course = courses.find((c) => c.id === s.course_id);
-                              const isAppr = !!(s.approved_by_dean || (s.approval_reviewers?.length && s.approval_reviewers.every((x: any) => x.approved)));
-                              return (
-                                <TableRow key={s.id} className="hover:bg-muted/20">
-                                  <TableCell className="font-bold">
-                                    <div className="flex flex-col">
-                                      <span className="text-sm font-black text-foreground">
-                                        {isRtl ? s.title_ar || s.title_en : s.title_en || s.title_ar}
-                                      </span>
-                                      {course && (
-                                        <span className="text-xs text-purple-700 dark:text-purple-400 font-bold">
-                                          {isRtl ? course.title_ar : course.title_en}
-                                        </span>
-                                      )}
-                                    </div>
-                                  </TableCell>
-                                  <TableCell className="hidden sm:table-cell text-xs text-muted-foreground font-medium">
-                                    {s.start_time ? `${s.start_time} - ${s.end_time || ""}` : s.scheduled_date}
-                                    {s.location_ar ? ` (${s.location_ar})` : ""}
-                                  </TableCell>
-                                  <TableCell>
-                                    <Badge
-                                      className={`text-xs font-bold border ${
-                                        isAppr
-                                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
-                                          : s.rejected_by
-                                          ? "bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/30"
-                                          : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30"
-                                      }`}
-                                    >
-                                      {isAppr
-                                        ? (isRtl ? "معتمد ومنشور للطلاب ✓" : "Approved & Live ✓")
-                                        : s.rejected_by
-                                        ? (isRtl ? "مرفوض" : "Rejected")
-                                        : (isRtl ? "قيد المراجعة بالسلسلة" : "In Review Chain")}
-                                    </Badge>
-                                  </TableCell>
-                                  <TableCell className="text-end">
-                                    <Button
-                                      size="sm"
-                                      onClick={() => setScheduleSubView("approvals")}
-                                      variant="outline"
-                                      className="rounded-xl font-bold text-xs"
-                                    >
-                                      {isRtl ? "متابعة الاعتماد" : "Track Approval"}
-                                    </Button>
-                                  </TableCell>
-                                </TableRow>
-                              );
-                            })}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-          </TabsContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {courses.map((course: any) => {
+                        const courseEps = episodes.filter((e: any) => e.course_id === course.id);
+                        const courseAtts = courseAttachments.filter((a: any) => a.course_id === course.id);
+                        const courseRats = lectureRatings.filter((r: any) => r.course_id === course.id);
+                        const avgCourseRating = courseRats.length > 0
+                          ? (courseRats.reduce((sum: number, r: any) => sum + (r.rating || 0), 0) / courseRats.length).toFixed(1)
+                          : null;
+                        const dept = myDepartments.find((d: any) => d.id === course.department_id);
+
+                        return (
+                          <div
+                            key={course.id}
+                            className="p-5 rounded-3xl bg-card border-2 border-border/80 hover:border-teal-500/40 shadow-sm space-y-4 transition-all flex flex-col justify-between"
+                          >
+                            <div className="space-y-3">
+                              {/* Header & Department */}
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="w-11 h-11 rounded-2xl bg-teal-500/15 text-teal-600 flex items-center justify-center shrink-0 shadow-inner">
+                                  <BookOpen className="w-5 h-5" />
+                                </div>
+                                <Badge variant="secondary" className="text-[11px] font-bold truncate max-w-[160px]">
+                                  {dept?.department_name || (isRtl ? "عام" : "General")}
+                                </Badge>
+                              </div>
+
+                              {/* Title & Instructor */}
+                              <div>
+                                <h4 className="text-base font-black text-foreground leading-snug line-clamp-1">
+                                  {isRtl ? course.title_ar || course.title_en : course.title_en || course.title_ar}
+                                </h4>
+                                {course.instructor_name && (
+                                  <p className="text-xs text-muted-foreground font-bold flex items-center gap-1.5 mt-1">
+                                    <GraduationCap className="w-3.5 h-3.5 text-primary" />
+                                    <span>{course.instructor_name}</span>
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Stats Badges */}
+                              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border/40 text-center">
+                                <div className="p-2 rounded-xl bg-muted/40">
+                                  <div className="text-xs font-black text-teal-600 dark:text-teal-400">{courseEps.length}</div>
+                                  <div className="text-[10px] text-muted-foreground font-bold">{isRtl ? "حلقات" : "Episodes"}</div>
+                                </div>
+                                <div className="p-2 rounded-xl bg-muted/40">
+                                  <div className="text-xs font-black text-purple-600 dark:text-purple-400">{courseAtts.length}</div>
+                                  <div className="text-[10px] text-muted-foreground font-bold">{isRtl ? "مرفقات" : "Files"}</div>
+                                </div>
+                                <div className="p-2 rounded-xl bg-muted/40">
+                                  <div className="text-xs font-black text-amber-600 dark:text-amber-400 flex items-center justify-center gap-0.5">
+                                    <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                                    <span>{avgCourseRating || "—"}</span>
+                                  </div>
+                                  <div className="text-[10px] text-muted-foreground font-bold">({courseRats.length}) {isRtl ? "تقييم" : "Rating"}</div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Action Buttons: Watch Episodes, Files, Leadership Rating */}
+                            <div className="space-y-2 pt-2 border-t border-border/50">
+                              <div className="grid grid-cols-2 gap-2">
+                                <Button
+                                  size="sm"
+                                  onClick={() => {
+                                    if (courseEps.length > 0 && courseEps[0].video_url) {
+                                      setSelectedVideoModal({
+                                        url: courseEps[0].video_url,
+                                        title: isRtl ? courseEps[0].title_ar || courseEps[0].title_en : courseEps[0].title_en || courseEps[0].title_ar,
+                                        courseTitle: isRtl ? course.title_ar : course.title_en,
+                                        instructor: course.instructor_name,
+                                      });
+                                    } else {
+                                      setLectureSubView("watch");
+                                    }
+                                  }}
+                                  className="h-9 text-xs font-black rounded-xl bg-teal-600 hover:bg-teal-700 text-white gap-1.5 shadow-sm"
+                                >
+                                  <Play className="w-3.5 h-3.5 fill-current" />
+                                  <span>{isRtl ? "مشاهدة الحلقات" : "Watch"}</span>
+                                </Button>
+
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => setLeadershipLectureView("attachments")}
+                                  className="h-9 text-xs font-black rounded-xl gap-1.5"
+                                >
+                                  <Paperclip className="w-3.5 h-3.5 text-purple-500" />
+                                  <span>{isRtl ? "المرفقات" : "Files"}</span>
+                                </Button>
+                              </div>
+
+                              {/* Dedicated Dean & Vice Dean / Leadership Evaluation Button */}
+                              {isDeanOrViceDean && (
+                                <Button
+                                  size="sm"
+                                  variant="secondary"
+                                  onClick={() => {
+                                    setRatingCourse({
+                                      id: course.id,
+                                      title: isRtl ? course.title_ar || course.title_en : course.title_en || course.title_ar,
+                                      instructor: course.instructor_name,
+                                    });
+                                  }}
+                                  className="w-full h-9 text-xs font-black rounded-xl bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-amber-500/15 hover:from-amber-500/25 hover:to-orange-500/25 text-amber-700 dark:text-amber-300 border border-amber-500/30 gap-1.5"
+                                >
+                                  <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                                  <span>
+                                    {isRtl ? "تقييم المحاضرة (العميد / الوكيل)" : "Leadership Evaluation"}
+                                  </span>
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
+              )}
+            </TabsContent>
 
 
           {/* Quiz Results Management & Approval Tab */}
@@ -4003,6 +4060,63 @@ const LeadershipDashboard = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Leadership / Dean & Vice Dean Lecture Rating Modal */}
+      {ratingCourse && (
+        <StudentLectureRatingModal
+          open={!!ratingCourse}
+          onOpenChange={(open) => {
+            if (!open) setRatingCourse(null);
+          }}
+          courseId={ratingCourse.id}
+          lectureTitle={ratingCourse.title}
+          instructorName={ratingCourse.instructor}
+          onRated={() => {
+            loadData();
+          }}
+        />
+      )}
+
+      {/* Quick Lecture Video Player Modal */}
+      {selectedVideoModal && (
+        <Dialog open={!!selectedVideoModal} onOpenChange={(open) => { if (!open) setSelectedVideoModal(null); }}>
+          <DialogContent className="max-w-4xl p-0 overflow-hidden bg-black text-white border-0 rounded-3xl">
+            <div className="relative aspect-video w-full bg-black">
+              {selectedVideoModal.url.includes("youtube.com") || selectedVideoModal.url.includes("youtu.be") ? (
+                <iframe
+                  src={selectedVideoModal.url.replace("watch?v=", "embed/")}
+                  className="w-full h-full"
+                  allowFullScreen
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                />
+              ) : (
+                <video
+                  src={selectedVideoModal.url}
+                  controls
+                  autoPlay
+                  className="w-full h-full object-contain"
+                />
+              )}
+            </div>
+            <div className="p-4 sm:p-6 bg-card text-foreground flex items-center justify-between gap-4">
+              <div>
+                <h3 className="text-base font-black">{selectedVideoModal.title}</h3>
+                <p className="text-xs text-muted-foreground font-bold mt-0.5">
+                  {selectedVideoModal.courseTitle} {selectedVideoModal.instructor ? `• ${selectedVideoModal.instructor}` : ""}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedVideoModal(null)}
+                className="rounded-xl font-bold text-xs"
+              >
+                {isRtl ? "إغلاق المشغل" : "Close"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
 
     </div>
   );

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   User, Calendar, Loader2, Landmark, Home, BookOpen, Radio, ShieldCheck,
-  Award, ClipboardList, Star, FileQuestion
+  Award, ClipboardList, Star, FileQuestion, MessageSquare
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";

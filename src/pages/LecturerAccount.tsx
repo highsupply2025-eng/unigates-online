@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { GraduationCap, Home, Video, Radio, Calendar, ClipboardList, HelpCircle, Award, Users, Star, Download, User } from "lucide-react";
+import { GraduationCap, Home, Video, Radio, Calendar, ClipboardList, HelpCircle, Award, Users, Star, Download, User, MessageSquare } from "lucide-react";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
 import FacultyMemberProfile from "@/components/FacultyMemberProfile";
 import { useLanguage } from "@/contexts/LanguageContext";

@@ -8,6 +8,13 @@
       "when": 1788562697903,
       "tag": "0000_secure_academic_content_authz",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788564127832,
+      "tag": "0001_scope_course_attachment_policies",
+      "breakpoints": true
     }
   ]
 }

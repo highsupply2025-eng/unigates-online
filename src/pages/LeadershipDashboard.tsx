@@ -1264,15 +1264,22 @@ const LeadershipDashboard = () => {
           </table>`;
       case "ratings": {
         const avgRating = ratings.length > 0 ? (ratings.reduce((a, r) => a + r.rating, 0) / ratings.length).toFixed(1) : "0";
+        const positiveCount = ratings.filter(r => r.rating >= 4).length;
+        const satisfactionRate = ratings.length > 0 ? Math.round((positiveCount / ratings.length) * 100) : 0;
         return `
-          <h2>${isRtl ? "تقرير تقييمات المحاضرين" : "Lecturer Ratings Report"}</h2>
+          <div style="border-bottom: 3px solid #f59e0b; padding-bottom: 12px; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: #0f172a; font-size: 20px;">${isRtl ? "تقرير التقييمات الأكاديمية الشامل" : "Comprehensive Academic Ratings Report"}</h2>
+            <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;">${isRtl ? `التقييمات المعتمدة لأعضاء هيئة التدريس في ${institutionType === "institute" ? "المعهد" : "الكلية"} (سرية ومجهولة الهوية)` : "Faculty academic evaluations (Anonymous & Confidential)"}</p>
+          </div>
           <div>
-            <div class="stat"><div class="stat-value">${avgRating}/5</div><div class="stat-label">${isRtl ? "متوسط التقييم" : "Avg Rating"}</div></div>
-            <div class="stat"><div class="stat-value">${ratings.length}</div><div class="stat-label">${isRtl ? "عدد التقييمات" : "Total Ratings"}</div></div>
+            <div class="stat"><div class="stat-value" style="color:#d97706;">⭐ ${avgRating}/5</div><div class="stat-label">${isRtl ? "المتوسط العام" : "Avg Score"}</div></div>
+            <div class="stat"><div class="stat-value" style="color:#2563eb;">${ratings.length}</div><div class="stat-label">${isRtl ? "إجمالي التقييمات" : "Total Ratings"}</div></div>
+            <div class="stat"><div class="stat-value" style="color:#059669;">${satisfactionRate}%</div><div class="stat-label">${isRtl ? "نسبة الرضا (4-5★)" : "Satisfaction"}</div></div>
+            <div class="stat"><div class="stat-value" style="color:#7c3aed;">${ratings.filter(r => r.comment && r.comment.trim()).length}</div><div class="stat-label">${isRtl ? "الملاحظات والتعليقات" : "Comments"}</div></div>
           </div>
           <table>
-            <tr><th>${isRtl ? "التقييم" : "Rating"}</th><th>${isRtl ? "التعليق" : "Comment"}</th><th>${isRtl ? "التاريخ" : "Date"}</th></tr>
-            ${ratings.slice(0, 50).map(r => `<tr><td>${'⭐'.repeat(r.rating)}</td><td>${escHtml(r.comment || '-')}</td><td>${new Date(r.created_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}</td></tr>`).join('')}
+            <tr><th style="width: 130px;">${isRtl ? "التقييم" : "Rating"}</th><th>${isRtl ? "ملاحظات وتعليقات الطالب (مجهولة الهوية)" : "Student Feedback (Anonymous)"}</th><th style="width: 120px;">${isRtl ? "التاريخ" : "Date"}</th></tr>
+            ${ratings.slice(0, 100).map(r => `<tr><td><strong>⭐ ${r.rating} / 5</strong><br/><span style="color:#f59e0b; font-size: 13px;">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span></td><td>${r.comment ? `"${escHtml(r.comment)}"` : `<span style="color:#94a3b8; font-size:11px;">${isRtl ? 'تقييم رقمي بالنجوم فقط' : 'Star rating only'}</span>`}</td><td>${new Date(r.created_at).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}</td></tr>`).join('')}
           </table>`;
       }
       case "assignments":
@@ -3291,6 +3298,7 @@ const LeadershipDashboard = () => {
                 <RatingsBreakdown
                   lecturerId={userId}
                   departmentId={selectedDeptId !== "all" ? selectedDeptId : undefined}
+                  institutionType={institutionType}
                 />
               </div>
             )}

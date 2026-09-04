@@ -3,7 +3,7 @@ import {
   ClipboardList, CheckCircle, Clock, Award, Users, BarChart3,
   Search, Filter, RefreshCw, Sparkles, Download, FileText,
   CheckCircle2, AlertCircle, FileSpreadsheet, ExternalLink,
-  Edit3, MessageSquare, ArrowRight, ArrowLeft, Send, Trash2, Eye
+  Edit3, MessageSquare, ArrowRight, ArrowLeft, Send, Trash2, Eye, ChevronRight, Paperclip, Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";

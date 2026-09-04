@@ -59,17 +59,26 @@ const StudentAccessGuard = () => {
     // 3. Fallback verification via direct department_members membership if RPC transiently fails
     if (currentUserId) {
       try {
-        const { data: member, error: memberErr } = await supabase
-          .from("department_members")
-          .select("id, role, subscription_expires_at, departments(institution_type)")
-          .eq("user_id", currentUserId)
-          .eq("role", "student")
-          .limit(1)
-          .maybeSingle();
+        const [{ data: member, error: memberErr }, { data: sub }] = await Promise.all([
+          supabase
+            .from("department_members")
+            .select("id, role, departments(institution_type)")
+            .eq("user_id", currentUserId)
+            .eq("role", "student")
+            .limit(1)
+            .maybeSingle(),
+          supabase
+            .from("institution_student_subscriptions")
+            .select("expires_at")
+            .eq("user_id", currentUserId)
+            .order("expires_at", { ascending: false })
+            .limit(1)
+            .maybeSingle(),
+        ]);
 
         if (!memberErr && member) {
           const instType = (member.departments as any)?.institution_type || "college";
-          const isNotExpired = !member.subscription_expires_at || new Date(member.subscription_expires_at) > new Date();
+          const isNotExpired = !sub?.expires_at || new Date(sub.expires_at) > new Date();
           setAccess({
             is_active: isNotExpired,
             institution_type: instType,

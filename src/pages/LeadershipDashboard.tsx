@@ -5,7 +5,7 @@ import {
   Video, FileText, Download, BarChart3, Clock, CheckCircle, AlertCircle,
   GraduationCap, Star, ClipboardList, Radio, Eye, Landmark, LogOut, Menu, Home, XCircle, Award, ShieldCheck, User, RefreshCw,
   Plus, Upload, X, Circle, Square, RotateCcw, Play, Film, Trash2, Paperclip,
-  Activity, Zap, Sparkles, TrendingUp, Cpu, Flame, ArrowUpRight, CheckCircle2, ChevronRight, Building2, FileQuestion
+  Activity, Zap, Sparkles, TrendingUp, Cpu, Flame, ArrowUpRight, CheckCircle2, ChevronRight, Building2, FileQuestion, MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -181,7 +181,7 @@ const LeadershipDashboard = () => {
   const [lectureRatings, setLectureRatings] = useState<any[]>([]);
   const [leadershipLectureView, setLeadershipLectureView] = useState<"lectures" | "attachments" | "ratings">("lectures");
   const [leadershipQuizView, setLeadershipQuizView] = useState<"quizzes" | "attachments" | "ratings">("quizzes");
-  const [leadershipQuizResultsView, setLeadershipQuizResultsView] = useState<"results" | "attachments" | "ratings">("results");
+  const [leadershipQuizResultsView, setLeadershipQuizResultsView] = useState<"results" | "overview" | "create" | "attachments" | "ratings">("results");
   const [leadershipScheduleView, setLeadershipScheduleView] = useState<"schedules" | "attachments" | "ratings">("schedules");
   const [leadershipAssignmentView, setLeadershipAssignmentView] = useState<"assignments" | "attachments" | "ratings">("assignments");
   const [newEpisode, setNewEpisode] = useState({ title_ar: "", title_en: "", video_url: "", duration_minutes: 0, is_preview: false });
@@ -1495,7 +1495,6 @@ const LeadershipDashboard = () => {
                   { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Information", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/leadership/profile") },
                 ]}
               />
-            )}
           </div>
         </div>
       </header>
@@ -2753,11 +2752,12 @@ const LeadershipDashboard = () => {
                     userRole={userRole}
                     departments={myDepartments}
                     courses={courses}
-                    onQuizCreated={() => {
-                      setLeadershipQuizResultsView("overview");
+                    institutionType={institutionType}
+                    onCreated={() => {
+                      setLeadershipQuizResultsView("results");
                       checkAccess();
                     }}
-                    onCancel={() => setLeadershipQuizResultsView("overview")}
+                    onBack={() => setLeadershipQuizResultsView("results")}
                   />
                 ) : (
                   <div className="space-y-6">
@@ -2809,7 +2809,8 @@ const LeadershipDashboard = () => {
               userRole={userRole}
               departments={myDepartments}
               courses={courses}
-              schedules={schedules}
+              schedules={lectureSchedules}
+              institutionType={institutionType}
               onRefresh={checkAccess}
             />
           </TabsContent>
@@ -4059,6 +4060,8 @@ const LeadershipDashboard = () => {
             </div>
           </div>
         </DialogContent>
+      </Dialog>
+
       {/* Create Live Stream Dialog */}
       <Dialog open={showStreamDialog} onOpenChange={setShowStreamDialog}>
         <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto">

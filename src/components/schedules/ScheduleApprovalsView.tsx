@@ -1044,6 +1044,37 @@ export const ScheduleApprovalsView: React.FC<ScheduleApprovalsViewProps> = ({
                 )}
 
                 {/* Attached File or Image preview */}
+                {selectedSchedule.file_url && (
+                  <div className="p-4 rounded-2xl bg-indigo-500/10 border-2 border-indigo-500/30 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black text-indigo-800 dark:text-indigo-200 flex items-center gap-1.5">
+                        <FileText className="w-4 h-4" />
+                        {isRtl ? "الملف أو الصورة المرفقة للجدول" : "Attached Timetable Document / Image"}
+                      </span>
+                      <a
+                        href={selectedSchedule.file_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-black text-indigo-700 hover:underline"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        {isRtl ? "تحميل الملف" : "Download File"}
+                      </a>
+                    </div>
+
+                    {selectedSchedule.file_url.match(/\.(png|jpg|jpeg|webp)$/i) && (
+                      <div className="max-h-72 overflow-auto rounded-xl border border-border bg-black/10 flex items-center justify-center p-2">
+                        <img
+                          src={selectedSchedule.file_url}
+                          alt="Schedule Timetable"
+                          className="max-h-64 object-contain rounded shadow-sm"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
               {/* Body */}
               <div className="space-y-4 pt-2">
                 {/* Info Card */}

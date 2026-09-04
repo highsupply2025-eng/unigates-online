@@ -88,7 +88,6 @@ export const ScheduleRatingModal = ({
           .update({
             rating,
             comment: comment.trim() || null,
-            updated_at: new Date().toISOString(),
           })
           .eq("id", existingRatingId);
         if (error) throw error;

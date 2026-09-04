@@ -295,44 +295,6 @@ export const CreateAssignmentView: React.FC<CreateAssignmentViewProps> = ({
         combinedDueDate = new Date(`${dueDate}T${dueTime || "23:59"}:00Z`).toISOString();
       }
 
-      // Build sequential approval chain
-      const approvalChain = selectedReviewerIds.map((rUserId, idx) => {
-    setLoading(true);
-    try {
-      // 1. Upload pending files/images to supabase storage
-      const fileUrls: string[] = [];
-      const fileNames: string[] = [];
-      const imageUrls: string[] = [];
-
-      for (const item of uploadedFiles) {
-        const ext = item.name.split(".").pop() || "dat";
-        const cleanName = item.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-        const filePath = `assignments/${userId}/${Date.now()}_${cleanName}`;
-
-        const { error: upErr } = await supabase.storage
-          .from("course-materials")
-          .upload(filePath, item.file, { upsert: true });
-
-        if (upErr) {
-          console.warn("Could not upload to course-materials, trying direct url:", upErr);
-        }
-
-        const { data: { publicUrl } } = supabase.storage
-          .from("course-materials")
-          .getPublicUrl(filePath);
-
-        const isImg = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/jpg"].includes(item.type) ||
-          ["png", "jpg", "jpeg", "webp", "gif"].includes(ext.toLowerCase());
-
-        if (isImg) {
-          imageUrls.push(publicUrl);
-        } else {
-          fileUrls.push(publicUrl);
-          fileNames.push(item.name);
-        }
-      }
-
-      const combinedDueDate = dueDate ? `${dueDate}T${dueTime || "23:59"}:00Z` : null;
 
       // Direct publish assignment without approvals
       const { error: insErr } = await (supabase.from("assignments") as any).insert({
@@ -447,6 +409,7 @@ export const CreateAssignmentView: React.FC<CreateAssignmentViewProps> = ({
               <span className="text-xs sm:text-sm font-black text-foreground truncate">{s.title}</span>
             </div>
             <p className="text-[10px] sm:text-xs text-muted-foreground font-medium truncate hidden sm:block">{s.desc}</p>
+          </button>
         ))}
       </div>
 

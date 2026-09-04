@@ -1204,16 +1204,13 @@ export const QuizApprovalsView = ({
       {/* Direct Student / Academic Quiz Rating Modal */}
       {ratingQuiz && (
         <StudentQuizRatingModal
-          isOpen={!!ratingQuiz}
-          onClose={() => setRatingQuiz(null)}
+          open={!!ratingQuiz}
+          onOpenChange={(open) => { if (!open) setRatingQuiz(null); }}
           quizId={ratingQuiz.id}
           quizTitle={ratingQuiz.title}
           courseId={ratingQuiz.courseId}
           instructorName={ratingQuiz.instructor}
-          onRatingSubmitted={() => {
-            fetchStats();
-            fetchApprovals();
-          }}
+          onRated={() => onRefresh()}
         />
       )}
     </div>

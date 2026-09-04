@@ -180,6 +180,7 @@ const LeadershipDashboard = () => {
   const [lectureRatings, setLectureRatings] = useState<any[]>([]);
   const [leadershipLectureView, setLeadershipLectureView] = useState<"lectures" | "attachments" | "ratings">("lectures");
   const [leadershipQuizView, setLeadershipQuizView] = useState<"quizzes" | "attachments" | "ratings">("quizzes");
+  const [leadershipQuizResultsView, setLeadershipQuizResultsView] = useState<"results" | "attachments" | "ratings">("results");
   const [leadershipScheduleView, setLeadershipScheduleView] = useState<"schedules" | "attachments" | "ratings">("schedules");
   const [leadershipAssignmentView, setLeadershipAssignmentView] = useState<"assignments" | "attachments" | "ratings">("assignments");
   const [newEpisode, setNewEpisode] = useState({ title_ar: "", title_en: "", video_url: "", duration_minutes: 0, is_preview: false });
@@ -2683,72 +2684,64 @@ const LeadershipDashboard = () => {
               />
             ) : (
               <div className="space-y-6 animate-in fade-in-50 duration-300">
-                {/* 2 Big Action Cards for Quiz Results */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  {/* Action Card 1: Student Results & Approval Chain */}
-                  <Card
-                    onClick={() => setQuizResultsSubView("roster")}
-                    className="relative overflow-hidden cursor-pointer rounded-3xl border-2 border-indigo-500/30 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white shadow-xl shadow-indigo-500/20 hover:shadow-2xl hover:shadow-indigo-500/40 hover:-translate-y-1 transition-all group"
+                {/* 1. Top 4 Luxury Action & Oversight Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+                  {/* Card 1: Student Results & Grade Rosters */}
+                  <div
+                    onClick={() => {
+                      setLeadershipQuizResultsView("results");
+                      setQuizResultsSubView("roster");
+                    }}
+                    className="group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white shadow-xl shadow-indigo-600/30 border-white/30 hover:scale-[1.02] hover:-translate-y-1"
                   >
-                    <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none group-hover:scale-110 transition-transform duration-500" />
-                    <CardContent className="p-6 sm:p-7 relative z-10 flex flex-col justify-between h-full min-h-[220px]">
-                      <div className="space-y-3">
-                        <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center ring-2 ring-white/30 group-hover:scale-110 transition-transform">
-                          <Award className="w-7 h-7 text-white" strokeWidth={2.4} />
+                    <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
+                    <div>
+                      <div className="flex items-start justify-between">
+                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-transform bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40">
+                          <Award className="w-6 h-6 text-white" strokeWidth={2.8} />
                         </div>
-                        <div>
-                          <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
-                            <span>{isRtl ? "رصد نتائج درجات الطلاب" : "Student Grade Rosters"}</span>
-                            <Sparkles className="w-4 h-4 text-amber-300" />
-                          </h3>
-                          <p className="text-xs sm:text-sm font-bold text-white/85 mt-1 leading-relaxed">
-                            {isRtl
-                              ? "كشف درجات ونتائج الطلاب لكل اختبار، وتحديد المخولين بسلسلة الاعتماد الأكاديمي مع تثبيت العميد للاعتماد النهائي."
-                              : "Review student scores per exam and choose authorized reviewers ending with mandatory Dean certification."}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="pt-4 flex items-center justify-between">
-                        <Badge className="bg-white/20 hover:bg-white/30 text-white border-white/30 font-black text-xs px-3 py-1 rounded-xl">
-                          {quizzes.length} {isRtl ? "اختبار متوفر" : "quizzes"}
+                        <Badge className="bg-white/20 text-white border-white/30">
+                          {quizzes.length} {isRtl ? "اختبار" : "quizzes"}
                         </Badge>
-                        <Button
-                          size="sm"
-                          className="rounded-xl font-black bg-white text-indigo-700 hover:bg-white/90 shadow-md gap-1.5"
-                        >
-                          <span>{isRtl ? "فتح كشف الدرجات والسلسلة" : "Open Rosters"}</span>
-                          {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
-                        </Button>
                       </div>
-                    </CardContent>
-                  </Card>
 
-                  {/* Action Card 2: Quiz Results Approvals Chain */}
-                  <Card
-                    onClick={() => setQuizResultsSubView("approvals")}
-                    className="relative overflow-hidden cursor-pointer rounded-3xl border-2 border-purple-500/30 bg-gradient-to-br from-purple-600 via-indigo-600 to-cyan-600 text-white shadow-xl shadow-purple-500/20 hover:shadow-2xl hover:shadow-purple-500/40 hover:-translate-y-1 transition-all group"
+                      <div className="mt-4 space-y-1">
+                        <h3 className="text-lg sm:text-xl font-black flex items-center gap-1.5">
+                          <span>{isRtl ? "رصد نتائج درجات الطلاب" : "Student Grade Rosters"}</span>
+                          <Sparkles className="w-4 h-4 text-amber-300" />
+                        </h3>
+                        <p className="text-xs font-medium leading-relaxed text-white/90">
+                          {isRtl
+                            ? "كشف درجات ونتائج الطلاب لكل اختبار ورصد التقديرات وسلسلة المراجعة."
+                            : "Review student scores per exam and manage academic review roster."}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 flex items-center justify-between pt-3 border-t border-white/20">
+                      <span className="text-xs font-black">
+                        {isRtl ? "فتح كشف الدرجات ➔" : "Open Rosters ➔"}
+                      </span>
+                      <div className="w-7 h-7 rounded-full flex items-center justify-center transition-colors bg-white/20 text-white">
+                        <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card 2: Quiz Results Approvals Chain */}
+                  <div
+                    onClick={() => {
+                      setLeadershipQuizResultsView("results");
+                      setQuizResultsSubView("approvals");
+                    }}
+                    className="group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between bg-gradient-to-br from-purple-600 via-indigo-600 to-cyan-600 text-white shadow-xl shadow-purple-600/30 border-white/30 hover:scale-[1.02] hover:-translate-y-1"
                   >
-                    <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none group-hover:scale-110 transition-transform duration-500" />
-                    <CardContent className="p-6 sm:p-7 relative z-10 flex flex-col justify-between h-full min-h-[220px]">
-                      <div className="space-y-3">
-                        <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center ring-2 ring-white/30 group-hover:scale-110 transition-transform">
-                          <ShieldCheck className="w-7 h-7 text-white" strokeWidth={2.4} />
+                    <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
+                    <div>
+                      <div className="flex items-start justify-between">
+                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40">
+                          <ShieldCheck className="w-6 h-6 text-white" strokeWidth={2.6} />
                         </div>
-                        <div>
-                          <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
-                            <span>{isRtl ? "اعتماد ومتابعة نتائج الاختبارات" : "Results Approvals & Oversight"}</span>
-                            <Sparkles className="w-4 h-4 text-cyan-300" />
-                          </h3>
-                          <p className="text-xs sm:text-sm font-bold text-white/85 mt-1 leading-relaxed">
-                            {isRtl
-                              ? "متابعة كشوف النتائج ومراحل سلسلة الاعتماد التتابعية لكل قسم دون خلط، والاعتماد الرسمي أو طلب التعديل."
-                              : "Track results approval progress per department without mixing, and certify or request revision."}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="pt-4 flex items-center justify-between">
                         {(() => {
                           const myTurn = quizzes.filter((q) => {
                             if (q.results_status !== "pending_approval" || q.results_rejected_by) return false;
@@ -2759,236 +2752,499 @@ const LeadershipDashboard = () => {
                           }).length;
 
                           return (
-                            <>
-                              <Badge className="bg-white/20 hover:bg-white/30 text-white border-white/30 font-black text-xs px-3 py-1 rounded-xl">
-                                {myTurn > 0 ? (isRtl ? `${myTurn} بانتظار موافقتك` : `${myTurn} Awaiting you`) : (isRtl ? "سلسلة الاعتمادات" : "Review Chain")}
-                              </Badge>
-                              <Button
-                                size="sm"
-                                className="rounded-xl font-black bg-white text-purple-700 hover:bg-white/90 shadow-md gap-1.5"
-                              >
-                                <span>{isRtl ? "متابعة الاعتمادات" : "Approvals View"}</span>
-                                {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
-                              </Button>
-                            </>
+                            <Badge className="bg-white/20 text-white border-white/30">
+                              {myTurn > 0 ? (isRtl ? `${myTurn} بانتظارك` : `${myTurn} Pending`) : (isRtl ? "سلسلة الاعتماد" : "Approvals")}
+                            </Badge>
                           );
                         })()}
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
 
-                {/* 3 Quick Summary KPI Cards */}
-                {(() => {
-                  const passed = quizSubmissions.filter((s) => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length;
-                  const totalSubs = quizSubmissions.length;
-                  const certifiedCount = quizzes.filter((q) => q.results_approved_by_dean || q.results_status === "approved").length;
-                  const inChainCount = quizzes.filter((q) => q.results_status === "pending_approval" && !q.results_approved_by_dean && !q.results_rejected_by).length;
-
-                  return (
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                      <Card className="rounded-2xl border-2 border-indigo-500/20 bg-indigo-500/5">
-                        <CardContent className="p-4 flex items-center justify-between">
-                          <div>
-                            <div className="text-2xl font-black text-indigo-700 dark:text-indigo-300">{totalSubs}</div>
-                            <div className="text-xs font-bold text-muted-foreground">{isRtl ? "إجمالي أوراق إجابات الطلاب" : "Total Submissions"}</div>
-                          </div>
-                          <Users className="w-8 h-8 text-indigo-600 opacity-80" />
-                        </CardContent>
-                      </Card>
-
-                      <Card className="rounded-2xl border-2 border-amber-500/20 bg-amber-500/5">
-                        <CardContent className="p-4 flex items-center justify-between">
-                          <div>
-                            <div className="text-2xl font-black text-amber-700 dark:text-amber-300">{inChainCount}</div>
-                            <div className="text-xs font-bold text-muted-foreground">{isRtl ? "نتائج قيد سلسلة المراجعة" : "In Review Chain"}</div>
-                          </div>
-                          <Clock className="w-8 h-8 text-amber-600 opacity-80" />
-                        </CardContent>
-                      </Card>
-
-                      <Card className="rounded-2xl border-2 border-emerald-500/20 bg-emerald-500/5">
-                        <CardContent className="p-4 flex items-center justify-between">
-                          <div>
-                            <div className="text-2xl font-black text-emerald-700 dark:text-emerald-300">{certifiedCount}</div>
-                            <div className="text-xs font-bold text-muted-foreground">{isRtl ? "نتائج معتمدة رسمياً للطلاب" : "Certified Results"}</div>
-                          </div>
-                          <CheckCircle2 className="w-8 h-8 text-emerald-600 opacity-80" />
-                        </CardContent>
-                      </Card>
+                      <div className="mt-4 space-y-1">
+                        <h3 className="text-lg sm:text-xl font-black flex items-center gap-1.5">
+                          <span>{isRtl ? "اعتماد ومتابعة النتائج" : "Results Approvals"}</span>
+                          <Sparkles className="w-4 h-4 text-cyan-300" />
+                        </h3>
+                        <p className="text-xs font-medium leading-relaxed text-white/90">
+                          {isRtl
+                            ? "متابعة كشوف النتائج ومراحل سلسلة الاعتماد التتابعية للأقسام والاعتماد النهائي."
+                            : "Track results approval progress per department and certify or revise."}
+                        </p>
+                      </div>
                     </div>
-                  );
-                })()}
 
-                {/* Score Distribution and PDF Export */}
-                <div className="flex items-center justify-between pt-2">
-                  <h3 className="text-base font-black text-foreground flex items-center gap-2">
-                    <BarChart3 className="w-5 h-5 text-indigo-600" />
-                    <span>{isRtl ? "إحصائيات وتوزيع درجات الطلاب" : "Score Statistics & Distribution"}</span>
-                  </h3>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => exportToPDF("quizresults")}
-                    className="gap-1.5 font-bold border-2 border-primary/40 hover:bg-primary/10 rounded-xl"
-                  >
-                    <Download className="w-4 h-4" strokeWidth={2.6} />
-                    {isRtl ? "تحميل PDF" : "Export PDF"}
-                  </Button>
-                </div>
-
-                {/* Charts */}
-                {quizSubmissions.length > 0 && (() => {
-                  const ranges = [
-                    { label: "0-20%", min: 0, max: 20, color: "#ef4444" },
-                    { label: "21-40%", min: 21, max: 40, color: "#f97316" },
-                    { label: "41-60%", min: 41, max: 60, color: "#eab308" },
-                    { label: "61-80%", min: 61, max: 80, color: "#22c55e" },
-                    { label: "81-100%", min: 81, max: 100, color: "#10b981" },
-                  ];
-                  const distData = ranges.map((r) => {
-                    const count = quizSubmissions.filter((s) => {
-                      const pct = Math.round(((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100);
-                      return pct >= r.min && pct <= r.max;
-                    }).length;
-                    return { name: r.label, count, color: r.color };
-                  });
-                  const pieData = [
-                    { name: isRtl ? "ناجح" : "Passed", value: quizSubmissions.filter((s) => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length, color: "#22c55e" },
-                    { name: isRtl ? "راسب" : "Failed", value: quizSubmissions.filter((s) => ((s.score || 0) / Math.max(s.total_points || 1, 1)) < 0.5).length, color: "#ef4444" },
-                  ];
-                  return (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Card className="rounded-3xl border-2 border-border shadow-sm">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-sm flex items-center gap-2">
-                            <BarChart3 className="w-4 h-4 text-primary" />
-                            {isRtl ? "توزيع الدرجات" : "Score Distribution"}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <ResponsiveContainer width="100%" height={200}>
-                            <BarChart data={distData}>
-                              <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                              <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                              <Tooltip
-                                contentStyle={{ borderRadius: 8, fontSize: 12 }}
-                                formatter={(value: number) => [value, isRtl ? "عدد الطلاب" : "Students"]}
-                              />
-                              <Bar dataKey="count" radius={[6, 6, 0, 0]}>
-                                {distData.map((entry, index) => (
-                                  <Cell key={index} fill={entry.color} />
-                                ))}
-                              </Bar>
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="rounded-3xl border-2 border-border shadow-sm">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-sm flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-emerald-500" />
-                            {isRtl ? "نسبة النجاح والرسوب" : "Pass/Fail Ratio"}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex items-center justify-center">
-                          <ResponsiveContainer width="100%" height={200}>
-                            <PieChart>
-                              <Pie
-                                data={pieData}
-                                cx="50%"
-                                cy="50%"
-                                innerRadius={45}
-                                outerRadius={75}
-                                paddingAngle={4}
-                                dataKey="value"
-                                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                              >
-                                {pieData.map((entry, index) => (
-                                  <Cell key={index} fill={entry.color} />
-                                ))}
-                              </Pie>
-                              <Tooltip formatter={(value: number) => [value, isRtl ? "طالب" : "Students"]} />
-                            </PieChart>
-                          </ResponsiveContainer>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  );
-                })()}
-
-                {/* Quizzes list summary */}
-                <Card className="rounded-3xl border-2 border-border shadow-sm overflow-hidden">
-                  <CardHeader className="p-4 bg-muted/20 border-b">
-                    <CardTitle className="text-sm font-black flex items-center justify-between">
-                      <span className="flex items-center gap-2">
-                        <Award className="w-4 h-4 text-primary" />
-                        {isRtl ? "كشوف نتائج الاختبارات الأخيرة بالقسم" : "Recent Department Quiz Results"}
+                    <div className="mt-5 flex items-center justify-between pt-3 border-t border-white/20">
+                      <span className="text-xs font-black">
+                        {isRtl ? "متابعة الاعتمادات ➔" : "Track Approvals ➔"}
                       </span>
-                      <Badge variant="outline" className="font-bold">{quizzes.length} {isRtl ? "اختبار" : "quizzes"}</Badge>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    {quizzes.length === 0 ? (
-                      <div className="text-center py-8 text-muted-foreground font-bold text-xs">
-                        {isRtl ? "لا توجد نتائج اختبارات بعد." : "No quiz results recorded yet."}
+                      <div className="w-7 h-7 rounded-full flex items-center justify-center transition-colors bg-white/20 text-white">
+                        <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
                       </div>
-                    ) : (
-                      <div className="overflow-x-auto">
-                        <Table>
-                          <TableHeader className="bg-muted/30">
-                            <TableRow>
-                              <TableHead className="font-black text-xs">{isRtl ? "الاختبار" : "Exam"}</TableHead>
-                              <TableHead className="font-black text-xs text-center">{isRtl ? "التقديمات" : "Submissions"}</TableHead>
-                              <TableHead className="font-black text-xs text-center">{isRtl ? "متوسط الدرجات" : "Average"}</TableHead>
-                              <TableHead className="font-black text-xs text-center">{isRtl ? "حالة الاعتماد" : "Approval"}</TableHead>
-                              <TableHead className="font-black text-xs text-end">{isRtl ? "الإجراء" : "Action"}</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {quizzes.slice(0, 5).map((q) => {
-                              const subs = quizSubmissions.filter((s) => s.quiz_id === q.id);
-                              const avg = subs.length > 0
-                                ? Math.round(subs.reduce((a, s) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / subs.length)
-                                : 0;
-                              const isAppr = q.results_approved_by_dean || q.results_status === "approved";
-                              return (
-                                <TableRow key={q.id} className="hover:bg-muted/20">
-                                  <TableCell className="font-bold text-xs py-3">
-                                    {isRtl ? q.title_ar || q.title_en : q.title_en}
-                                  </TableCell>
-                                  <TableCell className="text-center text-xs font-bold">
-                                    {subs.length} {isRtl ? "طالب" : "students"}
-                                  </TableCell>
-                                  <TableCell className="text-center text-xs font-black text-indigo-600">
-                                    {avg}%
-                                  </TableCell>
-                                  <TableCell className="text-center">
-                                    <Badge className={`text-[9px] font-black ${isAppr ? "bg-emerald-500/20 text-emerald-700" : "bg-amber-500/20 text-amber-700"}`}>
-                                      {isAppr ? (isRtl ? "معتمدة ✓" : "Certified") : (isRtl ? "قيد المراجعة" : "Pending")}
-                                    </Badge>
-                                  </TableCell>
-                                  <TableCell className="text-end">
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      onClick={() => setQuizResultsSubView("roster")}
-                                      className="rounded-xl text-xs font-bold text-indigo-600 hover:bg-indigo-50"
-                                    >
-                                      {isRtl ? "عرض الدرجات" : "View Scores"}
-                                    </Button>
-                                  </TableCell>
+                    </div>
+                  </div>
+
+                  {/* Card 3: Exam Attachments & Handouts */}
+                  <div
+                    onClick={() => setLeadershipQuizResultsView("attachments")}
+                    className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
+                      leadershipQuizResultsView === "attachments"
+                        ? "bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-700 text-white shadow-xl shadow-purple-600/30 border-white/30 -translate-y-1"
+                        : "bg-card hover:bg-muted/40 border-border text-foreground hover:border-purple-500/40 shadow-sm"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-start justify-between">
+                        <div
+                          className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform ${
+                            leadershipQuizResultsView === "attachments"
+                              ? "bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40"
+                              : "bg-purple-500/10 text-purple-600 dark:text-purple-400"
+                          }`}
+                        >
+                          <Paperclip className="w-6 h-6" strokeWidth={2.6} />
+                        </div>
+                        <Badge
+                          className={
+                            leadershipQuizResultsView === "attachments"
+                              ? "bg-white/20 text-white border-white/30"
+                              : "bg-purple-500/10 text-purple-600 border-purple-500/20"
+                          }
+                        >
+                          {courseAttachments.length} {isRtl ? "مرفق" : "files"}
+                        </Badge>
+                      </div>
+
+                      <div className="mt-4 space-y-1">
+                        <h3 className="text-lg sm:text-xl font-black flex items-center gap-1.5">
+                          <span>{isRtl ? "ملفات ونماذج الاختبارات" : "Exam Files & Keys"}</span>
+                          <FileText className="w-4 h-4 text-purple-300" />
+                        </h3>
+                        <p
+                          className={`text-xs font-medium leading-relaxed ${
+                            leadershipQuizResultsView === "attachments" ? "text-white/85" : "text-muted-foreground"
+                          }`}
+                        >
+                          {isRtl
+                            ? "استعراض نماذج الإجابات ومرفقات الاختبارات وملفات التقييم الأكاديمي."
+                            : "Browse answer keys, exam attachments, and grading files."}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 flex items-center justify-between pt-3 border-t border-current/10">
+                      <span className="text-xs font-black">
+                        {isRtl ? "استعراض النماذج ➔" : "View Files ➔"}
+                      </span>
+                      <div
+                        className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                          leadershipQuizResultsView === "attachments" ? "bg-white/20 text-white" : "bg-muted text-foreground"
+                        }`}
+                      >
+                        <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card 4: Student Ratings & Academic Satisfaction */}
+                  <div
+                    onClick={() => setLeadershipQuizResultsView("ratings")}
+                    className={`group relative overflow-hidden rounded-3xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border-2 flex flex-col justify-between ${
+                      leadershipQuizResultsView === "ratings"
+                        ? "bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white shadow-xl shadow-amber-500/30 border-white/30 -translate-y-1"
+                        : "bg-card hover:bg-muted/40 border-border text-foreground hover:border-amber-500/40 shadow-sm"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-start justify-between">
+                        <div
+                          className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform ${
+                            leadershipQuizResultsView === "ratings"
+                              ? "bg-white/20 backdrop-blur-md text-white ring-2 ring-white/40"
+                              : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                          }`}
+                        >
+                          <Star className="w-6 h-6 fill-current" strokeWidth={2.6} />
+                        </div>
+                        <Badge
+                          className={
+                            leadershipQuizResultsView === "ratings"
+                              ? "bg-white/20 text-white border-white/30"
+                              : "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                          }
+                        >
+                          {lectureRatings.length} {isRtl ? "تقييم" : "ratings"}
+                        </Badge>
+                      </div>
+
+                      <div className="mt-4 space-y-1">
+                        <h3 className="text-lg sm:text-xl font-black flex items-center gap-1.5">
+                          <span>{isRtl ? "تقييمات وملاحظات الطلاب" : "Student Ratings & Feedback"}</span>
+                          <Sparkles className="w-4 h-4 text-yellow-200" />
+                        </h3>
+                        <p
+                          className={`text-xs font-medium leading-relaxed ${
+                            leadershipQuizResultsView === "ratings" ? "text-white/85" : "text-muted-foreground"
+                          }`}
+                        >
+                          {isRtl
+                            ? "متابعة تقييمات الطلاب وملاحظاتهم ومؤشرات الرضا على التقييمات والاختبارات."
+                            : "Track real-time student satisfaction and feedback on exams and grading."}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 flex items-center justify-between pt-3 border-t border-current/10">
+                      <span className="text-xs font-black">
+                        {isRtl ? "متابعة التقييمات ➔" : "View Ratings ➔"}
+                      </span>
+                      <div
+                        className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                          leadershipQuizResultsView === "ratings" ? "bg-white/20 text-white" : "bg-muted text-foreground"
+                        }`}
+                      >
+                        <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Subview Switcher Pills */}
+                <div className="flex items-center gap-2 p-1.5 bg-muted/40 rounded-2xl border border-border w-fit flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLeadershipQuizResultsView("results");
+                      setQuizResultsSubView("roster");
+                    }}
+                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${
+                      leadershipQuizResultsView === "results"
+                        ? "bg-card text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Award className="w-3.5 h-3.5 text-indigo-500" />
+                    <span>{isRtl ? "كشوف النتائج والدرجات" : "Grade Rosters"}</span>
+                    <Badge variant="secondary" className="text-[10px] py-0 px-1.5">{quizzes.length}</Badge>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLeadershipQuizResultsView("results");
+                      setQuizResultsSubView("approvals");
+                    }}
+                    className="px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 text-purple-600 dark:text-purple-400 hover:bg-purple-500/10"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>{isRtl ? "اعتمادات النتائج" : "Review Chain"}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setLeadershipQuizResultsView("attachments")}
+                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${
+                      leadershipQuizResultsView === "attachments"
+                        ? "bg-card text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Paperclip className="w-3.5 h-3.5 text-purple-500" />
+                    <span>{isRtl ? "ملفات ونماذج الاختبارات" : "Exam Files & Models"}</span>
+                    <Badge variant="secondary" className="text-[10px] py-0 px-1.5">{courseAttachments.length}</Badge>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setLeadershipQuizResultsView("ratings")}
+                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${
+                      leadershipQuizResultsView === "ratings"
+                        ? "bg-card text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    <span>{isRtl ? "تقييمات الطلاب" : "Student Ratings"}</span>
+                    <Badge variant="secondary" className="text-[10px] py-0 px-1.5">{lectureRatings.length}</Badge>
+                  </button>
+                </div>
+
+                {/* Conditional Rendering by leadershipQuizResultsView */}
+                {leadershipQuizResultsView === "attachments" ? (
+                  /* Attached Files View */
+                  courseAttachments.length === 0 ? (
+                    <Card className="rounded-3xl border-2 border-dashed border-border/80 bg-card/50 shadow-sm">
+                      <CardContent className="py-16 text-center space-y-3">
+                        <div className="w-16 h-16 rounded-3xl bg-purple-500/10 text-purple-600 flex items-center justify-center mx-auto shadow-inner">
+                          <Paperclip className="w-8 h-8" />
+                        </div>
+                        <p className="text-base font-black text-foreground">
+                          {isRtl ? "لا توجد ملفات أو نماذج اختبارات مرفقة حتى الآن" : "No exam attachments uploaded yet"}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                      {courseAttachments.map((att: any) => {
+                        const parentCourse = courses.find(c => c.id === att.course_id);
+                        return (
+                          <div
+                            key={att.id}
+                            className="p-4 sm:p-5 rounded-3xl bg-card border-2 border-border/80 hover:border-purple-500/40 shadow-sm space-y-3 transition-all"
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className="w-11 h-11 rounded-2xl bg-purple-500/15 text-purple-600 flex items-center justify-center shrink-0">
+                                  <FileText className="w-5 h-5" />
+                                </div>
+                                <div className="min-w-0">
+                                  <h4 className="text-sm font-black text-foreground truncate">{att.name}</h4>
+                                  <p className="text-xs text-primary font-bold truncate">
+                                    {parentCourse ? (isRtl ? parentCourse.title_ar : parentCourse.title_en) : (isRtl ? "مقرر دراسي" : "Course")}
+                                  </p>
+                                </div>
+                              </div>
+                              <Badge variant="secondary" className="text-[10px] font-bold uppercase shrink-0">
+                                {att.file_type || "PDF"}
+                              </Badge>
+                            </div>
+
+                            <div className="flex items-center justify-between pt-2 border-t border-border/50 text-xs">
+                              <span className="text-muted-foreground font-medium">
+                                {att.created_at ? new Date(att.created_at).toLocaleDateString(isRtl ? "ar-EG" : "en-US") : "—"}
+                              </span>
+                              {att.file_url && (
+                                <a href={att.file_url} target="_blank" rel="noopener noreferrer" download>
+                                  <Button size="sm" className="h-8 px-3 text-xs font-bold rounded-xl bg-purple-600 hover:bg-purple-700 text-white gap-1.5">
+                                    <Download className="w-3.5 h-3.5" />
+                                    <span>{isRtl ? "تنزيل" : "Download"}</span>
+                                  </Button>
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )
+                ) : leadershipQuizResultsView === "ratings" ? (
+                  <RatingsBreakdown
+                    lecturerId={userId}
+                    departmentId={selectedDeptId !== "all" ? selectedDeptId : undefined}
+                  />
+                ) : (
+                  <>
+                    {/* 3 Quick Summary KPI Cards */}
+                    {(() => {
+                      const passed = quizSubmissions.filter((s) => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length;
+                      const totalSubs = quizSubmissions.length;
+                      const certifiedCount = quizzes.filter((q) => q.results_approved_by_dean || q.results_status === "approved").length;
+                      const inChainCount = quizzes.filter((q) => q.results_status === "pending_approval" && !q.results_approved_by_dean && !q.results_rejected_by).length;
+
+                      return (
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                          <Card className="rounded-2xl border-2 border-indigo-500/20 bg-indigo-500/5">
+                            <CardContent className="p-4 flex items-center justify-between">
+                              <div>
+                                <div className="text-2xl font-black text-indigo-700 dark:text-indigo-300">{totalSubs}</div>
+                                <div className="text-xs font-bold text-muted-foreground">{isRtl ? "إجمالي أوراق إجابات الطلاب" : "Total Submissions"}</div>
+                              </div>
+                              <Users className="w-8 h-8 text-indigo-600 opacity-80" />
+                            </CardContent>
+                          </Card>
+
+                          <Card className="rounded-2xl border-2 border-amber-500/20 bg-amber-500/5">
+                            <CardContent className="p-4 flex items-center justify-between">
+                              <div>
+                                <div className="text-2xl font-black text-amber-700 dark:text-amber-300">{inChainCount}</div>
+                                <div className="text-xs font-bold text-muted-foreground">{isRtl ? "نتائج قيد سلسلة المراجعة" : "In Review Chain"}</div>
+                              </div>
+                              <Clock className="w-8 h-8 text-amber-600 opacity-80" />
+                            </CardContent>
+                          </Card>
+
+                          <Card className="rounded-2xl border-2 border-emerald-500/20 bg-emerald-500/5">
+                            <CardContent className="p-4 flex items-center justify-between">
+                              <div>
+                                <div className="text-2xl font-black text-emerald-700 dark:text-emerald-300">{certifiedCount}</div>
+                                <div className="text-xs font-bold text-muted-foreground">{isRtl ? "نتائج معتمدة رسمياً للطلاب" : "Certified Results"}</div>
+                              </div>
+                              <CheckCircle2 className="w-8 h-8 text-emerald-600 opacity-80" />
+                            </CardContent>
+                          </Card>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Score Distribution and PDF Export */}
+                    <div className="flex items-center justify-between pt-2">
+                      <h3 className="text-base font-black text-foreground flex items-center gap-2">
+                        <BarChart3 className="w-5 h-5 text-indigo-600" />
+                        <span>{isRtl ? "إحصائيات وتوزيع درجات الطلاب" : "Score Statistics & Distribution"}</span>
+                      </h3>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => exportToPDF("quizresults")}
+                        className="gap-1.5 font-bold border-2 border-primary/40 hover:bg-primary/10 rounded-xl"
+                      >
+                        <Download className="w-4 h-4" strokeWidth={2.6} />
+                        {isRtl ? "تحميل PDF" : "Export PDF"}
+                      </Button>
+                    </div>
+
+                    {/* Charts */}
+                    {quizSubmissions.length > 0 && (() => {
+                      const ranges = [
+                        { label: "0-20%", min: 0, max: 20, color: "#ef4444" },
+                        { label: "21-40%", min: 21, max: 40, color: "#f97316" },
+                        { label: "41-60%", min: 41, max: 60, color: "#eab308" },
+                        { label: "61-80%", min: 61, max: 80, color: "#22c55e" },
+                        { label: "81-100%", min: 81, max: 100, color: "#10b981" },
+                      ];
+                      const distData = ranges.map((r) => {
+                        const count = quizSubmissions.filter((s) => {
+                          const pct = Math.round(((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100);
+                          return pct >= r.min && pct <= r.max;
+                        }).length;
+                        return { name: r.label, count, color: r.color };
+                      });
+                      const pieData = [
+                        { name: isRtl ? "ناجح" : "Passed", value: quizSubmissions.filter((s) => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length, color: "#22c55e" },
+                        { name: isRtl ? "راسب" : "Failed", value: quizSubmissions.filter((s) => ((s.score || 0) / Math.max(s.total_points || 1, 1)) < 0.5).length, color: "#ef4444" },
+                      ];
+                      return (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <Card className="rounded-3xl border-2 border-border shadow-sm">
+                            <CardHeader className="pb-2">
+                              <CardTitle className="text-sm flex items-center gap-2">
+                                <BarChart3 className="w-4 h-4 text-primary" />
+                                {isRtl ? "توزيع الدرجات" : "Score Distribution"}
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <ResponsiveContainer width="100%" height={200}>
+                                <BarChart data={distData}>
+                                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                                  <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                                  <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                                  <Tooltip
+                                    contentStyle={{ borderRadius: 8, fontSize: 12 }}
+                                    formatter={(value: number) => [value, isRtl ? "عدد الطلاب" : "Students"]}
+                                  />
+                                  <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                                    {distData.map((entry, index) => (
+                                      <Cell key={index} fill={entry.color} />
+                                    ))}
+                                  </Bar>
+                                </BarChart>
+                              </ResponsiveContainer>
+                            </CardContent>
+                          </Card>
+
+                          <Card className="rounded-3xl border-2 border-border shadow-sm">
+                            <CardHeader className="pb-2">
+                              <CardTitle className="text-sm flex items-center gap-2">
+                                <CheckCircle className="w-4 h-4 text-emerald-500" />
+                                {isRtl ? "نسبة النجاح والرسوب" : "Pass/Fail Ratio"}
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex items-center justify-center">
+                              <ResponsiveContainer width="100%" height={200}>
+                                <PieChart>
+                                  <Pie
+                                    data={pieData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={45}
+                                    outerRadius={75}
+                                    paddingAngle={4}
+                                    dataKey="value"
+                                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                  >
+                                    {pieData.map((entry, index) => (
+                                      <Cell key={index} fill={entry.color} />
+                                    ))}
+                                  </Pie>
+                                  <Tooltip formatter={(value: number) => [value, isRtl ? "طالب" : "Students"]} />
+                                </PieChart>
+                              </ResponsiveContainer>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Quizzes list summary */}
+                    <Card className="rounded-3xl border-2 border-border shadow-sm overflow-hidden">
+                      <CardHeader className="p-4 bg-muted/20 border-b">
+                        <CardTitle className="text-sm font-black flex items-center justify-between">
+                          <span className="flex items-center gap-2">
+                            <Award className="w-4 h-4 text-primary" />
+                            {isRtl ? "كشوف نتائج الاختبارات الأخيرة بالقسم" : "Recent Department Quiz Results"}
+                          </span>
+                          <Badge variant="outline" className="font-bold">{quizzes.length} {isRtl ? "اختبار" : "quizzes"}</Badge>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-0">
+                        {quizzes.length === 0 ? (
+                          <div className="text-center py-8 text-muted-foreground font-bold text-xs">
+                            {isRtl ? "لا توجد نتائج اختبارات بعد." : "No quiz results recorded yet."}
+                          </div>
+                        ) : (
+                          <div className="overflow-x-auto">
+                            <Table>
+                              <TableHeader className="bg-muted/30">
+                                <TableRow>
+                                  <TableHead className="font-black text-xs">{isRtl ? "الاختبار" : "Exam"}</TableHead>
+                                  <TableHead className="font-black text-xs text-center">{isRtl ? "التقديمات" : "Submissions"}</TableHead>
+                                  <TableHead className="font-black text-xs text-center">{isRtl ? "متوسط الدرجات" : "Average"}</TableHead>
+                                  <TableHead className="font-black text-xs text-center">{isRtl ? "حالة الاعتماد" : "Approval"}</TableHead>
+                                  <TableHead className="font-black text-xs text-end">{isRtl ? "الإجراء" : "Action"}</TableHead>
                                 </TableRow>
-                              );
-                            })}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                              </TableHeader>
+                              <TableBody>
+                                {quizzes.slice(0, 5).map((q) => {
+                                  const subs = quizSubmissions.filter((s) => s.quiz_id === q.id);
+                                  const avg = subs.length > 0
+                                    ? Math.round(subs.reduce((a, s) => a + ((s.score || 0) / Math.max(s.total_points || 1, 1)) * 100, 0) / subs.length)
+                                    : 0;
+                                  const isAppr = q.results_approved_by_dean || q.results_status === "approved";
+                                  return (
+                                    <TableRow key={q.id} className="hover:bg-muted/20">
+                                      <TableCell className="font-bold text-xs py-3">
+                                        {isRtl ? q.title_ar || q.title_en : q.title_en}
+                                      </TableCell>
+                                      <TableCell className="text-center text-xs font-bold">
+                                        {subs.length} {isRtl ? "طالب" : "students"}
+                                      </TableCell>
+                                      <TableCell className="text-center text-xs font-black text-indigo-600">
+                                        {avg}%
+                                      </TableCell>
+                                      <TableCell className="text-center">
+                                        <Badge className={`text-[9px] font-black ${isAppr ? "bg-emerald-500/20 text-emerald-700" : "bg-amber-500/20 text-amber-700"}`}>
+                                          {isAppr ? (isRtl ? "معتمدة ✓" : "Certified") : (isRtl ? "قيد المراجعة" : "Pending")}
+                                        </Badge>
+                                      </TableCell>
+                                      <TableCell className="text-end">
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          onClick={() => setQuizResultsSubView("roster")}
+                                          className="rounded-xl text-xs font-bold text-indigo-600 hover:bg-indigo-50"
+                                        >
+                                          {isRtl ? "عرض الدرجات" : "View Scores"}
+                                        </Button>
+                                      </TableCell>
+                                    </TableRow>
+                                  );
+                                })}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </>
+                )}
               </div>
             )}
           </TabsContent>

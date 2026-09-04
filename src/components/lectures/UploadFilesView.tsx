@@ -33,6 +33,15 @@ export const UploadFilesView = ({
   const [savingUpload, setSavingUpload] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
 
+  // Sync selected course when courses prop is loaded or changes
+  useEffect(() => {
+    if (courses && courses.length > 0) {
+      if (!uploadCourseId || !courses.some(c => c.id === uploadCourseId)) {
+        setUploadCourseId(courses[0].id);
+      }
+    }
+  }, [courses, uploadCourseId]);
+
   // Attachments List State
   const [loadingAttachments, setLoadingAttachments] = useState(false);
   const [attachments, setAttachments] = useState<any[]>([]);

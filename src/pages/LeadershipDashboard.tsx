@@ -2664,13 +2664,25 @@ const LeadershipDashboard = () => {
                             : (isRtl ? "المحاضرات والمقررات الدراسية" : "Lectures & Courses Catalog")}
                       </h3>
                     </div>
-                    <Badge variant="outline" className="font-black text-xs px-3 py-1 bg-card rounded-xl border-2 border-primary/20 text-primary shadow-xs">
-                      {leadershipLectureView === "attachments"
-                        ? `${courseAttachments.length} ${isRtl ? "ملف مرفق" : "files"}`
-                        : leadershipLectureView === "ratings"
-                          ? `${lectureRatings.length} ${isRtl ? "تقييم مسجل" : "ratings"}`
-                          : `${courses.length} ${isRtl ? "محاضرة مسجلة" : "Lectures"}`}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="font-black text-xs px-3 py-1 bg-card rounded-xl border-2 border-primary/20 text-primary shadow-xs">
+                        {leadershipLectureView === "attachments"
+                          ? `${courseAttachments.length} ${isRtl ? "ملف مرفق" : "files"}`
+                          : leadershipLectureView === "ratings"
+                            ? `${lectureRatings.length} ${isRtl ? "تقييم مسجل" : "ratings"}`
+                            : `${courses.length} ${isRtl ? "محاضرة مسجلة" : "Lectures"}`}
+                      </Badge>
+                      {leadershipLectureView === "attachments" && (
+                        <Button
+                          size="sm"
+                          onClick={() => setLectureSubView("upload")}
+                          className="h-8 px-3 rounded-xl font-black text-xs bg-purple-600 hover:bg-purple-700 text-white gap-1.5 shadow-sm"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>{isRtl ? "إضافة مرفق" : "Add Attachment"}</span>
+                        </Button>
+                      )}
+                    </div>
                   </div>
 
                   {/* 3. Main Dynamic Content according to selected view */}
@@ -2678,13 +2690,26 @@ const LeadershipDashboard = () => {
                     /* Attached Files View */
                     courseAttachments.length === 0 ? (
                       <Card className="rounded-3xl border-2 border-dashed border-border/80 bg-card/50 shadow-sm">
-                        <CardContent className="py-16 text-center space-y-3">
+                        <CardContent className="py-16 text-center space-y-4">
                           <div className="w-16 h-16 rounded-3xl bg-purple-500/10 text-purple-600 flex items-center justify-center mx-auto shadow-inner">
                             <Paperclip className="w-8 h-8" />
                           </div>
-                          <p className="text-base font-black text-foreground">
-                            {isRtl ? "لا توجد ملفات مرفقة للمحاضرات حتى الآن" : "No lecture attachments uploaded yet"}
-                          </p>
+                          <div className="space-y-1">
+                            <p className="text-base font-black text-foreground">
+                              {isRtl ? "لا توجد ملفات مرفقة للمحاضرات حتى الآن" : "No lecture attachments uploaded yet"}
+                            </p>
+                            <p className="text-xs text-muted-foreground font-medium max-w-sm mx-auto">
+                              {isRtl ? "يمكنك رفع ومشاركة مذكرات وملخصات المحاضرات مع الطلاب بسهولة." : "You can upload and share handouts and study materials with students easily."}
+                            </p>
+                          </div>
+                          <Button
+                            size="sm"
+                            onClick={() => setLectureSubView("upload")}
+                            className="h-9 px-4 rounded-xl font-black text-xs bg-purple-600 hover:bg-purple-700 text-white gap-1.5 shadow-md shadow-purple-600/20"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>{isRtl ? "إضافة مرفق الآن" : "Add Attachment Now"}</span>
+                          </Button>
                         </CardContent>
                       </Card>
                     ) : (

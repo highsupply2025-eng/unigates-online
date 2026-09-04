@@ -1560,6 +1560,7 @@ const LeadershipDashboard = () => {
                   { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Information", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/leadership/profile") },
                 ]}
               />
+            )}
           </div>
         </div>
       </header>

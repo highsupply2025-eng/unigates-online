@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import {
   ShieldCheck, CheckCircle2, XCircle, Clock, Award, Users, BarChart3,
   Eye, CheckCircle, ArrowRight, ArrowLeft, Search, Filter, RefreshCw,
-  Sparkles, FileText, Download, User, AlertCircle, BookOpen, GraduationCap
+  Sparkles, FileText, Download, User, AlertCircle, BookOpen, GraduationCap,
+  Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -18,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { StudentQuizRatingModal } from "@/components/StudentQuizRatingModal";
 
 interface QuizResultsApprovalsViewProps {
   userId: string;
@@ -55,6 +57,7 @@ export const QuizResultsApprovalsView: React.FC<QuizResultsApprovalsViewProps> =
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [ratingQuiz, setRatingQuiz] = useState<{ id: string; courseId?: string; title: string; instructor?: string } | null>(null);
 
   const isDean = userRole === "dean";
   const isViceDean = userRole === "vice_dean";
@@ -297,121 +300,132 @@ export const QuizResultsApprovalsView: React.FC<QuizResultsApprovalsViewProps> =
 
   return (
     <div className="space-y-6 pb-12 animate-in fade-in-50 duration-300">
-      {/* 1. Two Big Distinctive Highlight Cards: Approved vs Unapproved */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+      {/* 1. Three Luxury Action & Oversight Cards: Unapproved vs Approved vs Exam Results Quality */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Card 1: Unapproved / Pending Approval (Orange/Amber) */}
         <div
           onClick={() => setFilterTab(myTurnList.length > 0 ? "my_turn" : "pending")}
-          className={`group relative overflow-hidden rounded-3xl p-6 transition-all duration-300 cursor-pointer border-2 shadow-lg ${
+          className={`group relative overflow-hidden rounded-3xl p-6 transition-all duration-300 cursor-pointer border-2 shadow-lg flex flex-col justify-between ${
             filterTab === "my_turn" || filterTab === "pending"
               ? "bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white border-amber-300/40 shadow-amber-500/30 scale-101"
               : "bg-card hover:bg-muted/40 border-amber-500/30 text-foreground hover:border-amber-500/60"
           }`}
         >
-          <div className="flex items-start justify-between">
-            <div
-              className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform ${
-                filterTab === "my_turn" || filterTab === "pending"
-                  ? "bg-white/20 text-white ring-2 ring-white/40"
-                  : "bg-amber-500/15 text-amber-600 dark:text-amber-400"
-              }`}
-            >
-              <Clock className="w-7 h-7 animate-pulse" strokeWidth={2.6} />
+          <div>
+            <div className="flex items-start justify-between">
+              <div
+                className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform ${
+                  filterTab === "my_turn" || filterTab === "pending"
+                    ? "bg-white/20 text-white ring-2 ring-white/40"
+                    : "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                }`}
+              >
+                <Clock className="w-7 h-7 animate-pulse" strokeWidth={2.6} />
+              </div>
+
+              <Badge
+                className={
+                  filterTab === "my_turn" || filterTab === "pending"
+                    ? "bg-white/20 text-white border-white/30 text-xs px-3 py-1 font-black"
+                    : "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30 text-xs px-3 py-1 font-black"
+                }
+              >
+                {isRtl ? "غير معتمد / قيد الاعتماد" : "Unapproved / Pending"}
+              </Badge>
             </div>
 
-            <Badge
-              className={
-                filterTab === "my_turn" || filterTab === "pending"
-                  ? "bg-white/20 text-white border-white/30 text-xs px-3 py-1 font-black"
-                  : "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30 text-xs px-3 py-1 font-black"
-              }
-            >
-              {isRtl ? "غير معتمد / قيد الاعتماد" : "Unapproved / Pending"}
-            </Badge>
+            <div className="mt-5 space-y-1">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl sm:text-4xl font-black">{totalPendingCount}</span>
+                <span className="text-xs font-bold opacity-85">{isRtl ? "كشف درجات قيد المراجعة" : "result sheets pending"}</span>
+              </div>
+
+              <h3 className="text-lg sm:text-xl font-black mt-2">
+                {isRtl ? "النتائج غير المعتمدة" : "Unapproved Results"}
+              </h3>
+
+              <p
+                className={`text-xs font-medium leading-relaxed ${
+                  filterTab === "my_turn" || filterTab === "pending" ? "text-white/90" : "text-muted-foreground"
+                }`}
+              >
+                {isRtl
+                  ? `بانتظار استكمال سلسلة موافقات رئيس القسم، الوكلاء المختصين، والاعتماد النهائي للنتائج من ${deanTitle}.`
+                  : "Awaiting sequential sign-offs from Head of Dept, Vice Deans, and final Dean approval."}
+              </p>
+            </div>
           </div>
 
-          <div className="mt-5 space-y-1">
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl sm:text-4xl font-black">{totalPendingCount}</span>
-              <span className="text-xs font-bold opacity-85">{isRtl ? "كشف درجات قيد المراجعة" : "result sheets pending"}</span>
-            </div>
-
-            <h3 className="text-lg sm:text-xl font-black mt-2">
-              {isRtl ? "النتائج غير المعتمدة" : "Unapproved Results"}
-            </h3>
-
-            <p
-              className={`text-xs font-medium leading-relaxed ${
-                filterTab === "my_turn" || filterTab === "pending" ? "text-white/90" : "text-muted-foreground"
-              }`}
-            >
-              {isRtl
-                ? `بانتظار استكمال سلسلة موافقات رئيس القسم، الوكلاء المختصين، والاعتماد النهائي للنتائج من ${deanTitle}.`
-                : "Awaiting sequential sign-offs from Head of Dept, Vice Deans, and final Dean approval."}
-            </p>
+          <div className="mt-4 pt-3 border-t border-current/15 flex items-center justify-between">
+            {myTurnList.length > 0 ? (
+              <>
+                <span className="text-xs font-black flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-400 animate-ping" />
+                  <span>{isRtl ? `يتطلب اعتمادك الآن: (${myTurnList.length})` : `Action required: (${myTurnList.length})`}</span>
+                </span>
+                <span className="text-xs font-bold underline">{isRtl ? "اضغط للمراجعة ➔" : "Review now ➔"}</span>
+              </>
+            ) : (
+              <>
+                <span className="text-xs font-black">{isRtl ? "متابعة قيد المراجعة" : "Track In Review"}</span>
+                <span className="text-xs font-bold">{isRtl ? "استعراض ➔" : "Explore ➔"}</span>
+              </>
+            )}
           </div>
-
-          {myTurnList.length > 0 && (
-            <div className="mt-4 pt-3 border-t border-current/15 flex items-center justify-between">
-              <span className="text-xs font-black flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-400 animate-ping" />
-                <span>{isRtl ? `يتطلب اعتمادك الآن: (${myTurnList.length})` : `Action required by you: (${myTurnList.length})`}</span>
-              </span>
-              <span className="text-xs font-bold underline">{isRtl ? "اضغط للمراجعة ➔" : "Review now ➔"}</span>
-            </div>
-          )}
         </div>
 
         {/* Card 2: Fully Approved & Live (Emerald/Green) */}
         <div
           onClick={() => setFilterTab("approved")}
-          className={`group relative overflow-hidden rounded-3xl p-6 transition-all duration-300 cursor-pointer border-2 shadow-lg ${
+          className={`group relative overflow-hidden rounded-3xl p-6 transition-all duration-300 cursor-pointer border-2 shadow-lg flex flex-col justify-between ${
             filterTab === "approved"
               ? "bg-gradient-to-br from-emerald-600 via-teal-600 to-green-600 text-white border-emerald-300/40 shadow-emerald-600/30 scale-101"
               : "bg-card hover:bg-muted/40 border-emerald-500/30 text-foreground hover:border-emerald-500/60"
           }`}
         >
-          <div className="flex items-start justify-between">
-            <div
-              className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform ${
-                filterTab === "approved"
-                  ? "bg-white/20 text-white ring-2 ring-white/40"
-                  : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-              }`}
-            >
-              <CheckCircle2 className="w-7 h-7" strokeWidth={2.6} />
+          <div>
+            <div className="flex items-start justify-between">
+              <div
+                className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform ${
+                  filterTab === "approved"
+                    ? "bg-white/20 text-white ring-2 ring-white/40"
+                    : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                }`}
+              >
+                <CheckCircle2 className="w-7 h-7" strokeWidth={2.6} />
+              </div>
+
+              <Badge
+                className={
+                  filterTab === "approved"
+                    ? "bg-white/20 text-white border-white/30 text-xs px-3 py-1 font-black"
+                    : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 text-xs px-3 py-1 font-black"
+                }
+              >
+                {isRtl ? "معتمدة بالكامل ✓" : "Fully Certified ✓"}
+              </Badge>
             </div>
 
-            <Badge
-              className={
-                filterTab === "approved"
-                  ? "bg-white/20 text-white border-white/30 text-xs px-3 py-1 font-black"
-                  : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 text-xs px-3 py-1 font-black"
-              }
-            >
-              {isRtl ? "معتمدة بالكامل ✓" : "Fully Certified ✓"}
-            </Badge>
-          </div>
+            <div className="mt-5 space-y-1">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl sm:text-4xl font-black">{approvedList.length}</span>
+                <span className="text-xs font-bold opacity-85">{isRtl ? "كشف درجات معتمد ومنشور" : "certified & live"}</span>
+              </div>
 
-          <div className="mt-5 space-y-1">
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl sm:text-4xl font-black">{approvedList.length}</span>
-              <span className="text-xs font-bold opacity-85">{isRtl ? "كشف درجات معتمد ومنشور" : "certified & live"}</span>
+              <h3 className="text-lg sm:text-xl font-black mt-2">
+                {isRtl ? "النتائج المعتمدة والمنشورة" : "Certified & Published Results"}
+              </h3>
+
+              <p
+                className={`text-xs font-medium leading-relaxed ${
+                  filterTab === "approved" ? "text-white/90" : "text-muted-foreground"
+                }`}
+              >
+                {isRtl
+                  ? `تم اعتمادها رسمياً من قِبل ${deanTitle} وأصبحت متاحة للطلاب في ملفاتهم الأكاديمية وبلوحة إدارة الكلية.`
+                  : "Formally certified by the Dean and live in college dashboard and student portal."}
+              </p>
             </div>
-
-            <h3 className="text-lg sm:text-xl font-black mt-2">
-              {isRtl ? "النتائج المعتمدة والمنشورة" : "Certified & Published Results"}
-            </h3>
-
-            <p
-              className={`text-xs font-medium leading-relaxed ${
-                filterTab === "approved" ? "text-white/90" : "text-muted-foreground"
-              }`}
-            >
-              {isRtl
-                ? `تم اعتمادها رسمياً من قِبل ${deanTitle} وأصبحت متاحة للطلاب في ملفاتهم الأكاديمية وبلوحة إدارة الكلية.`
-                : "Formally certified by the Dean and live in college dashboard and student portal."}
-            </p>
           </div>
 
           <div className="mt-4 pt-3 border-t border-current/15 flex items-center justify-between">
@@ -419,6 +433,65 @@ export const QuizResultsApprovalsView: React.FC<QuizResultsApprovalsViewProps> =
               {isRtl ? `الاعتماد النهائي: ${deanTitle}` : `Final Approval: ${deanTitle}`}
             </span>
             <span className="text-xs font-bold">{isRtl ? "معاينة المعتمد ➔" : "View approved ➔"}</span>
+          </div>
+        </div>
+
+        {/* Card 3: Results Ratings & Assessment Quality (Purple/Indigo) */}
+        <div
+          onClick={() => {
+            if (quizzes.length > 0) {
+              const target = quizzes[0];
+              const parentCourse = courses.find((c) => c.id === target.course_id);
+              setRatingQuiz({
+                id: target.id,
+                courseId: target.course_id,
+                title: isRtl ? target.title_ar || target.title_en : target.title_en || target.title_ar,
+                instructor: target.instructor_ar || target.instructor_en || (parentCourse ? parentCourse.instructor_name : undefined),
+              });
+            } else {
+              toast({
+                title: isRtl ? "لا توجد نتائج للاختبارات للتقييم حالياً" : "No exam results available to rate",
+                description: isRtl ? "ستظهر النتائج فور رصدها واعتمادها." : "Results will appear once entered.",
+              });
+            }
+          }}
+          className="group relative overflow-hidden rounded-3xl p-6 transition-all duration-300 cursor-pointer border-2 shadow-lg flex flex-col justify-between bg-card hover:bg-muted/40 border-purple-500/30 text-foreground hover:border-purple-500/60"
+        >
+          <div>
+            <div className="flex items-start justify-between">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-transform bg-purple-500/15 text-purple-600 dark:text-purple-400">
+                <Star className="w-7 h-7 fill-current" strokeWidth={2.6} />
+              </div>
+
+              <Badge className="bg-purple-500/15 text-purple-700 dark:text-purple-400 border-purple-500/30 text-xs px-3 py-1 font-black">
+                {isRtl ? "تقييم النتائج" : "Results Evaluation"}
+              </Badge>
+            </div>
+
+            <div className="mt-5 space-y-1">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl sm:text-4xl font-black">{quizzes.length}</span>
+                <span className="text-xs font-bold opacity-85">{isRtl ? "كشف نتائج متاح" : "result sheets"}</span>
+              </div>
+
+              <h3 className="text-lg sm:text-xl font-black mt-2 flex items-center gap-1.5">
+                <span>{isRtl ? "تقييم جودة رصد النتائج" : "Results Quality & Accuracy"}</span>
+                <Sparkles className="w-4 h-4 text-amber-500" />
+              </h3>
+
+              <p className="text-xs font-medium leading-relaxed text-muted-foreground">
+                {isRtl
+                  ? `تسجيل التقييم الأكاديمي لجودة ودقة رصد درجات الطلاب، نسب النجاح، والاعتماد الرسمي من ${deanTitle}.`
+                  : "Submit academic evaluations on scoring accuracy, student pass rates, and grade distribution."}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-current/15 flex items-center justify-between">
+            <span className="text-xs font-black text-purple-700 dark:text-purple-400">
+              {isRtl ? "⭐ تقييم كشف الدرجات الآن" : "⭐ Evaluate Results Now"}
+            </span>
+            <span className="text-xs font-bold">{isRtl ? "فتح التقييم ➔" : "Open ➔"}</span>
           </div>
         </div>
       </div>
@@ -733,6 +806,24 @@ export const QuizResultsApprovalsView: React.FC<QuizResultsApprovalsViewProps> =
                   <div className="flex items-center gap-2">
                     <Button
                       size="sm"
+                      variant="secondary"
+                      onClick={() => {
+                        const parentCourse = courses.find((c) => c.id === q.course_id);
+                        setRatingQuiz({
+                          id: q.id,
+                          courseId: q.course_id,
+                          title: isRtl ? q.title_ar || q.title_en : q.title_en || q.title_ar,
+                          instructor: q.instructor_ar || q.instructor_en || (parentCourse ? parentCourse.instructor_name : undefined),
+                        });
+                      }}
+                      className="rounded-xl font-bold gap-1 text-xs h-9 px-3 bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/25"
+                    >
+                      <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                      <span>{isRtl ? "تقييم الرصد" : "Rate"}</span>
+                    </Button>
+
+                    <Button
+                      size="sm"
                       variant="outline"
                       onClick={() => {
                         setSelectedQuiz(q);
@@ -864,27 +955,47 @@ export const QuizResultsApprovalsView: React.FC<QuizResultsApprovalsViewProps> =
                         </TableCell>
 
                         <TableCell className="text-end">
-                          <Button
-                            size="sm"
-                            onClick={() => {
-                              setSelectedQuiz(q);
-                              setRejectionReason(q.results_rejection_reason || "");
-                              setReviewDialogOpen(true);
-                            }}
-                            className={`rounded-xl font-black text-xs gap-1.5 h-8 px-3 ${
-                              canAct
-                                ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md hover:shadow-lg"
-                                : ""
-                            }`}
-                            variant={canAct ? "default" : "outline"}
-                          >
-                            <Eye className="w-3 h-3" />
-                            <span>
-                              {canAct
-                                ? (isRtl ? "اعتماد" : "Certify")
-                                : (isRtl ? "معاينة" : "Inspect")}
-                            </span>
-                          </Button>
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => {
+                                const parentCourse = courses.find((c) => c.id === q.course_id);
+                                setRatingQuiz({
+                                  id: q.id,
+                                  courseId: q.course_id,
+                                  title: isRtl ? q.title_ar || q.title_en : q.title_en || q.title_ar,
+                                  instructor: q.instructor_ar || q.instructor_en || (parentCourse ? parentCourse.instructor_name : undefined),
+                                });
+                              }}
+                              className="rounded-xl font-bold gap-1 text-xs h-8 px-2.5 bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/25"
+                            >
+                              <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                              <span>{isRtl ? "تقييم" : "Rate"}</span>
+                            </Button>
+
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                setSelectedQuiz(q);
+                                setRejectionReason(q.results_rejection_reason || "");
+                                setReviewDialogOpen(true);
+                              }}
+                              className={`rounded-xl font-black text-xs gap-1.5 h-8 px-3 ${
+                                canAct
+                                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md hover:shadow-lg"
+                                  : ""
+                              }`}
+                              variant={canAct ? "default" : "outline"}
+                            >
+                              <Eye className="w-3 h-3" />
+                              <span>
+                                {canAct
+                                  ? (isRtl ? "اعتماد" : "Certify")
+                                  : (isRtl ? "معاينة" : "Inspect")}
+                              </span>
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     );
@@ -896,84 +1007,88 @@ export const QuizResultsApprovalsView: React.FC<QuizResultsApprovalsViewProps> =
         </Card>
       )}
 
-      {/* Review & Decision Dialog */}
+      {/* Review & Approve Dialog */}
       <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
-        <DialogContent className="max-w-3xl rounded-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl rounded-3xl max-h-[90vh] overflow-y-auto">
           {selectedQuiz && (
             <>
               <DialogHeader className="border-b pb-4">
-                <DialogTitle className="text-lg font-black flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Award className="w-5 h-5 text-purple-600" />
-                    <span>{isRtl ? selectedQuiz.title_ar : selectedQuiz.title_en}</span>
-                  </div>
-                  <Badge className="bg-purple-600 text-white font-black text-xs">
-                    {currentQuizSubs.length} {isRtl ? "طالب" : "students"}
-                  </Badge>
-                </DialogTitle>
-                <DialogDescription className="font-bold text-xs">
-                  {isRtl
-                    ? `مراجعة كشف درجات الطلاب وسلسلة الاعتماد الأكاديمي حتى اعتماد ${deanTitle}.`
-                    : "Inspect full student grades roster and record certification decision."}
-                </DialogDescription>
+                <div className="flex items-center justify-between">
+                  <DialogTitle className="text-lg sm:text-xl font-black flex items-center gap-2">
+                    <GraduationCap className="w-5 h-5 text-indigo-600" />
+                    <span>{isRtl ? selectedQuiz.title_ar || selectedQuiz.title_en : selectedQuiz.title_en || selectedQuiz.title_ar}</span>
+                  </DialogTitle>
+                </div>
               </DialogHeader>
 
-              <div className="py-4 space-y-5">
-                {/* Stats summary */}
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-center">
-                    <div className="text-[10px] font-bold text-muted-foreground">{isRtl ? "إجمالي المؤدين" : "Submissions"}</div>
-                    <div className="text-lg font-black text-indigo-700 dark:text-indigo-300">{currentQuizSubs.length}</div>
+              {/* Body */}
+              <div className="space-y-4 pt-2">
+                {/* Stats Overview Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="p-3.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-center">
+                    <span className="text-[11px] font-bold text-muted-foreground block">{isRtl ? "إجمالي الطلاب المؤدين" : "Total Submissions"}</span>
+                    <span className="text-2xl font-black text-indigo-700 dark:text-indigo-300">
+                      {quizSubmissions.filter((s) => s.quiz_id === selectedQuiz.id).length}
+                    </span>
                   </div>
 
-                  <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-center">
-                    <div className="text-[10px] font-bold text-muted-foreground">{isRtl ? "نسبة النجاح" : "Pass Rate"}</div>
-                    <div className="text-lg font-black text-emerald-700 dark:text-emerald-300">
-                      {currentQuizSubs.length ? Math.round((currentPassed / currentQuizSubs.length) * 100) : 0}%
-                    </div>
+                  <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-center">
+                    <span className="text-[11px] font-bold text-muted-foreground block">{isRtl ? "الناجحون" : "Passed"}</span>
+                    <span className="text-2xl font-black text-emerald-700 dark:text-emerald-300">
+                      {quizSubmissions.filter((s) => s.quiz_id === selectedQuiz.id && ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length}
+                    </span>
                   </div>
 
-                  <div className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-center">
-                    <div className="text-[10px] font-bold text-muted-foreground">{isRtl ? "متوسط الدرجات" : "Average"}</div>
-                    <div className="text-lg font-black text-purple-700 dark:text-purple-300">{currentAvg}%</div>
+                  <div className="p-3.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-center">
+                    <span className="text-[11px] font-bold text-muted-foreground block">{isRtl ? "الراسبون" : "Failed"}</span>
+                    <span className="text-2xl font-black text-red-700 dark:text-red-300">
+                      {quizSubmissions.filter((s) => s.quiz_id === selectedQuiz.id && ((s.score || 0) / Math.max(s.total_points || 1, 1)) < 0.5).length}
+                    </span>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-center">
+                    <span className="text-[11px] font-bold text-muted-foreground block">{isRtl ? "نسبة النجاح" : "Pass Rate"}</span>
+                    <span className="text-2xl font-black text-amber-700 dark:text-amber-300">
+                      {(() => {
+                        const subs = quizSubmissions.filter((s) => s.quiz_id === selectedQuiz.id);
+                        if (!subs.length) return "0%";
+                        const passed = subs.filter((s) => ((s.score || 0) / Math.max(s.total_points || 1, 1)) >= 0.5).length;
+                        return `${Math.round((passed / subs.length) * 100)}%`;
+                      })()}
+                    </span>
                   </div>
                 </div>
 
-                {/* Students Grade Sheet Table */}
-                <div className="space-y-2">
-                  <Label className="text-xs font-black text-foreground flex items-center justify-between">
-                    <span>{isRtl ? "كشف درجات الطلاب المفصل:" : "Student Grade Sheet:"}</span>
-                    <span className="text-[10px] text-muted-foreground font-bold">{currentQuizSubs.length} {isRtl ? "طالب" : "students"}</span>
-                  </Label>
-
-                  <div className="max-h-60 overflow-y-auto rounded-2xl border border-border">
+                {/* Submissions Table / Roster */}
+                <div className="border rounded-2xl overflow-hidden bg-card">
+                  <div className="p-3 bg-muted/40 border-b font-black text-xs flex items-center justify-between">
+                    <span>{isRtl ? "كشف أسماء ودرجات الطلاب:" : "Students Score Roster:"}</span>
+                    <Badge variant="outline" className="text-[10px]">
+                      {quizSubmissions.filter((s) => s.quiz_id === selectedQuiz.id).length} {isRtl ? "سجل" : "records"}
+                    </Badge>
+                  </div>
+                  <div className="max-h-60 overflow-y-auto">
                     <Table>
-                      <TableHeader className="bg-muted/30 sticky top-0 z-10">
+                      <TableHeader className="bg-muted/20">
                         <TableRow>
-                          <TableHead className="font-black text-xs">{isRtl ? "الطالب" : "Student"}</TableHead>
-                          <TableHead className="font-black text-xs text-center">{isRtl ? "الدرجة" : "Score"}</TableHead>
-                          <TableHead className="font-black text-xs text-center">{isRtl ? "النسبة" : "%"}</TableHead>
-                          <TableHead className="font-black text-xs text-center">{isRtl ? "النتيجة" : "Status"}</TableHead>
+                          <TableHead className="text-xs font-black">#</TableHead>
+                          <TableHead className="text-xs font-black">{isRtl ? "اسم الطالب" : "Student"}</TableHead>
+                          <TableHead className="text-xs font-black">{isRtl ? "الدرجة" : "Score"}</TableHead>
+                          <TableHead className="text-xs font-black">{isRtl ? "النسبة" : "Percentage"}</TableHead>
+                          <TableHead className="text-xs font-black text-end">{isRtl ? "التقدير" : "Grade"}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {currentQuizSubs.map((sub) => {
-                          const total = Math.max(sub.total_points || selectedQuiz.points || 1, 1);
-                          const score = sub.score || 0;
-                          const pct = Math.round((score / total) * 100);
-                          const isPass = pct >= 50;
+                        {quizSubmissions.filter((s) => s.quiz_id === selectedQuiz.id).map((sub, idx) => {
+                          const percent = Math.round(((sub.score || 0) / Math.max(sub.total_points || 1, 1)) * 100);
+                          const isPass = percent >= 50;
                           return (
-                            <TableRow key={sub.id}>
-                              <TableCell className="font-bold text-xs py-2">
-                                <span className="font-mono">{sub.student_id?.slice(0, 14)}...</span>
-                              </TableCell>
-                              <TableCell className="text-center font-black text-xs">
-                                {score} / {total}
-                              </TableCell>
-                              <TableCell className="text-center font-black text-xs">
-                                <span className={isPass ? "text-emerald-600" : "text-red-600"}>{pct}%</span>
-                              </TableCell>
-                              <TableCell className="text-center">
+                            <TableRow key={sub.id || idx}>
+                              <TableCell className="text-xs font-bold">{idx + 1}</TableCell>
+                              <TableCell className="text-xs font-black">{sub.student_name || sub.user_id || (isRtl ? "طالب" : "Student")}</TableCell>
+                              <TableCell className="text-xs font-bold">{sub.score || 0} / {sub.total_points || 0}</TableCell>
+                              <TableCell className="text-xs font-bold">{percent}%</TableCell>
+                              <TableCell className="text-end">
                                 <Badge className={`text-[9px] font-black ${isPass ? "bg-emerald-500/20 text-emerald-700" : "bg-red-500/20 text-red-700"}`}>
                                   {isPass ? (isRtl ? "ناجح" : "Pass") : (isRtl ? "راسب" : "Fail")}
                                 </Badge>
@@ -1058,13 +1173,33 @@ export const QuizResultsApprovalsView: React.FC<QuizResultsApprovalsViewProps> =
               </div>
 
               <DialogFooter className="flex flex-col sm:flex-row items-center justify-between gap-2 border-t pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setReviewDialogOpen(false)}
-                  className="rounded-xl font-bold"
-                >
-                  {isRtl ? "إغلاق" : "Close"}
-                </Button>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      const parentCourse = courses.find((c) => c.id === selectedQuiz.course_id);
+                      setRatingQuiz({
+                        id: selectedQuiz.id,
+                        courseId: selectedQuiz.course_id,
+                        title: isRtl ? selectedQuiz.title_ar || selectedQuiz.title_en : selectedQuiz.title_en || selectedQuiz.title_ar,
+                        instructor: selectedQuiz.instructor_ar || selectedQuiz.instructor_en || (parentCourse ? parentCourse.instructor_name : undefined),
+                      });
+                    }}
+                    className="rounded-xl font-black gap-1.5 h-10 px-3 bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/25"
+                  >
+                    <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
+                    <span>{isRtl ? "⭐ تقييم رصد النتيجة" : "Rate Results Quality"}</span>
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    onClick={() => setReviewDialogOpen(false)}
+                    className="rounded-xl font-bold h-10 px-4"
+                  >
+                    {isRtl ? "إغلاق" : "Close"}
+                  </Button>
+                </div>
 
                 {canUserActOnResults(selectedQuiz) && (
                   <div className="flex items-center gap-2">
@@ -1072,7 +1207,7 @@ export const QuizResultsApprovalsView: React.FC<QuizResultsApprovalsViewProps> =
                       variant="destructive"
                       disabled={actionLoading}
                       onClick={() => handleRejectResults(selectedQuiz)}
-                      className="rounded-xl font-black gap-1.5"
+                      className="rounded-xl font-black gap-1.5 h-10 px-4"
                     >
                       <XCircle className="w-4 h-4" />
                       <span>{isRtl ? "طلب تعديل / رفض" : "Request Revision"}</span>
@@ -1081,7 +1216,7 @@ export const QuizResultsApprovalsView: React.FC<QuizResultsApprovalsViewProps> =
                     <Button
                       disabled={actionLoading}
                       onClick={() => handleApproveResults(selectedQuiz)}
-                      className="rounded-xl font-black px-6 gap-1.5 bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-md hover:shadow-lg"
+                      className="rounded-xl font-black px-6 h-10 gap-1.5 bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-md hover:shadow-lg"
                     >
                       <CheckCircle2 className="w-4 h-4" />
                       <span>
@@ -1097,6 +1232,21 @@ export const QuizResultsApprovalsView: React.FC<QuizResultsApprovalsViewProps> =
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Direct Exam Results Quality Rating Modal */}
+      {ratingQuiz && (
+        <StudentQuizRatingModal
+          open={!!ratingQuiz}
+          onOpenChange={(isOpen) => !isOpen && setRatingQuiz(null)}
+          quizId={ratingQuiz.id}
+          courseId={ratingQuiz.courseId}
+          quizTitle={ratingQuiz.title}
+          instructorName={ratingQuiz.instructor}
+          onRated={() => {
+            onRefresh();
+          }}
+        />
+      )}
     </div>
   );
 };

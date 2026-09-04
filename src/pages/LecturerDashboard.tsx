@@ -1151,8 +1151,9 @@ const LecturerDashboard = () => {
                   { key: "assignments", label: isRtl ? "التكليفات" : "Assignments", Icon: ClipboardList, color: "from-blue-500 to-indigo-600", onClick: () => handleTabChange("assignments"), active: activeTab === "assignments" },
                   { key: "quizzes", label: isRtl ? "الاختبارات" : "Online Tests", Icon: HelpCircle, color: "from-amber-500 to-amber-600", onClick: () => handleTabChange("quizzes"), active: activeTab === "quizzes" },
                   { key: "quiz-results", label: isRtl ? "نتائج الاختبارات" : "Quiz Results", Icon: Award, color: "from-indigo-500 to-purple-600", onClick: () => handleTabChange("quiz-results"), active: activeTab === "quiz-results" },
-                  { key: "attendance", label: isRtl ? "الحضور" : "Attendance", Icon: Users, color: "from-teal-500 to-emerald-600", onClick: () => handleTabChange("attendance"), active: activeTab === "attendance" },
+                  { key: "ratings", label: isRtl ? "تقييمات الطلاب" : "Student Ratings", Icon: Star, color: "from-yellow-500 to-amber-600", onClick: () => handleTabChange("ratings"), active: activeTab === "ratings" },
                   { key: "analytics", label: isRtl ? "تحميل التقارير" : "Export Reports", Icon: Download, color: "from-green-500 to-emerald-600", onClick: () => handleTabChange("analytics"), active: activeTab === "analytics" },
+                  { key: "messages", label: isRtl ? "التواصل والمراسلات" : "Messages", Icon: MessageSquare, color: "from-teal-500 to-emerald-600", onClick: () => navigate("/institution/messages") },
                   { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Information", Icon: Users, color: "from-cyan-500 to-cyan-600", onClick: () => navigate("/lecturer/profile") },
                 ]}
               />

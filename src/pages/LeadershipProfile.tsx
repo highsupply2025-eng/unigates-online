@@ -169,6 +169,13 @@ const LeadershipProfile = () => {
                 color: "from-yellow-500 to-amber-600",
                 onClick: () => goTab("ratings"),
               },
+              {
+                key: "messages",
+                label: isRtl ? "التواصل والمراسلات" : "Messages",
+                Icon: MessageSquare,
+                color: "from-teal-500 to-emerald-600",
+                onClick: () => navigate("/institution/messages"),
+              },
               { key: "profile", label: isRtl ? "بيانات الحساب" : "Account Information", Icon: User, color: "from-cyan-500 to-cyan-600", onClick: () => {}, active: true },
             ]}
           />

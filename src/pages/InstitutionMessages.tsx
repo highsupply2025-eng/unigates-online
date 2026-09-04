@@ -51,17 +51,22 @@ const EMOJI_LIST = [
 const roleLabel = (role: string, isCollege: boolean, isRtl: boolean) => {
   const map: Record<string, { ar: string; en: string }> = {
     dean: { ar: isCollege ? "عميد الكلية" : "مدير المعهد", en: isCollege ? "Dean" : "Director" },
-    vice_dean_postgrad: { ar: "وكيل الدراسات العليا", en: "Vice Dean Postgrad" },
-    vice_dean_students: { ar: "وكيل شئون الطلاب", en: "Vice Dean Students" },
-    vice_dean_community: { ar: "وكيل خدمة المجتمع", en: "Vice Dean Community" },
+    vice_dean_postgrad: { ar: isCollege ? "وكيل الكلية للدراسات العليا والبحوث" : "وكيل المعهد للدراسات العليا", en: "Vice Dean Postgrad" },
+    vice_dean_students: { ar: isCollege ? "وكيل الكلية لشئون التعليم والطلاب" : "وكيل المعهد لشئون الطلاب", en: "Vice Dean Students" },
+    vice_dean_community: { ar: isCollege ? "وكيل الكلية لخدمة المجتمع وتنمية البيئة" : "وكيل المعهد لخدمة المجتمع", en: "Vice Dean Community" },
+    vice_dean_environment: { ar: isCollege ? "وكيل الكلية لخدمة المجتمع وتنمية البيئة" : "وكيل المعهد لخدمة المجتمع", en: "Vice Dean Community" },
+    vice_dean: { ar: isCollege ? "وكيل الكلية" : "وكيل المعهد", en: "Vice Dean" },
     department_head: { ar: "رئيس القسم", en: "Department Head" },
-    teacher: { ar: "مدرس", en: "Teacher" },
+    professor: { ar: "أستاذ دكتور (أ.د)", en: "Professor" },
+    prof_dr: { ar: "أستاذ دكتور (أ.د)", en: "Professor" },
+    doctor: { ar: "دكتور (د.)", en: "Doctor" },
+    dr: { ar: "دكتور (د.)", en: "Doctor" },
+    teacher: { ar: "مدرس", en: "Teacher / Lecturer" },
+    lecturer: { ar: "مدرس / محاضر", en: "Lecturer" },
+    assistant_lecturer: { ar: "مدرس مساعد", en: "Assistant Lecturer" },
     teaching_assistant: { ar: "مدرس مساعد", en: "Teaching Assistant" },
-    professor: { ar: "أستاذ دكتور", en: "Professor" },
-    doctor: { ar: "دكتور", en: "Doctor" },
-    assistant_lecturer: { ar: "معيد", en: "Assistant Lecturer" },
-    lecturer: { ar: "محاضر", en: "Lecturer" },
-    college_secretary: { ar: isCollege ? "أمين الكلية" : "أمين المعهد", en: "Secretary" },
+    demonstrator: { ar: "معيد", en: "Demonstrator" },
+    college_secretary: { ar: isCollege ? "أمين الكلية" : "أمين المعهد", en: "College Secretary" },
     library_manager: { ar: "مدير المكتبة", en: "Library Manager" },
     admin: { ar: isCollege ? "إدارة الكلية" : "إدارة المعهد", en: "Administration" },
   };
@@ -258,6 +263,57 @@ export default function InstitutionMessages() {
       setLoading(false);
     })();
   }, [navigate, isRtl]);
+
+  // Real-time listener for newly added / registered faculty & staff members
+  useEffect(() => {
+    if (!institutionId || !currentUserId) return;
+
+    const channel = supabase
+      .channel(`inst-faculty-sync-${institutionId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "institution_faculty_members",
+          filter: `institution_id=eq.${institutionId}`,
+        },
+        async (payload) => {
+          if (payload.eventType === "INSERT" || payload.eventType === "UPDATE") {
+            const newMember = payload.new as any;
+            if (newMember.user_id === currentUserId) return;
+
+            setContacts((prev) => {
+              const existingIdx = prev.findIndex((c) => c.user_id === newMember.user_id);
+              const updatedContact: Contact = {
+                user_id: newMember.user_id,
+                full_name: newMember.full_name,
+                specific_role: newMember.specific_role,
+                email: newMember.email,
+                photo_url: newMember.photo_url,
+                isOnline: true,
+              };
+
+              if (existingIdx >= 0) {
+                const next = [...prev];
+                next[existingIdx] = { ...next[existingIdx], ...updatedContact };
+                return next;
+              } else {
+                return [updatedContact, ...prev];
+              }
+            });
+          } else if (payload.eventType === "DELETE") {
+            const oldMember = payload.old as any;
+            setContacts((prev) => prev.filter((c) => c.user_id !== oldMember.user_id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [institutionId, currentUserId]);
 
   // 2. Global Call Listener Channel
   useEffect(() => {
@@ -513,10 +569,25 @@ export default function InstitutionMessages() {
 
     if (!matchesSearch) return false;
 
-    if (selectedCategory === "admin") return c.isAdmin || c.specific_role === "dean";
-    if (selectedCategory === "heads") return c.specific_role === "department_head";
-    if (selectedCategory === "faculty") return ["professor", "doctor", "teacher", "lecturer"].includes(c.specific_role);
-    if (selectedCategory === "staff") return ["assistant_lecturer", "teaching_assistant", "college_secretary", "library_manager"].includes(c.specific_role);
+    if (selectedCategory === "admin") {
+      return (
+        c.isAdmin ||
+        ["dean", "vice_dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community", "vice_dean_environment", "college_secretary", "library_manager", "admin"].includes(
+          c.specific_role
+        )
+      );
+    }
+    if (selectedCategory === "heads") {
+      return c.specific_role === "department_head";
+    }
+    if (selectedCategory === "faculty") {
+      return ["professor", "prof_dr", "doctor", "dr", "teacher", "lecturer"].includes(c.specific_role);
+    }
+    if (selectedCategory === "staff") {
+      return ["assistant_lecturer", "teaching_assistant", "demonstrator", "college_secretary", "library_manager"].includes(
+        c.specific_role
+      );
+    }
     return true;
   });
 
@@ -1128,6 +1199,7 @@ export default function InstitutionMessages() {
           callType={activeCall.type}
           contact={selected}
           currentUserId={currentUserId}
+          currentUserName={currentUserName}
           institutionId={institutionId}
           isIncoming={activeCall.isIncoming}
           incomingOffer={activeCall.incomingOffer}

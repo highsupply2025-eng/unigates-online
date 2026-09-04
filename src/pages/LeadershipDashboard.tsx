@@ -2734,6 +2734,85 @@ const LeadershipDashboard = () => {
               )}
             </TabsContent>
 
+          {/* Quizzes & Exams Tab (Quizzes Approval for Dean/Vice Deans & Full Quiz Views for Dept Heads & Faculty) */}
+          <TabsContent value="quizzesonline" id="section-quizzesonline" dir={isRtl ? "rtl" : "ltr"}>
+            {isDeanOrViceDean ? (
+              <QuizApprovalsView
+                userId={userId}
+                userRole={userRole}
+                quizzes={quizzes}
+                courses={courses}
+                departments={myDepartments}
+                onRefresh={checkAccess}
+              />
+            ) : (
+              <div className="space-y-6 animate-in fade-in-50 duration-300">
+                {leadershipQuizResultsView === "create" ? (
+                  <CreateQuizView
+                    userId={userId}
+                    userRole={userRole}
+                    departments={myDepartments}
+                    courses={courses}
+                    onQuizCreated={() => {
+                      setLeadershipQuizResultsView("overview");
+                      checkAccess();
+                    }}
+                    onCancel={() => setLeadershipQuizResultsView("overview")}
+                  />
+                ) : (
+                  <div className="space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card p-5 rounded-3xl border-2 border-border shadow-sm">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 text-white flex items-center justify-center shadow-md">
+                          <FileQuestion className="w-6 h-6 fill-white" />
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-black text-foreground flex items-center gap-2">
+                            <span>{isRtl ? "إدارة الاختبارات والتقييمات" : "Quizzes & Assessments"}</span>
+                            <Sparkles className="w-4 h-4 text-emerald-500" />
+                          </h2>
+                          <p className="text-xs font-bold text-muted-foreground">
+                            {isRtl
+                              ? "إنشاء ومتابعة الاختبارات الأكاديمية وسلسلة المراجعة والاعتماد."
+                              : "Create and manage quizzes, reviews, and approvals."}
+                          </p>
+                        </div>
+                      </div>
+
+                      <Button
+                        onClick={() => setLeadershipQuizResultsView("create")}
+                        className="rounded-2xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md gap-2 h-11 px-5"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>{isRtl ? "إنشاء اختبار جديد" : "Create New Quiz"}</span>
+                      </Button>
+                    </div>
+
+                    <QuizApprovalsView
+                      userId={userId}
+                      userRole={userRole}
+                      quizzes={quizzes}
+                      courses={courses}
+                      departments={myDepartments}
+                      onRefresh={checkAccess}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Schedules Approval & Management Tab */}
+          <TabsContent value="schedulesapproval" id="section-schedulesapproval" dir={isRtl ? "rtl" : "ltr"}>
+            <ScheduleApprovalsView
+              userId={userId}
+              userRole={userRole}
+              departments={myDepartments}
+              courses={courses}
+              schedules={schedules}
+              onRefresh={checkAccess}
+            />
+          </TabsContent>
 
           {/* Quiz Results Management & Approval Tab */}
           <TabsContent value="quizresults" id="section-quizresults" dir={isRtl ? "rtl" : "ltr"}>

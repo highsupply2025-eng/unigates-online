@@ -41,7 +41,7 @@ export const LanguageSelectorDropdown = ({
             "bg-card/90 hover:bg-muted text-foreground border-border hover:border-primary/50 shadow-sm backdrop-blur-xl group",
             className
           )}
-          aria-label={tText("اختر اللغة", "Select Language")}
+          aria-label={typeof tText === "function" ? tText("اختر اللغة", "Select Language") : "اختر اللغة"}
         >
           {/* Glowing Vivid 3D Globe Icon Badge */}
           <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-teal-400 via-emerald-500 to-cyan-500 p-0.5 shadow-sm shadow-teal-500/30 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-transform">
@@ -65,7 +65,7 @@ export const LanguageSelectorDropdown = ({
           <div className="w-4 h-4 rounded-md bg-primary/10 border border-primary/20 flex items-center justify-center">
             <Globe className="w-3 h-3 text-primary" />
           </div>
-          <span>{tText("اختر اللغة", "Select Language")}</span>
+          <span>{typeof tText === "function" ? tText("اختر اللغة", "Select Language") : "اختر اللغة"}</span>
         </div>
         {availableLanguages.map((item) => {
           const isSelected = language === item.code;

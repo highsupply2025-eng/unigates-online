@@ -92,6 +92,14 @@ export const ROUTE_LOADERS: Array<[RegExp, Loader]> = [
   [/^\/student\/ratings/, () => import("./pages/StudentRatings")],
   [/^\/student\/presence-checkin/, () => import("./pages/StudentPresenceCheckin")],
 
+  // School Portals
+  [/^\/school\/dashboard$/, () => import("./pages/SchoolDashboard")],
+  [/^\/school\/profile$/, () => import("./pages/SchoolAdminAccount")],
+  [/^\/school\/teacher\/dashboard$/, () => import("./pages/SchoolTeacherDashboard")],
+  [/^\/school\/teacher\/profile$/, () => import("./pages/SchoolTeacherAccount")],
+  [/^\/school\/student\/dashboard$/, () => import("./pages/SchoolStudentDashboard")],
+  [/^\/school\/student\/profile$/, () => import("./pages/SchoolStudentAccount")],
+
   // Live Streams
   [/^\/live$/, () => import("./pages/LiveStreams")],
   [/^\/stream\//, () => import("./pages/WatchStream")],
@@ -118,9 +126,13 @@ const TOP_ROUTE_LOADERS: Loader[] = [
   () => import("./pages/InstitutionProfile"),
   () => import("./pages/InstitutionMessages"),
   () => import("./pages/LeadershipDashboard"),
-  () => import("./pages/StudentDashboard"),
+  () => import("./pages/LeadershipProfile"),
   () => import("./pages/LecturerDashboard"),
+  () => import("./pages/LecturerAccount"),
+  () => import("./pages/StudentDashboard"),
   () => import("./pages/UserProfile"),
+  () => import("./pages/SchoolDashboard"),
+  () => import("./pages/SchoolAdminAccount"),
 ];
 
 // In-memory module cache to avoid redundant network requests

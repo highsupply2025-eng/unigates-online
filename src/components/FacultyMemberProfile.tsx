@@ -78,15 +78,22 @@ interface Props {
   title?: { ar: string; en: string };
 }
 
+// In-memory module cache for instant (0ms) render when navigating between pages
+let __facultyProfileCache: {
+  profile: ProfileRow;
+  member: MemberRow | null;
+  academic: Academic;
+} | null = null;
+
 const FacultyMemberProfile = ({ header }: Props) => {
   const { dir, language, setLanguage, availableLanguages, currentLanguageInfo } = useLanguage();
   const isRtl = dir === "rtl";
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<ProfileRow | null>(null);
-  const [member, setMember] = useState<MemberRow | null>(null);
-  const [academic, setAcademic] = useState<Academic>({
+  const [loading, setLoading] = useState(() => !__facultyProfileCache);
+  const [profile, setProfile] = useState<ProfileRow | null>(() => __facultyProfileCache?.profile ?? null);
+  const [member, setMember] = useState<MemberRow | null>(() => __facultyProfileCache?.member ?? null);
+  const [academic, setAcademic] = useState<Academic>(() => __facultyProfileCache?.academic ?? {
     collegeName: null,
     departmentName: null,
     institutionType: "college",
@@ -99,54 +106,71 @@ const FacultyMemberProfile = ({ header }: Props) => {
 
   const loadAll = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      // 1. Get user session from local memory/storage instantly
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
       if (!user) {
         navigate("/login");
         return;
       }
 
-      // 1) Fetch profiles table
-      const { data: prof } = await supabase
-        .from("profiles")
-        .select("full_name, email, phone, role, avatar_url, created_at")
-        .eq("id", user.id)
-        .maybeSingle();
+      // If we don't have cached data yet, construct immediate optimistic profile
+      if (!profile) {
+        const meta = (user.user_metadata as any) || {};
+        const optimisticProfile: ProfileRow = {
+          full_name: meta.full_name || user.email?.split("@")[0] || (isRtl ? "عضو هيئة تدريس" : "Faculty Member"),
+          email: user.email || "",
+          phone: meta.phone || "",
+          role: meta.role || "lecturer",
+          sub_role: meta.specific_role || meta.sub_role || null,
+          avatar_url: meta.avatar_url || null,
+          created_at: user.created_at || new Date().toISOString(),
+        };
+        setProfile((prev) => prev ?? optimisticProfile);
+        setLoading(false);
+      }
 
-      let resolvedSubRole: string | null = null;
-      try {
-        const { data: ifm } = await supabase
+      // 2. Fetch profile, IFM (institution_faculty_members), and department_members in PARALLEL
+      const [profRes, ifmRes, memRes] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("full_name, email, phone, role, avatar_url, created_at")
+          .eq("id", user.id)
+          .maybeSingle(),
+        supabase
           .from("institution_faculty_members")
           .select("specific_role, department_id")
           .eq("user_id", user.id)
-          .maybeSingle();
-        if (ifm?.specific_role) {
-          resolvedSubRole = ifm.specific_role;
-        }
-      } catch { /* noop */ }
+          .maybeSingle(),
+        supabase
+          .from("department_members")
+          .select("full_name, role, date_of_birth, photo_url, email, phone, national_id, gender, address, qualification, specialization, hire_date, notes, department_id")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+      ]);
 
-      if (prof) {
-        setProfile({
-          ...prof,
-          sub_role: resolvedSubRole || null,
-          created_at: prof.created_at || user.created_at,
-        });
-      }
+      const prof = profRes.data;
+      const ifm = ifmRes.data;
+      const mem = memRes.data;
+      const resolvedSubRole = ifm?.specific_role || null;
 
-      // 2) Fetch department_members table
-      const { data: mem } = await supabase
-        .from("department_members")
-        .select("full_name, role, date_of_birth, photo_url, email, phone, national_id, gender, address, qualification, specialization, hire_date, notes, department_id")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      let finalProfile: ProfileRow = {
+        full_name: prof?.full_name || mem?.full_name || (user.user_metadata as any)?.full_name || (isRtl ? "عضو هيئة تدريس" : "Faculty Member"),
+        email: prof?.email || user.email || "",
+        phone: prof?.phone || mem?.phone || "",
+        role: prof?.role || "lecturer",
+        sub_role: resolvedSubRole || (user.user_metadata as any)?.specific_role || null,
+        avatar_url: prof?.avatar_url || mem?.photo_url || null,
+        created_at: prof?.created_at || user.created_at,
+      };
 
-      if (mem) {
-        setMember(mem);
-      }
+      setProfile(finalProfile);
+      if (mem) setMember(mem);
 
-      // 3) Resolve Department & College/Institute Name
-      const deptId = mem?.department_id;
+      // 3. Resolve Department & Institution Names
+      const deptId = mem?.department_id || ifm?.department_id;
       let deptName: string | null = null;
       let collegeName: string | null = null;
       let instType: "college" | "institute" = "college";
@@ -182,42 +206,55 @@ const FacultyMemberProfile = ({ header }: Props) => {
         }
       }
 
-      // Fallback: If collegeName is still null, fetch first registration
+      // Fallback: If collegeName is still null, fetch first approved registration in parallel
       if (!collegeName) {
-        const { data: firstCollege } = await supabase
-          .from("college_registrations")
-          .select("college_name")
-          .order("created_at", { ascending: true })
-          .limit(1)
-          .maybeSingle();
-        if (firstCollege?.college_name) {
-          collegeName = firstCollege.college_name;
-        } else {
-          const { data: firstInst } = await supabase
-            .from("institute_registrations")
-            .select("institute_name")
+        const [firstCollegeRes, firstInstRes] = await Promise.all([
+          supabase
+            .from("college_registrations")
+            .select("college_name")
+            .eq("status", "approved")
             .order("created_at", { ascending: true })
             .limit(1)
-            .maybeSingle();
-          if (firstInst?.institute_name) {
-            collegeName = firstInst.institute_name;
-            instType = "institute";
-          }
+            .maybeSingle(),
+          supabase
+            .from("institute_registrations")
+            .select("institute_name")
+            .eq("status", "approved")
+            .order("created_at", { ascending: true })
+            .limit(1)
+            .maybeSingle(),
+        ]);
+
+        if (firstCollegeRes.data?.college_name) {
+          collegeName = firstCollegeRes.data.college_name;
+          instType = "college";
+        } else if (firstInstRes.data?.institute_name) {
+          collegeName = firstInstRes.data.institute_name;
+          instType = "institute";
         }
       }
 
       const leadershipRoles = ["dean", "vice_dean", "vice_dean_students", "vice_dean_postgrad", "vice_dean_community", "vice_dean_environment"];
       const isLeadership = leadershipRoles.includes(resolvedSubRole || prof?.role || "");
 
-      let defaultDept = isLeadership 
-        ? (isRtl ? (instType === "institute" ? "إدارة المعهد العامة والوكلاء" : "عمادة الكلية وإدارة الشؤون الأكاديمية") : "Deanery & Academic Leadership")
-        : (isRtl ? "قسم الحاسبات ونظم المعلومات" : "Department");
+      const defaultDept = isLeadership 
+        ? (isRtl ? (instType === "institute" ? "إدارة المعهد والوكلاء" : "عمادة الكلية وإدارة الشؤون الأكاديمية") : "Deanery & Academic Leadership")
+        : (isRtl ? "القسم الأكاديمي" : "Academic Department");
 
-      setAcademic({
+      const finalAcademic: Academic = {
         collegeName: collegeName || (isRtl ? (instType === "institute" ? "المعهد العالي" : "كلية الحاسبات والمعلومات") : "Faculty"),
         departmentName: deptName || defaultDept,
         institutionType: instType,
-      });
+      };
+
+      setAcademic(finalAcademic);
+
+      // Save to fast cache
+      __facultyProfileCache = {
+        profile: finalProfile,
+        member: mem ?? null,
+        academic: finalAcademic,
+      };
     } catch (e) {
       console.error("faculty profile load error", e);
     } finally {

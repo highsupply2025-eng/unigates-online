@@ -12,13 +12,15 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import ugLogo from "@/assets/ug-logo.png";
 import FacultyMemberProfile from "@/components/FacultyMemberProfile";
 
+// Cached role in memory
+let __leadershipRoleCache: string = "";
+
 const LeadershipProfile = () => {
   const { language, dir, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState<string>("");
+  const [role, setRole] = useState<string>(() => __leadershipRoleCache || "dean");
 
   useEffect(() => {
     (async () => {
@@ -27,36 +29,29 @@ const LeadershipProfile = () => {
         const user = session?.user;
         if (!user) { navigate("/login"); return; }
 
-        const { data: prof } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", user.id)
-          .maybeSingle();
+        const meta = (user.user_metadata as any) || {};
+        let r = meta.specific_role || meta.role || __leadershipRoleCache || "";
 
-        let r = prof?.role || "";
-        const { data: ifm } = await supabase
-          .from("institution_faculty_members")
-          .select("specific_role")
-          .eq("user_id", user.id)
-          .maybeSingle();
+        const [profRes, ifmRes] = await Promise.all([
+          supabase.from("profiles").select("role").eq("id", user.id).maybeSingle(),
+          supabase.from("institution_faculty_members").select("specific_role").eq("user_id", user.id).maybeSingle(),
+        ]);
 
-        if (ifm?.specific_role) r = ifm.specific_role;
-        setRole(r);
+        if (ifmRes.data?.specific_role) {
+          r = ifmRes.data.specific_role;
+        } else if (profRes.data?.role) {
+          r = profRes.data.role;
+        }
+
+        if (r) {
+          __leadershipRoleCache = r;
+          setRole(r);
+        }
       } catch (err) {
         console.error("LeadershipProfile error:", err);
-      } finally {
-        setLoading(false);
       }
     })();
   }, [navigate]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   const goTab = (tab: string) => navigate(`/leadership/dashboard?tab=${tab}`);
 

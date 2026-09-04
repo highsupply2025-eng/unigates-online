@@ -42,6 +42,12 @@ interface Props {
   showPassword?: boolean;
 }
 
+let __accountProfileCache: {
+  userId: string;
+  profile: ProfileData;
+  academic: AcademicData;
+} | null = null;
+
 const AccountPageBody = ({
   header,
   heroGradient = "from-primary via-primary/80 to-primary/60",
@@ -55,13 +61,13 @@ const AccountPageBody = ({
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string>("");
-  const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [academic, setAcademic] = useState<AcademicData>({ collegeName: null, departmentName: null, institutionType: "college" });
+  const [loading, setLoading] = useState(() => !__accountProfileCache);
+  const [userId, setUserId] = useState<string>(() => __accountProfileCache?.userId ?? "");
+  const [profile, setProfile] = useState<ProfileData | null>(() => __accountProfileCache?.profile ?? null);
+  const [academic, setAcademic] = useState<AcademicData>(() => __accountProfileCache?.academic ?? { collegeName: null, departmentName: null, institutionType: "college" });
 
-  const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [fullName, setFullName] = useState(() => __accountProfileCache?.profile?.full_name ?? "");
+  const [phone, setPhone] = useState(() => __accountProfileCache?.profile?.phone ?? "");
   const [savingInfo, setSavingInfo] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
@@ -96,7 +102,11 @@ const AccountPageBody = ({
           const { data: c } = await supabase.from("institute_registrations").select("institute_name").eq("id", dept.institution_id).maybeSingle();
           name = c?.institute_name ?? null;
         }
-        if (!cancelled) setAcademic({ collegeName: name, departmentName: dept.department_name, institutionType: instType });
+        if (!cancelled) {
+          const finalAcademic = { collegeName: name, departmentName: dept.department_name, institutionType: instType };
+          setAcademic(finalAcademic);
+          if (__accountProfileCache) __accountProfileCache.academic = finalAcademic;
+        }
       } catch (e) { console.error(e); }
     };
 
@@ -111,7 +121,7 @@ const AccountPageBody = ({
 
         // Show the page immediately with auth metadata, then refine from the DB
         const meta = (user.user_metadata as any) || {};
-        setProfile({
+        const fallbackProf: ProfileData = {
           full_name: meta.full_name || user.email?.split("@")[0] || "",
           email: user.email || "",
           phone: meta.phone || "",
@@ -119,10 +129,14 @@ const AccountPageBody = ({
           platform: meta.platform || "courses",
           created_at: user.created_at || new Date().toISOString(),
           avatar_url: null,
-        });
-        setFullName(meta.full_name || "");
-        setPhone(meta.phone || "");
-        setLoading(false);
+        };
+
+        if (!profile) {
+          setProfile(fallbackProf);
+          setFullName(fallbackProf.full_name);
+          setPhone(fallbackProf.phone);
+          setLoading(false);
+        }
 
         // Academic info loads in parallel, it never blocks the page
         void loadAcademic(user.id);
@@ -142,6 +156,12 @@ const AccountPageBody = ({
         setProfile(data);
         setFullName(data.full_name || "");
         setPhone(data.phone || "");
+
+        __accountProfileCache = {
+          userId: user.id,
+          profile: data,
+          academic,
+        };
       } catch (e) {
         console.error("[account] load error", e);
       } finally {

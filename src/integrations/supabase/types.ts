@@ -41,6 +41,36 @@ export type Database = {
         }
         Relationships: []
       }
+      assignment_ratings: {
+        Row: {
+          assignment_id: string
+          comment: string | null
+          course_id: string | null
+          created_at: string
+          id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          assignment_id: string
+          comment?: string | null
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          assignment_id?: string
+          comment?: string | null
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       assignment_submissions: {
         Row: {
           assignment_id: string
@@ -90,6 +120,16 @@ export type Database = {
       }
       assignments: {
         Row: {
+          approval_reviewers: Json | null
+          approved_by_dean: boolean | null
+          approved_by_dean_at: string | null
+          approved_by_dean_id: string | null
+          approved_by_head: boolean | null
+          approved_by_head_at: string | null
+          approved_by_head_id: string | null
+          approved_by_vice_dean: boolean | null
+          approved_by_vice_dean_at: string | null
+          approved_by_vice_dean_id: string | null
           course_id: string
           created_at: string
           creator_id: string
@@ -98,12 +138,30 @@ export type Database = {
           description_en: string | null
           due_date: string | null
           file_name: string | null
+          file_names: string[] | null
           file_url: string | null
+          file_urls: string[] | null
           id: string
+          image_urls: string[] | null
+          is_published: boolean | null
+          points: number | null
+          rejected_at: string | null
+          rejected_by: string | null
+          rejection_reason: string | null
           title_ar: string
           title_en: string
         }
         Insert: {
+          approval_reviewers?: Json | null
+          approved_by_dean?: boolean | null
+          approved_by_dean_at?: string | null
+          approved_by_dean_id?: string | null
+          approved_by_head?: boolean | null
+          approved_by_head_at?: string | null
+          approved_by_head_id?: string | null
+          approved_by_vice_dean?: boolean | null
+          approved_by_vice_dean_at?: string | null
+          approved_by_vice_dean_id?: string | null
           course_id: string
           created_at?: string
           creator_id: string
@@ -112,12 +170,30 @@ export type Database = {
           description_en?: string | null
           due_date?: string | null
           file_name?: string | null
+          file_names?: string[] | null
           file_url?: string | null
+          file_urls?: string[] | null
           id?: string
+          image_urls?: string[] | null
+          is_published?: boolean | null
+          points?: number | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
           title_ar: string
           title_en: string
         }
         Update: {
+          approval_reviewers?: Json | null
+          approved_by_dean?: boolean | null
+          approved_by_dean_at?: string | null
+          approved_by_dean_id?: string | null
+          approved_by_head?: boolean | null
+          approved_by_head_at?: string | null
+          approved_by_head_id?: string | null
+          approved_by_vice_dean?: boolean | null
+          approved_by_vice_dean_at?: string | null
+          approved_by_vice_dean_id?: string | null
           course_id?: string
           created_at?: string
           creator_id?: string
@@ -126,8 +202,16 @@ export type Database = {
           description_en?: string | null
           due_date?: string | null
           file_name?: string | null
+          file_names?: string[] | null
           file_url?: string | null
+          file_urls?: string[] | null
           id?: string
+          image_urls?: string[] | null
+          is_published?: boolean | null
+          points?: number | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
           title_ar?: string
           title_en?: string
         }
@@ -1342,6 +1426,8 @@ export type Database = {
       }
       lecture_schedules: {
         Row: {
+          academic_year: string | null
+          approval_reviewers: Json | null
           approved_by_dean: boolean
           approved_by_dean_at: string | null
           approved_by_dean_id: string | null
@@ -1354,8 +1440,11 @@ export type Database = {
           course_id: string
           created_at: string
           creator_id: string
+          days_of_week: string[] | null
           department_id: string | null
           end_time: string | null
+          file_name: string | null
+          file_url: string | null
           id: string
           location_ar: string | null
           location_en: string | null
@@ -1366,12 +1455,15 @@ export type Database = {
           rejection_reason: string | null
           schedule_type: string
           scheduled_date: string
+          semester: string | null
           start_time: string | null
           title_ar: string
           title_en: string
           vice_dean_type: string[] | null
         }
         Insert: {
+          academic_year?: string | null
+          approval_reviewers?: Json | null
           approved_by_dean?: boolean
           approved_by_dean_at?: string | null
           approved_by_dean_id?: string | null
@@ -1384,8 +1476,11 @@ export type Database = {
           course_id: string
           created_at?: string
           creator_id: string
+          days_of_week?: string[] | null
           department_id?: string | null
           end_time?: string | null
+          file_name?: string | null
+          file_url?: string | null
           id?: string
           location_ar?: string | null
           location_en?: string | null
@@ -1396,12 +1491,15 @@ export type Database = {
           rejection_reason?: string | null
           schedule_type?: string
           scheduled_date: string
+          semester?: string | null
           start_time?: string | null
           title_ar: string
           title_en: string
           vice_dean_type?: string[] | null
         }
         Update: {
+          academic_year?: string | null
+          approval_reviewers?: Json | null
           approved_by_dean?: boolean
           approved_by_dean_at?: string | null
           approved_by_dean_id?: string | null
@@ -1414,8 +1512,11 @@ export type Database = {
           course_id?: string
           created_at?: string
           creator_id?: string
+          days_of_week?: string[] | null
           department_id?: string | null
           end_time?: string | null
+          file_name?: string | null
+          file_url?: string | null
           id?: string
           location_ar?: string | null
           location_en?: string | null
@@ -1426,6 +1527,7 @@ export type Database = {
           rejection_reason?: string | null
           schedule_type?: string
           scheduled_date?: string
+          semester?: string | null
           start_time?: string | null
           title_ar?: string
           title_en?: string
@@ -1833,6 +1935,7 @@ export type Database = {
       }
       quizzes: {
         Row: {
+          approval_reviewers: Json | null
           approved_by_dean: boolean
           approved_by_dean_at: string | null
           approved_by_dean_id: string | null
@@ -1868,7 +1971,23 @@ export type Database = {
           rejected_at: string | null
           rejected_by: string | null
           rejection_reason: string | null
+          results_approval_reviewers: Json | null
+          results_approved_by_dean: boolean | null
+          results_approved_by_dean_at: string | null
+          results_approved_by_dean_id: string | null
+          results_approved_by_head: boolean | null
+          results_approved_by_head_at: string | null
+          results_approved_by_head_id: string | null
+          results_approved_by_vice_dean: boolean | null
+          results_approved_by_vice_dean_at: string | null
+          results_approved_by_vice_dean_id: string | null
           results_published: boolean
+          results_rejected_at: string | null
+          results_rejected_by: string | null
+          results_rejection_reason: string | null
+          results_status: string | null
+          results_submitted_at: string | null
+          results_submitted_by: string | null
           show_results_immediately: boolean
           title_ar: string
           title_en: string
@@ -1876,6 +1995,7 @@ export type Database = {
           vice_dean_type: string[] | null
         }
         Insert: {
+          approval_reviewers?: Json | null
           approved_by_dean?: boolean
           approved_by_dean_at?: string | null
           approved_by_dean_id?: string | null
@@ -1911,7 +2031,23 @@ export type Database = {
           rejected_at?: string | null
           rejected_by?: string | null
           rejection_reason?: string | null
+          results_approval_reviewers?: Json | null
+          results_approved_by_dean?: boolean | null
+          results_approved_by_dean_at?: string | null
+          results_approved_by_dean_id?: string | null
+          results_approved_by_head?: boolean | null
+          results_approved_by_head_at?: string | null
+          results_approved_by_head_id?: string | null
+          results_approved_by_vice_dean?: boolean | null
+          results_approved_by_vice_dean_at?: string | null
+          results_approved_by_vice_dean_id?: string | null
           results_published?: boolean
+          results_rejected_at?: string | null
+          results_rejected_by?: string | null
+          results_rejection_reason?: string | null
+          results_status?: string | null
+          results_submitted_at?: string | null
+          results_submitted_by?: string | null
           show_results_immediately?: boolean
           title_ar: string
           title_en: string
@@ -1919,6 +2055,7 @@ export type Database = {
           vice_dean_type?: string[] | null
         }
         Update: {
+          approval_reviewers?: Json | null
           approved_by_dean?: boolean
           approved_by_dean_at?: string | null
           approved_by_dean_id?: string | null
@@ -1954,7 +2091,23 @@ export type Database = {
           rejected_at?: string | null
           rejected_by?: string | null
           rejection_reason?: string | null
+          results_approval_reviewers?: Json | null
+          results_approved_by_dean?: boolean | null
+          results_approved_by_dean_at?: string | null
+          results_approved_by_dean_id?: string | null
+          results_approved_by_head?: boolean | null
+          results_approved_by_head_at?: string | null
+          results_approved_by_head_id?: string | null
+          results_approved_by_vice_dean?: boolean | null
+          results_approved_by_vice_dean_at?: string | null
+          results_approved_by_vice_dean_id?: string | null
           results_published?: boolean
+          results_rejected_at?: string | null
+          results_rejected_by?: string | null
+          results_rejection_reason?: string | null
+          results_status?: string | null
+          results_submitted_at?: string | null
+          results_submitted_by?: string | null
           show_results_immediately?: boolean
           title_ar?: string
           title_en?: string
@@ -3085,6 +3238,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      can_manage_course_content: {
+        Args: { _course: string; _uid: string }
+        Returns: boolean
+      }
+      can_manage_department_content: {
+        Args: { _dept: string; _uid: string }
+        Returns: boolean
+      }
+      can_view_profile: { Args: { _target: string }; Returns: boolean }
       check_student_subscription: { Args: { _user_id: string }; Returns: Json }
       claim_department_codes: {
         Args: {
@@ -3146,6 +3308,23 @@ export type Database = {
           role: string
         }[]
       }
+      create_assignment_with_approval_chain: {
+        Args: {
+          p_approval_reviewers?: Json
+          p_course_id: string
+          p_department_id?: string
+          p_description_ar?: string
+          p_description_en?: string
+          p_due_date?: string
+          p_file_names?: string[]
+          p_file_urls?: string[]
+          p_image_urls?: string[]
+          p_points?: number
+          p_title_ar: string
+          p_title_en: string
+        }
+        Returns: Json
+      }
       create_institution_course: {
         Args: {
           p_category_ar?: string
@@ -3161,6 +3340,58 @@ export type Database = {
           p_title_en: string
         }
         Returns: string
+      }
+      create_live_stream_secure: {
+        Args: {
+          p_category_ar?: string
+          p_category_en?: string
+          p_department_id?: string
+          p_expires_at?: string
+          p_instructor_ar?: string
+          p_instructor_en?: string
+          p_scheduled_at?: string
+          p_status?: string
+          p_title_ar: string
+          p_title_en: string
+        }
+        Returns: string
+      }
+      create_quiz_with_approval_chain: {
+        Args: {
+          p_approval_reviewers?: Json
+          p_course_id: string
+          p_department_id?: string
+          p_description_ar?: string
+          p_description_en?: string
+          p_due_date?: string
+          p_duration_minutes?: number
+          p_title_ar: string
+          p_title_en: string
+        }
+        Returns: string
+      }
+      create_schedule_with_approval_chain: {
+        Args: {
+          p_academic_year?: string
+          p_approval_reviewers?: Json
+          p_course_id: string
+          p_days_of_week?: string[]
+          p_department_id?: string
+          p_end_time?: string
+          p_file_name?: string
+          p_file_url?: string
+          p_location_ar?: string
+          p_location_en?: string
+          p_notes_ar?: string
+          p_notes_en?: string
+          p_schedule_type?: string
+          p_scheduled_date?: string
+          p_semester?: string
+          p_start_time?: string
+          p_title_ar: string
+          p_title_en: string
+        }
+        Returns: Json
       }
       delete_email: {
         Args: { message_id: number; queue_name: string }
@@ -3473,6 +3704,10 @@ export type Database = {
       snapshot_accounts_before_cleanup: { Args: never; Returns: undefined }
       submit_quiz: {
         Args: { _answers: Json; _quiz_id: string; _whatsapp?: string }
+        Returns: Json
+      }
+      submit_quiz_results_for_approval: {
+        Args: { p_quiz_id: string; p_reviewers: Json; p_user_id?: string }
         Returns: Json
       }
       update_faculty_member_tx: {

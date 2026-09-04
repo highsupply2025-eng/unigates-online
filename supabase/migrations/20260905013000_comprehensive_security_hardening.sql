@@ -1,5 +1,5 @@
 -- ════════════════════════════════════════════════════════════════════════════════
--- Security Hardening Migration
+-- Security Hardening Migration (Fixed: uses departments table)
 -- 1. Restrict course-content storage access (only file owners / department faculty / course creators)
 -- 2. Restrict course_attachments table SELECT, INSERT, UPDATE, DELETE strictly
 -- 3. Prevent anonymous access to profiles table (strictly authenticated only)
@@ -125,21 +125,16 @@ USING (
             AND dm.user_id = auth.uid()
         )
         OR EXISTS (
-          SELECT 1 FROM public.academic_departments ad
-          WHERE ad.id = c.department_id
-            AND ad.head_id = auth.uid()
-        )
-        OR EXISTS (
           SELECT 1 FROM public.institution_faculty_members ifm
           WHERE ifm.user_id = auth.uid()
             AND ifm.department_id = c.department_id
         )
         OR EXISTS (
-          SELECT 1 FROM public.academic_departments ad
+          SELECT 1 FROM public.departments d
           JOIN public.institution_faculty_members ifm 
-            ON ifm.institution_id = ad.institution_id 
-           AND ifm.institution_type = ad.institution_type
-          WHERE ad.id = c.department_id
+            ON ifm.institution_id = d.institution_id 
+           AND ifm.institution_type = d.institution_type
+          WHERE d.id = c.department_id
             AND ifm.user_id = auth.uid()
             AND ifm.specific_role IN (
               'dean', 'vice_dean', 'vice_dean_postgrad', 'vice_dean_students',
@@ -173,21 +168,16 @@ WITH CHECK (
             AND dm.user_id = auth.uid()
         )
         OR EXISTS (
-          SELECT 1 FROM public.academic_departments ad
-          WHERE ad.id = c.department_id
-            AND ad.head_id = auth.uid()
-        )
-        OR EXISTS (
           SELECT 1 FROM public.institution_faculty_members ifm
           WHERE ifm.user_id = auth.uid()
             AND ifm.department_id = c.department_id
         )
         OR EXISTS (
-          SELECT 1 FROM public.academic_departments ad
+          SELECT 1 FROM public.departments d
           JOIN public.institution_faculty_members ifm 
-            ON ifm.institution_id = ad.institution_id 
-           AND ifm.institution_type = ad.institution_type
-          WHERE ad.id = c.department_id
+            ON ifm.institution_id = d.institution_id 
+           AND ifm.institution_type = d.institution_type
+          WHERE d.id = c.department_id
             AND ifm.user_id = auth.uid()
             AND ifm.specific_role IN (
               'dean', 'vice_dean', 'vice_dean_postgrad', 'vice_dean_students',
@@ -221,21 +211,16 @@ USING (
             AND dm.user_id = auth.uid()
         )
         OR EXISTS (
-          SELECT 1 FROM public.academic_departments ad
-          WHERE ad.id = c.department_id
-            AND ad.head_id = auth.uid()
-        )
-        OR EXISTS (
           SELECT 1 FROM public.institution_faculty_members ifm
           WHERE ifm.user_id = auth.uid()
             AND ifm.department_id = c.department_id
         )
         OR EXISTS (
-          SELECT 1 FROM public.academic_departments ad
+          SELECT 1 FROM public.departments d
           JOIN public.institution_faculty_members ifm 
-            ON ifm.institution_id = ad.institution_id 
-           AND ifm.institution_type = ad.institution_type
-          WHERE ad.id = c.department_id
+            ON ifm.institution_id = d.institution_id 
+           AND ifm.institution_type = d.institution_type
+          WHERE d.id = c.department_id
             AND ifm.user_id = auth.uid()
             AND ifm.specific_role IN (
               'dean', 'vice_dean', 'vice_dean_postgrad', 'vice_dean_students',
@@ -269,11 +254,6 @@ USING (
             AND dm.user_id = auth.uid()
         )
         OR EXISTS (
-          SELECT 1 FROM public.academic_departments ad
-          WHERE ad.id = c.department_id
-            AND ad.head_id = auth.uid()
-        )
-        OR EXISTS (
           SELECT 1 FROM public.user_roles ur
           WHERE ur.user_id = auth.uid()
             AND ur.approved = true
@@ -292,11 +272,6 @@ WITH CHECK (
           SELECT 1 FROM public.department_members dm
           WHERE dm.department_id = c.department_id
             AND dm.user_id = auth.uid()
-        )
-        OR EXISTS (
-          SELECT 1 FROM public.academic_departments ad
-          WHERE ad.id = c.department_id
-            AND ad.head_id = auth.uid()
         )
         OR EXISTS (
           SELECT 1 FROM public.user_roles ur
@@ -400,21 +375,16 @@ WITH CHECK (
         AND dm.user_id = auth.uid()
     )
     OR EXISTS (
-      SELECT 1 FROM public.academic_departments ad
-      WHERE ad.id = courses.department_id
-        AND ad.head_id = auth.uid()
-    )
-    OR EXISTS (
       SELECT 1 FROM public.institution_faculty_members ifm
       WHERE ifm.user_id = auth.uid()
         AND ifm.department_id = courses.department_id
     )
     OR EXISTS (
-      SELECT 1 FROM public.academic_departments ad
+      SELECT 1 FROM public.departments d
       JOIN public.institution_faculty_members ifm 
-        ON ifm.institution_id = ad.institution_id 
-       AND ifm.institution_type = ad.institution_type
-      WHERE ad.id = courses.department_id
+        ON ifm.institution_id = d.institution_id 
+       AND ifm.institution_type = d.institution_type
+      WHERE d.id = courses.department_id
         AND ifm.user_id = auth.uid()
         AND ifm.specific_role IN (
           'dean', 'vice_dean', 'vice_dean_postgrad', 'vice_dean_students',

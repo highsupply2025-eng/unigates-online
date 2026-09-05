@@ -17,85 +17,11 @@ export type PlatformKey = "university" | "school" | "courses" | "bookstore" | "n
  * Checks if a specific platform should show the "Under Development" state.
  */
 export function isPlatformUnderDevelopment(
-  platform: PlatformKey,
-  customHostname?: string
+  _platform: PlatformKey,
+  _customHostname?: string
 ): boolean {
   // All platforms (University, Courses, School, Bookstore, Nasher) are always live and fully active on all domains
   return false;
-}
-
-  // Allow test / SSR mock hostname or fallback to window.location
-  let hostname = "";
-  let search = "";
-  let referrer = "";
-  let isIframe = false;
-
-  if (customHostname !== undefined) {
-    hostname = customHostname.toLowerCase();
-  } else if (typeof window !== "undefined") {
-    hostname = (window.location.hostname || "").toLowerCase();
-    search = window.location.search || "";
-    referrer = (window.document?.referrer || "").toLowerCase();
-    try {
-      isIframe = window.self !== window.top;
-    } catch {
-      isIframe = true;
-    }
-  }
-
-  // 1. Check for manual developer bypass via query param (?dev=true or ?preview=true)
-  if (search) {
-    const params = new URLSearchParams(search);
-    if (params.get("dev") === "true" || params.get("preview") === "true" || params.get("open") === "true") {
-      return false;
-    }
-  }
-
-  // 2. Check for manual developer bypass via localStorage
-  if (typeof window !== "undefined") {
-    try {
-      if (window.localStorage?.getItem("unigates_dev_mode") === "true") {
-        return false;
-      }
-    } catch {
-      // Ignore localStorage access restrictions
-    }
-  }
-
-  // 3. Detect Lovable, local development, staging, or preview environments
-  const isDevOrLovable =
-    hostname === "localhost" ||
-    hostname === "127.0.0.1" ||
-    hostname === "0.0.0.0" ||
-    hostname.includes("lovable") ||
-    hostname.includes("lovableproject.com") ||
-    hostname.includes("lovable.app") ||
-    hostname.includes("lovable.dev") ||
-    hostname.includes("vercel.app") ||
-    hostname.includes("netlify.app") ||
-    hostname.includes("ngrok") ||
-    hostname.endsWith(".local") ||
-    referrer.includes("lovable.dev") ||
-    referrer.includes("lovableproject.com") ||
-    (isIframe && referrer.includes("lovable"));
-
-  // In Lovable and Dev environments, keep ALL platforms OPEN for ongoing development
-  if (isDevOrLovable) {
-    return false;
-  }
-
-  // 4. On public production (unigates.online / custom domain), mark School, Courses & Bookstore as Under Development
-  const isProductionDomain =
-    hostname === "unigates.online" ||
-    hostname === "www.unigates.online" ||
-    hostname.endsWith(".unigates.online");
-
-  if (isProductionDomain) {
-    return true;
-  }
-
-  // Default for unrecognized public environments: protect incomplete platforms
-  return true;
 }
 
 /**

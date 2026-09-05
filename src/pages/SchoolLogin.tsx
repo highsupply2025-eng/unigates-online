@@ -53,8 +53,8 @@ const SchoolLogin = () => {
       ]);
 
       const profile = profileRpc as { role?: string; platform?: string } | null;
-      const schoolAdminRole = roles?.find((r) => r.role === "school_admin" || r.role === "school");
-      const schoolTeacherRole = roles?.find((r) => r.role === "teacher" || r.role === "school_teacher");
+      const schoolAdminRole = roles?.find((r) => String(r.role) === "school_admin" || r.role === "school");
+      const schoolTeacherRole = roles?.find((r) => r.role === "teacher" || String(r.role) === "school_teacher");
       const schoolStudentRole = roles?.find((r) => r.role === "school_student" || r.role === "student");
 
       if (schoolAdminRole || profile?.role === "school_admin" || profile?.role === "school") {

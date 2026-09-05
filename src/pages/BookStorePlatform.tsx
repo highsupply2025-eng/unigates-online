@@ -244,14 +244,20 @@ const BookStorePlatform = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-2.5">
-            <Link to="/courses/login">
+            <Link to="/book-store/browse">
+              <Button size="sm" variant="outline" className="font-bold px-4 h-10 text-sm bg-white/5 hover:bg-white/15 text-white border-white/20">
+                <Store className="w-4 h-4 me-1.5" />
+                {isRtl ? "تصفح الكتب" : "Browse Books"}
+              </Button>
+            </Link>
+            <Link to="/book-store/login">
               <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white/10 hover:bg-white/20 text-white border border-white/20 shadow-md backdrop-blur-md">
                 {t.login}
               </Button>
             </Link>
-            <Link to="/courses/signup?role=lecturer">
+            <Link to="/book-store/signup">
               <Button size="sm" className="font-bold px-5 h-10 text-sm bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-lg shadow-amber-500/25">
-                {isRtl ? "طلب نشر كتاب" : "Publish a Book"}
+                {isRtl ? "طلب نشر كتاب / تسجيل" : "Signup / Publish"}
               </Button>
             </Link>
             <Link to="/">
@@ -281,13 +287,19 @@ const BookStorePlatform = () => {
         {/* Mobile Dropdown */}
         {mobileMenuOpen && (
           <div className="relative z-40 md:hidden px-4 py-3 bg-slate-950/90 backdrop-blur-xl border-b border-white/10 animate-fade-in flex flex-col gap-2">
-            <Link to="/courses/login" onClick={() => setMobileMenuOpen(false)}>
+            <Link to="/book-store/browse" onClick={() => setMobileMenuOpen(false)}>
+              <Button size="sm" variant="outline" className="w-full justify-start gap-2.5 font-bold h-11 text-sm bg-white/5 text-white border-white/15">
+                <Store className="w-4 h-4" />
+                {isRtl ? "تصفح الكتالوج" : "Browse Books"}
+              </Button>
+            </Link>
+            <Link to="/book-store/login" onClick={() => setMobileMenuOpen(false)}>
               <Button size="sm" className="w-full justify-start gap-2.5 font-bold h-11 text-sm bg-white/10 text-white border border-white/15">
                 <Users className="w-4 h-4" />
                 {t.login}
               </Button>
             </Link>
-            <Link to="/courses/signup?role=lecturer" onClick={() => setMobileMenuOpen(false)}>
+            <Link to="/book-store/signup" onClick={() => setMobileMenuOpen(false)}>
               <Button size="sm" className="w-full justify-start gap-2.5 font-bold h-11 text-sm bg-amber-600 text-white">
                 <PenTool className="w-4 h-4" />
                 {isRtl ? "طلب نشر كتاب / انضم كمؤلف" : "Publish a Book"}
@@ -333,28 +345,28 @@ const BookStorePlatform = () => {
 
           {/* Quick Action Launchpad */}
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <Link to="/courses/signup?role=lecturer">
+            <Link to="/book-store/browse">
               <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-xl shadow-amber-500/30 gap-2 hover:scale-105 transition-all">
+                <Store className="w-5 h-5" />
+                {isRtl ? "📚 تصفح متجر الكتب" : "Browse Store"}
+              </Button>
+            </Link>
+
+            <Link to="/book-store/signup">
+              <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-xl shadow-purple-500/30 gap-2 hover:scale-105 transition-all">
                 <PenTool className="w-5 h-5" />
                 {isRtl ? "✍️ طلب نشر كتاب (للمؤلفين)" : "Publish Manuscript"}
               </Button>
             </Link>
 
-            <Link to="/courses/signup?role=training_center">
-              <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-xl shadow-purple-500/30 gap-2 hover:scale-105 transition-all">
-                <Building2 className="w-5 h-5" />
-                {isRtl ? "🏢 تسجيل دار نشر / مكتبة" : "Register Publisher"}
-              </Button>
-            </Link>
-
-            <Link to="/courses/signup?role=personal">
+            <Link to="/book-store/signup">
               <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-xl shadow-blue-500/30 gap-2 hover:scale-105 transition-all">
                 <ShoppingBag className="w-5 h-5" />
                 {isRtl ? "📖 حساب قارئ / باحث" : "Reader Signup"}
               </Button>
             </Link>
 
-            <Link to="/courses/login">
+            <Link to="/book-store/login">
               <Button size="lg" variant="outline" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-white/10 hover:bg-white/20 text-white border-white/30 shadow-lg backdrop-blur-md gap-2">
                 <Users className="w-5 h-5" />
                 {isRtl ? "تسجيل الدخول" : "Portal Login"}

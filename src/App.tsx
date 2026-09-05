@@ -59,6 +59,9 @@ const StudentAssignmentResults = lazy(() => import("./pages/StudentAssignmentRes
 const UniversityPlatform = lazy(() => import("./pages/UniversityPlatform"));
 const SchoolPlatform = lazy(() => import("./pages/SchoolPlatform"));
 const BookStorePlatform = lazy(() => import("./pages/BookStorePlatform"));
+const BookStore = lazy(() => import("./pages/BookStore"));
+const BookStoreLogin = lazy(() => import("./pages/BookStoreLogin"));
+const BookStoreSignup = lazy(() => import("./pages/BookStoreSignup"));
 const CollegeRegistration = lazy(() => import("./pages/CollegeRegistration"));
 const CollegeRoleSignup = lazy(() => import("./pages/CollegeRoleSignup"));
 const CollegeAdminSignup = lazy(() => import("./pages/CollegeAdminSignup"));
@@ -197,10 +200,13 @@ const App = () => (
               <Route path="/admin/payment-settings" element={<AdminPaymentSettings />} />
               <Route path="/stream/:streamId" element={<WatchStream />} />
               <Route path="/live" element={<LiveStreams />} />
-              {/* Book Store + separate auth */}
+              {/* Book Store + dedicated auth */}
               <Route path="/book-store" element={<BookStorePlatform />} />
-              <Route path="/book-store/login" element={<Navigate to="/courses/login" replace />} />
-              <Route path="/book-store/signup" element={<Navigate to="/courses/signup" replace />} />
+              <Route path="/book-store/catalog" element={<BookStore />} />
+              <Route path="/book-store/browse" element={<BookStore />} />
+              <Route path="/book-store/login" element={<BookStoreLogin />} />
+              <Route path="/book-store/signup" element={<BookStoreSignup />} />
+              <Route path="/book-store/payment" element={<Payment />} />
               {/* School Platform */}
               <Route path="/school-platform" element={<SchoolPlatform />} />
               <Route path="/school-platform/register" element={<SchoolRegistration />} />

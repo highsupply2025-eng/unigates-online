@@ -20,10 +20,9 @@ export function isPlatformUnderDevelopment(
   platform: PlatformKey,
   customHostname?: string
 ): boolean {
-  // University, Courses, and School platforms are always live and fully active on all domains
-  if (platform === "university" || platform === "courses" || platform === "school") {
-    return false;
-  }
+  // All platforms (University, Courses, School, Bookstore) are always live and fully active on all domains
+  return false;
+}
 
   // Allow test / SSR mock hostname or fallback to window.location
   let hostname = "";

@@ -23,6 +23,7 @@ export const fr: Translations = {
     schoolsBadge: "Écoles K-12",
     coursesBadge: "Formation Continue",
     booksBadge: "Dar Obeid",
+    nasherBadge: "Contrats d'édition",
     registerCollege: "Inscrire une Nouvelle Faculté",
     registerCollegeSub: "Enseignement Supérieur",
     registerInstitute: "Inscrire un Institut Supérieur",

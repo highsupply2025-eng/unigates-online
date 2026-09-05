@@ -23,6 +23,7 @@ export const zh: Translations = {
     schoolsBadge: "K-12 学校",
     coursesBadge: "职业培训",
     booksBadge: "Dar Obeid 出版社",
+    nasherBadge: "出版合同",
     registerCollege: "注册新学院",
     registerCollegeSub: "高等教育与院系管理",
     registerInstitute: "注册高等学院",

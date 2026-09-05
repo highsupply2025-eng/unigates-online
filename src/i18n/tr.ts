@@ -23,6 +23,7 @@ export const tr: Translations = {
     schoolsBadge: "K-12 Okulları",
     coursesBadge: "Mesleki Eğitim",
     booksBadge: "Dar Obeid",
+    nasherBadge: "Yayın Sözleşmeleri",
     registerCollege: "Yeni Fakülte Kaydı",
     registerCollegeSub: "Yükseköğretim ve Fakülteler",
     registerInstitute: "Yüksek Enstitü Kaydı",

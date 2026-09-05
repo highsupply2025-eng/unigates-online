@@ -47,7 +47,25 @@ const SchoolLogin = () => {
         });
         return;
       }
-      navigate("/school-platform");
+      const [{ data: roles }, { data: profileRpc }] = await Promise.all([
+        supabase.from("user_roles").select("role, approved").eq("user_id", (await supabase.auth.getUser()).data.user?.id),
+        supabase.rpc("get_or_create_login_profile"),
+      ]);
+
+      const profile = profileRpc as { role?: string; platform?: string } | null;
+      const schoolAdminRole = roles?.find((r) => r.role === "school_admin" || r.role === "school");
+      const schoolTeacherRole = roles?.find((r) => r.role === "teacher" || r.role === "school_teacher");
+      const schoolStudentRole = roles?.find((r) => r.role === "school_student" || r.role === "student");
+
+      if (schoolAdminRole || profile?.role === "school_admin" || profile?.role === "school") {
+        navigate("/school/dashboard");
+      } else if (schoolTeacherRole || profile?.role === "teacher" || profile?.role === "school_teacher") {
+        navigate("/school/teacher/dashboard");
+      } else if (schoolStudentRole || profile?.role === "school_student" || profile?.role === "student") {
+        navigate("/school/student/dashboard");
+      } else {
+        navigate("/school-platform");
+      }
     } catch (error: any) {
       await supabase.auth.signOut();
       toast({ title: t.loginPage.error, description: error.message, variant: "destructive" });

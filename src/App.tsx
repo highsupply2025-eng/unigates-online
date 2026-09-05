@@ -203,9 +203,12 @@ const App = () => (
               <Route path="/book-store/signup" element={<Navigate to="/courses/signup" replace />} />
               {/* School Platform */}
               <Route path="/school-platform" element={<SchoolPlatform />} />
-              <Route path="/school-platform/register" element={<Navigate to="/school-registration" replace />} />
-              <Route path="/school-platform/login" element={<Navigate to="/login" replace />} />
-              <Route path="/school-platform/signup" element={<Navigate to="/signup" replace />} />
+              <Route path="/school-platform/register" element={<SchoolRegistration />} />
+              <Route path="/school-platform/login" element={<SchoolLogin />} />
+              <Route path="/school-platform/signup" element={<SchoolSignup />} />
+              <Route path="/school-registration" element={<SchoolRegistration />} />
+              <Route path="/school/login" element={<SchoolLogin />} />
+              <Route path="/school/signup" element={<SchoolSignup />} />
 
               <Route path="/school/student/dashboard" element={<SchoolStudentDashboard />} />
               <Route path="/school/teacher/dashboard" element={<SchoolTeacherDashboard />} />

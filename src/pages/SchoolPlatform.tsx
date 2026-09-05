@@ -251,7 +251,7 @@ const SchoolPlatform = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-2.5">
-            <Link to="/login">
+            <Link to="/school/login">
               <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white/10 hover:bg-white/20 text-white border border-white/20 shadow-md backdrop-blur-md">
                 {t.login}
               </Button>
@@ -288,7 +288,7 @@ const SchoolPlatform = () => {
         {/* Mobile Dropdown */}
         {mobileMenuOpen && (
           <div className="relative z-40 md:hidden px-4 py-3 bg-slate-950/90 backdrop-blur-xl border-b border-white/10 animate-fade-in flex flex-col gap-2">
-            <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+            <Link to="/school/login" onClick={() => setMobileMenuOpen(false)}>
               <Button size="sm" className="w-full justify-start gap-2.5 font-bold h-11 text-sm bg-white/10 text-white border border-white/15">
                 <Users className="w-4 h-4" />
                 {t.login}
@@ -347,14 +347,14 @@ const SchoolPlatform = () => {
               </Button>
             </Link>
 
-            <Link to="/signup">
+            <Link to="/school/signup">
               <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-xl shadow-blue-500/30 gap-2 hover:scale-105 transition-all">
                 <Backpack className="w-5 h-5" />
                 {isRtl ? "🎒 حساب طالب / معلم" : "Student / Teacher Signup"}
               </Button>
             </Link>
 
-            <Link to="/login">
+            <Link to="/school/login">
               <Button size="lg" variant="outline" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-white/10 hover:bg-white/20 text-white border-white/30 shadow-lg backdrop-blur-md gap-2">
                 <Users className="w-5 h-5" />
                 {isRtl ? "تسجيل الدخول" : "Portal Login"}

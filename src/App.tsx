@@ -173,9 +173,10 @@ const App = () => (
             <PageTransition>
             <Routes>
               <Route path="/" element={<Index />} />
-              {/* Courses platform — Coming Soon */}
+              {/* Courses platform */}
               <Route path="/courses" element={<CoursesPlatform />} />
-              <Route path="/courses/browse" element={<ComingSoon />} />
+              <Route path="/courses/browse" element={<Courses />} />
+              <Route path="/courses/catalog" element={<Courses />} />
               <Route path="/courses/login" element={<CoursesLogin />} />
               <Route path="/courses/signup" element={<CoursesSignup />} />
               <Route path="/signup" element={<Signup />} />

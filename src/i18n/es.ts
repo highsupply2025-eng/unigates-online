@@ -11,6 +11,7 @@ export const es: Translations = {
   bookStore: "Librería",
   schoolPlatform: "Plataforma Escolar",
   universityPlatform: "Plataforma Universitaria",
+  nasherPlatform: "Plataforma Nasher",
   langSwitch: "العربية",
   questions: "¿Preguntas? Llámanos:",
   freeCall: "(Gratuito)",

@@ -11,6 +11,7 @@ export const zh: Translations = {
   bookStore: "在线书店",
   schoolPlatform: "学校平台",
   universityPlatform: "大学平台",
+  nasherPlatform: "Nasher 平台",
   langSwitch: "العربية",
   questions: "有疑问？联系我们：",
   freeCall: "(免费热线)",

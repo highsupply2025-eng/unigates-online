@@ -11,6 +11,7 @@ export const tr: Translations = {
   bookStore: "Kitap Mağazası",
   schoolPlatform: "Okul Platformu",
   universityPlatform: "Üniversite Platformu",
+  nasherPlatform: "Nasher Platformu",
   langSwitch: "العربية",
   questions: "Sorunuz mu var? Bizi arayın:",
   freeCall: "(Ücretsiz)",

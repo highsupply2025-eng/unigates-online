@@ -11,6 +11,7 @@ export const ru: Translations = {
   bookStore: "Книжный Магазин",
   schoolPlatform: "Школьная Платформа",
   universityPlatform: "Университетская Платформа",
+  nasherPlatform: "Платформа Nasher",
   langSwitch: "العربية",
   questions: "Есть вопросы? Позвоните нам:",
   freeCall: "(Бесплатно)",

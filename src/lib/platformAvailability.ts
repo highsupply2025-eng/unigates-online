@@ -11,7 +11,7 @@
  *   All platforms remain 100% OPEN & FUNCTIONAL for development, testing, and building inside Lovable.
  */
 
-export type PlatformKey = "university" | "school" | "courses" | "bookstore";
+export type PlatformKey = "university" | "school" | "courses" | "bookstore" | "nasher";
 
 /**
  * Checks if a specific platform should show the "Under Development" state.
@@ -20,7 +20,7 @@ export function isPlatformUnderDevelopment(
   platform: PlatformKey,
   customHostname?: string
 ): boolean {
-  // All platforms (University, Courses, School, Bookstore) are always live and fully active on all domains
+  // All platforms (University, Courses, School, Bookstore, Nasher) are always live and fully active on all domains
   return false;
 }
 

@@ -62,6 +62,7 @@ const SiteFooter = () => {
         { label: isRtl ? "المنصة المدرسية" : "School Platform", href: "/school-platform" },
         { label: isRtl ? "أكاديمية الدورات" : "Courses Academy", href: "/courses" },
         { label: isRtl ? "متجر الكتب الرقمي" : "Digital Book Store", href: "/book-store" },
+        { label: isRtl ? "✒️ منصة ناشر (عقود النشر الحصرية)" : "✒️ Nasher Platform", href: "/nasher" },
       ],
     },
     {

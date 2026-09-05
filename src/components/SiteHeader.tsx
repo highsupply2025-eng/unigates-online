@@ -70,6 +70,15 @@ const SiteHeader = () => {
       glowColor: "hover:border-amber-400/50 hover:bg-amber-500/15 text-amber-100",
       dotColor: "bg-amber-400",
     },
+    {
+      to: "/nasher",
+      label: (t as any).nasherPlatform || "منصة ناشر",
+      icon: Sparkles,
+      badge: (t as any).header?.nasherBadge || "عقود ونشر",
+      activeColor: "from-rose-600 to-pink-600",
+      glowColor: "hover:border-rose-400/50 hover:bg-rose-500/15 text-rose-100",
+      dotColor: "bg-rose-400",
+    },
   ];
 
   return (

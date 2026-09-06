@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import PromoVideoGenerator from "@/components/promo/PromoVideoGenerator";
 import SEO from "@/components/SEO";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Video,
   Play,
@@ -265,9 +265,9 @@ export default function PromoVideoPage() {
               </p>
             </div>
 
-            {/* Admin Upload Button (Visible only to Admin) */}
-            <div className="flex flex-wrap items-center gap-2.5">
-              {isAdminUser ? (
+            {/* Admin Actions (Visible only to Admin) */}
+            {isAdminUser && (
+              <div className="flex flex-wrap items-center gap-2.5">
                 <Button
                   onClick={() => setShowUploadModal(true)}
                   className="bg-gradient-to-r from-teal-500 via-emerald-600 to-teal-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold h-11 px-6 rounded-xl shadow-lg shadow-teal-500/20 text-sm"
@@ -275,15 +275,15 @@ export default function PromoVideoPage() {
                   <Upload className="w-4 h-4 me-2" />
                   {isAr ? "رفع فيديو جديد للمؤتمرات (حساب الإدارة)" : "Upload Video (Admin)"}
                 </Button>
-              ) : null}
 
-              <Link to="/admin">
-                <Button variant="outline" className="border-slate-700 hover:bg-slate-800 text-slate-300 font-bold h-11 px-4 text-xs">
-                  <ShieldCheck className="w-4 h-4 me-1.5 text-teal-400" />
-                  {isAr ? "لوحة الإدارة العامة" : "Admin Panel"}
-                </Button>
-              </Link>
-            </div>
+                <Link to="/admin">
+                  <Button variant="outline" className="border-slate-700 hover:bg-slate-800 text-slate-300 font-bold h-11 px-4 text-xs">
+                    <ShieldCheck className="w-4 h-4 me-1.5 text-teal-400" />
+                    {isAr ? "لوحة الإدارة العامة" : "Admin Panel"}
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Quick Metrics */}
@@ -514,30 +514,6 @@ export default function PromoVideoPage() {
             ))}
           </div>
         )}
-
-        {/* ======================================================= */}
-        {/* INTERACTIVE PROMO VIDEO GENERATOR SECTION               */}
-        {/* ======================================================= */}
-        <section className="pt-10 border-t border-slate-800 space-y-6">
-          <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 text-teal-400 text-xs font-bold">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{isAr ? "استوديو الفيديو الترويجي التفاعلي للنشر" : "Interactive Social Media Promo Generator"}</span>
-            </div>
-            <h3 className="text-xl sm:text-2xl font-black text-white">
-              {isAr ? "إنتاج وتصدير الفيديو الترويجي الرسمي للمنصة" : "Generate & Export Official Promo Video"}
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-400">
-              {isAr
-                ? "أنشئ وحمل فيديو ترويجي صوتي بجودة عالية (Full HD 1080p) يعرض كافة أقسام المنظومة للنشر على وسائل التواصل الاجتماعي."
-                : "Render and download high-resolution promotional video clips ready for social networks."}
-            </p>
-          </div>
-
-          <div className="rounded-3xl border-2 border-slate-800 bg-slate-900/60 p-4 sm:p-6 shadow-2xl">
-            <PromoVideoGenerator isRtl={isAr} />
-          </div>
-        </section>
 
       </main>
 

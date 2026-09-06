@@ -19,6 +19,7 @@ import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
 import { useCountUp } from "@/hooks/useCountUp";
+import PlatformUnderDevelopmentOverlay from "@/components/PlatformUnderDevelopmentOverlay";
 
 const UniversityPlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -207,9 +208,10 @@ const UniversityPlatform = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col selection:bg-primary selection:text-white" dir={dir}>
-      {/* Top Hero Section */}
-      <div className="relative overflow-hidden border-b border-border/40">
+    <PlatformUnderDevelopmentOverlay platform="university">
+      <div className="min-h-screen bg-background flex flex-col selection:bg-primary selection:text-white" dir={dir}>
+        {/* Top Hero Section */}
+        <div className="relative overflow-hidden border-b border-border/40">
         {/* Rich atmospheric gradients */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-indigo-950/90 to-blue-950/95" />
         <div className="absolute inset-0">
@@ -558,9 +560,10 @@ const UniversityPlatform = () => {
         </div>
       </section>
 
-      {/* Global Site Footer */}
-      <SiteFooter />
-    </div>
+        {/* Global Site Footer */}
+        <SiteFooter />
+      </div>
+    </PlatformUnderDevelopmentOverlay>
   );
 };
 

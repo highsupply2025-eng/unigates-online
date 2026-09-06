@@ -18,8 +18,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useBooks } from "@/hooks/useBooks";
-import { isPlatformUnderDevelopment } from "@/lib/platformAvailability";
-import PlatformUnderDevelopment from "@/components/PlatformUnderDevelopment";
+import PlatformUnderDevelopmentOverlay from "@/components/PlatformUnderDevelopmentOverlay";
 
 const BookStorePlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -29,11 +28,6 @@ const BookStorePlatform = () => {
   const totalBooks = books?.length ?? 24;
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
-
-  const isUnderDev = isPlatformUnderDevelopment("bookstore");
-  if (isUnderDev) {
-    return <PlatformUnderDevelopment platform="bookstore" />;
-  }
 
   const statItems = [
     { icon: BookOpen, count: `${totalBooks}+`, label: isRtl ? "عنوان ومؤلف منشور" : "Titles Published", color: "from-amber-500 to-orange-500", glow: "shadow-amber-500/20" },
@@ -215,9 +209,10 @@ const BookStorePlatform = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col selection:bg-amber-600 selection:text-white" dir={dir}>
-      {/* Top Hero Section */}
-      <div className="relative overflow-hidden border-b border-border/40">
+    <PlatformUnderDevelopmentOverlay platform="bookstore">
+      <div className="min-h-screen bg-background flex flex-col selection:bg-amber-600 selection:text-white" dir={dir}>
+        {/* Top Hero Section */}
+        <div className="relative overflow-hidden border-b border-border/40">
         {/* Atmospheric gradients */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-amber-950/80 to-stone-950/95" />
         <div className="absolute inset-0">
@@ -582,6 +577,7 @@ const BookStorePlatform = () => {
       {/* Global Site Footer */}
       <SiteFooter />
     </div>
+  </PlatformUnderDevelopmentOverlay>
   );
 };
 

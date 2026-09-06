@@ -39,6 +39,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import PlatformUnderDevelopmentOverlay from "@/components/PlatformUnderDevelopmentOverlay";
 
 export interface JobPosting {
   id: string;
@@ -394,15 +395,16 @@ export default function CareerPlatform() {
   });
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-cyan-500 selection:text-white" dir={dir}>
-      <SEO
-        title={isRtl ? "منصة Career للتوظيف والفرص الأكاديمية والمهنية | UNIGATES" : "UNIGATES Career — Jobs, Academic & Professional Opportunities"}
-        description={isRtl
-          ? "بوابة التوظيف والفرص المهنية الشاملة لمنظومة UNIGATES — وظائف أكاديمية، تقنية، تدريب تعاوني، وتوظيف مباشر للكفاءات والجامعات والمدارس ودار عبيد."
-          : "Explore academic, tech, and professional careers, internships, and hiring solutions across the UNIGATES network."}
-      />
+    <PlatformUnderDevelopmentOverlay platform="career">
+      <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-cyan-500 selection:text-white" dir={dir}>
+        <SEO
+          title={isRtl ? "منصة Career للتوظيف والفرص الأكاديمية والمهنية | UNIGATES" : "UNIGATES Career — Jobs, Academic & Professional Opportunities"}
+          description={isRtl
+            ? "بوابة التوظيف والفرص المهنية الشاملة لمنظومة UNIGATES — وظائف أكاديمية، تقنية، تدريب تعاوني، وتوظيف مباشر للكفاءات والجامعات والمدارس ودار عبيد."
+            : "Explore academic, tech, and professional careers, internships, and hiring solutions across the UNIGATES network."}
+        />
 
-      <SimpleHeader subtitle={isRtl ? "بوابة التوظيف والفرص المهنية" : "Career & Talent Portal"} />
+        <SimpleHeader subtitle={isRtl ? "بوابة التوظيف والفرص المهنية" : "Career & Talent Portal"} />
 
       <main className="flex-1 space-y-12">
         {/* Hero Section */}
@@ -1031,7 +1033,8 @@ export default function CareerPlatform() {
         </Dialog>
       )}
 
-      <SiteFooter />
-    </div>
+        <SiteFooter />
+      </div>
+    </PlatformUnderDevelopmentOverlay>
   );
 }

@@ -19,8 +19,7 @@ import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
 import { useCountUp } from "@/hooks/useCountUp";
-import { isPlatformUnderDevelopment } from "@/lib/platformAvailability";
-import PlatformUnderDevelopment from "@/components/PlatformUnderDevelopment";
+import PlatformUnderDevelopmentOverlay from "@/components/PlatformUnderDevelopmentOverlay";
 
 const CoursesPlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -34,11 +33,6 @@ const CoursesPlatform = () => {
   const students = useCountUp(stats?.students ?? 0);
   const trainingCenters = useCountUp(stats?.trainingCenters ?? 0);
   const languageCenters = useCountUp(stats?.languageCenters ?? 0);
-
-  const isUnderDev = isPlatformUnderDevelopment("courses");
-  if (isUnderDev) {
-    return <PlatformUnderDevelopment platform="courses" />;
-  }
 
   const statItems = [
     { icon: User, counter: students, label: isRtl ? "طالب ومتدرب" : "Learners", color: "from-indigo-500 to-blue-500", glow: "shadow-blue-500/20" },
@@ -270,9 +264,10 @@ const CoursesPlatform = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col selection:bg-purple-600 selection:text-white" dir={dir}>
-      {/* Hero Section */}
-      <div className="relative overflow-hidden border-b border-border/40">
+    <PlatformUnderDevelopmentOverlay platform="courses">
+      <div className="min-h-screen bg-background flex flex-col selection:bg-purple-600 selection:text-white" dir={dir}>
+        {/* Hero Section */}
+        <div className="relative overflow-hidden border-b border-border/40">
         {/* Rich atmospheric gradients */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-purple-950/90 to-indigo-950/95" />
         <div className="absolute inset-0">
@@ -663,6 +658,7 @@ const CoursesPlatform = () => {
       {/* Global Site Footer */}
       <SiteFooter />
     </div>
+  </PlatformUnderDevelopmentOverlay>
   );
 };
 

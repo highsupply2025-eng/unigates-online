@@ -11,7 +11,7 @@
  *   All platforms remain 100% OPEN & FUNCTIONAL for development, testing, and building inside Lovable.
  */
 
-export type PlatformKey = "university" | "school" | "courses" | "bookstore" | "nasher";
+export type PlatformKey = "university" | "school" | "courses" | "bookstore" | "nasher" | "career";
 
 /**
  * Checks if a specific platform should show the "Under Development" state.
@@ -20,7 +20,6 @@ export function isPlatformUnderDevelopment(
   _platform: PlatformKey,
   _customHostname?: string
 ): boolean {
-  // All platforms (University, Courses, School, Bookstore, Nasher) are always live and fully active on all domains
   return false;
 }
 
@@ -42,7 +41,7 @@ export function getPlatformMeta(platform: PlatformKey, isRtl: boolean) {
       };
     case "courses":
       return {
-        name: isRtl ? "أكاديمية الدورات الاحترافية" : "Courses Academy",
+        name: isRtl ? "أكاديمية الدورات والشهادات" : "Courses Academy",
         badge: isRtl ? "التطوير المهني والمهارات" : "Professional Skills",
         desc: isRtl
           ? "أكاديمية تدريبية تقدم دورات ومسارات احترافية مقسمة لحلقات فيديو عالية الدقة في البرمجة والتصميم والأعمال مع شهادات معتمدة."
@@ -61,6 +60,28 @@ export function getPlatformMeta(platform: PlatformKey, isRtl: boolean) {
         expectedFeatures: isRtl
           ? ["آلاف العناوين والمراجع الأكاديمية", "قارئ رقمي متطور (eBook Reader)", "شحن وتوصيل الكتب الورقية", "منصة للناشرين والمؤلفين"]
           : ["Thousands of Academic References", "Advanced Digital Reader", "Print Book Shipping", "Publisher & Author Portal"],
+      };
+    case "nasher":
+      return {
+        name: isRtl ? "منصة ناشر (سوق المزايدات والعقود)" : "Nasher Platform",
+        badge: isRtl ? "سوق النشر والمزايدات" : "Publishing & Bidding",
+        desc: isRtl
+          ? "سوق ذكي لطرح المخطوطات والكتب للمزايدة بين دور النشر المعتمدة، وتوقيع عقود إلكترونية رسمية بإشراف دار عبيد للنشر والتوزيع."
+          : "A smart marketplace for authors to auction manuscripts, receive bids from top publishing houses, and sign digital contracts under Dar Obeid.",
+        expectedFeatures: isRtl
+          ? ["طرح المخطوطات للمزايدة العلنية", "عقود رقمية ملزمة وموثقة قانونياً", "حماية الملكية الفكرية والـ Escrow", "حصرية التوزيع بمتجر UNIGATES"]
+          : ["Public Manuscript Auctions", "Legally Binding Digital Contracts", "IP Protection & Escrow", "Exclusive UNIGATES Distribution"],
+      };
+    case "career":
+      return {
+        name: isRtl ? "منصة Career (بوابة التوظيف والكفاءات)" : "Career & Talent Portal",
+        badge: isRtl ? "سوق العمل والكفاءات" : "Career & Recruitment",
+        desc: isRtl
+          ? "جسر التوظيف المباشر بين خريجي الجامعات والكوادر الأكاديمية والمهنية وبين كبرى الكليات والمدارس وشركات التقنية ودار عبيد."
+          : "Direct career matchmaking connecting graduates, academic researchers, and tech developers with verified universities, schools, and enterprises.",
+        expectedFeatures: isRtl
+          ? ["محرك بحث وفلترة ذكية للوظائف", "تقديم رقمي مباشر بملف واحد", "فرص تدريب تعاوني حصرية (Co-op)", "استوديو نشر الوظائف للمؤسسات"]
+          : ["Smart Job Search & Filters", "Instant 1-Click Digital Apply", "Exclusive Co-op Internships", "Employer Job Posting Hub"],
       };
     default:
       return {

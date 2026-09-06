@@ -808,6 +808,16 @@ const AdminDashboard = () => {
             <Button
               size="sm"
               variant="outline"
+              className="gap-1.5 border-teal-500/40 text-teal-600 dark:text-teal-400 hover:bg-teal-500/10 font-bold"
+              onClick={() => navigate("/promo-video")}
+            >
+              <Radio className="w-4 h-4 text-teal-500" />
+              <span className="hidden sm:inline">{isRtl ? "استوديو المؤتمرات والفيديوهات" : "Media Studio"}</span>
+            </Button>
+
+            <Button
+              size="sm"
+              variant="outline"
               className="gap-1.5"
               onClick={() => navigate("/admin/security-center")}
             >
@@ -820,6 +830,7 @@ const AdminDashboard = () => {
               onLogout={handleLogout}
               items={[
                 { key: "overview", label: isRtl ? "نظرة عامة" : "Overview", Icon: BarChart3, color: "from-blue-500 to-blue-600", onClick: () => setActiveTab("overview") },
+                { key: "studio", label: isRtl ? "استوديو المؤتمرات والفعاليات" : "Media Studio", Icon: Radio, color: "from-teal-500 to-emerald-600", onClick: () => navigate("/promo-video") },
                 { key: "pending", label: isRtl ? "طلبات الانتظار" : "Pending", Icon: Clock, color: "from-amber-500 to-amber-600", onClick: () => setActiveTab("pending") },
                 { key: "colleges", label: isRtl ? "الكليات" : "Colleges", Icon: Landmark, color: "from-indigo-500 to-indigo-600", onClick: () => setActiveTab("colleges") },
                 { key: "institutes", label: isRtl ? "المعاهد" : "Institutes", Icon: Landmark, color: "from-violet-500 to-violet-600", onClick: () => setActiveTab("institutes") },

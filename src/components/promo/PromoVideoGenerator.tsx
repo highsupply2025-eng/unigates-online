@@ -800,7 +800,7 @@ export const PromoVideoGenerator: React.FC<{ isRtl?: boolean }> = ({ isRtl = tru
             <span>{isRtl ? "لوحات تحكم متعددة الرتب" : "Multi-Role Dashboards"}</span>
           </div>
           <p className="text-[11px] text-slate-400">
-            {isAr ? "صلاحيات تنفيذية متدرجة للعمداء، الوكلاء، ورؤساء الأقسام." : "Role-based controls for academic leaders."}
+            {isRtl ? "صلاحيات تنفيذية متدرجة للعمداء، الوكلاء، ورؤساء الأقسام." : "Role-based controls for academic leaders."}
           </p>
         </div>
 
@@ -810,7 +810,7 @@ export const PromoVideoGenerator: React.FC<{ isRtl?: boolean }> = ({ isRtl = tru
             <span>{isRtl ? "الفصول والبث الذكي" : "Smart HD Streaming"}</span>
           </div>
           <p className="text-[11px] text-slate-400">
-            {isAr ? "بث مباشر تفاعلي عالي السرعة وتسجيل فوري للمحاضرات." : "Live interactive broadcasting and lecture recording."}
+            {isRtl ? "بث مباشر تفاعلي عالي السرعة وتسجيل فوري للمحاضرات." : "Live interactive broadcasting and lecture recording."}
           </p>
         </div>
 
@@ -820,7 +820,7 @@ export const PromoVideoGenerator: React.FC<{ isRtl?: boolean }> = ({ isRtl = tru
             <span>{isRtl ? "سلاسل الاعتماد الرقمي" : "Digital Approval Chains"}</span>
           </div>
           <p className="text-[11px] text-slate-400">
-            {isAr ? "اعتماد رسمي للاختبارات والتكليفات وفق أعلى معايير الحوكمة." : "Automated workflows and exam approvals."}
+            {isRtl ? "اعتماد رسمي للاختبارات والتكليفات وفق أعلى معايير الحوكمة." : "Automated workflows and exam approvals."}
           </p>
         </div>
       </div>

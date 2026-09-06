@@ -64,6 +64,8 @@ const BookStoreLogin = lazy(() => import("./pages/BookStoreLogin"));
 const BookStoreSignup = lazy(() => import("./pages/BookStoreSignup"));
 const NasherPlatform = lazy(() => import("./pages/NasherPlatform"));
 const NasherDashboard = lazy(() => import("./pages/NasherDashboard"));
+const NasherLogin = lazy(() => import("./pages/NasherLogin"));
+const NasherSignup = lazy(() => import("./pages/NasherSignup"));
 const CollegeRegistration = lazy(() => import("./pages/CollegeRegistration"));
 const CollegeRoleSignup = lazy(() => import("./pages/CollegeRoleSignup"));
 const CollegeAdminSignup = lazy(() => import("./pages/CollegeAdminSignup"));
@@ -212,6 +214,8 @@ const App = () => (
               {/* Nasher Platform (Bidding, Legal Contracts & Exclusive Deals) */}
               <Route path="/nasher" element={<NasherPlatform />} />
               <Route path="/nasher/dashboard" element={<NasherDashboard />} />
+              <Route path="/nasher/login" element={<NasherLogin />} />
+              <Route path="/nasher/signup" element={<NasherSignup />} />
               {/* School Platform */}
               <Route path="/school-platform" element={<SchoolPlatform />} />
               <Route path="/school-platform/register" element={<SchoolRegistration />} />

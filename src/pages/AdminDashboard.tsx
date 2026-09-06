@@ -6,7 +6,7 @@ import {
   BookOpen, Eye, Search, CheckCircle, XCircle, Clock, ArrowLeft, ArrowRight,
   School, MapPin, Phone, Mail, MessageSquare, FileText, CreditCard,
   BarChart3, ShoppingCart, BookMarked, Radio, Bell, Send,
-  Calendar, PlayCircle, Download, Trash2, Pencil, Landmark, LinkIcon, Copy, Building2, Loader2, RefreshCw
+  Calendar, PlayCircle, Download, Trash2, Pencil, Landmark, LinkIcon, Copy, Building2, Loader2, RefreshCw, Video, Upload, Film, Play, Sparkles
 } from "lucide-react";
 
 import AdminPreviewLinks from "@/components/AdminPreviewLinks";
@@ -105,6 +105,32 @@ const AdminDashboard = () => {
   const [subSearch, setSubSearch] = useState("");
   const [liveStreams, setLiveStreams] = useState<LiveStream[]>([]);
   const [streamSearch, setStreamSearch] = useState("");
+
+  // Studio Videos state
+  const [studioVideos, setStudioVideos] = useState<any[]>(() => {
+    const saved = localStorage.getItem("unigates_studio_videos");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return parsed.filter((v: any) => !v.videoUrl?.includes("dQw4w9WgXcQ"));
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
+  const [videoSearch, setVideoSearch] = useState("");
+  const [showAddVideoDialog, setShowAddVideoDialog] = useState(false);
+  const [newVidTitleAr, setNewVidTitleAr] = useState("");
+  const [newVidTitleEn, setNewVidTitleEn] = useState("");
+  const [newVidCategory, setNewVidCategory] = useState<string>("conferences");
+  const [newVidSpeaker, setNewVidSpeaker] = useState("");
+  const [newVidDuration, setNewVidDuration] = useState("30:00");
+  const [newVidUrl, setNewVidUrl] = useState("");
+  const [newVidThumbnail, setNewVidThumbnail] = useState("");
+  const [newVidDescAr, setNewVidDescAr] = useState("");
+  const [newVidDescEn, setNewVidDescEn] = useState("");
+  const [newVidTags, setNewVidTags] = useState("مؤتمرات, فعاليات");
 
   // College states
   const [colleges, setColleges] = useState<CollegeRegistration[]>([]);
@@ -634,9 +660,71 @@ const AdminDashboard = () => {
     setEditStream(null); await loadStreams();
   };
 
+  // Studio Video handlers
+  const handleCreateStudioVideo = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newVidTitleAr.trim()) {
+      showError(language === "ar" ? "يرجى كتابة عنوان المؤتمر أو الفيديو" : "Please provide a video title");
+      return;
+    }
+    if (!newVidUrl.trim()) {
+      showError(language === "ar" ? "يرجى إدخال رابط الفيديو (MP4 أو Embed أو YouTube)" : "Please provide a video URL");
+      return;
+    }
+
+    const created = {
+      id: "vid-" + Date.now(),
+      titleAr: newVidTitleAr.trim(),
+      titleEn: newVidTitleEn.trim() || newVidTitleAr.trim(),
+      category: newVidCategory,
+      speakerAr: newVidSpeaker.trim() || (language === "ar" ? "إدارة مؤتمرات UNIGATES" : "UNIGATES Media Desk"),
+      speakerEn: newVidSpeaker.trim() || "UNIGATES Media Desk",
+      duration: newVidDuration.trim() || "30:00",
+      date: new Date().toISOString().split("T")[0],
+      videoUrl: newVidUrl.trim(),
+      thumbnailUrl: newVidThumbnail.trim() || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop&q=60",
+      descriptionAr: newVidDescAr.trim() || (language === "ar" ? "تسجيل وتغطية رسمية للمؤتمر والفعالية الأكاديمية." : "Official video coverage."),
+      descriptionEn: newVidDescEn.trim() || "Official video coverage.",
+      views: 1,
+      featured: false,
+      tags: newVidTags.split(",").map(t => t.trim()).filter(Boolean)
+    };
+
+    const updated = [created, ...studioVideos];
+    setStudioVideos(updated);
+    localStorage.setItem("unigates_studio_videos", JSON.stringify(updated));
+    setShowAddVideoDialog(false);
+    showSuccess(language === "ar" ? "تم رفع الفيديو إلى الاستوديو بنجاح! سيظهر الآن في صفحة الاستوديو" : "Video uploaded and published to Media Studio!");
+
+    // Reset fields
+    setNewVidTitleAr("");
+    setNewVidTitleEn("");
+    setNewVidSpeaker("");
+    setNewVidUrl("");
+    setNewVidThumbnail("");
+    setNewVidDescAr("");
+    setNewVidDescEn("");
+  };
+
+  const handleDeleteStudioVideo = (id: string) => {
+    const updated = studioVideos.filter(v => v.id !== id);
+    setStudioVideos(updated);
+    localStorage.setItem("unigates_studio_videos", JSON.stringify(updated));
+    showSuccess(language === "ar" ? "تم حذف الفيديو من الاستوديو بنجاح" : "Video removed from studio");
+  };
+
   const handleLogout = async () => { await supabase.auth.signOut(); navigate("/"); };
 
   // ── Filters ──
+  const filteredStudioVideos = studioVideos.filter(v => {
+    if (!videoSearch) return true;
+    const q = videoSearch.toLowerCase();
+    return (
+      (v.titleAr && v.titleAr.toLowerCase().includes(q)) ||
+      (v.titleEn && v.titleEn.toLowerCase().includes(q)) ||
+      (v.speakerAr && v.speakerAr.toLowerCase().includes(q))
+    );
+  });
   const filteredSchools = schoolRegistrations.filter(s => { if (!schoolSearchQuery) return true; const q = schoolSearchQuery.toLowerCase(); return s.school_name.toLowerCase().includes(q) || s.principal_name.toLowerCase().includes(q) || s.city.toLowerCase().includes(q); });
   const filteredUsers = allUsers.filter(u => { if (!searchQuery) return true; const q = searchQuery.toLowerCase(); return u.profile?.full_name?.toLowerCase().includes(q) || u.profile?.email?.toLowerCase().includes(q) || u.role.toLowerCase().includes(q); });
   const filteredCourses = courses.filter(c => { if (!courseSearch) return true; const q = courseSearch.toLowerCase(); return c.title_ar.toLowerCase().includes(q) || c.title_en.toLowerCase().includes(q) || c.instructor_ar.toLowerCase().includes(q) || c.instructor_en.toLowerCase().includes(q); });
@@ -862,6 +950,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="orders" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><ShoppingCart className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("الطلبات","Orders")}</span></TabsTrigger>
             <TabsTrigger value="subscriptions" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><CreditCard className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("الاشتراكات","Subscriptions")}</span></TabsTrigger>
             <TabsTrigger value="streams" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Radio className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("البث المباشر","Live Streams")}</span></TabsTrigger>
+            <TabsTrigger value="studio_videos" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Film className="w-4 h-4 text-teal-500" /><span className="hidden xs:inline sm:inline">{ar("فيديوهات الاستوديو","Studio Videos")}</span></TabsTrigger>
             <TabsTrigger value="departments_admin" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Building2 className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("الأقسام","Departments")}</span>{stats.pendingDepartments > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingDepartments}</Badge>}</TabsTrigger>
             
           </TabsList>
@@ -1636,6 +1725,104 @@ const AdminDashboard = () => {
             </div>
           </TabsContent>
 
+          {/* ===== Studio Videos (Conferences & Media) ===== */}
+          <TabsContent value="studio_videos" dir={isRtl ? "rtl" : "ltr"}>
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-muted/40 p-4 rounded-2xl border border-border">
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
+                    <Film className="w-5 h-5 text-teal-500" />
+                    {ar("إدارة ورفع فيديوهات استوديو المؤتمرات الرسمية", "Media Studio Video Management")}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {ar("ارفع وسجل مقاطع الفيديو والمؤتمرات والفعاليات ليتم نشرها فوراً في صفحة الاستوديو الرسمية", "Upload and publish conference & event videos directly to the public media studio")}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    onClick={() => setShowAddVideoDialog(true)}
+                    className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs h-9 px-4 rounded-xl gap-1.5 shadow-md"
+                  >
+                    <Upload className="w-4 h-4" />
+                    {ar("رفع ونشر فيديو جديد", "Upload New Video")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate("/promo-video")}
+                    className="text-xs h-9 px-3 gap-1.5 border-teal-500/30 text-teal-600 dark:text-teal-400"
+                  >
+                    <Eye className="w-4 h-4" />
+                    {ar("مشاهدة صفحة الاستوديو", "View Studio Page")}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Search & Count */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="relative w-full sm:w-80">
+                  <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder={ar("بحث في فيديوهات الاستوديو...", "Search studio videos...")}
+                    value={videoSearch}
+                    onChange={e => setVideoSearch(e.target.value)}
+                    className="ps-9 h-9 text-xs"
+                  />
+                </div>
+                <Badge variant="outline" className="text-xs text-muted-foreground self-start sm:self-auto">
+                  {filteredStudioVideos.length} {ar("فيديو منشور", "published videos")}
+                </Badge>
+              </div>
+
+              {/* Videos Grid */}
+              {filteredStudioVideos.length === 0 ? (
+                <div className="text-center py-12 p-6 rounded-2xl border border-dashed border-border text-muted-foreground space-y-2">
+                  <Film className="w-10 h-10 mx-auto text-muted-foreground/60" />
+                  <h4 className="text-sm font-bold text-foreground">{ar("لا توجد فيديوهات مضافة بعد", "No studio videos uploaded yet")}</h4>
+                  <p className="text-xs">{ar("انقر على زر 'رفع ونشر فيديو جديد' بالأعلى لإضافة أول فيديو للمؤتمرات أو الفعاليات.", "Click 'Upload New Video' above to publish your first video.")}</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredStudioVideos.map(vid => (
+                    <Card key={vid.id} className="overflow-hidden border border-border bg-card">
+                      <div className="relative aspect-video w-full bg-slate-950 overflow-hidden">
+                        <img
+                          src={vid.thumbnailUrl || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop&q=60"}
+                          alt={vid.titleAr}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute bottom-2 start-2 flex items-center gap-1.5">
+                          <Badge className="bg-black/80 text-white font-mono text-[10px] px-1.5 py-0.5">
+                            {vid.duration || "30:00"}
+                          </Badge>
+                          <Badge className="bg-teal-600 text-white text-[10px] font-bold">
+                            {vid.category === "conferences" ? ar("مؤتمر", "Conference") : vid.category === "events" ? ar("فعالية", "Event") : vid.category === "workshops" ? ar("ورشة", "Workshop") : ar("لقاء", "Interview")}
+                          </Badge>
+                        </div>
+                      </div>
+                      <CardContent className="p-3 space-y-2">
+                        <h4 className="font-bold text-sm text-foreground line-clamp-1">{isRtl ? vid.titleAr : vid.titleEn}</h4>
+                        <p className="text-xs text-teal-600 dark:text-teal-400 font-medium line-clamp-1">{isRtl ? vid.speakerAr : vid.speakerEn}</p>
+                        <p className="text-[11px] text-muted-foreground line-clamp-2">{isRtl ? vid.descriptionAr : vid.descriptionEn}</p>
+                        <div className="pt-2 border-t border-border flex items-center justify-between text-[11px] text-muted-foreground">
+                          <span>{vid.date}</span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDeleteStudioVideo(vid.id)}
+                            className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10"
+                            title={ar("حذف الفيديو", "Delete Video")}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
         </Tabs>
       </main>
 
@@ -2188,6 +2375,116 @@ const AdminDashboard = () => {
               </div>
             )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ===== Add Studio Video Dialog (Admin Only) ===== */}
+      <Dialog open={showAddVideoDialog} onOpenChange={setShowAddVideoDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Film className="w-5 h-5 text-teal-600" />
+              {ar("رفع ونشر فيديو جديد للاستوديو", "Upload & Publish Video to Studio")}
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleCreateStudioVideo} className="space-y-3 py-1 text-xs">
+            <div className="space-y-1">
+              <Label className="text-xs font-bold">{ar("عنوان المؤتمر / الفيديو (بالعربية) *", "Title (Arabic) *")}</Label>
+              <Input
+                placeholder={ar("مثال: المؤتمر الدولي للذكاء الاصطناعي في التعليم الجامعي", "e.g. AI Higher-Ed Summit")}
+                value={newVidTitleAr}
+                onChange={e => setNewVidTitleAr(e.target.value)}
+                required
+                className="h-8 text-xs"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-bold">{ar("العنوان بالإنجليزية", "Title (English)")}</Label>
+              <Input
+                placeholder="e.g. AI Higher Education Annual Summit"
+                value={newVidTitleEn}
+                onChange={e => setNewVidTitleEn(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs font-bold">{ar("تصنيف الفيديو", "Category")}</Label>
+                <select
+                  value={newVidCategory}
+                  onChange={e => setNewVidCategory(e.target.value)}
+                  className="w-full border border-border rounded-md px-2.5 py-1.5 text-xs bg-background h-8"
+                >
+                  <option value="conferences">{ar("مؤتمر جامعي", "Conference")}</option>
+                  <option value="events">{ar("فعالية وتوقيع عقود", "Event / Signing")}</option>
+                  <option value="workshops">{ar("ورشة عمل وتدريب", "Workshop")}</option>
+                  <option value="interviews">{ar("لقاء حواري", "Interview")}</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs font-bold">{ar("المدة التقديرية (د:ث)", "Duration")}</Label>
+                <Input
+                  placeholder="35:00"
+                  value={newVidDuration}
+                  onChange={e => setNewVidDuration(e.target.value)}
+                  className="h-8 text-xs"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-bold">{ar("المتحدث / الجهة المنظمة", "Speaker / Host")}</Label>
+              <Input
+                placeholder={ar("مثال: أ.د. عبد الله الشمري — دار عبيد للنشر", "Speaker / Organizer")}
+                value={newVidSpeaker}
+                onChange={e => setNewVidSpeaker(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-bold">{ar("رابط الفيديو (MP4 أو Embed أو YouTube) *", "Video URL (MP4 / YouTube) *")}</Label>
+              <Input
+                placeholder="https://www.youtube.com/embed/... or .mp4"
+                value={newVidUrl}
+                onChange={e => setNewVidUrl(e.target.value)}
+                required
+                className="h-8 text-xs"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-bold">{ar("رابط الصورة المصغرة (Thumbnail URL)", "Thumbnail URL")}</Label>
+              <Input
+                placeholder="https://images.unsplash.com/..."
+                value={newVidThumbnail}
+                onChange={e => setNewVidThumbnail(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-bold">{ar("نبذة مختصرة عن المؤتمر / الحدث", "Summary")}</Label>
+              <Textarea
+                rows={2}
+                placeholder={ar("اكتب نبذة عن المؤتمر والتوصيات...", "Summary...")}
+                value={newVidDescAr}
+                onChange={e => setNewVidDescAr(e.target.value)}
+                className="text-xs min-h-[60px]"
+              />
+            </div>
+
+            <DialogFooter className="pt-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => setShowAddVideoDialog(false)}>{ar("إلغاء", "Cancel")}</Button>
+              <Button type="submit" size="sm" className="bg-teal-600 hover:bg-teal-700 text-white font-bold gap-1">
+                <CheckCircle className="w-3.5 h-3.5" />
+                {ar("نشر الفيديو الآن", "Publish Video")}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

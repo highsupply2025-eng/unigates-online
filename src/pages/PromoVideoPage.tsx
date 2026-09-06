@@ -60,94 +60,68 @@ export interface StudioVideo {
   tags: string[];
 }
 
-const DEFAULT_VIDEOS: StudioVideo[] = [
-  {
-    id: "vid-1",
-    titleAr: "المؤتمر السنوي للتحول الرقمي والذكاء الاصطناعي في التعليم الجامعي",
-    titleEn: "Annual Higher-Ed Digital Transformation & AI Conference",
-    category: "conferences",
-    speakerAr: "أ.د. عبد الله الشمري — رئيس جامعة UNIGATES الدولية",
-    speakerEn: "Prof. Dr. Abdullah Al-Shammari",
-    duration: "45:20",
-    date: "2026-08-25",
-    videoUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", // fallback player
-    thumbnailUrl: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop&q=60",
-    descriptionAr: "الجلسة الافتتاحية للمؤتمر السنوي بحضور عمداء الكليات والمعاهد لمناقشة تطبيقات الذكاء الاصطناعي التوليدي في التدريس وتطوير المناهج.",
-    descriptionEn: "Opening plenary session on generative AI applications in higher education curricula.",
-    views: 3420,
-    featured: true,
-    tags: ["مؤتمرات", "ذكاء اصطناعي", "تعليم جامعي"]
-  },
-  {
-    id: "vid-2",
-    titleAr: "حفل تدشين الشراكة الأكاديمية بين كليات المجتمع ودار عبيد للنشر",
-    titleEn: "Partnership Ceremony: Community Colleges & Dar Obeid Publishing",
-    category: "events",
-    speakerAr: "دار عبيد للنشر والتوزيع ومجلس الكليات",
-    speakerEn: "Dar Obeid & College Council",
-    duration: "28:15",
-    date: "2026-09-01",
-    videoUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
-    thumbnailUrl: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&auto=format&fit=crop&q=60",
-    descriptionAr: "تغطية كاملة لمراسم توقيع اتفاقيات النشر الحصري والترقيم الدولي للمؤلفات الأكاديمية والكتب المدرسية.",
-    descriptionEn: "Full coverage of the official academic publishing partnership agreement.",
-    views: 1890,
-    featured: true,
-    tags: ["فعاليات", "دار عبيد", "شراكات"]
-  },
-  {
-    id: "vid-3",
-    titleAr: "ورشة عمل: تقنيات البث المباشر والاختبارات الذكية للأساتذة والمعلمين",
-    titleEn: "Workshop: Smart Live Broadcasting & Automated Exams for Faculty",
-    category: "workshops",
-    speakerAr: "د. هدى المنصوري — مستشارة التدريب الرقمي",
-    speakerEn: "Dr. Huda Al-Mansouri",
-    duration: "52:10",
-    date: "2026-08-30",
-    videoUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
-    thumbnailUrl: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&auto=format&fit=crop&q=60",
-    descriptionAr: "دليل تدريبي شامل لأعضاء هيئة التدريس لإدارة قاعات البث التفاعلي ورصد الحضور والدرجات آلياً.",
-    descriptionEn: "Hands-on guide for educators mastering interactive streaming and exam automation.",
-    views: 2450,
-    featured: false,
-    tags: ["ورش عمل", "بث مباشر", "تدريب"]
-  },
-  {
-    id: "vid-4",
-    titleAr: "لقاء خاص: مستقبل النشر الإلكتروني وحقوق المؤلف في العصر الرقمي",
-    titleEn: "Exclusive Interview: The Future of E-Publishing & Author Rights",
-    category: "interviews",
-    speakerAr: "الأستاذ خالد العبيد — الرئيس التنفيذي لدار عبيد للنشر",
-    speakerEn: "Khaled Al-Obeid",
-    duration: "34:40",
-    date: "2026-09-03",
-    videoUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
-    thumbnailUrl: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&auto=format&fit=crop&q=60",
-    descriptionAr: "حوار شامل حول حماية الملكية الفكرية، شروط الحصرية الصارمة، وكيفية تمكين المؤلفين من الوصول لأسواق النشر الدولية.",
-    descriptionEn: "In-depth discussion on copyright security, store exclusivity, and modern author royalties.",
-    views: 4120,
-    featured: false,
-    tags: ["لقاءات", "حقوق المؤلف", "ناشر"]
-  }
-];
+const DEFAULT_VIDEOS: StudioVideo[] = [];
 
 export default function PromoVideoPage() {
   const { language, dir } = useLanguage();
   const isAr = language === "ar";
   const { toast } = useToast();
 
+  const [isAdminUser, setIsAdminUser] = useState(false);
+
   const [videos, setVideos] = useState<StudioVideo[]>(() => {
     const saved = localStorage.getItem("unigates_studio_videos");
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) { return DEFAULT_VIDEOS; }
+      try {
+        const parsed: StudioVideo[] = JSON.parse(saved);
+        // Clean out any old mock foreign videos that used youtube fallback placeholder
+        const cleaned = parsed.filter(v => !v.videoUrl.includes("dQw4w9WgXcQ"));
+        return cleaned;
+      } catch (e) {
+        return [];
+      }
     }
-    return DEFAULT_VIDEOS;
+    return [];
   });
 
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedVideo, setSelectedVideo] = useState<StudioVideo | null>(videos[0]);
+  const [selectedVideo, setSelectedVideo] = useState<StudioVideo | null>(() => videos[0] || null);
   const [showUploadModal, setShowUploadModal] = useState(false);
+
+  // Check admin privileges
+  useEffect(() => {
+    const verifyAdmin = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setIsAdminUser(false);
+          return;
+        }
+        const { data: roles } = await supabase
+          .from("user_roles")
+          .select("role, approved")
+          .eq("user_id", user.id)
+          .eq("role", "admin")
+          .eq("approved", true);
+        if (roles && roles.length > 0) {
+          setIsAdminUser(true);
+        } else {
+          setIsAdminUser(false);
+        }
+      } catch {
+        setIsAdminUser(false);
+      }
+    };
+    verifyAdmin();
+  }, []);
+
+  // Sync state when videos change
+  useEffect(() => {
+    if (!selectedVideo && videos.length > 0) {
+      setSelectedVideo(videos[0]);
+    }
+  }, [videos]);
 
   // New video upload form states (Admin)
   const [newTitleAr, setNewTitleAr] = useState("");
@@ -176,6 +150,15 @@ export default function PromoVideoPage() {
       return;
     }
 
+    if (!newVideoUrl.trim()) {
+      toast({
+        title: isAr ? "رابط الفيديو مطلوب" : "Video URL required",
+        description: isAr ? "يرجى إدخال رابط الفيديو (MP4 أو YouTube أو Embed)." : "Please provide a valid video link.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const created: StudioVideo = {
       id: "vid-" + Date.now(),
       titleAr: newTitleAr,
@@ -185,7 +168,7 @@ export default function PromoVideoPage() {
       speakerEn: newSpeaker || "UNIGATES Media Desk",
       duration: newDuration || "20:00",
       date: new Date().toISOString().split("T")[0],
-      videoUrl: newVideoUrl || "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
+      videoUrl: newVideoUrl.trim(),
       thumbnailUrl: newThumbnailUrl || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop&q=60",
       descriptionAr: newDescAr || (isAr ? "تسجيل وتغطية رسمية للمؤتمر والفعالية الأكاديمية." : "Official video coverage."),
       descriptionEn: newDescEn || "Official video coverage.",
@@ -194,7 +177,8 @@ export default function PromoVideoPage() {
       tags: newTags.split(",").map((t) => t.trim()).filter(Boolean)
     };
 
-    setVideos([created, ...videos]);
+    const updated = [created, ...videos];
+    setVideos(updated);
     setSelectedVideo(created);
     setShowUploadModal(false);
 
@@ -215,6 +199,14 @@ export default function PromoVideoPage() {
 
   const handleDeleteVideo = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!isAdminUser) {
+      toast({
+        title: isAr ? "غير مصرح" : "Unauthorized",
+        description: isAr ? "حذف الفيديوهات مقتصر على مدير المنصة فقط." : "Only admins can delete videos.",
+        variant: "destructive"
+      });
+      return;
+    }
     const filtered = videos.filter((v) => v.id !== id);
     setVideos(filtered);
     if (selectedVideo?.id === id) {
@@ -273,15 +265,17 @@ export default function PromoVideoPage() {
               </p>
             </div>
 
-            {/* Admin Upload Button */}
+            {/* Admin Upload Button (Visible only to Admin) */}
             <div className="flex flex-wrap items-center gap-2.5">
-              <Button
-                onClick={() => setShowUploadModal(true)}
-                className="bg-gradient-to-r from-teal-500 via-emerald-600 to-teal-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold h-11 px-6 rounded-xl shadow-lg shadow-teal-500/20 text-sm"
-              >
-                <Upload className="w-4 h-4 me-2" />
-                {isAr ? "رفع فيديو جديد للمؤتمرات (لوحة الإدارة)" : "Upload Video (Admin)"}
-              </Button>
+              {isAdminUser ? (
+                <Button
+                  onClick={() => setShowUploadModal(true)}
+                  className="bg-gradient-to-r from-teal-500 via-emerald-600 to-teal-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold h-11 px-6 rounded-xl shadow-lg shadow-teal-500/20 text-sm"
+                >
+                  <Upload className="w-4 h-4 me-2" />
+                  {isAr ? "رفع فيديو جديد للمؤتمرات (حساب الإدارة)" : "Upload Video (Admin)"}
+                </Button>
+              ) : null}
 
               <Link to="/admin">
                 <Button variant="outline" className="border-slate-700 hover:bg-slate-800 text-slate-300 font-bold h-11 px-4 text-xs">
@@ -502,15 +496,17 @@ export default function PromoVideoPage() {
                     <span>{vid.date}</span>
                     <div className="flex items-center gap-2">
                       <span>{vid.views.toLocaleString()} {isAr ? "مشاهدة" : "views"}</span>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={(e) => handleDeleteVideo(vid.id, e)}
-                        className="h-6 w-6 p-0 text-rose-500 hover:text-rose-400 hover:bg-rose-500/10"
-                        title={isAr ? "حذف الفيديو" : "Delete Video"}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
+                      {isAdminUser && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => handleDeleteVideo(vid.id, e)}
+                          className="h-6 w-6 p-0 text-rose-500 hover:text-rose-400 hover:bg-rose-500/10"
+                          title={isAr ? "حذف الفيديو (إدارة)" : "Delete Video (Admin)"}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardContent>

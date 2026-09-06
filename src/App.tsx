@@ -111,6 +111,7 @@ const Blog = lazy(() => import("./pages/Blog"));
 const Partnerships = lazy(() => import("./pages/Partnerships"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const PromoVideoPage = lazy(() => import("./pages/PromoVideoPage"));
+const CareerPlatform = lazy(() => import("./pages/CareerPlatform"));
 const SchoolStudentDashboard = lazy(() => import("./pages/SchoolStudentDashboard"));
 const SchoolTeacherDashboard = lazy(() => import("./pages/SchoolTeacherDashboard"));
 const SchoolDashboard = lazy(() => import("./pages/SchoolDashboard"));
@@ -306,7 +307,8 @@ const App = () => (
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/contact" element={<Contact />} />
-              <Route path="/careers" element={<ComingSoon />} />
+              <Route path="/career" element={<CareerPlatform />} />
+              <Route path="/careers" element={<CareerPlatform />} />
               <Route path="/partnerships" element={<ComingSoon />} />
               <Route path="/certificates" element={<ComingSoon />} />
               <Route path="/blog" element={<Blog />} />

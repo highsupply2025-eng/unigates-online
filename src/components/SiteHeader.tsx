@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   GraduationCap, Globe, Menu, Landmark, School, BookOpen, Store,
-  Users, UserPlus, Sparkles, X, ArrowLeft, ArrowRight, LogIn, ChevronDown
+  Users, UserPlus, Sparkles, X, ArrowLeft, ArrowRight, LogIn, ChevronDown, Briefcase
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -78,6 +78,15 @@ const SiteHeader = () => {
       activeColor: "from-rose-600 to-pink-600",
       glowColor: "hover:border-rose-400/50 hover:bg-rose-500/15 text-rose-100",
       dotColor: "bg-rose-400",
+    },
+    {
+      to: "/career",
+      label: (t as any).careerPlatform || "منصة Career",
+      icon: Briefcase,
+      badge: (t as any).header?.careerBadge || "توظيف وكفاءات",
+      activeColor: "from-cyan-600 to-teal-600",
+      glowColor: "hover:border-cyan-400/50 hover:bg-cyan-500/15 text-cyan-100",
+      dotColor: "bg-cyan-400",
     },
   ];
 

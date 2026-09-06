@@ -1,7 +1,8 @@
-import { GraduationCap, Cloud, ExternalLink, ShieldCheck, Sparkles, Building2, School, BookOpen, Store, CheckCircle2 } from "lucide-react";
+import { Cloud, ExternalLink, ShieldCheck, Sparkles, Building2, School, BookOpen, Store, CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
+import ugLogo from "@/assets/ug-logo.png";
 
 const XIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" xmlns="http://www.w3.org/2000/svg">
@@ -164,8 +165,8 @@ const SiteFooter = () => {
           {/* Brand Info (4 cols) */}
           <div className="lg:col-span-4 space-y-4 text-start">
             <Link to="/" className="inline-flex items-center gap-3 group">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 shadow-lg shadow-indigo-500/25 flex items-center justify-center text-white group-hover:scale-105 transition-transform">
-                <GraduationCap className="w-7 h-7" />
+              <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-lg shadow-primary/25 p-0.5 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+                <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-[14px]" />
               </div>
               <div>
                 <span className="text-xl sm:text-2xl font-black tracking-tight text-foreground">

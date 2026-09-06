@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
-import { GraduationCap, Target, Eye, Users, BookOpen, Globe, Award } from "lucide-react";
+import { Target, Eye, Users, BookOpen, Globe, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import SimpleHeader from "@/components/SimpleHeader";
 import SEO from "@/components/SEO";
 import SiteFooter from "@/components/SiteFooter";
+import ugLogo from "@/assets/ug-logo.png";
 
 const About = () => {
   const { language, dir, t } = useLanguage();
@@ -77,8 +78,8 @@ const About = () => {
         {/* Hero */}
         <section className="bg-gradient-to-br from-primary/10 to-primary/5 py-16 px-6">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-xl shadow-primary/30 flex items-center justify-center mx-auto mb-6">
-              <GraduationCap className="w-10 h-10 text-white" />
+            <div className="w-20 h-20 rounded-2xl overflow-hidden bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-xl shadow-primary/30 p-1 flex items-center justify-center mx-auto mb-6">
+              <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-xl" />
             </div>
             <h1 className="text-3xl md:text-4xl font-black text-foreground mb-4">{c.title}</h1>
             <p className="text-lg text-primary font-bold mb-6">{c.subtitle}</p>

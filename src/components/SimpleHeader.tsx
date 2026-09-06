@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { GraduationCap, ArrowLeft, Menu } from "lucide-react";
+import { ArrowLeft, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import ThemeToggle from "@/components/ThemeToggle";
+import ugLogo from "@/assets/ug-logo.png";
 
 type SimpleHeaderProps = {
   backTo?: string;
@@ -57,8 +58,8 @@ const SimpleHeader = ({ backTo = "/", mobileBackOnly = false, useHistoryBack = f
     <header className="border-b-2 border-primary/40 px-3 sm:px-6 py-3 sm:py-4 bg-card shadow-lg">
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
         <Link to="/" className="flex items-center gap-2 sm:gap-3 group min-w-0 flex-1">
-          <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] shadow-lg shadow-primary/40 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
-            <GraduationCap className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl overflow-hidden shadow-lg shadow-primary/30 p-0.5 bg-gradient-to-br from-primary to-[hsl(200,75%,30%)] group-hover:scale-105 transition-transform flex items-center justify-center shrink-0">
+            <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-[14px]" />
           </div>
           <div className="flex flex-col min-w-0 flex-1">
             <span className="text-lg sm:text-2xl font-black text-foreground tracking-tight leading-tight truncate">{t.brandName}</span>

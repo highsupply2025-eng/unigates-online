@@ -79,26 +79,7 @@ export const PlatformUnderDevelopmentOverlay: React.FC<Props> = ({ platform, chi
 
   // If platform is live or dev mode / Lovable is active, render normal interactive content
   if (!isUnderDev) {
-    const isLovable = isLovableOrDevEnvironment();
-    return (
-      <div className="relative min-h-screen">
-        {children}
-        {/* Subtle floating badge for Lovable / Dev developers */}
-        {(isLovable || isDevUnlocked) && (
-          <div className="fixed bottom-4 end-4 z-[9999] flex items-center gap-2 bg-slate-950/90 text-white backdrop-blur-xl border border-emerald-500/40 px-3 py-1.5 rounded-full shadow-2xl animate-fade-in text-xs font-bold">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>{isRtl ? "🛠️ وضع التطوير نشط (Lovable / Dev)" : "🛠️ Lovable / Dev Mode Active"}</span>
-            <button
-              onClick={toggleDevMode}
-              className="text-white/60 hover:text-white ms-1 text-[10px] underline"
-              title={isRtl ? "تبديل وضع التطوير" : "Toggle Dev Mode"}
-            >
-              {isDevUnlocked ? (isRtl ? "إيقاف" : "Turn Off") : ""}
-            </button>
-          </div>
-        )}
-      </div>
-    );
+    return <>{children}</>;
   }
 
   // Intercept interactive clicks when in public preview mode
@@ -205,27 +186,6 @@ export const PlatformUnderDevelopmentOverlay: React.FC<Props> = ({ platform, chi
       {/* Underlying platform content (visible and clear for viewer) */}
       <div onClickCapture={handleContentClickCapture}>
         {children}
-      </div>
-
-      {/* Floating dev mode controls */}
-      <div className="fixed bottom-5 end-5 z-[9999] flex items-center gap-2 bg-slate-950/90 text-white backdrop-blur-xl border border-white/20 p-2 rounded-2xl shadow-2xl animate-fade-in">
-        <Button
-          size="sm"
-          onClick={toggleDevMode}
-          className="h-9 px-3.5 rounded-xl font-bold text-xs gap-1.5 shadow-lg transition-all bg-amber-500 hover:bg-amber-600 text-slate-950"
-          title={isRtl ? "وضع المطور: يتيح لك فتح المنصة وتطويرها" : "Developer Mode: Toggle full interactive access"}
-        >
-          <Code2 className="w-4 h-4" />
-          <span>
-            {isDevUnlocked
-              ? isRtl
-                ? "وضع المطور: نشط"
-                : "Dev Mode: ON"
-              : isRtl
-                ? "تطوير المنصة (Lovable / Dev)"
-                : "Dev Mode: Unlock"}
-          </span>
-        </Button>
       </div>
 
       {/* Friendly Notice Dialog for clicked actions in public preview */}

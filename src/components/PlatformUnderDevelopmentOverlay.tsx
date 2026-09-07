@@ -1,21 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
-  Clock,
-  Sparkles,
   Landmark,
   School,
-  BookOpen,
-  Store,
-  Home,
-  CheckCircle2,
-  Code2,
-  Briefcase,
-  AlertCircle,
-  X,
-  ArrowLeft,
-  ArrowRight,
+  Sparkles,
   Lock,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,7 +19,6 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   PlatformKey,
-  getPlatformMeta,
   isPlatformUnderDevelopment,
   isLovableOrDevEnvironment,
 } from "@/lib/platformAvailability";
@@ -42,16 +31,6 @@ interface Props {
 export const PlatformUnderDevelopmentOverlay: React.FC<Props> = ({ platform, children }) => {
   const { dir } = useLanguage();
   const isRtl = dir === "rtl";
-  const meta = getPlatformMeta(platform, isRtl);
-  const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
-
-  // Developer mode state stored in localStorage
-  const [isDevUnlocked, setIsDevUnlocked] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("unigates_dev_mode") === "true";
-    }
-    return false;
-  });
 
   const [isUnderDev, setIsUnderDev] = useState<boolean>(() =>
     isPlatformUnderDevelopment(platform)
@@ -62,20 +41,7 @@ export const PlatformUnderDevelopmentOverlay: React.FC<Props> = ({ platform, chi
 
   useEffect(() => {
     setIsUnderDev(isPlatformUnderDevelopment(platform));
-  }, [platform, isDevUnlocked]);
-
-  const toggleDevMode = () => {
-    const newState = !isDevUnlocked;
-    setIsDevUnlocked(newState);
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem("unigates_dev_mode", newState ? "true" : "false");
-      } catch {
-        /* noop */
-      }
-    }
-    setIsUnderDev(!newState && isPlatformUnderDevelopment(platform));
-  };
+  }, [platform]);
 
   // If platform is live or dev mode / Lovable is active, render normal interactive content
   if (!isUnderDev) {

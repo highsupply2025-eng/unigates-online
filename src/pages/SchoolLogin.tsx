@@ -14,8 +14,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
+import { isPlatformUnderDevelopment } from "@/lib/platformAvailability";
+import PlatformUnderDevelopment from "@/components/PlatformUnderDevelopment";
 
 const SchoolLogin = () => {
+  const { t, dir, language, toggleLanguage } = useLanguage();
+  const isRtl = dir === "rtl";
+
+  if (isPlatformUnderDevelopment("school")) {
+    return <PlatformUnderDevelopment platform="school" />;
+  }
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,8 +32,6 @@ const SchoolLogin = () => {
   const navigate = useNavigate();
   const goBack = useSmartBack("/school-platform");
   const { toast } = useToast();
-  const { t, dir, language, toggleLanguage } = useLanguage();
-  const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ChevronLeft : ChevronRight;
 
   const handleLogin = async (e: React.FormEvent) => {

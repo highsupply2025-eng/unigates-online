@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
 import { getAuthCallbackUrl } from "@/lib/auth-redirect";
+import { isPlatformUnderDevelopment } from "@/lib/platformAvailability";
+import PlatformUnderDevelopment from "@/components/PlatformUnderDevelopment";
 
 const countryCodes = [
   { code: "+20", country: "🇪🇬" }, { code: "+966", country: "🇸🇦" },
@@ -32,10 +34,15 @@ const schoolRoles: { value: SchoolRole; labelAr: string; labelEn: string; descAr
 ];
 
 const SchoolSignup = () => {
-  const navigate = useNavigate();
-  const goBack = useSmartBack("/school-platform");
   const { t, dir, language, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
+
+  if (isPlatformUnderDevelopment("school")) {
+    return <PlatformUnderDevelopment platform="school" />;
+  }
+
+  const navigate = useNavigate();
+  const goBack = useSmartBack("/school-platform");
   const ArrowIcon = isRtl ? ChevronLeft : ChevronRight;
   const { toast } = useToast();
 

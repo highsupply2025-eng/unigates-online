@@ -14,13 +14,67 @@
 export type PlatformKey = "university" | "school" | "courses" | "bookstore" | "nasher" | "career";
 
 /**
+ * Checks if the current host or provided hostname is a development or Lovable environment.
+ */
+export function isLovableOrDevEnvironment(hostname?: string): boolean {
+  const host = (
+    hostname ||
+    (typeof window !== "undefined" && window.location ? window.location.hostname : "")
+  ).toLowerCase();
+
+  if (!host) return false;
+
+  // Localhost / 127.0.0.1
+  if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".localhost")) {
+    return true;
+  }
+
+  // Lovable preview / dev environments
+  if (
+    host === "lovable.dev" ||
+    host.endsWith(".lovable.dev") ||
+    host.endsWith(".lovable.app") ||
+    host.endsWith(".lovableproject.com") ||
+    host.endsWith(".lovableproject-dev.com") ||
+    host.endsWith(".gpt-eng.com") ||
+    host.endsWith(".gptengineer.app")
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
  * Checks if a specific platform should show the "Under Development" state.
  */
 export function isPlatformUnderDevelopment(
-  _platform: PlatformKey,
-  _customHostname?: string
+  platform: PlatformKey,
+  customHostname?: string
 ): boolean {
-  return false;
+  // University Platform is always active & live across all domains
+  if (platform === "university") {
+    return false;
+  }
+
+  // If in Lovable or Localhost development environments, keep 100% open for development & testing
+  if (isLovableOrDevEnvironment(customHostname)) {
+    return false;
+  }
+
+  // If user manually unlocked dev mode in browser localStorage
+  if (typeof window !== "undefined" && !customHostname) {
+    try {
+      if (window.localStorage.getItem("unigates_dev_mode") === "true") {
+        return false;
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  // On production (unigates.online / www.unigates.online) and other public domains, mark as under development
+  return true;
 }
 
 /**

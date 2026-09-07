@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Clock,
@@ -9,15 +9,30 @@ import {
   Store,
   Home,
   CheckCircle2,
-  Eye,
-  EyeOff,
   Code2,
   Briefcase,
+  AlertCircle,
+  X,
+  ArrowLeft,
+  ArrowRight,
+  Lock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PlatformKey, getPlatformMeta, isPlatformUnderDevelopment } from "@/lib/platformAvailability";
+import {
+  PlatformKey,
+  getPlatformMeta,
+  isPlatformUnderDevelopment,
+  isLovableOrDevEnvironment,
+} from "@/lib/platformAvailability";
 
 interface Props {
   platform: PlatformKey;
@@ -28,6 +43,7 @@ export const PlatformUnderDevelopmentOverlay: React.FC<Props> = ({ platform, chi
   const { dir } = useLanguage();
   const isRtl = dir === "rtl";
   const meta = getPlatformMeta(platform, isRtl);
+  const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
   // Developer mode state stored in localStorage
   const [isDevUnlocked, setIsDevUnlocked] = useState<boolean>(() => {
@@ -37,68 +53,157 @@ export const PlatformUnderDevelopmentOverlay: React.FC<Props> = ({ platform, chi
     return false;
   });
 
-  const [peekMode, setPeekMode] = useState(false);
+  const [isUnderDev, setIsUnderDev] = useState<boolean>(() =>
+    isPlatformUnderDevelopment(platform)
+  );
+
+  const [showNoticeDialog, setShowNoticeDialog] = useState(false);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+
+  useEffect(() => {
+    setIsUnderDev(isPlatformUnderDevelopment(platform));
+  }, [platform, isDevUnlocked]);
 
   const toggleDevMode = () => {
     const newState = !isDevUnlocked;
     setIsDevUnlocked(newState);
     if (typeof window !== "undefined") {
-      localStorage.setItem("unigates_dev_mode", newState ? "true" : "false");
+      try {
+        localStorage.setItem("unigates_dev_mode", newState ? "true" : "false");
+      } catch {
+        /* noop */
+      }
     }
+    setIsUnderDev(!newState && isPlatformUnderDevelopment(platform));
   };
 
-  // Platforms that are live simply render their content.
-  if (!isPlatformUnderDevelopment(platform)) {
-    return <>{children}</>;
+  // If platform is live or dev mode / Lovable is active, render normal interactive content
+  if (!isUnderDev) {
+    const isLovable = isLovableOrDevEnvironment();
+    return (
+      <div className="relative min-h-screen">
+        {children}
+        {/* Subtle floating badge for Lovable / Dev developers */}
+        {(isLovable || isDevUnlocked) && (
+          <div className="fixed bottom-4 end-4 z-[9999] flex items-center gap-2 bg-slate-950/90 text-white backdrop-blur-xl border border-emerald-500/40 px-3 py-1.5 rounded-full shadow-2xl animate-fade-in text-xs font-bold">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>{isRtl ? "🛠️ وضع التطوير نشط (Lovable / Dev)" : "🛠️ Lovable / Dev Mode Active"}</span>
+            <button
+              onClick={toggleDevMode}
+              className="text-white/60 hover:text-white ms-1 text-[10px] underline"
+              title={isRtl ? "تبديل وضع التطوير" : "Toggle Dev Mode"}
+            >
+              {isDevUnlocked ? (isRtl ? "إيقاف" : "Turn Off") : ""}
+            </button>
+          </div>
+        )}
+      </div>
+    );
   }
 
-  const getPlatformIcon = () => {
-    switch (platform) {
-      case "school":
-        return School;
-      case "courses":
-        return BookOpen;
-      case "bookstore":
-        return Store;
-      case "nasher":
-        return Sparkles;
-      case "career":
-        return Briefcase;
-      default:
-        return Landmark;
+  // Intercept interactive clicks when in public preview mode
+  const handleContentClickCapture = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement | null;
+    if (!target) return;
+
+    // Check if clicked element is an action button, submit button, or link to registration/login
+    const interactiveEl = target.closest("button, a, input[type='submit']");
+    if (!interactiveEl) return;
+
+    const href = interactiveEl.getAttribute("href") || "";
+    // Allow navigation to Home or University Platform or language toggles
+    if (
+      href === "/" ||
+      href === "/university-platform" ||
+      href.startsWith("/university") ||
+      interactiveEl.hasAttribute("data-allow-preview")
+    ) {
+      return;
+    }
+
+    // Check if it's a theme or language toggle or dropdown
+    if (
+      interactiveEl.closest("[data-radix-popper-content-wrapper]") ||
+      interactiveEl.getAttribute("aria-haspopup") === "menu" ||
+      interactiveEl.getAttribute("role") === "combobox" ||
+      interactiveEl.classList.contains("dropdown-item")
+    ) {
+      return;
+    }
+
+    // If it's a registration, login, signup, or submit action, prevent and show notice modal
+    if (
+      href.includes("register") ||
+      href.includes("signup") ||
+      href.includes("login") ||
+      interactiveEl.textContent?.includes("تسجيل") ||
+      interactiveEl.textContent?.includes("حساب") ||
+      interactiveEl.textContent?.includes("دخول") ||
+      interactiveEl.textContent?.includes("Register") ||
+      interactiveEl.textContent?.includes("Login") ||
+      interactiveEl.textContent?.includes("Sign Up") ||
+      interactiveEl.getAttribute("type") === "submit"
+    ) {
+      e.preventDefault();
+      e.stopPropagation();
+      setShowNoticeDialog(true);
     }
   };
-
-  const IconComp = getPlatformIcon();
-
-  const getPlatformGradient = () => {
-    switch (platform) {
-      case "school":
-        return "from-emerald-600 via-teal-600 to-cyan-600";
-      case "courses":
-        return "from-purple-600 via-fuchsia-600 to-pink-600";
-      case "bookstore":
-        return "from-amber-500 via-orange-600 to-rose-600";
-      case "nasher":
-        return "from-rose-600 via-pink-600 to-orange-500";
-      case "career":
-        return "from-cyan-600 via-teal-600 to-emerald-600";
-      default:
-        return "from-blue-600 via-indigo-600 to-violet-700";
-    }
-  };
-
-  const gradient = getPlatformGradient();
 
   return (
     <div className="relative min-h-screen">
-      {/* Underlying platform content (visible behind blur / scrim) */}
-      <div
-        className={`transition-all duration-700 ${
-          isDevUnlocked ? "" : peekMode ? "blur-[1px]" : "blur-sm"
-        }`}
-        aria-hidden={!isDevUnlocked}
-      >
+      {/* Top Sticky Preview Announcement Banner */}
+      {!bannerDismissed && (
+        <div className="sticky top-0 z-[100] bg-gradient-to-r from-slate-950 via-teal-950 to-slate-950 text-white border-b border-amber-400/30 px-3 sm:px-6 py-2.5 shadow-xl backdrop-blur-xl">
+          <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm font-medium">
+            <div className="flex items-center gap-2.5 flex-1 min-w-[280px]">
+              <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-400/40 shrink-0">
+                <Lock className="w-4 h-4" />
+              </span>
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <span className="font-black text-amber-300">
+                    {isRtl ? "🔒 وضع المعاينة والعرض فقط" : "🔒 Preview & Showcase Mode"}
+                  </span>
+                  <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-400/30 text-[10px] py-0 px-2 h-4">
+                    {isRtl ? "قيد التطوير والتجهيز" : "Under Development"}
+                  </Badge>
+                </div>
+                <p className="text-slate-300 text-[11px] sm:text-xs line-clamp-1">
+                  {isRtl
+                    ? "المنصة المدرسية مغلقة للاستخدام حالياً وفي طور الاعتماد — يمكنك استعراض مميزات وتصميم المنصة بحرية."
+                    : "The school platform is currently closed for use and under preparation — feel free to explore features and design."}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                asChild
+                size="sm"
+                className="h-8 px-3.5 rounded-lg bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold text-xs shadow-md"
+                data-allow-preview="true"
+              >
+                <Link to="/university-platform">
+                  <Landmark className="w-3.5 h-3.5 me-1.5" />
+                  <span>{isRtl ? "المنصة الجامعية المتاحة" : "University Platform"}</span>
+                </Link>
+              </Button>
+
+              <button
+                onClick={() => setBannerDismissed(true)}
+                className="text-slate-400 hover:text-white p-1 rounded-md transition-colors"
+                title={isRtl ? "إخفاء الشريط" : "Dismiss"}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Underlying platform content (visible and clear for viewer) */}
+      <div onClickCapture={handleContentClickCapture}>
         {children}
       </div>
 
@@ -107,7 +212,7 @@ export const PlatformUnderDevelopmentOverlay: React.FC<Props> = ({ platform, chi
         <Button
           size="sm"
           onClick={toggleDevMode}
-          className="h-9 px-3.5 rounded-xl font-bold text-xs gap-1.5 shadow-lg transition-all"
+          className="h-9 px-3.5 rounded-xl font-bold text-xs gap-1.5 shadow-lg transition-all bg-amber-500 hover:bg-amber-600 text-slate-950"
           title={isRtl ? "وضع المطور: يتيح لك فتح المنصة وتطويرها" : "Developer Mode: Toggle full interactive access"}
         >
           <Code2 className="w-4 h-4" />
@@ -117,106 +222,70 @@ export const PlatformUnderDevelopmentOverlay: React.FC<Props> = ({ platform, chi
                 ? "وضع المطور: نشط"
                 : "Dev Mode: ON"
               : isRtl
-                ? "وضع المطور: فتح للمعاينة"
+                ? "تطوير المنصة (Lovable / Dev)"
                 : "Dev Mode: Unlock"}
           </span>
         </Button>
-
-        {!isDevUnlocked && (
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setPeekMode(!peekMode)}
-            className="h-9 px-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/10 text-xs gap-1"
-            title={isRtl ? "استعراض شفاف للمحتوى" : "Toggle clearer preview"}
-          >
-            {peekMode ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-            <span className="hidden sm:inline">
-              {peekMode ? (isRtl ? "إعادة التعتيم" : "Blur") : isRtl ? "نظرة أوضح" : "Peek"}
-            </span>
-          </Button>
-        )}
       </div>
 
-      {/* Coming soon scrim */}
-      {!isDevUnlocked && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 sm:p-6 bg-slate-950/40 backdrop-blur-sm overflow-y-auto">
-          <div className="max-w-2xl w-full my-auto text-center space-y-6 animate-in fade-in zoom-in-95 duration-500">
-            <Card className="border-2 border-white/20 bg-slate-950/85 backdrop-blur-2xl text-white shadow-[0_0_50px_rgba(0,0,0,0.6)] rounded-3xl overflow-hidden p-6 sm:p-8 space-y-6">
-              <div className="relative mx-auto w-20 h-20 sm:w-24 sm:h-24">
-                <div className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${gradient} opacity-40 blur-2xl animate-pulse`} />
-                <div className={`relative w-full h-full rounded-3xl bg-gradient-to-br ${gradient} p-0.5 shadow-2xl flex items-center justify-center`}>
-                  <div className="w-full h-full rounded-[22px] bg-slate-900/90 backdrop-blur-xl flex items-center justify-center">
-                    <IconComp className="w-10 h-10 sm:w-12 sm:h-12 text-white drop-shadow-lg" />
-                  </div>
-                </div>
+      {/* Friendly Notice Dialog for clicked actions in public preview */}
+      <Dialog open={showNoticeDialog} onOpenChange={setShowNoticeDialog}>
+        <DialogContent className="max-w-md rounded-3xl border-2 border-emerald-500/30 bg-slate-950/95 backdrop-blur-2xl text-white shadow-2xl p-6">
+          <DialogHeader className="space-y-3 text-center sm:text-center">
+            <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-0.5 shadow-xl shadow-emerald-500/30 flex items-center justify-center">
+              <div className="w-full h-full rounded-[14px] bg-slate-900 flex items-center justify-center">
+                <School className="w-8 h-8 text-emerald-400" />
               </div>
+            </div>
+            <DialogTitle className="text-xl font-black text-white">
+              {isRtl ? "المنصة المدرسية قيد التطوير والتجهيز" : "Smart School Platform Under Active Preparation"}
+            </DialogTitle>
+            <DialogDescription className="text-slate-300 text-sm leading-relaxed">
+              {isRtl
+                ? "يسعدنا اهتمامكم! تجري حالياً التجهيزات الفنية والاعتمادات الرسمية لفتح تسجيل المدارس والطلاب والمعلمين. المنصة معروضة حالياً للمعاينة والاستكشاف، وسيتم تدشين التسجيل الفعلي قريباً."
+                : "We are thrilled by your interest! The Smart School Platform is undergoing final technical testing & accreditation before official launch. You can currently explore and preview the features."}
+            </DialogDescription>
+          </DialogHeader>
 
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full border border-amber-400/40 bg-amber-500/20 text-amber-300 font-black text-xs shadow-lg shadow-amber-500/20">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>{isRtl ? "قريباً • جاري التجهيز والإطلاق" : "Coming Soon • Launching Soon"}</span>
-                </span>
-
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-teal-400/30 bg-teal-500/15 text-teal-200 font-bold text-xs">
-                  <Sparkles className="w-3.5 h-3.5 text-teal-400" />
-                  <span>{meta.badge}</span>
-                </span>
-              </div>
-
-              <div className="space-y-3">
-                <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">{meta.name}</h1>
-                <p className="text-sm sm:text-base text-slate-300 max-w-lg mx-auto leading-relaxed font-medium">
-                  {meta.desc}
-                </p>
-              </div>
-
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-5 text-start space-y-3">
-                <div className="flex items-center justify-between text-xs font-bold text-teal-300 border-b border-white/10 pb-2">
-                  <div className="flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-teal-400" />
-                    <span>{isRtl ? "المميزات الجاري تطويرها:" : "Features being finalized:"}</span>
-                  </div>
-                  <span className="text-[11px] text-slate-400 font-mono">UNIGATES Ecosystem</span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {meta.expectedFeatures.map((feat, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 border border-white/5 text-xs font-bold text-slate-200"
-                    >
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span className="truncate">{feat}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-                <Button
-                  onClick={toggleDevMode}
-                  className="w-full sm:w-auto h-11 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-xs shadow-lg shadow-amber-500/30 gap-2"
-                >
-                  <Code2 className="w-4 h-4" />
-                  <span>{isRtl ? "تطوير المنصة والتحكم بها" : "Unlock for Development & Preview"}</span>
-                </Button>
-
-                <Button
-                  asChild
-                  variant="outline"
-                  className="w-full sm:w-auto h-11 px-6 rounded-xl border-white/20 bg-white/10 hover:bg-white/20 text-white font-bold text-xs"
-                >
-                  <Link to="/">
-                    <Home className="w-4 h-4 me-2" />
-                    <span>{isRtl ? "العودة للرئيسية" : "Back to Home"}</span>
-                  </Link>
-                </Button>
-              </div>
-            </Card>
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2.5 text-xs text-slate-300 text-start">
+            <div className="flex items-center gap-2 text-emerald-400 font-bold">
+              <Sparkles className="w-4 h-4 shrink-0" />
+              <span>{isRtl ? "ما يمكنك فعله الآن:" : "What you can do right now:"}</span>
+            </div>
+            <p className="leading-relaxed">
+              {isRtl
+                ? "• تصفح هيكلية الفصول الذكية وسلاسل اعتماد الاختبارات والواجبات."
+                : "• Explore smart classrooms, homework studio, and grade workflows."}
+            </p>
+            <p className="leading-relaxed">
+              {isRtl
+                ? "• أو الانتقال إلى المنصة الجامعية المعتمدة والمتاحة حالياً بالكامل."
+                : "• Or explore the University Platform which is 100% active and live."}
+            </p>
           </div>
-        </div>
-      )}
+
+          <div className="flex flex-col sm:flex-row items-center gap-2 pt-2">
+            <Button
+              asChild
+              className="w-full h-11 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs"
+              data-allow-preview="true"
+            >
+              <Link to="/university-platform" onClick={() => setShowNoticeDialog(false)}>
+                <Landmark className="w-4 h-4 me-1.5" />
+                <span>{isRtl ? "دخول المنصة الجامعية المتاحة" : "Go to University Platform"}</span>
+              </Link>
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => setShowNoticeDialog(false)}
+              className="w-full h-11 rounded-xl border-white/20 bg-white/10 hover:bg-white/20 text-white font-bold text-xs"
+            >
+              {isRtl ? "متابعة المعاينة والتصفح" : "Continue Previewing"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

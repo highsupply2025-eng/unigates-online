@@ -7,7 +7,7 @@ import { auth, defineMcp } from "npm:@lovable.dev/mcp-js@0.20.0";
 
 // src/lib/mcp/tools/ping.ts
 import { defineTool } from "npm:@lovable.dev/mcp-js@0.20.0";
-var ping_default = defineTool({
+const ping_default = defineTool({
   name: "ping",
   title: "Ping",
   description: "Health check that returns 'pong' to verify MCP connectivity.",
@@ -44,6 +44,7 @@ function publishableKey() {
         if (key) return key;
       }
     } catch {
+      // Ignore parse failure and fall back
     }
   }
   const legacy = firstEnv(["SUPABASE_ANON_KEY", "VITE_SUPABASE_ANON_KEY"]);
@@ -57,7 +58,7 @@ function sb() {
     auth: { persistSession: false, autoRefreshToken: false }
   });
 }
-var list_courses_default = defineTool2({
+const list_courses_default = defineTool2({
   name: "list_courses",
   title: "List courses",
   description: "List UNIGATES courses, optionally filtering by a search term matching the Arabic or English title, instructor, or category.",
@@ -91,8 +92,8 @@ var list_courses_default = defineTool2({
 });
 
 // src/lib/mcp/index.ts
-var projectRef = "tgdkxzzkvfyazmnawkpw";
-var mcp_default = defineMcp({
+const projectRef = "tgdkxzzkvfyazmnawkpw";
+const mcp_default = defineMcp({
   name: "unigates-mcp",
   title: "UNIGATES MCP",
   version: "0.2.0",

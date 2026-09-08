@@ -4,6 +4,9 @@ import {
   Landmark,
   School,
   Sparkles,
+  Briefcase,
+  BookOpen,
+  Store,
   Lock,
   X,
 } from "lucide-react";
@@ -19,6 +22,7 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   PlatformKey,
+  getPlatformMeta,
   isPlatformUnderDevelopment,
   isLovableOrDevEnvironment,
 } from "@/lib/platformAvailability";
@@ -31,6 +35,7 @@ interface Props {
 export const PlatformUnderDevelopmentOverlay: React.FC<Props> = ({ platform, children }) => {
   const { dir } = useLanguage();
   const isRtl = dir === "rtl";
+  const meta = getPlatformMeta(platform, isRtl);
 
   const [isUnderDev, setIsUnderDev] = useState<boolean>(() =>
     isPlatformUnderDevelopment(platform)
@@ -47,6 +52,25 @@ export const PlatformUnderDevelopmentOverlay: React.FC<Props> = ({ platform, chi
   if (!isUnderDev) {
     return <>{children}</>;
   }
+
+  const getPlatformIcon = () => {
+    switch (platform) {
+      case "career":
+        return Briefcase;
+      case "school":
+        return School;
+      case "courses":
+        return BookOpen;
+      case "bookstore":
+        return Store;
+      case "nasher":
+        return Sparkles;
+      default:
+        return Landmark;
+    }
+  };
+
+  const PlatformIcon = getPlatformIcon();
 
   // Intercept interactive clicks when in public preview mode
   const handleContentClickCapture = (e: React.MouseEvent) => {
@@ -78,17 +102,21 @@ export const PlatformUnderDevelopmentOverlay: React.FC<Props> = ({ platform, chi
       return;
     }
 
-    // If it's a registration, login, signup, or submit action, prevent and show notice modal
+    // If it's a registration, login, signup, apply, post, or submit action, prevent and show notice modal
     if (
       href.includes("register") ||
       href.includes("signup") ||
       href.includes("login") ||
+      href.includes("apply") ||
       interactiveEl.textContent?.includes("تسجيل") ||
       interactiveEl.textContent?.includes("حساب") ||
       interactiveEl.textContent?.includes("دخول") ||
+      interactiveEl.textContent?.includes("تقديم") ||
+      interactiveEl.textContent?.includes("نشر") ||
       interactiveEl.textContent?.includes("Register") ||
       interactiveEl.textContent?.includes("Login") ||
       interactiveEl.textContent?.includes("Sign Up") ||
+      interactiveEl.textContent?.includes("Apply") ||
       interactiveEl.getAttribute("type") === "submit"
     ) {
       e.preventDefault();
@@ -113,13 +141,13 @@ export const PlatformUnderDevelopmentOverlay: React.FC<Props> = ({ platform, chi
                     {isRtl ? "🔒 وضع المعاينة والعرض فقط" : "🔒 Preview & Showcase Mode"}
                   </span>
                   <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-400/30 text-[10px] py-0 px-2 h-4">
-                    {isRtl ? "قيد التطوير والتجهيز" : "Under Development"}
+                    {meta.badge}
                   </Badge>
                 </div>
                 <p className="text-slate-300 text-[11px] sm:text-xs line-clamp-1">
                   {isRtl
-                    ? "المنصة المدرسية مغلقة للاستخدام حالياً وفي طور الاعتماد — يمكنك استعراض مميزات وتصميم المنصة بحرية."
-                    : "The school platform is currently closed for use and under preparation — feel free to explore features and design."}
+                    ? `${meta.name} مغلقة للاستخدام حالياً وفي طور الاعتماد — يمكنك استعراض مميزات وتصميم المنصة بحرية.`
+                    : `${meta.name} is currently under active preparation — feel free to explore features and design.`}
                 </p>
               </div>
             </div>
@@ -160,34 +188,31 @@ export const PlatformUnderDevelopmentOverlay: React.FC<Props> = ({ platform, chi
           <DialogHeader className="space-y-3 text-center sm:text-center">
             <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-0.5 shadow-xl shadow-emerald-500/30 flex items-center justify-center">
               <div className="w-full h-full rounded-[14px] bg-slate-900 flex items-center justify-center">
-                <School className="w-8 h-8 text-emerald-400" />
+                <PlatformIcon className="w-8 h-8 text-emerald-400" />
               </div>
             </div>
             <DialogTitle className="text-xl font-black text-white">
-              {isRtl ? "المنصة المدرسية قيد التطوير والتجهيز" : "Smart School Platform Under Active Preparation"}
+              {isRtl ? `${meta.name} قيد التطوير والتجهيز` : `${meta.name} Under Active Preparation`}
             </DialogTitle>
             <DialogDescription className="text-slate-300 text-sm leading-relaxed">
               {isRtl
-                ? "يسعدنا اهتمامكم! تجري حالياً التجهيزات الفنية والاعتمادات الرسمية لفتح تسجيل المدارس والطلاب والمعلمين. المنصة معروضة حالياً للمعاينة والاستكشاف، وسيتم تدشين التسجيل الفعلي قريباً."
-                : "We are thrilled by your interest! The Smart School Platform is undergoing final technical testing & accreditation before official launch. You can currently explore and preview the features."}
+                ? `يسعدنا اهتمامكم! تجري حالياً التجهيزات الفنية والاعتمادات الرسمية لـ ${meta.name}. المنصة معروضة حالياً للمعاينة والاستكشاف، وسيتم تدشين الاستخدام الفعلي قريباً.`
+                : `We are thrilled by your interest! ${meta.name} is undergoing final technical testing before official launch. You can currently explore and preview the features.`}
             </DialogDescription>
           </DialogHeader>
 
           <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2.5 text-xs text-slate-300 text-start">
             <div className="flex items-center gap-2 text-emerald-400 font-bold">
               <Sparkles className="w-4 h-4 shrink-0" />
-              <span>{isRtl ? "ما يمكنك فعله الآن:" : "What you can do right now:"}</span>
+              <span>{isRtl ? "المميزات الجاري تجهيزها:" : "Features being finalized:"}</span>
             </div>
-            <p className="leading-relaxed">
-              {isRtl
-                ? "• تصفح هيكلية الفصول الذكية وسلاسل اعتماد الاختبارات والواجبات."
-                : "• Explore smart classrooms, homework studio, and grade workflows."}
-            </p>
-            <p className="leading-relaxed">
-              {isRtl
-                ? "• أو الانتقال إلى المنصة الجامعية المعتمدة والمتاحة حالياً بالكامل."
-                : "• Or explore the University Platform which is 100% active and live."}
-            </p>
+            <div className="space-y-1">
+              {meta.expectedFeatures.map((feat, idx) => (
+                <p key={idx} className="leading-relaxed text-[11px] text-slate-300">
+                  • {feat}
+                </p>
+              ))}
+            </div>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-2 pt-2">

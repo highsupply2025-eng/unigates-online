@@ -172,10 +172,7 @@ const HeroSection = () => {
           className="w-full max-w-3xl flex flex-col sm:flex-row items-center gap-2 p-2 rounded-2xl sm:rounded-3xl bg-white/95 dark:bg-card/95 backdrop-blur-2xl shadow-2xl border-2 border-white/40 dark:border-border/60 mb-8 sm:mb-12 mt-4"
         >
           {/* Category Dropdown */}
-          <div className="w-full sm:w-auto shrink-0 flex items-center gap-2 px-3 py-1.5 border-b sm:border-b-0 sm:border-e border-border/60">
-            <span className="text-xs font-bold text-muted-foreground whitespace-nowrap hidden md:inline">
-              {translate("القطاع:", "Sector:")}
-            </span>
+          <div className="w-full sm:w-auto shrink-0 flex items-center gap-2 px-2 py-1.5 border-b sm:border-b-0 sm:border-e border-border/60">
             <select
               value={searchCategory}
               onChange={(e) => setSearchCategory(e.target.value as any)}

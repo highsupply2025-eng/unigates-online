@@ -20,18 +20,18 @@ const FAQSection = () => {
   const faqItems = [
     {
       q: isRtl
-        ? "ما هي منظومة UNIGATES وكيف تخدم المؤسسات التعليمية؟"
-        : "What is UNIGATES and how does it serve institutions?",
+        ? "ما هي منظومة UNIGATES وكيف تخدم المؤسسات والمهنيين؟"
+        : "What is UNIGATES and how does it serve institutions & individuals?",
       a: isRtl
-        ? "UNIGATES هي منصة تعليمية موحدة تابعة لدار عبيد تضم 4 بوابات رئيسية: المنصة الجامعية، المنصة المدرسية، أكاديمية الدورات، ومتجر الكتب الرقمي. توفر حلولاً متقدمة لسلاسل الاعتماد الرقمي، الفصول الافتراضية، التكليفات، والتقييمات."
-        : "UNIGATES by Dar Obeid is a unified platform featuring 4 portals: University, School, Courses, and Digital Bookstore, with end-to-end digital approval chains, virtual classrooms, and grading studios.",
+        ? "UNIGATES هي منظومة رقمية شاملة للتعليم العالي والمدرسي والتدريب المهني والنشر الأكاديمي والتوظيف، إحدى منصات شركة دار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م. تضم 6 منصات رئيسية: المنصة الجامعية، المنصة المدرسية، أكاديمية الدورات، متجر دار عبيد، منصة ناشر، ومنصة Career للتوظيف."
+        : "UNIGATES by Dar Obeid Publishing & Distribution LLC is a comprehensive digital ecosystem for higher education, K-12 schooling, vocational training, academic publishing, and careers. It features 6 dedicated platforms: University, School, Courses Academy, Dar Obeid Books, Nasher Platform, and Career Portal.",
     },
     {
       q: isRtl
         ? "كيف تسجل الكليات والمعاهد والمدارس في المنصة؟"
         : "How do colleges, institutes, and schools register?",
       a: isRtl
-        ? "يمكن لإدارة الكلية أو المعهد أو المدرسة التسجيل مباشرة عبر بوابة تسجيل المؤسسات، وتحديد الأقسام والبرامج الأكاديمية ورفع بيانات أعضاء هيئة التدريس والطلاب بسهولة عبر استيراد ملفات إكسل أو الدعوات الآلية."
+        ? "يمكن لإدارة الكلية أو المعهد أو المدرسة التسجيل مباشرة عبر بوابة تسجيل المؤسسات، وتحديد الأقسام والبرامج الأكاديمية ورفع بيانات أعضاء هيئة التدريس والطلاب بسهولة عبر استيراد ملفات إكسل أو الدعوات الآلية المباشرة."
         : "Institutional leadership can register directly via the institution onboarding portal, setup departments, and import faculty and students via bulk Excel tools or direct invitations.",
     },
     {
@@ -47,16 +47,24 @@ const FAQSection = () => {
         ? "هل بيانات كل منصة ومؤسسة معزولة ومحمية؟"
         : "Are institutional data strictly isolated and secure?",
       a: isRtl
-        ? "نعم بالتأكيد. المنظومة تطبق سياسات عزل صارمة (Strict Isolation) تضمن عدم خلط أي بيانات أو محتوى بين المنصة الجامعية والمنصة المدرسية ومتجر الكتب والدورات، مع تشفير كامل لقواعد البيانات."
-        : "Yes, absolute data isolation guarantees zero cross-leakage between university, school, courses, and bookstore portals with end-to-end encryption.",
+        ? "نعم، عزل تام ومحكم بين منصات UNIGATES مما يضمن أمان وخصوصية بيانات الطلاب والكوادر التعليمية والناشرين والباحثين عن عمل، مع تشفير كامل لقواعد البيانات واستضافة سحابية عالية التوافر 99.9%."
+        : "Yes, absolute data isolation across UNIGATES platforms guarantees security and privacy for students, faculty, publishers, and job seekers with end-to-end encryption and 99.9% high-availability cloud hosting.",
     },
     {
       q: isRtl
-        ? "كيف يحصل المتعلمون على شهادات إتمام الدورات؟"
+        ? "كيف يحصل المتعلمون على شهادات إتمام الدورات المعتمدة؟"
         : "How do learners receive verified completion certificates?",
       a: isRtl
         ? "عند إكمال جميع حلقات الدورة واجتياز الاختبار النهائي بنجاح، تُصدر المنصة شهادة إتمام رقمية مشفرة برمز QR يمكن التحقق من صحتها ومشاركتها مباشرة على السيرة الذاتية و LinkedIn."
         : "Upon completing all course episodes and passing assessments, learners receive a verifiable digital certificate with QR code validation.",
+    },
+    {
+      q: isRtl
+        ? "ما هي منصة ناشر ومنصة Career وكيف يستفيد منهما المؤلفون والباحثون عن عمل؟"
+        : "What are Nasher and Career platforms and how do they benefit authors and job seekers?",
+      a: isRtl
+        ? "منصة ناشر توفر سوقاً ذكياً لطرح الكتب للمزايدة بين دور النشر المعتمدة وتوقيع عقود إلكترونية رسمية بإشراف دار عبيد، بينما منصة Career تمثل جسر التوظيف المباشر بين خريجي الجامعات والكوادر الأكاديمية والمهنية وشركات التوظيف."
+        : "Nasher provides a smart manuscript auction marketplace and digital contracts supervised by Dar Obeid, while Career bridges graduates, educators, and professionals with top employers.",
     },
   ];
 

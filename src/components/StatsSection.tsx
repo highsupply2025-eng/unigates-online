@@ -8,15 +8,15 @@ const StatsSection = () => {
   const { data: stats } = usePlatformStats();
   const { data: uniStats } = usePlatformStats("university");
 
-  // Authoritative counters
+  // Authoritative counters (Global aggregation across all platforms)
   const colleges = useCountUp(uniStats?.colleges ?? stats?.colleges ?? 0);
   const institutes = useCountUp(uniStats?.institutes ?? stats?.institutes ?? 0);
   const schools = useCountUp(stats?.schools ?? 0);
   const publishers = useCountUp(stats?.publishers ?? 0);
-  const lecturers = useCountUp(uniStats?.lecturers ?? stats?.lecturers ?? 0);
+  const lecturers = useCountUp(stats?.lecturers ?? uniStats?.lecturers ?? 0);
   const teachers = useCountUp(stats?.teachers ?? 0);
   const parents = useCountUp(stats?.parents ?? 0);
-  const students = useCountUp(uniStats?.students ?? uniStats?.universityStudents ?? stats?.students ?? 0);
+  const students = useCountUp(stats?.students ?? uniStats?.students ?? 0);
 
   const getInstituteLabel = () => {
     switch (language) {

@@ -321,7 +321,7 @@ const App = () => (
               <Route path="/digital-approval-chains" element={<DigitalApprovalChains />} />
               <Route path="/approval-chains" element={<Navigate to="/digital-approval-chains" replace />} />
               <Route path="/grading-studio" element={<GradingStudioInfo />} />
-              <Route path="/partnerships" element={<ComingSoon />} />
+              <Route path="/partnerships" element={<Partnerships />} />
               <Route path="/certificates" element={<CertificateVerification />} />
               <Route path="/certificate-verification" element={<Navigate to="/certificates" replace />} />
               <Route path="/blog" element={<Blog />} />

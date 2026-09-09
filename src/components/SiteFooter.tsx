@@ -81,10 +81,12 @@ const SiteFooter = () => {
     {
       title: `🏢 ${translate("المؤسسات والتسجيل", "Onboarding & Signup")}`,
       links: [
-        { label: t.header?.registerCollege || translate("تسجيل كلية جديدة", "Register College"), href: "/signup/college/admin" },
-        { label: t.header?.registerInstitute || translate("تسجيل معهد عالي", "Register Institute"), href: "/signup/institute/admin" },
-        { label: t.header?.registerSchool || translate("تسجيل مدرسة", "Register School"), href: "/school-registration" },
-        { label: t.header?.registerLearner || translate("إنشاء حساب طالب / معلم", "Student / Teacher Signup"), href: "/signup" },
+        { label: t.header?.registerCollege || translate("تسجيل كلية أو معهد", "Register College / Institute"), href: "/signup/college/admin" },
+        { label: t.header?.registerSchool || translate("تسجيل مدرسة K-12", "Register K-12 School"), href: "/school-registration" },
+        { label: translate("انضمام كمدرب أو مركز تدريب", "Join as Instructor / Center"), href: "/courses" },
+        { label: translate("تسجيل مؤلف أو دار نشر", "Author / Publisher Signup"), href: "/nasher" },
+        { label: translate("تسجيل شركات التوظيف والباحثين", "Recruiters & Job Seekers"), href: "/career" },
+        { label: t.header?.registerLearner || translate("إنشاء حساب طالب / متعلّم", "Student / Learner Signup"), href: "/signup" },
       ],
     },
     {

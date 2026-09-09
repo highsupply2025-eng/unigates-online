@@ -48,7 +48,7 @@ const AppDownloadSection = () => {
               <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-foreground tracking-tight leading-tight">
                 {isRtl ? (
                   <>
-                    تعلّم وتابع محاضراتك وواجباتك{" "}
+                    منظومة unigates الشاملة{" "}
                     <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
                       من هاتفك الذكي
                     </span>{" "}
@@ -56,37 +56,38 @@ const AppDownloadSection = () => {
                   </>
                 ) : (
                   <>
-                    Learn & Manage Lectures On The Go with{" "}
+                    The Complete UNIGATES Ecosystem{" "}
                     <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                      UNIGATES Mobile
-                    </span>
+                      On Your Mobile
+                    </span>{" "}
+                    Anytime, Anywhere
                   </>
                 )}
               </h2>
 
               <p className="text-sm sm:text-base text-muted-foreground font-medium leading-relaxed max-w-xl">
                 {isRtl
-                  ? "تطبيق متكامل لأجهزة iPhone و Android صُمم ليمنح الطلاب وأعضاء هيئة التدريس والمعلمين تجربة سلسة تشمل إشعارات البث المباشر، تسليم الواجبات، تنزيل المحتوى للمشاهدة بدون إنترنت، وتأكيد الحضور الذكي."
-                  : "A native mobile experience for iPhone and Android providing instant notifications, live lecture streams, offline lesson downloads, and homework submission on the go."}
+                  ? "تطبيق موحد لأجهزة iPhone و Android يربط منصات unigates الست: متابعة المحاضرات والدروس المدرسية، حضور البث المباشر، إنجاز الدورات المهنية، تصفح مكتبة الكتب، توثيق عقود النشر، والتقديم على الوظائف الشاغرة بكل سهولة."
+                  : "A unified mobile app for iPhone and Android seamlessly integrating all 6 UNIGATES platforms: lectures, K-12 schooling, professional courses, digital bookstore, publisher contracts, and instant career applications."}
               </p>
 
-              {/* Feature Highlights Bullets */}
+              {/* Feature Highlights Bullets covering the 6 platforms */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                 <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-muted/50 border border-border/50 text-xs font-bold text-foreground">
                   <BellRing className="w-4 h-4 text-amber-500 shrink-0" />
-                  <span>{isRtl ? "تنبيهات فورية عند بدء البث المباشر" : "Real-time live lecture alerts"}</span>
+                  <span>{isRtl ? "بث مباشر وتنبيهات فورية للمحاضرات" : "Real-time live lecture alerts"}</span>
                 </div>
                 <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-muted/50 border border-border/50 text-xs font-bold text-foreground">
                   <WifiOff className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <span>{isRtl ? "تنزيل الدروس للمشاهدة بدون إنترنت" : "Offline video downloads"}</span>
+                  <span>{isRtl ? "تنزيل الدروس والكتب بدون إنترنت" : "Offline lessons & eBook downloads"}</span>
                 </div>
                 <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-muted/50 border border-border/50 text-xs font-bold text-foreground">
                   <CheckCircle2 className="w-4 h-4 text-blue-500 shrink-0" />
-                  <span>{isRtl ? "تسليم التكليفات واستلام الدرجات" : "Submit assignments & get grades"}</span>
+                  <span>{isRtl ? "تسليم التكليفات والشهادات المعتمدة" : "Assignments & verified certificates"}</span>
                 </div>
                 <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-muted/50 border border-border/50 text-xs font-bold text-foreground">
                   <ShieldCheck className="w-4 h-4 text-purple-500 shrink-0" />
-                  <span>{isRtl ? "دخول سريع ببصمة الوجه FaceID" : "Instant FaceID biometric sign-in"}</span>
+                  <span>{isRtl ? "متابعة عقود النشر والتقديم على الوظائف" : "Publisher contracts & job applications"}</span>
                 </div>
               </div>
 

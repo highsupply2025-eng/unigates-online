@@ -7,16 +7,14 @@ import {
   School,
   BookOpen,
   Store,
+  Briefcase,
   ArrowLeft,
   ArrowRight,
   Home,
   CheckCircle2,
   Lock,
-  ExternalLink,
-  Code2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -26,10 +24,9 @@ import { PlatformKey, getPlatformMeta } from "@/lib/platformAvailability";
 
 interface Props {
   platform: PlatformKey;
-  onBypassDev?: () => void;
 }
 
-export const PlatformUnderDevelopment: React.FC<Props> = ({ platform, onBypassDev }) => {
+export const PlatformUnderDevelopment: React.FC<Props> = ({ platform }) => {
   const { dir } = useLanguage();
   const isRtl = dir === "rtl";
   const meta = getPlatformMeta(platform, isRtl);
@@ -43,6 +40,10 @@ export const PlatformUnderDevelopment: React.FC<Props> = ({ platform, onBypassDe
         return BookOpen;
       case "bookstore":
         return Store;
+      case "nasher":
+        return Sparkles;
+      case "career":
+        return Briefcase;
       default:
         return Landmark;
     }
@@ -58,6 +59,10 @@ export const PlatformUnderDevelopment: React.FC<Props> = ({ platform, onBypassDe
         return "from-purple-500 via-fuchsia-500 to-pink-600";
       case "bookstore":
         return "from-amber-500 via-orange-500 to-rose-600";
+      case "nasher":
+        return "from-rose-600 via-pink-600 to-orange-500";
+      case "career":
+        return "from-cyan-600 via-teal-600 to-emerald-600";
       default:
         return "from-blue-500 via-indigo-500 to-violet-600";
     }
@@ -65,21 +70,10 @@ export const PlatformUnderDevelopment: React.FC<Props> = ({ platform, onBypassDe
 
   const gradient = getPlatformGradient();
 
-  const handleDevUnlock = () => {
-    if (typeof window !== "undefined") {
-      try {
-        window.localStorage.setItem("unigates_dev_mode", "true");
-        window.location.reload();
-      } catch {
-        /* noop */
-      }
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-primary/20 transition-colors duration-300" dir={dir}>
       <SEO
-        title={`${meta.name} — ${isRtl ? "قريباً • قيد التطوير" : "Coming Soon • In Development"} | UNIGATES`}
+        title={`${meta.name} — ${isRtl ? "قيد التطوير والانطلاق قريباً" : "Under Development • Launching Soon"} | UNIGATES`}
         description={meta.desc}
       />
 
@@ -105,7 +99,7 @@ export const PlatformUnderDevelopment: React.FC<Props> = ({ platform, onBypassDe
           {/* Under Development Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-300 font-black text-xs shadow-lg shadow-amber-500/10">
             <Clock className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: "8s" }} />
-            <span>{isRtl ? "قريباً للجمهور — قيد التطوير والبرمجة الآن" : "Coming Soon — Under Active Development"}</span>
+            <span>{isRtl ? "قيد التطوير والانطلاق قريباً" : "Under Development • Launching Soon"}</span>
           </div>
 
           {/* Title and Subtitle */}
@@ -123,7 +117,7 @@ export const PlatformUnderDevelopment: React.FC<Props> = ({ platform, onBypassDe
             <CardContent className="p-6 sm:p-8 space-y-4">
               <div className="flex items-center gap-2 text-xs font-black uppercase text-primary">
                 <Sparkles className="w-4 h-4" />
-                <span>{isRtl ? "المميزات التي يجري تطويرها حالياً:" : "Features currently being engineered:"}</span>
+                <span>{isRtl ? "المميزات التي يجري تطويرها وتجهيزها حالياً:" : "Features currently being finalized:"}</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">

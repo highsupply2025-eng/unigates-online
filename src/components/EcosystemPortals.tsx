@@ -668,14 +668,14 @@ const EcosystemPortals = () => {
 
   const getSectionSubtitle = () => {
     switch (language) {
-      case "en": return "Each platform within UNIGATES is engineered to deliver an exceptional, tailored experience for higher education, K-12, professional training, and career growth.";
-      case "fr": return "Chaque plateforme au sein d'UNIGATES est conçue pour offrir une expérience sur mesure répondant aux normes les plus élevées de l'enseignement supérieur, scolaire et professionnel.";
-      case "es": return "Cada plataforma de UNIGATES está diseñada para ofrecer una experiencia especializada para educación superior, escolar, formación profesional y desarrollo laboral.";
-      case "de": return "Jede Plattform innerhalb von UNIGATES bietet eine maßgeschneiderte Erfahrung für Hochschulbildung, Schulen, Weiterbildung und Karriereentwicklung.";
-      case "zh": return "UNIGATES 旗下的每一大专属平台均经过精心架构，全方位满足高等大学、中小学K-12、职业技能进阶、图书出版与人才直聘的严苛标准。";
-      case "ru": return "Каждая платформа UNIGATES создана для предоставления специализированного опыта, отвечающего самым высоким стандартам высшего, школьного и профессионального образования.";
-      case "tr": return "UNIGATES bünyesindeki her platform, yükseköğretim, K-12 okulları, mesleki eğitim ve kariyer alanında en yüksek standartları sunmak üzere tasarlanmıştır.";
-      default: return "صُممت كل منصة داخل يونيجيتس لتقديم تجربة متخصصة تلبي أعلى متطلبات التعليم الجامعي والمدرسي والتدريب المهني.";
+      case "en": return "Each platform within UNIGATES is designed to deliver a specialized experience meeting the highest standards of higher education, schooling, training courses, digital & print books, book publishing, and career opportunities.";
+      case "fr": return "Chaque plateforme au sein d'UNIGATES est conçue pour offrir une expérience spécialisée répondant aux plus hautes exigences de l'enseignement supérieur, scolaire, des formations, de l'édition et des opportunités d'emploi.";
+      case "es": return "Cada plataforma dentro de UNIGATES está diseñada para ofrecer una experiencia especializada que satisface las más altas demandas de educación universitaria, escolar, cursos, libros digitales e impresos, publicación de libros y empleo.";
+      case "de": return "Jede Plattform innerhalb von UNIGATES bietet eine maßgeschneiderte Erfahrung für Hochschulbildung, Schulen, Kurse, digitale & gedruckte Bücher, Buchveröffentlichung und Arbeitsplätze.";
+      case "zh": return "UNIGATES 旗下的每一大平台均专为提供专业化体验而设计，全面满足高等教育、中小学教学、专业课程、电子与纸质图书、图书出版及求职招聘的最高标准。";
+      case "ru": return "Каждая платформа UNIGATES создана для предоставления специализированного опыта, отвечающего самым высоким требованиям высшего и школьного образования, курсов, книг, книгоиздания и трудоустройства.";
+      case "tr": return "UNIGATES bünyesindeki her platform; üniversite ve okul eğitimi, eğitim kursları, dijital ve basılı kitaplar, kitap yayıncılığı ve iş olanaklarının en yüksek standartlarını karşılamak üzere tasarlanmıştır.";
+      default: return "صُممت كل منصة داخل unigates لتقديم تجربة متخصصة تلبي أعلى متطلبات التعليم الجامعي والمدرسي والدورات التعليمية وتوفير الكتب الرقمية والورقية ونشر الكتب وتوفير الوظائف";
     }
   };
 

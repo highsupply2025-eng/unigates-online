@@ -1,18 +1,14 @@
 import { describe, it, expect } from "vitest";
 
 describe("Site Footer Enhancements & Cloud Hosting Partner", () => {
-  it("should have cloud partner attribution for Delvai.cloud with descriptive note", () => {
+  it("should have cloud partner attribution for Delvai.cloud", () => {
     const cloudPartner = {
       name: "Delvai.cloud",
       url: "https://delvai.cloud",
-      descriptionAr: "(مزود البنية التحتية والحلول السحابية الذكية)",
-      descriptionEn: "(Smart Cloud Solutions & Infrastructure Provider)",
     };
 
     expect(cloudPartner.url).toBe("https://delvai.cloud");
-    expect(cloudPartner.descriptionAr).toContain("البنية التحتية والحلول السحابية الذكية");
-    expect(cloudPartner.descriptionAr.startsWith("(")).toBe(true);
-    expect(cloudPartner.descriptionAr.endsWith(")")).toBe(true);
+    expect(cloudPartner.name).toBe("Delvai.cloud");
   });
 
   it("should have all 4 institutional & portal categories in footer", () => {

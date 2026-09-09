@@ -260,9 +260,6 @@ const SiteFooter = () => {
                   <span>Delvai.cloud</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
-                <span className="text-muted-foreground font-medium">
-                  {translate("(مزود البنية التحتية والحلول السحابية الذكية)", "(Smart Cloud Solutions & Infrastructure Provider)")}
-                </span>
               </div>
             </div>
           </div>

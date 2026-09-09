@@ -84,8 +84,8 @@ const FeaturesSection = () => {
           </h2>
           <p className="text-sm sm:text-base text-muted-foreground font-medium">
             {isRtl
-              ? "مزايا صُممت خصيصاً لتمكين المؤسسات التعليمية من إدارة العملية التدريسية والتربوية بأعلى كفاءة وسلاسة."
-              : "Advanced capabilities engineered to empower educational institutions to manage learning workflows seamlessly."}
+              ? "منظومة تقنية متكاملة صُممت لخدمة الجامعات والمدارس والأكاديميات والمؤلفين والباحثين عن عمل بأعلى معايير الكفاءة والذكاء."
+              : "An integrated tech ecosystem engineered for universities, schools, academies, authors, and job seekers with the highest standards of efficiency."}
           </p>
         </div>
 

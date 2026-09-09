@@ -74,7 +74,7 @@ const SiteFooter = () => {
         { label: translate("البث المباشر والفصول الافتراضية", "Live Interactive Classrooms"), href: "/live" },
         { label: translate("استوديو التكليفات والتصحيح", "Assignments & Grading Studio"), href: "/grading-studio" },
         { label: translate("التحقق من الشهادات الرقمية", "Verify Certificates"), href: "/certificates" },
-        { label: translate("سوق مزايدة الكتب والعقود", "Manuscript Auctions & Contracts"), href: "/nasher" },
+        { label: translate("سوق مزايدة الكتب والعقود", "Manuscript Auctions & Contracts"), href: "/manuscript-auctions" },
         { label: translate("فرص التوظيف والتدريب التعاوني", "Career & Co-Op Opportunities"), href: "/career-opportunities" },
       ],
     },

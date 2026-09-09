@@ -39,6 +39,7 @@ const SimpleHeader = ({ backTo = "/", mobileBackOnly = false, useHistoryBack = f
       { match: "/grading-studio", ar: "استوديو التكليفات والتصحيح", en: "Grading Studio" },
       { match: "/certificates", ar: "التحقق من الشهادات", en: "Verify Certificates" },
       { match: "/career-opportunities", ar: "فرص التوظيف والتدريب التعاوني", en: "Career & Co-Op Opportunities" },
+      { match: "/manuscript-auctions", ar: "سوق مزايدة الكتب والعقود", en: "Manuscript Auctions & Contracts" },
       { match: "/quiz/create", ar: "الاختبارات", en: "Online Quizzes" },
       { match: "/coming-soon", ar: "قريبًا", en: "Coming Soon" },
     ];

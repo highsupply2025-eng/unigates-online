@@ -391,6 +391,74 @@ const HomepageSections = () => {
     ...defaultBooks,
   ].slice(0, 6);
 
+  // ── 6. Jobs Query ────────────────────────────────────────────
+  const defaultJobs: ShowcaseItem[] = [
+    {
+      id: "curated-job-1",
+      title: isRtl ? "مطور برمجيات ذكاء اصطناعي (Full-Stack AI)" : "Full-Stack AI Developer",
+      subtitle: isRtl ? "شركة ديلفاي للحلول السحابية • الرياض (هجين)" : "Delvai Cloud Solutions • Riyadh",
+      image: collegeBg1,
+      badge: isRtl ? "دوام كامل • تقنية" : "Full-Time • Tech",
+      badgeColor: "bg-cyan-600/90",
+      href: "/career",
+      extra: isRtl ? "14K - 22K ر.س" : "14K - 22K SAR",
+    },
+    {
+      id: "curated-job-2",
+      title: isRtl ? "أستاذ مشارك / محاضر جامعي في علوم الحاسب" : "Associate Professor in CS",
+      subtitle: isRtl ? "كلية المستقبل الجامعية الأهلية • جدة" : "Al-Mustaqbal University College • Jeddah",
+      image: collegeBg2,
+      badge: isRtl ? "أكاديمي • تدريس" : "Academic • Teaching",
+      badgeColor: "bg-blue-600/90",
+      href: "/career",
+      extra: isRtl ? "16K - 26K ر.س" : "16K - 26K SAR",
+    },
+    {
+      id: "curated-job-3",
+      title: isRtl ? "محرر ومراجع مخطوطات وكتب أكاديمية" : "Academic Book Editor",
+      subtitle: isRtl ? "دار عبيد للنشر والتوزيع • الرياض" : "Dar Obeid Publishing • Riyadh",
+      image: bookBg1,
+      badge: isRtl ? "نشر وتحرير" : "Publishing",
+      badgeColor: "bg-amber-600/90",
+      href: "/career",
+      extra: isRtl ? "9K - 15K ر.س" : "9K - 15K SAR",
+    },
+    {
+      id: "curated-job-4",
+      title: isRtl ? "معلم لغة إنجليزية ودراسات دولية (IGCSE)" : "IGCSE English Teacher",
+      subtitle: isRtl ? "مدارس النخبة الدولية للغات • الدمام" : "Al-Nokhba International Schools • Dammam",
+      image: schoolBg1,
+      badge: isRtl ? "تعليم مدرسي" : "K-12 Education",
+      badgeColor: "bg-emerald-600/90",
+      href: "/career",
+      extra: isRtl ? "8K - 13K ر.س" : "8K - 13K SAR",
+    },
+  ];
+
+  const jobs: ShowcaseItem[] = (() => {
+    try {
+      const saved = localStorage.getItem("unigates_career_jobs");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.slice(0, 6).map((j: any, i: number) => ({
+            id: j.id,
+            title: isRtl ? j.titleAr : j.titleEn,
+            subtitle: `${isRtl ? j.companyAr : j.companyEn} • ${isRtl ? j.locationAr : j.locationEn}`,
+            image: collegeBgs[i % collegeBgs.length],
+            badge: isRtl ? (j.type === "full-time" ? "دوام كامل" : "وظيفة") : "Job",
+            badgeColor: "bg-cyan-600/90",
+            href: "/career",
+            extra: isRtl ? j.salaryAr : j.salaryEn,
+          }));
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return defaultJobs;
+  })();
+
   const filterTabs = [
     { key: "all", label: isRtl ? "🌟 كل الأقسام" : "All Categories" },
     { key: "colleges", label: isRtl ? "🏛️ الكليات" : "Colleges" },
@@ -398,6 +466,7 @@ const HomepageSections = () => {
     { key: "schools", label: isRtl ? "🏫 المدارس" : "Schools" },
     { key: "courses", label: isRtl ? "📚 الدورات التدريبية" : "Courses" },
     { key: "books", label: isRtl ? "📖 متجر الكتب" : "Bookstore" },
+    { key: "jobs", label: isRtl ? "💼 الوظائف" : "Jobs" },
   ];
 
   return (
@@ -484,6 +553,19 @@ const HomepageSections = () => {
             viewAllLink="/book-store"
             viewAllText={isRtl ? "تصفح متجر الكتب" : "Explore Bookstore"}
             autoScrollSpeed={75}
+          />
+        )}
+
+        {/* 6. Jobs Carousel */}
+        {(activeFilter === "all" || activeFilter === "jobs") && (
+          <HomepageShowcaseCarousel
+            title={isRtl ? "أحدث الوظائف وفرص العمل الأكاديمية والمهنية" : "Latest Jobs & Academic Opportunities"}
+            emoji="💼"
+            items={jobs}
+            isRtl={isRtl}
+            viewAllLink="/career"
+            viewAllText={isRtl ? "تصفح كل الوظائف" : "Explore All Jobs"}
+            autoScrollSpeed={70}
           />
         )}
       </div>

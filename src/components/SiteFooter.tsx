@@ -75,7 +75,7 @@ const SiteFooter = () => {
         { label: translate("استوديو التكليفات والتصحيح", "Assignments & Grading Studio"), href: "/grading-studio" },
         { label: translate("التحقق من الشهادات الرقمية", "Verify Certificates"), href: "/certificates" },
         { label: translate("سوق مزايدة الكتب والعقود", "Manuscript Auctions & Contracts"), href: "/nasher" },
-        { label: translate("فرص التوظيف والتدريب التعاوني", "Career & Co-Op Opportunities"), href: "/career" },
+        { label: translate("فرص التوظيف والتدريب التعاوني", "Career & Co-Op Opportunities"), href: "/career-opportunities" },
       ],
     },
     {

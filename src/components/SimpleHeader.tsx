@@ -38,6 +38,7 @@ const SimpleHeader = ({ backTo = "/", mobileBackOnly = false, useHistoryBack = f
       { match: "/digital-approval-chains", ar: "سلاسل الاعتماد الأكاديمي الرقمي", en: "Approval Chains" },
       { match: "/grading-studio", ar: "استوديو التكليفات والتصحيح", en: "Grading Studio" },
       { match: "/certificates", ar: "التحقق من الشهادات", en: "Verify Certificates" },
+      { match: "/career-opportunities", ar: "فرص التوظيف والتدريب التعاوني", en: "Career & Co-Op Opportunities" },
       { match: "/quiz/create", ar: "الاختبارات", en: "Online Quizzes" },
       { match: "/coming-soon", ar: "قريبًا", en: "Coming Soon" },
     ];

@@ -52,8 +52,8 @@ const FeaturesSection = () => {
       color: "from-emerald-500 to-teal-600",
       title: isRtl ? "حماية وخصوصية البيانات المؤسسية" : "Institutional Privacy & Isolation",
       desc: isRtl
-        ? "عزل تام ومحكم بين المنصات الأربعة والجامعات والمدارس، مما يضمن أمان وخصوصية بيانات الطلاب والكوادر التعليمية."
-        : "Strict institutional data isolation guaranteeing absolute privacy between platforms, schools, and colleges.",
+        ? "عزل تام ومحكم بين منصات unigates مما يضمن أمان وخصوصية بيانات الطلاب والكوادر التعليمية والناشرين والباحثين عن عمل."
+        : "Strict data isolation across UNIGATES platforms, guaranteeing absolute security and privacy for students, faculty, publishers, and job seekers.",
     },
     {
       icon: Smartphone,

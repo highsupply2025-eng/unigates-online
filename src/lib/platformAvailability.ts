@@ -120,11 +120,11 @@ export function getPlatformMeta(platform: PlatformKey, isRtl: boolean) {
         name: isRtl ? "منصة ناشر (سوق المزايدات والعقود)" : "Publisher Platform (Nasher)",
         badge: isRtl ? "سوق النشر والمزايدات" : "Publisher & Publishing",
         desc: isRtl
-          ? "سوق ذكي لطرح المخطوطات والكتب للمزايدة بين دور النشر المعتمدة، وتوقيع عقود إلكترونية رسمية بإشراف دار عبيد للنشر والتوزيع."
-          : "A smart marketplace for authors to auction manuscripts, receive bids from top publishing houses, and sign digital contracts under Dar Obeid.",
+          ? "سوق ذكي لطرح الكتب للمزايدة بين دور النشر المعتمدة، وتوقيع عقود إلكترونية رسمية بإشراف دار عبيد للنشر والتوزيع"
+          : "A smart marketplace to auction books among accredited publishing houses and sign legally binding digital contracts under Dar Obeid.",
         expectedFeatures: isRtl
-          ? ["طرح المخطوطات للمزايدة العلنية", "عقود رقمية ملزمة وموثقة قانونياً", "حماية الملكية الفكرية والـ Escrow", "حصرية التوزيع بمتجر UNIGATES"]
-          : ["Public Manuscript Auctions", "Legally Binding Digital Contracts", "IP Protection & Escrow", "Exclusive UNIGATES Distribution"],
+          ? ["طرح الكتب للمزايدة العلنية", "عقود رقمية ملزمة وموثقة قانونياً", "حماية الملكية الفكرية والدفع المشروط", "حصرية التوزيع بمتجر UNIGATES"]
+          : ["Public Book Auctions", "Legally Binding Digital Contracts", "IP Protection & Escrow", "Exclusive UNIGATES Distribution"],
       };
     case "career":
       return {

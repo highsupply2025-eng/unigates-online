@@ -117,8 +117,8 @@ export function getPlatformMeta(platform: PlatformKey, isRtl: boolean) {
       };
     case "nasher":
       return {
-        name: isRtl ? "منصة ناشر (سوق المزايدات والعقود)" : "Nasher Platform",
-        badge: isRtl ? "سوق النشر والمزايدات" : "Publishing & Bidding",
+        name: isRtl ? "منصة ناشر (سوق المزايدات والعقود)" : "Publisher Platform (Nasher)",
+        badge: isRtl ? "سوق النشر والمزايدات" : "Publisher & Publishing",
         desc: isRtl
           ? "سوق ذكي لطرح المخطوطات والكتب للمزايدة بين دور النشر المعتمدة، وتوقيع عقود إلكترونية رسمية بإشراف دار عبيد للنشر والتوزيع."
           : "A smart marketplace for authors to auction manuscripts, receive bids from top publishing houses, and sign digital contracts under Dar Obeid.",

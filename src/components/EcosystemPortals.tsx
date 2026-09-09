@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import {
   Landmark, School, BookOpen, Store, ArrowLeft, ArrowRight,
   ShieldCheck, Video, Calendar, Award, FileQuestion, Users, CheckCircle2,
-  Sparkles, Layers, BookMarked, TrendingUp, MonitorCheck, Briefcase
+  Sparkles, Layers, BookMarked, TrendingUp, MonitorCheck, Briefcase, BookCopy
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -138,11 +138,11 @@ const EcosystemPortals = () => {
       badgeColor: isNasherDev
         ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
         : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
-      title: isRtl ? "منصة ناشر" : "Nasher Platform",
+      title: isRtl ? "منصة ناشر" : "Publisher Platform (Nasher)",
       subtitle: isRtl
         ? "سوق ذكي لطرح المخطوطات والكتب للمزايدة بين دور النشر المعتمدة، وتوقيع عقود إلكترونية رسمية بإشراف دار عبيد للنشر والتوزيع."
         : "A smart marketplace for authors to auction manuscripts, receive bids from top publishing houses, and sign digital contracts.",
-      icon: BookMarked,
+      icon: BookCopy,
       gradient: "from-rose-600 via-pink-600 to-amber-600",
       accentBorder: "border-rose-500/30 hover:border-rose-500/80",
       glowColor: "group-hover:shadow-rose-500/20",

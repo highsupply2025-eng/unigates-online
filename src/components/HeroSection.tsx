@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Landmark, School, BookOpen, Store, Search, ArrowLeft, ArrowRight,
-  Sparkles, Briefcase
+  Sparkles, Briefcase, BookCopy
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -78,9 +78,9 @@ const HeroSection = () => {
     },
     {
       to: "/nasher",
-      label: t.nasherPlatform || (isRtl ? "منصة ناشر" : "Nasher Portal"),
-      badge: isRtl ? "عقود ونشر" : "Publishing",
-      icon: Sparkles,
+      label: t.nasherPlatform || (isRtl ? "منصة ناشر" : "Publisher Platform"),
+      badge: isRtl ? "عقود ونشر" : "Publisher",
+      icon: BookCopy,
       color: "from-rose-600 to-pink-700",
       glow: "shadow-rose-500/25",
       badgeStyle: "bg-rose-500/20 text-rose-200 border-rose-400/30",

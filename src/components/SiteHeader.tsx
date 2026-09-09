@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   GraduationCap, Globe, Menu, Landmark, School, BookOpen, Store,
-  Users, UserPlus, Sparkles, X, ArrowLeft, ArrowRight, LogIn, ChevronDown, Briefcase
+  Users, UserPlus, Sparkles, X, ArrowLeft, ArrowRight, LogIn, ChevronDown, Briefcase, BookCopy
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -73,7 +73,7 @@ const SiteHeader = () => {
     {
       to: "/nasher",
       label: t.nasherPlatform || "منصة ناشر",
-      icon: Sparkles,
+      icon: BookCopy,
       badge: t.header?.nasherBadge || "عقود ونشر",
       activeColor: "from-rose-600 to-pink-600",
       glowColor: "hover:border-rose-400/50 hover:bg-rose-500/15 text-rose-100",

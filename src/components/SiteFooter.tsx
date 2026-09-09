@@ -63,8 +63,8 @@ const SiteFooter = () => {
         { label: t.schoolPlatform, href: "/school-platform" },
         { label: t.exploreCourses, href: "/courses" },
         { label: t.bookStore, href: "/book-store" },
-        { label: `✒️ ${t.nasherPlatform || translate("منصة ناشر", "Nasher Platform")}`, href: "/nasher" },
-        { label: `💼 ${t.careerPlatform || translate("منصة Career", "Career Platform")}`, href: "/career" },
+        { label: t.nasherPlatform || translate("منصة ناشر", "Nasher Platform"), href: "/nasher" },
+        { label: t.careerPlatform || translate("منصة Career", "Career Platform"), href: "/career" },
       ],
     },
     {
@@ -101,13 +101,13 @@ const SiteFooter = () => {
 
   const getFooterBrandDescription = () => {
     switch (language) {
-      case "en": return "A unified digital educational ecosystem for higher education, K-12 schooling, professional skill courses, and academic publishing by Dar Obeid Publishing & Distribution LLC.";
-      case "fr": return "Écosystème éducatif numérique unifié pour l'enseignement supérieur, scolaire, la formation continue et l'édition académique par Dar Obeid SARL.";
-      case "es": return "Ecosistema educativo digital unificado para educación superior, escolar, formación profesional y edición académica por Dar Obeid SRL.";
-      case "de": return "Einheitliches digitales Bildungsökosystem für Hochschulbildung, Schulen, Weiterbildung und akademisches Verlagswesen von Dar Obeid GmbH.";
-      case "zh": return "汇聚高等大学、K-12中小学、职业技能培训与学术出版的统一数字教育生态系统，隶属于 Dar Obeid 出版发行集团。";
-      case "ru": return "Единая цифровая образовательная экосистема для высшего, школьного образования, курсов и академических изданий от издательства Дар Обейд ООО.";
-      case "tr": return "Dar Obeid bünyesinde yükseköğretim, K-12 okulları, mesleki eğitim ve akademik yayıncılık için birleşik dijital eğitim ekosistemi.";
+      case "en": return "A comprehensive digital ecosystem for higher education, schooling, vocational training, academic publishing, book publishing & career opportunities. A platform by Dar Obeid Publishing, Distribution & Printing LLC.";
+      case "fr": return "Un écosystème numérique complet pour l'enseignement supérieur, scolaire, professionnel, l'édition académique et l'emploi. Une plateforme de Dar Obeid SARL.";
+      case "es": return "Un ecosistema digital integral para educación superior, escolar, formación profesional, edición académica y empleo. Una plataforma de Dar Obeid SRL.";
+      case "de": return "Ein umfassendes digitales Ökosystem für Hochschulbildung, Schulen, Berufsausbildung, akademisches Verlagswesen und Beschäftigung von Dar Obeid GmbH.";
+      case "zh": return "涵盖高等大学、中小学、职业技能培训、学术出版、图书发行与求职招聘的全面数字教育生态系统，隶属于 Dar Obeid 出版印刷集团。";
+      case "ru": return "Комплексная цифровая экосистема для высшего, школьного образования, профобучения, академических изданий и трудоустройства от издательства Дар Обейд ООО.";
+      case "tr": return "Dar Obeid bünyesinde yükseköğretim, okul eğitimi, mesleki eğitim, akademik yayıncılık ve kariyer için kapsamlı dijital ekosistem.";
       default: return "منظومة رقمية شاملة للتعليم العالي والمدرسي والتدريب المهني والنشر الأكاديمي، إحدى منصات شركة دار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م.";
     }
   };
@@ -208,6 +208,12 @@ const SiteFooter = () => {
               </Badge>
               <Badge variant="outline" className="text-[10px] font-bold border-amber-500/30 bg-amber-500/5 text-amber-600 dark:text-amber-400">
                 📖 {translate("دار عبيد", "Dar Obeid Books")}
+              </Badge>
+              <Badge variant="outline" className="text-[10px] font-bold border-rose-500/30 bg-rose-500/5 text-rose-600 dark:text-rose-400">
+                ✍️ {translate("منصة ناشر", "Nasher Platform")}
+              </Badge>
+              <Badge variant="outline" className="text-[10px] font-bold border-cyan-500/30 bg-cyan-500/5 text-cyan-600 dark:text-cyan-400">
+                💼 {translate("منصة Career", "Career Portal")}
               </Badge>
             </div>
           </div>

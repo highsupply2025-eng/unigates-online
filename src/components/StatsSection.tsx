@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
-import { useCourses } from "@/hooks/useCourses";
+import { useAllCourses } from "@/hooks/useCourses";
 import { useBooks } from "@/hooks/useBooks";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useMemo } from "react";
@@ -22,7 +22,7 @@ const StatsSection = () => {
   const { language } = useLanguage();
   const { data: stats } = usePlatformStats();
   const { data: uniStats } = usePlatformStats("university");
-  const { data: coursesData } = useCourses();
+  const { data: coursesData } = useAllCourses();
   const { data: booksData } = useBooks();
 
   // Authoritative counters (Global aggregation across all platforms)

@@ -1,11 +1,11 @@
-import { Star, Quote, GraduationCap, Building2, School, UserCheck } from "lucide-react";
+import { Star, Quote, GraduationCap, Building2, School, UserCheck, BookOpen, Briefcase, Feather } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const TestimonialsSection = () => {
-  const { dir, language } = useLanguage();
+  const { dir, language, translate } = useLanguage();
   const isRtl = dir === "rtl";
   const { ref, isVisible } = useScrollAnimation();
 
@@ -13,7 +13,7 @@ const TestimonialsSection = () => {
     {
       name: isRtl ? "أ.د. طارق عبد العزيز" : "Prof. Dr. Tarek Abdelaziz",
       role: isRtl ? "عميد كلية الحاسبات والمعلومات" : "Dean, Faculty of Computer Science",
-      institution: isRtl ? "جامعة المستقبل" : "Future University",
+      institution: isRtl ? "المنصة الجامعية — جامعة المستقبل" : "University Portal — Future University",
       icon: Building2,
       color: "from-blue-600 to-indigo-700",
       rating: 5,
@@ -22,20 +22,9 @@ const TestimonialsSection = () => {
         : "UNIGATES transformed our faculty operations; the digital approval chains for exams and schedules saved over 70% of admin overhead while guaranteeing full governance.",
     },
     {
-      name: isRtl ? "د. منى الشناوي" : "Dr. Mona El-Shennawy",
-      role: isRtl ? "رئيس قسم نظم المعلومات" : "Head of Information Systems Dept.",
-      institution: isRtl ? "المعهد العالي للهندسة" : "Higher Institute of Engineering",
-      icon: GraduationCap,
-      color: "from-purple-600 to-violet-700",
-      rating: 5,
-      content: isRtl
-        ? "استوديو التكليفات والتصحيح المباشر مع تقييمات الطلاب المجهولة يمنحنا رؤية دقيقة لجودة التدريس ومستوى الاستيعاب دون أي تعقيدات تقنية."
-        : "The assignments grading studio combined with anonymous student feedback provides profound insights into teaching quality and learning outcomes.",
-    },
-    {
       name: isRtl ? "الأستاذ أحمد فوزي" : "Mr. Ahmed Fawzy",
       role: isRtl ? "مدير مدرسة التميز الدولية" : "Principal, Al-Tamayoz International School",
-      institution: isRtl ? "مدارس التميز" : "Al-Tamayoz Schools",
+      institution: isRtl ? "المنصة المدرسية — مدارس التميز" : "School Portal — Al-Tamayoz Schools",
       icon: School,
       color: "from-emerald-600 to-teal-700",
       rating: 5,
@@ -44,15 +33,48 @@ const TestimonialsSection = () => {
         : "Virtual classrooms and homework tracking created an active, continuous bond between teachers, students, and parents in a secure environment.",
     },
     {
+      name: isRtl ? "م. كريم النجار" : "Eng. Kareem El-Naggar",
+      role: isRtl ? "مدرب وخبير تطوير برمجيات" : "Senior Software Instructor",
+      institution: isRtl ? "أكاديمية الدورات" : "Courses Academy",
+      icon: BookOpen,
+      color: "from-purple-600 to-violet-700",
+      rating: 5,
+      content: isRtl
+        ? "أكاديمية الدورات وفرت لي استوديو متكامل لنشر مسارات البرمجة بنظام الحلقات القصيرة، مع إصدار شهادات رقمية فورية ومعتمدة للطلاب."
+        : "The Courses Academy provided a comprehensive studio to publish modular programming tracks with instant verifiable digital certificates.",
+    },
+    {
+      name: isRtl ? "د. منى الشناوي" : "Dr. Mona El-Shennawy",
+      role: isRtl ? "مؤلفة وباحثة أكاديمية" : "Author & Academic Researcher",
+      institution: isRtl ? "منصة ناشر ودار عبيد للنشر" : "Nasher Platform & Dar Obeid",
+      icon: Feather,
+      color: "from-rose-600 to-pink-700",
+      rating: 5,
+      content: isRtl
+        ? "طرح كتبي للمزايدة بين دور النشر عبر منصة ناشر وتوقيع العقود الرقمية بإشراف دار عبيد وفّر حماية كاملة لحقوقي وسرّع من وصول كتبي للقراء."
+        : "Auctioning my manuscripts to publishers via Nasher and executing secure digital contracts under Dar Obeid supervision protected my IP and boosted reach.",
+    },
+    {
+      name: isRtl ? "أ. هيثم الصاوي" : "Mr. Haytham El-Sawy",
+      role: isRtl ? "مدير الموارد البشرية والتوظيف" : "HR & Talent Acquisition Director",
+      institution: isRtl ? "منصة Career للتوظيف" : "Career & Talent Portal",
+      icon: Briefcase,
+      color: "from-cyan-600 to-teal-700",
+      rating: 5,
+      content: isRtl
+        ? "منصة Career ربطتنا مباشرة بأفضل الكفاءات وخريجي الجامعات والكوادر التدريسية، ووفرت نظاماً ذكياً لفلترة السير الذاتية وإجراء المقابلات بسلاسة."
+        : "The Career platform directly connected us with top graduates and faculty talent, streamlining candidate screening and hiring workflows.",
+    },
+    {
       name: isRtl ? "سارة المهدي" : "Sara El-Mahdi",
       role: isRtl ? "طالبة هندسة برمجيات - المستوى الرابع" : "Software Engineering Student - Year 4",
-      institution: isRtl ? "المنصة الجامعية" : "University Portal",
+      institution: isRtl ? "تطبيقات UNIGATES الذكية" : "UNIGATES Mobile Apps",
       icon: UserCheck,
       color: "from-amber-500 to-orange-600",
       rating: 5,
       content: isRtl
-        ? "سهولة الوصول للمحاضرات المسجلة والبث المباشر وجداول الامتحانات والنتائج الفورية جعلت تجربتي الجامعية منظمة ومرنة للغاية."
-        : "Instant access to live and recorded lectures, schedules, and exam results made my university journey organized and highly productive.",
+        ? "سهولة الوصول للمحاضرات المسجلة والبث المباشر وجداول الامتحانات والنتائج الفورية عبر التطبيق جعلت تجربتي التعليمية متكاملة ومرنة للغاية."
+        : "Instant access to live/recorded lectures, exam schedules, and real-time grades via the mobile app made my academic journey seamless.",
     },
   ];
 
@@ -74,8 +96,8 @@ const TestimonialsSection = () => {
           </h2>
           <p className="text-sm sm:text-base text-muted-foreground font-medium">
             {isRtl
-              ? "شهادات وتجارب واقعية من عمداء الكليات، رؤساء الأقسام، مدراء المدارس، وأعضاء هيئة التدريس والطلاب."
-              : "Real reviews from academic leaders, department heads, school principals, faculty, and students."}
+              ? "شهادات وتجارب واقعية من عمداء الكليات، مدراء المدارس، المدربين، المؤلفين، مسؤولي التوظيف والطلاب."
+              : "Real reviews and success stories from deans, school principals, course instructors, authors, recruiters, and students."}
           </p>
         </div>
 

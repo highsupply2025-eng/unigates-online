@@ -15,7 +15,7 @@ describe("ThemeToggle Component & Brightness Switcher", () => {
       </LanguageProvider>
     );
 
-    const trigger = screen.getByTitle(/التحكم في السطوع والمظهر|Toggle theme and brightness/i);
+    const trigger = screen.getByTitle(/التحكم في السطوع والمظهر|السطوع والمظهر|Toggle theme and brightness/i);
     expect(trigger).toBeDefined();
   });
 
@@ -30,7 +30,7 @@ describe("ThemeToggle Component & Brightness Switcher", () => {
 
     const button = screen.getByRole("button");
     expect(button).toBeDefined();
-    expect(button.textContent).toContain("الوضع الداكن");
+    expect(button.textContent).toContain("داكن");
   });
 
   it("toggles theme correctly in button mode", () => {

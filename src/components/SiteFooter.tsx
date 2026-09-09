@@ -52,52 +52,65 @@ const AppStoreIcon = () => (
 );
 
 const SiteFooter = () => {
-  const { t, dir, language } = useLanguage();
+  const { t, dir, language, translate } = useLanguage();
   const isRtl = dir === "rtl";
 
   const footerNavSections = [
     {
-      title: isRtl ? "🏛️ المنصات والبوابات" : "🏛️ Portals",
+      title: `🏛️ ${translate("المنصات والبوابات", "Portals & Ecosystem")}`,
       links: [
-        { label: isRtl ? "المنصة الجامعية" : "University Platform", href: "/university-platform" },
-        { label: isRtl ? "المنصة المدرسية" : "School Platform", href: "/school-platform" },
-        { label: isRtl ? "أكاديمية الدورات" : "Courses Academy", href: "/courses" },
-        { label: isRtl ? "متجر الكتب الرقمي" : "Digital Book Store", href: "/book-store" },
-        { label: isRtl ? "✒️ منصة ناشر (عقود النشر الحصرية)" : "✒️ Nasher Platform", href: "/nasher" },
-        { label: isRtl ? "💼 منصة Career (التوظيف والكفاءات)" : "💼 Career Platform", href: "/career" },
+        { label: t.universityPlatform, href: "/university-platform" },
+        { label: t.schoolPlatform, href: "/school-platform" },
+        { label: t.exploreCourses, href: "/courses" },
+        { label: t.bookStore, href: "/book-store" },
+        { label: `✒️ ${t.nasherPlatform || translate("منصة ناشر", "Nasher Platform")}`, href: "/nasher" },
+        { label: `💼 ${t.careerPlatform || translate("منصة Career", "Career Platform")}`, href: "/career" },
       ],
     },
     {
-      title: isRtl ? "🎓 الخدمات الأكاديمية" : "🎓 Academic Services",
+      title: `🎓 ${translate("الخدمات الأكاديمية", "Academic Services")}`,
       links: [
-        { label: isRtl ? "سلاسل الاعتماد الرقمي" : "Approval Workflows", href: "/university-platform" },
-        { label: isRtl ? "البث المباشر والحصص" : "Live Streaming", href: "/live" },
-        { label: isRtl ? "التحقق من الشهادات" : "Verify Certificates", href: "/certificates" },
-        { label: isRtl ? "الأسئلة الشائعة" : "FAQs", href: "/faq" },
+        { label: translate("سلاسل الاعتماد الرقمي", "Approval Workflows"), href: "/university-platform" },
+        { label: translate("البث المباشر والحصص", "Live Streaming"), href: "/live" },
+        { label: translate("التحقق من الشهادات", "Verify Certificates"), href: "/certificates" },
+        { label: t.footerLinks?.faq || translate("الأسئلة الشائعة", "FAQs"), href: "/faq" },
       ],
     },
     {
-      title: isRtl ? "🏢 المؤسسات والتسجيل" : "🏢 Onboarding & Signup",
+      title: `🏢 ${translate("المؤسسات والتسجيل", "Onboarding & Signup")}`,
       links: [
-        { label: isRtl ? "تسجيل كلية جديدة" : "Register College", href: "/signup/college/admin" },
-        { label: isRtl ? "تسجيل معهد عالي" : "Register Institute", href: "/signup/institute/admin" },
-        { label: isRtl ? "تسجيل مدرسة جديدة" : "Register School", href: "/school-registration" },
-        { label: isRtl ? "إنشاء حساب طالب / معلم" : "Student / Teacher Signup", href: "/signup" },
+        { label: t.header?.registerCollege || translate("تسجيل كلية جديدة", "Register College"), href: "/signup/college/admin" },
+        { label: t.header?.registerInstitute || translate("تسجيل معهد عالي", "Register Institute"), href: "/signup/institute/admin" },
+        { label: t.header?.registerSchool || translate("تسجيل مدرسة", "Register School"), href: "/school-registration" },
+        { label: t.header?.registerLearner || translate("إنشاء حساب طالب / معلم", "Student / Teacher Signup"), href: "/signup" },
       ],
     },
     {
-      title: isRtl ? "ℹ️ المنظومة والدعم" : "ℹ️ Company & Support",
+      title: `ℹ️ ${translate("المنظومة والدعم", "Company & Support")}`,
       links: [
-        { label: isRtl ? "عن المنصة" : "About UNIGATES", href: "/about" },
-        { label: isRtl ? "🎬 استوديو الفيديو الترويجي" : "🎬 Promo Video Studio", href: "/promo-video" },
-        { label: isRtl ? "مركز المساعدة" : "Help Center", href: "/help-center" },
-        { label: isRtl ? "الشروط والأحكام" : "Terms of Service", href: "/terms" },
-        { label: isRtl ? "سياسة الخصوصية" : "Privacy Policy", href: "/privacy" },
-        { label: isRtl ? "الشراكات" : "Partnerships", href: "/partnerships" },
-        { label: isRtl ? "تواصل معنا" : "Contact Us", href: "/contact" },
+        { label: t.footerLinks?.about || translate("عن المنصة", "About UNIGATES"), href: "/about" },
+        { label: `🎬 ${translate("استوديو الفيديو الترويجي", "Promo Video Studio")}`, href: "/promo-video" },
+        { label: t.footerLinks?.helpCenter || translate("مركز المساعدة", "Help Center"), href: "/help-center" },
+        { label: t.footerLinks?.terms || translate("الشروط والأحكام", "Terms of Service"), href: "/terms" },
+        { label: t.footerLinks?.privacy || translate("سياسة الخصوصية", "Privacy Policy"), href: "/privacy" },
+        { label: t.footerLinks?.partnerships || translate("الشراكات", "Partnerships"), href: "/partnerships" },
+        { label: t.footerLinks?.contactUs || translate("تواصل معنا", "Contact Us"), href: "/contact" },
       ],
     },
   ];
+
+  const getFooterBrandDescription = () => {
+    switch (language) {
+      case "en": return "A unified digital educational ecosystem for higher education, K-12 schooling, professional skill courses, and academic publishing by Dar Obeid Publishing & Distribution LLC.";
+      case "fr": return "Écosystème éducatif numérique unifié pour l'enseignement supérieur, scolaire, la formation continue et l'édition académique par Dar Obeid SARL.";
+      case "es": return "Ecosistema educativo digital unificado para educación superior, escolar, formación profesional y edición académica por Dar Obeid SRL.";
+      case "de": return "Einheitliches digitales Bildungsökosystem für Hochschulbildung, Schulen, Weiterbildung und akademisches Verlagswesen von Dar Obeid GmbH.";
+      case "zh": return "汇聚高等大学、K-12中小学、职业技能培训与学术出版的统一数字教育生态系统，隶属于 Dar Obeid 出版发行集团。";
+      case "ru": return "Единая цифровая образовательная экосистема для высшего, школьного образования, курсов и академических изданий от издательства Дар Обейд ООО.";
+      case "tr": return "Dar Obeid bünyesinde yükseköğretim, K-12 okulları, mesleki eğitim ve akademik yayıncılık için birleşik dijital eğitim ekosistemi.";
+      default: return "منظومة رقمية شاملة للتعليم العالي والمدرسي والتدريب المهني والنشر الأكاديمي، إحدى منصات شركة دار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م.";
+    }
+  };
 
   const socialLinks = [
     {
@@ -180,23 +193,21 @@ const SiteFooter = () => {
             </Link>
 
             <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">
-              {isRtl
-                ? "منظومة رقمية شاملة للتعليم العالي والمدرسي والتدريب المهني والنشر الأكاديمي، إحدى منصات شركة دار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م."
-                : "A unified platform for higher education, K-12 schooling, professional skill courses, and academic publishing by Dar Obeid Publishing & Distribution LLC."}
+              {getFooterBrandDescription()}
             </p>
 
             <div className="flex flex-wrap items-center gap-2 pt-1">
               <Badge variant="outline" className="text-[10px] font-bold border-blue-500/30 bg-blue-500/5 text-blue-600 dark:text-blue-400">
-                🏛️ {isRtl ? "جامعات ومعاهد" : "Universities"}
+                🏛️ {translate("جامعات ومعاهد", "Colleges & Institutes")}
               </Badge>
               <Badge variant="outline" className="text-[10px] font-bold border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400">
-                🏫 {isRtl ? "مدارس K-12" : "K-12 Schools"}
+                🏫 {translate("مدارس K-12", "K-12 Schools")}
               </Badge>
               <Badge variant="outline" className="text-[10px] font-bold border-purple-500/30 bg-purple-500/5 text-purple-600 dark:text-purple-400">
-                📚 {isRtl ? "أكاديمية الدورات" : "Courses Academy"}
+                📚 {translate("أكاديمية الدورات", "Courses Academy")}
               </Badge>
               <Badge variant="outline" className="text-[10px] font-bold border-amber-500/30 bg-amber-500/5 text-amber-600 dark:text-amber-400">
-                📖 {isRtl ? "دار عبيد للنشر" : "Dar Obeid Books"}
+                📖 {translate("دار عبيد", "Dar Obeid Books")}
               </Badge>
             </div>
           </div>
@@ -233,7 +244,7 @@ const SiteFooter = () => {
             </div>
             <div>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 text-xs sm:text-sm font-bold text-foreground">
-                <span>{isRtl ? "استضافة وتشغيل سحابي بواسطة" : "Cloud Infrastructure & Hosting by"}</span>
+                <span>{translate("استضافة وتشغيل سحابي بواسطة", "Cloud Infrastructure & Hosting by")}</span>
                 <a
                   href="https://delvai.cloud"
                   target="_blank"
@@ -244,7 +255,7 @@ const SiteFooter = () => {
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
                 <span className="text-muted-foreground font-medium">
-                  {isRtl ? "(مزود البنية التحتية والحلول السحابية الذكية)" : "(Smart Cloud Solutions & Infrastructure Provider)"}
+                  {translate("(مزود البنية التحتية والحلول السحابية الذكية)", "(Smart Cloud Solutions & Infrastructure Provider)")}
                 </span>
               </div>
             </div>
@@ -252,7 +263,7 @@ const SiteFooter = () => {
 
           <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
             <CheckCircle2 className="w-4 h-4" />
-            <span>{isRtl ? "بنية سحابية آمنة 99.9% High Availability" : "99.9% High Availability Cloud"}</span>
+            <span>{translate("بنية سحابية آمنة 99.9% High Availability", "99.9% High Availability Cloud")}</span>
           </div>
         </div>
 

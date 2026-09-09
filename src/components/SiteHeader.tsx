@@ -20,7 +20,7 @@ import ugLogo from "@/assets/ug-logo.png";
 import { preloadRoute } from "@/PrefetchRoutes";
 
 const SiteHeader = () => {
-  const { t, dir, tText, isRtl } = useLanguage();
+  const { t, dir, tText, isRtl, translate } = useLanguage();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -38,7 +38,7 @@ const SiteHeader = () => {
       to: "/university-platform",
       label: t.universityPlatform,
       icon: Landmark,
-      badge: t.header?.collegesBadge || "كليات ومعاهد",
+      badge: t.header?.collegesBadge || translate("كليات ومعاهد", "Colleges & Institutes"),
       activeColor: "from-blue-600 to-indigo-600",
       glowColor: "hover:border-blue-400/50 hover:bg-blue-500/15 text-blue-100",
       dotColor: "bg-blue-400",
@@ -47,7 +47,7 @@ const SiteHeader = () => {
       to: "/school-platform",
       label: t.schoolPlatform,
       icon: School,
-      badge: t.header?.schoolsBadge || "مدارس K-12",
+      badge: t.header?.schoolsBadge || translate("مدارس K-12", "K-12 Schools"),
       activeColor: "from-emerald-600 to-teal-600",
       glowColor: "hover:border-emerald-400/50 hover:bg-emerald-500/15 text-emerald-100",
       dotColor: "bg-emerald-400",
@@ -56,7 +56,7 @@ const SiteHeader = () => {
       to: "/courses",
       label: t.exploreCourses,
       icon: BookOpen,
-      badge: t.header?.coursesBadge || "تدريب مهني",
+      badge: t.header?.coursesBadge || translate("تدريب مهني", "Professional Training"),
       activeColor: "from-purple-600 to-fuchsia-600",
       glowColor: "hover:border-purple-400/50 hover:bg-purple-500/15 text-purple-100",
       dotColor: "bg-purple-400",
@@ -65,25 +65,25 @@ const SiteHeader = () => {
       to: "/book-store",
       label: t.bookStore,
       icon: Store,
-      badge: t.header?.booksBadge || "دار عبيد",
+      badge: t.header?.booksBadge || translate("دار عبيد", "Dar Obeid"),
       activeColor: "from-amber-500 to-orange-600",
       glowColor: "hover:border-amber-400/50 hover:bg-amber-500/15 text-amber-100",
       dotColor: "bg-amber-400",
     },
     {
       to: "/nasher",
-      label: t.nasherPlatform || "منصة ناشر",
+      label: t.nasherPlatform || translate("منصة ناشر", "Publisher Platform"),
       icon: BookCopy,
-      badge: t.header?.nasherBadge || "عقود ونشر",
+      badge: t.header?.nasherBadge || translate("عقود ونشر", "Publisher"),
       activeColor: "from-rose-600 to-pink-600",
       glowColor: "hover:border-rose-400/50 hover:bg-rose-500/15 text-rose-100",
       dotColor: "bg-rose-400",
     },
     {
       to: "/career",
-      label: t.careerPlatform || "منصة Career",
+      label: t.careerPlatform || translate("منصة Career", "Career Platform"),
       icon: Briefcase,
-      badge: t.header?.careerBadge || "توظيف وكفاءات",
+      badge: t.header?.careerBadge || translate("توظيف وكفاءات", "Careers & Talent"),
       activeColor: "from-cyan-600 to-teal-600",
       glowColor: "hover:border-cyan-400/50 hover:bg-cyan-500/15 text-cyan-100",
       dotColor: "bg-cyan-400",

@@ -22,11 +22,16 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   showLabel = false,
 }) => {
   const { theme = "dark", setTheme } = useTheme();
-  const { dir } = useLanguage();
+  const { dir, translate } = useLanguage();
   const isRtl = dir === "rtl";
 
   const isDark = theme === "dark";
   const isLight = theme === "light";
+
+  const lightLabel = translate("فاتح", "Light");
+  const darkLabel = translate("داكن", "Dark");
+  const autoLabel = translate("تلقائي", "Auto");
+  const themeHeader = translate("المظهر", "Theme");
 
   if (variant === "button") {
     // Quick 1-click toggle between light & dark
@@ -39,8 +44,8 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
         className={`relative h-9 px-3 rounded-xl font-bold text-xs gap-2 border-white/20 bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all shadow-xs ${className}`}
         title={
           isDark
-            ? isRtl ? "التبديل إلى وضع السطوع الطبيعي (الفاتح)" : "Switch to Light Mode"
-            : isRtl ? "التبديل إلى الوضع الداكن (الليلي)" : "Switch to Dark Mode"
+            ? translate("التبديل إلى الوضع الفاتح", "Switch to Light Mode")
+            : translate("التبديل إلى الوضع الداكن", "Switch to Dark Mode")
         }
       >
         <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-amber-400 via-orange-500 to-yellow-500 flex items-center justify-center text-white shadow-xs">
@@ -52,9 +57,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
         </div>
         {showLabel && (
           <span>
-            {isDark
-              ? isRtl ? "الوضع الداكن" : "Dark Mode"
-              : isRtl ? "السطوع الطبيعي" : "Light Mode"}
+            {isDark ? darkLabel : lightLabel}
           </span>
         )}
       </Button>
@@ -70,7 +73,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
           variant="outline"
           size="sm"
           className={`relative h-9 sm:h-10 px-2.5 sm:px-3 rounded-xl sm:rounded-2xl font-bold text-xs gap-1.5 border-border/80 bg-card/80 hover:bg-card text-foreground backdrop-blur-md transition-all shadow-xs ring-1 ring-primary/20 hover:ring-primary/40 active:scale-95 ${className}`}
-          title={isRtl ? "التحكم في السطوع والمظهر" : "Toggle theme and brightness"}
+          title={translate("السطوع والمظهر", "Toggle theme and brightness")}
         >
           <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-amber-400 via-orange-500 to-yellow-500 flex items-center justify-center text-white shadow-xs">
             {isLight ? (
@@ -84,10 +87,10 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
           {showLabel && (
             <span className="hidden md:inline-block font-black">
               {isLight
-                ? isRtl ? "السطوع الطبيعي" : "Light"
+                ? lightLabel
                 : isDark
-                ? isRtl ? "الوضع الداكن" : "Dark"
-                : isRtl ? "تلقائي" : "Auto"}
+                ? darkLabel
+                : autoLabel}
             </span>
           )}
         </Button>
@@ -98,7 +101,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
         className="w-40 p-1.5 rounded-2xl border-2 border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl z-50 text-foreground"
       >
         <div className="px-2.5 py-1 text-[10px] font-black text-primary uppercase tracking-wider border-b border-border/50 mb-1">
-          {isRtl ? "المظهر" : "Theme"}
+          {themeHeader}
         </div>
 
         {/* Light Mode */}
@@ -115,7 +118,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
               <Sun className="w-3.5 h-3.5" />
             </div>
             <span className="text-xs font-bold leading-tight">
-              {isRtl ? "فاتح" : "Light"}
+              {lightLabel}
             </span>
           </div>
           {isLight && <Check className="w-4 h-4 text-amber-600 dark:text-amber-400 ms-1 shrink-0" />}
@@ -135,7 +138,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
               <Moon className="w-3.5 h-3.5" />
             </div>
             <span className="text-xs font-bold leading-tight">
-              {isRtl ? "داكن" : "Dark"}
+              {darkLabel}
             </span>
           </div>
           {isDark && <Check className="w-4 h-4 text-indigo-600 dark:text-indigo-400 ms-1 shrink-0" />}
@@ -155,7 +158,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
               <Monitor className="w-3.5 h-3.5" />
             </div>
             <span className="text-xs font-bold leading-tight">
-              {isRtl ? "تلقائي" : "Auto"}
+              {autoLabel}
             </span>
           </div>
           {theme === "system" && <Check className="w-4 h-4 text-primary ms-1 shrink-0" />}

@@ -40,7 +40,7 @@ const courseBgs = [courseBg1, courseBg2, courseBg3, courseBg4];
 const bookBgs = [bookBg1, bookBg2, bookBg3, bookBg4];
 
 const HomepageSections = () => {
-  const { language, dir } = useLanguage();
+  const { language, dir, translate } = useLanguage();
   const isRtl = dir === "rtl";
   const [activeFilter, setActiveFilter] = useState<"all" | "colleges" | "institutes" | "schools" | "courses" | "books" | "jobs">("all");
 
@@ -460,13 +460,13 @@ const HomepageSections = () => {
   })();
 
   const filterTabs = [
-    { key: "all", label: isRtl ? "🌟 كل الأقسام" : "All Categories" },
-    { key: "colleges", label: isRtl ? "🏛️ الكليات" : "Colleges" },
-    { key: "institutes", label: isRtl ? "🏢 المعاهد" : "Institutes" },
-    { key: "schools", label: isRtl ? "🏫 المدارس" : "Schools" },
-    { key: "courses", label: isRtl ? "📚 الدورات التدريبية" : "Courses" },
-    { key: "books", label: isRtl ? "📖 متجر الكتب" : "Bookstore" },
-    { key: "jobs", label: isRtl ? "💼 الوظائف" : "Jobs" },
+    { key: "all", label: `🌟 ${translate("كل الأقسام", "All Categories")}` },
+    { key: "colleges", label: `🏛️ ${translate("الكليات", "Colleges")}` },
+    { key: "institutes", label: `🏢 ${translate("المعاهد", "Institutes")}` },
+    { key: "schools", label: `🏫 ${translate("المدارس", "Schools")}` },
+    { key: "courses", label: `📚 ${translate("الدورات التدريبية", "Courses")}` },
+    { key: "books", label: `📖 ${translate("متجر الكتب", "Bookstore")}` },
+    { key: "jobs", label: `💼 ${translate("الوظائف", "Jobs")}` },
   ];
 
   return (
@@ -494,12 +494,12 @@ const HomepageSections = () => {
         {/* 1. Colleges Carousel */}
         {(activeFilter === "all" || activeFilter === "colleges") && (
           <HomepageShowcaseCarousel
-            title={isRtl ? "الكليات المعتمدة" : "Accredited Colleges"}
+            title={translate("الكليات المعتمدة", "Accredited Colleges")}
             emoji="🏛️"
             items={colleges}
             isRtl={isRtl}
             viewAllLink="/university-platform"
-            viewAllText={isRtl ? "تصفح كل الكليات" : "Explore All Colleges"}
+            viewAllText={translate("عرض الكل", "View All")}
             autoScrollSpeed={70}
           />
         )}
@@ -507,12 +507,12 @@ const HomepageSections = () => {
         {/* 2. Institutes Carousel */}
         {(activeFilter === "all" || activeFilter === "institutes") && (
           <HomepageShowcaseCarousel
-            title={isRtl ? "المعاهد العليا المعتمدة" : "Higher Institutes"}
+            title={translate("المعاهد العليا المعتمدة", "Higher Institutes")}
             emoji="🏢"
             items={institutes}
             isRtl={isRtl}
             viewAllLink="/university-platform"
-            viewAllText={isRtl ? "تصفح كل المعاهد" : "Explore All Institutes"}
+            viewAllText={translate("عرض الكل", "View All")}
             autoScrollSpeed={70}
           />
         )}
@@ -520,12 +520,12 @@ const HomepageSections = () => {
         {/* 3. Schools Carousel */}
         {(activeFilter === "all" || activeFilter === "schools") && (
           <HomepageShowcaseCarousel
-            title={isRtl ? "المدارس المسجلة K-12" : "Registered K-12 Schools"}
+            title={translate("المدارس المسجلة", "Registered Schools")}
             emoji="🏫"
             items={schools}
             isRtl={isRtl}
             viewAllLink="/school-platform"
-            viewAllText={isRtl ? "تصفح كل المدارس" : "Explore All Schools"}
+            viewAllText={translate("عرض الكل", "View All")}
             autoScrollSpeed={65}
           />
         )}
@@ -533,12 +533,12 @@ const HomepageSections = () => {
         {/* 4. Courses Carousel */}
         {(activeFilter === "all" || activeFilter === "courses") && (
           <HomepageShowcaseCarousel
-            title={isRtl ? "أبرز الدورات التدريبية المعتمدة" : "Featured Professional Courses"}
+            title={translate("أحدث الدورات التدريبية", "Latest Training Courses")}
             emoji="📚"
             items={courses}
             isRtl={isRtl}
             viewAllLink="/courses"
-            viewAllText={isRtl ? "تصفح كل الدورات" : "Explore All Courses"}
+            viewAllText={translate("عرض الكل", "View All")}
             autoScrollSpeed={85}
           />
         )}
@@ -546,12 +546,12 @@ const HomepageSections = () => {
         {/* 5. Books Carousel */}
         {(activeFilter === "all" || activeFilter === "books") && (
           <HomepageShowcaseCarousel
-            title={isRtl ? "أحدث الكتب والمراجع الأكاديمية" : "Latest Books & References"}
+            title={translate("إصدارات متجر الكتب", "Book Store Releases")}
             emoji="📖"
             items={books}
             isRtl={isRtl}
             viewAllLink="/book-store"
-            viewAllText={isRtl ? "تصفح متجر الكتب" : "Explore Bookstore"}
+            viewAllText={translate("عرض الكل", "View All")}
             autoScrollSpeed={75}
           />
         )}
@@ -559,12 +559,12 @@ const HomepageSections = () => {
         {/* 6. Jobs Carousel */}
         {(activeFilter === "all" || activeFilter === "jobs") && (
           <HomepageShowcaseCarousel
-            title={isRtl ? "أحدث الوظائف وفرص العمل الأكاديمية والمهنية" : "Latest Jobs & Academic Opportunities"}
+            title={translate("أحدث الوظائف والكفاءات", "Latest Job Opportunities")}
             emoji="💼"
             items={jobs}
             isRtl={isRtl}
             viewAllLink="/career"
-            viewAllText={isRtl ? "تصفح كل الوظائف" : "Explore All Jobs"}
+            viewAllText={translate("عرض الكل", "View All")}
             autoScrollSpeed={70}
           />
         )}

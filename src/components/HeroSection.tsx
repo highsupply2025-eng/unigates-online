@@ -11,7 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import StatsSection from "./StatsSection";
 
 const HeroSection = () => {
-  const { t, dir, language } = useLanguage();
+  const { t, dir, language, translate } = useLanguage();
   const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -43,7 +43,7 @@ const HeroSection = () => {
     {
       to: "/university-platform",
       label: t.universityPlatform,
-      badge: isRtl ? "كليات ومعاهد" : "Colleges & Institutes",
+      badge: t.header?.collegesBadge || translate("كليات ومعاهد", "Colleges & Institutes"),
       icon: Landmark,
       color: "from-blue-600 to-indigo-700",
       glow: "shadow-blue-500/25",
@@ -52,7 +52,7 @@ const HeroSection = () => {
     {
       to: "/school-platform",
       label: t.schoolPlatform,
-      badge: isRtl ? "مدارس K-12" : "K-12 Schools",
+      badge: t.header?.schoolsBadge || translate("مدارس K-12", "K-12 Schools"),
       icon: School,
       color: "from-emerald-600 to-teal-700",
       glow: "shadow-emerald-500/25",
@@ -61,7 +61,7 @@ const HeroSection = () => {
     {
       to: "/courses",
       label: t.exploreCourses,
-      badge: isRtl ? "تدريب مهني" : "Professional Training",
+      badge: t.header?.coursesBadge || translate("تدريب مهني", "Professional Training"),
       icon: BookOpen,
       color: "from-purple-600 to-fuchsia-700",
       glow: "shadow-purple-500/25",
@@ -70,7 +70,7 @@ const HeroSection = () => {
     {
       to: "/book-store",
       label: t.bookStore,
-      badge: isRtl ? "دار عبيد" : "Dar Obeid",
+      badge: t.header?.booksBadge || translate("دار عبيد", "Dar Obeid"),
       icon: Store,
       color: "from-amber-500 to-orange-600",
       glow: "shadow-amber-500/25",
@@ -78,8 +78,8 @@ const HeroSection = () => {
     },
     {
       to: "/nasher",
-      label: t.nasherPlatform || (isRtl ? "منصة ناشر" : "Publisher Platform"),
-      badge: isRtl ? "عقود ونشر" : "Publisher",
+      label: t.nasherPlatform || translate("منصة ناشر", "Publisher Platform"),
+      badge: t.header?.nasherBadge || translate("عقود ونشر", "Publisher"),
       icon: BookCopy,
       color: "from-rose-600 to-pink-700",
       glow: "shadow-rose-500/25",
@@ -87,8 +87,8 @@ const HeroSection = () => {
     },
     {
       to: "/career",
-      label: t.careerPlatform || (isRtl ? "منصة Career" : "Career Portal"),
-      badge: isRtl ? "توظيف وكفاءات" : "Careers & Talent",
+      label: t.careerPlatform || translate("منصة Career", "Career Portal"),
+      badge: t.header?.careerBadge || translate("توظيف وكفاءات", "Careers & Talent"),
       icon: Briefcase,
       color: "from-cyan-600 to-teal-700",
       glow: "shadow-cyan-500/25",
@@ -122,6 +122,19 @@ const HeroSection = () => {
     }
   };
 
+  const getHeroHeadline = () => {
+    switch (language) {
+      case "en": return "Your Unified Gateway to Higher Education, K-12, Courses, Books, Publishing, and Careers";
+      case "fr": return "Votre Portail Unifié pour l'Enseignement Supérieur, Scolaire, Formations, Livres, Édition et Emplois";
+      case "es": return "Tu Portal Unificado para Educación Superior, Escolar, Cursos, Libros, Edición y Empleo";
+      case "de": return "Ihr Einheitliches Portal für Hochschulbildung, Schule, Kurse, Bücher, Verlag und Karriere";
+      case "zh": return "汇聚高等教育、K-12中小学、专业课程、学术图书、出版与求职的统一智慧门户";
+      case "ru": return "Единый Портал Высшего и Школьного Образования, Курсов, Книг, Издательства и Карьеры";
+      case "tr": return "Yükseköğretim, Okul, Kurslar, Kitaplar, Yayıncılık ve Kariyer İçin Birleşik Portalınız";
+      default: return "بوابتك الموحدة للتعليم الجامعي والمدرسي والدورات والكتب والنشر وفرص العمل";
+    }
+  };
+
   return (
     <section className="relative min-h-[750px] md:min-h-[850px] lg:min-h-[920px] flex flex-col justify-center overflow-hidden pt-28 pb-12 md:pt-36 md:pb-16">
       {/* Background with Dark Glass Overlay */}
@@ -144,17 +157,13 @@ const HeroSection = () => {
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-white backdrop-blur-md shadow-lg shadow-black/20 mb-6 animate-fade-in">
           <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
           <span className="text-xs sm:text-sm font-black tracking-wide">
-            {t.hero.tagline || (isRtl
-              ? "المنظومة التعليمية الرقمية الشاملة"
-              : "Comprehensive Digital Educational Ecosystem")}
+            {t.hero.tagline || translate("المنظومة التعليمية الرقمية الموحدة", "Unified Digital Educational Ecosystem")}
           </span>
         </div>
 
         {/* Main Hero Headline */}
         <h1 className="text-[22px] sm:text-[22px] md:text-[22px] font-black text-white tracking-normal leading-relaxed max-w-4xl drop-shadow-2xl mb-4 animate-fade-in">
-          {t.hero.title || (isRtl
-            ? "بوابتك الموحدة للتعليم الجامعي والمدرسي والدورات والكتب والنشر وفرص العمل"
-            : "Your Unified Gateway to Higher Education, K-12, Professional Courses, and Publishing")}
+          {getHeroHeadline()}
         </h1>
 
         {/* Dynamic Global Unified Search Bar */}
@@ -165,20 +174,20 @@ const HeroSection = () => {
           {/* Category Dropdown */}
           <div className="w-full sm:w-auto shrink-0 flex items-center gap-2 px-3 py-1.5 border-b sm:border-b-0 sm:border-e border-border/60">
             <span className="text-xs font-bold text-muted-foreground whitespace-nowrap hidden md:inline">
-              {isRtl ? "القطاع:" : "Sector:"}
+              {translate("القطاع:", "Sector:")}
             </span>
             <select
               value={searchCategory}
               onChange={(e) => setSearchCategory(e.target.value as any)}
               className="bg-muted/60 hover:bg-muted text-foreground text-xs sm:text-sm font-bold rounded-xl px-2.5 py-1.5 border-0 focus:ring-2 focus:ring-primary/40 focus:outline-none cursor-pointer w-full sm:w-auto"
             >
-              <option value="all">{isRtl ? "🌟 كل المنصات" : "All Platforms"}</option>
-              <option value="university">{isRtl ? "🏛️ المنصة الجامعية" : "University Platform"}</option>
-              <option value="school">{isRtl ? "🏫 المنصة المدرسية" : "School Platform"}</option>
-              <option value="courses">{isRtl ? "📚 أكاديمية الدورات" : "Courses Academy"}</option>
-              <option value="books">{isRtl ? "📖 متجر الكتب" : "Book Store"}</option>
-              <option value="nasher">{isRtl ? "📚 منصة ناشر" : "Publisher Platform"}</option>
-              <option value="career">{isRtl ? "💼 منصة Career" : "Career Platform"}</option>
+              <option value="all">🌟 {translate("كل المنصات", "All Platforms")}</option>
+              <option value="university">🏛️ {t.universityPlatform}</option>
+              <option value="school">🏫 {t.schoolPlatform}</option>
+              <option value="courses">📚 {t.exploreCourses}</option>
+              <option value="books">📖 {t.bookStore}</option>
+              <option value="nasher">📚 {t.nasherPlatform || translate("منصة ناشر", "Publisher Platform")}</option>
+              <option value="career">💼 {t.careerPlatform || translate("منصة Career", "Career Platform")}</option>
             </select>
           </div>
 

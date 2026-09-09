@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
+import { useLanguage } from "@/contexts/LanguageContext";
+
 export interface ShowcaseItem {
   id: string;
   title: string;
@@ -28,6 +30,7 @@ interface HomepageShowcaseCarouselProps {
 }
 
 const ShowcaseCard = memo(({ item }: { item: ShowcaseItem }) => {
+  const { translate } = useLanguage();
   const cardContent = (
     <div className="group relative w-[280px] sm:w-[320px] rounded-3xl overflow-hidden border-2 border-border/80 hover:border-primary/60 bg-card hover:bg-card/90 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between cursor-pointer">
       {/* Cover Image Container */}
@@ -84,12 +87,12 @@ const ShowcaseCard = memo(({ item }: { item: ShowcaseItem }) => {
           ) : item.meta ? (
             <span className="text-muted-foreground truncate">{item.meta}</span>
           ) : (
-            <span className="text-primary font-bold">معتمد رسمياً ✓</span>
+            <span className="text-primary font-bold">{translate("معتمد رسمياً", "Verified")} ✓</span>
           )}
         </div>
 
         <div className="flex items-center gap-1 text-primary group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform">
-          <span className="text-xs font-black">استكشف</span>
+          <span className="text-xs font-black">{translate("استكشف", "Explore")}</span>
           <ArrowLeft className="w-3.5 h-3.5 rtl:block hidden" />
           <ArrowRight className="w-3.5 h-3.5 rtl:hidden block" />
         </div>

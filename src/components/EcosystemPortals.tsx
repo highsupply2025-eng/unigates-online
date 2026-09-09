@@ -19,6 +19,8 @@ const EcosystemPortals = () => {
   const isSchoolDev = isPlatformUnderDevelopment("school");
   const isCoursesDev = isPlatformUnderDevelopment("courses");
   const isBooksDev = isPlatformUnderDevelopment("bookstore");
+  const isNasherDev = isPlatformUnderDevelopment("nasher");
+  const isCareerDev = isPlatformUnderDevelopment("career");
 
   const portals = [
     {
@@ -127,6 +129,62 @@ const EcosystemPortals = () => {
         : (isRtl ? "تصفح متجر الكتب" : "Explore Bookstore"),
       roles: isRtl ? "القراء • الباحثين • المؤلفين • دور النشر" : "Readers • Researchers • Authors • Publishers",
     },
+    {
+      id: "nasher",
+      to: "/nasher",
+      badge: isNasherDev
+        ? (isRtl ? "قريباً • قيد التطوير" : "Coming Soon • In Dev")
+        : (isRtl ? "سوق النشر والمزايدات" : "Publishing & Bidding"),
+      badgeColor: isNasherDev
+        ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
+        : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
+      title: isRtl ? "منصة ناشر" : "Nasher Platform",
+      subtitle: isRtl
+        ? "سوق ذكي لطرح المخطوطات والكتب للمزايدة بين دور النشر المعتمدة، وتوقيع عقود إلكترونية رسمية بإشراف دار عبيد للنشر والتوزيع."
+        : "A smart marketplace for authors to auction manuscripts, receive bids from top publishing houses, and sign digital contracts.",
+      icon: BookMarked,
+      gradient: "from-rose-600 via-pink-600 to-amber-600",
+      accentBorder: "border-rose-500/30 hover:border-rose-500/80",
+      glowColor: "group-hover:shadow-rose-500/20",
+      features: [
+        { icon: TrendingUp, text: isRtl ? "طرح المخطوطات والكتب للمزايدة العلنية" : "Public manuscript auctions & bidding" },
+        { icon: ShieldCheck, text: isRtl ? "عقود رقمية ملزمة وموثقة قانونياً" : "Legally binding digital contracts" },
+        { icon: Sparkles, text: isRtl ? "حماية الملكية الفكرية والدفع المشروط" : "IP protection & escrow payments" },
+        { icon: Users, text: isRtl ? "حصرية التوزيع بمتجر UNIGATES الرقمي" : "Exclusive UNIGATES bookstore distribution" },
+      ],
+      ctaText: isNasherDev
+        ? (isRtl ? "قريباً — استكشف منصة ناشر" : "Coming Soon — Explore Nasher")
+        : (isRtl ? "دخول منصة ناشر" : "Explore Nasher Portal"),
+      roles: isRtl ? "المؤلفين • الكُتّاب • دور النشر المعتمدة • المحكّمين" : "Authors • Writers • Publishing Houses • Reviewers",
+    },
+    {
+      id: "career",
+      to: "/career",
+      badge: isCareerDev
+        ? (isRtl ? "قريباً • قيد التطوير" : "Coming Soon • In Dev")
+        : (isRtl ? "سوق العمل والكفاءات" : "Career & Recruitment"),
+      badgeColor: isCareerDev
+        ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
+        : "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20",
+      title: isRtl ? "منصة Career للتوظيف" : "Career & Talent Platform",
+      subtitle: isRtl
+        ? "جسر التوظيف المباشر بين خريجي الجامعات والكوادر الأكاديمية والمهنية وبين كبرى الكليات والمدارس وشركات التقنية ودار عبيد."
+        : "Direct career matchmaking connecting graduates, academic faculty, and professionals with top universities, schools, and companies.",
+      icon: Briefcase,
+      gradient: "from-cyan-600 via-teal-600 to-blue-700",
+      accentBorder: "border-cyan-500/30 hover:border-cyan-500/80",
+      glowColor: "group-hover:shadow-cyan-500/20",
+      features: [
+        { icon: MonitorCheck, text: isRtl ? "محرك بحث وفلترة ذكية للوظائف" : "Smart job search & filtering engine" },
+        { icon: Award, text: isRtl ? "تقديم رقمي مباشر بملف سيرة ذاتية موحد" : "Direct 1-click digital applications" },
+        { icon: TrendingUp, text: isRtl ? "فرص تدريب تعاوني وتوظيف خريجين حصرية" : "Exclusive co-op & graduate hiring" },
+        { icon: Users, text: isRtl ? "استوديو نشر وإدارة الوظائف للمؤسسات" : "Employer job posting & talent studio" },
+      ],
+      ctaText: isCareerDev
+        ? (isRtl ? "قريباً — استكشف منصة التوظيف" : "Coming Soon — Explore Career")
+        : (isRtl ? "دخول منصة التوظيف" : "Explore Career Portal"),
+      roles: isRtl ? "الخريجين • الباحثين عن عمل • المؤسسات التعليمية • الشركات" : "Graduates • Job Seekers • Academic Institutions • Employers",
+    },
   ];
 
   return (
@@ -152,8 +210,8 @@ const EcosystemPortals = () => {
           </p>
         </div>
 
-        {/* 4 Portals Detailed Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+        {/* 6 Portals Detailed Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {portals.map((portal) => {
             const IconComp = portal.icon;
             return (

@@ -1,21 +1,25 @@
 import { describe, it, expect } from "vitest";
 
 describe("Homepage Enhancements & Ecosystem Architecture", () => {
-  it("should have 4 distinct, isolated portals in the ecosystem", () => {
+  it("should have distinct, isolated portals in the ecosystem", () => {
     const portals = [
       { id: "university", route: "/university-platform", titleAr: "المنصة الجامعية", titleEn: "University Platform" },
       { id: "school", route: "/school-platform", titleAr: "المنصة المدرسية", titleEn: "School Platform" },
       { id: "courses", route: "/courses", titleAr: "أكاديمية الدورات", titleEn: "Courses Academy" },
       { id: "books", route: "/book-store", titleAr: "متجر الكتب الرقمي", titleEn: "Digital Book Store" },
+      { id: "nasher", route: "/nasher", titleAr: "منصة ناشر", titleEn: "Nasher Platform" },
+      { id: "career", route: "/career", titleAr: "منصة Career للتوظيف", titleEn: "Career & Talent Platform" },
     ];
 
-    expect(portals).toHaveLength(4);
+    expect(portals).toHaveLength(6);
     const routes = portals.map((p) => p.route);
-    expect(new Set(routes).size).toBe(4);
+    expect(new Set(routes).size).toBe(6);
     expect(routes).toContain("/university-platform");
     expect(routes).toContain("/school-platform");
     expect(routes).toContain("/courses");
     expect(routes).toContain("/book-store");
+    expect(routes).toContain("/nasher");
+    expect(routes).toContain("/career");
   });
 
   it("should route search categories to their respective dedicated platforms", () => {

@@ -210,7 +210,7 @@ const HeroSection = () => {
               <Link
                 key={pill.to}
                 to={pill.to}
-                className="group relative flex flex-col items-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-slate-900/60 hover:bg-slate-900/80 border border-white/20 backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                className="group relative flex flex-col items-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/20 backdrop-blur-md shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
               >
                 <div
                   className={`w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br ${pill.color} text-white flex items-center justify-center shadow-lg ${pill.glow} mb-2 group-hover:scale-110 transition-transform`}

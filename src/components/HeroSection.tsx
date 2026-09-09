@@ -42,50 +42,56 @@ const HeroSection = () => {
     {
       to: "/university-platform",
       label: t.universityPlatform,
-      badge: t.header?.collegesBadge || "كليات ومعاهد",
+      badge: isRtl ? "كليات ومعاهد" : "Colleges & Institutes",
       icon: Landmark,
       color: "from-blue-600 to-indigo-700",
       glow: "shadow-blue-500/25",
+      badgeStyle: "bg-blue-500/20 text-blue-200 border-blue-400/30",
     },
     {
       to: "/school-platform",
       label: t.schoolPlatform,
-      badge: t.header?.schoolsBadge || "مدارس وفصول",
+      badge: isRtl ? "مدارس K-12" : "K-12 Schools",
       icon: School,
       color: "from-emerald-600 to-teal-700",
       glow: "shadow-emerald-500/25",
+      badgeStyle: "bg-emerald-500/20 text-emerald-200 border-emerald-400/30",
     },
     {
       to: "/courses",
       label: t.exploreCourses,
-      badge: t.header?.coursesBadge || "دورات وشهادات",
+      badge: isRtl ? "تدريب مهني" : "Professional Training",
       icon: BookOpen,
       color: "from-purple-600 to-fuchsia-700",
       glow: "shadow-purple-500/25",
+      badgeStyle: "bg-purple-500/20 text-purple-200 border-purple-400/30",
     },
     {
       to: "/book-store",
       label: t.bookStore,
-      badge: t.header?.booksBadge || "كتب ومراجع",
+      badge: isRtl ? "دار عبيد" : "Dar Obeid",
       icon: Store,
       color: "from-amber-500 to-orange-600",
       glow: "shadow-amber-500/25",
+      badgeStyle: "bg-amber-500/20 text-amber-200 border-amber-400/30",
     },
     {
       to: "/nasher",
       label: t.nasherPlatform || (isRtl ? "منصة ناشر" : "Nasher Portal"),
-      badge: t.header?.nasherBadge || (isRtl ? "عقود ونشر" : "Publishing"),
+      badge: isRtl ? "عقود ونشر" : "Publishing",
       icon: Sparkles,
       color: "from-rose-600 to-pink-700",
       glow: "shadow-rose-500/25",
+      badgeStyle: "bg-rose-500/20 text-rose-200 border-rose-400/30",
     },
     {
       to: "/career",
       label: t.careerPlatform || (isRtl ? "منصة Career" : "Career Portal"),
-      badge: t.header?.careerBadge || (isRtl ? "توظيف وكفاءات" : "Careers"),
+      badge: isRtl ? "توظيف وكفاءات" : "Careers & Talent",
       icon: Briefcase,
       color: "from-cyan-600 to-teal-700",
       glow: "shadow-cyan-500/25",
+      badgeStyle: "bg-cyan-500/20 text-cyan-200 border-cyan-400/30",
     },
   ];
 
@@ -138,54 +144,45 @@ const HeroSection = () => {
           <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
           <span className="text-xs sm:text-sm font-black tracking-wide">
             {t.hero.tagline || (isRtl
-              ? "المنظومة التعليمية الرقمية الموحدة"
-              : "The Unified Digital Educational Ecosystem")}
+              ? "المنظومة التعليمية الرقمية الشاملة"
+              : "Comprehensive Digital Educational Ecosystem")}
           </span>
         </div>
 
-        {/* Main Headline with Anti-Collision Typography */}
-        <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-normal leading-normal sm:leading-[1.4] md:leading-[1.45] max-w-4xl drop-shadow-lg mb-6 py-1">
-          {language === "ar" ? (
-            <span className="inline-block leading-relaxed">
-              بوابتك الموحدة للتعليم{" "}
-              <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent px-1 inline-block pb-1">
-                الجامعي والمدرسي
-              </span>{" "}
-              والدورات والكتب والنشر وفرص العمل
-            </span>
-          ) : (
-            <span className="inline-block leading-relaxed">
-              {t.hero.title1}{" "}
-              <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent px-1 inline-block pb-1">
-                {t.hero.title2}
-              </span>
-            </span>
-          )}
+        {/* Main Hero Headline */}
+        <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-[1.2] max-w-4xl drop-shadow-2xl mb-4 animate-fade-in">
+          {t.hero.title || (isRtl
+            ? "بوابتك الموحدة للتعليم الجامعي والمدرسي والدورات والكتب والنشر وفرص العمل"
+            : "Your Unified Gateway to Higher Education, K-12, Professional Courses, and Publishing")}
         </h1>
 
-        {/* Interactive Search Bar */}
+        {/* Dynamic Global Unified Search Bar */}
         <form
           onSubmit={handleSearch}
-          className="w-full max-w-2xl bg-card/90 backdrop-blur-xl border-2 border-white/20 rounded-2xl sm:rounded-3xl p-1.5 sm:p-2 shadow-2xl shadow-black/40 flex flex-col sm:flex-row items-center gap-2 mb-8"
+          className="w-full max-w-3xl flex flex-col sm:flex-row items-center gap-2 p-2 rounded-2xl sm:rounded-3xl bg-white/95 dark:bg-card/95 backdrop-blur-2xl shadow-2xl border-2 border-white/40 dark:border-border/60 mb-8 sm:mb-12 mt-4"
         >
-          <div className="flex items-center gap-2 w-full sm:w-auto px-3 py-1 bg-muted/60 rounded-xl text-xs font-bold shrink-0">
+          {/* Category Dropdown */}
+          <div className="w-full sm:w-auto shrink-0 flex items-center gap-2 px-3 py-1.5 border-b sm:border-b-0 sm:border-e border-border/60">
+            <span className="text-xs font-bold text-muted-foreground whitespace-nowrap hidden md:inline">
+              {isRtl ? "القطاع:" : "Sector:"}
+            </span>
             <select
               value={searchCategory}
               onChange={(e) => setSearchCategory(e.target.value as any)}
-              className="bg-transparent border-none outline-none font-bold cursor-pointer text-foreground text-xs"
+              className="bg-muted/60 hover:bg-muted text-foreground text-xs sm:text-sm font-bold rounded-xl px-2.5 py-1.5 border-0 focus:ring-2 focus:ring-primary/40 focus:outline-none cursor-pointer w-full sm:w-auto"
             >
-              <option value="all">{isRtl ? "كل المنصات" : "All Portals"}</option>
-              <option value="university">{t.universityPlatform}</option>
-              <option value="school">{t.schoolPlatform}</option>
-              <option value="courses">{t.exploreCourses}</option>
-              <option value="books">{t.bookStore}</option>
-              <option value="nasher">{t.nasherPlatform || (isRtl ? "منصة ناشر" : "Nasher Portal")}</option>
-              <option value="career">{t.careerPlatform || (isRtl ? "منصة Career" : "Career Portal")}</option>
+              <option value="all">{isRtl ? "🌟 كل المنصات" : "All Platforms"}</option>
+              <option value="university">{isRtl ? "🏛️ المنصة الجامعية" : "University Platform"}</option>
+              <option value="school">{isRtl ? "🏫 المنصة المدرسية" : "School Platform"}</option>
+              <option value="courses">{isRtl ? "📚 أكاديمية الدورات" : "Courses Academy"}</option>
+              <option value="books">{isRtl ? "📖 متجر الكتب" : "Book Store"}</option>
+              <option value="nasher">{isRtl ? "✨ منصة ناشر" : "Nasher Platform"}</option>
+              <option value="career">{isRtl ? "💼 فرص العمل (Career)" : "Career & Jobs"}</option>
             </select>
           </div>
 
-          <div className="relative flex-1 w-full">
-            <Search className="w-4 h-4 sm:w-5 sm:h-5 absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          <div className="relative flex-1 w-full flex items-center">
+            <Search className="absolute start-3.5 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
               value={searchQuery}
@@ -212,17 +209,19 @@ const HeroSection = () => {
               <Link
                 key={pill.to}
                 to={pill.to}
-                className="group relative flex flex-col items-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-white/10 hover:bg-white/15 border border-white/20 backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                className="group relative flex flex-col items-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-slate-900/60 hover:bg-slate-900/80 border border-white/20 backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
               >
                 <div
                   className={`w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br ${pill.color} text-white flex items-center justify-center shadow-lg ${pill.glow} mb-2 group-hover:scale-110 transition-transform`}
                 >
                   <IconComp className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
                 </div>
-                <h3 className="text-xs sm:text-sm font-black text-white text-center line-clamp-1 mb-1">
+                <h3 className="text-xs sm:text-sm font-black text-white text-center line-clamp-1 mb-1.5">
                   {pill.label}
                 </h3>
-                <span className="text-[10px] sm:text-xs text-teal-300 font-bold">
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-black tracking-wide border shadow-sm ${pill.badgeStyle}`}
+                >
                   {pill.badge}
                 </span>
               </Link>

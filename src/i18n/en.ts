@@ -75,8 +75,8 @@ export const en: Translations = {
   // Hero
   hero: {
     badge: "Over 500+ Online Courses",
-    edition: "2026 Edition",
-    tagline: "Unified Digital Educational Ecosystem — Dar Obeid",
+    edition: "2026",
+    tagline: "Unified Digital Educational Ecosystem",
     title1: "Learn Without Limits with",
     title2: "Professional Courses",
     cta: "Start Learning",

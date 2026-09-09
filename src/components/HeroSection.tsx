@@ -118,12 +118,9 @@ const HeroSection = () => {
           <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
           <span className="text-xs sm:text-sm font-black tracking-wide">
             {t.hero.tagline || (isRtl
-              ? "المنظومة التعليمية الرقمية الموحدة — دار عبيد"
-              : "The Unified Digital Educational Ecosystem — Dar Obeid")}
+              ? "المنظومة التعليمية الرقمية الموحدة"
+              : "The Unified Digital Educational Ecosystem")}
           </span>
-          <Badge className="bg-primary hover:bg-primary/90 text-primary-foreground font-black text-[10px] px-2 py-0.5 rounded-full">
-            {t.hero.edition || "2026"}
-          </Badge>
         </div>
 
         {/* Main Headline with Anti-Collision Typography */}

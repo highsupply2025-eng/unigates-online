@@ -131,7 +131,7 @@ const HeroSection = () => {
               <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent px-1 inline-block pb-1">
                 الجامعي والمدرسي
               </span>{" "}
-              والدورات والمكتبة
+              والدورات والكتب والنشر وفرص العمل
             </span>
           ) : (
             <span className="inline-block leading-relaxed">

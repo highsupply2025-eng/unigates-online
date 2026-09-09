@@ -2,29 +2,33 @@ import { describe, it, expect } from "vitest";
 import { isPlatformUnderDevelopment, getPlatformMeta } from "@/lib/platformAvailability";
 
 describe("UniGates Platform Availability & Environment Controller", () => {
-  describe("1. University Platform (Always Active)", () => {
-    it("remains 100% active and live across all domains including production", () => {
+  describe("1. University & Courses Platforms (Active & Live Everywhere)", () => {
+    it("remains 100% active and live across all domains including production for University and Courses", () => {
       expect(isPlatformUnderDevelopment("university", "unigates.online")).toBe(false);
       expect(isPlatformUnderDevelopment("university", "www.unigates.online")).toBe(false);
       expect(isPlatformUnderDevelopment("university", "localhost")).toBe(false);
       expect(isPlatformUnderDevelopment("university", "preview.lovable.app")).toBe(false);
+
+      expect(isPlatformUnderDevelopment("courses", "unigates.online")).toBe(false);
+      expect(isPlatformUnderDevelopment("courses", "www.unigates.online")).toBe(false);
+      expect(isPlatformUnderDevelopment("courses", "localhost")).toBe(false);
+      expect(isPlatformUnderDevelopment("courses", "preview.lovable.app")).toBe(false);
     });
   });
 
   describe("2. Production Domain (unigates.online) - Under Development Mode", () => {
-    it("marks School Platform as under development on unigates.online", () => {
+    it("marks School, Book Store, Nasher, and Career Platforms as under development on unigates.online", () => {
       expect(isPlatformUnderDevelopment("school", "unigates.online")).toBe(true);
       expect(isPlatformUnderDevelopment("school", "www.unigates.online")).toBe(true);
-    });
 
-    it("marks Courses Academy as under development on unigates.online", () => {
-      expect(isPlatformUnderDevelopment("courses", "unigates.online")).toBe(true);
-      expect(isPlatformUnderDevelopment("courses", "www.unigates.online")).toBe(true);
-    });
-
-    it("marks Book Store as under development on unigates.online", () => {
       expect(isPlatformUnderDevelopment("bookstore", "unigates.online")).toBe(true);
       expect(isPlatformUnderDevelopment("bookstore", "www.unigates.online")).toBe(true);
+
+      expect(isPlatformUnderDevelopment("nasher", "unigates.online")).toBe(true);
+      expect(isPlatformUnderDevelopment("nasher", "www.unigates.online")).toBe(true);
+
+      expect(isPlatformUnderDevelopment("career", "unigates.online")).toBe(true);
+      expect(isPlatformUnderDevelopment("career", "www.unigates.online")).toBe(true);
     });
   });
 

@@ -429,8 +429,8 @@ export default function CareerPlatform() {
 
             <p className="text-sm sm:text-lg text-foreground/75 max-w-3xl mx-auto leading-relaxed">
               {isRtl
-                ? "جسر التوظيف المباشر بين خريجي الجامعات، الكوادر الأكاديمية، والخبراء المهنيين وبين كبرى الكليات، المعاهد، المدارس، شركات التقنية، ودار عبيد للنشر والتوزيع."
-                : "Connecting top academic talents, tech developers, and university graduates with colleges, schools, publishers, and top-tier employers."}
+                ? "جسر التوظيف المباشر بين خريجي الجامعات والكوادر الأكاديمية والمهنية وبين شركات التوظيف داخل مصر وخارجها."
+                : "Direct career matchmaking connecting university graduates, academic faculty, and professionals with recruitment agencies inside Egypt and internationally."}
             </p>
 
             {/* Quick Action Buttons */}

@@ -131,8 +131,8 @@ export function getPlatformMeta(platform: PlatformKey, isRtl: boolean) {
         name: isRtl ? "منصة Career (بوابة التوظيف والكفاءات)" : "Career & Talent Portal",
         badge: isRtl ? "سوق العمل والكفاءات" : "Career & Recruitment",
         desc: isRtl
-          ? "جسر التوظيف المباشر بين خريجي الجامعات والكوادر الأكاديمية والمهنية وبين كبرى الكليات والمدارس وشركات التقنية ودار عبيد."
-          : "Direct career matchmaking connecting graduates, academic researchers, and tech developers with verified universities, schools, and enterprises.",
+          ? "جسر التوظيف المباشر بين خريجي الجامعات والكوادر الأكاديمية والمهنية وبين شركات التوظيف داخل مصر وخارجها."
+          : "Direct career matchmaking connecting university graduates, academic faculty, and professionals with recruitment agencies inside Egypt and internationally.",
         expectedFeatures: isRtl
           ? ["محرك بحث وفلترة ذكية للوظائف", "تقديم رقمي مباشر بملف واحد", "فرص تدريب تعاوني حصرية (Co-op)", "استوديو نشر الوظائف للمؤسسات"]
           : ["Smart Job Search & Filters", "Instant 1-Click Digital Apply", "Exclusive Co-op Internships", "Employer Job Posting Hub"],

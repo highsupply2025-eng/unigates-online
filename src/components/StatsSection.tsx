@@ -268,7 +268,7 @@ const StatsSection = () => {
   ];
 
   return (
-    <section className="relative z-20 -mt-8 sm:-mt-12 max-w-7xl mx-auto px-3 sm:px-6">
+    <section className="relative z-20 -mt-10 sm:-mt-16 max-w-7xl mx-auto px-3 sm:px-6">
       <div className="rounded-3xl border-2 border-white/20 dark:border-border/60 bg-card/90 backdrop-blur-2xl shadow-2xl shadow-black/20 p-3 sm:p-5">
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 sm:gap-2.5">
           {items.map((item, i) => (

@@ -143,13 +143,6 @@ const HeroSection = () => {
           )}
         </h1>
 
-        {/* Subtitle */}
-        <p className="text-sm sm:text-lg md:text-xl text-slate-200 font-medium max-w-3xl leading-relaxed sm:leading-loose mb-8 drop-shadow">
-          {t.features.subtitle || (isRtl
-            ? "بيئة أكاديمية وتربوية متكاملة تربط الكليات والمعاهد والمدارس بأعضاء هيئة التدريس والمعلمين والطلاب، بسلاسل اعتماد رقمية وبث مباشر واختبارات ذكية."
-            : "A comprehensive educational ecosystem connecting colleges, institutes, and schools with faculty, teachers, and students through digital approval workflows, live streams, and smart assessments.")}
-        </p>
-
         {/* Interactive Search Bar */}
         <form
           onSubmit={handleSearch}

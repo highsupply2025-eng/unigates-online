@@ -58,7 +58,7 @@ const FeaturesSection = () => {
     {
       icon: Smartphone,
       color: "from-cyan-500 to-blue-600",
-      title: isRtl ? "تطبيقات الهواتف الذكية والتعلّم الأوفلاين" : "Mobile Apps & Offline Access",
+      title: isRtl ? "تطبيقات الهواتف الذكية والتعلّم" : "Mobile Apps & Smart Learning",
       desc: isRtl
         ? "متابعة المحاضرات والواجبات وإشعارات البث المباشر عبر تطبيقات الهواتف الذكية مع ميزة تحميل المحتوى للأوفلاين."
         : "Access lectures, homework, and live notifications on iOS and Android with offline download capabilities.",

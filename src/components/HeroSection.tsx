@@ -150,7 +150,7 @@ const HeroSection = () => {
         </div>
 
         {/* Main Hero Headline */}
-        <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-[1.2] max-w-4xl drop-shadow-2xl mb-4 animate-fade-in">
+        <h1 className="text-[22px] sm:text-[22px] md:text-[22px] font-black text-white tracking-normal leading-relaxed max-w-4xl drop-shadow-2xl mb-4 animate-fade-in">
           {t.hero.title || (isRtl
             ? "بوابتك الموحدة للتعليم الجامعي والمدرسي والدورات والكتب والنشر وفرص العمل"
             : "Your Unified Gateway to Higher Education, K-12, Professional Courses, and Publishing")}

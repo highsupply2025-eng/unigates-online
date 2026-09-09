@@ -390,11 +390,50 @@ const AIChatWidget = () => {
           className="fixed right-2 sm:right-4 top-1/2 -translate-y-1/2 z-50 group flex flex-col items-center gap-2.5 py-3.5 px-2 sm:px-2.5 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-blue-600 via-indigo-600 to-purple-700 text-white shadow-2xl shadow-indigo-500/40 hover:scale-105 hover:-translate-x-1 transition-all duration-300 ring-2 ring-white/40 dark:ring-white/20 cursor-pointer"
           aria-label="Open AI Assistant"
         >
-          {/* Top Live Icon */}
-          <div className="relative w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-md shadow-xs group-hover:scale-110 transition-transform">
-            <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-            <span className="absolute -top-1 -end-1 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-            <span className="absolute -top-1 -end-1 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-white" />
+          {/* Top Live Icon - Friendly Female AI Assistant Avatar */}
+          <div className="relative w-10 h-10 rounded-2xl bg-white/20 p-0.5 flex items-center justify-center backdrop-blur-md shadow-md group-hover:scale-110 transition-transform overflow-visible">
+            {/* Custom Modern Vector Illustrated Female AI Advisor Face */}
+            <svg viewBox="0 0 64 64" className="w-full h-full drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="32" cy="32" r="30" fill="url(#femaleAiGrad)" />
+              {/* Hair Back */}
+              <path d="M16 28C16 17 23 10 32 10C41 10 48 17 48 28V38C48 44 43 49 37 49H27C21 49 16 44 16 38V28Z" fill="#2D1B4E" />
+              {/* Head / Neck */}
+              <rect x="28" y="38" width="8" height="8" rx="2" fill="#FDDCB8" />
+              <ellipse cx="32" cy="28" rx="12" ry="13" fill="#FFE2C7" />
+              {/* Hair Front / Bangs */}
+              <path d="M18 24C20 16 26 12 32 12C38 12 44 16 46 24C43 20 38 18 32 18C26 18 21 20 18 24Z" fill="#3B2366" />
+              <path d="M17 24C19 28 20 33 20 36C18 34 17 30 17 24Z" fill="#3B2366" />
+              <path d="M47 24C45 28 44 33 44 36C46 34 47 30 47 24Z" fill="#3B2366" />
+              {/* Friendly Eyes */}
+              <ellipse cx="27" cy="27" rx="1.6" ry="2" fill="#1E1B4B" />
+              <ellipse cx="37" cy="27" rx="1.6" ry="2" fill="#1E1B4B" />
+              <circle cx="27.6" cy="26.3" r="0.6" fill="#FFFFFF" />
+              <circle cx="37.6" cy="26.3" r="0.6" fill="#FFFFFF" />
+              {/* Cheerful Smile & Rosy Cheeks */}
+              <path d="M29 33C30.5 35 33.5 35 35 33" stroke="#DC2626" strokeWidth="1.4" strokeLinecap="round" />
+              <circle cx="24" cy="30.5" r="1.8" fill="#FDA4AF" opacity="0.8" />
+              <circle cx="40" cy="30.5" r="1.8" fill="#FDA4AF" opacity="0.8" />
+              {/* Eyebrows */}
+              <path d="M25 23.5C26.5 22.8 28.5 23 29 23.8" stroke="#3B2366" strokeWidth="1" strokeLinecap="round" />
+              <path d="M39 23.5C37.5 22.8 35.5 23 35 23.8" stroke="#3B2366" strokeWidth="1" strokeLinecap="round" />
+              {/* Smart AI Headset / Earpiece */}
+              <path d="M18 25C17 25 16 26.5 16 28.5C16 30.5 17 32 18 32" stroke="#38BDF8" strokeWidth="2" strokeLinecap="round" />
+              <path d="M17 30C17 34 22 36.5 25 36" stroke="#38BDF8" strokeWidth="1.4" strokeLinecap="round" />
+              <circle cx="25.5" cy="36" r="1.3" fill="#38BDF8" />
+              {/* Professional Shirt/Collar */}
+              <path d="M22 46C24 43 28 42 32 42C36 42 40 43 42 46V54H22V46Z" fill="#F8FAFC" />
+              <path d="M28 42L32 46L36 42" stroke="#6366F1" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              {/* Gradients */}
+              <defs>
+                <linearGradient id="femaleAiGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#6366F1" />
+                  <stop offset="1" stopColor="#A855F7" />
+                </linearGradient>
+              </defs>
+            </svg>
+            {/* Live active green status dot */}
+            <span className="absolute -top-1 -end-1 w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
+            <span className="absolute -top-1 -end-1 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-white" />
           </div>
 
           {/* Vertical Text */}
@@ -406,7 +445,7 @@ const AIChatWidget = () => {
               letterSpacing: "1px",
             }}
           >
-            {isRtl ? "مساعد UNIGATES الذكي" : "UNIGATES AI ASSISTANT"}
+            {isRtl ? "مساعدة UNIGATES الذكية" : "UNIGATES AI ADVISOR"}
           </span>
 
           {/* Bottom Mini Sparkle */}
@@ -425,8 +464,33 @@ const AIChatWidget = () => {
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 p-4 flex items-center justify-between text-white shadow-md">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-md shadow-xs">
-                <Sparkles className="w-5 h-5 text-amber-300" />
+              <div className="w-10 h-10 rounded-2xl bg-white/20 p-0.5 flex items-center justify-center backdrop-blur-md shadow-xs shrink-0 overflow-hidden">
+                <svg viewBox="0 0 64 64" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="32" cy="32" r="30" fill="url(#femaleAiGradHeader)" />
+                  <path d="M16 28C16 17 23 10 32 10C41 10 48 17 48 28V38C48 44 43 49 37 49H27C21 49 16 44 16 38V28Z" fill="#2D1B4E" />
+                  <rect x="28" y="38" width="8" height="8" rx="2" fill="#FDDCB8" />
+                  <ellipse cx="32" cy="28" rx="12" ry="13" fill="#FFE2C7" />
+                  <path d="M18 24C20 16 26 12 32 12C38 12 44 16 46 24C43 20 38 18 32 18C26 18 21 20 18 24Z" fill="#3B2366" />
+                  <path d="M17 24C19 28 20 33 20 36C18 34 17 30 17 24Z" fill="#3B2366" />
+                  <path d="M47 24C45 28 44 33 44 36C46 34 47 30 47 24Z" fill="#3B2366" />
+                  <ellipse cx="27" cy="27" rx="1.6" ry="2" fill="#1E1B4B" />
+                  <ellipse cx="37" cy="27" rx="1.6" ry="2" fill="#1E1B4B" />
+                  <circle cx="27.6" cy="26.3" r="0.6" fill="#FFFFFF" />
+                  <circle cx="37.6" cy="26.3" r="0.6" fill="#FFFFFF" />
+                  <path d="M29 33C30.5 35 33.5 35 35 33" stroke="#DC2626" strokeWidth="1.4" strokeLinecap="round" />
+                  <circle cx="24" cy="30.5" r="1.8" fill="#FDA4AF" opacity="0.8" />
+                  <circle cx="40" cy="30.5" r="1.8" fill="#FDA4AF" opacity="0.8" />
+                  <path d="M18 25C17 25 16 26.5 16 28.5C16 30.5 17 32 18 32" stroke="#38BDF8" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M17 30C17 34 22 36.5 25 36" stroke="#38BDF8" strokeWidth="1.4" strokeLinecap="round" />
+                  <circle cx="25.5" cy="36" r="1.3" fill="#38BDF8" />
+                  <path d="M22 46C24 43 28 42 32 42C36 42 40 43 42 46V54H22V46Z" fill="#F8FAFC" />
+                  <defs>
+                    <linearGradient id="femaleAiGradHeader" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#4F46E5" />
+                      <stop offset="1" stopColor="#9333EA" />
+                    </linearGradient>
+                  </defs>
+                </svg>
               </div>
               <div>
                 <p className="font-black text-sm leading-tight flex items-center gap-1.5">

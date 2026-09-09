@@ -114,6 +114,7 @@ const PromoVideoPage = lazy(() => import("./pages/PromoVideoPage"));
 const CareerPlatform = lazy(() => import("./pages/CareerPlatform"));
 const CareerTrainingInfo = lazy(() => import("./pages/CareerTrainingInfo"));
 const ManuscriptAuctionsInfo = lazy(() => import("./pages/ManuscriptAuctionsInfo"));
+const LiveClassroomsInfo = lazy(() => import("./pages/LiveClassroomsInfo"));
 const DigitalApprovalChains = lazy(() => import("./pages/DigitalApprovalChains"));
 const GradingStudioInfo = lazy(() => import("./pages/GradingStudioInfo"));
 const CertificateVerification = lazy(() => import("./pages/CertificateVerification"));
@@ -316,6 +317,7 @@ const App = () => (
               <Route path="/careers" element={<CareerPlatform />} />
               <Route path="/career-opportunities" element={<CareerTrainingInfo />} />
               <Route path="/manuscript-auctions" element={<ManuscriptAuctionsInfo />} />
+              <Route path="/live-classrooms" element={<LiveClassroomsInfo />} />
               <Route path="/digital-approval-chains" element={<DigitalApprovalChains />} />
               <Route path="/approval-chains" element={<Navigate to="/digital-approval-chains" replace />} />
               <Route path="/grading-studio" element={<GradingStudioInfo />} />

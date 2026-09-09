@@ -71,7 +71,7 @@ const SiteFooter = () => {
       title: `🎓 ${translate("الخدمات الأكاديمية والمهنية", "Academic & Professional Services")}`,
       links: [
         { label: translate("سلاسل الاعتماد الأكاديمي الرقمي", "Digital Approval Chains"), href: "/digital-approval-chains" },
-        { label: translate("البث المباشر والفصول الافتراضية", "Live Interactive Classrooms"), href: "/live" },
+        { label: translate("البث المباشر والفصول الافتراضية", "Live Interactive Classrooms"), href: "/live-classrooms" },
         { label: translate("استوديو التكليفات والتصحيح", "Assignments & Grading Studio"), href: "/grading-studio" },
         { label: translate("التحقق من الشهادات الرقمية", "Verify Certificates"), href: "/certificates" },
         { label: translate("سوق مزايدة الكتب والعقود", "Manuscript Auctions & Contracts"), href: "/manuscript-auctions" },

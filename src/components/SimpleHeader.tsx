@@ -36,6 +36,7 @@ const SimpleHeader = ({ backTo = "/", mobileBackOnly = false, useHistoryBack = f
       { match: "/blog", ar: "المدونة", en: "Blog" },
       { match: "/partnerships", ar: "الشراكات", en: "Partnerships" },
       { match: "/digital-approval-chains", ar: "سلاسل الاعتماد الأكاديمي الرقمي", en: "Approval Chains" },
+      { match: "/live-classrooms", ar: "البث المباشر والفصول الافتراضية", en: "Live Classrooms" },
       { match: "/grading-studio", ar: "استوديو التكليفات والتصحيح", en: "Grading Studio" },
       { match: "/certificates", ar: "التحقق من الشهادات", en: "Verify Certificates" },
       { match: "/career-opportunities", ar: "فرص التوظيف والتدريب التعاوني", en: "Career & Co-Op Opportunities" },

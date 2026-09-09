@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import {
   Landmark, School, BookOpen, Store, ArrowLeft, ArrowRight,
   ShieldCheck, Video, Calendar, Award, FileQuestion, Users, CheckCircle2,
-  Sparkles, Layers, BookMarked, TrendingUp, MonitorCheck
+  Sparkles, Layers, BookMarked, TrendingUp, MonitorCheck, Briefcase
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

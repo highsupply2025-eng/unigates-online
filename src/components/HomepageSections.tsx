@@ -42,7 +42,7 @@ const bookBgs = [bookBg1, bookBg2, bookBg3, bookBg4];
 const HomepageSections = () => {
   const { language, dir } = useLanguage();
   const isRtl = dir === "rtl";
-  const [activeFilter, setActiveFilter] = useState<"all" | "colleges" | "institutes" | "schools" | "courses" | "books">("all");
+  const [activeFilter, setActiveFilter] = useState<"all" | "colleges" | "institutes" | "schools" | "courses" | "books" | "jobs">("all");
 
   // ── 1. Colleges Query ─────────────────────────────────────────
   const { data: rawColleges } = useQuery({

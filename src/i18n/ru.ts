@@ -25,6 +25,7 @@ export const ru: Translations = {
     coursesBadge: "Проф. Обучение",
     booksBadge: "Дар Обейд",
     nasherBadge: "Издательские контракты",
+    careerBadge: "Работа и карьера",
     registerCollege: "Регистрация Факультета",
     registerCollegeSub: "Высшее Образование",
     registerInstitute: "Регистрация Института",

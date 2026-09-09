@@ -95,10 +95,10 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
 
       <DropdownMenuContent
         align={isRtl ? "start" : "end"}
-        className="w-52 p-1.5 rounded-2xl border-2 border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl z-50 text-foreground"
+        className="w-40 p-1.5 rounded-2xl border-2 border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl z-50 text-foreground"
       >
-        <div className="px-2.5 py-1.5 text-[10px] font-black text-primary uppercase tracking-wider border-b border-border/50 mb-1">
-          {isRtl ? "وضع السطوع والمظهر" : "Theme & Brightness"}
+        <div className="px-2.5 py-1 text-[10px] font-black text-primary uppercase tracking-wider border-b border-border/50 mb-1">
+          {isRtl ? "المظهر" : "Theme"}
         </div>
 
         {/* Light Mode */}
@@ -114,14 +114,9 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
             <div className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center">
               <Sun className="w-3.5 h-3.5" />
             </div>
-            <div className="flex flex-col">
-              <span className="text-xs font-bold leading-tight">
-                {isRtl ? "السطوع الطبيعي (فاتح)" : "Light Mode (Natural)"}
-              </span>
-              <span className="text-[10px] text-muted-foreground">
-                {isRtl ? "شاشات نهارية مريحة" : "Daylight brightness"}
-              </span>
-            </div>
+            <span className="text-xs font-bold leading-tight">
+              {isRtl ? "فاتح" : "Light"}
+            </span>
           </div>
           {isLight && <Check className="w-4 h-4 text-amber-600 dark:text-amber-400 ms-1 shrink-0" />}
         </DropdownMenuItem>
@@ -139,14 +134,9 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
             <div className="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
               <Moon className="w-3.5 h-3.5" />
             </div>
-            <div className="flex flex-col">
-              <span className="text-xs font-bold leading-tight">
-                {isRtl ? "الوضع الداكن (Dark Mode)" : "Dark Mode (Night)"}
-              </span>
-              <span className="text-[10px] text-muted-foreground">
-                {isRtl ? "وضع ليلي أنيق ومريح للعين" : "Eye-comfort dark theme"}
-              </span>
-            </div>
+            <span className="text-xs font-bold leading-tight">
+              {isRtl ? "داكن" : "Dark"}
+            </span>
           </div>
           {isDark && <Check className="w-4 h-4 text-indigo-600 dark:text-indigo-400 ms-1 shrink-0" />}
         </DropdownMenuItem>
@@ -164,14 +154,9 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
             <div className="w-6 h-6 rounded-lg bg-muted text-muted-foreground flex items-center justify-center">
               <Monitor className="w-3.5 h-3.5" />
             </div>
-            <div className="flex flex-col">
-              <span className="text-xs font-bold leading-tight">
-                {isRtl ? "تلقائي (حسب نظام الجهاز)" : "System Default"}
-              </span>
-              <span className="text-[10px] text-muted-foreground">
-                {isRtl ? "يتكيف مع إعدادات جهازك" : "Follows device settings"}
-              </span>
-            </div>
+            <span className="text-xs font-bold leading-tight">
+              {isRtl ? "تلقائي" : "Auto"}
+            </span>
           </div>
           {theme === "system" && <Check className="w-4 h-4 text-primary ms-1 shrink-0" />}
         </DropdownMenuItem>

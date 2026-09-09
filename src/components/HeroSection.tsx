@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Landmark, School, BookOpen, Store, Search, ArrowLeft, ArrowRight,
-  Sparkles, ShieldCheck, Video, Award, ChevronRight, CheckCircle2
+  Sparkles, Briefcase
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,7 @@ const HeroSection = () => {
   const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchCategory, setSearchCategory] = useState<"all" | "university" | "school" | "courses" | "books">("all");
+  const [searchCategory, setSearchCategory] = useState<"all" | "university" | "school" | "courses" | "books" | "nasher" | "career">("all");
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +29,10 @@ const HeroSection = () => {
       navigate(`/courses?search=${encodeURIComponent(query)}`);
     } else if (searchCategory === "books") {
       navigate(`/book-store?search=${encodeURIComponent(query)}`);
+    } else if (searchCategory === "nasher") {
+      navigate(`/nasher?q=${encodeURIComponent(query)}`);
+    } else if (searchCategory === "career") {
+      navigate(`/career?q=${encodeURIComponent(query)}`);
     } else {
       navigate(`/courses?search=${encodeURIComponent(query)}`);
     }
@@ -67,18 +71,34 @@ const HeroSection = () => {
       color: "from-amber-500 to-orange-600",
       glow: "shadow-amber-500/25",
     },
+    {
+      to: "/nasher",
+      label: t.nasherPlatform || (isRtl ? "منصة ناشر" : "Nasher Portal"),
+      badge: t.header?.nasherBadge || (isRtl ? "عقود ونشر" : "Publishing"),
+      icon: Sparkles,
+      color: "from-rose-600 to-pink-700",
+      glow: "shadow-rose-500/25",
+    },
+    {
+      to: "/career",
+      label: t.careerPlatform || (isRtl ? "منصة Career" : "Career Portal"),
+      badge: t.header?.careerBadge || (isRtl ? "توظيف وكفاءات" : "Careers"),
+      icon: Briefcase,
+      color: "from-cyan-600 to-teal-700",
+      glow: "shadow-cyan-500/25",
+    },
   ];
 
   const getSearchPlaceholder = () => {
     switch (language) {
-      case "en": return "Search colleges, schools, courses, or books...";
-      case "fr": return "Rechercher des facultés, cours, écoles ou livres...";
-      case "es": return "Buscar facultades, colegios, cursos o libros...";
-      case "de": return "Suchen Sie Fakultäten, Schulen, Kurse oder Bücher...";
-      case "zh": return "搜索大学、中小学、课程或图书...";
-      case "ru": return "Поиск факультетов, школ, курсов или книг...";
-      case "tr": return "Fakülte, okul, kurs veya kitap arayın...";
-      default: return "ابحث عن كلية، معهد، مدرسة، دورة تعليمية، أو كتاب...";
+      case "en": return "Search colleges, schools, courses, books, publishing, or careers...";
+      case "fr": return "Rechercher des facultés, cours, écoles, livres, contrats ou emplois...";
+      case "es": return "Buscar facultades, colegios, cursos, libros, contratos o empleos...";
+      case "de": return "Suchen Sie Fakultäten, Schulen, Kurse, Bücher, Verträge oder Jobs...";
+      case "zh": return "搜索大学、中小学、课程、图书、出版或职位招聘...";
+      case "ru": return "Поиск факультетов, школ, курсов, книг, издательств или вакансий...";
+      case "tr": return "Fakülte, okul, kurs, kitap, yayın veya iş ilanları arayın...";
+      default: return "ابحث عن كلية، معهد، مدرسة، دورة تعليمية، كتاب، مخطوطة، أو وظيفة...";
     }
   };
 
@@ -159,6 +179,8 @@ const HeroSection = () => {
               <option value="school">{t.schoolPlatform}</option>
               <option value="courses">{t.exploreCourses}</option>
               <option value="books">{t.bookStore}</option>
+              <option value="nasher">{t.nasherPlatform || (isRtl ? "منصة ناشر" : "Nasher Portal")}</option>
+              <option value="career">{t.careerPlatform || (isRtl ? "منصة Career" : "Career Portal")}</option>
             </select>
           </div>
 
@@ -182,20 +204,20 @@ const HeroSection = () => {
           </Button>
         </form>
 
-        {/* 4 Portals Navigation Cards / Pills */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 w-full max-w-4xl">
+        {/* 6 Portals Navigation Cards / Pills */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 w-full max-w-5xl">
           {portalPills.map((pill) => {
             const IconComp = pill.icon;
             return (
               <Link
                 key={pill.to}
                 to={pill.to}
-                className="group relative flex flex-col items-center p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/10 hover:bg-white/15 border border-white/20 backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                className="group relative flex flex-col items-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-white/10 hover:bg-white/15 border border-white/20 backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
               >
                 <div
-                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br ${pill.color} text-white flex items-center justify-center shadow-lg ${pill.glow} mb-2.5 sm:mb-3 group-hover:scale-110 transition-transform`}
+                  className={`w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br ${pill.color} text-white flex items-center justify-center shadow-lg ${pill.glow} mb-2 group-hover:scale-110 transition-transform`}
                 >
-                  <IconComp className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <IconComp className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
                 </div>
                 <h3 className="text-xs sm:text-sm font-black text-white text-center line-clamp-1 mb-1">
                   {pill.label}

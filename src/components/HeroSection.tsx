@@ -177,8 +177,8 @@ const HeroSection = () => {
               <option value="school">{isRtl ? "🏫 المنصة المدرسية" : "School Platform"}</option>
               <option value="courses">{isRtl ? "📚 أكاديمية الدورات" : "Courses Academy"}</option>
               <option value="books">{isRtl ? "📖 متجر الكتب" : "Book Store"}</option>
-              <option value="nasher">{isRtl ? "✨ منصة ناشر" : "Nasher Platform"}</option>
-              <option value="career">{isRtl ? "💼 فرص العمل (Career)" : "Career & Jobs"}</option>
+              <option value="nasher">{isRtl ? "📚 منصة ناشر" : "Publisher Platform"}</option>
+              <option value="career">{isRtl ? "💼 منصة Career" : "Career Platform"}</option>
             </select>
           </div>
 

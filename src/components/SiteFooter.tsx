@@ -89,7 +89,7 @@ const SiteFooter = () => {
       title: `ℹ️ ${translate("المنظومة والدعم", "Company & Support")}`,
       links: [
         { label: t.footerLinks?.about || translate("عن المنصة", "About UNIGATES"), href: "/about" },
-        { label: `🎬 ${translate("استوديو الفيديو الترويجي", "Promo Video Studio")}`, href: "/promo-video" },
+        { label: translate("استوديو الفيديو الترويجي", "Promo Video Studio"), href: "/promo-video" },
         { label: t.footerLinks?.helpCenter || translate("مركز المساعدة", "Help Center"), href: "/help-center" },
         { label: t.footerLinks?.terms || translate("الشروط والأحكام", "Terms of Service"), href: "/terms" },
         { label: t.footerLinks?.privacy || translate("سياسة الخصوصية", "Privacy Policy"), href: "/privacy" },

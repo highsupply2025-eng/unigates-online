@@ -12,6 +12,7 @@ export const es: Translations = {
   schoolPlatform: "Plataforma Escolar",
   universityPlatform: "Plataforma Universitaria",
   nasherPlatform: "Plataforma Nasher",
+  careerPlatform: "Plataforma de Empleo",
   langSwitch: "العربية",
   questions: "¿Preguntas? Llámanos:",
   freeCall: "(Gratuito)",

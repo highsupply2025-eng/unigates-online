@@ -12,6 +12,7 @@ export const tr: Translations = {
   schoolPlatform: "Okul Platformu",
   universityPlatform: "Üniversite Platformu",
   nasherPlatform: "Nasher Platformu",
+  careerPlatform: "Kariyer Platformu",
   langSwitch: "العربية",
   questions: "Sorunuz mu var? Bizi arayın:",
   freeCall: "(Ücretsiz)",

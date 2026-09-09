@@ -12,6 +12,7 @@ export const ru: Translations = {
   schoolPlatform: "Школьная Платформа",
   universityPlatform: "Университетская Платформа",
   nasherPlatform: "Платформа Nasher",
+  careerPlatform: "Карьерная Платформа",
   langSwitch: "العربية",
   questions: "Есть вопросы? Позвоните нам:",
   freeCall: "(Бесплатно)",

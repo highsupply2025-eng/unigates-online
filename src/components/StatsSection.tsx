@@ -18,7 +18,11 @@ import { useBooks } from "@/hooks/useBooks";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useMemo } from "react";
 
-const StatsSection = () => {
+interface StatsSectionProps {
+  embedded?: boolean;
+}
+
+const StatsSection = ({ embedded = false }: StatsSectionProps) => {
   const { language } = useLanguage();
   const { data: stats } = usePlatformStats();
   const { data: uniStats } = usePlatformStats("university");
@@ -268,24 +272,24 @@ const StatsSection = () => {
   ];
 
   return (
-    <section className="relative z-20 -mt-10 sm:-mt-16 max-w-7xl mx-auto px-3 sm:px-6">
-      <div className="rounded-3xl border-2 border-white/20 dark:border-border/60 bg-card/90 backdrop-blur-2xl shadow-2xl shadow-black/20 p-3 sm:p-5">
+    <section className={`relative z-20 ${embedded ? "mt-0 max-w-7xl mx-auto px-1 sm:px-2" : "-mt-10 sm:-mt-16 max-w-7xl mx-auto px-3 sm:px-6"}`}>
+      <div className={`rounded-3xl border-2 ${embedded ? "border-white/20 bg-slate-950/70 backdrop-blur-2xl shadow-2xl shadow-black/40" : "border-white/20 dark:border-border/60 bg-card/90 backdrop-blur-2xl shadow-2xl shadow-black/20"} p-3 sm:p-5`}>
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 sm:gap-2.5">
           {items.map((item, i) => (
             <div
               key={i}
               ref={item.counter.ref}
-              className="flex flex-col items-center justify-between gap-1 p-2 sm:p-2.5 rounded-2xl bg-muted/40 hover:bg-muted/70 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group cursor-default text-center"
+              className={`flex flex-col items-center justify-between gap-1 p-2 sm:p-2.5 rounded-2xl ${embedded ? "bg-white/5 hover:bg-white/10" : "bg-muted/40 hover:bg-muted/70"} hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group cursor-default text-center`}
             >
               <div
                 className={`w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-sm group-hover:scale-110 transition-transform`}
               >
                 <item.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
-              <span className="text-sm sm:text-lg md:text-xl font-black text-foreground tracking-tight">
+              <span className={`text-sm sm:text-lg md:text-xl font-black ${embedded ? "text-white" : "text-foreground"} tracking-tight`}>
                 {item.counter.count}
               </span>
-              <span className="text-[10px] sm:text-xs font-bold text-muted-foreground line-clamp-1">
+              <span className={`text-[10px] sm:text-xs font-bold ${embedded ? "text-slate-200" : "text-muted-foreground"} line-clamp-1`}>
                 {item.label}
               </span>
             </div>

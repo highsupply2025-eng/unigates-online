@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import eduHeroBg from "@/assets/edu-hero-bg.jpg";
 import { useLanguage } from "@/contexts/LanguageContext";
+import StatsSection from "./StatsSection";
 
 const HeroSection = () => {
   const { t, dir, language } = useLanguage();
@@ -122,7 +123,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-[640px] md:min-h-[750px] lg:min-h-[820px] flex flex-col justify-center overflow-hidden pt-28 pb-16 md:pt-36 md:pb-24">
+    <section className="relative min-h-[750px] md:min-h-[850px] lg:min-h-[920px] flex flex-col justify-center overflow-hidden pt-28 pb-12 md:pt-36 md:pb-16">
       {/* Background with Dark Glass Overlay */}
       <div className="absolute inset-0 z-0">
         <img
@@ -138,7 +139,7 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.15),transparent_70%)]" />
       </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-12 text-center flex flex-col items-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 text-center flex flex-col items-center">
         {/* Top Floating Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-white backdrop-blur-md shadow-lg shadow-black/20 mb-6 animate-fade-in">
           <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
@@ -202,7 +203,7 @@ const HeroSection = () => {
         </form>
 
         {/* 6 Portals Navigation Cards / Pills */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 w-full max-w-5xl">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 w-full max-w-5xl mb-8 sm:mb-12">
           {portalPills.map((pill) => {
             const IconComp = pill.icon;
             return (
@@ -227,6 +228,11 @@ const HeroSection = () => {
               </Link>
             );
           })}
+        </div>
+
+        {/* 14 Ecosystem Real-Time Statistics Embedded Inside Hero */}
+        <div className="w-full">
+          <StatsSection embedded={true} />
         </div>
       </div>
     </section>

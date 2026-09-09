@@ -35,13 +35,10 @@ const Index = () => {
       <SiteHeader />
 
       <main className="flex-1 space-y-0">
-        {/* 1. Dynamic Hero Section */}
+        {/* 1. Dynamic Hero Section with Integrated 14 Stats */}
         <HeroSection />
 
-        {/* 2. Real-Time Platform Stats Bar */}
-        <StatsSection />
-
-        {/* 3. The 4 Specialized Portals Ecosystem */}
+        {/* 2. The 6 Specialized Portals Ecosystem */}
         <EcosystemPortals />
 
         {/* 4. Live Institution, Course & Book Carousels */}

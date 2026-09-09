@@ -200,27 +200,6 @@ const SiteFooter = () => {
             <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">
               {getFooterBrandDescription()}
             </p>
-
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-              <Badge variant="outline" className="text-[10px] font-bold border-blue-500/30 bg-blue-500/5 text-blue-600 dark:text-blue-400">
-                🏛️ {translate("جامعات ومعاهد", "Colleges & Institutes")}
-              </Badge>
-              <Badge variant="outline" className="text-[10px] font-bold border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400">
-                🏫 {translate("مدارس K-12", "K-12 Schools")}
-              </Badge>
-              <Badge variant="outline" className="text-[10px] font-bold border-purple-500/30 bg-purple-500/5 text-purple-600 dark:text-purple-400">
-                📚 {translate("أكاديمية الدورات", "Courses Academy")}
-              </Badge>
-              <Badge variant="outline" className="text-[10px] font-bold border-amber-500/30 bg-amber-500/5 text-amber-600 dark:text-amber-400">
-                📖 {translate("دار عبيد", "Dar Obeid Books")}
-              </Badge>
-              <Badge variant="outline" className="text-[10px] font-bold border-rose-500/30 bg-rose-500/5 text-rose-600 dark:text-rose-400">
-                ✍️ {translate("منصة ناشر", "Nasher Platform")}
-              </Badge>
-              <Badge variant="outline" className="text-[10px] font-bold border-cyan-500/30 bg-cyan-500/5 text-cyan-600 dark:text-cyan-400">
-                💼 {translate("منصة Career", "Career Portal")}
-              </Badge>
-            </div>
           </div>
 
           {/* Navigation Columns (8 cols) */}

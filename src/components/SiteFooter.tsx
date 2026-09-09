@@ -68,12 +68,14 @@ const SiteFooter = () => {
       ],
     },
     {
-      title: `🎓 ${translate("الخدمات الأكاديمية", "Academic Services")}`,
+      title: `🎓 ${translate("الخدمات الأكاديمية والمهنية", "Academic & Professional Services")}`,
       links: [
-        { label: translate("سلاسل الاعتماد الرقمي", "Approval Workflows"), href: "/university-platform" },
-        { label: translate("البث المباشر والحصص", "Live Streaming"), href: "/live" },
-        { label: translate("التحقق من الشهادات", "Verify Certificates"), href: "/certificates" },
-        { label: t.footerLinks?.faq || translate("الأسئلة الشائعة", "FAQs"), href: "/faq" },
+        { label: translate("سلاسل الاعتماد الأكاديمي الرقمي", "Digital Approval Chains"), href: "/university-platform" },
+        { label: translate("البث المباشر والفصول الافتراضية", "Live Interactive Classrooms"), href: "/live" },
+        { label: translate("استوديو التكليفات والتصحيح", "Assignments & Grading Studio"), href: "/university-platform" },
+        { label: translate("التحقق من الشهادات الرقمية", "Verify Certificates"), href: "/certificates" },
+        { label: translate("سوق مزايدة الكتب والعقود", "Manuscript Auctions & Contracts"), href: "/nasher" },
+        { label: translate("فرص التوظيف والتدريب التعاوني", "Career & Co-Op Opportunities"), href: "/career" },
       ],
     },
     {

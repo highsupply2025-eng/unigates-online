@@ -28,8 +28,8 @@ const FeaturesSection = () => {
       color: "from-rose-500 to-red-600",
       title: isRtl ? "بث مباشر وفصول افتراضية تفاعلية" : "Interactive Live Classrooms",
       desc: isRtl
-        ? "بث مباشر منخفض التأخير للمحاضرات والحصص مع دردشة تفاعلية ومشاركة الشاشة وإمكانية تسجيل المحاضرة للرجوع إليها."
-        : "Ultra-low latency streaming for university lectures and school classes with interactive chat and recordings.",
+        ? "بث مباشر للمحاضرات مع دردشة تفاعلية ومشاركة الشاشة وإمكانية تسجيل المحاضرة للرجوع إليها"
+        : "Live lecture streaming with interactive chat, screen sharing, and lecture recording for future playback.",
     },
     {
       icon: Award,

@@ -1,9 +1,12 @@
-import { useState, useRef, useEffect, ReactNode } from "react";
-import { MessageCircle, X, Send, ExternalLink, Sparkles, RefreshCw, Landmark, School, GraduationCap, BookOpen, ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { useState, useRef, useEffect, ReactNode, useMemo } from "react";
+import { MessageCircle, X, Send, ExternalLink, Sparkles, RefreshCw, Landmark, School, GraduationCap, BookOpen, ChevronLeft, ChevronRight, Check, BookCopy, Briefcase } from "lucide-react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePlatformStats } from "@/hooks/usePlatformStats";
+import { useAllCourses } from "@/hooks/useCourses";
+import { useBooks } from "@/hooks/useBooks";
 
 const WHATSAPP_NUMBER = "00966563057356";
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
@@ -63,43 +66,45 @@ const getLocalizedChatContent = (lang: string) => {
   switch (lang) {
     case "fr":
       return {
-        welcomeMsg: "Bienvenue sur UNIGATES ! 👋 Je suis votre conseiller IA en direct. Comment puis-je vous orienter aujourd'hui ? Posez-moi des questions sur la création de compte, l'inscription des facultés ou des écoles, nos cours ou la librairie.",
+        welcomeMsg: "Bienvenue sur UNIGATES ! 👋 Je suis votre conseiller IA en direct. Comment puis-je vous orienter aujourd'hui ? Posez-moi des questions sur les 6 plateformes (Universités, Écoles, Formations, Librairie, Plateforme Éditeur, ou Carrière & Emploi).",
         onlineBadge: "En Direct",
-        advisorSubtitle: "Votre Conseiller Académique Intelligent",
+        advisorSubtitle: "Votre Conseiller Académique & Professionnel",
         newChatTitle: "Nouvelle discussion",
         quickOptionsTitle: "⚡ Options et orientations rapides :",
         whatsappBtn: "Support officiel via WhatsApp",
         inputPlaceholder: "Posez votre question ou indiquez l'établissement...",
         quickPrompts: [
           { label: "🏛️ Inscription Faculté / Institut", prompt: "Comment inscrire une faculté ou un institut sur UNIGATES ?" },
-          { label: "🏫 Inscription École", prompt: "Comment inscrire une école K-12 sur la plateforme ?" },
-          { label: "🎓 Inscription Étudiant", prompt: "Comment créer un compte étudiant pour accéder aux cours ?" },
-          { label: "👨‍🏫 Inscription Enseignant", prompt: "Comment créer un compte enseignant et le lier à un établissement ?" },
+          { label: "🏫 Inscription École K-12", prompt: "Comment inscrire une école K-12 sur la plateforme ?" },
+          { label: "✍️ Plateforme Éditeur (Nasher)", prompt: "Comment fonctionne la plateforme éditeur pour les auteurs et contrats d'édition ?" },
+          { label: "💼 Plateforme Carrière (Career)", prompt: "Comment postuler aux offres d'emploi ou publier des opportunités de recrutement ?" },
+          { label: "🎓 Inscription Étudiant / Apprenant", prompt: "Comment créer un compte étudiant pour accéder aux cours et examens ?" },
           { label: "🔒 Validation des Examens", prompt: "Comment fonctionnent les circuits de validation numérique des examens ?" },
         ],
       };
     case "es":
       return {
-        welcomeMsg: "¡Bienvenido a UNIGATES! 👋 Soy tu asesor inteligente en tiempo real. ¿Cómo puedo ayudarte hoy? Pregúntame sobre la creación de cuentas, registro de facultades o escuelas, cursos o librería.",
+        welcomeMsg: "¡Bienvenido a UNIGATES! 👋 Soy tu asesor inteligente en tiempo real. ¿Cómo puedo ayudarte hoy? Pregúntame sobre los 6 portales (Universidades, Colegios, Cursos, Librería, Editorial Nasher, o Empleo Career).",
         onlineBadge: "En Vivo",
-        advisorSubtitle: "Tu Asesor Académico Inteligente",
+        advisorSubtitle: "Tu Asesor Académico y Profesional",
         newChatTitle: "Nueva conversación",
         quickOptionsTitle: "⚡ Consultas rápidas y frecuentes:",
         whatsappBtn: "Atención directa por WhatsApp",
         inputPlaceholder: "Escribe tu consulta o institución a registrar...",
         quickPrompts: [
           { label: "🏛️ Registrar Facultad / Instituto", prompt: "¿Cómo registro una facultad o instituto en UNIGATES?" },
-          { label: "🏫 Registrar Escuela", prompt: "¿Cómo inscribir una escuela K-12 en la plataforma?" },
+          { label: "🏫 Registrar Escuela K-12", prompt: "¿Cómo inscribir una escuela K-12 en la plataforma?" },
+          { label: "✍️ Plataforma Editorial (Nasher)", prompt: "¿Cómo funciona la plataforma de publicación para autores y editoriales?" },
+          { label: "💼 Plataforma de Empleo (Career)", prompt: "¿Cómo buscar u ofertar empleos y oportunidades profesionales?" },
           { label: "🎓 Registro de Estudiante", prompt: "¿Cómo crear una cuenta de estudiante para acceder a clases?" },
-          { label: "👨‍🏫 Registro de Profesor", prompt: "¿Cómo unirme como docente o profesor?" },
           { label: "🔒 Aprobación de Exámenes", prompt: "¿Cómo funcionan las cadenas de aprobación digital de exámenes?" },
         ],
       };
     case "de":
       return {
-        welcomeMsg: "Willkommen bei UNIGATES! 👋 Ich bin Ihr KI-Berater in Echtzeit. Wie kann ich Ihnen heute helfen? Fragen Sie mich nach Kontoerstellung, Registrierung von Fakultäten oder Schulen, Kursen oder Büchern.",
+        welcomeMsg: "Willkommen bei UNIGATES! 👋 Ich bin Ihr KI-Berater in Echtzeit. Wie kann ich Ihnen heute helfen? Fragen Sie mich nach unseren 6 Plattformen (Universitäten, Schulen, Kurse, Buchhandlung, Verlag Nasher oder Karriere).",
         onlineBadge: "Live Online",
-        advisorSubtitle: "Ihr Intelligenter Studienberater",
+        advisorSubtitle: "Ihr Intelligenter Bildungs- & Karriereberater",
         newChatTitle: "Neuer Chat",
         quickOptionsTitle: "⚡ Häufige Schnellfragen:",
         whatsappBtn: "Direkter WhatsApp-Support",
@@ -107,16 +112,17 @@ const getLocalizedChatContent = (lang: string) => {
         quickPrompts: [
           { label: "🏛️ Fakultät / Institut registrieren", prompt: "Wie registriere ich eine Fakultät oder ein Institut auf UNIGATES?" },
           { label: "🏫 Schule registrieren", prompt: "Wie melde ich eine K-12 Schule auf der Plattform an?" },
+          { label: "✍️ Verlagsplattform (Nasher)", prompt: "Wie funktioniert die Verlagsplattform für Autoren und Verträge?" },
+          { label: "💼 Karriereportal (Career)", prompt: "Wie bewerbe ich mich auf Stellenangebote oder veröffentliche Jobangebote?" },
           { label: "🎓 Als Student registrieren", prompt: "Wie erstelle ich ein Studentenkonto für Vorlesungen?" },
-          { label: "👨‍🏫 Als Dozent beitreten", prompt: "Wie erstelle ich ein Dozentenkonto?" },
           { label: "🔒 Prüfungsfreigabe-Ketten", prompt: "Wie funktioniert die digitale Prüfungsfreigabe?" },
         ],
       };
     case "zh":
       return {
-        welcomeMsg: "欢迎来到 UNIGATES！👋 我是您的全天候智能导师。今天有什么可以帮助您？您可以咨询账号注册、院校与中小学入驻、在线课程或图书出版等问题。",
+        welcomeMsg: "欢迎来到 UNIGATES！👋 我是您的全天候智能导师。今天有什么可以帮助您？您可以咨询六大生态门户（大学学院、中小学、专业培训、数字图书、出版商平台、求职招聘）。",
         onlineBadge: "实时在线",
-        advisorSubtitle: "您的全方位智慧数字教育顾问",
+        advisorSubtitle: "您的全方位智慧数字教育与职业顾问",
         newChatTitle: "开启新会话",
         quickOptionsTitle: "⚡ 常见快捷咨询：",
         whatsappBtn: "官方 WhatsApp 在线支持",
@@ -124,16 +130,17 @@ const getLocalizedChatContent = (lang: string) => {
         quickPrompts: [
           { label: "🏛️ 申请入驻大学学院 / 研究所", prompt: "如何以机构管理员身份入驻并注册大学学院或研究所？" },
           { label: "🏫 申请入驻中小学", prompt: "如何在中小学智能平台注册入驻学校？" },
+          { label: "✍️ 出版商生态 (Nasher)", prompt: "作者与出版机构如何通过 ناشر 平台签署数字版权与出版合同？" },
+          { label: "💼 人才求职与招聘 (Career)", prompt: "如何在 UNIGATES Career 平台应聘或发布高薪职位？" },
           { label: "🎓 注册学员 / 学生账号", prompt: "如何注册学生账号以获取课程与作业？" },
-          { label: "👨‍🏫 教师 / 讲师身份入驻", prompt: "如何注册教师或讲师账号并关联学校？" },
           { label: "🔒 数字试卷审批流程说明", prompt: "请介绍试卷从教研主任到院长的多级数字审批机制。" },
         ],
       };
     case "ru":
       return {
-        welcomeMsg: "Добро пожаловать в UNIGATES! 👋 Я ваш интеллектуальный помощник в реальном времени. Чем я могу помочь? Задайте вопрос о создании аккаунта, регистрации факультетов или школ, курсах и книгах.",
+        welcomeMsg: "Добро пожаловать в UNIGATES! 👋 Я ваш интеллектуальный помощник в реальном времени. Чем я могу помочь? Задайте вопрос о 6 порталах (университеты, школы, курсы, книги, издательство Nasher или карьера).",
         onlineBadge: "В Сети",
-        advisorSubtitle: "Ваш Академический ИИ-Консультант",
+        advisorSubtitle: "Ваш Академический и Карьерный ИИ-Консультант",
         newChatTitle: "Новый диалог",
         quickOptionsTitle: "⚡ Быстрые вопросы и темы:",
         whatsappBtn: "Поддержка в WhatsApp",
@@ -141,16 +148,17 @@ const getLocalizedChatContent = (lang: string) => {
         quickPrompts: [
           { label: "🏛️ Регистрация Факультета / Института", prompt: "Как зарегистрировать факультет или институт в UNIGATES?" },
           { label: "🏫 Регистрация Школы", prompt: "Как подключить школу к школьной платформе?" },
+          { label: "✍️ Издательская платформа (Nasher)", prompt: "Как авторам и издательствам работать с платформой публикаций и договоров?" },
+          { label: "💼 Карьерный портал (Career)", prompt: "Как подать заявку на вакансию или опубликовать вакансии для специалистов?" },
           { label: "🎓 Регистрация Студента", prompt: "Как создать аккаунт студента для доступа к занятиям?" },
-          { label: "👨‍🏫 Регистрация Преподавателя", prompt: "Как зарегистрироваться преподавателю?" },
           { label: "🔒 Утверждение Экзаменов", prompt: "Как работает цифровая цепочка утверждения экзаменов?" },
         ],
       };
     case "tr":
       return {
-        welcomeMsg: "UNIGATES'e Hoş Geldiniz! 👋 Ben gerçek zamanlı yapay zeka danışmanınızım. Bugün size nasıl yardımcı olabilirim? Hesap oluşturma, fakülte ve okul kayıtları, kurslar ve kitabevi hakkında sorular sorabilirsiniz.",
+        welcomeMsg: "UNIGATES'e Hoş Geldiniz! 👋 Ben gerçek zamanlı yapay zeka danışmanınızım. Bugün size nasıl yardımcı olabilirim? 6 portalımız hakkında sorular sorabilirsiniz (Üniversite, Okul, Kurslar, Kitabevi, Yayıncı Nasher ve Kariyer).",
         onlineBadge: "Çevrimiçi",
-        advisorSubtitle: "Akıllı Akademik Rehberiniz",
+        advisorSubtitle: "Akıllı Akademik ve Kariyer Rehberiniz",
         newChatTitle: "Yeni Sohbet",
         quickOptionsTitle: "⚡ Hızlı Yönlendirme Seçenekleri:",
         whatsappBtn: "Resmi WhatsApp Canlı Destek",
@@ -158,16 +166,17 @@ const getLocalizedChatContent = (lang: string) => {
         quickPrompts: [
           { label: "🏛️ Fakülte / Enstitü Kaydı", prompt: "UNIGATES'te fakülte veya enstitü nasıl kaydedilir?" },
           { label: "🏫 Okul Kaydı", prompt: "K-12 okulunu platforma nasıl kaydederim?" },
+          { label: "✍️ Yayıncı Platformu (Nasher)", prompt: "Yayıncılık ve telif sözleşmeleri platformu nasıl çalışır?" },
+          { label: "💼 Kariyer Portalı (Career)", prompt: "İş ilanlarına nasıl başvurulur ve kurumsal işe alım nasıl yapılır?" },
           { label: "🎓 Öğrenci Hesabı Oluştur", prompt: "Derslere ve ödevlere erişmek için öğrenci hesabı nasıl açılır?" },
-          { label: "👨‍🏫 Eğitmen / Öğretmen Kaydı", prompt: "Eğitmen hesabı nasıl oluşturulur?" },
           { label: "🔒 Sınav Onay Zincirleri", prompt: "Dijital sınav onay iş akışları nasıl çalışır?" },
         ],
       };
     case "en":
       return {
-        welcomeMsg: "Welcome to UNIGATES! 👋 I'm your real-time AI advisor. How can I guide you today? Ask me about account setup, institutional onboarding, courses, or bookstore.",
+        welcomeMsg: "Welcome to UNIGATES! 👋 I'm your real-time AI advisor. How can I guide you today? Ask me about all 6 portals (University, School, Courses, Bookstore, Nasher Publishing, and Career opportunities).",
         onlineBadge: "Live Online",
-        advisorSubtitle: "Your Smart Academic Advisor",
+        advisorSubtitle: "Your Smart Academic & Career Advisor",
         newChatTitle: "New Chat",
         quickOptionsTitle: "⚡ Quick guidance options:",
         whatsappBtn: "Chat on Official WhatsApp",
@@ -175,25 +184,27 @@ const getLocalizedChatContent = (lang: string) => {
         quickPrompts: [
           { label: "🏛️ Register College / Institute", prompt: "How do I register a college or institute on UNIGATES?" },
           { label: "🏫 Register School", prompt: "How do I onboard a new K-12 school?" },
+          { label: "✍️ Publisher Platform (Nasher)", prompt: "How does the publishing platform work for authors, publishing houses, and contracts?" },
+          { label: "💼 Career Platform (Jobs)", prompt: "How do I apply for jobs or post talent recruitment vacancies?" },
           { label: "🎓 Student Sign Up", prompt: "How do I create a student account?" },
-          { label: "👨‍🏫 Faculty / Teacher Sign Up", prompt: "How do I join as faculty or teacher?" },
           { label: "🔒 Exam Approval Chains", prompt: "How do digital exam approval workflows work?" },
         ],
       };
     default: // "ar"
       return {
-        welcomeMsg: "مرحباً بك في UNIGATES! 👋 أنا مساعدك الذكي اللحظي. كيف يمكنني مساعدتك اليوم؟ يمكنك سؤالي عن إنشاء الحسابات، تسجيل الكليات والمدارس، أو استعراض الدورات والمكتبة.",
-        onlineBadge: "متصل لحظياً",
-        advisorSubtitle: "مستشارك التعليمي والتوجيهي",
+        welcomeMsg: "مرحباً بك في منظومة UNIGATES! 👋 أنا مستشارك الذكي اللحظي. تم تحديثي بأحدث بيانات المنصات الست (الجامعات، المدارس، الدورات، المكتبة، منصة ناشر، ومنصة Career للوظائف). كيف يمكنني توجيهك اليوم؟",
+        onlineBadge: "متصل لحظياً ومحدث",
+        advisorSubtitle: "مستشارك التعليمي والمهني الذكي",
         newChatTitle: "محادثة جديدة",
-        quickOptionsTitle: "⚡ استفسارات سريعة وشائعة:",
+        quickOptionsTitle: "⚡ استفسارات سريعة وتوجيه مباشر:",
         whatsappBtn: "محادثة الدعم المباشر عبر الواتساب",
         inputPlaceholder: "اكتب استفسارك أو الجهة التي ترغب بتسجيلها...",
         quickPrompts: [
           { label: "🏛️ كيف أسجل كليتي أو معهدي؟", prompt: "كيف يمكنني تسجيل كليتي أو معهدي كمسؤول مؤسسي؟ وما هي الخطوات؟" },
           { label: "🏫 كيف أسجل مدرسة جديدة؟", prompt: "أريد تسجيل مدرسة في المنصة المدرسية، ما هي طريقة إنشاء الحساب والبيانات المطلوبة؟" },
+          { label: "✍️ كيف تعمل منصة ناشر للمؤلفين والعقود؟", prompt: "اشرح لي مميزات منصة ناشر (Publisher) لتوثيق العقود ونشر المخطوطات والكتب للمؤلفين ودور النشر." },
+          { label: "💼 كيف أستفيد من منصة Career والوظائف؟", prompt: "كيف أقدم على الوظائف الشاغرة أو أعلن عن وظائف جديدة للشركات والجامعات عبر منصة Career؟" },
           { label: "🎓 كيف أنشئ حساب كطالب؟", prompt: "كيف أنشئ حساب طالب جديد للوصول إلى المحاضرات والواجبات؟" },
-          { label: "👨‍🏫 كيف أنضم كعضو هيئة تدريس أو معلم؟", prompt: "كيف يتم إنشاء حساب محاضر أو معلم وربطه بالكلية أو المدرسة؟" },
           { label: "🔒 كيف تعمل سلاسل اعتماد الاختبارات؟", prompt: "اشرح لي آلية سلاسل الاعتماد الرقمي للاختبارات من رئيس القسم حتى العميد." },
         ],
       };
@@ -211,6 +222,46 @@ const AIChatWidget = () => {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Dynamic Realtime Platform Data Injection
+  const { data: stats } = usePlatformStats();
+  const { data: uniStats } = usePlatformStats("university");
+  const { data: coursesData } = useAllCourses();
+  const { data: booksData } = useBooks();
+
+  const dynamicContext = useMemo(() => {
+    let jobsCount = 12;
+    try {
+      const saved = localStorage.getItem("unigates_career_jobs");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) jobsCount = parsed.length;
+      }
+    } catch {
+      // ignore
+    }
+
+    return {
+      collegesCount: uniStats?.colleges ?? stats?.colleges ?? 0,
+      institutesCount: uniStats?.institutes ?? stats?.institutes ?? 0,
+      schoolsCount: stats?.schools ?? 0,
+      coursesCount: coursesData?.length ?? 0,
+      booksCount: booksData?.length ?? 0,
+      publishersCount: stats?.publishers ?? 0,
+      lecturersCount: stats?.lecturers ?? uniStats?.lecturers ?? 0,
+      teachersCount: stats?.teachers ?? 0,
+      studentsCount: stats?.students ?? uniStats?.students ?? 0,
+      jobsCount,
+      activePortals: [
+        { name: "المنصة الجامعية (University Platform)", path: "/university-platform", badge: "كليات ومعاهد" },
+        { name: "المنصة المدرسية (School Platform)", path: "/school-platform", badge: "مدارس K-12" },
+        { name: "أكاديمية الدورات (Courses Academy)", path: "/courses", badge: "تدريب مهني" },
+        { name: "متجر الكتب والمكتبة (Book Store)", path: "/book-store", badge: "دار عبيد" },
+        { name: "منصة ناشر (Publisher Platform)", path: "/nasher", badge: "عقود ونشر" },
+        { name: "منصة Career (Career Portal)", path: "/career", badge: "توظيف وكفاءات" },
+      ]
+    };
+  }, [stats, uniStats, coursesData, booksData]);
 
   const localized = getLocalizedChatContent(language);
 
@@ -236,6 +287,7 @@ const AIChatWidget = () => {
         pageContext: {
           pathname: location.pathname,
           language,
+          realtimeData: dynamicContext,
         },
       }),
     });

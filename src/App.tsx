@@ -112,6 +112,9 @@ const Partnerships = lazy(() => import("./pages/Partnerships"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const PromoVideoPage = lazy(() => import("./pages/PromoVideoPage"));
 const CareerPlatform = lazy(() => import("./pages/CareerPlatform"));
+const DigitalApprovalChains = lazy(() => import("./pages/DigitalApprovalChains"));
+const GradingStudioInfo = lazy(() => import("./pages/GradingStudioInfo"));
+const CertificateVerification = lazy(() => import("./pages/CertificateVerification"));
 const SchoolStudentDashboard = lazy(() => import("./pages/SchoolStudentDashboard"));
 const SchoolTeacherDashboard = lazy(() => import("./pages/SchoolTeacherDashboard"));
 const SchoolDashboard = lazy(() => import("./pages/SchoolDashboard"));
@@ -309,8 +312,12 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/career" element={<CareerPlatform />} />
               <Route path="/careers" element={<CareerPlatform />} />
+              <Route path="/digital-approval-chains" element={<DigitalApprovalChains />} />
+              <Route path="/approval-chains" element={<Navigate to="/digital-approval-chains" replace />} />
+              <Route path="/grading-studio" element={<GradingStudioInfo />} />
               <Route path="/partnerships" element={<ComingSoon />} />
-              <Route path="/certificates" element={<ComingSoon />} />
+              <Route path="/certificates" element={<CertificateVerification />} />
+              <Route path="/certificate-verification" element={<Navigate to="/certificates" replace />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/promo-video" element={<PromoVideoPage />} />

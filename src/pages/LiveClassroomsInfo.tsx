@@ -95,6 +95,7 @@ export default function LiveClassroomsInfo() {
       titleAr: "في الجامعات والمعاهد العليا",
       titleEn: "In Universities & Higher Institutes",
       descAr: "إدارة المحاضرات العامة لآلاف الطلاب في مختلف الأقسام والكليات، استضافة الندوات والمؤتمرات العلمية الدولية عن بُعد، وبث مناقشات مشاريع التخرج ورسائل الماجستير والدكتوراه.",
+      descEn: "Run large lectures for thousands of students across departments, host international academic conferences remotely, and stream graduate thesis defenses.",
       badgeAr: "التعليم الجامعي",
       badgeEn: "Higher Education"
     },
@@ -102,6 +103,7 @@ export default function LiveClassroomsInfo() {
       titleAr: "في المدارس ومراكز التدريب",
       titleEn: "In K-12 Schools & Training Academies",
       descAr: "فصول تقوية تفاعلية، استمرار الدراسة أثناء الطوارئ والإجازات، دورات تدريبية مهنية معتمدة، وورش عمل متخصصة مع شهادات إتمام فورية.",
+      descEn: "Interactive tutoring classes, uninterrupted learning during emergencies and holidays, accredited professional courses, and workshops with instant completion certificates.",
       badgeAr: "المدارس والتدريب",
       badgeEn: "K-12 & Centers"
     }

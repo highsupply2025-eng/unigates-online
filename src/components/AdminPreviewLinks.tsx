@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { GraduationCap, UserCheck, Crown, Landmark, School, BookOpen, ExternalLink } from "lucide-react";
+import { GraduationCap, UserCheck, Crown, Landmark, School, BookOpen, ExternalLink, BookMarked, Briefcase, MessageSquare } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
+import { getWhatsAppDirectUrl, ADMIN_WHATSAPP_NUMBER } from "@/utils/whatsappNotifications";
 
 /**
  * Quick-preview links for the admin to open role dashboards directly.
@@ -21,7 +23,9 @@ const AdminPreviewLinks = ({ compact = false }: { compact?: boolean }) => {
     { to: "/institution/dashboard", label: ar("لوحة الكلية/المعهد", "Institution Dashboard"), icon: Landmark, color: "text-indigo-600 bg-indigo-50" },
     { to: "/school/dashboard", label: ar("لوحة المدرسة", "School Dashboard"), icon: School, color: "text-purple-600 bg-purple-50" },
     { to: "/school/teacher/dashboard", label: ar("لوحة المعلم", "Teacher Dashboard"), icon: BookOpen, color: "text-pink-600 bg-pink-50" },
-    { to: "/school/student/dashboard", label: ar("لوحة طالب المدرسة", "School Student", ), icon: GraduationCap, color: "text-cyan-600 bg-cyan-50" },
+    { to: "/school/student/dashboard", label: ar("لوحة طالب المدرسة", "School Student"), icon: GraduationCap, color: "text-cyan-600 bg-cyan-50" },
+    { to: "/nasher/dashboard", label: ar("لوحة الناشر والمؤلف", "Nasher Dashboard"), icon: BookMarked, color: "text-rose-600 bg-rose-50" },
+    { to: "/career", label: ar("لوحة التوظيف والتدريب", "Career Platform"), icon: Briefcase, color: "text-emerald-600 bg-emerald-50" },
   ];
 
   if (compact) {
@@ -43,10 +47,21 @@ const AdminPreviewLinks = ({ compact = false }: { compact?: boolean }) => {
   return (
     <Card className="mb-6 border-primary/30 bg-primary/5">
       <CardContent className="p-3 sm:p-5">
-        <div className="flex items-center gap-2 mb-3 sm:mb-4 flex-wrap">
-          <ExternalLink className="w-5 h-5 text-primary" />
-          <h3 className="font-bold text-foreground text-sm sm:text-base">{ar("معاينة سريعة للوحات", "Quick Dashboard Preview")}</h3>
-          <Badge variant="secondary" className="text-xs">{ar("للأدمن فقط", "Admin only")}</Badge>
+        <div className="flex items-center justify-between gap-2 mb-3 sm:mb-4 flex-wrap">
+          <div className="flex items-center gap-2">
+            <ExternalLink className="w-5 h-5 text-primary" />
+            <h3 className="font-bold text-foreground text-sm sm:text-base">{ar("معاينة سريعة للوحات", "Quick Dashboard Preview")}</h3>
+            <Badge variant="secondary" className="text-xs">{ar("للأدمن فقط", "Admin only")}</Badge>
+          </div>
+          <a
+            href={`https://wa.me/${ADMIN_WHATSAPP_NUMBER}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 rounded-full hover:bg-emerald-200 transition-colors"
+          >
+            <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
+            <span>{ar("إشعارات واتساب الأدمن المباشرة: 00966563057356", "Admin WhatsApp Alerts: 00966563057356")}</span>
+          </a>
         </div>
         <p className="text-xs text-muted-foreground mb-3 sm:mb-4">
           {ar(

@@ -12,8 +12,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Users, GraduationCap, School, Building2, BookOpen, PlayCircle,
   ShoppingCart, CreditCard, Radio, Eye, Layers, RefreshCw, LayoutDashboard,
-  Check, X, ClipboardList, ArrowRight, ShieldCheck, Landmark,
+  Check, X, ClipboardList, ArrowRight, ShieldCheck, Landmark, MessageSquare, ExternalLink, Send
 } from "lucide-react";
+import { getWhatsAppDirectUrl, sendWhatsAppNotification, ADMIN_WHATSAPP_NUMBER } from "@/utils/whatsappNotifications";
 
 type PendingKind = "lecturer" | "college" | "institute" | "school" | "department" | "payment_request";
 
@@ -287,6 +288,28 @@ export default function AdminOverview() {
                 </p>
               </div>
               <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-emerald-600 border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                  onClick={() => {
+                    sendWhatsAppNotification({
+                      type: row.kind === "payment_request" ? "payment" : "registration",
+                      title: row.title,
+                      details: {
+                        "النوع": ar(kindMeta[row.kind].ar, kindMeta[row.kind].en),
+                        "التفاصيل": row.subtitle,
+                        "رقم المعرّف": row.id,
+                        "الحالة": "بانتظار المراجعة والاعتماد",
+                      },
+                      timestamp: row.createdAt ? new Date(row.createdAt).toLocaleString("ar-SA") : undefined,
+                    });
+                  }}
+                  title={ar("إرسال تنبيه بالطلب إلى واتساب", "Send WhatsApp Alert")}
+                >
+                  <MessageSquare className="h-3.5 w-3.5 me-1 text-emerald-600" />
+                  <span className="hidden sm:inline">{ar("تنبيه واتساب", "WhatsApp")}</span>
+                </Button>
                 <Button size="sm" disabled={busyId === row.id} onClick={() => decide(row, true)}>
                   <Check className="h-4 w-4 me-1" />{ar("موافقة", "Approve")}
                 </Button>
@@ -311,7 +334,17 @@ export default function AdminOverview() {
               {ar("نظرة شاملة على الموقع ومركز موافقات موحّد", "Site-wide overview and unified approvals center")}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <a
+              href={`https://wa.me/${ADMIN_WHATSAPP_NUMBER}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 rounded-lg hover:bg-emerald-200 transition-colors shadow-sm"
+              title={ar("فتح واتساب الإشعارات المباشر", "Open Admin WhatsApp Alerts")}
+            >
+              <MessageSquare className="w-4 h-4 text-emerald-600" />
+              <span>{ar("واتساب الأدمن: 00966563057356", "Admin WhatsApp: 00966563057356")}</span>
+            </a>
             <Button variant="outline" size="sm" onClick={refresh} disabled={refreshing}>
               <RefreshCw className={`h-4 w-4 me-1 ${refreshing ? "animate-spin" : ""}`} />
               {ar("تحديث", "Refresh")}
@@ -329,7 +362,6 @@ export default function AdminOverview() {
               {ar("اللوحة التفصيلية", "Full dashboard")}
               <ArrowRight className="h-4 w-4 ms-1 rtl:rotate-180" />
             </Button>
-
           </div>
         </header>
 

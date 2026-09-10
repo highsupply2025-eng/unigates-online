@@ -9,6 +9,7 @@ import {
   Calendar, PlayCircle, Download, Trash2, Pencil, Landmark, LinkIcon, Copy, Building2, Loader2, RefreshCw, Video, Upload, Film, Play, Sparkles
 } from "lucide-react";
 
+import { getWhatsAppDirectUrl, sendWhatsAppNotification, ADMIN_WHATSAPP_NUMBER } from "@/utils/whatsappNotifications";
 import AdminPreviewLinks from "@/components/AdminPreviewLinks";
 import AllPagesDropdown from "@/components/AllPagesDropdown";
 import DashboardMenuDropdown from "@/components/DashboardMenuDropdown";
@@ -892,7 +893,18 @@ const AdminDashboard = () => {
               <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">{isRtl ? "الادارة العامة" : "General Administration"}</p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 flex-wrap">
+            <a
+              href={`https://wa.me/${ADMIN_WHATSAPP_NUMBER}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 rounded-lg hover:bg-emerald-200 transition-colors shadow-sm"
+              title={isRtl ? "إرسال واستقبال إشعارات الواتساب المباشرة" : "WhatsApp Admin Alerts"}
+            >
+              <MessageSquare className="w-4 h-4 text-emerald-600" />
+              <span className="hidden md:inline">{isRtl ? "واتساب الأدمن: 00966563057356" : "00966563057356"}</span>
+            </a>
+
             <Button
               size="sm"
               variant="outline"

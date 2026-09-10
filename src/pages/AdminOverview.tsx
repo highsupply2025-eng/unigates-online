@@ -588,6 +588,7 @@ export default function AdminOverview() {
               </div>
             </div>
             <PieChart className="w-4 h-4 text-emerald-400 opacity-80" />
+          </button>
         </div>
 
         {/* ── SECTION 1: APPROVALS & REQUESTS ── */}

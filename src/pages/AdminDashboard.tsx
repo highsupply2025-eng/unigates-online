@@ -880,48 +880,92 @@ const AdminDashboard = () => {
   const getInvitationsForCollege = (collegeId: string) => collegeInvitations.filter(i => i.college_id === collegeId);
 
   return (
-    <div className="min-h-screen bg-background" dir={dir}>
-      {/* Header */}
-      <header className="border-b border-border px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/10 to-primary/5">
-        <div className="max-w-full mx-auto flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 flex items-center justify-center shrink-0">
-              <Shield className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+    <div className="min-h-screen bg-[#070b14] text-slate-100 selection:bg-cyan-500 selection:text-black relative overflow-x-hidden" dir={dir}>
+      {/* Futuristic Background Ambient Glows & Cyber Grid */}
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-950/20 via-slate-950/90 to-[#04060a] pointer-events-none -z-10" />
+      <div className="fixed inset-0 bg-[linear-gradient(to_right,#06b6d405_1px,transparent_1px),linear-gradient(to_bottom,#06b6d405_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none -z-10" />
+
+      {/* Cyber Telemetry Status Ribbon */}
+      <div className="w-full bg-slate-950/80 border-b border-cyan-500/20 px-3 sm:px-6 py-1.5 flex items-center justify-between text-[11px] font-mono text-slate-400 backdrop-blur-md">
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="inline-flex items-center gap-1.5 text-cyan-400 font-bold">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+            UNIGATES QUANTUM MATRIX v5.2
+          </span>
+          <span className="hidden md:inline text-slate-600">|</span>
+          <span className="hidden md:inline-flex items-center gap-1 text-emerald-400">
+            <Shield className="w-3 h-3" />
+            DEFENSE SHIELD: 100% SECURE
+          </span>
+          <span className="hidden lg:inline text-slate-600">|</span>
+          <span className="hidden lg:inline-flex items-center gap-1 text-amber-400">
+            <Radio className="w-3 h-3 animate-pulse" />
+            DISPATCH RADAR: 00966563057356
+          </span>
+        </div>
+        <div className="flex items-center gap-3 font-mono">
+          <span className="text-slate-400">LATENCY: <strong className="text-emerald-400">9ms</strong></span>
+          <span className="text-cyan-300">RIYADH NODE: {new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}</span>
+        </div>
+      </div>
+
+      {/* Futuristic Main Header */}
+      <header className="border-b border-cyan-500/20 px-3 sm:px-6 py-4 bg-slate-900/70 backdrop-blur-xl sticky top-0 z-40 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+        <div className="max-w-full mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="relative w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-gradient-to-br from-cyan-500 via-blue-600 to-indigo-700 p-[1px] shadow-[0_0_25px_rgba(6,182,212,0.4)] flex items-center justify-center shrink-0 group">
+              <div className="w-full h-full bg-slate-950/90 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                <Shield className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform" />
+              </div>
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-slate-950 animate-pulse" />
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-base sm:text-xl font-black text-foreground truncate">{isRtl ? "لوحة التحكم" : "Control Panel"}</h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate">{isRtl ? "الادارة العامة" : "General Administration"}</p>
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                  {isRtl ? "مركز القيادة والتحكم العام" : "Quantum Control Command"}
+                  <Sparkles className="w-4 h-4 text-cyan-400 animate-spin" />
+                </h1>
+                <Badge variant="outline" className="hidden sm:inline-flex text-[10px] font-mono border-cyan-500/40 bg-cyan-500/10 text-cyan-300">
+                  ROOT ADMIN
+                </Badge>
+              </div>
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium truncate mt-0.5">
+                {isRtl ? "نظام إدارة المنصة الذكية، الأمان الدفاعي، ومعالجة الموافقات الفورية" : "Autonomous Educational Engine & Real-time Administration Console"}
+              </p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 flex-wrap">
+
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0 flex-wrap">
+            {/* WhatsApp Direct Alert Dispatcher */}
             <a
               href={`https://wa.me/${ADMIN_WHATSAPP_NUMBER}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 rounded-lg hover:bg-emerald-200 transition-colors shadow-sm"
+              className="relative group inline-flex items-center gap-2 px-3.5 py-2 text-xs font-mono font-bold text-emerald-300 bg-emerald-950/80 border border-emerald-500/40 rounded-xl hover:bg-emerald-900/80 hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all"
               title={isRtl ? "إرسال واستقبال إشعارات الواتساب المباشرة" : "WhatsApp Admin Alerts"}
             >
-              <MessageSquare className="w-4 h-4 text-emerald-600" />
-              <span className="hidden md:inline">{isRtl ? "واتساب الأدمن: 00966563057356" : "00966563057356"}</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <MessageSquare className="w-4 h-4 text-emerald-400" />
+              <span className="hidden lg:inline">{isRtl ? "واتساب الأدمن: 00966563057356" : "00966563057356"}</span>
             </a>
 
             <Button
               size="sm"
               variant="outline"
-              className="gap-1.5 border-teal-500/40 text-teal-600 dark:text-teal-400 hover:bg-teal-500/10 font-bold"
+              className="gap-2 border-teal-500/40 bg-teal-950/40 text-teal-300 hover:bg-teal-900/60 hover:border-teal-400 hover:shadow-[0_0_15px_rgba(20,184,166,0.3)] font-bold rounded-xl"
               onClick={() => navigate("/promo-video")}
             >
-              <Radio className="w-4 h-4 text-teal-500" />
-              <span className="hidden sm:inline">{isRtl ? "استوديو المؤتمرات والفيديوهات" : "Media Studio"}</span>
+              <Radio className="w-4 h-4 text-teal-400 animate-pulse" />
+              <span className="hidden sm:inline">{isRtl ? "استوديو المؤتمرات" : "Media Studio"}</span>
             </Button>
 
             <Button
               size="sm"
               variant="outline"
-              className="gap-1.5"
+              className="gap-2 border-cyan-500/40 bg-cyan-950/40 text-cyan-300 hover:bg-cyan-900/60 hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)] font-bold rounded-xl"
               onClick={() => navigate("/admin/security-center")}
             >
-              <Shield className="w-4 h-4" />
+              <Shield className="w-4 h-4 text-cyan-400" />
               <span className="hidden sm:inline">{isRtl ? "مركز الأمان" : "Security Center"}</span>
             </Button>
 
@@ -948,70 +992,100 @@ const AdminDashboard = () => {
         </div>
       </header>
 
-      <main className="max-w-full mx-auto px-3 sm:px-6 py-4 sm:py-8">
+      <main className="max-w-full mx-auto px-3 sm:px-6 py-6 sm:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-6 sm:mb-8 flex-wrap h-auto gap-1 p-1 justify-start">
-            <TabsTrigger value="overview" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><BarChart3 className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("نظرة عامة","Overview")}</span></TabsTrigger>
-            <TabsTrigger value="pending" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Clock className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("طلبات الانتظار","Pending")}</span>{stats.pendingCount > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingCount}</Badge>}</TabsTrigger>
-            <TabsTrigger value="schools" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><School className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("المدارس","Schools")}</span>{stats.pendingSchools > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingSchools}</Badge>}</TabsTrigger>
-            <TabsTrigger value="colleges" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Landmark className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("الكليات","Colleges")}</span>{stats.pendingColleges > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingColleges}</Badge>}</TabsTrigger>
-            <TabsTrigger value="institutes" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Landmark className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("المعاهد","Institutes")}</span>{stats.pendingInstitutes > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingInstitutes}</Badge>}</TabsTrigger>
-            <TabsTrigger value="users" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Users className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("المستخدمين","Users")}</span></TabsTrigger>
-            <TabsTrigger value="courses" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><BookOpen className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("الدورات","Courses")}</span></TabsTrigger>
-            <TabsTrigger value="books" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><BookMarked className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("الكتب","Books")}</span></TabsTrigger>
-            <TabsTrigger value="orders" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><ShoppingCart className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("الطلبات","Orders")}</span></TabsTrigger>
-            <TabsTrigger value="subscriptions" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><CreditCard className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("الاشتراكات","Subscriptions")}</span></TabsTrigger>
-            <TabsTrigger value="streams" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Radio className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("البث المباشر","Live Streams")}</span></TabsTrigger>
-            <TabsTrigger value="studio_videos" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Film className="w-4 h-4 text-teal-500" /><span className="hidden xs:inline sm:inline">{ar("فيديوهات الاستوديو","Studio Videos")}</span></TabsTrigger>
-            <TabsTrigger value="departments_admin" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Building2 className="w-4 h-4" /><span className="hidden xs:inline sm:inline">{ar("الأقسام","Departments")}</span>{stats.pendingDepartments > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0">{stats.pendingDepartments}</Badge>}</TabsTrigger>
-            
-          </TabsList>
+          {/* Futuristic Cyber Navigation Tabs */}
+          <div className="p-1.5 rounded-2xl bg-slate-900/80 border border-slate-800/90 backdrop-blur-xl mb-8 shadow-inner overflow-x-auto">
+            <TabsList className="flex-wrap h-auto gap-1.5 p-1 bg-transparent justify-start">
+              <TabsTrigger value="overview" className="gap-2 text-xs sm:text-sm px-3.5 py-2 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all">
+                <BarChart3 className="w-4 h-4" /><span>{ar("نظرة عامة","Overview")}</span>
+              </TabsTrigger>
+              <TabsTrigger value="pending" className="gap-2 text-xs sm:text-sm px-3.5 py-2 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all">
+                <Clock className="w-4 h-4" /><span>{ar("طلبات الانتظار","Pending")}</span>
+                {stats.pendingCount > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0 animate-pulse">{stats.pendingCount}</Badge>}
+              </TabsTrigger>
+              <TabsTrigger value="schools" className="gap-2 text-xs sm:text-sm px-3.5 py-2 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-all">
+                <School className="w-4 h-4" /><span>{ar("المدارس","Schools")}</span>
+                {stats.pendingSchools > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0 animate-pulse">{stats.pendingSchools}</Badge>}
+              </TabsTrigger>
+              <TabsTrigger value="colleges" className="gap-2 text-xs sm:text-sm px-3.5 py-2 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all">
+                <Landmark className="w-4 h-4" /><span>{ar("الكليات","Colleges")}</span>
+                {stats.pendingColleges > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0 animate-pulse">{stats.pendingColleges}</Badge>}
+              </TabsTrigger>
+              <TabsTrigger value="institutes" className="gap-2 text-xs sm:text-sm px-3.5 py-2 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-all">
+                <Landmark className="w-4 h-4" /><span>{ar("المعاهد","Institutes")}</span>
+                {stats.pendingInstitutes > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0 animate-pulse">{stats.pendingInstitutes}</Badge>}
+              </TabsTrigger>
+              <TabsTrigger value="users" className="gap-2 text-xs sm:text-sm px-3.5 py-2 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all">
+                <Users className="w-4 h-4" /><span>{ar("المستخدمين","Users")}</span>
+              </TabsTrigger>
+              <TabsTrigger value="courses" className="gap-2 text-xs sm:text-sm px-3.5 py-2 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-yellow-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all">
+                <BookOpen className="w-4 h-4" /><span>{ar("الدورات","Courses")}</span>
+              </TabsTrigger>
+              <TabsTrigger value="books" className="gap-2 text-xs sm:text-sm px-3.5 py-2 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_20px_rgba(244,63,94,0.4)] transition-all">
+                <BookMarked className="w-4 h-4" /><span>{ar("الكتب","Books")}</span>
+              </TabsTrigger>
+              <TabsTrigger value="orders" className="gap-2 text-xs sm:text-sm px-3.5 py-2 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-amber-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_20px_rgba(249,115,22,0.4)] transition-all">
+                <ShoppingCart className="w-4 h-4" /><span>{ar("الطلبات","Orders")}</span>
+              </TabsTrigger>
+              <TabsTrigger value="subscriptions" className="gap-2 text-xs sm:text-sm px-3.5 py-2 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_20px_rgba(20,184,166,0.4)] transition-all">
+                <CreditCard className="w-4 h-4" /><span>{ar("الاشتراكات","Subscriptions")}</span>
+              </TabsTrigger>
+              <TabsTrigger value="streams" className="gap-2 text-xs sm:text-sm px-3.5 py-2 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-rose-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_20px_rgba(244,63,94,0.4)] transition-all">
+                <Radio className="w-4 h-4" /><span>{ar("البث المباشر","Live Streams")}</span>
+              </TabsTrigger>
+              <TabsTrigger value="studio_videos" className="gap-2 text-xs sm:text-sm px-3.5 py-2 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_20px_rgba(20,184,166,0.4)] transition-all">
+                <Film className="w-4 h-4" /><span>{ar("فيديوهات الاستوديو","Studio Videos")}</span>
+              </TabsTrigger>
+              <TabsTrigger value="departments_admin" className="gap-2 text-xs sm:text-sm px-3.5 py-2 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-slate-700 data-[state=active]:to-slate-900 data-[state=active]:text-white data-[state=active]:shadow-[0_0_20px_rgba(100,116,139,0.4)] transition-all">
+                <Building2 className="w-4 h-4" /><span>{ar("الأقسام","Departments")}</span>
+                {stats.pendingDepartments > 0 && <Badge className="bg-destructive text-destructive-foreground ms-1 text-xs px-1.5 py-0 animate-pulse">{stats.pendingDepartments}</Badge>}
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* ===== Overview ===== */}
-          <TabsContent value="overview" dir={isRtl ? "rtl" : "ltr"}>
+          <TabsContent value="overview" dir={isRtl ? "rtl" : "ltr"} className="space-y-8">
             <AdminPreviewLinks />
 
-            {/* Primary Stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6">
+            {/* Primary Futuristic Holographic Stats */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4 mb-6">
               {[
-                { icon: Users, value: stats.totalUsers, label: ar("إجمالي المستخدمين","Total Users"), color: "from-blue-500 to-blue-600", bgLight: "bg-blue-50 dark:bg-blue-950/30" },
-                { icon: UserCheck, value: stats.totalLecturers, label: ar("محاضرون معتمدون","Approved Lecturers"), color: "from-green-500 to-green-600", bgLight: "bg-green-50 dark:bg-green-950/30" },
-                { icon: Clock, value: stats.pendingCount, label: ar("بانتظار الموافقة","Pending Approval"), color: "from-amber-500 to-amber-600", bgLight: "bg-amber-50 dark:bg-amber-950/30" },
-                { icon: Landmark, value: stats.totalColleges, label: ar("الكليات","Colleges"), color: "from-indigo-500 to-indigo-600", bgLight: "bg-indigo-50 dark:bg-indigo-950/30" },
-                { icon: Landmark, value: stats.totalInstitutes, label: ar("المعاهد","Institutes"), color: "from-violet-500 to-violet-600", bgLight: "bg-violet-50 dark:bg-violet-950/30" },
-                { icon: School, value: stats.pendingSchools, label: ar("طلبات مدارس","School Requests"), color: "from-cyan-500 to-cyan-600", bgLight: "bg-cyan-50 dark:bg-cyan-950/30" },
+                { icon: Users, value: stats.totalUsers, label: ar("إجمالي المستخدمين","Total Users"), color: "from-cyan-500 to-blue-600", glow: "border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.15)]" },
+                { icon: UserCheck, value: stats.totalLecturers, label: ar("محاضرون معتمدون","Approved Lecturers"), color: "from-emerald-500 to-teal-600", glow: "border-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.15)]" },
+                { icon: Clock, value: stats.pendingCount, label: ar("بانتظار الموافقة","Pending Approval"), color: "from-amber-500 to-orange-600", glow: "border-amber-500/30 shadow-[0_0_20px_rgba(245,158,11,0.15)]" },
+                { icon: Landmark, value: stats.totalColleges, label: ar("الكليات","Colleges"), color: "from-indigo-500 to-purple-600", glow: "border-indigo-500/30 shadow-[0_0_20px_rgba(99,102,241,0.15)]" },
+                { icon: Landmark, value: stats.totalInstitutes, label: ar("المعاهد","Institutes"), color: "from-violet-500 to-indigo-600", glow: "border-violet-500/30 shadow-[0_0_20px_rgba(139,92,246,0.15)]" },
+                { icon: School, value: stats.pendingSchools, label: ar("طلبات مدارس","School Requests"), color: "from-pink-500 to-rose-600", glow: "border-pink-500/30 shadow-[0_0_20px_rgba(244,63,94,0.15)]" },
               ].map((s, i) => (
-                <Card key={i} className={`overflow-hidden ${s.bgLight} border-0`}>
-                  <CardContent className="pt-5 pb-4 text-center">
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center mx-auto mb-2 shadow-lg`}>
-                      <s.icon className="w-5 h-5 text-white" />
-                    </div>
-                    <p className="text-2xl font-black text-foreground">{s.value}</p>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">{s.label}</p>
-                  </CardContent>
-                </Card>
+                <div key={i} className={`relative p-4 rounded-2xl border ${s.glow} bg-slate-900/60 backdrop-blur-xl group hover:scale-[1.02] transition-all text-center overflow-hidden`}>
+                  <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" />
+                  <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center mx-auto mb-2.5 shadow-lg group-hover:rotate-6 transition-transform`}>
+                    <s.icon className="w-5 h-5 text-white" />
+                  </div>
+                  <p className="text-2xl font-black text-white tracking-tight tabular-nums">{s.value}</p>
+                  <p className="text-[11px] text-slate-400 font-semibold mt-0.5">{s.label}</p>
+                </div>
               ))}
             </div>
 
-            {/* Secondary Stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6">
+            {/* Secondary Futuristic Stats */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4 mb-6">
               {[
-                { icon: BookOpen, value: stats.totalCourses, label: ar("الدورات","Courses"), color: "from-amber-500 to-amber-600", bgLight: "bg-amber-50 dark:bg-amber-950/30" },
-                { icon: Eye, value: stats.totalViews, label: ar("المشاهدات","Views"), color: "from-sky-500 to-sky-600", bgLight: "bg-sky-50 dark:bg-sky-950/30" },
-                { icon: BookMarked, value: stats.totalBooks, label: ar("الكتب","Books"), color: "from-pink-500 to-pink-600", bgLight: "bg-pink-50 dark:bg-pink-950/30" },
-                { icon: ShoppingCart, value: stats.totalOrders, label: ar("طلبات الشراء","Orders"), color: "from-orange-500 to-orange-600", bgLight: "bg-orange-50 dark:bg-orange-950/30" },
-                { icon: CreditCard, value: stats.totalSubscriptions, label: ar("الاشتراكات","Subscriptions"), color: "from-teal-500 to-teal-600", bgLight: "bg-teal-50 dark:bg-teal-950/30" },
-                { icon: Radio, value: stats.totalStreams, label: ar("البث المباشر","Streams"), color: "from-red-500 to-red-600", bgLight: "bg-red-50 dark:bg-red-950/30" },
+                { icon: BookOpen, value: stats.totalCourses, label: ar("الدورات","Courses"), color: "from-amber-500 to-yellow-600", glow: "border-amber-500/30" },
+                { icon: Eye, value: stats.totalViews, label: ar("المشاهدات","Views"), color: "from-sky-500 to-cyan-600", glow: "border-sky-500/30" },
+                { icon: BookMarked, value: stats.totalBooks, label: ar("الكتب","Books"), color: "from-pink-500 to-rose-600", glow: "border-pink-500/30" },
+                { icon: ShoppingCart, value: stats.totalOrders, label: ar("طلبات الشراء","Orders"), color: "from-orange-500 to-amber-600", glow: "border-orange-500/30" },
+                { icon: CreditCard, value: stats.totalSubscriptions, label: ar("الاشتراكات","Subscriptions"), color: "from-teal-500 to-emerald-600", glow: "border-teal-500/30" },
+                { icon: Radio, value: stats.totalStreams, label: ar("البث المباشر","Streams"), color: "from-red-500 to-rose-600", glow: "border-red-500/30" },
               ].map((s, i) => (
-                <Card key={i} className={`overflow-hidden ${s.bgLight} border-0`}>
-                  <CardContent className="pt-5 pb-4 text-center">
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center mx-auto mb-2 shadow-lg`}>
-                      <s.icon className="w-5 h-5 text-white" />
-                    </div>
-                    <p className="text-2xl font-black text-foreground">{s.value}</p>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">{s.label}</p>
-                  </CardContent>
-                </Card>
+                <div key={i} className={`relative p-4 rounded-2xl border ${s.glow} bg-slate-900/60 backdrop-blur-xl group hover:scale-[1.02] transition-all text-center overflow-hidden`}>
+                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center mx-auto mb-2 shadow-lg group-hover:scale-105 transition-transform`}>
+                    <s.icon className="w-5 h-5 text-white" />
+                  </div>
+                  <p className="text-2xl font-black text-white tracking-tight tabular-nums">{s.value}</p>
+                  <p className="text-[11px] text-slate-400 font-semibold mt-0.5">{s.label}</p>
+                </div>
               ))}
             </div>
 

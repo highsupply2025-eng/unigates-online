@@ -4,17 +4,25 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import {
   Users, GraduationCap, School, Building2, BookOpen, PlayCircle,
   ShoppingCart, CreditCard, Radio, Eye, Layers, RefreshCw, LayoutDashboard,
-  Check, X, ClipboardList, ArrowRight, ShieldCheck, Landmark, MessageSquare, ExternalLink, Send
+  Check, X, ClipboardList, ArrowRight, ShieldCheck, Landmark, MessageSquare,
+  TrendingUp, BarChart3, PieChart, Activity, CheckCircle2, AlertCircle,
+  FileCheck, Calendar, DollarSign, ArrowUpRight, Search, Award, Sparkles
 } from "lucide-react";
 import { getWhatsAppDirectUrl, sendWhatsAppNotification, ADMIN_WHATSAPP_NUMBER } from "@/utils/whatsappNotifications";
+import { StudentPillActivityChart } from "@/components/StudentPillActivityChart";
+import { LiveActivityTrends } from "@/components/LiveActivityTrends";
+import { TimeRangeToggle } from "@/components/TimeRangeToggle";
+import type { SectionDatum } from "@/components/SectionsActivityChart";
 
 type PendingKind = "lecturer" | "college" | "institute" | "school" | "department" | "payment_request";
 
@@ -23,32 +31,23 @@ interface PendingRow {
   id: string;
   title: string;
   subtitle?: string;
+  phone?: string;
+  email?: string;
   createdAt?: string;
+  raw?: any;
 }
 
-interface PaymentRequestRow {
-  id: string;
-  institution_type: string;
-  institution_name: string;
-  student_names: string[];
-  plan_type: string;
-  months: number;
-  total_amount: number;
-  status: string;
-  created_at: string;
-}
-
-const kindMeta: Record<PendingKind, { ar: string; en: string; icon: typeof Users }> = {
-  lecturer: { ar: "أعضاء هيئة تدريس", en: "Faculty", icon: GraduationCap },
-  college: { ar: "كليات", en: "Colleges", icon: Building2 },
-  institute: { ar: "معاهد", en: "Institutes", icon: School },
-  school: { ar: "مدارس", en: "Schools", icon: School },
-  department: { ar: "أقسام", en: "Departments", icon: Layers },
-  payment_request: { ar: "طلبات الدفع", en: "Payment Requests", icon: CreditCard },
+const kindMeta: Record<PendingKind, { ar: string; en: string; icon: typeof Users; color: string }> = {
+  lecturer: { ar: "أعضاء هيئة تدريس", en: "Faculty", icon: GraduationCap, color: "text-blue-500 bg-blue-50 dark:bg-blue-950/40 border-blue-200" },
+  college: { ar: "كليات جامعية", en: "Colleges", icon: Building2, color: "text-purple-500 bg-purple-50 dark:bg-purple-950/40 border-purple-200" },
+  institute: { ar: "معاهد تخصصية", en: "Institutes", icon: School, color: "text-amber-500 bg-amber-50 dark:bg-amber-950/40 border-amber-200" },
+  school: { ar: "مدارس تعليمية", en: "Schools", icon: School, color: "text-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200" },
+  department: { ar: "أقسام أكاديمية", en: "Departments", icon: Layers, color: "text-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200" },
+  payment_request: { ar: "طلبات الدفع والتحويل", en: "Payment Requests", icon: CreditCard, color: "text-rose-500 bg-rose-50 dark:bg-rose-950/40 border-rose-200" },
 };
 
 export default function AdminOverview() {
-  const { language, dir } = useLanguage();
+  const { language, dir, isRtl } = useLanguage();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const ar = (a: string, e: string) => (language === "ar" ? a : e);
@@ -57,12 +56,19 @@ export default function AdminOverview() {
   const [authorized, setAuthorized] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [mainSection, setMainSection] = useState<"approvals" | "analytics" | "statistics">("approvals");
+  const [rangeDays, setRangeDays] = useState<7 | 30>(7);
+  const [searchPending, setSearchPending] = useState("");
+
   const [pending, setPending] = useState<PendingRow[]>([]);
   const [stats, setStats] = useState({
     users: 0, lecturers: 0, students: 0, courses: 0, views: 0, books: 0,
     orders: 0, subscriptions: 0, streams: 0, colleges: 0, institutes: 0,
-    schools: 0, departments: 0, quizzes: 0,
+    schools: 0, departments: 0, quizzes: 0, totalRevenue: 0,
   });
+
+  // Timestamps for activity trends
+  const [activitySections, setActivitySections] = useState<SectionDatum[]>([]);
 
   const notify = (msg: string, bad = false) =>
     toast({ title: bad ? ar("خطأ", "Error") : ar("تم", "Done"), description: msg, variant: bad ? "destructive" : undefined });
@@ -74,7 +80,7 @@ export default function AdminOverview() {
     };
     const [
       users, lecturers, students, courses, views, books, orders, subs, streams,
-      colleges, institutes, schools, departments, quizzes,
+      colleges, institutes, schools, departments, quizzes, subData, orderData, deptData
     ] = await Promise.all([
       supabase.rpc("get_profile_count"),
       count("user_roles", (q) => q.eq("role", "lecturer").eq("approved", true)),
@@ -90,7 +96,16 @@ export default function AdminOverview() {
       count("school_registrations"),
       count("departments"),
       count("quizzes"),
+      supabase.from("user_subscriptions" as any).select("amount_paid, created_at"),
+      supabase.from("book_orders" as any).select("amount, created_at"),
+      supabase.from("departments" as any).select("payment_amount, created_at").eq("payment_status", "paid"),
     ]);
+
+    const revSubs = ((subData.data as any[]) || []).reduce((acc, curr) => acc + (Number(curr.amount_paid) || 0), 0);
+    const revOrders = ((orderData.data as any[]) || []).reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+    const revDepts = ((deptData.data as any[]) || []).reduce((acc, curr) => acc + (Number(curr.payment_amount) || 0), 0);
+    const totalRev = revSubs + revOrders + revDepts;
+
     setStats({
       users: Number((users as any)?.data) || 0,
       lecturers: (lecturers as any)?.count || 0,
@@ -106,15 +121,39 @@ export default function AdminOverview() {
       schools: (schools as any)?.count || 0,
       departments: (departments as any)?.count || 0,
       quizzes: (quizzes as any)?.count || 0,
+      totalRevenue: totalRev,
     });
+
+    // Build Activity sections for charts
+    const subTimestamps = ((subData.data as any[]) || []).map((x) => x.created_at).filter(Boolean);
+    const orderTimestamps = ((orderData.data as any[]) || []).map((x) => x.created_at).filter(Boolean);
+    const deptTimestamps = ((deptData.data as any[]) || []).map((x) => x.created_at).filter(Boolean);
+
+    setActivitySections([
+      {
+        id: "subs",
+        label: ar("الاشتراكات والدورات", "Subscriptions & Courses"),
+        timestamps: subTimestamps,
+      },
+      {
+        id: "orders",
+        label: ar("طلبات الكتب والعقود", "Book Orders & Store"),
+        timestamps: orderTimestamps,
+      },
+      {
+        id: "depts",
+        label: ar("تسجيل واعتماد المؤسسات", "Institutions & Depts"),
+        timestamps: deptTimestamps,
+      },
+    ]);
   };
 
   const loadPending = async () => {
     const [roles, colleges, institutes, schools, departments, paymentReqs] = await Promise.all([
       supabase.from("user_roles").select("id,user_id,created_at").eq("role", "lecturer").eq("approved", false),
-      supabase.from("college_registrations").select("id,college_name,city,created_at").eq("status", "pending").eq("email_confirmed", true),
-      supabase.from("institute_registrations" as any).select("id,institute_name,city,created_at").eq("status", "pending").eq("email_confirmed", true),
-      supabase.from("school_registrations").select("id,school_name,city,created_at").eq("status", "pending"),
+      supabase.from("college_registrations").select("id,college_name,city,phone,email,created_at").eq("status", "pending").eq("email_confirmed", true),
+      supabase.from("institute_registrations" as any).select("id,institute_name,city,phone,email,created_at").eq("status", "pending").eq("email_confirmed", true),
+      supabase.from("school_registrations").select("id,school_name,city,phone,email,created_at").eq("status", "pending"),
       supabase.from("departments" as any).select("id,department_name,student_count,created_at").eq("payment_status", "unpaid"),
       supabase.from("payment_requests" as any).select("id,institution_type,institution_name,student_names,plan_type,months,total_amount,status,created_at").eq("status", "pending").order("created_at", { ascending: false }),
     ]);
@@ -124,32 +163,78 @@ export default function AdminOverview() {
     const roleRows = roles.data || [];
     if (roleRows.length) {
       const { data: profiles } = await supabase
-        .from("profiles").select("user_id,full_name,email")
+        .from("profiles").select("user_id,full_name,email,phone")
         .in("user_id", roleRows.map((r) => r.user_id));
       const byUser = new Map((profiles || []).map((p) => [p.user_id, p]));
       roleRows.forEach((r) => {
         const p = byUser.get(r.user_id);
-        rows.push({ kind: "lecturer", id: r.id, title: p?.full_name || ar("مستخدم", "User"), subtitle: p?.email, createdAt: r.created_at });
+        rows.push({
+          kind: "lecturer",
+          id: r.id,
+          title: p?.full_name || ar("عضو هيئة تدريس", "Faculty Member"),
+          subtitle: p?.email || ar("طلب اعتماد تدريس جديد", "New Faculty Approval Request"),
+          phone: p?.phone,
+          email: p?.email,
+          createdAt: r.created_at,
+          raw: r,
+        });
       });
     }
 
     (colleges.data || []).forEach((c: any) =>
-      rows.push({ kind: "college", id: c.id, title: c.college_name, subtitle: c.city, createdAt: c.created_at }));
+      rows.push({
+        kind: "college",
+        id: c.id,
+        title: c.college_name,
+        subtitle: `${c.city || ar("غير محدد", "Unspecified")} · ${ar("كلية جامعية", "College")}`,
+        phone: c.phone,
+        email: c.email,
+        createdAt: c.created_at,
+        raw: c,
+      }));
+
     (institutes.data as any[] || []).forEach((i: any) =>
-      rows.push({ kind: "institute", id: i.id, title: i.institute_name, subtitle: i.city, createdAt: i.created_at }));
+      rows.push({
+        kind: "institute",
+        id: i.id,
+        title: i.institute_name,
+        subtitle: `${i.city || ar("غير محدد", "Unspecified")} · ${ar("معهد تخصصي", "Institute")}`,
+        phone: i.phone,
+        email: i.email,
+        createdAt: i.created_at,
+        raw: i,
+      }));
+
     (schools.data || []).forEach((s: any) =>
-      rows.push({ kind: "school", id: s.id, title: s.school_name, subtitle: s.city, createdAt: s.created_at }));
+      rows.push({
+        kind: "school",
+        id: s.id,
+        title: s.school_name,
+        subtitle: `${s.city || ar("غير محدد", "Unspecified")} · ${ar("مدرسة تعليمية", "School")}`,
+        phone: s.phone,
+        email: s.email,
+        createdAt: s.created_at,
+        raw: s,
+      }));
+
     (departments.data as any[] || []).forEach((d: any) =>
       rows.push({
-        kind: "department", id: d.id, title: d.department_name,
-        subtitle: `${d.student_count ?? 0} ${ar("طالب", "students")}`, createdAt: d.created_at,
+        kind: "department",
+        id: d.id,
+        title: d.department_name,
+        subtitle: `${d.student_count ?? 0} ${ar("طالب مسجل", "enrolled students")} · ${ar("بانتظار تأكيد الدفع", "Pending Payment")}`,
+        createdAt: d.created_at,
+        raw: d,
       }));
+
     (paymentReqs.data as any[] || []).forEach((pr: any) =>
       rows.push({
-        kind: "payment_request", id: pr.id,
-        title: `${pr.institution_name} — ${pr.total_amount} ${ar("ج.م", "EGP")}`,
-        subtitle: `${pr.student_names?.length ?? 0} ${ar("طالب", "students")} · ${pr.plan_type === "annual" ? ar("سنوي", "Annual") : ar("شهري", "Monthly")} · ${pr.months} ${ar("شهر", "mo")}`,
+        kind: "payment_request",
+        id: pr.id,
+        title: `${pr.institution_name} — ${pr.total_amount?.toLocaleString()} ${ar("ريال / ج.م", "SAR/EGP")}`,
+        subtitle: `${pr.student_names?.length ?? 0} ${ar("طالب", "students")} · ${pr.plan_type === "annual" ? ar("اشتراك سنوي", "Annual Plan") : ar("اشتراك شهري", "Monthly Plan")} (${pr.months} ${ar("شهر", "mo")})`,
         createdAt: pr.created_at,
+        raw: pr,
       }));
 
     rows.sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
@@ -216,7 +301,7 @@ export default function AdminOverview() {
         error = res.error;
       }
       if (error) throw error;
-      notify(approve ? ar("تمت الموافقة", "Approved") : ar("تم الرفض", "Rejected"));
+      notify(approve ? ar("تمت الموافقة بنجاح", "Approved successfully") : ar("تم الرفض بنجاح", "Rejected successfully"));
       await refresh();
       queryClient.invalidateQueries({ queryKey: ["platform-stats"] });
     } catch (e) {
@@ -227,37 +312,39 @@ export default function AdminOverview() {
     }
   };
 
+  const filteredPending = useMemo(() => {
+    if (!searchPending.trim()) return pending;
+    const q = searchPending.toLowerCase();
+    return pending.filter(
+      (r) =>
+        r.title.toLowerCase().includes(q) ||
+        (r.subtitle && r.subtitle.toLowerCase().includes(q)) ||
+        (r.email && r.email.toLowerCase().includes(q)) ||
+        (r.phone && r.phone.includes(q))
+    );
+  }, [pending, searchPending]);
+
   const groups = useMemo(() => {
     const map: Record<PendingKind, PendingRow[]> = { lecturer: [], college: [], institute: [], school: [], department: [], payment_request: [] };
-    pending.forEach((r) => map[r.kind].push(r));
+    filteredPending.forEach((r) => map[r.kind].push(r));
     return map;
-  }, [pending]);
+  }, [filteredPending]);
 
-  const statCards = [
-    { label: ar("المستخدمون", "Users"), value: stats.users, icon: Users },
-    { label: ar("الطلاب", "Students"), value: stats.students, icon: GraduationCap },
-    { label: ar("أعضاء هيئة التدريس", "Faculty"), value: stats.lecturers, icon: ClipboardList },
-    { label: ar("الكليات", "Colleges"), value: stats.colleges, icon: Building2 },
-    { label: ar("المعاهد", "Institutes"), value: stats.institutes, icon: School },
-    { label: ar("المدارس", "Schools"), value: stats.schools, icon: School },
-    { label: ar("الأقسام", "Departments"), value: stats.departments, icon: Layers },
-    { label: ar("الكورسات", "Courses"), value: stats.courses, icon: PlayCircle },
-    { label: ar("المشاهدات", "Views"), value: stats.views, icon: Eye },
-    { label: ar("الكتب", "Books"), value: stats.books, icon: BookOpen },
-    { label: ar("الطلبات", "Orders"), value: stats.orders, icon: ShoppingCart },
-    { label: ar("الاشتراكات", "Subscriptions"), value: stats.subscriptions, icon: CreditCard },
-    { label: ar("البث المباشر", "Live streams"), value: stats.streams, icon: Radio },
-    { label: ar("الاختبارات", "Quizzes"), value: stats.quizzes, icon: ClipboardList },
-  ];
+  // High-level statistics calculation
+  const totalInstitutions = stats.colleges + stats.institutes + stats.schools;
+  const studentRatio = stats.users > 0 ? Math.round((stats.students / stats.users) * 100) : 0;
+  const lecturerRatio = stats.users > 0 ? Math.round((stats.lecturers / stats.users) * 100) : 0;
 
   if (loading) {
     return (
-      <div dir={dir} className="min-h-screen bg-background p-4 sm:p-6 space-y-4">
-        <Skeleton className="h-12 w-64" />
-        <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3">
-          {Array.from({ length: 14 }).map((_, i) => <Skeleton key={i} className="h-24" />)}
+      <div dir={dir} className="min-h-screen bg-background p-4 sm:p-6 space-y-6">
+        <Skeleton className="h-14 w-72" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
         </div>
-        <Skeleton className="h-72 w-full" />
+        <Skeleton className="h-96 w-full" />
       </div>
     );
   }
@@ -267,54 +354,81 @@ export default function AdminOverview() {
   const renderList = (rows: PendingRow[]) => {
     if (rows.length === 0) {
       return (
-        <div className="py-12 text-center text-muted-foreground text-sm">
-          {ar("لا توجد طلبات بانتظار المراجعة", "Nothing pending review")}
+        <div className="py-16 text-center text-muted-foreground">
+          <CheckCircle2 className="w-12 h-12 text-emerald-500/60 mx-auto mb-3" />
+          <p className="text-base font-semibold">{ar("لا توجد طلبات معلقة بانتظار المراجعة", "No pending requests")}</p>
+          <p className="text-xs text-muted-foreground mt-1">{ar("تمت معالجة كافة الطلبات الواردة بنجاح", "All incoming requests have been reviewed")}</p>
         </div>
       );
     }
     return (
-      <div className="divide-y">
+      <div className="divide-y divide-border/60">
         {rows.map((row) => {
-          const Icon = kindMeta[row.kind].icon;
+          const meta = kindMeta[row.kind];
+          const Icon = meta.icon;
           return (
-            <div key={`${row.kind}-${row.id}`} className="flex flex-wrap items-center gap-3 py-3">
-              <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                <Icon className="h-4 w-4 text-muted-foreground" />
+            <div key={`${row.kind}-${row.id}`} className="flex flex-wrap items-center justify-between gap-4 py-4 hover:bg-muted/30 px-3 rounded-xl transition-colors">
+              <div className="flex items-center gap-3.5 min-w-[240px] flex-1">
+                <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 border ${meta.color}`}>
+                  <Icon className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-bold text-base leading-tight text-foreground truncate">{row.title}</p>
+                    <Badge variant="outline" className="text-[11px] px-2 py-0.5 border-primary/20 bg-primary/5 text-primary">
+                      {ar(meta.ar, meta.en)}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1 truncate">
+                    {row.subtitle}
+                    {row.createdAt && ` · ${new Date(row.createdAt).toLocaleDateString(language === "ar" ? "ar-SA" : "en-US")}`}
+                  </p>
+                </div>
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold truncate">{row.title}</p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {row.subtitle} · {ar(kindMeta[row.kind].ar, kindMeta[row.kind].en)}
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
+
+              <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                 <Button
                   size="sm"
                   variant="outline"
-                  className="text-emerald-600 border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                  className="text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800 bg-emerald-50/70 dark:bg-emerald-950/40 hover:bg-emerald-100 transition-colors text-xs font-semibold shadow-sm"
                   onClick={() => {
                     sendWhatsAppNotification({
                       type: row.kind === "payment_request" ? "payment" : "registration",
                       title: row.title,
                       details: {
-                        "النوع": ar(kindMeta[row.kind].ar, kindMeta[row.kind].en),
-                        "التفاصيل": row.subtitle,
-                        "رقم المعرّف": row.id,
-                        "الحالة": "بانتظار المراجعة والاعتماد",
+                        "القسم": ar(meta.ar, meta.en),
+                        "التفاصيل": row.subtitle || "-",
+                        "رقم الهاتف": row.phone || "غير متوفر",
+                        "البريد الإلكتروني": row.email || "غير متوفر",
+                        "المعرّف ID": row.id,
+                        "الحالة": "طلب بانتظار الاعتماد الفوري",
                       },
                       timestamp: row.createdAt ? new Date(row.createdAt).toLocaleString("ar-SA") : undefined,
                     });
                   }}
-                  title={ar("إرسال تنبيه بالطلب إلى واتساب", "Send WhatsApp Alert")}
+                  title={ar("إرسال تنبيه فوري بالطلب إلى واتساب الإدارة", "Send WhatsApp Alert to Admin")}
                 >
-                  <MessageSquare className="h-3.5 w-3.5 me-1 text-emerald-600" />
-                  <span className="hidden sm:inline">{ar("تنبيه واتساب", "WhatsApp")}</span>
+                  <MessageSquare className="h-4 w-4 me-1.5 text-emerald-600" />
+                  <span>{ar("واتساب", "WhatsApp")}</span>
                 </Button>
-                <Button size="sm" disabled={busyId === row.id} onClick={() => decide(row, true)}>
-                  <Check className="h-4 w-4 me-1" />{ar("موافقة", "Approve")}
+                <Button
+                  size="sm"
+                  disabled={busyId === row.id}
+                  onClick={() => decide(row, true)}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm text-xs font-semibold"
+                >
+                  <Check className="h-4 w-4 me-1" />
+                  {ar("موافقة واعتماد", "Approve")}
                 </Button>
-                <Button size="sm" variant="outline" disabled={busyId === row.id} onClick={() => decide(row, false)}>
-                  <X className="h-4 w-4 me-1" />{ar("رفض", "Reject")}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={busyId === row.id}
+                  onClick={() => decide(row, false)}
+                  className="text-rose-600 border-rose-200 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold"
+                >
+                  <X className="h-4 w-4 me-1" />
+                  {ar("رفض", "Reject")}
                 </Button>
               </div>
             </div>
@@ -325,86 +439,372 @@ export default function AdminOverview() {
   };
 
   return (
-    <div dir={dir} className="min-h-screen bg-background">
-      <div className="w-full px-4 sm:px-6 py-6 space-y-6">
-        <header className="flex flex-wrap items-center justify-between gap-3">
+    <div dir={dir} className="min-h-screen bg-slate-50/50 dark:bg-background">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+        
+        {/* Top Header */}
+        <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white dark:bg-card p-5 rounded-2xl border border-border/70 shadow-sm">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black">{ar("لوحة الأدمن", "Admin panel")}</h1>
-            <p className="text-sm text-muted-foreground">
-              {ar("نظرة شاملة على الموقع ومركز موافقات موحّد", "Site-wide overview and unified approvals center")}
+            <div className="flex items-center gap-2">
+              <span className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
+                {ar("لوحة الإدارة الموحدة", "Unified Admin Dashboard")}
+              </h1>
+            </div>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              {ar("مركز إدارة الموافقات، التحليلات البيانية، والإحصائيات الشاملة لمنصة UNIGATES", "Approvals center, live analytics, and comprehensive statistics for UNIGATES platform")}
             </p>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
+
+          <div className="flex items-center gap-2.5 flex-wrap">
             <a
               href={`https://wa.me/${ADMIN_WHATSAPP_NUMBER}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 rounded-lg hover:bg-emerald-200 transition-colors shadow-sm"
-              title={ar("فتح واتساب الإشعارات المباشر", "Open Admin WhatsApp Alerts")}
+              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 rounded-xl hover:bg-emerald-200 transition-colors shadow-sm"
+              title={ar("فتح واتساب الإدارة المباشر", "Open Admin WhatsApp")}
             >
               <MessageSquare className="w-4 h-4 text-emerald-600" />
-              <span>{ar("واتساب الأدمن: 00966563057356", "Admin WhatsApp: 00966563057356")}</span>
+              <span>00966563057356</span>
             </a>
-            <Button variant="outline" size="sm" onClick={refresh} disabled={refreshing}>
-              <RefreshCw className={`h-4 w-4 me-1 ${refreshing ? "animate-spin" : ""}`} />
+
+            <Button variant="outline" size="sm" onClick={refresh} disabled={refreshing} className="rounded-xl">
+              <RefreshCw className={`h-4 w-4 me-1.5 ${refreshing ? "animate-spin" : ""}`} />
               {ar("تحديث", "Refresh")}
             </Button>
-            <Button size="sm" variant="outline" onClick={() => navigate("/admin/security-center")}>
-              <ShieldCheck className="h-4 w-4 me-1" />
-              {ar("مركز الأمان الدفاعي", "Security Center")}
+
+            <Button size="sm" variant="outline" onClick={() => navigate("/admin/security-center")} className="rounded-xl">
+              <ShieldCheck className="h-4 w-4 me-1.5 text-blue-600" />
+              {ar("الأمان الدفاعي", "Security")}
             </Button>
-            <Button size="sm" variant="outline" onClick={() => navigate("/admin/payment-settings")}>
-              <Landmark className="h-4 w-4 me-1" />
-              {ar("بيانات الدفع", "Payment Settings")}
-            </Button>
-            <Button size="sm" onClick={() => navigate("/admin/dashboard")}>
-              <LayoutDashboard className="h-4 w-4 me-1" />
-              {ar("اللوحة التفصيلية", "Full dashboard")}
+
+            <Button size="sm" onClick={() => navigate("/admin/dashboard")} className="rounded-xl shadow-sm">
+              <LayoutDashboard className="h-4 w-4 me-1.5" />
+              {ar("لوحة التفاصيل", "Detailed View")}
               <ArrowRight className="h-4 w-4 ms-1 rtl:rotate-180" />
             </Button>
           </div>
         </header>
 
-        <section className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3">
-          {statCards.map((s) => (
-            <Card key={s.label} className="border-border/60">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-xs text-muted-foreground line-clamp-2">{s.label}</p>
-                  <s.icon className="h-4 w-4 text-muted-foreground shrink-0" />
+        {/* 3 Main Pillars Selector Tabs */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button
+            onClick={() => setMainSection("approvals")}
+            className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-start ${
+              mainSection === "approvals"
+                ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20 scale-[1.01]"
+                : "bg-white dark:bg-card text-foreground border-border/70 hover:border-primary/40"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div className={`p-2.5 rounded-xl ${mainSection === "approvals" ? "bg-white/20 text-white" : "bg-primary/10 text-primary"}`}>
+                <ClipboardList className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold opacity-80">{ar("الركن الأول", "Pillar 1")}</p>
+                <h3 className="text-base font-black leading-tight">{ar("الموافقات والطلبات", "Approvals & Requests")}</h3>
+              </div>
+            </div>
+            <Badge variant={mainSection === "approvals" ? "secondary" : "default"} className="font-bold text-xs">
+              {pending.length}
+            </Badge>
+          </button>
+
+          <button
+            onClick={() => setMainSection("analytics")}
+            className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-start ${
+              mainSection === "analytics"
+                ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20 scale-[1.01]"
+                : "bg-white dark:bg-card text-foreground border-border/70 hover:border-primary/40"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div className={`p-2.5 rounded-xl ${mainSection === "analytics" ? "bg-white/20 text-white" : "bg-primary/10 text-primary"}`}>
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold opacity-80">{ar("الركن الثاني", "Pillar 2")}</p>
+                <h3 className="text-base font-black leading-tight">{ar("التحليلات ومعدلات النمو", "Analytics & Trends")}</h3>
+              </div>
+            </div>
+            <Activity className="w-4 h-4 opacity-70" />
+          </button>
+
+          <button
+            onClick={() => setMainSection("statistics")}
+            className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-start ${
+              mainSection === "statistics"
+                ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20 scale-[1.01]"
+                : "bg-white dark:bg-card text-foreground border-border/70 hover:border-primary/40"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div className={`p-2.5 rounded-xl ${mainSection === "statistics" ? "bg-white/20 text-white" : "bg-primary/10 text-primary"}`}>
+                <BarChart3 className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold opacity-80">{ar("الركن الثالث", "Pillar 3")}</p>
+                <h3 className="text-base font-black leading-tight">{ar("الإحصائيات والأرقام", "Statistics & Metrics")}</h3>
+              </div>
+            </div>
+            <PieChart className="w-4 h-4 opacity-70" />
+          </button>
+        </div>
+
+        {/* ── SECTION 1: APPROVALS & REQUESTS ── */}
+        {mainSection === "approvals" && (
+          <div className="space-y-6">
+            <Card className="border-border/70 shadow-sm rounded-2xl">
+              <CardHeader className="pb-3 border-b border-border/50 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div>
+                  <CardTitle className="text-xl font-black flex items-center gap-2">
+                    <ClipboardList className="w-5 h-5 text-primary" />
+                    {ar("مركز إدارة واعتماد الطلبات المعلقة", "Pending Approvals & Verification Center")}
+                  </CardTitle>
+                  <CardDescription>
+                    {ar("مراجعة واعتماد طلبات الانضمام، الكليات، المدارس، المحاضرين وتأكيد الحوالات والمدفوعات", "Review and approve pending registrations, institutions, and payment verifications")}
+                  </CardDescription>
                 </div>
-                <p className="mt-2 text-2xl font-black tabular-nums">{s.value.toLocaleString()}</p>
+                <div className="relative w-full md:w-64">
+                  <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder={ar("بحث في الطلبات المعلقة...", "Search pending requests...")}
+                    value={searchPending}
+                    onChange={(e) => setSearchPending(e.target.value)}
+                    className="ps-9 rounded-xl text-xs h-9"
+                  />
+                </div>
+              </CardHeader>
+              <CardContent className="p-4 sm:p-6">
+                <Tabs defaultValue="all">
+                  <TabsList className="flex flex-wrap h-auto gap-1 bg-muted/60 p-1.5 rounded-xl mb-4">
+                    <TabsTrigger value="all" className="rounded-lg text-xs font-semibold py-1.5">
+                      {ar("جميع الطلبات", "All Requests")} ({filteredPending.length})
+                    </TabsTrigger>
+                    {(Object.keys(kindMeta) as PendingKind[]).map((k) => (
+                      <TabsTrigger key={k} value={k} className="rounded-lg text-xs font-semibold py-1.5">
+                        {ar(kindMeta[k].ar, kindMeta[k].en)} ({groups[k].length})
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                  <TabsContent value="all">{renderList(filteredPending)}</TabsContent>
+                  {(Object.keys(kindMeta) as PendingKind[]).map((k) => (
+                    <TabsContent key={k} value={k}>{renderList(groups[k])}</TabsContent>
+                  ))}
+                </Tabs>
               </CardContent>
             </Card>
-          ))}
-        </section>
+          </div>
+        )}
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              {ar("مركز الموافقات", "Approvals center")}
-              {pending.length > 0 && <Badge variant="secondary">{pending.length}</Badge>}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="all">
-              <TabsList className="flex flex-wrap h-auto">
-                <TabsTrigger value="all">
-                  {ar("الكل", "All")} ({pending.length})
-                </TabsTrigger>
-                {(Object.keys(kindMeta) as PendingKind[]).map((k) => (
-                  <TabsTrigger key={k} value={k}>
-                    {ar(kindMeta[k].ar, kindMeta[k].en)} ({groups[k].length})
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-              <TabsContent value="all">{renderList(pending)}</TabsContent>
-              {(Object.keys(kindMeta) as PendingKind[]).map((k) => (
-                <TabsContent key={k} value={k}>{renderList(groups[k])}</TabsContent>
-              ))}
-            </Tabs>
-          </CardContent>
-        </Card>
+        {/* ── SECTION 2: ANALYTICS & GROWTH TRENDS ── */}
+        {mainSection === "analytics" && (
+          <div className="space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-card p-4 rounded-2xl border border-border/70">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-primary" />
+                <h2 className="text-lg font-black text-foreground">{ar("معدلات النشاط والتفاعل الحي", "Live Activity & Engagement Trends")}</h2>
+              </div>
+              <TimeRangeToggle
+                value={rangeDays}
+                onChange={setRangeDays}
+                isRtl={isRtl}
+                translate={(t: any) => ar(t.ar, t.en)}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Activity Trend Chart */}
+              <LiveActivityTrends
+                sections={activitySections}
+                days={rangeDays}
+                className="shadow-sm rounded-2xl border-border/70"
+              />
+
+              {/* Pill Equalizer Activity Chart */}
+              <StudentPillActivityChart
+                sections={activitySections}
+                days={rangeDays}
+                title={ar("مؤشرات التفاعل بحسب القطاعات", "Sector Engagement Indicators")}
+                className="shadow-sm rounded-2xl border-border/70"
+              />
+            </div>
+
+            {/* Conversion & Health Meters */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card className="rounded-2xl border-border/70 shadow-sm p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-muted-foreground">{ar("معدل اكتمال الطلاب", "Student Ratio")}</span>
+                  <GraduationCap className="w-4 h-4 text-blue-500" />
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-black text-foreground">{studentRatio}%</span>
+                  <span className="text-xs text-muted-foreground">{ar("من إجمالي المستخدمين", "of total users")}</span>
+                </div>
+                <Progress value={studentRatio} className="h-2 bg-blue-100 dark:bg-blue-950" />
+              </Card>
+
+              <Card className="rounded-2xl border-border/70 shadow-sm p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-muted-foreground">{ar("تغطية المحاضرين وهيئة التدريس", "Faculty Ratio")}</span>
+                  <ClipboardList className="w-4 h-4 text-purple-500" />
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-black text-foreground">{lecturerRatio}%</span>
+                  <span className="text-xs text-muted-foreground">{ar("كادر أكاديمي معتمد", "approved faculty")}</span>
+                </div>
+                <Progress value={lecturerRatio} className="h-2 bg-purple-100 dark:bg-purple-950" />
+              </Card>
+
+              <Card className="rounded-2xl border-border/70 shadow-sm p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-muted-foreground">{ar("إجمالي المؤسسات المعتمدة", "Approved Institutions")}</span>
+                  <Building2 className="w-4 h-4 text-emerald-500" />
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-black text-foreground">{totalInstitutions}</span>
+                  <span className="text-xs text-muted-foreground">{ar("كلية ومعهد ومدرسة", "colleges, institutes & schools")}</span>
+                </div>
+                <Progress value={Math.min(100, totalInstitutions * 10)} className="h-2 bg-emerald-100 dark:bg-emerald-950" />
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {/* ── SECTION 3: COMPREHENSIVE STATISTICS ── */}
+        {mainSection === "statistics" && (
+          <div className="space-y-6">
+            {/* Key KPI Metrics Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-4 gap-4">
+              <Card className="border-border/70 shadow-sm rounded-2xl bg-gradient-to-br from-blue-500/10 to-transparent">
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-bold text-muted-foreground">{ar("إجمالي المستخدمين", "Total Users")}</p>
+                    <Users className="h-5 w-5 text-blue-500" />
+                  </div>
+                  <p className="mt-3 text-3xl font-black tabular-nums">{stats.users.toLocaleString()}</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">{stats.students} {ar("طالب", "students")} · {stats.lecturers} {ar("محاضر", "lecturers")}</p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/70 shadow-sm rounded-2xl bg-gradient-to-br from-emerald-500/10 to-transparent">
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-bold text-muted-foreground">{ar("إجمالي الإيرادات", "Total Revenue")}</p>
+                    <DollarSign className="h-5 w-5 text-emerald-500" />
+                  </div>
+                  <p className="mt-3 text-3xl font-black tabular-nums text-emerald-600 dark:text-emerald-400">
+                    {stats.totalRevenue.toLocaleString()} <span className="text-xs font-bold">{ar("ريال / ج.م", "SAR/EGP")}</span>
+                  </p>
+                  <p className="text-[11px] text-muted-foreground mt-1">{stats.subscriptions} {ar("اشتراك نشط", "active subs")}</p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/70 shadow-sm rounded-2xl bg-gradient-to-br from-purple-500/10 to-transparent">
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-bold text-muted-foreground">{ar("المؤسسات والجهات", "Institutions")}</p>
+                    <Building2 className="h-5 w-5 text-purple-500" />
+                  </div>
+                  <p className="mt-3 text-3xl font-black tabular-nums">{totalInstitutions}</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">{stats.colleges} {ar("كلية", "colleges")} · {stats.institutes} {ar("معهد", "inst.")} · {stats.schools} {ar("مدرسة", "schools")}</p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/70 shadow-sm rounded-2xl bg-gradient-to-br from-amber-500/10 to-transparent">
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-bold text-muted-foreground">{ar("المحتوى والمقررات", "Courses & Content")}</p>
+                    <PlayCircle className="h-5 w-5 text-amber-500" />
+                  </div>
+                  <p className="mt-3 text-3xl font-black tabular-nums">{stats.courses}</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">{stats.views.toLocaleString()} {ar("مشاهدة مسجلة", "views recorded")}</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Detailed Category Breakdowns */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Card className="border-border/70 shadow-sm rounded-2xl p-5 space-y-4">
+                <h4 className="font-bold text-sm text-foreground flex items-center gap-2">
+                  <Building2 className="w-4 h-4 text-purple-500" />
+                  {ar("تفصيل المؤسسات الأكاديمية", "Academic Institutions Breakdown")}
+                </h4>
+                <div className="space-y-3 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">{ar("الكليات الجامعية", "Colleges")}</span>
+                    <span className="font-bold">{stats.colleges}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">{ar("المعاهد المتخصصة", "Institutes")}</span>
+                    <span className="font-bold">{stats.institutes}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">{ar("المدارس التعليمية", "Schools")}</span>
+                    <span className="font-bold">{stats.schools}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">{ar("الأقسام النشطة", "Departments")}</span>
+                    <span className="font-bold">{stats.departments}</span>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="border-border/70 shadow-sm rounded-2xl p-5 space-y-4">
+                <h4 className="font-bold text-sm text-foreground flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-emerald-500" />
+                  {ar("متجر الكتب والمقررات", "Book Store & Digital Assets")}
+                </h4>
+                <div className="space-y-3 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">{ar("الكتب والعقود المعروضة", "Listed Books")}</span>
+                    <span className="font-bold">{stats.books}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">{ar("طلبات الشراء المكتملة", "Completed Orders")}</span>
+                    <span className="font-bold">{stats.orders}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">{ar("جلسات البث المباشر", "Live Streams")}</span>
+                    <span className="font-bold">{stats.streams}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">{ar("الاختبارات والتكليفات", "Quizzes & Exams")}</span>
+                    <span className="font-bold">{stats.quizzes}</span>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="border-border/70 shadow-sm rounded-2xl p-5 space-y-4">
+                <h4 className="font-bold text-sm text-foreground flex items-center gap-2">
+                  <Award className="w-4 h-4 text-blue-500" />
+                  {ar("الاعتماد الرقمي والأمان", "Digital Verification & Security")}
+                </h4>
+                <div className="space-y-3 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">{ar("حالة جدار الحماية Defense", "Defense Firewall")}</span>
+                    <Badge variant="outline" className="text-[10px] text-emerald-600 bg-emerald-50 border-emerald-200">
+                      {ar("نشط ومحمى", "Active")}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">{ar("تنبيهات الواتساب الفورية", "WhatsApp Alerts")}</span>
+                    <Badge variant="outline" className="text-[10px] text-emerald-600 bg-emerald-50 border-emerald-200">
+                      00966563057356
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">{ar("سلاسل الاعتماد الرقمي", "Digital Blockchain Certs")}</span>
+                    <Badge variant="outline" className="text-[10px] text-blue-600 bg-blue-50 border-blue-200">
+                      {ar("مفعل", "Enabled")}
+                    </Badge>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

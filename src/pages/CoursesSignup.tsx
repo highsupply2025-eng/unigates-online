@@ -192,21 +192,28 @@ const CoursesSignup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!role) return;
-    if (!fullName || !email || !phone || !password) {
+    if (!role) {
+      toast({
+        title: tText("تحديد نوع الحساب", "Select Role"),
+        description: tText("يرجى اختيار نوع الحساب أولاً للمتابعة", "Please select an account role first"),
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!fullName.trim() || !email.trim() || !phone.trim() || !password) {
       toast({
         title: tText("خطأ في البيانات", "Validation Error"),
-        description: tText("يرجى تعبئة جميع الحقول المطلوبة", "Please fill in all required fields"),
+        description: tText("يرجى تعبئة جميع الحقول المطلوبة بدقة", "Please fill in all required fields"),
         variant: "destructive",
       });
       return;
     }
     if (!PASSWORD_REGEX.test(password)) {
       toast({
-        title: tText("كلمة مرور ضعيفة", "Weak password"),
+        title: tText("كلمة مرور غير مطابقة للشروط", "Password not compliant"),
         description: tText(
-          "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل، وتحتوي على حرف كبير، حرف صغير، رقم، ورمز خاص.",
-          "Min 8 characters with upper, lower, number, and symbol"
+          "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل، وتحتوي على حرف كبير، حرف صغير، رقم، ورمز خاص (@#$!).",
+          "Password must have at least 8 chars with upper, lower, number, and special character."
         ),
         variant: "destructive",
       });
@@ -214,8 +221,8 @@ const CoursesSignup = () => {
     }
     if (password !== confirmPassword) {
       toast({
-        title: tText("عدم تطابق", "Mismatch"),
-        description: tText("كلمتا المرور غير متطابقتين", "Passwords do not match"),
+        title: tText("عدم تطابق كلمة المرور", "Passwords Mismatch"),
+        description: tText("كلمة المرور وتأكيد كلمة المرور غير متطابقتين", "Passwords do not match"),
         variant: "destructive",
       });
       return;
@@ -223,33 +230,57 @@ const CoursesSignup = () => {
 
     setLoading(true);
     try {
+      const cleanEmail = email.trim().toLowerCase();
+      const fullPhone = `${countryCode}${phone.trim()}`;
+
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
+        email: cleanEmail,
         password,
         options: { emailRedirectTo: getAuthCallbackUrl() },
       });
       if (authError) throw authError;
+
       const userId = authData.user?.id;
-      if (!userId) throw new Error("No user");
+      if (!userId) {
+        throw new Error(tText("تعذر الحصول على معرف المستخدم", "Could not retrieve user ID"));
+      }
 
       const { data: rpcResult, error: rpcError } = await supabase.rpc("complete_signup", {
         p_user_id: userId,
         p_role: role,
-        p_full_name: fullName,
-        p_phone: `${countryCode}${phone}`,
-        p_email: email,
+        p_full_name: fullName.trim(),
+        p_phone: fullPhone,
+        p_email: cleanEmail,
         p_platform: "courses",
       });
-      if (rpcError) throw rpcError;
+
+      if (rpcError) {
+        console.error("complete_signup RPC error:", rpcError);
+        throw rpcError;
+      }
+
       const result = rpcResult as any;
-      if (result && !result.success) throw new Error(result.error);
+      if (result && result.success === false) {
+        if (result.error === "Profile already exists") {
+          throw new Error(tText("هذا الحساب مسجّل بالفعل، يرجى الانتقال لتسجيل الدخول", "This account is already registered. Please sign in."));
+        }
+        throw new Error(result.error || tText("فشل حفظ الملف الشخصي", "Failed to complete profile"));
+      }
 
       setSubmitted(true);
     } catch (err: any) {
       console.error("Courses signup failed:", err);
+      let msg = err?.message || "";
+      if (msg.includes("User already registered") || msg.includes("already exists")) {
+        msg = tText("البريد الإلكتروني مسجل مسبقاً، يرجى تسجيل الدخول بدلاً من ذلك.", "Email already registered. Please sign in instead.");
+      } else if (msg.includes("weak_password") || msg.includes("Password should be")) {
+        msg = tText("كلمة المرور ضعيفة وفق معايير الأمان.", "Password is too weak.");
+      } else if (!msg) {
+        msg = tText("حدث خطأ أثناء معالجة طلبك، يرجى المحاولة لاحقاً.", "Unexpected error occurred. Please try again.");
+      }
       toast({
         title: tText("فشل إنشاء الحساب", "Signup failed"),
-        description: err?.message || tText("حدث خطأ أثناء معالجة طلبك", "Unexpected error occurred"),
+        description: msg,
         variant: "destructive",
       });
     } finally {

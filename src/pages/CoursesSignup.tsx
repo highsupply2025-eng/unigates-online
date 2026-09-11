@@ -634,8 +634,14 @@ const CoursesSignup = () => {
                   )}
                 </Button>
 
+                {/* Security Shield Guarantee */}
+                <div className="flex items-center justify-center gap-1.5 pt-1 text-[11px] text-slate-400">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>{tText("اتصال مشفر وآمن بنسبة 100% بنظام حماية البيانات", "256-bit SSL encrypted secure connection")}</span>
+                </div>
+
                 {/* Login Link */}
-                <p className="text-center text-xs sm:text-sm text-slate-300 pt-2">
+                <p className="text-center text-xs sm:text-sm text-slate-300 pt-1">
                   {tText("لديك حساب بالفعل؟", "Already registered?")}{" "}
                   <Link to="/courses/login" className="text-purple-400 font-bold hover:underline">
                     {tText("تسجيل الدخول", "Sign In")}

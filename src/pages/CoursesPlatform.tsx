@@ -223,11 +223,11 @@ const CoursesPlatform = () => {
   const steps = [
     {
       step: "1",
-      icon: User,
-      title: isRtl ? "أنشئ حسابك وحدد تخصصك" : "Create Account & Choose Role",
-      desc: isRtl ? "سجّل كطالب، محاضر مستقل، معلّم، أو مركز تدريب في أقل من دقيقة." : "Sign up as a student, independent instructor, teacher, or training center in under a minute.",
-      cta: isRtl ? "إنشاء حساب" : "Signup Now",
-      link: "/courses/signup",
+      icon: GraduationCap,
+      title: isRtl ? "أنشئ حسابك كطالب ومتدرب" : "Create Student Account",
+      desc: isRtl ? "سجّل حسابك كطالب ومتدرب في أقل من دقيقة لتتمكن من مشاهدة الدورات وحفظ تقدمك." : "Sign up as a student/learner in under a minute to start streaming courses.",
+      cta: isRtl ? "إنشاء حساب طالب" : "Signup as Student",
+      link: "/courses/signup?role=personal",
     },
     {
       step: "2",
@@ -597,14 +597,14 @@ const CoursesPlatform = () => {
           <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
             {steps.map((item, i) => (
               <div key={i} className="flex flex-col items-center text-center p-6 rounded-3xl bg-card border-2 border-border/70 shadow-lg hover:shadow-xl transition-all group">
-                <div className="relative mb-5">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 text-white flex items-center justify-center shadow-xl shadow-purple-500/25 group-hover:scale-110 transition-transform">
+                <Link to={item.link} className="relative mb-5 block group-hover:scale-105 transition-transform">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 text-white flex items-center justify-center shadow-xl shadow-purple-500/25">
                     <item.icon className="w-8 h-8" />
                   </div>
                   <div className="absolute -top-2 -end-2 w-7 h-7 rounded-full bg-foreground text-background flex items-center justify-center text-xs font-black shadow-md">
                     {item.step}
                   </div>
-                </div>
+                </Link>
                 <h3 className="font-black text-foreground mb-2 text-lg">{item.title}</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground mb-5 leading-relaxed">{item.desc}</p>
                 <Link to={item.link} className="mt-auto w-full">

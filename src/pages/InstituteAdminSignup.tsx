@@ -137,7 +137,29 @@ const InstituteAdminSignup = () => {
       });
       if (authError) throw authError;
 
-      const { error } = await supabase.from("college_registrations").insert({
+      // 1. Insert into institute_registrations for institute management & dashboard
+      const { error: instError } = await supabase.from("institute_registrations" as any).insert({
+        institute_name: instituteName,
+        director_name: directorName,
+        city,
+        address: address || null,
+        specialization: specialization || null,
+        logo_url: logoUrl,
+        email: normalizedEmail,
+        phone: `${countryCode}${phone}`,
+        student_count: studentCount ? parseInt(studentCount) : 0,
+        message: [
+          actualStudentCount ? `${isRtl ? "الطاقة الاستيعابية" : "Capacity"}: ${actualStudentCount}` : "",
+          message,
+        ]
+          .filter(Boolean)
+          .join(". ") || null,
+        subscription_plan: subscriptionPlan,
+        status: "pending",
+      });
+
+      // 2. Also insert into college_registrations (type: institute) for unified legacy queries
+      const { error: colError } = await supabase.from("college_registrations").insert({
         college_name: instituteName,
         university_name: instituteName,
         city,
@@ -157,7 +179,8 @@ const InstituteAdminSignup = () => {
         type: "institute",
         subscription_plan: subscriptionPlan,
       });
-      if (error) throw error;
+
+      if (instError && colError) throw instError || colError;
 
       let confirmationPending = !authData.session && !authData.user?.email_confirmed_at;
       if (authData.session) {

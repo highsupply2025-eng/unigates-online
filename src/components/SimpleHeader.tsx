@@ -52,10 +52,10 @@ const SimpleHeader = ({ backTo = "/", mobileBackOnly = false, useHistoryBack = f
   };
 
   const handleBack = () => {
-    if (useHistoryBack && window.history.length > 1) {
+    if (window.history.length > 1) {
       navigate(-1);
     } else {
-      navigate(backTo);
+      navigate(backTo, { replace: true });
     }
   };
 

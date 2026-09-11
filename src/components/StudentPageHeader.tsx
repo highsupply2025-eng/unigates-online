@@ -75,24 +75,23 @@ const StudentPageHeader = ({ titleAr, titleEn, icon, minimal = true, backTo, bac
         {backTo && (
           <div className="flex items-center gap-2 shrink-0">
             <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
-            {onBackClick ? (
-              <Button
-                variant="default"
-                size="sm"
-                onClick={onBackClick}
-                className="shrink-0 gap-1.5 font-black bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-600 hover:from-indigo-600 hover:via-purple-700 hover:to-pink-700 text-white border-0 shadow-lg shadow-purple-500/40 hover:shadow-purple-500/60 active:scale-95 transition-all"
-              >
-                {isRtl ? <ArrowLeft className="w-4 h-4" strokeWidth={2.75} /> : <ArrowRight className="w-4 h-4" strokeWidth={2.75} />}
-                <span className="hidden xs:inline">{isRtl ? (backLabelAr ?? "رجوع") : (backLabelEn ?? "Back")}</span>
-              </Button>
-            ) : (
-              <Link to={backTo} className="shrink-0">
-                <Button variant="default" size="sm" className="gap-1.5 font-black bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-600 hover:from-indigo-600 hover:via-purple-700 hover:to-pink-700 text-white border-0 shadow-lg shadow-purple-500/40 hover:shadow-purple-500/60 active:scale-95 transition-all">
-                  {isRtl ? <ArrowLeft className="w-4 h-4" strokeWidth={2.75} /> : <ArrowRight className="w-4 h-4" strokeWidth={2.75} />}
-                  <span className="hidden xs:inline">{isRtl ? (backLabelAr ?? "رجوع") : (backLabelEn ?? "Back")}</span>
-                </Button>
-              </Link>
-            )}
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => {
+                if (onBackClick) {
+                  onBackClick();
+                } else if (window.history.length > 1) {
+                  navigate(-1);
+                } else {
+                  navigate(backTo, { replace: true });
+                }
+              }}
+              className="shrink-0 gap-1.5 font-black bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-600 hover:from-indigo-600 hover:via-purple-700 hover:to-pink-700 text-white border-0 shadow-lg shadow-purple-500/40 hover:shadow-purple-500/60 active:scale-95 transition-all"
+            >
+              {isRtl ? <ArrowLeft className="w-4 h-4" strokeWidth={2.75} /> : <ArrowRight className="w-4 h-4" strokeWidth={2.75} />}
+              <span className="hidden xs:inline">{isRtl ? (backLabelAr ?? "رجوع") : (backLabelEn ?? "Back")}</span>
+            </Button>
           </div>
         )}
 

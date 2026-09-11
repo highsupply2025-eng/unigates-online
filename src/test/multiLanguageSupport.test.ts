@@ -59,4 +59,30 @@ describe("Global Multi-Language (i18n) System Tests", () => {
       expect(dict.signupPage.title).toBeTruthy();
     });
   });
+
+  it("should accurately translate terms in all 8 languages using glossary", async () => {
+    const { translateTerm } = await import("@/i18n/multilingualGlossary");
+    expect(translateTerm("الرئيسية", "en")).toBe("Home");
+    expect(translateTerm("الرئيسية", "fr")).toBe("Accueil");
+    expect(translateTerm("الرئيسية", "de")).toBe("Startseite");
+    expect(translateTerm("الرئيسية", "zh")).toBe("首页");
+    expect(translateTerm("الرئيسية", "tr")).toBe("Ana Sayfa");
+    expect(translateTerm("الرئيسية", "es")).toBe("Inicio");
+    expect(translateTerm("الرئيسية", "ru")).toBe("Главная");
+    expect(translateTerm("الرئيسية", "ar")).toBe("الرئيسية");
+  });
+
+  it("should map country codes correctly to supported languages", async () => {
+    const { mapCountryCodeToLanguage } = await import("@/utils/geoLanguageDetection");
+    expect(mapCountryCodeToLanguage("SA")).toBe("ar");
+    expect(mapCountryCodeToLanguage("EG")).toBe("ar");
+    expect(mapCountryCodeToLanguage("FR")).toBe("fr");
+    expect(mapCountryCodeToLanguage("DE")).toBe("de");
+    expect(mapCountryCodeToLanguage("TR")).toBe("tr");
+    expect(mapCountryCodeToLanguage("CN")).toBe("zh");
+    expect(mapCountryCodeToLanguage("ES")).toBe("es");
+    expect(mapCountryCodeToLanguage("RU")).toBe("ru");
+    expect(mapCountryCodeToLanguage("US")).toBe("en");
+    expect(mapCountryCodeToLanguage("GB")).toBe("en");
+  });
 });

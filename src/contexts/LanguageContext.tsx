@@ -8,6 +8,10 @@ import { zh } from "@/i18n/zh";
 import { ru } from "@/i18n/ru";
 import { tr } from "@/i18n/tr";
 import { translateTerm } from "@/i18n/multilingualGlossary";
+import {
+  getInitialLanguage,
+  autoDetectGeoLanguageAsync,
+} from "@/utils/geoLanguageDetection";
 
 export type Language = "ar" | "en" | "fr" | "es" | "de" | "zh" | "ru" | "tr";
 export type Translations = typeof ar;
@@ -58,25 +62,33 @@ const translations: Record<Language, Translations> = {
 };
 
 const STORAGE_KEY = "unigates_language";
+const MANUAL_SET_KEY = "unigates_language_manually_set";
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY) as Language;
-      if (saved && translations[saved]) {
-        return saved;
-      }
-    } catch {
-      // ignore
-    }
-    return "ar";
+    return getInitialLanguage();
   });
+
+  // Background non-blocking Geo-IP detection if visitor hasn't manually chosen yet
+  useEffect(() => {
+    autoDetectGeoLanguageAsync((geoLang) => {
+      if (translations[geoLang]) {
+        setLanguageState(geoLang);
+        try {
+          localStorage.setItem(STORAGE_KEY, geoLang);
+        } catch {
+          // ignore
+        }
+      }
+    });
+  }, []);
 
   const setLanguage = useCallback((lang: Language) => {
     if (translations[lang]) {
       setLanguageState(lang);
       try {
         localStorage.setItem(STORAGE_KEY, lang);
+        localStorage.setItem(MANUAL_SET_KEY, "true");
       } catch {
         // ignore
       }
@@ -88,6 +100,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
       const next: Language = prev === "ar" ? "en" : "ar";
       try {
         localStorage.setItem(STORAGE_KEY, next);
+        localStorage.setItem(MANUAL_SET_KEY, "true");
       } catch {
         // ignore
       }

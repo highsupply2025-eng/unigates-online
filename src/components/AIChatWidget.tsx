@@ -374,7 +374,12 @@ const AIChatWidget = () => {
   };
 
   const openWhatsApp = () => {
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}`, "_blank");
+    const text = encodeURIComponent(
+      isRtl
+        ? "مرحباً، أود الاستفسار والتواصل بخصوص منصة UNIGATES"
+        : "Hello, I would like to inquire about the UNIGATES platform"
+    );
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${text}`, "_blank");
   };
 
   const clearChat = () => {

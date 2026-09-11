@@ -21,11 +21,16 @@ describe("Global Courses Academy Platform Integration", () => {
       { role: "lecturer", path: "/courses/signup?role=lecturer" },
       { role: "teacher", path: "/courses/signup?role=teacher" },
       { role: "training_center", path: "/courses/signup?role=training_center" },
+      { role: "language_center", path: "/courses/signup?role=language_center" },
       { role: "personal", path: "/courses/signup?role=personal" },
     ];
 
+    expect(roleRoutes).toHaveLength(5);
     expect(roleRoutes.find(r => r.role === "lecturer")?.path).toContain("role=lecturer");
+    expect(roleRoutes.find(r => r.role === "teacher")?.path).toContain("role=teacher");
     expect(roleRoutes.find(r => r.role === "training_center")?.path).toContain("role=training_center");
+    expect(roleRoutes.find(r => r.role === "language_center")?.path).toContain("role=language_center");
+    expect(roleRoutes.find(r => r.role === "personal")?.path).toContain("role=personal");
   });
 
   it("should support DRM protection and QR verifiable completion certificates", () => {

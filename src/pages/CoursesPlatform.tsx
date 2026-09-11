@@ -130,7 +130,7 @@ const CoursesPlatform = () => {
     },
     {
       roleAr: "مراكز التدريب والأكاديميات",
-      roleEn: "Training & Language Centers",
+      roleEn: "Training Centers & Academies",
       descAr: "أطلق برامج تدريبية ودبلومات مهنية معتمدة متعددة المحاضرين، مع لوحة إدارة مركزية للمتدربين والشهادات.",
       descEn: "Launch accredited multi-instructor diplomas and training programs with central administration.",
       icon: Building2,
@@ -138,6 +138,17 @@ const CoursesPlatform = () => {
       ctaAr: "تسجيل مركز تدريب",
       ctaEn: "Register Center",
       link: "/courses/signup?role=training_center",
+    },
+    {
+      roleAr: "مراكز اللغات والترجمة",
+      roleEn: "Language & Translation Centers",
+      descAr: "قدّم برامج ودورات تعليم اللغات الأجنبية واختبارات الكفاءة الدولية (IELTS, TOEFL) مع مدربين معتمدين.",
+      descEn: "Offer foreign language learning programs and international proficiency exam prep (IELTS, TOEFL) with certified coaches.",
+      icon: Languages,
+      color: "from-rose-500 to-pink-600",
+      ctaAr: "تسجيل مركز لغات",
+      ctaEn: "Register Language Center",
+      link: "/courses/signup?role=language_center",
     },
     {
       roleAr: "الطلاب والمتدربون",
@@ -384,35 +395,42 @@ const CoursesPlatform = () => {
           {/* Quick Action Launchpad */}
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Link to="/courses/signup?role=lecturer">
-              <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-xl shadow-purple-500/30 gap-2 hover:scale-105 transition-all">
+              <Button size="lg" className="h-12 px-5 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-xl shadow-purple-500/30 gap-2 hover:scale-105 transition-all">
                 <BookOpenCheck className="w-5 h-5" />
                 {tText("📖 انضم كمحاضر / مدرب", "Join as Instructor")}
               </Button>
             </Link>
 
             <Link to="/courses/signup?role=teacher">
-              <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-xl shadow-emerald-500/30 gap-2 hover:scale-105 transition-all">
+              <Button size="lg" className="h-12 px-5 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-xl shadow-emerald-500/30 gap-2 hover:scale-105 transition-all">
                 <Users className="w-5 h-5" />
                 {tText("🌟 انضم كمعلم متميز", "Join as Distinguished Teacher")}
               </Button>
             </Link>
 
             <Link to="/courses/signup?role=training_center">
-              <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-xl shadow-amber-500/30 gap-2 hover:scale-105 transition-all">
+              <Button size="lg" className="h-12 px-5 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-xl shadow-amber-500/30 gap-2 hover:scale-105 transition-all">
                 <Building2 className="w-5 h-5" />
-                {tText("🏢 تسجيل مركز تدريب / لغات", "Register Center")}
+                {tText("🏢 تسجيل مركز تدريب", "Register Training Center")}
+              </Button>
+            </Link>
+
+            <Link to="/courses/signup?role=language_center">
+              <Button size="lg" className="h-12 px-5 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white shadow-xl shadow-rose-500/30 gap-2 hover:scale-105 transition-all">
+                <Languages className="w-5 h-5" />
+                {tText("🌐 تسجيل مركز لغات", "Register Language Center")}
               </Button>
             </Link>
 
             <Link to="/courses/signup?role=personal">
-              <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-xl shadow-blue-500/30 gap-2 hover:scale-105 transition-all">
+              <Button size="lg" className="h-12 px-5 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-xl shadow-blue-500/30 gap-2 hover:scale-105 transition-all">
                 <GraduationCap className="w-5 h-5" />
                 {tText("🎓 حساب طالب / متدرب", "Student Signup")}
               </Button>
             </Link>
 
             <Link to="/courses/login">
-              <Button size="lg" variant="outline" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-white/10 hover:bg-white/20 text-white border-white/30 shadow-lg backdrop-blur-md gap-2">
+              <Button size="lg" variant="outline" className="h-12 px-5 font-black text-sm sm:text-base rounded-2xl bg-white/10 hover:bg-white/20 text-white border-white/30 shadow-lg backdrop-blur-md gap-2">
                 <Users className="w-5 h-5" />
                 {tText("تسجيل الدخول", "Portal Login")}
               </Button>
@@ -508,7 +526,7 @@ const CoursesPlatform = () => {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
             {roleHubs.map((hub, i) => (
               <Card key={i} className="group hover:shadow-2xl transition-all duration-300 border-2 border-border/80 rounded-3xl overflow-hidden hover:-translate-y-1.5 flex flex-col">
                 <CardContent className="p-6 space-y-4 flex-1 flex flex-col">

@@ -1,13 +1,19 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { AlertCircle, CheckCircle, Loader2, LogIn } from "lucide-react";
+import { AlertCircle, CheckCircle, Loader2, LogIn, Mail, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { getAuthCallbackUrl } from "@/lib/auth-redirect";
+import { useToast } from "@/hooks/use-toast";
 
 const AuthCallback = () => {
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState("");
   const [collegePendingApproval, setCollegePendingApproval] = useState(false);
+  const [resendEmail, setResendEmail] = useState("");
+  const [resending, setResending] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -22,9 +28,28 @@ const AuthCallback = () => {
         }
 
         const code = queryParams.get("code");
+        const tokenHash = queryParams.get("token_hash") || hashParams.get("token_hash");
+        const type = (queryParams.get("type") || hashParams.get("type") || "signup") as any;
+        const accessToken = hashParams.get("access_token");
+        const refreshToken = hashParams.get("refresh_token");
+
         let session;
         if (code) {
           const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) throw error;
+          session = data.session;
+        } else if (tokenHash) {
+          const { data, error } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type,
+          });
+          if (error) throw error;
+          session = data.session;
+        } else if (accessToken && refreshToken) {
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
           if (error) throw error;
           session = data.session;
         } else {
@@ -57,7 +82,7 @@ const AuthCallback = () => {
         const message = error instanceof Error ? error.message : "";
         setErrorMessage(
           message === "expired"
-            ? "انتهت صلاحية رابط التأكيد. يرجى طلب رسالة تأكيد جديدة من صفحة التسجيل."
+            ? "انتهت صلاحية رابط التأكيد. يرجى طلب رسالة تأكيد جديدة أدناه."
             : "تعذر تأكيد البريد الإلكتروني. يرجى فتح أحدث رابط تأكيد أو طلب رسالة جديدة.",
         );
         setStatus("error");
@@ -67,9 +92,46 @@ const AuthCallback = () => {
     void handleCallback();
   }, []);
 
+  const handleResend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resendEmail.trim()) {
+      toast({
+        title: "تنبيه",
+        description: "يرجى كتابة البريد الإلكتروني أولاً",
+        variant: "destructive",
+      });
+      return;
+    }
+    setResending(true);
+    try {
+      const normalizedEmail = resendEmail.trim().toLowerCase();
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: normalizedEmail,
+        options: {
+          emailRedirectTo: getAuthCallbackUrl(),
+        },
+      });
+      if (error) throw error;
+      toast({
+        title: "تم الإرسال بنجاح",
+        description: "تم إرسال رابط تأكيد جديد إلى بريدك. يرجى مراجعة صندوق الوارد والبريد غير الهام (Spam).",
+      });
+      setResendEmail("");
+    } catch (err: any) {
+      toast({
+        title: "تعذر الإرسال",
+        description: err?.message || "حدث خطأ أثناء إرسال البريد. يرجى المحاولة بعد قليل.",
+        variant: "destructive",
+      });
+    } finally {
+      setResending(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center" dir="rtl">
-      <div className="text-center max-w-md mx-auto px-4">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4" dir="rtl">
+      <div className="text-center max-w-md w-full mx-auto px-4">
         {/* Logo */}
         <div className="flex items-center justify-center mb-8">
           <img 
@@ -123,8 +185,34 @@ const AuthCallback = () => {
             </div>
             <h1 className="text-2xl font-black text-[#0a1628] mb-3">لم يتم تأكيد البريد الإلكتروني</h1>
             <p className="text-[#0a1628]/60 mb-6">{errorMessage}</p>
+
+            {/* Inline Resend Form */}
+            <form onSubmit={handleResend} className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 text-right space-y-3">
+              <label className="text-xs font-bold text-slate-700 block">
+                أدخل بريدك الإلكتروني لإرسال رابط تفعيل جديد:
+              </label>
+              <div className="flex gap-2">
+                <Input
+                  type="email"
+                  dir="ltr"
+                  placeholder="name@example.com"
+                  value={resendEmail}
+                  onChange={(e) => setResendEmail(e.target.value)}
+                  className="text-left bg-white"
+                />
+                <Button
+                  type="submit"
+                  disabled={resending}
+                  className="bg-[#c9a14a] hover:bg-[#b8923f] text-[#0a1628] font-bold shrink-0 gap-1.5"
+                >
+                  {resending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  إرسال
+                </Button>
+              </div>
+            </form>
+
             <Link to="/login">
-              <Button size="lg" className="h-12 px-8 font-bold gap-2">
+              <Button size="lg" variant="outline" className="h-12 px-8 font-bold gap-2 w-full">
                 <LogIn className="w-5 h-5" />
                 الانتقال إلى تسجيل الدخول
               </Button>

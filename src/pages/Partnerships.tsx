@@ -67,13 +67,13 @@ const Partnerships = () => {
                 : "Contact us to learn more about available partnership opportunities"}
             </p>
             <div className="flex items-center justify-center gap-6">
-              <a href="mailto:info@marafa.com" className="flex flex-col items-center gap-2 group">
+              <a href="mailto:darobaid@unigates.online" className="flex flex-col items-center gap-2 group">
                 <div className="w-12 h-12 rounded-full bg-blue-500/15 flex items-center justify-center group-hover:bg-blue-500/25 transition-colors">
                   <svg className="w-6 h-6 text-blue-600" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
                 </div>
                 <span className="text-xs font-semibold text-muted-foreground">{isRtl ? "البريد" : "Email"}</span>
               </a>
-              <a href="https://mail.google.com/mail/?view=cm&to=info@marafa.com" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 group">
+              <a href="https://mail.google.com/mail/?view=cm&fs=1&to=darobaid@unigates.online&su=استفسار%20بخصوص%20الشراكة%20مع%20UNIGATES" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 group">
                 <div className="w-12 h-12 rounded-full bg-red-500/15 flex items-center justify-center group-hover:bg-red-500/25 transition-colors">
                   <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
                     <path d="M22 6L12 13 2 6V4l10 7 10-7v2z" fill="#EA4335"/>

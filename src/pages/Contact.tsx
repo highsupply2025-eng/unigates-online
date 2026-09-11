@@ -43,7 +43,7 @@ const Contact = () => {
       contactInfo: "معلومات التواصل",
       channels: [
         { icon: MessageCircle, title: "واتساب", desc: "استجابة فورية", value: "00966563057356", color: "bg-[#25D366]", href: "https://wa.me/966563057356?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D9%88%D8%A7%D9%84%D8%AA%D9%88%D8%A7%D8%B5%D9%84%20%D8%A8%D8%AE%D8%B5%D9%88%D8%B5%20%D9%85%D9%86%D8%B8%D9%88%D9%85%D8%A9%20UNIGATES" },
-        { icon: Mail, title: "البريد الإلكتروني", desc: "نرد خلال 24 ساعة", value: "info@unigates.com", color: "bg-gradient-to-r from-primary to-[hsl(200,75%,30%)]", href: "mailto:info@unigates.com" },
+        { icon: Mail, title: "البريد الإلكتروني", desc: "نرد خلال 24 ساعة", value: "darobaid@unigates.online", color: "bg-gradient-to-r from-primary to-[hsl(200,75%,30%)]", href: "https://mail.google.com/mail/?view=cm&fs=1&to=darobaid@unigates.online&su=استفسار%20بخصوص%20منظومة%20UNIGATES" },
         { icon: Phone, title: "الهاتف", desc: "أيام العمل 9ص - 5م", value: "00966563057356", color: "bg-primary", href: "tel:+966563057356" },
         { icon: MapPin, title: "العنوان", desc: "المملكة العربية السعودية", value: "الرياض", color: "bg-primary", href: "#" },
       ],
@@ -63,7 +63,7 @@ const Contact = () => {
       contactInfo: "Contact Information",
       channels: [
         { icon: MessageCircle, title: "WhatsApp", desc: "Instant response", value: "00966563057356", color: "bg-[#25D366]", href: "https://wa.me/966563057356?text=Hello%2C%20I%20would%20like%20to%20inquire%20about%20the%20UNIGATES%20platform" },
-        { icon: Mail, title: "Email", desc: "We reply within 24 hours", value: "info@unigates.com", color: "bg-gradient-to-r from-primary to-[hsl(200,75%,30%)]", href: "mailto:info@unigates.com" },
+        { icon: Mail, title: "Email", desc: "We reply within 24 hours", value: "darobaid@unigates.online", color: "bg-gradient-to-r from-primary to-[hsl(200,75%,30%)]", href: "https://mail.google.com/mail/?view=cm&fs=1&to=darobaid@unigates.online&su=Inquiry%20regarding%20UNIGATES%20Platform" },
         { icon: Phone, title: "Phone", desc: "Workdays 9AM - 5PM", value: "00966563057356", color: "bg-primary", href: "tel:+966563057356" },
         { icon: MapPin, title: "Address", desc: "Kingdom of Saudi Arabia", value: "Riyadh", color: "bg-primary", href: "#" },
       ],

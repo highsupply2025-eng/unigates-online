@@ -114,10 +114,10 @@ const HelpCenter = () => {
             <h2 className="text-2xl font-black text-foreground mb-4">{c.contactTitle}</h2>
             <p className="text-foreground/70 mb-8">{c.contactDesc}</p>
             <div className="flex flex-wrap justify-center gap-4">
-              <a href="https://wa.me/966563057356" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#25D366] text-white font-bold px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-all">
+              <a href="https://wa.me/966563057356?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%AA%D9%88%D8%A7%D8%B5%D9%84%20%D9%85%D8%B9%20%D9%81%D8%B1%D9%8A%D9%82%20UNIGATES" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#25D366] text-white font-bold px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-all">
                 <MessageCircle className="w-5 h-5" /> WhatsApp
               </a>
-              <a href="mailto:support@unigates.com" className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] text-white font-bold px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-all">
+              <a href="https://mail.google.com/mail/?view=cm&fs=1&to=darobaid@unigates.online&su=استفسار%20بخصوص%20منظومة%20UNIGATES" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-[hsl(200,75%,30%)] text-white font-bold px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-all">
                 <Mail className="w-5 h-5" /> {language === "ar" ? "البريد الإلكتروني" : "Email"}
               </a>
             </div>

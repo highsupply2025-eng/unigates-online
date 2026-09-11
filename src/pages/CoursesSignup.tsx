@@ -425,40 +425,67 @@ const CoursesSignup = () => {
         ) : (
           /* Detailed Signup Form */
           <div className="max-w-xl mx-auto space-y-6">
-            <div className="flex items-center justify-between">
+            {/* Top Quick Role Switcher Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <button
                 type="button"
                 onClick={() => setRole(null)}
                 className="text-xs sm:text-sm font-bold text-purple-400 hover:text-purple-300 hover:underline inline-flex items-center gap-1.5 bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-xl transition-colors"
               >
                 <ArrowIcon className="w-4 h-4" />
-                {tText("تغيير نوع الحساب", "Change account type")}
+                {tText("عرض جميع الأدوار", "View all roles")}
               </button>
 
-              <span className="text-xs font-bold text-slate-400">
-                {tText("الخطوة 2 من 2: استكمال البيانات", "Step 2 of 2: Details")}
-              </span>
+              <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-2xl bg-slate-900/90 border border-white/10">
+                {ROLES.map((r) => (
+                  <button
+                    key={r.value}
+                    type="button"
+                    onClick={() => setRole(r.value)}
+                    className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                      role === r.value
+                        ? `bg-gradient-to-r ${r.color} text-white shadow-md`
+                        : "text-slate-400 hover:text-white hover:bg-white/5"
+                    }`}
+                  >
+                    <r.icon className="w-3 h-3" />
+                    <span>{tText(r.labelAr, r.labelEn)}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="relative rounded-3xl border border-white/15 bg-slate-900/80 backdrop-blur-2xl shadow-2xl shadow-purple-950/60 p-6 sm:p-9 space-y-6">
               {/* Selected Role Header */}
               {selectedRole && (
-                <div className="flex items-center gap-4 pb-5 border-b border-white/10">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${selectedRole.color} flex items-center justify-center text-white shadow-xl shadow-purple-500/20`}>
-                    <selectedRole.icon className="w-7 h-7" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h2 className="font-black text-xl text-white">
-                        {tText(selectedRole.labelAr, selectedRole.labelEn)}
-                      </h2>
-                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${selectedRole.autoApprove ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" : "bg-amber-500/15 text-amber-400 border-amber-500/30"}`}>
-                        {tText(selectedRole.badgeAr, selectedRole.badgeEn)}
-                      </span>
+                <div className="space-y-4 pb-5 border-b border-white/10">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${selectedRole.color} flex items-center justify-center text-white shadow-xl shadow-purple-500/20 shrink-0`}>
+                      <selectedRole.icon className="w-7 h-7" />
                     </div>
-                    <p className="text-xs text-slate-300">
-                      {tText("أكاديمية UNIGATES للدورات والتدريب المهني", "UNIGATES Global Courses Academy")}
-                    </p>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h2 className="font-black text-xl text-white">
+                          {tText(selectedRole.labelAr, selectedRole.labelEn)}
+                        </h2>
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${selectedRole.autoApprove ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" : "bg-amber-500/15 text-amber-400 border-amber-500/30"}`}>
+                          {tText(selectedRole.badgeAr, selectedRole.badgeEn)}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-300 mt-0.5">
+                        {tText(selectedRole.descAr, selectedRole.descEn)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Role Key Highlights */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    {(isRtl ? selectedRole.featuresAr : selectedRole.featuresEn).map((feat, fi) => (
+                      <span key={fi} className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-white/5 border border-white/10 text-slate-300">
+                        <Check className="w-3 h-3 text-emerald-400" />
+                        {feat}
+                      </span>
+                    ))}
                   </div>
                 </div>
               )}

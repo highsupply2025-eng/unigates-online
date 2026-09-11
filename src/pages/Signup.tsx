@@ -80,51 +80,6 @@ const registrationGateways = [
     borderHover: "hover:border-teal-500/60 hover:shadow-teal-500/20",
     lightBg: "bg-teal-50/50 dark:bg-teal-950/20",
   },
-  {
-    id: "school",
-    labelAr: "إدارة مدرسة تعليمية",
-    labelEn: "K-12 School Admin",
-    badgeAr: "التعليم العام",
-    badgeEn: "K-12 Education",
-    descAr: "تسجيل المدارس العامة والخاصة لإدارة المعلمين والطلاب والفصول",
-    descEn: "Register schools for teachers, students, and classroom portals",
-    icon: School,
-    href: "/school-registration",
-    gradient: "from-emerald-500 via-emerald-600 to-green-700",
-    shadow: "shadow-emerald-500/25",
-    borderHover: "hover:border-emerald-500/60 hover:shadow-emerald-500/20",
-    lightBg: "bg-emerald-50/50 dark:bg-emerald-950/20",
-  },
-  {
-    id: "courses",
-    labelAr: "منصة الدورات والتدريب",
-    labelEn: "Courses & Training",
-    badgeAr: "التدريب والتطوير",
-    badgeEn: "Training",
-    descAr: "تسجيل المتدربين والطلاب والمدربين المستقلين للدورات التفاعلية",
-    descEn: "Sign up as an independent student, trainee, or instructor",
-    icon: BookOpenCheck,
-    href: "/courses/signup",
-    gradient: "from-violet-600 via-purple-600 to-fuchsia-700",
-    shadow: "shadow-purple-500/25",
-    borderHover: "hover:border-purple-500/60 hover:shadow-purple-500/20",
-    lightBg: "bg-purple-50/50 dark:bg-purple-950/20",
-  },
-  {
-    id: "bookstore",
-    labelAr: "المكتبة الرقمية للكتب",
-    labelEn: "Digital Book Store",
-    badgeAr: "المكتبة والنشر",
-    badgeEn: "Publishing",
-    descAr: "تسجيل المؤلفين والناشرين والقراء لمنظومة الكتب الرقمية التفاعلية",
-    descEn: "Publish or read interactive books and publications",
-    icon: BookOpen,
-    href: "/bookstore/signup",
-    gradient: "from-amber-500 via-orange-600 to-amber-700",
-    shadow: "shadow-amber-500/25",
-    borderHover: "hover:border-amber-500/60 hover:shadow-amber-500/20",
-    lightBg: "bg-amber-50/50 dark:bg-amber-950/20",
-  },
 ];
 
 const Signup = () => {
@@ -411,20 +366,20 @@ const Signup = () => {
             <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold mb-3 shadow-xs">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>{language === "ar" ? "اختر بوابتك التعليمية للبدء" : "Choose Your Educational Gateway"}</span>
+                <span>{language === "ar" ? "المنظومة الجامعية والأكاديمية" : "University & Higher Education"}</span>
               </div>
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground tracking-tight mb-2.5">
-                {language === "ar" ? "إنشاء حساب جديد في المنظومة" : "Create New Account"}
+                {language === "ar" ? "تسجيل إدارة مؤسسة أكاديمية" : "Register Academic Institution"}
               </h1>
               <p className="text-xs sm:text-sm md:text-base text-muted-foreground font-medium max-w-lg mx-auto leading-relaxed">
                 {language === "ar"
-                  ? "حدد نوع المؤسسة التعليمية أو البوابة المناسبة للانضمام إلى منصة UNIGATES الرقمية الموحدة"
-                  : "Select your educational institution or portal to get started with the unified platform"}
+                  ? "اختر نوع المؤسسة الأكاديمية (كلية جامعية أو معهد عالي) لإنشاء حساب الإدارة وتفعيل المنظومة"
+                  : "Select your higher education institution type (College or Institute) to create leadership administration account"}
               </p>
             </div>
 
             {/* Grid of Registration Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-3xl mx-auto">
               {registrationGateways.map((item) => {
                 const Icon = item.icon;
                 return (

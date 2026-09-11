@@ -11,86 +11,86 @@ const Terms = () => {
 
   const content = {
     ar: {
-      title: "الشروط والأحكام",
-      lastUpdate: "آخر تحديث: 1 أبريل 2026",
+      title: "الشروط والأحكام والسياسات المنظمة",
+      lastUpdate: "آخر تحديث شامل: سبتمبر 2026",
       sections: [
         {
-          title: "1. مقدمة",
-          text: "مرحباً بك في UNIGATES التابعة لدار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م. باستخدامك لهذه المنصة، فإنك توافق على الالتزام بهذه الشروط والأحكام. يرجى قراءتها بعناية قبل استخدام المنصة.",
+          title: "1. المقدمة ونطاق المنظومة",
+          text: "مرحباً بك في منظومة UNIGATES الرقمية الموحدة التابعة لشركة دار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م. تغطي هذه الشروط والأحكام كافة البوابات الست التابعة للمنظومة: (1) المنصة الجامعية لكليات ومعاهد التعليم العالي، (2) المنصة المدرسية K-12، (3) أكاديمية الدورات والتدريب المهني ومراكز اللغات، (4) متجر الكتب الرقمية، (5) منصة ناشر لإدارة عقود وحقوق النشر، و (6) منصة UNIGATES Career للتوظيف والفرص المهنية.",
         },
         {
-          title: "2. تعريفات",
-          text: "\"المنصة\" تشير إلى موقع UNIGATES الإلكتروني وتطبيقاته. \"المستخدم\" يشير إلى أي شخص يستخدم المنصة سواء كان طالباً أو محاضراً أو مؤسسة تعليمية. \"المحتوى\" يشمل جميع المواد التعليمية والدورات والكتب والبث المباشر المتاحة على المنصة.",
+          title: "2. التعريفات وحسابات المستخدمين",
+          text: "تشمل المنظومة أدواراً متعددة الصلاحيات: (إدارة الكلية/المعهد، عميد، وكيل، رئيس قسم، عضو هيئة تدريس، إدارة مدرسة، معلم متميز، مدرب مستقل، مركز تدريب، مركز لغات وترجمة، طالب ومتدرب، ولي أمر، مؤلف ودار نشر، وجهة توظيف). يلتزم كل مستخدم بالحفاظ على سرية بيانات تسجيل الدخول وعدم مشاركة الحسابات المؤسسية.",
         },
         {
-          title: "3. التسجيل والحساب",
-          text: "يجب أن تكون المعلومات المقدمة عند التسجيل صحيحة ودقيقة. أنت مسؤول عن الحفاظ على سرية معلومات حسابك وكلمة المرور. يحق للمنصة تعليق أو إلغاء أي حساب يخالف هذه الشروط. يجب أن يكون عمر المستخدم 16 عاماً على الأقل للتسجيل بشكل مستقل.",
+          title: "3. حماية المحتوى والملكية الفكرية ونظام DRM",
+          text: "كافة المحاضرات المرئية، المواد التفاعلية، بنوك الأسئلة، والمخطوطات محمية بأنظمة التشفير الرقمي المتقدمة (Enterprise DRM) وعلامات الحماية المائية. يُحظر تماماً محاولة تفكيك التشفير، تسجيل الشاشات، إعادة البث، أو بيع المحتوى دون ترخيص كتابي صريح من دار عبيد وأصحاب الحقوق.",
         },
         {
-          title: "4. الاشتراكات والمدفوعات",
-          text: "تتوفر خطط اشتراك مختلفة للمؤسسات التعليمية. يتم تجديد الاشتراكات تلقائياً ما لم يتم الإلغاء قبل نهاية فترة الاشتراك. يمكن طلب استرداد المبلغ خلال 7 أيام من تاريخ الاشتراك وفقاً لسياسة الاسترداد.",
+          title: "4. سلاسل الاعتماد الرقمي والحوكمة الأكاديمية",
+          text: "تلتزم المؤسسات الأكاديمية باستخدام دورات العمل المعتمدة لإقرار الجداول، وتوثيق بنوك الأسئلة، واعتماد الاختبارات من خلال تسلسل الصلاحيات الرقمي (المحاضر ⬅️ رئيس القسم ⬅️ وكيل الكلية ⬅️ العميد). وتُعد كافة الاعتمادات الرقمية داخل المنظومة موثقة ومقروءة قانونياً للأغراض الأكاديمية.",
         },
         {
-          title: "5. الملكية الفكرية",
-          text: "جميع المحتويات المنشورة على المنصة محمية بموجب قوانين حقوق الملكية الفكرية. لا يجوز نسخ أو توزيع أو تعديل أي محتوى دون إذن كتابي مسبق. يحتفظ المحاضرون بحقوق ملكية محتواهم مع منح المنصة ترخيصاً لعرضه.",
+          title: "5. الشهادات الرقمية المعتمدة (QR Verification)",
+          text: "الشهادات الصادرة عن دورات المنصة والأكاديميات التدريبية تصدر بتشفير رقمي يتضمن رمز QR فريد للتحقق الدولي. يُحظر تزوير أو التلاعب ببيانات الشهادات، وتُعرض أي محاولة للتلاعب للمساءلة القانونية وإلغاء الحساب نهائياً.",
         },
         {
-          title: "6. سلوك المستخدم",
-          text: "يُحظر استخدام المنصة لأي غرض غير قانوني أو غير أخلاقي. يُحظر مشاركة معلومات الحساب مع الآخرين. يُحظر تسجيل أو تحميل المحتوى دون إذن. يُحظر التحرش أو الإساءة لأي مستخدم آخر.",
+          title: "6. حقوق النشر وعقود منصة ناشر (Publisher)",
+          text: "تخضع العلاقات التعاقدية بين المؤلفين ودور النشر للشروط المنصوص عليها في العقود الرقمية الموقعة عبر المنصة، مع التزام المنظومة بتوفير كشوف مبيعات دقيقة وتوزيع نسب الأرباح المتفق عليها وفق الجداول الدورية.",
         },
         {
-          title: "7. المسؤولية والضمان",
-          text: "تُقدَّم المنصة 'كما هي' دون ضمانات صريحة أو ضمنية. لا تتحمل المنصة المسؤولية عن أي أضرار غير مباشرة ناتجة عن استخدام الخدمة. نسعى لضمان توفر المنصة على مدار الساعة ولكن قد تحدث فترات صيانة مجدولة.",
+          title: "7. سياسات التوظيف والتقديم في UNIGATES Career",
+          text: "تلتزم المنصة بتوفير بيئة توظيف شفافة للجهات وأصحاب الكفاءات. يلتزم المتقدمون بتقديم بيانات وسير ذاتية ومؤهلات صحيحة وموثقة، ويلتزم أصحاب العمل بعدم استغلال بيانات المتقدمين خارج نطاق التوظيف المعلن.",
         },
         {
-          title: "8. تعديل الشروط",
-          text: "يحق لنا تعديل هذه الشروط في أي وقت. سيتم إخطار المستخدمين بأي تغييرات جوهرية عبر البريد الإلكتروني أو إشعار داخل المنصة. استمرار استخدام المنصة بعد التعديل يُعد موافقة على الشروط المحدّثة.",
+          title: "8. الاشتراكات، المدفوعات وسياسة الاسترداد",
+          text: "تتم المدفوعات والاشتراكات عبر بوابات الدفع الإلكتروني المعتمدة المشفرة بنظام 256-bit SSL. الاشتراكات الفردية قابلة للاسترداد خلال 7 أيام من تاريخ الدفع في حال عدم تحميل أو استهلاك أكثر من 15% من محتوى الدورة. العقود والاشتراكات المؤسسية تخضع للاتفاقيات المبرمة.",
         },
         {
-          title: "9. القانون الواجب التطبيق",
-          text: "تخضع هذه الشروط لقوانين المملكة العربية السعودية. أي نزاع ينشأ عن استخدام المنصة يتم حله ودياً أولاً، وفي حال عدم التوصل لحل يُحال إلى المحاكم المختصة.",
+          title: "9. القانون الواجب التطبيق والاختصاص القضائي",
+          text: "تخضع هذه الشروط والسياسات للأنظمة والقوانين المعمول بها في المملكة العربية السعودية، ويتم فض أي نزاع ودياً أولاً أو اللجوء للجهات القضائية المختصة.",
         },
       ],
     },
     en: {
-      title: "Terms & Conditions",
-      lastUpdate: "Last updated: April 1, 2026",
+      title: "Terms & Conditions of Service",
+      lastUpdate: "Last Updated: September 2026",
       sections: [
         {
-          title: "1. Introduction",
-          text: "Welcome to the UNIGATES platform by Dar Obaid Publishing, Distribution & Printing LLC. By using this platform, you agree to comply with these terms and conditions. Please read them carefully before using the platform.",
+          title: "1. Introduction & Ecosystem Scope",
+          text: "Welcome to the UNIGATES digital ecosystem by Dar Obaid Publishing, Distribution & Printing LLC. These Terms & Conditions govern all six unified portals: (1) Higher Education University Platform for colleges & institutes, (2) K-12 School Platform, (3) Courses & Skills Academy, (4) Digital Book Store, (5) Nasher Publishing & Royalty Platform, and (6) UNIGATES Career job portal.",
         },
         {
-          title: "2. Definitions",
-          text: "\"Platform\" refers to the UNIGATES website and applications. \"User\" refers to anyone using the platform, whether a student, lecturer, or educational institution. \"Content\" includes all educational materials, courses, books, and live streams available on the platform.",
+          title: "2. User Roles & Account Security",
+          text: "The ecosystem features role-based access control (Dean, Vice Dean, Department Head, Faculty Member, School Admin, Distinguished Teacher, Instructor, Training Center, Language & Translation Center, Student/Trainee, Parent, Author/Publisher, and Employer). Users must maintain the confidentiality of credentials and avoid unauthorized sharing.",
         },
         {
-          title: "3. Registration and Account",
-          text: "Information provided during registration must be accurate and truthful. You are responsible for maintaining the confidentiality of your account information and password. The platform reserves the right to suspend or cancel any account that violates these terms. Users must be at least 16 years old to register independently.",
+          title: "3. Content Protection, IP & Enterprise DRM",
+          text: "All video lectures, interactive learning materials, exam question banks, and book manuscripts are protected with Enterprise DRM digital encryption and dynamic watermarks. Any attempt to record, screen-capture, redistribute, or reverse-engineer content is strictly prohibited.",
         },
         {
-          title: "4. Subscriptions and Payments",
-          text: "Various subscription plans are available for educational institutions. Subscriptions auto-renew unless cancelled before the end of the subscription period. Refund requests can be made within 7 days of subscription according to the refund policy.",
+          title: "4. Digital Governance & Approval Chains",
+          text: "Academic institutions must follow multi-tier digital approval chains for academic schedules, question banks, and examination workflows (Faculty ⬅️ Head of Department ⬅️ Vice Dean ⬅️ Dean). All digital signatures and approvals within the portal are legally binding records.",
         },
         {
-          title: "5. Intellectual Property",
-          text: "All content published on the platform is protected by intellectual property laws. Copying, distributing, or modifying any content without prior written permission is prohibited. Lecturers retain ownership rights to their content while granting the platform a license to display it.",
+          title: "5. Verifiable QR Digital Certificates",
+          text: "Certificates earned through courses and accredited training centers are issued with unique verifiable QR security codes. Any forgery or unauthorized reproduction of credentials will result in immediate termination of access and potential legal proceedings.",
         },
         {
-          title: "6. User Conduct",
-          text: "Using the platform for any illegal or unethical purpose is prohibited. Sharing account information with others is prohibited. Recording or downloading content without permission is prohibited. Harassment or abuse of any other user is prohibited.",
+          title: "6. Nasher Publishing & Contract Protocols",
+          text: "Publishing rights, manuscript management, and royalty allocations are regulated according to the digital agreements executed through the Nasher platform, ensuring transparent real-time sales reporting and timely payouts.",
         },
         {
-          title: "7. Liability and Warranty",
-          text: "The platform is provided 'as is' without express or implied warranties. The platform is not liable for any indirect damages resulting from use of the service. We strive to ensure 24/7 availability but scheduled maintenance periods may occur.",
+          title: "7. UNIGATES Career & Recruitment Standards",
+          text: "The Career portal provides a verified recruitment environment. Job applicants must provide authentic credentials and resumes, and hiring organizations agree to use applicant data exclusively for legitimate recruitment processes.",
         },
         {
-          title: "8. Modification of Terms",
-          text: "We reserve the right to modify these terms at any time. Users will be notified of any material changes via email or in-platform notification. Continued use of the platform after modification constitutes acceptance of the updated terms.",
+          title: "8. Subscriptions, Payments & Refund Policy",
+          text: "Financial transactions are secured with 256-bit SSL encryption. Individual learners may request a refund within 7 days of purchase, provided that less than 15% of the course content has been accessed. Institutional contracts are governed by custom terms.",
         },
         {
-          title: "9. Governing Law",
-          text: "These terms are governed by the laws of the Kingdom of Saudi Arabia. Any dispute arising from the use of the platform shall first be resolved amicably, and if no resolution is reached, referred to the competent courts.",
+          title: "9. Governing Law & Jurisdiction",
+          text: "These terms are governed by the applicable laws and regulations of the Kingdom of Saudi Arabia. Any disputes shall be resolved amicably or submitted to the competent judicial authorities.",
         },
       ],
     },

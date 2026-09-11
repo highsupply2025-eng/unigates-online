@@ -424,257 +424,341 @@ const CoursesSignup = () => {
           </div>
         ) : (
           /* Detailed Signup Form */
-          <div className="max-w-xl mx-auto space-y-6">
-            {/* Top Quick Role Switcher Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="max-w-6xl mx-auto space-y-6">
+            {/* Top Bar with Back Link & Dynamic Role Switcher */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-slate-900/60 p-3.5 rounded-3xl border border-white/10 backdrop-blur-xl shadow-xl">
               <button
                 type="button"
                 onClick={() => setRole(null)}
-                className="text-xs sm:text-sm font-bold text-purple-400 hover:text-purple-300 hover:underline inline-flex items-center gap-1.5 bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-xl transition-colors"
+                className="text-xs sm:text-sm font-bold text-purple-300 hover:text-white inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-2xl transition-all shadow-sm group"
               >
-                <ArrowIcon className="w-4 h-4" />
-                {tText("عرض جميع الأدوار", "View all roles")}
+                <ArrowIcon className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+                <span>{tText("تغيير نوع الحساب (عرض كافة الأدوار)", "Change Role (View All)")}</span>
               </button>
 
-              <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-2xl bg-slate-900/90 border border-white/10">
-                {ROLES.map((r) => (
-                  <button
-                    key={r.value}
-                    type="button"
-                    onClick={() => setRole(r.value)}
-                    className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
-                      role === r.value
-                        ? `bg-gradient-to-r ${r.color} text-white shadow-md`
-                        : "text-slate-400 hover:text-white hover:bg-white/5"
-                    }`}
-                  >
-                    <r.icon className="w-3 h-3" />
-                    <span>{tText(r.labelAr, r.labelEn)}</span>
-                  </button>
-                ))}
+              {/* Futuristic Horizontal Role Switcher Tabs */}
+              <div className="flex flex-wrap items-center justify-center gap-1.5 p-1.5 rounded-2xl bg-slate-950/80 border border-white/10 shadow-inner w-full md:w-auto">
+                {ROLES.map((r) => {
+                  const isCur = role === r.value;
+                  const RIcon = r.icon;
+                  return (
+                    <button
+                      key={r.value}
+                      type="button"
+                      onClick={() => setRole(r.value)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all duration-300 flex items-center gap-1.5 ${
+                        isCur
+                          ? `bg-gradient-to-r ${r.color} text-white shadow-lg shadow-purple-500/30 scale-105`
+                          : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                      }`}
+                    >
+                      <RIcon className="w-3.5 h-3.5" />
+                      <span>{tText(r.labelAr, r.labelEn)}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            <div className="relative rounded-3xl border border-white/15 bg-slate-900/80 backdrop-blur-2xl shadow-2xl shadow-purple-950/60 p-6 sm:p-9 space-y-6">
-              {/* Selected Role Header */}
+            {/* Split Screen Grid */}
+            <div className="grid lg:grid-cols-12 gap-8 items-stretch">
+              {/* Left Column: Interactive Role Showcase & Benefits */}
               {selectedRole && (
-                <div className="space-y-4 pb-5 border-b border-white/10">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${selectedRole.color} flex items-center justify-center text-white shadow-xl shadow-purple-500/20 shrink-0`}>
-                      <selectedRole.icon className="w-7 h-7" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h2 className="font-black text-xl text-white">
+                <div className="lg:col-span-5 flex flex-col justify-between p-7 sm:p-9 rounded-3xl border border-white/15 bg-gradient-to-b from-slate-900/90 via-slate-900/70 to-slate-950/90 backdrop-blur-2xl shadow-2xl relative overflow-hidden group">
+                  {/* Glowing Ambient Background */}
+                  <div className={`absolute -top-20 -end-20 w-60 h-60 rounded-full bg-gradient-to-br ${selectedRole.color} opacity-20 blur-3xl pointer-events-none transition-all duration-500`} />
+                  <div className="absolute -bottom-20 -start-20 w-60 h-60 rounded-full bg-purple-600/20 blur-3xl pointer-events-none" />
+
+                  <div className="relative z-10 space-y-6">
+                    {/* Role Header */}
+                    <div className="flex items-center gap-4">
+                      <div className={`w-16 h-16 rounded-3xl bg-gradient-to-br ${selectedRole.color} p-0.5 shadow-2xl shadow-purple-500/30 flex items-center justify-center text-white transform group-hover:scale-105 transition-transform duration-300`}>
+                        <selectedRole.icon className="w-8 h-8" />
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-black uppercase tracking-wider text-purple-400">
+                            {tText("الحساب المختار", "Selected Account")}
+                          </span>
+                          <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border ${selectedRole.autoApprove ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" : "bg-amber-500/20 text-amber-300 border-amber-500/40"}`}>
+                            {tText(selectedRole.badgeAr, selectedRole.badgeEn)}
+                          </span>
+                        </div>
+                        <h2 className="text-2xl font-black text-white">
                           {tText(selectedRole.labelAr, selectedRole.labelEn)}
                         </h2>
-                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${selectedRole.autoApprove ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" : "bg-amber-500/15 text-amber-400 border-amber-500/30"}`}>
-                          {tText(selectedRole.badgeAr, selectedRole.badgeEn)}
-                        </span>
                       </div>
-                      <p className="text-xs text-slate-300 mt-0.5">
-                        {tText(selectedRole.descAr, selectedRole.descEn)}
+                    </div>
+
+                    <p className="text-sm text-slate-300 leading-relaxed">
+                      {tText(selectedRole.descAr, selectedRole.descEn)}
+                    </p>
+
+                    {/* Features List with Visual Checkmarks */}
+                    <div className="space-y-3 pt-2">
+                      <h4 className="text-xs font-black uppercase text-slate-400 tracking-wider">
+                        {tText("أبرز المزايا والصلاحيات الممنوحة:", "Key Benefits & Permissions:")}
+                      </h4>
+                      <div className="space-y-2.5">
+                        {(isRtl ? selectedRole.featuresAr : selectedRole.featuresEn).map((feat, fi) => (
+                          <div
+                            key={fi}
+                            className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 hover:border-purple-500/40 hover:bg-white/10 transition-all text-xs font-bold text-slate-200"
+                          >
+                            <div className="w-6 h-6 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                              <Check className="w-3.5 h-3.5" />
+                            </div>
+                            <span>{feat}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Fast Guarantee Info */}
+                    <div className="p-4 rounded-2xl bg-purple-950/40 border border-purple-500/30 text-xs text-purple-200 space-y-1">
+                      <div className="flex items-center gap-2 font-black text-purple-300">
+                        <Sparkles className="w-4 h-4 text-amber-400" />
+                        <span>{tText("منظومة UNIGATES الأكاديمية", "UNIGATES Global Network")}</span>
+                      </div>
+                      <p className="text-[11px] text-slate-300 leading-relaxed">
+                        {tText(
+                          "انضمامك يمنحك وصولاً فورياً للبنية التحتية المتطورة للفيديوهات المشفرة ولوحات التحليل الذكية.",
+                          "Instant access to enterprise DRM video hosting, global student reach, and analytics studio."
+                        )}
                       </p>
                     </div>
                   </div>
 
-                  {/* Role Key Highlights */}
-                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                    {(isRtl ? selectedRole.featuresAr : selectedRole.featuresEn).map((feat, fi) => (
-                      <span key={fi} className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-white/5 border border-white/10 text-slate-300">
-                        <Check className="w-3 h-3 text-emerald-400" />
-                        {feat}
-                      </span>
-                    ))}
+                  {/* Trust Footer */}
+                  <div className="relative z-10 pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+                    <span className="flex items-center gap-1.5 font-bold">
+                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                      {tText("حماية البيانات والخصوصية", "Data Privacy Shield")}
+                    </span>
+                    <span className="text-[10px] bg-white/5 px-2 py-1 rounded-lg border border-white/10">
+                      ISO/IEC 27001
+                    </span>
                   </div>
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Full Name */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="courses_full_name" className="text-xs sm:text-sm font-bold text-slate-200">
-                    {tText("الاسم الكامل / اسم الجهة", "Full Name / Organization Name")}
-                  </Label>
-                  <div className="relative">
-                    <User className="w-4 h-4 text-purple-400 absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    <Input
-                      id="courses_full_name"
-                      name="full_name"
-                      autoComplete="name"
-                      placeholder={isRtl ? "مثال: د. محمد العتيبي أو أكاديمية الرواد" : "e.g. John Doe"}
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      required
-                      className="h-12 ps-10 pe-4 bg-slate-950/60 border-white/15 text-white placeholder:text-slate-500 rounded-2xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-sm"
-                    />
+              {/* Right Column: High-End Registration Form */}
+              <div className="lg:col-span-7 rounded-3xl border border-white/15 bg-slate-900/80 backdrop-blur-2xl shadow-2xl shadow-purple-950/50 p-6 sm:p-9 space-y-6 flex flex-col justify-between">
+                <div>
+                  <div className="border-b border-white/10 pb-4 mb-6">
+                    <h3 className="text-xl font-black text-white flex items-center gap-2">
+                      <Zap className="w-5 h-5 text-amber-400" />
+                      <span>{tText("بيانات التسجيل الأساسية", "Account Credentials")}</span>
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {tText("يرجى ملء البيانات بدقة لإنشاء ملفك الأكاديمي بنجاح", "Please fill in accurate details to set up your profile")}
+                    </p>
                   </div>
-                </div>
 
-                {/* Email */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="courses_email" className="text-xs sm:text-sm font-bold text-slate-200">
-                    {tText("البريد الإلكتروني", "Email Address")}
-                  </Label>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 text-purple-400 absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    <Input
-                      id="courses_email"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      placeholder="user@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="h-12 ps-10 pe-4 bg-slate-950/60 border-white/15 text-white placeholder:text-slate-500 rounded-2xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-sm"
-                    />
-                  </div>
-                </div>
-
-                {/* Phone */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="courses_phone" className="text-xs sm:text-sm font-bold text-slate-200">
-                    {tText("رقم الهاتف / الجوال", "Phone Number")}
-                  </Label>
-                  <div className="flex gap-2">
-                    <Select value={countryCode} onValueChange={setCountryCode}>
-                      <SelectTrigger className="w-32 h-12 bg-slate-950/60 border-white/15 text-white rounded-2xl text-xs font-bold">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-900 border-white/20 text-white max-h-60 rounded-2xl">
-                        {COUNTRY_CODES.map((c) => (
-                          <SelectItem key={c.code} value={c.code} className="text-xs font-bold">
-                            {c.country}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <div className="relative flex-1">
-                      <Phone className="w-4 h-4 text-purple-400 absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                      <Input
-                        id="courses_phone"
-                        name="phone"
-                        type="tel"
-                        autoComplete="tel-national"
-                        placeholder="5XXXXXXXX"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
-                        required
-                        className="h-12 ps-10 pe-4 bg-slate-950/60 border-white/15 text-white placeholder:text-slate-500 rounded-2xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-sm"
-                      />
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    {/* Full Name */}
+                    <div className="space-y-1.5">
+                      <Label htmlFor="courses_full_name" className="text-xs sm:text-sm font-bold text-slate-200">
+                        {tText("الاسم الكامل / اسم الجهة", "Full Name / Organization Name")}
+                      </Label>
+                      <div className="relative">
+                        <User className="w-4 h-4 text-purple-400 absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <Input
+                          id="courses_full_name"
+                          name="full_name"
+                          autoComplete="name"
+                          placeholder={isRtl ? "مثال: د. محمد العتيبي أو أكاديمية الرواد" : "e.g. Dr. John Doe"}
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          required
+                          className="h-12 ps-10 pe-4 bg-slate-950/70 border-white/15 text-white placeholder:text-slate-500 rounded-2xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-sm"
+                        />
+                      </div>
                     </div>
-                  </div>
-                </div>
 
-                {/* Password */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="courses_password" className="text-xs sm:text-sm font-bold text-slate-200">
-                    {tText("كلمة المرور", "Password")}
-                  </Label>
-                  <div className="relative">
-                    <Lock className="w-4 h-4 text-purple-400 absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    <Input
-                      id="courses_password"
-                      name="password"
-                      type={showPwd ? "text" : "password"}
-                      autoComplete="new-password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="h-12 ps-10 pe-11 bg-slate-950/60 border-white/15 text-white placeholder:text-slate-500 rounded-2xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-sm"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPwd(!showPwd)}
-                      className="absolute end-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors p-1"
-                      title={showPwd ? tText("إخفاء كلمة المرور", "Hide") : tText("إظهار كلمة المرور", "Show")}
+                    {/* Email */}
+                    <div className="space-y-1.5">
+                      <Label htmlFor="courses_email" className="text-xs sm:text-sm font-bold text-slate-200">
+                        {tText("البريد الإلكتروني", "Email Address")}
+                      </Label>
+                      <div className="relative">
+                        <Mail className="w-4 h-4 text-purple-400 absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <Input
+                          id="courses_email"
+                          name="email"
+                          type="email"
+                          autoComplete="email"
+                          placeholder="user@example.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          className="h-12 ps-10 pe-4 bg-slate-950/70 border-white/15 text-white placeholder:text-slate-500 rounded-2xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Phone with Country Code */}
+                    <div className="space-y-1.5">
+                      <Label htmlFor="courses_phone" className="text-xs sm:text-sm font-bold text-slate-200">
+                        {tText("رقم الهاتف / الجوال", "Phone Number")}
+                      </Label>
+                      <div className="flex gap-2">
+                        <Select value={countryCode} onValueChange={setCountryCode}>
+                          <SelectTrigger className="w-32 h-12 bg-slate-950/70 border-white/15 text-white rounded-2xl text-xs font-bold">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-900 border-white/20 text-white max-h-60 rounded-2xl">
+                            {COUNTRY_CODES.map((c) => (
+                              <SelectItem key={c.code} value={c.code} className="text-xs font-bold">
+                                {c.country}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <div className="relative flex-1">
+                          <Phone className="w-4 h-4 text-purple-400 absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                          <Input
+                            id="courses_phone"
+                            name="phone"
+                            type="tel"
+                            autoComplete="tel-national"
+                            placeholder="5XXXXXXXX"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                            required
+                            className="h-12 ps-10 pe-4 bg-slate-950/70 border-white/15 text-white placeholder:text-slate-500 rounded-2xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-sm"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Password */}
+                    <div className="space-y-1.5">
+                      <Label htmlFor="courses_password" className="text-xs sm:text-sm font-bold text-slate-200">
+                        {tText("كلمة المرور", "Password")}
+                      </Label>
+                      <div className="relative">
+                        <Lock className="w-4 h-4 text-purple-400 absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <Input
+                          id="courses_password"
+                          name="password"
+                          type={showPwd ? "text" : "password"}
+                          autoComplete="new-password"
+                          placeholder="••••••••"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                          className="h-12 ps-10 pe-11 bg-slate-950/70 border-white/15 text-white placeholder:text-slate-500 rounded-2xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-sm"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPwd(!showPwd)}
+                          className="absolute end-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors p-1"
+                          title={showPwd ? tText("إخفاء كلمة المرور", "Hide") : tText("إظهار كلمة المرور", "Show")}
+                        >
+                          {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+
+                      {/* Live Password Rules Checkers */}
+                      <div className="grid grid-cols-2 gap-1.5 pt-1 text-[10px] text-slate-400">
+                        <span className={`inline-flex items-center gap-1 ${password.length >= 8 ? "text-emerald-400 font-bold" : ""}`}>
+                          <Check className={`w-3 h-3 ${password.length >= 8 ? "text-emerald-400" : "text-slate-600"}`} />
+                          {tText("8 خانات على الأقل", "8+ characters")}
+                        </span>
+                        <span className={`inline-flex items-center gap-1 ${/[A-Z]/.test(password) && /[a-z]/.test(password) ? "text-emerald-400 font-bold" : ""}`}>
+                          <Check className={`w-3 h-3 ${/[A-Z]/.test(password) && /[a-z]/.test(password) ? "text-emerald-400" : "text-slate-600"}`} />
+                          {tText("أحرف كبيرة وصغيرة", "Upper & lowercase")}
+                        </span>
+                        <span className={`inline-flex items-center gap-1 ${/\d/.test(password) ? "text-emerald-400 font-bold" : ""}`}>
+                          <Check className={`w-3 h-3 ${/\d/.test(password) ? "text-emerald-400" : "text-slate-600"}`} />
+                          {tText("رقم واحد على الأقل", "At least 1 number")}
+                        </span>
+                        <span className={`inline-flex items-center gap-1 ${/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password) ? "text-emerald-400 font-bold" : ""}`}>
+                          <Check className={`w-3 h-3 ${/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password) ? "text-emerald-400" : "text-slate-600"}`} />
+                          {tText("رمز خاص (@#$)", "Special symbol (@#$)")}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Confirm Password */}
+                    <div className="space-y-1.5">
+                      <Label htmlFor="courses_confirm_password" className="text-xs sm:text-sm font-bold text-slate-200">
+                        {tText("تأكيد كلمة المرور", "Confirm Password")}
+                      </Label>
+                      <div className="relative">
+                        <Lock className="w-4 h-4 text-purple-400 absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <Input
+                          id="courses_confirm_password"
+                          name="confirm_password"
+                          type={showConfirmPwd ? "text" : "password"}
+                          autoComplete="new-password"
+                          placeholder="••••••••"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          required
+                          className="h-12 ps-10 pe-11 bg-slate-950/70 border-white/15 text-white placeholder:text-slate-500 rounded-2xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-sm"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPwd(!showConfirmPwd)}
+                          className="absolute end-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors p-1"
+                          title={showConfirmPwd ? tText("إخفاء تأكيد كلمة المرور", "Hide") : tText("إظهار تأكيد كلمة المرور", "Show")}
+                        >
+                          {showConfirmPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Role Note */}
+                    {!selectedRole?.autoApprove && (
+                      <div className="text-xs bg-amber-500/10 text-amber-300 border border-amber-500/30 rounded-2xl p-3.5 flex items-start gap-2.5">
+                        <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                        <span>
+                          {tText(
+                            "هذا النوع من الحسابات يخضع لمراجعة سريعة من إدارة المنصة للتحقق وتفعيل صلاحيات استوديو الدورات.",
+                            "This role undergoes a swift academic verification review before activating full studio features."
+                          )}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Submit Button */}
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      className={`w-full h-12 mt-2 font-black text-base rounded-2xl bg-gradient-to-r ${selectedRole ? selectedRole.color : "from-purple-600 to-indigo-600"} text-white shadow-xl shadow-purple-500/30 transition-all hover:scale-[1.01] active:scale-[0.99]`}
                     >
-                      {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                  <p className="text-[11px] text-slate-400">
-                    {tText("8 أحرف على الأقل تشمل حرفاً كبيراً وصغيراً ورقماً ورمزاً", "Min 8 chars with uppercase, lowercase, number and symbol")}
-                  </p>
-                </div>
-
-                {/* Confirm Password */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="courses_confirm_password" className="text-xs sm:text-sm font-bold text-slate-200">
-                    {tText("تأكيد كلمة المرور", "Confirm Password")}
-                  </Label>
-                  <div className="relative">
-                    <Lock className="w-4 h-4 text-purple-400 absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    <Input
-                      id="courses_confirm_password"
-                      name="confirm_password"
-                      type={showConfirmPwd ? "text" : "password"}
-                      autoComplete="new-password"
-                      placeholder="••••••••"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                      className="h-12 ps-10 pe-11 bg-slate-950/60 border-white/15 text-white placeholder:text-slate-500 rounded-2xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-sm"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPwd(!showConfirmPwd)}
-                      className="absolute end-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors p-1"
-                      title={showConfirmPwd ? tText("إخفاء تأكيد كلمة المرور", "Hide") : tText("إظهار تأكيد كلمة المرور", "Show")}
-                    >
-                      {showConfirmPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Role Note */}
-                {!selectedRole?.autoApprove && (
-                  <div className="text-xs bg-amber-500/10 text-amber-300 border border-amber-500/30 rounded-2xl p-3.5 flex items-start gap-2">
-                    <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                    <span>
-                      {tText(
-                        "هذا النوع من الحسابات يخضع لمراجعة سريعة من إدارة المنصة للتحقق وتفعيل صلاحيات استوديو الدورات.",
-                        "This account role will be activated following a quick review by our academic review team."
+                      {loading ? (
+                        <span className="inline-flex items-center gap-2">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          {tText("جاري إنشاء الحساب...", "Creating Account...")}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-2">
+                          <Zap className="w-4 h-4" />
+                          {tText("إتمام التسجيل والبدء", "Complete Registration")}
+                          <ArrowIcon className="w-4 h-4 ms-1" />
+                        </span>
                       )}
-                    </span>
-                  </div>
-                )}
+                    </Button>
 
-                {/* Submit Button */}
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className={`w-full h-12 mt-2 font-black text-base rounded-2xl bg-gradient-to-r ${selectedRole ? selectedRole.color : "from-purple-600 to-indigo-600"} text-white shadow-xl shadow-purple-500/30 transition-all hover:scale-[1.01] active:scale-[0.99]`}
-                >
-                  {loading ? (
-                    <span className="inline-flex items-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      {tText("جاري إنشاء الحساب...", "Creating Account...")}
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-2">
-                      <Zap className="w-4 h-4" />
-                      {tText("إتمام التسجيل والبدء", "Complete Registration")}
-                      <ArrowIcon className="w-4 h-4 ms-1" />
-                    </span>
-                  )}
-                </Button>
+                    {/* Security Shield Guarantee */}
+                    <div className="flex items-center justify-center gap-1.5 pt-1 text-[11px] text-slate-400">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>{tText("اتصال مشفر وآمن بنسبة 100% بنظام حماية البيانات 256-bit SSL", "100% Secure 256-bit SSL encrypted connection")}</span>
+                    </div>
 
-                {/* Security Shield Guarantee */}
-                <div className="flex items-center justify-center gap-1.5 pt-1 text-[11px] text-slate-400">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>{tText("اتصال مشفر وآمن بنسبة 100% بنظام حماية البيانات", "256-bit SSL encrypted secure connection")}</span>
+                    {/* Login Link */}
+                    <p className="text-center text-xs sm:text-sm text-slate-300 pt-1">
+                      {tText("لديك حساب بالفعل؟", "Already have an account?")}{" "}
+                      <Link to="/courses/login" className="text-purple-400 font-bold hover:underline">
+                        {tText("تسجيل الدخول", "Sign In")}
+                      </Link>
+                    </p>
+                  </form>
                 </div>
-
-                {/* Login Link */}
-                <p className="text-center text-xs sm:text-sm text-slate-300 pt-1">
-                  {tText("لديك حساب بالفعل؟", "Already registered?")}{" "}
-                  <Link to="/courses/login" className="text-purple-400 font-bold hover:underline">
-                    {tText("تسجيل الدخول", "Sign In")}
-                  </Link>
-                </p>
-              </form>
+              </div>
             </div>
           </div>
         )}

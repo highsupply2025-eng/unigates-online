@@ -1,20 +1,14 @@
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode, useMemo } from "react";
 import { ar } from "@/i18n/ar";
 import { en } from "@/i18n/en";
-import { fr } from "@/i18n/fr";
-import { es } from "@/i18n/es";
-import { de } from "@/i18n/de";
-import { zh } from "@/i18n/zh";
-import { ru } from "@/i18n/ru";
-import { tr } from "@/i18n/tr";
 import { translateTerm } from "@/i18n/multilingualGlossary";
 import {
   getInitialLanguage,
   autoDetectGeoLanguageAsync,
 } from "@/utils/geoLanguageDetection";
 
-export type Language = "ar" | "en" | "fr" | "es" | "de" | "zh" | "ru" | "tr";
-export type Translations = typeof ar;
+export type Language = "en" | "ar";
+export type Translations = typeof en;
 
 export interface LanguageInfo {
   code: Language;
@@ -25,14 +19,8 @@ export interface LanguageInfo {
 }
 
 export const AVAILABLE_LANGUAGES: LanguageInfo[] = [
-  { code: "ar", name: "Arabic", nativeName: "العربية", flag: "🇸🇦", dir: "rtl" },
   { code: "en", name: "English", nativeName: "English", flag: "🇬🇧", dir: "ltr" },
-  { code: "fr", name: "French", nativeName: "Français", flag: "🇫🇷", dir: "ltr" },
-  { code: "es", name: "Spanish", nativeName: "Español", flag: "🇪🇸", dir: "ltr" },
-  { code: "de", name: "German", nativeName: "Deutsch", flag: "🇩🇪", dir: "ltr" },
-  { code: "zh", name: "Chinese", nativeName: "中文 (简体)", flag: "🇨🇳", dir: "ltr" },
-  { code: "ru", name: "Russian", nativeName: "Русский", flag: "🇷🇺", dir: "ltr" },
-  { code: "tr", name: "Turkish", nativeName: "Türkçe", flag: "🇹🇷", dir: "ltr" },
+  { code: "ar", name: "Arabic", nativeName: "العربية", flag: "🇸🇦", dir: "rtl" },
 ];
 
 export interface LanguageContextType {
@@ -51,14 +39,8 @@ export interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | null>(null);
 
 const translations: Record<Language, Translations> = {
-  ar,
   en,
-  fr,
-  es,
-  de,
-  zh,
-  ru,
-  tr,
+  ar,
 };
 
 const STORAGE_KEY = "unigates_language";
@@ -157,14 +139,14 @@ export const useLanguage = (): LanguageContextType => {
   const ctx = useContext(LanguageContext);
   if (!ctx) {
     return {
-      language: "ar",
-      t: translations.ar,
-      translate: (text: string, fallbackEn?: string) => text || fallbackEn || "",
-      tText: (arText: string, enText: string) => arText || enText,
+      language: "en",
+      t: translations.en,
+      translate: (text: string, fallbackEn?: string) => fallbackEn || text || "",
+      tText: (arText: string, enText: string) => enText || arText,
       setLanguage: () => {},
       toggleLanguage: () => {},
-      dir: "rtl",
-      isRtl: true,
+      dir: "ltr",
+      isRtl: false,
       availableLanguages: AVAILABLE_LANGUAGES,
       currentLanguageInfo: AVAILABLE_LANGUAGES[0],
     };

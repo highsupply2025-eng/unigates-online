@@ -22,11 +22,11 @@ export const LanguageSelectorDropdown = ({
 }: Props) => {
   const { language, setLanguage, availableLanguages = [], currentLanguageInfo, tText } = useLanguage();
   const langInfo = currentLanguageInfo || availableLanguages.find(l => l.code === language) || {
-    code: "ar",
-    name: "Arabic",
-    nativeName: "العربية",
-    flag: "🇸🇦",
-    dir: "rtl"
+    code: "en",
+    name: "English",
+    nativeName: "English",
+    flag: "EN",
+    dir: "ltr"
   };
 
   return (
@@ -50,7 +50,9 @@ export const LanguageSelectorDropdown = ({
             </div>
           </div>
 
-          <span className="text-sm shrink-0 drop-shadow-sm">{langInfo.flag}</span>
+          <span className="text-[11px] font-black px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 shrink-0 uppercase tracking-wider">
+            {langInfo.flag || langInfo.code.toUpperCase()}
+          </span>
           <span className="font-black text-foreground group-hover:text-primary tracking-wide">
             {showNativeName ? langInfo.nativeName : langInfo.code.toUpperCase()}
           </span>
@@ -59,13 +61,13 @@ export const LanguageSelectorDropdown = ({
       <DropdownMenuContent
         align="end"
         sideOffset={6}
-        className="w-56 p-1.5 bg-card/95 backdrop-blur-2xl border-2 border-border/80 text-foreground shadow-2xl rounded-2xl z-50 animate-scale-in"
+        className="w-52 p-1.5 bg-card/95 backdrop-blur-2xl border-2 border-border/80 text-foreground shadow-2xl rounded-2xl z-50 animate-scale-in"
       >
         <div className="flex items-center gap-2 px-2.5 py-2 text-[10px] font-black text-primary uppercase tracking-wider border-b border-border/60 mb-1">
           <div className="w-4 h-4 rounded-md bg-primary/10 border border-primary/20 flex items-center justify-center">
             <Globe className="w-3 h-3 text-primary" />
           </div>
-          <span>{typeof tText === "function" ? tText("اختر اللغة", "Select Language") : "اختر اللغة"}</span>
+          <span>{typeof tText === "function" ? tText("اختر اللغة", "Select Language") : "Select Language"}</span>
         </div>
         {availableLanguages.map((item) => {
           const isSelected = language === item.code;
@@ -85,7 +87,9 @@ export const LanguageSelectorDropdown = ({
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <span className="text-lg shrink-0">{item.flag}</span>
+                <span className="text-[11px] font-black px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 shrink-0 uppercase tracking-wider">
+                  {item.flag || item.code.toUpperCase()}
+                </span>
                 <div className="flex flex-col text-start">
                   <span className="text-xs font-bold leading-tight text-foreground">{item.nativeName}</span>
                   <span className="text-[10px] text-muted-foreground leading-tight">{item.name}</span>

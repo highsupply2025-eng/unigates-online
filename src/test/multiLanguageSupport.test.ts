@@ -1,12 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { ar } from "@/i18n/ar";
 import { en } from "@/i18n/en";
-import { fr } from "@/i18n/fr";
-import { es } from "@/i18n/es";
-import { de } from "@/i18n/de";
-import { zh } from "@/i18n/zh";
-import { ru } from "@/i18n/ru";
-import { tr } from "@/i18n/tr";
 import { AVAILABLE_LANGUAGES } from "@/contexts/LanguageContext";
 
 describe("Primary English & Secondary Arabic Language System Tests", () => {
@@ -16,6 +10,8 @@ describe("Primary English & Secondary Arabic Language System Tests", () => {
     expect(AVAILABLE_LANGUAGES).toHaveLength(2);
     const codes = AVAILABLE_LANGUAGES.map((l) => l.code);
     expect(codes).toEqual(["en", "ar"]);
+    expect(AVAILABLE_LANGUAGES.find((l) => l.code === "en")?.flag).toBe("EN");
+    expect(AVAILABLE_LANGUAGES.find((l) => l.code === "ar")?.flag).toBe("AR");
   });
 
   it("should have correct RTL/LTR direction per language", () => {

@@ -16,7 +16,26 @@ interface CacheEntry {
 }
 
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-let cached: CacheEntry | null = null;
+const STORAGE_CACHE_KEY = "unigates_inst_identity_cache";
+
+function getInitialCachedIdentity(): CacheEntry | null {
+  if (cached && Date.now() - cached.fetchedAt < CACHE_TTL) return cached;
+  try {
+    const raw = sessionStorage.getItem(STORAGE_CACHE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as CacheEntry;
+      if (parsed && Date.now() - parsed.fetchedAt < CACHE_TTL) {
+        cached = parsed;
+        return parsed;
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
+let cached: CacheEntry | null = getInitialCachedIdentity();
 
 export interface UseInstitutionIdentityOptions {
   /** When false, the hook stays silent (no redirect) if the user isn't an institution admin. */
@@ -27,16 +46,22 @@ export function useInstitutionIdentity(options?: UseInstitutionIdentityOptions) 
   const redirectOnMissing = options?.redirectOnMissing !== false;
   const navigate = useNavigate();
   const [identity, setIdentity] = useState<InstitutionIdentity | null>(() =>
-    cached?.identity ?? null
+    getInitialCachedIdentity()?.identity ?? null
   );
-  const [loading, setLoading] = useState(!cached);
+  const [loading, setLoading] = useState(!getInitialCachedIdentity());
 
   useEffect(() => {
     let cancelled = false;
 
     const run = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const sessionRes = await supabase.auth.getSession();
+        let user = sessionRes.data.session?.user;
+        if (!user) {
+          const userRes = await supabase.auth.getUser();
+          user = userRes.data.user;
+        }
+
         if (!user || cancelled) {
           if (!cancelled) {
             if (redirectOnMissing) navigate("/login");
@@ -48,9 +73,10 @@ export function useInstitutionIdentity(options?: UseInstitutionIdentityOptions) 
         const email = (user.email || "").toLowerCase();
 
         // Return cached data if same user and fresh
-        if (cached && cached.email === email && Date.now() - cached.fetchedAt < CACHE_TTL) {
+        const currentCache = getInitialCachedIdentity();
+        if (currentCache && currentCache.email === email) {
           if (!cancelled) {
-            setIdentity(cached.identity);
+            setIdentity(currentCache.identity);
             setLoading(false);
           }
           return;
@@ -75,7 +101,13 @@ export function useInstitutionIdentity(options?: UseInstitutionIdentityOptions) 
             institutionName: college.college_name || "",
             subscriptionPlan: college.subscription_plan || "free",
           };
-          cached = { email, identity: id, fetchedAt: Date.now() };
+          const entry: CacheEntry = { email, identity: id, fetchedAt: Date.now() };
+          cached = entry;
+          try {
+            sessionStorage.setItem(STORAGE_CACHE_KEY, JSON.stringify(entry));
+          } catch {
+            // ignore
+          }
           setIdentity(id);
           setLoading(false);
           return;
@@ -100,7 +132,13 @@ export function useInstitutionIdentity(options?: UseInstitutionIdentityOptions) 
             institutionName: institute.institute_name || "",
             subscriptionPlan: institute.subscription_plan || "free",
           };
-          cached = { email, identity: id, fetchedAt: Date.now() };
+          const entry: CacheEntry = { email, identity: id, fetchedAt: Date.now() };
+          cached = entry;
+          try {
+            sessionStorage.setItem(STORAGE_CACHE_KEY, JSON.stringify(entry));
+          } catch {
+            // ignore
+          }
           setIdentity(id);
           setLoading(false);
           return;

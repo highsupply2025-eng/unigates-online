@@ -75,7 +75,37 @@ const roleLabel = (role: string, isCollege: boolean, isRtl: boolean) => {
   return isRtl ? entry.ar : entry.en;
 };
 
-let __messagesContactsCache: { contacts: Contact[]; instId: string; instType: "college" | "institute"; userName: string; userId: string } | null = null;
+interface CachedMessagesData {
+  contacts: Contact[];
+  instId: string;
+  instType: "college" | "institute";
+  userName: string;
+  userId: string;
+  cachedAt: number;
+}
+
+const MESSAGES_CACHE_KEY = "unigates_messages_contacts_cache";
+
+function getInitialMessagesCache(): CachedMessagesData | null {
+  if (__messagesContactsCache && Date.now() - (__messagesContactsCache as any).cachedAt < 5 * 60 * 1000) {
+    return __messagesContactsCache as any;
+  }
+  try {
+    const raw = sessionStorage.getItem(MESSAGES_CACHE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as CachedMessagesData;
+      if (parsed && Date.now() - (parsed.cachedAt || 0) < 5 * 60 * 1000) {
+        __messagesContactsCache = parsed;
+        return parsed;
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
+let __messagesContactsCache: (CachedMessagesData & { cachedAt: number }) | null = getInitialMessagesCache() as any;
 
 export default function InstitutionMessages() {
   const { language, dir, toggleLanguage, tText } = useLanguage();
@@ -84,14 +114,16 @@ export default function InstitutionMessages() {
   const { identity } = useInstitutionIdentity({ redirectOnMissing: false });
   const subscriptionPlan = identity?.subscriptionPlan ?? "free";
 
+  const initialCache = getInitialMessagesCache();
+
   // Basic States
-  const [loading, setLoading] = useState(() => !__messagesContactsCache);
-  const [institutionId, setInstitutionId] = useState<string | null>(() => __messagesContactsCache?.instId ?? null);
-  const [institutionType, setInstitutionType] = useState<"college" | "institute">(() => __messagesContactsCache?.instType ?? "college");
-  const [isCollege, setIsCollege] = useState(() => (__messagesContactsCache?.instType ?? "college") === "college");
-  const [currentUserId, setCurrentUserId] = useState<string | null>(() => __messagesContactsCache?.userId ?? null);
-  const [currentUserName, setCurrentUserName] = useState<string>(() => __messagesContactsCache?.userName ?? "");
-  const [contacts, setContacts] = useState<Contact[]>(() => __messagesContactsCache?.contacts ?? []);
+  const [loading, setLoading] = useState(() => !initialCache);
+  const [institutionId, setInstitutionId] = useState<string | null>(() => initialCache?.instId ?? identity?.institutionId ?? null);
+  const [institutionType, setInstitutionType] = useState<"college" | "institute">(() => initialCache?.instType ?? identity?.institutionType ?? "college");
+  const [isCollege, setIsCollege] = useState(() => (initialCache?.instType ?? identity?.institutionType ?? "college") === "college");
+  const [currentUserId, setCurrentUserId] = useState<string | null>(() => initialCache?.userId ?? null);
+  const [currentUserName, setCurrentUserName] = useState<string>(() => initialCache?.userName ?? identity?.institutionName ?? "");
+  const [contacts, setContacts] = useState<Contact[]>(() => initialCache?.contacts ?? []);
   const [selected, setSelected] = useState<Contact | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -130,76 +162,91 @@ export default function InstitutionMessages() {
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const typingTimeoutRef = useRef<any>(null);
 
-  // 1. Initial Load & Auth Check
+  // 1. Initial Fast Load & Auth Check
   useEffect(() => {
+    let cancelled = false;
+
     (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { navigate("/login"); return; }
+      // 1. Fast Session lookup
+      const sessionRes = await supabase.auth.getSession();
+      let user = sessionRes.data.session?.user;
+      if (!user) {
+        const userRes = await supabase.auth.getUser();
+        user = userRes.data.user;
+      }
+      if (!user) {
+        if (!cancelled) navigate("/login");
+        return;
+      }
+
+      if (cancelled) return;
       setCurrentUserId(user.id);
       const email = (user.email || "").toLowerCase();
 
-      let instId: string | null = null;
-      let instType: "college" | "institute" = "college";
-      let userName = user.user_metadata?.full_name || email.split("@")[0];
+      let instId: string | null = identity?.institutionId ?? null;
+      let instType: "college" | "institute" = identity?.institutionType ?? "college";
+      let userName = identity?.institutionName || user.user_metadata?.full_name || email.split("@")[0];
 
-      // Try faculty membership first
-      const { data: fac } = await supabase
-        .from("institution_faculty_members")
-        .select("institution_id, institution_type, full_name")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (fac) {
-        instId = fac.institution_id;
-        instType = fac.institution_type as "college" | "institute";
-        if (fac.full_name) userName = fac.full_name;
-      } else {
-        // Try college admin
-        const { data: college } = await supabase
-          .from("college_registrations")
-          .select("id, dean_name, college_name")
-          .ilike("email", email)
-          .in("status", ["approved", "pending"])
-          .maybeSingle();
-
-        if (college) {
-          instId = college.id;
-          instType = "college";
-          userName = college.dean_name || college.college_name;
-        } else {
-          const { data: inst } = await supabase
+      // If identity is already known, we can skip identity discovery and fetch contacts directly in parallel
+      if (!instId) {
+        const [facRes, colRes, instRes] = await Promise.all([
+          supabase
+            .from("institution_faculty_members")
+            .select("institution_id, institution_type, full_name")
+            .eq("user_id", user.id)
+            .maybeSingle(),
+          supabase
+            .from("college_registrations")
+            .select("id, dean_name, college_name")
+            .ilike("email", email)
+            .in("status", ["approved", "pending"])
+            .maybeSingle(),
+          supabase
             .from("institute_registrations")
             .select("id, director_name, institute_name")
             .ilike("email", email)
             .in("status", ["approved", "pending"])
-            .maybeSingle();
+            .maybeSingle(),
+        ]);
 
-          if (inst) {
-            instId = inst.id;
-            instType = "institute";
-            userName = inst.director_name || inst.institute_name;
-          }
+        if (cancelled) return;
+
+        if (facRes.data) {
+          instId = facRes.data.institution_id;
+          instType = facRes.data.institution_type as "college" | "institute";
+          if (facRes.data.full_name) userName = facRes.data.full_name;
+        } else if (colRes.data) {
+          instId = colRes.data.id;
+          instType = "college";
+          userName = colRes.data.dean_name || colRes.data.college_name || userName;
+        } else if (instRes.data) {
+          instId = instRes.data.id;
+          instType = "institute";
+          userName = instRes.data.director_name || instRes.data.institute_name || userName;
         }
       }
 
       if (!instId) {
-        toast({
-          title: isRtl ? "غير مصرح" : "Not authorized",
-          description: isRtl
-            ? "هذه الخدمة لأعضاء هيئة التدريس وإدارة الكلية فقط"
-            : "Faculty and administration only",
-          variant: "destructive",
-        });
-        navigate("/login");
+        if (!cancelled) {
+          toast({
+            title: isRtl ? "غير مصرح" : "Not authorized",
+            description: isRtl
+              ? "هذه الخدمة لأعضاء هيئة التدريس وإدارة الكلية فقط"
+              : "Faculty and administration only",
+            variant: "destructive",
+          });
+          navigate("/login");
+        }
         return;
       }
 
+      if (cancelled) return;
       setCurrentUserName(userName);
       setInstitutionId(instId);
       setInstitutionType(instType);
       setIsCollege(instType === "college");
 
-      // Fetch contacts: faculty + admin + departments
+      // Fetch contacts: faculty + admin + departments in parallel
       const [facRes, adminRes, deptsRes] = await Promise.all([
         supabase
           .from("institution_faculty_members")
@@ -211,6 +258,8 @@ export default function InstitutionMessages() {
           : supabase.from("institute_registrations").select("institute_name, director_name, email").eq("id", instId).maybeSingle(),
         supabase.from("departments").select("id, department_name").eq("institution_id", instId),
       ]);
+
+      if (cancelled) return;
 
       const deptsMap = new Map<string, string>();
       if (deptsRes.data) {
@@ -252,17 +301,31 @@ export default function InstitutionMessages() {
         });
       }
 
-      __messagesContactsCache = {
+      const cacheEntry: CachedMessagesData = {
         contacts: list,
         instId: instId || "",
         instType,
         userName,
         userId: user.id,
+        cachedAt: Date.now(),
       };
-      setContacts(list);
-      setLoading(false);
+      __messagesContactsCache = cacheEntry as any;
+      try {
+        sessionStorage.setItem(MESSAGES_CACHE_KEY, JSON.stringify(cacheEntry));
+      } catch {
+        // ignore
+      }
+
+      if (!cancelled) {
+        setContacts(list);
+        setLoading(false);
+      }
     })();
-  }, [navigate, isRtl]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate, isRtl, identity]);
 
   // Real-time listener for newly added / registered faculty & staff members
   useEffect(() => {

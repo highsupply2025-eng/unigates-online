@@ -103,18 +103,27 @@ const Login = () => {
       const libraryRole = roles?.find((r) => String(r.role) === "library_manager");
 
       let facultySpecificRole: string | null = null;
-      if (lecturerRole && !leadershipRole) {
-        const { data: ifmRow } = await supabase
-          .from("institution_faculty_members")
-          .select("specific_role")
-          .eq("user_id", data.user.id)
-          .maybeSingle();
-        facultySpecificRole = ifmRow?.specific_role || null;
-      }
+      const { data: ifmRow } = await supabase
+        .from("institution_faculty_members")
+        .select("specific_role")
+        .eq("user_id", data.user.id)
+        .maybeSingle();
+      facultySpecificRole = ifmRow?.specific_role || null;
+
       const isFacultyWithLeadershipAccess = !!facultySpecificRole && ["professor", "doctor", "assistant_lecturer", "teaching_assistant", "lecturer"].includes(facultySpecificRole);
 
       if (adminRole) {
         goNext("/admin/dashboard");
+        return;
+      }
+
+      if (secretaryRole || facultySpecificRole === "college_secretary") {
+        goNext("/secretary/dashboard");
+        return;
+      }
+
+      if (libraryRole || facultySpecificRole === "library_manager") {
+        goNext("/library/dashboard");
         return;
       }
 
@@ -131,16 +140,6 @@ const Login = () => {
           });
           await supabase.auth.signOut();
         }
-        return;
-      }
-
-      if (secretaryRole) {
-        goNext("/secretary/dashboard");
-        return;
-      }
-
-      if (libraryRole) {
-        goNext("/library/dashboard");
         return;
       }
 

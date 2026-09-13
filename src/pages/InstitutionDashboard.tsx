@@ -2792,11 +2792,15 @@ ${exams.map((s: any, i: number) => `<tr>
                 vice_dean_postgrad: 2,
                 vice_dean_students: 3,
                 vice_dean_community: 4,
-                department_head: 5,
-                professor: 6,
-                doctor: 7,
-                lecturer: 8,
-                assistant_lecturer: 9,
+                college_secretary: 5,
+                department_head: 6,
+                professor: 7,
+                doctor: 8,
+                teacher: 9,
+                lecturer: 10,
+                teaching_assistant: 11,
+                assistant_lecturer: 12,
+                library_manager: 13,
               };
 
               const ROLE_LABELS: Record<string, { ar: string; en: string; color: string }> = {
@@ -2804,11 +2808,15 @@ ${exams.map((s: any, i: number) => `<tr>
                 vice_dean_postgrad: { ar: isCollege ? "وكيل الكلية للدراسات العليا" : "وكيل المعهد للدراسات العليا", en: "Vice Dean - Postgraduate", color: "bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 border-indigo-500/30" },
                 vice_dean_students: { ar: isCollege ? "وكيل الكلية لشئون الطلاب" : "وكيل المعهد لشئون الطلاب", en: "Vice Dean - Student Affairs", color: "bg-blue-500/15 text-blue-600 dark:text-blue-300 border-blue-500/30" },
                 vice_dean_community: { ar: isCollege ? "وكيل الكلية لخدمة المجتمع" : "وكيل المعهد لخدمة المجتمع", en: "Vice Dean - Community Service", color: "bg-cyan-500/15 text-cyan-600 dark:text-cyan-300 border-cyan-500/30" },
+                college_secretary: { ar: isCollege ? "أمين الكلية" : "أمين المعهد", en: isCollege ? "College Secretary" : "Institute Secretary", color: "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-500/30" },
                 department_head: { ar: "رئيس القسم", en: "Department Head", color: "bg-teal-500/15 text-teal-600 dark:text-teal-300 border-teal-500/30" },
                 professor: { ar: "أستاذ دكتور", en: "Professor", color: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-500/30" },
                 doctor: { ar: "دكتور", en: "Doctor", color: "bg-sky-500/15 text-sky-600 dark:text-sky-300 border-sky-500/30" },
+                teacher: { ar: "مدرس", en: "Teacher", color: "bg-green-500/15 text-green-600 dark:text-green-300 border-green-500/30" },
                 lecturer: { ar: "محاضر", en: "Lecturer", color: "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-500/30" },
+                teaching_assistant: { ar: "مدرس مساعد", en: "Teaching Assistant", color: "bg-violet-500/15 text-violet-600 dark:text-violet-300 border-violet-500/30" },
                 assistant_lecturer: { ar: "معيد", en: "Assistant Lecturer", color: "bg-rose-500/15 text-rose-600 dark:text-rose-300 border-rose-500/30" },
+                library_manager: { ar: "مدير المكتبة", en: "Library Manager", color: "bg-orange-500/15 text-orange-600 dark:text-orange-300 border-orange-500/30" },
               };
 
               const allFaculty = dedupeGlobalFaculty(
@@ -3161,16 +3169,20 @@ ${exams.map((s: any, i: number) => `<tr>
                               <SelectValue placeholder={isRtl ? "كل الرتب" : "All Roles"} />
                             </SelectTrigger>
                             <SelectContent className="z-50">
-                              <SelectItem value="all">{isRtl ? "جميع الرتب الأكاديمية" : "All Academic Ranks"}</SelectItem>
+                              <SelectItem value="all">{isRtl ? "جميع الرتب الأكاديمية والإدارية" : "All Academic & Admin Roles"}</SelectItem>
                               <SelectItem value="dean">{isCollege ? (isRtl ? "عميد الكلية" : "Dean") : (isRtl ? "مدير المعهد" : "Director")}</SelectItem>
                               <SelectItem value="vice_dean_postgrad">{isRtl ? "وكيل الدراسات العليا" : "Vice Dean - Postgrad"}</SelectItem>
                               <SelectItem value="vice_dean_students">{isRtl ? "وكيل شئون الطلاب" : "Vice Dean - Students"}</SelectItem>
                               <SelectItem value="vice_dean_community">{isRtl ? "وكيل خدمة المجتمع" : "Vice Dean - Community"}</SelectItem>
+                              <SelectItem value="college_secretary">{isCollege ? (isRtl ? "أمين الكلية" : "College Secretary") : (isRtl ? "أمين المعهد" : "Institute Secretary")}</SelectItem>
                               <SelectItem value="department_head">{isRtl ? "رئيس قسم" : "Department Head"}</SelectItem>
                               <SelectItem value="professor">{isRtl ? "أستاذ دكتور" : "Professor"}</SelectItem>
                               <SelectItem value="doctor">{isRtl ? "دكتور" : "Doctor"}</SelectItem>
+                              <SelectItem value="teacher">{isRtl ? "مدرس" : "Teacher"}</SelectItem>
                               <SelectItem value="lecturer">{isRtl ? "محاضر" : "Lecturer"}</SelectItem>
+                              <SelectItem value="teaching_assistant">{isRtl ? "مدرس مساعد" : "Teaching Assistant"}</SelectItem>
                               <SelectItem value="assistant_lecturer">{isRtl ? "معيد" : "Assistant Lecturer"}</SelectItem>
+                              <SelectItem value="library_manager">{isRtl ? "مدير المكتبة" : "Library Manager"}</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>

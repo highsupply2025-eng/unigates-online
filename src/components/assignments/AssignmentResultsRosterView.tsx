@@ -169,9 +169,16 @@ export const AssignmentResultsRosterView: React.FC<AssignmentResultsRosterViewPr
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 
-    const title = (isRtl ? currentAssignment?.title_ar : currentAssignment?.title_en) || currentAssignment?.title_ar || "Assignment Results";
+    const escHtml = (value: unknown) =>
+      String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+
+    const title = escHtml((isRtl ? currentAssignment?.title_ar : currentAssignment?.title_en) || currentAssignment?.title_ar || "Assignment Results");
     const course = courses.find((c) => c.id === currentAssignment?.course_id);
-    const courseName = course ? (isRtl ? course.title_ar : course.title_en) : "";
+    const courseName = escHtml(course ? (isRtl ? course.title_ar : course.title_en) : "");
 
     const html = `
       <!DOCTYPE html>
@@ -220,11 +227,11 @@ export const AssignmentResultsRosterView: React.FC<AssignmentResultsRosterViewPr
                   return `
                   <tr>
                     <td>${idx + 1}</td>
-                    <td>${s.student_id || "-"}</td>
+                    <td>${escHtml(s.student_id || "-")}</td>
                     <td>${new Date(s.submitted_at).toLocaleString(isRtl ? "ar-EG" : "en-US")}</td>
                     <td class="score">${hasGrade ? `${num} / ${maxPoints}` : (isRtl ? "لم ترصد" : "Ungraded")}</td>
                     <td>${pct !== null ? `${pct}%` : "-"}</td>
-                    <td>${s.feedback_ar || s.feedback_en || "-"}</td>
+                    <td>${escHtml(s.feedback_ar || s.feedback_en || "-")}</td>
                   </tr>
                 `;
                 })

@@ -340,6 +340,13 @@ export const FacultyRatingsOverview: React.FC<FacultyRatingsOverviewProps> = ({
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 
+    const escHtml = (value: unknown) =>
+      String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+
     const title = isRtl ? "كشف التقييم الشامل لأداء أعضاء هيئة التدريس (البث، المحاضرات، الجداول، الاختبارات، التكليفات)" : "Comprehensive Faculty Performance & Ratings Report";
 
     const html = `
@@ -389,9 +396,9 @@ export const FacultyRatingsOverview: React.FC<FacultyRatingsOverviewProps> = ({
                 .map((f, idx) => `
                   <tr>
                     <td>${idx + 1}</td>
-                    <td><strong>${f.fullName}</strong></td>
-                    <td><span class="badge">${getRoleLabel(f.role, f.subRole).ar}</span></td>
-                    <td>${isRtl ? f.departmentNameAr : f.departmentNameEn}</td>
+                    <td><strong>${escHtml(f.fullName)}</strong></td>
+                    <td><span class="badge">${escHtml(getRoleLabel(f.role, f.subRole).ar)}</span></td>
+                    <td>${escHtml(isRtl ? f.departmentNameAr : f.departmentNameEn)}</td>
                     <td class="score">⭐ ${f.streamsAvg > 0 ? f.streamsAvg : "-"}</td>
                     <td class="score">⭐ ${f.lecturesAvg > 0 ? f.lecturesAvg : "-"}</td>
                     <td class="score">⭐ ${f.schedulesAvg > 0 ? f.schedulesAvg : "-"}</td>

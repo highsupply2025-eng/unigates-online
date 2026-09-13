@@ -91,26 +91,16 @@ export function mapCountryCodeToLanguage(countryCode: string): Language {
 /**
  * Determines the initial language for the visitor on load.
  * Primary: English, Secondary: Arabic.
+ * Always defaults to English unless the user explicitly chose Arabic.
  */
 export function getInitialLanguage(): Language {
   try {
-    // 1. If user previously manually picked or has stored language
     const saved = localStorage.getItem(STORAGE_KEY) as Language;
-    const validLanguages: Language[] = ["en", "ar"];
-    if (saved && validLanguages.includes(saved)) {
-      return saved;
-    }
-
-    // 2. Detect from browser navigator locale
-    const browserLang = detectLanguageFromBrowserLocale();
-    if (browserLang) {
-      return browserLang;
-    }
-
-    // 3. Detect from system timezone
-    const tzLang = detectLanguageFromTimezone();
-    if (tzLang) {
-      return tzLang;
+    const isManuallySet = localStorage.getItem(MANUAL_SET_KEY) === "true";
+    
+    // Only restore Arabic if the user explicitly/manually chose it
+    if (isManuallySet && saved === "ar") {
+      return "ar";
     }
   } catch {
     // Fallback to English
@@ -119,38 +109,12 @@ export function getInitialLanguage(): Language {
 }
 
 /**
- * Asynchronously detects Geo-IP country and updates language if not manually set by user.
+ * Geo detection is disabled so that English remains the strict default for all visitors
+ * unless the user manually switches the language from the UI.
  */
 export async function autoDetectGeoLanguageAsync(
-  onLanguageDetected: (lang: Language) => void
+  _onLanguageDetected: (lang: Language) => void
 ): Promise<void> {
-  try {
-    // If the user already manually selected a language, never override it
-    if (localStorage.getItem(MANUAL_SET_KEY) === "true") {
-      return;
-    }
-
-    // Fast, lightweight, free Geo-IP lookup
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2500);
-
-    const res = await fetch("https://get.geojs.io/v1/ip/country.json", {
-      signal: controller.signal,
-    }).catch(() => null);
-
-    clearTimeout(timeoutId);
-
-    if (res && res.ok) {
-      const data = await res.json();
-      if (data && data.country) {
-        const detected = mapCountryCodeToLanguage(data.country);
-        const currentSaved = localStorage.getItem(STORAGE_KEY);
-        if (!currentSaved || currentSaved !== detected) {
-          onLanguageDetected(detected);
-        }
-      }
-    }
-  } catch {
-    // Silent fail if offline or blocked
-  }
+  // English is the primary default - no automatic override based on geo location.
+  return;
 }

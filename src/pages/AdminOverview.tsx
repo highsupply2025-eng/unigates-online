@@ -131,17 +131,14 @@ export default function AdminOverview() {
 
     setActivitySections([
       {
-        id: "subs",
         label: ar("الاشتراكات والدورات", "Subscriptions & Courses"),
         timestamps: subTimestamps,
       },
       {
-        id: "orders",
         label: ar("طلبات الكتب والعقود", "Book Orders & Store"),
         timestamps: orderTimestamps,
       },
       {
-        id: "depts",
         label: ar("تسجيل واعتماد المؤسسات", "Institutions & Depts"),
         timestamps: deptTimestamps,
       },
@@ -648,8 +645,6 @@ export default function AdminOverview() {
               <TimeRangeToggle
                 value={rangeDays}
                 onChange={setRangeDays}
-                isRtl={isRtl}
-                translate={(t: any) => ar(t.ar, t.en)}
               />
             </div>
 

@@ -2,6 +2,7 @@ import { Cloud, ExternalLink, ShieldCheck, Sparkles, Building2, School, BookOpen
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/hooks/use-toast";
 import ugLogo from "@/assets/ug-logo.png";
 
 const XIcon = () => (
@@ -53,7 +54,18 @@ const AppStoreIcon = () => (
 
 const SiteFooter = () => {
   const { t, dir, language, translate } = useLanguage();
+  const { toast } = useToast();
   const isRtl = dir === "rtl";
+
+  const handleSocialClick = (e: React.MouseEvent, label: string) => {
+    e.preventDefault();
+    toast({
+      title: isRtl ? `صفحة ${label} قيد التطوير` : `${label} Under Development`,
+      description: isRtl
+        ? `الحسابات والروابط الرسمية لـ ${label} قيد الإعداد والتطوير حالياً، وستكون متاحة للجمهور قريباً.`
+        : `Our official ${label} channels and application links are currently under development and will be available soon.`,
+    });
+  };
 
   const footerNavSections = [
     {
@@ -262,21 +274,20 @@ const SiteFooter = () => {
 
           {/* Social Icons Strip */}
           <div className="flex gap-2 sm:gap-2.5 items-center flex-wrap justify-center md:justify-end">
-            {socialLinks.map(({ icon: Icon, label, href, bgClass, glowClass, textClass }) => (
-              <a
+            {socialLinks.map(({ icon: Icon, label, bgClass, glowClass, textClass }) => (
+              <button
                 key={label}
-                href={href}
-                target={href !== "#" ? "_blank" : undefined}
-                rel={href !== "#" ? "noopener noreferrer" : undefined}
+                type="button"
+                onClick={(e) => handleSocialClick(e, label)}
                 aria-label={label}
-                title={label}
-                className={`group relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl ${bgClass} ${textClass} flex items-center justify-center transition-all duration-300 hover:-translate-y-1 hover:scale-105 active:scale-95 shadow-md ${glowClass} ring-1 ring-white/20 dark:ring-white/10`}
+                title={isRtl ? `${label} (قيد التطوير)` : `${label} (Under Development)`}
+                className={`group relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl ${bgClass} ${textClass} flex items-center justify-center transition-all duration-300 hover:-translate-y-1 hover:scale-105 active:scale-95 shadow-md ${glowClass} ring-1 ring-white/20 dark:ring-white/10 cursor-pointer`}
               >
                 <div className="transition-transform duration-300 group-hover:scale-110 flex items-center justify-center">
                   <Icon />
                 </div>
                 <span className="absolute inset-0 rounded-xl bg-gradient-to-b from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-              </a>
+              </button>
             ))}
           </div>
         </div>

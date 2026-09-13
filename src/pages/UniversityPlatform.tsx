@@ -223,15 +223,15 @@ const UniversityPlatform = () => {
         {/* Header Bar */}
         <header className="relative z-50 flex items-center justify-between px-4 sm:px-8 md:px-12 py-4 border-b border-white/10 backdrop-blur-md">
           <Link to="/" className="flex items-center gap-3 group min-w-0">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-primary to-indigo-600 p-0.5 shadow-xl shadow-primary/25 group-hover:scale-105 transition-transform flex items-center justify-center text-white">
-              <GraduationCap className="w-7 h-7" />
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 p-0.5 shadow-xl shadow-blue-500/25 group-hover:scale-105 transition-transform flex items-center justify-center text-white">
+              <Landmark className="w-7 h-7" />
             </div>
             <div>
               <span className="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow-md">
                 UNIGATES
               </span>
-              <p className="text-[10px] font-bold text-primary-foreground/80 tracking-wide">
-                {isRtl ? "المنصة الجامعية الذكية" : "University Platform"}
+              <p className="text-[10px] font-bold text-blue-300 tracking-wide">
+                {isRtl ? "المنصة الجامعية (كليات ومعاهد)" : "University Platform (Colleges & Institutes)"}
               </p>
             </div>
           </Link>

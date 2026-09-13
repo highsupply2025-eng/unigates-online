@@ -291,7 +291,7 @@ const InstituteAdminSignup = () => {
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-0.5 shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform flex items-center justify-center text-white">
-              <GraduationCap className="w-6 h-6" />
+              <Landmark className="w-6 h-6" />
             </div>
             <div>
               <span className="text-xl font-black tracking-tight drop-shadow-sm flex items-center gap-1.5">

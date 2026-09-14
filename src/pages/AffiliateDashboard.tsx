@@ -97,36 +97,14 @@ export default function AffiliateDashboard() {
   useEffect(() => {
     const current = getCurrentAffiliate();
     if (!current) {
-      // If no affiliate profile found in storage, create a default session for preview or redirect
-      const defaultAffiliate: AffiliateProfile = {
-        id: "aff-preview-1",
-        fullName: "شريك النجاح (أفلييت)",
-        email: "affiliate@unigates.online",
-        phone: "+966501234567",
-        countryCode: "+966",
-        referralCode: "UG-PREMIUM",
-        commissionRate: 20,
-        walletBalance: 8340,
-        totalEarned: 11540,
-        totalWithdrawn: 3200,
-        pendingPayout: 0,
-        payoutMethod: "bank_iban",
-        payoutAccountDetails: "SA0380000000608010167519",
-        status: "active",
-        createdAt: new Date(Date.now() - 30 * 86400000).toISOString(),
-      };
-      saveCurrentAffiliate(defaultAffiliate);
-      setAffiliate(defaultAffiliate);
-      const sample = getSampleAffiliateData(defaultAffiliate);
-      setLecturers(sample.lecturers);
-      setCommissions(sample.commissions);
-    } else {
-      setAffiliate(current);
-      const sample = getSampleAffiliateData(current);
-      setLecturers(sample.lecturers);
-      setCommissions(sample.commissions);
+      navigate("/affiliate/login", { replace: true });
+      return;
     }
-  }, []);
+    setAffiliate(current);
+    const sample = getSampleAffiliateData(current);
+    setLecturers(sample.lecturers);
+    setCommissions(sample.commissions);
+  }, [navigate]);
 
   if (!affiliate) {
     return (

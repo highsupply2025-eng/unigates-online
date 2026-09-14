@@ -202,10 +202,10 @@ export default function AffiliateProgram() {
                 <ArrowIcon className="w-5 h-5 ms-2" />
               </Button>
             </Link>
-            <Link to="/affiliate/dashboard" className="w-full sm:w-auto">
+            <Link to="/affiliate/login" className="w-full sm:w-auto">
               <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-8 text-base font-bold border-white/20 text-white hover:bg-white/10 bg-white/5 backdrop-blur-md">
                 <Wallet className="w-5 h-5 me-2 text-amber-400" />
-                <span>{isRtl ? "دخول لوحة تحكم المسوق" : "Open Affiliate Dashboard"}</span>
+                <span>{isRtl ? "دخول لوحة تحكم المسوق" : "Affiliate Login"}</span>
               </Button>
             </Link>
           </div>

@@ -169,14 +169,16 @@ const CoursesSignup = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const preRole = searchParams.get("role") as RoleValue | null;
+  const affiliateRef = searchParams.get("ref") || searchParams.get("affiliate") || "";
   const { toast } = useToast();
   const { dir, tText, language, t } = useLanguage();
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
   const [role, setRole] = useState<RoleValue | null>(
-    ROLES.some((r) => r.value === preRole) ? preRole : null
+    ROLES.some((r) => r.value === preRole) ? preRole : (affiliateRef ? "lecturer" : null)
   );
+  const [referralCode, setReferralCode] = useState(affiliateRef);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [countryCode, setCountryCode] = useState("+966");
@@ -577,6 +579,17 @@ const CoursesSignup = () => {
               <div className="lg:col-span-7 rounded-3xl border border-white/15 bg-slate-900/80 backdrop-blur-2xl shadow-2xl shadow-purple-950/50 p-6 sm:p-9 space-y-6 flex flex-col justify-between">
                 <div>
                   <div className="border-b border-white/10 pb-4 mb-6">
+                    {referralCode && (
+                      <div className="mb-3 p-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-between text-xs text-amber-300">
+                        <span className="font-bold flex items-center gap-1.5">
+                          <Sparkles className="w-4 h-4 text-amber-400" />
+                          {isRtl ? "دعوة رسمية عبر شريك النجاح (أفلييت)" : "Invited by Official Partner"}
+                        </span>
+                        <span className="font-mono font-black bg-amber-400/20 px-2.5 py-0.5 rounded-lg text-amber-200 border border-amber-400/30">
+                          {referralCode}
+                        </span>
+                      </div>
+                    )}
                     <h3 className="text-xl font-black text-white flex items-center gap-2">
                       <Zap className="w-5 h-5 text-amber-400" />
                       <span>{tText("بيانات التسجيل الأساسية", "Account Credentials")}</span>

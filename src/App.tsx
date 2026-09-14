@@ -144,6 +144,12 @@ const StudentPresenceCheckin = lazy(() => import("./pages/StudentPresenceCheckin
 const StudentMyAcademic = lazy(() => import("./pages/StudentMyAcademic"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 
+// Affiliate Program (20% RevShare)
+const AffiliateProgram = lazy(() => import("./pages/AffiliateProgram"));
+const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
+const AffiliateLogin = lazy(() => import("./pages/AffiliateLogin"));
+const AffiliateDashboard = lazy(() => import("./pages/AffiliateDashboard"));
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -328,6 +334,13 @@ const App = () => (
               <Route path="/faq" element={<FAQ />} />
               <Route path="/promo-video" element={<PromoVideoPage />} />
               <Route path="/promo" element={<Navigate to="/promo-video" replace />} />
+              
+              {/* Affiliate Program (20% RevShare) */}
+              <Route path="/affiliate" element={<AffiliateProgram />} />
+              <Route path="/affiliate/signup" element={<AffiliateSignup />} />
+              <Route path="/affiliate/login" element={<AffiliateLogin />} />
+              <Route path="/affiliate/dashboard" element={<AffiliateDashboard />} />
+              
               <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -108,6 +108,12 @@ export const ROUTE_LOADERS: Array<[RegExp, Loader]> = [
   [/^\/live$/, () => import("./pages/LiveStreams")],
   [/^\/stream\//, () => import("./pages/WatchStream")],
 
+  // Affiliate Program
+  [/^\/affiliate$/, () => import("./pages/AffiliateProgram")],
+  [/^\/affiliate\/signup$/, () => import("./pages/AffiliateSignup")],
+  [/^\/affiliate\/login$/, () => import("./pages/AffiliateLogin")],
+  [/^\/affiliate\/dashboard$/, () => import("./pages/AffiliateDashboard")],
+
   // Public & Informational
   [/^\/about$/, () => import("./pages/About")],
   [/^\/pricing$/, () => import("./pages/Pricing")],

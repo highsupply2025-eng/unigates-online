@@ -584,7 +584,7 @@ const InstitutionDashboard = () => {
     setPendingChoice(null);
     setAccountMgmtView(choice);
   };
-  const [profilesMap, setProfilesMap] = useState<Record<string, { full_name: string; email: string; phone: string; role: string; created_at: string }>>({});
+  const [profilesMap, setProfilesMap] = useState<Record<string, { full_name: string; email: string; phone: string; role: string; created_at: string; must_change_password?: boolean | null }>>({});
   const [leadershipMembers, setLeadershipMembers] = useState<Array<{ invitation_id: string; user_id: string; role: string; joined_at: string }>>([]);
   // Mobile compact view: hides secondary widgets and shrinks card grids while scrolling
   const [compactMode, setCompactMode] = useState(false);

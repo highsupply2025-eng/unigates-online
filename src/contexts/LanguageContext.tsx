@@ -7,7 +7,7 @@ import {
   autoDetectGeoLanguageAsync,
 } from "@/utils/geoLanguageDetection";
 
-export type Language = "en" | "ar";
+export type Language = "en" | "ar" | "fr" | "es" | "de" | "zh" | "ru" | "tr";
 export type Translations = typeof ar;
 
 export interface LanguageInfo {

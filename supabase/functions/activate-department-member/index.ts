@@ -77,11 +77,14 @@ const FACULTY_ROLES = new Set([
   "vice_dean_community",
   "vice_dean_environment",
   "department_head",
+  "teacher",
   "teaching_assistant",
   "professor",
   "doctor",
   "lecturer",
   "assistant_lecturer",
+  "college_secretary",
+  "library_manager",
 ]);
 
 function mapGeneralRole(
@@ -102,6 +105,12 @@ function mapGeneralRole(
       return { profileRole: "teaching_assistant", appRole: "teaching_assistant" };
     case "department_head":
       return { profileRole: "department_head", appRole: "department_head" };
+    case "teacher":
+      return { profileRole: "teacher", appRole: "teacher" };
+    case "college_secretary":
+      return { profileRole: "college_secretary", appRole: "vice_dean" };
+    case "library_manager":
+      return { profileRole: "library_manager", appRole: "lecturer" };
     default:
       // professor, doctor, lecturer, assistant_lecturer and any future
       // teaching role activate as a regular teaching account.

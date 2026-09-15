@@ -39,15 +39,20 @@ function fail(step: string, message: string, status = 500, extra: Record<string,
 
 const ALLOWED_ROLES = new Set([
   "dean",
+  "vice_dean",
   "vice_dean_postgrad",
   "vice_dean_students",
   "vice_dean_community",
+  "vice_dean_environment",
   "department_head",
+  "teacher",
   "teaching_assistant",
   "professor",
   "doctor",
   "lecturer",
   "assistant_lecturer",
+  "college_secretary",
+  "library_manager",
 ]);
 const FORBIDDEN_ROLES = new Set(["admin", "super_admin", "institution_admin"]);
 
@@ -55,14 +60,22 @@ function mapGeneralRole(specific: string): { profileRole: string; appRole: strin
   switch (specific) {
     case "dean":
       return { profileRole: "dean", appRole: "dean" };
+    case "vice_dean":
     case "vice_dean_postgrad":
     case "vice_dean_students":
     case "vice_dean_community":
+    case "vice_dean_environment":
       return { profileRole: "vice_dean", appRole: "vice_dean" };
     case "teaching_assistant":
       return { profileRole: "teaching_assistant", appRole: "teaching_assistant" };
     case "department_head":
       return { profileRole: "department_head", appRole: "department_head" };
+    case "teacher":
+      return { profileRole: "teacher", appRole: "teacher" };
+    case "college_secretary":
+      return { profileRole: "college_secretary", appRole: "vice_dean" };
+    case "library_manager":
+      return { profileRole: "library_manager", appRole: "lecturer" };
     case "professor":
     case "doctor":
     case "lecturer":

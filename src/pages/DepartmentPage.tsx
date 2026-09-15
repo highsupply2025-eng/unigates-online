@@ -62,21 +62,25 @@ const FACULTY_ROLES = new Set<string>([
 const isFacultyRole = (role: string) => FACULTY_ROLES.has(String(role || ""));
 
 // Role label helper
-const getRoleLabel = (role: string, isRtl: boolean): string => {
+const getRoleLabel = (role: string, isRtl: boolean, institutionType: "college" | "institute" = "college"): string => {
+  const isCollege = institutionType === "college";
   const map: Record<string, [string, string]> = {
-    department_head:      ["رئيس قسم",       "Department Head"],
-    dean:                 ["العميد",          "Dean"],
-    vice_dean:            ["نائب العميد",     "Vice Dean"],
-    vice_dean_postgrad:   ["نائب الدراسات",   "Vice Dean Postgrad"],
-    vice_dean_students:   ["نائب شؤون الطلاب","Vice Dean Students"],
-    vice_dean_community:  ["نائب المجتمع",    "Vice Dean Community"],
-    vice_dean_environment:["نائب البيئة",     "Vice Dean Environment"],
-    professor:            ["أستاذ",           "Professor"],
-    doctor:               ["دكتور",           "Doctor"],
-    lecturer:             ["محاضر",           "Lecturer"],
-    teaching_assistant:   ["مدرس مساعد",      "Teaching Assistant"],
-    assistant_lecturer:   ["مدرس",            "Assistant Lecturer"],
-    student:              ["طالب",            "Student"],
+    department_head:      ["رئيس قسم",                                                "Department Head"],
+    dean:                 [isCollege ? "عميد الكلية" : "مدير المعهد",                 isCollege ? "Dean" : "Director"],
+    vice_dean:            [isCollege ? "وكيل الكلية" : "وكيل المعهد",                 isCollege ? "Vice Dean" : "Vice Director"],
+    vice_dean_postgrad:   [isCollege ? "وكيل الكلية للدراسات العليا" : "وكيل المعهد للدراسات العليا", "Vice Dean - Postgraduate Studies"],
+    vice_dean_students:   [isCollege ? "وكيل الكلية لشئون الطلاب" : "وكيل المعهد لشئون الطلاب",       "Vice Dean - Student Affairs"],
+    vice_dean_community:  [isCollege ? "وكيل الكلية لشئون البيئة وخدمة المجتمع" : "وكيل المعهد لشئون البيئة وخدمة المجتمع", "Vice Dean - Community Service"],
+    vice_dean_environment:[isCollege ? "وكيل الكلية لشئون البيئة" : "وكيل المعهد لشئون البيئة", "Vice Dean - Environment"],
+    college_secretary:    [isCollege ? "أمين الكلية" : "أمين المعهد",                 isCollege ? "College Secretary" : "Institute Secretary"],
+    library_manager:      ["مدير المكتبة",                                            "Library Manager"],
+    professor:            ["أستاذ دكتور",                                             "Professor"],
+    doctor:               ["دكتور",                                                   "Doctor"],
+    lecturer:             ["محاضر",                                                   "Lecturer"],
+    teaching_assistant:   ["مدرس مساعد",                                              "Teaching Assistant"],
+    assistant_lecturer:   ["معيد",                                                    "Assistant Lecturer"],
+    teacher:              ["مدرس",                                                    "Teacher"],
+    student:              ["طالب",                                                    "Student"],
   };
   return map[role]?.[isRtl ? 0 : 1] ?? role;
 };
@@ -315,7 +319,7 @@ const DepartmentPage = () => {
 
   const getExportData = () => [...lecturers, ...students].map(m => ({
     [isRtl ? "الاسم" : "Name"]: m.full_name,
-    [isRtl ? "الدور" : "Role"]: getRoleLabel(m.role, isRtl),
+    [isRtl ? "الدور" : "Role"]: getRoleLabel(m.role, isRtl, institutionType),
     [isRtl ? "الحالة" : "Status"]: m.user_id ? (isRtl ? "مسجّل" : "Linked") : (isRtl ? "بانتظار" : "Pending"),
     [isRtl ? "كود الدعوة" : "Invitation Code"]: m.invitation_code || "",
     [isRtl ? "رابط التسجيل" : "Signup Link"]: m.invitation_code ? `${baseUrl}/signup/${instPath}/${m.role}?code=${m.invitation_code}` : "",
@@ -328,8 +332,11 @@ const DepartmentPage = () => {
     const csvRows = [headers.join(","), ...data.map(row => headers.map(h => `"${(row as Record<string, string>)[h]}"`).join(","))];
     const blob = new Blob(["\uFEFF" + csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = `${deptName}_members.csv`; a.click(); URL.revokeObjectURL(url);
-    sonnerToast.success(isRtl ? "تم تصدير CSV" : "CSV exported!", { duration: 1000 });
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${deptName || "department"}-members.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const exportExcel = () => {
@@ -352,13 +359,14 @@ const DepartmentPage = () => {
     const isLinked = !!member.user_id;
     const isActivated = isLinked && !!profile && profile.must_change_password === false;
     const isHead = member.role === "department_head";
+    const isDeanOrViceDean = member.role === "dean" || member.role.startsWith("vice_dean");
     const isStudent = member.role === STUDENT_ROLE;
     const shareText = isRtl
       ? `مرحباً ${member.full_name}، يمكنك التسجيل في منصة يونيجيتس عبر هذا الرابط:\n${inviteLink}\nكود الدعوة: ${member.invitation_code}`
       : `Hi ${member.full_name}, register on UNIGATES platform:\n${inviteLink}\nInvitation code: ${member.invitation_code}`;
 
-    const avatarBg = isHead ? "from-amber-500 to-orange-600" : isStudent ? "from-blue-500 to-indigo-600" : "from-emerald-500 to-teal-600";
-    const AvatarIcon = isHead ? Crown : isStudent ? GraduationCap : UserCheck;
+    const avatarBg = isHead ? "from-amber-500 to-orange-600" : isDeanOrViceDean ? "from-purple-600 to-indigo-600" : isStudent ? "from-blue-500 to-indigo-600" : "from-emerald-500 to-teal-600";
+    const AvatarIcon = isHead || isDeanOrViceDean ? Crown : isStudent ? GraduationCap : UserCheck;
 
     return (
       <div key={member.id} className="group rounded-2xl border-2 border-border/60 hover:border-primary/30 bg-card hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 overflow-hidden">
@@ -390,8 +398,14 @@ const DepartmentPage = () => {
                     {tText("رئيس قسم", "Head")}
                   </Badge>
                 )}
+                {isDeanOrViceDean && (
+                  <Badge className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-[10px] px-2 py-0 gap-1 shrink-0 shadow-sm">
+                    <Crown className="w-2.5 h-2.5" />
+                    {getRoleLabel(member.role, isRtl, institutionType)}
+                  </Badge>
+                )}
               </div>
-              <p className="text-[11px] text-muted-foreground font-bold">{getRoleLabel(member.role, isRtl)}</p>
+              <p className="text-[11px] text-muted-foreground font-bold">{getRoleLabel(member.role, isRtl, institutionType)}</p>
               {isLinked && profile ? (
                 <div className="flex items-center gap-2 mt-0.5 text-[11px] text-muted-foreground flex-wrap">
                   {profile.email && <span className="truncate max-w-[180px]" dir="ltr">{profile.email}</span>}
@@ -795,7 +809,7 @@ const DepartmentPage = () => {
           <div className="space-y-4 py-2">
             <div className="p-3 rounded-2xl bg-muted/40 border border-border/60">
               <p className="text-sm font-black text-foreground">{memberToActivate?.full_name}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{getRoleLabel(memberToActivate?.role || "", isRtl)}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{getRoleLabel(memberToActivate?.role || "", isRtl, institutionType)}</p>
             </div>
             <p className="text-sm text-muted-foreground">{tText("يمكنك إدخال البريد الإلكتروني ورقم الهاتف (اختيارياً) أو تركهما فارغين ليتم توليدهما تلقائياً.", "Enter email and phone optionally. Leave blank for auto-generation.")}</p>
             <div className="space-y-1.5">

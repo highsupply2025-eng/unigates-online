@@ -43,15 +43,15 @@ function mapGeneralRole(specific: string): { profileRole: string; appRole: strin
     case "vice_dean_environment":
       return { profileRole: "vice_dean", appRole: "vice_dean" };
     case "teaching_assistant":
-      return { profileRole: "teaching_assistant", appRole: "teaching_assistant" };
+      return { profileRole: "lecturer", appRole: "lecturer" };
     case "department_head":
       return { profileRole: "department_head", appRole: "department_head" };
     case "teacher":
       return { profileRole: "teacher", appRole: "teacher" };
     case "college_secretary":
-      return { profileRole: "college_secretary", appRole: "vice_dean" };
+      return { profileRole: "vice_dean", appRole: "vice_dean" };
     case "library_manager":
-      return { profileRole: "library_manager", appRole: "lecturer" };
+      return { profileRole: "lecturer", appRole: "lecturer" };
     case "professor":
     case "doctor":
     case "lecturer":

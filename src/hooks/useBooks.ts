@@ -21,9 +21,10 @@ export interface Book {
   reviews_count: number;
 }
 
-export const useBooks = () => {
+export const useBooks = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ["books"],
+    enabled: options?.enabled ?? true,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("books")

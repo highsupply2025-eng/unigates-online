@@ -86,13 +86,17 @@ const REALTIME_TABLES: Record<PlatformScope, string[]> = {
   ],
 };
 
-export const usePlatformStats = (scope: PlatformScope = "all") => {
+export const usePlatformStats = (
+  scope: PlatformScope = "all",
+  options?: { enabled?: boolean }
+) => {
   const queryClient = useQueryClient();
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: [QUERY_KEY, scope] });
 
   const query = useQuery<PlatformStats>({
     queryKey: [QUERY_KEY, scope],
+    enabled: options?.enabled ?? true,
     queryFn: async (): Promise<PlatformStats> => {
       // University scope uses its dedicated aggregate so the public page
       // shares the exact same counting rules as institution dashboards

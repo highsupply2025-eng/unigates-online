@@ -187,16 +187,8 @@ const PrefetchRoutes = () => {
     const conn = (navigator as any)?.connection;
     const isConstrained = conn && (conn.saveData || /(^|-)[23]g$/.test(String(conn.effectiveType)));
 
-    // 1. Initial idle prefetch of top frequent routes
-    const kickEagerRoutes = () => {
-      if (isConstrained) return;
-      TOP_ROUTE_LOADERS.forEach(warmLoader);
-    };
-
-    const schedule = (window.requestIdleCallback || ((cb: any) => setTimeout(cb, 1500))) as any;
-    const idleHandle = schedule(kickEagerRoutes, { timeout: 3000 });
-
-    // 2. High-speed intent listener (pointer hover, touchstart, focus)
+    // 1. High-speed intent listener (pointer hover, touchstart, focus)
+    // Instant preload only when the user actually interacts or intends to navigate to a link
     const handleNavigationIntent = (e: Event) => {
       const target = e.target as HTMLElement | null;
       const anchor = target?.closest?.("a[href]") as HTMLAnchorElement | null;
@@ -213,53 +205,7 @@ const PrefetchRoutes = () => {
     document.addEventListener("touchstart", handleNavigationIntent, { passive: true, capture: true });
     document.addEventListener("focusin", handleNavigationIntent, { capture: true });
 
-    // 3. Viewport IntersectionObserver to warm links visible on the screen
-    let intersectionObserver: IntersectionObserver | null = null;
-
-    if (!isConstrained && typeof IntersectionObserver !== "undefined") {
-      intersectionObserver = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            if (entry.isIntersecting) {
-              const anchor = entry.target as HTMLAnchorElement;
-              const href = anchor.getAttribute("href") || "";
-              if (href.startsWith("/") && !href.startsWith("//")) {
-                preloadRoute(href);
-              }
-              intersectionObserver?.unobserve(anchor);
-            }
-          }
-        },
-        { rootMargin: "250px" } // Pre-warm 250px before entering viewport!
-      );
-
-      const observeVisibleLinks = () => {
-        const anchors = document.querySelectorAll<HTMLAnchorElement>("a[href^='/']:not([href^='//'])");
-        anchors.forEach((a) => {
-          if (!observedAnchors.has(a)) {
-            observedAnchors.add(a);
-            intersectionObserver?.observe(a);
-          }
-        });
-      };
-
-      // Initial observe + periodic scan for dynamic content
-      observeVisibleLinks();
-      const interval = setInterval(observeVisibleLinks, 2000);
-
-      return () => {
-        clearInterval(interval);
-        intersectionObserver?.disconnect();
-        if ((window as any).cancelIdleCallback) (window as any).cancelIdleCallback(idleHandle);
-        document.removeEventListener("pointerover", handleNavigationIntent, { capture: true } as EventListenerOptions);
-        document.removeEventListener("pointerdown", handleNavigationIntent, { capture: true } as EventListenerOptions);
-        document.removeEventListener("touchstart", handleNavigationIntent, { capture: true } as EventListenerOptions);
-        document.removeEventListener("focusin", handleNavigationIntent, { capture: true } as EventListenerOptions);
-      };
-    }
-
     return () => {
-      if ((window as any).cancelIdleCallback) (window as any).cancelIdleCallback(idleHandle);
       document.removeEventListener("pointerover", handleNavigationIntent, { capture: true } as EventListenerOptions);
       document.removeEventListener("pointerdown", handleNavigationIntent, { capture: true } as EventListenerOptions);
       document.removeEventListener("touchstart", handleNavigationIntent, { capture: true } as EventListenerOptions);

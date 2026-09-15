@@ -109,14 +109,14 @@ const fetchAllCourses = async (): Promise<Course[]> => {
   return (data || []) as Course[];
 };
 
-export const usePopularCourses = () =>
-  useQuery({ queryKey: ["courses", "popular"], queryFn: fetchPopularCourses });
+export const usePopularCourses = (options?: { enabled?: boolean }) =>
+  useQuery({ queryKey: ["courses", "popular"], queryFn: fetchPopularCourses, enabled: options?.enabled ?? true });
 
-export const useNewCourses = () =>
-  useQuery({ queryKey: ["courses", "new"], queryFn: fetchNewCourses });
+export const useNewCourses = (options?: { enabled?: boolean }) =>
+  useQuery({ queryKey: ["courses", "new"], queryFn: fetchNewCourses, enabled: options?.enabled ?? true });
 
-export const useFreeCourses = () =>
-  useQuery({ queryKey: ["courses", "free"], queryFn: fetchFreeCourses });
+export const useFreeCourses = (options?: { enabled?: boolean }) =>
+  useQuery({ queryKey: ["courses", "free"], queryFn: fetchFreeCourses, enabled: options?.enabled ?? true });
 
-export const useAllCourses = () =>
-  useQuery({ queryKey: ["courses", "all"], queryFn: fetchAllCourses });
+export const useAllCourses = (options?: { enabled?: boolean }) =>
+  useQuery({ queryKey: ["courses", "all"], queryFn: fetchAllCourses, enabled: options?.enabled ?? true });

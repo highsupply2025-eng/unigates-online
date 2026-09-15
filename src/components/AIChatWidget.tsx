@@ -223,13 +223,14 @@ const AIChatWidget = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Dynamic Realtime Platform Data Injection
-  const { data: stats } = usePlatformStats();
-  const { data: uniStats } = usePlatformStats("university");
-  const { data: coursesData } = useAllCourses();
-  const { data: booksData } = useBooks();
+  // Dynamic Realtime Platform Data Injection — only query when chat drawer is opened by user
+  const { data: stats } = usePlatformStats("all", { enabled: isOpen });
+  const { data: uniStats } = usePlatformStats("university", { enabled: isOpen });
+  const { data: coursesData } = useAllCourses({ enabled: isOpen });
+  const { data: booksData } = useBooks({ enabled: isOpen });
 
   const dynamicContext = useMemo(() => {
+    if (!isOpen) return null;
     let jobsCount = 12;
     try {
       const saved = localStorage.getItem("unigates_career_jobs");

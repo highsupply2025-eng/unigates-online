@@ -680,24 +680,33 @@ const InstitutionDashboard = () => {
         return;
       }
 
-      // Check if the user has a leadership role
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      if (profile && ["department_head", "vice_dean", "dean"].includes(profile.role)) {
+      // Check profile role, college registration, and institute registration in parallel
+      const [profileRes, collegeRes, instituteRes] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("role")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+        supabase
+          .from("college_registrations")
+          .select("*")
+          .eq("email", user.email)
+          .eq("status", "approved")
+          .maybeSingle(),
+        supabase
+          .from("institute_registrations")
+          .select("*")
+          .eq("email", user.email)
+          .eq("status", "approved")
+          .maybeSingle(),
+      ]);
+
+      if (profileRes.data && ["department_head", "vice_dean", "dean"].includes(profileRes.data.role)) {
         setIsLeadershipRole(true);
       }
 
-      const { data: college } = await supabase
-        .from("college_registrations")
-        .select("*")
-        .eq("email", user.email)
-        .eq("status", "approved")
-        .maybeSingle();
-
-      if (college) {
+      if (collegeRes.data) {
+        const college = collegeRes.data;
         setInstitutionType("college");
         setInstitutionName(college.college_name);
         setInstitutionId(college.id);
@@ -707,14 +716,8 @@ const InstitutionDashboard = () => {
         return;
       }
 
-      const { data: institute } = await supabase
-        .from("institute_registrations")
-        .select("*")
-        .eq("email", user.email)
-        .eq("status", "approved")
-        .maybeSingle();
-
-      if (institute) {
+      if (instituteRes.data) {
+        const institute = instituteRes.data;
         setInstitutionType("institute");
         setInstitutionName(institute.institute_name);
         setInstitutionId(institute.id);
@@ -741,12 +744,20 @@ const InstitutionDashboard = () => {
   const loadInstitutionData = async (instId: string, instType: string, instName?: string) => {
     let snapshotProfilesMap: Record<string, any> = {};
 
-    const { data: depts } = await supabase
-      .from("departments")
-      .select("*")
-      .eq("institution_id", instId)
-      .eq("institution_type", instType)
-      .order("created_at", { ascending: false });
+    const [{ data: depts }, { data: ifm, error: ifmError }] = await Promise.all([
+      supabase
+        .from("departments")
+        .select("*")
+        .eq("institution_id", instId)
+        .eq("institution_type", instType)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("institution_faculty_members")
+        .select("*")
+        .eq("institution_id", instId)
+        .eq("institution_type", instType),
+    ]);
+
     const filteredDepts = (depts || []).filter(d => !deletedDeptIdsRef.current.has(d.id));
     setDepartments(filteredDepts);
 
@@ -775,14 +786,6 @@ const InstitutionDashboard = () => {
         const nm = (m.full_name || "").trim();
         return nm !== "عضو جديد" && nm !== "New Member";
       });
-
-      // Merge institution-level faculty members and remove legacy duplicates.
-      // The institution_faculty_members row is the canonical faculty record.
-      const { data: ifm, error: ifmError } = await supabase
-        .from("institution_faculty_members")
-        .select("*")
-        .eq("institution_id", instId)
-        .eq("institution_type", instType);
 
       if (ifmError) {
         console.error("Failed to load institution faculty members:", ifmError);
@@ -842,11 +845,6 @@ const InstitutionDashboard = () => {
       setDeptMembers(mergedFacultyMembers as any);
     } else {
       // No departments: still show institution-level faculty (possibly unassigned).
-      const { data: ifm } = await supabase
-        .from("institution_faculty_members")
-        .select("*")
-        .eq("institution_id", instId)
-        .eq("institution_type", instType);
       const extras: any[] = dedupeFacultyMembers((ifm || []).map((f: any) => ({
         id: f.id,
         department_id: f.department_id,

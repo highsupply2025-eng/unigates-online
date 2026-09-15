@@ -89,8 +89,15 @@ export const VideoCallModal: React.FC<VideoCallModalProps> = ({
 
   // Setup Signaling Channel via Supabase Realtime Broadcast (Conference Room Mesh up to 20 users)
   useEffect(() => {
-    const channelName = `inst-call-room-${institutionId}-${[currentUserId, contact.user_id].sort().join("-")}`;
-    const channel = supabase.channel(channelName);
+    // Each participant listens only on their own private inbox topic and
+    // publishes into the peer's inbox, so no third party can subscribe.
+    const inboxTopic = callInboxTopic(currentUserId, institutionId, contact.user_id);
+    const peerTopic = callInboxTopic(contact.user_id, institutionId, currentUserId);
+    const channel = privateChannel(inboxTopic);
+    const sender = {
+      send: (msg: { event: string; payload: unknown }) =>
+        sendToPrivateInbox(peerTopic, msg.event, msg.payload),
+    };
 
     channel
       .on("broadcast", { event: "call_signal" }, async (payload) => {

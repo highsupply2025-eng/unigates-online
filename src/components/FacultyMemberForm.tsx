@@ -272,7 +272,7 @@ export const FacultyMemberForm = ({
             const canvas = document.createElement("canvas");
             let width = img.width;
             let height = img.height;
-            const maxDim = 500;
+            const maxDim = 200;
 
             if (width > maxDim || height > maxDim) {
               if (width > height) {
@@ -289,7 +289,7 @@ export const FacultyMemberForm = ({
             const ctx = canvas.getContext("2d");
             if (ctx) {
               ctx.drawImage(img, 0, 0, width, height);
-              const optimizedDataUrl = canvas.toDataURL("image/jpeg", 0.82);
+              const optimizedDataUrl = canvas.toDataURL("image/jpeg", 0.72);
               setPhotoUrl(optimizedDataUrl);
             } else {
               setPhotoUrl(rawResult);

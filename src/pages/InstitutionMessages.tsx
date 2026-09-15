@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { callsHubInboxTopic, chatInboxTopic, privateChannel, sendToPrivateInbox } from "@/lib/realtime/privateChannels";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -382,8 +383,7 @@ export default function InstitutionMessages() {
   useEffect(() => {
     if (!institutionId || !currentUserId) return;
 
-    const callChannelName = `inst-calls-hub-${institutionId}-${currentUserId}`;
-    const channel = supabase.channel(callChannelName);
+    const channel = privateChannel(callsHubInboxTopic(currentUserId, institutionId));
 
     channel
       .on("broadcast", { event: "incoming_call" }, (payload) => {
@@ -431,7 +431,7 @@ export default function InstitutionMessages() {
 
     // Real-time listener for new messages & typing
     const channel = supabase
-      .channel(`inst-chat-${institutionId}-${[currentUserId, selected.user_id].sort().join("-")}`)
+      .channel(`pgc-chat-${institutionId}-${currentUserId}-${selected.user_id}`)
       .on(
         "postgres_changes",
         {
@@ -454,7 +454,14 @@ export default function InstitutionMessages() {
           }
         }
       )
-      .on("broadcast", { event: "typing" }, (payload) => {
+      .subscribe();
+
+    // Typing indicators travel on the current user's own private inbox topic.
+    const typingChannel = privateChannel(
+      chatInboxTopic(currentUserId, institutionId, selected.user_id)
+    );
+    typingChannel
+      .on("broadcast", { event: "typing" }, (payload: any) => {
         if (payload.payload?.senderId === selected.user_id) {
           setRemoteTyping(true);
           if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
@@ -466,6 +473,7 @@ export default function InstitutionMessages() {
     return () => {
       cancelled = true;
       supabase.removeChannel(channel);
+      supabase.removeChannel(typingChannel);
     };
   }, [selected, currentUserId, institutionId]);
 
@@ -478,12 +486,11 @@ export default function InstitutionMessages() {
     setInput(text);
     if (!isTyping && selected && institutionId && currentUserId) {
       setIsTyping(true);
-      const chatChan = supabase.channel(`inst-chat-${institutionId}-${[currentUserId, selected.user_id].sort().join("-")}`);
-      chatChan.send({
-        type: "broadcast",
-        event: "typing",
-        payload: { senderId: currentUserId },
-      });
+      void sendToPrivateInbox(
+        chatInboxTopic(selected.user_id, institutionId, currentUserId),
+        "typing",
+        { senderId: currentUserId }
+      );
       setTimeout(() => setIsTyping(false), 2000);
     }
   };
@@ -589,25 +596,20 @@ export default function InstitutionMessages() {
     setActiveCall({ type, isIncoming: false });
 
     // Broadcast incoming call notification to target user's hub channel
-    const targetHubChannel = supabase.channel(`inst-calls-hub-${institutionId}-${selected.user_id}`);
-    targetHubChannel.subscribe((status) => {
-      if (status === "SUBSCRIBED") {
-        targetHubChannel.send({
-          type: "broadcast",
-          event: "incoming_call",
-          payload: {
-            targetUserId: selected.user_id,
-            callType: type,
-            caller: {
-              user_id: currentUserId,
-              full_name: currentUserName,
-              specific_role: "faculty",
-              photo_url: null,
-            },
-          },
-        });
+    void sendToPrivateInbox(
+      callsHubInboxTopic(selected.user_id, institutionId),
+      "incoming_call",
+      {
+        targetUserId: selected.user_id,
+        callType: type,
+        caller: {
+          user_id: currentUserId,
+          full_name: currentUserName,
+          specific_role: "faculty",
+          photo_url: null,
+        },
       }
-    });
+    );
   };
 
   // End Call & Log to Chat

@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Contact, formatSeconds, formatFileSize } from "./types";
 import { toast } from "@/hooks/use-toast";
+import { callInboxTopic, privateChannel, sendToPrivateInbox } from "@/lib/realtime/privateChannels";
 
 interface SharedCallFile {
   id: string;
@@ -89,8 +90,15 @@ export const VideoCallModal: React.FC<VideoCallModalProps> = ({
 
   // Setup Signaling Channel via Supabase Realtime Broadcast (Conference Room Mesh up to 20 users)
   useEffect(() => {
-    const channelName = `inst-call-room-${institutionId}-${[currentUserId, contact.user_id].sort().join("-")}`;
-    const channel = supabase.channel(channelName);
+    // Each participant listens only on their own private inbox topic and
+    // publishes into the peer's inbox, so no third party can subscribe.
+    const inboxTopic = callInboxTopic(currentUserId, institutionId, contact.user_id);
+    const peerTopic = callInboxTopic(contact.user_id, institutionId, currentUserId);
+    const channel = privateChannel(inboxTopic);
+    const sender = {
+      send: (msg: { type?: string; event: string; payload: unknown }) =>
+        sendToPrivateInbox(peerTopic, msg.event, msg.payload),
+    };
 
     channel
       .on("broadcast", { event: "call_signal" }, async (payload) => {
@@ -115,11 +123,11 @@ export const VideoCallModal: React.FC<VideoCallModalProps> = ({
 
           // Create offer to the newly joined peer
           if (localStreamRef.current) {
-            await createAndSendOfferToPeer(data.senderId, channel);
+            await createAndSendOfferToPeer(data.senderId, sender);
           }
         } else if (data.type === "offer") {
           if (data.targetId && data.targetId !== currentUserId) return;
-          await handleReceiveOffer(data.senderId, data.sdp, channel, data.senderName, data.photoUrl);
+          await handleReceiveOffer(data.senderId, data.sdp, sender, data.senderName, data.photoUrl);
         } else if (data.type === "answer") {
           if (data.targetId && data.targetId !== currentUserId) return;
           const pc = peerConnectionsRef.current.get(data.senderId);
@@ -166,7 +174,7 @@ export const VideoCallModal: React.FC<VideoCallModalProps> = ({
             }
 
             // Announce join
-            channel.send({
+            sender.send({
               type: "broadcast",
               event: "call_signal",
               payload: {
@@ -199,7 +207,7 @@ export const VideoCallModal: React.FC<VideoCallModalProps> = ({
         }
       });
 
-    channelRef.current = channel;
+    channelRef.current = sender;
 
     return () => {
       supabase.removeChannel(channel);

@@ -378,7 +378,8 @@ export default function CourseProviderDashboard({ fixedRole }: Props) {
         }
 
         setUser(authUser);
-        const { data: prof } = await supabase.from("profiles").select("*").eq("user_id", authUser.id).maybeSingle();
+        const { data: profRaw } = await supabase.from("profiles").select("*").eq("user_id", authUser.id).maybeSingle();
+        const prof = profRaw as (typeof profRaw & { bio?: string | null; specialty?: string | null }) | null;
         if (prof) {
           setProfile(prof);
           setProfileForm({
@@ -737,7 +738,13 @@ export default function CourseProviderDashboard({ fixedRole }: Props) {
           </Button>
         </div>
         <div className="flex-1 relative">
-          <LiveStreamRoom streamId={activeLiveRoom.id} isHost={true} />
+          <LiveStreamRoom
+            streamId={activeLiveRoom.id}
+            streamTitle={activeLiveRoom.title || ""}
+            isHost={true}
+            participantName={profile?.full_name || ""}
+            onClose={() => setActiveLiveRoom(null)}
+          />
         </div>
       </div>
     );

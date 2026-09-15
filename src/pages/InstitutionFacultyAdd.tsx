@@ -56,6 +56,17 @@ const InstitutionFacultyAdd = () => {
     })();
   }, [identity, navigate]);
 
+  if (identityLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-3" dir={dir}>
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <span className="text-xs font-bold text-muted-foreground">
+          {isRtl ? "جاري التحميل..." : "Loading..."}
+        </span>
+      </div>
+    );
+  }
+
   const handleSubmit = async (data: FacultyMemberFormData) => {
     if (saving) return;
     setSaving(true);

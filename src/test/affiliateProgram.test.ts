@@ -12,8 +12,22 @@ import {
 } from "@/lib/affiliate/affiliateService";
 
 describe("UNIGATES Affiliate Program (20% RevShare) Service Tests", () => {
+  let store: Record<string, string> = {};
+
   beforeEach(() => {
-    localStorage.clear();
+    store = {};
+    if (typeof globalThis.localStorage === "undefined" || !globalThis.localStorage.clear) {
+      globalThis.localStorage = {
+        getItem: (key: string) => store[key] ?? null,
+        setItem: (key: string, val: string) => { store[key] = String(val); },
+        removeItem: (key: string) => { delete store[key]; },
+        clear: () => { store = {}; },
+        key: (_index: number) => null,
+        length: 0,
+      };
+    } else {
+      localStorage.clear();
+    }
   });
 
   it("should generate valid unique referral codes with prefix", () => {

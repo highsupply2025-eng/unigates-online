@@ -4,7 +4,7 @@ import {
   UserPlus, ArrowLeft, ArrowRight, Upload, Loader2, Save,
   GraduationCap, Mail, Phone, IdCard, Calendar, MapPin, Briefcase,
   BookOpen, Users2, StickyNote, UserRound, Building2, ShieldCheck, KeyRound,
-  Check, ChevronsUpDown, X,
+  Check, ChevronsUpDown, X, Search,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -19,9 +19,6 @@ import {
 import {
   Popover, PopoverContent, PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Command, CommandEmpty, CommandGroup, CommandInput, CommandItem,
-} from "@/components/ui/command";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -181,6 +178,7 @@ const InstitutionFacultyEdit = () => {
   const [role, setRole] = useState("");
   const [departmentIds, setDepartmentIds] = useState<string[]>([]);
   const [deptPopoverOpen, setDeptPopoverOpen] = useState(false);
+  const [deptSearch, setDeptSearch] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");
   const [email, setEmail] = useState("");
@@ -798,32 +796,55 @@ const InstitutionFacultyEdit = () => {
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0" dir={dir}>
-                      <Command>
-                        <CommandInput placeholder={isRtl ? "ابحث عن قسم..." : "Search department..."} />
-                        <CommandEmpty>{isRtl ? "لا توجد أقسام" : "No departments found"}</CommandEmpty>
-                        <CommandGroup className="max-h-64 overflow-y-auto">
-                          {departments.map(d => {
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-2 z-50 bg-card border-2 border-primary/20 shadow-2xl rounded-2xl" dir={dir}>
+                      <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-muted/60 border border-border/50 mb-2">
+                        <Search className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                        <input
+                          type="text"
+                          value={deptSearch}
+                          onChange={(e) => setDeptSearch(e.target.value)}
+                          placeholder={isRtl ? "ابحث عن قسم..." : "Search department..."}
+                          className="bg-transparent border-0 outline-none text-xs text-foreground placeholder:text-muted-foreground w-full"
+                        />
+                        {deptSearch && (
+                          <button type="button" onClick={() => setDeptSearch("")}>
+                            <X className="w-3 h-3 text-muted-foreground hover:text-foreground" />
+                          </button>
+                        )}
+                      </div>
+                      <div className="max-h-56 overflow-y-auto space-y-1">
+                        {departments
+                          .filter((d) => (d.department_name || "").toLowerCase().includes(deptSearch.toLowerCase()))
+                          .map((d) => {
                             const isSelected = departmentIds.includes(d.id);
                             return (
-                              <CommandItem
+                              <button
+                                type="button"
                                 key={d.id}
-                                value={d.department_name}
-                                onSelect={() => {
-                                  setDepartmentIds(prev =>
+                                onClick={() => {
+                                  setDepartmentIds((prev) =>
                                     isSelected
-                                      ? prev.filter(id => id !== d.id)
+                                      ? prev.filter((id) => id !== d.id)
                                       : [...prev, d.id]
                                   );
                                 }}
+                                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all text-start ${
+                                  isSelected
+                                    ? "bg-primary text-primary-foreground shadow-sm"
+                                    : "hover:bg-muted/80 text-foreground"
+                                }`}
                               >
-                                <Check className={`mr-2 h-4 w-4 ${isSelected ? "opacity-100" : "opacity-0"}`} />
-                                <span className="flex-1">{d.department_name}</span>
-                              </CommandItem>
+                                <span className="truncate">{d.department_name}</span>
+                                <Check className={`h-4 w-4 shrink-0 ms-2 ${isSelected ? "opacity-100" : "opacity-0"}`} />
+                              </button>
                             );
                           })}
-                        </CommandGroup>
-                      </Command>
+                        {departments.filter((d) => (d.department_name || "").toLowerCase().includes(deptSearch.toLowerCase())).length === 0 && (
+                          <p className="text-center text-xs text-muted-foreground py-3 font-medium">
+                            {isRtl ? "لا توجد أقسام مطابقة" : "No matching departments"}
+                          </p>
+                        )}
+                      </div>
                     </PopoverContent>
                   </Popover>
                   {departmentIds.length > 0 && (

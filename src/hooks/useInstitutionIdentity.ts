@@ -18,10 +18,12 @@ interface CacheEntry {
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const STORAGE_CACHE_KEY = "unigates_inst_identity_cache";
 
+let cached: CacheEntry | null = null;
+
 function getInitialCachedIdentity(): CacheEntry | null {
   if (cached && Date.now() - cached.fetchedAt < CACHE_TTL) return cached;
   try {
-    const raw = sessionStorage.getItem(STORAGE_CACHE_KEY);
+    const raw = typeof sessionStorage !== "undefined" ? sessionStorage.getItem(STORAGE_CACHE_KEY) : null;
     if (raw) {
       const parsed = JSON.parse(raw) as CacheEntry;
       if (parsed && Date.now() - parsed.fetchedAt < CACHE_TTL) {
@@ -35,7 +37,7 @@ function getInitialCachedIdentity(): CacheEntry | null {
   return null;
 }
 
-let cached: CacheEntry | null = getInitialCachedIdentity();
+cached = getInitialCachedIdentity();
 
 export interface UseInstitutionIdentityOptions {
   /** When false, the hook stays silent (no redirect) if the user isn't an institution admin. */

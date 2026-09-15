@@ -27,6 +27,7 @@ import {
   GraduationCap,
   Landmark,
   BookOpenCheck
+  Home,
 } from "lucide-react";
 import ugLogo from "@/assets/ug-logo.png";
 

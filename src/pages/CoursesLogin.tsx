@@ -104,6 +104,27 @@ const CoursesLogin = () => {
         return;
       }
 
+      if (coursesRole.role === "lecturer") {
+        navigate("/lecturer/dashboard");
+        return;
+      }
+      if (coursesRole.role === "teacher") {
+        navigate("/teacher/dashboard");
+        return;
+      }
+      if (coursesRole.role === "training_center") {
+        navigate("/training-center/dashboard");
+        return;
+      }
+      if (coursesRole.role === "language_center") {
+        navigate("/language-center/dashboard");
+        return;
+      }
+      if (coursesRole.role === "personal" || coursesRole.role === "student") {
+        navigate("/courses/browse");
+        return;
+      }
+
       navigate("/profile");
     } catch (err: any) {
       toast({

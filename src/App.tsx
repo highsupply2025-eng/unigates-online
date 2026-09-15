@@ -38,6 +38,8 @@ const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const LiveStreams = lazy(() => import("./pages/LiveStreams"));
 const LecturerDashboard = lazy(() => import("./pages/LecturerDashboard"));
+const TeacherDashboard = lazy(() => import("./pages/TeacherDashboard"));
+const CourseProviderDashboard = lazy(() => import("./pages/CourseProviderDashboard"));
 const LecturerCourseContent = lazy(() => import("./pages/LecturerCourseContent"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AdminOverview = lazy(() => import("./pages/AdminOverview"));
@@ -79,7 +81,6 @@ const StudentInvitationRegistration = lazy(() => import("./pages/StudentInvitati
 const InstitutionFacultyImport = lazy(() => import("./pages/InstitutionFacultyImport"));
 const InstitutionFacultyEdit = lazy(() => import("./pages/InstitutionFacultyEdit"));
 const DepartmentPage = lazy(() => import("./pages/DepartmentPage"));
-const TeacherDashboard = lazy(() => import("./pages/TeacherDashboard"));
 const SecretaryDashboard = lazy(() => import("./pages/SecretaryDashboard"));
 const LibraryDashboard = lazy(() => import("./pages/LibraryDashboard"));
 const InstitutionMessages = lazy(() => import("./pages/InstitutionMessages"));
@@ -208,7 +209,11 @@ const App = () => (
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/choose-plan" element={<ChoosePlan />} />
               <Route path="/payment" element={<Payment />} />
-              <Route path="/lecturer/dashboard" element={<LecturerDashboard />} />
+              <Route path="/lecturer/dashboard" element={<CourseProviderDashboard fixedRole="lecturer" />} />
+              <Route path="/teacher/dashboard" element={<CourseProviderDashboard fixedRole="teacher" />} />
+              <Route path="/training-center/dashboard" element={<CourseProviderDashboard fixedRole="training_center" />} />
+              <Route path="/language-center/dashboard" element={<CourseProviderDashboard fixedRole="language_center" />} />
+              <Route path="/courses/dashboard/:role" element={<CourseProviderDashboard />} />
               <Route path="/lecturer/course/:courseId" element={<LecturerCourseContent />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin" element={<AdminOverview />} />

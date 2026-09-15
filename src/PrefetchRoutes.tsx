@@ -27,6 +27,11 @@ export const ROUTE_LOADERS: Array<[RegExp, Loader]> = [
   [/^\/courses\/browse$/, () => import("./pages/Courses")],
   [/^\/courses\/login$/, () => import("./pages/CoursesLogin")],
   [/^\/courses\/signup$/, () => import("./pages/CoursesSignup")],
+  [/^\/lecturer\/dashboard$/, () => import("./pages/CourseProviderDashboard")],
+  [/^\/teacher\/dashboard$/, () => import("./pages/CourseProviderDashboard")],
+  [/^\/training-center\/dashboard$/, () => import("./pages/CourseProviderDashboard")],
+  [/^\/language-center\/dashboard$/, () => import("./pages/CourseProviderDashboard")],
+  [/^\/courses\/dashboard\/[^/]+$/, () => import("./pages/CourseProviderDashboard")],
   [/^\/school-registration$/, () => import("./pages/SchoolRegistration")],
 
   // Auth & Core Access

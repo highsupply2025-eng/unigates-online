@@ -128,18 +128,26 @@ export const ROUTE_LOADERS: Array<[RegExp, Loader]> = [
   [/^\/blog$/, () => import("./pages/Blog")],
   [/^\/faq$/, () => import("./pages/FAQ")],
   [/^\/help-center$/, () => import("./pages/HelpCenter")],
+  // Secondary Portals & Dashboards
+  [/^\/secretary\/dashboard$/, () => import("./pages/SecretaryDashboard")],
+  [/^\/library\/dashboard$/, () => import("./pages/LibraryDashboard")],
+  [/^\/teacher\/dashboard$/, () => import("./pages/TeacherDashboard")],
   [/^\/coming-soon$/, () => import("./pages/ComingSoon")],
 ];
 
-// High-frequency routes pre-warmed during initial idle time
+// High-frequency routes pre-warmed progressively during idle time
 const TOP_ROUTE_LOADERS: Loader[] = [
   () => import("./pages/UniversityPlatform"),
   () => import("./pages/Login"),
   () => import("./pages/Signup"),
   () => import("./pages/InstitutionDashboard"),
+  () => import("./pages/InstitutionMessages"),
   () => import("./pages/StudentSubscriptions"),
   () => import("./pages/InstitutionProfile"),
-  () => import("./pages/InstitutionMessages"),
+  () => import("./pages/InstitutionFacultyAdd"),
+  () => import("./pages/SecretaryDashboard"),
+  () => import("./pages/LibraryDashboard"),
+  () => import("./pages/DepartmentPage"),
   () => import("./pages/LeadershipDashboard"),
   () => import("./pages/LeadershipProfile"),
   () => import("./pages/LecturerDashboard"),
@@ -148,6 +156,9 @@ const TOP_ROUTE_LOADERS: Loader[] = [
   () => import("./pages/UserProfile"),
   () => import("./pages/SchoolDashboard"),
   () => import("./pages/SchoolAdminAccount"),
+  () => import("./pages/CoursesPlatform"),
+  () => import("./pages/BookStorePlatform"),
+  () => import("./pages/NasherPlatform"),
 ];
 
 // In-memory module cache to avoid redundant network requests
@@ -161,7 +172,6 @@ export const warmLoader = (loader: Loader) => {
   if (warmedLoaders.has(loader)) return;
   warmedLoaders.add(loader);
   loader().catch(() => {
-    // If failed, allow retry on next navigation attempt
     warmedLoaders.delete(loader);
   });
 };
@@ -188,13 +198,12 @@ const PrefetchRoutes = () => {
     const isConstrained = conn && (conn.saveData || /(^|-)[23]g$/.test(String(conn.effectiveType)));
 
     // 1. High-speed intent listener (pointer hover, touchstart, focus)
-    // Instant preload only when the user actually interacts or intends to navigate to a link
     const handleNavigationIntent = (e: Event) => {
       const target = e.target as HTMLElement | null;
-      const anchor = target?.closest?.("a[href]") as HTMLAnchorElement | null;
+      const anchor = target?.closest?.("a[href], button[data-path]") as HTMLElement | null;
       if (!anchor) return;
 
-      const href = anchor.getAttribute("href") || "";
+      const href = anchor.getAttribute("href") || anchor.getAttribute("data-path") || "";
       if (!href.startsWith("/") || href.startsWith("//")) return;
 
       preloadRoute(href);
@@ -205,11 +214,81 @@ const PrefetchRoutes = () => {
     document.addEventListener("touchstart", handleNavigationIntent, { passive: true, capture: true });
     document.addEventListener("focusin", handleNavigationIntent, { capture: true });
 
+    // 2. Progressive idle pre-warming of top routes
+    let idleTimer: any = null;
+    if (!isConstrained) {
+      const w = window as any;
+      const runIdleWarming = () => {
+        let i = 0;
+        const scheduleNext = () => {
+          if (i >= TOP_ROUTE_LOADERS.length) return;
+          const loader = TOP_ROUTE_LOADERS[i++];
+          warmLoader(loader);
+          if (w.requestIdleCallback) {
+            w.requestIdleCallback(scheduleNext, { timeout: 1500 });
+          } else {
+            setTimeout(scheduleNext, 200);
+          }
+        };
+        scheduleNext();
+      };
+
+      if (w.requestIdleCallback) {
+        w.requestIdleCallback(runIdleWarming, { timeout: 2000 });
+      } else {
+        idleTimer = setTimeout(runIdleWarming, 1000);
+      }
+    }
+
+    // 3. Viewport Intersection Observer for visible on-screen links
+    let observer: IntersectionObserver | null = null;
+    if (typeof IntersectionObserver !== "undefined" && !isConstrained) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const el = entry.target as HTMLAnchorElement;
+              const href = el.getAttribute("href");
+              if (href && href.startsWith("/") && !href.startsWith("//")) {
+                preloadRoute(href);
+                observer?.unobserve(el);
+              }
+            }
+          });
+        },
+        { rootMargin: "150px" }
+      );
+
+      const observeVisibleLinks = () => {
+        document.querySelectorAll<HTMLAnchorElement>("a[href^='/']:not([href^='//'])").forEach((a) => {
+          if (!observedAnchors.has(a)) {
+            observedAnchors.add(a);
+            observer?.observe(a);
+          }
+        });
+      };
+
+      observeVisibleLinks();
+      const mutObserver = new MutationObserver(observeVisibleLinks);
+      mutObserver.observe(document.body, { childList: true, subtree: true });
+
+      return () => {
+        document.removeEventListener("pointerover", handleNavigationIntent, { capture: true } as EventListenerOptions);
+        document.removeEventListener("pointerdown", handleNavigationIntent, { capture: true } as EventListenerOptions);
+        document.removeEventListener("touchstart", handleNavigationIntent, { capture: true } as EventListenerOptions);
+        document.removeEventListener("focusin", handleNavigationIntent, { capture: true } as EventListenerOptions);
+        if (idleTimer) clearTimeout(idleTimer);
+        observer?.disconnect();
+        mutObserver.disconnect();
+      };
+    }
+
     return () => {
       document.removeEventListener("pointerover", handleNavigationIntent, { capture: true } as EventListenerOptions);
       document.removeEventListener("pointerdown", handleNavigationIntent, { capture: true } as EventListenerOptions);
       document.removeEventListener("touchstart", handleNavigationIntent, { capture: true } as EventListenerOptions);
       document.removeEventListener("focusin", handleNavigationIntent, { capture: true } as EventListenerOptions);
+      if (idleTimer) clearTimeout(idleTimer);
     };
   }, []);
 

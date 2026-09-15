@@ -96,7 +96,7 @@ export const VideoCallModal: React.FC<VideoCallModalProps> = ({
     const peerTopic = callInboxTopic(contact.user_id, institutionId, currentUserId);
     const channel = privateChannel(inboxTopic);
     const sender = {
-      send: (msg: { event: string; payload: unknown }) =>
+      send: (msg: { type?: string; event: string; payload: unknown }) =>
         sendToPrivateInbox(peerTopic, msg.event, msg.payload),
     };
 

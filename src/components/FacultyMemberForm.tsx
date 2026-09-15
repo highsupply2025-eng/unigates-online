@@ -698,23 +698,23 @@ export const FacultyMemberForm = ({
                           <ChevronsUpDown className="ms-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-[--radix-popover-trigger-width] p-2 z-50 bg-card border-2 border-primary/20 shadow-2xl rounded-2xl" dir={dir}>
-                        <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-muted/60 border border-border/50 mb-2">
+                      <PopoverContent className="w-[--radix-popover-trigger-width] min-w-[300px] max-w-md p-3 z-50 bg-card border-2 border-primary/20 shadow-2xl rounded-2xl overflow-hidden" dir={dir}>
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted/60 border border-border/50 mb-2 focus-within:border-primary/40 transition-colors">
                           <Search className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                           <input
                             type="text"
                             value={facultyDeptSearch}
                             onChange={(e) => setFacultyDeptSearch(e.target.value)}
-                            placeholder={isRtl ? "ابحث عن قسم..." : "Search department..."}
+                            placeholder={isRtl ? "ابحث عن اسم أو رمز القسم..." : "Search by department name or code..."}
                             className="bg-transparent border-0 outline-none text-xs text-foreground placeholder:text-muted-foreground w-full"
                           />
                           {facultyDeptSearch && (
-                            <button type="button" onClick={() => setFacultyDeptSearch("")}>
-                              <X className="w-3 h-3 text-muted-foreground hover:text-foreground" />
+                            <button type="button" onClick={() => setFacultyDeptSearch("")} className="hover:opacity-70">
+                              <X className="w-3.5 h-3.5 text-muted-foreground" />
                             </button>
                           )}
                         </div>
-                        <div className="max-h-56 overflow-y-auto space-y-1">
+                        <div className="max-h-60 overflow-y-auto overflow-x-hidden space-y-1 pr-0.5">
                           {departments
                             .filter((dept) =>
                               (dept.department_name || "").toLowerCase().includes(facultyDeptSearch.toLowerCase()) ||
@@ -731,22 +731,22 @@ export const FacultyMemberForm = ({
                                       isSelected ? prev.filter((id) => id !== dept.id) : [...prev, dept.id]
                                     );
                                   }}
-                                  className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                                  className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all text-start ${
                                     isSelected
                                       ? "bg-primary/15 text-primary border border-primary/30"
-                                      : "hover:bg-muted text-foreground"
+                                      : "hover:bg-muted/70 text-foreground border border-transparent"
                                   }`}
                                 >
-                                  <div className="flex items-center gap-2">
-                                    <div className={`w-4 h-4 rounded-md border flex items-center justify-center ${
-                                      isSelected ? "bg-primary border-primary text-white" : "border-muted-foreground/40"
+                                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                                    <div className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 transition-colors ${
+                                      isSelected ? "bg-primary border-primary text-white shadow-xs" : "border-muted-foreground/40 bg-background/50"
                                     }`}>
-                                      {isSelected && <Check className="w-3 h-3" />}
+                                      {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
                                     </div>
-                                    <span>{dept.department_name}</span>
+                                    <span className="truncate leading-snug">{dept.department_name}</span>
                                   </div>
                                   {dept.department_code && (
-                                    <span className="text-[10px] text-muted-foreground font-mono">
+                                    <span className="text-[10px] text-muted-foreground font-mono px-1.5 py-0.5 rounded-md bg-muted/80 border border-border/50 shrink-0">
                                       {dept.department_code}
                                     </span>
                                   )}
@@ -757,8 +757,8 @@ export const FacultyMemberForm = ({
                             (dept.department_name || "").toLowerCase().includes(facultyDeptSearch.toLowerCase()) ||
                             (dept.department_code || "").toLowerCase().includes(facultyDeptSearch.toLowerCase())
                           ).length === 0 && (
-                            <p className="text-center text-xs text-muted-foreground py-4">
-                              {isRtl ? "لا توجد أقسام مطابقة" : "No departments found"}
+                            <p className="text-center text-xs text-muted-foreground py-5 font-medium">
+                              {isRtl ? "لا توجد أقسام مطابقة للبحث" : "No matching departments found"}
                             </p>
                           )}
                         </div>
@@ -841,23 +841,23 @@ export const FacultyMemberForm = ({
                       <ChevronsUpDown className="ms-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[--radix-popover-trigger-width] p-2 z-50 bg-card border-2 border-primary/20 shadow-2xl rounded-2xl" dir={dir}>
-                    <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-muted/60 border border-border/50 mb-2">
+                  <PopoverContent className="w-[--radix-popover-trigger-width] min-w-[300px] max-w-md p-3 z-50 bg-card border-2 border-primary/20 shadow-2xl rounded-2xl overflow-hidden" dir={dir}>
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted/60 border border-border/50 mb-2 focus-within:border-primary/40 transition-colors">
                       <Search className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                       <input
                         type="text"
                         value={deptSearch}
                         onChange={(e) => setDeptSearch(e.target.value)}
-                        placeholder={isRtl ? "ابحث عن قسم..." : "Search department..."}
+                        placeholder={isRtl ? "ابحث عن اسم أو رمز القسم..." : "Search by department name or code..."}
                         className="bg-transparent border-0 outline-none text-xs text-foreground placeholder:text-muted-foreground w-full"
                       />
                       {deptSearch && (
-                        <button type="button" onClick={() => setDeptSearch("")}>
-                          <X className="w-3 h-3 text-muted-foreground hover:text-foreground" />
+                        <button type="button" onClick={() => setDeptSearch("")} className="hover:opacity-70">
+                          <X className="w-3.5 h-3.5 text-muted-foreground" />
                         </button>
                       )}
                     </div>
-                    <div className="max-h-56 overflow-y-auto space-y-1">
+                    <div className="max-h-60 overflow-y-auto overflow-x-hidden space-y-1 pr-0.5">
                       {departments
                         .filter((dept) =>
                           (dept.department_name || "").toLowerCase().includes(deptSearch.toLowerCase()) ||
@@ -874,22 +874,22 @@ export const FacultyMemberForm = ({
                                   isSelected ? prev.filter((id) => id !== dept.id) : [...prev, dept.id]
                                 );
                               }}
-                              className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                              className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all text-start ${
                                 isSelected
                                   ? "bg-primary/15 text-primary border border-primary/30"
-                                  : "hover:bg-muted text-foreground"
+                                  : "hover:bg-muted/70 text-foreground border border-transparent"
                               }`}
                             >
-                              <div className="flex items-center gap-2">
-                                <div className={`w-4 h-4 rounded-md border flex items-center justify-center ${
-                                  isSelected ? "bg-primary border-primary text-white" : "border-muted-foreground/40"
+                              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                                <div className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 transition-colors ${
+                                  isSelected ? "bg-primary border-primary text-white shadow-xs" : "border-muted-foreground/40 bg-background/50"
                                 }`}>
-                                  {isSelected && <Check className="w-3 h-3" />}
+                                  {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
                                 </div>
-                                <span>{dept.department_name}</span>
+                                <span className="truncate leading-snug">{dept.department_name}</span>
                               </div>
                               {dept.department_code && (
-                                <span className="text-[10px] text-muted-foreground font-mono">
+                                <span className="text-[10px] text-muted-foreground font-mono px-1.5 py-0.5 rounded-md bg-muted/80 border border-border/50 shrink-0">
                                   {dept.department_code}
                                 </span>
                               )}
@@ -900,8 +900,8 @@ export const FacultyMemberForm = ({
                         (dept.department_name || "").toLowerCase().includes(deptSearch.toLowerCase()) ||
                         (dept.department_code || "").toLowerCase().includes(deptSearch.toLowerCase())
                       ).length === 0 && (
-                        <p className="text-center text-xs text-muted-foreground py-4">
-                          {isRtl ? "لا توجد أقسام مطابقة" : "No departments found"}
+                        <p className="text-center text-xs text-muted-foreground py-5 font-medium">
+                          {isRtl ? "لا توجد أقسام مطابقة للبحث" : "No matching departments found"}
                         </p>
                       )}
                     </div>

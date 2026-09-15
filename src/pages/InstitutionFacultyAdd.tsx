@@ -229,8 +229,8 @@ const InstitutionFacultyAdd = () => {
             ? "تمت إضافة العضو وإنشاء حسابه بنجاح"
             : "Member added and account created",
           description: isRtl
-            ? `تم تفعيل الحساب، ويجب على العضو تغيير كلمة المرور المؤقتة عند أول تسجيل دخول.\nالبريد: ${r.email}`
-            : `The account is active. The member must change the temporary password on first sign-in.\nEmail: ${r.email}`,
+            ? `تم إنشاء الحساب بنجاح، ويجب على العضو تغيير كلمة المرور المؤقتة عند أول تسجيل دخول لتفعيل حسابه بالكامل.\nالبريد: ${r.email}`
+            : `Account created successfully. The member must change the temporary password upon first sign-in to fully activate the account.\nEmail: ${r.email}`,
           duration: 8000,
         });
       }

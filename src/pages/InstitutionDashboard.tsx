@@ -882,9 +882,10 @@ const InstitutionDashboard = () => {
     }
     setLeadershipMembers(leadershipMembersData);
 
-    // Build profiles map for all linked users (dept members + leadership members)
+    // Build profiles map for all linked users (dept members + faculty members + leadership members)
     const linkedUserIds = Array.from(new Set([
       ...allMembers.filter((m: any) => m.user_id).map((m: any) => m.user_id),
+      ...mergedFacultyMembers.filter((m: any) => m.user_id).map((m: any) => m.user_id),
       ...leadershipMembersData.map(m => m.user_id),
     ]));
     if (linkedUserIds.length > 0) {
@@ -2048,7 +2049,11 @@ ${exams.map((s: any, i: number) => `<tr>
                             <div>
                               <p className="font-bold text-foreground">{member.full_name}</p>
                               <p className="text-xs text-muted-foreground">
-                                {member.user_id ? (isRtl ? "✅ مفعّل" : "✅ Active") : (isRtl ? "⏳ في الانتظار - صالح لاستخدام واحد" : "⏳ Pending - single-use")}
+                                {member.user_id && profilesMap[member.user_id]?.must_change_password === false
+                                  ? (isRtl ? "✅ مفعّل" : "✅ Active")
+                                  : member.user_id
+                                  ? (isRtl ? "⏳ غير مفعّل (كلمة مرور مؤقتة)" : "⏳ Inactive (Temp Password)")
+                                  : (isRtl ? "⏳ في الانتظار - صالح لاستخدام واحد" : "⏳ Pending - single-use")}
                               </p>
                             </div>
                           </div>
@@ -2123,7 +2128,11 @@ ${exams.map((s: any, i: number) => `<tr>
                             <div>
                               <p className="font-bold text-foreground">{member.full_name}</p>
                               <p className="text-xs text-muted-foreground">
-                                {member.user_id ? (isRtl ? "✅ مفعّل" : "✅ Active") : (isRtl ? "⏳ في الانتظار - صالح لاستخدام واحد" : "⏳ Pending - single-use")}
+                                {member.user_id && profilesMap[member.user_id]?.must_change_password === false
+                                  ? (isRtl ? "✅ مفعّل" : "✅ Active")
+                                  : member.user_id
+                                  ? (isRtl ? "⏳ غير مفعّل (كلمة مرور مؤقتة)" : "⏳ Inactive (Temp Password)")
+                                  : (isRtl ? "⏳ في الانتظار - صالح لاستخدام واحد" : "⏳ Pending - single-use")}
                               </p>
                             </div>
                           </div>
@@ -2275,7 +2284,11 @@ ${exams.map((s: any, i: number) => `<tr>
                           <div>
                             <p className="text-xs text-muted-foreground">{isRtl ? "حالة الحساب" : "Account Status"}</p>
                             <p className="font-bold text-foreground text-lg">
-                              {selectedMember.user_id ? (isRtl ? "✅ مسجّل" : "✅ Registered") : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending")}
+                              {selectedMember.user_id && linkedProfile?.must_change_password === false
+                                ? (isRtl ? "✅ مفعّل بالكامل" : "✅ Fully Active")
+                                : selectedMember.user_id
+                                ? (isRtl ? "⏳ غير مفعّل (كلمة مرور مؤقتة)" : "⏳ Inactive (Temp Password)")
+                                : (isRtl ? "⏳ في انتظار التسجيل" : "⏳ Pending")}
                             </p>
                           </div>
                         </div>
@@ -2826,9 +2839,9 @@ ${exams.map((s: any, i: number) => `<tr>
 
               // Compute quick stats
               const totalCount = allFaculty.length;
-              const leadershipCount = allFaculty.filter(m => ["dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community", "department_head"].includes(m.role)).length;
-              const professorsCount = allFaculty.filter(m => ["professor", "doctor", "lecturer"].includes(m.role)).length;
-              const activeLinkedCount = allFaculty.filter(m => Boolean(m.user_id)).length;
+              const leadershipCount = allFaculty.filter(m => ["dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community", "college_secretary", "department_head"].includes(m.role)).length;
+              const professorsCount = allFaculty.filter(m => ["professor", "doctor", "teacher", "lecturer", "teaching_assistant", "assistant_lecturer"].includes(m.role)).length;
+              const activeLinkedCount = allFaculty.filter(m => Boolean(m.user_id) && profilesMap[m.user_id]?.must_change_password === false).length;
 
               // Filtered list
               const filteredFaculty = allFaculty.filter((m) => {
@@ -2841,8 +2854,10 @@ ${exams.map((s: any, i: number) => `<tr>
                 if (facultyRoleFilter !== "all" && m.role !== facultyRoleFilter) {
                   return false;
                 }
-                if (facultyStatusFilter === "active" && !m.user_id) return false;
-                if (facultyStatusFilter === "pending" && m.user_id) return false;
+                const profile = m.user_id ? profilesMap[m.user_id] : null;
+                const isActivated = Boolean(m.user_id) && profile?.must_change_password === false;
+                if (facultyStatusFilter === "active" && !isActivated) return false;
+                if (facultyStatusFilter === "pending" && isActivated) return false;
                 return true;
               });
 
@@ -3195,8 +3210,8 @@ ${exams.map((s: any, i: number) => `<tr>
                             </SelectTrigger>
                             <SelectContent className="z-50">
                               <SelectItem value="all">{isRtl ? "جميع الحالات" : "All Statuses"}</SelectItem>
-                              <SelectItem value="active">{isRtl ? "مفعّل (مرتبط بحساب)" : "Active (Linked)"}</SelectItem>
-                              <SelectItem value="pending">{isRtl ? "بانتظار التسجيل" : "Pending Registration"}</SelectItem>
+                              <SelectItem value="active">{isRtl ? "مفعّل بالكامل" : "Active (Verified)"}</SelectItem>
+                              <SelectItem value="pending">{isRtl ? "غير مفعّل / كلمة مرور مؤقتة" : "Inactive / Temp Password"}</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -3240,7 +3255,12 @@ ${exams.map((s: any, i: number) => `<tr>
                         /* Grid Cards View */
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5">
                           {filteredFaculty.map((m: any) => {
+                            const profile = m.user_id ? profilesMap[m.user_id] : null;
                             const linked = !!m.user_id;
+                            const isActivated = linked && !!profile && profile.must_change_password === false;
+                            const isTempPassword = linked && !!profile && profile.must_change_password === true;
+                            const isHead = m.role === "department_head";
+                            const isDeanOrViceDean = m.role === "dean" || String(m.role || "").startsWith("vice_dean");
                             const initials = (m.full_name || "")
                               .split(" ")
                               .filter(Boolean)
@@ -3255,6 +3275,12 @@ ${exams.map((s: any, i: number) => `<tr>
                             };
                             const isSelected = selectFacultyMemberIds.includes(m.id);
                             const memberDept = departments.find(d => d.id === m.department_id);
+                            const avatarBg = isHead
+                              ? "from-amber-500 to-orange-600"
+                              : isDeanOrViceDean
+                              ? "from-purple-600 to-indigo-600"
+                              : "from-primary/80 via-primary to-indigo-600";
+                            const AvatarIcon = isHead || isDeanOrViceDean ? Crown : GraduationCap;
 
                             return (
                               <div
@@ -3291,7 +3317,7 @@ ${exams.map((s: any, i: number) => `<tr>
                                 <div className="flex items-start gap-3.5">
                                   {/* Avatar with Status Dot */}
                                   <div className="relative shrink-0">
-                                    <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary/80 via-primary to-indigo-600 text-primary-foreground font-black text-base flex items-center justify-center shadow-md overflow-hidden ring-2 ring-primary/20">
+                                    <div className={`w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br ${avatarBg} text-primary-foreground font-black text-base flex items-center justify-center shadow-md overflow-hidden ring-2 ring-primary/20`}>
                                       {m.photo_url ? (
                                         <img src={m.photo_url} alt={m.full_name} className="w-full h-full object-cover" />
                                       ) : (
@@ -3300,35 +3326,63 @@ ${exams.map((s: any, i: number) => `<tr>
                                     </div>
                                     <span
                                       className={`absolute -bottom-1 -end-1 w-3.5 h-3.5 rounded-full border-2 border-card ${
-                                        linked ? "bg-emerald-500" : "bg-amber-400"
+                                        isActivated ? "bg-emerald-500" : isTempPassword ? "bg-amber-500" : "bg-amber-400"
                                       }`}
-                                      title={linked ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "بانتظار التسجيل" : "Pending")}
+                                      title={isActivated ? (isRtl ? "مفعّل" : "Active") : isTempPassword ? (isRtl ? "غير مفعّل (كلمة مرور مؤقتة)" : "Inactive (Temp Password)") : (isRtl ? "بانتظار التسجيل" : "Pending")}
                                     />
                                   </div>
 
                                   {/* Main Info */}
                                   <div className="flex-1 min-w-0">
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        if ((m as any).__from_ifm) {
-                                          navigate(`/institution/faculty/${m.id}/edit`);
-                                          return;
-                                        }
-                                        navigate(`/institution/member/${m.id}`);
-                                      }}
-                                      className="text-start block w-full group-hover:text-primary transition-colors"
-                                    >
-                                      <p className="text-sm sm:text-base font-black text-foreground truncate leading-tight">
-                                        {m.full_name}
-                                      </p>
-                                    </button>
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          if ((m as any).__from_ifm) {
+                                            navigate(`/institution/faculty/${m.id}/edit`);
+                                            return;
+                                          }
+                                          navigate(`/institution/member/${m.id}`);
+                                        }}
+                                        className="text-start block group-hover:text-primary transition-colors max-w-full"
+                                      >
+                                        <p className="text-sm sm:text-base font-black text-foreground truncate leading-tight">
+                                          {m.full_name}
+                                        </p>
+                                      </button>
+                                      {isHead && (
+                                        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] px-2 py-0 gap-1 shrink-0 shadow-xs">
+                                          <Crown className="w-2.5 h-2.5" />
+                                          {isRtl ? "رئيس قسم" : "Head"}
+                                        </Badge>
+                                      )}
+                                      {isDeanOrViceDean && (
+                                        <Badge className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-[10px] px-2 py-0 gap-1 shrink-0 shadow-xs">
+                                          <Crown className="w-2.5 h-2.5" />
+                                          {isRtl ? roleConfig.ar : roleConfig.en}
+                                        </Badge>
+                                      )}
+                                    </div>
 
                                     {/* Department Badge */}
                                     <p className="text-[11px] text-muted-foreground font-bold truncate mt-1 flex items-center gap-1">
                                       <Building2 className="w-3 h-3 text-muted-foreground shrink-0" />
                                       <span>{memberDept?.department_name || (isRtl ? "عام / غير محدد" : "General / Unassigned")}</span>
                                     </p>
+
+                                    {/* Contact & Temp Password Indicator */}
+                                    {(profile?.email || profile?.phone || m.phone || isTempPassword) && (
+                                      <div className="flex items-center gap-2 mt-1 text-[11px] text-muted-foreground flex-wrap">
+                                        {profile?.email && <span className="truncate max-w-[170px]" dir="ltr">{profile.email}</span>}
+                                        {(profile?.phone || m.phone) && <span dir="ltr" className="truncate">{profile?.phone || m.phone}</span>}
+                                        {isTempPassword && (
+                                          <span className="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-0.5">
+                                            <AlertTriangle className="w-3 h-3 shrink-0" />
+                                            {isRtl ? "كلمة مرور مؤقتة" : "Temp Password"}
+                                          </span>
+                                        )}
+                                      </div>
+                                    )}
 
                                     {/* Badges Row */}
                                     <div className="flex items-center gap-1.5 mt-2 flex-wrap">
@@ -3340,12 +3394,16 @@ ${exams.map((s: any, i: number) => `<tr>
                                       <Badge
                                         variant="outline"
                                         className={`text-[10px] font-bold px-1.5 py-0.5 border ${
-                                          linked
+                                          isActivated
                                             ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
                                             : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
                                         }`}
                                       >
-                                        {linked ? (isRtl ? "✓ مفعّل" : "Active") : (isRtl ? "⏱ بانتظار التسجيل" : "Pending")}
+                                        {isActivated
+                                          ? (isRtl ? "✓ مفعّل" : "Active")
+                                          : isTempPassword
+                                          ? (isRtl ? "⏱ غير مفعّل" : "Inactive")
+                                          : (isRtl ? "⏱ في انتظار التسجيل" : "Pending")}
                                       </Badge>
                                     </div>
                                   </div>
@@ -3420,11 +3478,22 @@ ${exams.map((s: any, i: number) => `<tr>
                             </TableHeader>
                             <TableBody>
                               {filteredFaculty.map((m: any) => {
+                                const profile = m.user_id ? profilesMap[m.user_id] : null;
                                 const linked = !!m.user_id;
+                                const isActivated = linked && !!profile && profile.must_change_password === false;
+                                const isTempPassword = linked && !!profile && profile.must_change_password === true;
+                                const isHead = m.role === "department_head";
+                                const isDeanOrViceDean = m.role === "dean" || String(m.role || "").startsWith("vice_dean");
                                 const initials = (m.full_name || "").split(" ").map((n: string) => n[0]).slice(0, 2).join("").toUpperCase();
                                 const roleConfig = ROLE_LABELS[m.role] || { ar: m.role, en: m.role, color: "bg-primary/10 text-primary border-primary/20" };
                                 const isSelected = selectFacultyMemberIds.includes(m.id);
                                 const memberDept = departments.find(d => d.id === m.department_id);
+                                const avatarBg = isHead
+                                  ? "from-amber-500 to-orange-600"
+                                  : isDeanOrViceDean
+                                  ? "from-purple-600 to-indigo-600"
+                                  : "from-primary to-indigo-600";
+                                const AvatarIcon = isHead || isDeanOrViceDean ? Crown : GraduationCap;
 
                                 return (
                                   <TableRow key={m.id} className="hover:bg-muted/30">
@@ -3444,7 +3513,7 @@ ${exams.map((s: any, i: number) => `<tr>
                                     )}
                                     <TableCell>
                                       <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-indigo-600 text-white font-bold text-xs flex items-center justify-center shrink-0 overflow-hidden">
+                                        <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${avatarBg} text-white font-bold text-xs flex items-center justify-center shrink-0 overflow-hidden`}>
                                           {m.photo_url ? (
                                             <img src={m.photo_url} alt={m.full_name} className="w-full h-full object-cover" />
                                           ) : (
@@ -3452,8 +3521,31 @@ ${exams.map((s: any, i: number) => `<tr>
                                           )}
                                         </div>
                                         <div>
-                                          <p className="font-bold text-foreground text-xs sm:text-sm">{m.full_name}</p>
-                                          {m.phone && <p className="text-[10px] text-muted-foreground" dir="ltr">{m.phone}</p>}
+                                          <div className="flex items-center gap-1.5 flex-wrap">
+                                            <p className="font-bold text-foreground text-xs sm:text-sm">{m.full_name}</p>
+                                            {isHead && (
+                                              <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[9px] px-1.5 py-0 gap-0.5 shadow-xs">
+                                                <Crown className="w-2 h-2" />
+                                                {isRtl ? "رئيس قسم" : "Head"}
+                                              </Badge>
+                                            )}
+                                            {isDeanOrViceDean && (
+                                              <Badge className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-[9px] px-1.5 py-0 gap-0.5 shadow-xs">
+                                                <Crown className="w-2 h-2" />
+                                                {isRtl ? roleConfig.ar : roleConfig.en}
+                                              </Badge>
+                                            )}
+                                          </div>
+                                          <div className="flex items-center gap-2 text-[10px] text-muted-foreground flex-wrap">
+                                            {(profile?.email || m.email) && <span dir="ltr">{profile?.email || m.email}</span>}
+                                            {(profile?.phone || m.phone) && <span dir="ltr">{profile?.phone || m.phone}</span>}
+                                            {isTempPassword && (
+                                              <span className="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-0.5">
+                                                <AlertTriangle className="w-2.5 h-2.5 shrink-0" />
+                                                {isRtl ? "كلمة مرور مؤقتة" : "Temp"}
+                                              </span>
+                                            )}
+                                          </div>
                                         </div>
                                       </div>
                                     </TableCell>
@@ -3471,12 +3563,16 @@ ${exams.map((s: any, i: number) => `<tr>
                                       <Badge
                                         variant="outline"
                                         className={`text-[10px] font-bold border ${
-                                          linked
+                                          isActivated
                                             ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
                                             : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
                                         }`}
                                       >
-                                        {linked ? (isRtl ? "مفعّل" : "Active") : (isRtl ? "بانتظار التسجيل" : "Pending")}
+                                        {isActivated
+                                          ? (isRtl ? "✓ مفعّل" : "Active")
+                                          : isTempPassword
+                                          ? (isRtl ? "⏱ غير مفعّل" : "Inactive")
+                                          : (isRtl ? "⏱ في انتظار التسجيل" : "Pending")}
                                       </Badge>
                                     </TableCell>
                                     {!isAddingMode && (

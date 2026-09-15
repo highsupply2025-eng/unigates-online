@@ -11,21 +11,27 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Gift,
   ArrowRight,
   ArrowLeft,
   Mail,
-  KeyRound,
+  Lock,
   Eye,
   EyeOff,
   Percent,
-  Sparkles
+  Sparkles,
+  ShieldCheck,
+  Zap,
+  Home,
+  UserPlus,
+  Loader2,
+  TrendingUp,
+  CheckCircle2
 } from "lucide-react";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
+import ugLogo from "@/assets/ug-logo.png";
 
 export default function AffiliateLogin() {
   const { dir, tText } = useLanguage();
@@ -93,80 +99,122 @@ export default function AffiliateLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col justify-between selection:bg-primary selection:text-white" dir={dir}>
-      {/* Header */}
-      <header className="px-4 sm:px-8 py-4 border-b border-border/60 bg-card/80 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/affiliate" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-0.5 shadow-lg shadow-amber-500/25 flex items-center justify-center text-white">
-              <Gift className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-lg font-black tracking-tight text-foreground">UNIGATES</span>
-              <p className="text-[10px] font-bold text-amber-500">{isRtl ? "بوابة المسوقين بالعمولة (20%)" : "Affiliate Portal"}</p>
-            </div>
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col relative overflow-hidden selection:bg-amber-500 selection:text-slate-950" dir={dir}>
+      {/* Background Mesh Gradients */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-amber-950/20 to-slate-950 pointer-events-none" />
+      <div className="absolute top-0 start-1/4 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute bottom-0 end-10 w-[500px] h-[500px] bg-orange-600/10 rounded-full blur-[180px] pointer-events-none" />
+
+      {/* Header Bar */}
+      <header className="relative z-30 flex items-center justify-between px-4 sm:px-8 md:px-12 py-4 border-b border-white/10 backdrop-blur-xl bg-slate-950/50">
+        <Link to="/affiliate" className="flex items-center gap-3 group min-w-0">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-500 to-yellow-600 p-0.5 shadow-xl shadow-amber-500/20 group-hover:scale-105 transition-transform flex items-center justify-center text-slate-950 font-black">
+            <Gift className="w-6 h-6 sm:w-7 sm:h-7" />
+          </div>
+          <div>
+            <span className="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow-md flex items-center gap-2">
+              UNIGATES <span className="text-amber-400 text-xs px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/30 font-bold hidden sm:inline">20% REVSHARE</span>
+            </span>
+            <p className="text-[10px] font-bold text-amber-300 tracking-wide">
+              {isRtl ? "بوابة المسوقين وشركاء النجاح الأكاديمي" : "Affiliate & Partner Portal"}
+            </p>
+          </div>
+        </Link>
+
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link to="/affiliate">
+            <Button size="sm" variant="ghost" className="h-10 px-3 sm:px-4 font-bold text-xs sm:text-sm text-white/90 hover:text-white hover:bg-white/10 rounded-xl gap-1.5">
+              <Home className="w-4 h-4" />
+              <span className="hidden sm:inline">{isRtl ? "الرئيسية" : "Home"}</span>
+            </Button>
           </Link>
 
-          <div className="flex items-center gap-2">
-            <LanguageSelectorDropdown className="h-9 px-2" />
-            <ThemeToggle />
-          </div>
+          <Link to="/affiliate/signup">
+            <Button size="sm" className="h-10 px-4 font-bold text-xs sm:text-sm bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 rounded-xl shadow-md shadow-amber-500/20 gap-1.5">
+              <UserPlus className="w-4 h-4" />
+              <span>{isRtl ? "إنشاء حساب مسوق" : "Sign Up"}</span>
+            </Button>
+          </Link>
+
+          <LanguageSelectorDropdown className="h-10 px-3" />
+          <ThemeToggle className="h-10 w-10 p-0 rounded-xl" />
         </div>
       </header>
 
-      {/* Main Login Form Container */}
-      <main className="flex-1 max-w-md mx-auto w-full px-4 py-12 flex items-center justify-center">
-        <Card className="w-full border-2 border-border/80 bg-card/90 backdrop-blur-2xl shadow-2xl rounded-3xl overflow-hidden">
-          <div className="p-6 sm:p-8 bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border-b border-border/60 text-center space-y-2">
-            <Badge className="bg-amber-500 text-slate-950 font-black text-xs px-3 py-1">
-              <Percent className="w-3.5 h-3.5 me-1 inline" />
-              {isRtl ? "لوحة الأرباح والعمولات 20%" : "20% RevShare Dashboard"}
-            </Badge>
-            <h1 className="text-2xl sm:text-3xl font-black text-foreground">
-              {isRtl ? "تسجيل دخول المسوقين" : "Affiliate Login"}
-            </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground font-medium">
-              {isRtl
-                ? "أدخل بياناتك للوصول إلى روابط الإحالة ومتابعة أرباحك."
-                : "Sign in to access your referral links and manage your earnings."}
-            </p>
-          </div>
+      {/* Main Login Workspace */}
+      <main className="relative z-20 flex-1 flex items-center justify-center px-4 sm:px-6 py-10 md:py-16">
+        <div className="max-w-md w-full">
+          {/* Glassmorphic Card */}
+          <div className="relative rounded-3xl border border-amber-500/25 bg-slate-900/80 backdrop-blur-2xl shadow-2xl shadow-amber-950/40 p-6 sm:p-9 space-y-6 transition-all">
+            
+            {/* Top Glowing Icon & Title */}
+            <div className="text-center space-y-3">
+              <div className="inline-flex relative">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-500 to-yellow-600 flex items-center justify-center text-slate-950 shadow-xl shadow-amber-500/25">
+                  <TrendingUp className="w-8 h-8 stroke-[2.5]" />
+                </div>
+                <div className="absolute -top-1.5 -end-1.5 w-6 h-6 rounded-full bg-emerald-400 text-slate-950 flex items-center justify-center text-xs shadow-md animate-pulse">
+                  <Sparkles className="w-3.5 h-3.5" />
+                </div>
+              </div>
 
-          <CardContent className="p-6 sm:p-8">
-            <form onSubmit={handleSubmit} className="space-y-4 text-start">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-bold mb-1">
+                  <Percent className="w-3 h-3 text-amber-400" />
+                  <span>{isRtl ? "عمولة ثابتة 20% مدى الحياة" : "20% Lifetime Commission"}</span>
+                </div>
+                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                  {isRtl ? "تسجيل دخول المسوقين" : "Affiliate Partner Login"}
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
+                  {isRtl
+                    ? "أدخل بياناتك للوصول الفوري إلى لوحة الأرباح وأداة توليد الروابط."
+                    : "Enter your credentials to access your referral link studio and wallet."}
+                </p>
+              </div>
+            </div>
+
+            {/* Login Form */}
+            <form onSubmit={handleSubmit} className="space-y-4 pt-1 text-start">
               {/* Email */}
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold">{isRtl ? "البريد الإلكتروني" : "Email Address"}</Label>
+                <Label className="text-xs sm:text-sm font-bold text-slate-200">
+                  {isRtl ? "البريد الإلكتروني للمسوق" : "Affiliate Email"}
+                </Label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-muted-foreground absolute start-3 top-1/2 -translate-y-1/2" />
+                  <Mail className="w-4 h-4 text-amber-400 absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <Input
                     type="email"
                     required
                     placeholder="affiliate@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="ps-9 h-11 text-xs rounded-xl"
+                    className="h-12 ps-10 pe-4 bg-slate-950/70 border-white/15 text-white placeholder:text-slate-500 rounded-2xl focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 text-sm font-medium"
                   />
                 </div>
               </div>
 
               {/* Password */}
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold">{isRtl ? "كلمة المرور" : "Password"}</Label>
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs sm:text-sm font-bold text-slate-200">
+                    {isRtl ? "كلمة المرور" : "Password"}
+                  </Label>
+                </div>
                 <div className="relative">
-                  <KeyRound className="w-4 h-4 text-muted-foreground absolute start-3 top-1/2 -translate-y-1/2" />
+                  <Lock className="w-4 h-4 text-amber-400 absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <Input
                     type={showPassword ? "text" : "password"}
                     required
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="ps-9 pe-9 h-11 text-xs rounded-xl"
+                    className="h-12 ps-10 pe-11 bg-slate-950/70 border-white/15 text-white placeholder:text-slate-500 rounded-2xl focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 text-sm"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute end-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors p-1"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -177,26 +225,39 @@ export default function AffiliateLogin() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-12 mt-2 text-sm font-black bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-slate-950 shadow-xl shadow-amber-500/25"
+                className="w-full h-12 mt-2 font-black text-sm rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-600 hover:from-amber-600 hover:to-orange-600 text-slate-950 shadow-xl shadow-amber-500/20 transition-all hover:scale-[1.01] active:scale-[0.99] gap-2"
               >
-                <span>{isRtl ? "دخول لوحة تحكم المسوق" : "Open Affiliate Dashboard"}</span>
-                <ArrowIcon className="w-4 h-4 ms-2" />
+                {loading ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {isRtl ? "جاري تسجيل الدخول..." : "Signing in..."}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-2">
+                    <Zap className="w-4 h-4 fill-current" />
+                    {isRtl ? "دخول لوحة تحكم المسوق" : "Access Dashboard"}
+                    <ArrowIcon className="w-4 h-4 ms-1" />
+                  </span>
+                )}
               </Button>
 
-              <div className="text-center pt-3 text-xs text-muted-foreground">
-                <span>{isRtl ? "ليس لديك حساب مسوق؟ " : "Don't have an affiliate account? "}</span>
-                <Link to="/affiliate/signup" className="text-amber-500 hover:underline font-bold">
-                  {isRtl ? "سجل الآن مجاناً" : "Register Now"}
-                </Link>
+              {/* Security Shield */}
+              <div className="flex items-center justify-center gap-1.5 pt-2 text-[11px] text-slate-400">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>{isRtl ? "نظام مشفر ومحمي بأعلى معايير الأمان SSL" : "End-to-end Encrypted & Protected"}</span>
               </div>
-            </form>
-          </CardContent>
-        </Card>
-      </main>
 
-      <footer className="py-4 text-center text-xs text-muted-foreground border-t border-border/40">
-        <p>© 2026 UNIGATES Affiliate Network. All rights reserved.</p>
-      </footer>
+              {/* Signup Link */}
+              <p className="text-center text-xs sm:text-sm text-slate-300 pt-3 border-t border-white/10">
+                {isRtl ? "ليس لديك حساب مسوق بعد؟" : "Don't have an affiliate account?"}{" "}
+                <Link to="/affiliate/signup" className="text-amber-400 font-bold hover:underline">
+                  {isRtl ? "سجل الآن مجاناً" : "Sign Up Free"}
+                </Link>
+              </p>
+            </form>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

@@ -49,7 +49,8 @@ const EMOJI_LIST = [
   "😊", "😃", "☕", "💯", "🚀", "👌", "💪", "🏆"
 ];
 
-const roleLabel = (role: string, isCollege: boolean, isRtl: boolean) => {
+const roleLabel = (role?: string | null, isCollege?: boolean, isRtl?: boolean) => {
+  const safeRole = role || "lecturer";
   const map: Record<string, { ar: string; en: string }> = {
     dean: { ar: isCollege ? "عميد الكلية" : "مدير المعهد", en: isCollege ? "Dean" : "Director" },
     vice_dean_postgrad: { ar: isCollege ? "وكيل الكلية للدراسات العليا والبحوث" : "وكيل المعهد للدراسات العليا", en: "Vice Dean Postgrad" },
@@ -71,8 +72,8 @@ const roleLabel = (role: string, isCollege: boolean, isRtl: boolean) => {
     library_manager: { ar: "مدير المكتبة", en: "Library Manager" },
     admin: { ar: isCollege ? "إدارة الكلية" : "إدارة المعهد", en: "Administration" },
   };
-  const entry = map[role];
-  if (!entry) return role;
+  const entry = map[safeRole];
+  if (!entry) return safeRole;
   return isRtl ? entry.ar : entry.en;
 };
 
@@ -88,16 +89,23 @@ interface CachedMessagesData {
 const MESSAGES_CACHE_KEY = "unigates_messages_contacts_cache";
 
 function getInitialMessagesCache(): CachedMessagesData | null {
-  if (__messagesContactsCache && Date.now() - (__messagesContactsCache as any).cachedAt < 5 * 60 * 1000) {
-    return __messagesContactsCache as any;
-  }
   try {
     const raw = sessionStorage.getItem(MESSAGES_CACHE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as CachedMessagesData;
       if (parsed && Date.now() - (parsed.cachedAt || 0) < 5 * 60 * 1000) {
-        __messagesContactsCache = parsed;
-        return parsed;
+        if (Array.isArray(parsed.contacts)) {
+          parsed.contacts = parsed.contacts
+            .filter((c): c is Contact => !!c && typeof c === "object")
+            .map((c) => ({
+              ...c,
+              full_name: c.full_name || "",
+              specific_role: c.specific_role || "lecturer",
+              email: c.email || "",
+            }));
+          __messagesContactsCache = parsed as any;
+          return parsed;
+        }
       }
     }
   } catch {
@@ -290,13 +298,13 @@ export default function InstitutionMessages() {
       }
 
       for (const f of (facRes.data || []) as any[]) {
-        if (f.user_id === user.id) continue;
+        if (!f || f.user_id === user.id) continue;
         list.push({
           user_id: f.user_id,
-          full_name: f.full_name,
-          specific_role: f.specific_role,
-          email: f.email,
-          photo_url: f.photo_url,
+          full_name: f.full_name || (isRtl ? "عضو هيئة تدريس" : "Faculty Member"),
+          specific_role: f.specific_role || "lecturer",
+          email: f.email || "",
+          photo_url: f.photo_url || null,
           department_name: f.department_id ? deptsMap.get(f.department_id) : undefined,
           isOnline: true,
         });
@@ -627,30 +635,34 @@ export default function InstitutionMessages() {
 
   // Filter Contacts
   const filteredContacts = contacts.filter((c) => {
-    const matchesSearch =
-      c.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (c.department_name && c.department_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (c.email && c.email.toLowerCase().includes(searchQuery.toLowerCase()));
+    if (!c) return false;
+    const name = (c.full_name || "").toLowerCase();
+    const dept = (c.department_name || "").toLowerCase();
+    const em = (c.email || "").toLowerCase();
+    const q = (searchQuery || "").trim().toLowerCase();
+
+    const matchesSearch = !q || name.includes(q) || dept.includes(q) || em.includes(q);
 
     if (!matchesSearch) return false;
 
+    const role = c.specific_role || "";
     if (selectedCategory === "admin") {
       return (
         c.isAdmin ||
         ["dean", "vice_dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community", "vice_dean_environment", "college_secretary", "library_manager", "admin"].includes(
-          c.specific_role
+          role
         )
       );
     }
     if (selectedCategory === "heads") {
-      return c.specific_role === "department_head";
+      return role === "department_head";
     }
     if (selectedCategory === "faculty") {
-      return ["professor", "prof_dr", "doctor", "dr", "teacher", "lecturer"].includes(c.specific_role);
+      return ["professor", "prof_dr", "doctor", "dr", "teacher", "lecturer"].includes(role);
     }
     if (selectedCategory === "staff") {
       return ["assistant_lecturer", "teaching_assistant", "demonstrator", "college_secretary", "library_manager"].includes(
-        c.specific_role
+        role
       );
     }
     return true;
@@ -857,11 +869,11 @@ export default function InstitutionMessages() {
                     <div className="relative shrink-0">
                       <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-teal-500/20 to-emerald-500/20 border border-primary/20 flex items-center justify-center text-primary font-black text-sm overflow-hidden">
                         {c.photo_url ? (
-                          <img src={c.photo_url} alt={c.full_name} className="w-full h-full object-cover" />
+                          <img src={c.photo_url} alt={c.full_name || "avatar"} className="w-full h-full object-cover" />
                         ) : c.isAdmin ? (
                           <ShieldCheck className="w-5 h-5 text-primary" />
                         ) : (
-                          c.full_name.charAt(0)
+                          (c.full_name || "U").charAt(0)
                         )}
                       </div>
                       {c.isOnline && (
@@ -873,7 +885,7 @@ export default function InstitutionMessages() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-1">
                         <p className="font-black text-xs sm:text-sm text-foreground truncate">
-                          {c.full_name}
+                          {c.full_name || (isRtl ? "عضو هيئة تدريس" : "Faculty Member")}
                         </p>
                       </div>
                       <div className="flex items-center gap-1.5 mt-0.5">
@@ -921,9 +933,9 @@ export default function InstitutionMessages() {
                   <div className="relative shrink-0">
                     <div className="w-10 h-10 rounded-2xl bg-teal-500/20 border border-primary/30 flex items-center justify-center text-primary font-black text-sm overflow-hidden">
                       {selected.photo_url ? (
-                        <img src={selected.photo_url} alt={selected.full_name} className="w-full h-full object-cover" />
+                        <img src={selected.photo_url} alt={selected.full_name || "avatar"} className="w-full h-full object-cover" />
                       ) : (
-                        selected.full_name.charAt(0)
+                        (selected.full_name || "U").charAt(0)
                       )}
                     </div>
                     <span className="absolute -bottom-0.5 -end-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-background" />

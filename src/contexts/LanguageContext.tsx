@@ -38,9 +38,17 @@ export interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | null>(null);
 
+// Only Arabic and English have full translation files; other supported
+// locales fall back to English strings plus the multilingual glossary.
 const translations: Record<Language, Translations> = {
   en,
   ar,
+  fr: en,
+  es: en,
+  de: en,
+  zh: en,
+  ru: en,
+  tr: en,
 };
 
 

@@ -3783,6 +3783,12 @@ export type Database = {
         | "dean"
         | "training_center"
         | "language_center"
+        | "college_secretary"
+        | "library_manager"
+        | "vice_dean_postgrad"
+        | "vice_dean_students"
+        | "vice_dean_community"
+        | "vice_dean_environment"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3926,6 +3932,12 @@ export const Constants = {
         "dean",
         "training_center",
         "language_center",
+        "college_secretary",
+        "library_manager",
+        "vice_dean_postgrad",
+        "vice_dean_students",
+        "vice_dean_community",
+        "vice_dean_environment",
       ],
     },
   },

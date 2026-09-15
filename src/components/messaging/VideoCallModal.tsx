@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Contact, formatSeconds, formatFileSize } from "./types";
 import { toast } from "@/hooks/use-toast";
+import { callInboxTopic, privateChannel, sendToPrivateInbox } from "@/lib/realtime/privateChannels";
 
 interface SharedCallFile {
   id: string;

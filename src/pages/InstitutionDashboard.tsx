@@ -2835,6 +2835,45 @@ ${exams.map((s: any, i: number) => `<tr>
                   .filter((m) => m.role && m.role !== "student" && !!m.full_name),
               ).sort((a, b) => (ROLE_ORDER[a.role] ?? 99) - (ROLE_ORDER[b.role] ?? 99));
 
+              // Map each faculty member to their unique departments
+              const facultyDeptIdsMap = new Map<string, Set<string>>();
+              (deptMembers as any[]).forEach((dm) => {
+                if (!dm.role || dm.role === "student" || !dm.department_id) return;
+                const uid = normalizeMemberText(dm.user_id);
+                const em = normalizeMemberText(dm.email);
+                const keys = [
+                  uid ? `user:${uid}` : null,
+                  em ? `email:${em}` : null,
+                  `id:${dm.id}`,
+                  `name:${normalizeMemberText(dm.full_name)}`,
+                ].filter(Boolean) as string[];
+
+                keys.forEach((k) => {
+                  if (!facultyDeptIdsMap.has(k)) facultyDeptIdsMap.set(k, new Set());
+                  facultyDeptIdsMap.get(k)!.add(dm.department_id);
+                });
+              });
+
+              const getMemberDeptLabel = (m: any): string => {
+                const uid = normalizeMemberText(m.user_id);
+                const em = normalizeMemberText(m.email);
+                const deptSet =
+                  (uid && facultyDeptIdsMap.get(`user:${uid}`)) ||
+                  (em && facultyDeptIdsMap.get(`email:${em}`)) ||
+                  facultyDeptIdsMap.get(`id:${m.id}`) ||
+                  facultyDeptIdsMap.get(`name:${normalizeMemberText(m.full_name)}`) ||
+                  new Set(m.department_id ? [m.department_id] : []);
+
+                const deptCount = deptSet.size;
+                if (deptCount === 1) {
+                  const singleDeptId = Array.from(deptSet)[0];
+                  const d = departments.find((dept) => dept.id === singleDeptId);
+                  return d?.department_name || (isRtl ? "عام" : "General");
+                }
+                // If 2 or more departments, or unassigned (0 departments): show "عام" / "General" (without "غير محدد")
+                return isRtl ? "عام" : "General";
+              };
+
               // Compute quick stats
               const totalCount = allFaculty.length;
               const leadershipCount = allFaculty.filter(m => ["dean", "vice_dean_postgrad", "vice_dean_students", "vice_dean_community", "college_secretary", "department_head"].includes(m.role)).length;
@@ -3348,24 +3387,12 @@ ${exams.map((s: any, i: number) => `<tr>
                                           {m.full_name}
                                         </p>
                                       </button>
-                                      {isHead && (
-                                        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] px-2 py-0 gap-1 shrink-0 shadow-xs">
-                                          <Crown className="w-2.5 h-2.5" />
-                                          {isRtl ? "رئيس قسم" : "Head"}
-                                        </Badge>
-                                      )}
-                                      {isDeanOrViceDean && (
-                                        <Badge className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-[10px] px-2 py-0 gap-1 shrink-0 shadow-xs">
-                                          <Crown className="w-2.5 h-2.5" />
-                                          {isRtl ? roleConfig.ar : roleConfig.en}
-                                        </Badge>
-                                      )}
                                     </div>
 
                                     {/* Department Badge */}
                                     <p className="text-[11px] text-muted-foreground font-bold truncate mt-1 flex items-center gap-1">
                                       <Building2 className="w-3 h-3 text-muted-foreground shrink-0" />
-                                      <span>{memberDept?.department_name || (isRtl ? "عام / غير محدد" : "General / Unassigned")}</span>
+                                      <span>{getMemberDeptLabel(m)}</span>
                                     </p>
 
                                     {/* Contact & Temp Password Indicator */}
@@ -3521,18 +3548,6 @@ ${exams.map((s: any, i: number) => `<tr>
                                         <div>
                                           <div className="flex items-center gap-1.5 flex-wrap">
                                             <p className="font-bold text-foreground text-xs sm:text-sm">{m.full_name}</p>
-                                            {isHead && (
-                                              <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[9px] px-1.5 py-0 gap-0.5 shadow-xs">
-                                                <Crown className="w-2 h-2" />
-                                                {isRtl ? "رئيس قسم" : "Head"}
-                                              </Badge>
-                                            )}
-                                            {isDeanOrViceDean && (
-                                              <Badge className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-[9px] px-1.5 py-0 gap-0.5 shadow-xs">
-                                                <Crown className="w-2 h-2" />
-                                                {isRtl ? roleConfig.ar : roleConfig.en}
-                                              </Badge>
-                                            )}
                                           </div>
                                           <div className="flex items-center gap-2 text-[10px] text-muted-foreground flex-wrap">
                                             {(profile?.email || m.email) && <span dir="ltr">{profile?.email || m.email}</span>}
@@ -3549,7 +3564,7 @@ ${exams.map((s: any, i: number) => `<tr>
                                     </TableCell>
                                     <TableCell>
                                       <span className="text-xs font-medium text-muted-foreground">
-                                        {memberDept?.department_name || (isRtl ? "عام / غير محدد" : "General")}
+                                        {getMemberDeptLabel(m)}
                                       </span>
                                     </TableCell>
                                     <TableCell>

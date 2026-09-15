@@ -246,12 +246,12 @@ export const FacultyMemberForm = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
+    if (file.size > 5 * 1024 * 1024) {
       toast({
         title: isRtl ? "حجم الملف كبير" : "File too large",
         description: isRtl
-          ? "أقصى حجم مسموح به هو 2 ميجابايت"
-          : "Maximum allowed file size is 2MB",
+          ? "أقصى حجم مسموح به هو 5 ميجابايت"
+          : "Maximum allowed file size is 5MB",
         variant: "destructive",
       });
       return;
@@ -260,9 +260,50 @@ export const FacultyMemberForm = ({
     setUploading(true);
     try {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setPhotoUrl(reader.result as string);
-        setUploading(false);
+      reader.onload = (event) => {
+        const rawResult = event.target?.result as string;
+        if (!rawResult) {
+          setUploading(false);
+          return;
+        }
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const canvas = document.createElement("canvas");
+            let width = img.width;
+            let height = img.height;
+            const maxDim = 500;
+
+            if (width > maxDim || height > maxDim) {
+              if (width > height) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              } else {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            if (ctx) {
+              ctx.drawImage(img, 0, 0, width, height);
+              const optimizedDataUrl = canvas.toDataURL("image/jpeg", 0.82);
+              setPhotoUrl(optimizedDataUrl);
+            } else {
+              setPhotoUrl(rawResult);
+            }
+          } catch {
+            setPhotoUrl(rawResult);
+          }
+          setUploading(false);
+        };
+        img.onerror = () => {
+          setPhotoUrl(rawResult);
+          setUploading(false);
+        };
+        img.src = rawResult;
       };
       reader.onerror = () => {
         toast({

@@ -170,7 +170,7 @@ async function rollbackNewUser(admin: any, uid: string) {
   }
 }
 
-const MAX_BODY_BYTES = 65536;
+const MAX_BODY_BYTES = 5 * 1024 * 1024; // 5MB limit to comfortably accommodate profile avatars
 
 Deno.serve(async (req) => {
   const headers = getCorsHeaders(req);

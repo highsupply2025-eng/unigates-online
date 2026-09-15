@@ -159,10 +159,6 @@ export default function AffiliateLogin() {
               </div>
 
               <div className="space-y-1">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-bold mb-1">
-                  <Percent className="w-3 h-3 text-amber-400" />
-                  <span>{isRtl ? "عمولة ثابتة 20% مدى الحياة" : "20% Lifetime Commission"}</span>
-                </div>
                 <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                   {isRtl ? "تسجيل دخول المسوقين" : "Affiliate Partner Login"}
                 </h1>

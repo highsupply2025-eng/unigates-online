@@ -154,13 +154,19 @@ export default function AffiliateProgram() {
           </Link>
 
           <div className="flex items-center gap-2.5">
+            <Link to="/">
+              <Button size="sm" variant="ghost" className="font-bold px-3 sm:px-4 h-9 text-xs text-white/90 hover:text-white hover:bg-white/10 rounded-xl gap-1.5">
+                <Home className="w-4 h-4" />
+                <span>{isRtl ? "الرئيسية" : "Home"}</span>
+              </Button>
+            </Link>
             <Link to="/affiliate/login">
-              <Button size="sm" variant="outline" className="font-bold px-4 h-9 text-xs border-white/20 text-white hover:bg-white/10 bg-white/5">
+              <Button size="sm" variant="outline" className="font-bold px-4 h-9 text-xs border-white/20 text-white hover:bg-white/10 bg-white/5 rounded-xl">
                 {isRtl ? "تسجيل دخول المسوقين" : "Affiliate Login"}
               </Button>
             </Link>
             <Link to="/affiliate/signup">
-              <Button size="sm" className="font-bold px-4 h-9 text-xs bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-lg shadow-amber-500/25">
+              <Button size="sm" className="font-bold px-4 h-9 text-xs bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-slate-950 font-black rounded-xl shadow-lg shadow-amber-500/25">
                 {isRtl ? "انضم كمسوق الآن" : "Join as Affiliate"}
               </Button>
             </Link>

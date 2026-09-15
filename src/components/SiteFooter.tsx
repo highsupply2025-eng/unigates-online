@@ -95,7 +95,7 @@ const SiteFooter = () => {
       links: [
         { label: t.header?.registerCollege || translate("تسجيل كلية أو معهد", "Register College / Institute"), href: "/signup/college/admin" },
         { label: t.header?.registerSchool || translate("تسجيل مدرسة K-12", "Register K-12 School"), href: "/school-registration" },
-        { label: translate("برنامج التسويق بالعمولة (أفلييت 20%)", "Affiliate Program (20% RevShare)"), href: "/affiliate" },
+        { label: translate("تسجيل مسوق", "Affiliate Partner Signup"), href: "/affiliate" },
         { label: translate("انضمام كمدرب أو مركز تدريب", "Join as Instructor / Center"), href: "/courses" },
         { label: translate("تسجيل مؤلف أو دار نشر", "Author / Publisher Signup"), href: "/nasher" },
         { label: translate("تسجيل شركات التوظيف والباحثين", "Recruiters & Job Seekers"), href: "/career" },

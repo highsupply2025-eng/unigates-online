@@ -122,11 +122,11 @@ export const VideoCallModal: React.FC<VideoCallModalProps> = ({
 
           // Create offer to the newly joined peer
           if (localStreamRef.current) {
-            await createAndSendOfferToPeer(data.senderId, channel);
+            await createAndSendOfferToPeer(data.senderId, sender);
           }
         } else if (data.type === "offer") {
           if (data.targetId && data.targetId !== currentUserId) return;
-          await handleReceiveOffer(data.senderId, data.sdp, channel, data.senderName, data.photoUrl);
+          await handleReceiveOffer(data.senderId, data.sdp, sender, data.senderName, data.photoUrl);
         } else if (data.type === "answer") {
           if (data.targetId && data.targetId !== currentUserId) return;
           const pc = peerConnectionsRef.current.get(data.senderId);
@@ -173,7 +173,7 @@ export const VideoCallModal: React.FC<VideoCallModalProps> = ({
             }
 
             // Announce join
-            channel.send({
+            sender.send({
               type: "broadcast",
               event: "call_signal",
               payload: {
@@ -206,7 +206,7 @@ export const VideoCallModal: React.FC<VideoCallModalProps> = ({
         }
       });
 
-    channelRef.current = channel;
+    channelRef.current = sender;
 
     return () => {
       supabase.removeChannel(channel);

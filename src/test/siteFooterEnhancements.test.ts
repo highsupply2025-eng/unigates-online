@@ -23,4 +23,14 @@ describe("Site Footer Enhancements & Cloud Hosting Partner", () => {
     expect(navCategories[0]).toContain("المنصات والبوابات");
     expect(navCategories[2]).toContain("المؤسسات والتسجيل");
   });
+
+  it("should have localized Affiliate Program link under Portals", () => {
+    const affiliateLinkAr = "برنامج الأفيليت";
+    const affiliateLinkEn = "Affiliate Program";
+    const affiliateHref = "/affiliate";
+
+    expect(affiliateLinkAr).toBe("برنامج الأفيليت");
+    expect(affiliateLinkEn).toBe("Affiliate Program");
+    expect(affiliateHref).toBe("/affiliate");
+  });
 });

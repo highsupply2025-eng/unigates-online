@@ -461,10 +461,60 @@ const LeadershipDashboard = () => {
           ? supabase.from("lecture_ratings").select("*").eq("course_id", "__none__").limit(0)
           : supabase.from("lecture_ratings").select("*").order("created_at", { ascending: false }).limit(300),
     ]);
-    setCourses(coursesRes.data || []);
+
+    let finalEpisodes = episodesRes.data || [];
+    const coursesList = coursesRes.data || [];
+
+    // Auto-recover any orphaned video episodes from storage for courses with 0 episodes
+    if (user?.id && coursesList.length > 0) {
+      for (const c of coursesList) {
+        if (c.creator_id === user.id) {
+          const hasEp = finalEpisodes.some((e: any) => e.course_id === c.id);
+          if (!hasEp) {
+            try {
+              const { data: files } = await supabase.storage
+                .from("course-content")
+                .list(`${user.id}/${c.id}/episodes`);
+
+              if (files && files.length > 0) {
+                const videoFile = files.find((f: any) => f.name && !f.name.startsWith("."));
+                if (videoFile) {
+                  const filePath = `${user.id}/${c.id}/episodes/${videoFile.name}`;
+                  const { data: urlData } = supabase.storage.from("course-content").getPublicUrl(filePath);
+                  if (urlData?.publicUrl) {
+                    const { data: insertedEp, error: insErr } = await supabase
+                      .from("course_episodes")
+                      .insert({
+                        course_id: c.id,
+                        title_ar: c.title_ar,
+                        title_en: c.title_en,
+                        episode_number: 1,
+                        video_url: urlData.publicUrl,
+                        duration_minutes: 15,
+                        is_preview: true,
+                      })
+                      .select()
+                      .single();
+
+                    if (!insErr && insertedEp) {
+                      finalEpisodes = [...finalEpisodes, insertedEp];
+                      await supabase.from("courses").update({ episode_count: 1 }).eq("id", c.id);
+                    }
+                  }
+                }
+              }
+            } catch (err) {
+              console.warn("Episode auto-recovery notice:", err);
+            }
+          }
+        }
+      }
+    }
+
+    setCourses(coursesList);
     setLiveStreams(streamsRes.data || []);
     setAssignments(assignmentsRes.data || []);
-    setEpisodes(episodesRes.data || []);
+    setEpisodes(finalEpisodes);
     setRatings(ratingsRes.data || []);
     setQuizzes(quizzesRes.data || []);
     setQuizSubmissions(quizSubsRes.data || []);

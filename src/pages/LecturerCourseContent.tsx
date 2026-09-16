@@ -520,7 +520,48 @@ const LecturerCourseContent = () => {
   const loadAll = async () => {
     if (!courseId) return;
     const { data: eps } = await supabase.from("course_episodes").select("*").eq("course_id", courseId).order("episode_number");
-    setEpisodes(eps || []);
+    let finalEpisodes = eps || [];
+
+    // Auto-recover orphaned episode from storage if count is 0
+    if (finalEpisodes.length === 0 && user?.id) {
+      try {
+        const { data: files } = await supabase.storage
+          .from("course-content")
+          .list(`${user.id}/${courseId}/episodes`);
+
+        if (files && files.length > 0) {
+          const videoFile = files.find((f: any) => f.name && !f.name.startsWith("."));
+          if (videoFile) {
+            const filePath = `${user.id}/${courseId}/episodes/${videoFile.name}`;
+            const { data: urlData } = supabase.storage.from("course-content").getPublicUrl(filePath);
+            if (urlData?.publicUrl) {
+              const { data: insertedEp, error: insErr } = await supabase
+                .from("course_episodes")
+                .insert({
+                  course_id: courseId,
+                  title_ar: course?.title_ar || "الحلقة الأولى",
+                  title_en: course?.title_en || "Episode 1",
+                  episode_number: 1,
+                  video_url: urlData.publicUrl,
+                  duration_minutes: 15,
+                  is_preview: true,
+                })
+                .select()
+                .single();
+
+              if (!insErr && insertedEp) {
+                finalEpisodes = [insertedEp];
+                await supabase.from("courses").update({ episode_count: 1 }).eq("id", courseId);
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Episode auto-recovery error:", err);
+      }
+    }
+
+    setEpisodes(finalEpisodes);
     const { data: att } = await supabase.from("course_attachments").select("*").eq("course_id", courseId);
     setAttachments(att || []);
     const { data: rat } = await supabase.from("lecture_ratings").select("*").eq("course_id", courseId).order("created_at", { ascending: false });

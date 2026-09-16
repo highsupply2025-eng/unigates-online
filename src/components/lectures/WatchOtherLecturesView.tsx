@@ -96,6 +96,51 @@ export const WatchOtherLecturesView = ({
           if (!map[ep.course_id]) map[ep.course_id] = [];
           map[ep.course_id].push(ep);
         });
+
+        // Auto-recover any orphaned episodes from storage for courses created by the user with 0 episodes
+        if (userId) {
+          for (const c of validCourses) {
+            if (c.creator_id === userId && (!map[c.id] || map[c.id].length === 0)) {
+              try {
+                const { data: files } = await supabase.storage
+                  .from("course-content")
+                  .list(`${userId}/${c.id}/episodes`);
+
+                if (files && files.length > 0) {
+                  const videoFile = files.find((f: any) => f.name && !f.name.startsWith("."));
+                  if (videoFile) {
+                    const filePath = `${userId}/${c.id}/episodes/${videoFile.name}`;
+                    const { data: urlData } = supabase.storage.from("course-content").getPublicUrl(filePath);
+                    if (urlData?.publicUrl) {
+                      const { data: insertedEp, error: insErr } = await supabase
+                        .from("course_episodes")
+                        .insert({
+                          course_id: c.id,
+                          title_ar: c.title_ar,
+                          title_en: c.title_en,
+                          episode_number: 1,
+                          video_url: urlData.publicUrl,
+                          duration_minutes: 15,
+                          is_preview: true,
+                        })
+                        .select()
+                        .single();
+
+                      if (!insErr && insertedEp) {
+                        if (!map[c.id]) map[c.id] = [];
+                        map[c.id].push(insertedEp);
+                        await supabase.from("courses").update({ episode_count: 1 }).eq("id", c.id);
+                      }
+                    }
+                  }
+                }
+              } catch (err) {
+                console.warn("Episode auto-recovery notice:", err);
+              }
+            }
+          }
+        }
+
         setEpisodesMap(map);
       } else {
         setEpisodesMap({});

@@ -545,7 +545,6 @@ const LeadershipDashboard = () => {
       console.warn("loadData error:", loadErr);
     }
   };
-  };
 
   const loadMyDepartments = async (userId: string, resolvedRole?: string, resolvedSpecificRole?: string): Promise<string[]> => {
     const role = resolvedRole || userRole;

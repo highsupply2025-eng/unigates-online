@@ -359,180 +359,192 @@ const LeadershipDashboard = () => {
       const hasApprovalPower = ["department_head", "vice_dean", "dean"].includes(profile.role) || approvalRoles.includes(resolvedSpecificRole);
       setIsApprovalRole(hasApprovalPower);
 
-      const resolvedDeptIds = await loadMyDepartments(user.id, profile.role, resolvedSpecificRole);
-      await loadDeptMembers(user.id, resolvedDeptIds);
+      try {
+        const resolvedDeptIds = await loadMyDepartments(user.id, profile.role, resolvedSpecificRole);
+        await loadDeptMembers(user.id, resolvedDeptIds);
 
-      // Determine institution from college_members
-      const { data: membership } = await supabase
-        .from("college_members")
-        .select("*, college_registrations:college_id(*)")
-        .eq("user_id", user.id)
-        .maybeSingle();
+        // Determine institution from college_members
+        const { data: membership } = await supabase
+          .from("college_members")
+          .select("*, college_registrations:college_id(*)")
+          .eq("user_id", user.id)
+          .maybeSingle();
 
-      if (membership && (membership as any).college_registrations) {
-        const reg = (membership as any).college_registrations;
-        setInstitutionType(reg.type === "institute" ? "institute" : "college");
-        setInstitutionName(reg.college_name || reg.institute_name || "");
+        if (membership && (membership as any).college_registrations) {
+          const reg = (membership as any).college_registrations;
+          setInstitutionType(reg.type === "institute" ? "institute" : "college");
+          setInstitutionName(reg.college_name || reg.institute_name || "");
+        }
+
+        // Load data with the resolved department IDs
+        await loadData(resolvedDeptIds, user.id);
+      } catch (dataErr) {
+        console.warn("Subordinate data load warning:", dataErr);
       }
-
-      // Load data with the resolved department IDs
-      await loadData(resolvedDeptIds);
-    } catch {
+    } catch (authErr) {
+      console.warn("Leadership dashboard auth error:", authErr);
       navigate("/login");
     } finally {
       setLoading(false);
     }
   };
 
-  const loadData = async (overrideDeptIds?: string[]) => {
-    // Get the department IDs this user belongs to, applying the department filter
-    const allDeptIds = overrideDeptIds || myDepartments.map(d => d.id);
-    const deptIds = selectedDeptId === "all" ? allDeptIds : (allDeptIds.includes(selectedDeptId) ? [selectedDeptId] : allDeptIds);
-    const hasDeptFilter = deptIds.length > 0;
+  const loadData = async (overrideDeptIds?: string[], explicitUserId?: string) => {
+    try {
+      const activeUserId = explicitUserId || userId || (await supabase.auth.getUser()).data.user?.id || "";
 
-    // First get courses belonging to the user's departments (needed for episode/quiz/assignment filtering)
-    let deptCourseIds: string[] = [];
-    let deptQuizIds: string[] = [];
-    let deptAssignmentIds: string[] = [];
-    let deptStreamIds: string[] = [];
+      // Get the department IDs this user belongs to, applying the department filter
+      const allDeptIds = overrideDeptIds || myDepartments.map(d => d.id);
+      const deptIds = selectedDeptId === "all" ? allDeptIds : (allDeptIds.includes(selectedDeptId) ? [selectedDeptId] : allDeptIds);
+      const hasDeptFilter = deptIds.length > 0;
 
-    if (hasDeptFilter) {
-      const [courseRes, quizRes, assignRes, streamRes] = await Promise.all([
-        supabase.from("courses").select("id").in("department_id", deptIds),
-        supabase.from("quizzes").select("id").in("department_id", deptIds),
-        supabase.from("assignments").select("id").in("department_id", deptIds),
-        supabase.from("live_streams").select("id").in("department_id", deptIds),
+      // First get courses belonging to the user's departments (needed for episode/quiz/assignment filtering)
+      let deptCourseIds: string[] = [];
+      let deptQuizIds: string[] = [];
+      let deptAssignmentIds: string[] = [];
+      let deptStreamIds: string[] = [];
+
+      if (hasDeptFilter) {
+        const [courseRes, quizRes, assignRes, streamRes] = await Promise.all([
+          supabase.from("courses").select("id").in("department_id", deptIds),
+          supabase.from("quizzes").select("id").in("department_id", deptIds),
+          supabase.from("assignments").select("id").in("department_id", deptIds),
+          supabase.from("live_streams").select("id").in("department_id", deptIds),
+        ]);
+        deptCourseIds = (courseRes.data || []).map((c: any) => c.id);
+        deptQuizIds = (quizRes.data || []).map((q: any) => q.id);
+        deptAssignmentIds = (assignRes.data || []).map((a: any) => a.id);
+        deptStreamIds = (streamRes.data || []).map((s: any) => s.id);
+      }
+
+      const [coursesRes, streamsRes, assignmentsRes, episodesRes, ratingsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, assignSubsRes, attachmentsRes, lectureRatingsRes] = await Promise.all([
+        hasDeptFilter
+          ? supabase.from("courses").select("*").in("department_id", deptIds).order("created_at", { ascending: false }).limit(50)
+          : supabase.from("courses").select("*").order("created_at", { ascending: false }).limit(50),
+        hasDeptFilter
+          ? supabase.from("live_streams").select("*").in("department_id", deptIds).order("scheduled_at", { ascending: false }).limit(50)
+          : supabase.from("live_streams").select("*").order("scheduled_at", { ascending: false }).limit(50),
+        hasDeptFilter
+          ? supabase.from("assignments").select("*").in("department_id", deptIds).order("created_at", { ascending: false }).limit(50)
+          : supabase.from("assignments").select("*").order("created_at", { ascending: false }).limit(50),
+        hasDeptFilter && deptCourseIds.length > 0
+          ? supabase.from("course_episodes").select("*").in("course_id", deptCourseIds).order("created_at", { ascending: false }).limit(100)
+          : hasDeptFilter
+            ? supabase.from("course_episodes").select("*").eq("course_id", "__none__").limit(0)
+            : supabase.from("course_episodes").select("*").order("created_at", { ascending: false }).limit(100),
+        hasDeptFilter && deptCourseIds.length > 0
+          ? supabase.from("lecturer_ratings").select("*").in("course_id", deptCourseIds).limit(100)
+          : hasDeptFilter
+            ? supabase.from("lecturer_ratings").select("*").eq("course_id", "__none__").limit(0)
+            : supabase.from("lecturer_ratings").select("*").limit(100),
+        hasDeptFilter && deptStreamIds.length > 0
+          ? supabase.from("stream_attendance").select("stream_id, user_id").in("stream_id", deptStreamIds)
+          : hasDeptFilter
+            ? supabase.from("stream_attendance").select("stream_id, user_id").eq("stream_id", "__none__")
+            : supabase.from("stream_attendance").select("stream_id, user_id"),
+        hasDeptFilter
+          ? supabase.from("quizzes").select("*").in("department_id", deptIds).order("created_at", { ascending: false }).limit(50)
+          : supabase.from("quizzes").select("*").order("created_at", { ascending: false }).limit(50),
+        hasDeptFilter && deptQuizIds.length > 0
+          ? supabase.from("quiz_submissions").select("*").in("quiz_id", deptQuizIds).order("submitted_at", { ascending: false }).limit(200)
+          : hasDeptFilter
+            ? supabase.from("quiz_submissions").select("*").eq("quiz_id", "__none__").order("submitted_at", { ascending: false }).limit(0)
+            : supabase.from("quiz_submissions").select("*").order("submitted_at", { ascending: false }).limit(200),
+        hasDeptFilter
+          ? supabase.from("lecture_schedules").select("*").in("department_id", deptIds).order("created_at", { ascending: false }).limit(100)
+          : supabase.from("lecture_schedules").select("*").order("created_at", { ascending: false }).limit(100),
+        hasDeptFilter && deptAssignmentIds.length > 0
+          ? supabase.from("assignment_submissions").select("*").in("assignment_id", deptAssignmentIds).order("submitted_at", { ascending: false }).limit(500)
+          : hasDeptFilter
+            ? supabase.from("assignment_submissions").select("*").eq("assignment_id", "__none__").order("submitted_at", { ascending: false }).limit(0)
+            : supabase.from("assignment_submissions").select("*").order("submitted_at", { ascending: false }).limit(500),
+        hasDeptFilter && deptCourseIds.length > 0
+          ? supabase.from("course_attachments").select("*").in("course_id", deptCourseIds).order("created_at", { ascending: false }).limit(200)
+          : hasDeptFilter
+            ? supabase.from("course_attachments").select("*").eq("course_id", "__none__").limit(0)
+            : supabase.from("course_attachments").select("*").order("created_at", { ascending: false }).limit(200),
+        hasDeptFilter && deptCourseIds.length > 0
+          ? supabase.from("lecture_ratings").select("*").in("course_id", deptCourseIds).order("created_at", { ascending: false }).limit(300)
+          : hasDeptFilter
+            ? supabase.from("lecture_ratings").select("*").eq("course_id", "__none__").limit(0)
+            : supabase.from("lecture_ratings").select("*").order("created_at", { ascending: false }).limit(300),
       ]);
-      deptCourseIds = (courseRes.data || []).map((c: any) => c.id);
-      deptQuizIds = (quizRes.data || []).map((q: any) => q.id);
-      deptAssignmentIds = (assignRes.data || []).map((a: any) => a.id);
-      deptStreamIds = (streamRes.data || []).map((s: any) => s.id);
-    }
 
-    const [coursesRes, streamsRes, assignmentsRes, episodesRes, ratingsRes, attendanceRes, quizzesRes, quizSubsRes, schedulesRes, assignSubsRes, attachmentsRes, lectureRatingsRes] = await Promise.all([
-      hasDeptFilter
-        ? supabase.from("courses").select("*").in("department_id", deptIds).order("created_at", { ascending: false }).limit(50)
-        : supabase.from("courses").select("*").order("created_at", { ascending: false }).limit(50),
-      hasDeptFilter
-        ? supabase.from("live_streams").select("*").in("department_id", deptIds).order("scheduled_at", { ascending: false }).limit(50)
-        : supabase.from("live_streams").select("*").order("scheduled_at", { ascending: false }).limit(50),
-      hasDeptFilter
-        ? supabase.from("assignments").select("*").in("department_id", deptIds).order("created_at", { ascending: false }).limit(50)
-        : supabase.from("assignments").select("*").order("created_at", { ascending: false }).limit(50),
-      hasDeptFilter && deptCourseIds.length > 0
-        ? supabase.from("course_episodes").select("*").in("course_id", deptCourseIds).order("created_at", { ascending: false }).limit(100)
-        : hasDeptFilter
-          ? supabase.from("course_episodes").select("*").eq("course_id", "__none__").limit(0)
-          : supabase.from("course_episodes").select("*").order("created_at", { ascending: false }).limit(100),
-      hasDeptFilter && deptCourseIds.length > 0
-        ? supabase.from("lecturer_ratings").select("*").in("course_id", deptCourseIds).limit(100)
-        : hasDeptFilter
-          ? supabase.from("lecturer_ratings").select("*").eq("course_id", "__none__").limit(0)
-          : supabase.from("lecturer_ratings").select("*").limit(100),
-      hasDeptFilter && deptStreamIds.length > 0
-        ? supabase.from("stream_attendance").select("stream_id, user_id").in("stream_id", deptStreamIds)
-        : hasDeptFilter
-          ? supabase.from("stream_attendance").select("stream_id, user_id").eq("stream_id", "__none__")
-          : supabase.from("stream_attendance").select("stream_id, user_id"),
-      hasDeptFilter
-        ? supabase.from("quizzes").select("*").in("department_id", deptIds).order("created_at", { ascending: false }).limit(50)
-        : supabase.from("quizzes").select("*").order("created_at", { ascending: false }).limit(50),
-      hasDeptFilter && deptQuizIds.length > 0
-        ? supabase.from("quiz_submissions").select("*").in("quiz_id", deptQuizIds).order("submitted_at", { ascending: false }).limit(200)
-        : hasDeptFilter
-          ? supabase.from("quiz_submissions").select("*").eq("quiz_id", "__none__").order("submitted_at", { ascending: false }).limit(0)
-          : supabase.from("quiz_submissions").select("*").order("submitted_at", { ascending: false }).limit(200),
-      hasDeptFilter
-        ? supabase.from("lecture_schedules").select("*").in("department_id", deptIds).order("created_at", { ascending: false }).limit(100)
-        : supabase.from("lecture_schedules").select("*").order("created_at", { ascending: false }).limit(100),
-      hasDeptFilter && deptAssignmentIds.length > 0
-        ? supabase.from("assignment_submissions").select("*").in("assignment_id", deptAssignmentIds).order("submitted_at", { ascending: false }).limit(500)
-        : hasDeptFilter
-          ? supabase.from("assignment_submissions").select("*").eq("assignment_id", "__none__").order("submitted_at", { ascending: false }).limit(0)
-          : supabase.from("assignment_submissions").select("*").order("submitted_at", { ascending: false }).limit(500),
-      hasDeptFilter && deptCourseIds.length > 0
-        ? supabase.from("course_attachments").select("*").in("course_id", deptCourseIds).order("created_at", { ascending: false }).limit(200)
-        : hasDeptFilter
-          ? supabase.from("course_attachments").select("*").eq("course_id", "__none__").limit(0)
-          : supabase.from("course_attachments").select("*").order("created_at", { ascending: false }).limit(200),
-      hasDeptFilter && deptCourseIds.length > 0
-        ? supabase.from("lecture_ratings").select("*").in("course_id", deptCourseIds).order("created_at", { ascending: false }).limit(300)
-        : hasDeptFilter
-          ? supabase.from("lecture_ratings").select("*").eq("course_id", "__none__").limit(0)
-          : supabase.from("lecture_ratings").select("*").order("created_at", { ascending: false }).limit(300),
-    ]);
+      let finalEpisodes = episodesRes.data || [];
+      const coursesList = coursesRes.data || [];
 
-    let finalEpisodes = episodesRes.data || [];
-    const coursesList = coursesRes.data || [];
+      // Auto-recover any orphaned video episodes from storage for courses with 0 episodes
+      if (activeUserId && coursesList.length > 0) {
+        for (const c of coursesList) {
+          if (c.creator_id === activeUserId) {
+            const hasEp = finalEpisodes.some((e: any) => e.course_id === c.id);
+            if (!hasEp) {
+              try {
+                const { data: files } = await supabase.storage
+                  .from("course-content")
+                  .list(`${activeUserId}/${c.id}/episodes`);
 
-    // Auto-recover any orphaned video episodes from storage for courses with 0 episodes
-    if (user?.id && coursesList.length > 0) {
-      for (const c of coursesList) {
-        if (c.creator_id === user.id) {
-          const hasEp = finalEpisodes.some((e: any) => e.course_id === c.id);
-          if (!hasEp) {
-            try {
-              const { data: files } = await supabase.storage
-                .from("course-content")
-                .list(`${user.id}/${c.id}/episodes`);
+                if (files && files.length > 0) {
+                  const videoFile = files.find((f: any) => f.name && !f.name.startsWith("."));
+                  if (videoFile) {
+                    const filePath = `${activeUserId}/${c.id}/episodes/${videoFile.name}`;
+                    const { data: urlData } = supabase.storage.from("course-content").getPublicUrl(filePath);
+                    if (urlData?.publicUrl) {
+                      const { data: insertedEp, error: insErr } = await supabase
+                        .from("course_episodes")
+                        .insert({
+                          course_id: c.id,
+                          title_ar: c.title_ar,
+                          title_en: c.title_en,
+                          episode_number: 1,
+                          video_url: urlData.publicUrl,
+                          duration_minutes: 15,
+                          is_preview: true,
+                        })
+                        .select()
+                        .single();
 
-              if (files && files.length > 0) {
-                const videoFile = files.find((f: any) => f.name && !f.name.startsWith("."));
-                if (videoFile) {
-                  const filePath = `${user.id}/${c.id}/episodes/${videoFile.name}`;
-                  const { data: urlData } = supabase.storage.from("course-content").getPublicUrl(filePath);
-                  if (urlData?.publicUrl) {
-                    const { data: insertedEp, error: insErr } = await supabase
-                      .from("course_episodes")
-                      .insert({
-                        course_id: c.id,
-                        title_ar: c.title_ar,
-                        title_en: c.title_en,
-                        episode_number: 1,
-                        video_url: urlData.publicUrl,
-                        duration_minutes: 15,
-                        is_preview: true,
-                      })
-                      .select()
-                      .single();
-
-                    if (!insErr && insertedEp) {
-                      finalEpisodes = [...finalEpisodes, insertedEp];
-                      await supabase.from("courses").update({ episode_count: 1 }).eq("id", c.id);
+                      if (!insErr && insertedEp) {
+                        finalEpisodes = [...finalEpisodes, insertedEp];
+                        await supabase.from("courses").update({ episode_count: 1 }).eq("id", c.id);
+                      }
                     }
                   }
                 }
+              } catch (err) {
+                console.warn("Episode auto-recovery notice:", err);
               }
-            } catch (err) {
-              console.warn("Episode auto-recovery notice:", err);
             }
           }
         }
       }
+
+      setCourses(coursesList);
+      setLiveStreams(streamsRes.data || []);
+      setAssignments(assignmentsRes.data || []);
+      setEpisodes(finalEpisodes);
+      setRatings(ratingsRes.data || []);
+      setQuizzes(quizzesRes.data || []);
+      setQuizSubmissions(quizSubsRes.data || []);
+      setLectureSchedules(schedulesRes.data || []);
+      setAssignmentSubmissions(assignSubsRes.data || []);
+      setCourseAttachments(attachmentsRes.data || []);
+      setLectureRatings(lectureRatingsRes.data || []);
+
+      // Count unique users per stream
+      const counts: Record<string, Set<string>> = {};
+      (attendanceRes.data || []).forEach((a: any) => {
+        if (!counts[a.stream_id]) counts[a.stream_id] = new Set();
+        counts[a.stream_id].add(a.user_id);
+      });
+      const countMap: Record<string, number> = {};
+      Object.entries(counts).forEach(([sid, set]) => { countMap[sid] = set.size; });
+      setStreamAttendance(countMap);
+      setLastLoadedAt(Date.now());
+    } catch (loadErr) {
+      console.warn("loadData error:", loadErr);
     }
-
-    setCourses(coursesList);
-    setLiveStreams(streamsRes.data || []);
-    setAssignments(assignmentsRes.data || []);
-    setEpisodes(finalEpisodes);
-    setRatings(ratingsRes.data || []);
-    setQuizzes(quizzesRes.data || []);
-    setQuizSubmissions(quizSubsRes.data || []);
-    setLectureSchedules(schedulesRes.data || []);
-    setAssignmentSubmissions(assignSubsRes.data || []);
-    setCourseAttachments(attachmentsRes.data || []);
-    setLectureRatings(lectureRatingsRes.data || []);
-
-    // Count unique users per stream
-    const counts: Record<string, Set<string>> = {};
-    (attendanceRes.data || []).forEach((a: any) => {
-      if (!counts[a.stream_id]) counts[a.stream_id] = new Set();
-      counts[a.stream_id].add(a.user_id);
-    });
-    const countMap: Record<string, number> = {};
-    Object.entries(counts).forEach(([sid, set]) => { countMap[sid] = set.size; });
-    setStreamAttendance(countMap);
-    setLastLoadedAt(Date.now());
+  };
   };
 
   const loadMyDepartments = async (userId: string, resolvedRole?: string, resolvedSpecificRole?: string): Promise<string[]> => {

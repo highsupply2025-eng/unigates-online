@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, Eye, Film, Clock, GraduationCap, Video,
   Search, Play, BookOpen, Layers, Inbox, Loader2, Sparkles,
   UserCheck, Users, X, Download, Maximize2, RefreshCw, CheckCircle2,
-  Calendar, Award
+  Calendar, Award, Plus, Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,7 @@ export const WatchOtherLecturesView = ({
   myDepartments,
   onBack,
 }: WatchOtherLecturesViewProps) => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [allCourses, setAllCourses] = useState<any[]>([]);
   const [episodesMap, setEpisodesMap] = useState<Record<string, any[]>>({});
@@ -472,16 +474,38 @@ export const WatchOtherLecturesView = ({
                           ? isRtl ? "إخفاء قائمة الحلقات" : "Hide Episodes"
                           : isRtl ? `عرض تفاصيل الحلقات (${eps.length})` : `View All Episodes (${eps.length})`}
                       </Button>
+
+                      {isMine && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => navigate(`/lecturer/courses/${course.id}`)}
+                          className="w-full font-black h-9 rounded-2xl gap-1.5 text-xs text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20"
+                        >
+                          <Settings className="w-3.5 h-3.5" />
+                          <span>{isRtl ? "استوديو إدارة وتسجيل المحاضرة" : "Lecture Studio & Content"}</span>
+                        </Button>
+                      )}
                     </div>
 
                     {/* Episodes List Drawer */}
                     {isExpanded && (
                       <div className="space-y-2 pt-2 border-t border-border/40 animate-in fade-in-50 duration-200">
                         {eps.length === 0 ? (
-                          <div className="p-3 rounded-2xl bg-muted/40 text-center space-y-1">
+                          <div className="p-4 rounded-2xl bg-muted/40 text-center space-y-2.5">
                             <p className="text-xs text-muted-foreground font-semibold">
                               {isRtl ? "لم يتم إرفاق ملف فيديو مسجل بعد لهذه المحاضرة" : "No video attached to this lecture"}
                             </p>
+                            {isMine && (
+                              <Button
+                                size="sm"
+                                onClick={() => navigate(`/lecturer/courses/${course.id}`)}
+                                className="font-black h-8 text-xs rounded-xl bg-teal-600 hover:bg-teal-700 text-white gap-1.5 shadow-sm mx-auto"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                                <span>{isRtl ? "تسجيل أو إضافة فيديو في الاستوديو الآن" : "Record or Add Video in Studio"}</span>
+                              </Button>
+                            )}
                           </div>
                         ) : (
                           eps.map((ep: any) => (

@@ -73,6 +73,7 @@ export const CreateLectureView = ({
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [recordSeconds, setRecordSeconds] = useState(0);
+  const recordSecondsRef = useRef<number>(0);
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
   const [recordedUrl, setRecordedUrl] = useState<string | null>(null);
   const [uploadedVideoFile, setUploadedVideoFile] = useState<File | null>(null);
@@ -400,7 +401,7 @@ export const CreateLectureView = ({
         const newUrl = URL.createObjectURL(finalBlob);
         setRecordedBlob(finalBlob);
         setRecordedUrl(newUrl);
-        setVideoDurationSeconds(recordSeconds);
+        setVideoDurationSeconds(recordSecondsRef.current);
         stopMediaStream();
       };
 
@@ -408,11 +409,13 @@ export const CreateLectureView = ({
       setIsRecording(true);
       setIsPaused(false);
       setRecordSeconds(0);
+      recordSecondsRef.current = 0;
 
       if (timerRef.current) window.clearInterval(timerRef.current);
       timerRef.current = window.setInterval(() => {
         setRecordSeconds((s) => {
           const nextSec = s + 1;
+          recordSecondsRef.current = nextSec;
           // Auto-stop safety at 2 Hours (7200 seconds)
           if (nextSec >= MAX_RECORD_SECONDS) {
             handleStopRecording();
@@ -452,6 +455,7 @@ export const CreateLectureView = ({
       timerRef.current = window.setInterval(() => {
         setRecordSeconds((s) => {
           const nextSec = s + 1;
+          recordSecondsRef.current = nextSec;
           if (nextSec >= MAX_RECORD_SECONDS) {
             handleStopRecording();
             return MAX_RECORD_SECONDS;
@@ -481,6 +485,7 @@ export const CreateLectureView = ({
     setRecordedUrl(null);
     setUploadedVideoFile(null);
     setRecordSeconds(0);
+    recordSecondsRef.current = 0;
     setVideoDurationSeconds(0);
     setIsRecording(false);
     setIsPaused(false);
@@ -532,6 +537,9 @@ export const CreateLectureView = ({
   };
 
   const goToStep3 = () => {
+    if (isRecording) {
+      handleStopRecording();
+    }
     stopMediaStream();
     setStep(3);
   };
@@ -721,7 +729,8 @@ export const CreateLectureView = ({
             const finalVideoUrl = vidUrlData?.publicUrl || null;
 
             if (finalVideoUrl) {
-              const calculatedMinutes = Math.max(1, Math.round(videoDurationSeconds / 60));
+              const effectiveDurationSecs = videoDurationSeconds || recordSecondsRef.current || recordSeconds || 60;
+              const calculatedMinutes = Math.max(1, Math.round(effectiveDurationSecs / 60));
               const { error: epInsertErr } = await supabase.from("course_episodes").insert({
                 course_id: insertedCourseId,
                 title_ar: newCourse.title_ar,
@@ -729,13 +738,19 @@ export const CreateLectureView = ({
                 episode_number: 1,
                 video_url: finalVideoUrl,
                 duration_minutes: calculatedMinutes,
-                is_free: newCourse.is_free,
-                level_number: 1,
-              } as any);
+                is_preview: true,
+              });
 
               if (epInsertErr) {
                 console.error("Episode insert error:", epInsertErr);
+                throw new Error(isRtl ? "فشل حفظ بيانات حلقة المحاضرة في قاعدة البيانات" : "Failed to record episode metadata");
               }
+
+              // Update episode count on the course record
+              await supabase
+                .from("courses")
+                .update({ episode_count: 1 })
+                .eq("id", insertedCourseId);
             }
           }
         } catch (upCatchErr) {

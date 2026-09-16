@@ -70,11 +70,15 @@ const KNOWN_ROLE_SLUGS = new Set([
   "vice_dean_students",
   "vice_dean_community",
   "vice_dean_environment",
+  "college_secretary",
   "department_head",
+  "teacher",
+  "lecturer",
   "teaching_assistant",
   "professor",
   "doctor",
   "assistant_lecturer",
+  "library_manager",
 ]);
 
 const ROLE_AR_TO_SLUG: Record<string, string> = {
@@ -86,27 +90,44 @@ const ROLE_AR_TO_SLUG: Record<string, string> = {
   "وكيل المعهد لشئون الطلاب": "vice_dean_students",
   "وكيل الكلية لخدمة المجتمع": "vice_dean_community",
   "وكيل المعهد لخدمة المجتمع": "vice_dean_community",
+  "وكيل الكلية لشئون البيئة وخدمة المجتمع": "vice_dean_community",
+  "وكيل المعهد لشئون البيئة وخدمة المجتمع": "vice_dean_community",
   "وكيل الكلية لشئون البيئة": "vice_dean_environment",
   "وكيل المعهد لشئون البيئة": "vice_dean_environment",
+  "أمين الكلية": "college_secretary",
+  "امين الكلية": "college_secretary",
+  "أمين المعهد": "college_secretary",
+  "امين المعهد": "college_secretary",
   "رئيس القسم": "department_head",
+  "مدرس": "teacher",
+  "محاضر": "lecturer",
+  "محاضر / مدرس": "lecturer",
   "مدرس مساعد": "teaching_assistant",
   "أستاذ دكتور": "professor",
   "استاذ دكتور": "professor",
   "دكتور": "doctor",
   "معيد": "assistant_lecturer",
+  "مدير المكتبة": "library_manager",
+  "مدير مكتبة": "library_manager",
 };
 
 const ROLE_EN_DISPLAY_TO_SLUG: Record<string, string> = {
   dean: "dean",
   "vice dean - postgraduate": "vice_dean_postgrad",
+  "vice dean - postgraduate studies": "vice_dean_postgrad",
   "vice dean - student affairs": "vice_dean_students",
   "vice dean - community": "vice_dean_community",
   "vice dean - environment": "vice_dean_environment",
+  "college secretary": "college_secretary",
+  "institute secretary": "college_secretary",
   "department head": "department_head",
+  teacher: "teacher",
+  lecturer: "lecturer",
   "teaching assistant": "teaching_assistant",
   professor: "professor",
   doctor: "doctor",
   "assistant lecturer": "assistant_lecturer",
+  "library manager": "library_manager",
 };
 
 const normalizeRole = (raw: unknown): string => {
@@ -118,8 +139,6 @@ const normalizeRole = (raw: unknown): string => {
   if (KNOWN_ROLE_SLUGS.has(lower)) return lower;
   if (ROLE_AR_TO_SLUG[s] != null) return ROLE_AR_TO_SLUG[s];
   if (ROLE_EN_DISPLAY_TO_SLUG[lower] != null) return ROLE_EN_DISPLAY_TO_SLUG[lower];
-  // Unknown value: return safe fallback "" to avoid crash (Select will show placeholder)
-  // Do not throw.
   return "";
 };
 
@@ -129,7 +148,6 @@ const normalizeGender = (raw: unknown): string => {
   if (!s) return "";
   if (s === "male" || s === "ذكر") return "male";
   if (s === "female" || s === "أنثى" || s === "انثى" || s === "أنثي" || s === "انثي") return "female";
-  // Also handle Arabic with tatweel/extra spaces already trimmed
   return "";
 };
 
@@ -161,15 +179,19 @@ const InstitutionFacultyEdit = () => {
 
   const isCollege = institutionType === "college";
   const ROLE_OPTIONS = useMemo(() => [
-    { value: "dean", ar: isCollege ? "عميد الكلية" : "مدير المعهد", en: "Dean" },
-    { value: "vice_dean_postgrad", ar: isCollege ? "وكيل الكلية للدراسات العليا" : "وكيل المعهد للدراسات العليا", en: "Vice Dean - Postgraduate" },
-    { value: "vice_dean_students", ar: isCollege ? "وكيل الكلية لشئون الطلاب" : "وكيل المعهد لشئون الطلاب", en: "Vice Dean - Student Affairs" },
-    { value: "vice_dean_community", ar: isCollege ? "وكيل الكلية لخدمة المجتمع" : "وكيل المعهد لخدمة المجتمع", en: "Vice Dean - Community" },
+    { value: "dean", ar: isCollege ? "عميد الكلية" : "مدير المعهد", en: isCollege ? "Dean" : "Director" },
+    { value: "vice_dean_postgrad", ar: isCollege ? "وكيل الكلية للدراسات العليا" : "وكيل المعهد للدراسات العليا", en: isCollege ? "Vice Dean - Postgraduate" : "Vice Director - Postgraduate" },
+    { value: "vice_dean_students", ar: isCollege ? "وكيل الكلية لشئون الطلاب" : "وكيل المعهد لشئون الطلاب", en: isCollege ? "Vice Dean - Student Affairs" : "Vice Director - Student Affairs" },
+    { value: "vice_dean_community", ar: isCollege ? "وكيل الكلية لشئون البيئة وخدمة المجتمع" : "وكيل المعهد لشئون البيئة وخدمة المجتمع", en: isCollege ? "Vice Dean - Community" : "Vice Director - Community" },
+    { value: "college_secretary", ar: isCollege ? "أمين الكلية" : "أمين المعهد", en: isCollege ? "College Secretary" : "Institute Secretary" },
     { value: "department_head", ar: "رئيس القسم", en: "Department Head" },
-    { value: "teaching_assistant", ar: isCollege ? "مدرس مساعد" : "مدرس مساعد", en: "Teaching Assistant" },
+    { value: "teacher", ar: "مدرس", en: "Teacher" },
+    { value: "lecturer", ar: "محاضر / مدرس", en: "Lecturer" },
+    { value: "teaching_assistant", ar: "مدرس مساعد", en: "Teaching Assistant" },
     { value: "professor", ar: "أستاذ دكتور", en: "Professor" },
     { value: "doctor", ar: "دكتور", en: "Doctor" },
     { value: "assistant_lecturer", ar: "معيد", en: "Assistant Lecturer" },
+    { value: "library_manager", ar: "مدير المكتبة", en: "Library Manager" },
   ], [isCollege]);
 
   // form

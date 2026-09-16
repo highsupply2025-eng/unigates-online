@@ -33,30 +33,37 @@ const InstitutionFacultyAdd = () => {
   const subscriptionPlan = identity?.subscriptionPlan ?? "free";
 
   useEffect(() => {
-    if (!identity) return;
+    if (!identity?.institutionId) return;
+    let isMounted = true;
     (async () => {
       try {
-        const { data: depts } = await supabase
+        const { data: depts, error } = await supabase
           .from("departments")
           .select("id, department_name, department_code")
           .eq("institution_id", identity.institutionId)
           .eq("status", "active");
-        if (depts) {
+        if (error) {
+          console.warn("Fetch departments warning:", error.message);
+        }
+        if (depts && isMounted) {
           setDepartments(
             depts.map((d: any) => ({
-              id: d.id,
-              department_name: d.department_name,
-              department_code: d.department_code || "",
+              id: d?.id || "",
+              department_name: d?.department_name || "",
+              department_code: d?.department_code || "",
             }))
           );
         }
-      } catch {
-        navigate("/login");
+      } catch (err) {
+        console.warn("Fetch departments failed:", err);
       }
     })();
-  }, [identity, navigate]);
+    return () => {
+      isMounted = false;
+    };
+  }, [identity?.institutionId]);
 
-  if (identityLoading) {
+  if (identityLoading || !identity) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-3" dir={dir}>
         <Loader2 className="w-8 h-8 animate-spin text-primary" />

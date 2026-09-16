@@ -76,6 +76,7 @@ export function isStrongPassword(p: string): boolean {
 const _ROLE_OPTIONS_BASE: { value: string; ar: string; en: string }[] = [
   { value: "department_head", ar: "رئيس القسم", en: "Department Head" },
   { value: "teacher", ar: "مدرس", en: "Teacher" },
+  { value: "lecturer", ar: "محاضر / مدرس", en: "Lecturer" },
   { value: "teaching_assistant", ar: "مدرس مساعد", en: "Teaching Assistant" },
   { value: "professor", ar: "أستاذ دكتور", en: "Professor" },
   { value: "doctor", ar: "دكتور", en: "Doctor" },
@@ -192,7 +193,7 @@ export const FacultyMemberForm = ({
 
   const [fullName, setFullName] = useState(initialData?.fullName ?? "");
   const [role, setRole] = useState(
-    initialData?.role ?? invitationRole ?? (isStudent ? "student" : "lecturer")
+    initialData?.role ?? invitationRole ?? (isStudent ? "student" : "")
   );
   const [dateOfBirth, setDateOfBirth] = useState(initialData?.dateOfBirth ?? "");
   const [gender, setGender] = useState(initialData?.gender ?? "");

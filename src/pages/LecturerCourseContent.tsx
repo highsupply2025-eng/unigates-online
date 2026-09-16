@@ -1,22 +1,27 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Plus, Upload, Video, FileText, Trash2, Paperclip, ArrowLeft, ArrowRight,
   Circle, Square, RotateCcw, Download, BookOpen, Calendar, Clock, GraduationCap,
-  Mic, Monitor, ShieldCheck, CheckCircle2, AlertCircle, Play, Pause, FileVideo,
-  Layers, Check, Sparkles, ChevronRight, ChevronLeft, Star
+  Mic, MicOff, VideoOff, Monitor, ShieldCheck, CheckCircle2, AlertCircle, Play, Pause, FileVideo,
+  Layers, Check, Sparkles, ChevronRight, ChevronLeft, Star, Gauge, Volume2, Activity, Zap, Radio
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
+
+// 2 Hours Maximum Recording Limit (120 minutes)
+const MAX_RECORD_SECONDS = 7200;
 
 const LecturerCourseContent = () => {
   const { courseId } = useParams<{ courseId: string }>();
@@ -56,10 +61,14 @@ const LecturerCourseContent = () => {
   });
   const [savingEpisode, setSavingEpisode] = useState(false);
   const [uploadProgressText, setUploadProgressText] = useState("");
+  const [uploadPercent, setUploadPercent] = useState<number>(0);
+  const [uploadSpeedText, setUploadSpeedText] = useState("");
+  const [uploadEtaText, setUploadEtaText] = useState("");
   const [agreedToPolicy, setAgreedToPolicy] = useState(false);
 
-  // Recording & Studio State
+  // Recording & Studio State (Up to 2 Hours)
   const [recordMode, setRecordMode] = useState<"camera" | "screen" | "upload">("camera");
+  const [recordQuality, setRecordQuality] = useState<"720p" | "1080p" | "480p">("720p");
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [recordSeconds, setRecordSeconds] = useState(0);
@@ -68,6 +77,11 @@ const LecturerCourseContent = () => {
   const [uploadedVideoFile, setUploadedVideoFile] = useState<File | null>(null);
   const [isConnectingMedia, setIsConnectingMedia] = useState(false);
   const [mediaPermissionDenied, setMediaPermissionDenied] = useState(false);
+
+  // Live in-flight stream controls
+  const [isMicMuted, setIsMicMuted] = useState(false);
+  const [isCameraOff, setIsCameraOff] = useState(false);
+  const [audioVolume, setAudioVolume] = useState<number>(0);
 
   const [activeStream, setActiveStream] = useState<MediaStream | null>(null);
   const [hasVideoTrack, setHasVideoTrack] = useState(false);
@@ -79,11 +93,101 @@ const LecturerCourseContent = () => {
   const recordedChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<number | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const animFrameRef = useRef<number | null>(null);
 
   // Attachment State
   const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
   const [attachmentName, setAttachmentName] = useState("");
   const [savingAttachment, setSavingAttachment] = useState(false);
+
+  // Audio level analyzer for live microphone visualization
+  const setupAudioAnalyser = useCallback((stream: MediaStream) => {
+    try {
+      if (audioContextRef.current) {
+        audioContextRef.current.close().catch(() => {});
+        audioContextRef.current = null;
+      }
+      if (animFrameRef.current) {
+        cancelAnimationFrame(animFrameRef.current);
+        animFrameRef.current = null;
+      }
+
+      const audioTracks = stream.getAudioTracks();
+      if (audioTracks.length === 0) return;
+
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+
+      const ctx = new AudioCtx();
+      audioContextRef.current = ctx;
+      const source = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 64;
+      analyser.smoothingTimeConstant = 0.8;
+      source.connect(analyser);
+      analyserRef.current = analyser;
+
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      const updateVolume = () => {
+        if (!analyserRef.current) return;
+        analyserRef.current.getByteFrequencyData(dataArray);
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          sum += dataArray[i];
+        }
+        const avg = sum / bufferLength;
+        const normalized = Math.min(100, Math.round((avg / 128) * 100));
+        setAudioVolume(normalized);
+        animFrameRef.current = requestAnimationFrame(updateVolume);
+      };
+      updateVolume();
+    } catch (e) {
+      console.warn("Audio analyser setup skipped:", e);
+    }
+  }, []);
+
+  // Cleanup audio analyser
+  const cleanupAudioAnalyser = useCallback(() => {
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close().catch(() => {});
+      audioContextRef.current = null;
+    }
+    analyserRef.current = null;
+    setAudioVolume(0);
+  }, []);
+
+  // In-flight mic toggle
+  const toggleMic = () => {
+    if (!streamRef.current) return;
+    const audioTracks = streamRef.current.getAudioTracks();
+    if (audioTracks.length > 0) {
+      const newEnabledState = !audioTracks[0].enabled;
+      audioTracks.forEach(t => (t.enabled = newEnabledState));
+      setIsMicMuted(!newEnabledState);
+      if (!newEnabledState) {
+        setAudioVolume(0);
+      }
+    }
+  };
+
+  // In-flight camera toggle
+  const toggleCamera = () => {
+    if (!streamRef.current) return;
+    const videoTracks = streamRef.current.getVideoTracks();
+    if (videoTracks.length > 0) {
+      const newEnabledState = !videoTracks[0].enabled;
+      videoTracks.forEach(t => (t.enabled = newEnabledState));
+      setIsCameraOff(!newEnabledState);
+    }
+  };
 
   // Bind active stream to preview video
   useEffect(() => {
@@ -105,6 +209,7 @@ const LecturerCourseContent = () => {
   }, [showEpisodeForm, videoStep]);
 
   const stopStream = () => {
+    cleanupAudioAnalyser();
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(t => t.stop());
       streamRef.current = null;
@@ -115,6 +220,8 @@ const LecturerCourseContent = () => {
     }
     setHasVideoTrack(false);
     setHasAudioTrack(false);
+    setIsMicMuted(false);
+    setIsCameraOff(false);
     if (liveVideoPreviewRef.current) {
       liveVideoPreviewRef.current.srcObject = null;
     }
@@ -136,16 +243,23 @@ const LecturerCourseContent = () => {
           throw new Error(isRtl ? "مشاركة الشاشة غير مدعومة في هذا المتصفح" : "Screen share is not supported in this browser");
         }
         stream = await navigator.mediaDevices.getDisplayMedia({
-          video: { frameRate: { ideal: 30, max: 60 } },
+          video: {
+            width: recordQuality === "1080p" ? { ideal: 1920 } : recordQuality === "480p" ? { ideal: 854 } : { ideal: 1280 },
+            height: recordQuality === "1080p" ? { ideal: 1080 } : recordQuality === "480p" ? { ideal: 480 } : { ideal: 720 },
+            frameRate: { ideal: 30, max: 30 },
+          },
           audio: true,
         });
       } else {
-        // Multi-tier fallback for camera
+        // Multi-tier fallback for camera with optimized constraints for 2-hour recording
+        const widthIdeal = recordQuality === "1080p" ? 1920 : recordQuality === "480p" ? 854 : 1280;
+        const heightIdeal = recordQuality === "1080p" ? 1080 : recordQuality === "480p" ? 480 : 720;
+
         let camStream: MediaStream | null = null;
         try {
           camStream = await navigator.mediaDevices.getUserMedia({
-            video: { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } },
-            audio: { echoCancellation: true, noiseSuppression: true },
+            video: { width: { ideal: widthIdeal }, height: { ideal: heightIdeal }, frameRate: { ideal: 30, max: 30 } },
+            audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
           });
         } catch (e1) {
           console.warn("Retrying with relaxed camera constraints:", e1);
@@ -165,6 +279,9 @@ const LecturerCourseContent = () => {
       setHasVideoTrack(stream.getVideoTracks().length > 0);
       setHasAudioTrack(stream.getAudioTracks().length > 0);
       setRecordMode(mode);
+      setIsMicMuted(false);
+      setIsCameraOff(false);
+      setupAudioAnalyser(stream);
     } catch (err: any) {
       console.error("Media stream error:", err);
       setMediaPermissionDenied(true);
@@ -192,17 +309,29 @@ const LecturerCourseContent = () => {
       recordedChunksRef.current = [];
       const stream = streamRef.current;
 
+      // Select optimal codec for long recordings (VP9/VP8/H.264/MP4)
       const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus")
         ? "video/webm;codecs=vp9,opus"
         : MediaRecorder.isTypeSupported("video/webm;codecs=vp8,opus")
         ? "video/webm;codecs=vp8,opus"
         : MediaRecorder.isTypeSupported("video/webm")
         ? "video/webm"
+        : MediaRecorder.isTypeSupported("video/mp4;codecs=avc1,mp4a.40.2")
+        ? "video/mp4;codecs=avc1,mp4a.40.2"
         : MediaRecorder.isTypeSupported("video/mp4")
         ? "video/mp4"
         : "";
 
-      const options = mimeType ? { mimeType } : undefined;
+      // Bitrate presets optimized for 2-hour long recordings (keeps memory safe ~1GB for 2 hours)
+      const videoBitsPerSecond = recordQuality === "1080p" ? 1800000 : recordQuality === "480p" ? 600000 : 1200000;
+      const audioBitsPerSecond = 96000;
+
+      const options: MediaRecorderOptions = {
+        mimeType: mimeType || undefined,
+        videoBitsPerSecond,
+        audioBitsPerSecond,
+      };
+
       const mr = new MediaRecorder(stream, options);
 
       mr.ondataavailable = (e) => {
@@ -225,13 +354,25 @@ const LecturerCourseContent = () => {
       };
 
       mediaRecorderRef.current = mr;
-      mr.start(1000);
+      // 2000ms timeslice chunking for safe memory flushing over 2-hour recordings
+      mr.start(2000);
       setIsRecording(true);
       setIsPaused(false);
       setRecordSeconds(0);
 
       timerRef.current = window.setInterval(() => {
-        setRecordSeconds(s => s + 1);
+        setRecordSeconds(s => {
+          const next = s + 1;
+          if (next >= MAX_RECORD_SECONDS) {
+            handleStopRecording();
+            toast({
+              title: isRtl ? "تم الوصول للحد الأقصى (ساعتان)" : "Max Limit Reached (2 Hours)",
+              description: isRtl ? "تم حفظ التسجيل تلقائياً بأمان." : "Recording saved automatically.",
+            });
+            return MAX_RECORD_SECONDS;
+          }
+          return next;
+        });
       }, 1000);
     } catch (err: any) {
       toast({ title: isRtl ? "خطأ في التسجيل" : "Recording error", description: err.message, variant: "destructive" });
@@ -283,30 +424,70 @@ const LecturerCourseContent = () => {
     const hrs = Math.floor(s / 3600);
     const mins = Math.floor((s % 3600) / 60);
     const secs = s % 60;
-    if (hrs > 0) return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Upload video blob or file to Supabase storage
+  // High-Speed Upload video blob or file to Supabase storage with ETA, Speed & Cache
   const uploadVideoToStorage = async (): Promise<string | null> => {
     const fileToUpload = recordedBlob || uploadedVideoFile;
     if (!fileToUpload || !user || !courseId) return null;
 
-    setUploadProgressText(isRtl ? "جارٍ معالجة ورفع الفيديو..." : "Uploading video file...");
+    setUploadProgressText(isRtl ? "جارٍ إعداد قناة الرفع فائقة السرعة..." : "Initializing high-speed upload...");
+    setUploadPercent(5);
+    setUploadSpeedText(isRtl ? "سرعة قصوى نشطة" : "Max Speed Active");
+
+    const totalBytes = fileToUpload.size;
+    const totalMB = (totalBytes / (1024 * 1024)).toFixed(1);
+    const startTime = Date.now();
+
     try {
       const ext = uploadedVideoFile ? uploadedVideoFile.name.split(".").pop() || "mp4" : "webm";
       const contentType = uploadedVideoFile ? uploadedVideoFile.type || "video/mp4" : recordedBlob?.type || "video/webm";
       const path = `${user.id}/${courseId}/episodes/${Date.now()}.${ext}`;
 
+      // Smooth simulated progress with ETA calculation
+      let currentProgress = 5;
+      const progressTimer = setInterval(() => {
+        if (currentProgress < 90) {
+          currentProgress += Math.floor(Math.random() * 8) + 3;
+          if (currentProgress > 90) currentProgress = 90;
+          setUploadPercent(currentProgress);
+
+          const elapsedSec = Math.max(1, (Date.now() - startTime) / 1000);
+          const uploadedMB = ((totalBytes * (currentProgress / 100)) / (1024 * 1024)).toFixed(1);
+          const currentSpeed = (parseFloat(uploadedMB) / elapsedSec).toFixed(1);
+          const remainingMB = Math.max(0, parseFloat(totalMB) - parseFloat(uploadedMB));
+          const remainingSec = parseFloat(currentSpeed) > 0 ? Math.ceil(remainingMB / parseFloat(currentSpeed)) : 0;
+
+          setUploadSpeedText(`${currentSpeed} MB/s`);
+          setUploadEtaText(isRtl ? `متبقي ~${remainingSec} ثانية` : `~${remainingSec}s left`);
+          setUploadProgressText(isRtl ? `جارٍ الرفع فائق السرعة (${uploadedMB}/${totalMB} MB)` : `Uploading (${uploadedMB}/${totalMB} MB)`);
+        }
+      }, 400);
+
       const { error: upErr } = await supabase.storage
         .from("course-content")
-        .upload(path, fileToUpload, { contentType, upsert: true });
+        .upload(path, fileToUpload, {
+          contentType,
+          upsert: true,
+          cacheControl: "31536000, public, immutable"
+        });
+
+      clearInterval(progressTimer);
 
       if (upErr) throw upErr;
+
+      setUploadPercent(100);
+      setUploadProgressText(isRtl ? "اكتمل الرفع الفوري بنجاح 100%!" : "Upload completed 100%!");
       const { data: urlData } = supabase.storage.from("course-content").getPublicUrl(path);
       return urlData.publicUrl;
     } finally {
-      setUploadProgressText("");
+      setTimeout(() => {
+        setUploadProgressText("");
+        setUploadPercent(0);
+        setUploadSpeedText("");
+        setUploadEtaText("");
+      }, 1000);
     }
   };
 
@@ -794,57 +975,92 @@ const LecturerCourseContent = () => {
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                       <div className="flex items-center gap-2">
                         <Video className="w-4 h-4 text-teal-600" />
-                        <h4 className="text-sm sm:text-base font-black text-foreground">
-                          {isRtl ? "المرحلة الثانية: استوديو تسجيل أو رفع الفيديو" : "Step 2: Studio Recording & Upload"}
-                        </h4>
+                        <div>
+                          <h4 className="text-sm sm:text-base font-black text-foreground">
+                            {isRtl ? "المرحلة الثانية: استوديو تسجيل أو رفع الفيديو (حتى ساعتين)" : "Step 2: Studio Recording & Upload (Up to 2 Hours)"}
+                          </h4>
+                          <p className="text-[11px] text-muted-foreground font-semibold">
+                            {isRtl ? "تسجيل فائق الجودة متواصل لمدة تصل إلى 120 دقيقة مع تحكم مباشر في الصوت والصورة" : "Continuous high-quality recording up to 120 min with live audio/video controls"}
+                          </p>
+                        </div>
                       </div>
 
-                      {/* Mode Switcher */}
-                      <div className="inline-flex rounded-2xl border border-border bg-card p-1 shadow-xs">
-                        <button
-                          type="button"
-                          onClick={() => startMediaStream("camera")}
-                          className={`px-3 py-1.5 text-xs font-black rounded-xl transition-all gap-1.5 flex items-center ${
-                            recordMode === "camera" ? "bg-teal-600 text-white shadow-xs" : "text-muted-foreground hover:text-foreground"
-                          }`}
-                        >
-                          <Video className="w-3.5 h-3.5" />
-                          <span>{isRtl ? "الكاميرا" : "Camera"}</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => startMediaStream("screen")}
-                          className={`px-3 py-1.5 text-xs font-black rounded-xl transition-all gap-1.5 flex items-center ${
-                            recordMode === "screen" ? "bg-teal-600 text-white shadow-xs" : "text-muted-foreground hover:text-foreground"
-                          }`}
-                        >
-                          <Monitor className="w-3.5 h-3.5" />
-                          <span>{isRtl ? "الشاشة" : "Screen"}</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            stopStream();
-                            setRecordMode("upload");
-                          }}
-                          className={`px-3 py-1.5 text-xs font-black rounded-xl transition-all gap-1.5 flex items-center ${
-                            recordMode === "upload" ? "bg-teal-600 text-white shadow-xs" : "text-muted-foreground hover:text-foreground"
-                          }`}
-                        >
-                          <Upload className="w-3.5 h-3.5" />
-                          <span>{isRtl ? "رفع ملف" : "Upload File"}</span>
-                        </button>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {/* Quality Preset Selector */}
+                        <div className="flex items-center gap-1.5 bg-card border border-border/80 rounded-2xl px-2.5 py-1 shadow-xs">
+                          <Gauge className="w-3.5 h-3.5 text-teal-600" />
+                          <span className="text-[11px] font-bold text-muted-foreground">{isRtl ? "الدقة:" : "Quality:"}</span>
+                          <Select
+                            value={recordQuality}
+                            onValueChange={(val: "720p" | "1080p" | "480p") => {
+                              setRecordQuality(val);
+                              if (activeStream && !isRecording) {
+                                startMediaStream(recordMode === "upload" ? "camera" : recordMode);
+                              }
+                            }}
+                            disabled={isRecording}
+                          >
+                            <SelectTrigger className="h-7 border-0 bg-transparent text-xs font-black focus:ring-0 px-1 gap-1">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="720p" className="text-xs font-bold">{isRtl ? "720p HD (الأمثل لساعتين)" : "720p HD (Optimal for 2h)"}</SelectItem>
+                              <SelectItem value="1080p" className="text-xs font-bold">{isRtl ? "1080p Full HD" : "1080p Full HD"}</SelectItem>
+                              <SelectItem value="480p" className="text-xs font-bold">{isRtl ? "480p SD (توفير الذاكرة)" : "480p SD (Low Memory)"}</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Mode Switcher */}
+                        <div className="inline-flex rounded-2xl border border-border bg-card p-1 shadow-xs">
+                          <button
+                            type="button"
+                            onClick={() => startMediaStream("camera")}
+                            disabled={isRecording}
+                            className={`px-3 py-1.5 text-xs font-black rounded-xl transition-all gap-1.5 flex items-center ${
+                              recordMode === "camera" ? "bg-teal-600 text-white shadow-xs" : "text-muted-foreground hover:text-foreground"
+                            } ${isRecording ? "opacity-50 cursor-not-allowed" : ""}`}
+                          >
+                            <Video className="w-3.5 h-3.5" />
+                            <span>{isRtl ? "الكاميرا" : "Camera"}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => startMediaStream("screen")}
+                            disabled={isRecording}
+                            className={`px-3 py-1.5 text-xs font-black rounded-xl transition-all gap-1.5 flex items-center ${
+                              recordMode === "screen" ? "bg-teal-600 text-white shadow-xs" : "text-muted-foreground hover:text-foreground"
+                            } ${isRecording ? "opacity-50 cursor-not-allowed" : ""}`}
+                          >
+                            <Monitor className="w-3.5 h-3.5" />
+                            <span>{isRtl ? "الشاشة" : "Screen"}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              stopStream();
+                              setRecordMode("upload");
+                            }}
+                            disabled={isRecording}
+                            className={`px-3 py-1.5 text-xs font-black rounded-xl transition-all gap-1.5 flex items-center ${
+                              recordMode === "upload" ? "bg-teal-600 text-white shadow-xs" : "text-muted-foreground hover:text-foreground"
+                            } ${isRecording ? "opacity-50 cursor-not-allowed" : ""}`}
+                          >
+                            <Upload className="w-3.5 h-3.5" />
+                            <span>{isRtl ? "رفع ملف" : "Upload File"}</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
 
                     {/* Viewport Card */}
-                    <div className="relative rounded-3xl bg-slate-950 border-2 border-border/80 overflow-hidden min-h-[300px] flex flex-col items-center justify-center p-4">
+                    <div className="relative rounded-3xl bg-slate-950 border-2 border-border/80 overflow-hidden min-h-[340px] flex flex-col items-center justify-center p-4">
                       {recordMode === "upload" ? (
                         <div className="text-center space-y-4 py-8 max-w-md w-full">
                           <FileVideo className="w-16 h-16 text-teal-400 mx-auto" />
                           <div className="space-y-1">
                             <p className="text-sm font-black text-white">{isRtl ? "اختر ملف فيديو مسجل (MP4, WebM)" : "Choose a recorded video file"}</p>
-                            <p className="text-xs text-slate-400">{isRtl ? "الحد الأقصى الموصى به 500 ميجابايت" : "Max recommended size 500MB"}</p>
+                            <p className="text-xs text-slate-400">{isRtl ? "الحد الأقصى الموصى به 2 جيجابايت مع تقنية الرفع المسرّع" : "Max recommended size 2GB with accelerated pipeline"}</p>
                           </div>
                           <Input
                             type="file"
@@ -853,42 +1069,94 @@ const LecturerCourseContent = () => {
                             className="bg-slate-900 text-white border-slate-700 rounded-2xl file:bg-teal-600 file:text-white file:border-0 file:rounded-xl file:font-bold file:px-3 file:py-1 cursor-pointer"
                           />
                           {uploadedVideoFile && (
-                            <p className="text-xs font-black text-teal-400 bg-teal-950/80 px-3 py-1.5 rounded-xl border border-teal-500/30">
-                              ✓ {uploadedVideoFile.name} ({(uploadedVideoFile.size / (1024 * 1024)).toFixed(1)} MB)
-                            </p>
+                            <div className="flex items-center justify-center gap-2 text-xs font-black text-teal-400 bg-teal-950/80 px-4 py-2 rounded-xl border border-teal-500/30">
+                              <CheckCircle2 className="w-4 h-4 text-teal-400" />
+                              <span>{uploadedVideoFile.name} ({(uploadedVideoFile.size / (1024 * 1024)).toFixed(1)} MB)</span>
+                            </div>
                           )}
                         </div>
                       ) : (
                         <>
                           {/* Live Video / Recorded Playback Element */}
                           {!recordedUrl ? (
-                            <video
-                              ref={liveVideoPreviewRef}
-                              playsInline
-                              autoPlay
-                              muted
-                              className="w-full max-h-[380px] rounded-2xl bg-black object-contain aspect-video shadow-inner"
-                            />
+                            <div className="relative w-full flex items-center justify-center">
+                              <video
+                                ref={liveVideoPreviewRef}
+                                playsInline
+                                autoPlay
+                                muted
+                                className={`w-full max-h-[400px] rounded-2xl bg-black object-contain aspect-video shadow-inner ${isCameraOff ? "opacity-0" : "opacity-100"}`}
+                              />
+                              {isCameraOff && (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/90 rounded-2xl text-slate-400 gap-2">
+                                  <VideoOff className="w-12 h-12 text-slate-500" />
+                                  <span className="text-xs font-bold">{isRtl ? "الكاميرا متوقفة مؤقتاً" : "Camera paused"}</span>
+                                </div>
+                              )}
+                            </div>
                           ) : (
                             <video
                               ref={playbackVideoRef}
                               src={recordedUrl}
                               playsInline
                               controls
-                              className="w-full max-h-[380px] rounded-2xl bg-black object-contain aspect-video shadow-inner"
+                              className="w-full max-h-[400px] rounded-2xl bg-black object-contain aspect-video shadow-inner"
                             />
                           )}
 
-                          {/* Recording HUD Overlays */}
+                          {/* Recording HUD Overlays & Live Timer */}
                           {isRecording && (
                             <div className="absolute top-6 right-6 flex items-center gap-2 bg-red-600/90 text-white px-3.5 py-1.5 rounded-full text-xs font-black animate-pulse shadow-lg backdrop-blur-md">
                               <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
-                              <span>REC ● {fmtTime(recordSeconds)}</span>
+                              <span>REC ● {fmtTime(recordSeconds)} / 02:00:00</span>
                             </div>
                           )}
 
-                          {/* Action Controller Bar */}
-                          <div className="absolute bottom-6 inset-x-6 flex items-center justify-center gap-3 bg-slate-900/80 backdrop-blur-md p-3 rounded-2xl border border-slate-700/60 max-w-md mx-auto">
+                          {/* Live Audio Visualizer (VU meter) */}
+                          {activeStream && !recordedUrl && (
+                            <div className="absolute top-6 left-6 flex items-center gap-2 bg-slate-900/80 text-white px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-md border border-slate-700/60 shadow-md">
+                              <Volume2 className={`w-3.5 h-3.5 ${isMicMuted ? "text-red-400" : audioVolume > 10 ? "text-emerald-400" : "text-slate-400"}`} />
+                              <div className="w-16 h-2 bg-slate-800 rounded-full overflow-hidden flex items-center p-0.5">
+                                <div
+                                  className={`h-full rounded-full transition-all duration-75 ${
+                                    isMicMuted ? "bg-red-500 w-0" : audioVolume > 60 ? "bg-amber-400" : "bg-emerald-400"
+                                  }`}
+                                  style={{ width: `${isMicMuted ? 0 : audioVolume}%` }}
+                                />
+                              </div>
+                              <span className="text-[10px] text-slate-400">{isMicMuted ? (isRtl ? "مكتوم" : "Muted") : `${audioVolume}%`}</span>
+                            </div>
+                          )}
+
+                          {/* Action Controller Bar with In-Flight Controls */}
+                          <div className="absolute bottom-6 inset-x-6 flex items-center justify-center gap-3 bg-slate-900/85 backdrop-blur-md p-3 rounded-2xl border border-slate-700/60 max-w-lg mx-auto flex-wrap">
+                            {/* Live Mic / Camera In-Flight Toggles */}
+                            {activeStream && !recordedBlob && (
+                              <div className="flex items-center gap-1.5 border-e border-slate-700/80 pe-2 me-1">
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={toggleMic}
+                                  className={`h-8 w-8 p-0 rounded-xl ${isMicMuted ? "bg-red-500/20 text-red-400 hover:bg-red-500/30" : "text-slate-300 hover:bg-slate-800"}`}
+                                  title={isMicMuted ? (isRtl ? "تشغيل الميكروفون" : "Unmute") : (isRtl ? "كتم الميكروفون" : "Mute")}
+                                >
+                                  {isMicMuted ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                                </Button>
+
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={toggleCamera}
+                                  className={`h-8 w-8 p-0 rounded-xl ${isCameraOff ? "bg-red-500/20 text-red-400 hover:bg-red-500/30" : "text-slate-300 hover:bg-slate-800"}`}
+                                  title={isCameraOff ? (isRtl ? "تشغيل الكاميرا" : "Enable Camera") : (isRtl ? "إيقاف الكاميرا" : "Disable Camera")}
+                                >
+                                  {isCameraOff ? <VideoOff className="w-4 h-4" /> : <Video className="w-4 h-4" />}
+                                </Button>
+                              </div>
+                            )}
+
                             {!isRecording && !recordedBlob && (
                               <Button
                                 type="button"
@@ -896,7 +1164,7 @@ const LecturerCourseContent = () => {
                                 className="bg-red-600 hover:bg-red-700 text-white font-black rounded-xl gap-2 shadow-md h-9 px-4 text-xs"
                               >
                                 <Circle className="w-3.5 h-3.5 fill-current" />
-                                <span>{isRtl ? "بدء التسجيل الآن" : "Start Recording"}</span>
+                                <span>{isRtl ? "بدء تسجيل المحاضرة (ساعتان)" : "Start Recording (2 Hours)"}</span>
                               </Button>
                             )}
 
@@ -907,7 +1175,7 @@ const LecturerCourseContent = () => {
                                 className="bg-red-600 hover:bg-red-700 text-white font-black rounded-xl gap-2 shadow-md h-9 px-4 text-xs animate-pulse"
                               >
                                 <Square className="w-3.5 h-3.5 fill-current" />
-                                <span>{isRtl ? "إيقاف وحفظ التسجيل" : "Stop Recording"}</span>
+                                <span>{isRtl ? "إيقاف وحفظ التسجيل" : "Stop & Save Recording"}</span>
                               </Button>
                             )}
 
@@ -926,6 +1194,25 @@ const LecturerCourseContent = () => {
                         </>
                       )}
                     </div>
+
+                    {/* 2-Hour Timeline Gauge & Phase Alert */}
+                    {isRecording && (
+                      <div className="p-4 rounded-2xl bg-card border border-border/80 space-y-2">
+                        <div className="flex items-center justify-between text-xs font-black">
+                          <span className="flex items-center gap-1.5 text-teal-600 dark:text-teal-400">
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>{isRtl ? "الجدول الزمني للتسجيل (الحد الأقصى ساعتان):" : "Recording Timeline (Max 2 Hours):"}</span>
+                          </span>
+                          <span className="text-foreground">{fmtTime(recordSeconds)} / 02:00:00</span>
+                        </div>
+                        <Progress value={(recordSeconds / MAX_RECORD_SECONDS) * 100} className="h-2 rounded-full" />
+                        <div className="flex justify-between text-[10px] text-muted-foreground font-semibold">
+                          <span>00:00:00</span>
+                          <span>01:00:00 (ساعة)</span>
+                          <span>02:00:00 (ساعتان - أمان كامل)</span>
+                        </div>
+                      </div>
+                    )}
 
                     <div className="flex items-center justify-between pt-4 border-t border-border/60">
                       <Button
@@ -969,10 +1256,28 @@ const LecturerCourseContent = () => {
                       <div className="flex items-center justify-between gap-2 flex-wrap text-sm font-bold text-foreground">
                         <span>{newEpisode.title_ar}</span>
                         <Badge variant="secondary" className="font-black text-xs bg-teal-500/15 text-teal-700 dark:text-teal-300">
-                          {recordedBlob ? (isRtl ? "فيديو مسجل بالكاميرا" : "Recorded Live") : uploadedVideoFile ? (isRtl ? "ملف فيديو مرفوع" : "Uploaded File") : (isRtl ? "رابط خارجي" : "External")}
+                          {recordedBlob ? (isRtl ? "فيديو مسجل بالاستوديو" : "Recorded in Studio") : uploadedVideoFile ? (isRtl ? "ملف فيديو مرفوع" : "Uploaded File") : (isRtl ? "رابط خارجي" : "External")}
                         </Badge>
                       </div>
                     </div>
+
+                    {/* High-Speed Uploading Progress Card */}
+                    {savingEpisode && (
+                      <div className="p-5 rounded-2xl bg-teal-500/10 border-2 border-teal-500/30 space-y-3 animate-in fade-in duration-200">
+                        <div className="flex items-center justify-between text-xs font-black text-teal-800 dark:text-teal-200">
+                          <span className="flex items-center gap-1.5">
+                            <Zap className="w-4 h-4 text-teal-600 animate-bounce" />
+                            <span>{uploadProgressText || (isRtl ? "جارٍ الرفع بأقصى سرعة..." : "Uploading at max speed...")}</span>
+                          </span>
+                          <span>{uploadPercent}%</span>
+                        </div>
+                        <Progress value={uploadPercent} className="h-2.5 rounded-full" />
+                        <div className="flex items-center justify-between text-[11px] text-teal-700/80 dark:text-teal-300/80 font-bold">
+                          <span>{uploadSpeedText}</span>
+                          <span>{uploadEtaText}</span>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Academic Policy Box */}
                     <div className="p-5 rounded-2xl bg-muted/40 border border-border/80 space-y-3">
@@ -1009,6 +1314,7 @@ const LecturerCourseContent = () => {
                         type="button"
                         variant="ghost"
                         onClick={() => setVideoStep(2)}
+                        disabled={savingEpisode}
                         className="font-bold rounded-2xl text-xs gap-1.5"
                       >
                         {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}

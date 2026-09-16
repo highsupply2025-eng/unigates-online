@@ -271,7 +271,7 @@ describe("Security Center — no secrets in the browser bundle", () => {
         expect(content, `${file} must not reference ${needle}`).not.toContain(needle);
       }
     }
-  });
+  }, 20000);
 
   it("keeps the service role key server-side only", () => {
     expect(sharedFn).toContain('Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")');

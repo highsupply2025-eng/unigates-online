@@ -616,7 +616,7 @@ export default function InstitutionMessages() {
 
     // Broadcast incoming call notification to target user's hub channel
     void sendToPrivateInbox(
-      callsHubInboxTopic(selected.user_id, institutionId),
+      callsHubInboxTopic(selected.user_id, institutionId, currentUserId),
       "incoming_call",
       {
         targetUserId: selected.user_id,

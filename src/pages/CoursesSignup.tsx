@@ -273,10 +273,18 @@ const CoursesSignup = () => {
     } catch (err: any) {
       console.error("Courses signup failed:", err);
       let msg = err?.message || "";
-      if (msg.includes("User already registered") || msg.includes("already exists")) {
+      const secMatch = msg.match(/after (\d+) seconds/i);
+      if (secMatch) {
+        const s = secMatch[1];
+        msg = isRtl
+          ? `لدواعٍ أمنية ومكافحة التكرار، يرجى الانتظار ${s} ثانية قبل إعادة المحاولة.`
+          : `For security purposes, please try again after ${s} seconds.`;
+      } else if (msg.includes("User already registered") || msg.includes("already exists")) {
         msg = tText("البريد الإلكتروني مسجل مسبقاً، يرجى تسجيل الدخول بدلاً من ذلك.", "Email already registered. Please sign in instead.");
       } else if (msg.includes("weak_password") || msg.includes("Password should be")) {
         msg = tText("كلمة المرور ضعيفة وفق معايير الأمان.", "Password is too weak.");
+      } else if (/rate limit/i.test(msg) || /over_email_send_rate_limit/i.test(msg)) {
+        msg = tText("تم تجاوز الحد المسموح من المحاولات المؤقتة. يرجى الانتظار دقيقة ثم إعادة المحاولة.", "Rate limit exceeded. Please wait a minute before trying again.");
       } else if (!msg) {
         msg = tText("حدث خطأ أثناء معالجة طلبك، يرجى المحاولة لاحقاً.", "Unexpected error occurred. Please try again.");
       }

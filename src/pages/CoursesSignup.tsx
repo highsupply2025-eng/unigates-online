@@ -279,6 +279,11 @@ const CoursesSignup = () => {
         msg = isRtl
           ? `لدواعٍ أمنية ومكافحة التكرار، يرجى الانتظار ${s} ثانية قبل إعادة المحاولة.`
           : `For security purposes, please try again after ${s} seconds.`;
+      } else if (msg.toLowerCase().includes("unauthorized") || msg.toLowerCase().includes("invalid login credentials")) {
+        msg = tText(
+          "يرجى التأكد من كتابة البريد الإلكتروني بشكل صحيح وبنطاق صالح (مثل: name@example.com).",
+          "Please verify that your email format is valid (e.g. name@example.com)."
+        );
       } else if (msg.includes("User already registered") || msg.includes("already exists")) {
         msg = tText("البريد الإلكتروني مسجل مسبقاً، يرجى تسجيل الدخول بدلاً من ذلك.", "Email already registered. Please sign in instead.");
       } else if (msg.includes("weak_password") || msg.includes("Password should be")) {

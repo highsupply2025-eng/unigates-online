@@ -209,21 +209,21 @@ const PROMO_SCENES = [
 
 const DEFAULT_FEATURED_PROMO: StudioVideo = {
   id: "unigates-official-promo-3min",
-  titleAr: "الفيديو التعريفي الرسمي لمنظومة UNIGATES (3 دقائق)",
-  titleEn: "UNIGATES Official 3-Minute Platform Overview Video",
+  titleAr: "الفيديو التشويقي الرسمي للمنصة الجامعية UNIGATES (3 دقائق)",
+  titleEn: "UNIGATES University Platform Official 3-Minute Promo Video",
   category: "promo",
-  speakerAr: "المكتب الإعلامي لمنظومة UNIGATES",
-  speakerEn: "UNIGATES Official Media Desk",
+  speakerAr: "دار عبيد للنشر والتوزيع والطباعة",
+  speakerEn: "Dar Obeid Publishing, Distribution & Printing",
   duration: "03:00",
   date: "2026-09-18",
-  videoUrl: "",
-  thumbnailUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&auto=format&fit=crop&q=80",
-  descriptionAr: "جولة شاملة مدتها 3 دقائق تستعرض المنظومة التعليمية الرقمية الموحدة UNIGATES — تغطي المنصات الست: الكليات والمعاهد، المدارس K-12، أكاديمية الدورات، المتجر الرقمي ودار عبيد، منصة ناشر، وبوابة الوظائف والتدريب Career.",
-  descriptionEn: "A comprehensive 3-minute cinematic tour of UNIGATES — the Unified Educational Digital Ecosystem covering all 6 platforms: Colleges & Institutes, K-12 Schools, Courses Academy, Dar Obeid Bookstore, Nasher Rights & Publishing, and Careers.",
+  videoUrl: "/videos/unigates-university-platform-promo.mp4",
+  thumbnailUrl: "/promo-assets/unigates-university-platform-promo-thumbnail.png",
+  descriptionAr: "فيديو عربي تشويقي مدته 3 دقائق يشرح المنصة الجامعية من UNIGATES وما تقدمه للطلاب والكليات والمعاهد: المقررات، الجداول، المحاضرات، الواجبات، الاختبارات، النتائج، سلاسل الاعتماد، ولوحات المتابعة الأكاديمية.",
+  descriptionEn: "A 3-minute Arabic promo video presenting the UNIGATES university platform for students, colleges, and institutes: courses, schedules, lectures, assignments, exams, results, approval chains, and academic dashboards.",
   views: 1420,
   featured: true,
-  tags: ["UNIGATES", "المنظومة_الموحدة", "التعليم_العالي", "دار_عبيد", "Promo", "Ecosystem"],
-  isInteractivePromo: true
+  tags: ["UNIGATES", "المنصة_الجامعية", "الكليات_والمعاهد", "دار_عبيد", "Promo", "Higher_Education"],
+  isInteractivePromo: false
 };
 
 export default function PromoVideoPage() {
@@ -248,7 +248,9 @@ export default function PromoVideoPage() {
         if (!hasOfficial) {
           return [DEFAULT_FEATURED_PROMO, ...parsed.filter(v => !v.videoUrl.includes("dQw4w9WgXcQ"))];
         }
-        return parsed.filter(v => !v.videoUrl.includes("dQw4w9WgXcQ"));
+        return parsed
+          .filter(v => !v.videoUrl.includes("dQw4w9WgXcQ"))
+          .map(v => v.id === DEFAULT_FEATURED_PROMO.id ? DEFAULT_FEATURED_PROMO : v);
       } catch (e) {
         return [DEFAULT_FEATURED_PROMO];
       }
@@ -412,6 +414,8 @@ export default function PromoVideoPage() {
 
   const activeScene = PROMO_SCENES[currentSceneIndex] || PROMO_SCENES[0];
   const SceneIcon = activeScene.icon;
+  const selectedVideoUrl = selectedVideo?.videoUrl ?? "";
+  const isEmbedVideo = Boolean(selectedVideoUrl && (selectedVideoUrl.includes("embed") || selectedVideoUrl.includes("youtube")));
 
   return (
     <div className="min-h-screen bg-background flex flex-col selection:bg-teal-500 selection:text-white" dir={dir}>
@@ -503,14 +507,24 @@ export default function PromoVideoPage() {
               {/* ======================================================= */}
               <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-slate-950 shadow-2xl border border-white/10 flex flex-col justify-between group">
                 
-                {/* Fallback to Iframe if real videoUrl provided, else Interactive 3-Minute Cinematic Studio */}
-                {selectedVideo.videoUrl && (selectedVideo.videoUrl.includes("embed") || selectedVideo.videoUrl.includes("youtube")) ? (
+                {/* Fallback to Iframe if embed videoUrl provided, native player for uploaded MP4, else Interactive 3-Minute Cinematic Studio */}
+                {isEmbedVideo ? (
                   <iframe
                     src={selectedVideo.videoUrl}
                     title={selectedVideo.titleAr}
                     className="w-full h-full border-0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
+                  />
+                ) : selectedVideo.videoUrl ? (
+                  <video
+                    src={selectedVideo.videoUrl}
+                    poster={selectedVideo.thumbnailUrl}
+                    title={selectedVideo.titleAr}
+                    className="w-full h-full bg-slate-950 object-contain"
+                    controls
+                    playsInline
+                    preload="metadata"
                   />
                 ) : (
                   <div className="relative w-full h-full flex flex-col justify-between p-6 sm:p-10 overflow-hidden select-none">

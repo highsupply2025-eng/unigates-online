@@ -387,29 +387,40 @@ export default function InstitutionMessages() {
     };
   }, [institutionId, currentUserId]);
 
-  // 2. Global Call Listener Channel
+  // 2. Global Call Listener Channels (one private inbox per possible caller)
   useEffect(() => {
     if (!institutionId || !currentUserId) return;
 
-    const channel = privateChannel(callsHubInboxTopic(currentUserId, institutionId));
+    const peers = contacts
+      .map((c) => c.user_id)
+      .filter((id): id is string => Boolean(id) && id !== currentUserId);
+    if (peers.length === 0) return;
 
-    channel
-      .on("broadcast", { event: "incoming_call" }, (payload) => {
-        const data = payload.payload;
-        if (data.targetUserId === currentUserId && data.caller) {
-          setIncomingCallNotification({
-            caller: data.caller,
-            callType: data.callType || "video",
-            offer: data.offer,
-          });
-        }
-      })
-      .subscribe();
+    const channels = peers.map((peerId) => {
+      const channel = privateChannel(
+        callsHubInboxTopic(currentUserId, institutionId, peerId)
+      );
+      channel
+        .on("broadcast", { event: "incoming_call" }, (payload) => {
+          const data = payload.payload;
+          if (data.targetUserId === currentUserId && data.caller) {
+            setIncomingCallNotification({
+              caller: data.caller,
+              callType: data.callType || "video",
+              offer: data.offer,
+            });
+          }
+        })
+        .subscribe();
+      return channel;
+    });
 
     return () => {
-      supabase.removeChannel(channel);
+      channels.forEach((channel) => {
+        supabase.removeChannel(channel);
+      });
     };
-  }, [institutionId, currentUserId]);
+  }, [institutionId, currentUserId, contacts]);
 
   // 3. Fetch messages for selected contact & listen in real-time
   useEffect(() => {
@@ -605,7 +616,7 @@ export default function InstitutionMessages() {
 
     // Broadcast incoming call notification to target user's hub channel
     void sendToPrivateInbox(
-      callsHubInboxTopic(selected.user_id, institutionId),
+      callsHubInboxTopic(selected.user_id, institutionId, currentUserId),
       "incoming_call",
       {
         targetUserId: selected.user_id,

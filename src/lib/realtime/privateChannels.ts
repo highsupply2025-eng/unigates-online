@@ -16,19 +16,26 @@ import { supabase } from "@/integrations/supabase/client";
 
 const sanitize = (value: string) => value.replace(/[^a-zA-Z0-9_-]/g, "");
 
+/**
+ * Every topic is `private-<recipient>-...-from-<sender>` so that both the
+ * subscribe policy (topic must start with the subscriber's own id) and the
+ * publish policy (topic must end with the publisher's own id) can verify
+ * ownership. Nobody can spoof a message as another user.
+ */
+
 /** Inbox topic for `recipientId` for a 1:1 call signaling room. */
 export function callInboxTopic(recipientId: string, institutionId: string, peerId: string) {
-  return `private-${sanitize(recipientId)}-call-${sanitize(institutionId)}-${sanitize(peerId)}`;
+  return `private-${sanitize(recipientId)}-call-${sanitize(institutionId)}-from-${sanitize(peerId)}`;
 }
 
 /** Inbox topic for `recipientId` for chat presence/typing signals. */
 export function chatInboxTopic(recipientId: string, institutionId: string, peerId: string) {
-  return `private-${sanitize(recipientId)}-chat-${sanitize(institutionId)}-${sanitize(peerId)}`;
+  return `private-${sanitize(recipientId)}-chat-${sanitize(institutionId)}-from-${sanitize(peerId)}`;
 }
 
-/** Inbox topic for `recipientId` for incoming-call notifications. */
-export function callsHubInboxTopic(recipientId: string, institutionId: string) {
-  return `private-${sanitize(recipientId)}-calls-hub-${sanitize(institutionId)}`;
+/** Inbox topic for `recipientId` for incoming-call notifications from `peerId`. */
+export function callsHubInboxTopic(recipientId: string, institutionId: string, peerId: string) {
+  return `private-${sanitize(recipientId)}-calls-hub-${sanitize(institutionId)}-from-${sanitize(peerId)}`;
 }
 
 /** Subscribe-capable private channel (only valid for the current user's own inbox). */

@@ -12,8 +12,6 @@ enable_confirmations = true
     verify_jwt = true
   [functions.update-faculty-member]
     verify_jwt = true
-  [functions.process-email-queue]
-    verify_jwt = true
 [functions.create-faculty-avatar-upload]
 verify_jwt = true
 [functions.security-scan]
@@ -30,3 +28,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.claim-free-trial]
 verify_jwt = true
+[functions.preview-transactional-email]
+verify_jwt = false
